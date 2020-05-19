@@ -33,15 +33,33 @@ import sys
 
 import SCons.Errors
 
+# SCons warnning types:
 class Warning(SCons.Errors.UserError):
+    """SCons warning."""
     pass
 
 class WarningOnByDefault(Warning):
+    """Regular SCons warning, but enabled by default."""
+    pass
+
+class FutureDeprecatedWarning(Warning):
+    """SCons warning on feature which will become deprecated."""
+    pass
+
+class DeprecatedWarning(Warning):
+    """SCons warning on deprecated feature."""
+    pass
+
+class MandatoryDeprecatedWarning(DeprecatedWarning):
+    """SCons warning on deprecated feature, cannot be disabled."""
     pass
 
 
 # NOTE:  If you add a new warning class, add it to the man page, too!
-class TargetNotBuiltWarning(Warning): # Should go to OnByDefault
+class TargetNotBuiltWarning(Warning):  # Should go to OnByDefault
+    pass
+
+class AddOptionWarning(WarningOnByDefault):
     pass
 
 class CacheVersionWarning(WarningOnByDefault):
@@ -101,35 +119,23 @@ class FortranCxxMixWarning(LinkWarning):
     pass
 
 
-# Deprecation warnings
-
-class FutureDeprecatedWarning(Warning):
-    pass
-
-class DeprecatedWarning(Warning):
-    pass
-
-class MandatoryDeprecatedWarning(DeprecatedWarning):
-    pass
-
-
 # Special case; base always stays DeprecatedWarning
 class PythonVersionWarning(DeprecatedWarning):
     pass
 
-class DeprecatedSourceCodeWarning(FutureDeprecatedWarning):
+# unused - SourceCode removed
+class DeprecatedSourceCodeWarning(MandatoryDeprecatedWarning):
     pass
 
 class TaskmasterNeedsExecuteWarning(DeprecatedWarning):
     pass
 
+# no current deprecated options
 class DeprecatedOptionsWarning(MandatoryDeprecatedWarning):
     pass
 
+# no current deprecated debug options
 class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
-    pass
-
-class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
     pass
 
 
@@ -144,25 +150,41 @@ _warningAsException = 0
 _warningOut = None
 
 def suppressWarningClass(clazz):
-    """Suppresses all warnings that are of type clazz or
-    derived from clazz."""
+    """Suppresses all warnings that are of type or derived from clazz."""
     _enabled.insert(0, (clazz, 0))
 
 def enableWarningClass(clazz):
-    """Enables all warnings that are of type clazz or
-    derived from clazz."""
+    """Enables all warnings that are of type or derived from clazz."""
     _enabled.insert(0, (clazz, 1))
 
-def warningAsException(flag=1):
-    """Turn warnings into exceptions.  Returns the old value of the flag."""
+def warningAsException(flag=True):
+    """Control whether warnings raise exceptions.
+
+    Args:
+        flag: bool indicating whether to raise.
+
+    Returns:
+         the old value of the flag.
+    """
     global _warningAsException
     old = _warningAsException
     _warningAsException = flag
     return old
 
 def warn(clazz, *args):
-    global _enabled, _warningAsException, _warningOut
+    """Request to issue a warning.
 
+    What actually happens depends on several settings:
+    the _enabled array (if not here, warnings are disabled),
+    whether warnings are treated as exceptions, and
+    the value of _warningsOut, which controls where the
+    actual warning goes to.
+
+    Args:
+        clazz: warning class
+        *args: arguments, usually a text message for the warning.
+
+    """
     warning = clazz(args)
     for cls, flag in _enabled:
         if isinstance(warning, cls):

@@ -398,7 +398,7 @@ class SConsOptionParser(optparse.OptionParser):
         """
         Adds a local option to the parser.
 
-        This is initiated by a SetOption() call to add a user-defined
+        This is initiated by an AddOption() call to add a user-defined
         command-line option.  We add the option to a separate option
         group for the local options, creating the group if necessary.
         """
@@ -437,7 +437,9 @@ class SConsOptionParser(optparse.OptionParser):
         """
         xtra_args = [a for a in self.largs if a.startswith('--')]
         if xtra_args:
-            self.error(_("no such option: %s") % " ".join(xtra_args))
+            #self.error(_("no such option: %s") % " ".join(xtra_args))
+            msg = "illegal option abbreviations detected: %s" % " ".join(xtra_args)
+            SCons.Warnings.warn(SCons.Warnings.AddOptionWarning, msg)
 
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):

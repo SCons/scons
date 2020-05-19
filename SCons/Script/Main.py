@@ -49,6 +49,7 @@ import time
 import traceback
 import sysconfig
 import platform
+from contextlib import suppress
 
 import SCons.CacheDir
 import SCons.Debug
@@ -485,6 +486,12 @@ def AddOption(*args, **kw):
     if 'default' not in kw:
         kw['default'] = None
     result = OptionsParser.add_local_option(*args, **kw)
+
+    # Converting '?' to int gives ValueError; None gives TypeError. Skip those.
+    with suppress(ValueError, TypeError):
+        if int(result.nargs) > 1:
+            msg = "AddOption() with nargs > 1 may produce unexpected results."
+            SCons.Warnings.warn(SCons.Warnings.AddOptionWarning, msg)
     return result
 
 def GetOption(name):
@@ -857,9 +864,10 @@ def _main(parser):
     # suppress) appropriate warnings about anything that might happen,
     # as configured by the user.
 
-    default_warnings = [ SCons.Warnings.WarningOnByDefault,
-                         SCons.Warnings.DeprecatedWarning,
-                       ]
+    default_warnings = [
+        SCons.Warnings.WarningOnByDefault,
+        SCons.Warnings.DeprecatedWarning,
+    ]
 
     for warning in default_warnings:
         SCons.Warnings.enableWarningClass(warning)
