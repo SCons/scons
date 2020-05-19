@@ -43,7 +43,6 @@ if sys.platform == 'win32':
 else:
      test.file_fixture('mylink.py')
 
-
 test.file_fixture('mygcc.py')
 
 

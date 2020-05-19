@@ -1,6 +1,19 @@
+import sys
+
 DefaultEnvironment(tools=[])
-env = Environment()
+env = Environment(
+    PYTHON=sys.executable,
+    LINK='$PYTHON mylink.py',
+    LINKFLAGS=[],
+    CC='$PYTHON mygcc.py cc',
+    CXX='$PYTHON mygcc.py c++',
+)
 env.Tool('compilation_db')
 
+if ARGUMENTS.get('ABSPATH', False):
+    env['COMPILATIONDB_USE_ABSPATH'] = True
+    env.CompilationDatabase('compile_commands_abs.json')
+else:
+    env.CompilationDatabase('compile_commands.json')
+
 env.Program('main', 'test_main.c')
-env.CompilationDatabase('compile_commands.json')
