@@ -1,5 +1,4 @@
 import getopt
-import os
 import sys
 
 compiler = sys.argv[1]
