@@ -78,38 +78,39 @@ See its __doc__ string for a discussion of the format.
             </para>
         </summary>
     </cvar>
-    <cvar name="__COMPILATIONDB_UACTION">
-        <summary>
-            <para>
-                This variable stores the action for building a target.
-                It's intended for internal usage by &b-link-CompilationDatabase; only.
-            </para>
-        </summary>
-    </cvar>
-    <cvar name="__COMPILATIONDB_UTARGET">
-        <summary>
-            <para>
-                This variable stores the action for building a target.
-                It's intended for internal usage by &b-link-CompilationDatabase; only.
-            </para>
-        </summary>
-    </cvar>
-    <cvar name="__COMPILATIONDB_USOURCE">
-        <summary>
-            <para>
-                This variable stores the action for building a target.
-                It's intended for internal usage by &b-link-CompilationDatabase; only.
-            </para>
-        </summary>
-    </cvar>
-    <cvar name="__COMPILATIONDB_ENV">
-        <summary>
-            <para>
-                This variable stores the action for building a target.
-                It's intended for internal usage by &b-link-CompilationDatabase; only.
-            </para>
-        </summary>
-    </cvar>
+<!--  Internal env vars for use by CompilationDatabase builder/pseudobuilder only   -->
+<!--    <cvar name="__COMPILATIONDB_UACTION">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+<!--    <cvar name="__COMPILATIONDB_UTARGET">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+<!--    <cvar name="__COMPILATIONDB_USOURCE">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+<!--    <cvar name="__COMPILATIONDB_ENV">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
 
 
 </sconsdoc>

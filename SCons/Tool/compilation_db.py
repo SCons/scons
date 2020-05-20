@@ -122,6 +122,7 @@ def compilation_db_entry_action(target, source, env, **kw):
     )
 
     if env['COMPILATIONDB_USE_ABSPATH']:
+        print("ABSPATH")
         filename = env["__COMPILATIONDB_USOURCE"][0].abspath
         target_name = env['__COMPILATIONDB_UTARGET'][0].abspath
     else:
@@ -202,10 +203,13 @@ def generate(env, **kwargs):
         builder, base_emitter, command = entry[1]
 
         # Assumes a dictionary emitter
-        emitter = builder.emitter[suffix]
-        builder.emitter[suffix] = SCons.Builder.ListEmitter(
-            [emitter, make_emit_compilation_DB_entry(command), ]
-        )
+        emitter = builder.emitter.get(suffix, False)
+        if emitter:
+            # We may not have tools installed which initialize all or any of
+            # cxx, cc, or assembly. If not skip resetting the respective emitter.
+            builder.emitter[suffix] = SCons.Builder.ListEmitter(
+                [emitter, make_emit_compilation_DB_entry(command), ]
+            )
 
     env["BUILDERS"]["__COMPILATIONDB_Entry"] = SCons.Builder.Builder(
         action=SCons.Action.Action(compilation_db_entry_action, None),
