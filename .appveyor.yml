@@ -2,7 +2,6 @@
 
 image:
   # linux builds done in Travis CI for now
-  # - Ubuntu
   - Visual Studio 2015
   - Visual Studio 2017
   - Visual Studio 2019
@@ -15,17 +14,7 @@ cache:
 
 install:
   # add python and python user-base to path for pip installs
-  - cmd: "C:\\%WINPYTHON%\\python.exe --version"
-  - cmd: for /F "tokens=*" %%g in ('C:\\%WINPYTHON%\\python.exe -c "import sys; print(sys.path[-1])"') do (set PYSITEDIR=%%g)
-  # use mingw 32 bit until #3291 is resolved
-  - cmd: "set PATH=C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\ProgramData\\chocolatey\\bin;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0\\bin;C:\\cygwin\\bin;C:\\msys64\\usr\\bin;C:\\msys64\\mingw64\\bin;%PATH%"
-  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pip setuptools wheel "
-  - cmd: "C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pypiwin32 coverage codecov"
-  - cmd: set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off lxml
-  # install 3rd party tools to test with
-  - cmd: choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc winflexbison
-  - cmd: set SCONS_CACHE_MSVC_CONFIG=true
-  - cmd: set
+  - cmd: .\.appveyor\install.bat
 
 # build matrix will be number of images multiplied by each '-' below,
 # less any exclusions.
@@ -72,14 +61,7 @@ matrix:
 
 # remove some binaries we don't want to be found
 before_build:
-    - ps: |
-        if ($isWindows) {
-          dir "C:\Program Files\Git\usr\bin\x*.exe"
-          if (Test-Path "C:\Program Files\Git\usr\bin\xsltproc.EXE" ) {
-            Remove-Item  "C:\Program Files\Git\usr\bin\xsltproc.EXE" -ErrorAction Ignore
-          }
-          dir "C:\Program Files\Git\usr\bin\x*.exe"
-        }
+    - ps: .\.appveyor\ignore_git_bins.ps1
 
 build: off
 
@@ -87,41 +69,19 @@ build_script:
 
   # exclude VS 10.0 because it hangs the testing until this is resolved:
   # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
-  - ps: |
-      New-Item -Name exclude_list.txt -ItemType File
-      $workaround_image = "Visual Studio 2015"
-      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq $workaround_image) {
-        Add-Content -Path 'exclude_list.txt' -Value 'test\MSVS\vs-10.0-exec.py'
-      }
+  - ps: .\.appveyor\disable_msvc_10.ps1
 
   # setup coverage by creating the coverage config file, and adding coverage
   # to the sitecustomize so that all python processes start with coverage
-  - ps: |
-      if ($env:COVERAGE -eq 1) {
-        $env:COVERAGE_PROCESS_START = "$($env:APPVEYOR_BUILD_FOLDER)/.coveragerc";
-        $env:COVERAGE_FILE = "$($env:APPVEYOR_BUILD_FOLDER)/.coverage";
-        New-Item -ItemType Directory -Force -Path "$($env:PYSITEDIR)";
-        $sitecustomizeText = "import os`r`nos.environ['COVERAGE_PROCESS_START'] = '$($env:COVERAGE_PROCESS_START)'`r`nos.environ['COVERAGE_FILE'] = '$($env:COVERAGE_FILE)'`r`nimport coverage`r`ncoverage.process_startup()";
-        $sitecustomizeText|Set-Content "$($env:PYSITEDIR)/sitecustomize.py";
-        Get-Content -Path "$($env:PYSITEDIR)/sitecustomize.py";
-        $coveragercFile = "[run]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)/SCons`r`nparallel = True`r`ndisable_warnings = trace-changed`r`nomit =`r`n`t*Tests.py`r`n`t*\src\*`r`n`t*\test\*`r`n`t*\testing\*`r`n`t*\template\*`r`n`t*\scripts\*`r`n`t*\scons-time.py`r`n`t*\bootstrap.py`r`n`t*\runtest.py`r`n`t*\setup.py`r`n`r`n[path]`r`nsource = $($env:APPVEYOR_BUILD_FOLDER)`r`n[report]`r`nomit =`r`n`t*Tests.py`r`n`t*\src\*`r`n`t*\test\*`r`n`t*\testing\*`r`n`t*\template\*`r`n`t*\scripts\*`r`n`t*\scons-time.py`r`n`t*\bootstrap.py`r`n`t*\runtest.py`r`n`t*\setup.py`r`n`r`n"
-        $coveragercFile|Set-Content "$($env:COVERAGE_PROCESS_START)";
-        Get-Content -Path "$($env:COVERAGE_PROCESS_START)";
-      }
-
-
+  - ps: .\.appveyor\coverage_setup.ps1
+    
   # NOTE: running powershell from cmd is intended because 
   # it formats the output correctly
   - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 -t --exclude-list exclude_list.txt -a } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -a }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
 # run coverage even if there was a test failure
 on_finish:
-  - ps: |
-      if ($env:COVERAGE -eq 1) {
-        & coverage combine
-        & coverage report
-        & coverage xml -i -o coverage_xml.xml
-      }
+  - ps: .\.appveyor\coverage_report.ps1
   # running codecov in powershell causes an error so running in platform
   # shells
   - cmd: if %COVERAGE% equ 1 codecov -X gcov --file coverage_xml.xml
