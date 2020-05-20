@@ -33,7 +33,7 @@ case below...
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
 AddOption('--myargument', dest='myargument', type='string', default='gully')
@@ -64,7 +64,7 @@ scons: warning: illegal option abbreviations detected: --myargumen=helloworld
 """ + TestSCons.file_expr
 
 test.run('-Q -q . --myargumen=helloworld',
-         stdout="myargument: gully\nmyarg: balla\n",
+         #stdout="myargument: gully\nmyarg: balla\n",
          stderr=expect)
 
 
