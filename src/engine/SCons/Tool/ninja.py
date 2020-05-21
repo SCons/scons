@@ -40,7 +40,6 @@ from SCons.Util import is_List, flatten_sequence
 from SCons.Script import COMMAND_LINE_TARGETS
 
 NINJA_STATE = None
-NINJA_SYNTAX = "NINJA_SYNTAX"
 NINJA_RULES = "__NINJA_CUSTOM_RULES"
 NINJA_POOLS = "__NINJA_CUSTOM_POOLS"
 NINJA_CUSTOM_HANDLERS = "__NINJA_CUSTOM_HANDLERS"
@@ -1299,7 +1298,6 @@ def generate(env):
     env["DISABLE_AUTO_NINJA"] = GetOption('disable_execute_ninja')
 
     global NINJA_STATE
-    env[NINJA_SYNTAX] = env.get(NINJA_SYNTAX, "ninja_syntax.py")
 
     # Add the Ninja builder.
     always_exec_ninja_action = AlwaysExecAction(ninja_builder, {})
