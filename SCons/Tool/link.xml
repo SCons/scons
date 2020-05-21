@@ -378,11 +378,53 @@ See also &cv-link-LINKFLAGS;  for linking static objects.
 <cvar name="SONAME">
 <summary>
 <para>
-Variable used to hard-code SONAME for versioned shared library/loadable module.
+Variable used to hard-code SONAME for versioned shared library/loadable module. This can not be used in the same environment as &cv-link-SOVERSION; because it would be ambiguous as to what the SONAME should be.
 <example_commands>
-env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
+env.SharedLibrary(
+  'test', 
+  'test.c', 
+  SHLIBVERSION='0.1.2', 
+  SONAME='libtest.so.2')
 </example_commands>
-The variable is used, for example, by &t-link-gnulink; linker tool.
+The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SOVERSION">
+<summary>
+<para>
+Simlar to &cv-link-SONAME; but only modifies the version number, and not the name, suffix or prefix of a versioned shared library/loadable module.  This can not be used in the same environment as &cv-link-SONAME; because it would be ambiguous as to what the SONAME should be.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+</example_commands>
+The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SONAME_GENERATOR">
+<summary>
+<para>
+Allows the user to specify their own callable class to generate the $SONAME or $SOVERSION of shared library/loadable module. The callable class should have a similar interface to the SCons.Tool._LibSonameGenerator class.
+<example_commands>
+class MySoNameGenerator(object):
+    def __init__(self, libtype):
+        pass
+    def __call__(self, env, libnode, *args, **kw):
+        return '%sSoname.so.%s' % (
+          env.get('SONAME', 'lib'), 
+          env.get('SOVERSION', '0'))
+
+env = Environment(SONAME_GENERATOR = MySoNameGenerator)
+env.SharedLibrary(
+  'test',
+  'test.c',
+  SHLIBVERSION='0.1.2',
+  SONAME='MyCustom',
+  SOVERSION='2')
+</example_commands>
+The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
 </para>
 </summary>
 </cvar>

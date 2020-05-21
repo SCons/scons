@@ -15,6 +15,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
       printed, since the option is not set when the build scripts first get read.
     - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
+    - Added SOVERSION and SONAME_GENERATOR to configure the SONAME in different ways (Github Issue #3247)
 
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
