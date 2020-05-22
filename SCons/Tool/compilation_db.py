@@ -122,7 +122,6 @@ def compilation_db_entry_action(target, source, env, **kw):
     )
 
     if env['COMPILATIONDB_USE_ABSPATH']:
-        print("ABSPATH")
         filename = env["__COMPILATIONDB_USOURCE"][0].abspath
         target_name = env['__COMPILATIONDB_UTARGET'][0].abspath
     else:
