@@ -10,7 +10,7 @@ while args:
         out = a[5:]
 
 with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
-    for l in ifp.readlines():
-        if l[:5] != '#link':
-            ofp.write(l)
+    for line in ifp.readlines():
+        if line[:5] != '#link':
+            ofp.write(line)
 sys.exit(0)
