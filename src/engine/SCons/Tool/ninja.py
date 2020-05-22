@@ -727,7 +727,7 @@ class NinjaState:
         # allow us to query the actual SConscripts used. Right now
         # this glob method has deficiencies like skipping
         # jstests/SConscript and being specific to the MongoDB
-        # repository layout.
+        # repository layout. (github issue #3625)
         ninja.build(
             self.ninja_file.path,
             rule="REGENERATE",
