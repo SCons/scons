@@ -12,7 +12,7 @@ for opt, arg in opts:
             f.write(compiler + "\n")
 
 with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
-    for l in ifp.readlines():
-        if l[:clen] != '#' + compiler:
-            ofp.write(l)
+    for line in ifp.readlines():
+        if line[:clen] != '#' + compiler:
+            ofp.write(line)
 sys.exit(0)

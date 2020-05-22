@@ -9,7 +9,7 @@ for opt, arg in opts:
 with open(out, 'w') as ofp:
     for f in args:
         with open(f, 'r') as ifp:
-            for l in ifp.readlines():
-                if l[:5] != '#link':
-                    ofp.write(l)
+            for line in ifp.readlines():
+                if line[:5] != '#link':
+                    ofp.write(line)
 sys.exit(0)
