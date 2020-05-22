@@ -1,0 +1,30 @@
+[run]
+source = $PWD
+parallel = True
+omit =
+	*Tests.py
+	*/src/*
+	*/test/*
+	*/testing/*
+	*/template/*
+	*/scripts/*
+	*/scons-time.py
+	*/bootstrap.py
+	*/runtest.py
+	*/setup.py
+
+[path]
+source = $PWD
+
+[report]
+omit =
+	*Tests.py
+	*/src/*
+	*/test/*
+	*/testing/*
+	*/template/*
+	*/scripts/*
+	*/scons-time.py
+	*/bootstrap.py
+	*/runtest.py
+	*/setup.py
