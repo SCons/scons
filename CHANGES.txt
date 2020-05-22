@@ -147,6 +147,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       definitions using a metaclass be written the same for Py2/Py3.
     - Bump python_version_unsupported (and deprecated) to indicate 3.5
       is lowest supported Python.
+    - ParseFlags should not modify the user's passed in dict in case it's
+      a compound data structure (e.g. values are lists) (issue #3665)
 
 
 

@@ -856,6 +856,20 @@ sys.exit(0)
         assert env['A'] == ['aaa'], env['A']
         assert env['B'] == ['bbb'], env['B']
 
+        # issue #3665: if merging dict which is a compound object
+        # (i.e. value can be lists, etc.), the value object should not
+        # be modified. per the issue, this happened if key not in env.
+        env = SubstitutionEnvironment()
+        try:
+            del env['CFLAGS']  # just to be sure
+        except KeyError:
+            pass
+        flags = {'CFLAGS': ['-pipe', '-pthread', '-g']}
+        import copy
+        saveflags = copy.deepcopy(flags)
+        env.MergeFlags(flags)
+        self.assertEqual(flags, saveflags)
+
 
 class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
 
