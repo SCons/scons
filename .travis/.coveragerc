@@ -1,8 +1,0 @@
-echo "[run]" >> .coveragerc
-echo "source = $PWD/SCons" >> .coveragerc
-echo "parallel = True" >> .coveragerc
-printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsetup.py\n\n" >> .coveragerc
-echo "[path]" >> .coveragerc
-echo "source = $PWD" >> .coveragerc
-echo "[report]" >> .coveragerc
-printf "omit =\n\t*Tests.py\n\tsrc/test_*\n\tsetup.py\n\n" >> .coveragerc
