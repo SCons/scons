@@ -855,8 +855,7 @@ class SubstitutionEnvironment(object):
                         t.append(v)
             else:
                 ### keep right-most occurence
-                orig.reverse()
-                for v in orig:
+                for v in orig[::-1]:
                     if v not in t:
                         t.insert(0, v)
             self[key] = t
