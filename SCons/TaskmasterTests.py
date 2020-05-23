@@ -291,7 +291,7 @@ class TaskmasterTestCase(unittest.TestCase):
         built_text = "up to date: "
         top_node = n3
 
-        class MyTask(SCons.Taskmaster.Task):
+        class MyTask(SCons.Taskmaster.AlwaysTask):
             def execute(self):
                 global built_text
                 if self.targets[0].get_state() == SCons.Node.up_to_date:
@@ -542,10 +542,11 @@ class TaskmasterTestCase(unittest.TestCase):
         """
         ood = []
         def TaskGen(tm, targets, top, node, ood=ood):
-            class MyTask(SCons.Taskmaster.Task):
+            class MyTask(SCons.Taskmaster.AlwaysTask):
                 def make_ready(self):
                     SCons.Taskmaster.Task.make_ready(self)
                     self.ood.extend(self.out_of_date)
+
             t = MyTask(tm, targets, top, node)
             t.ood = ood
             return t
@@ -585,7 +586,7 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_make_ready_exception(self):
         """Test handling exceptions from Task.make_ready()
         """
-        class MyTask(SCons.Taskmaster.Task):
+        class MyTask(SCons.Taskmaster.AlwaysTask):
             def make_ready(self):
                 raise MyException("from make_ready()")
 
@@ -599,7 +600,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
     def test_make_ready_all(self):
         """Test the make_ready_all() method"""
-        class MyTask(SCons.Taskmaster.Task):
+        class MyTask(SCons.Taskmaster.AlwaysTask):
             make_ready = SCons.Taskmaster.Task.make_ready_all
 
         n1 = Node("n1")
