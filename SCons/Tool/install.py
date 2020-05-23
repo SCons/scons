@@ -249,7 +249,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 
-class DESTDIR_factory(object):
+class DESTDIR_factory:
     """ A node factory, where all files will be relative to the dir supplied
     in the constructor.
     """

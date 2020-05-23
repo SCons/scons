@@ -102,7 +102,7 @@ TOOL_ALIASES = {
 }
 
 
-class Tool(object):
+class Tool:
     def __init__(self, name, toolpath=None, **kw):
         if toolpath is None:
             toolpath = []
@@ -363,7 +363,7 @@ def _call_env_subst(env, string, *args, **kw):
     return env.subst(string, *args, **kw2)
 
 
-class _ShLibInfoSupport(object):
+class _ShLibInfoSupport:
     @property
     def libtype(self):
         return 'ShLib'
@@ -381,7 +381,7 @@ class _ShLibInfoSupport(object):
         return _call_env_subst(env, '$SHLIBNOVERSIONSYMLINKS', *args, **kw)
 
 
-class _LdModInfoSupport(object):
+class _LdModInfoSupport:
     @property
     def libtype(self):
         return 'LdMod'
@@ -399,7 +399,7 @@ class _LdModInfoSupport(object):
         return _call_env_subst(env, '$LDMODULENOVERSIONSYMLINKS', *args, **kw)
 
 
-class _ImpLibInfoSupport(object):
+class _ImpLibInfoSupport:
     @property
     def libtype(self):
         return 'ImpLib'
@@ -443,7 +443,7 @@ class _ImpLibInfoSupport(object):
         return disable
 
 
-class _LibInfoGeneratorBase(object):
+class _LibInfoGeneratorBase:
     """Generator base class for library-related info such as suffixes for
     versioned libraries, symlink maps, sonames etc. It handles commonities
     of SharedLibrary and LoadableModule
@@ -1011,7 +1011,7 @@ def CreateJavaFileBuilder(env):
     return java_file
 
 
-class ToolInitializerMethod(object):
+class ToolInitializerMethod:
     """
     This is added to a construction environment in place of a
     method(s) normally called for a Builder (env.Object, env.StaticObject,
@@ -1061,7 +1061,7 @@ class ToolInitializerMethod(object):
         return builder(*args, **kw)
 
 
-class ToolInitializer(object):
+class ToolInitializer:
     """
     A class for delayed initialization of Tools modules.
 

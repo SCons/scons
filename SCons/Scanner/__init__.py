@@ -35,7 +35,7 @@ import SCons.Node.FS
 import SCons.Util
 
 
-class _Null(object):
+class _Null:
     pass
 
 # This is used instead of None as a default argument value so None can be
@@ -61,7 +61,7 @@ def Scanner(function, *args, **kw):
 
 
 
-class FindPathDirs(object):
+class FindPathDirs:
     """
     A class to bind a specific E{*}PATH variable name to a function that
     will return all of the E{*}path directories.
@@ -81,7 +81,7 @@ class FindPathDirs(object):
 
 
 
-class Base(object):
+class Base:
     """
     The base class for dependency scanners.  This implements
     straightforward, single-pass scanning of a single file.

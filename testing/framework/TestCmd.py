@@ -311,7 +311,7 @@ IS_WINDOWS = sys.platform == 'win32'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
 
-class null(object):
+class null:
     pass
 
 
@@ -946,7 +946,7 @@ def _clean():
 atexit.register(_clean)
 
 
-class TestCmd(object):
+class TestCmd:
     """Class TestCmd
     """
 

@@ -120,7 +120,7 @@ def write():
             closemethod()
 
 
-class SConsignEntry(object):
+class SConsignEntry:
     """
     Wrapper class for the generic entry in a .sconsign file.
     The Node subclass populates it with attributes as it pleases.
@@ -163,7 +163,7 @@ class SConsignEntry(object):
                 setattr(self, key, value)
 
 
-class Base(object):
+class Base:
     """
     This is the controlling class for the signatures for the collection of
     entries associated with a specific directory.  The actual directory

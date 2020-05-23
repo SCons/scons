@@ -27,7 +27,7 @@ import os.path
 
 fmt = "%-16s  %5s  %7s  %9s  %11s  %11s"
 
-class Collection(object):
+class Collection:
   def __init__(self, name, files=None, pred=None):
     self._name = name
     if files is None:

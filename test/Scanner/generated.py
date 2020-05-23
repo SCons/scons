@@ -316,7 +316,7 @@ def write_out(fname, dict):
 # because the .__*__() methods in new-style classes are not looked
 # up on the instance, but resolve to the actual wrapped class methods,
 # so we have to handle those directly.
-class CScannerCounter(object):
+class CScannerCounter:
     def __init__(self, original_CScanner, *args, **kw):
         self.original_CScanner = original_CScanner
     def __eq__(self, *args, **kw):

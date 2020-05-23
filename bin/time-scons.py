@@ -46,7 +46,7 @@ TimeSCons_revision = 4569
 TimeSCons_pieces = ['testing/framework', 'timings', 'runtest.py']
 
 
-class CommandRunner(object):
+class CommandRunner:
     """
     Executor class for commands, including "commands" implemented by
     Python functions.

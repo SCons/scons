@@ -65,7 +65,7 @@ if num_jobs == 2:
 # how many tasks to perform for the test
 num_tasks = num_jobs*5
 
-class DummyLock(object):
+class DummyLock:
     """fake lock class to use if threads are not supported"""
     def acquire(self):
         pass
@@ -79,7 +79,7 @@ class NoThreadsException(Exception):
     def __str__(self):
         return "the interpreter doesn't support threads"
 
-class Task(object):
+class Task:
     """A dummy task class for testing purposes."""
 
     def __init__(self, i, taskmaster):
@@ -152,7 +152,7 @@ class RandomTask(Task):
             x = math.sin(i)
         time.sleep(0.01)
 
-class ExceptionTask(object):
+class ExceptionTask:
     """A dummy task class for testing purposes."""
 
     def __init__(self, i, taskmaster):
@@ -190,7 +190,7 @@ class ExceptionTask(object):
     def exception_set(self):
         self.taskmaster.exception_set()
 
-class Taskmaster(object):
+class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
 
     def __init__(self, n, test_case, Task):
@@ -405,7 +405,7 @@ import SCons.Taskmaster
 import SCons.Node
 import time
 
-class DummyNodeInfo(object):
+class DummyNodeInfo:
     def update(self, obj):
         pass
 

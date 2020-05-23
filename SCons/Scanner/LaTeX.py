@@ -42,7 +42,7 @@ LatexGraphics = [ '.png', '.jpg', '.gif', '.tif']
 
 
 # Used as a return value of modify_env_var if the variable is not set.
-class _Null(object):
+class _Null:
     pass
 _null = _Null
 
@@ -77,7 +77,7 @@ def modify_env_var(env, var, abspath):
 
     return save
 
-class FindENVPathDirs(object):
+class FindENVPathDirs:
     """
     A class to bind a specific E{*}PATH variable name to a function that
     will return all of the E{*}path directories.
@@ -211,7 +211,7 @@ class LaTeX(SCons.Scanner.Base):
                 return []
             return self.scan_recurse(node, path)
 
-        class FindMultiPathDirs(object):
+        class FindMultiPathDirs:
             """The stock FindPathDirs function has the wrong granularity:
             it is called once per target, while we need the path that depends
             on what kind of included files is being searched. This wrapper
@@ -239,7 +239,7 @@ class LaTeX(SCons.Scanner.Base):
                 # To prevent "dict is not hashable error"
                 return tuple(di.items())
 
-        class LaTeXScanCheck(object):
+        class LaTeXScanCheck:
             """Skip all but LaTeX source files, i.e., do not scan *.eps,
             *.pdf, *.jpg, etc.
             """

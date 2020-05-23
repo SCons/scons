@@ -71,7 +71,7 @@ def my_import(mname):
     return imp.load_module(mname, fp, pathname, description)
 
 
-class Flagger(object):
+class Flagger:
     default_value = 1
 
     def __setitem__(self, item, value):
@@ -288,7 +288,7 @@ def printentries(entries, location):
             printfield(name, entry.binfo)
 
 
-class Do_SConsignDB(object):
+class Do_SConsignDB:
     def __init__(self, dbm_name, dbm):
         self.dbm_name = dbm_name
         self.dbm = dbm

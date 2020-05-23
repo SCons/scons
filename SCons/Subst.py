@@ -58,7 +58,7 @@ def raise_exception(exception, target, s):
 
 
 
-class Literal(object):
+class Literal:
     """A wrapper for a string.  If you use this object wrapped
     around a string, then it will be interpreted as literal.
     When passed to the command interpreter, all special
@@ -89,7 +89,7 @@ class Literal(object):
     def __hash__(self):
         return hash(self.lstr)
 
-class SpecialAttrWrapper(object):
+class SpecialAttrWrapper:
     """This is a wrapper for what we call a 'Node special attribute.'
     This is any of the attributes of a Node that we can reference from
     Environment variable substitution, such as $TARGET.abspath or
@@ -171,7 +171,7 @@ def escape_list(mylist, escape_func):
             return e(escape_func)
     return list(map(escape, mylist))
 
-class NLWrapper(object):
+class NLWrapper:
     """A wrapper class that delays turning a list of sources or targets
     into a NodeList until it's needed.  The specified function supplied
     when the object is initialized is responsible for turning raw nodes
@@ -232,7 +232,7 @@ class Targets_or_Sources(collections.UserList):
         nl = self.nl._create_nodelist()
         return repr(nl)
 
-class Target_or_Source(object):
+class Target_or_Source:
     """A class that implements $TARGET or $SOURCE expansions by in turn
     wrapping a NLWrapper.  This class handles the different methods used
     to access an individual proxy Node, calling the NLWrapper to create
@@ -332,7 +332,7 @@ def subst_dict(target, source):
     return dict
 
 
-class StringSubber(object):
+class StringSubber:
     """A class to construct the results of a scons_subst() call.
 
     This binds a specific construction environment, mode, target and

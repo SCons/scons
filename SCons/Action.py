@@ -119,7 +119,7 @@ import SCons.Subst
 # we use these a lot, so try to optimize them
 from SCons.Util import is_String, is_List
 
-class _null(object):
+class _null:
     pass
 
 print_actions = 1
@@ -515,7 +515,7 @@ def Action(act, *args, **kw):
     return _do_create_action(act, kw)
 
 
-class ActionBase(object):
+class ActionBase:
     """Base class for all types of action objects that can be held by
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
@@ -649,10 +649,14 @@ class _ActionAction(ActionBase):
             presub = self.presub
             if presub is _null:
                 presub = print_actions_presub
-        if exitstatfunc is _null: exitstatfunc = self.exitstatfunc
-        if show is _null:  show = print_actions
-        if execute is _null:  execute = execute_actions
-        if chdir is _null: chdir = self.chdir
+        if exitstatfunc is _null:
+            exitstatfunc = self.exitstatfunc
+        if show is _null:
+            show = print_actions
+        if execute is _null:
+            execute = execute_actions
+        if chdir is _null:
+            chdir = self.chdir
         save_cwd = None
         if chdir:
             save_cwd = os.getcwd()
@@ -795,12 +799,12 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
     except EnvironmentError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
-        class dummyPopen(object):
+        class dummyPopen:
             def __init__(self, e): self.exception = e
             def communicate(self, input=None): return ('', '')
             def wait(self): return -self.exception.errno
             stdin = None
-            class f(object):
+            class f:
                 def read(self): return ''
                 def readline(self): return ''
                 def __iter__(self): return iter(())
@@ -1110,11 +1114,14 @@ class CommandGeneratorAction(ActionBase):
                  show=_null, execute=_null, chdir=_null, executor=None):
         act = self._generate(target, source, env, 0, executor)
         if act is None:
-            raise SCons.Errors.UserError("While building `%s': "
-                            "Cannot deduce file extension from source files: %s"
-                % (repr(list(map(str, target))), repr(list(map(str, source)))))
-        return act(target, source, env, exitstatfunc, presub,
-                   show, execute, chdir, executor)
+            raise SCons.Errors.UserError(
+                "While building `%s': "
+                "Cannot deduce file extension from source files: %s"
+                % (repr(list(map(str, target))), repr(list(map(str, source))))
+            )
+        return act(
+            target, source, env, exitstatfunc, presub, show, execute, chdir, executor
+        )
 
     def get_presig(self, target, source, env, executor=None):
         """Return the signature contents of this action's command line.
@@ -1372,7 +1379,7 @@ class ListAction(ActionBase):
         return list(result.keys())
 
 
-class ActionCaller(object):
+class ActionCaller:
     """A class for delaying calling an Action function with specific
     (positional and keyword) arguments until the Action is actually
     executed.
@@ -1443,7 +1450,7 @@ class ActionCaller(object):
         return self.parent.strfunc(*self.args, **self.kw)
 
 
-class ActionFactory(object):
+class ActionFactory:
     """A factory class that will wrap up an arbitrary function
     as an SCons-executable Action object.
 

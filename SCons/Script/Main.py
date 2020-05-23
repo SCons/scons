@@ -109,7 +109,7 @@ display = SCons.Util.display
 progress_display = SCons.Util.DisplayEngine()
 
 
-class Progressor(object):
+class Progressor:
     prev = ''
     count = 0
     target_string = '$TARGET'
@@ -429,7 +429,7 @@ class QuestionTask(SCons.Taskmaster.AlwaysTask):
         pass
 
 
-class TreePrinter(object):
+class TreePrinter:
     def __init__(self, derived=False, prune=False, status=False, sLineDraw=False):
         self.derived = derived
         self.prune = prune
@@ -459,7 +459,7 @@ def python_version_deprecated(version=sys.version_info):
     return version < deprecated_python_version
 
 
-class FakeOptionParser(object):
+class FakeOptionParser:
     """
     A do-nothing option parser, used for the initial OptionsParser variable.
 
@@ -471,7 +471,7 @@ class FakeOptionParser(object):
     without blowing up.
 
     """
-    class FakeOptionValues(object):
+    class FakeOptionValues:
         def __getattr__(self, attr):
             return None
     values = FakeOptionValues()
@@ -495,7 +495,7 @@ def SetOption(name, value):
 def PrintHelp(file=None):
     OptionsParser.print_help(file=file)
 
-class Stats(object):
+class Stats:
     def __init__(self):
         self.stats = []
         self.labels = []
