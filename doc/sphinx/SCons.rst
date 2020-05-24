@@ -1,6 +1,14 @@
 SCons package
 =============
 
+Module contents
+---------------
+
+.. automodule:: SCons
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -197,15 +205,6 @@ SCons.exitfuncs module
 ----------------------
 
 .. automodule:: SCons.exitfuncs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: SCons
     :members:
     :undoc-members:
     :show-inheritance:

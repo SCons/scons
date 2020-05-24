@@ -17,10 +17,6 @@ SCons Project API Documentation
    SCons.Scanner
    SCons.Script
    SCons.Tool
-   SCons.Tool.clangCommon
-   SCons.Tool.docbook
-   SCons.Tool.MSCommon
-   SCons.Tool.packaging
    SCons.Variables
 
 

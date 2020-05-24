@@ -31,18 +31,27 @@ needs_sphinx = '1.3'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'autoclasstoc',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    #'sphinx.ext.githubpages'
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages'
 ]
 
 autodoc_default_flags = [":members:", ":undoc-members:", ":show-inheritance:"]
+autodoc_default_options = {
+    "members": True,
+    "special-members": True,
+    "private-members": True,
+    "inherited-members": True,
+    "undoc-members": True,
+    "exclude-members": '__weakref__',
+}
 autodoc_exclude_members = ['*Tests']
-napoleon_include_special_with_doc = False
-napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_include_private_with_doc = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -56,9 +65,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'SCons API'
+project = 'SCons'
 copyright = '2020, SCons Project'
-author = 'SCons Project'
+author = 'SCons Project Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
