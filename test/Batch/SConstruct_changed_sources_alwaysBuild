@@ -3,6 +3,6 @@
 obj = Object('changed_sources_main.cpp')
 AlwaysBuild(obj)
 
-program = Program('test', source = [object])
+program = Program('test', source=[obj])
 
 Default(program)
