@@ -42,7 +42,7 @@ import SCons.Scanner.Dir
 #    def Entry(self, name):
 #        return self.fs.Entry(name)
 
-class DummyEnvironment(object):
+class DummyEnvironment:
     def __init__(self, root):
         self.fs = SCons.Node.FS.FS(root)
     def Dir(self, name):

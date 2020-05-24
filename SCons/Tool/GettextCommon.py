@@ -69,7 +69,7 @@ SCons.Warnings.enableWarningClass(MsgfmtNotFound)
 #############################################################################
 
 #############################################################################
-class _POTargetFactory(object):
+class _POTargetFactory:
     """ A factory of `PO` target files.
 
     Factory defaults differ from these of `SCons.Node.FS.FS`.  We set `precious`
@@ -269,7 +269,7 @@ def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
 #############################################################################
 
 #############################################################################
-class RPaths(object):
+class RPaths:
     """ Callable object, which returns pathnames relative to SCons current
     working directory.
 

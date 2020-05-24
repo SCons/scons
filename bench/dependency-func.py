@@ -71,7 +71,7 @@ def Func02(t):
 #       {'keyword' : 'arguments'},
 #   ),
 
-class A(object):
+class A:
     pass
 
 Data = [

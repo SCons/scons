@@ -301,7 +301,7 @@ def build_specfile_filesection(spec, files):
 
     return str
 
-class SimpleTagCompiler(object):
+class SimpleTagCompiler:
     """ This class is a simple string substition utility:
     the replacement specfication is stored in the tagset dictionary, something
     like:

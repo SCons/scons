@@ -135,7 +135,7 @@ def CachePushFunc(target, source, env):
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
 
-class CacheDir(object):
+class CacheDir:
 
     def __init__(self, path):
         """

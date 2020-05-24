@@ -44,7 +44,7 @@ from .PackageVariable import PackageVariable # naja
 from .PathVariable import PathVariable # okay
 
 
-class Variables(object):
+class Variables:
     """
     Holds all the options, updates the environment with the variables,
     and renders the help text.
@@ -79,7 +79,7 @@ class Variables(object):
                 Variables.instance=self
 
     def _do_add(self, key, help="", default=None, validator=None, converter=None):
-        class Variable(object):
+        class Variable:
             pass
 
         option = Variable()

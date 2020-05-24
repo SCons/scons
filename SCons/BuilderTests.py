@@ -71,7 +71,7 @@ scons_env = SCons.Environment.Environment()
 
 env_arg2nodes_called = None
 
-class Environment(object):
+class Environment:
     def __init__(self, **kw):
         self.d = {}
         self.d['SHELL'] = scons_env['SHELL']
@@ -147,7 +147,7 @@ class Environment(object):
     def __eq__(self, other):
         return self.scanner == other.scanner or self.d == other.d
 
-class MyAction(object):
+class MyAction:
     def __init__(self, action):
         self.action = action
     def __call__(self, *args, **kw):
@@ -155,7 +155,7 @@ class MyAction(object):
     def get_executor(self, env, overrides, tlist, slist, executor_kw):
         return ['executor'] + [self.action]
 
-class MyNode_without_target_from_source(object):
+class MyNode_without_target_from_source:
     def __init__(self, name):
         self.name = name
         self.sources = []
@@ -219,7 +219,7 @@ class BuilderTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught, "did not catch expected InternalError exception"
 
-        class Node(object):
+        class Node:
              pass
 
         n = Node()
@@ -404,7 +404,7 @@ class BuilderTestCase(unittest.TestCase):
     def test_target_factory(self):
         """Test a Builder that creates target nodes of a specified class
         """
-        class Foo(object):
+        class Foo:
             pass
         def FooFactory(target):
             global Foo
@@ -416,7 +416,7 @@ class BuilderTestCase(unittest.TestCase):
     def test_source_factory(self):
         """Test a Builder that creates source nodes of a specified class
         """
-        class Foo(object):
+        class Foo:
             pass
         def FooFactory(source):
             global Foo
@@ -829,7 +829,7 @@ class BuilderTestCase(unittest.TestCase):
     def test_target_scanner(self):
         """Testing ability to set target and source scanners through a builder."""
         global instanced
-        class TestScanner(object):
+        class TestScanner:
             pass
         tscan = TestScanner()
         sscan = TestScanner()
@@ -871,7 +871,7 @@ class BuilderTestCase(unittest.TestCase):
 
     def test_src_scanner(self):
         """Testing ability to set a source file scanner through a builder."""
-        class TestScanner(object):
+        class TestScanner:
             def key(self, env):
                  return 'TestScannerkey'
             def instance(self, env):
@@ -900,7 +900,7 @@ class BuilderTestCase(unittest.TestCase):
 
         # An Environment that has suffix-specified SCANNERS should
         # provide a source scanner to the target.
-        class EnvTestScanner(object):
+        class EnvTestScanner:
             def key(self, env):
                  return '.y'
             def instance(self, env):

@@ -353,7 +353,7 @@ store_info_map = {0 : store_info_pass,
 
 # Classes for signature info for Nodes.
 
-class NodeInfoBase(object):
+class NodeInfoBase:
     """
     The generic base class for signature information for a Node.
 
@@ -448,7 +448,7 @@ class NodeInfoBase(object):
                 setattr(self, key, value)
 
 
-class BuildInfoBase(object):
+class BuildInfoBase:
     """
     The generic base class for build information for a Node.
 
@@ -559,7 +559,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                  '_func_get_contents',
                  '_func_target_from_source']
 
-    class Attrs(object):
+    class Attrs:
         __slots__ = ('shared', '__dict__')
 
 
@@ -1712,7 +1712,7 @@ def get_children(node, parent): return node.children()
 def ignore_cycle(node, stack): pass
 def do_nothing(node, parent): pass
 
-class Walker(object):
+class Walker:
     """An iterator for walking a Node tree.
 
     This is depth-first, children are visited before the parent.

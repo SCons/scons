@@ -115,7 +115,7 @@ def find_file(filename, paths, node_factory):
             return node
     return None
 
-class _Automoc(object):
+class _Automoc:
     """
     Callable class, which works as an emitter for Programs, SharedLibraries and
     StaticLibraries.

@@ -104,7 +104,7 @@ use_memoizer = None
 # Global list of counter objects
 CounterList = {}
 
-class Counter(object):
+class Counter:
     """
     Base class for counting memoization hits and misses.
 

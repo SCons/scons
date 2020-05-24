@@ -251,7 +251,7 @@ class DoctypeDeclaration:
         return content
 
 if not has_libxml2:
-    class TreeFactory(object):
+    class TreeFactory:
         def __init__(self):
             pass
 
@@ -391,7 +391,7 @@ if not has_libxml2:
             return [root]
 
 else:
-    class TreeFactory(object):
+    class TreeFactory:
         def __init__(self):
             pass
 
@@ -622,7 +622,7 @@ else:
 tf = TreeFactory()
 
 
-class SConsDocTree(object):
+class SConsDocTree:
     def __init__(self):
         self.nsmap = {'dbx': dbxsd}
         self.doc = None
@@ -707,7 +707,7 @@ def validate_all_xml(dpaths, xsdfile=default_xsd):
     return True
 
 
-class Item(object):
+class Item:
     def __init__(self, name):
         self.name = name
         self.sort_name = name.lower()
@@ -745,7 +745,7 @@ class ConstructionVariable(Item):
     pass
 
 
-class Arguments(object):
+class Arguments:
     def __init__(self, signature, body=None):
         if not body:
             body = []
@@ -763,7 +763,7 @@ class Arguments(object):
         self.body.append(data)
 
 
-class SConsDocHandler(object):
+class SConsDocHandler:
     def __init__(self):
         self.builders = {}
         self.functions = {}

@@ -79,7 +79,7 @@ print_prepare = 0               # set by option --debug=prepare
 
 CollectStats = None
 
-class Stats(object):
+class Stats:
     """
     A simple class for holding statistics about the disposition of a
     Node by the Taskmaster.  If we're collecting statistics, each Node
@@ -116,7 +116,7 @@ def dump_stats():
 
 
 
-class Task(object):
+class Task:
     """
     Default SCons build engine task.
 
@@ -605,7 +605,7 @@ def find_cycle(stack, visited):
     return None
 
 
-class Taskmaster(object):
+class Taskmaster:
     """
     The Taskmaster for walking the dependency DAG.
     """

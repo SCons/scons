@@ -55,7 +55,7 @@ def _actionAppend(a1, a2):
             raise Exception('Cannot Combine Actions')
     return MyListAction(all)
 
-class MyActionBase(object):
+class MyActionBase:
     def __add__(self, other):
         return _actionAppend(self, other)
 
@@ -82,7 +82,7 @@ class MyAction(MyActionBase):
     def get_implicit_deps(self, target, source, env):
         return []
 
-class MyExecutor(object):
+class MyExecutor:
     def __init__(self, env=None, targets=[], sources=[]):
         self.env = env
         self.targets = targets
@@ -113,7 +113,7 @@ class MyListAction(MyActionBase):
         for A in self.list:
             A(target, source, env)
 
-class Environment(object):
+class Environment:
     def __init__(self, **kw):
         self._dict = {}
         self._dict.update(kw)
@@ -139,7 +139,7 @@ class Environment(object):
 
         return []
 
-class Builder(object):
+class Builder:
     def __init__(self, env=None, is_explicit=1):
         if env is None: env = Environment()
         self.env = env
@@ -173,19 +173,19 @@ class ListBuilder(Builder):
         target = self.nodes[0]
         self.status = Builder.execute(self, target, source, env)
 
-class FailBuilder(object):
+class FailBuilder:
     def execute(self, target, source, env):
         return 1
 
-class ExceptBuilder(object):
+class ExceptBuilder:
     def execute(self, target, source, env):
         raise SCons.Errors.BuildError
 
-class ExceptBuilder2(object):
+class ExceptBuilder2:
     def execute(self, target, source, env):
         raise Exception("foo")
 
-class Scanner(object):
+class Scanner:
     called = None
     def __call__(self, node):
         self.called = 1
@@ -211,10 +211,10 @@ class MyNode(SCons.Node.Node):
     def get_found_includes(self, env, scanner, target):
         return scanner(self)
 
-class Calculator(object):
+class Calculator:
     def __init__(self, val):
         self.max_drift = 0
-        class M(object):
+        class M:
             def __init__(self, val):
                 self.val = val
             def signature(self, args):
@@ -401,7 +401,7 @@ class NodeTestCase(unittest.TestCase):
         else:
             self.fail("did not catch expected AttributeError")
 
-        class Builder(object):
+        class Builder:
             action = 'act'
             env = 'env1'
             overrides = {}
@@ -660,7 +660,7 @@ class NodeTestCase(unittest.TestCase):
 
         class testNode2(SCons.Node.Node):
             def __str__(self): return 'null_binfo'
-        class FS(object):
+        class FS:
             pass
         node = testNode2()
         node.fs = FS()
@@ -669,8 +669,8 @@ class NodeTestCase(unittest.TestCase):
         assert result is None, result
 
         def get_null_info():
-            class Null_SConsignEntry(object):
-                class Null_BuildInfo(object):
+            class Null_SConsignEntry:
+                class Null_BuildInfo:
                     def prepare_dependencies(self):
                         pass
                 binfo = Null_BuildInfo()

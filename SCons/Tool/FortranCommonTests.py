@@ -41,7 +41,7 @@ test = TestCmd.TestCmd(workdir='')
 os.chdir(test.workpath(''))
 
 
-class DummyEnvironment(object):
+class DummyEnvironment:
     dictionary = None  # type: Dict[Any, Any]
 
     def __init__(self, list_cpp_path):

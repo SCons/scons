@@ -92,7 +92,7 @@ if java_parsing:
                           r'/\*|\*/|\[\])')
 
 
-    class OuterState(object):
+    class OuterState:
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
 
@@ -222,7 +222,7 @@ if java_parsing:
             self.package = package
 
 
-    class ScopeState(object):
+    class ScopeState:
         """
         A state that parses code within a scope normally,
         within the confines of a scope.
@@ -290,7 +290,7 @@ if java_parsing:
             return self
 
 
-    class AnonClassState(object):
+    class AnonClassState:
         """A state that looks for anonymous inner classes."""
 
         def __init__(self, old_state):
@@ -330,7 +330,7 @@ if java_parsing:
             return self.old_state.parseToken(token)
 
 
-    class SkipState(object):
+    class SkipState:
         """A state that will skip a specified number of tokens before
         reverting to the previous state."""
 
@@ -345,7 +345,7 @@ if java_parsing:
             return self
 
 
-    class ClassState(object):
+    class ClassState:
         """A state we go into when we hit a class or interface keyword."""
 
         def __init__(self, outer_state):
@@ -376,7 +376,7 @@ if java_parsing:
             return self.outer_state
 
 
-    class IgnoreState(object):
+    class IgnoreState:
         """A state that will ignore all tokens until it gets to a
         specified token."""
 
@@ -390,7 +390,7 @@ if java_parsing:
             return self
 
 
-    class PackageState(object):
+    class PackageState:
         """The state we enter when we encounter the package keyword.
         We assume the next token will be the package name."""
 

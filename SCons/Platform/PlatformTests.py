@@ -214,8 +214,8 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = 0
         # Create an instance of object derived class to allow setattrb
 
-        class Node(object):
-            class Attrs(object):
+        class Node:
+            class Attrs:
                 pass
 
             def __init__(self):

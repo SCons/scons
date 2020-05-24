@@ -34,7 +34,7 @@ _separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-class ValueTypes(object):
+class ValueTypes:
     """
     Enum to store what type of value the variable holds.
     """
@@ -44,7 +44,7 @@ class ValueTypes(object):
     VARIABLE = 3
 
 
-class EnvironmentValue(object):
+class EnvironmentValue:
     """
     Hold a single value. We're going to cache parsed version of the file
     We're going to keep track of variables which feed into this values evaluation
@@ -87,8 +87,7 @@ class EnvironmentValue(object):
             pass
 
 
-
-class EnvironmentValues(object):
+class EnvironmentValues:
     """
     A class to hold all the environment variables
     """

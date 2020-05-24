@@ -51,7 +51,7 @@ class AliasTestCase(unittest.TestCase):
     def test_get_contents(self):
         """Test the get_contents() method
         """
-        class DummyNode(object):
+        class DummyNode:
             def __init__(self, contents):
                 self.contents = contents
             def get_csig(self):

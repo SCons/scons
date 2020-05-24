@@ -31,7 +31,7 @@ import SCons.Memoize
 # Enable memoization counting
 SCons.Memoize.EnableMemoization()
 
-class FakeObject(object):
+class FakeObject:
     def __init__(self):
         self._memo = {}
 
@@ -76,7 +76,7 @@ class FakeObject(object):
     def get_memoizer_counter(self, name):
         return SCons.Memoize.CounterList.get(self.__class__.__name__+'.'+name, None)
 
-class Returner(object):
+class Returner:
     def __init__(self, result):
         self.result = result
         self.calls = 0

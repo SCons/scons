@@ -41,7 +41,7 @@
 # fine-grained performance tuning.
 import sys
 
-class Entry(object):
+class Entry:
     def __init__(self, file_line_func):
         self.file_line_func = file_line_func
         self.called_by = []

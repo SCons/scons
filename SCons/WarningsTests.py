@@ -28,7 +28,7 @@ import unittest
 
 import SCons.Warnings
 
-class TestOutput(object):
+class TestOutput:
     def __call__(self, x):
         args = x.args[0]
         if len(args) == 1:

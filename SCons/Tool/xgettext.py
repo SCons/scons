@@ -45,7 +45,7 @@ from SCons.Tool.GettextCommon import _xgettext_exists
 
 
 #############################################################################
-class _CmdRunner(object):
+class _CmdRunner:
     """ Callable object, which runs shell command storing its stdout and stderr to
     variables. It also provides `strfunction()` method, which shall be used by
     scons Action objects to print command string. """
