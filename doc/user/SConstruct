@@ -29,6 +29,7 @@ import os
 env = Environment(ENV={'PATH' : os.environ['PATH']},
                   tools=['docbook','gs','zip'], 
                   toolpath=['../../SCons/Tool'],
+                  # DOCBOOK_XSLTPROCFLAGS="--stringparam  fop.extensions  1",
                   DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
                   DOCBOOK_DEFAULT_XSL_HTMLCHUNKED='chtml.xsl',
                   DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
