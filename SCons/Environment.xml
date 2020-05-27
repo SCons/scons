@@ -1393,11 +1393,34 @@ for more information.
 
 <scons_function name="Dump">
 <arguments signature="env">
-([key])
+([key], [format])
 </arguments>
 <summary>
 <para>
-Returns a pretty printable representation of the environment.
+Serializes the construction variables to a string.
+The method supports the following formats specified by
+<parameter>format</parameter>:
+<variablelist>
+<varlistentry>
+<term><literal>pretty</literal></term>
+<listitem>
+<para>
+Returns a pretty printable representation of the environment (if
+<parameter>format</parameter>
+is not specified, this is the default).
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>json</literal></term>
+<listitem>
+<para>
+Returns a JSON-formatted string representation of the environment.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
 <varname>key</varname>,
 if not
 <literal>None</literal>,

@@ -54,6 +54,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Reorganized source tree. Moved src/engine/SCons to SCons to be more in line with current Python source
       tree organization practices.
 
+  From Andrii Doroshenko:
+    - Extended `Environment.Dump()` to select a format to serialize construction variables (pretty, json).
+
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()
 
