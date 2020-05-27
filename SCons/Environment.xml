@@ -905,7 +905,7 @@ if any of the sources will be directories
 that must be scanned on-disk for
 changes to files that aren't
 already specified in other Builder of function calls.
-The <paramter>*_factory</parameter> arguments take a factory function that
+The <parameter>*_factory</parameter> arguments take a factory function that
 &Command; will use to turn any sources or targets
 specified as strings into SCons Nodes.
 See the manpage section "Builder Objects"

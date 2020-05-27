@@ -572,20 +572,25 @@ searching the repositories.
 </arguments>
 <summary>
 <para>
-Creates and returns the default &consenv; object.
-The default &consenv; is used internally by SCons
+Instantiates and returns the default &consenv; object.
+The &defenv; is used internally by SCons
 in order to execute many of the global functions in this list
-(i.e. those not called as methods of a specific
-&consenv;), and to fetch source files transparently
-from source code management systems.
-The default environment is a singleton, so the keyword
+(that is, those not called as methods of a specific &consenv;).
+It is not mandatory to call &f-DefaultEnvironment;:
+the &defenv; will be instantiated automatically when the
+build phase begins if the function has not been called,
+however calling it explicitly gives the opportunity to
+affect and examine the contents of the &defenv;.
+</para>
+<para>
+The &defenv; is a singleton, so the keyword
 arguments affect it only on the first call, on subsequent
 calls the already-constructed object is returned and
-any arguments are ignored.
-The default environment can be modified in the same way
-as any &consenv;.
-Modifying the &defenv; has no effect on the environment
-constructed by a subsequent &f-Environment; call.
+any keyword arguments are silently ignored.
+The &defenv; can be modified after instantiation
+in the same way as any &consenv;.
+Modifying the &defenv; has no effect on the &consenv;
+constructed by an &f-link-Environment; or &f-link-Clone; call.
 </para>
 </summary>
 </scons_function>
