@@ -597,6 +597,19 @@ class TaskmasterTestCase(unittest.TestCase):
         assert exc_type == MyException, repr(exc_type)
         assert str(exc_value) == "from make_ready()", exc_value
 
+    def test_needs_execute(self):
+        """Test that we can't instantiate a Task subclass without needs_execute
+
+        We should be getting:
+          TypeError: Can't instantiate abstract class MyTask with abstract methods needs_execute
+        """
+        class MyTask(SCons.Taskmaster.Task):
+            pass
+
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster(targets=[n1], tasker=MyTask)
+        with self.assertRaises(TypeError):
+            t = tm.next_task()
 
     def test_make_ready_all(self):
         """Test the make_ready_all() method"""
