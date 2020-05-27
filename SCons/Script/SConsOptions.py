@@ -345,7 +345,7 @@ class SConsOptionParser(optparse.OptionParser):
 
         Else, this would lead to problems in add_local_option()
         below. When called from there, we try to reparse the
-        command-line arguments that:
+        command-line arguments that
 
         1. haven't been processed so far (self.largs), but
         2. are possibly not added to the list of options yet.

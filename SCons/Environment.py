@@ -1500,13 +1500,18 @@ class Base(SubstitutionEnvironment):
 
 
     def Dictionary(self, *args):
-        r"""Return construction variables from an environment.
+        """Return construction variables from an environment.
 
-        :param args: (optional) variable names to look up
-        :returns: if args omitted, the dictionary of all constr. vars.
-            If one arg, the corresponding value is returned.
-            If more than one arg, a list of values is returned.
-        :raises KeyError: if any of args is not in the construction env.
+        Args:
+          args: (optional) variable names to look up
+
+        Returns:
+          if args omitted, the dictionary of all consvars.
+          If one arg, the corresponding value is returned.
+          If more than one arg, a list of values is returned.
+
+        Raises:
+          KeyError: if any of args is not in the construction env.
 
         """
         if not args:
@@ -1520,12 +1525,13 @@ class Base(SubstitutionEnvironment):
     def Dump(self, key=None, format='pretty'):
         """ Serialize the construction variables to a string.
 
-        :param key: if None, format the whole dict of variables.
-            Else look up and format just the value for key.
-            
-        :param format: specify the format of the variables to be serialized:
+        Args:
+          key: if None, format the whole dict of variables.
+            Else format just the value for key (Default value = None)       
+          format: specify the format of the variables to be serialized:
             - pretty: pretty-printed string.
             - json: JSON-formatted string.
+            (Default value = None)
 
         """
         if key:
@@ -1556,12 +1562,15 @@ class Base(SubstitutionEnvironment):
 
 
     def FindIxes(self, paths, prefix, suffix):
-        """
-        Search a list of paths for something that matches the prefix and suffix.
+        """Search a list of paths for something that matches the prefix and suffix.
 
-        paths - the list of paths or nodes.
-        prefix - construction variable for the prefix.
-        suffix - construction variable for the suffix.
+        Args:
+          paths: the list of paths or nodes.
+          prefix: construction variable for the prefix.
+          suffix: construction variable for the suffix.
+
+        Returns: the matched path or None
+
         """
 
         suffix = self.subst('$'+suffix)
