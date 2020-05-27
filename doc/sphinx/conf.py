@@ -40,7 +40,8 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-autodoc_default_flags = [":members:", ":undoc-members:", ":show-inheritance:"]
+autosummary_generate = True
+
 autodoc_default_options = {
     "members": True,
     "special-members": True,

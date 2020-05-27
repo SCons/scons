@@ -1500,7 +1500,7 @@ class Base(SubstitutionEnvironment):
 
 
     def Dictionary(self, *args):
-        """Return construction variables from an environment.
+        r"""Return construction variables from an environment.
 
         :param args: (optional) variable names to look up
         :returns: if args omitted, the dictionary of all constr. vars.

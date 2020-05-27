@@ -347,8 +347,8 @@ class SConsOptionParser(optparse.OptionParser):
         below. When called from there, we try to reparse the
         command-line arguments that:
 
-          1. haven't been processed so far (self.largs), but
-          2. are possibly not added to the list of options yet.
+        1. haven't been processed so far (self.largs), but
+        2. are possibly not added to the list of options yet.
 
         So, when we only have a value for "--myargument" yet,
         a command-line argument of "--myarg=test" would set it.

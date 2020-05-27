@@ -81,22 +81,6 @@ SCons.Environment module
     :undoc-members:
     :show-inheritance:
 
-SCons.EnvironmentValues module
-------------------------------
-
-.. automodule:: SCons.EnvironmentValues
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-SCons.EnvironmentValuesTest module
-----------------------------------
-
-.. automodule:: SCons.EnvironmentValuesTest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 SCons.Errors module
 -------------------
 
