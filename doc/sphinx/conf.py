@@ -44,14 +44,14 @@ autosummary_generate = True
 
 autodoc_default_options = {
     "members": True,
-    "special-members": True,
+    #"special-members": True,
     "private-members": True,
     "inherited-members": True,
     "undoc-members": True,
     "exclude-members": '__weakref__',
 }
 autodoc_exclude_members = ['*Tests']
-napoleon_include_special_with_doc = True
+napoleon_include_special_with_doc = False
 napoleon_include_private_with_doc = True
 
 # Add any paths that contain templates here, relative to this directory.

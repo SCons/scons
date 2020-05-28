@@ -6,6 +6,15 @@
 SCons Project API Documentation
 ===============================
 
+This is the internal API Documentation for SCons.
+The Documentation is generated using the Sphinx tool.
+The target audience is developers working on SCons itself,
+so it does not clearly delineate what is "Public API" -
+interfaces for use in your SCons configuration scripts
+which have a consistency guarantee, and what is internal,
+so always keep the SCons manual page around for helping
+with such determinations.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

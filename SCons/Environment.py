@@ -1527,7 +1527,7 @@ class Base(SubstitutionEnvironment):
 
         Args:
           key: if None, format the whole dict of variables.
-            Else format just the value for key (Default value = None)       
+            Else format just the value for key (Default value = None)
           format: specify the format of the variables to be serialized:
             - pretty: pretty-printed string.
             - json: JSON-formatted string.
