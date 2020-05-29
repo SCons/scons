@@ -157,6 +157,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - ParseFlags should not modify the user's passed in dict in case it's
       a compound data structure (e.g. values are lists) (issue #3665)
     - In Py3 classes no longer need to be listed as deriving from object.
+    - Close various logfiles (trace, cache, taskmastertrace, configure)
+      when done using atexit calls.
 
 
 
