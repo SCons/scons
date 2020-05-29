@@ -626,11 +626,13 @@ will overwrite itself on a display:
 
 <example_commands>
 import sys
-class ProgressCounter(object):
+
+class ProgressCounter:
     count = 0
     def __call__(self, node, *args, **kw):
         self.count += 100
         sys.stderr.write('Evaluated %s nodes\r' % self.count)
+
 Progress(ProgressCounter(), interval=100)
 </example_commands>
 

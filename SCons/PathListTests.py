@@ -35,7 +35,7 @@ class subst_pathTestCase(unittest.TestCase):
 
     def setUp(self):
 
-        class FakeEnvironment(object):
+        class FakeEnvironment:
             def __init__(self, **kw):
                 self.kw = kw
             def subst(self, s, target=None, source=None, conv=lambda x: x):
@@ -59,7 +59,7 @@ class subst_pathTestCase(unittest.TestCase):
 
         import SCons.Node
 
-        class A(object):
+        class A:
             pass
 
         n = SCons.Node.Node()
@@ -74,7 +74,7 @@ class subst_pathTestCase(unittest.TestCase):
         """Test the subst_path() method on a non-Node object
         """
 
-        class A(object):
+        class A:
             def __str__(self):
                 return '<object A>'
 
@@ -90,7 +90,7 @@ class subst_pathTestCase(unittest.TestCase):
         """Test the subst_path() method on an object with a get() method
         """
 
-        class B(object):
+        class B:
             def get(self):
                 return 'b'
 

@@ -187,7 +187,7 @@ def get_environment_var(varstr):
         return None
 
 
-class DisplayEngine(object):
+class DisplayEngine:
     print_it = True
 
     def __call__(self, text, append_newline=1):
@@ -571,7 +571,7 @@ def semi_deepcopy(x):
         return x
 
 
-class Proxy(object):
+class Proxy:
     """A simple generic Proxy class, forwarding all calls to
     subject.  So, for the benefit of the python newbie, what does
     this really mean?  Well, it means that you can take an object, let's
@@ -621,7 +621,7 @@ class Proxy(object):
         return self.__dict__ == other.__dict__
 
 
-class Delegate(object):
+class Delegate:
     """A Python Descriptor class that delegates attribute fetches
     to an underlying wrapped subject of a Proxy.  Typical use:
 
@@ -1246,7 +1246,7 @@ def logical_lines(physical_lines, joiner=''.join):
         yield joiner(logical_line)
 
 
-class LogicalLines(object):
+class LogicalLines:
     """ Wrapper class for the logical_lines method.
 
         Allows us to read all "logical" lines at once from a
@@ -1352,7 +1352,7 @@ class UniqueList(UserList):
         self.unique = False
 
 
-class Unbuffered(object):
+class Unbuffered:
     """
     A proxy class that wraps a file object, flushing after every write,
     and delegating everything else to the wrapped object.
@@ -1544,8 +1544,7 @@ def silent_intern(x):
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
 
-#TODO??? class Null(object):
-class Null(object):
+class Null:
     """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):
         if '_instance' not in vars(cls):
@@ -1570,6 +1569,7 @@ class Null(object):
 
 
 class NullSeq(Null):
+    """ A Null object that can also be iterated over. """
     def __len__(self):
         return 0
     def __iter__(self):

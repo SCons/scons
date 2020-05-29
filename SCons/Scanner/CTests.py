@@ -332,7 +332,7 @@ class CScannerTestCase9(unittest.TestCase):
     def runTest(self):
         """Generate a warning when we can't find a #included file"""
         SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
-        class TestOut(object):
+        class TestOut:
             def __call__(self, x):
                 self.out = x
 

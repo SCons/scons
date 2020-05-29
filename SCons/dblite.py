@@ -26,7 +26,7 @@ dblite_suffix = '.dblite'
 tmp_suffix = '.tmp'
 
 
-class dblite(object):
+class dblite:
     """
     Squirrel away references to the functions in various modules
     that we'll use when our __del__() method calls our sync() method

@@ -222,7 +222,7 @@ class SCons_XML:
                              v.tag, v.entityfunc(), v.tag))
         f.close()
 
-class Proxy(object):
+class Proxy:
     def __init__(self, subject):
         """Wrap an object as a Proxy object"""
         self.__subject = subject

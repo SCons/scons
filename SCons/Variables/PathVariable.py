@@ -76,7 +76,7 @@ import os.path
 
 import SCons.Errors
 
-class _PathVariableClass(object):
+class _PathVariableClass:
 
     @staticmethod
     def PathAccept(key, val, env):

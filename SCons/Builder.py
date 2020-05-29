@@ -111,7 +111,7 @@ import SCons.Memoize
 import SCons.Util
 import SCons.Warnings
 
-class _Null(object):
+class _Null:
     pass
 
 _null = _Null
@@ -328,7 +328,7 @@ def _node_errors(builder, env, tlist, slist):
         if len(slist) > 1:
             raise UserError("More than one source given for single-source builder: targets=%s sources=%s" % (list(map(str,tlist)), list(map(str,slist))))
 
-class EmitterProxy(object):
+class EmitterProxy:
     """This is a callable class that can act as a
     Builder emitter.  It holds on to a string that
     is a key into an Environment dictionary, and will
@@ -361,7 +361,7 @@ class EmitterProxy(object):
     def __lt__(self, other):
         return self.var < other.var
 
-class BuilderBase(object):
+class BuilderBase:
     """Base class for Builders, objects that create output
     nodes (files) from input nodes (files).
     """

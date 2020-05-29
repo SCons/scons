@@ -51,7 +51,7 @@ build_scons     = build_path('scons')
 build_local     = build_path('scons-local', 'scons-local-'+scons_version)
 build_src       = build_path('scons-src')
 
-class Checker(object):
+class Checker:
     def __init__(self, directory,
                  search_list = [],
                  remove_list = [],

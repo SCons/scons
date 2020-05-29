@@ -2683,8 +2683,8 @@ you can either build a new list by hand:</para>
 foo = Object('foo.c')
 bar = Object('bar.c')
 objects = ['begin.o'] + foo + ['middle.o'] + bar + ['end.o']
-for object in objects:
-    print(str(object))
+for obj in objects:
+    print(str(obj))
 </programlisting>
 
 <para>Or you can use the &Flatten;
@@ -2696,8 +2696,8 @@ which may be more convenient:</para>
 foo = Object('foo.c')
 bar = Object('bar.c')
 objects = Flatten(['begin.o', foo, 'middle.o', bar, 'end.o'])
-for object in objects:
-    print(str(object))
+for obj in objects:
+    print(str(obj))
 </programlisting>
 
 <para>SCons builder calls return
@@ -6307,7 +6307,7 @@ be associated with the
 instantiation of the class:</para>
 
 <programlisting language="python">
-class foo(object):
+class foo:
     def __init__(self, arg):
         self.arg = arg
 

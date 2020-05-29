@@ -37,7 +37,7 @@ python = TestSCons.python
 SConstruct_content = """
 Decider(r'%(source_signature)s')
 
-class Custom(object):
+class Custom:
     def __init__(self, value):  self.value = value
     def __str__(self):          return "C=" + str(self.value)
 

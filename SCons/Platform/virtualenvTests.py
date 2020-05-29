@@ -59,7 +59,7 @@ class Environment(collections.UserDict):
         else:
             self['ENV'][key] = os.path.pathsep.join([value, current])
 
-class SysPrefixes(object):
+class SysPrefixes:
     """Used to temporarily mock sys.prefix, sys.real_prefix and sys.base_prefix"""
     def __init__(self, prefix, real_prefix=None, base_prefix=None):
         self._prefix = prefix

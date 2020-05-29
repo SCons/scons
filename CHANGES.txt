@@ -10,12 +10,6 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Daniel Moody:
-    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
-      SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
-      printed, since the option is not set when the build scripts first get read.
-    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
-
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
       for a per-variant cppflags. Intellisense can be affected by cppflags,
@@ -54,6 +48,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Reorganized source tree. Moved src/engine/SCons to SCons to be more in line with current Python source
       tree organization practices.
 
+  From Andrii Doroshenko:
+    - Extended `Environment.Dump()` to select a format to serialize construction variables (pretty, json).
+
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()
 
@@ -85,6 +82,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Ignore `#include DYNAMIC_INCLUDE` directive that depends on a dynamic
         macro which is not located in a state TABLE.
       * Cleanup CPP expressions before evaluating (strip comments, carriage returns)
+
+  From Daniel Moody:
+    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
+      SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
+      printed, since the option is not set when the build scripts first get read.
+    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
+    - User callable's called during substition expansion could possibly throw a TypeError 
+      exception, however SCons was using TypeError to detect if the callable had a different 
+      signature than expected, and would silently fail to report user's exceptions. Fixed to 
+      use signature module to detect function signature instead of TypeError. (Github Issue #3654)
 
   From Andrew Morrow:
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
@@ -147,6 +154,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       definitions using a metaclass be written the same for Py2/Py3.
     - Bump python_version_unsupported (and deprecated) to indicate 3.5
       is lowest supported Python.
+    - ParseFlags should not modify the user's passed in dict in case it's
+      a compound data structure (e.g. values are lists) (issue #3665)
+    - In Py3 classes no longer need to be listed as deriving from object.
+    - Remove deprecated check for Task subclasses needing a needs_execute
+      method - this is now enforced via an abstract base class, so the
+      check and test is no longer needed.
+    - Close various logfiles (trace, cache, taskmastertrace, configure)
+      when done using atexit calls.
 
 
 

@@ -367,7 +367,7 @@ def get_MkdirBuilder():
                                              name = "MkdirBuilder")
     return MkdirBuilder
 
-class _Null(object):
+class _Null:
     pass
 
 _null = _Null()
@@ -383,7 +383,7 @@ else:
 
 
 
-class DiskChecker(object):
+class DiskChecker:
     def __init__(self, type, do, ignore):
         self.type = type
         self.do = do
@@ -1094,7 +1094,7 @@ class Entry(Base):
 _classEntry = Entry
 
 
-class LocalFS(object):
+class LocalFS:
     """
     This class implements an abstraction layer for operations involving
     a local file system.  Essentially, this wraps any function in
@@ -3685,7 +3685,7 @@ def get_default_fs():
         default_fs = FS()
     return default_fs
 
-class FileFinder(object):
+class FileFinder:
     """
     """
 

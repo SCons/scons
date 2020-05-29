@@ -32,7 +32,7 @@ import TestUnit
 
 import SCons.Scanner
 
-class DummyFS(object):
+class DummyFS:
     def File(self, name):
         return DummyNode(name)
 
@@ -56,7 +56,7 @@ class DummyEnvironment(collections.UserDict):
     def get_factory(self, factory):
         return factory or self.fs.File
 
-class DummyNode(object):
+class DummyNode:
     def __init__(self, name, search_result=()):
         self.name = name
         self.search_result = tuple(search_result)
@@ -108,7 +108,7 @@ class ScannerTestCase(unittest.TestCase):
 
 class BaseTestCase(unittest.TestCase):
 
-    class skey_node(object):
+    class skey_node:
         def __init__(self, key):
             self.key = key
         def scanner_key(self):
@@ -340,7 +340,7 @@ class BaseTestCase(unittest.TestCase):
         assert s == 'xyzzy', s
 
 class SelectorTestCase(unittest.TestCase):
-    class skey_node(object):
+    class skey_node:
         def __init__(self, key):
             self.key = key
         def scanner_key(self):
@@ -399,7 +399,7 @@ class SelectorTestCase(unittest.TestCase):
 class CurrentTestCase(unittest.TestCase):
     def test_class(self):
         """Test the Scanner.Current class"""
-        class MyNode(object):
+        class MyNode:
             def __init__(self):
                 self.called_has_builder = None
                 self.called_is_up_to_date = None
@@ -484,7 +484,7 @@ class ClassicTestCase(unittest.TestCase):
 
     def test_scan(self):
         """Test the Scanner.Classic scan() method"""
-        class MyNode(object):
+        class MyNode:
             def __init__(self, name):
                 self.name = name
                 self._rfile = self
