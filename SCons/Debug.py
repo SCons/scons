@@ -227,7 +227,7 @@ def Trace(msg, filename=None, mode='w', tstamp=False):
     global TimeStampDefault
     global PreviousTime
 
-    def traace_cleanup(traceFP):
+    def trace_cleanup(traceFP):
         traceFP.close()
 
     if file is None:
