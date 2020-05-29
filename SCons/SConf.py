@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import atexit
 import io
 import os
 import re
@@ -750,11 +751,16 @@ class SConfBase:
                 _ac_config_logs[self.logfile] = None
                 log_mode = "w"
             fp = open(str(self.logfile), log_mode)
+
+            def conflog_cleanup(logf):
+                logf.close()
+
+            atexit.register(conflog_cleanup, fp)
             self.logstream = SCons.Util.Unbuffered(fp)
             # logfile may stay in a build directory, so we tell
-            # the build system not to override it with a eventually
+            # the build system not to override it with an eventually
             # existing file with the same name in the source directory
-            self.logfile.dir.add_ignore( [self.logfile] )
+            self.logfile.dir.add_ignore([self.logfile])
 
             tb = traceback.extract_stack()[-3-self.depth]
             old_fs_dir = SConfFS.getcwd()

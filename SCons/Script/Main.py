@@ -40,6 +40,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import atexit
 import importlib.util
 import os
 import re
@@ -1262,10 +1263,14 @@ def _build_targets(fs, options, targets, target_top):
             """Leave the order of dependencies alone."""
             return dependencies
 
+    def tmtrace_cleanup(tfile):
+        tfile.close()
+
     if options.taskmastertrace_file == '-':
         tmtrace = sys.stdout
     elif options.taskmastertrace_file:
         tmtrace = open(options.taskmastertrace_file, 'w')
+        atexit.register(tmtrace_cleanup, tmtrace)
     else:
         tmtrace = None
     taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)

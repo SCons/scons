@@ -1517,26 +1517,42 @@ class Base(SubstitutionEnvironment):
         return dlist
 
 
-    def Dump(self, key=None):
-        """ Return pretty-printed string of construction variables.
+    def Dump(self, key=None, format='pretty'):
+        """ Serialize the construction variables to a string.
 
         :param key: if None, format the whole dict of variables.
             Else look up and format just the value for key.
+            
+        :param format: specify the format of the variables to be serialized:
+            - pretty: pretty-printed string.
+            - json: JSON-formatted string.
 
         """
-        import pprint
-        pp = pprint.PrettyPrinter(indent=2)
         if key:
             cvars = self.Dictionary(key)
         else:
             cvars = self.Dictionary()
 
-        # TODO: pprint doesn't do a nice job on path-style values
-        # if the paths contain spaces (i.e. Windows), because the
-        # algorithm tries to break lines on spaces, while breaking
-        # on the path-separator would be more "natural". Is there
-        # a better way to format those?
-        return pp.pformat(cvars)
+        fmt = format.lower()
+
+        if fmt == 'pretty':
+            import pprint
+            pp = pprint.PrettyPrinter(indent=2)
+
+            # TODO: pprint doesn't do a nice job on path-style values
+            # if the paths contain spaces (i.e. Windows), because the
+            # algorithm tries to break lines on spaces, while breaking
+            # on the path-separator would be more "natural". Is there
+            # a better way to format those?
+            return pp.pformat(cvars)
+
+        elif fmt == 'json':
+            import json
+            def non_serializable(obj):
+                return str(type(obj).__qualname__)
+            return json.dumps(cvars, indent=4, default=non_serializable)
+        else:
+            raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
     def FindIxes(self, paths, prefix, suffix):
