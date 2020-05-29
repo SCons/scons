@@ -609,7 +609,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster(targets=[n1], tasker=MyTask)
         with self.assertRaises(TypeError):
-            t = tm.next_task()
+            _ = tm.next_task()
 
     def test_make_ready_all(self):
         """Test the make_ready_all() method"""
