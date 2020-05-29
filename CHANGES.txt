@@ -157,6 +157,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - ParseFlags should not modify the user's passed in dict in case it's
       a compound data structure (e.g. values are lists) (issue #3665)
     - In Py3 classes no longer need to be listed as deriving from object.
+    - Remove deprecated check for Task subclasses needing a needs_execute
+      method - this is now enforced via an abstract base class, so the
+      check and test is no longer needed.
     - Close various logfiles (trace, cache, taskmastertrace, configure)
       when done using atexit calls.
 
