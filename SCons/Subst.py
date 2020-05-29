@@ -30,7 +30,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import collections
 import re
-
+from inspect import signature
 import SCons.Errors
 
 from SCons.Util import is_String, is_Sequence
@@ -420,12 +420,16 @@ class StringSubber:
                 return conv(substitute(l, lvars))
             return list(map(func, s))
         elif callable(s):
-            try:
+            # SCons has the unusual Null class where any __getattr__ call returns it's self, 
+            # which does not work the signature module, and the Null class returns an empty
+            # string if called on, so we make an exception in this condition for Null class
+            if (isinstance(s, SCons.Util.Null) or
+                set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
                      for_signature=(self.mode != SUBST_CMD))
-            except TypeError:
+            else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments
                 # (like an Action).
@@ -590,12 +594,16 @@ class ListSubber(collections.UserList):
                 self.substitute(a, lvars, 1)
                 self.next_word()
         elif callable(s):
-            try:
+            # SCons has the unusual Null class where any __getattr__ call returns it's self, 
+            # which does not work the signature module, and the Null class returns an empty
+            # string if called on, so we make an exception in this condition for Null class
+            if (isinstance(s, SCons.Util.Null) or
+                set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
                      for_signature=(self.mode != SUBST_CMD))
-            except TypeError:
+            else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments
                 # (like an Action).

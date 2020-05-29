@@ -10,12 +10,6 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Daniel Moody:
-    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
-      SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
-      printed, since the option is not set when the build scripts first get read.
-    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
-
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
       for a per-variant cppflags. Intellisense can be affected by cppflags,
@@ -88,6 +82,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Ignore `#include DYNAMIC_INCLUDE` directive that depends on a dynamic
         macro which is not located in a state TABLE.
       * Cleanup CPP expressions before evaluating (strip comments, carriage returns)
+
+  From Daniel Moody:
+    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
+      SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
+      printed, since the option is not set when the build scripts first get read.
+    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
+    - User callable's called during substition expansion could possibly throw a TypeError 
+      exception, however SCons was using TypeError to detect if the callable had a different 
+      signature than expected, and would silently fail to report user's exceptions. Fixed to 
+      use signature module to detect function signature instead of TypeError. (Github Issue #3654)
 
   From Andrew Morrow:
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
