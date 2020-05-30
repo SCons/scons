@@ -34,7 +34,7 @@ import SCons.Warnings
 from SCons.Util import cmp
 
 
-class Environment(object):
+class Environment:
     def __init__(self):
         self.dict = {}
     def subst(self, x):
@@ -402,7 +402,7 @@ class VariablesTestCase(unittest.TestCase):
                                 'OPT_BOOL_2' : 2})
 
         # Test against some old bugs
-        class Foo(object):
+        class Foo:
             def __init__(self, x):
                 self.x = x
             def __str__(self):

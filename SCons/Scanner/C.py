@@ -80,7 +80,7 @@ def dictify_CPPDEFINES(env):
         return {cppdefines : None}
     return cppdefines
 
-class SConsCPPScannerWrapper(object):
+class SConsCPPScannerWrapper:
     """
     The SCons wrapper around a cpp.py scanner.
 
@@ -172,7 +172,7 @@ class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
             return ""
 
 
-class SConsCPPConditionalScannerWrapper(object):
+class SConsCPPConditionalScannerWrapper:
     """
     The SCons wrapper around a cpp.py scanner.
 

@@ -34,7 +34,7 @@ import SCons.Errors
 
 from SCons.Subst import *
 
-class DummyNode(object):
+class DummyNode:
     """Simple node work-alike."""
     def __init__(self, name):
         self.name = os.path.normpath(name)
@@ -47,7 +47,7 @@ class DummyNode(object):
     def get_subst_proxy(self):
         return self
 
-class DummyEnv(object):
+class DummyEnv:
     def __init__(self, dict={}):
         self.dict = dict
 
@@ -82,7 +82,7 @@ def CmdGen1(target, source, env, for_signature):
     assert str(source) == 's', source
     return "${CMDGEN2('foo', %d)}" % for_signature
 
-class CmdGen2(object):
+class CmdGen2:
     def __init__(self, mystr, forsig):
         self.mystr = mystr
         self.expect_for_signature = forsig
@@ -105,7 +105,7 @@ class SubstTestCase(unittest.TestCase):
         """Simple node work-alike with some extra stuff for testing."""
         def __init__(self, name):
             DummyNode.__init__(self, name)
-            class Attribute(object):
+            class Attribute:
                 pass
             self.attribute = Attribute()
             self.attribute.attr1 = 'attr$1-' + os.path.basename(name)
@@ -114,7 +114,7 @@ class SubstTestCase(unittest.TestCase):
             return self.name + extra
         foo = 1
 
-    class TestLiteral(object):
+    class TestLiteral:
         def __init__(self, literal):
             self.literal = literal
         def __str__(self):
@@ -122,7 +122,7 @@ class SubstTestCase(unittest.TestCase):
         def is_literal(self):
             return 1
 
-    class TestCallable(object):
+    class TestCallable:
         def __init__(self, value):
             self.value = value
         def __call__(self):
@@ -523,7 +523,7 @@ class scons_subst_TestCase(SubstTestCase):
         """Test scons_subst():  handling attribute errors"""
         env = DummyEnv(self.loc)
         try:
-            class Foo(object):
+            class Foo:
                 pass
             scons_subst('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError as e:
@@ -980,7 +980,7 @@ class scons_subst_list_TestCase(SubstTestCase):
         """Test scons_subst_list():  handling attribute errors"""
         env = DummyEnv()
         try:
-            class Foo(object):
+            class Foo:
                 pass
             scons_subst_list('${foo.bar}', env, gvars={'foo':Foo()})
         except SCons.Errors.UserError as e:
@@ -1125,7 +1125,7 @@ class quote_spaces_TestCase(unittest.TestCase):
         q = quote_spaces('x\tx')
         assert q == '"x\tx"', q
 
-    class Node(object):
+    class Node:
         def __init__(self, name, children=[]):
             self.children = children
             self.name = name
@@ -1207,7 +1207,7 @@ class subst_dict_TestCase(unittest.TestCase):
         assert SOURCES == ['s1', 's2'], d['SOURCES']
         assert str(d['SOURCE']) == 's1', d['SOURCE']
 
-        class V(object):
+        class V:
             # Fake Value node with no rfile() method.
             def __init__(self, name):
                 self.name = name

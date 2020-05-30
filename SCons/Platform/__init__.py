@@ -118,7 +118,7 @@ def DefaultToolList(platform, env):
     return SCons.Tool.tool_list(platform, env)
 
 
-class PlatformSpec(object):
+class PlatformSpec:
     def __init__(self, name, generate):
         self.name = name
         self.generate = generate
@@ -130,7 +130,7 @@ class PlatformSpec(object):
         return self.name
 
 
-class TempFileMunge(object):
+class TempFileMunge:
     """A callable class.  You can set an Environment variable to this,
     then call it with a string argument, then it will perform temporary
     file substitution on it.  This is used to circumvent the long command

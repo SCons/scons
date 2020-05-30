@@ -27,13 +27,14 @@ __doc__ = """
 CacheDir support
 """
 
+import atexit
 import json
 import os
 import stat
 import sys
 
-import SCons
 import SCons.Action
+import SCons.Errors
 import SCons.Warnings
 
 cache_enabled = True
@@ -135,7 +136,7 @@ def CachePushFunc(target, source, env):
 CachePush = SCons.Action.Action(CachePushFunc, None)
 
 
-class CacheDir(object):
+class CacheDir:
 
     def __init__(self, path):
         """
@@ -202,7 +203,11 @@ class CacheDir(object):
             if cache_debug == '-':
                 self.debugFP = sys.stdout
             elif cache_debug:
+                def debug_cleanup(debugFP):
+                    debugFP.close()
+
                 self.debugFP = open(cache_debug, 'w')
+                atexit.register(debug_cleanup, self.debugFP)
             else:
                 self.debugFP = None
             self.current_cache_debug = cache_debug

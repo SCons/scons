@@ -37,7 +37,7 @@ import SCons.Memoize
 import SCons.Util
 from SCons.compat import NoSlotsPyPy
 
-class Batch(object):
+class Batch:
     """Remembers exact association between targets
     and sources of executor."""
 
@@ -79,7 +79,7 @@ class TSList(collections.UserList):
         nl = self.func()
         return repr(nl)
 
-class TSObject(object):
+class TSObject:
     """A class that implements $TARGET or $SOURCE expansions by wrapping
     an Executor method.
     """

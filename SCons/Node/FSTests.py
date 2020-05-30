@@ -46,7 +46,7 @@ built_it = None
 scanner_count = 0
 
 
-class Scanner(object):
+class Scanner:
     def __init__(self, node=None):
         global scanner_count
         scanner_count = scanner_count + 1
@@ -69,7 +69,7 @@ class Scanner(object):
         return nodes
 
 
-class Environment(object):
+class Environment:
     def __init__(self):
         self.scanner = Scanner()
 
@@ -89,7 +89,7 @@ class Environment(object):
         pass
 
 
-class Action(object):
+class Action:
     def __call__(self, targets, sources, env, **kw):
         global built_it
         if kw.get('execute', 1):
@@ -112,7 +112,7 @@ class Action(object):
         return []
 
 
-class Builder(object):
+class Builder:
     def __init__(self, factory, action=Action()):
         self.factory = factory
         self.env = Environment()
@@ -458,7 +458,7 @@ class VariantDirTestCase(unittest.TestCase):
         assert r == d1, "%s != %s" % (r, d1)
 
         # verify the link creation attempts in file_link()
-        class LinkSimulator(object):
+        class LinkSimulator:
             """A class to intercept os.[sym]link() calls and track them."""
 
             def __init__(self, duplicate, link, symlink, copy):
@@ -1299,7 +1299,7 @@ class FSTestCase(_tempdirTestCase):
 
         # Make sure we can scan this file even if the target isn't
         # a file that has a scanner (it might be an Alias, e.g.).
-        class DummyNode(object):
+        class DummyNode:
             pass
 
         deps = f12.get_found_includes(env, s, DummyNode())
@@ -2416,11 +2416,11 @@ class EntryTestCase(_tempdirTestCase):
         assert e4n.__class__ is SCons.Node.FS.File, e4n.__class__
         assert not exists, "e4n exists?"
 
-        class MyCalc(object):
+        class MyCalc:
             def __init__(self, val):
                 self.max_drift = 0
 
-                class M(object):
+                class M:
                     def __init__(self, val):
                         self.val = val
 
@@ -2556,7 +2556,7 @@ class FileTestCase(_tempdirTestCase):
                 SCons.Environment.Base.__init__(self)
                 self.decide_source = self._changed_timestamp_then_content
 
-        class FakeNodeInfo(object):
+        class FakeNodeInfo:
             def __init__(self, csig, timestamp):
                 self.csig = csig
                 self.timestamp = timestamp
@@ -3438,8 +3438,8 @@ class stored_infoTestCase(unittest.TestCase):
         bi = f.get_stored_info()
         assert hasattr(bi, 'ninfo')
 
-        class MySConsign(object):
-            class Null(object):
+        class MySConsign:
+            class Null:
                 def __init__(self):
                     self.xyzzy = 7
 

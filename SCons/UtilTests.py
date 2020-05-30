@@ -37,7 +37,7 @@ import SCons.Errors
 
 from SCons.Util import *
 
-class OutBuffer(object):
+class OutBuffer:
     def __init__(self):
         self.buffer = ""
 
@@ -64,7 +64,7 @@ class UtilTestCase(unittest.TestCase):
         assert splitext('foo.bar') == ('foo', '.bar')
         assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'), '')
 
-    class Node(object):
+    class Node:
         def __init__(self, name, children=[]):
             self.children = children
             self.name = name
@@ -433,7 +433,7 @@ class UtilTestCase(unittest.TestCase):
     def test_Proxy(self):
         """Test generic Proxy class."""
 
-        class Subject(object):
+        class Subject:
             def foo(self):
                 return 1
 
@@ -657,7 +657,7 @@ class UtilTestCase(unittest.TestCase):
     def test_Selector(self):
         """Test the Selector class"""
 
-        class MyNode(object):
+        class MyNode:
             def __init__(self, name):
                 self.name = name
 
@@ -790,7 +790,7 @@ class NodeListTestCase(unittest.TestCase):
     def test_simple_attributes(self):
         """Test simple attributes of a NodeList class"""
 
-        class TestClass(object):
+        class TestClass:
             def __init__(self, name, child=None):
                 self.child = child
                 self.bar = name
@@ -807,7 +807,7 @@ class NodeListTestCase(unittest.TestCase):
     def test_callable_attributes(self):
         """Test callable attributes of a NodeList class"""
 
-        class TestClass(object):
+        class TestClass:
             def __init__(self, name, child=None):
                 self.child = child
                 self.bar = name
@@ -854,7 +854,7 @@ class flattenTestCase(unittest.TestCase):
         self.assertEqual(sorted(result), [1, 2, 3])
 
 
-class OsEnviron(object):
+class OsEnviron:
     """Used to temporarily mock os.environ"""
 
     def __init__(self, environ):

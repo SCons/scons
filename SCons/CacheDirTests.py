@@ -36,7 +36,7 @@ import SCons.CacheDir
 
 built_it = None
 
-class Action(object):
+class Action:
     def __call__(self, targets, sources, env, **kw):
         global built_it
         if kw.get('execute', 1):
@@ -47,7 +47,7 @@ class Action(object):
     def get_contents(self, target, source, env):
         return bytearray('','utf-8')
 
-class Builder(object):
+class Builder:
     def __init__(self, environment, action):
         self.env = environment
         self.action = action
@@ -55,7 +55,7 @@ class Builder(object):
         self.source_scanner = None
         self.target_scanner = None
 
-class Environment(object):
+class Environment:
     def __init__(self, cachedir):
         self.cachedir = cachedir
     def Override(self, overrides):

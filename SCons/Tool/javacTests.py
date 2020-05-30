@@ -26,7 +26,7 @@ import unittest
 
 import SCons.Tool.javac
 
-class DummyNode(object):
+class DummyNode:
     def __init__(self, val):
         self.val = val
 

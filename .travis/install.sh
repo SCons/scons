@@ -21,7 +21,7 @@ else
 
     # dependencies for rpm packaging tests
     sudo apt-get -y install rpm
-    
+
     # dependencies for gdc tests
     sudo apt-get -y install gdc
 

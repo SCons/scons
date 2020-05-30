@@ -13,7 +13,7 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-class CommandRunner(object):
+class CommandRunner:
     """
     Representation of a command to be executed.
     """

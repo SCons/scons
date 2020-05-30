@@ -170,7 +170,7 @@ else:
     python_executable = os.path.join('$$(PYTHON_ROOT)',
                                      os.path.split(sys.executable)[1])
 
-class Config(object):
+class Config:
     pass
 
 def splitFully(path):
@@ -200,7 +200,7 @@ def makeHierarchy(sources):
         #    print 'Warning: failed to decompose path for '+str(file)
     return hierarchy
 
-class _UserGenerator(object):
+class _UserGenerator:
     """
     Base class for .dsp.user file generator
     """
@@ -413,7 +413,7 @@ class _GenerateV10User(_UserGenerator):
                 self.usrfile.write(self.usrconf % locals())
         self.usrfile.write('</Project>')
 
-class _DSPGenerator(object):
+class _DSPGenerator:
     """ Base class for DSP generators """
 
     srcargs = [
@@ -1458,7 +1458,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
 
         _GenerateV10User.Build(self)
 
-class _DSWGenerator(object):
+class _DSWGenerator:
     """ Base class for DSW generators """
     def __init__(self, dswfile, source, env):
         self.dswfile = os.path.normpath(str(dswfile))

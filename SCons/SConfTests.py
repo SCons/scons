@@ -158,7 +158,7 @@ class SConfTestCase(unittest.TestCase):
         import SCons.Builder
         import SCons.Node
 
-        class MyAction(object):
+        class MyAction:
             def get_contents(self, target, source, env):
                 return 'MyBuilder-MyAction $SOURCE $TARGET'
 
@@ -170,7 +170,7 @@ class SConfTestCase(unittest.TestCase):
                 self.action = MyAction()
 
             def __call__(self, env, target, source):
-                class MyNode(object):
+                class MyNode:
                     def __init__(self, name):
                         self.name = name
                         self.state = SCons.Node.no_state
@@ -215,7 +215,7 @@ class SConfTestCase(unittest.TestCase):
                     def get_stored_info(self):
                         pass
                     def get_executor(self):
-                        class Executor(object):
+                        class Executor:
                             def __init__(self, targets):
                                 self.targets = targets
                             def get_all_targets(self):

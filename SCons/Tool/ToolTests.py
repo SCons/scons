@@ -33,7 +33,7 @@ import SCons.Errors
 import SCons.Tool
 
 
-class DummyEnvironment(object):
+class DummyEnvironment:
     def __init__(self):
         self.dict = {}
     def Detect(self, progs):

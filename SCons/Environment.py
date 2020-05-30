@@ -60,7 +60,7 @@ import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 
-class _Null(object):
+class _Null:
     pass
 
 _null = _Null
@@ -191,7 +191,7 @@ def _delete_duplicates(l, keep_last):
 # BuilderWrapper a subclass that overrides __call__() to enforce specific
 # Builder calling conventions, simplified some of our higher-layer code.
 
-class MethodWrapper(object):
+class MethodWrapper:
     """
     A generic Wrapper class that associates a method (which can
     actually be any callable) with an object.  As part of creating this
@@ -334,7 +334,7 @@ def is_valid_construction_var(varstr):
 
 
 
-class SubstitutionEnvironment(object):
+class SubstitutionEnvironment:
     """Base class for different flavors of construction environments.
 
     This class contains a minimal set of methods that handle construction
@@ -855,8 +855,7 @@ class SubstitutionEnvironment(object):
                         t.append(v)
             else:
                 ### keep right-most occurence
-                orig.reverse()
-                for v in orig:
+                for v in orig[::-1]:
                     if v not in t:
                         t.insert(0, v)
             self[key] = t
@@ -1518,26 +1517,42 @@ class Base(SubstitutionEnvironment):
         return dlist
 
 
-    def Dump(self, key=None):
-        """ Return pretty-printed string of construction variables.
+    def Dump(self, key=None, format='pretty'):
+        """ Serialize the construction variables to a string.
 
         :param key: if None, format the whole dict of variables.
             Else look up and format just the value for key.
+            
+        :param format: specify the format of the variables to be serialized:
+            - pretty: pretty-printed string.
+            - json: JSON-formatted string.
 
         """
-        import pprint
-        pp = pprint.PrettyPrinter(indent=2)
         if key:
             cvars = self.Dictionary(key)
         else:
             cvars = self.Dictionary()
 
-        # TODO: pprint doesn't do a nice job on path-style values
-        # if the paths contain spaces (i.e. Windows), because the
-        # algorithm tries to break lines on spaces, while breaking
-        # on the path-separator would be more "natural". Is there
-        # a better way to format those?
-        return pp.pformat(cvars)
+        fmt = format.lower()
+
+        if fmt == 'pretty':
+            import pprint
+            pp = pprint.PrettyPrinter(indent=2)
+
+            # TODO: pprint doesn't do a nice job on path-style values
+            # if the paths contain spaces (i.e. Windows), because the
+            # algorithm tries to break lines on spaces, while breaking
+            # on the path-separator would be more "natural". Is there
+            # a better way to format those?
+            return pp.pformat(cvars)
+
+        elif fmt == 'json':
+            import json
+            def non_serializable(obj):
+                return str(type(obj).__qualname__)
+            return json.dumps(cvars, indent=4, default=non_serializable)
+        else:
+            raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
     def FindIxes(self, paths, prefix, suffix):

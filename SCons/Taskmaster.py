@@ -54,10 +54,11 @@ __doc__ = """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-from itertools import chain
 import operator
 import sys
 import traceback
+from abc import ABC, abstractmethod
+from itertools import chain
 
 import SCons.Errors
 import SCons.Node
@@ -79,7 +80,7 @@ print_prepare = 0               # set by option --debug=prepare
 
 CollectStats = None
 
-class Stats(object):
+class Stats:
     """
     A simple class for holding statistics about the disposition of a
     Node by the Taskmaster.  If we're collecting statistics, each Node
@@ -115,10 +116,8 @@ def dump_stats():
         print((fmt % n.attributes.stats.__dict__) + str(n))
 
 
-
-class Task(object):
-    """
-    Default SCons build engine task.
+class Task(ABC):
+    """ SCons build engine abstract task class.
 
     This controls the interaction of the actual building of node
     and the rest of the engine.
@@ -210,17 +209,9 @@ class Task(object):
         """
         return self.node
 
+    @abstractmethod
     def needs_execute(self):
-        # TODO(deprecate):  "return True" is the old default behavior;
-        # change it to NotImplementedError (after running through the
-        # Deprecation Cycle) so the desired behavior is explicitly
-        # determined by which concrete subclass is used.
-        #raise NotImplementedError
-        msg = ('Taskmaster.Task is an abstract base class; instead of\n'
-              '\tusing it directly, '
-              'derive from it and override the abstract methods.')
-        SCons.Warnings.warn(SCons.Warnings.TaskmasterNeedsExecuteWarning, msg)
-        return True
+        return
 
     def execute(self):
         """
@@ -577,7 +568,7 @@ class AlwaysTask(Task):
         dependencies) can use this as follows:
 
             class MyTaskSubclass(SCons.Taskmaster.Task):
-                needs_execute = SCons.Taskmaster.Task.execute_always
+                needs_execute = SCons.Taskmaster.AlwaysTask.needs_execute
         """
         return True
 
@@ -605,7 +596,7 @@ def find_cycle(stack, visited):
     return None
 
 
-class Taskmaster(object):
+class Taskmaster:
     """
     The Taskmaster for walking the dependency DAG.
     """

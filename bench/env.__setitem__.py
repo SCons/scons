@@ -18,7 +18,7 @@ import timeit
 # These wrap the basic timeit function to make it a little more
 # convenient to do side-by-side tests of code.
 
-class Timing(object):
+class Timing:
     def __init__(self, name, num, init, statement):
         self.__timer = timeit.Timer(statement, init)
         self.__num   = num
@@ -95,7 +95,7 @@ global_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 # After we're done should be the one that shows up at the top of the
 # list as we run our timings.
 
-class Environment(object):
+class Environment:
     _special_set = {
         'BUILDERS' : None,
         'SCANNERS' : None,

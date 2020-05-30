@@ -58,7 +58,7 @@ _CURINSTALLED_SDK_HKEY_ROOT = \
         r"Software\Microsoft\Microsoft SDKs\Windows\CurrentInstallFolder"
 
 
-class SDKDefinition(object):
+class SDKDefinition:
     """
     An abstract base class for trying to find installed SDK directories.
     """

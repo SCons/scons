@@ -67,7 +67,7 @@ import argparse
 DEBUG = os.environ.get('DEBUG', 0)
 
 
-class ReleaseInfo(object):
+class ReleaseInfo:
     def __init__(self, args):
         self.config = {}
         self.args = args
@@ -181,7 +181,7 @@ class ReleaseInfo(object):
                          + ' %+.4d' % min)
 
 
-class UpdateFile(object):
+class UpdateFile:
     """ XXX """
 
     rel_info = None

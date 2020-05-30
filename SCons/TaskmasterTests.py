@@ -39,7 +39,7 @@ visited_nodes = []
 executed = None
 scan_called = 0
 
-class Node(object):
+class Node:
     def __init__(self, name, kids = [], scans = []):
         self.name = name
         self.kids = kids
@@ -49,7 +49,7 @@ class Node(object):
         self.scanner = None
         self.targets = [self]
         self.prerequisites = None
-        class Builder(object):
+        class Builder:
             def targets(self, node):
                 return node.targets
         self.builder = Builder()
@@ -217,7 +217,7 @@ class Node(object):
 
     def get_executor(self):
         if not hasattr(self, 'executor'):
-            class Executor(object):
+            class Executor:
                 def prepare(self):
                     pass
                 def get_action_targets(self):
@@ -291,7 +291,7 @@ class TaskmasterTestCase(unittest.TestCase):
         built_text = "up to date: "
         top_node = n3
 
-        class MyTask(SCons.Taskmaster.Task):
+        class MyTask(SCons.Taskmaster.AlwaysTask):
             def execute(self):
                 global built_text
                 if self.targets[0].get_state() == SCons.Node.up_to_date:
@@ -542,10 +542,11 @@ class TaskmasterTestCase(unittest.TestCase):
         """
         ood = []
         def TaskGen(tm, targets, top, node, ood=ood):
-            class MyTask(SCons.Taskmaster.Task):
+            class MyTask(SCons.Taskmaster.AlwaysTask):
                 def make_ready(self):
                     SCons.Taskmaster.Task.make_ready(self)
                     self.ood.extend(self.out_of_date)
+
             t = MyTask(tm, targets, top, node)
             t.ood = ood
             return t
@@ -585,7 +586,7 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_make_ready_exception(self):
         """Test handling exceptions from Task.make_ready()
         """
-        class MyTask(SCons.Taskmaster.Task):
+        class MyTask(SCons.Taskmaster.AlwaysTask):
             def make_ready(self):
                 raise MyException("from make_ready()")
 
@@ -596,10 +597,23 @@ class TaskmasterTestCase(unittest.TestCase):
         assert exc_type == MyException, repr(exc_type)
         assert str(exc_value) == "from make_ready()", exc_value
 
+    def test_needs_execute(self):
+        """Test that we can't instantiate a Task subclass without needs_execute
+
+        We should be getting:
+          TypeError: Can't instantiate abstract class MyTask with abstract methods needs_execute
+        """
+        class MyTask(SCons.Taskmaster.Task):
+            pass
+
+        n1 = Node("n1")
+        tm = SCons.Taskmaster.Taskmaster(targets=[n1], tasker=MyTask)
+        with self.assertRaises(TypeError):
+            _ = tm.next_task()
 
     def test_make_ready_all(self):
         """Test the make_ready_all() method"""
-        class MyTask(SCons.Taskmaster.Task):
+        class MyTask(SCons.Taskmaster.AlwaysTask):
             make_ready = SCons.Taskmaster.Task.make_ready_all
 
         n1 = Node("n1")
@@ -883,7 +897,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n10.prepared
 
         # Make sure we call an Executor's prepare() method.
-        class ExceptionExecutor(object):
+        class ExceptionExecutor:
             def prepare(self):
                 raise Exception("Executor.prepare() exception")
             def get_all_targets(self):

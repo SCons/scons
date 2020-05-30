@@ -32,7 +32,7 @@ def GlobalFunc():
     pass
 
 
-class GlobalActFunc(object):
+class GlobalActFunc:
     def __call__(self):
         pass
 
@@ -105,7 +105,7 @@ scons_env = SCons.Environment.Environment()
 sys.stdout = io.StringIO()
 
 
-class CmdStringHolder(object):
+class CmdStringHolder:
     def __init__(self, cmd, literal=None):
         self.data = str(cmd)
         self.literal = literal
@@ -131,7 +131,7 @@ class CmdStringHolder(object):
             return self.data
 
 
-class Environment(object):
+class Environment:
     def __init__(self, **kw):
         self.d = {}
         self.d['SHELL'] = scons_env['SHELL']
@@ -187,7 +187,7 @@ class Environment(object):
         return d
 
 
-class DummyNode(object):
+class DummyNode:
     def __init__(self, name):
         self.name = name
 
@@ -1008,21 +1008,21 @@ class CommandActionTestCase(unittest.TestCase):
         s = act.strfunction([], [], env)
         assert s == "sf was called", s
 
-        class actclass1(object):
+        class actclass1:
             def __init__(self, targets, sources, env):
                 pass
 
             def __call__(self):
                 return 1
 
-        class actclass2(object):
+        class actclass2:
             def __init__(self, targets, sources, env):
                 self.strfunction = 5
 
             def __call__(self):
                 return 2
 
-        class actclass3(object):
+        class actclass3:
             def __init__(self, targets, sources, env):
                 pass
 
@@ -1033,7 +1033,7 @@ class CommandActionTestCase(unittest.TestCase):
                 return 'actclass3 on %s to get %s' % (str(sources[0]),
                                                       str(targets[0]))
 
-        class actclass4(object):
+        class actclass4:
             def __init__(self, targets, sources, env):
                 pass
 
@@ -1164,7 +1164,7 @@ class CommandActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy5'\n", c
 
-        class Obj(object):
+        class Obj:
             def __init__(self, str):
                 self._str = str
 
@@ -1251,7 +1251,7 @@ class CommandActionTestCase(unittest.TestCase):
         """Test setting the command handler...
         """
 
-        class Test(object):
+        class Test:
             def __init__(self):
                 self.executed = 0
 
@@ -1265,7 +1265,7 @@ class CommandActionTestCase(unittest.TestCase):
         def escape_func(cmd):
             return '**' + cmd + '**'
 
-        class LiteralStr(object):
+        class LiteralStr:
             def __init__(self, x):
                 self.data = x
 
@@ -1464,7 +1464,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert self.dummy == 2, self.dummy
         del self.dummy
 
-        class DummyFile(object):
+        class DummyFile:
             def __init__(self, t):
                 self.t = t
 
@@ -1596,7 +1596,7 @@ class FunctionActionTestCase(unittest.TestCase):
         s = str(a)
         assert s == "func1(target, source, env)", s
 
-        class class1(object):
+        class class1:
             def __call__(self):
                 pass
 
@@ -1645,7 +1645,7 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile2, 'r')
         assert c == "function1\n", c
 
-        class class1a(object):
+        class class1a:
             def __init__(self, target, source, env):
                 with open(env['out'], 'w') as f:
                     f.write("class1a\n")
@@ -1656,7 +1656,7 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1a\n", c
 
-        class class1b(object):
+        class class1b:
             def __call__(self, target, source, env):
                 with open(env['out'], 'w') as f:
                     f.write("class1b\n")
@@ -1742,7 +1742,7 @@ class FunctionActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment(XYZ='foo'))
         assert c in matches_foo, repr(c)
 
-        class Foo(object):
+        class Foo:
             def get_contents(self, target, source, env):
                 return b'xyzzy'
 
@@ -1750,7 +1750,7 @@ class FunctionActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=Environment())
         assert c == b'xyzzy', repr(c)
 
-        class LocalClass(object):
+        class LocalClass:
             def LocalMethod(self):
                 pass
 
@@ -1847,13 +1847,13 @@ class ListActionTestCase(unittest.TestCase):
                 f.write("function2\n")
             return 0
 
-        class class2a(object):
+        class class2a:
             def __call__(self, target, source, env):
                 with open(env['out'], 'a') as f:
                     f.write("class2a\n")
                 return 0
 
-        class class2b(object):
+        class class2b:
             def __init__(self, target, source, env):
                 with open(env['out'], 'a') as f:
                     f.write("class2b\n")
@@ -2024,7 +2024,7 @@ class ActionCallerTestCase(unittest.TestCase):
         assert c == matches[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected one of \n" + repr(
             matches[sys.version_info[:2]])
 
-        class LocalActFunc(object):
+        class LocalActFunc:
             def __call__(self):
                 pass
 
@@ -2183,7 +2183,7 @@ class ActionCompareTestCase(unittest.TestCase):
         assert dog.get_name(env) == 'DOG', dog.get_name(env)
 
 
-class TestClass(object):
+class TestClass:
     """A test class used by ObjectContentsTestCase.test_object_contents"""
 
     def __init__(self):

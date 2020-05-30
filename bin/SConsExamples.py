@@ -477,7 +477,7 @@ def my_RDirs(self, pathlist, orig_RDirs=orig_RDirs):
     return [str(x).replace(os.sep, Sep) for x in orig_RDirs(self, pathlist)]
 SCons.Node.FS.File.RDirs = my_RDirs
 
-class Curry(object):
+class Curry:
     def __init__(self, fun, *args, **kwargs):
         self.fun = fun
         self.pending = args[:]
@@ -498,7 +498,7 @@ def Str(target, source, env, cmd=""):
         result.append(' '.join(map(str, cmd)))
     return '\\n'.join(result)
 
-class ToolSurrogate(object):
+class ToolSurrogate:
     def __init__(self, tool, variable, func, varlist):
         self.tool = tool
         if not isinstance(variable, list):

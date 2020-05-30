@@ -37,6 +37,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import atexit
 import io
 import os
 import re
@@ -189,7 +190,7 @@ class SConfBuildInfo(SCons.Node.FS.FileBuildInfo):
         self.string = string
 
 
-class Streamer(object):
+class Streamer:
     """
     'Sniffer' for a file-like writable object. Similar to the unix tool tee.
     """
@@ -374,7 +375,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                     sconsign.set_entry(t.name, sconsign_entry)
                     sconsign.merge()
 
-class SConfBase(object):
+class SConfBase:
     """This is simply a class to represent a configure context. After
     creating a SConf object, you can call any tests. After finished with your
     tests, be sure to call the Finish() method, which returns the modified
@@ -692,7 +693,7 @@ class SConfBase(object):
                 return( 1, outputStr)
         return (0, "")
 
-    class TestWrapper(object):
+    class TestWrapper:
         """A wrapper around Tests (to ensure sanity)"""
         def __init__(self, test, sconf):
             self.test = test
@@ -750,11 +751,16 @@ class SConfBase(object):
                 _ac_config_logs[self.logfile] = None
                 log_mode = "w"
             fp = open(str(self.logfile), log_mode)
+
+            def conflog_cleanup(logf):
+                logf.close()
+
+            atexit.register(conflog_cleanup, fp)
             self.logstream = SCons.Util.Unbuffered(fp)
             # logfile may stay in a build directory, so we tell
-            # the build system not to override it with a eventually
+            # the build system not to override it with an eventually
             # existing file with the same name in the source directory
-            self.logfile.dir.add_ignore( [self.logfile] )
+            self.logfile.dir.add_ignore([self.logfile])
 
             tb = traceback.extract_stack()[-3-self.depth]
             old_fs_dir = SConfFS.getcwd()
@@ -802,7 +808,7 @@ class SConfBase(object):
             _ac_config_hs[self.config_h] = self.config_h_text
         self.env.fs = self.lastEnvFs
 
-class CheckContext(object):
+class CheckContext:
     """Provides a context for configure tests. Defines how a test writes to the
     screen and log file.
 

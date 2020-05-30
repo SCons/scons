@@ -4,7 +4,7 @@ import socket
 
 from SCons.Script import ARGUMENTS
 
-class BuildCommandLine(object):
+class BuildCommandLine:
 
     git = None
 

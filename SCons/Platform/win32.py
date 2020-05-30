@@ -298,7 +298,7 @@ def get_program_files_dir():
     return val
 
 
-class ArchDefinition(object):
+class ArchDefinition:
     """
     Determine which windows CPU were running on.
     A class for defining architecture-specific settings and logic.
