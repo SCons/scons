@@ -662,7 +662,7 @@ caching by calling &f-env-CacheDir;.
 </para>
 
 <para>
-When cachin
+When a
 <parameter>cache_dir</parameter>
 is being used and
 &scons;
@@ -1027,10 +1027,10 @@ Specifies that all up-to-date decisions for
 targets built through this construction environment
 will be handled by the specified
 <parameter>function</parameter>.
-<parameter>function</parameter>
-can be one of the following strings
-that specify the type of decision function
-to be performed:
+<parameter>function</parameter> can be the name of
+a function or one of the following strings
+that specify the predefined decision function
+that will be applied:
 </para>
 
 <para>
