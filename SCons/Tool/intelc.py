@@ -387,13 +387,15 @@ def get_intel_compiler_top(version, abi):
 def generate(env, version=None, abi=None, topdir=None, verbose=0):
     r"""Add Builders and construction variables for Intel C/C++ compiler
     to an Environment.
-    args:
-      version: (string) compiler version to use, like "80"
-      abi:     (string) 'win32' or whatever Itanium version wants
-      topdir:  (string) compiler top dir, like
-                         "c:\Program Files\Intel\Compiler70"
-                        If topdir is used, version and abi are ignored.
-      verbose: (int)    if >0, prints compiler version used.
+
+    Args:
+      version (str): compiler version to use, like "80"
+      abi (str): 'win32' or whatever Itanium version wants
+      topdir (str): directory containing compiler tree, e.g.
+        "c:\\Program Files\\Intel\\Compiler70".
+        If `topdir` is used, `version` and `abi` are ignored.
+      verbose: if >0, prints compiler version used.
+
     """
     if not (is_mac or is_linux or is_windows):
         # can't handle this platform
