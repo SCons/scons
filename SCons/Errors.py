@@ -35,11 +35,13 @@ import SCons.Util
 
 
 class BuildError(Exception):
-    """SCons Errors that can occur while building.
+    """ Errors occurring while building.
 
-    BuildError has the following attributes:
+    BuildError have the following attributes:
+    =========================================
 
     Information about the cause of the build error:
+    -----------------------------------------------
 
     errstr : a description of the error message
 
@@ -69,6 +71,7 @@ class BuildError(Exception):
 
 
     Information about the cause of the location of the error:
+    ---------------------------------------------------------
 
     node : the error occured while building this target node(s)
 
