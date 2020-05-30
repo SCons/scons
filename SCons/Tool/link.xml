@@ -409,20 +409,20 @@ The variable is used by linker tools which use the &t-link-link; tool such as &t
 Allows the user to specify their own callable class to generate the $SONAME or $SOVERSION of shared library/loadable module. The callable class should have a similar interface to the SCons.Tool._LibSonameGenerator class.
 <example_commands>
 class MySoNameGenerator(object):
-    def __init__(self, libtype):
+    def __init__(self):
         pass
     def __call__(self, env, libnode, *args, **kw):
         return '%sSoname.so.%s' % (
           env.get('SONAME', 'lib'), 
           env.get('SOVERSION', '0'))
 
-env = Environment(SONAME_GENERATOR = MySoNameGenerator)
-env.SharedLibrary(
+SharedLibrary(
   'test',
   'test.c',
   SHLIBVERSION='0.1.2',
   SONAME='MyCustom',
-  SOVERSION='2')
+  SOVERSION='2',
+  SONAME_GENERATOR = MySoNameGenerator())
 </example_commands>
 The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
 </para>

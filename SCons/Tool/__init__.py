@@ -453,12 +453,15 @@ class _LibInfoGeneratorBase:
                         'ImpLib': _ImpLibInfoSupport}
 
     def __init__(self, libtype, infoname):
-        self.libtype = libtype
+        self._support = None
+        if libtype:
+            self.libtype = libtype
         self.infoname = infoname
 
     @property
     def libtype(self):
-        return self._support.libtype
+        if self._support:
+            return self._support.libtype
 
     @libtype.setter
     def libtype(self, libtype):
@@ -670,10 +673,14 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
     """Library soname generator. Returns library soname (e.g. libfoo.so.0) for
     a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
 
-    def __init__(self, libtype):
+    def __init__(self, libtype=None):
         super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
 
     def __call__(self, env, libnode, *args, **kw):
+        # we can differentiate the type of this generator at the call time
+        # allowing us to decide this information during subst expansion
+        self.libtype = kw.get('libtype', self.libtype)
+
         """Returns a SONAME based on a shared library's node path"""
         Verbose = False
 
@@ -690,9 +697,8 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
         version = _call_env_subst(env, '$SOVERSION', **kw2)
         if soname and version:
             raise SCons.Errors.UserError(
-                'Ambiguous library .so naming, both SONAME and SOVERSION are defined. '
-                'Only one can be defined for a target library, or SONAME_GENERATOR '
-                'can be defined as a callable to handle this situtation')
+                'Ambiguous library .so naming, both SONAME: %s and SOVERSION: %s are defined. '
+                'Only one can be defined for a target library.' % (soname, version))
                 
         if not soname:
             if not version:
@@ -714,6 +720,9 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             print("_LibSonameGenerator: return soname=%r" % soname)
 
         return soname
+
+ShLibSonameGenerator = _LibSonameGenerator('ShLib')
+LdModSonameGenerator = _LibSonameGenerator('LdMod')
 
 def StringizeLibSymlinks(symlinks):
     """Converts list with pairs of nodes to list with pairs of node paths

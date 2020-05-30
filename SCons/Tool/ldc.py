@@ -133,7 +133,7 @@ def generate(env):
     env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
     # NOTE: this is a quick hack, the soname will only work if there is
     # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    env['DShLibSonameGenerator'] = env.get("SONAME_GENERATOR", SCons.Tool._LibSonameGenerator)('ShLib')
+    env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
     # NOTE: this is only for further reference, currently $SHDLIBVERSION does
     # not work, the user must use $SHLIBVERSION
     env['SHDLIBVERSION'] = '$SHLIBVERSION'

@@ -104,14 +104,19 @@ test.write('foo.c', foo_c_src)
 test.write('SConstruct', """
 class MySoNameGenerator(object):
 
-    def __init__(self, libtype):
+    def __init__(self):
         pass
 
     def __call__(self, env, libnode, *args, **kw):
         return '%s'
 
-env = Environment(SONAME_GENERATOR = MySoNameGenerator)
-env.SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SONAME='ignore',SOVERSION='ignore')
+SharedLibrary(
+    'foo',
+    'foo.c',
+    SHLIBVERSION='1.2.3',
+    SONAME='ignore',
+    SOVERSION='ignore', 
+    SONAME_GENERATOR = MySoNameGenerator())
 """ % soname)
 test.run(stdout = sonameVersionFlags, match = TestSCons.match_re_dotall)
 test.must_exist(test.workpath(soname))

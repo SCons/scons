@@ -237,14 +237,14 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
 
 def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
     name_func = env['LINKCALLBACKS']['VersionedShLibName']
-    soname_func = env.get("SONAME_GENERATOR", _LibSonameGenerator)('ShLib')
+    soname_func = lambda env, libnode, *args, **kw: env['SONAME_GENERATOR'](env, libnode, libtype='ShLib')
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
 
 def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
     name_func = env['LINKCALLBACKS']['VersionedLdModName']
-    soname_func = env.get("SONAME_GENERATOR", _LibSonameGenerator)('LdMod')
+    soname_func = lambda env, libnode, *args, **kw: env['SONAME_GENERATOR'](env, libnode, libtype='LdMod')
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
@@ -290,10 +290,11 @@ def _setup_versioned_lib_variables(env, **kw):
         else:
             env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -Wl,-soname=$_SHLIBSONAME'
             env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
-        env['_SHLIBSONAME'] = '${ShLibSonameGenerator(__env__,TARGET)}'
-        env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
-        env['ShLibSonameGenerator'] = env.get("SONAME_GENERATOR", SCons.Tool._LibSonameGenerator)('ShLib')
-        env['LdModSonameGenerator'] = env.get("SONAME_GENERATOR", SCons.Tool._LibSonameGenerator)('LdMod')
+
+        env['_SHLIBSONAME'] = "${SONAME_GENERATOR(__env__,TARGET,libtype='ShLib')}"
+        env['_LDMODULESONAME'] = "${SONAME_GENERATOR(__env__,TARGET,libtype='LdMod')}"
+        env['SONAME_GENERATOR'] =  env.get('SONAME_GENERATOR', SCons.Tool._LibSonameGenerator())
+        
     else:
         env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
         env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'
