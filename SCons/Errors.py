@@ -68,7 +68,7 @@ class BuildError(Exception):
 
       Information about the what caused the build error :
 
-      node: the error occured while building this target node(s)
+      node: the error occurred while building this target node(s)
 
       executor: the executor that caused the build to fail (might
         be None if the build failures is not due to the
