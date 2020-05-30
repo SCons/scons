@@ -46,8 +46,6 @@ from SCons.Tool.DCommon import isD
 
 from SCons.Tool.cxx import iscplusplus
 
-from SCons.Tool import _LibSonameGenerator
-
 issued_mixed_link_warning = False
 
 
@@ -237,14 +235,18 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
 
 def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
     name_func = env['LINKCALLBACKS']['VersionedShLibName']
-    soname_func = lambda env, libnode, *args, **kw: env['SONAME_GENERATOR'](env, libnode, libtype='ShLib')
+    def soname_gen_wrapper(env, libnode, *args, **kw):
+        return env['SONAME_GENERATOR'](env, libnode, libtype='ShLib')
+    soname_func = soname_gen_wrapper
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
 
 def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
     name_func = env['LINKCALLBACKS']['VersionedLdModName']
-    soname_func = lambda env, libnode, *args, **kw: env['SONAME_GENERATOR'](env, libnode, libtype='LdMod')
+    def soname_gen_wrapper(env, libnode, *args, **kw):
+        return env['SONAME_GENERATOR'](env, libnode, libtype='LdMod')
+    soname_func = soname_gen_wrapper
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
