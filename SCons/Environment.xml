@@ -662,8 +662,7 @@ caching by calling &f-env-CacheDir;.
 </para>
 
 <para>
-When a
-<parameter>cache_dir</parameter>
+When derived-file caching 
 is being used and
 &scons;
 finds a derived file that needs to be rebuilt,
@@ -672,11 +671,30 @@ file with matching build signature exists
 (indicating the input file(s) and build action(s)
 were identical to those for the current target),
 and if so, will retrieve the file from the cache.
+&scons;
+will report
+<computeroutput>Retrieved `file' from cache</computeroutput>
+instead of the normal build message.
 If the derived file is not present in the cache,
 &scons;
 will build it and
 then place a copy of the built file in the cache,
 identified by its build signature, for future use.
+</para>
+
+<para>
+The
+<computeroutput>Retrieved `file' from cache</computeroutput>
+messages are useful for human consumption,
+but less so when comparing log files between
+&scons; runs which will show differences that are
+noisy and not actually significant.
+To disable,
+use the <option>--cache-show</option> option.
+With this option, &scons;
+will print the action that would
+have been used to build the file without
+considering cache retrieval.
 </para>
 
 <para>
@@ -709,27 +727,6 @@ a build with cache updating disabled
 (<option>--cache-disable</option>
 or <option>--cache-readonly</option>)
 has been done.
-</para>
-
-<para>
-When using
-&f-CacheDir;,
-&scons;
-will report
-<computeroutput>Retrieved `file' from cache</computeroutput>
-unless the
-<option>--cache-show</option>
-option is being used.
-With the
-<option>--cache-show</option>
-option, &scons;
-will print the action that would
-have been used to build the file
-whether or not it was retreived from the cache.
-This is useful to generate build logs
-that are equivalent regardless of whether
-a given derived file has been built in-place
-or retrieved from the cache.
 </para>
 
 <para>
@@ -880,7 +877,7 @@ for the calling syntax and details.
 Executes a specific <parameter>action</parameter>
 (or list of actions)
 to build a <parameter>target</parameter> file or files
-from a <parameter>source<parameter> file or files.
+from a <parameter>source</parameter> file or files.
 This is more convenient
 than defining a separate Builder object
 for a single special-case build.
@@ -1380,7 +1377,7 @@ for more information.
 </arguments>
 <summary>
 <para>
-Serializes &cpnsvars; to a string.
+Serializes &consvars; to a string.
 The method supports the following formats specified by
 <parameter>format</parameter>:
 <variablelist>
