@@ -2082,27 +2082,47 @@ repositories are searched in the order specified.</para>
 <refsect2 id='construction_environments'>
 <title>Construction Environments</title>
 
-<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which the SConscript
+<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which SConscript
 files communicate build information to
 &scons;.
 A new &consenv; is created using the
-&Environment;
+&f-link-Environment;
 function:</para>
 
 <programlisting language="python">
 env = Environment()
 </programlisting>
 
-<para>Variables, called
-<firstterm>&ConsVars;</firstterm>
-may be set in a &consenv;
-either by specifying them as keywords when the object is created
+<para>&Consenv; attributes called
+<firstterm>&ConsVars;</firstterm> may be set
+either by specifying them as keyword arguments when the object is created
 or by assigning them a value after the object is created:</para>
 
 <programlisting language="python">
 env = Environment(FOO='foo')
 env['BAR'] = 'bar'
 </programlisting>
+
+<!--TODO: want to say this, but then have to provide a way for user to tell...
+<para>Certain settings that affect tool detection work
+only on initialization, so check that setting a value
+after creation is appropriate.</para>
+-->
+
+<para>
+An existing &consenv; can be duplicated by calling the &f-link-env-Clone;
+method. Without arguments, it will be a copy with the same
+settings. Otherwise, &f-env-Clone; takes the same arguments as &f-Environment;,
+and uses the arguments to create a modified copy.
+</para>
+
+<para>
+&SCons; also provides a special &consenv; called the
+<firstterm>&DefEnv;</firstterm>.
+The &defenv; is used only for global functions, that is,
+construction activities called without the context of a regular &consenv;.
+See &f-link-DefaultEnvironment; for more information.
+</para>
 
 <para>As a convenience,
 &consvars; may also be set or modified by the
@@ -2113,7 +2133,7 @@ method (described below) to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
-or if the flags are distributed to a number of &consvars;.</para>
+or if the flags need to be distributed to a number of &consvars;.</para>
 
 <programlisting language="python">
 env = Environment(parse_flags='-Iinclude -DEBUG -lm')
@@ -2134,15 +2154,15 @@ are distributed to &consvars;.
 initialized with a set of builder methods
 and &consvars; that are appropriate
 for the current platform.
-An optional platform keyword argument may be
-used to specify that an environment should
+An optional <parameter>platform</parameter> keyword argument may be
+used to specify that the &consenv; should
 be initialized for a different platform:</para>
 
 <programlisting language="python">
-env = Environment(platform = 'cygwin')
-env = Environment(platform = 'os2')
-env = Environment(platform = 'posix')
-env = Environment(platform = 'win32')
+env = Environment(platform='cygwin')
+env = Environment(platform='os2')
+env = Environment(platform='posix')
+env = Environment(platform='win32')
 </programlisting>
 
 <para>Specifying a platform initializes the appropriate
@@ -2397,9 +2417,9 @@ env.SomeTool(targets, sources)
 <title>Builder Methods</title>
 
 <para>You tell &scons; what to build
-by calling Builders, functions which know to take a
-particular action when given files of a particular type
-to produce a particular result type. &scons;
+by calling <firstterm>Builders</firstterm>, functions which know to take a
+particular action to produce a particular result type
+when given source files of a particular type. &scons;
 defines a number of builders, and you can also write your own.
 Builders are attached to a &consenv; as methods,
 and the available builder methods are listed as
@@ -2430,14 +2450,14 @@ keyword arguments, described below.
 <para>Because long lists of file names
 can lead to a lot of quoting,
 &scons;
-supplies a &Split;
+supplies a &f-link-Split;
 global function
 and a same-named environment method
-that split a single string
-into a list, separated on
-strings of white-space characters.
-(These are similar to the Python string <function>split</function>
-method, but work even if the input isn't a string.)</para>
+that splits a single string
+into a list, using
+strings of white-space characters as the delimiter.
+(similar to the Python string <function>split</function>
+method, but succeeds even if the input isn't a string.)</para>
 
 <para>
 The target and source arguments to a builder method
@@ -2491,7 +2511,7 @@ to a relative or absolute path first.
 <para>
 Target and source pathnames can be absolute, relative, or
 top-relative. Relative pathnames are searched considering the
-directory of the <emphasis role="bold">SConscript</emphasis>
+directory of the SConscript
 file currently being processed as the "current directory".
 </para>
 
@@ -2550,14 +2570,14 @@ env.Program('bar.c')
 </programlisting>
 
 <para>As a convenience, a
-<emphasis role="bold">srcdir</emphasis>
+<parameter>srcdir</parameter>
 keyword argument may be specified
 when calling a Builder.
 When specified,
 all source file strings that are not absolute paths
 or top-relative paths
 will be interpreted relative to the specified
-<emphasis role="bold">srcdir</emphasis>.
+<parameter>srcdir</parameter>.
 The following example will build the
 <filename>build/prog</filename>
 (or
@@ -2573,7 +2593,7 @@ and
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </programlisting>
 
-<para>It is possible to <emphasis>override</emphasis> (replace or add)
+<para>It is possible to <firstterm>override</firstterm> (replace or add)
 &consvars; when calling a
 builder method by passing them as keyword arguments.
 These overrides
@@ -2593,13 +2613,14 @@ env.SharedLibrary('word', 'word.cpp',
                   LIBSUFFIXES=['.ocx'])
 </programlisting>
 
-<para>Note that both the <envar>$SHLIBSUFFIX</envar> and <envar>$LIBSUFFIXES</envar>
-variables must be set if you want SCons to search automatically
+<para>Note that both the &cv-link-SHLIBSUFFIX;
+and &cv-link-LIBSUFFIXES;
+variables must be set if you want &scons; to search automatically
 for dependencies on the non-standard library names;
-see the descriptions of these variables, below, for more information.</para>
+see the descriptions below of these variables for more information.</para>
 
 <para>It is also possible to use the
-<emphasis role="bold">parse_flags</emphasis>
+<parameter>parse_flags</parameter>
 keyword argument in an override,
 to merge command-line style arguments
 into the appropriate &consvars;
@@ -2645,15 +2666,14 @@ from SCons.Script import *
 
 <para>All builder methods return a list-like object
 containing Nodes that will be built.
-A
-<emphasis>Node</emphasis>
+A <firstterm>Node</firstterm>
 is an internal SCons object
 which represents
 build targets or sources.</para>
 
 <para>The returned Node-list object
 can be passed to other builder methods as source(s)
-or passed to any SCons function or method
+or passed to any &SCons; function or method
 where a filename would normally be accepted.
 For example, if it were necessary
 to add a specific preprocessor define
@@ -2673,7 +2693,7 @@ when calling the &Program; builder method.</para>
 <para>Builder calls will automatically "flatten"
 lists passed as source and target, so they are free to
 contain elements which are themselves lists, such as
-<literal>bar_obj_list</literal>
+<varname>bar_obj_list</varname>
 returned by the &StaticObject; call above.
 If you need to manipulate a list of lists returned by builders
 directly in Python code,
@@ -2687,7 +2707,7 @@ for obj in objects:
     print(str(obj))
 </programlisting>
 
-<para>Or you can use the &Flatten;
+<para>Or you can use the &f-link-Flatten;
 function supplied by &scons;
 to create a list containing just the Nodes,
 which may be more convenient:</para>
@@ -2700,7 +2720,7 @@ for obj in objects:
     print(str(obj))
 </programlisting>
 
-<para>SCons builder calls return
+<para>&SCons; builder calls return
 a list-like object, not an actual Python list,
 so it is not appropriate to use the Python add
 operator (<literal>+</literal> or <literal>+=</literal>)
@@ -2747,18 +2767,18 @@ to get at the Node that actually represents
 the object file.</para>
 
 <para>Builder calls support a
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 keyword argument that
 specifies that the Builder's action(s)
 should be executed
 after changing directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 is not a string or Node
 and is non-zero,
 then scons will change to the
@@ -2779,14 +2799,14 @@ env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
             chdir=1)
 </programlisting>
 
-<para>Note that scons will
+<para>Note that &SCons; will
 <emphasis>not</emphasis>
 automatically modify
 its expansion of
 &consvars; like
-<emphasis role="bold">$TARGET</emphasis>
+<envar>$TARGET</envar>
 and
-<emphasis role="bold">$SOURCE</emphasis>
+<envar>$SOURCE</envar>
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
@@ -2798,9 +2818,9 @@ If you use the <parameter>chdir</parameter> keyword argument,
 you will typically need to supply a different
 command line using
 expansions like
-<emphasis role="bold">${TARGET.file}</emphasis>
+<literal>${TARGET.file}</literal>
 and
-<emphasis role="bold">${SOURCE.file}</emphasis>
+<literal>${SOURCE.file}</literal>
 to use just the filename portion of the
 targets and source.</para>
 
@@ -2837,7 +2857,7 @@ not all builders may be available to that
 targets of builder methods automatically depend on their sources.
 An explicit dependency can
 be specified using the
-<emphasis role="bold">Depends</emphasis>
+&f-link-env-Depends;
 method of a &consenv; (see below).</para>
 
 <para>In addition,
@@ -2849,18 +2869,18 @@ By default, SCons can
 C source files,
 C++ source files,
 Fortran source files with
-<markup>.F</markup>
+<filename>.F</filename>
 (POSIX systems only),
-<markup>.fpp,</markup>
+<filename>.fpp</filename>,
 or
-<markup>.FPP</markup>
+<filename>.FPP</filename>
 file extensions,
 and assembly language files with
-<markup>.S</markup>
+<filename>.S</filename>
 (POSIX systems only),
-<markup>.spp,</markup>
+<filename>.spp</filename>,
 or
-<markup>.SPP</markup>
+<filename>.SPP</filename>
 files extensions
 for C preprocessor dependencies.
 SCons also has default support
@@ -2869,19 +2889,16 @@ You can also write your own Scanners
 to add support for additional source file types.
 These can be added to the default
 Scanner object used by the
-<emphasis role="bold">Object</emphasis>(),
-<emphasis role="bold">StaticObject</emphasis>(),
-and
-<emphasis role="bold">SharedObject</emphasis>()
+&b-link-Object;, &b-link-StaticObject; and &b-link-SharedObject;
 Builders by adding them
 to the
-<emphasis role="bold">SourceFileScanner</emphasis>
+<classname>SourceFileScanner</classname>
 object.
 See <xref linkend="scanner_objects"/>
 for more information about
 defining your own Scanner objects
 and using the
-<emphasis role="bold">SourceFileScanner</emphasis>
+<classname>SourceFileScanner</classname>
 object.</para>
 
 </refsect2>
@@ -2899,19 +2916,19 @@ manipulate the build configuration.</para>
 and global function with the same name both exist
 for convenience.
 In the following list, the global function
-is documented like:</para>
+is documented in this style:</para>
 
 <programlisting language="python">
-Function(<emphasis>arguments</emphasis>)
+<function>Function</function>(<parameter>arguments, [optional arguments]</parameter>)
 </programlisting>
 
 <para>and the &consenv; method looks like:</para>
 
 <programlisting language="python">
-env.Function(<emphasis>arguments</emphasis>)
+<replaceable>env</replaceable>.<methodname>Function</methodname>(<parameter>arguments, [optional arguments]</parameter>)
 </programlisting>
 
-<para>If you can call the function in both ways,
+<para>If the function can be called both ways,
 then both forms are listed.</para>
 
 <para>The global function and same-named
@@ -2922,26 +2939,25 @@ First, many of the &consenv; methods affect only that
 global effect. Second, where appropriate,
 calling the functionality through a &consenv; will
 substitute &consvars; into
-any supplied strings, while the global function doesn't have the
+any supplied string arguments, while the global function doesn't have the
 context of a &consenv; to pick variables from,
 so it cannot perform the substitution.
 For example:</para>
 
 <programlisting language="python">
-env = Environment(FOO = 'foo')
 Default('$FOO')
+
+env = Environment(FOO='foo')
 env.Default('$FOO')
 </programlisting>
 
 <para>In the above example,
-the first call to the global
-<emphasis role="bold">Default()</emphasis>
-function will actually add a target named
+the call to the global &f-Default;
+function will add a target named
 <emphasis role="bold">$FOO</emphasis>
 to the list of default targets,
-while the second call to the
-<emphasis role="bold">env.Default()</emphasis>
-&consenv; method
+while the call to the
+&f-env-Default; &consenv; method
 will expand the value
 and add a target named
 <emphasis role="bold">foo</emphasis>
@@ -2959,7 +2975,7 @@ from SCons.Script import *
 </programlisting>
 
 <para>&Consenv; methods
-and global functions supported by
+and global functions provided by
 &scons;
 include:</para>
 
@@ -3009,19 +3025,18 @@ and
 <emphasis>value</emphasis>
 elements of the tuple
 can be accessed by
-subscripting for element
+subscripting for elements
 <emphasis role="bold">[0]</emphasis>
 and
 <emphasis role="bold">[1]</emphasis>
-of the tuple, respectively.</para>
-
-<para>Example:</para>
+of the tuple, or, more readably, by using tuple unpacking.
+Example:</para>
 
 <programlisting language="python">
 print("first keyword, value =", ARGLIST[0][0], ARGLIST[0][1])
 print("second keyword, value =", ARGLIST[1][0], ARGLIST[1][1])
-third_tuple = ARGLIST[2]
-print("third keyword, value =", third_tuple[0], third_tuple[1])
+key, value = ARGLIST[2]
+print("third keyword, value =", key, value)
 for key, value in ARGLIST:
     # process key and value
 </programlisting>
@@ -3046,7 +3061,7 @@ dictionary.</para>
 
 <programlisting language="python">
 if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS = '-g')
+    env = Environment(CCFLAGS='-g')
 else:
     env = Environment()
 </programlisting>
@@ -3061,12 +3076,13 @@ else:
 has been asked to build.
 The contents will be either those targets listed
 on the command line, or, if none, those targets set
-via calls to the &Default; function or method.
+via calls to the &f-link-Default; function.
 It does
 <emphasis>not</emphasis>
-contain any not-specified dependent targets that &scons;
+contain any dependent targets that &scons;
 selects for building as a result of making the sure the
-specified targets are up to date.
+specified targets are up to date, if those targets
+did not appear on the command line.
 The list is empty if neither
 command line targets or &Default; calls are present.
 </para>
@@ -3074,16 +3090,15 @@ command line targets or &Default; calls are present.
 The elements of this list may be strings
 <emphasis>or</emphasis>
 nodes, so you should run the list through the Python
-<emphasis role="bold">str</emphasis>
+<function>str</function>
 function to make sure any Node path names
 are converted to strings.</para>
 
 <para>Because this list may be taken from the
 list of targets specified using the
-&Default; function or method,
+&Default; function,
 the contents of the list may change
-on each successive call to
-<emphasis role="bold">Default</emphasis>().
+on each successive call to &Default;.
 See the
 &DEFAULT_TARGETS; list, below,
 for additional information.</para>
@@ -3128,13 +3143,13 @@ if 'special/program' in COMMAND_LINE_TARGETS:
 <para>A list of the target
 <emphasis>nodes</emphasis>
 that have been specified using the
-<emphasis role="bold">Default</emphasis>()
-function or method. If there are no command line
+&f-link-Default;
+function. If there are no command line
 targets, this list will have the same contents as
 &BUILD_TARGETS;.
 Since the elements of the list are nodes,
 you need to call the Python
-<emphasis role="bold">str</emphasis>
+<function>str</function>
 function on them to get the path name for each Node.</para>
 
 <para>Example:</para>
@@ -3146,10 +3161,9 @@ if 'foo' in [str(t) for t in DEFAULT_TARGETS]:
 </programlisting>
 
 <para>The contents of the
-<emphasis role="bold">DEFAULT_TARGETS</emphasis>
+&DEFAULT_TARGETS;
 list change on on each successive call to the
-<emphasis role="bold">Default</emphasis>()
-function:</para>
+&Default; function:</para>
 
 <programlisting language="python">
 print([str(t) for t in DEFAULT_TARGETS])   # originally []
@@ -3162,10 +3176,9 @@ print([str(t) for t in DEFAULT_TARGETS])   # back to []
 </programlisting>
 
 <para>Consequently, be sure to use
-<emphasis role="bold">DEFAULT_TARGETS</emphasis>
+&DEFAULT_TARGETS;
 only after you've made all of your
-<emphasis role="bold">Default</emphasis>()
-calls,
+&Default;() calls,
 or else simply be careful of the order
 of these statements in your SConscript files
 so that you don't look for a specific
@@ -3207,15 +3220,51 @@ from SCons.Script import *
 <para>A &consenv; has an associated dictionary of
 <firstterm>&consvars;</firstterm>
 that are used by built-in or user-supplied build rules.
-&Consvars; must follow the same rules for
+&Consvar; naming must follow the same rules as for
 Python identifiers:
 the initial character must be an underscore or letter,
 followed by any number of underscores, letters, or digits.</para>
 
+<para>A &consenv; is not a Python dictionary,
+but it can be indexed like one to access a
+&consvar;:</para>
+
+<programlisting language="python">
+env["CC"] = "cc"
+</programlisting>
+
+<para>&Consvars; can also be retrieved and set
+by using the &f-link-Dictionary;
+method of the &consenv; to create an actual
+dictionary:</para>
+
+<programlisting language="python">
+cvars = env.Dictionary()
+cvars["CC"] = "cc"
+</programlisting>
+
+<para>&Consvars; can also be passed to the &consenv;
+constructor:</para>
+
+<programlisting language="python">
+env = Environment(CC="cc")
+</programlisting>
+
+<para>or when copying a &consenv; using the
+&f-link-Clone; method:</para>
+
+<programlisting language="python">
+env2 = env.Clone(CC="cl.exe")
+</programlisting>
+
 <para>A number of useful &consvars; are automatically defined by
 scons for each supported platform, and additional &consvars;
-can be defined by the user. The following is a list of the automatically
-defined &consvars;:</para>
+can be defined by the user. The following is a list of the possible
+automatically defined &consvars;.  The actual list available
+at execution time will not include all of these, as the ones
+detected as not being useful (wrong platform, necessary
+external command or files not installed, etc.) will not be set up.
+:</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->
@@ -3236,37 +3285,6 @@ defined &consvars;:</para>
 
 <!-- '\" END GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-
-
-<para>&Consvars; can be retrieved and set using the
-<emphasis role="bold">Dictionary</emphasis>
-method of the &consenv;:</para>
-
-<programlisting language="python">
-cvars = env.Dictionary()
-cvars["CC"] = "cc"
-</programlisting>
-
-<para>or using the key lookup operator <literal>[]</literal>
-directly on the &consenv;:</para>
-
-<programlisting language="python">
-env["CC"] = "cc"
-</programlisting>
-
-<para>&Consvars; can also be passed to the &consenv;
-constructor:</para>
-
-<programlisting language="python">
-env = Environment(CC="cc")
-</programlisting>
-
-<para>or when copying a &consenv; using the
-&f-link-Clone; method:</para>
-
-<programlisting language="python">
-env2 = env.Clone(CC="cl.exe")
-</programlisting>
 
 </refsect2>
 
@@ -3303,9 +3321,9 @@ discovered while running tests. The context includes a local &consenv;
 which is used when running the tests and
 which can be updated with the check results.
 Only one context may be active
-at a time (since 4.0, &scons; will raise an exception
+at a time (<emphasis>since 4.0, &scons; will raise an exception
 on an attempt to create a new context when there is
-an active context), but a new context can be created
+an active context</emphasis>), but a new context can be created
 after the active one is completed.
 For the global function form, the required <parameter>env</parameter>
 describes the initial values for the context's local &consenv;;
