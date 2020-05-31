@@ -6836,7 +6836,9 @@ over the MinGW tools.</para>
 <title>EXAMPLES</title>
 
 <para>To help you get started using &scons;,
-this section contains a brief overview of some common tasks.</para>
+this section contains a brief overview of some common tasks.
+See the &SCons; User Guide for many more examples.
+</para>
 
 
 <refsect2 id='basic_compilation_from_a_single_source_f'>
@@ -6844,13 +6846,14 @@ this section contains a brief overview of some common tasks.</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 <para>Note:  Build the file by specifying
 the target as an argument
-("scons foo" or "scons foo.exe").
-or by specifying a dot ("scons .").</para>
+(<userinput>scons foo</userinput> or <userinput>scons foo.exe</userinput>)
+or by specifying the current directory as the target
+(<userinput>scons .</userinput>).</para>
 
 </refsect2>
 
@@ -6859,7 +6862,7 @@ or by specifying a dot ("scons .").</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
+env.Program(target='foo', source=Split('f1.c f2.c f3.c'))
 </programlisting>
 
 </refsect2>
@@ -6868,8 +6871,8 @@ env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 <title>Setting a Compilation Flag</title>
 
 <programlisting language="python">
-env = Environment(CCFLAGS = '-g')
-env.Program(target = 'foo', source = 'foo.c')
+env = Environment(CCFLAGS='-g')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -6879,12 +6882,14 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <para>Note:  You do
 <emphasis>not</emphasis>
-need to set CCFLAGS to specify -I options by hand.
-&scons; will construct the right <option>-I</option> options from CPPPATH.</para>
+need to set <envar>CCFLAGS</envar> to specify
+<option>-I</option> options by hand.
+&scons; will construct the right <option>-I</option>
+options from the contents of <envar>CPPPATH.</envar></para>
 
 <programlisting language="python">
-env = Environment(CPPPATH = ['.'])
-env.Program(target = 'foo', source = 'foo.c')
+env = Environment(CPPPATH=['.'])
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -6893,8 +6898,8 @@ env.Program(target = 'foo', source = 'foo.c')
 <title>Search Multiple Directories For .h Files</title>
 
 <programlisting language="python">
-env = Environment(CPPPATH = ['include1', 'include2'])
-env.Program(target = 'foo', source = 'foo.c')
+env = Environment(CPPPATH=['include1', 'include2'])
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -6904,8 +6909,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <programlisting language="python">
 env = Environment()
-env.StaticLibrary(target = 'foo', source = Split('l1.c l2.c'))
-env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
+env.StaticLibrary(target='foo', source=Split('l1.c l2.c'))
+env.StaticLibrary(target='bar', source=['l3.c', 'l4.c'])
 </programlisting>
 
 </refsect2>
@@ -6915,8 +6920,8 @@ env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 
 <programlisting language="python">
 env = Environment()
-env.SharedLibrary(target = 'foo', source = ['l5.c', 'l6.c'])
-env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
+env.SharedLibrary(target='foo', source=['l5.c', 'l6.c'])
+env.SharedLibrary(target='bar', source=Split('l7.c l8.c'))
 </programlisting>
 
 </refsect2>
@@ -6925,9 +6930,9 @@ env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 <title>Linking a Local Library Into a Program</title>
 
 <programlisting language="python">
-env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
-env.Library(target = 'mylib', source = Split('l1.c l2.c'))
-env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
+env = Environment(LIBS='mylib', LIBPATH=['.'])
+env.Library(target='mylib', source=Split('l1.c l2.c'))
+env.Program(target='prog', source=['p1.c', 'p2.c'])
 </programlisting>
 
 </refsect2>
@@ -6940,23 +6945,24 @@ you can leave off the target file suffix,
 and &scons; will add it automatically.</para>
 
 <programlisting language="python">
-bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
-              suffix = '.pdf',
-              src_suffix = '.tex')
-env = Environment(BUILDERS = {'PDFBuilder' : bld})
-env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
+bld = Builder(
+    action='pdftex &lt; $SOURCES &gt; $TARGET',
+    suffix='.pdf',
+    src_suffix='.tex'
+)
+env = Environment(BUILDERS={'PDFBuilder': bld})
+env.PDFBuilder(target='foo.pdf', source='foo.tex')
 
 # The following creates "bar.pdf" from "bar.tex"
-env.PDFBuilder(target = 'bar', source = 'bar')
+env.PDFBuilder(target='bar', source='bar')
 </programlisting>
 
-<para>Note also that the above initialization
-overwrites the default Builder objects,
-so the Environment created above
-can not be used call Builders like
-<methodname>env.Program</methodname>,
-<methodname>env.Object</methodname>,
-<methodname>env.StaticLibrary</methodname> etc.</para>
+<para>Note that the above initialization
+replaces the default dictionary of Builders,
+so this &consenv; can not be used call Builders like
+&b-link-Program;, &b-link-Object;, &b-link-StaticLibrary; etc.
+See the next example for an alternative.
+</para>
 
 </refsect2>
 
@@ -6964,13 +6970,15 @@ can not be used call Builders like
 <title>Adding Your Own Builder Object to an Environment</title>
 
 <programlisting language="python">
-bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
-              suffix = '.pdf',
-              src_suffix = '.tex')
+bld = Builder(
+    action='pdftex &lt; $SOURCES &gt; $TARGET'
+    suffix='.pdf',
+    src_suffix='.tex'
+)
 env = Environment()
-env.Append(BUILDERS = {'PDFBuilder' : bld})
-env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
-env.Program(target = 'bar', source = 'bar.c')
+env.Append(BUILDERS={'PDFBuilder': bld})
+env.PDFBuilder(target='foo.pdf', source='foo.tex')
+env.Program(target='bar', source='bar.c')
 </programlisting>
 
 <para>You also can use other Pythonic techniques to add
@@ -6986,13 +6994,12 @@ env['BUILDERS]['PDFBuilder'] = bld
 <refsect2 id='defining_your_own_scanner_object'>
 <title>Defining Your Own Scanner Object</title>
 
-<para>The following example shows adding an extremely simple scanner (the
-<emphasis role="bold">kfile_scan</emphasis>()
-function)
+<para>The following example shows adding an extremely simple scanner
+(<function>kfile_scan</function>)
 that doesn't use a search path at all
 and simply returns the
 file names present on any
-<emphasis role="bold">include</emphasis>
+<literal>include</literal>
 lines in the scanned file.
 This would implicitly assume that all included
 files live in the top-level directory:</para>
@@ -7007,10 +7014,12 @@ def kfile_scan(node, env, path, arg):
     includes = include_re.findall(contents)
     return env.File(includes)
 
-kscan = Scanner(name = 'kfile',
-                function = kfile_scan,
-                argument = None,
-                skeys = ['.k'])
+kscan = Scanner(
+    name='kfile',
+    function=kfile_scan,
+    argument=None,
+    skeys=['.k'],
+)
 
 scanners = DefaultEnvironment()['SCANNERS']
 scanners.append(kscan)
@@ -7025,29 +7034,28 @@ bar_in.target_scanner = kscan
 
 <para>It is important to note that you
 have to return a list of File nodes from the scan function, simple
-strings for the file names won't do. As in the examples we are showing here,
-you can use the
-<emphasis role="bold">File()</emphasis>
-function of your current Environment in order to create nodes on the fly from
+strings for the file names won't do. As in the examples shown here,
+you can use the &f-link-env-File;
+function of your current &consenv; in order to create nodes on the fly from
 a sequence of file names with relative paths.</para>
 
 <para>Here is a similar but more complete example that adds
 a scanner which searches
 a path of directories
 (specified as the
-<emphasis role="bold">MYPATH</emphasis>
-&consvar;)
+<envar>MYPATH</envar> &consvar;)
 for files that actually exist:</para>
 
 <programlisting language="python">
 import re
 import os
+
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
 def my_scan(node, env, path, arg):
     contents = node.get_text_contents()
     includes = include_re.findall(contents)
-    if includes == []:
+    if not includes:
         return []
     results = []
     for inc in includes:
@@ -7058,12 +7066,13 @@ def my_scan(node, env, path, arg):
                 break
     return env.File(results)
 
-scanner = Scanner(name='myscanner',
-                  function=my_scan,
-                  argument=None,
-                  skeys=['.x'],
-                  path_function=FindPathDirs('MYPATH')
-                 )
+scanner = Scanner(
+    name='myscanner',
+    function=my_scan,
+    argument=None,
+    skeys=['.x'],
+    path_function=FindPathDirs('MYPATH'),
+)
 
 scanners = DefaultEnvironment()['SCANNERS']
 scanners.append(scanner)
@@ -7073,12 +7082,12 @@ env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 </programlisting>
 
 <para>The
-<emphasis role="bold">FindPathDirs</emphasis>()
+&f-link-FindPathDirs;
 function used in the previous example returns a function
 (actually a callable Python object)
 that will return a list of directories
 specified in the
-<emphasis role="bold">$MYPATH</emphasis>
+<envar>MYPATH</envar>
 &consvar;. It lets &scons; detect the file
 <filename>incs/foo.inc</filename>,
 even if
@@ -7088,7 +7097,7 @@ contains the line
 only.
 If you need to customize how the search path is derived,
 you would provide your own
-<emphasis role="bold">path_function</emphasis>
+<parameter>path_function</parameter>
 argument when creating the Scanner object,
 as follows:</para>
 
@@ -7102,12 +7111,14 @@ def pf(env, dir, target, source, arg):
             results.append(top_dir + os.sep + p)
     return results
 
-scanner = Scanner(name='myscanner',
-                  function=my_scan,
-                  argument=None,
-                  skeys=['.x'],
-                  path_function=pf
-                 )
+
+scanner = Scanner(
+    name='myscanner',
+    function=my_scan,
+    argument=None,
+    skeys=['.x'],
+    path_function=pf
+)
 </programlisting>
 
 </refsect2>
@@ -7116,14 +7127,13 @@ scanner = Scanner(name='myscanner',
 <title>Creating a Hierarchical Build</title>
 
 <para>Notice that the file names specified in a subdirectory's
-SConscript
-file are relative to that subdirectory.</para>
+SConscript file are relative to that subdirectory.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 
 SConscript('sub/SConscript')
 </programlisting>
@@ -7133,7 +7143,7 @@ SConscript('sub/SConscript')
 <programlisting language="python">
 env = Environment()
 # Builds sub/foo from sub/foo.c
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 
 SConscript('dir/SConscript')
 </programlisting>
@@ -7143,7 +7153,7 @@ SConscript('dir/SConscript')
 <programlisting language="python">
 env = Environment()
 # Builds sub/dir/foo from sub/dir/foo.c
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -7151,14 +7161,15 @@ env.Program(target = 'foo', source = 'foo.c')
 <refsect2 id='sharing_variables_between_sconscript_fil'>
 <title>Sharing Variables Between SConscript Files</title>
 
-<para>You must explicitly call &Export; and &Import; for variables that
+<para>You must explicitly call &f-link-Export; and &f-link-Import;
+for variables that
 you want to share between SConscript files.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 
 Export("env")
 SConscript('subdirectory/SConscript')
@@ -7168,7 +7179,7 @@ SConscript('subdirectory/SConscript')
 
 <programlisting language="python">
 Import("env")
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -7176,8 +7187,8 @@ env.Program(target = 'foo', source = 'foo.c')
 <refsect2 id='building_multiple_variants_from_the_same'>
 <title>Building Multiple Variants From the Same Source</title>
 
-<para>Use the variant_dir keyword argument to
-the &SConscriptFunc; function to establish
+<para>Use the <parameter>variant_dir</parameter> keyword argument to
+the &f-link-SConscript; function to establish
 one or more separate variant build directory trees
 for a given source directory:</para>
 
@@ -7197,12 +7208,12 @@ SConscript('src/SConscript', variant_dir='bar')
 
 <programlisting language="python">
 Import("cppdefines")
-env = Environment(CPPDEFINES = cppdefines)
-env.Program(target = 'src', source = 'src.c')
+env = Environment(CPPDEFINES=cppdefines)
+env.Program(target='src', source='src.c')
 </programlisting>
 
-<para>Note the use of the &Export; method
-to set the "cppdefines" variable to a different
+<para>Note the use of the &f-link-Export; method
+to set the <varname>cppdefines</varname> variable to a different
 value each time we call the &SConscriptFunc; function.</para>
 
 </refsect2>
@@ -7249,8 +7260,9 @@ top-level directory, so they don't turn into
 used in <filename>Main/SConscript</filename></para>
 
 <para>Specifying only 'a' and 'b' for the library names
-allows &scons; to append the appropriate library
-prefix and suffix for the current platform
+allows &scons; to attach the appropriate library
+prefix and suffix for the current platform in
+creating the library filename
 (for example, <filename>liba.a</filename> on POSIX systems,
 <filename>a.lib</filename> on Windows).</para>
 
@@ -7264,7 +7276,7 @@ line or in the file <filename>custom.py</filename>.</para>
 
 <programlisting language="python">
 vars = Variables('custom.py')
-vars.Add('CC', help='The C compiler.')
+vars.Add('CC', 'The C compiler.')
 env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
 </programlisting>
@@ -7296,14 +7308,19 @@ CC: The C compiler.
 <refsect2 id='using_microsoft_visual_c_precompiled_hea'>
 <title>Using Microsoft Visual C++ precompiled headers</title>
 
-<para>Since windows.h includes everything and the kitchen sink, it can take quite
+<para>Since <filename>windows.h</filename> includes everything
+and the kitchen sink, it can take quite
 some time to compile it over and over again for a bunch of object files, so
 Microsoft provides a mechanism to compile a set of headers once and then
 include the previously compiled headers in any object file. This
-technology is called precompiled headers. The general recipe is to create a
-file named "StdAfx.cpp" that includes a single header named "StdAfx.h", and
-then include every header you want to precompile in "StdAfx.h", and finally
-include "StdAfx.h" as the first header in all the source files you are
+technology is called precompiled headers (<firstterm>PCH</firstterm>).
+The general recipe is to create a
+file named <filename>StdAfx.cpp</filename>
+that includes a single header named <filename>StdAfx.h</filename>,
+and then include every header you want to precompile in
+<filename>StdAfx.h</filename>,
+and finally include <filename>"StdAfx.h</filename>
+as the first header in all the source files you are
 compiling to object files. For example:</para>
 
 <para><filename>StdAfx.h</filename>:</para>
@@ -7344,9 +7361,11 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </programlisting>
 
-<para>For more information see the document for the PCH builder, and the PCH and
-PCHSTOP &consvars;. To learn about the details of precompiled
-headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
+<para>For more information see the documentation for the &b-link-PCH; builder,
+and the &cv-link-PCH; and &cv-link-PCHSTOP; &consvars;.
+To learn about the details of precompiled
+headers consult the MSDN documentation for
+<option>/Yc</option>, <option>/Yu</option>, and <option>/Yp</option>.</para>
 
 </refsect2>
 
@@ -7355,9 +7374,9 @@ headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
 
 <para>Since including debugging information in programs and shared libraries can
 cause their size to increase significantly, Microsoft provides a mechanism
-for including the debugging information in an external file called a PDB
-file. &scons; supports PDB files through the PDB construction
-variable.</para>
+for including the debugging information in an external file called a
+<firstterm>PDB</firstterm> file.
+&scons; supports PDB files through the &cv-PDB; &consvar;.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
@@ -7367,7 +7386,8 @@ env['PDB'] = 'MyApp.pdb'
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </programlisting>
 
-<para>For more information see the document for the PDB &consvar;.</para>
+<para>For more information see the documentation for the
+&cv-link-PDB; &consvar;.</para>
 
 </refsect2>
 </refsect1>
@@ -7430,7 +7450,7 @@ Remove the cache file in case of problems with this.
 &scons; will ignore failures reading or writing the file
 and will silently revert to non-cached behavior in such cases.</para>
 
-<para>Since &scons; 3.1 (experimental).</para>
+<para><emphasis>Available since &scons; 3.1 (experimental)</emphasis>.</para>
     </listitem>
   </varlistentry>
 </variablelist>
