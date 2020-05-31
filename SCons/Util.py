@@ -1611,16 +1611,21 @@ def cmp(a, b):
 
 
 def get_env_bool(env, name, default=False):
-    """Get a value of env[name] converted to boolean. The value of env[name] is
-    interpreted as follows: 'true', 'yes', 'y', 'on' (case insensitive) and
-    anything convertible to int that yields non-zero integer are True values;
-    '0', 'false', 'no', 'n' and 'off' (case insensitive) are False values. For
-    all other cases, default value is returned.
+    """Convert a construction variable to bool.
 
-    :Parameters:
-        - `env`     - dict or dict-like object, a convainer with variables
-        - `name`    - name of the variable in env to be returned
-        - `default` - returned when env[name] does not exist or can't be converted to bool
+    If the value of *name* in *env* is 'true', 'yes', 'y', 'on' (case
+    insensitive) or anything convertible to int that yields non-zero then
+    return True; if 'false', 'no', 'n', 'off' (case insensitive)
+    or a number that converts to integer zero return False.
+    Otherwise, return *default*.
+
+    Args:
+        env: construction environment, or any dict-like object
+        name: name of the variable
+        default: value to return if *name* not in *env* or cannot
+          be converted (default: False)
+    Returns:
+        bool: the "truthiness" of *name*
     """
     try:
         var = env[name]
@@ -1638,7 +1643,10 @@ def get_env_bool(env, name, default=False):
 
 
 def get_os_env_bool(name, default=False):
-    """Same as get_env_bool(os.environ, name, default)."""
+    """Convert an environment variable to bool.
+
+    Conversion is the same as for :func:`get_env_bool`.
+    """
     return get_env_bool(os.environ, name, default)
 
 # Local Variables:

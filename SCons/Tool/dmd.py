@@ -10,22 +10,43 @@ Evolved by Russel Winder (russel@winder.org.uk)
 2010-02-07 onwards
 
 Compiler variables:
-    DC - The name of the D compiler to use.  Defaults to dmd or gdmd,
-        whichever is found.
-    DPATH - List of paths to search for import modules.
-    DVERSIONS - List of version tags to enable when compiling.
-    DDEBUG - List of debug tags to enable when compiling.
+
+DC
+  The name of the D compiler to use.
+  Defaults to dmd or gdmd, whichever is found.
+
+DPATH
+  List of paths to search for import modules.
+
+DVERSIONS
+  List of version tags to enable when compiling.
+
+DDEBUG
+  List of debug tags to enable when compiling.
 
 Linker related variables:
-    LIBS - List of library files to link in.
-    DLINK - Name of the linker to use.  Defaults to dmd or gdmd,
-        whichever is found.
-    DLINKFLAGS - List of linker flags.
+
+LIBS
+  List of library files to link in.
+
+DLINK
+  Name of the linker to use.
+  Defaults to dmd or gdmd, whichever is found.
+
+DLINKFLAGS
+  List of linker flags.
 
 Lib tool variables:
-    DLIB - Name of the lib tool to use.  Defaults to lib.
-    DLIBFLAGS - List of flags to pass to the lib tool.
-    LIBS - Same as for the linker. (libraries to pull into the .lib)
+
+DLIB
+  Name of the lib tool to use.  Defaults to lib.
+
+DLIBFLAGS
+  List of flags to pass to the lib tool.
+
+LIBS
+  Same as for the linker. (libraries to pull into the .lib)
+
 """
 
 #

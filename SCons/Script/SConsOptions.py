@@ -332,29 +332,27 @@ class SConsOptionParser(optparse.OptionParser):
         option.process(opt, value, values, self)
 
     def reparse_local_options(self):
-        """
-        Re-parse the leftover command-line options stored
-        in self.largs, so that any value overridden on the
-        command line is immediately available if the user turns
-        around and does a GetOption() right away.
+        """ Re-parse the leftover command-line options.
+
+        Parse options stored in `self.largs`, so that any value
+        overridden on the command line is immediately available
+        if the user turns around and does a :func:`GetOption` right away.
 
         We mimic the processing of the single args
-        in the original OptionParser._process_args(), but here we
-        allow exact matches for long-opts only (no partial
-        argument names!).
-
-        Else, this would lead to problems in add_local_option()
+        in the original OptionParser :func:`_process_args`, but here we
+        allow exact matches for long-opts only (no partial argument names!).
+        Otherwise there could be  problems in :func:`add_local_option`
         below. When called from there, we try to reparse the
         command-line arguments that
-          1. haven't been processed so far (self.largs), but
-          2. are possibly not added to the list of options yet.
 
-        So, when we only have a value for "--myargument" yet,
-        a command-line argument of "--myarg=test" would set it.
-        Responsible for this behaviour is the method
-        _match_long_opt(), which allows for partial matches of
-        the option name, as long as the common prefix appears to
-        be unique.
+        1. haven't been processed so far (`self.largs`), but
+        2. are possibly not added to the list of options yet.
+
+        So, when we only have a value for "--myargument" so far,
+        a command-line argument of "--myarg=test" would set it,
+        per the behaviour of :func:`_match_long_opt`,
+        which allows for partial matches of the option name,
+        as long as the common prefix appears to be unique.
         This would lead to further confusion, because we might want
         to add another option "--myarg" later on (see issue #2929).
 

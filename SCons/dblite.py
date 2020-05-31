@@ -37,6 +37,7 @@ class dblite:
 
     See the discussion at:
       http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
+
     """
 
     _open = open
