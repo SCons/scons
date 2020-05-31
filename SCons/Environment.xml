@@ -635,7 +635,7 @@ until after the Builder object is actually called.
 <para>
 Direct
 &scons;
-to use a derived-file cache in
+to maintain a derived-file cache in
 <parameter>cache_dir</parameter>.
 The derived files in the cache will be shared
 among all the builds specifying the same
