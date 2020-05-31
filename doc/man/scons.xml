@@ -5663,12 +5663,13 @@ to specify that an Action object's
 return value should be ignored
 under special conditions
 and SCons should, therefore,
-consider that the action always suceeds. Example:</para>
+consider that the action always succeeds. Example:</para>
 
 <programlisting language="python">
 def always_succeed(s):
     # Always return 0, which indicates success.
     return 0
+
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            exitstatfunc=always_succeed)
 </programlisting>
