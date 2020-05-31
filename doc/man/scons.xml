@@ -266,11 +266,6 @@ supports the
 ability to define new scanners for unknown input file types.</para>
 
 <para>&scons;
-knows how to fetch files automatically from
-SCCS or RCS subdirectories
-using SCCS, RCS or BitKeeper.</para>
-
-<para>&scons;
 is normally executed in a top-level directory containing an
 &SConstruct; file.
 When &scons; is invoked,
@@ -295,7 +290,7 @@ the build in any way:</para>
 
 <programlisting language="python">
 if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS = '-g')
+    env = Environment(CCFLAGS='-g')
 else:
     env = Environment()
 </programlisting>
@@ -521,18 +516,17 @@ Will not remove any targets specified by the &NoClean; function.</para>
   <varlistentry>
   <term>-<option>-cache-debug=<replaceable>file</replaceable></option></term>
   <listitem>
-<para>Print debug information about the &CacheDir;
+<para>Write debug information about
 derived-file caching to the specified
 <replaceable>file</replaceable>.
 If
 <replaceable>file</replaceable>
-is
-<emphasis role="bold">-</emphasis>
-(a hyphen),
+is a hyphen
+(<literal>-</literal>),
 the debug information is printed to the standard output.
 The printed messages describe what signature-file names
 are being looked for in, retrieved from, or written to the
-&CacheDir; directory tree.</para>
+derived-file cache specified by &f-link-CacheDir;.</para>
   </listitem>
   </varlistentry>
 
@@ -542,11 +536,13 @@ are being looked for in, retrieved from, or written to the
     <option>--no-cache</option>
   </term>
   <listitem>
-<para>Disable the derived-file caching specified by
-&CacheDir;.
+<para>Disable derived-file caching.
 &scons;
 will neither retrieve files from the cache
-nor copy files to the cache.</para>
+nor copy files to the cache.  This option can
+be used to temporarily disable the cache without
+modifying the build scripts.
+</para>
   </listitem>
   </varlistentry>
 
@@ -556,9 +552,9 @@ nor copy files to the cache.</para>
     <option>--cache-populate</option>
   </term>
   <listitem>
-<para>When using &CacheDir;,
-populate a cache by copying any already-existing, up-to-date
-derived files to the cache,
+<para>When using &f-link-CacheDir;,
+populate a derived-file cache by copying any already-existing,
+up-to-date derived files to the cache,
 in addition to files built by this invocation.
 This is useful to populate a new cache with
 all the current derived files,
@@ -572,8 +568,9 @@ option.</para>
   <varlistentry>
   <term><option>--cache-readonly</option></term>
   <listitem>
-<para>Use the cache (if enabled) for reading, but do not not update the
-cache with changed files.
+<para>Use the derived-file cache, if enabled, to retrieve files,
+but do not not update the cache with any files actually
+built during this invocation.
 </para>
   </listitem>
   </varlistentry>
@@ -581,13 +578,13 @@ cache with changed files.
   <varlistentry>
   <term><option>--cache-show</option></term>
   <listitem>
-<para>When using &CacheDir;
-and retrieving a derived file from the cache,
+<para>When using a derived-file cache
+and retrieving a file from it,
 show the command
-that would have been executed to build the file,
-instead of the usual report,
-"Retrieved `file' from cache."
-This will produce consistent output for build logs,
+that would have been executed to build the file.
+Without this option, &scons; reports
+<computeroutput>"Retrieved `file' from cache."</computeroutput>.
+This allows producing consistent output for build logs,
 regardless of whether a target
 file was rebuilt or retrieved from the cache.</para>
   </listitem>
@@ -722,7 +719,7 @@ each command, shows the absolute start and end times.
 This may be useful in debugging parallel builds.
 Implies the <option>--debug=time</option> option.
 </para>
-<para>Since &scons; 3.1.</para>
+<para><emphasis>Available since &scons; 3.1.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -739,7 +736,7 @@ This is not supported when SCons is executed with the Python
 or when the SCons modules
 have been compiled with optimization
 (that is, when executing from
-<emphasis role="bold">*.pyo</emphasis>
+<filename>*.pyo</filename>
 files).</para>
   </listitem>
   </varlistentry>
@@ -1054,12 +1051,20 @@ will read all of the specified files.</para>
     <option>--help</option>
   </term>
   <listitem>
-<para>Print a local help message for this build, if one is defined in
-the SConscript files, plus a line that describes the
-<option>-H</option>
-option for command-line option help.  If no local help message
-is defined, prints the standard help message about command-line
-options.  Exits after displaying the appropriate message.</para>
+<para>Print a local help message for this project,
+if one is defined in the SConscript files
+(see the &f-link-Help; function),
+plus a line that refers to the standard &SCons; help message.
+If no local help message is defined,
+prints the standard &SCons; help message
+(as for the <option>-H</option> option)
+plus help for any local options defined through &f-link-AddOption;.
+Exits after displaying the appropriate message.</para>
+<para>
+Note that use of this option requires &SCons; to process
+the SConscript files, so syntax errors may cause
+the help message not to be displayed.
+</para>
   </listitem>
   </varlistentry>
 
@@ -1069,8 +1074,8 @@ options.  Exits after displaying the appropriate message.</para>
     <option>--help-options</option>
   </term>
   <listitem>
-<para>Print the standard help message about command-line options and
-exit.</para>
+<para>Print the standard help message about &SCons;
+command-line options and exit.</para>
   </listitem>
   </varlistentry>
 
@@ -1172,7 +1177,7 @@ underneath <replaceable>path</replaceable>.
   <listitem>
 <para>Starts SCons in interactive mode.
 The SConscript files are read once and a
-<emphasis role="bold">scons&gt;&gt;&gt;</emphasis>
+<computeroutput>scons&gt;&gt;&gt;</computeroutput>
 prompt is printed.
 Targets may now be rebuilt by typing commands at interactive prompt
 without having to re-read the SConscript files
@@ -1182,7 +1187,7 @@ and re-initialize the dependency graph from scratch.</para>
 
     <variablelist>
       <varlistentry>
-      <term><emphasis role="bold">build</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
+      <term><userinput>build <parameter>[OPTIONS] [TARGETS] ...</parameter></userinput></term>
       <listitem>
 <para>Builds the specified
 <parameter>TARGETS</parameter>
@@ -1229,7 +1234,7 @@ which only happens once at the beginning of interactive mode).</para>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">clean</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
+      <term><userinput>clean <parameter>[OPTIONS] [TARGETS] ...</parameter></userinput></term>
       <listitem>
 <para>Cleans the specified
 <parameter>TARGETS</parameter>
@@ -1244,17 +1249,25 @@ This command is itself a synonym for
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">exit</emphasis></term>
+      <term><userinput>exit</userinput></term>
       <listitem>
 <para>Exits SCons interactive mode.
 You can also exit by terminating input
-(CTRL+D on UNIX or Linux systems,
-CTRL+Z on Windows systems).</para>
+(<keycombo action="simul">
+<keycap>Ctrl</keycap>
+<keycap>D</keycap>
+</keycombo>
+UNIX or Linux systems,
+(<keycombo action="simul">
+<keycap>Ctrl</keycap>
+<keycap>Z</keycap>
+</keycombo>
+on Windows systems).</para>
       </listitem>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">help</emphasis><emphasis>[COMMAND]</emphasis></term>
+      <term><userinput>help <parameter>[COMMAND]</parameter></userinput></term>
       <listitem>
 <para>Provides a help message about
 the commands available in SCons interactive mode.
@@ -1269,13 +1282,13 @@ are synonyms.</para>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">shell</emphasis><emphasis>[COMMANDLINE]</emphasis></term>
+      <term><userinput>shell <parameter>[COMMANDLINE]</parameter></userinput></term>
       <listitem>
 <para>Executes the specified
-<emphasis>COMMANDLINE</emphasis>
+<parameter>COMMANDLINE</parameter>
 in a subshell.
 If no
-<emphasis>COMMANDLINE</emphasis>
+<parameter>COMMANDLINE</parameter>
 is specified,
 executes the interactive command interpreter
 specified in the
@@ -1283,7 +1296,7 @@ specified in the
 environment variable
 (on UNIX and Linux systems)
 or the
-<emphasis role="bold">COMSPEC</emphasis>
+<envar>COMSPEC</envar>
 environment variable
 (on Windows systems).
 <emphasis role="bold">sh</emphasis>
@@ -1294,7 +1307,7 @@ are synonyms.</para>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">version</emphasis></term>
+      <term><userinput>version</userinput></term>
       <listitem>
 <para>Prints SCons version information.</para>
       </listitem>
@@ -1721,7 +1734,7 @@ specified alone, without any <replaceable>type</replaceable>,
 it behaves as if <emphasis role="bold">all</emphasis>
 had been specified.
 </para>
-<para>Since &scons; 4.0.</para>
+<para><emphasis>Available since &scons; 4.0.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1845,9 +1858,9 @@ specifies the type of warnings to be enabled or disabled:</para>
   <varlistentry>
   <term><emphasis role="bold">cache-version</emphasis></term>
   <listitem>
-<para>Warnings about the cache directory not using
-the latest configuration information
-<emphasis role="bold">CacheDir</emphasis>().
+<para>Warnings about the derived-file cache directory
+specified by &f-link-CacheDir; not using
+the latest configuration information.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
@@ -1857,7 +1870,7 @@ These warnings are enabled by default.</para>
   <listitem>
 <para>Warnings about errors trying to
 write a copy of a built file to a specified
-<emphasis role="bold">CacheDir</emphasis>().
+derived-file cache specified by &f-link-CacheDir;.
 These warnings are disabled by default.</para>
   </listitem>
   </varlistentry>
@@ -1866,7 +1879,7 @@ These warnings are disabled by default.</para>
   <term><emphasis role="bold">corrupt-sconsign</emphasis></term>
   <listitem>
 <para>Warnings about unfamiliar signature data in
-<markup>.sconsign</markup>
+<filename>.sconsign</filename>
 files.
 These warnings are enabled by default.</para>
   </listitem>
@@ -1943,14 +1956,14 @@ that may require changes to the configuration.</para>
   <listitem>
 <para>Warnings about the use of two commonly
 misspelled keywords
-<emphasis role="bold">targets</emphasis>
+<parameter>targets</parameter>
 and
-<emphasis role="bold">sources</emphasis>
-to &Builder; calls. The correct spelling is the
+<parameter>sources</parameter>
+to &f-link-Builder; calls. The correct spelling is the
 singular form, even though
-<emphasis role="bold">target</emphasis>
+<parameter>target</parameter>
 and
-<emphasis role="bold">source</emphasis>
+<parameter>source</parameter>
 can themselves refer to lists of names or nodes.</para>
   </listitem>
   </varlistentry>
