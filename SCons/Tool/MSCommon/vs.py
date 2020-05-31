@@ -55,12 +55,12 @@ class VisualStudio:
     def find_batch_file(self):
         vs_dir = self.get_vs_dir()
         if not vs_dir:
-            debug('find_executable():  no vs_dir')
+            debug('no vs_dir')
             return None
         batch_file = os.path.join(vs_dir, self.batch_file_path)
         batch_file = os.path.normpath(batch_file)
         if not os.path.isfile(batch_file):
-            debug('find_batch_file():  %s not on file system' % batch_file)
+            debug('%s not on file system' % batch_file)
             return None
         return batch_file
 
@@ -68,7 +68,7 @@ class VisualStudio:
         SCons.Tool.MSCommon.vc.get_installed_vcs(env)
         dir = SCons.Tool.MSCommon.vc.find_vc_pdir(env, self.vc_version)
         if not dir:
-            debug('find_vs_dir_by_vc():  no installed VC %s' % self.vc_version)
+            debug('no installed VC %s' % self.vc_version)
             return None
         return os.path.abspath(os.path.join(dir, os.pardir))
 
@@ -84,9 +84,9 @@ class VisualStudio:
             try:
                 comps = read_reg(key)
             except SCons.Util.WinError as e:
-                debug('find_vs_dir_by_reg(): no VS registry key {}'.format(repr(key)))
+                debug('no VS registry key {}'.format(repr(key)))
             else:
-                debug('find_vs_dir_by_reg(): found VS in registry: {}'.format(comps))
+                debug('found VS in registry: {}'.format(comps))
                 return comps
         return None
 
@@ -98,18 +98,18 @@ class VisualStudio:
         vs_dir=self.find_vs_dir_by_reg(env)
         if not vs_dir:
             vs_dir = self.find_vs_dir_by_vc(env)
-        debug('find_vs_dir(): found VS in ' + str(vs_dir ))
+        debug('found VS in ' + str(vs_dir ))
         return vs_dir
 
     def find_executable(self, env):
         vs_dir = self.get_vs_dir(env)
         if not vs_dir:
-            debug('find_executable():  no vs_dir ({})'.format(vs_dir))
+            debug('no vs_dir ({})'.format(vs_dir))
             return None
         executable = os.path.join(vs_dir, self.executable_path)
         executable = os.path.normpath(executable)
         if not os.path.isfile(executable):
-            debug('find_executable():  {} not on file system'.format(executable))
+            debug('{} not on file system'.format(executable))
             return None
         return executable
 
@@ -123,12 +123,12 @@ class VisualStudio:
 
     def get_executable(self, env=None):
         try:
-            debug('get_executable using cache:%s'%self._cache['executable'])
+            debug('using cache:%s'%self._cache['executable'])
             return self._cache['executable']
         except KeyError:
             executable = self.find_executable(env)
             self._cache['executable'] = executable
-            debug('get_executable not in cache:%s'%executable)
+            debug('not in cache:%s'%executable)
             return executable
 
     def get_vs_dir(self, env):
@@ -479,14 +479,14 @@ def get_vs_by_version(msvs):
     global InstalledVSMap
     global SupportedVSMap
 
-    debug('get_vs_by_version()')
+    debug('called')
     if msvs not in SupportedVSMap:
         msg = "Visual Studio version %s is not supported" % repr(msvs)
         raise SCons.Errors.UserError(msg)
     get_installed_visual_studios()
     vs = InstalledVSMap.get(msvs)
-    debug('InstalledVSMap:%s'%InstalledVSMap)
-    debug('get_vs_by_version: found vs:%s'%vs)
+    debug('InstalledVSMap:%s' % InstalledVSMap)
+    debug('found vs:%s' % vs)
     # Some check like this would let us provide a useful error message
     # if they try to set a Visual Studio version that's not installed.
     # However, we also want to be able to run tests (like the unit
@@ -521,8 +521,8 @@ def get_default_version(env):
         if versions:
             env['MSVS_VERSION'] = versions[0] #use highest version by default
         else:
-            debug('get_default_version: WARNING: no installed versions found, '
-                  'using first in SupportedVSList (%s)'%SupportedVSList[0].version)
+            debug('WARNING: no installed versions found, '
+                  'using first in SupportedVSList (%s)' % SupportedVSList[0].version)
             env['MSVS_VERSION'] = SupportedVSList[0].version
 
     env['MSVS']['VERSION'] = env['MSVS_VERSION']
