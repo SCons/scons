@@ -4036,7 +4036,7 @@ int main(int argc, char **argv) {
     return ret
 
 env = Environment()
-conf = Configure(env, custom_tests = {'CheckQt': CheckQt})
+conf = Configure(env, custom_tests={'CheckQt': CheckQt})
 if not conf.CheckQt('/usr/lib/qt'):
     print('We really need qt!')
     Exit(1)
@@ -5020,7 +5020,7 @@ or directory target.</para>
 <programlisting language="python">
 MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
-env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
+env.Append(BUILDERS={'MakeDirectory': MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 </programlisting>
 
@@ -5056,7 +5056,7 @@ or directories (or both) as sources.</para>
 <programlisting language="python">
 CollectBuilder = Builder(action=my_mkdir, source_factory=Entry)
 env = Environment()
-env.Append(BUILDERS = {'Collect':CollectBuilder})
+env.Append(BUILDERS={'Collect': CollectBuilder})
 env.Collect('archive', ['directory_name', 'file_name'])
 </programlisting>
   </listitem>
@@ -5107,14 +5107,14 @@ b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
             emitter = [e, e2])
 
 # Calling an emitter function through a &consvar;.
-env = Environment(MY_EMITTER = e)
+env = Environment(MY_EMITTER=e)
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = '$MY_EMITTER')
+            emitter='$MY_EMITTER')
 
 # Calling a list of emitter functions through a &consvar;.
-env = Environment(EMITTER_LIST = [e, e2])
+env = Environment(EMITTER_LIST=[e, e2])
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = '$EMITTER_LIST')
+            emitter='$EMITTER_LIST')
 
 # Associating multiple emitters with different file
 # suffixes using a dictionary.
@@ -5123,8 +5123,8 @@ def e_suf1(target, source, env):
 def e_suf2(target, source, env):
     return (target, source + ['another_source_file'])
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = {'.suf1' : e_suf1,
-                       '.suf2' : e_suf2})
+            emitter={'.suf1' : e_suf1,
+                     '.suf2' : e_suf2})
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5258,7 +5258,7 @@ and
 b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
             source_ext_match = None)
 
-env = Environment(BUILDERS = {'MyBuild':b})
+env = Environment(BUILDERS={'MyBuild':b})
 env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
 </programlisting>
 
@@ -5278,8 +5278,8 @@ used to call the Builder for the target file.)</para>
 
 <programlisting language="python">
 b = Builder(action="build &lt; $SOURCE &gt; $TARGET")
-env = Environment(BUILDERS = {'MyBuild' : b})
-env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
+env = Environment(BUILDERS={'MyBuild' : b})
+env.MyBuild('foo.out', 'foo.in', my_arg='xyzzy')
 </programlisting>
 
   </listitem>
@@ -5331,7 +5331,7 @@ targets and source.</para>
 <programlisting language="python">
 b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
             chdir=1)
-env = Environment(BUILDERS = {'MyBuild' : b})
+env = Environment(BUILDERS={'MyBuild' : b})
 env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 </programlisting>
 
@@ -5514,19 +5514,19 @@ or return a non-zero exit status
 to indicate an unsuccessful build.</para>
 
 <programlisting language="python">
-def build_it(target = None, source = None, env = None):
+def build_it(target=None, source=None, env=None):
     # build the target from the source
     return 0
 
 a = Action(build_it)
 </programlisting>
 
-<para>If the action argument is not one of the above,
-<constant>None</constant> is returned.</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
+<para>If the action argument is not one of the above,
+<constant>None</constant> is returned.</para>
 
 <para>The second argument to &f-Action;
 is optional and is used to define the output
@@ -5541,13 +5541,14 @@ The argument must be either a Python function or a string.</para>
 it's a function that returns a string to be printed
 to describe the action being executed.
 The function may also be specified by the
-<parameter>strfunction</parameter>=
+<parameter>strfunction</parameter>
 keyword argument.
 Like a function to build a file,
-this function must accept three keyword arguments:</para>
+the <parameter>strfunction</parameter> function
+must accept three keyword arguments:</para>
 
   <simplelist type="vert">
-  <member><parameter>source</parameter> - 
+  <member><parameter>source</parameter> -
     a Node object representing the source file.</member>
   <member><parameter>target</parameter> -
     a Node object representing the target file.</member>
@@ -5562,8 +5563,8 @@ arguments may be lists of Node objects if there is
 more than one target file or source file.</para>
 
 <para>In the second case, you provide the string itself.
-The string may also be specified by the
-<parameter>cmdstr</parameter>=
+This string may also be specified using the
+<parameter>cmdstr</parameter>
 keyword argument.
 The string typically contains variables, notably
 <literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
@@ -5597,8 +5598,8 @@ l = Action(build_it, '$STRINGIT')
 may either be a &consvar; or a list of &consvars;
 whose values will be included in the signature of the Action
 when deciding whether a target should be rebuilt because the action changed.
-The variables may also be specified by a
-<parameter>varlist</parameter>=
+The variables may also be specified using the
+<parameter>varlist</parameter>
 keyword parameter;
 if both are present, they are combined.
 This is necessary whenever you want a target to be rebuilt
@@ -5611,7 +5612,8 @@ the value of a &consvar; when generating the command line.</para>
 <programlisting language="python">
 def build_it(target, source, env):
     # build the target from the 'XXX' construction variable
-    open(target[0], 'w').write(env['XXX'])
+    with open(target[0], 'w') as f:
+        f.write(env['XXX'])
     return 0
 
 # Use positional arguments.
@@ -5669,7 +5671,7 @@ expansions like
 and
 <literal>${SOURCE.file}</literal>
 to use just the filename portion of the
-targets and source.</para>
+targets and source. Example:</para>
 
 <programlisting language="python">
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
@@ -5692,12 +5694,13 @@ to specify that an Action object's
 return value should be ignored
 under special conditions
 and SCons should, therefore,
-consider that the action always suceeds:</para>
+consider that the action always succeeds. Example:</para>
 
 <programlisting language="python">
 def always_succeed(s):
     # Always return 0, which indicates success.
     return 0
+
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            exitstatfunc=always_succeed)
 </programlisting>
@@ -5727,9 +5730,8 @@ Command lines will typically want to use the
 &cv-CHANGED_SOURCES; &consvar;
 (and possibly &cv-CHANGED_TARGETS; as well)
 to only pass to the command line those sources that
-have actually changed since their targets were built.</para>
-
-<para>Example:</para>
+have actually changed since their targets were built.
+Example:</para>
 
 <programlisting language="python">
 a = Action('build $CHANGED_SOURCES', batch_key=True)
@@ -5860,12 +5862,17 @@ external commands:
 </para>
 
 <programlisting language="python">
-env = Environment(TMPBUILD = '/tmp/builddir')
-env.Command('foo.out', 'foo.in',
-            [Mkdir('$TMPBUILD'),
-             Copy('$TMPBUILD', '${SOURCE.dir}'),
-             "cd $TMPBUILD &amp;&amp; make",
-             Delete('$TMPBUILD')])
+env = Environment(TMPBUILD='/tmp/builddir')
+env.Command(
+    target='foo.out',
+    source='foo.in',
+    action=[
+        Mkdir('$TMPBUILD'),
+        Copy('$TMPBUILD', '${SOURCE.dir}'),
+        "cd $TMPBUILD &amp;&amp; make",
+        Delete('$TMPBUILD'),
+    ],
+)
 </programlisting>
 
 <variablelist>
@@ -6008,7 +6015,7 @@ Examples:</para>
 <programlisting language="python">
 Execute(Touch('file_to_be_touched'))
 
-env.Command('marker', 'input_file', 
+env.Command('marker', 'input_file',
             action=[MyBuildAction, Touch('$TARGET')])
 </programlisting>
 
@@ -6025,7 +6032,7 @@ env.Command('marker', 'input_file',
 performs &consvar; substitution on the string that makes up
 the command line of the builder.
 &Consvars; to be interpolated are indicated in the
-string with a leading 
+string with a leading
 <literal>$</literal>, to distinguish them from plain text
 which is not to be substituted.
 Besides regular &consvars;, scons provides the following
@@ -6141,117 +6148,58 @@ have the following
 modifiers appended within the enclosing curly braces
 to access properties of the interpolated string:</para>
 
-<variablelist>
-  <varlistentry>
-  <term><parameter>base</parameter></term>
-  <listitem>
-<para>The base path of the file name,
-including the directory path
-but excluding any suffix.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>dir</parameter></term>
-  <listitem>
-<para>The name of the directory in which the file exists.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>file</parameter></term>
-  <listitem>
-<para>The file name,
-minus any directory portion.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>filebase</parameter></term>
-  <listitem>
-<para>Like <parameter>file</parameter>
-but minus its suffix..</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>suffix</parameter></term>
-  <listitem>
-<para>Just the file suffix.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>abspath</parameter></term>
-  <listitem>
-<para>The absolute path name of the file.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>posix</parameter></term>
-  <listitem>
-<para>The path with directories separated by forward slashes
-(<emphasis role="bold">/</emphasis>).
-Sometimes necessary on Windows systems
-when a path references a file on other (POSIX) systems.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>windows</parameter></term>
-  <listitem>
-<para>The path with directories separated by backslashes.
-(<emphasis role="bold"><literal>\\</literal></emphasis>).
-Sometimes necessary on POSIX-style systems
-when a path references a file on other (Windows) systems.
-<parameter>win32</parameter> is a (deprecated) synonym for
-<parameter>windows</parameter>.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>srcpath</parameter></term>
-  <listitem>
-<para>The directory and file name to the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If this file isn't linked,
-it just returns the directory and filename unchanged.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>srcdir</parameter></term>
-  <listitem>
-<para>The directory containing the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If this file isn't linked,
-it just returns the directory part of the filename.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>rsrcpath</parameter></term>
-  <listitem>
-<para>The directory and file name to the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If the file does not exist locally but exists in a Repository,
-the path in the Repository is returned.
-If this file isn't linked, it just returns the
-directory and filename unchanged.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>rsrcdir</parameter></term>
-  <listitem>
-<para>The Repository directory containing the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If this file isn't linked,
-it just returns the directory part of the filename.</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
+<simplelist>
+  <member><parameter>base</parameter> -
+    The base path of the file name,
+    including the directory path
+    but excluding any suffix.
+  </member>
+  <member><parameter>dir</parameter> - The name of the directory in which the file exists.</member>
+  <member><parameter>file</parameter> -  The file name, minus any directory portion.</member>
+  <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
+  <member><parameter>suffix</parameter> - Just the file suffix.</member>
+  <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
+  <member><parameter>posix</parameter> -
+    The path with directories separated by forward slashes
+    (<emphasis role="bold">/</emphasis>).
+    Sometimes necessary on Windows systems
+    when a path references a file on other (POSIX) systems.
+  </member>
+  <member><parameter>windows</parameter> -
+    The path with directories separated by backslashes
+    (<emphasis role="bold"><literal>\\</literal></emphasis>).
+    Sometimes necessary on POSIX-style systems
+    when a path references a file on other (Windows) systems.
+    <parameter>win32</parameter> is a (deprecated) synonym for
+    <parameter>windows</parameter>.
+  </member>
+  <member><parameter>srcpath</parameter> -
+    The directory and file name to the source file linked to this file through
+    &f-VariantDir;().
+    If this file isn't linked,
+    it just returns the directory and filename unchanged.
+  </member>
+  <member><parameter>srcdir</parameter> -
+    The directory containing the source file linked to this file through
+    &f-VariantDir;().
+    If this file isn't linked,
+    it just returns the directory part of the filename.
+  </member>
+  <member><parameter>rsrcpath</parameter> -
+    The directory and file name to the source file linked to this file through
+    &f-VariantDir;().
+    If the file does not exist locally but exists in a Repository,
+    the path in the Repository is returned.
+    If this file isn't linked, it just returns the
+    directory and filename unchanged.
+  </member>
+  <member><parameter>rsrcdir</parameter> -
+    The Repository directory containing the source file linked to this file through
+    &VariantDir;().
+    If this file isn't linked,
+    it just returns the directory part of the filename.
+  </member>
+</simplelist>
 
 <para>For example, the specified target will
 expand as follows for the corresponding modifiers:</para>
@@ -6732,19 +6680,19 @@ issues waiting to trap the unwary.</para>
 <title>.C file suffix</title>
 
 <para>&scons; handles the upper-case
-<markup>.C</markup>
+<filename>.C</filename>
 file suffix differently,
 depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
 &scons; treats a file with a
-<markup>.C</markup>
+<filename>.C</filename>
 suffix as a C++ source file.
 On a case-insensitive system
 such as Windows,
 &scons; treats a file with a
-<markup>.C</markup>
+<filename>.C</filename>
 suffix as a C source file.</para>
 </refsect2>
 
@@ -6752,21 +6700,21 @@ suffix as a C source file.</para>
 <title>.F file suffix</title>
 
 <para>&scons; handles the upper-case
-<markup>.F</markup>
+<filename>.F</filename>
 file suffix differently,
 depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
 &scons; treats a file with a
-<markup>.F</markup>
+<filename>.F</filename>
 suffix as a Fortran source file
 that is to be first run through
 the standard C preprocessor.
 On a case-insensitive system
 such as Windows,
 &scons; treats a file with a
-<markup>.F</markup>
+<filename>.F</filename>
 suffix as a Fortran source file that should
 <emphasis>not</emphasis>
 be run through the C preprocessor.</para>
@@ -6813,11 +6761,11 @@ to run &scons;.</para>
 </refsect2>
 
 <refsect2 id='windows_sconsbat_file'>
-<title>Windows: scons.bat file</title>
+<title>Windows: <filename>scons.bat</filename> file</title>
 
 <para>On Windows systems,
 &scons; is executed via a wrapper
-<emphasis role="bold">scons.bat</emphasis>
+<filename>scons.bat</filename>
 file.
 This has (at least) two ramifications:</para>
 
@@ -6837,23 +6785,26 @@ as an &scons;
 command issued at the command-line prompt.
 You can work around this either by
 executing
-<emphasis role="bold">scons.bat</emphasis>
+<filename>scons.bat</filename>
 from the Cygwin command line,
 or by creating a wrapper shell
 script named
-<emphasis role="bold">scons</emphasis>.</para>
+<filename>scons</filename>.</para>
 
 </refsect2>
 
 <refsect2 id='mingw'>
 <title>MinGW</title>
 
-<para>The MinGW bin directory must be in your PATH environment variable or the
-PATH variable under the ENV &consvar; for &scons;
+<para>The MinGW <filename>bin</filename>
+directory must be in your <envar>PATH</envar>
+environment variable or the
+<envar>ENV['PATH']</envar> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
 Python interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
-directories in the PATH variable. If you have both MSVC and MinGW
+directories in the <envar>PATH</envar> variable.
+If you have both MSVC and MinGW
 installed and you want to use MinGW instead of MSVC,
 then you must explicitly tell &scons; to use MinGW by passing
 <code>tools=['mingw']</code>
