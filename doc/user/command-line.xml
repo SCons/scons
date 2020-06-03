@@ -342,7 +342,7 @@ foo.in
       The above snippet of code
       sets the value of the <option>--jobs</option> option
       to the value specified in the
-      <varname>$NUM_CPU</varname> environment variable.
+      <varname>NUM_CPU</varname> environment variable.
       (This is one of the exception cases
       where the string is spelled differently from
       the from command-line option.
