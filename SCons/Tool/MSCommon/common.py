@@ -43,7 +43,15 @@ if LOGFILE == '-':
 elif LOGFILE:
     import logging
     logging.basicConfig(
-        format='%(relativeCreated)05dms:pid%(process)05d:MSCommon/%(filename)s:%(message)s',
+        # This looks like:
+        #   00109ms:MSCommon/vc.py:find_vc_pdir#447:
+        format=(
+            '%(relativeCreated)05dms'
+            ':MSCommon/%(filename)s'
+            ':%(funcName)s'
+            '#%(lineno)s'
+            ':%(message)s: '
+        ),
         filename=LOGFILE,
         level=logging.DEBUG)
     debug = logging.getLogger(name=__name__).debug
@@ -243,8 +251,8 @@ def get_output(vcbat, args=None, env=None):
         stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
-#     debug('get_output():stdout:%s'%stdout)
-#     debug('get_output():stderr:%s'%stderr)
+    # debug('stdout:%s' % stdout)
+    # debug('stderr:%s' % stderr)
 
     # Ongoing problems getting non-corrupted text led to this
     # changing to "oem" from "mbcs" - the scripts run presumably

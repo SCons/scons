@@ -33,9 +33,7 @@ import os
 import SCons.Errors
 import SCons.Util
 
-from . import common
-
-debug = common.debug
+from .common import debug, read_reg
 
 # SDK Checks. This is of course a mess as everything else on MS platforms. Here
 # is what we do to detect the SDK:
@@ -79,7 +77,7 @@ class SDKDefinition:
         debug('find_sdk_dir(): checking registry:{}'.format(hkey))
 
         try:
-            sdk_dir = common.read_reg(hkey)
+            sdk_dir = read_reg(hkey)
         except SCons.Util.WinError as e:
             debug('find_sdk_dir(): no SDK registry key {}'.format(repr(hkey)))
             return None
