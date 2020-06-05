@@ -162,6 +162,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       check and test is no longer needed.
     - Close various logfiles (trace, cache, taskmastertrace, configure)
       when done using atexit calls.
+    - Rebase forked copy of shutil.copytree to Python 3.7 stlib version.
 
 
 
