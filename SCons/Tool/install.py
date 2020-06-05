@@ -43,7 +43,7 @@ import SCons.Util
 _INSTALLED_FILES = []
 _UNIQUE_INSTALLED_FILES = None
 
-class CopytreeError(EnvironmentError):
+class CopytreeError(OSError):
     pass
 
 
@@ -52,12 +52,13 @@ def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
     """Recursively copy a directory tree, SCons version.
 
     This is a modified copy of the Python 3.7 shutil.copytree function.
-    SCons update: dirs_exist_ok dictates whether to raise an exception in
-    case dst or any missing parent directory already exists. Implementation
-    depends on os.makedirs having a similar flag, which it has since
-    Python 3.2.  This version uses a change from Python 3.8, so at some
-    point we can remove this hack. This version also raises an SCons-defined
-    exception rather than the one defined locally to shtuil.
+    SCons update: dirs_exist_ok dictates whether to raise an
+    exception in case dst or any missing parent directory already
+    exists. Implementation depends on os.makedirs having a similar
+    flag, which it has since Python 3.2.  This version also raises an
+    SCons-defined exception rather than the one defined locally to shtuil.
+    This version uses a change from Python 3.8.
+    TODO: we can remove this forked copy once the minimum Py version is 3.8.
 
     If exception(s) occur, an Error is raised with a list of reasons.
 
@@ -129,7 +130,7 @@ def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
                 copy_function(srcname, dstname)
         # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except Error as err:
+        except CopytreeError as err:  # SCons change
             errors.extend(err.args[0])
         except OSError as why:
             errors.append((srcname, dstname, str(why)))
@@ -149,7 +150,7 @@ def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
 def copyFunc(dest, source, env):
     """Install a source file or directory into a destination by copying,
 
-    Mode bits will be copied as well.
+    Mode/permissions bits will be copied as well.
 
     """
     if os.path.isdir(source):
@@ -173,7 +174,7 @@ def copyFunc(dest, source, env):
 def copyFuncVersionedLib(dest, source, env):
     """Install a versioned library into a destination by copying,
 
-    Mode bits will be copied as well.
+    Mode/permissions bits will be copied as well.
     Any required symbolic links for other library names are created.
 
     """
