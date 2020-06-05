@@ -85,7 +85,11 @@ expect = expect_build % (r' \[foo\.bar\]', r'\$\{func\(1\)\}')
 
 test.run(status=2, stderr=expect)
 
+# user callable exceptions (Github issue #3654):
+test.file_fixture('test_main.c')
+test.file_fixture('./fixture/SConstruct.callable_exception', 'SConstruct')
 
+test.run(status=2, stderr=r'.*TypeError\s:\sUser\scallable\sexception.*')
 
 test.pass_test()
 

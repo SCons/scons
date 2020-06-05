@@ -1502,11 +1502,16 @@ class Base(SubstitutionEnvironment):
     def Dictionary(self, *args):
         """Return construction variables from an environment.
 
-        :param *args: (optional) variable names to look up
-        :returns: if args omitted, the dictionary of all constr. vars.
-            If one arg, the corresponding value is returned.
-            If more than one arg, a list of values is returned.
-        :raises KeyError: if any of *args is not in the construction env.
+        Args:
+          \*args (optional): variable names to look up
+
+        Returns:
+          If `args` omitted, the dictionary of all construction variables.
+          If one arg, the corresponding value is returned.
+          If more than one arg, a list of values is returned.
+
+        Raises:
+          KeyError: if any of `args` is not in the construction environment.
 
         """
         if not args:
@@ -1517,35 +1522,55 @@ class Base(SubstitutionEnvironment):
         return dlist
 
 
-    def Dump(self, key=None):
-        """ Return pretty-printed string of construction variables.
+    def Dump(self, key=None, format='pretty'):
+        """ Return construction variables serialized to a string.
 
-        :param key: if None, format the whole dict of variables.
-            Else look up and format just the value for key.
+        Args:
+          key (optional): if None, format the whole dict of variables.
+            Else format the value of `key` (Default value = None)
+          format (optional): specify the format to serialize to.
+            `"pretty"` generates a pretty-printed string,
+            `"json"` a JSON-formatted string.
+            (Default value = None, equivalent to `"pretty"`)
 
         """
-        import pprint
-        pp = pprint.PrettyPrinter(indent=2)
         if key:
             cvars = self.Dictionary(key)
         else:
             cvars = self.Dictionary()
 
-        # TODO: pprint doesn't do a nice job on path-style values
-        # if the paths contain spaces (i.e. Windows), because the
-        # algorithm tries to break lines on spaces, while breaking
-        # on the path-separator would be more "natural". Is there
-        # a better way to format those?
-        return pp.pformat(cvars)
+        fmt = format.lower()
+
+        if fmt == 'pretty':
+            import pprint
+            pp = pprint.PrettyPrinter(indent=2)
+
+            # TODO: pprint doesn't do a nice job on path-style values
+            # if the paths contain spaces (i.e. Windows), because the
+            # algorithm tries to break lines on spaces, while breaking
+            # on the path-separator would be more "natural". Is there
+            # a better way to format those?
+            return pp.pformat(cvars)
+
+        elif fmt == 'json':
+            import json
+            def non_serializable(obj):
+                return str(type(obj).__qualname__)
+            return json.dumps(cvars, indent=4, default=non_serializable)
+        else:
+            raise ValueError("Unsupported serialization format: %s." % fmt)
 
 
     def FindIxes(self, paths, prefix, suffix):
-        """
-        Search a list of paths for something that matches the prefix and suffix.
+        """Search a list of paths for something that matches the prefix and suffix.
 
-        paths - the list of paths or nodes.
-        prefix - construction variable for the prefix.
-        suffix - construction variable for the suffix.
+        Args:
+          paths: the list of paths or nodes.
+          prefix: construction variable for the prefix.
+          suffix: construction variable for the suffix.
+
+        Returns: the matched path or None
+
         """
 
         suffix = self.subst('$'+suffix)
@@ -2001,7 +2026,7 @@ class Base(SubstitutionEnvironment):
             pass
         else:
             del kw['target_factory']
-            
+
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 

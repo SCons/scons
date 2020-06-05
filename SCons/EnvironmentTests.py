@@ -2941,6 +2941,18 @@ def generate(env):
         assert env.Dump('FOO') == "'foo'", env.Dump('FOO')
         assert len(env.Dump()) > 200, env.Dump()    # no args version
 
+        assert env.Dump('FOO', 'json') == '"foo"'    # JSON key version
+        import json
+        env_dict = json.loads(env.Dump(format = 'json'))
+        assert env_dict['FOO'] == 'foo'    # full JSON version
+
+        try:
+            env.Dump(format = 'markdown')
+        except ValueError as e:
+            assert str(e) == "Unsupported serialization format: markdown."
+        else:
+            self.fail("Did not catch expected ValueError.")
+
     def test_Environment(self):
         """Test the Environment() method"""
         env = self.TestEnvironment(FOO = 'xxx', BAR = 'yyy')

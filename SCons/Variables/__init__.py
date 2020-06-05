@@ -48,17 +48,21 @@ class Variables:
     """
     Holds all the options, updates the environment with the variables,
     and renders the help text.
+
+    If is_global is True, this is a singleton, create only once.
+
+    Args:
+      files (optional): List of option configuration files to load
+        (backward compatibility). If a single string is passed it is
+        automatically placed in a file list (Default value = None)
+      args (optional): dictionary to override values set from *files*.
+        (Default value = None)
+      is_global (optional): global instance? (Default value = True)
+
     """
-    instance=None
+    instance = None
 
-    def __init__(self, files=None, args=None, is_global=1):
-        """
-        files - [optional] List of option configuration files to load
-            (backward compatibility) If a single string is passed it is
-            automatically placed in a file list
-        args - dictionary to override values set from files.
-        """
-
+    def __init__(self, files=None, args=None, is_global=True):
         if args is None:
             args = {}
         self.options = []
@@ -112,18 +116,19 @@ class Variables:
         return [o.key for o in self.options]
 
     def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
+        """Add an option.
+
+        Args:
+          key: the name of the variable, or a list or tuple of arguments
+          help: optional help text for the options (Default value = "")
+          default: optional default value for option (Default value = None)
+          validator: optional function called to validate the option's value
+            (Default value = None)
+          converter: optional function to be called to convert the option's
+            value before putting it in the environment. (Default value = None)
+          \*\*kw: keyword args, unused.
+
         """
-        Add an option.
-
-
-        @param key: the name of the variable, or a list or tuple of arguments
-        @param help: optional help text for the options
-        @param default: optional default value
-        @param validator: optional function that is called to validate the option's value
-        @type validator: Called with (key, value, environment)
-        @param converter: optional function that is called to convert the option's value before putting it in the environment.
-        """
-
         if SCons.Util.is_List(key) or isinstance(key, tuple):
             self._do_add(*key)
             return
@@ -144,10 +149,9 @@ class Variables:
         Example::
 
             opt.AddVariables(
-            ('debug', '', 0),
-            ('CC', 'The C compiler'),
-            ('VALIDATE', 'An option for testing validation', 'notset',
-             validator, None),
+                ('debug', '', 0),
+                ('CC', 'The C compiler'),
+                ('VALIDATE', 'An option for testing validation', 'notset', validator, None),
             )
 
         """

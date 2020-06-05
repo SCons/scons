@@ -84,7 +84,7 @@
 
     Any command-line argument containing an <literal>=</literal>
     (equal sign) is considered a variable setting with the form
-    <varname>variable</varname>=<varname>value</varname>.
+    <varname>variable</varname>=<replaceable>value</replaceable>.
     &SCons; provides direct access to
     all of the command-line variable settings,
     the ability to apply command-line variable settings
@@ -132,7 +132,7 @@
     &SCons; has many <emphasis>command-line options</emphasis>
     that control its behavior.
     A &SCons; <emphasis>command-line option</emphasis>
-    always begins with one or two <literal>-</literal> (hyphen)
+    always begins with one or two hyphen (<literal>-</literal>)
     characters.
 
     </para>
@@ -146,9 +146,9 @@
       the same command-line options every time
       they run &SCons;.
       For example, you might find it saves time
-      to specify a value of <literal>-j 2</literal>
+      to specify a value of <option>-j 2</option>
       to have &SCons; run up to two build commands in parallel.
-      To avoid having to type <literal>-j 2</literal> by hand
+      To avoid having to type <option>-j 2</option> by hand
       every time,
       you can set the external environment variable
       &SCONSFLAGS; to a string containing
@@ -162,7 +162,7 @@
       you're using a POSIX shell that's
       compatible with the Bourne shell,
       and you always want &SCons; to use the
-      <literal>-Q</literal> option,
+      <option>-Q</option> option,
       you can set the &SCONSFLAGS;
       environment as follows:
 
@@ -192,7 +192,7 @@ foo.in
       <para>
 
       Users of &csh;-style shells on POSIX systems
-      can set the &SCONSFLAGS; environment as follows:
+      can set the &SCONSFLAGS; environment variable as follows:
 
       </para>
 
@@ -215,30 +215,30 @@ $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
 
       <para>
 
-      &SCons; provides the &GetOption; function
+      &SCons; provides the &f-link-GetOption; function
       to get the values set by the various command-line options.
-      One common use of this is to check whether or not
-      the <literal>-h</literal> or <literal>--help</literal> option
-      has been specified.
-      Normally, &SCons; does not print its help text
-      until after it has read all of the &SConscript; files,
-      because it's possible that help text has been added
-      by some subsidiary &SConscript; file deep in the
-      source tree hierarchy.
-      Of course, reading all of the &SConscript; files
-      takes extra time.
 
       </para>
 
       <para>
 
+      One use case for &GetOption; is to check whether or not
+      the <option>-h</option> or <option>--help</option> option
+      has been specified.
+      Normally, &SCons; does not print its help text
+      until after it has read all of the SConscript files,
+      because it's possible that help text has been added
+      by some subsidiary SConscript file deep in the
+      source tree hierarchy.
+      Of course, reading all of the SConscript files
+      takes extra time.
       If you know that your configuration does not define
-      any additional help text in subsidiary &SConscript; files,
+      any additional help text in subsidiary SConscript files,
       you can speed up the command-line help available to users
       by using the &GetOption; function to load the
-      subsidiary &SConscript; files only if the
+      subsidiary SConscript files only if the
       the user has <emphasis>not</emphasis> specified
-      the <literal>-h</literal> or <literal>--help</literal> option,
+      the <option>-h</option> or <option>--help</option> option,
       like so:
 
       </para>
@@ -251,15 +251,28 @@ if not GetOption('help'):
       <para>
 
       In general, the string that you pass to the
-      &GetOption; function to fetch the value of a command-line
+      &f-GetOption; function to fetch the value of a command-line
       option setting is the same as the "most common" long option name
       (beginning with two hyphen characters),
       although there are some exceptions.
       The list of &SCons; command-line options
-      and the &GetOption; strings for fetching them,
+      and the &f-GetOption; strings for fetching them,
       are available in the
       <xref linkend="sect-command-line-option-strings"></xref> section,
       below.
+
+      </para>
+
+      <para>
+
+      &f-Getoption; can be used to retrieve the values of options
+      defined by calls to &f-link-AddOption;. A &f-GetOption; call
+      must appear after the &f-AddOption; call for that option.
+      If the &f-AddOption; call supplied a <parameter>dest</parameter>
+      keyword argument, a string with that name is what to pass
+      as the argument to &f-GetOption;, otherwise it is a
+      (possibly modified) version of the first long option name -
+      see &f-link-AddOption;.
 
       </para>
 
@@ -272,7 +285,7 @@ if not GetOption('help'):
 
       You can also set the values of &SCons;
       command-line options from within the &SConscript; files
-      by using the &SetOption; function.
+      by using the &f-link-SetOption; function.
       The strings that you use to set the values of &SCons;
       command-line options are available in the
       <xref linkend="sect-command-line-option-strings"></xref> section,
@@ -283,17 +296,17 @@ if not GetOption('help'):
       <para>
 
       One use of the &SetOption; function is to
-      specify a value for the <literal>-j</literal>
-      or <literal>--jobs</literal> option,
+      specify a value for the <option>-j</option>
+      or <option>--jobs</option> option,
       so that users get the improved performance
       of a parallel build without having to specify the option by hand.
       A complicating factor is that a good value
-      for the <literal>-j</literal> option is
+      for the <option>-j</option> option is
       somewhat system-dependent.
       One rough guideline is that the more processors
       your system has,
       the higher you want to set the
-      <literal>-j</literal> value,
+      <option>-j</option> value,
       in order to take advantage of the number of CPUs.
 
       </para>
@@ -303,7 +316,7 @@ if not GetOption('help'):
       For example, suppose the administrators
       of your development systems
       have standardized on setting a
-      <varname>NUM_CPU</varname> environment variable
+      <envar>NUM_CPU</envar> environment variable
       to the number of processors on each system.
       A little bit of Python code
       to access the environment variable
@@ -327,13 +340,13 @@ foo.in
       <para>
 
       The above snippet of code
-      sets the value of the <literal>--jobs</literal> option
+      sets the value of the <option>--jobs</option> option
       to the value specified in the
-      <varname>$NUM_CPU</varname> environment variable.
+      <varname>NUM_CPU</varname> environment variable.
       (This is one of the exception cases
       where the string is spelled differently from
       the from command-line option.
-      The string for fetching or setting the <literal>--jobs</literal>
+      The string for fetching or setting the <option>--jobs</option>
       value is <literal>num_jobs</literal>
       for historical reasons.)
       The code in this example prints the <literal>num_jobs</literal>
@@ -350,7 +363,7 @@ foo.in
 
       <para>
 
-      But if the <varname>$NUM_CPU</varname>
+      But if the <envar>NUM_CPU</envar>
       environment variable is set,
       then we use that for the default number of jobs:
 
@@ -364,10 +377,10 @@ foo.in
       <para>
 
       But any explicit
-      <literal>-j</literal> or <literal>--jobs</literal>
+      <option>-j</option> or <option>--jobs</option>
       value the user specifies an the command line is used first,
       regardless of whether or not
-      the <varname>$NUM_CPU</varname> environment
+      the <envar>NUM_CPU</envar> environment
       variable is set:
 
       </para>
@@ -385,12 +398,19 @@ foo.in
 
       <para>
 
-      The strings that you can pass to the &GetOption;
-      and &SetOption; functions usually correspond to the
+      The strings that you can pass to the &f-link-GetOption;
+      and &f-link-SetOption; functions usually correspond to the
       first long-form option name
       (beginning with two hyphen characters:  <literal>--</literal>),
       after replacing any remaining hyphen characters
       with underscores.
+
+      </para>
+
+      <para>
+
+      &SetOption; is not currently supported for
+      options added with &AddOption;.
 
       </para>
 
@@ -597,7 +617,7 @@ foo.in
       <para>
 
       &SCons; also allows you to define your own
-      command-line options with the &AddOption; function.
+      command-line options with the &f-link-AddOption; function.
       The &AddOption; function takes the same arguments
       as the <function>add_option</function> method
       from the standard Python library module <emphasis>optparse</emphasis>.
@@ -614,15 +634,28 @@ foo.in
       Once you have added a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
-      using the standard &GetOption; function.
+      using the standard &f-link-GetOption; function.
+      The argument to &f-GetOption; must be the name of the
+      variable which will hold the option,
+      which is the value of the <parameter>dest</parameter>
+      keyword parameter, if given. If not given, it is the name
+      (without the leading hyphens) of the first long option name
+      given to &AddOption;
+      after replacing any remaining hyphen characters
+      with underscores, since hyphens are not legal in Python
+      identifier names.
+
+      </para>
+
+      <para>
+      &SetOption; is not currently supported for
+      options added with &AddOption;.
       <!--
       (The value can also be set using &SetOption;,
       although that's not very useful in practice
       because a default value can be specified in
       directly in the &AddOption; call.)
       -->
-      &SetOption; is not currently supported for
-      options added with &AddOption;.
       </para>
 
       <para>
@@ -634,15 +667,17 @@ foo.in
 
       <scons_example name="commandline_AddOption">
         <file name="SConstruct" printme="1">
-AddOption('--prefix',
-          dest='prefix',
-          type='string',
-          nargs=1,
-          action='store',
-          metavar='DIR',
-          help='installation prefix')
+AddOption(
+    '--prefix',
+    dest='prefix',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='installation prefix',
+)
 
-env = Environment(PREFIX = GetOption('prefix'))
+env = Environment(PREFIX=GetOption('prefix'))
 
 installed_foo = env.Install('$PREFIX/usr/bin', 'foo.in')
 Default(installed_foo)
@@ -655,14 +690,14 @@ foo.in
       <para>
 
       The above code uses the &GetOption; function
-      to set the <varname>$PREFIX</varname>
+      to set the <envar>$PREFIX</envar>
       construction variable to any
       value that the user specifies with a command-line
-      option of <literal>--prefix</literal>.
-      Because <varname>$PREFIX</varname>
+      option of <option>--prefix</option>.
+      Because <envar>$PREFIX</envar>
       will expand to a null string if it's not initialized,
       running &SCons; without the
-      option of <literal>--prefix</literal>
+      option of <option>--prefix</option>
       will install the file in the
       <filename>/usr/bin/</filename> directory:
 
@@ -674,7 +709,7 @@ foo.in
 
       <para>
 
-      But specifying <literal>--prefix=/tmp/install</literal>
+      But specifying <option>--prefix=/tmp/install</option>
       on the command line causes the file to be installed in the
       <filename>/tmp/install/usr/bin/</filename> directory:
 
@@ -688,13 +723,13 @@ foo.in
       <para>
       Option-arguments separated from long options by whitespace,
       rather than by an <literal>=</literal>, cannot be correctly
-      resolved by <command>scons</command>.
-      While <literal>--input=ARG</literal>
-      is clearly opt followed by arg, for <literal>--input ARG</literal>
+      resolved by &SCons;.
+      While <option>--input=ARG</option>
+      is clearly opt followed by arg, for <option>--input ARG</option>
       it is not possible to tell without instructions whether
       <parameter>ARG</parameter> is an argument belonging to the
       <parameter>input</parameter> option or a positional argument.
-      <command>scons</command> treats positional arguments as either
+      &SCons; treats positional arguments as either
       command-line build options or command-line targets
       which are made available for use in an &SConscript;
       (see the immediately following sections for details).
@@ -702,21 +737,21 @@ foo.in
       takes place. Since &AddOption; calls, which provide
       the processing instructions to resolve any ambiguity,
       happen in an &SConscript;,
-      <command>scons</command> does not know in time
+      &SCons; does not know in time
       for options added this way, and unexpected things will happen,
       such as option-arguments assigned as targets and/or exceptions
       due to missing option-arguments.
       </para>
       <para>
       As a result, this usage style should be avoided when invoking
-      <command>scons</command>.  For single-argument
-      options, use the <literal>--input=ARG</literal> form on the
+      &scons;.  For single-argument
+      options, use the <option>--input=ARG</option> form on the
       command line. For multiple-argument options
       (<parameter>nargs</parameter> greater than one),
       set <parameter>nargs</parameter> to one in
       &AddOption; calls and either: combine the option-arguments into one word
       with a separator, and parse the result in your own code
-      (see the built-in <parameter>--debug</parameter> option, which
+      (see the built-in <option>--debug</option> option, which
       allows specifying multiple arguments as a single comma-separated
       word, for an example of such usage); or allow the option to
       be specified multiple times by setting
@@ -730,13 +765,13 @@ foo.in
   </section>
 
   <section id="sect-command-line-variables">
-  <title>Command-Line <varname>variable</varname>=<varname>value</varname> Build Variables</title>
+  <title>Command-Line <varname>variable</varname>=<replaceable>value</replaceable> Build Variables</title>
 
     <para>
 
     You may want to control various aspects
     of your build by allowing the user
-    to specify <varname>variable</varname>=<varname>value</varname>
+    to specify <varname>variable</varname>=<replaceable>value</replaceable>
     values on the command line.
     For example, suppose you
     want users to be able to
@@ -753,7 +788,7 @@ foo.in
 
     &SCons; provides an &ARGUMENTS; dictionary
     that stores all of the
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<replaceable>value</replaceable>
     assignments from the command line.
     This allows you to modify
     aspects of your build in response
@@ -762,8 +797,7 @@ foo.in
     that users <emphasis>always</emphasis>
     specify a variable,
     you probably want to use
-    the Python
-    <literal>ARGUMENTS.get()</literal> function,
+    the Python dictionary <methodname>get</methodname> method,
     which allows you to specify a default value
     to be used if there is no specification
     on the command line.)
@@ -845,7 +879,7 @@ prog.c
     To accomodate these requirements,
     &SCons; provides an &ARGLIST; variable
     that gives you direct access to
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<replaceable>value</replaceable>
     settings on the command line,
     in the exact order they were specified,
     and without removing any duplicate settings.
@@ -898,7 +932,7 @@ prog.c
     variables do not interfere with each other,
     but merely provide slightly different views
     into how the user specified
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<replaceable>value</replaceable>
     settings on the command line.
     You can use both variables in the same
     &SCons; configuration.
@@ -1056,7 +1090,7 @@ Help(vars.GenerateHelpText(env))
       <para>
 
       &SCons; will now display some useful text
-      when the <literal>-h</literal> option is used:
+      when the <option>-h</option> option is used:
 
       </para>
 
@@ -2292,7 +2326,7 @@ prog1.c
         &DEFAULT_TARGETS; list takes place during the
         first phase when &SCons; is reading up the &SConscript; files,
         which is obvious if
-        we leave off the <literal>-Q</literal> flag when we run &SCons;:)
+        we leave off the <option>-Q</option> flag when we run &SCons;:)
 
         </para>
 

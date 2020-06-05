@@ -30,59 +30,59 @@ See its __doc__ string for a discussion of the format.
 </arguments>
 <summary>
 <para>
-This function adds a new command-line option to be recognized.
-The specified
-<varname>arguments</varname>
-are the same as supported by the <function>add_option</function>
-method in the standard Python library module <emphasis>optparse</emphasis>,
-with a few additional capabilities noted below;
-see the documentation for
+Adds a local (project-specific) command-line option.
+<parameter>arguments</parameter>
+are the same as those supported by the <function>add_option</function>
+method in the standard Python library module <systemitem>optparse</systemitem>,
+with a few additional capabilities noted below.
+See the documentation for
 <emphasis>optparse</emphasis>
 for a thorough discussion of its option-processing capabities.
 </para>
 
 <para>
 In addition to the arguments and values supported by the
-<function>optparse.add_option</function>()
-method,
-the SCons
-&f-AddOption;
-function allows you to set the
-<literal>nargs</literal>
+<emphasis>optparse</emphasis>
+<function>add_option</function>
+method, &f-AddOption;
+allows setting the
+<parameter>nargs</parameter>
 keyword value to
-<literal>'?'</literal>
-(a string with just the question mark)
-to indicate that the specified long option(s) take(s) an
-<emphasis>optional</emphasis>
-argument.
-When
-<literal>nargs = '?'</literal>
-is passed to the
-&f-AddOption;
-function, the
-<literal>const</literal>
-keyword argument
-may be used to supply the "default"
-value that should be used when the
-option is specified on the command line
-without an explicit argument.
+a string consisting of a question mark
+(<literal>'?'</literal>)
+to indicate that the option argument for
+that option string is optional.
+If the option string is present on the
+command line but has no matching option
+argument, the value of the
+<parameter>const</parameter>
+keyword argument is produced as the value
+of the option.
+If the option string is omitted from
+the command line, the value of the
+<parameter>default</parameter>
+keyword argument is produced, as usual;
+if there is no
+<parameter>default</parameter>
+keyword argument in the &f-AddOption; call,
+<constant>None</constant> is produced.
 </para>
 
 <para>
-If no
-<literal>default=</literal>
-keyword argument is supplied when calling
-&f-AddOption;,
-the option will have a default value of
-<literal>None</literal>.
-</para>
-
-<para>
-Unlike regular <emphasis>optparse</emphasis>, option names
-added via <function>AddOption</function> must be matched
-exactly, the automatic matching of abbreviations on the
-command line for long options is not supported.
-To allow specific abbreviations,
+<systemitem>optparse</systemitem> recognizes
+abbreviations of long option names,
+as long as they can be unambiguously resolved.
+For example, if
+<function>add_option</function> is called to
+define a <option>--devicename</option> option,
+it will recognize <option>--device</option>,
+<option>--dev</option>
+and so forth as long as there is no other option
+which could also match to the same abbreviation.
+Options added via
+<function>AddOption</function> do not support
+the automatic recognition of abbreviations.
+Instead, to allow specific abbreviations,
 include them in the &f-AddOption; call.
 </para>
 
@@ -90,45 +90,40 @@ include them in the &f-AddOption; call.
 Once a new command-line option has been added with
 &f-AddOption;,
 the option value may be accessed using
-&f-GetOption;
+&f-link-GetOption;
 or
-<function>env.GetOption</function>().
-<!--
-The value may also be set, using
+&f-link-env-GetOption;.
+&f-link-SetOption; is not currently supported for
+options added with &f-AddOption;.
+<!-- was:
+The value may also be set using
 &f-SetOption;
 or
 <function>env.SetOption</function>(),
 if conditions in a
 &SConscript;
 require overriding any default value.
-Note, however, that a
+Note however that a
 value specified on the command line will
 <emphasis>always</emphasis>
 override a value set by any SConscript file.
 -->
-&f-SetOption; is not currently supported for
-options added with &f-AddOption;.
 </para>
 
 <para>
-Any specified
-<literal>help=</literal>
-strings for the new option(s)
-will be displayed by the
-<option>-H</option>
-or
-<option>-h</option>
-options
-(the latter only if no other help text is
-specified in the SConscript files).
-The help text for the local options specified by
-&f-AddOption;
-will appear below the SCons options themselves,
-under a separate
-<literal>Local Options</literal>
-heading.
-The options will appear in the help text
-in the order in which the
+Help text for an option is a combination
+of the string supplied in the
+<parameter>help</parameter> keyword
+argument to &f-AddOption; and information
+collected from the other keyword arguments.
+Such help is displayed if the
+<option>-h</option> command line option
+is used (but not with <option>-H</option>).
+Help for all local options is displayed
+under the separate heading
+<emphasis role="bold">Local Options</emphasis>.
+The options are unsorted - they will appear
+in the help text in the order in which the
 &f-AddOption;
 calls occur.
 </para>
@@ -138,27 +133,50 @@ Example:
 </para>
 
 <example_commands>
-AddOption('--prefix',
-          dest='prefix',
-          nargs=1, type='string',
-          action='store',
-          metavar='DIR',
-          help='installation prefix')
-env = Environment(PREFIX = GetOption('prefix'))
+AddOption(
+    '--prefix',
+    dest='prefix',
+    nargs=1,
+    type='string',
+    action='store',
+    metavar='DIR',
+    help='installation prefix',
+)
+env = Environment(PREFIX=GetOption('prefix'))
 </example_commands>
+
+<para>For that example,
+the following help text would be produced:</para>
+
+<screen>
+Local Options:
+  --prefix=DIR                installation prefix
+</screen>
+
+<para>
+Help text for local options may be unavailable if
+the &f-link-Help; function has been called,
+see the &f-Help; documentation for details.
+</para>
 
 <note>
 <para>
-While &AddOption; behaves like
-<function>add_option</function>,
-from the <emphasis>optparse</emphasis> module,
+As an artifact of the internal implementation,
 the behavior of options added by &AddOption;
-which take arguments is underfined in
-<command>scons</command> if whitespace
+which take option arguments is undefined
+<emphasis>if</emphasis> whitespace
 (rather than an <literal>=</literal> sign) is used as
-the separator on the command line when
-the option is invoked.
-Such usage should be avoided.
+the separator on the command line.
+Users should avoid such usage; it is recommended
+to add a note to this effect to project documentation
+if the situation is likely to arise.
+In addition, if the <parameter>nargs</parameter>
+keyword is used to specify more than one following
+option argument (that is, with a value of <constant>2</constant>
+or greater), such arguments would necessarily
+be whitespace separated, triggering the issue.
+Developers should not use &AddOption; this way.
+Future versions of &SCons; will likely forbid such usage.
 </para>
 </note>
 
@@ -582,22 +600,21 @@ evaluating Nodes (e.g. files).
 <para>
 If the first specified argument is a Python callable
 (a function or an object that has a
-<function>__call__</function>()
-method),
+<methodname>__call__</methodname> method),
 the function will be called
 once every
 <varname>interval</varname>
-times a Node is evaluated.
+times a Node is evaluated (default <constant>1</constant>).
 The callable will be passed the evaluated Node
 as its only argument.
 (For future compatibility,
 it's a good idea to also add
-<literal>*args</literal>
+<parameter>*args</parameter>
 and
-<literal>**kw</literal>
-as arguments to your function or method.
+<parameter>**kwargs</parameter>
+as arguments to your function or method signatures.
 This will prevent the code from breaking
-if SCons ever changes the interface
+if &SCons; ever changes the interface
 to call the function with additional arguments in the future.)
 </para>
 
@@ -608,7 +625,7 @@ every 10 Nodes:
 </para>
 
 <example_commands>
-def my_progress_function(node, *args, **kw):
+def my_progress_function(node, *args, **kwargs):
     print('Evaluating node %s!' % node)
 Progress(my_progress_function, interval=10)
 </example_commands>
@@ -626,8 +643,7 @@ will overwrite itself on a display:
 
 <example_commands>
 import sys
-
-class ProgressCounter:
+class ProgressCounter(object):
     count = 0
     def __call__(self, node, *args, **kw):
         self.count += 100
@@ -637,18 +653,28 @@ Progress(ProgressCounter(), interval=100)
 </example_commands>
 
 <para>
-If the first argument
-&f-link-Progress;
-is a string,
-the string will be displayed
-every
+If the first argument to
+&f-Progress; is a string or list of strings,
+it is taken as text to be displayed every
 <varname>interval</varname>
 evaluated Nodes.
-The default is to print the string on standard output;
-an alternate output stream
+If the first argument is a list of strings,
+then each string in the list will be displayed
+in rotating fashion every
+<varname>interval</varname>
+evaluated Nodes.
+</para>
+
+<para>
+The default is to print the string on standard output.
+An alternate output stream
 may be specified with the
-<literal>file=</literal>
-argument.
+<parameter>file</parameter>
+keyword argument, which the
+caller must pass already opened.
+</para>
+
+<para>
 The following will print a series of dots
 on the error output,
 one dot for every 100 evaluated Nodes:
@@ -661,7 +687,7 @@ Progress('.', interval=100, file=sys.stderr)
 
 <para>
 If the string contains the verbatim substring
-&cv-TARGET;,
+<literal>$TARGET;</literal>,
 it will be replaced with the Node.
 Note that, for performance reasons, this is
 <emphasis>not</emphasis>
@@ -670,12 +696,13 @@ so you can not use other variables
 or use curly braces.
 The following example will print the name of
 every evaluated Node,
-using a
-<literal>\r</literal>
-(carriage return) to cause each line to overwritten by the next line,
+using a carriage return)
+(<literal>\r</literal>)
+to cause each line to overwritten by the next line,
 and the
-<literal>overwrite=</literal>
-keyword argument to make sure the previously-printed
+<parameter>overwrite</parameter>
+keyword argument (default <literal>False</literal>)
+to make sure the previously-printed
 file name is overwritten with blank spaces:
 </para>
 
@@ -685,15 +712,9 @@ Progress('$TARGET\r', overwrite=True)
 </example_commands>
 
 <para>
-If the first argument to
-&f-Progress;
-is a list of strings,
-then each string in the list will be displayed
-in rotating fashion every
-<varname>interval</varname>
-evaluated Nodes.
-This can be used to implement a "spinner"
-on the user's screen as follows:
+A list of strings can be used to implement a "spinner"
+on the user's screen as follows, changing every
+five evaluated Nodes:
 </para>
 
 <example_commands>

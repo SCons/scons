@@ -266,11 +266,6 @@ supports the
 ability to define new scanners for unknown input file types.</para>
 
 <para>&scons;
-knows how to fetch files automatically from
-SCCS or RCS subdirectories
-using SCCS, RCS or BitKeeper.</para>
-
-<para>&scons;
 is normally executed in a top-level directory containing an
 &SConstruct; file.
 When &scons; is invoked,
@@ -295,7 +290,7 @@ the build in any way:</para>
 
 <programlisting language="python">
 if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS = '-g')
+    env = Environment(CCFLAGS='-g')
 else:
     env = Environment()
 </programlisting>
@@ -521,18 +516,17 @@ Will not remove any targets specified by the &NoClean; function.</para>
   <varlistentry>
   <term>-<option>-cache-debug=<replaceable>file</replaceable></option></term>
   <listitem>
-<para>Print debug information about the &CacheDir;
+<para>Write debug information about
 derived-file caching to the specified
 <replaceable>file</replaceable>.
 If
 <replaceable>file</replaceable>
-is
-<emphasis role="bold">-</emphasis>
-(a hyphen),
+is a hyphen
+(<literal>-</literal>),
 the debug information is printed to the standard output.
 The printed messages describe what signature-file names
 are being looked for in, retrieved from, or written to the
-&CacheDir; directory tree.</para>
+derived-file cache specified by &f-link-CacheDir;.</para>
   </listitem>
   </varlistentry>
 
@@ -542,11 +536,13 @@ are being looked for in, retrieved from, or written to the
     <option>--no-cache</option>
   </term>
   <listitem>
-<para>Disable the derived-file caching specified by
-&CacheDir;.
+<para>Disable derived-file caching.
 &scons;
 will neither retrieve files from the cache
-nor copy files to the cache.</para>
+nor copy files to the cache.  This option can
+be used to temporarily disable the cache without
+modifying the build scripts.
+</para>
   </listitem>
   </varlistentry>
 
@@ -556,9 +552,9 @@ nor copy files to the cache.</para>
     <option>--cache-populate</option>
   </term>
   <listitem>
-<para>When using &CacheDir;,
-populate a cache by copying any already-existing, up-to-date
-derived files to the cache,
+<para>When using &f-link-CacheDir;,
+populate a derived-file cache by copying any already-existing,
+up-to-date derived files to the cache,
 in addition to files built by this invocation.
 This is useful to populate a new cache with
 all the current derived files,
@@ -572,8 +568,9 @@ option.</para>
   <varlistentry>
   <term><option>--cache-readonly</option></term>
   <listitem>
-<para>Use the cache (if enabled) for reading, but do not not update the
-cache with changed files.
+<para>Use the derived-file cache, if enabled, to retrieve files,
+but do not not update the cache with any files actually
+built during this invocation.
 </para>
   </listitem>
   </varlistentry>
@@ -581,13 +578,13 @@ cache with changed files.
   <varlistentry>
   <term><option>--cache-show</option></term>
   <listitem>
-<para>When using &CacheDir;
-and retrieving a derived file from the cache,
+<para>When using a derived-file cache
+and retrieving a file from it,
 show the command
-that would have been executed to build the file,
-instead of the usual report,
-"Retrieved `file' from cache."
-This will produce consistent output for build logs,
+that would have been executed to build the file.
+Without this option, &scons; reports
+<computeroutput>"Retrieved `file' from cache."</computeroutput>.
+This allows producing consistent output for build logs,
 regardless of whether a target
 file was rebuilt or retrieved from the cache.</para>
   </listitem>
@@ -722,7 +719,7 @@ each command, shows the absolute start and end times.
 This may be useful in debugging parallel builds.
 Implies the <option>--debug=time</option> option.
 </para>
-<para>Since &scons; 3.1.</para>
+<para><emphasis>Available since &scons; 3.1.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -739,7 +736,7 @@ This is not supported when SCons is executed with the Python
 or when the SCons modules
 have been compiled with optimization
 (that is, when executing from
-<emphasis role="bold">*.pyo</emphasis>
+<filename>*.pyo</filename>
 files).</para>
   </listitem>
   </varlistentry>
@@ -1054,12 +1051,20 @@ will read all of the specified files.</para>
     <option>--help</option>
   </term>
   <listitem>
-<para>Print a local help message for this build, if one is defined in
-the SConscript files, plus a line that describes the
-<option>-H</option>
-option for command-line option help.  If no local help message
-is defined, prints the standard help message about command-line
-options.  Exits after displaying the appropriate message.</para>
+<para>Print a local help message for this project,
+if one is defined in the SConscript files
+(see the &f-link-Help; function),
+plus a line that refers to the standard &SCons; help message.
+If no local help message is defined,
+prints the standard &SCons; help message
+(as for the <option>-H</option> option)
+plus help for any local options defined through &f-link-AddOption;.
+Exits after displaying the appropriate message.</para>
+<para>
+Note that use of this option requires &SCons; to process
+the SConscript files, so syntax errors may cause
+the help message not to be displayed.
+</para>
   </listitem>
   </varlistentry>
 
@@ -1069,8 +1074,8 @@ options.  Exits after displaying the appropriate message.</para>
     <option>--help-options</option>
   </term>
   <listitem>
-<para>Print the standard help message about command-line options and
-exit.</para>
+<para>Print the standard help message about &SCons;
+command-line options and exit.</para>
   </listitem>
   </varlistentry>
 
@@ -1172,7 +1177,7 @@ underneath <replaceable>path</replaceable>.
   <listitem>
 <para>Starts SCons in interactive mode.
 The SConscript files are read once and a
-<emphasis role="bold">scons&gt;&gt;&gt;</emphasis>
+<computeroutput>scons&gt;&gt;&gt;</computeroutput>
 prompt is printed.
 Targets may now be rebuilt by typing commands at interactive prompt
 without having to re-read the SConscript files
@@ -1182,7 +1187,7 @@ and re-initialize the dependency graph from scratch.</para>
 
     <variablelist>
       <varlistentry>
-      <term><emphasis role="bold">build</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
+      <term><userinput>build <parameter>[OPTIONS] [TARGETS] ...</parameter></userinput></term>
       <listitem>
 <para>Builds the specified
 <parameter>TARGETS</parameter>
@@ -1229,7 +1234,7 @@ which only happens once at the beginning of interactive mode).</para>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">clean</emphasis><emphasis>[OPTIONS] [TARGETS] ...</emphasis></term>
+      <term><userinput>clean <parameter>[OPTIONS] [TARGETS] ...</parameter></userinput></term>
       <listitem>
 <para>Cleans the specified
 <parameter>TARGETS</parameter>
@@ -1244,17 +1249,25 @@ This command is itself a synonym for
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">exit</emphasis></term>
+      <term><userinput>exit</userinput></term>
       <listitem>
 <para>Exits SCons interactive mode.
 You can also exit by terminating input
-(CTRL+D on UNIX or Linux systems,
-CTRL+Z on Windows systems).</para>
+(<keycombo action="simul">
+<keycap>Ctrl</keycap>
+<keycap>D</keycap>
+</keycombo>
+UNIX or Linux systems,
+(<keycombo action="simul">
+<keycap>Ctrl</keycap>
+<keycap>Z</keycap>
+</keycombo>
+on Windows systems).</para>
       </listitem>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">help</emphasis><emphasis>[COMMAND]</emphasis></term>
+      <term><userinput>help <parameter>[COMMAND]</parameter></userinput></term>
       <listitem>
 <para>Provides a help message about
 the commands available in SCons interactive mode.
@@ -1269,13 +1282,13 @@ are synonyms.</para>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">shell</emphasis><emphasis>[COMMANDLINE]</emphasis></term>
+      <term><userinput>shell <parameter>[COMMANDLINE]</parameter></userinput></term>
       <listitem>
 <para>Executes the specified
-<emphasis>COMMANDLINE</emphasis>
+<parameter>COMMANDLINE</parameter>
 in a subshell.
 If no
-<emphasis>COMMANDLINE</emphasis>
+<parameter>COMMANDLINE</parameter>
 is specified,
 executes the interactive command interpreter
 specified in the
@@ -1283,7 +1296,7 @@ specified in the
 environment variable
 (on UNIX and Linux systems)
 or the
-<emphasis role="bold">COMSPEC</emphasis>
+<envar>COMSPEC</envar>
 environment variable
 (on Windows systems).
 <emphasis role="bold">sh</emphasis>
@@ -1294,7 +1307,7 @@ are synonyms.</para>
       </varlistentry>
 
       <varlistentry>
-      <term><emphasis role="bold">version</emphasis></term>
+      <term><userinput>version</userinput></term>
       <listitem>
 <para>Prints SCons version information.</para>
       </listitem>
@@ -1721,7 +1734,7 @@ specified alone, without any <replaceable>type</replaceable>,
 it behaves as if <emphasis role="bold">all</emphasis>
 had been specified.
 </para>
-<para>Since &scons; 4.0.</para>
+<para><emphasis>Available since &scons; 4.0.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1845,9 +1858,9 @@ specifies the type of warnings to be enabled or disabled:</para>
   <varlistentry>
   <term><emphasis role="bold">cache-version</emphasis></term>
   <listitem>
-<para>Warnings about the cache directory not using
-the latest configuration information
-<emphasis role="bold">CacheDir</emphasis>().
+<para>Warnings about the derived-file cache directory
+specified by &f-link-CacheDir; not using
+the latest configuration information.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
@@ -1857,7 +1870,7 @@ These warnings are enabled by default.</para>
   <listitem>
 <para>Warnings about errors trying to
 write a copy of a built file to a specified
-<emphasis role="bold">CacheDir</emphasis>().
+derived-file cache specified by &f-link-CacheDir;.
 These warnings are disabled by default.</para>
   </listitem>
   </varlistentry>
@@ -1866,7 +1879,7 @@ These warnings are disabled by default.</para>
   <term><emphasis role="bold">corrupt-sconsign</emphasis></term>
   <listitem>
 <para>Warnings about unfamiliar signature data in
-<markup>.sconsign</markup>
+<filename>.sconsign</filename>
 files.
 These warnings are enabled by default.</para>
   </listitem>
@@ -1943,14 +1956,14 @@ that may require changes to the configuration.</para>
   <listitem>
 <para>Warnings about the use of two commonly
 misspelled keywords
-<emphasis role="bold">targets</emphasis>
+<parameter>targets</parameter>
 and
-<emphasis role="bold">sources</emphasis>
-to &Builder; calls. The correct spelling is the
+<parameter>sources</parameter>
+to &f-link-Builder; calls. The correct spelling is the
 singular form, even though
-<emphasis role="bold">target</emphasis>
+<parameter>target</parameter>
 and
-<emphasis role="bold">source</emphasis>
+<parameter>source</parameter>
 can themselves refer to lists of names or nodes.</para>
   </listitem>
   </varlistentry>
@@ -2082,27 +2095,47 @@ repositories are searched in the order specified.</para>
 <refsect2 id='construction_environments'>
 <title>Construction Environments</title>
 
-<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which the SConscript
+<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which SConscript
 files communicate build information to
 &scons;.
 A new &consenv; is created using the
-&Environment;
+&f-link-Environment;
 function:</para>
 
 <programlisting language="python">
 env = Environment()
 </programlisting>
 
-<para>Variables, called
-<firstterm>&ConsVars;</firstterm>
-may be set in a &consenv;
-either by specifying them as keywords when the object is created
+<para>&Consenv; attributes called
+<firstterm>&ConsVars;</firstterm> may be set
+either by specifying them as keyword arguments when the object is created
 or by assigning them a value after the object is created:</para>
 
 <programlisting language="python">
 env = Environment(FOO='foo')
 env['BAR'] = 'bar'
 </programlisting>
+
+<!--TODO: want to say this, but then have to provide a way for user to tell...
+<para>Certain settings that affect tool detection work
+only on initialization, so check that setting a value
+after creation is appropriate.</para>
+-->
+
+<para>
+An existing &consenv; can be duplicated by calling the &f-link-env-Clone;
+method. Without arguments, it will be a copy with the same
+settings. Otherwise, &f-env-Clone; takes the same arguments as &f-Environment;,
+and uses the arguments to create a modified copy.
+</para>
+
+<para>
+&SCons; also provides a special &consenv; called the
+<firstterm>&DefEnv;</firstterm>.
+The &defenv; is used only for global functions, that is,
+construction activities called without the context of a regular &consenv;.
+See &f-link-DefaultEnvironment; for more information.
+</para>
 
 <para>As a convenience,
 &consvars; may also be set or modified by the
@@ -2113,7 +2146,7 @@ method (described below) to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
-or if the flags are distributed to a number of &consvars;.</para>
+or if the flags need to be distributed to a number of &consvars;.</para>
 
 <programlisting language="python">
 env = Environment(parse_flags='-Iinclude -DEBUG -lm')
@@ -2134,15 +2167,15 @@ are distributed to &consvars;.
 initialized with a set of builder methods
 and &consvars; that are appropriate
 for the current platform.
-An optional platform keyword argument may be
-used to specify that an environment should
+An optional <parameter>platform</parameter> keyword argument may be
+used to specify that the &consenv; should
 be initialized for a different platform:</para>
 
 <programlisting language="python">
-env = Environment(platform = 'cygwin')
-env = Environment(platform = 'os2')
-env = Environment(platform = 'posix')
-env = Environment(platform = 'win32')
+env = Environment(platform='cygwin')
+env = Environment(platform='os2')
+env = Environment(platform='posix')
+env = Environment(platform='win32')
 </programlisting>
 
 <para>Specifying a platform initializes the appropriate
@@ -2397,9 +2430,9 @@ env.SomeTool(targets, sources)
 <title>Builder Methods</title>
 
 <para>You tell &scons; what to build
-by calling Builders, functions which know to take a
-particular action when given files of a particular type
-to produce a particular result type. &scons;
+by calling <firstterm>Builders</firstterm>, functions which know to take a
+particular action to produce a particular result type
+when given source files of a particular type. &scons;
 defines a number of builders, and you can also write your own.
 Builders are attached to a &consenv; as methods,
 and the available builder methods are listed as
@@ -2430,14 +2463,14 @@ keyword arguments, described below.
 <para>Because long lists of file names
 can lead to a lot of quoting,
 &scons;
-supplies a &Split;
+supplies a &f-link-Split;
 global function
 and a same-named environment method
-that split a single string
-into a list, separated on
-strings of white-space characters.
-(These are similar to the Python string <function>split</function>
-method, but work even if the input isn't a string.)</para>
+that splits a single string
+into a list, using
+strings of white-space characters as the delimiter.
+(similar to the Python string <function>split</function>
+method, but succeeds even if the input isn't a string.)</para>
 
 <para>
 The target and source arguments to a builder method
@@ -2491,7 +2524,7 @@ to a relative or absolute path first.
 <para>
 Target and source pathnames can be absolute, relative, or
 top-relative. Relative pathnames are searched considering the
-directory of the <emphasis role="bold">SConscript</emphasis>
+directory of the SConscript
 file currently being processed as the "current directory".
 </para>
 
@@ -2550,14 +2583,14 @@ env.Program('bar.c')
 </programlisting>
 
 <para>As a convenience, a
-<emphasis role="bold">srcdir</emphasis>
+<parameter>srcdir</parameter>
 keyword argument may be specified
 when calling a Builder.
 When specified,
 all source file strings that are not absolute paths
 or top-relative paths
 will be interpreted relative to the specified
-<emphasis role="bold">srcdir</emphasis>.
+<parameter>srcdir</parameter>.
 The following example will build the
 <filename>build/prog</filename>
 (or
@@ -2573,7 +2606,7 @@ and
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </programlisting>
 
-<para>It is possible to <emphasis>override</emphasis> (replace or add)
+<para>It is possible to <firstterm>override</firstterm> (replace or add)
 &consvars; when calling a
 builder method by passing them as keyword arguments.
 These overrides
@@ -2593,13 +2626,14 @@ env.SharedLibrary('word', 'word.cpp',
                   LIBSUFFIXES=['.ocx'])
 </programlisting>
 
-<para>Note that both the <envar>$SHLIBSUFFIX</envar> and <envar>$LIBSUFFIXES</envar>
-variables must be set if you want SCons to search automatically
+<para>Note that both the &cv-link-SHLIBSUFFIX;
+and &cv-link-LIBSUFFIXES;
+variables must be set if you want &scons; to search automatically
 for dependencies on the non-standard library names;
-see the descriptions of these variables, below, for more information.</para>
+see the descriptions below of these variables for more information.</para>
 
 <para>It is also possible to use the
-<emphasis role="bold">parse_flags</emphasis>
+<parameter>parse_flags</parameter>
 keyword argument in an override,
 to merge command-line style arguments
 into the appropriate &consvars;
@@ -2645,15 +2679,14 @@ from SCons.Script import *
 
 <para>All builder methods return a list-like object
 containing Nodes that will be built.
-A
-<emphasis>Node</emphasis>
+A <firstterm>Node</firstterm>
 is an internal SCons object
 which represents
 build targets or sources.</para>
 
 <para>The returned Node-list object
 can be passed to other builder methods as source(s)
-or passed to any SCons function or method
+or passed to any &SCons; function or method
 where a filename would normally be accepted.
 For example, if it were necessary
 to add a specific preprocessor define
@@ -2673,7 +2706,7 @@ when calling the &Program; builder method.</para>
 <para>Builder calls will automatically "flatten"
 lists passed as source and target, so they are free to
 contain elements which are themselves lists, such as
-<literal>bar_obj_list</literal>
+<varname>bar_obj_list</varname>
 returned by the &StaticObject; call above.
 If you need to manipulate a list of lists returned by builders
 directly in Python code,
@@ -2687,7 +2720,7 @@ for obj in objects:
     print(str(obj))
 </programlisting>
 
-<para>Or you can use the &Flatten;
+<para>Or you can use the &f-link-Flatten;
 function supplied by &scons;
 to create a list containing just the Nodes,
 which may be more convenient:</para>
@@ -2700,7 +2733,7 @@ for obj in objects:
     print(str(obj))
 </programlisting>
 
-<para>SCons builder calls return
+<para>&SCons; builder calls return
 a list-like object, not an actual Python list,
 so it is not appropriate to use the Python add
 operator (<literal>+</literal> or <literal>+=</literal>)
@@ -2747,18 +2780,18 @@ to get at the Node that actually represents
 the object file.</para>
 
 <para>Builder calls support a
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 keyword argument that
 specifies that the Builder's action(s)
 should be executed
 after changing directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 argument is
 a string or a directory Node,
 scons will change to the specified directory.
 If the
-<emphasis role="bold">chdir</emphasis>
+<parameter>chdir</parameter>
 is not a string or Node
 and is non-zero,
 then scons will change to the
@@ -2779,14 +2812,14 @@ env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
             chdir=1)
 </programlisting>
 
-<para>Note that scons will
+<para>Note that &SCons; will
 <emphasis>not</emphasis>
 automatically modify
 its expansion of
 &consvars; like
-<emphasis role="bold">$TARGET</emphasis>
+<envar>$TARGET</envar>
 and
-<emphasis role="bold">$SOURCE</emphasis>
+<envar>$SOURCE</envar>
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
@@ -2798,9 +2831,9 @@ If you use the <parameter>chdir</parameter> keyword argument,
 you will typically need to supply a different
 command line using
 expansions like
-<emphasis role="bold">${TARGET.file}</emphasis>
+<literal>${TARGET.file}</literal>
 and
-<emphasis role="bold">${SOURCE.file}</emphasis>
+<literal>${SOURCE.file}</literal>
 to use just the filename portion of the
 targets and source.</para>
 
@@ -2837,7 +2870,7 @@ not all builders may be available to that
 targets of builder methods automatically depend on their sources.
 An explicit dependency can
 be specified using the
-<emphasis role="bold">Depends</emphasis>
+&f-link-env-Depends;
 method of a &consenv; (see below).</para>
 
 <para>In addition,
@@ -2849,18 +2882,18 @@ By default, SCons can
 C source files,
 C++ source files,
 Fortran source files with
-<markup>.F</markup>
+<filename>.F</filename>
 (POSIX systems only),
-<markup>.fpp,</markup>
+<filename>.fpp</filename>,
 or
-<markup>.FPP</markup>
+<filename>.FPP</filename>
 file extensions,
 and assembly language files with
-<markup>.S</markup>
+<filename>.S</filename>
 (POSIX systems only),
-<markup>.spp,</markup>
+<filename>.spp</filename>,
 or
-<markup>.SPP</markup>
+<filename>.SPP</filename>
 files extensions
 for C preprocessor dependencies.
 SCons also has default support
@@ -2869,19 +2902,16 @@ You can also write your own Scanners
 to add support for additional source file types.
 These can be added to the default
 Scanner object used by the
-<emphasis role="bold">Object</emphasis>(),
-<emphasis role="bold">StaticObject</emphasis>(),
-and
-<emphasis role="bold">SharedObject</emphasis>()
+&b-link-Object;, &b-link-StaticObject; and &b-link-SharedObject;
 Builders by adding them
 to the
-<emphasis role="bold">SourceFileScanner</emphasis>
+<classname>SourceFileScanner</classname>
 object.
 See <xref linkend="scanner_objects"/>
 for more information about
 defining your own Scanner objects
 and using the
-<emphasis role="bold">SourceFileScanner</emphasis>
+<classname>SourceFileScanner</classname>
 object.</para>
 
 </refsect2>
@@ -2899,19 +2929,19 @@ manipulate the build configuration.</para>
 and global function with the same name both exist
 for convenience.
 In the following list, the global function
-is documented like:</para>
+is documented in this style:</para>
 
 <programlisting language="python">
-Function(<emphasis>arguments</emphasis>)
+<function>Function</function>(<parameter>arguments, [optional arguments]</parameter>)
 </programlisting>
 
 <para>and the &consenv; method looks like:</para>
 
 <programlisting language="python">
-env.Function(<emphasis>arguments</emphasis>)
+<replaceable>env</replaceable>.<methodname>Function</methodname>(<parameter>arguments, [optional arguments]</parameter>)
 </programlisting>
 
-<para>If you can call the function in both ways,
+<para>If the function can be called both ways,
 then both forms are listed.</para>
 
 <para>The global function and same-named
@@ -2922,26 +2952,25 @@ First, many of the &consenv; methods affect only that
 global effect. Second, where appropriate,
 calling the functionality through a &consenv; will
 substitute &consvars; into
-any supplied strings, while the global function doesn't have the
+any supplied string arguments, while the global function doesn't have the
 context of a &consenv; to pick variables from,
 so it cannot perform the substitution.
 For example:</para>
 
 <programlisting language="python">
-env = Environment(FOO = 'foo')
 Default('$FOO')
+
+env = Environment(FOO='foo')
 env.Default('$FOO')
 </programlisting>
 
 <para>In the above example,
-the first call to the global
-<emphasis role="bold">Default()</emphasis>
-function will actually add a target named
+the call to the global &f-Default;
+function will add a target named
 <emphasis role="bold">$FOO</emphasis>
 to the list of default targets,
-while the second call to the
-<emphasis role="bold">env.Default()</emphasis>
-&consenv; method
+while the call to the
+&f-env-Default; &consenv; method
 will expand the value
 and add a target named
 <emphasis role="bold">foo</emphasis>
@@ -2959,7 +2988,7 @@ from SCons.Script import *
 </programlisting>
 
 <para>&Consenv; methods
-and global functions supported by
+and global functions provided by
 &scons;
 include:</para>
 
@@ -3009,19 +3038,18 @@ and
 <emphasis>value</emphasis>
 elements of the tuple
 can be accessed by
-subscripting for element
+subscripting for elements
 <emphasis role="bold">[0]</emphasis>
 and
 <emphasis role="bold">[1]</emphasis>
-of the tuple, respectively.</para>
-
-<para>Example:</para>
+of the tuple, or, more readably, by using tuple unpacking.
+Example:</para>
 
 <programlisting language="python">
 print("first keyword, value =", ARGLIST[0][0], ARGLIST[0][1])
 print("second keyword, value =", ARGLIST[1][0], ARGLIST[1][1])
-third_tuple = ARGLIST[2]
-print("third keyword, value =", third_tuple[0], third_tuple[1])
+key, value = ARGLIST[2]
+print("third keyword, value =", key, value)
 for key, value in ARGLIST:
     # process key and value
 </programlisting>
@@ -3046,7 +3074,7 @@ dictionary.</para>
 
 <programlisting language="python">
 if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS = '-g')
+    env = Environment(CCFLAGS='-g')
 else:
     env = Environment()
 </programlisting>
@@ -3061,12 +3089,13 @@ else:
 has been asked to build.
 The contents will be either those targets listed
 on the command line, or, if none, those targets set
-via calls to the &Default; function or method.
+via calls to the &f-link-Default; function.
 It does
 <emphasis>not</emphasis>
-contain any not-specified dependent targets that &scons;
+contain any dependent targets that &scons;
 selects for building as a result of making the sure the
-specified targets are up to date.
+specified targets are up to date, if those targets
+did not appear on the command line.
 The list is empty if neither
 command line targets or &Default; calls are present.
 </para>
@@ -3074,16 +3103,15 @@ command line targets or &Default; calls are present.
 The elements of this list may be strings
 <emphasis>or</emphasis>
 nodes, so you should run the list through the Python
-<emphasis role="bold">str</emphasis>
+<function>str</function>
 function to make sure any Node path names
 are converted to strings.</para>
 
 <para>Because this list may be taken from the
 list of targets specified using the
-&Default; function or method,
+&Default; function,
 the contents of the list may change
-on each successive call to
-<emphasis role="bold">Default</emphasis>().
+on each successive call to &Default;.
 See the
 &DEFAULT_TARGETS; list, below,
 for additional information.</para>
@@ -3128,13 +3156,13 @@ if 'special/program' in COMMAND_LINE_TARGETS:
 <para>A list of the target
 <emphasis>nodes</emphasis>
 that have been specified using the
-<emphasis role="bold">Default</emphasis>()
-function or method. If there are no command line
+&f-link-Default;
+function. If there are no command line
 targets, this list will have the same contents as
 &BUILD_TARGETS;.
 Since the elements of the list are nodes,
 you need to call the Python
-<emphasis role="bold">str</emphasis>
+<function>str</function>
 function on them to get the path name for each Node.</para>
 
 <para>Example:</para>
@@ -3146,10 +3174,9 @@ if 'foo' in [str(t) for t in DEFAULT_TARGETS]:
 </programlisting>
 
 <para>The contents of the
-<emphasis role="bold">DEFAULT_TARGETS</emphasis>
+&DEFAULT_TARGETS;
 list change on on each successive call to the
-<emphasis role="bold">Default</emphasis>()
-function:</para>
+&Default; function:</para>
 
 <programlisting language="python">
 print([str(t) for t in DEFAULT_TARGETS])   # originally []
@@ -3162,10 +3189,9 @@ print([str(t) for t in DEFAULT_TARGETS])   # back to []
 </programlisting>
 
 <para>Consequently, be sure to use
-<emphasis role="bold">DEFAULT_TARGETS</emphasis>
+&DEFAULT_TARGETS;
 only after you've made all of your
-<emphasis role="bold">Default</emphasis>()
-calls,
+&Default;() calls,
 or else simply be careful of the order
 of these statements in your SConscript files
 so that you don't look for a specific
@@ -3207,15 +3233,51 @@ from SCons.Script import *
 <para>A &consenv; has an associated dictionary of
 <firstterm>&consvars;</firstterm>
 that are used by built-in or user-supplied build rules.
-&Consvars; must follow the same rules for
+&Consvar; naming must follow the same rules as for
 Python identifiers:
 the initial character must be an underscore or letter,
 followed by any number of underscores, letters, or digits.</para>
 
+<para>A &consenv; is not a Python dictionary,
+but it can be indexed like one to access a
+&consvar;:</para>
+
+<programlisting language="python">
+env["CC"] = "cc"
+</programlisting>
+
+<para>&Consvars; can also be retrieved and set
+by using the &f-link-Dictionary;
+method of the &consenv; to create an actual
+dictionary:</para>
+
+<programlisting language="python">
+cvars = env.Dictionary()
+cvars["CC"] = "cc"
+</programlisting>
+
+<para>&Consvars; can also be passed to the &consenv;
+constructor:</para>
+
+<programlisting language="python">
+env = Environment(CC="cc")
+</programlisting>
+
+<para>or when copying a &consenv; using the
+&f-link-Clone; method:</para>
+
+<programlisting language="python">
+env2 = env.Clone(CC="cl.exe")
+</programlisting>
+
 <para>A number of useful &consvars; are automatically defined by
 scons for each supported platform, and additional &consvars;
-can be defined by the user. The following is a list of the automatically
-defined &consvars;:</para>
+can be defined by the user. The following is a list of the possible
+automatically defined &consvars;.  The actual list available
+at execution time will not include all of these, as the ones
+detected as not being useful (wrong platform, necessary
+external command or files not installed, etc.) will not be set up.
+:</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->
@@ -3236,37 +3298,6 @@ defined &consvars;:</para>
 
 <!-- '\" END GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
-
-
-<para>&Consvars; can be retrieved and set using the
-<emphasis role="bold">Dictionary</emphasis>
-method of the &consenv;:</para>
-
-<programlisting language="python">
-cvars = env.Dictionary()
-cvars["CC"] = "cc"
-</programlisting>
-
-<para>or using the key lookup operator <literal>[]</literal>
-directly on the &consenv;:</para>
-
-<programlisting language="python">
-env["CC"] = "cc"
-</programlisting>
-
-<para>&Consvars; can also be passed to the &consenv;
-constructor:</para>
-
-<programlisting language="python">
-env = Environment(CC="cc")
-</programlisting>
-
-<para>or when copying a &consenv; using the
-&f-link-Clone; method:</para>
-
-<programlisting language="python">
-env2 = env.Clone(CC="cl.exe")
-</programlisting>
 
 </refsect2>
 
@@ -3303,9 +3334,9 @@ discovered while running tests. The context includes a local &consenv;
 which is used when running the tests and
 which can be updated with the check results.
 Only one context may be active
-at a time (since 4.0, &scons; will raise an exception
+at a time (<emphasis>since 4.0, &scons; will raise an exception
 on an attempt to create a new context when there is
-an active context), but a new context can be created
+an active context</emphasis>), but a new context can be created
 after the active one is completed.
 For the global function form, the required <parameter>env</parameter>
 describes the initial values for the context's local &consenv;;
@@ -4005,7 +4036,7 @@ int main(int argc, char **argv) {
     return ret
 
 env = Environment()
-conf = Configure(env, custom_tests = {'CheckQt': CheckQt})
+conf = Configure(env, custom_tests={'CheckQt': CheckQt})
 if not conf.CheckQt('/usr/lib/qt'):
     print('We really need qt!')
     Exit(1)
@@ -4989,7 +5020,7 @@ or directory target.</para>
 <programlisting language="python">
 MakeDirectoryBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment()
-env.Append(BUILDERS = {'MakeDirectory':MakeDirectoryBuilder})
+env.Append(BUILDERS={'MakeDirectory': MakeDirectoryBuilder})
 env.MakeDirectory('new_directory', [])
 </programlisting>
 
@@ -5025,7 +5056,7 @@ or directories (or both) as sources.</para>
 <programlisting language="python">
 CollectBuilder = Builder(action=my_mkdir, source_factory=Entry)
 env = Environment()
-env.Append(BUILDERS = {'Collect':CollectBuilder})
+env.Append(BUILDERS={'Collect': CollectBuilder})
 env.Collect('archive', ['directory_name', 'file_name'])
 </programlisting>
   </listitem>
@@ -5076,14 +5107,14 @@ b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
             emitter = [e, e2])
 
 # Calling an emitter function through a &consvar;.
-env = Environment(MY_EMITTER = e)
+env = Environment(MY_EMITTER=e)
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = '$MY_EMITTER')
+            emitter='$MY_EMITTER')
 
 # Calling a list of emitter functions through a &consvar;.
-env = Environment(EMITTER_LIST = [e, e2])
+env = Environment(EMITTER_LIST=[e, e2])
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = '$EMITTER_LIST')
+            emitter='$EMITTER_LIST')
 
 # Associating multiple emitters with different file
 # suffixes using a dictionary.
@@ -5092,8 +5123,8 @@ def e_suf1(target, source, env):
 def e_suf2(target, source, env):
     return (target, source + ['another_source_file'])
 b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = {'.suf1' : e_suf1,
-                       '.suf2' : e_suf2})
+            emitter={'.suf1' : e_suf1,
+                     '.suf2' : e_suf2})
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5227,7 +5258,7 @@ and
 b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
             source_ext_match = None)
 
-env = Environment(BUILDERS = {'MyBuild':b})
+env = Environment(BUILDERS={'MyBuild':b})
 env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
 </programlisting>
 
@@ -5247,8 +5278,8 @@ used to call the Builder for the target file.)</para>
 
 <programlisting language="python">
 b = Builder(action="build &lt; $SOURCE &gt; $TARGET")
-env = Environment(BUILDERS = {'MyBuild' : b})
-env.MyBuild('foo.out', 'foo.in', my_arg = 'xyzzy')
+env = Environment(BUILDERS={'MyBuild' : b})
+env.MyBuild('foo.out', 'foo.in', my_arg='xyzzy')
 </programlisting>
 
   </listitem>
@@ -5300,7 +5331,7 @@ targets and source.</para>
 <programlisting language="python">
 b = Builder(action="build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
             chdir=1)
-env = Environment(BUILDERS = {'MyBuild' : b})
+env = Environment(BUILDERS={'MyBuild' : b})
 env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 </programlisting>
 
@@ -5483,19 +5514,19 @@ or return a non-zero exit status
 to indicate an unsuccessful build.</para>
 
 <programlisting language="python">
-def build_it(target = None, source = None, env = None):
+def build_it(target=None, source=None, env=None):
     # build the target from the source
     return 0
 
 a = Action(build_it)
 </programlisting>
 
-<para>If the action argument is not one of the above,
-<constant>None</constant> is returned.</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
+<para>If the action argument is not one of the above,
+<constant>None</constant> is returned.</para>
 
 <para>The second argument to &f-Action;
 is optional and is used to define the output
@@ -5510,13 +5541,14 @@ The argument must be either a Python function or a string.</para>
 it's a function that returns a string to be printed
 to describe the action being executed.
 The function may also be specified by the
-<parameter>strfunction</parameter>=
+<parameter>strfunction</parameter>
 keyword argument.
 Like a function to build a file,
-this function must accept three keyword arguments:</para>
+the <parameter>strfunction</parameter> function
+must accept three keyword arguments:</para>
 
   <simplelist type="vert">
-  <member><parameter>source</parameter> - 
+  <member><parameter>source</parameter> -
     a Node object representing the source file.</member>
   <member><parameter>target</parameter> -
     a Node object representing the target file.</member>
@@ -5531,8 +5563,8 @@ arguments may be lists of Node objects if there is
 more than one target file or source file.</para>
 
 <para>In the second case, you provide the string itself.
-The string may also be specified by the
-<parameter>cmdstr</parameter>=
+This string may also be specified using the
+<parameter>cmdstr</parameter>
 keyword argument.
 The string typically contains variables, notably
 <literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
@@ -5566,8 +5598,8 @@ l = Action(build_it, '$STRINGIT')
 may either be a &consvar; or a list of &consvars;
 whose values will be included in the signature of the Action
 when deciding whether a target should be rebuilt because the action changed.
-The variables may also be specified by a
-<parameter>varlist</parameter>=
+The variables may also be specified using the
+<parameter>varlist</parameter>
 keyword parameter;
 if both are present, they are combined.
 This is necessary whenever you want a target to be rebuilt
@@ -5580,7 +5612,8 @@ the value of a &consvar; when generating the command line.</para>
 <programlisting language="python">
 def build_it(target, source, env):
     # build the target from the 'XXX' construction variable
-    open(target[0], 'w').write(env['XXX'])
+    with open(target[0], 'w') as f:
+        f.write(env['XXX'])
     return 0
 
 # Use positional arguments.
@@ -5638,7 +5671,7 @@ expansions like
 and
 <literal>${SOURCE.file}</literal>
 to use just the filename portion of the
-targets and source.</para>
+targets and source. Example:</para>
 
 <programlisting language="python">
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
@@ -5661,12 +5694,13 @@ to specify that an Action object's
 return value should be ignored
 under special conditions
 and SCons should, therefore,
-consider that the action always suceeds:</para>
+consider that the action always succeeds. Example:</para>
 
 <programlisting language="python">
 def always_succeed(s):
     # Always return 0, which indicates success.
     return 0
+
 a = Action("build &lt; ${SOURCE.file} &gt; ${TARGET.file}",
            exitstatfunc=always_succeed)
 </programlisting>
@@ -5696,9 +5730,8 @@ Command lines will typically want to use the
 &cv-CHANGED_SOURCES; &consvar;
 (and possibly &cv-CHANGED_TARGETS; as well)
 to only pass to the command line those sources that
-have actually changed since their targets were built.</para>
-
-<para>Example:</para>
+have actually changed since their targets were built.
+Example:</para>
 
 <programlisting language="python">
 a = Action('build $CHANGED_SOURCES', batch_key=True)
@@ -5829,12 +5862,17 @@ external commands:
 </para>
 
 <programlisting language="python">
-env = Environment(TMPBUILD = '/tmp/builddir')
-env.Command('foo.out', 'foo.in',
-            [Mkdir('$TMPBUILD'),
-             Copy('$TMPBUILD', '${SOURCE.dir}'),
-             "cd $TMPBUILD &amp;&amp; make",
-             Delete('$TMPBUILD')])
+env = Environment(TMPBUILD='/tmp/builddir')
+env.Command(
+    target='foo.out',
+    source='foo.in',
+    action=[
+        Mkdir('$TMPBUILD'),
+        Copy('$TMPBUILD', '${SOURCE.dir}'),
+        "cd $TMPBUILD &amp;&amp; make",
+        Delete('$TMPBUILD'),
+    ],
+)
 </programlisting>
 
 <variablelist>
@@ -5977,7 +6015,7 @@ Examples:</para>
 <programlisting language="python">
 Execute(Touch('file_to_be_touched'))
 
-env.Command('marker', 'input_file', 
+env.Command('marker', 'input_file',
             action=[MyBuildAction, Touch('$TARGET')])
 </programlisting>
 
@@ -5994,7 +6032,7 @@ env.Command('marker', 'input_file',
 performs &consvar; substitution on the string that makes up
 the command line of the builder.
 &Consvars; to be interpolated are indicated in the
-string with a leading 
+string with a leading
 <literal>$</literal>, to distinguish them from plain text
 which is not to be substituted.
 Besides regular &consvars;, scons provides the following
@@ -6110,117 +6148,58 @@ have the following
 modifiers appended within the enclosing curly braces
 to access properties of the interpolated string:</para>
 
-<variablelist>
-  <varlistentry>
-  <term><parameter>base</parameter></term>
-  <listitem>
-<para>The base path of the file name,
-including the directory path
-but excluding any suffix.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>dir</parameter></term>
-  <listitem>
-<para>The name of the directory in which the file exists.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>file</parameter></term>
-  <listitem>
-<para>The file name,
-minus any directory portion.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>filebase</parameter></term>
-  <listitem>
-<para>Like <parameter>file</parameter>
-but minus its suffix..</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>suffix</parameter></term>
-  <listitem>
-<para>Just the file suffix.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>abspath</parameter></term>
-  <listitem>
-<para>The absolute path name of the file.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>posix</parameter></term>
-  <listitem>
-<para>The path with directories separated by forward slashes
-(<emphasis role="bold">/</emphasis>).
-Sometimes necessary on Windows systems
-when a path references a file on other (POSIX) systems.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>windows</parameter></term>
-  <listitem>
-<para>The path with directories separated by backslashes.
-(<emphasis role="bold"><literal>\\</literal></emphasis>).
-Sometimes necessary on POSIX-style systems
-when a path references a file on other (Windows) systems.
-<parameter>win32</parameter> is a (deprecated) synonym for
-<parameter>windows</parameter>.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>srcpath</parameter></term>
-  <listitem>
-<para>The directory and file name to the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If this file isn't linked,
-it just returns the directory and filename unchanged.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>srcdir</parameter></term>
-  <listitem>
-<para>The directory containing the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If this file isn't linked,
-it just returns the directory part of the filename.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>rsrcpath</parameter></term>
-  <listitem>
-<para>The directory and file name to the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If the file does not exist locally but exists in a Repository,
-the path in the Repository is returned.
-If this file isn't linked, it just returns the
-directory and filename unchanged.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><parameter>rsrcdir</parameter></term>
-  <listitem>
-<para>The Repository directory containing the source file linked to this file through
-<emphasis role="bold">VariantDir</emphasis>().
-If this file isn't linked,
-it just returns the directory part of the filename.</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
+<simplelist>
+  <member><parameter>base</parameter> -
+    The base path of the file name,
+    including the directory path
+    but excluding any suffix.
+  </member>
+  <member><parameter>dir</parameter> - The name of the directory in which the file exists.</member>
+  <member><parameter>file</parameter> -  The file name, minus any directory portion.</member>
+  <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
+  <member><parameter>suffix</parameter> - Just the file suffix.</member>
+  <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
+  <member><parameter>posix</parameter> -
+    The path with directories separated by forward slashes
+    (<emphasis role="bold">/</emphasis>).
+    Sometimes necessary on Windows systems
+    when a path references a file on other (POSIX) systems.
+  </member>
+  <member><parameter>windows</parameter> -
+    The path with directories separated by backslashes
+    (<emphasis role="bold"><literal>\\</literal></emphasis>).
+    Sometimes necessary on POSIX-style systems
+    when a path references a file on other (Windows) systems.
+    <parameter>win32</parameter> is a (deprecated) synonym for
+    <parameter>windows</parameter>.
+  </member>
+  <member><parameter>srcpath</parameter> -
+    The directory and file name to the source file linked to this file through
+    &f-VariantDir;().
+    If this file isn't linked,
+    it just returns the directory and filename unchanged.
+  </member>
+  <member><parameter>srcdir</parameter> -
+    The directory containing the source file linked to this file through
+    &f-VariantDir;().
+    If this file isn't linked,
+    it just returns the directory part of the filename.
+  </member>
+  <member><parameter>rsrcpath</parameter> -
+    The directory and file name to the source file linked to this file through
+    &f-VariantDir;().
+    If the file does not exist locally but exists in a Repository,
+    the path in the Repository is returned.
+    If this file isn't linked, it just returns the
+    directory and filename unchanged.
+  </member>
+  <member><parameter>rsrcdir</parameter> -
+    The Repository directory containing the source file linked to this file through
+    &VariantDir;().
+    If this file isn't linked,
+    it just returns the directory part of the filename.
+  </member>
+</simplelist>
 
 <para>For example, the specified target will
 expand as follows for the corresponding modifiers:</para>
@@ -6701,19 +6680,19 @@ issues waiting to trap the unwary.</para>
 <title>.C file suffix</title>
 
 <para>&scons; handles the upper-case
-<markup>.C</markup>
+<filename>.C</filename>
 file suffix differently,
 depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
 &scons; treats a file with a
-<markup>.C</markup>
+<filename>.C</filename>
 suffix as a C++ source file.
 On a case-insensitive system
 such as Windows,
 &scons; treats a file with a
-<markup>.C</markup>
+<filename>.C</filename>
 suffix as a C source file.</para>
 </refsect2>
 
@@ -6721,21 +6700,21 @@ suffix as a C source file.</para>
 <title>.F file suffix</title>
 
 <para>&scons; handles the upper-case
-<markup>.F</markup>
+<filename>.F</filename>
 file suffix differently,
 depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
 &scons; treats a file with a
-<markup>.F</markup>
+<filename>.F</filename>
 suffix as a Fortran source file
 that is to be first run through
 the standard C preprocessor.
 On a case-insensitive system
 such as Windows,
 &scons; treats a file with a
-<markup>.F</markup>
+<filename>.F</filename>
 suffix as a Fortran source file that should
 <emphasis>not</emphasis>
 be run through the C preprocessor.</para>
@@ -6782,11 +6761,11 @@ to run &scons;.</para>
 </refsect2>
 
 <refsect2 id='windows_sconsbat_file'>
-<title>Windows: scons.bat file</title>
+<title>Windows: <filename>scons.bat</filename> file</title>
 
 <para>On Windows systems,
 &scons; is executed via a wrapper
-<emphasis role="bold">scons.bat</emphasis>
+<filename>scons.bat</filename>
 file.
 This has (at least) two ramifications:</para>
 
@@ -6806,23 +6785,26 @@ as an &scons;
 command issued at the command-line prompt.
 You can work around this either by
 executing
-<emphasis role="bold">scons.bat</emphasis>
+<filename>scons.bat</filename>
 from the Cygwin command line,
 or by creating a wrapper shell
 script named
-<emphasis role="bold">scons</emphasis>.</para>
+<filename>scons</filename>.</para>
 
 </refsect2>
 
 <refsect2 id='mingw'>
 <title>MinGW</title>
 
-<para>The MinGW bin directory must be in your PATH environment variable or the
-PATH variable under the ENV &consvar; for &scons;
+<para>The MinGW <filename>bin</filename>
+directory must be in your <envar>PATH</envar>
+environment variable or the
+<envar>ENV['PATH']</envar> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
 Python interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
-directories in the PATH variable. If you have both MSVC and MinGW
+directories in the <envar>PATH</envar> variable.
+If you have both MSVC and MinGW
 installed and you want to use MinGW instead of MSVC,
 then you must explicitly tell &scons; to use MinGW by passing
 <code>tools=['mingw']</code>
@@ -6836,7 +6818,9 @@ over the MinGW tools.</para>
 <title>EXAMPLES</title>
 
 <para>To help you get started using &scons;,
-this section contains a brief overview of some common tasks.</para>
+this section contains a brief overview of some common tasks.
+See the &SCons; User Guide for many more examples.
+</para>
 
 
 <refsect2 id='basic_compilation_from_a_single_source_f'>
@@ -6844,13 +6828,14 @@ this section contains a brief overview of some common tasks.</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 <para>Note:  Build the file by specifying
 the target as an argument
-("scons foo" or "scons foo.exe").
-or by specifying a dot ("scons .").</para>
+(<userinput>scons foo</userinput> or <userinput>scons foo.exe</userinput>)
+or by specifying the current directory as the target
+(<userinput>scons .</userinput>).</para>
 
 </refsect2>
 
@@ -6859,7 +6844,7 @@ or by specifying a dot ("scons .").</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
+env.Program(target='foo', source=Split('f1.c f2.c f3.c'))
 </programlisting>
 
 </refsect2>
@@ -6868,8 +6853,8 @@ env.Program(target = 'foo', source = Split('f1.c f2.c f3.c'))
 <title>Setting a Compilation Flag</title>
 
 <programlisting language="python">
-env = Environment(CCFLAGS = '-g')
-env.Program(target = 'foo', source = 'foo.c')
+env = Environment(CCFLAGS='-g')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -6879,12 +6864,14 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <para>Note:  You do
 <emphasis>not</emphasis>
-need to set CCFLAGS to specify -I options by hand.
-&scons; will construct the right <option>-I</option> options from CPPPATH.</para>
+need to set <envar>CCFLAGS</envar> to specify
+<option>-I</option> options by hand.
+&scons; will construct the right <option>-I</option>
+options from the contents of <envar>CPPPATH.</envar></para>
 
 <programlisting language="python">
-env = Environment(CPPPATH = ['.'])
-env.Program(target = 'foo', source = 'foo.c')
+env = Environment(CPPPATH=['.'])
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -6893,8 +6880,8 @@ env.Program(target = 'foo', source = 'foo.c')
 <title>Search Multiple Directories For .h Files</title>
 
 <programlisting language="python">
-env = Environment(CPPPATH = ['include1', 'include2'])
-env.Program(target = 'foo', source = 'foo.c')
+env = Environment(CPPPATH=['include1', 'include2'])
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -6904,8 +6891,8 @@ env.Program(target = 'foo', source = 'foo.c')
 
 <programlisting language="python">
 env = Environment()
-env.StaticLibrary(target = 'foo', source = Split('l1.c l2.c'))
-env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
+env.StaticLibrary(target='foo', source=Split('l1.c l2.c'))
+env.StaticLibrary(target='bar', source=['l3.c', 'l4.c'])
 </programlisting>
 
 </refsect2>
@@ -6915,8 +6902,8 @@ env.StaticLibrary(target = 'bar', source = ['l3.c', 'l4.c'])
 
 <programlisting language="python">
 env = Environment()
-env.SharedLibrary(target = 'foo', source = ['l5.c', 'l6.c'])
-env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
+env.SharedLibrary(target='foo', source=['l5.c', 'l6.c'])
+env.SharedLibrary(target='bar', source=Split('l7.c l8.c'))
 </programlisting>
 
 </refsect2>
@@ -6925,9 +6912,9 @@ env.SharedLibrary(target = 'bar', source = Split('l7.c l8.c'))
 <title>Linking a Local Library Into a Program</title>
 
 <programlisting language="python">
-env = Environment(LIBS = 'mylib', LIBPATH = ['.'])
-env.Library(target = 'mylib', source = Split('l1.c l2.c'))
-env.Program(target = 'prog', source = ['p1.c', 'p2.c'])
+env = Environment(LIBS='mylib', LIBPATH=['.'])
+env.Library(target='mylib', source=Split('l1.c l2.c'))
+env.Program(target='prog', source=['p1.c', 'p2.c'])
 </programlisting>
 
 </refsect2>
@@ -6940,23 +6927,24 @@ you can leave off the target file suffix,
 and &scons; will add it automatically.</para>
 
 <programlisting language="python">
-bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
-              suffix = '.pdf',
-              src_suffix = '.tex')
-env = Environment(BUILDERS = {'PDFBuilder' : bld})
-env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
+bld = Builder(
+    action='pdftex &lt; $SOURCES &gt; $TARGET',
+    suffix='.pdf',
+    src_suffix='.tex'
+)
+env = Environment(BUILDERS={'PDFBuilder': bld})
+env.PDFBuilder(target='foo.pdf', source='foo.tex')
 
 # The following creates "bar.pdf" from "bar.tex"
-env.PDFBuilder(target = 'bar', source = 'bar')
+env.PDFBuilder(target='bar', source='bar')
 </programlisting>
 
-<para>Note also that the above initialization
-overwrites the default Builder objects,
-so the Environment created above
-can not be used call Builders like
-<methodname>env.Program</methodname>,
-<methodname>env.Object</methodname>,
-<methodname>env.StaticLibrary</methodname> etc.</para>
+<para>Note that the above initialization
+replaces the default dictionary of Builders,
+so this &consenv; can not be used call Builders like
+&b-link-Program;, &b-link-Object;, &b-link-StaticLibrary; etc.
+See the next example for an alternative.
+</para>
 
 </refsect2>
 
@@ -6964,13 +6952,15 @@ can not be used call Builders like
 <title>Adding Your Own Builder Object to an Environment</title>
 
 <programlisting language="python">
-bld = Builder(action = 'pdftex &lt; $SOURCES &gt; $TARGET'
-              suffix = '.pdf',
-              src_suffix = '.tex')
+bld = Builder(
+    action='pdftex &lt; $SOURCES &gt; $TARGET'
+    suffix='.pdf',
+    src_suffix='.tex'
+)
 env = Environment()
-env.Append(BUILDERS = {'PDFBuilder' : bld})
-env.PDFBuilder(target = 'foo.pdf', source = 'foo.tex')
-env.Program(target = 'bar', source = 'bar.c')
+env.Append(BUILDERS={'PDFBuilder': bld})
+env.PDFBuilder(target='foo.pdf', source='foo.tex')
+env.Program(target='bar', source='bar.c')
 </programlisting>
 
 <para>You also can use other Pythonic techniques to add
@@ -6986,13 +6976,12 @@ env['BUILDERS]['PDFBuilder'] = bld
 <refsect2 id='defining_your_own_scanner_object'>
 <title>Defining Your Own Scanner Object</title>
 
-<para>The following example shows adding an extremely simple scanner (the
-<emphasis role="bold">kfile_scan</emphasis>()
-function)
+<para>The following example shows adding an extremely simple scanner
+(<function>kfile_scan</function>)
 that doesn't use a search path at all
 and simply returns the
 file names present on any
-<emphasis role="bold">include</emphasis>
+<literal>include</literal>
 lines in the scanned file.
 This would implicitly assume that all included
 files live in the top-level directory:</para>
@@ -7007,10 +6996,12 @@ def kfile_scan(node, env, path, arg):
     includes = include_re.findall(contents)
     return env.File(includes)
 
-kscan = Scanner(name = 'kfile',
-                function = kfile_scan,
-                argument = None,
-                skeys = ['.k'])
+kscan = Scanner(
+    name='kfile',
+    function=kfile_scan,
+    argument=None,
+    skeys=['.k'],
+)
 
 scanners = DefaultEnvironment()['SCANNERS']
 scanners.append(kscan)
@@ -7025,29 +7016,28 @@ bar_in.target_scanner = kscan
 
 <para>It is important to note that you
 have to return a list of File nodes from the scan function, simple
-strings for the file names won't do. As in the examples we are showing here,
-you can use the
-<emphasis role="bold">File()</emphasis>
-function of your current Environment in order to create nodes on the fly from
+strings for the file names won't do. As in the examples shown here,
+you can use the &f-link-env-File;
+function of your current &consenv; in order to create nodes on the fly from
 a sequence of file names with relative paths.</para>
 
 <para>Here is a similar but more complete example that adds
 a scanner which searches
 a path of directories
 (specified as the
-<emphasis role="bold">MYPATH</emphasis>
-&consvar;)
+<envar>MYPATH</envar> &consvar;)
 for files that actually exist:</para>
 
 <programlisting language="python">
 import re
 import os
+
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
 def my_scan(node, env, path, arg):
     contents = node.get_text_contents()
     includes = include_re.findall(contents)
-    if includes == []:
+    if not includes:
         return []
     results = []
     for inc in includes:
@@ -7058,12 +7048,13 @@ def my_scan(node, env, path, arg):
                 break
     return env.File(results)
 
-scanner = Scanner(name='myscanner',
-                  function=my_scan,
-                  argument=None,
-                  skeys=['.x'],
-                  path_function=FindPathDirs('MYPATH')
-                 )
+scanner = Scanner(
+    name='myscanner',
+    function=my_scan,
+    argument=None,
+    skeys=['.x'],
+    path_function=FindPathDirs('MYPATH'),
+)
 
 scanners = DefaultEnvironment()['SCANNERS']
 scanners.append(scanner)
@@ -7073,12 +7064,12 @@ env.Command('foo', 'foo.x', 'xprocess &lt; $SOURCES &gt; $TARGET')
 </programlisting>
 
 <para>The
-<emphasis role="bold">FindPathDirs</emphasis>()
+&f-link-FindPathDirs;
 function used in the previous example returns a function
 (actually a callable Python object)
 that will return a list of directories
 specified in the
-<emphasis role="bold">$MYPATH</emphasis>
+<envar>MYPATH</envar>
 &consvar;. It lets &scons; detect the file
 <filename>incs/foo.inc</filename>,
 even if
@@ -7088,7 +7079,7 @@ contains the line
 only.
 If you need to customize how the search path is derived,
 you would provide your own
-<emphasis role="bold">path_function</emphasis>
+<parameter>path_function</parameter>
 argument when creating the Scanner object,
 as follows:</para>
 
@@ -7102,12 +7093,14 @@ def pf(env, dir, target, source, arg):
             results.append(top_dir + os.sep + p)
     return results
 
-scanner = Scanner(name='myscanner',
-                  function=my_scan,
-                  argument=None,
-                  skeys=['.x'],
-                  path_function=pf
-                 )
+
+scanner = Scanner(
+    name='myscanner',
+    function=my_scan,
+    argument=None,
+    skeys=['.x'],
+    path_function=pf
+)
 </programlisting>
 
 </refsect2>
@@ -7116,14 +7109,13 @@ scanner = Scanner(name='myscanner',
 <title>Creating a Hierarchical Build</title>
 
 <para>Notice that the file names specified in a subdirectory's
-SConscript
-file are relative to that subdirectory.</para>
+SConscript file are relative to that subdirectory.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 
 SConscript('sub/SConscript')
 </programlisting>
@@ -7133,7 +7125,7 @@ SConscript('sub/SConscript')
 <programlisting language="python">
 env = Environment()
 # Builds sub/foo from sub/foo.c
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 
 SConscript('dir/SConscript')
 </programlisting>
@@ -7143,7 +7135,7 @@ SConscript('dir/SConscript')
 <programlisting language="python">
 env = Environment()
 # Builds sub/dir/foo from sub/dir/foo.c
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -7151,14 +7143,15 @@ env.Program(target = 'foo', source = 'foo.c')
 <refsect2 id='sharing_variables_between_sconscript_fil'>
 <title>Sharing Variables Between SConscript Files</title>
 
-<para>You must explicitly call &Export; and &Import; for variables that
+<para>You must explicitly call &f-link-Export; and &f-link-Import;
+for variables that
 you want to share between SConscript files.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
 <programlisting language="python">
 env = Environment()
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 
 Export("env")
 SConscript('subdirectory/SConscript')
@@ -7168,7 +7161,7 @@ SConscript('subdirectory/SConscript')
 
 <programlisting language="python">
 Import("env")
-env.Program(target = 'foo', source = 'foo.c')
+env.Program(target='foo', source='foo.c')
 </programlisting>
 
 </refsect2>
@@ -7176,8 +7169,8 @@ env.Program(target = 'foo', source = 'foo.c')
 <refsect2 id='building_multiple_variants_from_the_same'>
 <title>Building Multiple Variants From the Same Source</title>
 
-<para>Use the variant_dir keyword argument to
-the &SConscriptFunc; function to establish
+<para>Use the <parameter>variant_dir</parameter> keyword argument to
+the &f-link-SConscript; function to establish
 one or more separate variant build directory trees
 for a given source directory:</para>
 
@@ -7197,12 +7190,12 @@ SConscript('src/SConscript', variant_dir='bar')
 
 <programlisting language="python">
 Import("cppdefines")
-env = Environment(CPPDEFINES = cppdefines)
-env.Program(target = 'src', source = 'src.c')
+env = Environment(CPPDEFINES=cppdefines)
+env.Program(target='src', source='src.c')
 </programlisting>
 
-<para>Note the use of the &Export; method
-to set the "cppdefines" variable to a different
+<para>Note the use of the &f-link-Export; method
+to set the <varname>cppdefines</varname> variable to a different
 value each time we call the &SConscriptFunc; function.</para>
 
 </refsect2>
@@ -7249,8 +7242,9 @@ top-level directory, so they don't turn into
 used in <filename>Main/SConscript</filename></para>
 
 <para>Specifying only 'a' and 'b' for the library names
-allows &scons; to append the appropriate library
-prefix and suffix for the current platform
+allows &scons; to attach the appropriate library
+prefix and suffix for the current platform in
+creating the library filename
 (for example, <filename>liba.a</filename> on POSIX systems,
 <filename>a.lib</filename> on Windows).</para>
 
@@ -7264,7 +7258,7 @@ line or in the file <filename>custom.py</filename>.</para>
 
 <programlisting language="python">
 vars = Variables('custom.py')
-vars.Add('CC', help='The C compiler.')
+vars.Add('CC', 'The C compiler.')
 env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
 </programlisting>
@@ -7296,14 +7290,19 @@ CC: The C compiler.
 <refsect2 id='using_microsoft_visual_c_precompiled_hea'>
 <title>Using Microsoft Visual C++ precompiled headers</title>
 
-<para>Since windows.h includes everything and the kitchen sink, it can take quite
+<para>Since <filename>windows.h</filename> includes everything
+and the kitchen sink, it can take quite
 some time to compile it over and over again for a bunch of object files, so
 Microsoft provides a mechanism to compile a set of headers once and then
 include the previously compiled headers in any object file. This
-technology is called precompiled headers. The general recipe is to create a
-file named "StdAfx.cpp" that includes a single header named "StdAfx.h", and
-then include every header you want to precompile in "StdAfx.h", and finally
-include "StdAfx.h" as the first header in all the source files you are
+technology is called precompiled headers (<firstterm>PCH</firstterm>).
+The general recipe is to create a
+file named <filename>StdAfx.cpp</filename>
+that includes a single header named <filename>StdAfx.h</filename>,
+and then include every header you want to precompile in
+<filename>StdAfx.h</filename>,
+and finally include <filename>"StdAfx.h</filename>
+as the first header in all the source files you are
 compiling to object files. For example:</para>
 
 <para><filename>StdAfx.h</filename>:</para>
@@ -7344,9 +7343,11 @@ env['PCH'] = env.PCH('StdAfx.cpp')[0]
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </programlisting>
 
-<para>For more information see the document for the PCH builder, and the PCH and
-PCHSTOP &consvars;. To learn about the details of precompiled
-headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
+<para>For more information see the documentation for the &b-link-PCH; builder,
+and the &cv-link-PCH; and &cv-link-PCHSTOP; &consvars;.
+To learn about the details of precompiled
+headers consult the MSDN documentation for
+<option>/Yc</option>, <option>/Yu</option>, and <option>/Yp</option>.</para>
 
 </refsect2>
 
@@ -7355,9 +7356,9 @@ headers consult the MSDN documentation for /Yc, /Yu, and /Yp.</para>
 
 <para>Since including debugging information in programs and shared libraries can
 cause their size to increase significantly, Microsoft provides a mechanism
-for including the debugging information in an external file called a PDB
-file. &scons; supports PDB files through the PDB construction
-variable.</para>
+for including the debugging information in an external file called a
+<firstterm>PDB</firstterm> file.
+&scons; supports PDB files through the &cv-PDB; &consvar;.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
@@ -7367,7 +7368,8 @@ env['PDB'] = 'MyApp.pdb'
 env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 </programlisting>
 
-<para>For more information see the document for the PDB &consvar;.</para>
+<para>For more information see the documentation for the
+&cv-link-PDB; &consvar;.</para>
 
 </refsect2>
 </refsect1>
@@ -7430,7 +7432,7 @@ Remove the cache file in case of problems with this.
 &scons; will ignore failures reading or writing the file
 and will silently revert to non-cached behavior in such cases.</para>
 
-<para>Since &scons; 3.1 (experimental).</para>
+<para><emphasis>Available since &scons; 3.1 (experimental)</emphasis>.</para>
     </listitem>
   </varlistentry>
 </variablelist>
