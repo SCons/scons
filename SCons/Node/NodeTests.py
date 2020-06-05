@@ -1244,6 +1244,19 @@ class NodeTestCase(unittest.TestCase):
         n=SCons.Node.Node()
         assert n.is_literal()
 
+    def test_sconscripts(self):
+        """Test the is_sconscript() function."""
+        # check nodes are not sconscript unless added to the list
+        n=SCons.Node.Node()
+        n2=SCons.Node.Node()
+        assert not n.is_sconscript()
+        assert not n2.is_sconscript()
+
+        # add node to sconscript list and verify
+        SCons.Node.SConscriptNodes.add(n2)
+        assert not n.is_sconscript()
+        assert n2.is_sconscript()
+
     def test_Annotate(self):
         """Test using an interface-specific Annotate function."""
         def my_annotate(node, self=self):
