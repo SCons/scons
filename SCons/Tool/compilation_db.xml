@@ -26,14 +26,7 @@ See its __doc__ string for a discussion of the format.
     <tool name="compilation_db">
         <summary>
             <para>
-                Sets up &b-CompilationDatabase; builder.
-            </para>
-            <para>
-                This builder generates a clang tooling compatible compilation database.
-            </para>
-            <para>
-                Note: The target file is typically named
-                <filename>compile_commands.json</filename>.
+                Sets up &b-CompilationDatabase; builder which generates a clang tooling compatible compilation database.
             </para>
         </summary>
         <sets>
@@ -52,10 +45,25 @@ See its __doc__ string for a discussion of the format.
                 The &b-CompilationDatabase; builder writes a
                 <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">clang formatted compilation
                     database
-                </ulink>
+                </ulink> which is consumed by a number of clang tools, editors, and other tools.
             </para>
             <para>
-                This is consumed by a number of clang tools.
+                If you don't specify any files, the builder will default to <filename>compile_commands.json</filename>.
+            </para>
+            <para>
+                If you specify a single file as below
+                <programlisting language="python">
+env.CompilationDatabase('my_output.json')
+                </programlisting>
+                SCons will automatically use that as the target file.
+                If you specify more than one source, the source list will be ignored.
+            </para>
+            <para>
+                You should not specify source files. The &b-CompilationDatabase; builder instruments SCons to collect them from all
+                the C, C++, assembly source/target pairs.
+            </para>
+            <para>
+                New in &SCons; 4.0.0
             </para>
         </summary>
     </builder>
