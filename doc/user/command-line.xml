@@ -265,7 +265,7 @@ if not GetOption('help'):
 
       <para>
 
-      &f-Getoption; can be used to retrieve the values of options
+      &f-GetOption; can be used to retrieve the values of options
       defined by calls to &f-link-AddOption;. A &f-GetOption; call
       must appear after the &f-AddOption; call for that option.
       If the &f-AddOption; call supplied a <parameter>dest</parameter>
