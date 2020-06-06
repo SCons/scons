@@ -12,8 +12,8 @@ env.Tool('compilation_db')
 
 if ARGUMENTS.get('ABSPATH', False):
     env['COMPILATIONDB_USE_ABSPATH'] = True
-    env.CompilationDatabase('compile_commands_abs.json')
+    env.CompilationDatabase('compile_commands_abs.json', source=[])
 else:
-    env.CompilationDatabase('compile_commands.json')
+    env.CompilationDatabase('compile_commands.json', source=[])
 
 env.Program('main', 'test_main.c')

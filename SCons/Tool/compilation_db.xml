@@ -26,12 +26,14 @@ See its __doc__ string for a discussion of the format.
     <tool name="compilation_db">
         <summary>
             <para>
-                Sets up &b-CompilationDatabase; Pseudo builder.
+                Sets up &b-CompilationDatabase; builder.
             </para>
             <para>
                 This builder generates a clang tooling compatible compilation database.
-                Note: If there's no specified target file, it will default to
-                <filename>compile_commands.json</filename>
+            </para>
+            <para>
+                Note: The target file is typically named
+                <filename>compile_commands.json</filename>.
             </para>
         </summary>
         <sets>

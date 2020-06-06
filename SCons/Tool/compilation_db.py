@@ -154,13 +154,18 @@ def scan_compilation_db(node, env, path):
     return __COMPILATION_DB_ENTRIES
 
 
-def CompilationDatabase(env, target='compile_commands.json'):
-    result = env.__COMPILATIONDB_Database(target=target, source=[])
+def compilation_db_emitter(target, source, env):
+    """ fix up the source/targets """
 
-    env.AlwaysBuild(result)
-    env.NoCache(result)
+    # Default target name is compilation_db.json
+    if not target:
+        target = ['compile_commands.json', ]
 
-    return result
+    # No source should have been passed. Drop it.
+    if source:
+        source = []
+
+    return target, source
 
 
 def generate(env, **kwargs):
@@ -214,16 +219,16 @@ def generate(env, **kwargs):
         action=SCons.Action.Action(compilation_db_entry_action, None),
     )
 
-    env["BUILDERS"]["__COMPILATIONDB_Database"] = SCons.Builder.Builder(
+    env["BUILDERS"]["CompilationDatabase"] = SCons.Builder.Builder(
         action=SCons.Action.Action(write_compilation_db, "$COMPILATIONDB_COMSTR"),
         target_scanner=SCons.Scanner.Scanner(
             function=scan_compilation_db, node_class=None
         ),
+        emitter=compilation_db_emitter,
+        suffix='json',
     )
 
     env['COMPILATIONDB_USE_ABSPATH'] = False
-
-    env.AddMethod(CompilationDatabase, "CompilationDatabase")
 
 
 def exists(env):

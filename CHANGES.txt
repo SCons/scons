@@ -56,6 +56,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Renamed as.py to asm.py and left redirecting tool.  'as' is a reserved word and so
       changing the name was required as we wanted to import symbols for use in compilation_db
       tool.
+    - Add CompilationDatabase() builder in compilation_db tool. Contributed by MongoDB.
 
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()

@@ -699,9 +699,17 @@ env.Command('directory_build_info',
         </para>
         <para>This is controlled by
             <envar>COMPILATIONDB_USE_ABSPATH=(True|False)</envar>
+            which defaults to False.
         </para>
 
         <para>Example of absolute paths for target and source</para>
+
+        <sconstruct>
+env = Environment(COMPILATIONDB_USE_ABSPATH=True)
+env.Tool('compilation_db')
+env.CompilationDatabase('compile_commands.json')
+        </sconstruct>
+
         <programlisting language="json">
 [
     {
@@ -712,8 +720,15 @@ env.Command('directory_build_info',
     }
 ]
         </programlisting>
+
+
         <para>Example of relative paths for target and source</para>
 
+        <sconstruct>
+env = Environment()
+env.Tool('compilation_db')
+env.CompilationDatabase('compile_commands.json')
+        </sconstruct>
         <programlisting language="json">
 [
     {
