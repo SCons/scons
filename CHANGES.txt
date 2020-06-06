@@ -57,6 +57,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       changing the name was required as we wanted to import symbols for use in compilation_db
       tool.
     - Add CompilationDatabase() builder in compilation_db tool. Contributed by MongoDB.
+      Setting COMPILATIONDB_USE_ABSPATH to True|False controls whether the files are absolute or relative
+      paths.
 
   From Jeremy Elson:
     - Updated design doc to use the correct syntax for Depends()

@@ -63,6 +63,10 @@ env.CompilationDatabase('my_output.json')
                 the C, C++, assembly source/target pairs.
             </para>
             <para>
+                NOTE: You must load the compilation_db tool prior to specifying any part of your build or some source/target
+                files will not show up in your output file.
+            </para>
+            <para>
                 New in &SCons; 4.0.0
             </para>
         </summary>
