@@ -111,6 +111,9 @@ def do_nothing_node(node): pass
 
 Annotate = do_nothing_node
 
+# global set for recording all processed SContruct/SConscript nodes
+SConscriptNodes = set()
+
 # Gets set to 'True' if we're running in interactive mode. Is
 # currently used to release parts of a target's info during
 # clean builds and update runs (see release_target_info).
@@ -945,6 +948,10 @@ class Node(object, metaclass=NoSlotsPyPy):
         and hence should not return true.
         """
         return _is_derived_map[self._func_is_derived](self)
+
+    def is_sconscript(self):
+        """ Returns true if this node is an sconscript """
+        return self in SConscriptNodes
 
     def alter_targets(self):
         """Return a list of alternate targets for this Node.

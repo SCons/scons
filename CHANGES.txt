@@ -92,6 +92,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       exception, however SCons was using TypeError to detect if the callable had a different 
       signature than expected, and would silently fail to report user's exceptions. Fixed to 
       use signature module to detect function signature instead of TypeError. (Github Issue #3654)
+    - Added storage of SConstructs and SConscripts nodes into global set for checking
+      if a given node is a SConstruct/SConscript. 
+      Added new node function SCons.Node.is_sconscript(self) (Github Issue #3625)
 
   From Andrew Morrow:
     - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
