@@ -32,9 +32,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import re
-import shutil
-import stat
+from shutil import copy2, copymode, copystat
 
 import SCons.Action
 import SCons.Tool
@@ -45,67 +43,116 @@ import SCons.Util
 _INSTALLED_FILES = []
 _UNIQUE_INSTALLED_FILES = None
 
-class CopytreeError(EnvironmentError):
+class CopytreeError(OSError):
     pass
 
-# This is a patched version of shutil.copytree from python 2.5.  It
-# doesn't fail if the dir exists, which regular copytree does
-# (annoyingly).  Note the XXX comment in the docstring.
-def scons_copytree(src, dst, symlinks=False):
-    """Recursively copy a directory tree using copy2().
 
-    The destination directory must not already exist.
-    If exception(s) occur, an CopytreeError is raised with a list of reasons.
+def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
+                   ignore_dangling_symlinks=False, dirs_exist_ok=False):
+    """Recursively copy a directory tree, SCons version.
+
+    This is a modified copy of the Python 3.7 shutil.copytree function.
+    SCons update: dirs_exist_ok dictates whether to raise an
+    exception in case dst or any missing parent directory already
+    exists. Implementation depends on os.makedirs having a similar
+    flag, which it has since Python 3.2.  This version also raises an
+    SCons-defined exception rather than the one defined locally to shtuil.
+    This version uses a change from Python 3.8.
+    TODO: we can remove this forked copy once the minimum Py version is 3.8.
+
+    If exception(s) occur, an Error is raised with a list of reasons.
 
     If the optional symlinks flag is true, symbolic links in the
     source tree result in symbolic links in the destination tree; if
     it is false, the contents of the files pointed to by symbolic
-    links are copied.
+    links are copied. If the file pointed by the symlink doesn't
+    exist, an exception will be added in the list of errors raised in
+    an Error exception at the end of the copy process.
 
-    XXX Consider this example code rather than the ultimate tool.
+    You can set the optional ignore_dangling_symlinks flag to true if you
+    want to silence this exception. Notice that this has no effect on
+    platforms that don't support os.symlink.
+
+    The optional ignore argument is a callable. If given, it
+    is called with the `src` parameter, which is the directory
+    being visited by copytree(), and `names` which is the list of
+    `src` contents, as returned by os.listdir():
+
+        callable(src, names) -> ignored_names
+
+    Since copytree() is called recursively, the callable will be
+    called once for each directory that is copied. It returns a
+    list of names relative to the `src` directory that should
+    not be copied.
+
+    The optional copy_function argument is a callable that will be used
+    to copy each file. It will be called with the source path and the
+    destination path as arguments. By default, copy2() is used, but any
+    function that supports the same signature (like copy()) can be used.
 
     """
     names = os.listdir(src)
-    # garyo@genarts.com fix: check for dir before making dirs.
-    if not os.path.exists(dst):
-        os.makedirs(dst)
+    if ignore is not None:
+        ignored_names = ignore(src, names)
+    else:
+        ignored_names = set()
+
+    os.makedirs(dst, exist_ok=dirs_exist_ok)
     errors = []
     for name in names:
+        if name in ignored_names:
+            continue
         srcname = os.path.join(src, name)
         dstname = os.path.join(dst, name)
         try:
-            if symlinks and os.path.islink(srcname):
+            if os.path.islink(srcname):
                 linkto = os.readlink(srcname)
-                os.symlink(linkto, dstname)
+                if symlinks:
+                    # We can't just leave it to `copy_function` because legacy
+                    # code with a custom `copy_function` may rely on copytree
+                    # doing the right thing.
+                    os.symlink(linkto, dstname)
+                    copystat(srcname, dstname, follow_symlinks=not symlinks)
+                else:
+                    # ignore dangling symlink if the flag is on
+                    if not os.path.exists(linkto) and ignore_dangling_symlinks:
+                        continue
+                    # otherwise let the copy occurs. copy2 will raise an error
+                    if os.path.isdir(srcname):
+                        scons_copytree(srcname, dstname, symlinks, ignore,
+                                       copy_function, dirs_exist_ok)
+                    else:
+                        copy_function(srcname, dstname)
             elif os.path.isdir(srcname):
-                scons_copytree(srcname, dstname, symlinks)
+                scons_copytree(srcname, dstname, symlinks, ignore, copy_function, dirs_exist_ok)
             else:
-                shutil.copy2(srcname, dstname)
-            # XXX What about devices, sockets etc.?
-        except (IOError, os.error) as why:
-            errors.append((srcname, dstname, str(why)))
-        # catch the CopytreeError from the recursive copytree so that we can
+                # Will raise a SpecialFileError for unsupported file types
+                copy_function(srcname, dstname)
+        # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except CopytreeError as err:
+        except CopytreeError as err:  # SCons change
             errors.extend(err.args[0])
+        except OSError as why:
+            errors.append((srcname, dstname, str(why)))
     try:
-        shutil.copystat(src, dst)
-    except SCons.Util.WinError:
-        # can't copy file access times on Windows
-        pass
+        copystat(src, dst)
     except OSError as why:
-        errors.extend((src, dst, str(why)))
+        # Copying file access times may fail on Windows
+        if getattr(why, 'winerror', None) is None:
+            errors.append((src, dst, str(why)))
     if errors:
-        raise CopytreeError(errors)
-
+        raise CopytreeError(errors)  # SCons change
+    return dst
 
 #
 # Functions doing the actual work of the Install Builder.
 #
 def copyFunc(dest, source, env):
     """Install a source file or directory into a destination by copying,
-    (including copying permission/mode bits)."""
 
+    Mode/permissions bits will be copied as well.
+
+    """
     if os.path.isdir(source):
         if os.path.exists(dest):
             if not os.path.isdir(dest):
@@ -114,11 +161,10 @@ def copyFunc(dest, source, env):
             parent = os.path.split(dest)[0]
             if not os.path.exists(parent):
                 os.makedirs(parent)
-        scons_copytree(source, dest)
+        scons_copytree(source, dest, dirs_exist_ok=True)
     else:
-        shutil.copy2(source, dest)
-        st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        copy2(source, dest)
+        copymode(source, dest)
 
     return 0
 
@@ -127,9 +173,11 @@ def copyFunc(dest, source, env):
 #
 def copyFuncVersionedLib(dest, source, env):
     """Install a versioned library into a destination by copying,
-    (including copying permission/mode bits) and then creating
-    required symlinks."""
 
+    Mode/permissions bits will be copied as well.
+    Any required symbolic links for other library names are created.
+
+    """
     if os.path.isdir(source):
         raise SCons.Errors.UserError("cannot install directory `%s' as a version library" % str(source) )
     else:
@@ -138,9 +186,8 @@ def copyFuncVersionedLib(dest, source, env):
             os.remove(dest)
         except:
             pass
-        shutil.copy2(source, dest)
-        st = os.stat(source)
-        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+        copy2(source, dest)
+        copymode(source, dest)
         installShlibLinks(dest, source, env)
 
     return 0
@@ -151,11 +198,11 @@ def listShlibLinksToInstall(dest, source, env):
     dest = env.fs.File(dest)
     install_dir = dest.get_dir()
     for src in source:
-        symlinks = getattr(getattr(src,'attributes',None), 'shliblinks', None)
+        symlinks = getattr(getattr(src, 'attributes', None), 'shliblinks', None)
         if symlinks:
             for link, linktgt in symlinks:
                 link_base = os.path.basename(link.get_path())
-                linktgt_base  = os.path.basename(linktgt.get_path())
+                linktgt_base = os.path.basename(linktgt.get_path())
                 install_link = env.fs.File(link_base, install_dir)
                 install_linktgt = env.fs.File(linktgt_base, install_dir)
                 install_links.append((install_link, install_linktgt))
