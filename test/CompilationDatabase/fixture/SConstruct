@@ -27,10 +27,8 @@ env.CompilationDatabase(target='compile_commands_target_over_abs.json', COMPILAT
 # Should be relative paths
 env.CompilationDatabase('compile_commands_over_rel.json', COMPILATIONDB_USE_ABSPATH=False)
 
-
 # Try 1/0 for COMPILATIONDB_USE_ABSPATH
 env.CompilationDatabase('compile_commands_over_abs_1.json', COMPILATIONDB_USE_ABSPATH=1)
 env.CompilationDatabase('compile_commands_over_abs_0.json', COMPILATIONDB_USE_ABSPATH=0)
-
 
 env.Program('main', 'test_main.c')
