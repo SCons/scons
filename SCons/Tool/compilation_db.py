@@ -121,18 +121,11 @@ def compilation_db_entry_action(target, source, env, **kw):
         env=env["__COMPILATIONDB_ENV"],
     )
 
-    if env['COMPILATIONDB_USE_ABSPATH']:
-        filename = env["__COMPILATIONDB_USOURCE"][0].abspath
-        target_name = env['__COMPILATIONDB_UTARGET'][0].abspath
-    else:
-        filename = env["__COMPILATIONDB_USOURCE"][0].path
-        target_name = env['__COMPILATIONDB_UTARGET'][0].path
-
     entry = {
         "directory": env.Dir("#").abspath,
         "command": command,
-        "file": filename,
-        "target": target_name
+        "file": env["__COMPILATIONDB_USOURCE"][0],
+        "target": env['__COMPILATIONDB_UTARGET'][0]
     }
 
     target[0].write(entry)
@@ -141,8 +134,26 @@ def compilation_db_entry_action(target, source, env, **kw):
 def write_compilation_db(target, source, env):
     entries = []
 
+    use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
+
     for s in __COMPILATION_DB_ENTRIES:
-        entries.append(s.read())
+        entry = s.read()
+        source_file = entry['file']
+        target_file = entry['target']
+
+        if use_abspath:
+            source_file = source_file.abspath
+            target_file = target_file.abspath
+        else:
+            source_file = source_file.path
+            target_file = target_file.path
+
+        path_entry = {'directory': entry['directory'],
+                      'command': entry['command'],
+                      'file': source_file,
+                      'target': target_file}
+
+        entries.append(path_entry)
 
     with open(target[0].path, "w") as target_file:
         json.dump(
@@ -156,6 +167,10 @@ def scan_compilation_db(node, env, path):
 
 def compilation_db_emitter(target, source, env):
     """ fix up the source/targets """
+
+    # Someone called env.CompilationDatabase('my_targetname.json')
+    if not target and len(source) == 1:
+        target = source
 
     # Default target name is compilation_db.json
     if not target:
