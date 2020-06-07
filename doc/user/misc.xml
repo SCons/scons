@@ -693,9 +693,8 @@ env.Command('directory_build_info',
 
         <para>
 
-            Currently SCons supports two variations. One is to output source and target files with paths relative to the
-            top
-            of the SCons build, or to output those files with their absolute path.
+            The compilation database can be populated with source and target files either with paths relative to the
+            top of the build, or using absolute paths.
         </para>
         <para>This is controlled by
             <envar>COMPILATIONDB_USE_ABSPATH=(True|False)</envar>

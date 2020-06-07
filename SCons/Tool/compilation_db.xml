@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
     <tool name="compilation_db">
         <summary>
             <para>
-                Sets up &b-CompilationDatabase; builder which generates a clang tooling compatible compilation database.
+                Sets up &b-link-CompilationDatabase; builder which generates a clang tooling compatible compilation database.
             </para>
         </summary>
         <sets>
@@ -42,9 +42,9 @@ See its __doc__ string for a discussion of the format.
     <builder name="CompilationDatabase">
         <summary>
             <para>
-                The &b-CompilationDatabase; builder writes a
-                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">clang formatted compilation
-                    database
+                The &b-CompilationDatabase; builder writes a JSON formatted compilation
+                    database according to the
+                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification
                 </ulink> which is consumed by a number of clang tools, editors, and other tools.
             </para>
             <para>
@@ -63,7 +63,7 @@ env.CompilationDatabase('my_output.json')
                 the C, C++, assembly source/target pairs.
             </para>
             <para>
-                NOTE: You must load the compilation_db tool prior to specifying any part of your build or some source/target
+                NOTE: You must load the &t-compilation_db; tool prior to specifying any part of your build or some source/target
                 files will not show up in your output file.
             </para>
             <para>
@@ -85,10 +85,10 @@ env.CompilationDatabase('my_output.json')
             <para>
                 This is a boolean flag to instruct &b-link-CompilationDatabase; to
                 write the <literal>file</literal> and <literal>target</literal> members
-                in the target file with absolute or relative path.
+                in the compilation database with absolute or relative paths.
             </para>
             <para>
-                The default value is False.
+                The default value is False (use relative paths)
             </para>
         </summary>
     </cvar>
