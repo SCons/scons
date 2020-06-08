@@ -159,6 +159,8 @@
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="misc.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="troubleshoot.xml"/>
+
+<!--   Appendix below here -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variables.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tools.xml"/>
