@@ -33,14 +33,12 @@ PYTHON_PACKAGES = [
 ]
 
 BUILDING_PACKAGES = [
-    'python-libxml2',
-    'python-libxslt1',
+    'python3-lxml',
     'fop',
-    'python-dev',
-    'python-epydoc',
+    'python3-dev',
     'rpm',
     'tar',
-    'lynx'
+    'lynx',
     
     # additional packages that Bill Deegan's web page suggests
     #'docbook-to-man',
@@ -51,15 +49,17 @@ BUILDING_PACKAGES = [
 
     # for ubuntu 9.10 
     # 'texlive-lang-french'
+    'python3-sphinx',
+    'sphinx-rtd-theme-common',
 
 ]
 
 DOCUMENTATION_PACKAGES = [
     'docbook-doc',
-    'epydoc-doc',
+    'sphinx-doc',
     'gcc-doc',
     'pkg-config',
-    'python-doc',
+    'python3-doc',
     'openjdk-8-doc',
     'swig-doc',
     'texlive-doc',
@@ -79,10 +79,10 @@ TESTING_PACKAGES = [
     'm4',
     'openssh-client',
     'openssh-server',
-    'python-profiler',
-    'python-all-dev',
+    'python3-profiler',
+    'python3-line-profiler',
     'python3-all-dev',
-    'pypy-dev',
+    'pypy3-dev',
     'rcs',
     'rpm',
     'openjdk-8-jdk',
