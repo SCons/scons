@@ -30,7 +30,6 @@ import shutil
 import shlex
 import subprocess
 
-from glob import glob
 from os.path import join as joinpath
 from os.path import splitext
 
@@ -38,6 +37,7 @@ import SCons
 from SCons.Action import _string_from_cmd_list, get_default_ENV
 from SCons.Util import is_List, flatten_sequence
 from SCons.Script import COMMAND_LINE_TARGETS
+from SCons.Node import SConscriptNodes
 
 NINJA_STATE = None
 NINJA_RULES = "__NINJA_CUSTOM_RULES"
@@ -58,10 +58,11 @@ COMMAND_TYPES = (
 
 def _install_action_function(_env, node):
     """Install files using the install or copy commands"""
+    #TODO: handle Python.Value nodes
     return {
         "outputs": get_outputs(node),
         "rule": "INSTALL",
-        "inputs": [get_path(src_file(s)) for s in node.sources],
+        "inputs": [get_path(src_file(s)) for s in node.sources if not isinstance(s, SCons.Node.Python.Value)],
         "implicit": get_dependencies(node),
     }
 
@@ -83,9 +84,10 @@ def _mkdir_action_function(env, node):
     }
 
 def _copy_action_function(env, node):
+    #TODO: handle Python.Value nodes
     return {
         "outputs": get_outputs(node),
-        "inputs": [get_path(src_file(s)) for s in node.sources],
+        "inputs": [get_path(src_file(s)) for s in node.sources if not isinstance(s, SCons.Node.Python.Value)],
         "rule": "CMD",
         "variables": {
             "cmd": "$COPY $in $out",
@@ -134,11 +136,12 @@ def is_valid_dependent_node(node):
 
 def alias_to_ninja_build(node):
     """Convert an Alias node into a Ninja phony target"""
+    # TODO: handle Python.Values
     return {
         "outputs": get_outputs(node),
         "rule": "phony",
         "implicit": [
-            get_path(src_file(n)) for n in node.children() if is_valid_dependent_node(n)
+            get_path(src_file(n)) for n in node.children() if is_valid_dependent_node(n) and not isinstance(n, SCons.Node.Python.Value)
         ],
     }
 
@@ -147,18 +150,20 @@ def get_order_only(node):
     """Return a list of order only dependencies for node."""
     if node.prerequisites is None:
         return []
-    return [get_path(src_file(prereq)) for prereq in node.prerequisites]
+    #TODO: handle Python.Value nodes
+    return [get_path(src_file(prereq)) for prereq in node.prerequisites if not isinstance(prereq, SCons.Node.Python.Value)]
 
 
 def get_dependencies(node, skip_sources=False):
     """Return a list of dependencies for node."""
+    #TODO: handle Python.Value nodes
     if skip_sources:
         return [
             get_path(src_file(child))
             for child in node.children()
-            if child not in node.sources
+            if child not in node.sources and not isinstance(child, SCons.Node.Python.Value)
         ]
-    return [get_path(src_file(child)) for child in node.children()]
+    return [get_path(src_file(child)) for child in node.children() if not isinstance(child, SCons.Node.Python.Value)]
 
 
 def get_inputs(node):
@@ -168,8 +173,8 @@ def get_inputs(node):
         inputs = executor.get_all_sources()
     else:
         inputs = node.sources
-
-    inputs = [get_path(src_file(o)) for o in inputs]
+    #TODO: handle Python.Value nodes
+    inputs = [get_path(src_file(o)) for o in inputs if not isinstance(o, SCons.Node.Python.Value)]
     return inputs
 
 
@@ -202,6 +207,7 @@ class SConsToNinjaTranslator:
             # this check for us.
             "SharedFlagChecker": ninja_noop,
             # The install builder is implemented as a function action.
+            # TODO: use command action #3573
             "installFunc": _install_action_function,
             "MkdirFunc": _mkdir_action_function,
             "LibSymlinksActionFunction": _lib_symlink_action_function,
@@ -262,12 +268,6 @@ class SConsToNinjaTranslator:
         # the bottom of ninja's DAG anyway and Textfile builders can have text
         # content as their source which doesn't work as an implicit dep in
         # ninja.
-        if name == "_action":
-            return {
-                "rule": "TEMPLATE",
-                "outputs": get_outputs(node),
-                "implicit": get_dependencies(node, skip_sources=True),
-            }
         if name == 'ninja_builder':
             return None
 
@@ -280,13 +280,19 @@ class SConsToNinjaTranslator:
             if handler is not None:
                 return handler(node.env if node.env else self.env, node)
 
-        raise Exception(
+        SCons.Warnings.Warning(
             "Found unhandled function action {}, "
             " generating scons command to build\n"
             "Note: this is less efficient than Ninja,"
             " you can write your own ninja build generator for"
             " this function using NinjaRegisterFunctionHandler".format(name)
         )
+
+        return {
+                "rule": "TEMPLATE",
+                "outputs": get_outputs(node),
+                "implicit": get_dependencies(node, skip_sources=True),
+            }
 
     # pylint: disable=too-many-branches
     def handle_list_action(self, node, action):
@@ -309,7 +315,7 @@ class SConsToNinjaTranslator:
         all_outputs = list({output for build in results for output in build["outputs"]})
         dependencies = list({dep for build in results for dep in build["implicit"]})
 
-        if results[0]["rule"] == "CMD":
+        if results[0]["rule"] == "CMD" or results[0]["rule"] == "GENERATED_CMD":
             cmdline = ""
             for cmd in results:
 
@@ -339,7 +345,7 @@ class SConsToNinjaTranslator:
             if cmdline:
                 ninja_build = {
                     "outputs": all_outputs,
-                    "rule": "CMD",
+                    "rule": "GENERATED_CMD",
                     "variables": {
                         "cmd": cmdline,
                         "env": get_command_env(node.env if node.env else self.env),
@@ -360,10 +366,11 @@ class SConsToNinjaTranslator:
             }
 
         elif results[0]["rule"] == "INSTALL":
+            #TODO: handle Python.Value nodes
             return {
                 "outputs": all_outputs,
                 "rule": "INSTALL",
-                "inputs": [get_path(src_file(s)) for s in node.sources],
+                "inputs": [get_path(src_file(s)) for s in node.sources if not isinstance(s, SCons.Node.Python.Value)],
                 "implicit": dependencies,
             }
 
@@ -397,22 +404,28 @@ class NinjaState:
         # like CCFLAGS
         escape = env.get("ESCAPE", lambda x: x)
 
+        # if SCons was invoked from python, we expect the first arg to be the scons.py
+        # script, otherwise scons was invoked from the scons script
+        python_bin = ''
+        if os.path.basename(sys.argv[0]) == 'scons.py':
+            python_bin = escape(sys.executable)
         self.variables = {
             "COPY": "cmd.exe /c 1>NUL copy" if sys.platform == "win32" else "cp",
-            "SCONS_INVOCATION": "{} {} __NINJA_NO=1 $out".format(
-                sys.executable,
+            "SCONS_INVOCATION": '{} {} --disable-ninja __NINJA_NO=1 $out'.format(
+                python_bin,
                 " ".join(
                     [escape(arg) for arg in sys.argv if arg not in COMMAND_LINE_TARGETS]
                 ),
             ),
-            "SCONS_INVOCATION_W_TARGETS": "{} {}".format(
-                sys.executable, " ".join([escape(arg) for arg in sys.argv])
+            "SCONS_INVOCATION_W_TARGETS": "{} {} --disable-ninja".format(
+                python_bin, " ".join([escape(arg) for arg in sys.argv])
             ),
             # This must be set to a global default per:
-            # https://ninja-build.org/manual.html
-            #
-            # (The deps section)
-            "msvc_deps_prefix": "Note: including file:",
+            # https://ninja-build.org/manual.html#_deps
+            # English Visual Studio will have the default below,
+            # otherwise the user can define the variable in the first environment
+            # that initialized ninja tool
+            "msvc_deps_prefix": env.get("NINJA_MSVC_DEPS_PREFIX", "Note: including file:")
         }
 
         self.rules = {
@@ -481,13 +494,13 @@ class NinjaState:
             },
             "TEMPLATE": {
                 "command": "$SCONS_INVOCATION $out",
-                "description": "Rendering $out",
+                "description": "Rendering $SCONS_INVOCATION $out",
                 "pool": "scons_pool",
                 "restat": 1,
             },
             "SCONS": {
                 "command": "$SCONS_INVOCATION $out",
-                "description": "SCons $out",
+                "description": "$SCONS_INVOCATION $out",
                 "pool": "scons_pool",
                 # restat
                 #    if present, causes Ninja to re-stat the command's outputs
@@ -557,6 +570,8 @@ class NinjaState:
         self.built.update(build["outputs"])
         return True
 
+    # TODO: rely on SCons to tell us what is generated source
+    # or some form of user scanner maybe (Github Issue #3624)
     def is_generated_source(self, output):
         """Check if output ends with a known generated suffix."""
         _, suffix = splitext(output)
@@ -740,11 +755,7 @@ class NinjaState:
         ninja.build(
             self.ninja_file.path,
             rule="REGENERATE",
-            implicit=[
-                self.env.File("#SConstruct").path,
-                __file__,
-            ]
-            + sorted(glob("src/**/SConscript", recursive=True)),
+            implicit=[__file__] + [str(node) for node in SConscriptNodes],
         )
 
         # If we ever change the name/s of the rules that include
@@ -921,6 +932,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False):
             )
 
         cmd, rsp_content = cmd_list[:tool_idx], cmd_list[tool_idx:]
+        rsp_content = ['"' + rsp_content_item + '"' for rsp_content_item in rsp_content]
         rsp_content = " ".join(rsp_content)
 
         variables = {"rspc": rsp_content}
@@ -1060,20 +1072,23 @@ def ninja_builder(env, target, source):
             for key in env['ENV']:
                 f.write('set {}={}\n'.format(key, env['ENV'][key]))
             f.write('{} -f {} %*\n'.format(NINJA_STATE.ninja_bin_path, generated_build_ninja))  
-                
-    if not env.get("DISABLE_AUTO_NINJA"):
+        cmd = ['run_ninja_env.bat'] 
+
+    else:
         cmd = [NINJA_STATE.ninja_bin_path, '-f', generated_build_ninja]
+            
+    if not env.get("DISABLE_AUTO_NINJA"):
         print("Executing:", str(' '.join(cmd)))
 
         # execute the ninja build at the end of SCons, trying to
         # reproduce the output like a ninja build would
         def execute_ninja():
-
+            
             proc = subprocess.Popen(cmd,
                 stderr=sys.stderr,
                 stdout=subprocess.PIPE,
                 universal_newlines=True,
-                env=env['ENV'] # ninja build items won't consider node env on win32
+                env=os.environ if env["PLATFORM"] == "win32" else env['ENV']
             )
             for stdout_line in iter(proc.stdout.readline, ""):
                 yield stdout_line
@@ -1142,8 +1157,7 @@ def ninja_csig(original):
     """Return a dummy csig"""
 
     def wrapper(self):
-        name = str(self)
-        if "SConscript" in name or "SConstruct" in name:
+        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
             return original(self)
         return "dummy_ninja_csig"
 
@@ -1154,8 +1168,7 @@ def ninja_contents(original):
     """Return a dummy content without doing IO"""
 
     def wrapper(self):
-        name = str(self)
-        if "SConscript" in name or "SConstruct" in name:
+        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
             return original(self)
         return bytes("dummy_ninja_contents", encoding="utf-8")
 
@@ -1396,6 +1409,7 @@ def generate(env):
     # Used to determine if a build generates a source file. Ninja
     # requires that all generated sources are added as order_only
     # dependencies to any builds that *might* use them.
+    # TODO: switch to using SCons to help determine this (Github Issue #3624)
     env["NINJA_GENERATED_SOURCE_SUFFIXES"] = [".h", ".hpp"]
 
     if env["PLATFORM"] != "win32" and env.get("RANLIBCOM"):
