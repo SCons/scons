@@ -9,6 +9,7 @@
 # DocBook-formatted generated XML files containing the summary text
 # and/or .mod files containing the ENTITY definitions for each item.
 #
+# TODO DB Check file encoding for unicode/utf-8
 import getopt
 import os
 import sys
@@ -66,6 +67,7 @@ def parse_docs(args, include_entities=True):
                 raise
         else:
             # mode we read (text/bytes) has to match handling in SConsDoc
+            # TODO DB Check file encoding for unicode/utf-8
             with open(f, 'r') as fp:
                 content = fp.read()
             if content:
@@ -76,12 +78,14 @@ def parse_docs(args, include_entities=True):
                     raise
     return h
 
+# TODO DB Check file encoding for unicode/utf-8
 Warning = """\
 <!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
 """
 
+# TODO DB Check file encoding for unicode/utf-8
 Regular_Entities_Header = """\
 <!--
 
@@ -107,6 +111,7 @@ class SCons_XML:
     def fopen(self, name, mode='w'):
         if name == '-':
             return sys.stdout
+# TODO DB Check file encoding for unicode/utf-8
         return open(name, mode)
     
     def write(self, files):
@@ -138,32 +143,19 @@ class SCons_XML:
                     added = True
                     stf.appendNode(vl, stf.copyNode(s))
             
-            # Generate the text for sets/uses lists of construction vars.
-            # This used to include an entity reference which would be replaced
-            # by the link to the cvar, but with lxml, dumping out the tree
-            # with tostring() will encode the & introducing the entity,
-            # breaking it. Instead generate the actual link. (issue #3580)
             if v.sets:
                 added = True
                 vp = stf.newNode("para")
-                stf.setText(vp, "Sets: ")
-                for setv in v.sets:
-                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % setv)
-                    linktgt = stf.newSubNode(link, "varname")
-                    stf.setText(linktgt, "$" + setv)
-                    stf.setTail(link, " ")
+                s = ['&cv-link-%s;' % x for x in v.sets]
+                stf.setText(vp, 'Sets:  ' + ', '.join(s) + '.')
                 stf.appendNode(vl, vp)
 
             if v.uses:
                 added = True
                 vp = stf.newNode("para")
-                stf.setText(vp, "Uses: ")
-                for use in v.uses:
-                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % use)
-                    linktgt = stf.newSubNode(link, "varname")
-                    stf.setText(linktgt, "$" + use)
-                    stf.setTail(link, " ")
-                stf.appendNode(vl, vp)
+                u = ['&cv-link-%s;' % x for x in v.uses]
+                stf.setText(vp, 'Uses:  ' + ', '.join(u) + '.')
+                 stf.appendNode(vl, vp)
                 
             # Still nothing added to this list item?
             if not added:
@@ -175,6 +167,7 @@ class SCons_XML:
             stf.appendNode(root, ve)
             
         # Write file        
+# TODO DB Check file encoding for unicode/utf-8
         f = self.fopen(filename)
         stf.writeGenTree(root, f)
         f.close()
@@ -195,6 +188,7 @@ class SCons_XML:
         f.write('\n')
         f.write(Regular_Entities_Header % description)
         f.write('\n')
+# TODO DB Check file encoding for unicode/utf-8
         for v in self.values:
             f.write('<!ENTITY %s%s "<%s xmlns=\'%s\'>%s</%s>">\n' %
                         (v.prefix, v.idfunc(),

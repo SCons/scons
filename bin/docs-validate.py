@@ -3,6 +3,7 @@
 # Searches through the whole source tree and validates all
 # documentation files against our own XSD in docs/xsd.
 #
+# TODO DB Check file encoding for unicode/utf-8
 import sys,os
 import SConsDoc
 

@@ -6,6 +6,7 @@
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
 #
+# TODO DB Check file encoding for unicode/utf-8
 import os
 import sys
 import subprocess

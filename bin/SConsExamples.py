@@ -85,6 +85,7 @@
 # Error output gets passed through to your error output so you
 # can see if there are any problems executing the command.
 #
+# TODO DB Check file encoding for unicode/utf-8
 
 import os
 import re
