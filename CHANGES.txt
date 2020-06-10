@@ -172,7 +172,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Close various logfiles (trace, cache, taskmastertrace, configure)
       when done using atexit calls.
     - Rebase forked copy of shutil.copytree to Python 3.7 stlib version.
-
+    - Significant rework of documentation: API docs are now generated
+      using Sphinx; manpage and user guide now use more "standard"
+      markup elements (which could facilitate later conversion to a
+      different doc format, should that choice be made); significant
+      rewordings in manpage.  Manpage Examples moved to an external
+      repository / website (scons-cookbook.readthedocs.io).
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000

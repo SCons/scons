@@ -47,10 +47,8 @@ BUILDING_PACKAGES = [
     #'tetex-bin',
     #'tetex-latex',
 
-    # for ubuntu 9.10 
-    # 'texlive-lang-french'
     'python3-sphinx',
-    'sphinx-rtd-theme-common',
+    'python3-sphinx-rtd-theme',
 
 ]
 

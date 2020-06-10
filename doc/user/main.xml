@@ -62,6 +62,7 @@
 
 <book xmlns="http://www.scons.org/dbxsd/v1.0"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
       xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
   <bookinfo>
     <title>SCons &buildversion;</title>
@@ -74,10 +75,10 @@
 
     <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
 
-    <pubdate>2004 - 2019</pubdate>
+    <pubdate>2004 - 2020</pubdate>
 
     <copyright>
-      <year>2004 - 2019</year>
+      <year>2004 - 2020</year>
       <holder>The SCons Foundation</holder>
     </copyright>
 

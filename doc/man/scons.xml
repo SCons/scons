@@ -38,9 +38,10 @@
 <!ENTITY % variables-mod SYSTEM '../generated/variables.mod'>
 %variables-mod;
 ]>
-<!-- lifted from troff+man by doclifter -->
+
 <reference xmlns="http://www.scons.org/dbxsd/v1.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:xlink="http://www.w3.org/1999/xlink"
            xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
   <referenceinfo>
@@ -6814,6 +6815,9 @@ over the MinGW tools.</para>
 </refsect2>
 </refsect1>
 
+<!-- Removed in favor of scons-cookbook.readthedocs.io,
+     but leave here for the time being...
+
 <refsect1 id='examples'>
 <title>EXAMPLES</title>
 
@@ -7372,7 +7376,7 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 &cv-link-PDB; &consvar;.</para>
 
 </refsect2>
-</refsect1>
+</refsect1 -->
 
 <refsect1 id='environment'>
 <title>ENVIRONMENT</title>
@@ -7441,9 +7445,28 @@ and will silently revert to non-cached behavior in such cases.</para>
 <refsect1 id='see_also'>
 <title>SEE ALSO</title>
 
-<para>&SCons; User Manual,
-&SCons; Design Document,
-&SCons; source code.</para>
+  <simplelist type="vert">
+  <member>
+    The SCons User Guide at
+    <link xlink:href="https://scons.org/doc/production/HTML/scons-user.html"/>
+ </member>
+  <member>The SCons Design Document (old)</member>
+  <member>
+    The SCons Cookbook at
+    <link xlink:href="https://scons-cookbook.readthedocs.io"/>
+    for examples of how to solve various problems with &SCons;.
+  </member>
+  <member>
+    SCons source code
+    <link xlink:href="https://github.com/SCons/scons">
+    on GitHub</link>
+  </member>
+  <member>
+    The SCons API Reference
+    <link xlink:href="https://scons.org/doc/production/HTML/scons-api/index.html"/>
+    (for internal details)
+   </member>
+  </simplelist>
 
 </refsect1>
 

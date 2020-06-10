@@ -67,7 +67,7 @@ env.CompilationDatabase('my_output.json')
                 files will not show up in your output file.
             </para>
             <para>
-                New in &SCons; 4.0.0
+                <emphasis>Available since &scons; 4.0.</emphasis>
             </para>
         </summary>
     </builder>

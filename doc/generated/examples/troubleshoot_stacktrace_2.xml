@@ -1,11 +1,11 @@
-<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --debug=stacktrace</userinput>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --debug=stacktrace</userinput>
 scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
 scons: internal stack trace:
   File "SCons/Job.py", line 199, in start
     task.prepare()
-  File "SCons/Script/Main.py", line 189, in prepare
+  File "SCons/Script/Main.py", line 190, in prepare
     return SCons.Taskmaster.OutOfDateTask.prepare(self)
-  File "SCons/Taskmaster.py", line 196, in prepare
+  File "SCons/Taskmaster.py", line 195, in prepare
     executor.prepare()
   File "SCons/Executor.py", line 429, in prepare
     raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))

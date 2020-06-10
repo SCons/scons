@@ -50,6 +50,39 @@ for the calling syntax and details.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="b-CompilationDatabase">
+    <term><function>CompilationDatabase</function>()</term>
+    <term><replaceable>env</replaceable>.<methodname>CompilationDatabase</methodname>()</term>
+    <listitem><para>
+                The <function>CompilationDatabase</function> builder writes a JSON formatted compilation
+                    database according to the
+                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification
+                </ulink> which is consumed by a number of clang tools, editors, and other tools.
+            </para>
+            <para>
+                If you don't specify any files, the builder will default to <filename>compile_commands.json</filename>.
+            </para>
+            <para>
+                If you specify a single file as below
+                <programlisting language="python">
+env.CompilationDatabase('my_output.json')
+                </programlisting>
+                SCons will automatically use that as the target file.
+                If you specify more than one source, the source list will be ignored.
+            </para>
+            <para>
+                You should not specify source files. The <function>CompilationDatabase</function> builder instruments SCons to collect them from all
+                the C, C++, assembly source/target pairs.
+            </para>
+            <para>
+                NOTE: You must load the <literal>compilation_db</literal> tool prior to specifying any part of your build or some source/target
+                files will not show up in your output file.
+            </para>
+            <para>
+                <emphasis>Available since <command>scons</command> 4.0.</emphasis>
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="b-CXXFile">
     <term><function>CXXFile</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>CXXFile</methodname>()</term>

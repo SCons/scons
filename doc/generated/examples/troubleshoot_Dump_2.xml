@@ -1,4 +1,4 @@
-<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.scons.org/dbxsd/v1.0" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons</userinput>
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">C:\&gt;<userinput>scons</userinput>
 scons: Reading SConscript files ...
 { 'BUILDERS': { 'Object': &lt;SCons.Builder.CompositeBuilder object at 0x700000&gt;,
                 'PCH': &lt;SCons.Builder.BuilderBase object at 0x700000&gt;,
@@ -91,7 +91,7 @@ scons: Reading SConscript files ...
   'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES '
               '$SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM","$SHCXXCOMSTR")}',
   'SHCXXFLAGS': ['$CXXFLAGS'],
-  'SHELL': 'command',
+  'SHELL': None,
   'SHLIBPREFIX': '',
   'SHLIBSUFFIX': '.dll',
   'SHOBJPREFIX': '$OBJPREFIX',
