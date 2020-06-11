@@ -1,3 +1,46 @@
+# This is the "stubprocess.py" wrapper.
+# It is used within the SCons project by kind permission of the Parts team, including the
+# permission by INTEL to make this code publicly available.
+# Our thanks for this valuable contribution go to the authors of the wrapper
+#
+#    Eugene Leskinen, Vasilij Litvinov and Jason Kenny.
+#
+# This version of the wrapper was taken from the Parts repo at 
+# https://bitbucket.org/sconsparts/parts.git, in version v0.15.4,
+# commit 4f2a0e97e24b410d098df57ddc4247ebfb2aa636.
+# It has been adapted to Python3 and got slightly modified,
+# such that it doesn't wrap the builtin subprocess.Popen()
+# anymore. Instead, the SCons code in posix.py creates a copy subprocess.PopenWrapped()
+# which then gets modified and wrapped below.
+# This is done to protect us from any side-effects with users' SConstructs, or the
+# way they are importing SCons and other packages to their scripts.
+#
+#
+# Copyright (c) 2008-2018 Jason Kenny and contributors
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+
 '''
 We have faced an issue with forking processes on RHEL 5.10.
 When parent process consumes a realy big amount of memory fork call becomes very slow
@@ -19,13 +62,16 @@ All parameters needed for I/O redirection are passed in pickle via temporary fil
 import sys
 from builtins import range
 
-if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
-    import types
-    import time
+# We currently support 'darwin' platforms, or Linux with a version
+# smaller than v3.7.2. Starting with this release, CPython provides
+# its own implementation of posix_spawn inside _execute_child, so we
+# don't have to patch anything.
+if (sys.platform in ('darwin',) or
+    (sys.platform == 'linux' and (sys.version_info < (3, 7, 2)))):
+     
     import os
-    import pickle as pickle
+    import pickle
     import fcntl
-    import errno
     import traceback
     import base64
 
@@ -76,13 +122,18 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
             exc_value.child_traceback = ''.join(exc_lines)
             os.write(errpipe_write, pickle.dumps(exc_value))
 
-        def do_execv(args=None, executable=None, close_fds=None, cwd=None, env=None,
+        def do_execv(args=None, executable=None, close_fds=None, cwd=None, env=None, restore_signals=None,
                      shell=None, p2cread=None, p2cwrite=None, c2pread=None, c2pwrite=None,
                      errread=None, errwrite=None, errpipe_read=None, errpipe_write=None):
             '''
             The function redirects IO, prepares command-line, sets up environment and
             executes execve function.
             '''
+            if errpipe_read:
+                errpipe_read = int(errpipe_read)
+            if errpipe_write:
+                errpipe_write = int(errpipe_write)
+
             os.close(errpipe_read)
             _set_cloexec_flag(errpipe_write, True)
             try:
@@ -96,10 +147,10 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                 # Close parent's pipe ends
                 for parent_end, child_end in ((p2cwrite, p2cread), (c2pread, c2pwrite),
                                               (errread, errwrite)):
-                    if parent_end is not None:
+                    if parent_end is not None and parent_end != -1:
                         os.close(parent_end)
-                    if child_end is not None:
-                        _set_cloexec_flag(True)
+                    if child_end is not None and child_end != -1:
+                        _set_cloexec_flag(child_end, True)
 
                 # When duping fds, if there arises a situation
                 # where one of the fds is either 0, 1 or 2, it
@@ -116,7 +167,7 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                     # would be a no-op (issue #10806).
                     if a == b:
                         _set_cloexec_flag(a, False)
-                    elif a is not None:
+                    elif a is not None and a != -1:
                         os.dup2(a, b)
                 _dup2(p2cread, 0)
                 _dup2(c2pwrite, 1)
@@ -155,8 +206,8 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                     data = data.read()
                 os.unlink(sys.argv[3])
             else:
-                data = sys.argv[2]
-            params = pickle.loads(base64.decodestring(data))
+                data = sys.argv[2].encode('utf-8')
+            params = pickle.loads(base64.decodebytes(data))
             do_execv(**params)
         except Exception:
             report_exception(errpipe_write)
@@ -170,18 +221,9 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
         except Exception:
             ARG_MAX = 32768
 
-        try:
-            from subprocess import _eintr_retry_call
-        except ImportError:
-            def _eintr_retry_call(func, *args, **kw):
-                while True:
-                    try:
-                        return func(*args, **kw)
-                    except OSError as err:
-                        if err.errno == errno.EINTR:
-                            continue
-                        raise
-
+        # Removed eintr_retry_call see:
+        # Issue #23285: PEP 475 -- Retry system calls failing with EINTR.
+        
         try:
             # We support only Linux and Mac OS X now.
             libc = ctypes.CDLL("libc.so.6" if 'linux' in sys.platform else 'libc.dylib', use_errno=True)
@@ -201,70 +243,114 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                 ctypes.POINTER(ctypes.c_char_p),  # env
             )
 
-            # In Python older than 2.7.6 subprocess.Popen._execute_child accepts 17 arguments.
-            # In Python 2.7.6 it accepts 18 args.
-            # To workaround the issue we use _unpack_args* functions. Both 27 and 276 return
-            # a tuple containing args in order they are passed to Python 2.7.6 _execute_child
+            # Caching a few encoded strings that we'll need below
+            sys_executable_encoded = sys.executable.encode('utf-8')
+            file_encoded = __file__.encode('utf-8')
+            atsign_encoded = '@'.encode('utf-8')
+
+
+            # In Python subprocess.Popen._execute_child accepts different numbers of arguments.
+            # To workaround the issue we use _unpack_args* functions. The tuple containing
+            # the args is then passed to the _execute_child
             # function.
 
-            def _unpack_args_27(args):
-                result = (self, argv, executable, preexec_fn, close_fds,
+            def _unpack_args_3(args):
+                """ Args in Python 3.0-3.1 were:
+                    (self, argv, executable, preexec_fn, close_fds,
+                     cwd, env, universal_newlines,
+                     startupinfo, creationflags, shell,
+                     p2cread, p2cwrite,
+                     c2pread, c2pwrite,
+                     errread, errwrite)
+                """
+                result = (self, argv, executable, preexec_fn, close_fds, pass_fds,
                           cwd, env, universal_newlines,
-                          startupinfo, creationflags, shell, to_close,
+                          startupinfo, creationflags, shell,
                           p2cread, p2cwrite,
                           c2pread, c2pwrite,
-                          errread, errwrite) = args[:11] + (set(),) + args[11:]
-                to_close.update((p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite))
+                          errread, errwrite, restore_signals, start_new_session) = args[:5] + (None,) + args[5:] + (True, False)
                 return result
 
-            def _unpack_args_276(args):
-                try:
-                    result = (self, argv, executable, preexec_fn, close_fds,
-                              cwd, env, universal_newlines,
-                              startupinfo, creationflags, shell, to_close,
-                              p2cread, p2cwrite,
-                              c2pread, c2pwrite,
-                              errread, errwrite) = args
-                except ValueError:
-                    global _unpack_args
-                    _unpack_args = _unpack_args_27
-                    return _unpack_args_27(args)
-                else:
-                    return result
+            def _unpack_args_32(args):
+                """ Args in Python 3.2-3.6.8 were:
+                    (self, argv, executable, preexec_fn, close_fds,
+                     cwd, env,
+                     startupinfo, creationflags, shell,
+                     p2cread, p2cwrite,
+                     c2pread, c2pwrite,
+                     errread, errwrite)
+                """
+                result = (self, argv, executable, preexec_fn, close_fds, pass_fds,
+                          cwd, env, universal_newlines,
+                          startupinfo, creationflags, shell,
+                          p2cread, p2cwrite,
+                          c2pread, c2pwrite,
+                          errread, errwrite, restore_signals, start_new_session) = args[:5] + (None,) + args[5:6] + (None,) + args[6:] + (True, False)
+                return result
 
-            _unpack_args = _unpack_args_276
+            def _unpack_args_369(args):
+                """ Args from Python 2.6.9 on were:
+                    (self, argv, executable, preexec_fn, close_fds, pass_fds
+                     cwd, env,
+                     startupinfo, creationflags, shell,
+                     p2cread, p2cwrite,
+                     c2pread, c2pwrite,
+                     errread, errwrite, restore_signals, start_new_session)
+                """
+                result = (self, argv, executable, preexec_fn, close_fds, pass_fds,
+                          cwd, env, universal_newlines,
+                          startupinfo, creationflags, shell,
+                          p2cread, p2cwrite,
+                          c2pread, c2pwrite,
+                          errread, errwrite, restore_signals, start_new_session) = args[:8] + (None,) + args[8:]
+                return result
+
+            if sys.version_info >= (3, 6, 9):
+                _unpack_args = _unpack_args_369
+            else:
+                if sys.version_info >= (3, 2):
+                    _unpack_args = _unpack_args_32
+                else:
+                    _unpack_args = _unpack_args_3
 
             def _close_in_parent(fd, to_close):
-                os.close(fd)
-                to_close.remove(fd)
+                if fd != -1:
+                    os.close(fd)
+                    to_close.remove(fd)
 
             def _wrap_execute_child(klass):
                 wrapped_execute_child = klass._execute_child
 
                 def _execute_child(*argv):
 
-                    (self, args, executable, preexec_fn, close_fds,
+                    (self, args, executable, preexec_fn, close_fds, pass_fds,
                      cwd, env, universal_newlines,
-                     startupinfo, creationflags, shell, to_close,
+                     startupinfo, creationflags, shell,
                      p2cread, p2cwrite,
                      c2pread, c2pwrite,
-                     errread, errwrite) = _unpack_args(argv)
+                     errread, errwrite, restore_signals, start_new_session) = _unpack_args(argv)
 
+                    to_close = set((p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite))
+            
                     if preexec_fn:
                         return wrapped_execute_child(*argv)
 
                     for fd in (p2cread, p2cwrite,
                                c2pread, c2pwrite,
                                errread, errwrite):
-                        if fd is not None:
+                        if fd is not None and fd > 2:
                             _set_cloexec_flag(fd, False)
 
                     errpipe_read, errpipe_write = os.pipe()
-
-                    if isinstance(args, (str,)):
-                        args = [str(args)]
-                    else:
-                        args = [str(x) for x in args]
+                    errpipe_read_encoded = str(errpipe_read).encode('utf-8')
+                    errpipe_write_encoded = str(errpipe_write).encode('utf-8')
+                    # Starting in Python 3.4 file descriptors aren't inheritable
+                    # by default anymore...
+                    os.set_inheritable(errpipe_read, True)
+                    os.set_inheritable(errpipe_write, True)
+                    
+                    if isinstance(args, (str, bytes)):
+                        args = [args]
 
                     if env:
                         env = dict((str(key), str(value))
@@ -284,11 +370,12 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                         pickle.dumps(
                             dict(
                                 args=args, executable=executable, close_fds=bool(close_fds),
-                                cwd=cwd, env=env, shell=bool(shell),
+                                cwd=cwd, env=env, restore_signals=bool(restore_signals), shell=bool(shell),
                                 p2cread=p2cread, p2cwrite=p2cwrite,
                                 c2pread=c2pread, c2pwrite=c2pwrite,
                                 errread=errread, errwrite=errwrite,
-                                errpipe_read=errpipe_read, errpipe_write=errpipe_write,
+                                errpipe_read=errpipe_read_encoded,
+                                errpipe_write=errpipe_write_encoded,
                             ), pickle.HIGHEST_PROTOCOL))
 
                     use_file = len(data) >= ARG_MAX
@@ -296,19 +383,25 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                     if use_file:
                         with tempfile.NamedTemporaryFile(delete=False) as the_file:
                             the_file.write(data)
-                        argv = (sys.executable, __file__, str(errpipe_write), '@',
-                                the_file.name, 0)
+                        argv = (sys_executable_encoded,
+                                file_encoded,
+                                errpipe_write_encoded,
+                                atsign_encoded,
+                                the_file.name.encode('utf-8'), 0)
                     else:
-                        argv = (sys.executable, __file__, str(errpipe_write), data, 0)
+                        argv = (sys_executable_encoded,
+                                file_encoded,
+                                errpipe_write_encoded,
+                                data, 0)
                     argv = (ctypes.c_char_p * len(argv))(*argv)
 
                     pid = ctypes.c_int()
 
                     os_environ = (ctypes.c_char_p * (len(os.environ) + 1))(
-                        *(['{0}={1}'.format(*value) for value in os.environ.items()] + [0]))
+                        *(['{0}={1}'.format(*value).encode('utf-8') for value in os.environ.items()] + [0]))
 
                     try:
-                        ret = posix_spawn(ctypes.byref(pid), ctypes.c_char_p(sys.executable),
+                        ret = posix_spawn(ctypes.byref(pid), ctypes.c_char_p(sys_executable_encoded),
                                           ctypes.c_void_p(), ctypes.c_void_p(),
                                           ctypes.cast(argv, ctypes.POINTER(ctypes.c_char_p)),
                                           ctypes.cast(os_environ, ctypes.POINTER(ctypes.c_char_p)))
@@ -318,15 +411,25 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                             raise OSError(err, os.strerror(err))
                         self.pid = pid.value
                         self._child_created = True
-                        # Wait for exec to fail or succeed; possibly raising exception
-                        # Exception limited to 1M
-                        data = _eintr_retry_call(os.read, errpipe_read, 1048576)
-                        if data:
+                        
+                        # Wait for exec to fail or succeed; possibly raising an
+                        # exception (limited in size)
+                        errpipe_data = bytearray()
+                        while True:
+                            part = os.read(errpipe_read, 50000)
+                            errpipe_data += part
+                            if not part or len(errpipe_data) > 50000:
+                                break
+                        
+                        if errpipe_data:
                             try:
-                                _eintr_retry_call(os.waitpid, self.pid, 0)
-                            except OSError as e:
-                                if e.errno != errno.ECHILD:
-                                    raise
+                                pid, sts = os.waitpid(self.pid, 0)
+                                if pid == self.pid:
+                                    self._handle_exitstatus(sts)
+                                else:
+                                    self.returncode = sys.maxsize
+                            except ChildProcessError:
+                                pass
                             raise pickle.loads(data)
                     finally:
                         if use_file:
@@ -345,6 +448,6 @@ if sys.platform in ('linux2',):  # 'darwin'): #Fix me later..
                 klass._execute_child = _execute_child
 
             import subprocess
-            _wrap_execute_child(subprocess.Popen)
+            _wrap_execute_child(subprocess.PopenWrapped)
 
 # vim: set et ts=4 sw=4 ai :
