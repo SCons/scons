@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.sunar
+"""SCons.Tool.sunar
 
 Tool-specific initialization for Solaris (Forte) ar (library archive). If CC
 exists, static libraries should be built with it, so that template

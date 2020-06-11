@@ -1,4 +1,4 @@
-"""engine.SCons.Platform.sunos
+"""SCons.Platform.sunos
 
 Platform-specific initialization for Sun systems.
 

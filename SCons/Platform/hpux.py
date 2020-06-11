@@ -1,4 +1,4 @@
-"""engine.SCons.Platform.hpux
+"""SCons.Platform.hpux
 
 Platform-specific initialization for HP-UX systems.
 

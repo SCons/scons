@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.aixf77
+"""SCons.Tool.aixf77
 
 Tool-specific initialization for IBM Visual Age f77 Fortran compiler.
 

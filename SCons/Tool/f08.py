@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.f08
+"""SCons.Tool.f08
 
 Tool-specific initialization for the generic Posix f08 Fortran compiler.
 

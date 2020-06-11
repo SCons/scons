@@ -1,4 +1,4 @@
-"""engine.SCons.Platform.darwin
+"""SCons.Platform.darwin
 
 Platform-specific initialization for Mac OS X systems.
 
