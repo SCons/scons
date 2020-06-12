@@ -3,7 +3,7 @@ Image for testing SCons
 =======================
 
 This folder contains the files and scripts that can be used to
-test SCons, based on a Fedora 30.
+test SCons, based on a Fedora 32.
 
 Building the image
 ==================

@@ -3,7 +3,7 @@ Image for building/releasing SCons
 ==================================
 
 This folder contains the files and scripts that can be used to
-build and release SCons, based on a Fedora 30.
+build and release SCons, based on a Fedora 32.
 
 Building the image
 ==================
