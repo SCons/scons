@@ -26,20 +26,16 @@ import os
 import shutil
 import signal
 import stat
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-from contextlib import closing
+import subprocess
 import sys
 import tempfile
 import time
 import types
 import unittest
-try:
-    from collections import UserList
-except ImportError:
-    from UserList import UserList
+from io import StringIO
+from contextlib import closing
+from collections import UserList
+from subprocess import PIPE
 
 from SCons.Util import to_bytes, to_str
 
@@ -68,20 +64,6 @@ def _clear_dict(dict, *keys):
         except KeyError:
             pass
 
-import subprocess
-
-try:
-    subprocess.Popen.terminate
-except AttributeError:
-    if sys.platform == 'win32':
-        import win32process
-        def terminate(self):
-            win32process.TerminateProcess(self._handle, 1)
-    else:
-        def terminate(self):
-            os.kill(self.pid, signal.SIGTERM)
-    method = types.MethodType(terminate, None, subprocess.Popen)
-    setattr(subprocess.Popen, 'terminate', method)
 
 class ExitError(Exception):
     pass
@@ -158,35 +140,39 @@ class TestCmdTestCase(unittest.TestCase):
         data = data.replace("\r\n", "\n")
         return data
 
-    def call_python(self, input, python=None):
+    def call_python(self, indata, python=None):
         if python is None:
             python = sys.executable
-        p = subprocess.Popen(python,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
-        stdout, stderr = p.communicate(to_bytes(input))
-        stdout = self.translate_newlines(to_str(stdout))
-        stderr = self.translate_newlines(to_str(stderr))
-        return stdout, stderr, p.returncode
+        cp = subprocess.run(python, input=to_bytes(indata), stderr=PIPE, stdout=PIPE)
+        stdout = self.translate_newlines(to_str(cp.stdout))
+        stderr = self.translate_newlines(to_str(cp.stderr))
+        return stdout, stderr, cp.returncode
 
-    def popen_python(self, input, status=0, stdout="", stderr="", python=None):
+    def popen_python(self, indata, status=0, stdout="", stderr="", python=None):
         if python is None:
             python = sys.executable
-        _stdout, _stderr, _status = self.call_python(input, python)
-        _stdout = self.translate_newlines(_stdout)
-        _stderr = self.translate_newlines(_stderr)
-        assert _status == status, \
-                "status = %s, expected %s\n" % (str(_status), str(status)) + \
-                "STDOUT ===================\n" + _stdout + \
-                "STDERR ===================\n" + _stderr
-        assert _stdout == stdout, \
-                "Expected STDOUT ==========\n" + stdout + \
-                "Actual STDOUT ============\n" + _stdout + \
-                "STDERR ===================\n" + _stderr
-        assert _stderr == stderr, \
-                "Expected STDERR ==========\n" + stderr + \
-                "Actual STDERR ============\n" + _stderr
+        _stdout, _stderr, _status = self.call_python(indata, python)
+        assert _status == status, (
+            "status = %s, expected %s\n" % (str(_status), str(status))
+            + "STDOUT ===================\n"
+            + _stdout
+            + "STDERR ===================\n"
+            + _stderr
+        )
+        assert _stdout == stdout, (
+            "Expected STDOUT ==========\n"
+            + stdout
+            + "Actual STDOUT ============\n"
+            + _stdout
+            + "STDERR ===================\n"
+            + _stderr
+        )
+        assert _stderr == stderr, (
+            "Expected STDERR ==========\n"
+            + stderr
+            + "Actual STDERR ============\n"
+            + _stderr
+        )
 
     def run_match(self, content, *args):
         expect = "%s:  %s:  %s:  %s\n" % args
@@ -253,32 +239,21 @@ class cleanup_TestCase(TestCmdTestCase):
             shutil.rmtree = save_rmtree
 
     def test_atexit(self):
-        """Test cleanup() when atexit is used"""
+        """Test cleanup when atexit is used"""
         self.popen_python("""\
-import sys
-sys.path = ['%s'] + sys.path
 import atexit
-def my_exitfunc():
-    print("my_exitfunc()")
-atexit.register(my_exitfunc)
-import TestCmd
-result = TestCmd.TestCmd(workdir = '')
-sys.exit(0)
-""" % self.orig_cwd, stdout='my_exitfunc()\n')
-
-    @unittest.skipIf(TestCmd.IS_PY3, "No sys.exitfunc in Python 3")
-    def test_exitfunc(self):
-        """Test cleanup() when sys.exitfunc is set"""
-        self.popen_python("""\
 import sys
-sys.path = ['%s'] + sys.path
-def my_exitfunc():
-    print("my_exitfunc()")
-sys.exitfunc = my_exitfunc
 import TestCmd
-result = TestCmd.TestCmd(workdir = '')
+
+sys.path = ['%s'] + sys.path
+
+@atexit.register
+def cleanup():
+    print("cleanup()")
+
+result = TestCmd.TestCmd(workdir='')
 sys.exit(0)
-""" % self.orig_cwd, stdout='my_exitfunc()\n')
+""" % self.orig_cwd, stdout='cleanup()\n')
 
 
 class chmod_TestCase(TestCmdTestCase):
@@ -2518,7 +2493,7 @@ script_recv:  STDERR:  input
             stderr = test.stderr()
             assert stderr == expect_stderr, stderr
 
-            p = test.start(combine=1, stdin=1)
+            p = test.start(combine=True, stdin=1)
             p.send('input\n')
             test.finish(p)
             expect_stdout = """\

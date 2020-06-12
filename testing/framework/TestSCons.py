@@ -319,7 +319,7 @@ class TestSCons(TestCommon):
         if not self.external:
             import SCons.Environment
             import SCons.Errors
-            if not ENV is None:
+            if ENV is not None:
                 kw['ENV'] = ENV
             try:
                 return SCons.Environment.Environment(*args, **kw)
