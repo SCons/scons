@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.f77
+"""SCons.Tool.f77
 
 Tool-specific initialization for the generic Posix f77 Fortran compiler.
 

@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.f90
+"""SCons.Tool.f90
 
 Tool-specific initialization for the generic Posix f90 Fortran compiler.
 

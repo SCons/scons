@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.icc
+"""SCons.Tool.icc
 
 Tool-specific initialization for the OS/2 icc compiler.
 

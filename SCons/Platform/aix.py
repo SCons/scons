@@ -1,4 +1,4 @@
-"""engine.SCons.Platform.aix
+"""SCons.Platform.aix
 
 Platform-specific initialization for IBM AIX systems.
 

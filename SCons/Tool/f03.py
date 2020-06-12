@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.f03
+"""SCons.Tool.f03
 
 Tool-specific initialization for the generic Posix f03 Fortran compiler.
 

@@ -1,4 +1,4 @@
-"""engine.SCons.Variables.ListVariable
+"""SCons.Variables.ListVariable
 
 This file defines the option type for SCons implementing 'lists'.
 

@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.f95
+"""SCons.Tool.f95
 
 Tool-specific initialization for the generic Posix f95 Fortran compiler.
 

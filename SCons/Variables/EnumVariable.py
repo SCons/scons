@@ -1,4 +1,4 @@
-"""engine.SCons.Variables.EnumVariable
+"""SCons.Variables.EnumVariable
 
 This file defines the option type for SCons allowing only specified
 input-values.

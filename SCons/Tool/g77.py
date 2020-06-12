@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.g77
+"""SCons.Tool.g77
 
 Tool-specific initialization for g77.
 

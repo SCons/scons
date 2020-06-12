@@ -1,4 +1,4 @@
-"""engine.SCons.Variables
+"""SCons.Variables
 
 This file defines the Variables class that is used to add user-friendly
 customizable variables to an SCons build.

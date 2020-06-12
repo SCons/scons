@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.cvf
+"""SCons.Tool.cvf
 
 Tool-specific initialization for the Compaq Visual Fortran compiler.
 
