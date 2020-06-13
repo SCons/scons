@@ -98,6 +98,13 @@ Set construction variables for the Clang C++ compiler.
 </para>
 <para>Sets: <link linkend="cv-CXX"><varname>$CXX</varname></link> <link linkend="cv-CXXVERSION"><varname>$CXXVERSION</varname></link> <link linkend="cv-SHCXXFLAGS"><varname>$SHCXXFLAGS</varname></link> <link linkend="cv-SHOBJSUFFIX"><varname>$SHOBJSUFFIX</varname></link> <link linkend="cv-STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME"><varname>$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME</varname></link> </para></listitem>
   </varlistentry>
+  <varlistentry id="t-compilation_db">
+    <term>compilation_db</term>
+    <listitem><para>
+                Sets up <link linkend="b-CompilationDatabase"><function>CompilationDatabase</function></link> builder which generates a clang tooling compatible compilation database.
+            </para>
+        <para>Sets: <link linkend="cv-COMPILATIONDB_COMSTR"><varname>$COMPILATIONDB_COMSTR</varname></link> <link linkend="cv-COMPILATIONDB_USE_ABSPATH"><varname>$COMPILATIONDB_USE_ABSPATH</varname></link> <link linkend="cv-__COMPILATIONDB_ENV"><varname>$__COMPILATIONDB_ENV</varname></link> <link linkend="cv-__COMPILATIONDB_UACTION"><varname>$__COMPILATIONDB_UACTION</varname></link> <link linkend="cv-__COMPILATIONDB_USOURCE"><varname>$__COMPILATIONDB_USOURCE</varname></link> <link linkend="cv-__COMPILATIONDB_UTARGET"><varname>$__COMPILATIONDB_UTARGET</varname></link> </para></listitem>
+  </varlistentry>
   <varlistentry id="t-cvf">
     <term>cvf</term>
     <listitem><para>
