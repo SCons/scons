@@ -101,7 +101,7 @@ env.CompilationDatabase('my_output.json')
 <!--            </para>-->
 <!--        </summary>-->
 <!--    </cvar>-->
-<!--    <cvar name="__COMPILATIONDB_UTARGET">-->
+<!--    <cvar name="__COMPILATIONDB_UOUTPUT">-->
 <!--        <summary>-->
 <!--            <para>-->
 <!--                This variable stores the action for building a target.-->

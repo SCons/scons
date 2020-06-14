@@ -63,7 +63,7 @@ example_rel_file = """[
         "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
         "directory": "%s",
         "file": "test_main.c",
-        "target": "test_main.o"
+        "output": "test_main.o"
     }
 ]""" % (sys.executable, test.workdir)
 
@@ -77,7 +77,7 @@ example_abs_file = """[
         "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
         "directory": "%s",
         "file": "%s/test_main.c",
-        "target": "%s/test_main.o"
+        "output": "%s/test_main.o"
     }
 ]""" % (sys.executable, test.workdir, test.workdir, test.workdir)
 
