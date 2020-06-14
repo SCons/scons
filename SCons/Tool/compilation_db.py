@@ -84,7 +84,7 @@ def make_emit_compilation_DB_entry(comstr):
         entry = env.__COMPILATIONDB_Entry(
             target=dbtarget,
             source=[],
-            __COMPILATIONDB_UTARGET=target,
+            __COMPILATIONDB_UOUTPUT=target,
             __COMPILATIONDB_USOURCE=source,
             __COMPILATIONDB_UACTION=user_action,
             __COMPILATIONDB_ENV=env,
@@ -116,7 +116,7 @@ def compilation_db_entry_action(target, source, env, **kw):
     """
 
     command = env["__COMPILATIONDB_UACTION"].strfunction(
-        target=env["__COMPILATIONDB_UTARGET"],
+        target=env["__COMPILATIONDB_UOUTPUT"],
         source=env["__COMPILATIONDB_USOURCE"],
         env=env["__COMPILATIONDB_ENV"],
     )
@@ -125,7 +125,7 @@ def compilation_db_entry_action(target, source, env, **kw):
         "directory": env.Dir("#").abspath,
         "command": command,
         "file": env["__COMPILATIONDB_USOURCE"][0],
-        "target": env['__COMPILATIONDB_UTARGET'][0]
+        "output": env['__COMPILATIONDB_UOUTPUT'][0]
     }
 
     target[0].write(entry)
@@ -139,25 +139,25 @@ def write_compilation_db(target, source, env):
     for s in __COMPILATION_DB_ENTRIES:
         entry = s.read()
         source_file = entry['file']
-        target_file = entry['target']
+        output_file = entry['output']
 
         if use_abspath:
             source_file = source_file.abspath
-            target_file = target_file.abspath
+            output_file = output_file.abspath
         else:
             source_file = source_file.path
-            target_file = target_file.path
+            output_file = output_file.path
 
         path_entry = {'directory': entry['directory'],
                       'command': entry['command'],
                       'file': source_file,
-                      'target': target_file}
+                      'output': output_file}
 
         entries.append(path_entry)
 
-    with open(target[0].path, "w") as target_file:
+    with open(target[0].path, "w") as output_file:
         json.dump(
-            entries, target_file, sort_keys=True, indent=4, separators=(",", ": ")
+            entries, output_file, sort_keys=True, indent=4, separators=(",", ": ")
         )
 
 
