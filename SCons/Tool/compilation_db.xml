@@ -32,7 +32,7 @@ See its __doc__ string for a discussion of the format.
         <sets>
             <item>COMPILATIONDB_COMSTR</item>
             <item>__COMPILATIONDB_UACTION</item>
-            <item>__COMPILATIONDB_UTARGET</item>
+            <item>__COMPILATIONDB_UOUTPUT</item>
             <item>__COMPILATIONDB_USOURCE</item>
             <item>__COMPILATIONDB_ENV</item>
             <item>COMPILATIONDB_USE_ABSPATH</item>
