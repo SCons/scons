@@ -213,6 +213,8 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
       dir_fixture.
     - SubstitutionEnvironment and OverrideEnvironment now have keys()
       and values() methods to better emulate a dict (already had items()).
+    - Rename internal Warning base class to SConsWarning to avoid any
+      possible confusion with Python's own Warning class.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000

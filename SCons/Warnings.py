@@ -33,27 +33,29 @@ import sys
 
 import SCons.Errors
 
-class Warning(SCons.Errors.UserError):
+class SConsWarning(SCons.Errors.UserError):
     pass
 
-class WarningOnByDefault(Warning):
+class WarningOnByDefault(SConsWarning):
     pass
 
 
 # NOTE:  If you add a new warning class, add it to the man page, too!
-class TargetNotBuiltWarning(Warning): # Should go to OnByDefault
+# Not all warnings are defined here, some are defined in the location of use
+
+class TargetNotBuiltWarning(SConsWarning): # Should go to OnByDefault
     pass
 
 class CacheVersionWarning(WarningOnByDefault):
     pass
 
-class CacheWriteErrorWarning(Warning):
+class CacheWriteErrorWarning(SConsWarning):
     pass
 
 class CorruptSConsignWarning(WarningOnByDefault):
     pass
 
-class DependencyWarning(Warning):
+class DependencyWarning(SConsWarning):
     pass
 
 class DevelopmentVersionWarning(WarningOnByDefault):
@@ -94,7 +96,7 @@ class VisualCMissingWarning(WarningOnByDefault):
 class VisualVersionMismatch(WarningOnByDefault):
     pass
 
-class VisualStudioMissingWarning(Warning):
+class VisualStudioMissingWarning(SConsWarning):
     pass
 
 class FortranCxxMixWarning(LinkWarning):
@@ -103,10 +105,10 @@ class FortranCxxMixWarning(LinkWarning):
 
 # Deprecation warnings
 
-class FutureDeprecatedWarning(Warning):
+class FutureDeprecatedWarning(SConsWarning):
     pass
 
-class DeprecatedWarning(Warning):
+class DeprecatedWarning(SConsWarning):
     pass
 
 class MandatoryDeprecatedWarning(DeprecatedWarning):
@@ -186,13 +188,13 @@ def process_warn_strings(arguments):
     need to pass to the {enable,disable}WarningClass() functions.
     The supplied <warning-class> is split on hyphens, each element
     is capitalized, then smushed back together.  Then the string
-    "Warning" is appended to get the class name.
+    "SConsWarning" is appended to get the class name.
 
     For example, 'deprecated' will enable the DeprecatedWarning
     class.  'no-dependency' will disable the DependencyWarning class.
 
     As a special case, --warn=all and --warn=no-all will enable or
-    disable (respectively) the base Warning class of all warnings.
+    disable (respectively) the base SConsWarning class of all warnings.
     """
 
     def _capitalize(s):
@@ -210,9 +212,9 @@ def process_warn_strings(arguments):
             del elems[0]
 
         if len(elems) == 1 and elems[0] == 'all':
-            class_name = "Warning"
+            class_name = "SConsWarning"
         else:
-            class_name = ''.join(map(_capitalize, elems)) + "Warning"
+            class_name = ''.join(map(_capitalize, elems)) + "SConsWarning"
         try:
             clazz = globals()[class_name]
         except KeyError:

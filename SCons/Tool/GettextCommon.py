@@ -31,25 +31,25 @@ import re
 
 
 #############################################################################
-class XgettextToolWarning(SCons.Warnings.Warning): pass
+class XgettextToolWarning(SCons.Warnings.SConsWarning): pass
 
 
 class XgettextNotFound(XgettextToolWarning): pass
 
 
-class MsginitToolWarning(SCons.Warnings.Warning): pass
+class MsginitToolWarning(SCons.Warnings.SConsWarning): pass
 
 
 class MsginitNotFound(MsginitToolWarning): pass
 
 
-class MsgmergeToolWarning(SCons.Warnings.Warning): pass
+class MsgmergeToolWarning(SCons.Warnings.SConsWarning): pass
 
 
 class MsgmergeNotFound(MsgmergeToolWarning): pass
 
 
-class MsgfmtToolWarning(SCons.Warnings.Warning): pass
+class MsgfmtToolWarning(SCons.Warnings.SConsWarning): pass
 
 
 class MsgfmtNotFound(MsgfmtToolWarning): pass

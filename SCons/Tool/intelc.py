@@ -448,7 +448,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
     if not topdir:
         # Normally this is an error, but it might not be if the compiler is
         # on $PATH and the user is importing their env.
-        class ICLTopDirWarning(SCons.Warnings.Warning):
+        class ICLTopDirWarning(SCons.Warnings.SConsWarning):
             pass
         if (is_mac or is_linux) and not env.Detect('icc') or \
            is_windows and not env.Detect('icl'):
@@ -569,7 +569,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         if not licdir:
             licdir = defaultlicdir
             if not os.path.exists(licdir):
-                class ICLLicenseDirWarning(SCons.Warnings.Warning):
+                class ICLLicenseDirWarning(SCons.Warnings.SConsWarning):
                     pass
                 SCons.Warnings.enableWarningClass(ICLLicenseDirWarning)
                 SCons.Warnings.warn(ICLLicenseDirWarning,

@@ -136,7 +136,7 @@ def CreateConfigHBuilder(env):
         env.SConfigHBuilder(k, env.Value(v))
 
 
-class SConfWarning(SCons.Warnings.Warning):
+class SConfWarning(SCons.Warnings.SConsWarning):
     pass
 SCons.Warnings.enableWarningClass(SConfWarning)
 
