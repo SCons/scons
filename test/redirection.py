@@ -39,13 +39,11 @@ if sys.platform == "win32":
     msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
     msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
 
-
 try:
     with open(sys.argv[1], 'rb') as f:
         indata = f.read()
 except IndexError:
-    source = sys.stdin
-    indata = source.read()
+    indata = sys.stdin.buffer.read()
     
 sys.stdout.buffer.write(indata)
 sys.exit(0)
