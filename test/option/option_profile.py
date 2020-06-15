@@ -24,18 +24,9 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
-
-# TODO: Fixup StringIO usage when Py2.7 is dropped.
-# cheat a little bit: io.StringIO is "preferred" in Py2.7
-# since it forces you to be explicit about strings (it is unicode-only)
-# It's easier to use the unaware version. Which also doesn't come
-# with a context manager, so use contextlib.closing
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 import contextlib
+import sys
+from io import StringIO
 
 import TestSCons
 

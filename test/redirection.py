@@ -32,7 +32,6 @@ test = TestSCons.TestSCons()
 
 test.write('cat.py', r"""
 import sys
-PY3K = sys.version_info >= (3, 0)
 
 # write binary to stdout
 if sys.platform == "win32":
@@ -40,22 +39,13 @@ if sys.platform == "win32":
     msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
     msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
 
-
 try:
     with open(sys.argv[1], 'rb') as f:
         indata = f.read()
 except IndexError:
-    if PY3K:
-        source = sys.stdin.buffer
-    else:
-        source = sys.stdin
-    indata = source.read()
+    indata = sys.stdin.buffer.read()
     
-if PY3K:
-    sys.stdout.buffer.write(indata)
-else:
-    sys.stdout.write(indata)
-
+sys.stdout.buffer.write(indata)
 sys.exit(0)
 """)
 

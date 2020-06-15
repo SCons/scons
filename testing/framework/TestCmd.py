@@ -18,19 +18,21 @@ A TestCmd environment object is created via the usual invocation:
 
 There are a bunch of keyword arguments available at instantiation:
 
-    test = TestCmd.TestCmd(description = 'string',
-                           program = 'program_or_script_to_test',
-                           interpreter = 'script_interpreter',
-                           workdir = 'prefix',
-                           subdir = 'subdir',
-                           verbose = Boolean,
-                           match = default_match_function,
-                           match_stdout = default_match_stdout_function,
-                           match_stderr = default_match_stderr_function,
-                           diff = default_diff_stderr_function,
-                           diff_stdout = default_diff_stdout_function,
-                           diff_stderr = default_diff_stderr_function,
-                           combine = Boolean)
+    test = TestCmd.TestCmd(
+        description='string',
+        program='program_or_script_to_test',
+        interpreter='script_interpreter',
+        workdir='prefix',
+        subdir='subdir',
+        verbose=Boolean,
+        match=default_match_function,
+        match_stdout=default_match_stdout_function,
+        match_stderr=default_match_stderr_function,
+        diff=default_diff_stderr_function,
+        diff_stdout=default_diff_stdout_function,
+        diff_stderr=default_diff_stderr_function,
+        combine=Boolean,
+    )
 
 There are a bunch of methods that let you do different things:
 
@@ -68,21 +70,27 @@ There are a bunch of methods that let you do different things:
 
     test.cleanup(condition)
 
-    test.command_args(program = 'program_or_script_to_run',
-                      interpreter = 'script_interpreter',
-                      arguments = 'arguments to pass to program')
+    test.command_args(
+        program='program_or_script_to_run',
+        interpreter='script_interpreter',
+        arguments='arguments to pass to program',
+    )
 
-    test.run(program = 'program_or_script_to_run',
-             interpreter = 'script_interpreter',
-             arguments = 'arguments to pass to program',
-             chdir = 'directory_to_chdir_to',
-             stdin = 'input to feed to the program\n')
-             universal_newlines = True)
+    test.run(
+        program='program_or_script_to_run',
+        interpreter='script_interpreter',
+        arguments='arguments to pass to program',
+        chdir='directory_to_chdir_to',
+        stdin='input to feed to the program\n',
+        universal_newlines=True,
+    )
 
-    p = test.start(program = 'program_or_script_to_run',
-                   interpreter = 'script_interpreter',
-                   arguments = 'arguments to pass to program',
-                   universal_newlines = None)
+    p = test.start(
+        program='program_or_script_to_run',
+        interpreter='script_interpreter',
+        arguments='arguments to pass to program',
+        universal_newlines=None,
+    )
 
     test.finish(self, p)
 
@@ -181,84 +189,82 @@ matching in the same way as the match_*() methods described above.
 
     import TestCmd
 
-    test = TestCmd.TestCmd(match = TestCmd.match_exact)
+    test = TestCmd.TestCmd(match=TestCmd.match_exact)
 
-    test = TestCmd.TestCmd(match = TestCmd.match_caseinsensitive)
+    test = TestCmd.TestCmd(match=TestCmd.match_caseinsensitive)
 
-    test = TestCmd.TestCmd(match = TestCmd.match_re)
+    test = TestCmd.TestCmd(match=TestCmd.match_re)
 
-    test = TestCmd.TestCmd(match = TestCmd.match_re_dotall)
+    test = TestCmd.TestCmd(match=TestCmd.match_re_dotall)
 
 These functions are also available as static methods:
 
     import TestCmd
 
-    test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_exact)
+    test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_exact)
 
-    test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_caseinsensitive)
+    test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_caseinsensitive)
 
-    test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_re)
+    test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_re)
 
-    test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_re_dotall)
+    test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_re_dotall)
 
 These static methods can be accessed by a string naming the method:
 
     import TestCmd
 
-    test = TestCmd.TestCmd(match = 'match_exact')
+    test = TestCmd.TestCmd(match='match_exact')
 
-    test = TestCmd.TestCmd(match = 'match_caseinsensitive')
+    test = TestCmd.TestCmd(match='match_caseinsensitive')
 
-    test = TestCmd.TestCmd(match = 'match_re')
+    test = TestCmd.TestCmd(match='match_re')
 
-    test = TestCmd.TestCmd(match = 'match_re_dotall')
+    test = TestCmd.TestCmd(match='match_re_dotall')
 
 The TestCmd module provides unbound global functions that can be used
 for the "diff" argument to TestCmd.TestCmd instantiation:
 
     import TestCmd
 
-    test = TestCmd.TestCmd(match = TestCmd.match_re,
-                           diff = TestCmd.diff_re)
+    test = TestCmd.TestCmd(match=TestCmd.match_re, diff=TestCmd.diff_re)
 
-    test = TestCmd.TestCmd(diff = TestCmd.simple_diff)
+    test = TestCmd.TestCmd(diff=TestCmd.simple_diff)
 
-    test = TestCmd.TestCmd(diff = TestCmd.context_diff)
+    test = TestCmd.TestCmd(diff=TestCmd.context_diff)
 
-    test = TestCmd.TestCmd(diff = TestCmd.unified_diff)
+    test = TestCmd.TestCmd(diff=TestCmd.unified_diff)
 
 These functions are also available as static methods:
 
     import TestCmd
 
-    test = TestCmd.TestCmd(match = TestCmd.TestCmd.match_re,
-                           diff = TestCmd.TestCmd.diff_re)
+    test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_re, diff=TestCmd.TestCmd.diff_re)
 
-    test = TestCmd.TestCmd(diff = TestCmd.TestCmd.simple_diff)
+    test = TestCmd.TestCmd(diff=TestCmd.TestCmd.simple_diff)
 
-    test = TestCmd.TestCmd(diff = TestCmd.TestCmd.context_diff)
+    test = TestCmd.TestCmd(diff=TestCmd.TestCmd.context_diff)
 
-    test = TestCmd.TestCmd(diff = TestCmd.TestCmd.unified_diff)
+    test = TestCmd.TestCmd(diff=TestCmd.TestCmd.unified_diff)
 
 These static methods can be accessed by a string naming the method:
 
     import TestCmd
 
-    test = TestCmd.TestCmd(match = 'match_re', diff = 'diff_re')
+    test = TestCmd.TestCmd(match='match_re', diff='diff_re')
 
-    test = TestCmd.TestCmd(diff = 'simple_diff')
+    test = TestCmd.TestCmd(diff='simple_diff')
 
-    test = TestCmd.TestCmd(diff = 'context_diff')
+    test = TestCmd.TestCmd(diff='context_diff')
 
-    test = TestCmd.TestCmd(diff = 'unified_diff')
+    test = TestCmd.TestCmd(diff='unified_diff')
 
 The "diff" argument can also be used with standard difflib functions:
 
     import difflib
 
-    test = TestCmd.TestCmd(diff = difflib.context_diff)
+    test = TestCmd.TestCmd(diff=difflib.context_diff)
 
-    test = TestCmd.TestCmd(diff = difflib.unified_diff)
+    test = TestCmd.TestCmd(diff=difflib.unified_diff)
 
 Lastly, the where_is() method also exists in an unbound function
 version.
@@ -296,7 +302,6 @@ import errno
 import os
 import re
 import shutil
-import signal
 import stat
 import subprocess
 import sys
@@ -305,24 +310,18 @@ import threading
 import time
 import traceback
 import types
+from collections import UserList, UserString
+from subprocess import PIPE, STDOUT
 
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
 
-class null:
-    pass
 
+# sentinel for cases where None won't do
+_Null = object()
 
-_Null = null()
-
-try:
-    from collections import UserList, UserString
-except ImportError:
-    # no 'collections' module or no UserFoo in collections
-    exec('from UserList import UserList')
-    exec('from UserString import UserString')
 
 __all__ = [
     'diff_re',
@@ -385,7 +384,7 @@ def _caller(tblist, skip):
     return string
 
 
-def fail_test(self=None, condition=1, function=None, skip=0, message=None):
+def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     """Cause the test to fail.
 
     By default, the fail_test() method reports that the test FAILED
@@ -394,12 +393,12 @@ def fail_test(self=None, condition=1, function=None, skip=0, message=None):
     """
     if not condition:
         return
-    if not function is None:
+    if function is not None:
         function()
     of = ""
     desc = ""
     sep = " "
-    if not self is None:
+    if self is not None:
         if self.program:
             of = " of " + self.program
             sep = "\n\t"
@@ -417,7 +416,7 @@ def fail_test(self=None, condition=1, function=None, skip=0, message=None):
     sys.exit(1)
 
 
-def no_result(self=None, condition=1, function=None, skip=0):
+def no_result(self=None, condition=True, function=None, skip=0):
     """Causes a test to exit with no valid result.
 
     By default, the no_result() method reports NO RESULT for the test
@@ -426,12 +425,12 @@ def no_result(self=None, condition=1, function=None, skip=0):
     """
     if not condition:
         return
-    if not function is None:
+    if function is not None:
         function()
     of = ""
     desc = ""
     sep = " "
-    if not self is None:
+    if self is not None:
         if self.program:
             of = " of " + self.program
             sep = "\n\t"
@@ -445,7 +444,7 @@ def no_result(self=None, condition=1, function=None, skip=0):
     sys.exit(2)
 
 
-def pass_test(self=None, condition=1, function=None):
+def pass_test(self=None, condition=True, function=None):
     """Causes a test to pass.
 
     By default, the pass_test() method reports PASSED for the test
@@ -454,15 +453,14 @@ def pass_test(self=None, condition=1, function=None):
     """
     if not condition:
         return
-    if not function is None:
+    if function is not None:
         function()
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 
 
 def match_exact(lines=None, matches=None, newline=os.sep):
-    """
-    Match function using exact match.
+    """Match function using exact match.
 
     :param lines: data lines
     :type lines: str or list[str]
@@ -470,8 +468,8 @@ def match_exact(lines=None, matches=None, newline=os.sep):
     :type matches: str or list[str]
     :param newline: line separator
     :returns: an object (1) on match, else None, like re.match
-    """
 
+    """
     if isinstance(lines, bytes) or bytes is str:
         newline = to_bytes(newline)
 
@@ -488,8 +486,7 @@ def match_exact(lines=None, matches=None, newline=os.sep):
 
 
 def match_caseinsensitive(lines=None, matches=None):
-    """
-    Match function using case-insensitive matching.
+    """Match function using case-insensitive matching.
 
     Only a simplistic comparison is done, based on casefolding
     the strings. This may still fail but is the suggestion of
@@ -501,6 +498,7 @@ def match_caseinsensitive(lines=None, matches=None):
     :type matches: str or list[str]
     :returns: True or False
     :returns: an object (1) on match, else None, like re.match
+
     """
     if not is_List(lines):
         lines = lines.split("\n")
@@ -515,14 +513,14 @@ def match_caseinsensitive(lines=None, matches=None):
 
 
 def match_re(lines=None, res=None):
-    """
-    Match function using line-by-line regular expression match.
+    """Match function using line-by-line regular expression match.
 
     :param lines: data lines
     :type lines: str or list[str]
     :param res: regular expression(s) for matching
     :type res: str or list[str]
     :returns: an object (1) on match, else None, like re.match
+
     """
     if not is_List(lines):
         # CRs mess up matching (Windows) so split carefully
@@ -547,8 +545,7 @@ def match_re(lines=None, res=None):
 
 
 def match_re_dotall(lines=None, res=None):
-    """
-    Match function using regular expression match.
+    """Match function using regular expression match.
 
     Unlike match_re, the arguments are converted to strings (if necessary)
     and must match exactly.
@@ -558,6 +555,7 @@ def match_re_dotall(lines=None, res=None):
     :param res: regular expression(s) for matching
     :type res: str or list[str]
     :returns: a match object, or None as for re.match
+
     """
     if not isinstance(lines, str):
         lines = "\n".join(lines)
@@ -574,8 +572,7 @@ def match_re_dotall(lines=None, res=None):
 
 def simple_diff(a, b, fromfile='', tofile='',
                 fromfiledate='', tofiledate='', n=0, lineterm=''):
-    r"""
-    Compare two sequences of lines; generate the delta as a simple diff.
+    r"""Compare two sequences of lines; generate the delta as a simple diff.
 
     Similar to difflib.context_diff and difflib.unified_diff but
     output is like from the 'diff" command without arguments. The function
@@ -627,8 +624,7 @@ def simple_diff(a, b, fromfile='', tofile='',
 
 def diff_re(a, b, fromfile='', tofile='',
             fromfiledate='', tofiledate='', n=3, lineterm='\n'):
-    """
-    Compare a and b (lists of strings) where a are regexes.
+    """Compare a and b (lists of strings) where a are regexes.
 
     A simple "diff" of two sets of lines when the expected lines
     are regular expressions.  This is a really dumb thing that
@@ -732,8 +728,6 @@ else:
 # From Josiah Carlson,
 # ASPN : Python Cookbook : Module to allow Asynchronous subprocess use on Windows and Posix platforms
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
-
-PIPE = subprocess.PIPE
 
 if sys.platform == 'win32':  # and subprocess.mswindows:
     try:
@@ -893,7 +887,7 @@ class Popen(subprocess.Popen):
                 #    r = self._translate_newlines(r)
                 return r
             finally:
-                if not conn.closed and not flags is None:
+                if not conn.closed and flags is not None:
                     fcntl.fcntl(conn, fcntl.F_SETFL, flags)
 
 
@@ -934,6 +928,7 @@ def send_all(p, data):
 _Cleanup = []
 
 
+@atexit.register
 def _clean():
     global _Cleanup
     cleanlist = [c for c in _Cleanup if c]
@@ -943,28 +938,28 @@ def _clean():
         test.cleanup()
 
 
-atexit.register(_clean)
-
-
 class TestCmd:
     """Class TestCmd
     """
 
-    def __init__(self, description=None,
-                 program=None,
-                 interpreter=None,
-                 workdir=None,
-                 subdir=None,
-                 verbose=None,
-                 match=None,
-                 match_stdout=None,
-                 match_stderr=None,
-                 diff=None,
-                 diff_stdout=None,
-                 diff_stderr=None,
-                 combine=0,
-                 universal_newlines=True,
-                 timeout=None):
+    def __init__(
+        self,
+        description=None,
+        program=None,
+        interpreter=None,
+        workdir=None,
+        subdir=None,
+        verbose=None,
+        match=None,
+        match_stdout=None,
+        match_stderr=None,
+        diff=None,
+        diff_stdout=None,
+        diff_stderr=None,
+        combine=0,
+        universal_newlines=True,
+        timeout=None,
+    ):
         self.external = os.environ.get('SCONS_EXTERNAL_TEST', 0)
         self._cwd = os.getcwd()
         self.description_set(description)
@@ -1039,14 +1034,14 @@ class TestCmd:
         return path
 
     def chmod(self, path, mode):
-        """Changes permissions on the specified file or directory
-        path name."""
+        """Changes permissions on the specified file or directory."""
         path = self.canonicalize(path)
         os.chmod(path, mode)
 
     def cleanup(self, condition=None):
-        """Removes any temporary working directories for the specified
-        TestCmd environment.  If the environment variable PRESERVE was
+        """Removes any temporary working directories.
+
+        Cleans the TestCmd instance.  If the environment variable PRESERVE was
         set when the TestCmd environment was created, temporary working
         directories are not removed.  If any of the environment variables
         PRESERVE_PASS, PRESERVE_FAIL, or PRESERVE_NO_RESULT were set
@@ -1080,9 +1075,7 @@ class TestCmd:
             if self in _Cleanup:
                 _Cleanup.remove(self)
 
-    def command_args(self, program=None,
-                     interpreter=None,
-                     arguments=None):
+    def command_args(self, program=None, interpreter=None, arguments=None):
         if not self.external:
             if program:
                 if isinstance(program, str) and not os.path.isabs(program):
@@ -1110,13 +1103,11 @@ class TestCmd:
         return cmd
 
     def description_set(self, description):
-        """Set the description of the functionality being tested.
-        """
+        """Set the description of the functionality being tested. """
         self.description = description
 
     def set_diff_function(self, diff=_Null, stdout=_Null, stderr=_Null):
-        """Sets the specified diff functions.
-        """
+        """Sets the specified diff functions."""
         if diff is not _Null:
             self._diff_function = diff
         if stdout is not _Null:
@@ -1145,8 +1136,7 @@ class TestCmd:
             print(line)
 
     def diff_stderr(self, a, b, *args, **kw):
-        """Compare actual and expected file contents.
-        """
+        """Compare actual and expected file contents."""
         try:
             diff_stderr_function = getattr(self, self._diff_stderr_function)
         except TypeError:
@@ -1154,8 +1144,7 @@ class TestCmd:
         return self.diff(a, b, diff_function=diff_stderr_function, *args, **kw)
 
     def diff_stdout(self, a, b, *args, **kw):
-        """Compare actual and expected file contents.
-        """
+        """Compare actual and expected file contents."""
         try:
             diff_stdout_function = getattr(self, self._diff_stdout_function)
         except TypeError:
@@ -1170,9 +1159,8 @@ class TestCmd:
 
     unified_diff = staticmethod(difflib.unified_diff)
 
-    def fail_test(self, condition=1, function=None, skip=0, message=None):
-        """Cause the test to fail.
-        """
+    def fail_test(self, condition=True, function=None, skip=0, message=None):
+        """Cause the test to fail."""
         if not condition:
             return
         self.condition = 'fail_test'
@@ -1189,8 +1177,7 @@ class TestCmd:
         self.interpreter = interpreter
 
     def set_match_function(self, match=_Null, stdout=_Null, stderr=_Null):
-        """Sets the specified match functions.
-        """
+        """Sets the specified match functions. """
         if match is not _Null:
             self._match_function = match
         if stdout is not _Null:
@@ -1199,8 +1186,7 @@ class TestCmd:
             self._match_stderr_function = stderr
 
     def match(self, lines, matches):
-        """Compare actual and expected file contents.
-        """
+        """Compare actual and expected file contents."""
         try:
             match_function = getattr(self, self._match_function)
         except TypeError:
@@ -1211,8 +1197,7 @@ class TestCmd:
         return match_function(lines, matches)
 
     def match_stderr(self, lines, matches):
-        """Compare actual and expected file contents.
-        """
+        """Compare actual and expected file contents."""
         try:
             match_stderr_function = getattr(self, self._match_stderr_function)
         except TypeError:
@@ -1242,9 +1227,8 @@ class TestCmd:
 
     match_re_dotall = staticmethod(match_re_dotall)
 
-    def no_result(self, condition=1, function=None, skip=0):
-        """Report that the test could not be run.
-        """
+    def no_result(self, condition=True, function=None, skip=0):
+        """Report that the test could not be run."""
         if not condition:
             return
         self.condition = 'no_result'
@@ -1253,7 +1237,7 @@ class TestCmd:
                   function=function,
                   skip=skip)
 
-    def pass_test(self, condition=1, function=None):
+    def pass_test(self, condition=True, function=None):
         """Cause the test to pass.
         """
         if not condition:
@@ -1262,7 +1246,9 @@ class TestCmd:
         pass_test(self=self, condition=condition, function=function)
 
     def preserve(self, *conditions):
-        """Arrange for the temporary working directories for the
+        """Preserves temporary working directories.
+
+        Arrange for the temporary working directories for the
         specified TestCmd environment to be preserved for one or more
         conditions.  If no conditions are specified, arranges for
         the temporary working directories to be preserved for all
@@ -1274,8 +1260,7 @@ class TestCmd:
             self._preserve[cond] = 1
 
     def program_set(self, program):
-        """Set the executable program or script to be tested.
-        """
+        """Sets the executable program or script to be tested."""
         if not self.external:
             if program and not os.path.isabs(program):
                 program = os.path.join(self._cwd, program)
@@ -1323,8 +1308,7 @@ class TestCmd:
         self.timer = None
 
     def parse_path(self, path, suppress_current=False):
-        """Return a list with the single path components of path.
-        """
+        """Return a list with the single path components of path."""
         head, tail = os.path.split(path)
         result = []
         if not tail:
@@ -1463,13 +1447,13 @@ class TestCmd:
         # So don't use a pipe for stdin if we don't need one.
         stdin = kw.get('stdin', None)
         if stdin is not None:
-            stdin = subprocess.PIPE
+            stdin = PIPE
 
         combine = kw.get('combine', self.combine)
         if combine:
-            stderr_value = subprocess.STDOUT
+            stderr_value = STDOUT
         else:
-            stderr_value = subprocess.PIPE
+            stderr_value = PIPE
 
         if timeout is _Null:
             timeout = self.timeout
@@ -1489,7 +1473,7 @@ class TestCmd:
         # if encoding is set.hg c
         p = Popen(cmd,
                   stdin=stdin,
-                  stdout=subprocess.PIPE,
+                  stdout=PIPE,
                   stderr=stderr_value,
                   env=os.environ,
                   universal_newlines=False)
@@ -1499,8 +1483,7 @@ class TestCmd:
 
     @staticmethod
     def fix_binary_stream(stream):
-        """
-        Handle stdout/stderr from popen when we specify not universal_newlines
+        """Handle stream from popen when we specify not universal_newlines
 
         This will read from the pipes in binary mode, will not decode the
         output, and will not convert line endings to \n.
@@ -1517,15 +1500,14 @@ class TestCmd:
         if not stream:
             return stream
         # It seems that py3.6 still sets text mode if you set encoding.
-        # was: if IS_PY3:  # TODO and sys.version_info[1] < 6:
         stream = stream.decode('utf-8', errors='replace')
         return stream.replace('\r\n', '\n')
 
     def finish(self, popen=None, **kw):
-        """
-        Finishes and waits for the process being run under control of
-        the specified popen argument, recording the exit status,
-        standard output and error output.
+        """ Finishes and waits for the process.
+
+        Process being run under control of the specified popen argument
+        is waited for, recording the exit status, output and error output.
         """
         if popen is None:
             popen = self.process
@@ -1549,9 +1531,10 @@ class TestCmd:
             stdin=None,
             universal_newlines=None,
             timeout=_Null):
-        """Runs a test of the program or script for the test
-        environment.  Standard output and error output are saved for
-        future retrieval via the stdout() and stderr() methods.
+        """Runs a test of the program or script for the test environment.
+
+        Output and error output are saved for future retrieval via
+        the stdout() and stderr() methods.
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
@@ -1581,7 +1564,6 @@ class TestCmd:
         if is_List(stdin):
             stdin = ''.join(stdin)
 
-        # TODO: was: if stdin and IS_PY3:#  and sys.version_info[1] < 6:
         if stdin:
             stdin = to_bytes(stdin)
 
@@ -1621,8 +1603,9 @@ class TestCmd:
                 write('============ END STDERR\n')
 
     def sleep(self, seconds=default_sleep_seconds):
-        """Sleeps at least the specified number of seconds.  If no
-        number is specified, sleeps at least the minimum number of
+        """Sleeps at least the specified number of seconds.
+
+        If no number is specified, sleeps at least the minimum number of
         seconds necessary to advance file time stamps on the current
         system.  Sleeping more seconds is all right.
         """
@@ -1630,6 +1613,7 @@ class TestCmd:
 
     def stderr(self, run=None):
         """Returns the error output from the specified run number.
+
         If there is no specified run number, then returns the error
         output of the last run.  If the run number is less than zero,
         then returns the error output from that many runs back from the
@@ -1643,8 +1627,7 @@ class TestCmd:
         return self._stderr[run]
 
     def stdout(self, run=None):
-        """
-        Returns the stored standard output from a given run.
+        """Returns the stored standard output from a given run.
 
         Args:
             run: run number to select.  If run number is omitted,
@@ -1667,13 +1650,14 @@ class TestCmd:
             return None
 
     def subdir(self, *subdirs):
-        """Create new subdirectories under the temporary working
-        directory, one for each argument.  An argument may be a list,
+        """Creates new subdirectories under the temporary working directory.
+
+        Creates a subdir for each argument.  An argument may be a list,
         in which case the list elements are concatenated using the
         os.path.join() method.  Subdirectories multiple levels deep
         must be created using a separate argument for each level:
 
-                test.subdir('sub', ['sub', 'dir'], ['sub', 'dir', 'ectory'])
+            test.subdir('sub', ['sub', 'dir'], ['sub', 'dir', 'ectory'])
 
         Returns the number of subdirectories actually created.
         """
@@ -1695,6 +1679,7 @@ class TestCmd:
 
     def symlink(self, target, link):
         """Creates a symlink to the specified target.
+
         The link name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The link is
         assumed to be under the temporary working directory unless it
@@ -1714,6 +1699,7 @@ class TestCmd:
 
     def tempdir(self, path=None):
         """Creates a temporary directory.
+
         A unique directory name is generated if no path name is specified.
         The directory is created, and will be removed when the TestCmd
         object is destroyed.
@@ -1752,8 +1738,9 @@ class TestCmd:
         return path
 
     def touch(self, path, mtime=None):
-        """Updates the modification time on the specified file or
-        directory path name.  The default is to update to the
+        """Updates the modification time on the specified file or directory.
+
+        The default is to update to the
         current time if no explicit modification time is specified.
         """
         path = self.canonicalize(path)
@@ -1764,6 +1751,7 @@ class TestCmd:
 
     def unlink(self, file):
         """Unlinks the specified file name.
+
         The file name may be a list, in which case the elements are
         concatenated with the os.path.join() method.  The file is
         assumed to be under the temporary working directory unless it
@@ -1773,13 +1761,11 @@ class TestCmd:
         os.unlink(file)
 
     def verbose_set(self, verbose):
-        """Set the verbose level.
-        """
+        """Sets the verbose level."""
         self.verbose = verbose
 
     def where_is(self, file, path=None, pathext=None):
-        """Find an executable file.
-        """
+        """Finds an executable file."""
         if is_List(file):
             file = os.path.join(*file)
         if not os.path.isabs(file):
@@ -1787,9 +1773,9 @@ class TestCmd:
         return file
 
     def workdir_set(self, path):
-        """Creates a temporary working directory with the specified
-        path name.  If the path is a null string (''), a unique
-        directory name is created.
+        """Creates a temporary working directory with the specified path name.
+
+        If the path is a null string (''), a unique directory name is created.
         """
         if path is not None:
             if path == '':
@@ -1798,16 +1784,18 @@ class TestCmd:
         self.workdir = path
 
     def workpath(self, *args):
-        """Returns the absolute path name to a subdirectory or file
-        within the current temporary working directory.  Concatenates
-        the temporary working directory name with the specified
+        """Returns the absolute path name to a subdirectory or file within the current temporary working directory.
+
+        Concatenates the temporary working directory name with the specified
         arguments using the os.path.join() method.
         """
         return os.path.join(self.workdir, *args)
 
-    def readable(self, top, read=1):
-        """Make the specified directory tree readable (read == 1)
-        or not (read == None).
+    def readable(self, top, read=True):
+        """Makes the specified directory tree readable or unreadable.
+
+        Tree is made readable if `read` evaluates True (the default),
+        else it is made not readable.
 
         This method has no effect on Windows systems, which use a
         completely different mechanism to control file readability.
@@ -1858,9 +1846,11 @@ class TestCmd:
                     do_chmod(os.path.join(dirpath, name))
             do_chmod(top)
 
-    def writable(self, top, write=1):
-        """Make the specified directory tree writable (write == 1)
-        or not (write == None).
+    def writable(self, top, write=True):
+        """Make the specified directory tree writable or unwritable.
+
+        Tree is made writable if `write` evaluates True (the default),
+        else it is made not writable.
         """
 
         if sys.platform == 'win32':
@@ -1906,9 +1896,11 @@ class TestCmd:
                 for name in dirnames + filenames:
                     do_chmod(os.path.join(dirpath, name))
 
-    def executable(self, top, execute=1):
-        """Make the specified directory tree executable (execute == 1)
-        or not (execute == None).
+    def executable(self, top, execute=True):
+        """Make the specified directory tree executable or not executable.
+
+        Tree is made executable if `execute` evaluates True (the default),
+        else it is made not executable.
 
         This method has no effect on Windows systems, which use a
         completely different mechanism to control file executability.
@@ -1960,7 +1952,7 @@ class TestCmd:
             do_chmod(top)
 
     def write(self, file, content, mode='wb'):
-        """Write data to file
+        """Writes data to file.
 
         The file is created under the temporary working directory.
         Any subdirectories in the path must already exist. The
