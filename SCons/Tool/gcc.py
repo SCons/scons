@@ -77,22 +77,23 @@ def detect_version(env, cc):
     # GCC versions older than that, we should use --version and a
     # regular expression.
     # pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
-    pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
+    with SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
                                  stdin='devnull',
                                  stderr='devnull',
-                                 stdout=subprocess.PIPE)
-    if pipe.wait() != 0:
-        return version
+                                 stdout=subprocess.PIPE) as pipe:
+        if pipe.wait() != 0:
+            return version
 
-    with pipe.stdout:
-        # -dumpversion variant:
-        # line = pipe.stdout.read().strip()
-        # --version variant:
-        line = SCons.Util.to_str(pipe.stdout.readline())
-        # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
-        # So continue with reading to let the child process actually terminate.
-        while SCons.Util.to_str(pipe.stdout.readline()):
-            pass
+        with pipe.stdout:
+            # -dumpversion variant:
+            # line = pipe.stdout.read().strip()
+            # --version variant:
+            line = SCons.Util.to_str(pipe.stdout.readline())
+            # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
+            # So continue with reading to let the child process actually terminate.
+            while SCons.Util.to_str(pipe.stdout.readline()):
+                pass
+
 
     # -dumpversion variant:
     # if line:
