@@ -1,0 +1,40 @@
+import sys
+
+DefaultEnvironment(tools=[])
+env = Environment(
+    PYTHON=sys.executable,
+    LINK='$PYTHON mylink.py',
+    LINKFLAGS=[],
+    CC='$PYTHON mygcc.py cc',
+    CXX='$PYTHON mygcc.py c++',
+    tools=['gcc','g++','gnulink'],
+)
+env.Tool('compilation_db')
+
+env_abs = env.Clone(COMPILATIONDB_USE_ABSPATH=True)
+env_abs.CompilationDatabase('compile_commands_clone_abs.json')
+
+# Should be relative paths
+env.CompilationDatabase('compile_commands_only_arg.json')
+env.CompilationDatabase(target='compile_commands_target.json')
+
+# Should default name compile_commands.json
+env.CompilationDatabase()
+
+# Should be absolute paths
+env.CompilationDatabase('compile_commands_over_abs.json', COMPILATIONDB_USE_ABSPATH=True)
+env.CompilationDatabase(target='compile_commands_target_over_abs.json', COMPILATIONDB_USE_ABSPATH=True)
+
+# Should be relative paths
+env.CompilationDatabase('compile_commands_over_rel.json', COMPILATIONDB_USE_ABSPATH=False)
+
+# Try 1/0 for COMPILATIONDB_USE_ABSPATH
+env.CompilationDatabase('compile_commands_over_abs_1.json', COMPILATIONDB_USE_ABSPATH=1)
+env.CompilationDatabase('compile_commands_over_abs_0.json', COMPILATIONDB_USE_ABSPATH=0)
+
+env.VariantDir('build','src')
+env.Program('build/main', 'build/test_main.c')
+
+env.VariantDir('build2','src', duplicate=0)
+env.Program('build2/main', 'build2/test_main.c')
+
