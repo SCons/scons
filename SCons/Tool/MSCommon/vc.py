@@ -231,9 +231,17 @@ _VCVER = ["14.2", "14.1", "14.1Exp", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0
 
 # if using vswhere, a further mapping is needed
 _VCVER_TO_VSWHERE_VER = {
-    '14.2':    '[16.0, 17.0)',
-    '14.1':    '[15.0, 16.0)',
-    '14.1Exp': '[15.0, 16.0)',
+    '14.2': [
+        ["-version", "[16.0, 17.0)", ], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ],
+    '14.1':    [
+        ["-version", "[15.0, 16.0)", ], # default: Enterprise, Professional, Community (order unpredictable?)
+        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ],
+    '14.1Exp': [
+        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.WDExpress"], # Express
+        ],
 }
 
 _VCVER_TO_PRODUCT_DIR = {
@@ -377,29 +385,28 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
         return None
 
     debug('VSWHERE: %s' % vswhere_path)
-    vswhere_cmd = [
-        vswhere_path,
-        "-products", "*",
-        "-version", vswhere_version,
-        "-property", "installationPath",
-    ]
+    for vswhere_version_args in vswhere_version:
 
-    debug("running: %s" % vswhere_cmd)
+        vswhere_cmd = [vswhere_path] + vswhere_version_args + ["-property", "installationPath"]
 
-    #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
-    cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
+        debug("running: %s" % vswhere_cmd)
 
-    if cp.stdout:
-        # vswhere could return multiple lines, e.g. if Build Tools
-        # and {Community,Professional,Enterprise} are both installed.
-        # We could define a way to pick the one we prefer, but since
-        # this data is currently only used to make a check for existence,
-        # returning the first hit should be good enough.
-        lines = cp.stdout.decode("mbcs").splitlines()
-        return os.path.join(lines[0], 'VC')
-    else:
-        # We found vswhere, but no install info available for this version
-        return None
+        #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
+        cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
+
+        if cp.stdout:
+            # vswhere could return multiple lines, e.g. if Build Tools
+            # and {Community,Professional,Enterprise} are both installed.
+            # We could define a way to pick the one we prefer, but since
+            # this data is currently only used to make a check for existence,
+            # returning the first hit should be good enough.
+            lines = cp.stdout.decode("mbcs").splitlines()
+            return os.path.join(lines[0], 'VC')
+        else:
+            # We found vswhere, but no install info available for this version
+            return None
+
+    return None
 
 
 def find_vc_pdir(env, msvc_version):
