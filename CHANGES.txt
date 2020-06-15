@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Dirk Baechle:
     - Added Docker images for building and testing SCons. (issue #3585)
 
+  From Jason Kenny
+    - Fix python3 crash when Value node get_text_content when child content does not have decode()
+
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
       for a per-variant cppflags. Intellisense can be affected by cppflags,

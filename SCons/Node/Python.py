@@ -144,7 +144,8 @@ class Value(SCons.Node.Node):
         ###TODO: something reasonable about universal newlines
         contents = str(self.value)
         for kid in self.children(None):
-            contents = contents + kid.get_contents().decode()
+            # Get csig() value of child as this is more efficent
+            contents = contents + kid.get_csig()
         return contents
 
     def get_contents(self):
