@@ -27,15 +27,13 @@ and values of COMPILATIONDB_USE_ABSPATH
 """
 
 import sys
+import os
+import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform == 'win32':
-    test.file_fixture('mylink_win32.py', 'mylink.py')
-else:
-    test.file_fixture('mylink.py')
-
+test.file_fixture('mylink.py')
 test.file_fixture('mygcc.py')
 
 test.verbose_set(1)
@@ -67,23 +65,30 @@ example_rel_file = """[
     }
 ]""" % (sys.executable, test.workdir)
 
+if sys.platform == 'win32':
+    example_rel_file = example_rel_file.replace('\\', '\\\\')
+
 for f in rel_files:
     # print("Checking:%s" % f)
     test.must_exist(f)
-    test.must_match(f, example_rel_file)
+    test.must_match(f, example_rel_file, mode='r')
 
 example_abs_file = """[
     {
         "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
         "directory": "%s",
-        "file": "%s/test_main.c",
-        "output": "%s/test_main.o"
+        "file": "%s",
+        "output": "%s"
     }
-]""" % (sys.executable, test.workdir, test.workdir, test.workdir)
+]""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
+
+if sys.platform == 'win32':
+    example_abs_file = example_abs_file.replace('\\', '\\\\')
+
 
 for f in abs_files:
     test.must_exist(f)
-    test.must_match(f, example_abs_file)
+    test.must_match(f, example_abs_file, mode='r')
 
 
 test.pass_test()
