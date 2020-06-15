@@ -77,7 +77,7 @@ def detect_version(env, cc):
     # GCC versions older than that, we should use --version and a
     # regular expression.
     # pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
-    pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
+    pipe=SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
                                  stdin='devnull',
                                  stderr='devnull',
                                  stdout=subprocess.PIPE)
@@ -93,6 +93,7 @@ def detect_version(env, cc):
         # So continue with reading to let the child process actually terminate.
         while SCons.Util.to_str(pipe.stdout.readline()):
             pass
+
 
     # -dumpversion variant:
     # if line:
