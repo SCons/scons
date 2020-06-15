@@ -649,7 +649,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
                 cl_path = os.path.join(cl_root, cl_dir, _CL_EXE_NAME)
                 if os.path.exists(cl_path):
                     debug(_CL_EXE_NAME + ' found %s' % cl_path)
-                return True
+                    return True
         return False
     else:
         # version not support return false
