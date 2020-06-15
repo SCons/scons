@@ -231,8 +231,9 @@ _VCVER = ["14.2", "14.1", "14.1Exp", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0
 
 # if using vswhere, a further mapping is needed
 _VCVER_TO_VSWHERE_VER = {
-    '14.2': '[16.0, 17.0)',
-    '14.1': '[15.0, 16.0)',
+    '14.2':    '[16.0, 17.0)',
+    '14.1':    '[15.0, 16.0)',
+    '14.1Exp': '[15.0, 16.0)',
 }
 
 _VCVER_TO_PRODUCT_DIR = {
