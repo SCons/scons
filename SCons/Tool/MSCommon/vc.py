@@ -628,10 +628,19 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             return True
 
     elif 8 > ver_num >= 6:
-        # not sure about these versions so if a walk the VC dir (could be slow)
-        for root, _, files in os.walk(vc_dir):
-            if _CL_EXE_NAME in files:
-                debug(_CL_EXE_NAME + ' found %s' % os.path.join(root, _CL_EXE_NAME))
+        # quick check for vc_dir/bin and vc_dir/ before walk
+        # need to check root as the walk only considers subdirectories
+        for cl_dir in ('bin', ''):
+            cl_path = os.path.join(vc_dir, cl_dir, _CL_EXE_NAME)
+            if os.path.exists(cl_path):
+                debug(_CL_EXE_NAME + ' found %s' % cl_path)
+                return True
+        # not in bin or root: must be in a subdirectory
+        for cl_root, cl_dirs, _ in os.walk(vc_dir):
+            for cl_dir in cl_dirs:
+                cl_path = os.path.join(cl_root, cl_dir, _CL_EXE_NAME)
+                if os.path.exists(cl_path):
+                    debug(_CL_EXE_NAME + ' found %s' % cl_path)
                 return True
         return False
     else:
