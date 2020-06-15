@@ -28,9 +28,9 @@ def fake_win32_link():
         args = args[1:]
         if a[:5].lower() == '/out:': out = a[5:]
     with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
-        for l in ifp.readlines():
-            if not l.startswith(b'#link'):
-                ofp.write(l)
+        for line in ifp.readlines():
+            if not line.startswith(b'#link'):
+                ofp.write(line)
     sys.exit(0)
 
 if __name__ == '__main__':
