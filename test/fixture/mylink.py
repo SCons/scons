@@ -1,3 +1,6 @@
+"""
+Dummy linker for use by tests"
+"""
 import getopt
 import sys
 
