@@ -404,7 +404,7 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
             return os.path.join(lines[0], 'VC')
         else:
             # We found vswhere, but no install info available for this version
-            return None
+            pass
 
     return None
 
