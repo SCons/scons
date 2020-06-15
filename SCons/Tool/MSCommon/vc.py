@@ -674,6 +674,7 @@ def get_installed_vcs(env=None):
 
 def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
+    global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
 
 # Running these batch files isn't cheap: most of the time spent in
