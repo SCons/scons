@@ -182,7 +182,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       rewordings in manpage.  Manpage Examples moved to an external
       repository / website (scons-cookbook.readthedocs.io).
 
-
+  From Joseph Brill:
+    - MSVC updates: Add 14.1Exp entry for vswhere queries. (GH Issue #3699).
+    - MSVC updates: Modify vswhere query to allow specialized argument lists and
+      multiple passes. Fixes returned msvc instance when multiple versions are 
+      installed: 14.1 Express returned for 14.1 and 14.2 Build Tools returned before 
+      14.2 Community (GH Issue #3699).
+    - MSVC updates: Fix initial detection failure (false negative) of MSVC 6.0 based on a 
+      case-sensitive file name comparison (GH Issue #3699).  Modify the initial detection 
+      of MSVC 6.0-7.1 for performance.
+    - MSVC updates: Fix failure to properly reset installed msvc instances for testing (GH Issue #3699).
+ 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
   From Edoardo Bezzeccheri
