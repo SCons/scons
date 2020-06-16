@@ -62,12 +62,7 @@ All parameters needed for I/O redirection are passed in pickle via temporary fil
 import sys
 from builtins import range
 
-# We currently support 'darwin' platforms, or Linux with a version
-# smaller than v3.7.2. Starting with this release, CPython provides
-# its own implementation of posix_spawn inside _execute_child, so we
-# don't have to patch anything.
-if (sys.platform in ('darwin',) or
-    (sys.platform == 'linux' and (sys.version_info < (3, 7, 2)))):
+if sys.platform in ('linux', 'darwin'):
      
     import os
     import pickle
@@ -289,7 +284,7 @@ if (sys.platform in ('darwin',) or
                 return result
 
             def _unpack_args_369(args):
-                """ Args from Python 2.6.9 on were:
+                """ Args from Python 3.6.9 on were:
                     (self, argv, executable, preexec_fn, close_fds, pass_fds
                      cwd, env,
                      startupinfo, creationflags, shell,

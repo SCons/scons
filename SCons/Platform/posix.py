@@ -40,27 +40,30 @@ import sys
 import select
 
 import SCons.Util
-from SCons.Platform import TempFileMunge
+from SCons.Platform import TempFileMunge, stubprocess_wrapper
 from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
 
-# Create a copy of the subprocess.Popen by subclassing
-class PopenWrapped(subprocess.Popen):
-    pass
-
-# We sneak our new 'wrapped' Popen into the subprocess module,
-# such that the original subprocess.Popen() is guaranteed to stay
-# unchanged. Otherwise, wrapping the Popen() directly might interfere
-# with user SConstructs where subprocess is imported directly.
-# Here we try to ensure that only SCons' spawn calls are redirected
-# through the PopenWrapped().
-subprocess.PopenWrapped = PopenWrapped
-
-# Now try to import and activate Parts' stubprocess wrapper for
-# speeding up process forks...if this isn't possible for some reason,
-# our subprocess.PopenWrapped() will still behave exactly the same as the
-# builtin subprocess.Popen().
-import SCons.Platform.stubprocess
+if stubprocess_wrapper:
+    # Create a copy of the subprocess.Popen by subclassing
+    class PopenWrapped(subprocess.Popen):
+        pass
+    
+    # We sneak our new 'wrapped' Popen into the subprocess module,
+    # such that the original subprocess.Popen() is guaranteed to stay
+    # unchanged. Otherwise, wrapping the Popen() directly might interfere
+    # with user SConstructs where subprocess is imported directly.
+    # Here we try to ensure that only SCons' spawn calls are redirected
+    # through the PopenWrapped().
+    subprocess.PopenWrapped = PopenWrapped
+    
+    # Now try to import and activate Parts' stubprocess wrapper for
+    # speeding up process forks...if this isn't possible for some reason,
+    # our subprocess.PopenWrapped() will still behave exactly the same as the
+    # builtin subprocess.Popen().
+    import SCons.Platform.stubprocess
+else:
+    subprocess.PopenWrapped = subprocess.Popen
 
 exitvalmap = {
     2 : 127,
