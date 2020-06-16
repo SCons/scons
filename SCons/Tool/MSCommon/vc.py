@@ -229,7 +229,7 @@ def get_host_target(env):
 # MSVC_VERSION documentation in Tool/msvc.xml.
 _VCVER = ["14.2", "14.1", "14.1Exp", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
-# if using vswhere, a further mapping is needed
+# if using vswhere, configure command line arguments to probe for installed VC editions
 _VCVER_TO_VSWHERE_VER = {
     '14.2': [
         ["-version", "[16.0, 17.0)", ], # default: Enterprise, Professional, Community  (order unpredictable?)
