@@ -56,6 +56,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add CompilationDatabase() builder in compilation_db tool. Contributed by MongoDB.
       Setting COMPILATIONDB_USE_ABSPATH to True|False controls whether the files are absolute or relative
       paths.  Address Issue #3693 and #3694 found during development.
+    - Fixed Github Issue 3628 - Hardcoding pickle protocol to 4 (supports python 3.4+)
+      and skipping Python 3.8's new pickle protocol 5 whose main advantage is for out-of-band data buffers
 
   From Andrii Doroshenko:
     - Extended `Environment.Dump()` to select a format to serialize construction variables (pretty, json).
