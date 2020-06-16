@@ -55,7 +55,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tool.
     - Add CompilationDatabase() builder in compilation_db tool. Contributed by MongoDB.
       Setting COMPILATIONDB_USE_ABSPATH to True|False controls whether the files are absolute or relative
-      paths.
+      paths.  Address Issue #3693 and #3694 found during development.
 
   From Andrii Doroshenko:
     - Extended `Environment.Dump()` to select a format to serialize construction variables (pretty, json).

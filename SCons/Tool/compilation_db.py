@@ -142,10 +142,10 @@ def write_compilation_db(target, source, env):
         output_file = entry['output']
 
         if use_abspath:
-            source_file = source_file.abspath
+            source_file = source_file.srcnode().abspath
             output_file = output_file.abspath
         else:
-            source_file = source_file.path
+            source_file = source_file.srcnode().path
             output_file = output_file.path
 
         path_entry = {'directory': entry['directory'],
