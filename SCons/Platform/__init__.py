@@ -56,9 +56,9 @@ import SCons.Tool
 
 
 def platform_default():
-    r"""Return the platform string for our execution environment.
+    """Return the platform string for our execution environment.
 
-    The returned value should map to one of the SCons/Platform/*.py
+    The returned value should map to one of the SCons/Platform/\*.py
     files.  Since scons is architecture independent, though, we don't
     care about the machine architecture.
     """
