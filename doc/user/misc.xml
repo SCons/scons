@@ -685,9 +685,9 @@ env.Command('directory_build_info',
         </para>
         <para>
             See
-            <link xlink:href="https://clang.llvm.org/docs/JSONCompilationDatabase.html">
+            <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">
                 <citetitle>JSON Compilation Database Format Specification</citetitle>
-            </link>
+            </ulink>
             for complete information
         </para>
 
