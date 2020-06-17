@@ -23,7 +23,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-"""engine.SCons.Tool.mssdk
+"""SCons.Tool.mssdk
 
 Tool-specific initialization for Microsoft SDKs, both Platform
 SDKs and Windows SDKs.

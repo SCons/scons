@@ -1,4 +1,4 @@
-"""engine.SCons.Variables.PackageVariable
+"""SCons.Variables.PackageVariable
 
 This file defines the option type for SCons implementing 'package
 activation'.

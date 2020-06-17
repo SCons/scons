@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.msvc
+"""SCons.Tool.msvc
 
 Tool-specific initialization for Microsoft Visual C/C++.
 

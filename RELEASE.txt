@@ -17,6 +17,10 @@
       when the value can't be converted to a string or if having a name is otherwise desirable.
     - Added a new flag called "linedraw" for the command line argument  "--tree"
       that instructs scons to use single line drawing characters to draw the dependency tree.
+    - Add CompilationDatabase() builder in compilation_db tool. Contributed by MongoDB.
+      Setting COMPILATIONDB_USE_ABSPATH to True|False controls whether the files are absolute or relative
+      paths.  Address Issue #3693 and #3694 found during development.
+
 
   DEPRECATED FUNCTIONALITY
 
@@ -43,6 +47,10 @@
       required for intellisense to use the C++ standard version from cppflags.
     - Allow user specified location for vswhere.exe specified by VSWHERE.
       NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
+    - Fixed Github Issue 3628 - Hardcoding pickle protocol to 4 (supports python 3.4+)
+      and skipping Python 3.8's new pickle protocol 5 whose main advantage is for out-of-band data buffers.
+      NOTE: If you used Python 3.8 with SCons 3.0.0 or above, you may get a a pickle protocol error. Remove your
+      .sconsign.dblite. You will end up with a full rebuild.
 
 
   FIXES

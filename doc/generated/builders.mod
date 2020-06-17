@@ -10,6 +10,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY b-CFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CFile</function>">
 <!ENTITY b-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
+<!ENTITY b-CompilationDatabase "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CompilationDatabase</function>">
 <!ENTITY b-CXXFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CXXFile</function>">
 <!ENTITY b-DocbookEpub "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookEpub</function>">
 <!ENTITY b-DocbookHtml "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DocbookHtml</function>">
@@ -66,6 +67,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY b-env-CFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CFile</function>">
 <!ENTITY b-env-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Command</function>">
+<!ENTITY b-env-CompilationDatabase "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CompilationDatabase</function>">
 <!ENTITY b-env-CXXFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.CXXFile</function>">
 <!ENTITY b-env-DocbookEpub "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookEpub</function>">
 <!ENTITY b-env-DocbookHtml "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DocbookHtml</function>">
@@ -128,6 +130,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY b-link-CFile "<link linkend='b-CFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CFile</function></link>">
 <!ENTITY b-link-Command "<link linkend='b-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Command</function></link>">
+<!ENTITY b-link-CompilationDatabase "<link linkend='b-CompilationDatabase' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CompilationDatabase</function></link>">
 <!ENTITY b-link-CXXFile "<link linkend='b-CXXFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>CXXFile</function></link>">
 <!ENTITY b-link-DocbookEpub "<link linkend='b-DocbookEpub' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookEpub</function></link>">
 <!ENTITY b-link-DocbookHtml "<link linkend='b-DocbookHtml' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DocbookHtml</function></link>">
@@ -184,6 +187,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 
 <!ENTITY b-link-env-CFile "<link linkend='b-CFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CFile</function></link>">
 <!ENTITY b-link-env-Command "<link linkend='b-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Command</function></link>">
+<!ENTITY b-link-env-CompilationDatabase "<link linkend='b-CompilationDatabase' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CompilationDatabase</function></link>">
 <!ENTITY b-link-env-CXXFile "<link linkend='b-CXXFile' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.CXXFile</function></link>">
 <!ENTITY b-link-env-DocbookEpub "<link linkend='b-DocbookEpub' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookEpub</function></link>">
 <!ENTITY b-link-env-DocbookHtml "<link linkend='b-DocbookHtml' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DocbookHtml</function></link>">

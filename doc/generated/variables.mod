@@ -46,6 +46,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-CHANGED_SOURCES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CHANGED_SOURCES</envar>">
 <!ENTITY cv-CHANGED_TARGETS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CHANGED_TARGETS</envar>">
 <!ENTITY cv-CHANGELOG "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CHANGELOG</envar>">
+<!ENTITY cv-COMPILATIONDB_COMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$COMPILATIONDB_COMSTR</envar>">
+<!ENTITY cv-COMPILATIONDB_USE_ABSPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$COMPILATIONDB_USE_ABSPATH</envar>">
 <!ENTITY cv-_concat "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_concat</envar>">
 <!ENTITY cv-CONFIGUREDIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CONFIGUREDIR</envar>">
 <!ENTITY cv-CONFIGURELOG "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CONFIGURELOG</envar>">
@@ -686,6 +688,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-CHANGED_SOURCES "<link linkend='cv-CHANGED_SOURCES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CHANGED_SOURCES</envar></link>">
 <!ENTITY cv-link-CHANGED_TARGETS "<link linkend='cv-CHANGED_TARGETS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CHANGED_TARGETS</envar></link>">
 <!ENTITY cv-link-CHANGELOG "<link linkend='cv-CHANGELOG' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CHANGELOG</envar></link>">
+<!ENTITY cv-link-COMPILATIONDB_COMSTR "<link linkend='cv-COMPILATIONDB_COMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$COMPILATIONDB_COMSTR</envar></link>">
+<!ENTITY cv-link-COMPILATIONDB_USE_ABSPATH "<link linkend='cv-COMPILATIONDB_USE_ABSPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$COMPILATIONDB_USE_ABSPATH</envar></link>">
 <!ENTITY cv-link-_concat "<link linkend='cv-_concat' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_concat</envar></link>">
 <!ENTITY cv-link-CONFIGUREDIR "<link linkend='cv-CONFIGUREDIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CONFIGUREDIR</envar></link>">
 <!ENTITY cv-link-CONFIGURELOG "<link linkend='cv-CONFIGURELOG' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CONFIGURELOG</envar></link>">

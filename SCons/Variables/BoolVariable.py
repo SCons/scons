@@ -1,4 +1,4 @@
-"""engine.SCons.Variables.BoolVariable
+"""SCons.Variables.BoolVariable
 
 This file defines the option type for SCons implementing true/false values.
 

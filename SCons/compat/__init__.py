@@ -84,8 +84,9 @@ def rename_module(new, old):
 import pickle
 
 # Was pickle.HIGHEST_PROTOCOL
-# Changed to 2 so py3.5+'s pickle will be compatible with py2.7.
-PICKLE_PROTOCOL = pickle.HIGHEST_PROTOCOL
+# Changed to 4 so that python 3.8's not incompatible with previous versions
+# Python 3.8 introduced protocol 5 which is mainly an improvement for for out-of-band data buffers
+PICKLE_PROTOCOL = 4
 
 import shutil
 try:

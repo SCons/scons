@@ -1,4 +1,4 @@
-"""engine.SCons.Tool.icl
+"""SCons.Tool.icl
 
 Tool-specific initialization for the Intel C/C++ compiler.
 
