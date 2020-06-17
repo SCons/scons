@@ -183,15 +183,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       repository / website (scons-cookbook.readthedocs.io).
 
   From Joseph Brill:
-    - MSVC updates: Add 14.1Exp entry for vswhere queries. (GH Issue #3699).
-    - MSVC updates: Modify vswhere query to allow specialized argument lists and
-      multiple passes. Fixes returned msvc instance when multiple versions are 
-      installed: 14.1 Express returned for 14.1 and 14.2 Build Tools returned before 
-      14.2 Community (GH Issue #3699).
-    - MSVC updates: Fix initial detection failure (false negative) of MSVC 6.0 based on a 
-      case-sensitive file name comparison (GH Issue #3699).  Modify the initial detection 
-      of MSVC 6.0-7.1 for performance.
-    - MSVC updates: Fix failure to properly reset installed msvc instances for testing (GH Issue #3699).
+    - MSVC updates: When there are multiple product installations (e.g, Community and
+      Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional, 
+      or Community installation will be selected before a Build Tools installation when
+      "14.1" or "14.2" is requested, respectively. (GH Issue #3699).
+    - MSVC updates: When there are multiple product installations of MSVC 2017 (e.g.,
+      Community and Express), 2017 Express is no longer returned when "14.1" is
+      requested.  Only 2017 Express will be returned when "14.1Exp" is requested.
+      (GH Issue #3699).
+    - MSVC updates: An MSVC 6.0 installation now appears in the installed versions list
+      when msvc debug output is enabled (GH Issue #3699).
  
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
 
