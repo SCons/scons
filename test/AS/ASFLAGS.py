@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
 test.file_fixture('mylink.py')
-test.file_fixture(os.path.join('fixture', 'myas_args.py'))
+test.file_fixture(['fixture', 'myas_args.py'])
 
 o = ' -x'
 o_c = ' -x -c'

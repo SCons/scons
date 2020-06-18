@@ -33,7 +33,7 @@ _exe   = TestSCons._exe
 test = TestSCons.TestSCons()
 
 test.file_fixture('mylink.py')
-test.file_fixture(os.path.join('fixture', 'myfortran.py'))
+test.file_fixture(['fixture', 'myfortran.py'])
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',

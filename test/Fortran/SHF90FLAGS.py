@@ -33,7 +33,7 @@ _obj = TestSCons._shobj
 obj_ = TestSCons.shobj_
 
 test = TestSCons.TestSCons()
-test.file_fixture(os.path.join('fixture', 'myfortran_flags.py'))
+test.file_fixture(['fixture', 'myfortran_flags.py'])
 
 test.write('SConstruct', """
 env = Environment(SHF90 = r'%(_python_)s myfortran_flags.py g90',
