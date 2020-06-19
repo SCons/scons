@@ -299,13 +299,37 @@ def __build_lxml(target, source, env):
         result = transform(doc)
 
     try:
-# TODO DB Check file encoding for unicode/utf-8
         with open(str(target[0]), "wb") as of:
             of.write(etree.tostring(result, encoding="utf-8", pretty_print=True))
     except:
         pass
 
     return None
+
+def __build_lxml_manpage(target, source, env):
+    """
+    Specialized XSLT builder for manpages, using the lxml module.
+    """
+    from lxml import etree
+
+    xslt_ac = etree.XSLTAccessControl(read_file=True,
+                                      write_file=True,
+                                      create_dir=True,
+                                      read_network=False,
+                                      write_network=False)
+    xsl_style = env.subst('$DOCBOOK_XSL')
+    xsl_tree = etree.parse(xsl_style)
+    transform = etree.XSLT(xsl_tree, access_control=xslt_ac)
+    doc = etree.parse(str(source[0]))
+    # Support for additional parameters
+    parampass = {}
+    if parampass:
+        result = transform(doc, **parampass)
+    else:
+        result = transform(doc)
+
+    return None
+
 
 def __xinclude_lxml(target, source, env):
     """
@@ -325,6 +349,12 @@ def __xinclude_lxml(target, source, env):
 
 __lxml_builder = SCons.Builder.Builder(
         action = __build_lxml,
+        src_suffix = '.xml',
+        source_scanner = docbook_xml_scanner,
+        emitter = __emit_xsl_basedir)
+
+__lxml_manpage_builder = SCons.Builder.Builder(
+        action = __build_lxml_manpage,
         src_suffix = '.xml',
         source_scanner = docbook_xml_scanner,
         emitter = __emit_xsl_basedir)
@@ -574,7 +604,7 @@ def DocbookMan(env, target, source=None, *args, **kw):
     __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_MAN', ['manpages','docbook.xsl'])
 
     # Setup builder
-    __builder = __select_builder(__lxml_builder, __xsltproc_builder)
+    __builder = __select_builder(__lxml_manpage_builder, __xsltproc_builder)
 
     # Create targets
     result = []
