@@ -24,7 +24,6 @@
 #
 # Module for handling SCons documentation processing.
 #
-# TODO DB Check file encoding for unicode/utf-8
 
 __doc__ = r"""
 This module parses home-brew XML files that document various things
@@ -281,6 +280,12 @@ class TreeFactory:
     @staticmethod
     def getText(root):
         return root.text
+    
+    @staticmethod
+    def appendCvLink(root, key, lntail):
+        linknode = etree.Entity('cv-link-' + key)
+        linknode.tail = lntail
+        root.append(linknode)
 
     @staticmethod
     def setText(root, txt):
@@ -297,25 +302,20 @@ class TreeFactory:
     @staticmethod
     def writeGenTree(root, fp):
         dt = DoctypeDeclaration()
-# TODO DB Check file encoding for unicode/utf-8
         fp.write(etree.tostring(root, encoding="utf-8",
                                 pretty_print=True,
-                                doctype=dt.createDoctype()))
+                                doctype=dt.createDoctype()).decode('utf-8'))
 
     @staticmethod
     def writeTree(root, fpath):
-# TODO DB Check file encoding for unicode/utf-8
         with open(fpath, 'wb') as fp:
-# TODO DB Check file encoding for unicode/utf-8
             fp.write(etree.tostring(root, encoding="utf-8",
                                     pretty_print=True))
 
     @staticmethod
     def prettyPrintFile(fpath):
-# TODO DB Check file encoding for unicode/utf-8
         with open(fpath,'rb') as fin:
             tree = etree.parse(fin)
-# TODO DB Check file encoding for unicode/utf-8
             pretty_content = etree.tostring(tree, encoding="utf-8", 
                                             pretty_print=True)
     
@@ -403,7 +403,8 @@ class SConsDocTree:
 
     def parseXmlFile(self, fpath):
         # Create domtree from file
-        domtree = etree.parse(fpath)
+        parser = etree.XMLParser(load_dtd=True, resolve_entities=False)
+        domtree = etree.parse(fpath, parser)
         self.root = domtree.getroot()
 
     def __del__(self):
