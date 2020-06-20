@@ -55,7 +55,7 @@ db_xsl_folder = 'docbook-xsl-1.76.1'
 has_lxml = True
 try:
     import lxml
-except:
+except Exception:
     has_lxml = False
 
 # Set this to True, to prefer xsltproc over lxml
@@ -301,8 +301,9 @@ def __build_lxml(target, source, env):
     try:
         with open(str(target[0]), "wb") as of:
             of.write(etree.tostring(result, encoding="utf-8", pretty_print=True))
-    except:
-        pass
+    except Exception as e:
+        print("ERROR: Failed to write {}".format(str(target[0])))
+        print(e)
 
     return None
 
@@ -342,8 +343,9 @@ def __xinclude_lxml(target, source, env):
     try:
         doc.write(str(target[0]), xml_declaration=True,
                   encoding="UTF-8", pretty_print=True)
-    except:
-        pass
+    except Exception as e:
+        print("ERROR: Failed to write {}".format(str(target[0])))
+        print(e)
 
     return None
 
@@ -627,7 +629,7 @@ def DocbookMan(env, target, source=None, *args, **kw):
                     for ref in node.getElementsByTagName('refname'):
                         outfiles.append(__get_xml_text(ref)+'.'+volnum)
 
-            except:
+            except Exception:
                 # Use simple regex parsing
                 with open(__ensure_suffix(str(s),'.xml'), 'r') as f:
                     content = f.read()

@@ -117,12 +117,6 @@ import sys
 import copy
 import importlib
 
-# Do we have lxml?
-try:
-    import lxml
-except ImportError:
-    raise ImportError("Failed to import lxml")
-
 try:
     from lxml import etree
 except ImportError:
