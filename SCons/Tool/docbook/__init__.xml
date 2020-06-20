@@ -56,9 +56,6 @@ a PDF renderer, e.g. <literal>fop</literal>. So make sure that these are added t
 <itemizedlist><listitem><para>the Python <literal>lxml</literal> binding to <literal>libxml2</literal>, or
 </para>
 </listitem>
-<listitem><para>the direct Python bindings for <literal>libxml2/libxslt</literal>, or
-</para>
-</listitem>
 <listitem><para>a standalone XSLT processor, currently detected are <literal>xsltproc</literal>, <literal>saxon</literal>, <literal>saxon-xslt</literal>
 and <literal>xalan</literal>.
 </para>
