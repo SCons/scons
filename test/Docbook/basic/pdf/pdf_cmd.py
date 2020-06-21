@@ -23,13 +23,17 @@
 #
 
 """
-Test the HTML builder while using
+Test the PDF builder while using
 the xsltproc executable, if it exists.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+fop = test.where_is('fop')
+if not fop:
+    test.skip_test('No fop executable found, skipping test.\n')
 
 xsltproc = test.where_is('xsltproc')
 if not xsltproc:
@@ -38,12 +42,14 @@ if not xsltproc:
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_be_empty(test.workpath('manual.html'))
+test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
+test.must_not_be_empty(test.workpath('manual.fo'))
+test.must_not_be_empty(test.workpath('manual.pdf'))
 
 # Cleanup
 test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.html'))
+test.must_not_exist(test.workpath('manual.fo'))
+test.must_not_exist(test.workpath('manual.pdf'))
 
 test.pass_test()
 

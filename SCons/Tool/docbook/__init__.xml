@@ -254,7 +254,7 @@ The path to the external executable <literal>xsltproc</literal>
 (or <literal>saxon</literal>, <literal>xalan</literal>), if one of them
 is installed.
 Note, that this is only used as last fallback for XSL transformations, if
-no libxml2 or lxml Python binding can be imported in the current system.
+no lxml Python binding can be imported in the current system.
 </para>
 </summary>
 </cvar>
@@ -264,7 +264,7 @@ no libxml2 or lxml Python binding can be imported in the current system.
 <para>
 The path to the external executable <literal>xmllint</literal>, if it's installed.
 Note, that this is only used as last fallback for resolving
-XIncludes, if no libxml2 or lxml Python binding can be imported
+XIncludes, if no lxml Python binding can be imported
 in the current system.
 </para>
 </summary>

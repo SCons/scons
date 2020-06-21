@@ -307,9 +307,10 @@ def __build_lxml(target, source, env):
 
     return None
 
-def __build_lxml_manpage(target, source, env):
+def __build_lxml_noresult(target, source, env):
     """
-    Specialized XSLT builder for manpages, using the lxml module.
+    Specialized XSLT builder for transformations without a direct result where the Docbook
+    stylesheet itself creates the target file, using the lxml module.
     """
     from lxml import etree
 
@@ -355,8 +356,8 @@ __lxml_builder = SCons.Builder.Builder(
         source_scanner = docbook_xml_scanner,
         emitter = __emit_xsl_basedir)
 
-__lxml_manpage_builder = SCons.Builder.Builder(
-        action = __build_lxml_manpage,
+__lxml_noresult_builder = SCons.Builder.Builder(
+        action = __build_lxml_noresult,
         src_suffix = '.xml',
         source_scanner = docbook_xml_scanner,
         emitter = __emit_xsl_basedir)
@@ -449,7 +450,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
     __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_EPUB', ['epub','docbook.xsl'])
 
     # Setup builder
-    __builder = __select_builder(__lxml_builder, __xsltproc_builder)
+    __builder = __select_builder(__lxml_noresult_builder, __xsltproc_builder)
 
     # Create targets
     result = []
@@ -518,7 +519,7 @@ def DocbookHtmlChunked(env, target, source=None, *args, **kw):
     __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_HTMLCHUNKED', ['html','chunkfast.xsl'])
 
     # Setup builder
-    __builder = __select_builder(__lxml_builder, __xsltproc_builder)
+    __builder = __select_builder(__lxml_noresult_builder, __xsltproc_builder)
 
     # Detect base dir
     base_dir = kw.get('base_dir', '')
@@ -553,7 +554,7 @@ def DocbookHtmlhelp(env, target, source=None, *args, **kw):
     __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_HTMLHELP', ['htmlhelp','htmlhelp.xsl'])
 
     # Setup builder
-    __builder = __select_builder(__lxml_builder, __xsltproc_builder)
+    __builder = __select_builder(__lxml_noresult_builder, __xsltproc_builder)
 
     # Detect base dir
     base_dir = kw.get('base_dir', '')
@@ -606,7 +607,7 @@ def DocbookMan(env, target, source=None, *args, **kw):
     __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_MAN', ['manpages','docbook.xsl'])
 
     # Setup builder
-    __builder = __select_builder(__lxml_manpage_builder, __xsltproc_builder)
+    __builder = __select_builder(__lxml_noresult_builder, __xsltproc_builder)
 
     # Create targets
     result = []
@@ -702,7 +703,7 @@ def DocbookSlidesHtml(env, target, source=None, *args, **kw):
     __init_xsl_stylesheet(kw, env, '$DOCBOOK_DEFAULT_XSL_SLIDESHTML', ['slides','html','plain.xsl'])
 
     # Setup builder
-    __builder = __select_builder(__lxml_builder, __xsltproc_builder)
+    __builder = __select_builder(__lxml_noresult_builder, __xsltproc_builder)
 
     # Detect base dir
     base_dir = kw.get('base_dir', '')

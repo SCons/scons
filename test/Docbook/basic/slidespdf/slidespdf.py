@@ -23,27 +23,39 @@
 #
 
 """
-Test the HTML builder while using
-the xsltproc executable, if it exists.
+Test the Slides PDF builder.
 """
 
+import os
+import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
+if not (sys.platform.startswith('linux') and
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')):
+    test.skip_test('Wrong OS or no "slides" stylesheets installed, skipping test.\n')
+
+fop = test.where_is('fop')
+if not fop:
+    test.skip_test('No fop executable found, skipping test.\n')
+
+try:
+    import lxml
+except:
+    test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_be_empty(test.workpath('manual.html'))
+test.run(stderr=None)
+test.must_not_be_empty(test.workpath('virt.fo'))
+test.must_not_be_empty(test.workpath('virt.pdf'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.html'))
+test.run(arguments='-c')
+test.must_not_exist(test.workpath('virt.fo'))
+test.must_not_exist(test.workpath('virt.pdf'))
 
 test.pass_test()
 

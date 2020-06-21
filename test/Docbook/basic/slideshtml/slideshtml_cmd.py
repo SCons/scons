@@ -35,21 +35,20 @@ test = TestSCons.TestSCons()
 
 xsltproc = test.where_is('xsltproc')
 if not (xsltproc and
-        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides') and
-        os.path.isdir('/usr/share/xml/docbook/custom/slides/3.3.1')):
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')):
     test.skip_test('No xsltproc executable or no "slides" stylesheets installed, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
 test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
-test.must_exist(test.workpath('index.html'))
-test.must_exist(test.workpath('toc.html'))
-test.must_exist(test.workpath('foil01.html'))
-test.must_exist(test.workpath('foilgroup01.html'))
+test.must_not_be_empty(test.workpath('index.html'))
+test.must_not_be_empty(test.workpath('toc.html'))
+test.must_not_be_empty(test.workpath('foil01.html'))
+test.must_not_be_empty(test.workpath('foilgroup01.html'))
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c'])
+test.run(arguments=['-f','SConstruct.cmd','-c'], stderr=None)
 test.must_not_exist(test.workpath('index.html'))
 test.must_not_exist(test.workpath('toc.html'))
 test.must_not_exist(test.workpath('foil01.html'))

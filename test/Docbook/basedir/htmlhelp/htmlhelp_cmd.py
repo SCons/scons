@@ -42,9 +42,9 @@ test.dir_fixture('image')
 
 # Normal invocation
 test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
-test.must_exist(test.workpath('output/index.html'))
-test.must_exist(test.workpath('htmlhelp.hhp'))
-test.must_exist(test.workpath('toc.hhc'))
+test.must_not_be_empty(test.workpath('output/index.html'))
+test.must_not_be_empty(test.workpath('htmlhelp.hhp'))
+test.must_not_be_empty(test.workpath('toc.hhc'))
 
 # Cleanup
 test.run(arguments=['-f','SConstruct.cmd','-c'])

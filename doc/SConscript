@@ -44,7 +44,7 @@ try:
 except ImportError as exc:
     print("doc: SConsDoc failed to import, the error was:")
     print("         ImportError: %s" % exc)
-    print("     Please make sure that python-libxml2 or python-lxml is installed.")
+    print("     Please make sure that python-lxml is installed.")
     skip_doc = True
 
 fop = whereis('fop')

@@ -23,27 +23,30 @@
 #
 
 """
-Test the HTML builder while using
-the xsltproc executable, if it exists.
+Test the Xslt builder.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-xsltproc = test.where_is('xsltproc')
-if not xsltproc:
-    test.skip_test('No xsltproc executable found, skipping test.\n')
+try:
+    import lxml
+except:
+    test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
-test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_be_empty(test.workpath('manual.html'))
+test.run()
+test.must_not_be_empty(test.workpath('out.xml'))
+test.must_contain(test.workpath('out.xml'),'<screen>', mode='r')
+test.must_not_contain(test.workpath('out.xml'),'<example_commands>', mode='r')
+
 
 # Cleanup
-test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])
-test.must_not_exist(test.workpath('manual.html'))
+test.run(arguments='-c')
+test.must_not_exist(test.workpath('out.xml'))
 
 test.pass_test()
 
