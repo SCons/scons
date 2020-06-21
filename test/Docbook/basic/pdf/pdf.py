@@ -36,7 +36,7 @@ if not fop:
 
 try:
     import lxml
-except:
+except Exception:
     test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
 test.dir_fixture('image')
