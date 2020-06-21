@@ -11,6 +11,8 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Dirk Baechle:
+    - Updated documentation toolchain to work properly under Python3, also
+      removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
 
   From James Benton:

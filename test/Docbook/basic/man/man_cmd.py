@@ -39,8 +39,8 @@ test.dir_fixture('image')
 
 # Normal invocation
 test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_exist(test.workpath('refdb.8'))
-test.must_exist(test.workpath('refdb.sh.8'))
+test.must_not_be_empty(test.workpath('refdb.8'))
+test.must_not_be_empty(test.workpath('refdb.sh.8'))
 
 # Cleanup
 test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])

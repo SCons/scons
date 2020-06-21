@@ -23,12 +23,16 @@
 #
 
 """
-Test implicit dependencies for the XInclude builder.
+Test the PDF builder.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
+
+fop = test.where_is('fop')
+if not fop:
+    test.skip_test('No fop executable found, skipping test.\n')
 
 try:
     import lxml
@@ -38,20 +42,14 @@ except Exception:
 test.dir_fixture('image')
 
 # Normal invocation
-test.run()
-test.must_not_be_empty(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is an included text.', mode='r')
+test.run(stderr=None)
+test.must_not_be_empty(test.workpath('manual.fo'))
+test.must_not_be_empty(test.workpath('manual.pdf'))
 
-# Change included file
-test.write('include.txt', 'This is another text.')
-
-# This should trigger a rebuild
-test.not_up_to_date(options='-n', arguments='.')
-
-# The new file should contain the changes
-test.run()
-test.must_not_be_empty(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is another text.')
+# Cleanup
+test.run(arguments='-c')
+test.must_not_exist(test.workpath('manual.fo'))
+test.must_not_exist(test.workpath('manual.pdf'))
 
 test.pass_test()
 

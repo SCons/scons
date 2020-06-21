@@ -23,7 +23,7 @@
 #
 
 """
-Test implicit dependencies for the XInclude builder.
+Test the Xslt builder.
 """
 
 import TestSCons
@@ -39,19 +39,14 @@ test.dir_fixture('image')
 
 # Normal invocation
 test.run()
-test.must_not_be_empty(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is an included text.', mode='r')
+test.must_not_be_empty(test.workpath('out.xml'))
+test.must_contain(test.workpath('out.xml'),'<screen>', mode='r')
+test.must_not_contain(test.workpath('out.xml'),'<example_commands>', mode='r')
 
-# Change included file
-test.write('include.txt', 'This is another text.')
 
-# This should trigger a rebuild
-test.not_up_to_date(options='-n', arguments='.')
-
-# The new file should contain the changes
-test.run()
-test.must_not_be_empty(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is another text.')
+# Cleanup
+test.run(arguments='-c')
+test.must_not_exist(test.workpath('out.xml'))
 
 test.pass_test()
 

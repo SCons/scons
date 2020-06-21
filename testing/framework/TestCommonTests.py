@@ -1784,6 +1784,57 @@ class must_not_exist_any_of_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+class must_not_be_empty_TestCase(TestCommonTestCase):
+    def test_failure(self):
+        """Test must_not_be_empty():  failure"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "")
+        tc.must_not_be_empty('file1')
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "File is empty: `file1'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("FAILED") != -1, stderr
+
+    def test_success(self):
+        """Test must_not_be_empty():  success"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.write('file1', "file1\\n")
+        tc.must_not_be_empty('file1')
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "", stdout
+        stderr = run_env.stderr()
+        assert stderr == "PASSED\n", stderr
+
+    def test_file_doesnt_exist(self):
+        """Test must_not_be_empty():  failure"""
+        run_env = self.run_env
+
+        script = lstrip("""\
+        from TestCommon import TestCommon
+        tc = TestCommon(workdir='')
+        tc.must_not_be_empty('file1')
+        tc.pass_test()
+        """)
+        run_env.run(program=sys.executable, stdin=script)
+        stdout = run_env.stdout()
+        assert stdout == "File doesn't exist: `file1'\n", stdout
+        stderr = run_env.stderr()
+        assert stderr.find("FAILED") != -1, stderr
+
 class run_TestCase(TestCommonTestCase):
     def test_argument_handling(self):
         """Test run():  argument handling"""
@@ -2372,6 +2423,7 @@ if __name__ == "__main__":
         must_not_contain_lines_TestCase,
         must_not_exist_TestCase,
         must_not_exist_any_of_TestCase,
+        must_not_be_empty_TestCase,
         run_TestCase,
         start_TestCase,
         skip_test_TestCase,

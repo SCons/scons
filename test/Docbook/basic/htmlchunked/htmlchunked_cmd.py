@@ -40,7 +40,7 @@ test.dir_fixture('image')
 
 # Normal invocation
 test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_exist(test.workpath('index.html'))
+test.must_not_be_empty(test.workpath('index.html'))
 
 # Cleanup
 test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])

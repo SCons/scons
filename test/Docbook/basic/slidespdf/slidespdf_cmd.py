@@ -23,35 +23,35 @@
 #
 
 """
-Test implicit dependencies for the XInclude builder.
+Test the Slides PDF builder while using
+the xsltproc executable, if it exists.
 """
 
+import os
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-try:
-    import lxml
-except Exception:
-    test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
+xsltproc = test.where_is('xsltproc')
+if not (xsltproc and
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')):
+    test.skip_test('No xsltproc executable or no "slides" stylesheets installed, skipping test.\n')
+
+fop = test.where_is('fop')
+if not fop:
+    test.skip_test('No fop executable found, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
-test.run()
-test.must_not_be_empty(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is an included text.', mode='r')
+test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
+test.must_not_be_empty(test.workpath('virt.fo'))
+test.must_not_be_empty(test.workpath('virt.pdf'))
 
-# Change included file
-test.write('include.txt', 'This is another text.')
-
-# This should trigger a rebuild
-test.not_up_to_date(options='-n', arguments='.')
-
-# The new file should contain the changes
-test.run()
-test.must_not_be_empty(test.workpath('manual_xi.xml'))
-test.must_contain(test.workpath('manual_xi.xml'),'<para>This is another text.')
+# Cleanup
+test.run(arguments=['-f','SConstruct.cmd','-c'], stderr=None)
+test.must_not_exist(test.workpath('virt.fo'))
+test.must_not_exist(test.workpath('virt.pdf'))
 
 test.pass_test()
 

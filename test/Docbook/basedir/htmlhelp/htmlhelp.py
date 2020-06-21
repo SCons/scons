@@ -37,21 +37,17 @@ if not (sys.platform.startswith('linux') and
     test.skip_test('Wrong OS or no stylesheets installed, skipping test.\n')
 
 try:
-    import libxml2
-    import libxslt
-except:
-    try:
-        import lxml
-    except:
-        test.skip_test('Cannot find installed Python binding for libxml2 or lxml, skipping test.\n')
+    import lxml
+except Exception:
+    test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
 test.run(stderr=None)
-test.must_exist(test.workpath('output/index.html'))
-test.must_exist(test.workpath('htmlhelp.hhp'))
-test.must_exist(test.workpath('toc.hhc'))
+test.must_not_be_empty(test.workpath('output/index.html'))
+test.must_not_be_empty(test.workpath('htmlhelp.hhp'))
+test.must_not_be_empty(test.workpath('toc.hhc'))
 
 # Cleanup
 test.run(arguments='-c')

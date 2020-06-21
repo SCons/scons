@@ -56,6 +56,8 @@ provided by the TestCommon class:
 
     test.must_not_exist('file1', ['file2', ...])
 
+    test.must_not_be_empty('file')
+    
     test.run(options = "options to be prepended to arguments",
              stdout = "expected standard output from the program",
              stderr = "expected error output from the program",
@@ -567,6 +569,23 @@ class TestCommon(TestCmd):
         if existing:
             print("Unexpected files exist: `%s'" % "', `".join(existing))
             self.fail_test(existing)
+
+    def must_not_be_empty(self, file):
+        """Ensures that the specified file exists, and that it is not empty.
+        Exits FAILED if the file doesn't exist or is empty.
+        """
+        if not (os.path.exists(file) or os.path.islink(file)):
+            print("File doesn't exist: `%s'" % file)
+            self.fail_test(file)
+
+        try:
+            fsize = os.path.getsize(file)
+        except OSError:
+            fsize = 0
+            
+        if fsize == 0:
+            print("File is empty: `%s'" % file)
+            self.fail_test(file)
 
     def must_not_be_writable(self, *files):
         """Ensures that the specified file(s) exist and are not writable.
