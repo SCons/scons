@@ -335,9 +335,9 @@ The test harness method ``dir_fixture(srcdir, [dstdir])``
 copies the contents of the specified directory ``srcdir`` from
 the directory of the called test script to the current temporary test
 directory.  The ``srcdir`` name may be a list, in which case the elements
-are concatenated into a path first.  The ``dstdir``
-is assumed to be under the temporary working directory, it gets created
-automatically, if it does not already exist.
+are concatenated into a path first.  The optional ``dstdir`` is
+used as a destination path under the temporary working directory.
+``distdir`` is created automatically, if it does not already exist.
 
 If ``srcdir`` represents an absolute path, it is used as-is.
 Otherwise, if the harness was invoked with the environment variable
@@ -361,14 +361,15 @@ To see a real example for this in action, refer to the test named
 File fixtures
 -------------
 
-Similarly, the method ``file_fixture(srcfile, [dstfile])``
-copies the file ``srcfile`` from the directory of the called script,
-to the temporary test directory.  The ``srcfile`` name may be a list,
-in which case the elements are concatenated into a path first.
-The ``dstfile`` is assumed to be under the temporary working directory,
-unless it is an absolute path name.
-If ``dstfile`` is specified, its target directory gets created
-automatically if it doesn't already exist.
+The method ``file_fixture(srcfile, [dstfile])``
+copies the file ``srcfile`` from the directory of the called script
+to the temporary test directory.
+The optional ``dstfile`` is used as a destination file name
+under the temporary working directory, unless it is an absolute path name.
+If ``dstfile`` includes directory elements, they are
+created automatically if they don't already exist.
+The ``srcfile`` and ``dstfile`` parameters may each be a list,
+which will be concatenated into a path.
 
 If ``srcfile`` represents an absolute path, it is used as-is. Otherwise,
 any passed in fixture directories are used as additional places to
@@ -378,16 +379,16 @@ With the following code::
 
    test = TestSCons.TestSCons()
    test.file_fixture('SConstruct')
-   test.file_fixture(['src','main.cpp'],['src','main.cpp'])
+   test.file_fixture(['src', 'main.cpp'], ['src', 'main.cpp'])
    test.run()
 
 The files ``SConstruct`` and ``src/main.cpp`` are copied to the
-temporary test directory. Notice the second ``file_fixture`` line
+temporary test directory. Notice the second ``file_fixture`` call
 preserves the path of the original, otherwise ``main.cpp``
 would have been placed in the top level of the test directory.
 
 Again, a reference example can be found in the current revision
-of SCons, it is ``test/packaging/sandbox-test/sandbox-test.py``.
+of SCons, see ``test/packaging/sandbox-test/sandbox-test.py``.
 
 For even more examples you should check out
 one of the external Tools, e.g. the *Qt4* Tool at
@@ -401,12 +402,11 @@ How to convert old tests to use fixures
 Tests using the inline ``TestSCons.write()`` method can fairly easily be
 converted to the fixture based approach. For this, we need to get at the
 files as they are written to each temporary test directory,
-which we can do by taking advantage of a debugging aid:
-
-``runtest.py`` checks for the existence of an environment
+which we can do by taking advantage of an existing debugging aid,
+namely that ``runtest.py`` checks for the existence of an environment
 variable named ``PRESERVE``. If it is set to a non-zero value, the testing
 framework preserves the test directory instead of deleting it, and prints
-its name to the screen.
+a message about its name to the screen.
 
 So, you should be able to give the commands::
 
@@ -418,29 +418,27 @@ assuming Linux and a bash-like shell. For a Windows ``cmd`` shell, use
 
 The output will then look something like this::
 
-   1/1 (100.00%) /usr/bin/python -tt test/packaging/sandbox-test.py
-   pASSED
+   1/1 (100.00%) /usr/bin/python test/packaging/sandbox-test.py
+   PASSED
    preserved directory /tmp/testcmd.4060.twlYNI
 
 You can now copy the files from that directory to your new
 *fixture* directory. Then, in the test script you simply remove all the
-tedious ``TestSCons.write()`` statements and replace them by a single
-``TestSCons.dir_fixture()``.
-
-Finally, don't forget to clean up and remove the temporary test
-directory. ``;)``
+tedious ``TestSCons.write()`` statements and replace them with a single
+``TestSCons.dir_fixture()`` call.
 
 For more complex testing scenarios you can use ``file_fixture`` with
-the option to rename (that is, supplying a second argument, which is
-the name to give the fixture file being copied).  For example some test
-files write multiple ``SConstruct`` files across the full run.
-These files can be given different names - perhaps using a sufffix -
-and then sucessively copied to the final name as needed::
+the optional second argument (or the keyword arg ``dstfile``) to assign
+a name to the file being copied.  For example, some tests need to
+write multiple ``SConstruct`` files across the full run.
+These files can be given different names in the source (perhaps using a 
+sufffix to distinguish them), and then be sucessively copied to the
+final name as needed::
 
    test.file_fixture('fixture/SConstruct.part1', 'SConstruct')
    # more setup, then run test
    test.file_fixture('fixture/SConstruct.part2', 'SConstruct')
-   # etc.
+   # run new test
 
 
 When not to use a fixture
@@ -457,11 +455,13 @@ kind of usage that does not lend itself to a fixture::
 
    test.write('SConstruct', """
    cc = Environment().Dictionary('CC')
-   env = Environment(LINK=r'%(_python_)s mylink.py',
-                     LINKFLAGS=[],
-                     CC=r'%(_python_)s mycc.py',
-                     CXX=cc,
-                     CXXFLAGS=[])
+   env = Environment(
+       LINK=r'%(_python_)s mylink.py',
+       LINKFLAGS=[],
+       CC=r'%(_python_)s mycc.py',
+       CXX=cc,
+       CXXFLAGS=[],
+   )
    env.Program(target='test1', source='test1.c')
    """ % locals())
 
@@ -469,7 +469,7 @@ Here the value of ``_python_`` is picked out of the script's
 ``locals`` dictionary - which works because we've set it above -
 and interpolated using a mapping key into the string that will
 be written to ``SConstruct``. A fixture would be hard to use
-here because we don't know the value of `_python_` until runtime.
+here because we don't know the value of ``_python_`` until runtime.
 
 The other files created in this test may still be candidates for
 use as fixture files, however.

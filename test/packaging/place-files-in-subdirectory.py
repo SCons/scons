@@ -29,6 +29,8 @@ Test the requirement to place files in a given subdirectory before archiving.
 """
 
 import os
+import subprocess
+
 import TestSCons
 
 python = TestSCons.python
@@ -44,68 +46,73 @@ if not tar:
 # TEST: subdir creation and file copying
 #
 test.subdir('src')
-
 test.write('src/main.c', '')
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 env = Environment(tools=['packaging', 'filesystem', 'zip'])
-env.Package( NAME        = 'libfoo',
-             PACKAGEROOT = 'libfoo',
-             PACKAGETYPE = 'src_zip',
-             VERSION     = '1.2.3',
-             source      = [ 'src/main.c', 'SConstruct' ] )
+env.Package(
+    NAME='libfoo',
+    PACKAGEROOT='libfoo',
+    PACKAGETYPE='src_zip',
+    VERSION='1.2.3',
+    source=['src/main.c', 'SConstruct'],
+)
 """)
 
-test.run(arguments='libfoo-1.2.3.zip', stderr = None)
+test.run(arguments='libfoo-1.2.3.zip', stderr=None)
 
-test.must_exist( 'libfoo' )
-test.must_exist( 'libfoo/SConstruct' )
-test.must_exist( 'libfoo/src/main.c' )
+test.must_exist('libfoo')
+test.must_exist('libfoo/SConstruct')
+test.must_exist('libfoo/src/main.c')
 
 #
 # TEST: subdir guessing and file copying.
 #
-test.subdir('src')
-
+#test.subdir('src')  # already created above
 test.write('src/main.c', '')
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 env = Environment(tools=['packaging', 'filesystem', 'zip'])
-env.Package( NAME        = 'libfoo',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'src_zip',
-             TARGET      = 'src.zip',
-             source      = [ 'src/main.c', 'SConstruct' ] )
+env.Package(
+    NAME='libfoo',
+    VERSION='1.2.3',
+    PACKAGETYPE='src_zip',
+    TARGET='src.zip',
+    source=['src/main.c', 'SConstruct'],
+)
 """)
 
-test.run(stderr = None)
+test.run(stderr=None)
 
-test.must_exist( 'libfoo-1.2.3' )
-test.must_exist( 'libfoo-1.2.3/SConstruct' )
-test.must_exist( 'libfoo-1.2.3/src/main.c' )
+test.must_exist('libfoo-1.2.3')
+test.must_exist('libfoo-1.2.3/SConstruct')
+test.must_exist('libfoo-1.2.3/src/main.c')
 
 #
 # TEST: unpacking without the buildir.
 #
-test.subdir('src')
+#test.subdir('src')  # already created above
 test.subdir('temp')
-
 test.write('src/main.c', '')
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 env = Environment(tools=['packaging', 'filesystem', 'tar'])
-env.Package( NAME        = 'libfoo',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'src_targz',
-             source      = [ 'src/main.c', 'SConstruct' ] )
+env.Package(
+    NAME='libfoo',
+    VERSION='1.2.3',
+    PACKAGETYPE='src_targz',
+    source=['src/main.c', 'SConstruct'],
+)
 """)
 
-test.run(stderr = None)
+test.run(stderr=None)
 
-with os.popen('%s -tzf %s'%(tar,test.workpath('libfoo-1.2.3.tar.gz'))) as p:
-    str = p.read()
-test.fail_test(str != "libfoo-1.2.3/src/main.c\nlibfoo-1.2.3/SConstruct\n")
-
+cp = subprocess.run(
+    [tar, '-tzf', test.workpath('libfoo-1.2.3.tar.gz')],
+    stdout=subprocess.PIPE,
+    universal_newlines=True,
+)
+test.fail_test(cp.stdout != "libfoo-1.2.3/src/main.c\nlibfoo-1.2.3/SConstruct\n")
 test.pass_test()
 
 # Local Variables:

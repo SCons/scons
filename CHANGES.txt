@@ -185,6 +185,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       different doc format, should that choice be made); significant
       rewordings in manpage.  Manpage Examples moved to an external
       repository / website (scons-cookbook.readthedocs.io).
+    - Clean up test harness and tests' use of subdir, file_fixture and
+      dir_fixture.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000

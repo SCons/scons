@@ -51,15 +51,16 @@ test.write("src/main.c", "")
 test.write("SConstruct", """\
 VariantDir('build', 'src')
 DefaultEnvironment(tools=[])
-env=Environment(tools=['packaging', 'filesystem', 'zip'])
-env.Package( NAME        = 'libfoo',
-             PACKAGEROOT = 'build/libfoo',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'src_zip',
-             target      = 'build/libfoo-1.2.3.zip',
-             source      = [ 'src/main.c', 'SConstruct' ] )
-""",
+env = Environment(tools=['packaging', 'filesystem', 'zip'])
+env.Package(
+    NAME='libfoo',
+    PACKAGEROOT='build/libfoo',
+    VERSION='1.2.3',
+    PACKAGETYPE='src_zip',
+    target='build/libfoo-1.2.3.zip',
+    source=['src/main.c', 'SConstruct'],
 )
+""")
 
 test.run(stderr=None)
 
@@ -68,8 +69,8 @@ test.must_exist("build/libfoo-1.2.3.zip")
 # TEST: builddir not placed in archive
 # XXX: VariantDir should be stripped.
 #
-test.subdir("src")
-test.subdir("build")
+#test.subdir("src")  # already created above
+#test.subdir("build")  # already created above
 test.subdir("temp")
 
 test.write("src/main.c", "")
@@ -77,13 +78,14 @@ test.write("src/main.c", "")
 test.write("SConstruct", """\
 DefaultEnvironment(tools=[])
 VariantDir('build', 'src')
-env=Environment(tools=['packaging', 'filesystem', 'tar'])
-env.Package( NAME        = 'libfoo',
-             VERSION     = '1.2.3',
-             PAKCAGETYPE = 'src_targz',
-             source      = [ 'src/main.c', 'SConstruct' ] )
-""",
+env = Environment(tools=['packaging', 'filesystem', 'tar'])
+env.Package(
+    NAME='libfoo',
+    VERSION='1.2.3',
+    PAKCAGETYPE='src_targz',
+    source=['src/main.c', 'SConstruct'],
 )
+""")
 
 test.run(stderr=None)
 
