@@ -1493,7 +1493,7 @@ class Base(SubstitutionEnvironment):
         copy_function = self._copy2_from_cache
         if function in ('MD5', 'content'):
             function = self._changed_content
-        elif function == ('MD5-timestamp', 'content-timestamp'):
+        elif function in ('MD5-timestamp', 'content-timestamp'):
             function = self._changed_timestamp_then_content
         elif function in ('timestamp-newer', 'make'):
             function = self._changed_timestamp_newer

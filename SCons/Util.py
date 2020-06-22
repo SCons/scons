@@ -1480,10 +1480,8 @@ def set_hash_format(hash_format):
 
     if hash_format:
         hash_format_lower = hash_format.lower()
-        try:
-            _hash_function = getattr(hashlib, hash_format_lower)
-            _hash_function()
-        except Exception:
+        _hash_function = getattr(hashlib, hash_format_lower, None)
+        if _hash_function is None:
             raise Exception(
                 'Hash format "%s" is not available in your Python '
                 'interpreter.' % hash_format_lower)
@@ -1545,7 +1543,7 @@ def hash_signature(s, hash_format=None):
     m = _get_hash_object(hash_format)
     try:
         m.update(to_bytes(s))
-    except TypeError as e:
+    except TypeError:
         m.update(to_bytes(str(s)))
 
     return m.hexdigest()
