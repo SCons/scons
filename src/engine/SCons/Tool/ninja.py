@@ -767,7 +767,7 @@ class NinjaState:
             pool="console",
             implicit=[str(self.ninja_file)],
             variables={
-                "cmd": "{} -f {} -t compdb CC CXX > compile_commands.json".format(self.ninja_bin_path,
+                "cmd": "{} -f {} -t compdb -x CC CXX > compile_commands.json".format(self.ninja_bin_path,
                     str(self.ninja_file)
                 )
             },
