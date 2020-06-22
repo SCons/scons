@@ -28,7 +28,7 @@ See its __doc__ string for a discussion of the format.
 <para>
 Builds a C source file given a lex (<filename>.l</filename>)
 or yacc (<filename>.y</filename>) input file.
-The suffix specified by the &cv-link-CFILESUFFIX; construction variable
+The suffix specified by the &cv-link-CFILESUFFIX; &consvar;
 (<filename>.c</filename> by default)
 is automatically added to the target
 if it is not already present.
@@ -50,7 +50,7 @@ env.CFile(target = 'bar', source = 'bar.y')
 Builds a C++ source file given a lex (<filename>.ll</filename>)
 or yacc (<filename>.yy</filename>)
 input file.
-The suffix specified by the &cv-link-CXXFILESUFFIX; construction variable
+The suffix specified by the &cv-link-CXXFILESUFFIX; &consvar;
 (<filename>.cc</filename> by default)
 is automatically added to the target
 if it is not already present.
@@ -111,18 +111,19 @@ builder method;
 see that builder method's description for
 a list of legal source file suffixes
 and how they are interpreted.
-The target executable file prefix
-(specified by the &cv-link-PROGPREFIX; construction variable; nothing by default)
-and suffix
-(specified by the &cv-link-PROGSUFFIX; construction variable;
-by default, <filename>.exe</filename> on Windows systems,
-nothing on POSIX systems)
+The target executable file prefix,
+specified by the &cv-link-PROGPREFIX; &consvar;
+(nothing by default),
+and suffix,
+specified by the &cv-link-PROGSUFFIX; &consvar;
+(by default, <filename>.exe</filename> on Windows systems,
+nothing on POSIX systems),
 are automatically added to the target if not already present.
 Example:
 </para>
 
 <example_commands>
-env.Program(target = 'foo', source = ['foo.o', 'bar.c', 'baz.f'])
+env.Program(target='foo', source=['foo.o', 'bar.c', 'baz.f'])
 </example_commands>
 </summary>
 </builder>
@@ -138,30 +139,28 @@ or C, C++, D or Fortran source files.
 If any source files are given,
 then they will be automatically
 compiled to object files.
-The static library prefix and suffix (if any)
-are automatically added to the target.
-The target library file prefix
-(specified by the &cv-link-SHLIBPREFIX; construction variable;
-by default, <filename>lib</filename> on POSIX systems,
-nothing on Windows systems)
-and suffix
-(specified by the &cv-link-SHLIBSUFFIX; construction variable;
-by default, <filename>.dll</filename> on Windows systems,
-<filename>.so</filename> on POSIX systems)
+The target library file prefix,
+specified by the &cv-link-SHLIBPREFIX; &consvar;
+(by default, <filename>lib</filename> on POSIX systems,
+nothing on Windows systems),
+and suffix,
+specified by the &cv-link-SHLIBSUFFIX; &consvar;
+(by default, <filename>.dll</filename> on Windows systems,
+<filename>.so</filename> on POSIX systems),
 are automatically added to the target if not already present.
 Example:
 </para>
 
 <example_commands>
-env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
+env.SharedLibrary(target='bar', source=['bar.c', 'foo.o'])
 </example_commands>
 
 <para>
 On Windows systems, the
 &b-SharedLibrary;
-builder method will always build an import
-(<filename>.lib</filename>) library
-in addition to the shared (<filename>.dll</filename>) library,
+builder method will always build an import library
+(<filename>.lib</filename>)
+in addition to the shared library (<filename>.dll</filename>),
 adding a <filename>.lib</filename> library with the same basename
 if there is not already a <filename>.lib</filename> file explicitly
 listed in the targets.
@@ -170,9 +169,9 @@ listed in the targets.
 <para>
 On Cygwin systems, the
 &b-SharedLibrary;
-builder method will always build an import
-(<filename>.dll.a</filename>) library
-in addition to the shared (<filename>.dll</filename>) library,
+builder method will always build an import library
+(<filename>.dll.a</filename>)
+in addition to the shared library (<filename>.dll</filename>),
 adding a <filename>.dll.a</filename> library with the same basename
 if there is not already a <filename>.dll.a</filename> file explicitly
 listed in the targets.
@@ -180,7 +179,7 @@ listed in the targets.
 
 <para>
 Any object files listed in the
-<literal>source</literal>
+<parameter>source</parameter>
 must have been built for a shared library
 (that is, using the
 &b-SharedObject;
@@ -193,37 +192,37 @@ will raise an error if there is any mismatch.
 On some platforms, there is a distinction between a shared library
 (loaded automatically by the system to resolve external references)
 and a loadable module (explicitly loaded by user action).
-For maximum portability, use the &b-LoadableModule; builder for the latter.
+For maximum portability, use the &b-link-LoadableModule; builder for the latter.
 </para>
 
 <para>
-When the &cv-link-SHLIBVERSION; construction variable is defined a versioned
-shared library is created. This modifies the &cv-link-SHLINKFLAGS; as required,
-adds the version number to the library name, and creates the symlinks that
-are needed.
+When the &cv-link-SHLIBVERSION; &consvar; is defined, a versioned
+shared library is created. This modifies &cv-link-SHLINKFLAGS; as required,
+adds the version number to the library name, and creates any
+symbolic links that are needed.
 </para>
 
 <example_commands>
-env.SharedLibrary(target = 'bar', source = ['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
+env.SharedLibrary(target='bar', source=['bar.c', 'foo.o'], SHLIBVERSION='1.5.2')
 </example_commands>
 
 <para>
 On a POSIX system, versions with a single token create exactly one symlink:
-libbar.so.6 would have symlinks libbar.so only.
+<filename>libbar.so.6</filename> would have symlink <filename>libbar.so</filename> only.
 On a POSIX system, versions with two or more
-tokens create exactly two symlinks: libbar.so.2.3.1 would have symlinks
-libbar.so and libbar.so.2; on a Darwin (OSX) system the library would be
-libbar.2.3.1.dylib and the link would be libbar.dylib.
+tokens create exactly two symlinks: <filename>libbar.so.2.3.1</filename> would have symlinks
+<filename>libbar.so</filename> and <filename>libbar.so.2</filename>; on a Darwin (OSX) system the library would be
+<filename>libbar.2.3.1.dylib</filename> and the link would be <filename>libbar.dylib</filename>.
 </para>
 
 <para>
 On Windows systems, specifying
-<literal>register=1</literal>
+<parameter>register=1</parameter>
 will cause the <filename>.dll</filename> to be
-registered after it is built using REGSVR32.
-The command that is run
-("regsvr32" by default) is determined by &cv-link-REGSVR; construction
-variable, and the flags passed are determined by &cv-link-REGSVRFLAGS;.  By
+registered after it is built.
+The command that is run is determined by the &cv-link-REGSVR; &consvar;
+(<command>regsvr32</command> by default),
+and the flags passed are determined by &cv-link-REGSVRFLAGS;.  By
 default, &cv-link-REGSVRFLAGS; includes the <option>/s</option> option,
 to prevent dialogs from popping
 up and requiring user attention when it is run.  If you change
@@ -232,9 +231,7 @@ For example,
 </para>
 
 <example_commands>
-env.SharedLibrary(target = 'bar',
-                  source = ['bar.cxx', 'foo.obj'],
-                  register=1)
+env.SharedLibrary(target='bar', source=['bar.cxx', 'foo.obj'], register=1)
 </example_commands>
 
 <para>
@@ -247,7 +244,7 @@ when it is done linking it.
 <builder name="SharedObject">
 <summary>
 <para>
-Builds an object file for
+Builds an object file intended for
 inclusion in a shared library.
 Source files must have one of the same set of extensions
 specified above for the
@@ -255,7 +252,7 @@ specified above for the
 builder method.
 On some platforms building a shared object requires additional
 compiler option
-(e.g. <option>-fPIC</option> for gcc)
+(e.g. <option>-fPIC</option> for <command>gcc</command>)
 in addition to those needed to build a
 normal (static) object, but on some platforms there is no difference between a
 shared object and a normal (static) one. When there is a difference, SCons
@@ -265,25 +262,25 @@ difference, SCons will allow both normal (static)
 and shared objects to be linked into a
 shared library, and will use the same suffix for shared and normal
 (static) objects.
-The target object file prefix
-(specified by the &cv-link-SHOBJPREFIX; construction variable;
-by default, the same as &cv-link-OBJPREFIX;)
-and suffix
-(specified by the &cv-link-SHOBJSUFFIX; construction variable)
+The target object file prefix,
+specified by the &cv-link-SHOBJPREFIX; &consvar;
+(by default, the same as &cv-link-OBJPREFIX;),
+and suffix,
+specified by the &cv-link-SHOBJSUFFIX; &consvar;,
 are automatically added to the target if not already present.
 Examples:
 </para>
 
 <example_commands>
-env.SharedObject(target = 'ddd', source = 'ddd.c')
-env.SharedObject(target = 'eee.o', source = 'eee.cpp')
-env.SharedObject(target = 'fff.obj', source = 'fff.for')
+env.SharedObject(target='ddd', source='ddd.c')
+env.SharedObject(target='eee.o', source='eee.cpp')
+env.SharedObject(target='fff.obj', source='fff.for')
 </example_commands>
 
 <para>
 Note that the source files will be scanned
 according to the suffix mappings in the
-<literal>SourceFileScanner</literal>
+<classname>SourceFileScanner</classname>
 object.
 See the section "Scanner Objects,"
 below, for more information.
@@ -299,27 +296,25 @@ or C, C++, D or Fortran source files.
 If any source files are given,
 then they will be automatically
 compiled to object files.
-The static library prefix and suffix (if any)
-are automatically added to the target.
-The target library file prefix
-(specified by the &cv-link-LIBPREFIX; construction variable;
-by default, <filename>lib</filename> on POSIX systems,
-nothing on Windows systems)
-and suffix
-(specified by the &cv-link-LIBSUFFIX; construction variable;
-by default, <filename>.lib</filename> on Windows systems,
-<filename>.a</filename> on POSIX systems)
+The static library file prefix,
+specified by the &cv-link-LIBPREFIX; &consvar;
+(by default, <filename>lib</filename> on POSIX systems,
+nothing on Windows systems),
+and suffix,
+specified by the &cv-link-LIBSUFFIX; &consvar;
+(by default, <filename>.lib</filename> on Windows systems,
+<filename>.a</filename> on POSIX systems),
 are automatically added to the target if not already present.
 Example:
 </para>
 
 <example_commands>
-env.StaticLibrary(target = 'bar', source = ['bar.c', 'foo.o'])
+env.StaticLibrary(target='bar', source=['bar.c', 'foo.o'])
 </example_commands>
 
 <para>
 Any object files listed in the
-<literal>source</literal>
+<parameter>source</parameter>
 must have been built for a static library
 (that is, using the
 &b-StaticObject;
@@ -370,26 +365,27 @@ Source files must have one of the following extensions:
 </example_commands>
 
 <para>
-The target object file prefix
-(specified by the &cv-link-OBJPREFIX; construction variable; nothing by default)
-and suffix
-(specified by the &cv-link-OBJSUFFIX; construction variable;
-<filename>.obj</filename> on Windows systems,
-<filename>.o</filename> on POSIX systems)
+The target object file prefix,
+specified by the &cv-link-OBJPREFIX; &consvar;
+(nothing by default),
+and suffix,
+specified by the &cv-link-OBJSUFFIX; &consvar;
+(<filename>.obj</filename> on Windows systems,
+<filename>.o</filename> on POSIX systems),
 are automatically added to the target if not already present.
 Examples:
 </para>
 
 <example_commands>
-env.StaticObject(target = 'aaa', source = 'aaa.c')
-env.StaticObject(target = 'bbb.o', source = 'bbb.c++')
-env.StaticObject(target = 'ccc.obj', source = 'ccc.f')
+env.StaticObject(target='aaa', source='aaa.c')
+env.StaticObject(target='bbb.o', source='bbb.c++')
+env.StaticObject(target='ccc.obj', source='ccc.f')
 </example_commands>
 
 <para>
 Note that the source files will be scanned
-according to the suffix mappings in
-<literal>SourceFileScanner</literal>
+according to the suffix mappings in the
+<classname>SourceFileScanner</classname>
 object.
 See the section "Scanner Objects,"
 below, for more information.
@@ -487,7 +483,7 @@ general information on specifying emitters.
 <cvar name="LDMODULEVERSION">
 <summary>
 <para>
-When this construction variable is defined, a versioned loadable module
+When this &consvar; is defined, a versioned loadable module
 is created by &b-link-LoadableModule; builder. This activates the
 &cv-link-_LDMODULEVERSIONFLAGS; and thus modifies the &cv-link-LDMODULECOM; as
 required, adds the version number to the library name, and creates the symlinks
@@ -533,7 +529,7 @@ general information on specifying emitters.
 <cvar name="SHLIBVERSION">
 <summary>
 <para>
-When this construction variable is defined, a versioned shared library
+When this &consvar; is defined, a versioned shared library
 is created by the &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
