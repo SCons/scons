@@ -1069,6 +1069,21 @@ the help message not to be displayed.
   </varlistentry>
 
   <varlistentry>
+  <term><option>--hash-format=<replaceable>ALGORITHM</replaceable></option></term>
+  <listitem>
+<para>Set the hashing algorithm used by SCons to
+<replaceable>ALGORITHM</replaceable>.
+This value determines the hashing algorithm used in generating content signatures
+or &f-link-CacheDir; keys.</para>
+
+<para>The supported values for this parameter depend on your Python interpreter.
+Specifically, you can also use any algorithm that is offered by your Python
+interpreter's hashlib package. Commonly-supported algorithms include md5, sha1,
+and sha256.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term>
     <option>-H</option>,
     <option>--help-options</option>

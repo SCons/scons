@@ -1117,6 +1117,9 @@ that runs a build,
 updates a file,
 and runs the build again,
 all within a single second.
+<literal>content-timestamp</literal>
+can be used as a synonym for
+<literal>MD5-timestamp</literal>.
 </para>
 </listitem>
 </varlistentry>
@@ -1131,7 +1134,7 @@ Examples:
 # Use exact timestamp matches by default.
 Decider('timestamp-match')
 
-# Use MD5 content signatures for any targets built
+# Use hash content signatures for any targets built
 # with the attached construction environment.
 env.Decider('content')
 </example_commands>

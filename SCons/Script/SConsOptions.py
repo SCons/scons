@@ -131,6 +131,7 @@ class SConsValues(optparse.Values):
         'clean',
         'diskcheck',
         'duplicate',
+        'hash_format',
         'help',
         'implicit_cache',
         'max_drift',
@@ -711,6 +712,11 @@ def Parser(version):
                   action="help",
                   help="Print this message and exit.")
 
+    op.add_option('--hash-format',
+                  dest='hash_format',
+                  action='store',
+                  help='Hash format (e.g. md5, sha1, or sha256).')
+
     op.add_option('-i', '--ignore-errors',
                   dest='ignore_errors', default=False,
                   action="store_true",
@@ -773,7 +779,7 @@ def Parser(version):
 
     op.add_option('--md5-chunksize',
                   nargs=1, type="int",
-                  dest='md5_chunksize', default=SCons.Node.FS.File.md5_chunksize,
+                  dest='md5_chunksize', default=SCons.Node.FS.File.hash_chunksize,
                   action="store",
                   help="Set chunk-size for MD5 signature computation to N kilobytes.",
                   metavar="N")

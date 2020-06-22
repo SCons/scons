@@ -25,6 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
+import functools
 import io
 import os
 import sys
@@ -766,24 +767,44 @@ bling
         assert id(s1) == id(s4)
 
 
-class MD5TestCase(unittest.TestCase):
+class HashTestCase(unittest.TestCase):
 
     def test_collect(self):
         """Test collecting a list of signatures into a new signature value
         """
-        s = list(map(MD5signature, ('111', '222', '333')))
+        for algorithm, expected in {
+            'md5': ('698d51a19d8a121ce581499d7b701668',
+                    '8980c988edc2c78cc43ccb718c06efd5',
+                    '53fd88c84ff8a285eb6e0a687e55b8c7'),
+            'sha1': ('6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2',
+                     '42eda1b5dcb3586bccfb1c69f22f923145271d97',
+                     '2eb2f7be4e883ebe52034281d818c91e1cf16256'),
+            'sha256': ('f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae',
+                       '25235f0fcab8767b7b5ac6568786fbc4f7d5d83468f0626bf07c3dbeed391a7a',
+                       'f8d3d0729bf2427e2e81007588356332e7e8c4133fae4bceb173b93f33411d17'),
+        }.items():
+            hs = functools.partial(hash_signature, hash_format=algorithm)
+            s = list(map(hs, ('111', '222', '333')))
 
-        assert '698d51a19d8a121ce581499d7b701668' == MD5collect(s[0:1])
-        assert '8980c988edc2c78cc43ccb718c06efd5' == MD5collect(s[0:2])
-        assert '53fd88c84ff8a285eb6e0a687e55b8c7' == MD5collect(s)
+            assert expected[0] == hash_collect(s[0:1], hash_format=algorithm)
+            assert expected[1] == hash_collect(s[0:2], hash_format=algorithm)
+            assert expected[2] == hash_collect(s, hash_format=algorithm)
 
     def test_MD5signature(self):
         """Test generating a signature"""
-        s = MD5signature('111')
-        assert '698d51a19d8a121ce581499d7b701668' == s, s
+        for algorithm, expected in {
+            'md5': ('698d51a19d8a121ce581499d7b701668',
+                    'bcbe3365e6ac95ea2c0343a2395834dd'),
+            'sha1': ('6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2',
+                     '1c6637a8f2e1f75e06ff9984894d6bd16a3a36a9'),
+            'sha256': ('f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae',
+                       '9b871512327c09ce91dd649b3f96a63b7408ef267c8cc5710114e629730cb61f'),
+        }.items():
+            s = hash_signature('111', hash_format=algorithm)
+            assert expected[0] == s, s
 
-        s = MD5signature('222')
-        assert 'bcbe3365e6ac95ea2c0343a2395834dd' == s, s
+            s = hash_signature('222', hash_format=algorithm)
+            assert expected[1] == s, s
 
 
 class NodeListTestCase(unittest.TestCase):

@@ -84,10 +84,7 @@ def DefaultEnvironment(*args, **kw):
     if not _default_env:
         import SCons.Util
         _default_env = SCons.Environment.Environment(*args, **kw)
-        if SCons.Util.md5:
-            _default_env.Decider('MD5')
-        else:
-            _default_env.Decider('timestamp-match')
+        _default_env.Decider('content')
         global DefaultEnvironment
         DefaultEnvironment = _fetch_DefaultEnvironment
         _default_env._CacheDir_path = None

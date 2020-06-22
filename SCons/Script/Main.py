@@ -1111,8 +1111,11 @@ def _main(parser):
 
     SCons.Job.explicit_stack_size = options.stack_size
 
+    # Hash format and chunksize are set late to support SetOption being called
+    # in a SConscript or SConstruct file.
+    SCons.Util.set_hash_format(options.hash_format)
     if options.md5_chunksize:
-        SCons.Node.FS.File.md5_chunksize = options.md5_chunksize * 1024
+        SCons.Node.FS.File.hash_chunksize = options.md5_chunksize * 1024
 
     platform = SCons.Platform.platform_module()
 

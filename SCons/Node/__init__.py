@@ -58,7 +58,7 @@ from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
 import SCons.Util
-from SCons.Util import MD5signature
+from SCons.Util import hash_signature
 
 from SCons.Debug import Trace
 
@@ -1181,7 +1181,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         if self.has_builder():
             binfo.bact = str(executor)
-            binfo.bactsig = MD5signature(executor.get_contents())
+            binfo.bactsig = hash_signature(executor.get_contents())
 
         if self._specific_sources:
             sources = [s for s in self.sources if s not in ignore_set]
@@ -1219,7 +1219,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             return self.ninfo.csig
         except AttributeError:
             ninfo = self.get_ninfo()
-            ninfo.csig = MD5signature(self.get_contents())
+            ninfo.csig = hash_signature(self.get_contents())
             return self.ninfo.csig
 
     def get_cachedir_csig(self):
@@ -1510,7 +1510,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         if self.has_builder():
             contents = self.get_executor().get_contents()
-            newsig = MD5signature(contents)
+            newsig = hash_signature(contents)
             if bi.bactsig != newsig:
                 if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
                 result = True

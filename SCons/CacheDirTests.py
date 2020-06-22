@@ -98,10 +98,10 @@ class CacheDirTestCase(BaseTestCase):
 
         # Verify how the cachepath() method determines the name
         # of the file in cache.
-        def my_collect(list):
+        def my_collect(list, hash_format=None):
             return list[0]
-        save_collect = SCons.Util.MD5collect
-        SCons.Util.MD5collect = my_collect
+        save_collect = SCons.Util.hash_collect
+        SCons.Util.hash_collect = my_collect
 
         try:
             name = 'a_fake_bsig'
@@ -112,7 +112,7 @@ class CacheDirTestCase(BaseTestCase):
             filename = os.path.join(dirname, name)
             assert result == (dirname, filename), result
         finally:
-            SCons.Util.MD5collect = save_collect
+            SCons.Util.hash_collect = save_collect
 
 class ExceptionTestCase(unittest.TestCase):
     """Test that the correct exceptions are thrown by CacheDir."""

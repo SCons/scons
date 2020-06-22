@@ -31,7 +31,7 @@ other modules:
 
     get_contents()
         Fetches the "contents" of an Action for signature calculation
-        plus the varlist.  This is what gets MD5 checksummed to decide
+        plus the varlist.  This is what gets checksummed to decide
         if a target needs to be rebuilt because its action changed.
 
     genstring()
