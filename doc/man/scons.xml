@@ -5335,9 +5335,10 @@ env = Environment(BUILDERS={'MyBuild' : b})
 env.MyBuild('sub/dir/foo.out', 'sub/dir/foo.in')
 </programlisting>
 
-<para><emphasis role="bold">WARNING:</emphasis>
+<warning>
+<para>
 Python only keeps one current directory
-location for all of the threads.
+location even if there are multiple threads.
 This means that use of the
 <parameter>chdir</parameter>
 argument
@@ -5349,6 +5350,7 @@ option,
 because individual worker threads spawned
 by SCons interfere with each other
 when they start changing directory.</para>
+</warning>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -5387,9 +5389,9 @@ function will turn its
 keyword argument into an appropriate
 internal Action object.
 You can also explicitly create Action objects
-using the &f-link-Action; global function,
-which can then be passed to the
-&f-Builder; function.
+for passing to &f-Builder;, or other functions
+that take actions as arguments,
+by calling the &f-link-Action; factory function.
 This can be used to configure
 an Action object more flexibly,
 or it may simply be more efficient
@@ -5399,31 +5401,26 @@ when multiple
 Builder objects need to do the same thing.</para>
 
 <para>The
-&f-link-Action;
-global function
+&Action; factory function
 returns an appropriate object for the action
-represented by the type of the first argument:</para>
+represented by the type of the action argument
+(the first positional parmeter):</para>
 
-<variablelist>
-  <varlistentry>
-  <term>action</term>
+<itemizedlist>
   <listitem>
-<para>If the first argument is already an Action object,
+<para>If the action argument is already an Action object,
 the object is simply returned.</para>
   </listitem>
-  </varlistentry>
 
-  <varlistentry>
-  <term>string</term>
   <listitem>
-<para>If the first argument is a string,
+<para>If the action argument is a string,
 a command-line Action is returned.
 If such a string begins with
 <emphasis role="bold">@</emphasis>,
 it indicates printing of the command line is to be suppressed.
 If the string begins with
 <emphasis role="bold">-</emphasis> (hyphen),
-it indicated the exit status from the specified command
+it indicates the exit status from the specified command
 is to be ignored, allowing execution to continue
 even if the command reports failure:</para>
 
@@ -5436,46 +5433,30 @@ Action('@build $TARGET $SOURCES')
 # Ignores return value
 Action('-build $TARGET $SOURCES')
 </programlisting>
-
-<!--  XXX From Gary Ruben, 23 April 2002: -->
-<!--  What would be useful is a discussion of how you execute command -->
-<!--  shell commands ie. what is the process used to spawn the shell, pass -->
-<!--  environment variables to it etc., whether there is one shell per -->
-<!--  environment or one per command etc.  It might help to look at the Gnu -->
-<!--  make documentation to see what they think is important to discuss about -->
-<!--  a build system. I'm sure you can do a better job of organising the -->
-<!--  documentation than they have :\-) -->
   </listitem>
-  </varlistentry>
 
-  <varlistentry>
-  <term>list</term>
   <listitem>
-<para>If the first argument is a list,
+<para>If the action argument is a list,
 then a list of Action objects is returned.
 An Action object is created as necessary
 for each element in the list.
 If an element
 <emphasis>within</emphasis>
 the list is itself a list,
-the internal list is the
+the internal list taken as the
 command and arguments to be executed via
 the command line.
 This allows white space to be enclosed
-in an argument by defining
+in an argument rather than taken as a separator by defining
 a command in a list within a list:</para>
 
 <programlisting language="python">
 Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
 </programlisting>
-
   </listitem>
-  </varlistentry>
 
-  <varlistentry>
-  <term>function</term>
   <listitem>
-<para>If the first argument is a Python function,
+<para>If the action argument is a Python function,
 a function Action is returned.
 The Python function must accept three keyword arguments:</para>
 
@@ -5520,13 +5501,21 @@ def build_it(target=None, source=None, env=None):
 
 a = Action(build_it)
 </programlisting>
-
   </listitem>
-  </varlistentry>
-</variablelist>
 
-<para>If the action argument is not one of the above,
+  <listitem>
+<para>If the action argument is not one of the above types,
 <constant>None</constant> is returned.</para>
+  </listitem>
+</itemizedlist>
+
+<para>As usual the environment method form &f-link-env-Action;
+will expand &consvars; in any argument strings, 
+including the action argument, at the time it is called,
+using the construction variables in the &consenv; through which
+it was called. The global function form &f-link-Action;
+delays variable expansion until the Action object is actually used.
+</para>
 
 <para>The second argument to &f-Action;
 is optional and is used to define the output
@@ -5535,17 +5524,17 @@ In the absence of this parameter,
 or if it's an empty string,
 a default output depending on the type of the action is used.
 For example, a command-line action will print the executed command.
-The argument must be either a Python function or a string.</para>
+The argument must be either a Python function or a string:</para>
 
-<para>In the first case,
-it's a function that returns a string to be printed
-to describe the action being executed.
-The function may also be specified by the
+<itemizedlist>
+  <listitem>
+<para>If the output argument is a function,
+it must return a string
+describing the action being executed.
+A function may also be specified using the
 <parameter>strfunction</parameter>
-keyword argument.
-Like a function to build a file,
-the <parameter>strfunction</parameter> function
-must accept three keyword arguments:</para>
+keyword argument. The function
+must accept these three keyword arguments:</para>
 
   <simplelist type="vert">
   <member><parameter>source</parameter> -
@@ -5561,9 +5550,12 @@ and
 <parameter>source</parameter>
 arguments may be lists of Node objects if there is
 more than one target file or source file.</para>
+  </listitem>
 
-<para>In the second case, you provide the string itself.
-This string may also be specified using the
+  <listitem>
+<para>If the output argument is a string,
+substitution is performed on it before it is printed.
+The output string may also be specified using the
 <parameter>cmdstr</parameter>
 keyword argument.
 The string typically contains variables, notably
@@ -5571,6 +5563,8 @@ The string typically contains variables, notably
 or consists of just a single
 variable, which is optionally defined somewhere else.
 SCons itself heavily uses the latter variant.</para>
+  </listitem>
+</itemizedlist>
 
 <para>Examples:</para>
 
@@ -5594,14 +5588,14 @@ s = Action(build_it, cmdstr="building '$TARGET' from '$SOURCE'")
 l = Action(build_it, '$STRINGIT')
 </programlisting>
 
-<para>The third and succeeding arguments, if present,
-may either be a &consvar; or a list of &consvars;
+<para>Any additional positional arguments, if present,
+may either be &consvars; or lists of &consvars;
 whose values will be included in the signature of the Action
 when deciding whether a target should be rebuilt because the action changed.
-The variables may also be specified using the
+Such variables may also be specified using the
 <parameter>varlist</parameter>
 keyword parameter;
-if both are present, they are combined.
+both positional and keyword forms may be present, and will be combined.
 This is necessary whenever you want a target to be rebuilt
 when a specific &consvar; changes.
 This is not often needed for a string action,
@@ -5625,7 +5619,7 @@ a = Action(build_it, varlist=['XXX'])
 
 <para>The
 &Action;
-global function
+factory function
 can be passed the following
 optional keyword arguments
 to modify the Action object's behavior:</para>
@@ -5821,14 +5815,10 @@ although the implementation is slightly different.
 These functions do not actually
 perform the specified action
 at the time the function is called,
-but instead return an Action object
+but rather are factory functions which
+return an Action object
 that can be executed at the
-appropriate time.
-(In Object-Oriented terminology,
-these are actually
-Action
-<firstterm>Factory functions</firstterm>
-that return Action objects.)</para>
+appropriate time.</para>
 
 <para>In practice,
 there are two natural ways
@@ -5918,8 +5908,7 @@ Examples:</para>
 <programlisting language="python">
 Execute(Copy('foo.output', 'foo.input'))
 
-env.Command('bar.out', 'bar.in',
-            Copy('$TARGET', '$SOURCE'))
+env.Command('bar.out', 'bar.in', Copy('$TARGET', '$SOURCE'))
 </programlisting>
 
   </listitem>
@@ -5937,10 +5926,10 @@ the entire directory tree
 will be removed.
 If the
 <parameter>must_exist</parameter>
-flag is set to a True value,
-then a Python error will be thrown
+flag is set to a true value,
+then a Python error will be raised
 if the specified entry does not exist;
-the default is False,
+the default is false,
 that is, the Action will silently do nothing
 if the entry does not exist.
 Examples:</para>
@@ -5948,9 +5937,7 @@ Examples:</para>
 <programlisting language="python">
 Execute(Delete('/tmp/buildroot'))
 
-env.Command('foo.out', 'foo.in',
-            [Delete('${TARGET.dir}'),
-             MyBuildAction])
+env.Command('foo.out', 'foo.in', [Delete('${TARGET.dir}'), MyBuildAction])
 
 Execute(Delete('file_that_must_exist', must_exist=1))
 </programlisting>
@@ -5970,11 +5957,16 @@ Examples:</para>
 <programlisting language="python">
 Execute(Mkdir('/tmp/outputdir'))
 
-env.Command('foo.out', 'foo.in',
-            [Mkdir('/tmp/builddir'),
-             Copy('/tmp/builddir/foo.in', '$SOURCE'),
-             "cd /tmp/builddir &amp;&amp; make",
-             Copy('$TARGET', '/tmp/builddir/foo.out')])
+env.Command(
+    'foo.out',
+    'foo.in',
+    action=[
+        Mkdir('/tmp/builddir'),
+        Copy('/tmp/builddir/foo.in', '$SOURCE'),
+        "cd /tmp/builddir &amp;&amp; make",
+        Copy('$TARGET', '/tmp/builddir/foo.out'),
+    ],
+)
 </programlisting>
 
   </listitem>
@@ -5995,9 +5987,11 @@ Examples:</para>
 <programlisting language="python">
 Execute(Move('file.destination', 'file.source'))
 
-env.Command('output_file', 'input_file',
-            [MyBuildAction,
-             Move('$TARGET', 'file_created_by_MyBuildAction')])
+env.Command(
+    'output_file',
+    'input_file',
+    action=[MyBuildAction, Move('$TARGET', 'file_created_by_MyBuildAction')],
+)
 </programlisting>
 
   </listitem>
@@ -6015,8 +6009,7 @@ Examples:</para>
 <programlisting language="python">
 Execute(Touch('file_to_be_touched'))
 
-env.Command('marker', 'input_file',
-            action=[MyBuildAction, Touch('$TARGET')])
+env.Command('marker', 'input_file', action=[MyBuildAction, Touch('$TARGET')])
 </programlisting>
 
   </listitem>
