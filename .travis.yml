@@ -79,10 +79,13 @@ jobs:
         - codecov -X gcov --file coverage_xml.xml
 
     - &scons_build_job
-      script: python bin/docs-update-generated.py
-      script: python bin/docs-validate.py
-      script: python bin/docs-create-example-outputs.py
-      script: python script/scons.py
-      script: python setup.py bdist_wheel
-      script: python setup.py sdist --formats=gztar,zip
-      script: ls -l build/dist
+        name: SCons Build
+        python: 3.7
+        script:
+          python bin/docs-update-generated.py
+          python bin/docs-validate.py
+          python bin/docs-create-example-outputs.py
+          python script/scons.py
+          python setup.py bdist_wheel
+          python setup.py sdist --formats=gztar,zip
+          ls -l build/dist
