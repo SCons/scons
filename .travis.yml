@@ -82,10 +82,10 @@ jobs:
         name: SCons Build
         python: 3.7
         script:
-          python bin/docs-update-generated.py
-          python bin/docs-validate.py
-          python bin/docs-create-example-outputs.py
-          python script/scons.py
-          python setup.py bdist_wheel
-          python setup.py sdist --formats=gztar,zip
-          ls -l build/dist
+          - python bin/docs-update-generated.py
+          - python bin/docs-validate.py
+          - python bin/docs-create-example-outputs.py
+          - python script/scons.py
+          - python setup.py bdist_wheel
+          - python setup.py sdist --formats=gztar,zip
+          - ls -l build/dist
