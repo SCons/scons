@@ -191,3 +191,11 @@ installed_local_files = create_local_packages(env)
 Export('command_line', 'env', 'whereis', 'revaction')
 
 SConscript('doc/SConscript')
+
+
+# TODO Need to build packages
+# python setup.py bdist_wheel
+# python setup.py sdist --formats=gztar,zip
+
+# TODO add auto copyright date to README.rst, LICENSE
+# TODO build API DOCS
