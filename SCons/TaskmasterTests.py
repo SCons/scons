@@ -61,6 +61,7 @@ class Node:
         self.waiting_parents = set()
         self.waiting_s_e = set()
         self.side_effect = 0
+        self.side_effect_temporary = 0
         self.side_effects = []
         self.alttargets = []
         self.postprocessed = None
