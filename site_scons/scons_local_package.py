@@ -22,6 +22,7 @@
 from glob import glob
 import os.path
 from zip_utils import zipit
+from Utilities import is_windows
 
 def get_local_package_file_list():
     """
@@ -73,18 +74,23 @@ def create_local_packages(env):
     [env.Tool(x) for x in ['packaging', 'filesystem', 'zip']]
     installed_files = install_local_package_files(env)
 
+    build_local_dir = 'build/scons-local'
     package = env.Command('#build/dist/scons-local-${VERSION}.zip',
                           installed_files,
                           zipit,
-                          CD='build/scons-local',
+                          CD=build_local_dir,
                           PSV='.',
                           )
-    # package = env.Package(PACKAGETYPE='zip',
-    #                       NAME='scons-local',
-    #                       VERSION='$VERSION',
-    #             target='#build/dist/scons-local-${VERSION}.zip',
-    #             # PACKAGEROOT='#build/scons-local',
-    #             source=installed_files)
+
+    if is_windows():
+        # avoid problem with tar interpreting c:/ as a remote machine
+        tar_cargs = '-cz --force-local -f'
+    else:
+        tar_cargs = '-czf'
+
+    env.Command('#build/dist/scons-local-${VERSION}.tar.gz',
+                installed_files,
+                "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_local_dir, tar_cargs))
 
     print("Package:%s"%package)
 
