@@ -15,7 +15,7 @@ os:
 
 install:
   # needed for Docbook tests, must be in virtualenv context
-  - pip install lxml==4.5.0
+  - pip install -r requirements.txt
   # do the rest of the image setup
   - ./.travis/install.sh
 
@@ -77,3 +77,12 @@ jobs:
         - coverage report
         - coverage xml -i -o coverage_xml.xml
         - codecov -X gcov --file coverage_xml.xml
+
+    - &scons_build_job
+      script: python bin/docs-update-generated.py
+      script: python bin/docs-validate.py
+      script: python bin/docs-create-example-outputs.py
+      script: python script/scons.py
+      script: python setup.py bdist_wheel
+      script: python setup.py sdist --formats=gztar,zip
+      script: ls -l build/dist
