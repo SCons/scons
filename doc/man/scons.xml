@@ -7447,22 +7447,22 @@ and will silently revert to non-cached behavior in such cases.</para>
   <simplelist type="vert">
   <member>
     The SCons User Guide at
-    <link xlink:href="https://scons.org/doc/production/HTML/scons-user.html"/>
+    <ulink url="https://scons.org/doc/production/HTML/scons-user.html"/>
  </member>
   <member>The SCons Design Document (old)</member>
   <member>
     The SCons Cookbook at
-    <link xlink:href="https://scons-cookbook.readthedocs.io"/>
+    <ulink url="https://scons-cookbook.readthedocs.io"/>
     for examples of how to solve various problems with &SCons;.
   </member>
   <member>
     SCons source code
-    <link xlink:href="https://github.com/SCons/scons">
+    <ulink url="https://github.com/SCons/scons">
     on GitHub</ulink>
   </member>
   <member>
     The SCons API Reference
-    <link xlink:href="https://scons.org/doc/production/HTML/scons-api/index.html"/>
+    <ulink url="https://scons.org/doc/production/HTML/scons-api/index.html"/>
     (for internal details)
    </member>
   </simplelist>
