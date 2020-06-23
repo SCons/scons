@@ -229,10 +229,19 @@ def get_host_target(env):
 # MSVC_VERSION documentation in Tool/msvc.xml.
 _VCVER = ["14.2", "14.1", "14.1Exp", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
 
-# if using vswhere, a further mapping is needed
+# if using vswhere, configure command line arguments to probe for installed VC editions
 _VCVER_TO_VSWHERE_VER = {
-    '14.2': '[16.0, 17.0)',
-    '14.1': '[15.0, 16.0)',
+    '14.2': [
+        ["-version", "[16.0, 17.0)", ], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ],
+    '14.1':    [
+        ["-version", "[15.0, 16.0)", ], # default: Enterprise, Professional, Community (order unpredictable?)
+        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ],
+    '14.1Exp': [
+        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.WDExpress"], # Express
+        ],
 }
 
 _VCVER_TO_PRODUCT_DIR = {
@@ -376,29 +385,28 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
         return None
 
     debug('VSWHERE: %s' % vswhere_path)
-    vswhere_cmd = [
-        vswhere_path,
-        "-products", "*",
-        "-version", vswhere_version,
-        "-property", "installationPath",
-    ]
+    for vswhere_version_args in vswhere_version:
 
-    debug("running: %s" % vswhere_cmd)
+        vswhere_cmd = [vswhere_path] + vswhere_version_args + ["-property", "installationPath"]
 
-    #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
-    cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
+        debug("running: %s" % vswhere_cmd)
 
-    if cp.stdout:
-        # vswhere could return multiple lines, e.g. if Build Tools
-        # and {Community,Professional,Enterprise} are both installed.
-        # We could define a way to pick the one we prefer, but since
-        # this data is currently only used to make a check for existence,
-        # returning the first hit should be good enough.
-        lines = cp.stdout.decode("mbcs").splitlines()
-        return os.path.join(lines[0], 'VC')
-    else:
-        # We found vswhere, but no install info available for this version
-        return None
+        #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
+        cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
+
+        if cp.stdout:
+            # vswhere could return multiple lines, e.g. if Build Tools
+            # and {Community,Professional,Enterprise} are both installed.
+            # We could define a way to pick the one we prefer, but since
+            # this data is currently only used to make a check for existence,
+            # returning the first hit should be good enough.
+            lines = cp.stdout.decode("mbcs").splitlines()
+            return os.path.join(lines[0], 'VC')
+        else:
+            # We found vswhere, but no install info available for this version
+            pass
+
+    return None
 
 
 def find_vc_pdir(env, msvc_version):
@@ -628,11 +636,20 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             return True
 
     elif 8 > ver_num >= 6:
-        # not sure about these versions so if a walk the VC dir (could be slow)
-        for root, _, files in os.walk(vc_dir):
-            if _CL_EXE_NAME in files:
-                debug(_CL_EXE_NAME + ' found %s' % os.path.join(root, _CL_EXE_NAME))
+        # quick check for vc_dir/bin and vc_dir/ before walk
+        # need to check root as the walk only considers subdirectories
+        for cl_dir in ('bin', ''):
+            cl_path = os.path.join(vc_dir, cl_dir, _CL_EXE_NAME)
+            if os.path.exists(cl_path):
+                debug(_CL_EXE_NAME + ' found %s' % cl_path)
                 return True
+        # not in bin or root: must be in a subdirectory
+        for cl_root, cl_dirs, _ in os.walk(vc_dir):
+            for cl_dir in cl_dirs:
+                cl_path = os.path.join(cl_root, cl_dir, _CL_EXE_NAME)
+                if os.path.exists(cl_path):
+                    debug(_CL_EXE_NAME + ' found %s' % cl_path)
+                    return True
         return False
     else:
         # version not support return false
@@ -674,6 +691,7 @@ def get_installed_vcs(env=None):
 
 def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
+    global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
 
 # Running these batch files isn't cheap: most of the time spent in

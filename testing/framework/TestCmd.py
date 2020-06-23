@@ -1326,23 +1326,23 @@ class TestCmd:
         return result
 
     def dir_fixture(self, srcdir, dstdir=None):
-        """ Copies the contents of the fixture dir to the test dir.
+        """ Copies the contents of the fixture directory to the test directory.
 
         If srcdir is an absolute path, it is tried directly, else
-        the fixture_dirs are prepended to it and tried in succession.
-        To tightly control the search order, the harness can be called
-        with FIXTURE_DIRS also including the test source directory
-        in the desired place, it will otherwise be tried last.
+        the fixture_dirs are searched in order to find the named fixture
+        directory.  To tightly control the search order, the harness may
+        be called with FIXTURE_DIRS set including the test source directory
+        in the desired position, else it will be tried last.
 
-        srcdir may be a list, in which case the elements are first
+        If dstdir not an absolute path, it is taken as a destination under
+        the working dir (if omitted of the default None indicates '.',
+        aka the test dir).  dstdir is created automatically if needed.
+
+        srcdir or dstdir may be a list, in which case the elements are first
         joined into a pathname.
-
-        If a dstdir is supplied, it is taken to be under the temporary
-        working dir.  dstdir is created automatically if needed.
         """
         if is_List(srcdir):
             srcdir = os.path.join(*srcdir)
-
         spath = srcdir
         if srcdir and self.fixture_dirs and not os.path.isabs(srcdir):
             for dir in self.fixture_dirs:
@@ -1352,20 +1352,18 @@ class TestCmd:
             else:
                 spath = srcdir
 
-        if dstdir:
-            dstdir = self.canonicalize(dstdir)
+        if not dstdir or dstdir == '.':
+            dstdir = self.workdir
         else:
-            dstdir = '.'
-
-        if dstdir != '.' and not os.path.exists(dstdir):
-            dstlist = self.parse_path(dstdir)
-            if len(dstlist) > 0 and dstlist[0] == ".":
-                dstlist = dstlist[1:]
-            for idx in range(len(dstlist)):
-                self.subdir(dstlist[:idx + 1])
-
-        if dstdir and self.workdir:
-            dstdir = os.path.join(self.workdir, dstdir)
+            if is_List(dstdir):
+                dstdir = os.path.join(*dstdir)
+            if os.path.isabs(dstdir):
+                os.makedirs(dstdir, exist_ok=True)
+            else:
+                dstlist = self.parse_path(dstdir)
+                if dstlist and dstlist[0] == ".":
+                    dstdir = os.path.join(dstlist[1:])
+                self.subdir(dstdir)
 
         for entry in os.listdir(spath):
             epath = os.path.join(spath, entry)
@@ -1377,20 +1375,21 @@ class TestCmd:
                 shutil.copy(epath, dpath)
 
     def file_fixture(self, srcfile, dstfile=None):
-        """ Copies a fixture file to the test dir, optionally renaming.
+        """ Copies a fixture file to the test directory, optionally renaming.
 
         If srcfile is an absolute path, it is tried directly, else
-        the fixture_dirs are prepended to it and tried in succession.
-        To tightly control the search order, the harness can be called
-        with FIXTURE_DIRS also including the test source directory
+        the fixture_dirs are searched in order to find the named fixture
+        file.  To tightly control the search order, the harness may
+        be called with FIXTURE_DIRS also including the test source directory
         in the desired place, it will otherwise be tried last.
 
-        srcfile may be a list, in which case the elements are first
-        joined into a pathname.
+        dstfile is the name to give the copied file; if the argument
+        is omitted the basename of srcfile is used. If dstfile is not
+        an absolute path name.  Any directory components of dstfile are
+        created automatically if needed.
 
-        dstfile is assumed to be under the temporary working directory
-        unless it is an absolute path name.  Any directory components
-        of dstfile are created automatically if needed.
+        srcfile or dstfile may be a list, in which case the elements are first
+        joined into a pathname.
         """
         if is_List(srcfile):
             srcfile = os.path.join(*srcfile)
@@ -1411,15 +1410,21 @@ class TestCmd:
             else:
                 return
         else:
-            dstpath, dsttail = os.path.split(dstfile)
-            if dstpath:
-                if not os.path.exists(os.path.join(self.workdir, dstpath)):
-                    dstlist = self.parse_path(dstpath)
-                    if len(dstlist) > 0 and dstlist[0] == ".":
-                        dstlist = dstlist[1:]
-                    for idx in range(len(dstlist)):
-                        self.subdir(dstlist[:idx + 1])
-            dpath = os.path.join(self.workdir, dstfile)
+            dstdir, dsttail = os.path.split(dstfile)
+            if dstdir:
+                # if dstfile has a dir part, and is not abspath, create
+                if os.path.isabs(dstdir):
+                    os.makedirs(dstdir, exist_ok=True)
+                    dpath = dstfile
+                else:
+                    dstlist = self.parse_path(dstdir)
+                    if dstlist and dstlist[0] == ".":
+                        # strip leading ./ if present
+                        dstdir = os.path.join(dstlist[1:])
+                    self.subdir(dstdir)
+                    dpath = os.path.join(self.workdir, dstfile)
+            else:
+                dpath = os.path.join(self.workdir, dstfile)
 
         shutil.copy(spath, dpath)
 
@@ -1653,13 +1658,11 @@ class TestCmd:
         """Creates new subdirectories under the temporary working directory.
 
         Creates a subdir for each argument.  An argument may be a list,
-        in which case the list elements are concatenated using the
-        os.path.join() method.  Subdirectories multiple levels deep
-        must be created using a separate argument for each level:
+        in which case the list elements are joined into a path.
 
-            test.subdir('sub', ['sub', 'dir'], ['sub', 'dir', 'ectory'])
-
-        Returns the number of subdirectories actually created.
+        Returns the number of directories created, not including
+        intermediate directories, for historical reasons.  A directory
+        which already existed is counted as "created".
         """
         count = 0
         for sub in subdirs:
@@ -1669,13 +1672,14 @@ class TestCmd:
                 sub = os.path.join(*sub)
             new = os.path.join(self.workdir, sub)
             try:
-                os.mkdir(new)
-            except OSError as e:
-                print("Got error creating dir: %s :%s" % (sub, e))
-                pass
-            else:
+                # okay to exist, we just do this for counting
+                os.makedirs(new, exist_ok=True)
                 count = count + 1
+            except OSError as e:
+                pass
+
         return count
+
 
     def symlink(self, target, link):
         """Creates a symlink to the specified target.

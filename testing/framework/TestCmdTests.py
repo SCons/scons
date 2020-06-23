@@ -2725,33 +2725,46 @@ sys.stderr.write("run2 STDERR second line\\n")
         assert output == "run1 STDOUT ['foo', 'bar']\nrun1 STDOUT second line\n", output
 
 
-
 class subdir_TestCase(TestCmdTestCase):
     def test_subdir(self):
         """Test subdir()"""
-        test = TestCmd.TestCmd(workdir = '', subdir = ['no', 'such', 'subdir'])
-        assert not os.path.exists(test.workpath('no'))
+        # intermediate directories are created
+        test = TestCmd.TestCmd(workdir='', subdir=['no', 'such', 'subdir'])
+        assert os.path.exists(test.workpath('no'))
 
-        test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
-        assert test.subdir('bar') == 1
-        assert test.subdir(['foo', 'succeed']) == 1
-        if os.name != "nt":
-            os.chmod(test.workpath('foo'), 0o500)
-            assert test.subdir(['foo', 'fail']) == 0
-        assert test.subdir(['sub', 'dir', 'ectory'], 'sub') == 1
-        assert test.subdir('one',
-                           UserList(['one', 'two']),
-                           ['one', 'two', 'three']) == 3
+        test = TestCmd.TestCmd(workdir='', subdir='foo')
         assert os.path.isdir(test.workpath('foo'))
+
+        # single subdir
+        assert test.subdir('bar')
         assert os.path.isdir(test.workpath('bar'))
+
+        # subdir "works" even if existing
+        assert test.subdir('bar')
+
+        # single subdir as a list
+        assert test.subdir(['foo', 'succeed'])
         assert os.path.isdir(test.workpath('foo', 'succeed'))
+
         if os.name != "nt":
             assert not os.path.exists(test.workpath('foo', 'fail'))
-        assert os.path.isdir(test.workpath('sub'))
-        assert not os.path.exists(test.workpath('sub', 'dir'))
-        assert not os.path.exists(test.workpath('sub', 'dir', 'ectory'))
-        assert os.path.isdir(test.workpath('one', 'two', 'three'))
 
+        # subdir creation without write permissions fails
+        if os.name != "nt":
+            os.chmod(test.workpath('foo'), 0o500)
+            assert not test.subdir(['foo', 'fail'])
+
+        # create descended path
+        assert test.subdir(['sub', 'dir', 'ectory'])
+        assert os.path.isdir(test.workpath('sub'))
+        assert os.path.exists(test.workpath('sub', 'dir'))
+        assert os.path.exists(test.workpath('sub', 'dir', 'ectory'))
+
+        # test multiple subdirs in one call, each should "succeed"
+        assert (
+            test.subdir('one', UserList(['one', 'two']), ['one', 'two', 'three']) == 3
+        )
+        assert os.path.isdir(test.workpath('one', 'two', 'three'))
 
 
 class symlink_TestCase(TestCmdTestCase):

@@ -35,17 +35,16 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 tar = test.detect('TAR', 'tar')
-
 if not tar:
     test.skip_test('tar not found, skipping test\n')
 
-test.dir_fixture('src','src')
+test.dir_fixture('src', dstdir='src')
 test.file_fixture('SConstruct')
 
 test.run(stderr=None)
 
-test.must_exist( 'libfoobar-1.2.3.tar.gz' )
-test.must_exist( 'libfoobar-1.2.3.zip' )
+test.must_exist('libfoobar-1.2.3.tar.gz')
+test.must_exist('libfoobar-1.2.3.zip')
 
 test.pass_test()
 

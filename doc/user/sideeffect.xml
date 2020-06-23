@@ -56,7 +56,7 @@
 
  <para>
  TODO: currently doesn't work due to issue #2154:
- http://scons.tigris.org/issues/show_bug.cgi?id=2154
+ https://github.com/SCons/scons/issues/2154
  </para>
  
  <para>
@@ -80,7 +80,7 @@
 env = Environment()
 f2 = env.Command('file2', 'log', Copy('$TARGET', '$SOURCE'))
 f1 = env.Command('file1', [],
-    'echo >$TARGET data1; echo >log updated file1'))
+    'echo >$TARGET data1; echo >log updated file1')
 env.SideEffect('log', env.Command('file1', [],
     'echo >$TARGET data1; echo >log updated file1'))
    </file>

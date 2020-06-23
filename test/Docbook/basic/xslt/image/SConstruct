@@ -1,0 +1,9 @@
+import os
+
+env = Environment(tools=['docbook'])
+
+#
+# Create document
+#
+env.DocbookXslt('out.xml', 'in.xml', 
+                xsl='./to_docbook.xslt')

@@ -11,6 +11,8 @@ NOTE: Please include a reference to any Issues resolved by your changes in the b
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Dirk Baechle:
+    - Updated documentation toolchain to work properly under Python3, also
+      removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
 
   From James Benton:
@@ -25,6 +27,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Specify UTF-8 encoding when opening Java source file as text.  By default, encoding is the output
     of locale.getpreferredencoding(False), and varies by platform.
 
+  From Joseph Brill:
+    - MSVC updates: When there are multiple product installations (e.g, Community and
+      Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional, 
+      or Community installation will be selected before a Build Tools installation when
+      "14.1" or "14.2" is requested, respectively. (GH Issue #3699).
+    - MSVC updates: When there are multiple product installations of MSVC 2017 (e.g.,
+      Community and Express), 2017 Express is no longer returned when "14.1" is
+      requested.  Only 2017 Express will be returned when "14.1Exp" is requested.
+      (GH Issue #3699).
+    - MSVC updates: An MSVC 6.0 installation now appears in the installed versions list
+      when msvc debug output is enabled (GH Issue #3699).
+ 
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -185,6 +199,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       different doc format, should that choice be made); significant
       rewordings in manpage.  Manpage Examples moved to an external
       repository / website (scons-cookbook.readthedocs.io).
+    - Clean up test harness and tests' use of subdir, file_fixture and
+      dir_fixture.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000

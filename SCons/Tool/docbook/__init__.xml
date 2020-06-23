@@ -56,9 +56,6 @@ a PDF renderer, e.g. <literal>fop</literal>. So make sure that these are added t
 <itemizedlist><listitem><para>the Python <literal>lxml</literal> binding to <literal>libxml2</literal>, or
 </para>
 </listitem>
-<listitem><para>the direct Python bindings for <literal>libxml2/libxslt</literal>, or
-</para>
-</listitem>
 <listitem><para>a standalone XSLT processor, currently detected are <literal>xsltproc</literal>, <literal>saxon</literal>, <literal>saxon-xslt</literal>
 and <literal>xalan</literal>.
 </para>
@@ -257,7 +254,7 @@ The path to the external executable <literal>xsltproc</literal>
 (or <literal>saxon</literal>, <literal>xalan</literal>), if one of them
 is installed.
 Note, that this is only used as last fallback for XSL transformations, if
-no libxml2 or lxml Python binding can be imported in the current system.
+no lxml Python binding can be imported in the current system.
 </para>
 </summary>
 </cvar>
@@ -267,7 +264,7 @@ no libxml2 or lxml Python binding can be imported in the current system.
 <para>
 The path to the external executable <literal>xmllint</literal>, if it's installed.
 Note, that this is only used as last fallback for resolving
-XIncludes, if no libxml2 or lxml Python binding can be imported
+XIncludes, if no lxml Python binding can be imported
 in the current system.
 </para>
 </summary>

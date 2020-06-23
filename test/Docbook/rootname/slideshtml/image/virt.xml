@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE slides PUBLIC "-//Norman Walsh//DTD Slides XML V3.3.1//EN"
-"file:///usr/share/xml/docbook/custom/slides/3.3.1/schema/dtd/slides.dtd">
+"http://docbook.sourceforge.net/release/slides/3.3.1/schema/dtd/slides.dtd">
 <slides>
   <slidesinfo>
     <title>Virtuelles Kopieren</title>

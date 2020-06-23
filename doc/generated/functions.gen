@@ -24,7 +24,7 @@ for a complete explanation of the arguments and behavior.
 </para>
 
 <para>
-Note that the <function>env.Action</function>
+Note that the &f-env-Action;
 form of the invocation will expand
 construction variables in any argument strings,
 including the
@@ -33,8 +33,8 @@ argument, at the time it is called
 using the construction variables in the
 <replaceable>env</replaceable>
 construction environment through which
-<function>env.Action</function> was called.
-The <function>Action</function> global function
+&f-env-Action; was called.
+The &f-Action; global function
 form delays all variable expansion
 until the Action object is actually used.
 </para>
@@ -54,7 +54,7 @@ to the specified
 as the specified method
 <parameter>name</parameter>.
 When called using the
-<function>env.AddMethod</function> form,
+&f-env-AddMethod; form,
 adds the specified
 <parameter>function</parameter>
 to the construction environment
@@ -114,7 +114,7 @@ for a thorough discussion of its option-processing capabities.
 In addition to the arguments and values supported by the
 <emphasis>optparse</emphasis>
 <function>add_option</function>
-method, <function>AddOption</function>
+method, &f-AddOption;
 allows setting the
 <parameter>nargs</parameter>
 keyword value to
@@ -134,7 +134,7 @@ the command line, the value of the
 keyword argument is produced, as usual;
 if there is no
 <parameter>default</parameter>
-keyword argument in the <function>AddOption</function> call,
+keyword argument in the &f-AddOption; call,
 <constant>None</constant> is produced.
 </para>
 
@@ -153,18 +153,18 @@ Options added via
 <function>AddOption</function> do not support
 the automatic recognition of abbreviations.
 Instead, to allow specific abbreviations,
-include them in the <function>AddOption</function> call.
+include them in the &f-AddOption; call.
 </para>
 
 <para>
 Once a new command-line option has been added with
-<function>AddOption</function>,
+&f-AddOption;,
 the option value may be accessed using
-<link linkend="f-GetOption"><function>GetOption</function></link>
+&f-link-GetOption;
 or
-<link linkend="f-GetOption"><function>env.GetOption</function></link>.
-<link linkend="f-SetOption"><function>SetOption</function></link> is not currently supported for
-options added with <function>AddOption</function>.
+&f-link-env-GetOption;.
+&f-link-SetOption; is not currently supported for
+options added with &f-AddOption;.
 <!-- was:
 The value may also be set using
 &f-SetOption;
@@ -184,7 +184,7 @@ override a value set by any SConscript file.
 Help text for an option is a combination
 of the string supplied in the
 <parameter>help</parameter> keyword
-argument to <function>AddOption</function> and information
+argument to &f-AddOption; and information
 collected from the other keyword arguments.
 Such help is displayed if the
 <option>-h</option> command line option
@@ -194,7 +194,7 @@ under the separate heading
 <emphasis role="bold">Local Options</emphasis>.
 The options are unsorted - they will appear
 in the help text in the order in which the
-<function>AddOption</function>
+&f-AddOption;
 calls occur.
 </para>
 
@@ -225,14 +225,14 @@ Local Options:
 
 <para>
 Help text for local options may be unavailable if
-the <link linkend="f-Help"><function>Help</function></link> function has been called,
-see the <function>Help</function> documentation for details.
+the &f-link-Help; function has been called,
+see the &f-Help; documentation for details.
 </para>
 
 <note>
 <para>
 As an artifact of the internal implementation,
-the behavior of options added by <function>AddOption</function>
+the behavior of options added by &AddOption;
 which take option arguments is undefined
 <emphasis>if</emphasis> whitespace
 (rather than an <literal>=</literal> sign) is used as
@@ -245,8 +245,8 @@ keyword is used to specify more than one following
 option argument (that is, with a value of <constant>2</constant>
 or greater), such arguments would necessarily
 be whitespace separated, triggering the issue.
-Developers should not use <function>AddOption</function> this way.
-Future versions of <application>SCons</application> will likely forbid such usage.
+Developers should not use &AddOption; this way.
+Future versions of &SCons; will likely forbid such usage.
 </para>
 </note>
 
@@ -321,7 +321,7 @@ AddPreAction(foo, 'pre_action')
 The specified
 <literal>pre_action</literal>
 would be executed before
-<command>scons</command>
+&scons;
 calls the link command that actually
 generates the executable program binary
 <filename>foo</filename>,
@@ -348,7 +348,7 @@ which exists outside of any file system.
 This Node object, or the alias name,
 may be used as a dependency of any other target,
 including another alias.
-<function>Alias</function>
+&f-Alias;
 can be called multiple times for the same
 alias to add additional targets to the alias,
 or additional actions to the list for this alias.
@@ -392,7 +392,7 @@ and terminate processing.
 
 <para>
 If
-<function>AllowSubstExceptions</function>
+&f-AllowSubstExceptions;
 is called multiple times,
 each call completely overwrites the previous list
 of allowed exceptions.
@@ -423,7 +423,7 @@ Marks each given
 so that it is always assumed to be out of date,
 and will always be rebuilt if needed.
 Note, however, that
-<function>AlwaysBuild</function>
+&f-AlwaysBuild;
 does not add its target(s) to the default target list,
 so the targets will only be built
 if they are specified on the command line,
@@ -432,7 +432,7 @@ they will
 <emphasis>always</emphasis>
 be built if so specified.
 Multiple targets can be passed in to a single call to
-<function>AlwaysBuild</function>.
+&f-AlwaysBuild;.
 </para>
 </listitem>
   </varlistentry>
@@ -451,7 +451,7 @@ Otherwise, the construction variable
 and the value of the keyword argument
 are both coerced to lists,
 and the lists are added together.
-(See also the <function>Prepend</function> method).
+(See also the &Prepend; method).
 </para>
 
 <para>
@@ -556,9 +556,9 @@ at the time it is called
 using the construction variables in the
 <parameter>env</parameter>
 construction environment through which
-<function>env.Builder</function> was called.
+&f-env-Builder; was called.
 The
-<function>Builder</function>
+&f-Builder;
 form delays all variable expansion
 until after the Builder object is actually called.
 </para>
@@ -569,7 +569,7 @@ until after the Builder object is actually called.
     <term><replaceable>env</replaceable>.<methodname>CacheDir</methodname>(<parameter>cache_dir</parameter>)</term>
     <listitem><para>
 Direct
-<command>scons</command>
+&scons;
 to maintain a derived-file cache in
 <parameter>cache_dir</parameter>.
 The derived files in the cache will be shared
@@ -584,34 +584,34 @@ disables derived file caching.
 
 <para>
 Calling the environment method
-<link linkend="f-CacheDir"><function>env.CacheDir</function></link>
+&f-link-env-CacheDir;
 limits the effect to targets built
 through the specified construction environment.
 Calling the global function
-<link linkend="f-CacheDir"><function>CacheDir</function></link>
+&f-link-CacheDir;
 sets a global default
 that will be used by all targets built
 through construction environments
 that do not set up environment-specific
-caching by calling <function>env.CacheDir</function>.
+caching by calling &f-env-CacheDir;.
 </para>
 
 <para>
 When derived-file caching 
 is being used and
-<command>scons</command>
+&scons;
 finds a derived file that needs to be rebuilt,
 it will first look in the cache to see if a
 file with matching build signature exists
 (indicating the input file(s) and build action(s)
 were identical to those for the current target),
 and if so, will retrieve the file from the cache.
-<command>scons</command>
+&scons;
 will report
 <computeroutput>Retrieved `file' from cache</computeroutput>
 instead of the normal build message.
 If the derived file is not present in the cache,
-<command>scons</command>
+&scons;
 will build it and
 then place a copy of the built file in the cache,
 identified by its build signature, for future use.
@@ -622,11 +622,11 @@ The
 <computeroutput>Retrieved `file' from cache</computeroutput>
 messages are useful for human consumption,
 but less so when comparing log files between
-<command>scons</command> runs which will show differences that are
+&scons; runs which will show differences that are
 noisy and not actually significant.
 To disable,
 use the <option>--cache-show</option> option.
-With this option, <command>scons</command>
+With this option, &scons;
 will print the action that would
 have been used to build the file without
 considering cache retrieval.
@@ -635,7 +635,7 @@ considering cache retrieval.
 <para>
 Derived-file caching
 may be disabled for any invocation
-of <command>scons</command> by giving the
+of &scons; by giving the
 <option>--cache-disable</option>
 command line option.
 Cache updating may be disabled, leaving cache
@@ -647,7 +647,7 @@ fetching enabled, by giving the
 If the
 <option>--cache-force</option>
 option is used,
-<command>scons</command>
+&scons;
 will place a copy of
 <emphasis>all</emphasis>
 derived files in the cache,
@@ -666,7 +666,7 @@ has been done.
 
 <para>
 The
-<link linkend="f-NoCache"><function>NoCache</function></link>
+&f-link-NoCache;
 method can be used to disable caching of specific files.  This can be
 useful if inputs and/or outputs of some tool are impossible to
 predict or prohibitively large.
@@ -684,7 +684,7 @@ command line option.
 The specified targets may be a list
 or an individual target.
 Multiple calls to
-<function>Clean</function>
+&f-Clean;
 are legal,
 and create new targets or add files and directories to the
 clean list for the specified targets.
@@ -693,9 +693,9 @@ clean list for the specified targets.
 <para>
 Multiple files or directories should be specified
 either as separate arguments to the
-<function>Clean</function>
+&f-Clean;
 method, or as a list.
-<function>Clean</function>
+&f-Clean;
 will also accept the return value of any of the construction environment
 Builder methods.
 Examples:
@@ -703,9 +703,9 @@ Examples:
 
 <para>
 The related
-<link linkend="f-NoClean"><function>NoClean</function></link>
+&f-link-NoClean;
 function overrides calling
-<function>Clean</function>
+&f-Clean;
 for the same target,
 and any targets passed to both functions will
 <emphasis>not</emphasis>
@@ -756,7 +756,7 @@ env3 = env.Clone(CCFLAGS = '-g')
 
 <para>
 Additionally, a list of tools and a toolpath may be specified, as in
-the <link linkend="f-Environment"><function>Environment</function></link> constructor:
+the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
@@ -769,7 +769,7 @@ The
 <parameter>parse_flags</parameter>
 keyword argument is also recognized to allow merging command-line
 style arguments into the appropriate construction
-variables (see <link linkend="f-MergeFlags"><function>env.MergeFlags</function></link>).
+variables (see &f-link-env-MergeFlags;).
 </para>
 
 <example_commands>
@@ -793,7 +793,7 @@ for a single special-case build.
 
 <para>
 The
-<function>Command</function> function accepts
+&Command; function accepts
 <parameter>source_scanner</parameter>,
 <parameter>target_scanner</parameter>,
 <parameter>source_factory</parameter>, and
@@ -811,7 +811,7 @@ that must be scanned on-disk for
 changes to files that aren't
 already specified in other Builder of function calls.
 The <parameter>*_factory</parameter> arguments take a factory function that
-<function>Command</function> will use to turn any sources or targets
+&Command; will use to turn any sources or targets
 specified as strings into SCons Nodes.
 See the manpage section "Builder Objects"
 for more information about how these
@@ -871,7 +871,7 @@ env.Command(
 
 <para>
 Note that the
-<function>Command</function>
+&Command;
 function will usually assume, by default,
 that the specified targets and/or sources are Files,
 if no other part of the configuration
@@ -880,9 +880,9 @@ If necessary, you can explicitly specify
 that targets or source nodes should
 be treated as directories
 by using the
-<link linkend="f-Dir"><function>Dir</function></link>
+&f-link-Dir;
 or
-<link linkend="f-Dir"><function>env.Dir</function></link>
+&f-link-env-Dir;
 functions.
 </para>
 
@@ -1140,10 +1140,10 @@ env.Decider(my_decider)
     <listitem><para>
 This specifies a list of default targets,
 which will be built by
-<command>scons</command>
+&scons;
 if no explicit targets are given on the command line.
 Multiple calls to
-<function>Default</function>
+&f-Default;
 are legal,
 and add to the list of default targets.
 As noted above, both forms of this call affect the
@@ -1155,9 +1155,9 @@ construction variable expansion to the targets.
 <para>
 Multiple targets should be specified as
 separate arguments to the
-<function>Default</function>
+&f-Default;
 method, or as a list.
-<function>Default</function>
+&f-Default;
 will also accept the Node returned by any
 of a construction environment's
 builder methods.
@@ -1176,19 +1176,19 @@ env.Default(hello)
 
 <para>
 An argument to
-<function>Default</function>
+&f-Default;
 of
 <literal>None</literal>
 will clear all default targets.
 Later calls to
-<function>Default</function>
+&f-Default;
 will add to the (now empty) default-target list
 like normal.
 </para>
 
 <para>
 The current list of targets added using the
-<function>Default</function>
+&f-Default;
 function or method is available in the
 <literal>DEFAULT_TARGETS</literal>
 list;
@@ -1199,25 +1199,25 @@ see below.
   <varlistentry id="f-DefaultEnvironment">
     <term><function>DefaultEnvironment</function>(<parameter>[**kwargs]</parameter>)</term>
     <listitem><para>
-Instantiates and returns the default <phrase>construction environment</phrase> object.
-The <phrase>default environment</phrase> is used internally by SCons
+Instantiates and returns the default &consenv; object.
+The &defenv; is used internally by SCons
 in order to execute many of the global functions in this list
-(that is, those not called as methods of a specific <phrase>construction environment</phrase>).
-It is not mandatory to call <function>DefaultEnvironment</function>:
-the <phrase>default environment</phrase> will be instantiated automatically when the
+(that is, those not called as methods of a specific &consenv;).
+It is not mandatory to call &f-DefaultEnvironment;:
+the &defenv; will be instantiated automatically when the
 build phase begins if the function has not been called,
 however calling it explicitly gives the opportunity to
-affect and examine the contents of the <phrase>default environment</phrase>.
+affect and examine the contents of the &defenv;.
 </para>
 <para>
-The <phrase>default environment</phrase> is a singleton, so the keyword
+The &defenv; is a singleton, so the keyword
 arguments affect it only on the first call, on subsequent
 calls the already-constructed object is returned and
 any keyword arguments are silently ignored.
-The <phrase>default environment</phrase> can be modified after instantiation
-in the same way as any <phrase>construction environment</phrase>.
-Modifying the <phrase>default environment</phrase> has no effect on the <phrase>construction environment</phrase>
-constructed by an <link linkend="f-Environment"><function>Environment</function></link> or <link linkend="f-Clone"><function>Clone</function></link> call.
+The &defenv; can be modified after instantiation
+in the same way as any &consenv;.
+Modifying the &defenv; has no effect on the &consenv;
+constructed by an &f-link-Environment; or &f-link-Clone; call.
 </para>
 </listitem>
   </varlistentry>
@@ -1280,7 +1280,7 @@ by <parameter>env</parameter><literal>['ENV']['PATH']</literal>.
 On Windows systems, additionally applies the filename suffixes found in
 <parameter>env</parameter><literal>['ENV']['PATHEXT']</literal>
 but will not include any such extension in the return value.
-<function>env.Detect</function> is a wrapper around <link linkend="f-WhereIs"><function>env.WhereIs</function></link>.
+&f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
 </para>
 </listitem>
   </varlistentry>
@@ -1288,9 +1288,9 @@ but will not include any such extension in the return value.
     <term><replaceable>env</replaceable>.<methodname>Dictionary</methodname>(<parameter>[vars]</parameter>)</term>
     <listitem><para>
 Returns a dictionary object
-containing the <phrase>construction variables</phrase> in the <phrase>construction environment</phrase>.
+containing the &consvars; in the &consenv;.
 If there are any arguments specified,
-the values of the specified <phrase>construction variables</phrase>
+the values of the specified &consvars;
 are returned as a string (if one
 argument) or as a list of strings.
 </para>
@@ -1345,7 +1345,7 @@ for more information.
   <varlistentry id="f-Dump">
     <term><replaceable>env</replaceable>.<methodname>Dump</methodname>(<parameter>[key], [format]</parameter>)</term>
     <listitem><para>
-Serializes <phrase>construction variables</phrase> to a string.
+Serializes &consvars; to a string.
 The method supports the following formats specified by
 <parameter>format</parameter>:
 <variablelist>
@@ -1371,8 +1371,8 @@ Returns a JSON-formatted string representation of the environment.
 
 If <varname>key</varname> is 
 <constant>None</constant> (the default) the entire
-dictionary of <phrase>construction variables</phrase> is serialized.
-If supplied, it is taken as the name of a <phrase>construction variable</phrase>
+dictionary of &consvars; is serialized.
+If supplied, it is taken as the name of a &consvar;
 whose value is serialized.
 </para>
 
@@ -1490,9 +1490,9 @@ or executable Python function,
 each of which will be converted
 into an Action object
 and then executed.
-Any additional arguments to <function>Execute</function>
+Any additional arguments to &f-Execute;
 (<parameter>strfunction</parameter>, <parameter>varlist</parameter>)
-are passed on to the <link linkend="f-Action"><function>Action</function></link> factory function
+are passed on to the &f-link-Action; factory function
 which actually creates the Action object.
 The exit value of the command
 or return value of the Python function
@@ -1501,12 +1501,12 @@ will be returned.
 
 <para>
 Note that
-<command>scons</command>
+&scons;
 will print an error message if the executed
 <parameter>action</parameter>
 fails--that is,
 exits with or returns a non-zero value.
-<command>scons</command>
+&scons;
 will
 <emphasis>not</emphasis>,
 however,
@@ -1515,7 +1515,7 @@ if the specified
 <parameter>action</parameter>
 fails.
 If you want the build to stop in response to a failed
-<function>Execute</function>
+&f-Execute;
 call,
 you must explicitly check for a non-zero return value:
 </para>
@@ -1534,7 +1534,7 @@ if Execute("mkdir sub/dir/ectory"):
     <term><replaceable>env</replaceable>.<methodname>Exit</methodname>(<parameter>[value]</parameter>)</term>
     <listitem><para>
 This tells
-<command>scons</command>
+&scons;
 to exit immediately
 with the specified
 <varname>value</varname>.
@@ -1563,7 +1563,7 @@ Keyword arguments can be used to provide names and their values.
 </para>
 
 <para>
-<function>Export</function> calls are cumulative. Specifying a previously
+&f-Export; calls are cumulative. Specifying a previously
 exported variable will overwrite the earlier value.
 Both local variables and global variables can be exported.
 </para>
@@ -1593,8 +1593,8 @@ Export({"debug": env})
 
 <para>
 Note that the
-<link linkend="f-SConscript"><function>SConscript</function></link>
-function supports an <varname>exports</varname>
+&f-link-SConscript;
+function supports an &exports;
 argument that allows exporting a variable or
 set of variables to a specific SConscript file or files.
 See the description below.
@@ -1667,9 +1667,9 @@ foo = env.FindFile('foo', ['dir1', 'dir2'])
     <term><replaceable>env</replaceable>.<methodname>FindInstalledFiles</methodname>()</term>
     <listitem><para>
 Returns the list of targets set up by the
-<link linkend="b-Install"><function>Install</function></link>
+&b-link-Install;
 or
-<link linkend="b-InstallAs"><function>InstallAs</function></link>
+&b-link-InstallAs;
 builders.
 </para>
 
@@ -1711,14 +1711,14 @@ in a construction environment
 and treat the construction variable's value as a list of
 directory paths that should be searched
 (like
-<link linkend="cv-CPPPATH"><envar>$CPPPATH</envar></link>,
-<link linkend="cv-LIBPATH"><envar>$LIBPATH</envar></link>,
+&cv-link-CPPPATH;,
+&cv-link-LIBPATH;,
 etc.).
 </para>
 
 <para>
 Note that use of
-<function>FindPathDirs</function>
+&f-FindPathDirs;
 is generally preferable to
 writing your own
 <varname>path_function</varname>
@@ -1726,11 +1726,11 @@ for the following reasons:
 1) The returned list will contain all appropriate directories
 found in source trees
 (when
-<link linkend="f-VariantDir"><function>VariantDir</function></link>
+&f-link-VariantDir;
 is used)
 or in code repositories
 (when
-<function>Repository</function>
+&f-Repository;
 or the
 <option>-Y</option>
 option are used).
@@ -1920,22 +1920,22 @@ executed to build the target.
 <literal>.command</literal>
 The actual expanded command that was executed and failed,
 after expansion of
-<link linkend="cv-TARGET"><envar>$TARGET</envar></link>,
-<link linkend="cv-SOURCE"><envar>$SOURCE</envar></link>,
+&cv-link-TARGET;,
+&cv-link-SOURCE;,
 and other construction variables.
 </para>
 
 <para>
 Note that the
-<function>GetBuildFailures</function>
+&f-GetBuildFailures;
 function
 will always return an empty list
 until any build failure has occurred,
 which means that
-<function>GetBuildFailures</function>
+&f-GetBuildFailures;
 will always return an empty list
 while the
-<filename>SConscript</filename>
+&SConscript;
 files are being read.
 Its primary intended use is
 for functions that will be
@@ -1964,7 +1964,7 @@ atexit.register(print_build_failures)
     <term><replaceable>env</replaceable>.<methodname>GetBuildPath</methodname>(<parameter>file, [...]</parameter>)</term>
     <listitem><para>
 Returns the
-<command>scons</command>
+&scons;
 path name (or names) for the specified
 <parameter>file</parameter>
 (or files).
@@ -1972,7 +1972,7 @@ The specified
 <parameter>file</parameter>
 or files
 may be
-<command>scons</command>
+&scons;
 Nodes or strings representing path names.
 </para>
 </listitem>
@@ -1982,7 +1982,7 @@ Nodes or strings representing path names.
     <term><replaceable>env</replaceable>.<methodname>GetLaunchDir</methodname>()</term>
     <listitem><para>
 Returns the absolute path name of the directory from which
-<command>scons</command>
+&scons;
 was initially invoked.
 This can be useful when using the
 <option>-u</option>,
@@ -1991,7 +1991,7 @@ or
 <option>-D</option>
 options, which internally
 change to the directory in which the
-<filename>SConstruct</filename>
+&SConstruct;
 file is found.
 </para>
 </listitem>
@@ -2003,7 +2003,7 @@ file is found.
 This function provides a way to query the value of
 SCons options set on scons command line
 (or set using the
-<link linkend="f-SetOption"><function>SetOption</function></link>
+&f-link-SetOption;
 function).
 The options supported are:
 </para>
@@ -2270,9 +2270,9 @@ option.
 Returns Nodes (or strings) that match the specified
 <parameter>pattern</parameter>,
 relative to the directory of the current
-<filename>SConscript</filename>
+&SConscript;
 file.
-The evironment method form (<function>env.Glob</function>)
+The evironment method form (&f-env-Glob;)
 performs string substition on
 <parameter>pattern</parameter>
 and returns whatever matches
@@ -2302,15 +2302,15 @@ span directory separators.
 
 <para>
 The
-<function>Glob</function>
+&f-Glob;
 knows about
 repositories
 (see the
-<link linkend="f-Repository"><function>Repository</function></link>
+&f-link-Repository;
 function)
 and source directories
 (see the
-<link linkend="f-VariantDir"><function>VariantDir</function></link>
+&f-link-VariantDir;
 function)
 and
 returns a Node (or string, if so configured)
@@ -2340,7 +2340,7 @@ argument may be set to a value which evaluates
 <constant>True</constant>
 to specify that,
 when the local directory is a
-<function>VariantDir</function>,
+&f-VariantDir;,
 the returned Nodes should be from the
 corresponding source directory,
 not the local directory.
@@ -2352,7 +2352,7 @@ The
 argument may be set to a value which evaluates
 <constant>True</constant>
 to have the
-<function>Glob</function>
+&f-Glob;
 function return strings, not Nodes,
 that represent the matched files or directories.
 The returned strings will be relative to
@@ -2361,14 +2361,14 @@ the local (SConscript) directory.
 arbitrary manipulation of file names,
 but if the returned strings are
 passed to a different
-<filename>SConscript</filename>
+&SConscript;
 file,
 any Node translation will be relative
 to the other
-<filename>SConscript</filename>
+&SConscript;
 directory,
 not the original
-<filename>SConscript</filename>
+&SConscript;
 directory.)
 </para>
 
@@ -2401,18 +2401,18 @@ sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) + \
 Specifies a local help message to be printed if the
 <option>-h</option>
 argument is given to
-<command>scons</command>.
+&scons;.
 Subsequent calls to
-<function>Help</function>
+&f-Help;
 append <parameter>text</parameter> to the previously
 defined local help text.
 </para>
 <para>
-For the first call to <function>Help</function> only,
+For the first call to &f-Help; only,
 if <parameter>append</parameter> is <constant>False</constant>
 (the default)
 any local help message generated through
-<link linkend="f-AddOption"><function>AddOption</function></link> calls is replaced.
+&f-link-AddOption; calls is replaced.
 If <parameter>append</parameter> is <constant>True</constant>,
 <parameter>text</parameter> is appended to
 the existing help text.
@@ -2430,7 +2430,7 @@ the target file(s) need to be rebuilt.
 
 <para>
 You can also use
-<function>Ignore</function>
+&f-Ignore;
 to remove a target from the default build.
 In order to do this you must specify the directory the target will
 be built in as the target, and the file you want to skip building
@@ -2464,14 +2464,14 @@ Imports variables into the current SConscript file.
 <parameter>vars</parameter>
 must be strings representing names of variables
 which have been previously exported either by the
-<link linkend="f-Export"><function>Export</function></link> function or by the
-<varname>exports</varname> argument to
-<link linkend="f-SConscript"><function>SConscript</function></link>.
+&f-link-Export; function or by the
+&exports; argument to
+&f-link-SConscript;.
 Variables exported by
-<function>SConscript</function>
+&f-SConscript;
 take precedence.
 Multiple variable names can be passed to
-<function>Import</function>
+&f-Import;
 as separate arguments or as words in a space-separated string.
 The wildcard <literal>"*"</literal> can be used to import all
 available variables.
@@ -2523,7 +2523,7 @@ If the
 <parameter>arg</parameter>
 argument is not a dictionary,
 it is converted to one by calling
-<link linkend="f-ParseFlags"><function>env.ParseFlags</function></link>
+&f-link-env-ParseFlags;
 on the argument
 before the values are merged.
 Note that
@@ -2532,7 +2532,7 @@ must be a single value,
 so multiple strings must
 be passed in as a list,
 not as separate arguments to
-<function>env.MergeFlags</function>.
+&f-env-MergeFlags;.
 </para>
 
 <para>
@@ -2578,7 +2578,7 @@ env.MergeFlags(['-O3',
 Specifies a list of files which should
 <emphasis>not</emphasis>
 be cached whenever the
-<link linkend="f-CacheDir"><function>CacheDir</function></link>
+&f-link-CacheDir;
 method has been activated.
 The specified targets may be a list
 or an individual target.
@@ -2587,16 +2587,16 @@ or an individual target.
 <para>
 Multiple files should be specified
 either as separate arguments to the
-<function>NoCache</function>
+&f-NoCache;
 method, or as a list.
-<function>NoCache</function>
+&f-NoCache;
 will also accept the return value of any of the construction environment
 Builder methods.
 </para>
 
 <para>
 Calling
-<function>NoCache</function>
+&f-NoCache;
 on directories and other non-File Node types has no effect because
 only File Nodes are cached.
 </para>
@@ -2624,7 +2624,7 @@ command line option.
 The specified targets may be a list
 or an individual target.
 Multiple calls to
-<function>NoClean</function>
+&f-NoClean;
 are legal,
 and prevent each specified target
 from being removed by calls to the
@@ -2635,18 +2635,18 @@ option.
 <para>
 Multiple files or directories should be specified
 either as separate arguments to the
-<function>NoClean</function>
+&f-NoClean;
 method, or as a list.
-<function>NoClean</function>
+&f-NoClean;
 will also accept the return value of any of the construction environment
 Builder methods.
 </para>
 
 <para>
 Calling
-<function>NoClean</function>
+&f-NoClean;
 for a target overrides calling
-<link linkend="f-Clean"><function>Clean</function></link>
+&f-link-Clean;
 for the same target,
 and any targets passed to both functions will
 <emphasis>not</emphasis>
@@ -2675,7 +2675,7 @@ to modify the environment as specified by the output of
 The default
 <parameter>function</parameter>
 is
-<link linkend="f-MergeFlags"><function>env.MergeFlags</function></link>,
+&f-link-env-MergeFlags;,
 which expects the output of a typical
 <application>*-config</application>
 command
@@ -2696,7 +2696,7 @@ values to be added.
 Interpreted options
 and the construction variables they affect
 are as specified for the
-<link linkend="f-ParseFlags"><function>env.ParseFlags</function></link>
+&f-link-env-ParseFlags;
 method (which this method calls).
 See that method's description
 for a table of options and construction variables.
@@ -2710,7 +2710,7 @@ for a table of options and construction variables.
 Parses the contents of the specified
 <parameter>filename</parameter>
 as a list of dependencies in the style of
-<application>Make</application>
+&Make;
 or
 <application>mkdep</application>,
 and explicitly establishes all of the listed dependencies.
@@ -2760,9 +2760,9 @@ The
 and all of the files listed therein
 will be interpreted relative to
 the directory of the
-<filename>SConscript</filename>
+&SConscript;
 file which calls the
-<function>ParseDepends</function>
+&f-ParseDepends;
 function.
 </para>
 </listitem>
@@ -2775,15 +2775,15 @@ typical command-line flags for GCC tool chains
 and returns a dictionary with the flag values
 separated into the appropriate SCons construction variables.
 This is intended as a companion to the
-<link linkend="f-MergeFlags"><function>env.MergeFlags</function></link>
+&f-link-env-MergeFlags;
 method, but allows for the values in the returned dictionary
 to be modified, if necessary,
 before merging them into the construction environment.
 (Note that
-<function>env.MergeFlags</function>
+&f-env-MergeFlags;
 will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
-<link linkend="f-ParseFlags"><function>env.ParseFlags</function></link>
+&f-link-env-ParseFlags;
 directly unless you want to manipulate the values.)
 </para>
 
@@ -2836,7 +2836,7 @@ and added to the following construction variables:
 Any other strings not associated with options
 are assumed to be the names of libraries
 and added to the
-<envar>$LIBS</envar>
+&cv-LIBS;
 construction variable.
 </para>
 
@@ -2856,12 +2856,12 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
     <term><function>Platform</function>(<parameter>string</parameter>)</term>
     <listitem><para>
 The
-<function>Platform</function>
+&f-Platform;
 form returns a callable object
 that can be used to initialize
 a construction environment using the
 platform keyword of the
-<function>Environment</function>
+&f-Environment;
 function.
 </para>
 
@@ -2875,7 +2875,7 @@ env = Environment(platform = Platform('win32'))
 
 <para>
 The
-<function>env.Platform</function>
+&f-env-Platform;
 form applies the callable object for the specified platform
 <parameter>string</parameter>
 to the environment through which the method was called.
@@ -2894,7 +2894,7 @@ and
 <literal>SystemRoot</literal>
 variables from the user's external environment
 to the construction environment's
-<link linkend="cv-ENV"><envar>$ENV</envar></link>
+&cv-link-ENV;
 dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
@@ -2912,10 +2912,10 @@ will work on Windows systems.
 Marks each given
 <varname>target</varname>
 as precious so it is not deleted before it is rebuilt. Normally
-<command>scons</command>
+&scons;
 deletes a target before building it.
 Multiple targets can be passed in to a single call to
-<function>Precious</function>.
+&f-Precious;.
 </para>
 </listitem>
   </varlistentry>
@@ -2951,7 +2951,7 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
     <listitem><para>
 This appends new path elements to the given path in the
 specified external environment
-(<envar>$ENV</envar>
+(&cv-ENV;
 by default).
 This will only add
 any particular path once (leaving the first one it encounters and
@@ -3049,7 +3049,7 @@ and
 <parameter>**kwargs</parameter>
 as arguments to your function or method signatures.
 This will prevent the code from breaking
-if <application>SCons</application> ever changes the interface
+if &SCons; ever changes the interface
 to call the function with additional arguments in the future.)
 </para>
 
@@ -3089,7 +3089,7 @@ Progress(ProgressCounter(), interval=100)
 
 <para>
 If the first argument to
-<function>Progress</function> is a string or list of strings,
+&f-Progress; is a string or list of strings,
 it is taken as text to be displayed every
 <varname>interval</varname>
 evaluated Nodes.
@@ -3166,11 +3166,11 @@ This indicates that each given
 should not be created by the build rule, and if the target is created,
 an error will be generated. This is similar to the gnu make .PHONY
 target. However, in the vast majority of cases, an
-<function>Alias</function>
+&f-Alias;
 is more appropriate.
 
 Multiple targets can be passed in to a single call to
-<function>Pseudo</function>.
+&f-Pseudo;.
 </para>
 </listitem>
   </varlistentry>
@@ -3218,7 +3218,7 @@ Specifies that
 <parameter>directory</parameter>
 is a repository to be searched for files.
 Multiple calls to
-<function>Repository</function>
+&f-Repository;
 are legal,
 and each one adds to the list of
 repositories that will be searched.
@@ -3226,7 +3226,7 @@ repositories that will be searched.
 
 <para>
 To
-<command>scons</command>,
+&scons;,
 a repository is a copy of the source tree,
 from the top-level directory on down,
 which may contain
@@ -3237,10 +3237,10 @@ The canonical example would be an
 official source tree maintained by an integrator.
 If the repository contains derived files,
 then the derived files should have been built using
-<command>scons</command>,
+&scons;,
 so that the repository contains the necessary
 signature information to allow
-<command>scons</command>
+&scons;
 to figure out when it is appropriate to
 use the repository copy of a derived file,
 instead of building one locally.
@@ -3249,14 +3249,14 @@ instead of building one locally.
 <para>
 Note that if an up-to-date derived file
 already exists in a repository,
-<command>scons</command>
+&scons;
 will
 <emphasis>not</emphasis>
 make a copy in the local directory tree.
 In order to guarantee that a local copy
 will be made,
 use the
-<link linkend="f-Local"><function>Local</function></link>
+&f-link-Local;
 method.
 </para>
 </listitem>
@@ -3294,7 +3294,7 @@ Return to the calling SConscript, optionally
 returning the values of variables named in
 <varname>vars</varname>.
 Multiple strings contaning variable names may be passed to
-<function>Return</function>. A string containing white space
+&f-Return;. A string containing white space
 is split into individual variable names.
 Returns the value if one variable is specified,
 else returns a tuple of values.
@@ -3303,7 +3303,7 @@ is omitted.
 </para>
 
 <para>
-By default <function>Return</function> stops processing the current SConscript
+By default &Return; stops processing the current SConscript
 and returns immediately.
 The optional
 <literal>stop</literal>
@@ -3311,13 +3311,13 @@ keyword argument
 may be set to a false value
 to continue processing the rest of the SConscript
 file after the
-<function>Return</function>
+&f-Return;
 call (this was the default behavior prior to SCons 0.98.)
 However, the values returned
 are still the values of the variables in the named
 <varname>vars</varname>
 at the point
-<function>Return</function>
+&f-Return;
 was called.
 </para>
 
@@ -3360,7 +3360,7 @@ for a complete explanation of the arguments and behavior.
     <listitem><para>
 Execute one or more subsidiary SConscript (configuration) files.
 There are two ways to call the
-<function>SConscript</function> function.
+&f-SConscript; function.
 </para>
 
 <para>
@@ -3372,7 +3372,7 @@ A single script may be specified as a string;
 multiple scripts must be specified as a list
 (either explicitly or as created by
 a function like
-<link linkend="f-Split"><function>Split</function></link>).
+&f-link-Split;).
 Examples:
 </para>
 <example_commands>
@@ -3384,19 +3384,19 @@ config = SConscript('MyConfig.py')
 
 <para>
 The second way to call
-<function>SConscript</function>
+&f-SConscript;
 is to specify a list of (sub)directory names
 as a
 <varname>dirs</varname>=<replaceable>subdirs</replaceable>
 keyword argument.
 In this case,
-<command>scons</command>
+&scons;
 will
 execute a subsidiary configuration file named
-<filename>SConscript</filename>
+&SConscript;
 in each of the specified directories.
 You may specify a name other than
-<filename>SConscript</filename>
+&SConscript;
 by supplying an optional
 <varname>name</varname>=<replaceable>script</replaceable>
 keyword argument.
@@ -3418,12 +3418,12 @@ variable names, or a dictionary of named values, to export.
 These variables are locally exported only to the called
 SConscript file(s)
 and do not affect the global pool of variables managed by the
-<link linkend="f-Export"><function>Export</function></link>
+&f-link-Export;
 function.
 <!-- If multiple dirs are provided, each script gets a fresh export. -->
 The subsidiary SConscript files
 must use the
-<link linkend="f-Import"><function>Import</function></link>
+&f-link-Import;
 function to import the variables.
 Examples:
 </para>
@@ -3438,17 +3438,17 @@ SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
-<link linkend="f-VariantDir"><function>VariantDir</function></link> function.
+&f-link-VariantDir; function.
 The <varname>variant_dir</varname>
 argument is interpreted relative to the directory of the calling
 SConscript file.
 The optional
 <varname>duplicate</varname> argument is
-interpreted as for <link linkend="f-VariantDir"><function>VariantDir</function></link>.
+interpreted as for &f-link-VariantDir;.
 If <varname>variant_dir</varname>
 is omitted, the <varname>duplicate</varname> argument is ignored.
 See the description of
-<link linkend="f-VariantDir"><function>VariantDir</function></link>
+&f-link-VariantDir;
 below for additional details and restrictions.
 </para>
 
@@ -3480,7 +3480,7 @@ SConscript('build/SConscript')
 <para>
 This later paradigm is often used when the sources are
 in the same directory as the
-<filename>SConstruct</filename>:
+&SConstruct;:
 </para>
 
 <example_commands>
@@ -3540,7 +3540,7 @@ causing only a warning to be emitted, but this default is deprecated
 (<emphasis>since 3.1</emphasis>).
 For scripts which truly intend to be optional, transition to
 explicitly supplying
-<literal>must_exist=False</literal> to the <function>SConscript</function> call.
+<literal>must_exist=False</literal> to the &f-SConscript; call.
 </para>
 
 <para>
@@ -3578,13 +3578,13 @@ SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
 </example_commands>
 
 <para>
-<function>SConscript</function> returns the values of any variables
+&f-SConscript; returns the values of any variables
 named by the executed SConscript(s) in arguments
-to the <link linkend="f-Return"><function>Return</function></link> function (see above for details).
-If a single <function>SConscript</function> call causes multiple scripts to
+to the &f-link-Return; function (see above for details).
+If a single &f-SConscript; call causes multiple scripts to
 be executed, the return value is a tuple containing
 the returns of all of the scripts. If an executed
-script does not explicitly call <function>Return</function>, it returns
+script does not explicitly call &Return;, it returns
 <constant>None</constant>.
 </para>
 
@@ -3595,7 +3595,7 @@ script does not explicitly call <function>Return</function>, it returns
     <term><replaceable>env</replaceable>.<methodname>SConscriptChdir</methodname>(<parameter>value</parameter>)</term>
     <listitem><para>
 By default,
-<command>scons</command>
+&scons;
 changes its working directory
 to the directory in which each
 subsidiary SConscript file lives.
@@ -3610,7 +3610,7 @@ env.SConscriptChdir(0)
 
 <para>
 in which case
-<command>scons</command>
+&scons;
 will stay in the top-level directory
 while reading all SConscript files.
 (This may be necessary when building from repositories,
@@ -3640,7 +3640,7 @@ SConscript('bar/SConscript')	# will chdir to bar
     <term><replaceable>env</replaceable>.<methodname>SConsignFile</methodname>(<parameter>[file, dbm_module]</parameter>)</term>
     <listitem><para>
 This tells
-<command>scons</command>
+&scons;
 to store all file signatures
 in the specified database
 <parameter>file</parameter>.
@@ -3657,7 +3657,7 @@ If
 <parameter>file</parameter>
 is not an absolute path name,
 the file is placed in the same directory as the top-level
-<filename>SConstruct</filename>
+&SConstruct;
 file.
 </para>
 
@@ -3667,7 +3667,7 @@ If
 is
 <constant>None</constant>,
 then
-<command>scons</command>
+&scons;
 will store file signatures
 in a separate
 <filename>.sconsign</filename>
@@ -3822,7 +3822,7 @@ which corresponds to -Q.
     Note: The initial progress output will still be output as this is done before the SConstruct/SConscript which contains the SetOption is processed
     <literal>scons: Reading SConscript files ...</literal>
 </para>
-<para><emphasis>Available since <command>scons</command> 4.0.</emphasis></para>
+<para><emphasis>Available since &scons; 4.0.</emphasis></para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -3872,7 +3872,7 @@ files for a static library,
 and various log files are created updated
 as side effects of various TeX commands.
 If a target is a side effect of multiple build commands,
-<command>scons</command>
+&scons;
 will ensure that only one set of commands
 is executed at a time.
 Consequently, you only need to use this method
@@ -3904,9 +3904,9 @@ is cleaned whenever a specific
 is cleaned,
 you must specify this explicitly
 with the
-<link linkend="f-Clean"><function>Clean</function></link>
+&f-link-Clean;
 or
-<function>env.Clean</function>
+&f-env-Clean;
 function.
 </para>
 </listitem>
@@ -3999,15 +3999,15 @@ keyword arguments
 must be set to lists of
 target and source nodes, respectively,
 if you want the
-<envar>$TARGET</envar>,
-<envar>$TARGETS</envar>,
-<envar>$SOURCE</envar>
+&cv-TARGET;,
+&cv-TARGETS;,
+&cv-SOURCE;
 and
-<envar>$SOURCES</envar>
+&cv-SOURCES;
 to be available for expansion.
 This is usually necessary if you are
 calling
-<function>env.subst</function>
+&f-env-subst;
 from within a Python function used
 as an SCons action.
 </para>
@@ -4025,7 +4025,7 @@ For example, if you want Python objects
 (including SCons Nodes)
 to be returned as Python objects,
 you can use the Python
-Λ
+&lambda;
 idiom to pass in an unnamed function
 that simply returns its unconverted argument.
 </para>
@@ -4052,7 +4052,7 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST',
     <listitem><para>
 Annotates file or directory Nodes with
 information about how the
-<link linkend="b-Package"><function>Package</function></link>
+&b-link-Package;
 Builder should package those files or directories.
 All tags are optional.
 </para>
@@ -4080,7 +4080,7 @@ Runs the tool identified by
 searched for in standard locations and any
 paths specified by the optional
 <parameter>toolpath</parameter>,
-to update a <phrase>construction environment</phrase> with <phrase>construction variables</phrase>
+to update a &consenv; with &consvars;
 needed to use the mechanisms that tool describes.
 Any additional keyword arguments
 <parameter>kwargs</parameter> are passed
@@ -4088,11 +4088,11 @@ on to the tool module's <function>generate</function> function.
 </para>
 
 <para>
-When called as a <phrase>construction environment</phrase> method,
+When called as a &consenv; method,
 the tool module is called to update the
-<phrase>construction environment</phrase> and the name of the tool is
-appended to the <link linkend="cv-TOOLS"><envar>$TOOLS</envar></link>
-<phrase>construction variable</phrase> in that environment.
+&consenv; and the name of the tool is
+appended to the &cv-link-TOOLS;
+&consvar; in that environment.
 </para>
 
 <para>
@@ -4110,12 +4110,12 @@ returns a callable tool object;
 the tool is not called at this time,
 as it lacks the context of an environment to update.
 This tool object can be passed to an
-<link linkend="f-Environment"><function>Environment</function></link> or <link linkend="f-Clone"><function>Clone</function></link> call
+&f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
 or it can be called directly,
-passing a <phrase>construction environment</phrase> to update as the argument.
+passing a &consenv; to update as the argument.
 Either approach will also update the
-<envar>$TOOLS</envar> <phrase>construction variable</phrase>.
+&cv-TOOLS; &consvar;.
 </para>
 
 <para>
@@ -4214,7 +4214,7 @@ env.UpdateValue(target = Value(output), source = Value(input))
     <term><replaceable>env</replaceable>.<methodname>VariantDir</methodname>(<parameter>variant_dir, src_dir, [duplicate]</parameter>)</term>
     <listitem><para>
 Use the
-<function>VariantDir</function>
+&f-VariantDir;
 function to create a copy of your sources in another location:
 if a name under
 <parameter>variant_dir</parameter>
@@ -4228,7 +4228,7 @@ within the variant tree.
 </para>
 
 <para>
-<function>VariantDir</function>
+&f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
 to set up multiple builds with different options
@@ -4248,7 +4248,7 @@ TODO: src_dir = '.' works fine with a build dir under it.
 
 <para>
 The default behavior is for
-<command>scons</command>
+&scons;
 to physically duplicate the source files in the variant tree.
 Thus, a build performed in the variant tree is guaranteed to be identical
 to a build performed in the source tree even if
@@ -4277,7 +4277,7 @@ argument to
 <literal>0</literal>
 (zero).
 This will cause
-<command>scons</command>
+&scons;
 to invoke Builders using the path names of source files in
 <parameter>src_dir</parameter>
 and the path names of derived files within
@@ -4290,7 +4290,7 @@ and is usually safe for most builds
 
 <para>
 Note that
-<function>VariantDir</function>
+&f-VariantDir;
 works most naturally with a subsidiary SConscript file.
 However, you would then call the subsidiary SConscript file
 not in the source directory, but in the
@@ -4298,7 +4298,7 @@ not in the source directory, but in the
 regardless of the value of
 <literal>duplicate</literal>.
 This is how you tell
-<command>scons</command>
+&scons;
 which variant of a source tree to build:
 </para>
 
@@ -4312,7 +4312,7 @@ SConscript('build/variant2/SConscript')
 
 <para>
 See also the
-<link linkend="f-SConscript"><function>SConscript</function></link>
+&f-link-SConscript;
 function, described above,
 for another way to specify a variant directory
 in conjunction with calling a subsidiary SConscript file.
@@ -4351,11 +4351,11 @@ returning the full path to the program
 or <constant>None</constant>.
 </para>
 <para>
-When called as a <phrase>construction environment</phrase> method,
+When called as a &consenv; method,
 searches the paths in the
 <parameter>path</parameter> keyword argument,
 or if <constant>None</constant> (the default)
-the paths listed in the <phrase>construction environment</phrase>
+the paths listed in the &consenv;
 (<parameter>env</parameter><literal>['ENV']['PATH']</literal>).
 The external environment's path list
 (<literal>os.environ['PATH']</literal>)
@@ -4368,7 +4368,7 @@ On Windows systems, searches for executable
 programs with any of the file extensions listed in the
 <parameter>pathext</parameter> keyword argument,
 or if <constant>None</constant> (the default)
-the pathname extensions listed in the <phrase>construction environment</phrase>
+the pathname extensions listed in the &consenv;
 (<parameter>env</parameter><literal>['ENV']['PATHEXT']</literal>).
 The external environment's pathname extensions list
 (<literal>os.environ['PATHEXT']</literal>)

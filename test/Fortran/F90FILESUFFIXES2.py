@@ -33,7 +33,7 @@ _exe   = TestSCons._exe
 test = TestSCons.TestSCons()
 
 test.file_fixture('mylink.py')
-test.file_fixture(os.path.join('fixture', 'myfortran.py'))
+test.file_fixture(['fixture', 'myfortran.py'])
 
 # Test non-default file suffix: .f/.F for F90
 test.write('SConstruct', """

@@ -31,19 +31,15 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 try:
-    import libxml2
-    import libxslt
-except:
-    try:
-        import lxml
-    except:
-        test.skip_test('Cannot find installed Python binding for libxml2 or lxml, skipping test.\n')
+    import lxml
+except Exception:
+    test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
 test.run()
-test.must_exist(test.workpath('manual_xi.xml'))
+test.must_not_be_empty(test.workpath('manual_xi.xml'))
 test.must_contain(test.workpath('manual_xi.xml'),'<para>This is an included text.', mode='r')
 
 

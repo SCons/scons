@@ -138,31 +138,22 @@ class SCons_XML:
                     added = True
                     stf.appendNode(vl, stf.copyNode(s))
             
-            # Generate the text for sets/uses lists of construction vars.
-            # This used to include an entity reference which would be replaced
-            # by the link to the cvar, but with lxml, dumping out the tree
-            # with tostring() will encode the & introducing the entity,
-            # breaking it. Instead generate the actual link. (issue #3580)
             if v.sets:
                 added = True
                 vp = stf.newNode("para")
-                stf.setText(vp, "Sets: ")
-                for setv in v.sets:
-                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % setv)
-                    linktgt = stf.newSubNode(link, "varname")
-                    stf.setText(linktgt, "$" + setv)
-                    stf.setTail(link, " ")
+                stf.setText(vp, 'Sets: ')
+                for x in v.sets[:-1]:
+                    stf.appendCvLink(vp, x, ', ')
+                stf.appendCvLink(vp, v.sets[-1], '.')
                 stf.appendNode(vl, vp)
 
             if v.uses:
                 added = True
                 vp = stf.newNode("para")
-                stf.setText(vp, "Uses: ")
-                for use in v.uses:
-                    link = stf.newSubNode(vp, "link", linkend="cv-%s" % use)
-                    linktgt = stf.newSubNode(link, "varname")
-                    stf.setText(linktgt, "$" + use)
-                    stf.setTail(link, " ")
+                stf.setText(vp, 'Uses: ')
+                for x in v.uses[:-1]:
+                    stf.appendCvLink(vp, x, ', ')
+                stf.appendCvLink(vp, v.uses[-1], '.')
                 stf.appendNode(vl, vp)
                 
             # Still nothing added to this list item?
