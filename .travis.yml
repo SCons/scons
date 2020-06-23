@@ -81,7 +81,10 @@ jobs:
     - &scons_build_job
         name: SCons Build
         python: 3.7
-        install: pip install -r requirements.txt
+        install:
+          - sudo apt-get -y install docbook-xml docbook-xsl xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf
+          - sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra texlive-font-utils
+          - pip install -r requirements.txt
         script:
           - python bin/docs-update-generated.py
           - python bin/docs-validate.py
@@ -89,4 +92,5 @@ jobs:
           - python scripts/scons.py
           - python setup.py bdist_wheel
           - python setup.py sdist --formats=gztar,zip
+          - (cd doc; make html latexpdf)
           - ls -l build/dist
