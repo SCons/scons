@@ -480,6 +480,11 @@ class Task(ABC):
                         if p.ref_count == 0:
                             self.tm.candidates.append(p)
 
+                    if s.side_effect_temporary:
+                        for side_effect_source in s.sources:
+                            if side_effect_source not in targets:
+                                side_effect_source.side_effects.remove(s)
+
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract
             if T: T.write(self.trace_message('Task.postprocess()',

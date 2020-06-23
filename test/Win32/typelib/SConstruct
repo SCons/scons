@@ -1,0 +1,19 @@
+import atexit
+
+program = Program('typelib.exe', source=[
+    'another.cpp', 'another2.cpp', 'another3.cpp', 'common.cpp', 'main.cpp'])
+
+
+def VerifySideEffects():
+    side_effects = set()
+    for source in program[0].sources:
+        for side_effect in source.side_effects:
+            if side_effect in side_effects:
+                raise Exception('Multiple sources have the same side effect: '
+                                '%s' % str(side_effect))
+            side_effects.add(side_effect)
+            
+    # Expect 2 side effects: 1 for the .tlh and 1 for the .tli.
+    assert 2 == len(side_effects), len(side_effects)
+
+atexit.register(VerifySideEffects)

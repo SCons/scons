@@ -2207,7 +2207,7 @@ class Base(SubstitutionEnvironment):
                 self.Execute(SCons.Defaults.Mkdir(sconsign_dir))
         SCons.SConsign.File(name, dbm_module)
 
-    def SideEffect(self, side_effect, target):
+    def SideEffect(self, side_effect, target, temporary=False):
         """Tell scons that side_effects are built as side
         effects of building targets."""
         side_effects = self.arg2nodes(side_effect, self.fs.Entry)
@@ -2218,6 +2218,7 @@ class Base(SubstitutionEnvironment):
                 raise UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
             side_effect.add_source(targets)
             side_effect.side_effect = 1
+            side_effect.side_effect_temporary = temporary and 1 or 0
             self.Precious(side_effect)
             for target in targets:
                 target.side_effects.append(side_effect)
