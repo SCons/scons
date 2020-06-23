@@ -81,6 +81,7 @@ jobs:
     - &scons_build_job
         name: SCons Build
         python: 3.7
+        install: pip install -r requirements.txt
         script:
           - python bin/docs-update-generated.py
           - python bin/docs-validate.py
