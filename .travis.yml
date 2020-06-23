@@ -86,7 +86,7 @@ jobs:
           - python bin/docs-update-generated.py
           - python bin/docs-validate.py
           - python bin/docs-create-example-outputs.py
-          - python script/scons.py
+          - python scripts/scons.py
           - python setup.py bdist_wheel
           - python setup.py sdist --formats=gztar,zip
           - ls -l build/dist
