@@ -61,10 +61,9 @@ def install_local_package_files(env):
     rename_files = [('scons-${VERSION}.bat', 'scripts/scons.bat'),
                     ('scons-README', 'README-local'),
                     ('scons-LICENSE', 'LICENSE-local')]
-    subst_dict = {'__COPYRIGHT__':env['COPYRIGHT']}
     for t, f in rename_files:
-        # all_local_installed.extend(env.Substfile('#/build/scons-local/%s'%t, f, SUBST_DICT=subst_dict))
-        pass
+        target_file = "#/build/scons-local/%s"%t
+        all_local_installed.append(env.SCons_revision(target_file, f))
 
     return all_local_installed
 
