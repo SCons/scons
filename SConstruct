@@ -2,11 +2,15 @@
 # SConstruct file to build scons packages during development.
 #
 # See the README.rst file for an overview of how SCons is built and tested.
+import os.path
+import sys
+import textwrap
+from time import strftime
 
-copyright_years = '2001 - 2019'
+copyright_years = strftime('2001 - %Y')
 
 # This gets inserted into the man pages to reflect the month of release.
-month_year = 'December 2019'
+month_year = strftime('%B %Y')
 
 #
 # __COPYRIGHT__
@@ -31,10 +35,6 @@ month_year = 'December 2019'
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import os.path
-import sys
-import textwrap
-
 
 project = 'scons'
 default_version = '3.9.9'
@@ -46,10 +46,10 @@ copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 # people to still do SCons packaging work even if they don't have all
 # of the utilities installed
 #
-print("git    :%s"%git)
-print("gzip   :%s"%gzip)
-print("unzip  :%s"%unzip)
-print("zip    :%s"%zip_path)
+print("git    :%s" % git)
+print("gzip   :%s" % gzip)
+print("unzip  :%s" % unzip)
+print("zip    :%s" % zip_path)
 
 #
 # Adding some paths to sys.path, this is mainly needed
@@ -65,11 +65,9 @@ for a in addpaths:
 command_line = BuildCommandLine(default_version)
 command_line.process_command_line_vars()
 
-
 Default('.', command_line.build_dir)
 # Just make copies, don't symlink them.
 SetOption('duplicate', 'copy')
-
 
 packaging_flavors = [
     ('tar-gz', "The normal .tar.gz file for end-user installation."),
@@ -96,12 +94,12 @@ unpack_zip_dir = os.path.join(command_line.build_dir, "unpack-zip")
 
 if is_windows():
     tar_hflag = ''
-    python_project_subinst_dir = os.path.join("Lib", "site-packages", project)
-    project_script_subinst_dir = 'Scripts'
+#     python_project_subinst_dir = os.path.join("Lib", "site-packages", project)
+#     project_script_subinst_dir = 'Scripts'
 else:
     tar_hflag = 'h'
-    python_project_subinst_dir = os.path.join("lib", project)
-    project_script_subinst_dir = 'bin'
+#     python_project_subinst_dir = os.path.join("lib", project)
+#     project_script_subinst_dir = 'bin'
 
 indent_fmt = '  %-26s  '
 
@@ -139,7 +137,6 @@ revaction = SCons_revision
 revbuilder = Builder(action=Action(SCons_revision,
                                    varlist=['COPYRIGHT', 'VERSION']))
 
-
 env = Environment(
     ENV=command_line.ENV,
 
@@ -163,7 +160,8 @@ env = Environment(
     UNZIP=unzip,
     UNZIPFLAGS='-o -d $UNPACK_ZIP_DIR',
 
-    ZCAT=zcat,
+    # ZCAT=zcat,
+    # ZIPID=zipit,
 
     TEST_SRC_TAR_GZ_DIR=test_src_tar_gz_dir,
     TEST_SRC_ZIP_DIR=test_src_zip_dir,
@@ -182,6 +180,7 @@ env = Environment(
 
 Version_values = [Value(command_line.version), Value(command_line.build_id)]
 
+installed_local_files = create_local_packages(env)
 
 #
 #
@@ -192,4 +191,3 @@ Version_values = [Value(command_line.version), Value(command_line.build_id)]
 Export('command_line', 'env', 'whereis', 'revaction')
 
 SConscript('doc/SConscript')
-

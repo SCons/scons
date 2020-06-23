@@ -21,7 +21,7 @@
 
 from glob import glob
 import os.path
-
+from zip_utils import zipit
 
 def get_local_package_file_list():
     """
@@ -37,7 +37,6 @@ def get_local_package_file_list():
     filtered_list = [f for f in filtered_list if '__pycache__' not in f ]
     filtered_list = [f for f in filtered_list if not os.path.isdir(f)]
 
-    # TODO: add scripts
 
     return filtered_list
 
@@ -51,11 +50,47 @@ def install_local_package_files(env):
         all_local_installed.extend(env.Install(os.path.join(target_dir, os.path.dirname(f)),
                                                f))
 
+    basedir_files = ['scripts/scons.bat',
+                     'scripts/scons.py',
+                     'scripts/scons-configure-cache.py',
+                     'scripts/sconsign.py',
+                     'bin/scons-time.py']
+    all_local_installed.extend(env.Install('#/build/scons-local', basedir_files))
+
+    rename_files = [('scons-${VERSION}.bat', 'scripts/scons.bat'),
+                    ('scons-README', 'README-local'),
+                    ('scons-LICENSE', 'LICENSE-local')]
+    subst_dict = {'__COPYRIGHT__':env['COPYRIGHT']}
+    for t, f in rename_files:
+        # all_local_installed.extend(env.Substfile('#/build/scons-local/%s'%t, f, SUBST_DICT=subst_dict))
+        pass
+
     return all_local_installed
 
 def create_local_packages(env):
-
+    # Add SubstFile builder
+    env.Tool('textfile')
+    [env.Tool(x) for x in ['packaging', 'filesystem', 'zip']]
     installed_files = install_local_package_files(env)
+
+    package = env.Command('#build/dist/scons-local-${VERSION}.zip',
+                          installed_files,
+                          zipit,
+                          CD='build/scons-local',
+                          PSV='.',
+                          )
+    # package = env.Package(PACKAGETYPE='zip',
+    #                       NAME='scons-local',
+    #                       VERSION='$VERSION',
+    #             target='#build/dist/scons-local-${VERSION}.zip',
+    #             # PACKAGEROOT='#build/scons-local',
+    #             source=installed_files)
+
+    print("Package:%s"%package)
+
+    # zip_package = env.Package('build/dist/scons-local-${VERSION}.zip',
+    #                           source=installed_files,
+    #                           PACKAGETYPE='zip')
 
 
 
