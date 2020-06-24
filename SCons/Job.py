@@ -34,7 +34,11 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import os
+import sys
 import signal
+import struct
+import pickle
+import subprocess
 
 import SCons.Errors
 
@@ -228,6 +232,27 @@ try:
 except ImportError:
     pass
 else:
+    spawner_tls = threading.local()
+
+    class Spawner:
+        INT_STRUCT = struct.Struct("L")
+
+        def __init__(self):
+            self._spawner = subprocess.Popen([sys.executable,
+                                              os.path.join(os.path.dirname(__file__), "spawner.py")],
+                                             stdin=subprocess.PIPE,
+                                             stdout=subprocess.PIPE)
+
+        def run(self, args, env):
+            params = pickle.dumps({"args": args, "env": env})
+            self._spawner.stdin.write(self.INT_STRUCT.pack(len(params)) + params)
+            self._spawner.stdin.flush()
+            return self.INT_STRUCT.unpack(self._spawner.stdout.read(self.INT_STRUCT.size))[0]
+
+        def stop(self):
+            self._spawner.stdin.close()
+            self._spawner.wait()
+
     class Worker(threading.Thread):
         """A worker thread waits on a task to be posted to its request queue,
         dequeues the task, executes it, and posts a tuple including the task
@@ -242,6 +267,8 @@ else:
             self.start()
 
         def run(self):
+            spawner_tls.spawner = Spawner()
+
             while True:
                 task = self.requestQueue.get()
 
@@ -263,6 +290,8 @@ else:
                     ok = True
 
                 self.resultsQueue.put((task, ok))
+
+            spawner_tls.spawner.stop()
 
     class ThreadPool:
         """This class is responsible for spawning and managing worker threads."""

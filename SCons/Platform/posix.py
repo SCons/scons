@@ -43,6 +43,7 @@ import SCons.Util
 from SCons.Platform import TempFileMunge
 from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv
+from SCons.Job import spawner_tls
 
 exitvalmap = {
     2 : 127,
@@ -63,8 +64,7 @@ def escape(arg):
 
 
 def exec_subprocess(l, env):
-    proc = subprocess.Popen(l, env = env, close_fds = True)
-    return proc.wait()
+    return spawner_tls.spawner.run(l, env)
 
 def subprocess_spawn(sh, escape, cmd, args, env):
     return exec_subprocess([sh, '-c', ' '.join(args)], env)
