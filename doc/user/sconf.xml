@@ -97,6 +97,30 @@ env = conf.Finish()
 
     <para>
 
+    There are a few possible strategies for failing
+    configure checks.  Some checks may be for features without
+    which you cannot proceed.  The simple approach here is
+    just to exit &SCons; at that point - a number of the
+    examples in this chapter are coded that way.  If there
+    are multiple hard requirements, however, it may be
+    friendlier to the user to set a flag in case of any
+    fails of hard requirements and accumulate a record of them,
+    so that on the completion of the &configure_context; they can
+    all be listed prior to failing the build - as it can be frustrating
+    to have to iterate through the setup, fixing one new
+    requirement each iteration.  Other checks may be for
+    features which you can do without, and here the strategy
+    will usually be to set a construction variable which the
+    rest of the build can examine for its absence/presence,
+    or to set particular compiler flags, library lists, etc.
+    as appropriate for the circumstances, so you can proceed
+    with the build appropriately based on available features.
+
+    </para>
+
+
+    <para>
+
     Note that &SCons; uses its own dependency
     mechanism to determine when a check
     needs to be run--that is,
