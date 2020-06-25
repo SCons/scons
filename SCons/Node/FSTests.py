@@ -88,6 +88,9 @@ class Environment:
     def _update(self, dict):
         pass
 
+    def get(self, key, default=None):
+        return default
+
 
 class Action:
     def __call__(self, targets, sources, env, **kw):
