@@ -26,6 +26,7 @@
 <xsl:stylesheet
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
+    xmlns:dbs="http://docbook.org/ns/docbook-slides"
 	version="1.0">
 
 	<xsl:import href="file:///usr/share/xml/docbook/stylesheet/docbook-xsl/slides/xhtml/plain.xsl"/>
@@ -34,22 +35,5 @@
 <xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="titlefoil.html" select="'manual.html'"/>
 <xsl:param name="html.stylesheet" select="'scons.css'"/>
-<xsl:param name="generate.toc">
-/appendix toc,title
-article/appendix  nop
-/article  toc,title
-book      toc,title,figure,table,example,equation
-/chapter  toc,title
-part      toc,title
-/preface  toc,title
-reference toc,title
-/sect1    toc
-/sect2    toc
-/sect3    toc
-/sect4    toc
-/sect5    toc
-/section  toc
-set       toc,title
-</xsl:param>
 
 </xsl:stylesheet>

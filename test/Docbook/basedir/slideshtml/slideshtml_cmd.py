@@ -43,16 +43,11 @@ test.dir_fixture('image')
 # Normal invocation
 test.run(arguments=['-f','SConstruct.cmd'], stderr=None)
 test.must_not_be_empty(test.workpath('output/index.html'))
-test.must_not_be_empty(test.workpath('output/toc.html'))
-test.must_not_be_empty(test.workpath('output/foil01.html'))
-test.must_not_be_empty(test.workpath('output/foilgroup01.html'))
+test.must_contain(test.workpath('output/index.html'), 'sfForming')
 
 # Cleanup
 test.run(arguments=['-f','SConstruct.cmd','-c'], stderr=None)
 test.must_not_exist(test.workpath('output/index.html'))
-test.must_not_exist(test.workpath('output/toc.html'))
-test.must_not_exist(test.workpath('output/foil01.html'))
-test.must_not_exist(test.workpath('output/foilgroup01.html'))
 
 test.pass_test()
 

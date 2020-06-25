@@ -46,16 +46,11 @@ test.dir_fixture('image')
 # Normal invocation
 test.run(stderr=None)
 test.must_not_be_empty(test.workpath('index.html'))
-test.must_not_be_empty(test.workpath('toc.html'))
-test.must_not_be_empty(test.workpath('foil01.html'))
-test.must_not_be_empty(test.workpath('foilgroup01.html'))
+test.must_contain(test.workpath('index.html'), 'sfForming')
 
 # Cleanup
 test.run(arguments='-c')
 test.must_not_exist(test.workpath('index.html'))
-test.must_not_exist(test.workpath('toc.html'))
-test.must_not_exist(test.workpath('foil01.html'))
-test.must_not_exist(test.workpath('foilgroup01.html'))
 
 test.pass_test()
 
