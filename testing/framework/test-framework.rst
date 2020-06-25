@@ -528,8 +528,8 @@ Test infrastructure
 The main test API is defined in the ``TestSCons`` class.  ``TestSCons``
 is a subclass of ``TestCommon``, which is a subclass of ``TestCmd``.
 All those classes are defined in Python files of the same name
-in ``testing/framework``. Start in ``testing/framework/TestCmd.py``
-for the base API definitions, like how
+in ``testing/framework``. 
+Start in ``testing/framework/TestCmd.py`` for the base API definitions, like how
 to create files (``test.write()``) and run commands (``test.run()``).
 
 Use ``TestSCons`` for the end-to-end tests in ``test``, but use
@@ -618,11 +618,10 @@ This leads to a suggestion for E2E test organization because the framework
 doesn't have a way to indicate a partial skip - if you executed
 200 lines of test, then found a condition which caused you to skip the
 last 20 lines, the whole test is marked as a skip;
-it also doesn't have a way to indicate a partial pass. To improve of
-this, keep tool tests which don't need the underlying program in
-separate files from ones which do -
-it is clearer what is going on if we can see in the test results that the
-plumbing tests worked but the ones using the underlying program were skipped
-rather than seeing all the tests for a tool reported passing (even though
-some weren't actually run) or being entirely skipped.
+it also doesn't have a way to indicate a partial pass.
+To improve on this, keep tool tests which don't need the
+underlying program in separate files from ones which do -
+that way one can see in the test results that the "plumbing"
+tests worked even if the the ones using the underlying program
+maybe were skipped.
 
