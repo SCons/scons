@@ -18,6 +18,7 @@ depends.xml
 environments.xml
 errors.xml
 example.xml
+external.xml
 factories.xml
 file-removal.xml
 functions.xml

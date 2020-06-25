@@ -1,0 +1,158 @@
+<?xml version='1.0'?>
+<!DOCTYPE sconsdoc [
+    <!ENTITY % scons SYSTEM "../scons.mod">
+    %scons;
+
+    <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
+    %builders-mod;
+    <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
+    %functions-mod;
+    <!ENTITY % tools-mod SYSTEM "../generated/tools.mod">
+    %tools-mod;
+    <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
+    %variables-mod;
+
+]>
+
+<chapter id="chap-external"
+         xmlns="http://www.scons.org/dbxsd/v1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Using SCons with other build tools</title>
+
+<!--
+
+  __COPYRIGHT__
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+
+  <para>
+
+  Sometimes a project needs to interact with other projects
+  in various ways.  For example, many open source projects
+  make use of components from other open source projects,
+  and want to use those in their released form, not recode
+  their builds into &SCons;.  As another example, sometimes
+  the flexibility and power of &SCons; is useful for managing the
+  overall project, but developers might like faster incremental
+  builds when making small changes by using a different tool.
+
+  </para>
+
+  <para>
+
+  This chapter shows some techniques for interacting with other
+  projects and tools effectively from within &SCons;.
+
+  </para>
+
+  <section>
+    <title>Creating a Compilation Database</title>
+
+    <para>
+
+    Tooling which wants to perform analysis and modification 
+    of source code often needs to know not only the source code
+    itself, but also how it will be compiled, as the compilation line
+    affects the behavior of macros, includes, etc. &SCons; has a
+    record of this information once it has run, in the form of
+    Actions associated with the sources, and can emit this information
+    so tools can use it.
+
+    </para>
+
+    <para>
+
+    The Clang project has defined a <firstterm>JSON Compilation Database</firstterm>.
+    This database is in common use as input into Clang tools
+    and many IDEs and editors as well.
+    See
+    <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">
+      <citetitle>JSON Compilation Database Format Specification</citetitle>
+    </ulink>
+    for complete information. &SCons; can emit a 
+    compilation database in this format
+    by enabling the &t-link-compilation_db; tool
+    and calling the &b-link-CompilationDatabase; builder
+    (available since 4.0).
+
+    </para>
+
+    <para>
+
+    The compilation database can be populated with
+    source and target files either with paths relative
+    to the top of the build, or using absolute paths.
+    This is controlled by
+    <envar>COMPILATIONDB_USE_ABSPATH=(True|False)</envar>
+    which defaults to <constant>False</constant>.
+
+    </para>
+
+    <para>
+
+    Example of absolute paths for target and source:
+
+    </para>
+
+    <sconstruct>
+env = Environment(COMPILATIONDB_USE_ABSPATH=True)
+env.Tool('compilation_db')
+env.CompilationDatabase('compile_commands.json')
+    </sconstruct>
+
+    <programlisting language="json">
+[
+    {
+        "command": "gcc -o test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "/home/user/sandbox/test_main.c",
+        "target": "/home/user/sandbox/test_main.o"
+    }
+]
+    </programlisting>
+
+    <para>
+
+    Example of relative paths for target and source:
+
+    </para>
+
+    <sconstruct>
+env = Environment()
+env.Tool('compilation_db')
+env.CompilationDatabase('compile_commands.json')
+    </sconstruct>
+    <programlisting language="json">
+[
+    {
+        "command": "gcc -o test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "target": "test_main.o"
+    }
+]
+    </programlisting>
+
+  </section>
+
+</chapter>

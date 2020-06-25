@@ -43,23 +43,6 @@
 
 ]>
 
-  <!--
-
-  XXX Platform()
-  XXX Tools()
-
-  XXX GetOption('duplicate')
-  XXX SetOption('duplicate')
-  XXX - - duplicate=
-
-  XXX CheckTypeSize()
-
-  XXX - - diskcheck=
-
-  XXX - - warn=
-
-  -->
-
 <book xmlns="http://www.scons.org/dbxsd/v1.0"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
@@ -158,6 +141,7 @@
   -->
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="misc.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="external.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="troubleshoot.xml"/>
 
 <!--   Appendix below here -->
