@@ -5443,7 +5443,7 @@ for each element in the list.
 If an element
 <emphasis>within</emphasis>
 the list is itself a list,
-the internal list taken as the
+the internal list is taken as the
 command and arguments to be executed via
 the command line.
 This allows white space to be enclosed
@@ -5514,7 +5514,8 @@ will expand &consvars; in any argument strings,
 including the action argument, at the time it is called,
 using the construction variables in the &consenv; through which
 it was called. The global function form &f-link-Action;
-delays variable expansion until the Action object is actually used.
+<emphasis>delays</emphasis> variable expansion until
+the Action object is actually used.
 </para>
 
 <para>The second argument to &f-Action;
@@ -5937,9 +5938,16 @@ Examples:</para>
 <programlisting language="python">
 Execute(Delete('/tmp/buildroot'))
 
-env.Command('foo.out', 'foo.in', [Delete('${TARGET.dir}'), MyBuildAction])
+env.Command(
+    'foo.out',
+    'foo.in',
+    action=[
+        Delete('${TARGET.dir}'),
+        MyBuildAction,
+    ],
+)
 
-Execute(Delete('file_that_must_exist', must_exist=1))
+Execute(Delete('file_that_must_exist', must_exist=True))
 </programlisting>
 
   </listitem>
