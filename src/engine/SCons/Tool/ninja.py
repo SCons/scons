@@ -56,63 +56,6 @@ COMMAND_TYPES = (
 )
 
 
-def _install_action_function(_env, node):
-    """Install files using the install or copy commands"""
-    #TODO: handle Python.Value nodes
-    return {
-        "outputs": get_outputs(node),
-        "rule": "INSTALL",
-        "inputs": [get_path(src_file(s)) for s in node.sources if not isinstance(s, SCons.Node.Python.Value)],
-        "implicit": get_dependencies(node),
-    }
-
-def _mkdir_action_function(env, node):
-    return {
-        "outputs": get_outputs(node),
-        "rule": "CMD",
-        # implicit explicitly omitted, we translate these so they can be
-        # used by anything that depends on these but commonly this is
-        # hit with a node that will depend on all of the fake
-        # srcnode's that SCons will never give us a rule for leading
-        # to an invalid ninja file.
-        "variables": {
-            # On Windows mkdir "-p" is always on
-            "cmd": "{mkdir}".format(
-                mkdir="mkdir $out & exit 0" if env["PLATFORM"] == "win32" else "mkdir -p $out",
-            ),
-        },
-    }
-
-def _copy_action_function(env, node):
-    #TODO: handle Python.Value nodes
-    return {
-        "outputs": get_outputs(node),
-        "inputs": [get_path(src_file(s)) for s in node.sources if not isinstance(s, SCons.Node.Python.Value)],
-        "rule": "CMD",
-        "variables": {
-            "cmd": "$COPY $in $out",
-        },
-    }
-
-
-def _lib_symlink_action_function(_env, node):
-    """Create shared object symlinks if any need to be created"""
-    symlinks = getattr(getattr(node, "attributes", None), "shliblinks", None)
-
-    if not symlinks or symlinks is None:
-        return None
-
-    outputs = [link.get_dir().rel_path(linktgt) for link, linktgt in symlinks]
-    inputs = [link.get_path() for link, _ in symlinks]
-
-    return {
-        "outputs": outputs,
-        "inputs": inputs,
-        "rule": "SYMLINK",
-        "implicit": get_dependencies(node),
-    }
-
-
 def is_valid_dependent_node(node):
     """
     Return True if node is not an alias or is an alias that has children
@@ -136,46 +79,65 @@ def is_valid_dependent_node(node):
 
 def alias_to_ninja_build(node):
     """Convert an Alias node into a Ninja phony target"""
-    # TODO: handle Python.Values
     return {
         "outputs": get_outputs(node),
         "rule": "phony",
         "implicit": [
-            get_path(src_file(n)) for n in node.children() if is_valid_dependent_node(n) and not isinstance(n, SCons.Node.Python.Value)
+            get_path(src_file(n)) for n in node.children() if is_valid_dependent_node(n)
         ],
     }
+
+
+def check_invalid_ninja_node(node):
+    return not isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias))
+
+
+def filter_ninja_nodes(node_list):
+    ninja_nodes = []
+    for node in node_list:
+        if isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias)):
+            ninja_nodes.append(node)
+        else:
+            continue
+    return ninja_nodes
+
+def get_input_nodes(node):
+    if node.get_executor() is not None:
+        inputs = node.get_executor().get_all_sources()
+    else:
+        inputs = node.sources
+    return inputs
+
+
+def invalid_ninja_nodes(node, targets):
+    result = False
+    for node_list in [node.prerequisites, get_input_nodes(node), node.children(), targets]:
+        if node_list:
+            result = result or any([check_invalid_ninja_node(node) for node in node_list])
+    return result
 
 
 def get_order_only(node):
     """Return a list of order only dependencies for node."""
     if node.prerequisites is None:
         return []
-    #TODO: handle Python.Value nodes
-    return [get_path(src_file(prereq)) for prereq in node.prerequisites if not isinstance(prereq, SCons.Node.Python.Value)]
+    return [get_path(src_file(prereq)) for prereq in filter_ninja_nodes(node.prerequisites)]
 
 
 def get_dependencies(node, skip_sources=False):
     """Return a list of dependencies for node."""
-    #TODO: handle Python.Value nodes
     if skip_sources:
         return [
             get_path(src_file(child))
-            for child in node.children()
-            if child not in node.sources and not isinstance(child, SCons.Node.Python.Value)
+            for child in filter_ninja_nodes(node.children())
+            if child not in node.sources
         ]
-    return [get_path(src_file(child)) for child in node.children() if not isinstance(child, SCons.Node.Python.Value)]
+    return [get_path(src_file(child)) for child in filter_ninja_nodes(node.children())]
 
 
 def get_inputs(node):
     """Collect the Ninja inputs for node."""
-    executor = node.get_executor()
-    if executor is not None:
-        inputs = executor.get_all_sources()
-    else:
-        inputs = node.sources
-    #TODO: handle Python.Value nodes
-    inputs = [get_path(src_file(o)) for o in inputs if not isinstance(o, SCons.Node.Python.Value)]
-    return inputs
+    return [get_path(src_file(o)) for o in filter_ninja_nodes(get_input_nodes(node))]
 
 
 def get_outputs(node):
@@ -189,9 +151,91 @@ def get_outputs(node):
         else:
             outputs = [node]
 
-    outputs = [get_path(o) for o in outputs]
+    outputs = [get_path(o) for o in filter_ninja_nodes(outputs)]
 
     return outputs
+
+
+def get_targets_sources(node):
+    executor = node.get_executor()
+    if executor is not None:
+        tlist = executor.get_all_targets()
+        slist = executor.get_all_sources()
+    else:
+        if hasattr(node, "target_peers"):
+            tlist = node.target_peers
+        else:
+            tlist = [node]
+        slist = node.sources
+
+    # Retrieve the repository file for all sources
+    slist = [rfile(s) for s in slist]
+    return tlist, slist
+
+
+def get_rule(node, rule):
+    tlist, slist = get_targets_sources(node)
+    if invalid_ninja_nodes(node, tlist):
+        return "TEMPLATE"
+    else:
+        return rule
+
+
+def _install_action_function(_env, node):
+    """Install files using the install or copy commands"""
+    return {
+        "outputs": get_outputs(node),
+        "rule": get_rule(node, "INSTALL"),
+        "inputs": get_inputs(node),
+        "implicit": get_dependencies(node),
+    }
+
+
+def _mkdir_action_function(env, node):
+    return {
+        "outputs": get_outputs(node),
+        "rule": get_rule(node, "CMD"),
+        # implicit explicitly omitted, we translate these so they can be
+        # used by anything that depends on these but commonly this is
+        # hit with a node that will depend on all of the fake
+        # srcnode's that SCons will never give us a rule for leading
+        # to an invalid ninja file.
+        "variables": {
+            # On Windows mkdir "-p" is always on
+            "cmd": "{mkdir}".format(
+                mkdir="mkdir $out & exit 0" if env["PLATFORM"] == "win32" else "mkdir -p $out",
+            ),
+        },
+    }
+
+
+def _copy_action_function(env, node):
+    return {
+        "outputs": get_outputs(node),
+        "inputs": get_inputs(node),
+        "rule": get_rule(node, "CMD"),
+        "variables": {
+            "cmd": "$COPY $in $out",
+        },
+    }
+
+
+def _lib_symlink_action_function(_env, node):
+    """Create shared object symlinks if any need to be created"""
+    symlinks = getattr(getattr(node, "attributes", None), "shliblinks", None)
+
+    if not symlinks or symlinks is None:
+        return None
+
+    outputs = [link.get_dir().rel_path(linktgt) for link, linktgt in symlinks]
+    inputs = [link.get_path() for link, _ in symlinks]
+
+    return {
+        "outputs": outputs,
+        "inputs": inputs,
+        "rule": get_rule(node, "SYMLINK"),
+        "implicit": get_dependencies(node),
+    }
 
 
 class SConsToNinjaTranslator:
@@ -290,7 +334,9 @@ class SConsToNinjaTranslator:
 
         return {
                 "rule": "TEMPLATE",
+                "order_only": get_order_only(node),
                 "outputs": get_outputs(node),
+                "inputs": get_inputs(node),
                 "implicit": get_dependencies(node, skip_sources=True),
             }
 
@@ -345,7 +391,7 @@ class SConsToNinjaTranslator:
             if cmdline:
                 ninja_build = {
                     "outputs": all_outputs,
-                    "rule": "GENERATED_CMD",
+                    "rule": get_rule(node, "GENERATED_CMD"),
                     "variables": {
                         "cmd": cmdline,
                         "env": get_command_env(node.env if node.env else self.env),
@@ -366,11 +412,10 @@ class SConsToNinjaTranslator:
             }
 
         elif results[0]["rule"] == "INSTALL":
-            #TODO: handle Python.Value nodes
             return {
                 "outputs": all_outputs,
-                "rule": "INSTALL",
-                "inputs": [get_path(src_file(s)) for s in node.sources if not isinstance(s, SCons.Node.Python.Value)],
+                "rule": get_rule(node, "INSTALL"),
+                "inputs": get_inputs(node),
                 "implicit": dependencies,
             }
 
@@ -985,20 +1030,8 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
         sub_env = node.env
     else:
         sub_env = env
-
     executor = node.get_executor()
-    if executor is not None:
-        tlist = executor.get_all_targets()
-        slist = executor.get_all_sources()
-    else:
-        if hasattr(node, "target_peers"):
-            tlist = node.target_peers
-        else:
-            tlist = [node]
-        slist = node.sources
-
-    # Retrieve the repository file for all sources
-    slist = [rfile(s) for s in slist]
+    tlist, slist = get_targets_sources(node)
 
     # Generate a real CommandAction
     if isinstance(action, SCons.Action.CommandGeneratorAction):
@@ -1022,9 +1055,10 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
         "outputs": get_outputs(node),
         "inputs": get_inputs(node),
         "implicit": implicit,
-        "rule": rule,
+        "rule": get_rule(node, rule),
         "variables": variables,
     }
+
 
     # Don't use sub_env here because we require that NINJA_POOL be set
     # on a per-builder call basis to prevent accidental strange
@@ -1283,6 +1317,11 @@ def exists(env):
     if env.get("__NINJA_NO", "0") == "1":
         return False
 
+    try:
+        import ninja
+    except ImportError:
+        SCons.Warnings.Warning("Failed to import ninja, attempt normal SCons build.")
+        return False
     return True
 
 added = None
@@ -1308,8 +1347,6 @@ def generate(env):
             default=False,
             help='Disable ninja automatically building after scons')
 
-    if GetOption('disable_ninja'):
-        return env
 
     try:
         import ninja
@@ -1426,6 +1463,9 @@ def generate(env):
 
         # Disable running ranlib, since we added 's' above
         env["RANLIBCOM"] = ""
+
+    if GetOption('disable_ninja'):
+        return env
 
     SCons.Warnings.Warning("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
 
