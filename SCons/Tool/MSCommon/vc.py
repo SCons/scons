@@ -1985,9 +1985,14 @@ def _register_msvc_instances_in_vswhere_json(vswhere_output):
             raise UnsupportedVersion("Unknown msvs version %s" % installationVersion)
 
         componentId = productId.split('.')[-1]
+        if componentId not in _MSVC_PRODUCTVERSION_COMPONENTIDS[msvc_vernum]['Products']:
+            debug('ignore componentId:%s' % componentId)
+            continue
+
         component_rank = _MSVC_COMPONENTID_SELECTION_RANKING.get(componentId,0)
         if component_rank == 0:
             debug('unknown componentId:%s' % componentId)
+            continue
 
         msvc_version = msvc_vernum
         msvc_product = msvc_version + _MSVC_COMPONENTID_VERSIONSUFFIX[componentId]
