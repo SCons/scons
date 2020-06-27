@@ -607,7 +607,7 @@ def find_vc_pdir(env, msvc_version):
 #      find_vc_pdir_registry: queries the registry for versions <= 14.0
 #     
 #      find_vc_pdir_specific:
-#        calls find_vc_pdir_msvc_instance for versions >= 14.1
+#        calls find_vc_pdir_vswhere_instance for versions >= 14.1
 #        calls find_vc_pdir_registry for versions <= 14.0
 
 def call_vswhere_json_output(vswhere_args, env=None):
@@ -714,7 +714,7 @@ def find_vc_pdir_specific(env, msvc_version):
     vernum = float(msvc_ver_numeric)
 
     if vernum >= 14.1:
-        vc_dir = find_vc_pdir_msvc_instance(msvc_version, env)
+        vc_dir = find_vc_pdir_vswhere_instance(msvc_version, env)
     else:
         vc_dir = find_vc_pdir_registry(env, msvc_version)
 
@@ -1801,7 +1801,7 @@ def msvc_find_specific_version(env, msvc_version, vc_host, vc_target):
     debug("specific_version: %s -> %s" % (repr(memo_key), repr(memo_val)) )
     return (memo_val.vc_ver, memo_val.vcvars_ver)
 
-def find_vc_pdir_msvc_instance(msvc_version, env=None):
+def find_vc_pdir_vswhere_instance(msvc_version, env=None):
     
     if msvc_version not in _VCVER:
         raise UnsupportedVersion("Unknown version %s" % msvc_version)
