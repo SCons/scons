@@ -123,7 +123,7 @@ future_reserved_construction_var_names = [
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
-    for k in list(result.keys()):
+    for k in result.copy().keys():
         if k in reserved_construction_var_names:
             msg = "Ignoring attempt to set reserved variable `$%s'"
             SCons.Warnings.warn(SCons.Warnings.ReservedVariableWarning, msg % k)
@@ -142,7 +142,7 @@ def _set_future_reserved(env, key, value):
 def _set_BUILDERS(env, key, value):
     try:
         bd = env._dict[key]
-        for k in list(bd.keys()):
+        for k in bd.copy().keys():
             del bd[k]
     except KeyError:
         bd = BuilderDict(bd, env)
@@ -434,13 +434,23 @@ class SubstitutionEnvironment:
         return self._dict.get(key, default)
 
     def has_key(self, key):
+        """Emulates the has_key() method of dictionaries."""
         return key in self._dict
 
     def __contains__(self, key):
         return self._dict.__contains__(key)
 
+    def keys(self):
+        """Emulates the keys() method of dictionaries."""
+        return self._dict.keys()
+
+    def values(self):
+        """Emulates the values() method of dictionaries."""
+        return self._dict.values()
+
     def items(self):
-        return list(self._dict.items())
+        """Emulates the items() method of dictionaries."""
+        return self._dict.items()
 
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
         if node_factory is _null:
@@ -2338,10 +2348,12 @@ class OverrideEnvironment(Base):
             return self.__dict__['overrides'][key]
         except KeyError:
             return self.__dict__['__subject'].__getitem__(key)
+
     def __setitem__(self, key, value):
         if not is_valid_construction_var(key):
             raise UserError("Illegal construction variable `%s'" % key)
         self.__dict__['overrides'][key] = value
+
     def __delitem__(self, key):
         try:
             del self.__dict__['overrides'][key]
@@ -2356,30 +2368,43 @@ class OverrideEnvironment(Base):
                 raise
             result = None
         return result
+
     def get(self, key, default=None):
         """Emulates the get() method of dictionaries."""
         try:
             return self.__dict__['overrides'][key]
         except KeyError:
             return self.__dict__['__subject'].get(key, default)
+
     def has_key(self, key):
+        """Emulates the has_key() method of dictionaries."""
         try:
             self.__dict__['overrides'][key]
             return 1
         except KeyError:
             return key in self.__dict__['__subject']
+
     def __contains__(self, key):
         if self.__dict__['overrides'].__contains__(key):
             return 1
         return self.__dict__['__subject'].__contains__(key)
+
     def Dictionary(self):
-        """Emulates the items() method of dictionaries."""
         d = self.__dict__['__subject'].Dictionary().copy()
         d.update(self.__dict__['overrides'])
         return d
+
     def items(self):
         """Emulates the items() method of dictionaries."""
-        return list(self.Dictionary().items())
+        return self.Dictionary().items()
+
+    def keys(self):
+        """Emulates the keys() method of dictionaries."""
+        return self.Dictionary().keys()
+
+    def values(self):
+        """Emulates the values() method of dictionaries."""
+        return self.Dictionary().values()
 
     # Overridden private construction environment methods.
     def _update(self, dict):

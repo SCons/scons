@@ -174,14 +174,12 @@ class TestEnvironmentFixture:
 class SubstitutionTestCase(unittest.TestCase):
 
     def test___init__(self):
-        """Test initializing a SubstitutionEnvironment
-        """
+        """Test initializing a SubstitutionEnvironment."""
         env = SubstitutionEnvironment()
         assert '__env__' not in env
 
     def test___cmp__(self):
-        """Test comparing SubstitutionEnvironments
-        """
+        """Test comparing SubstitutionEnvironments."""
 
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x')
@@ -193,16 +191,14 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env1 != env4
 
     def test___delitem__(self):
-        """Test deleting a variable from a SubstitutionEnvironment
-        """
+        """Test deleting a variable from a SubstitutionEnvironment."""
         env1 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env2 = SubstitutionEnvironment(XXX = 'x')
         del env1['YYY']
         assert env1 == env2
 
     def test___getitem__(self):
-        """Test fetching a variable from a SubstitutionEnvironment
-        """
+        """Test fetching a variable from a SubstitutionEnvironment."""
         env = SubstitutionEnvironment(XXX = 'x')
         assert env['XXX'] == 'x', env['XXX']
 
@@ -215,38 +211,52 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env1 == env2
 
     def test_get(self):
-        """Test the SubstitutionEnvironment get() method
-        """
+        """Test the SubstitutionEnvironment get() method."""
         env = SubstitutionEnvironment(XXX = 'x')
         assert env.get('XXX') == 'x', env.get('XXX')
         assert env.get('YYY') is None, env.get('YYY')
 
     def test_has_key(self):
-        """Test the SubstitutionEnvironment has_key() method
-        """
+        """Test the SubstitutionEnvironment has_key() method."""
         env = SubstitutionEnvironment(XXX = 'x')
         assert 'XXX' in env
         assert 'YYY' not in env
 
     def test_contains(self):
-        """Test the SubstitutionEnvironment __contains__() method
-        """
+        """Test the SubstitutionEnvironment __contains__() method."""
         env = SubstitutionEnvironment(XXX = 'x')
         assert 'XXX' in env
         assert 'YYY' not in env
 
+    def test_keys(self):
+        """Test the SubstitutionEnvironment keys() method."""
+        testdata = {'XXX': 'x', 'YYY': 'y'}
+        env = SubstitutionEnvironment(**testdata)
+        keys = list(env.keys())
+        assert len(keys) == 2, keys
+        for k in testdata.keys():
+            assert k in keys, keys
+
+    def test_values(self):
+        """Test the SubstitutionEnvironment values() method."""
+        testdata = {'XXX': 'x', 'YYY': 'y'}
+        env = SubstitutionEnvironment(**testdata)
+        values = list(env.values())
+        assert len(values) == 2, values
+        for v in testdata.values():
+            assert v in values, values
+
     def test_items(self):
-        """Test the SubstitutionEnvironment items() method
-        """
-        env = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
+        """Test the SubstitutionEnvironment items() method."""
+        testdata = {'XXX': 'x', 'YYY': 'y'}
+        env = SubstitutionEnvironment(**testdata)
         items = list(env.items())
-        assert len(items) == 2 and ('XXX','x') in items and ('YYY','y') in items, items
-        # Was. This fails under py3 as order changes
-        # assert items == [('XXX','x'), ('YYY','y')], items
+        assert len(items) == 2, items
+        for k, v in testdata.items():
+            assert (k, v) in items, items
 
     def test_arg2nodes(self):
-        """Test the arg2nodes method
-        """
+        """Test the arg2nodes method."""
         env = SubstitutionEnvironment()
         dict = {}
         class X(SCons.Node.Node):
