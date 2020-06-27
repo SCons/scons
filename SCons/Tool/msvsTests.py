@@ -939,6 +939,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
     SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
+    SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere_instance = DummyVsWhere
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)
