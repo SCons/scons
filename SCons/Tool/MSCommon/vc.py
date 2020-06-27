@@ -2396,7 +2396,7 @@ if _MODULE_STACK.DISPLAY_CALL_TREE:
         if current_func[0] == "<":
             return
 
-        if frame.f_back.f_code.co_filename != _MODULE_STACK.FRAME_CURRENT_PATHNAME:
+        if frame.f_back and frame.f_back.f_code.co_filename != _MODULE_STACK.FRAME_CURRENT_PATHNAME:
             print("", file=sys.stderr)
 
             _MODULE_STACK.FRAME_INDENT_CALLER = ""
@@ -2407,6 +2407,7 @@ if _MODULE_STACK.DISPLAY_CALL_TREE:
             while n_back and back:
                 n_back -= 1
                 back = back.f_back
+                if not back: break
                 back_frames.insert(0, back)
 
             last_len = 0
@@ -2435,7 +2436,7 @@ if _MODULE_STACK.DISPLAY_CALL_TREE:
             if last_len and _MODULE_STACK.FRAME_CALLER_FRAMES > 1:
                 indent = _MODULE_STACK.FRAME_INDENT_LITERAL * (len(back_frames) - 1)
                 print("%s%s" % (indent, "-" * last_len), file=sys.stderr)
-        
+
         f = frame
         depth = 0
         while f.f_back and f.f_code.co_filename == _MODULE_STACK.FRAME_CURRENT_PATHNAME:
@@ -2445,13 +2446,16 @@ if _MODULE_STACK.DISPLAY_CALL_TREE:
         indent = _MODULE_STACK.FRAME_INDENT_CALLER + _MODULE_STACK.FRAME_INDENT_LITERAL * (depth - 1)
 
         if _MODULE_STACK.DISPLAY_FUNCTION_LOCATION:
-            from_file = os.path.split(frame.f_back.f_code.co_filename)[-1]
-            from_line = frame.f_back.f_lineno
-            if from_file == _MODULE_STACK.FRAME_CURRENT_FILENAME:
-                from_where = "%d" % from_line
+            if frame.f_back:
+                from_file = os.path.split(frame.f_back.f_code.co_filename)[-1]
+                from_line = frame.f_back.f_lineno
+                if from_file == _MODULE_STACK.FRAME_CURRENT_FILENAME:
+                    from_where = " from %d" % from_line
+                else:
+                    from_where = " from %s:%d" % (from_file, from_line)
             else:
-                from_where = "%s:%d" % (from_file, from_line)
-            location = " <%s:%d from %s>" % (_MODULE_STACK.FRAME_CURRENT_FILENAME, frame.f_lineno, from_where)
+                from_where = ""
+            location = " <%s:%d%s>" % (_MODULE_STACK.FRAME_CURRENT_FILENAME, frame.f_lineno, from_where)
         else:
             location = ""
 
@@ -2461,11 +2465,11 @@ if _MODULE_STACK.DISPLAY_CALL_TREE:
             arglist = ""
 
         print("%s%s%s%s" % (
-            indent, 
-            current_func, 
-            arglist, 
-            location), 
+            indent,
+            current_func,
+            arglist,
+            location),
             file=sys.stderr
         )
-            
+
     sys.settrace(trace_current_module)
