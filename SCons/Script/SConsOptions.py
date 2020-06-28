@@ -836,6 +836,12 @@ def Parser(version):
                   help="Trace Node evaluation to FILE.",
                   metavar="FILE")
 
+    # TODO allow only on posix? it doesn't affect other systems anyway.
+    op.add_option('--process-spawner',
+                  dest='process_spawner', default=False,
+                  action="store_true",
+                  help="Use a spawner process to speed up spawning")
+
     tree_options = ["all", "derived", "prune", "status", "linedraw"]
 
     def opt_tree(option, opt, value, parser, tree_options=tree_options):

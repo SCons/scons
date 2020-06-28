@@ -40,6 +40,7 @@ import pickle
 import subprocess
 
 import SCons.Errors
+import SCons.Platform
 
 # The default stack size (in kilobytes) of the threads used to execute
 # jobs in parallel.
@@ -231,24 +232,6 @@ try:
 except ImportError:
     pass
 else:
-    spawner_tls = threading.local()
-
-    class Spawner:
-        def __init__(self):
-            self._spawner = subprocess.Popen([sys.executable,
-                                              os.path.join(os.path.dirname(__file__), "spawner.py")],
-                                             stdin=subprocess.PIPE,
-                                             stdout=subprocess.PIPE)
-
-        def run(self, args, env):
-            pickle.dump({"args": args, "env": env}, self._spawner.stdin)
-            self._spawner.stdin.flush()
-            return pickle.load(self._spawner.stdout)
-
-        def stop(self):
-            self._spawner.stdin.close()
-            self._spawner.wait()
-
     class Worker(threading.Thread):
         """A worker thread waits on a task to be posted to its request queue,
         dequeues the task, executes it, and posts a tuple including the task
@@ -263,8 +246,6 @@ else:
             self.start()
 
         def run(self):
-            spawner_tls.spawner = Spawner()
-
             while True:
                 task = self.requestQueue.get()
 
@@ -287,7 +268,32 @@ else:
 
                 self.resultsQueue.put((task, ok))
 
+    class Spawner:
+        def __init__(self):
+            self._spawner = subprocess.Popen([sys.executable,
+                                              os.path.join(os.path.dirname(__file__), "spawner.py")],
+                                             stdin=subprocess.PIPE,
+                                             stdout=subprocess.PIPE)
+
+        def run(self, args, env):
+            pickle.dump({"args": args, "env": env}, self._spawner.stdin)
+            self._spawner.stdin.flush()
+            return pickle.load(self._spawner.stdout)
+
+        def stop(self):
+            self._spawner.stdin.close()
+            self._spawner.wait()
+
+    spawner_tls = threading.local()
+
+    class WorkerWithSpawner(Worker):
+        def run(self):
+            spawner_tls.spawner = Spawner()
+            super(WorkerWithSpawner, self).run()
             spawner_tls.spawner.stop()
+
+    def worker_class():
+        return WorkerWithSpawner if SCons.Platform.process_spawner else Worker
 
     class ThreadPool:
         """This class is responsible for spawning and managing worker threads."""
@@ -317,7 +323,7 @@ else:
             # Create worker threads
             self.workers = []
             for _ in range(num):
-                worker = Worker(self.requestQueue, self.resultsQueue, interrupted)
+                worker = worker_class()(self.requestQueue, self.resultsQueue, interrupted)
                 self.workers.append(worker)
 
             if 'prev_size' in locals():
