@@ -36,7 +36,6 @@ import SCons.compat
 import os
 import sys
 import signal
-import struct
 import pickle
 import subprocess
 
@@ -235,8 +234,6 @@ else:
     spawner_tls = threading.local()
 
     class Spawner:
-        INT_STRUCT = struct.Struct("L")
-
         def __init__(self):
             self._spawner = subprocess.Popen([sys.executable,
                                               os.path.join(os.path.dirname(__file__), "spawner.py")],
@@ -244,10 +241,9 @@ else:
                                              stdout=subprocess.PIPE)
 
         def run(self, args, env):
-            params = pickle.dumps({"args": args, "env": env})
-            self._spawner.stdin.write(self.INT_STRUCT.pack(len(params)) + params)
+            pickle.dump({"args": args, "env": env}, self._spawner.stdin)
             self._spawner.stdin.flush()
-            return self.INT_STRUCT.unpack(self._spawner.stdout.read(self.INT_STRUCT.size))[0]
+            return pickle.load(self._spawner.stdout)
 
         def stop(self):
             self._spawner.stdin.close()
