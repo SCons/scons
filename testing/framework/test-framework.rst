@@ -143,7 +143,7 @@ effects in place.
 The ``runtest.py`` script supports additional options to run
 tests against unpacked packages in the ``build/test-*/`` subdirectories.
 
-If you are testing a separate Tool outside of the SCons source tree, 
+If you are testing a separate Tool outside of the SCons source tree,
 call the ``runtest.py`` script in *external* (stand-alone) mode::
 
    $ python ~/scons/runtest.py -e -a
@@ -431,7 +431,7 @@ For more complex testing scenarios you can use ``file_fixture`` with
 the optional second argument (or the keyword arg ``dstfile``) to assign
 a name to the file being copied.  For example, some tests need to
 write multiple ``SConstruct`` files across the full run.
-These files can be given different names in the source (perhaps using a 
+These files can be given different names in the source (perhaps using a
 sufffix to distinguish them), and then be sucessively copied to the
 final name as needed::
 
@@ -525,11 +525,11 @@ adding debug prints may be more useful.
 Test infrastructure
 ===================
 
-The main test API in the ``TestSCons.py`` class.  ``TestSCons``
+The main test API is defined in the ``TestSCons`` class.  ``TestSCons``
 is a subclass of ``TestCommon``, which is a subclass of ``TestCmd``.
 All those classes are defined in Python files of the same name
-in ``testing/framework``. Start in
-``testing/framework/TestCmd.py`` for the base API definitions, like how
+in ``testing/framework``. 
+Start in ``testing/framework/TestCmd.py`` for the base API definitions, like how
 to create files (``test.write()``) and run commands (``test.run()``).
 
 Use ``TestSCons`` for the end-to-end tests in ``test``, but use
@@ -548,7 +548,7 @@ The match functions work like this:
 
 ``TestSCons.match_re_dotall``
    match all the lines against a single RE
- 
+
    * Joins the lines with newline (unless already a string)
    * joins the REs with newline (unless it's a string) and puts ``^..$``
      around the whole  thing
@@ -571,35 +571,57 @@ proceeding with the test. For example, it's hard to test complilng code with
 a C compiler if no C compiler exists. In this case, the test should be
 skipped.
 
-Here's a simple example::
+Here's a simple example for end-to-end tests::
 
-   #!python
    intelc = test.detect_tool('intelc', prog='icpc')
    if not intelc:
        test.skip_test("Could not load 'intelc' Tool; skipping test(s).\n")
 
-See ``testing/framework/TestSCons.py`` for the ``detect_tool`` method.
+See ``testing/framework/TestSCons.py`` for the ``detect_tool()`` method.
 It calls the tool's ``generate()`` method, and then looks for the given
 program (tool name by default) in ``env['ENV']['PATH']``.
 
-The ``where_is`` method can be used to look for programs that
+The ``where_is()`` method can be used to look for programs that
 are do not have tool specifications. The existing test code
 will have many samples of using either or both of these to detect
 if it is worth even proceeding with a test.
+
+For the unit tests, there are decorators for conditional skipping and
+other actions that will produce the correct output display and statistics
+in abnormal situations.
+
+``@unittest.skip(reason)``
+   Unconditionally skip the decorated test.
+   reason should describe why the test is being skipped.
+
+``@unittest.skipIf(condition, reason)``
+   Skip the decorated test if condition is true.
+
+``@unittest.skipUnless(condition, reason)``
+   Skip the decorated test unless condition is true.
+
+``@unittest.expectedFailure``
+   Mark the test as an expected failure.
+   If the test fails it will be considered a success.
+   If the test passes, it will be considered a failure.
+
+You can also directly call ``testcase.skipTest(reason)``.
 
 Note that it is usually possible to test at least part of the operation of
 a tool without the underlying program.  Tools are responsible for setting up
 construction variables and having the right builders, scanners and emitters
 plumbed into the environment.  These things can be tested by mocking the
 behavior of the executable.  Many examples of this can be found in the
-``test`` directory. *TODO: point to one example*.
+``test`` directory. See for example ``test/subdivide.py``.
 
-This leads to a suggestion for test organization: keep tool tests which
-don't need the underlying program in separate files from ones which do -
-it is clearer what is going on if we can see in the test results that the
-plumbing tests worked but the ones using the underlying program were skipped
-rather than seeing all the tests for a tool passing or being skipped.
-The framework doesn't have a way to indicate a partial skip - if you executed
+This leads to a suggestion for E2E test organization because the framework
+doesn't have a way to indicate a partial skip - if you executed
 200 lines of test, then found a condition which caused you to skip the
 last 20 lines, the whole test is marked as a skip;
 it also doesn't have a way to indicate a partial pass.
+To improve on this, keep tool tests which don't need the
+underlying program in separate files from ones which do -
+that way one can see in the test results that the "plumbing"
+tests worked even if the the ones using the underlying program
+maybe were skipped.
+

@@ -38,6 +38,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (GH Issue #3699).
     - MSVC updates: An MSVC 6.0 installation now appears in the installed versions list
       when msvc debug output is enabled (GH Issue #3699).
+    - MSVS test updates: Tests for building a program using generated MSVS project and
+      solution files using MSVS 2015 and later now work as expected on x86 hosts.
  
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
@@ -201,6 +203,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       repository / website (scons-cookbook.readthedocs.io).
     - Clean up test harness and tests' use of subdir, file_fixture and
       dir_fixture.
+    - SubstitutionEnvironment and OverrideEnvironment now have keys()
+      and values() methods to better emulate a dict (already had items()).
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000
