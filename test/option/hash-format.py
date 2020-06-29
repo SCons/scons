@@ -29,8 +29,6 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.dir_fixture('hash-format')
-test.write('f1.in', str(list(range(10))))
-test.write('f2.in', str(list(range(100000))))
 
 # Test passing the hash format by command-line.
 for algorithm in ['md5', 'sha1', 'sha256']:
