@@ -499,56 +499,23 @@ else:
         Local(css_file)
 
 if not skip_doc:
-    if True: #not epydoc_cli and not epydoc:
-        print("doc: epydoc not found, skipping building API documentation.")
-    else:
-        # XXX Should be in common with reading the same thing in
-        # the SConstruct file.
-        # bootstrap.py runs outside of SCons, so need to process the path
-        e = Dir('#').rstr()
-        sources = bootstrap.parseManifestLines(e, os.path.join(e, 'MANIFEST.in'))
+    # Build API DOCS
+    # TODO: Better specify depndencies on source files
+    pdf_file = env.Command('#/build/doc/api/latex/SConsAPIDocs.pdf',
+                           env.Glob('#/SCons/*'),
+                           "cd doc && make latexpdf")
+    pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
+    env.InstallAs(pdf_install, pdf_file)
+    tar_deps.append(pdf_install)
+    tar_list.append(pdf_install)
 
-        # Omit some files:
-        #
-        # Don't omit Platform as we need Platform.virtualenv for the examples to be run
-        # sources = [x for x in sources if x.find('Platform') == -1]
-        sources = [x for x in sources if x.find('Tool') == -1]
-        sources = [x for x in sources if x.find('Options') == -1]
-
-        e = os.path.join(build, '..', 'scons', 'engine')
-        sources = [os.path.join(e, x) for x in sources]
-
-        htmldir = os.path.join(build, 'HTML', 'scons-api')
-        env.Command('${OUTDIR}/index.html', sources, epydoc_commands,
-                    EPYDOC=epydoc_cli, EPYDOCFLAGS='--html', OUTDIR=htmldir)
-        tar_deps.append(htmldir)
-        tar_list.append(htmldir)
-
-        if sys.platform == 'darwin' or not epydoc_cli:
-            print("doc: command line epydoc is not found, skipping PDF/PS/Tex output")
-        else:
-            # PDF and PostScript and TeX are built from the
-            # same invocation.
-            api_dir = os.path.join(build, 'scons-api')
-            api_pdf = os.path.join(api_dir, 'api.pdf')
-            api_ps = os.path.join(api_dir, 'api.ps')
-            api_tex = os.path.join(api_dir, 'api.tex')
-            api_targets = [api_pdf, api_ps, api_tex]
-            env.Command(api_targets, sources, epydoc_commands,
-                        EPYDOC=epydoc_cli, EPYDOCFLAGS='--pdf', OUTDIR=api_dir)
-            Local(api_targets)
-
-            pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
-            env.InstallAs(pdf_install, api_pdf)
-            tar_deps.append(pdf_install)
-            tar_list.append(pdf_install)
-            Local(pdf_install)
-
-            ps_install = os.path.join(build, 'PS', 'scons-api.ps')
-            env.InstallAs(ps_install, api_ps)
-            tar_deps.append(ps_install)
-            tar_list.append(ps_install)
-            Local(ps_install)
+    htmldir = os.path.join(build, 'HTML', 'scons-api')
+    html_files = env.Command('#/build/doc/api/html/index.html',
+                       env.Glob('#/SCons/*'),
+                       "cd doc && make dirhtml BUILDDIR=${HTMLDIR}",
+                             HTMLDIR=htmldir)
+    tar_deps.append(htmldir)
+    tar_list.append(htmldir)
 
 #
 # Now actually create the tar file of the documentation,
