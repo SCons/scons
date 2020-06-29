@@ -484,10 +484,10 @@ def msvc_find_vswhere():
     return vswhere_path
 
 # Experimental version - these routines are not used:
-#     find_vc_pdir_vswhere
-#     find_vc_pdir
+#     find_vc_pdir_vswhere -> find_vc_pdir_vswhere_classic
+#     find_vc_pdir         -> find_vc_pdir_classic
 
-def find_vc_pdir_vswhere(msvc_version, env=None):
+def find_vc_pdir_vswhere_classic(msvc_version, env=None):
     """ Find the MSVC product directory using the vswhere program.
 
     Args:
@@ -540,7 +540,7 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
     return None
 
 
-def find_vc_pdir(env, msvc_version):
+def find_vc_pdir_classic(env, msvc_version):
     """Find the MSVC product directory for the given version.
 
     Tries to look up the path using a registry key from the table
@@ -686,6 +686,8 @@ def find_vc_pdir_registry(env, msvc_version):
     for hkroot, key in hkeys:
         try:
             comps = None
+            if not key:
+                raise SCons.Util.WinError
             if common.is_win64():
                 try:
                     # ordinarily at win64, try Wow6432Node first.
@@ -714,7 +716,7 @@ def find_vc_pdir_specific(env, msvc_version):
     vernum = float(msvc_ver_numeric)
 
     if vernum >= 14.1:
-        vc_dir = find_vc_pdir_vswhere_instance(msvc_version, env)
+        vc_dir = find_vc_pdir_vswhere(msvc_version, env)
     else:
         vc_dir = find_vc_pdir_registry(env, msvc_version)
 
@@ -730,10 +732,7 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     so use that and return an indication we don't need the argument
     we would have computed to run vcvarsall.bat.
     """
-    if _MSVC_EXPERIMENTAL_ACTIVE:
-        pdir = find_vc_pdir_specific(env, msvc_version)
-    else:
-        pdir = find_vc_pdir(env, msvc_version)
+    pdir = find_vc_pdir(env, msvc_version)
     if pdir is None:
         raise NoVersionFound("No version of Visual Studio found")
     debug('looking in {}'.format(pdir))
@@ -911,29 +910,21 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     return False
 
-def cached_get_installed_vcs(env=None):
+def get_installed_vcs(env=None):
     global __INSTALLED_VCS_RUN
 
-    if __INSTALLED_VCS_RUN is None:
-        if _MSVC_EXPERIMENTAL_ACTIVE:
-            prepare_installed_vctoolsets(env, get_installed_vcs=True)
-        ret = get_installed_vcs(env)
-        if _MSVC_EXPERIMENTAL_ACTIVE:
-            setup_installed_vctoolsets(env)
-        __INSTALLED_VCS_RUN = ret
+    if __INSTALLED_VCS_RUN is not None:
+        return __INSTALLED_VCS_RUN
 
-    return __INSTALLED_VCS_RUN
-
-def get_installed_vcs(env=None):
     installed_versions = []
+
+    if _MSVC_EXPERIMENTAL_ACTIVE:
+        prepare_installed_vctoolsets(env, get_installed_vcs=True)
 
     for ver in _VCVER:
         debug('trying to find VC %s' % ver)
         try:
-            if _MSVC_EXPERIMENTAL_ACTIVE:
-                VC_DIR = find_vc_pdir_specific(env, ver)
-            else:
-                VC_DIR = find_vc_pdir(env, ver)
+            VC_DIR = find_vc_pdir(env, ver)
             if VC_DIR:
                 debug('found VC %s' % ver)
                 if _check_cl_exists_in_vc_dir(env, VC_DIR, ver):
@@ -951,6 +942,12 @@ def get_installed_vcs(env=None):
             raise e
         except VisualCException as e:
             debug('did not find VC %s: caught exception %s' % (ver, str(e)))
+
+    if _MSVC_EXPERIMENTAL_ACTIVE:
+        setup_installed_vctoolsets(env)
+
+    __INSTALLED_VCS_RUN = installed_versions
+
     return installed_versions
 
 def reset_installed_vcs():
@@ -1024,7 +1021,7 @@ def get_default_version(env):
         return msvs_version
 
     if not msvc_version:
-        installed_vcs = cached_get_installed_vcs(env)
+        installed_vcs = get_installed_vcs(env)
         debug('installed_vcs:%s' % installed_vcs)
         if not installed_vcs:
             #msg = 'No installed VCs'
@@ -1141,7 +1138,7 @@ def msvc_find_valid_batch_script(env, version):
             warn_msg = "VC version %s not installed.  " + \
                        "C/C++ compilers are most likely not set correctly.\n" + \
                        " Installed versions are: %s"
-            warn_msg = warn_msg % (version, cached_get_installed_vcs(env))
+            warn_msg = warn_msg % (version, get_installed_vcs(env))
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
             continue
 
@@ -1257,7 +1254,7 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
-    vcs = cached_get_installed_vcs(env)
+    vcs = get_installed_vcs(env)
     if version is None:
         return len(vcs) > 0
     return version in vcs
@@ -2327,6 +2324,16 @@ def setup_installed_vctoolsets(env):
 def reset_installed_vctoolsets():
 
     _MSVC_CONFIG.reset_installed()
+
+# Dispatch to experimental code or classic code.
+# Allows existing tests to work without changes.
+
+if _MSVC_EXPERIMENTAL_ACTIVE:
+    find_vc_pdir_vswhere = find_vc_pdir_vswhere_instance
+    find_vc_pdir         = find_vc_pdir_specific
+else:
+    find_vc_pdir_vswhere = find_vc_pdir_vswhere_classic
+    find_vc_pdir         = find_vc_pdir_classic
 
 # Internal development and diagnostic purposes only.
 # Print the current module call tree to stderr when enabled.
