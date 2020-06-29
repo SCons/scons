@@ -24,6 +24,7 @@ import os.path
 from zip_utils import zipit
 from Utilities import is_windows
 
+
 def get_local_package_file_list():
     """
     Get list of all files which should be included in scons-local package
@@ -37,7 +38,6 @@ def get_local_package_file_list():
     filtered_list = [f for f in non_test_non_doc if 'pyc' not in f]
     filtered_list = [f for f in filtered_list if '__pycache__' not in f ]
     filtered_list = [f for f in filtered_list if not os.path.isdir(f)]
-
 
     return filtered_list
 
@@ -67,6 +67,7 @@ def install_local_package_files(env):
 
     return all_local_installed
 
+
 def create_local_packages(env):
     # Add SubstFile builder
     env.Tool('textfile')
@@ -93,9 +94,7 @@ def create_local_packages(env):
 
     print("Package:%s"%package)
 
-    # zip_package = env.Package('build/dist/scons-local-${VERSION}.zip',
-    #                           source=installed_files,
-    #                           PACKAGETYPE='zip')
+
 
 
 
