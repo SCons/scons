@@ -34,7 +34,7 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
         NOTE: If you used Python 3.8 with SCons 3.0.0 or above, you may get a pickle
         protocol error. Remove your .sconsign.dblite. You will end up with a full rebuild.
       - Added debug option "action_timestamps" which outputs to stdout the
-	    absolute start and end time for each target.
+        absolute start and end time for each target.
       - Update Command() function to accept target_scanner, source_factory, and
         target_factory arguments.
         This makes Command act more like a one-off builder.
@@ -63,16 +63,16 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
       - Remove deprecated BuildDir plus SConscript keyword build_dir
       - Remove deprecated SourceCode
       - Environment.Value() is now memoized to improve performance of repeated calls.
-	    In addition, the underlying class SCons.Node.Python.Value now supports taking
-	    a name and is allowed to be an implicit dependency of a target.
+        In addition, the underlying class SCons.Node.Python.Value now supports taking
+        a name and is allowed to be an implicit dependency of a target.
       - Added support for scanning multiple entries in an action string if
         IMPLICIT_COMMAND_DEPENDENCIES is set to 2 or 'all'. This enables more thorough
         action scanning where every item in each command line is scanned to determine
         if it is a non-source and non-target path and added to the list of implicit
         dependencies for the target.
       - Fix Github Issue #2904 - Provide useful error message when more than one 
-	    Configure Contexts are opened. Only one open is allowed. You must call
-	    conf.Finish() to complete the currently open one before creating another.
+        Configure Contexts are opened. Only one open is allowed. You must call
+        conf.Finish() to complete the currently open one before creating another.
       - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
         NOTE: If your build depends on the above you must now add to your
         SHLIBVERSIONFLAGS
@@ -108,7 +108,7 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
         * Remove unnecessary recursion.
       - Added new module SCons.Scanner.Python to allow scanning .py files.
       - Fixed bug where changing TEXTFILESUFFIX would cause Substfile() to rebuild.
-	    (Github Issue #3540)
+        (Github Issue #3540)
       - Rebase forked copy of shutil.copytree to Python 3.7 stlib version.
       - Significant rework of documentation: API docs are now generated
         using Sphinx; manpage and user guide now use more "standard"
@@ -119,13 +119,13 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
       - SubstitutionEnvironment and OverrideEnvironment now have keys()
         and values() methods to better emulate a dict (already had items()).
       - MSVC updates:
-	    * When there are multiple product installations (e.g, Community and
+        * When there are multiple product installations (e.g, Community and
           Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional, 
           or Community installation will be selected before a Build Tools installation when
           "14.1" or "14.2" is requested, respectively. (GH Issue #3699).
         * When there are multiple product installations of MSVC 2017 (e.g.,
           Community and Express), 2017 Express is no longer returned when "14.1" is
-          requested.  Only 2017 Express will be returned when "14.1Exp" is requested.
+          requested. Only 2017 Express will be returned when "14.1Exp" is requested.
           (GH Issue #3699).
         * Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
           propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -148,7 +148,7 @@ RELEASE VERSION/DATE TO BE FILLED IN LATER
         * switch to using uuid module to generate GUIDs rather than hand rolled
           method using md5 directly.
           NOTE: This change affects the following builders' output. If your build
-		  depends on the output of these builders you will likely see a rebuild:
+          depends on the output of these builders you will likely see a rebuild:
             1. Package() (with PACKAGETYPE='msi')
             2. MSVSSolution()
             3. MSVSProject()
