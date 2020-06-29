@@ -40,6 +40,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       when msvc debug output is enabled (GH Issue #3699).
     - MSVS test updates: Tests for building a program using generated MSVS project and
       solution files using MSVS 2015 and later now work as expected on x86 hosts.
+    - Test update: Reduce the number of "false negative" test failures for the interactive
+      configuration test (test/interactive/configure.py).
  
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
