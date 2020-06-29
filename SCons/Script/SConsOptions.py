@@ -781,7 +781,7 @@ def Parser(version):
                   nargs=1, type="int",
                   dest='md5_chunksize', default=SCons.Node.FS.File.hash_chunksize,
                   action="store",
-                  help="Set chunk-size for MD5 signature computation to N kilobytes.",
+                  help="Set chunk-size for hash signature computation to N kilobytes.",
                   metavar="N")
 
     op.add_option('-n', '--no-exec', '--just-print', '--dry-run', '--recon',
