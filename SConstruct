@@ -182,6 +182,7 @@ Version_values = [Value(command_line.version), Value(command_line.build_id)]
 
 installed_local_files = create_local_packages(env)
 
+update_init_file(env)
 #
 #
 #

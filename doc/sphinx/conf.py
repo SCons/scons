@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
+    'rst2pdf.pdfbuilder',
 ]
 
 autosummary_generate = True
@@ -142,7 +143,7 @@ htmlhelp_basename = 'SConsAPIDocs'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
-    'papersize': 'letterpaper',
+    # 'papersize': 'letterpaper',
 
     # The font size ('10pt', '11pt' or '12pt').
     #
@@ -201,3 +202,9 @@ texinfo_documents = [
 
 # -- Options for Epub output -------------------------------------------------
 
+
+
+# -- for PDF
+# Grouping the document tree into PDF files. List of tuples
+# (source start file, target name, title, author, options).
+pdf_documents = [('index', u'scons-api', u'SCons API Docs', u'SCons Project'),]

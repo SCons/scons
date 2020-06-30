@@ -7,3 +7,4 @@ readme-renderer
 sphinx
 sphinx_rtd_theme
 lxml==4.5.0
+rst2pdf

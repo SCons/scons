@@ -511,16 +511,17 @@ else:
 if not skip_doc:
     # Build API DOCS
     # TODO: Better specify dependencies on source files
-    pdf_file = env.Command('#/build/doc/api/latex/SConsAPIDocs.pdf',
+    pdf_file = env.Command('#/build/doc/api/scons-api.pdf',
                            env.Glob('#/SCons/*'),
-                           "cd doc && make latexpdf")
+                           [Delete("#/build/doc/api"),
+                            "cd doc && make pdf"])
     pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
     env.InstallAs(pdf_install, pdf_file)
     tar_deps.append(pdf_install)
     tar_list.append(pdf_install)
 
     htmldir = os.path.join(build, 'HTML', 'scons-api')
-    html_files = env.Command('#/build/doc/api/html/index.html',
+    html_files = env.Command('#/build/doc/HTML/scons-api/index.html',
                              env.Glob('#/SCons/*'),
                              "cd doc && make dirhtml BUILDDIR=${HTMLDIR}",
                              HTMLDIR=htmldir)
