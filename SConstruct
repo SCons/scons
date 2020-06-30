@@ -194,9 +194,14 @@ Export('command_line', 'env', 'whereis', 'revaction')
 SConscript('doc/SConscript')
 
 
-# TODO Need to build packages
-# python setup.py bdist_wheel
-# python setup.py sdist --formats=gztar,zip
+# Build packages for pypi
+env.Command('$DISTDIR/SCons-${VERSION}-py3-none-any.whl', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+            '$PYTHON setup.py bdist_wheel')
+
+env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+            '$PYTHON setup.py sdist --format=zip')
+env.Command('$DISTDIR/SCons-${VERSION}.tar.bz2', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+            '$PYTHON setup.py sdist --format=bztar')
 
 # TODO add auto copyright date to README.rst, LICENSE
 # TODO build API DOCS
