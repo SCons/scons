@@ -278,7 +278,11 @@ else:
         def run(self, args, env):
             pickle.dump({"args": args, "env": env}, self._spawner.stdin)
             self._spawner.stdin.flush()
-            return pickle.load(self._spawner.stdout)
+            ret = pickle.load(self._spawner.stdout)
+            if isinstance(ret, Exception):
+                raise ret
+            else:
+                return ret
 
         def stop(self):
             self._spawner.stdin.close()

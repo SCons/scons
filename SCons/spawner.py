@@ -10,8 +10,14 @@ def main():
             params = pickle.load(sys.stdin.buffer)
         except EOFError:
             break
-        proc = subprocess.Popen(params["args"], env=params["env"], close_fds=True)
-        pickle.dump(proc.wait(), sys.stdout.buffer)
+
+        try:
+            proc = subprocess.Popen(params["args"], env=params["env"], close_fds=True)
+            ret = proc.wait()
+        except Exception as e:
+            ret = e
+
+        pickle.dump(ret, sys.stdout.buffer)
         sys.stdout.buffer.flush()
 
 
