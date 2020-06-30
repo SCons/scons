@@ -36,9 +36,6 @@ import glob
 import json
 import os
 
-from SCons import __version__, __build__, __buildsys__, __date__, __developer__
-
-
 def rearrange_cache_entries(current_prefix_len, new_prefix_len):
     """Move cache files if prefix length changed.
 

@@ -11,6 +11,6 @@ def update_init_file(env):
     si = env.Textfile('#SCons/__init__.py',
                       ["%s=\"%s\"" % (k, v) for k, v in substitutions.items()] +
                       ['# make sure compatibility is always in place',
-                       'import SCons.compat'],
+                       'import SCons.compat # noqa'],
                       )
     env.Precious(si)
