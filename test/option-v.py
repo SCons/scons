@@ -36,28 +36,21 @@ copyright_line = """\
 (_{2}COPYRIGHT__|Copyright \\(c\\) 2001[-\\d, ]+ The SCons Foundation)
 """
 
-# Windows may or may not print a line for the script version
-# depending on whether it's invoked through scons.py or scons.bat.
-expect1 = r"""SCons by Steven Knight et al.:
-\tengine: v\S+, [^,]*, by \S+ on \S+
-\tengine path: \[.*\]
-""" + copyright_line
 
 expect2 = r"""SCons by Steven Knight et al.:
-\tscript: v\S+, [^,]*, by \S+ on \S+
-\tengine: v\S+, [^,]*, by \S+ on \S+
-\tengine path: \[.*\]
+\tSCons: v\S+, [^,]*, by \S+ on \S+
+\tSCons path: \[.*\]
 """ + copyright_line
 
 test.run(arguments = '-v')
 stdout = test.stdout()
-if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
+if not test.match_re(stdout, expect2):
     print(stdout)
     test.fail_test()
 
 test.run(arguments = '--version')
 stdout = test.stdout()
-if not test.match_re(stdout, expect1) and not test.match_re(stdout, expect2):
+if not test.match_re(stdout, expect2):
     print(stdout)
     test.fail_test()
 

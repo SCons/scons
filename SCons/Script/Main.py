@@ -1371,14 +1371,13 @@ def main():
     parts = ["SCons by Steven Knight et al.:\n"]
     try:
         import __main__
-        parts.append(version_string("script", __main__))
+        parts.append(version_string("SCons", __main__))
     except (ImportError, AttributeError):
         # On Windows there is no scons.py, so there is no
         # __main__.__version__, hence there is no script version.
         pass
-    parts.append(version_string("engine", SCons))
-    parts.append(path_string("engine", SCons))
-    parts.append("__COPYRIGHT__")
+    parts.append(path_string("SCons", SCons))
+    parts.append(SCons.__copyright__)
     version = ''.join(parts)
 
     from . import SConsOptions
