@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -11,7 +11,7 @@
     %tools-mod;
     <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
     %variables-mod;
-    
+
 ]>
 
 <chapter id="chap-caching"
@@ -50,7 +50,9 @@
   On multi-developer software projects,
   you can sometimes speed up every developer's builds a lot by
   allowing them to share the derived files that they build.
-  &SCons; makes this easy, as well as reliable.
+  After all, it is relatively rare that any in-progress change affects
+  more than a few derived files, most will be unchanged.
+  &SCons; makes this easy and reliable.
 
   </para>
 
@@ -60,7 +62,7 @@
     <para>
 
     To enable sharing of derived files,
-    use the &CacheDir; function
+    use the &f-link-CacheDir; function
     in any &SConscript; file:
 
     </para>
@@ -83,8 +85,8 @@ CacheDir('/usr/local/build_cache')
 
     <para>
 
-    Note that the directory you specify must already exist
-    and be readable and writable by all developers
+    The cache directory you specify must
+    be readable and writable by all developers
     who will be sharing derived files.
     It should also be in some central location
     that all builds will be able to access.
@@ -92,6 +94,10 @@ CacheDir('/usr/local/build_cache')
     (like individual workstations) for builds,
     this directory would typically be
     on a shared or NFS-mounted file system.
+    While &SCons; will create the specified cache directory as needed,
+    in this multi user scenario it is usually best
+    to create it ahead of time so the access rights
+    can be set up correctly.
 
     </para>
 
@@ -100,23 +106,33 @@ CacheDir('/usr/local/build_cache')
     Here's what happens:
     When a build has a &CacheDir; specified,
     every time a file is built,
-    it is stored in the shared cache directory
-    along with its MD5 build signature.
-      <footnote>
-      <para>
-      Actually, the MD5 signature is used as the name of the file
-      in the shared cache directory in which the contents are stored.
-      </para>
-      </footnote>
+    it is stored in that cache directory
+    along with its build signature.
     On subsequent builds,
     before an action is invoked to build a file,
     &SCons; will check the shared cache directory
     to see if a file with the exact same build
     signature already exists.
+      <footnote>
+      <para>
+      A few inner details: &SCons; tracks two main kinds of cryptographic
+      hashes: <emphasis>content signatures</emphasis>,
+      which are a hash of the contents of a file;
+      and <emphasis>build signatures</emphasis>, which are a hash of the
+      elements needed to build a target, such as the exact command line,
+      the contents of the sources, and possibly information about
+      tools used in the build. The hash function produces a unique signature
+      from its inputs, no other set of inputs can produce that same
+      signature.  The build signature from building
+      a target is used as the filename of the target file in the
+      shared cache - that way lookups are efficient, just compute
+      a build signature and see if a file exists with that as the name.
+      </para>
+      </footnote>
     If so, the derived file will not be built locally,
     but will be copied into the local build directory
     from the shared cache directory,
-    like so:
+    like this:
 
     </para>
 
@@ -128,12 +144,14 @@ CacheDir('/usr/local/build_cache')
 
     <para>
 
-    Note that the &CacheDir; feature still calculates
-    MD5 build sigantures for the shared cache file names
+    Note that the &CacheDir; feature requires that build signatures
+    be calculated,
     even if you configure &SCons; to use timestamps
-    to decide if files are up to date.
-    (See the <xref linkend="chap-depends"></xref>
-    chapter for information about the &Decider; function.)
+    to decide if files are up to date
+    (see the <xref linkend="chap-depends"></xref>
+    chapter for information about the &f-link-Decider; function),
+    since the build signature is used to determine if a target file
+    exists in the cache.
     Consequently, using &CacheDir; may reduce or eliminate any
     potential performance improvements
     from using timestamps for up-to-date decisions.
