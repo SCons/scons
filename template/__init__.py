@@ -59,7 +59,7 @@ __developer__ = "__DEVELOPER__"
 __copyright__ = "__COPYRIGHT__"
 
 # make sure compatibility is always in place
-import SCons.compat
+import SCons.compat # noqa
 
 # Local Variables:
 # tab-width:4
