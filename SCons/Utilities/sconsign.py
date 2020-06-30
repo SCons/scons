@@ -23,17 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__version__ = "__VERSION__"
-
-__build__ = "__BUILD__"
-
-__buildsys__ = "__BUILDSYS__"
-
-__date__ = "__DATE__"
-
-__developer__ = "__DEVELOPER__"
+from SCons import __version__, __build__, __buildsys__, __date__, __developer__
 
 import getopt
 import os
