@@ -62,6 +62,8 @@ def escape(arg):
     return '"' + arg + '"'
 
 
+assert process_spawner is not None  # must be set before
+
 if process_spawner:
     from SCons.Job import spawner_tls
 

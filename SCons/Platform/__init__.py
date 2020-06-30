@@ -54,9 +54,10 @@ import SCons.Errors
 import SCons.Subst
 import SCons.Tool
 
-# Gets set to True in Main._main() when the '--process-spawner'
+# Set to True in Main._main() when the '--process-spawner'
 # option was given on the command-line for speeding up process spawning.
-process_spawner = False
+# Set to False otherwise.
+process_spawner = None
 
 
 def platform_default():

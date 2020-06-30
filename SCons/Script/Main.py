@@ -988,8 +988,7 @@ def _main(parser):
     if options.interactive:
         SCons.Node.interactive = True
 
-    if options.process_spawner:
-        SCons.Platform.process_spawner = True
+    SCons.Platform.process_spawner = options.process_spawner
 
     # That should cover (most of) the options.  Next, set up the variables
     # that hold command-line arguments, so the SConscript files that we

@@ -38,6 +38,7 @@ except ImportError:
 _ = gettext
 
 import SCons.Node.FS
+import SCons.Platform
 import SCons.Platform.virtualenv
 import SCons.Warnings
 
@@ -836,11 +837,11 @@ def Parser(version):
                   help="Trace Node evaluation to FILE.",
                   metavar="FILE")
 
-    # TODO allow only on posix? it doesn't affect other systems anyway.
-    op.add_option('--process-spawner',
-                  dest='process_spawner', default=False,
-                  action="store_true",
-                  help="Use a spawner process to speed up spawning")
+    if SCons.Platform.platform_default() == "posix":
+        op.add_option('--process-spawner',
+                      dest='process_spawner', default=False,
+                      action="store_true",
+                      help="Use a spawner process to speed up spawning.")
 
     tree_options = ["all", "derived", "prune", "status", "linedraw"]
 
