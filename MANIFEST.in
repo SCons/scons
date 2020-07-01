@@ -1,5 +1,3 @@
-global-exclude **Tests.py
-
 recursive-include SCons/Tool/docbook *
 
 # For license file

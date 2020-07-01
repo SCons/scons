@@ -1,49 +1,9 @@
-"""SCons
-
-The main package for the SCons software construction utility.
-
-"""
-
-#
-# __COPYRIGHT__
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__version__ = "__VERSION__"
-
-__build__ = "__BUILD__"
-
-__buildsys__ = "__BUILDSYS__"
-
-__date__ = "__DATE__"
-
-__developer__ = "__DEVELOPER__"
-
+__version__="3.9.9a996"
+__copyright__="Copyright (c) 2001 - 2020 The SCons Foundation"
+__developer__="bdbaddog"
+__date__="2020-06-30 23:00:35"
+__buildsys__="ProDog2020"
+__revision__="8e18d0c324c2605936198e64d349c89082b1463d"
+__build__="8e18d0c324c2605936198e64d349c89082b1463d"
 # make sure compatibility is always in place
-import SCons.compat
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+import SCons.compat # noqa

@@ -1361,7 +1361,7 @@ PDF renderer <literal>fop</literal> or <literal>xep</literal>.
     <listitem><para>
 The path to the external executable <literal>xmllint</literal>, if it's installed.
 Note, that this is only used as last fallback for resolving
-XIncludes, if no libxml2 or lxml Python binding can be imported
+XIncludes, if no lxml Python binding can be imported
 in the current system.
 </para>
 </listitem>
@@ -1405,7 +1405,7 @@ The path to the external executable <literal>xsltproc</literal>
 (or <literal>saxon</literal>, <literal>xalan</literal>), if one of them
 is installed.
 Note, that this is only used as last fallback for XSL transformations, if
-no libxml2 or lxml Python binding can be imported in the current system.
+no lxml Python binding can be imported in the current system.
 </para>
 </listitem>
   </varlistentry>
@@ -3038,6 +3038,14 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       <envar>HOST_ARCH</envar>
     </term>
     <listitem><para>
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    <para>
 Sets the host architecture for Visual Studio compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
@@ -3053,15 +3061,7 @@ Valid values are the same as for &cv-TARGET_ARCH;.
 This is currently only used on Windows, but in the future it will be
 used on other OSes as well.
 </para>
-<para>
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    </listitem>
+</listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>
@@ -3810,7 +3810,7 @@ the same as $SHLIBSUFFIX.
       <envar>LDMODULEVERSION</envar>
     </term>
     <listitem><para>
-When this construction variable is defined, a versioned loadable module
+When this &consvar; is defined, a versioned loadable module
 is created by &b-link-LoadableModule; builder. This activates the
 &cv-link-_LDMODULEVERSIONFLAGS; and thus modifies the &cv-link-LDMODULECOM; as
 required, adds the version number to the library name, and creates the symlinks
@@ -4165,7 +4165,7 @@ for a list of license names and SPDX codes.
       <envar>LINESEPARATOR</envar>
     </term>
     <listitem><para>
-The separator used by the &b-Substfile; and &b-Textfile; builders.
+The separator used by the &b-link-Substfile; and &b-link-Textfile; builders.
 This value is used between sources when constructing the target.
 It defaults to the current system line separator.
 </para>
@@ -7111,7 +7111,7 @@ The suffix used for shared library file names.
       <envar>SHLIBVERSION</envar>
     </term>
     <listitem><para>
-When this construction variable is defined, a versioned shared library
+When this &consvar; is defined, a versioned shared library
 is created by the &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
@@ -7320,9 +7320,9 @@ in which the command should be executed.
       <envar>SUBST_DICT</envar>
     </term>
     <listitem><para>
-The dictionary used by the &b-Substfile; or &b-Textfile; builders
+The dictionary used by the &b-link-Substfile; or &b-link-Textfile; builders
 for substitution values.
-It can be anything acceptable to the dict() constructor,
+It can be anything acceptable to the <function>dict()</function> constructor,
 so in addition to a dictionary,
 lists of tuples are also acceptable.
 </para>
@@ -7333,7 +7333,7 @@ lists of tuples are also acceptable.
       <envar>SUBSTFILEPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for &b-Substfile; file names,
+The prefix used for &b-link-Substfile; file names,
 an empty string by default.
 </para>
 </listitem>
@@ -7343,7 +7343,7 @@ an empty string by default.
       <envar>SUBSTFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for &b-Substfile; file names,
+The suffix used for &b-link-Substfile; file names,
 an empty string by default.
 </para>
 </listitem>
@@ -7651,6 +7651,12 @@ for more information).
       <envar>TARGET_ARCH</envar>
     </term>
     <listitem><para>
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    <para>
 Sets the target architecture for Visual Studio compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 &cv-HOST_ARCH;, or, if that is unset, to the architecture of the
@@ -7681,13 +7687,7 @@ and <literal>ia64</literal> (Itanium).
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
-<para>
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
-    </listitem>
+</listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>
@@ -7823,7 +7823,7 @@ directories for \include and \import files.
       <envar>TEXTFILEPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for &b-Textfile; file names,
+The prefix used for &b-link-Textfile; file names,
 an empty string by default.
 </para>
 </listitem>
@@ -7833,7 +7833,7 @@ an empty string by default.
       <envar>TEXTFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for &b-Textfile; file names;
+The suffix used for &b-link-Textfile; file names;
 <filename>.txt</filename> by default.
 </para>
 </listitem>
