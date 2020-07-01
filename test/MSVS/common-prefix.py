@@ -41,6 +41,12 @@ if sys.platform != 'win32':
     msg = "Skipping Visual Studio test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
+msvs_version = '8.0'
+
+if msvs_version not in test.msvs_versions():
+    msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
+    test.skip_test(msg)
+
 vcproj_template = """\
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject

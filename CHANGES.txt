@@ -42,6 +42,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       solution files using MSVS 2015 and later now work as expected on x86 hosts.
     - Test update: Reduce the number of "false negative" test failures for the interactive
       configuration test (test/interactive/configure.py).
+    - MSVS update: Fix the development environment path for MSVS 7.0.
+    - Test update: Add an MSVS version check for 8.0 in the MSVS/common_prefix.py test.
  
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
