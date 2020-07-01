@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 /build/**
+/dist/**
 /bootstrap/**
 .idea/
 src/build/**

@@ -4,3 +4,7 @@
 # Can be used with twinecheck
 # See: https://github.com/pypa/readme_renderer
 readme-renderer
+sphinx
+sphinx_rtd_theme
+lxml==4.5.0
+rst2pdf

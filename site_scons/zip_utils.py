@@ -21,7 +21,7 @@ try:
         # default ZipFile compression is ZIP_STORED
         zf = zipfile.ZipFile(str(target[0]), 'w', compression=zipfile.ZIP_DEFLATED)
         olddir = os.getcwd()
-        os.chdir(env['CD'])
+        os.chdir(env.Dir(env['CD']).abspath)
         try:
             for dirname, dirnames, filenames in os.walk(env['PSV']):
                 visit(zf, dirname, filenames)

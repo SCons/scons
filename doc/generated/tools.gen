@@ -964,7 +964,7 @@ Sets construction variables for the TeX formatter and typesetter.
   <varlistentry id="t-textfile">
     <term>textfile</term>
     <listitem><para>
-Set construction variables for the &b-Textfile; and &b-Substfile; builders.
+Set &consvars; for the &b-Textfile; and &b-Substfile; builders.
 </para>
 <para>Sets: &cv-link-LINESEPARATOR;, &cv-link-SUBSTFILEPREFIX;, &cv-link-SUBSTFILESUFFIX;, &cv-link-TEXTFILEPREFIX;, &cv-link-TEXTFILESUFFIX;.</para><para>Uses: &cv-link-SUBST_DICT;.</para></listitem>
   </varlistentry>

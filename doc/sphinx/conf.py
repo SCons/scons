@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
+    'rst2pdf.pdfbuilder',
 ]
 
 autosummary_generate = True
@@ -201,3 +202,9 @@ texinfo_documents = [
 
 # -- Options for Epub output -------------------------------------------------
 
+
+
+# -- for PDF
+# Grouping the document tree into PDF files. List of tuples
+# (source start file, target name, title, author, options).
+pdf_documents = [('index', u'scons-api', u'SCons API Docs', u'SCons Project'),]

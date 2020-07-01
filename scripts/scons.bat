@@ -1,5 +1,4 @@
 @REM __COPYRIGHT__
-@REM __FILE__ __REVISION__ __DATE__ __DEVELOPER__
 @echo off
 set SCONS_ERRORLEVEL=
 if "%OS%" == "Windows_NT" goto WinNT
