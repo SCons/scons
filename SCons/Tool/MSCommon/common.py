@@ -319,6 +319,276 @@ def parse_output(output, keep=KEEPLIST):
 
     return dkeep
 
+class _MODULE_TRACE:
+
+    # SCONS_MSCOMMON_TRACE is internal-use so undocumented:
+    #    '-':  stderr
+    #    filename: 
+    #      if the last character before the extension is "#":
+    #         rewritten as root[:-1] + NN + .ext
+    #         trace-#.txt -> trace-01.txt
+    #         (e.g., one for each launch of scons during a test)
+
+    TRACE_FILENAME = os.environ.get('SCONS_MSCOMMON_TRACE')
+
+    # display the function argument list w/select values
+    DISPLAY_FUNCTION_ARGLIST = True
+    DISPLAY_FUNCTION_LOCATION = True
+
+    # number of frames above the current module
+    FRAME_CALLER_FRAMES = 5
+
+    # when enabled, allow these external module/function calls
+    FRAME_WHITELIST_ENABLED = True
+    FRAME_WHITELIST_FUNCTIONS = [
+    ]
+
+    # when enabled, ignore these internal module/function calls
+    FRAME_BLACKLIST_ENABLED = True
+    FRAME_BLACKLIST_FUNCTIONS = [
+    ]
+
+    # debugging using the logging module
+    DEBUG_LOGGING_ENABLED = True if LOGFILE and LOGFILE != "-" else False
+
+    # keep extenal debug calls when using the logging module
+    DEBUG_WHITELIST_ENABLED = DEBUG_LOGGING_ENABLED
+    DEBUG_WHITELIST_FUNCTIONS = [
+        ('logging', 'debug'),
+    ]
+
+    # ignore internal debug calls when not using the logging module
+    DEBUG_BLACKLIST_ENABLED = not DEBUG_LOGGING_ENABLED
+    DEBUG_BLACKLIST_FUNCTIONS = [
+        ('common', 'debug'),
+    ]
+
+    # argument values of interest
+    FRAME_ARGUMENT_VALUES = (
+        'version', 
+        'msvc_version',
+        'value',
+        'host_arch',
+        'target_arch',
+        'vc_specific_version',
+        'vc_product',
+        'search_version',
+        'rollback',
+    )
+
+    # indentation
+    FRAME_INDENT_NSPACES = 2
+    FRAME_INDENT_LITERAL = " " * FRAME_INDENT_NSPACES
+    #FRAME_INDENT_LITERAL = "|" + " " * (FRAME_INDENT_NSPACES -1)
+
+    # start of new call chain
+    FRAME_ENTRY_DEPTH = 0
+    FRAME_ENTRY_LOCATION = []
+    FRAME_ENTRY_SLOT = -1
+
+    # parent module of this script (e.g, MSCommon)
+    PARENT_MODULE = __name__.split('.')[-2]
+
+    # trace file processing
+
+    TRACE_ENABLED = False
+    TRACE_FH = None
+
+    if TRACE_FILENAME == '-':
+        TRACE_ENABLED = True
+        TRACE_FH = sys.stderr
+    elif TRACE_FILENAME:
+        # if last character in file root is "#" use a serial number:
+        #    don't overwrite existing file unless we've gotten to _99
+        #    useful when running tests: new trace file for each invocation
+        #    trace-#.txt -> trace-NN.txt
+        _fileroot, _fileext = os.path.splitext(TRACE_FILENAME)
+        if _fileroot and _fileroot[-1] == '#':
+            _fileroot = _fileroot[:-1]
+            _n = 1
+            while _n < 100:
+                _filename = ''.join([_fileroot, '%02d' % _n, _fileext])
+                if not os.path.exists(_filename):
+                    break
+                _n += 1
+            TRACE_FILENAME = _filename
+        try:
+            TRACE_FH = open(TRACE_FILENAME, 'w')
+            TRACE_ENABLED = True
+        except:
+            pass
+
+    @classmethod
+    def get_relative_filename(cls, filename):
+        try:
+            # SCons and below
+            ind = filename.rindex('SCons')
+            return filename[ind:]
+        except:
+            # Not in SCons tree
+            return filename
+
+    @classmethod
+    def get_frame_arglist(cls, frame):
+        args = "("
+        for i in range(frame.f_code.co_argcount):
+            if i: args += ', '
+            name = frame.f_code.co_varnames[i]
+            args += name
+            if name in cls.FRAME_ARGUMENT_VALUES:
+                args += "=%s" % frame.f_locals[name]
+        args += ")"
+        return args
+
+    @classmethod
+    def display_frame(cls, frame, indent, divider=False):
+        current_func = frame.f_code.co_name
+        if cls.DISPLAY_FUNCTION_LOCATION:
+            current_file = cls.get_relative_filename(frame.f_code.co_filename)
+            if frame.f_back:
+                from_file = cls.get_relative_filename(frame.f_back.f_code.co_filename)
+                from_line = frame.f_back.f_lineno
+                if frame.f_back.f_code.co_filename == frame.f_code.co_filename:
+                    from_where = " from %d" % from_line
+                else:
+                    from_where = " from %s:%d" % (from_file, from_line)
+            else:
+                from_where = ""
+            location = " <%s:%d%s>" % (current_file, frame.f_lineno, from_where)
+        else:
+            location = ""
+
+        if cls.DISPLAY_FUNCTION_ARGLIST:
+            arglist = cls.get_frame_arglist(frame)
+        else:
+            arglist = ""
+
+        outstr = "%s%s%s%s" % (indent, current_func, arglist, location)
+
+        print(outstr, file=cls.TRACE_FH, flush=True)
+
+        if divider and cls.FRAME_CALLER_FRAMES > 1:
+            print("%s%s" % (indent, "-" * len(outstr)), file=cls.TRACE_FH, flush=True)
+
+    @classmethod
+    def split_parent_child(cls, filename):
+        if not filename:
+            return (None, None)
+        parent = None
+        more, child = os.path.split(filename)
+        child = os.path.splitext(child)[0]
+        if more:
+            _, parent = os.path.split(more)
+        return (parent, child)
+
+    @classmethod
+    def is_whitelisted(cls, module, function):
+        pair = (module, function)
+        if cls.DEBUG_WHITELIST_ENABLED and pair in cls.DEBUG_WHITELIST_FUNCTIONS:
+            return True
+        if cls.FRAME_WHITELIST_ENABLED and pair in cls.FRAME_WHITELIST_FUNCTIONS:
+            return True
+        return False
+
+    @classmethod
+    def is_blacklisted(cls, module, function):
+        pair = (module, function)
+        if cls.DEBUG_BLACKLIST_ENABLED and pair in cls.DEBUG_BLACKLIST_FUNCTIONS:
+            return True
+        if cls.FRAME_BLACKLIST_ENABLED and pair in cls.FRAME_BLACKLIST_FUNCTIONS:
+            return True
+        return False
+
+    @classmethod
+    def trace_current_module(cls, frame, event, arg):
+
+        if event != 'call':
+            return
+
+        # ignore python calls (e.g., list comprehension)
+        if frame.f_code.co_name[0] == "<":
+            return
+
+        # ignore calls that are not directly the below parent module
+        parent, child = cls.split_parent_child(frame.f_code.co_filename)
+        if parent != cls.PARENT_MODULE:
+
+            # ignore calls that are not whitelisted (e.g., logging debug)
+            if not cls.is_whitelisted(parent, frame.f_code.co_name):
+                return
+
+        # ignore calls that are blacklisted (e.g., common debug)
+        if cls.is_blacklisted(child, frame.f_code.co_name):
+            return
+
+        # walk the stack frames above the current call
+        # save the slot for the top-most module entry point
+        # construct a frame chain: root -> current frame
+
+        entry_slot = None
+        frame_chain = []
+        f = frame
+        while f:
+            if cls.PARENT_MODULE in f.f_code.co_filename:
+                entry_slot = len(frame_chain)
+            frame_chain.insert(0, f)
+            f = f.f_back
+
+        # calculate the starting slot: up to n frames above the entry point
+        top = entry_slot + cls.FRAME_CALLER_FRAMES
+        if top >= len(frame_chain):
+            top = len(frame_chain) - 1
+
+        # adjust the frame chain: starting slot -> current frame
+        offset = len(frame_chain) - top - 1
+        frame_chain = frame_chain[offset:]
+
+        # entry location is the filename and line number of the first frame
+        entry_location = [(f.f_code.co_filename, f.f_lineno) for f in frame_chain[:1]]
+
+        if not cls.FRAME_ENTRY_LOCATION:
+            start_new_chain = True
+        else:
+            start_new_chain = entry_location != cls.FRAME_ENTRY_LOCATION
+
+        if start_new_chain:
+
+            # new call chain: write all of the frames
+
+            if cls.FRAME_ENTRY_LOCATION:
+                print("", file=cls.TRACE_FH, flush=True)
+
+            divider_index = cls.FRAME_CALLER_FRAMES - 1
+
+            indent = ''
+            for i, f in enumerate(frame_chain):
+                cls.display_frame(f, indent, divider=(i==divider_index))
+                indent += cls.FRAME_INDENT_LITERAL
+
+            # save the entry point location information
+
+            cls.FRAME_ENTRY_SLOT = entry_slot
+            cls.FRAME_ENTRY_LOCATION = entry_location
+            cls.FRAME_ENTRY_DEPTH = len(frame_chain) - 1
+
+        else:
+
+            # existing call chain: write current frame
+
+            n_indent = cls.FRAME_ENTRY_DEPTH
+            n_indent += entry_slot - cls.FRAME_ENTRY_SLOT
+
+            indent = cls.FRAME_INDENT_LITERAL * n_indent
+            cls.display_frame(frame, indent)
+
+    @classmethod
+    def trace(cls):
+        import traceback
+        sys.settrace(cls.trace_current_module)
+
+if _MODULE_TRACE.TRACE_ENABLED:
+    _MODULE_TRACE.trace()
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
