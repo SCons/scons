@@ -90,7 +90,4 @@ jobs:
         - python bin/docs-validate.py
         - python bin/docs-create-example-outputs.py
         - python scripts/scons.py
-        - python setup.py bdist_wheel
-        - python setup.py sdist --formats=gztar,zip
-        - (cd doc; make html latexpdf)
         - ls -l build/dist
