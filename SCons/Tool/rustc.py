@@ -40,7 +40,7 @@ def generate(env):
     static_obj.add_emitter('.rs', SCons.Defaults.StaticObjectEmitter)
 
     env['RUSTC'] = env.Detect('rustc') or 'rustc'
-    env['RUSTCOM'] = '$RUSTC $RUSTFLAGS --emit obj -o $TARGET $SOURCES'
+    env['RUSTCOM'] = '$RUSTC $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
     env['RUSTFLAGS'] = []
 
 def exists(env):
