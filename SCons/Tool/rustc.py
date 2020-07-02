@@ -40,15 +40,22 @@ def generate(env):
     static_obj.add_emitter('.rs', SCons.Defaults.StaticObjectEmitter)
 
     env['RUSTC'] = env.Detect('rustc') or 'rustc'
-    env['RUSTCOM'] = '$RUSTC $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
+    env['RUSTCOM'] = '$RUSTC $_RUSTCODEGENFLAGS $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
     env['RUSTFLAGS'] = []
 
     shared_obj.add_action('.rs', SCons.Defaults.ShRustAction)
     shared_obj.add_emitter('.rs', SCons.Defaults.SharedObjectEmitter)
 
     env['SHRUSTC'] = '$RUSTC'
-    env['SHRUSTCOM'] = '$SHRUSTC $SHRUSTFLAGS --crate-type cdynlib --emit obj -o $TARGET $SOURCES'
+    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $SHRUSTFLAGS --crate-type cdynlib --emit obj -o $TARGET $SOURCES'
     env['SHRUSTFLAGS'] = []
+
+    env['RUSTCODEGENPREFIX'] = '-C'
+    env['RUSTCODEGENFLAGS'] = [  # TODO: This should be a dictionary
+        'linker=$LINK',
+        'link-args=$LINKFLAGS',
+    ]
+    env['_RUSTCODEGENFLAGS'] = '${_concat(RUSTCODEGENPREFIX, RUSTCODEGENFLAGS, "", __env__)}'
 
 def exists(env):
     return env.Detect('rustc')
