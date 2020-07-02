@@ -47,7 +47,7 @@ def generate(env):
     shared_obj.add_emitter('.rs', SCons.Defaults.SharedObjectEmitter)
 
     env['SHRUSTC'] = '$RUSTC'
-    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $SHRUSTFLAGS --crate-type cdynlib --emit obj -o $TARGET $SOURCES'
+    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $SHRUSTFLAGS --crate-type cdylib --emit obj -o $TARGET $SOURCES'
     env['SHRUSTFLAGS'] = []
 
     env['RUSTCODEGENPREFIX'] = '-C'
