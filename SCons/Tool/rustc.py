@@ -44,4 +44,4 @@ def generate(env):
     env['BUILDERS']['RUSTC'] = _rustc_builder
 
 def exists(env):
-    return 1
+    return env.Detect('rustc')
