@@ -43,5 +43,12 @@ def generate(env):
     env['RUSTCOM'] = '$RUSTC $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
     env['RUSTFLAGS'] = []
 
+    shared_obj.add_action('.rs', SCons.Defaults.ShRustAction)
+    shared_obj.add_emitter('.rs', SCons.Defaults.SharedObjectEmitter)
+
+    env['SHRUSTC'] = '$RUSTC'
+    env['SHRUSTCOM'] = '$SHRUSTC $SHRUSTFLAGS --crate-type cdynlib --emit obj -o $TARGET $SOURCES'
+    env['SHRUSTFLAGS'] = []
+
 def exists(env):
     return env.Detect('rustc')
