@@ -40,14 +40,14 @@ def generate(env):
     static_obj.add_emitter('.rs', SCons.Defaults.StaticObjectEmitter)
 
     env['RUSTC'] = env.Detect('rustc') or 'rustc'
-    env['RUSTCOM'] = '$RUSTC $_RUSTCODEGENFLAGS $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
+    env['RUSTCOM'] = '$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
     env['RUSTFLAGS'] = []
 
     shared_obj.add_action('.rs', SCons.Defaults.ShRustAction)
     shared_obj.add_emitter('.rs', SCons.Defaults.SharedObjectEmitter)
 
     env['SHRUSTC'] = '$RUSTC'
-    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $SHRUSTFLAGS --crate-type cdynlib --emit obj -o $TARGET $SOURCES'
+    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $SHRUSTFLAGS --crate-type cdynlib --emit obj -o $TARGET $SOURCES'
     env['SHRUSTFLAGS'] = []
 
     env['RUSTCODEGENPREFIX'] = '-C'
@@ -56,6 +56,12 @@ def generate(env):
         'link-args=$LINKFLAGS',
     ]
     env['_RUSTCODEGENFLAGS'] = '${_concat(RUSTCODEGENPREFIX, RUSTCODEGENFLAGS, "", __env__)}'
+
+    env['RUSTLIBPATHPREFIX'] = '-L'
+    env['RUSTLIBPATH'] = []
+    env['RUSTLIBSPREFIX'] = '-l'
+    env['RUSTLIBS'] = []
+    env['_RUSTLIBFLAGS'] = '${_concat(RUSTLIBPATHPREFIX, RUSTLIBPATH, "", __env__)} ${_concat(RUSTLIBSPREFIX, RUSTLIBS, "", __env__)}'
 
 def exists(env):
     return env.Detect('rustc')
