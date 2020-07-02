@@ -34,6 +34,28 @@ import sys
 
 import SCons.Util
 
+def _internal_logging_filename(filename):
+    # rewrite filename *only* when the last character of the rootname is "#":
+    #    root, ext = splitext(filename) -> root[:-1] + NNN + ext
+    #    example: myfile#.txt -> myfile001.txt
+    #    returns file 000 when files 1-999 exist: write+append (debug), write (trace)
+    #    (provides individual file names for each launch of scons during runtest.py tests)
+    if not filename:
+        return filename
+    fileroot, fileext = os.path.splitext(filename)
+    if not fileroot or fileroot[-1] != '#':
+        return filename
+    fileroot = fileroot[:-1]
+    n = 0
+    n_limit = 1000
+    while n < n_limit:
+        n = (n + 1) % n_limit # 1, ..., 999, 0
+        filename = ''.join([fileroot, '%03d' % n, fileext])
+        if not os.path.exists(filename) or not n:
+            break
+    return filename
+
+
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
@@ -52,7 +74,7 @@ elif LOGFILE:
             '#%(lineno)s'
             ':%(message)s: '
         ),
-        filename=LOGFILE,
+        filename=_internal_logging_filename(LOGFILE),
         level=logging.DEBUG)
     debug = logging.getLogger(name=__name__).debug
 else:
@@ -319,6 +341,7 @@ def parse_output(output, keep=KEEPLIST):
 
     return dkeep
 
+
 class _MSCOMMON_TRACE:
 
     # SCONS_MSCOMMON_TRACE is internal-use (undocumented):
@@ -397,22 +420,8 @@ class _MSCOMMON_TRACE:
         TRACE_ENABLED = True
         TRACE_FH = sys.stderr
     elif TRACE_FILENAME:
-        # if last character in file root is "#" use a serial number:
-        #    don't overwrite existing file unless we've gotten to _99
-        #    useful when running tests: new trace file for each invocation
-        #    trace-#.txt -> trace-NN.txt
-        _fileroot, _fileext = os.path.splitext(TRACE_FILENAME)
-        if _fileroot and _fileroot[-1] == '#':
-            _fileroot = _fileroot[:-1]
-            _n = 1
-            while _n < 100:
-                _filename = ''.join([_fileroot, '%02d' % _n, _fileext])
-                if not os.path.exists(_filename):
-                    break
-                _n += 1
-            TRACE_FILENAME = _filename
         try:
-            TRACE_FH = open(TRACE_FILENAME, 'w')
+            TRACE_FH = open(_internal_logging_filename(TRACE_FILENAME), 'w')
             TRACE_ENABLED = True
         except:
             pass
