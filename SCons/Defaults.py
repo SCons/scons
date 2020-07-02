@@ -145,6 +145,9 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR")
 DAction = SCons.Action.Action("$DCOM", "$DCOMSTR")
 ShDAction = SCons.Action.Action("$SHDCOM", "$SHDCOMSTR")
 
+RustAction = SCons.Action.Action("$RUSTCOM", "$RUSTCOMSTR")
+# TODO Shared
+
 ASAction = SCons.Action.Action("$ASCOM", "$ASCOMSTR")
 ASPPAction = SCons.Action.Action("$ASPPCOM", "$ASPPCOMSTR")
 

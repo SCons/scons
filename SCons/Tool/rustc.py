@@ -30,18 +30,18 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import SCons.Action
-import SCons.Builder
-import SCons.Util
-
-_rustc_builder = SCons.Builder.Builder(
-        action = 'rustc -o $TARGET $SOURCES',
-        src_suffix = '.rs',)
+import SCons.Defaults
+import SCons.Tool
 
 def generate(env):
-    """Add Builders and construction variables to the Environment."""
+    static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    env['BUILDERS']['RUSTC'] = _rustc_builder
+    static_obj.add_action('.rs', SCons.Defaults.RustAction)
+    static_obj.add_emitter('.rs', SCons.Defaults.StaticObjectEmitter)
+
+    env['RUSTC'] = env.Detect('rustc') or 'rustc'
+    env['RUSTCOM'] = '$RUSTC $RUSTFLAGS --emit obj -o $TARGET $SOURCES'
+    env['RUSTFLAGS'] = []
 
 def exists(env):
     return env.Detect('rustc')
