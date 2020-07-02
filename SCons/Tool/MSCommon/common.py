@@ -319,15 +319,15 @@ def parse_output(output, keep=KEEPLIST):
 
     return dkeep
 
-class _MODULE_TRACE:
+class _MSCOMMON_TRACE:
 
-    # SCONS_MSCOMMON_TRACE is internal-use so undocumented:
-    #    '-':  stderr
-    #    filename: 
+    # SCONS_MSCOMMON_TRACE is internal-use (undocumented):
+    #    '-': write to sys.stderr
+    #    filename:
     #      if the last character before the extension is "#":
-    #         rewritten as root[:-1] + NN + .ext
+    #         rewritten as: root, ext = splitext(filename) -> root[:-1] + NN + ext
     #         trace-#.txt -> trace-01.txt
-    #         (e.g., one for each launch of scons during a test)
+    #         (allows one for each launch of scons during runtest.py tests)
 
     TRACE_FILENAME = os.environ.get('SCONS_MSCOMMON_TRACE')
 
@@ -338,13 +338,13 @@ class _MODULE_TRACE:
     # number of frames above the current module
     FRAME_CALLER_FRAMES = 5
 
-    # when enabled, allow these external module/function calls
-    FRAME_WHITELIST_ENABLED = True
+    # when enabled, allow these external module/function calls (see debug below)
+    FRAME_WHITELIST_ENABLED = False
     FRAME_WHITELIST_FUNCTIONS = [
     ]
 
-    # when enabled, ignore these internal module/function calls
-    FRAME_BLACKLIST_ENABLED = True
+    # when enabled, ignore these internal module/function calls (see debug below)
+    FRAME_BLACKLIST_ENABLED = False
     FRAME_BLACKLIST_FUNCTIONS = [
     ]
 
@@ -363,7 +363,7 @@ class _MODULE_TRACE:
         ('common', 'debug'),
     ]
 
-    # argument values of interest
+    # function argument values of interest
     FRAME_ARGUMENT_VALUES = (
         'version', 
         'msvc_version',
@@ -376,10 +376,9 @@ class _MODULE_TRACE:
         'rollback',
     )
 
-    # indentation
+    # function call indentation
     FRAME_INDENT_NSPACES = 2
     FRAME_INDENT_LITERAL = " " * FRAME_INDENT_NSPACES
-    #FRAME_INDENT_LITERAL = "|" + " " * (FRAME_INDENT_NSPACES -1)
 
     # start of new call chain
     FRAME_ENTRY_DEPTH = 0
@@ -441,6 +440,10 @@ class _MODULE_TRACE:
         return args
 
     @classmethod
+    def print_message(cls, message):
+        print(message, file=cls.TRACE_FH, flush=True)
+
+    @classmethod
     def display_frame(cls, frame, indent, divider=False):
         current_func = frame.f_code.co_name
         if cls.DISPLAY_FUNCTION_LOCATION:
@@ -464,11 +467,11 @@ class _MODULE_TRACE:
             arglist = ""
 
         outstr = "%s%s%s%s" % (indent, current_func, arglist, location)
-
-        print(outstr, file=cls.TRACE_FH, flush=True)
+        cls.print_message(outstr)
 
         if divider and cls.FRAME_CALLER_FRAMES > 1:
-            print("%s%s" % (indent, "-" * len(outstr)), file=cls.TRACE_FH, flush=True)
+            divstr = "%s%s" % (indent, "-" * len(outstr))
+            cls.print_message(divstr)
 
     @classmethod
     def split_parent_child(cls, filename):
@@ -505,7 +508,7 @@ class _MODULE_TRACE:
         if event != 'call':
             return
 
-        # ignore python calls (e.g., list comprehension)
+        # ignore native python calls (e.g., list comprehension)
         if frame.f_code.co_name[0] == "<":
             return
 
@@ -556,7 +559,7 @@ class _MODULE_TRACE:
             # new call chain: write all of the frames
 
             if cls.FRAME_ENTRY_LOCATION:
-                print("", file=cls.TRACE_FH, flush=True)
+                cls.print_message("")
 
             divider_index = cls.FRAME_CALLER_FRAMES - 1
 
@@ -586,8 +589,8 @@ class _MODULE_TRACE:
         import traceback
         sys.settrace(cls.trace_current_module)
 
-if _MODULE_TRACE.TRACE_ENABLED:
-    _MODULE_TRACE.trace()
+if _MSCOMMON_TRACE.TRACE_ENABLED:
+    _MSCOMMON_TRACE.trace()
 
 # Local Variables:
 # tab-width:4
