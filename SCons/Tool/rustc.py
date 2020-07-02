@@ -40,14 +40,14 @@ def generate(env):
     static_obj.add_emitter('.rs', SCons.Defaults.StaticObjectEmitter)
 
     env['RUSTC'] = env.Detect('rustc') or 'rustc'
-    env['RUSTCOM'] = '$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
+    env['RUSTCOM'] = '$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
     env['RUSTFLAGS'] = []
 
     shared_obj.add_action('.rs', SCons.Defaults.ShRustAction)
     shared_obj.add_emitter('.rs', SCons.Defaults.SharedObjectEmitter)
 
     env['SHRUSTC'] = '$RUSTC'
-    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $SHRUSTFLAGS --crate-type cdylib --emit obj -o $TARGET $SOURCES'
+    env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $SHRUSTFLAGS --crate-type cdylib --emit obj -o $TARGET $SOURCES'
     env['SHRUSTFLAGS'] = []
 
     env['RUSTCODEGENPREFIX'] = '-C'
@@ -62,6 +62,21 @@ def generate(env):
     env['RUSTLIBSPREFIX'] = '-l'
     env['RUSTLIBS'] = []
     env['_RUSTLIBFLAGS'] = '${_concat(RUSTLIBPATHPREFIX, RUSTLIBPATH, "", __env__)} ${_concat(RUSTLIBSPREFIX, RUSTLIBS, "", __env__)}'
+
+    env['RUSTLINTWARNPREFIX'] = '-W'
+    env['RUSTLINTWARN'] = []
+    env['RUSTLINTALLOWPREFIX'] = '-A'
+    env['RUSTLINTALLOW'] = []
+    env['RUSTLINTDENYPREFIX'] = '-D'
+    env['RUSTLINTDENY'] = []
+    env['RUSTLINTFORBIDPREFIX'] = '-F'
+    env['RUSTLINTFORBID'] = []
+    env['_RUSTLINTFLAGS'] = (
+        '${_concat(RUSTLINTWARNPREFIX, RUSTLINTWARN, "", __env__)} '
+        '${_concat(RUSTLINTALLOWPREFIX, RUSTLINTALLOW, "", __env__)} '
+        '${_concat(RUSTLINTDENYPREFIX, RUSTLINTDENY, "", __env__)} '
+        '${_concat(RUSTLINTFORBIDPREFIX, RUSTLINTFORBID, "", __env__)}'
+    )
 
 def exists(env):
     return env.Detect('rustc')
