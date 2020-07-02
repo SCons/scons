@@ -51,11 +51,11 @@ def generate(env):
     env['SHRUSTFLAGS'] = []
 
     env['RUSTCODEGENPREFIX'] = '-C'
-    env['RUSTCODEGENFLAGS'] = [  # TODO: This should be a dictionary
-        'linker=$LINK',
-        'link-args=$LINKFLAGS',
-    ]
-    env['_RUSTCODEGENFLAGS'] = '${_concat(RUSTCODEGENPREFIX, RUSTCODEGENFLAGS, "", __env__)}'
+    env['RUSTCODEGENFLAGS'] = {
+        'linker': '$LINK',
+        'link-args': '$LINKFLAGS',
+    }
+    env['_RUSTCODEGENFLAGS'] = '${_defines(RUSTCODEGENPREFIX, RUSTCODEGENFLAGS, "", __env__)}'
 
     env['RUSTLIBPATHPREFIX'] = '-L'
     env['RUSTLIBPATH'] = []
