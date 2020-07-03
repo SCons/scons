@@ -31,29 +31,63 @@ import os
 import re
 import subprocess
 import sys
+import glob
 
 import SCons.Util
 
-def _internal_logging_filename(filename):
-    # rewrite filename *only* when the last character of the rootname is "#":
-    #    root, ext = splitext(filename) -> root[:-1] + NNN + ext
-    #    example: myfile#.txt -> myfile001.txt
-    #    returns file 000 when files 1-999 exist: write+append (debug), write (trace)
-    #    (provides individual file names for each launch of scons during runtest.py tests)
-    if not filename:
+class _MSCOMMON_FILENAME:
+
+    # Internal use only:
+    #    SCONS_MSCOMMON_DEBUG=filename
+    #    SCONS_MSCOMMON_TRACE=filename
+
+    # Rewrite filename *ONLY* when the rootname ends in "-#":
+    #    root, ext = splitext(filename) -> root[:-1] + NNNN + ext
+    #    example: myfile-#.txt -> myfile-0001.txt
+    #    next consecutive number from largest number in target folder or 1
+    #    allows individual debug/trace file names for each launch of scons
+
+    # Sync:
+    #    debug sync=False: number for next debug file
+    #    trace sync=True:  number set to debug number
+    #    trace sync=False: number for next trace file
+
+    FILENAME_SERIALNBR = '-#'
+    FILENAME_NBRFORMAT = '%04d'
+
+    _last_n = 1
+
+    @classmethod
+    def _get_next_serialnbr(cls, fileglob):
+        matches = glob.glob(fileglob)
+        if not matches:
+            return 1
+        matches = sorted(matches)
+        root, ext = os.path.splitext(matches[-1])
+        n = int(root.split(cls.FILENAME_SERIALNBR[0])[-1])
+        return n + 1
+
+    @classmethod
+    def _get_filename(cls, root, n, ext):
+        filename = ''.join([root, cls.FILENAME_NBRFORMAT % n, ext])
         return filename
-    fileroot, fileext = os.path.splitext(filename)
-    if not fileroot or fileroot[-1] != '#':
+
+    @classmethod
+    def rewrite(cls, filename, sync=False):
+        if not filename:
+            return filename
+        root, ext = os.path.splitext(filename)
+        if not root or root[-len(cls.FILENAME_SERIALNBR):] != cls.FILENAME_SERIALNBR:
+            return filename
+        root = root[:-1]
+        if sync:
+            n = cls._last_n
+        else:
+            fileglob = root + '*' + ext
+            n = cls._get_next_serialnbr(fileglob)
+            cls._last_n = n
+        filename = cls._get_filename(root, n, ext)
         return filename
-    fileroot = fileroot[:-1]
-    n = 0
-    n_limit = 1000
-    while n < n_limit:
-        n = (n + 1) % n_limit # 1, ..., 999, 0
-        filename = ''.join([fileroot, '%03d' % n, fileext])
-        if not os.path.exists(filename) or not n:
-            break
-    return filename
 
 
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
@@ -74,7 +108,7 @@ elif LOGFILE:
             '#%(lineno)s'
             ':%(message)s: '
         ),
-        filename=_internal_logging_filename(LOGFILE),
+        filename=_MSCOMMON_FILENAME.rewrite(LOGFILE),
         level=logging.DEBUG)
     debug = logging.getLogger(name=__name__).debug
 else:
@@ -344,14 +378,8 @@ def parse_output(output, keep=KEEPLIST):
 
 class _MSCOMMON_TRACE:
 
-    # SCONS_MSCOMMON_TRACE is internal-use (undocumented):
-    #    '-': write to sys.stderr
-    #    filename:
-    #      if the last character before the extension is "#":
-    #         rewritten as: root, ext = splitext(filename) -> root[:-1] + NN + ext
-    #         trace-#.txt -> trace-01.txt
-    #         (allows one for each launch of scons during runtest.py tests)
-
+    # SCONS_MSCOMMON_TRACE is internal-use so undocumented:
+    # set to '-' to print to stderr, else set to filename to log to
     TRACE_FILENAME = os.environ.get('SCONS_MSCOMMON_TRACE')
 
     # display the function argument list w/select values
@@ -388,7 +416,7 @@ class _MSCOMMON_TRACE:
 
     # function argument values of interest
     FRAME_ARGUMENT_VALUES = (
-        'version', 
+        'version',
         'msvc_version',
         'value',
         'host_arch',
@@ -421,7 +449,7 @@ class _MSCOMMON_TRACE:
         TRACE_FH = sys.stderr
     elif TRACE_FILENAME:
         try:
-            TRACE_FH = open(_internal_logging_filename(TRACE_FILENAME), 'w')
+            TRACE_FH = open(_MSCOMMON_FILENAME.rewrite(TRACE_FILENAME, sync=DEBUG_LOGGING_ENABLED), 'w')
             TRACE_ENABLED = True
         except:
             pass
