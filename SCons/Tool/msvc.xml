@@ -385,13 +385,13 @@ Use a batch script to set up Microsoft Visual Studio compiler.
 </para>
 
 <para>
-If set to the name of a Visual Studio <filename>.bat<filename> file
-(e.g. <filename>vcvars.bat<filename>),
+If set to the name of a Visual Studio <filename>.bat</filename> file
+(e.g. <filename>vcvars.bat</filename>),
 &SCons; will run that batch file instead of the auto-detected one,
 and extract the relevant variables from the result (typically
-<envar>%INCLUDE%<envar>,
-<envar>%LIB%<envar>, and
-<envar>%PATH%<envar>) for supplying to the build.
+<envar>%INCLUDE%</envar>,
+<envar>%LIB%</envar>, and
+<envar>%PATH%</envar>) for supplying to the build.
 This can be useful to force the use of a compiler version that
 &SCons; does not detect.
 </para>
