@@ -1278,6 +1278,8 @@ def tool_list(platform, env):
         'tar', 'zip',
         # File builders (text)
         'textfile',
+        # Rust
+        'rustc',
     ], env)
 
     tools = [
