@@ -36,15 +36,16 @@ import SCons.Tool
 def generate(env):
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
-    static_obj.add_action('.rs', SCons.Defaults.RustAction)
-    static_obj.add_emitter('.rs', SCons.Defaults.StaticObjectEmitter)
+    for suffix in SCons.Tool.RustSuffixes:
+        static_obj.add_action(suffix, SCons.Defaults.RustAction)
+        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
+
+        shared_obj.add_action(suffix, SCons.Defaults.ShRustAction)
+        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
     env['RUSTC'] = env.Detect('rustc') or 'rustc'
     env['RUSTCOM'] = '$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $RUSTFLAGS --crate-type staticlib --emit obj -o $TARGET $SOURCES'
     env['RUSTFLAGS'] = []
-
-    shared_obj.add_action('.rs', SCons.Defaults.ShRustAction)
-    shared_obj.add_emitter('.rs', SCons.Defaults.SharedObjectEmitter)
 
     env['SHRUSTC'] = '$RUSTC'
     env['SHRUSTCOM'] = '$SHRUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $SHRUSTFLAGS --crate-type cdylib --emit obj -o $TARGET $SOURCES'

@@ -76,6 +76,8 @@ LaTeXSuffixes = [".tex", ".ltx", ".latex"]
 
 SWIGSuffixes = ['.i']
 
+RustSuffixes = ['.rs']
+
 for suffix in CSuffixes:
     SourceFileScanner.add_scanner(suffix, CScanner)
 
