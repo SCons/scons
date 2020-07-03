@@ -449,18 +449,23 @@ latest version for use.
 </para>
 
 <para>
-Valid values for Windows are
+On Windows, valid target values are
 <literal>x86</literal>,
 <literal>arm</literal>,
 <literal>i386</literal>
-(for 32 bit);
+for 32-bit targets and
 <literal>amd64</literal>,
 <literal>arm64</literal>,
-<literal>emt64</literal>,
+<literal>em64t</literal>,
 <literal>x86_64</literal>
-(for 64 bit);
-and <literal>ia64</literal> (Itanium) (deprecated).
+and <literal>ia64</literal> (Itanium)
+for 64-bit targets.
+Note that not all target architectures are
+supported for all Visual Studio / MSVC versions
+check the relevant Microsoft documentation.
+</para>
 
+<para>
 For example, if you want to compile 64-bit binaries, you would set
 <literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
 </para>
