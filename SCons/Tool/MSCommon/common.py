@@ -55,7 +55,7 @@ class _MSCOMMON_FILENAME:
     FILENAME_SERIALNBR = '-#'
     FILENAME_NBRFORMAT = '%04d'
 
-    _last_n = 1
+    _last_n = None
 
     @classmethod
     def _get_next_serialnbr(cls, fileglob):
@@ -80,12 +80,13 @@ class _MSCOMMON_FILENAME:
         if not root or root[-len(cls.FILENAME_SERIALNBR):] != cls.FILENAME_SERIALNBR:
             return filename
         root = root[:-1]
-        if sync:
+        if sync and cls._last_n is not None:
             n = cls._last_n
         else:
             fileglob = root + '*' + ext
             n = cls._get_next_serialnbr(fileglob)
-            cls._last_n = n
+            if not sync:
+                cls._last_n = n
         filename = cls._get_filename(root, n, ext)
         return filename
 
