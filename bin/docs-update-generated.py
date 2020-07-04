@@ -13,18 +13,22 @@ import subprocess
 import SConsDoc
 
 # Directory where all generated files are stored
-gen_folder = os.path.join('doc','generated')
+gen_folder = os.path.join('doc', 'generated')
 
 def argpair(key):
     """ Return the argument pair *.gen,*.mod for the given key. """
-    arg = '%s,%s' % (os.path.join(gen_folder, '%s.gen' % key),
-                     os.path.join(gen_folder, '%s.mod' % key))
-    
+    arg = '%s,%s' % (
+        os.path.join(gen_folder, '%s.gen' % key),
+        os.path.join(gen_folder, '%s.mod' % key),
+    )
+
     return arg
 
 def generate_all():
-    """ Scan for XML files in the SCons directory and call scons-proc.py
-        to generate the *.gen/*.mod files from it.
+    """Generate the entity files.
+
+    Scan for XML files in the SCons directory and call scons-proc.py
+    to generate the *.gen/*.mod files from it.
     """
     flist = []
     for path, dirs, files in os.walk('SCons'):
@@ -36,12 +40,12 @@ def generate_all():
 
     if flist:
         # Does the destination folder exist
-        if not os.path.isdir(gen_folder):
-            try:
-                os.makedirs(gen_folder)
-            except:
-                print("Couldn't create destination folder %s! Exiting..." % gen_folder)
-                return
+        try:
+            os.makedirs(gen_folder, exist_ok=True)
+        except Exception:
+            print("Couldn't create destination folder %s! Exiting..." % gen_folder, file=sys.stdout))
+            return False
+
         # Call scons-proc.py
         cp = subprocess.run(
             [
@@ -55,10 +59,11 @@ def generate_all():
             shell=False,
         )
 
-        # No-op: scons-proc doesn't actually set an exit code at the moment.
         if cp.returncode:
             print("Generation failed", file=sys.stderr)
+            return False
     
     
 if __name__ == "__main__":
-    generate_all()
+    if not generate_all():
+        sys.exit(1)
