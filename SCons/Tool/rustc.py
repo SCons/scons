@@ -33,6 +33,13 @@ selection method.
 import SCons.Defaults
 import SCons.Tool
 
+
+def _rust_library_dict_to_list(library_dict):
+    return [
+        name if kind is None else '{}={}'.format(kind, name)
+        for name, kind in library_dict.items()
+    ]
+
 def generate(env):
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
@@ -58,11 +65,16 @@ def generate(env):
     }
     env['_RUSTCODEGENFLAGS'] = '${_defines(RUSTCODEGENPREFIX, RUSTCODEGENFLAGS, "", __env__)}'
 
+    env['_rust_library_dict_to_list'] = _rust_library_dict_to_list
     env['RUSTLIBPATHPREFIX'] = '-L'
-    env['RUSTLIBPATH'] = []
+    env['RUSTLIBPATH'] = dict()
     env['RUSTLIBSPREFIX'] = '-l'
-    env['RUSTLIBS'] = []
-    env['_RUSTLIBFLAGS'] = '${_concat(RUSTLIBPATHPREFIX, RUSTLIBPATH, "", __env__)} ${_concat(RUSTLIBSPREFIX, RUSTLIBS, "", __env__)}'
+    env['RUSTLIBS'] = dict()
+    env['_RUSTLIBFLAGS'] = (
+        '${_concat(RUSTLIBPATHPREFIX, _rust_library_dict_to_list(RUSTLIBPATH), "", __env__)} '
+        '${_concat(RUSTLIBSPREFIX, _rust_library_dict_to_list(RUSTLIBS), "", __env__)}'
+    )
+
 
     env['RUSTLINTWARNPREFIX'] = '-W'
     env['RUSTLINTWARN'] = []
