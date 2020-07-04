@@ -193,7 +193,7 @@ class UpdateFile:
 
     # Determine the pattern to match a version
 
-    _rel_types = r'(dev|beta|candidate|final)'
+    _rel_types = r'(a|b|)'
     match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.?(\d+|yyyymmdd)'
     match_rel = re.compile(match_pat)
 
@@ -266,7 +266,7 @@ def main(args, rel_info):
 
         # Update src/CHANGES.txt
 
-        t = UpdateFile(os.path.join('src', 'CHANGES.txt'))
+        t = UpdateFile('CHANGES.txt')
         if DEBUG: t.file = '/tmp/CHANGES.txt'
         t.sub('(\nRELEASE .*)', r"""\nRELEASE  VERSION/DATE TO BE FILLED IN LATER\n
       From John Doe:\n
@@ -275,103 +275,82 @@ def main(args, rel_info):
 
         # Update src/RELEASE.txt
 
-        t = UpdateFile(os.path.join('src', 'RELEASE.txt'),
-                       os.path.join('template', 'RELEASE.txt'))
+        t = UpdateFile('RELEASE.txt'),
+        os.path.join('template', 'RELEASE.txt')
+        if DEBUG: t.file = '/tmp/RELEASE.txt'
+        t.replace_version()
+
+
+        # Update CHANGES.txt
+        t = UpdateFile('CHANGES.txt')
+        if DEBUG: t.file = '/tmp/CHANGES.txt'
+        t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
+
+        # Update RELEASE.txt
+        t = UpdateFile('RELEASE.txt')
         if DEBUG: t.file = '/tmp/RELEASE.txt'
         t.replace_version()
 
         # Update src/Announce.txt
 
-        t = UpdateFile(os.path.join('src', 'Announce.txt'))
-        if DEBUG: t.file = '/tmp/Announce.txt'
-        t.sub('\nRELEASE .*', '\nRELEASE VERSION/DATE TO BE FILLED IN LATER')
-        announce_pattern = """(
-      Please note the following important changes scheduled for the next
-      release:
-    )"""
-        announce_replace = (r"""\1
-        --  FEATURE THAT WILL CHANGE\n
-      Please note the following important changes since release """
-                            + '.'.join(map(str, rel_info.version_tuple[:3])) + ':\n')
-        t.sub(announce_pattern, announce_replace)
+        # t = UpdateFile(os.path.join('src', 'Announce.txt'))
+        # if DEBUG: t.file = '/tmp/Announce.txt'
+        # t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
+        #
+        # Update SConstruct
 
-        # Write out the last update and exit
+        t = UpdateFile('SConstruct')
+        if DEBUG: t.file = '/tmp/SConstruct'
+        t.replace_assign('month_year', repr(rel_info.month_year))
+        t.replace_assign('copyright_years', repr(rel_info.copyright_years))
+        t.replace_assign('default_version', repr(rel_info.version_string))
 
-        t = None
-        sys.exit()
+        # Update README
+        for readme_file in ['README.rst', 'README-SF.rst']:
+            t = UpdateFile(readme_file)
+        if DEBUG: t.file = os.path.join('/tmp/', readme_file)
+        t.sub('-' + t.match_pat + r'\.', '-' + rel_info.version_string + '.', count=0)
+        for suf in ['tar', 'win32', 'zip']:
+            t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
+        '-%s.%s' % (rel_info.version_string, suf),
+        count = 0)
 
-    # Update src/CHANGES.txt
+        # Update testing/framework/TestSCons.py
 
-    t = UpdateFile(os.path.join('src', 'CHANGES.txt'))
-    if DEBUG: t.file = '/tmp/CHANGES.txt'
-    t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
+        t = UpdateFile(os.path.join('testing', 'framework', 'TestSCons.py'))
+        if DEBUG: t.file = '/tmp/TestSCons.py'
+        t.replace_assign('copyright_years', repr(rel_info.copyright_years))
+        t.replace_assign('default_version', repr(rel_info.version_string))
+        # ??? t.replace_assign('SConsVersion', repr(version_string))
+        t.replace_assign('python_version_unsupported', str(rel_info.unsupported_version))
+        t.replace_assign('python_version_deprecated', str(rel_info.deprecated_version))
 
-    # Update src/RELEASE.txt
+        # Update Script/Main.py
 
-    t = UpdateFile(os.path.join('src', 'RELEASE.txt'))
-    if DEBUG: t.file = '/tmp/RELEASE.txt'
-    t.replace_version()
+        t = UpdateFile(os.path.join('SCons', 'Script', 'Main.py'))
+        if DEBUG: t.file = '/tmp/Main.py'
+        t.replace_assign('unsupported_python_version', str(rel_info.unsupported_version))
+        t.replace_assign('deprecated_python_version', str(rel_info.deprecated_version))
 
-    # Update src/Announce.txt
+        # Update doc/user/main.{in,xml}
 
-    t = UpdateFile(os.path.join('src', 'Announce.txt'))
-    if DEBUG: t.file = '/tmp/Announce.txt'
-    t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
-
-    # Update SConstruct
-
-    t = UpdateFile('SConstruct')
-    if DEBUG: t.file = '/tmp/SConstruct'
-    t.replace_assign('month_year', repr(rel_info.month_year))
-    t.replace_assign('copyright_years', repr(rel_info.copyright_years))
-    t.replace_assign('default_version', repr(rel_info.version_string))
-
-    # Update README
-
-    t = UpdateFile('README.rst')
-    if DEBUG: t.file = '/tmp/README.rst'
-    t.sub('-' + t.match_pat + r'\.', '-' + rel_info.version_string + '.', count=0)
-    for suf in ['tar', 'win32', 'zip', 'rpm', 'exe', 'deb']:
-        t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
-              '-%s.%s' % (rel_info.version_string, suf),
-              count=0)
-
-    # Update testing/framework/TestSCons.py
-
-    t = UpdateFile(os.path.join('testing', 'framework', 'TestSCons.py'))
-    if DEBUG: t.file = '/tmp/TestSCons.py'
-    t.replace_assign('copyright_years', repr(rel_info.copyright_years))
-    t.replace_assign('default_version', repr(rel_info.version_string))
-    # ??? t.replace_assign('SConsVersion', repr(version_string))
-    t.replace_assign('python_version_unsupported', str(rel_info.unsupported_version))
-    t.replace_assign('python_version_deprecated', str(rel_info.deprecated_version))
-
-    # Update Script/Main.py
-
-    t = UpdateFile(os.path.join('src', 'engine', 'SCons', 'Script', 'Main.py'))
-    if DEBUG: t.file = '/tmp/Main.py'
-    t.replace_assign('unsupported_python_version', str(rel_info.unsupported_version))
-    t.replace_assign('deprecated_python_version', str(rel_info.deprecated_version))
-
-    # Update doc/user/main.{in,xml}
-
-    docyears = '2004 - %d' % rel_info.release_date[0]
-    if os.path.exists(os.path.join('doc', 'user', 'main.in')):
+        docyears = '2004 - %d' % rel_info.release_date[0]
+        if os.path.exists(os.path.join('doc', 'user', 'main.in')):
         # this is no longer used as of Dec 2013
-        t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
+            t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
         if DEBUG: t.file = '/tmp/main.in'
         ## TODO debug these
         # t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
         # t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
 
-    t = UpdateFile(os.path.join('doc', 'user', 'main.xml'))
-    if DEBUG: t.file = '/tmp/main.xml'
-    t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
-    t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
+        t = UpdateFile(os.path.join('doc', 'user', 'main.xml'))
+        if DEBUG: t.file = '/tmp/main.xml'
+        t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
+        t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
 
-    # Write out the last update
+        # Write out the last update
 
-    t = None
+        t = None
 
 
 def parse_arguments():
