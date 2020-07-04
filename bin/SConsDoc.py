@@ -571,12 +571,12 @@ class SConsDocHandler:
                                xpath_context, nsmap, include_entities)
 
     def parseContent(self, content, include_entities=True):
-        """ Parses the given content as XML file. This method
-            is used when we generate the basic lists of entities
-            for the builders, tools and functions.
-            So we usually don't bother about namespaces and resolving
-            entities here...this is handled in parseXmlFile below
-            (step 2 of the overall process).
+        """Parse the given content as XML.
+
+        This method is used when we generate the basic lists of entities
+        for the builders, tools and functions.  So we usually don't
+        bother about namespaces and resolving entities here...
+        this is handled in parseXmlFile below (step 2 of the overall process).
         """
         # Create doctree
         t = SConsDocTree()
