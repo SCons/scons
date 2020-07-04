@@ -129,8 +129,24 @@
       rewordings in manpage.  Manpage Examples moved to an external
       repository / website (scons-cookbook.readthedocs.io).
 
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
-  Contributors are listed alphabetically by their last name.
+  Thanks to the following contributors listed below for their contributions to this release.
 
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__
+git shortlog --no-merges -ns 3.1.2..HEAD
+   290  William Deegan
+   184  Mats Wichmann
+    46  Adam Gross
+    22  Daniel Moody
+    16  Joseph Brill
+    15  Dirk Baechle
+    12  Ivan Kravets
+     9  Mathew Robinson
+     6  Paul Tipei
+     1  Rob Boehne
+     1  Robert Boehne
+     1  Daniel
+     1  Andrew Morrow
+     1  Iosif Daniel Kurazs
+     1  James Benton
+     1  Jeremy Elson
+     1  Konstantin Gonchar
+     1  Andrii Doroshenko (Xrayez)
