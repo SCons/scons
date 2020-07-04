@@ -275,8 +275,8 @@ def main(args, rel_info):
 
         # Update src/RELEASE.txt
 
-        t = UpdateFile('RELEASE.txt'),
-        os.path.join('template', 'RELEASE.txt')
+        t = UpdateFile('RELEASE.txt',
+                       os.path.join('template', 'RELEASE.txt'))
         if DEBUG: t.file = '/tmp/RELEASE.txt'
         t.replace_version()
 
@@ -285,25 +285,6 @@ def main(args, rel_info):
         t = UpdateFile('CHANGES.txt')
         if DEBUG: t.file = '/tmp/CHANGES.txt'
         t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
-
-        # Update RELEASE.txt
-        t = UpdateFile('RELEASE.txt')
-        if DEBUG: t.file = '/tmp/RELEASE.txt'
-        t.replace_version()
-
-        # Update src/Announce.txt
-
-        # t = UpdateFile(os.path.join('src', 'Announce.txt'))
-        # if DEBUG: t.file = '/tmp/Announce.txt'
-        # t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
-        #
-        # Update SConstruct
-
-        t = UpdateFile('SConstruct')
-        if DEBUG: t.file = '/tmp/SConstruct'
-        t.replace_assign('month_year', repr(rel_info.month_year))
-        t.replace_assign('copyright_years', repr(rel_info.copyright_years))
-        t.replace_assign('default_version', repr(rel_info.version_string))
 
         # Update README
         for readme_file in ['README.rst', 'README-SF.rst']:

@@ -392,11 +392,11 @@ Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
     SCons-4.0.0-py3-none-any.whl
-    SCons-4.0.0.tar.gz
-    SCons-4.0.0.zip
-    scons-doc-4.0.0.tar.gz
-    scons-local-4.0.0.tar.gz
-    scons-local-4.0.0.zip
+    SCons-4.1.0.devyyyymmdd.tar.gz
+    SCons-4.1.0.devyyyymmdd.zip
+    scons-doc-4.1.0.devyyyymmdd.tar.gz
+    scons-local-4.1.0.devyyyymmdd.tar.gz
+    scons-local-4.1.0.devyyyymmdd.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
