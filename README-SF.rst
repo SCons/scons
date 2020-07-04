@@ -391,17 +391,15 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-    SCons-3.9.9a998-py3-none-any.whl
-    SCons-3.9.9a998.tar.gz
-    SCons-3.9.9a998.zip
-    scons-doc-3.9.9a998.tar.gz
-    scons-local-3.9.9a998.tar.gz
-    scons-local-3.9.9a998.zip
+    SCons-4.0.0-py3-none-any.whl
+    SCons-4.0.0.tar.gz
+    SCons-4.0.0.zip
+    scons-doc-4.0.0.tar.gz
+    scons-local-4.0.0.tar.gz
+    scons-local-4.0.0.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
-packages for which you don't have the proper utilities installed.  For
-example, if you don't have Debian packaging tools installed, it should just
-not build the .deb package, not fail the build.
+packages for which you don't have the proper utilities installed.
 
 If you receive a build error, please report it to the scons-devel mailing list
 and open a bug report on the SCons bug tracker.
