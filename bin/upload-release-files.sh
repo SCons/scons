@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 set -x
 
-if [ $# -lt 2 ]; then
+if [[ $# -lt 2 ]]; then
 	echo Usage: $0 VERSION SF_USERNAME
 	exit 1
 fi
@@ -17,13 +17,14 @@ SF_TOPDIR='/home/frs/project/scons'
 
 # the build products are here:
 cd build/dist
-cp -f ../../src/CHANGES.txt ../../src/RELEASE.txt ../../src/Announce.txt ../../src/README.txt .
+cp -f ../../CHANGES.txt ../../RELEASE.txt  .
+cp -f ../../README-sf.rst ./README.rst
 
 set -x
 
 # upload README
 $RSYNC $RSYNCOPTS\
-       README-SF.rst bdbaddog@frs.sourceforge.net:/home/frs/project/scons/ \
+       README.rst \
        $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons/
 
 	
@@ -31,22 +32,22 @@ $RSYNC $RSYNCOPTS\
 $RSYNC $RSYNCOPTS \
   scons-$VERSION.tar.gz \
   scons-$VERSION.zip \
-  Announce.txt CHANGES.txt RELEASE.txt \
+  CHANGES.txt RELEASE.txt \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons/$VERSION/
 
 # Local packages:
 $RSYNC $RSYNCOPTS \
   scons-local-$VERSION.tar.gz \
   scons-local-$VERSION.zip \
-  Announce.txt CHANGES.txt RELEASE.txt \
+  CHANGES.txt RELEASE.txt \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-local/$VERSION/
 
-# Source packages:
-$RSYNC $RSYNCOPTS \
- scons-src-$VERSION.tar.gz \
- scons-src-$VERSION.zip \
- Announce.txt CHANGES.txt RELEASE.txt \
- $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
+## Source packages:
+#$RSYNC $RSYNCOPTS \
+# scons-src-$VERSION.tar.gz \
+# scons-src-$VERSION.zip \
+# CHANGES.txt RELEASE.txt \
+# $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-src/$VERSION/
 
 # Readme
 $RSYNC $RSYNCOPTS \
@@ -68,7 +69,7 @@ $RSYNC $RSYNCOPTS \
 # Note that Announce.txt gets copied over to RELEASE.txt.
 # This should be fixed at some point.
 $RSYNC $RSYNCOPTS \
-  Announce.txt \
+  RELEASE.txt \
   scons@scons.org:public_html/production/RELEASE.txt
 # Unpack the doc and repoint doc symlinks:
 ssh scons@scons.org "
