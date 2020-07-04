@@ -51,7 +51,7 @@ $RSYNC $RSYNCOPTS \
 
 # Readme
 $RSYNC $RSYNCOPTS \
-  README.txt  \
+  README.rst  \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/
 
 
