@@ -650,7 +650,7 @@ def call_vswhere_json_output(vswhere_args, env=None):
 
     try:
         vswhere_json = json.loads(vswhere_output)
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError:
         debug("json decode exception loading vswhere output")
         vswhere_json = None
 
@@ -692,13 +692,13 @@ def find_vc_pdir_registry(env, msvc_version):
                 try:
                     # ordinarily at win64, try Wow6432Node first.
                     comps = common.read_reg(root + 'Wow6432Node\\' + key, hkroot)
-                except SCons.Util.WinError as e:
+                except SCons.Util.WinError:
                     # at Microsoft Visual Studio for Python 2.7, value is not in Wow6432Node
                     pass
             if not comps:
                 # not Win64, or Microsoft Visual Studio for Python 2.7
                 comps = common.read_reg(root + key, hkroot)
-        except SCons.Util.WinError as e:
+        except SCons.Util.WinError:
             debug('no VC registry key {}'.format(repr(key)))
         else:
             debug('found VC in registry: {}'.format(comps))
@@ -1646,7 +1646,7 @@ def _find_toolset_twolevel(env, search_version, vc_host, vc_target, vc_specific_
     if search_version:
         try:
             vc_instance = _find_toolset_version(env, search_version, vc_host, vc_target, vc_specific_version, msvc_version_numeric_include)
-        except (MSVCProductNotFound, MSVCTargetNotFound, MSVCToolsetNotFound) as e:
+        except (MSVCProductNotFound, MSVCTargetNotFound, MSVCToolsetNotFound):
             pass
 
     if not vc_instance:
@@ -2109,7 +2109,8 @@ def _registry_get_140_product(env):
         try:
             vc140_dir = common.read_reg(vcvars140bat_key, SCons.Util.HKEY_LOCAL_MACHINE)
             break
-        except SCons.Util.WinError as e:
+        except SCons.Util.WinError:
+            # TODO|JCB: debug log error
             pass
 
     if not vc140_dir or not os.path.exists(vc140_dir):
