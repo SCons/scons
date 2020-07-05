@@ -1799,10 +1799,14 @@ def msvc_find_specific_version(env, msvc_version, vc_host, vc_target):
     return (memo_val.vc_ver, memo_val.vcvars_ver)
 
 def find_vc_pdir_vswhere_instance(msvc_version, env=None):
-    
+
     if msvc_version not in _VCVER:
         raise UnsupportedVersion("Unknown version %s" % msvc_version)
-        
+
+    # get_installed_vcs may not have been called earlier
+    if not _MSVC_CONFIG.VCVER_INSTALLED_TOOLSETS_PREPARED:
+        setup_installed_vctoolsets(env)
+
     # ignore when finding default environments
     if not _MSVC_CONFIG.VCVER_INSTALLED_TOOLSETS_DEFAULT and env:
         vc_product, vc_product_version_numeric, vc_component_rank = _find_product_version(env, msvc_version)
