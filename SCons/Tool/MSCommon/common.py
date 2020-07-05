@@ -142,7 +142,7 @@ class _MSCOMMON_TRACE:
     # debugging using the logging module
     DEBUG_LOGGING_ENABLED = True if LOGFILE and LOGFILE != "-" else False
 
-    # keep extenal debug calls when using the logging module
+    # keep external debug calls when using the logging module
     DEBUG_WHITELIST_ENABLED = DEBUG_LOGGING_ENABLED
     DEBUG_WHITELIST_FUNCTIONS = [
         ('logging', 'debug'),
