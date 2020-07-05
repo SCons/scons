@@ -78,12 +78,15 @@ abs_files = [
 ]
 
 
+stat_info = {}
+
 example_rel_file = get_db(test.workdir, False, [])
 
 for f in rel_files:
     # print("Checking:%s" % f)
     test.must_exist(f)
     test.must_match(f, example_rel_file, mode='r')
+    stat_info[f] = os.stat(f)
 
 
 example_abs_file = get_db(test.workdir, True, [])
@@ -91,6 +94,12 @@ example_abs_file = get_db(test.workdir, True, [])
 for f in abs_files:
     test.must_exist(f)
     test.must_match(f, example_abs_file, mode='r')
+    stat_info[f] = os.stat(f)
+
+
+test.run()
+for f in stat_info.keys():
+    test.fail_test(stat_info[f] != os.stat(f))
 
 
 test.run(arguments='CCFLAGS=-g')

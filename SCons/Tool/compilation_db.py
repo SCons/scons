@@ -45,19 +45,6 @@ from .asm import ASSuffixes, ASPPSuffixes
 __COMPILATION_DB_ENTRIES = []
 
 
-# We make no effort to avoid rebuilding the entries. Someday, perhaps we could and even
-# integrate with the cache, but there doesn't seem to be much call for it.
-class __CompilationDbNode(SCons.Node.Python.Value):
-    def __init__(self, value):
-        SCons.Node.Python.Value.__init__(self, value)
-        self.Decider(changed_since_last_build_node)
-
-
-def changed_since_last_build_node(child, target, prev_ni, node):
-    """ Dummy decider to force always building"""
-    return True
-
-
 def make_emit_compilation_DB_entry(comstr):
     """
     Effectively this creates a lambda function to capture:
@@ -79,56 +66,26 @@ def make_emit_compilation_DB_entry(comstr):
         :return: target(s), source(s)
         """
 
-        dbtarget = __CompilationDbNode(source)
+        entry = {
+            "directory": env.Dir("#").abspath,
+            "command": user_action.strfunction(
+                target=target, source=source, env=env
+            ),
+            "file": {
+                "abspath": source[0].srcnode().abspath,
+                "path": source[0].srcnode().path
+            },
+            "output": {
+                "abspath": target[0].abspath,
+                "path": target[0].path
+            }
+        }
 
-        entry = env.__COMPILATIONDB_Entry(
-            target=dbtarget,
-            source=[],
-            __COMPILATIONDB_UOUTPUT=target,
-            __COMPILATIONDB_USOURCE=source,
-            __COMPILATIONDB_UACTION=user_action,
-            __COMPILATIONDB_ENV=env,
-        )
-
-        # TODO: Technically, these next two lines should not be required: it should be fine to
-        # cache the entries. However, they don't seem to update properly. Since they are quick
-        # to re-generate disable caching and sidestep this problem.
-        env.AlwaysBuild(entry)
-        env.NoCache(entry)
-
-        __COMPILATION_DB_ENTRIES.append(dbtarget)
+        __COMPILATION_DB_ENTRIES.append(entry)
 
         return target, source
 
     return emit_compilation_db_entry
-
-
-def compilation_db_entry_action(target, source, env, **kw):
-    """
-    Create a dictionary with evaluated command line, target, source
-    and store that info as an attribute on the target
-    (Which has been stored in __COMPILATION_DB_ENTRIES array
-    :param target: target node(s)
-    :param source: source node(s)
-    :param env: Environment for use building this node
-    :param kw:
-    :return: None
-    """
-
-    command = env["__COMPILATIONDB_UACTION"].strfunction(
-        target=env["__COMPILATIONDB_UOUTPUT"],
-        source=env["__COMPILATIONDB_USOURCE"],
-        env=env["__COMPILATIONDB_ENV"],
-    )
-
-    entry = {
-        "directory": env.Dir("#").abspath,
-        "command": command,
-        "file": env["__COMPILATIONDB_USOURCE"][0],
-        "output": env['__COMPILATIONDB_UOUTPUT'][0]
-    }
-
-    target[0].write(entry)
 
 
 def write_compilation_db(target, source, env):
@@ -136,17 +93,13 @@ def write_compilation_db(target, source, env):
 
     use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
 
-    for s in __COMPILATION_DB_ENTRIES:
-        entry = s.read()
-        source_file = entry['file']
-        output_file = entry['output']
-
+    for entry in __COMPILATION_DB_ENTRIES:
         if use_abspath:
-            source_file = source_file.srcnode().abspath
-            output_file = output_file.abspath
+            source_file = entry['file']['abspath']
+            output_file = entry['output']['abspath']
         else:
-            source_file = source_file.srcnode().path
-            output_file = output_file.path
+            source_file = entry['file']['path']
+            output_file = entry['output']['path']
 
         path_entry = {'directory': entry['directory'],
                       'command': entry['command'],
@@ -162,7 +115,8 @@ def write_compilation_db(target, source, env):
 
 
 def scan_compilation_db(node, env, path):
-    return __COMPILATION_DB_ENTRIES
+    value = json.dumps(__COMPILATION_DB_ENTRIES, sort_keys=True)
+    return [SCons.Node.Python.Value(value)]
 
 
 def compilation_db_emitter(target, source, env):
@@ -229,10 +183,6 @@ def generate(env, **kwargs):
             builder.emitter[suffix] = SCons.Builder.ListEmitter(
                 [emitter, make_emit_compilation_DB_entry(command), ]
             )
-
-    env["BUILDERS"]["__COMPILATIONDB_Entry"] = SCons.Builder.Builder(
-        action=SCons.Action.Action(compilation_db_entry_action, None),
-    )
 
     env["BUILDERS"]["CompilationDatabase"] = SCons.Builder.Builder(
         action=SCons.Action.Action(write_compilation_db, "$COMPILATIONDB_COMSTR"),
