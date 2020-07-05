@@ -306,8 +306,8 @@ for all entries or the specified entries.</para>
 </refsect1>
 
 <refsect1 id='see_also'>
-<para>
 <title>SEE ALSO</title>
+<para>
 <command>scons</command>,
 the SCons User Guide at
 <ulink url="https://scons.org/doc/production/HTML/scons-user.html"/>,
@@ -320,7 +320,8 @@ on GitHub</ulink>.
 <refsect1 id='authors'>
 <title>AUTHORS</title>
 <para>Originally: Steven Knight <email>knight@baldmt.com</email>
-and Anthony Roach <email>aroach@electriceyeball.com</email>.
+  and Anthony Roach <email>aroach@electriceyeball.com</email>.</para>
+  <para>
 Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
 </para>
 </refsect1>

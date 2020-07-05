@@ -11,7 +11,6 @@ copyright_years = strftime('2001 - %Y')
 
 # This gets inserted into the man pages to reflect the month of release.
 month_year = strftime('%B %Y')
-
 #
 # __COPYRIGHT__
 #
@@ -37,7 +36,7 @@ month_year = strftime('%B %Y')
 
 
 project = 'scons'
-default_version = '3.9.9a996'
+default_version = '4.1.0.devyyyymmdd'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 #
@@ -200,8 +199,8 @@ env.Command('$DISTDIR/SCons-${VERSION}-py3-none-any.whl', ['setup.cfg', 'setup.p
 
 env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
             '$PYTHON setup.py sdist --format=zip')
-env.Command('$DISTDIR/SCons-${VERSION}.tar.bz2', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
-            '$PYTHON setup.py sdist --format=bztar')
+env.Command('$DISTDIR/SCons-${VERSION}.tar.gz', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+            '$PYTHON setup.py sdist --format=gztar')
 
 # TODO add auto copyright date to README.rst, LICENSE
 # TODO build API DOCS
