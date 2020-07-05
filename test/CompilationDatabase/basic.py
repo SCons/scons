@@ -31,6 +31,27 @@ import os
 import os.path
 import TestSCons
 
+def get_db(workdir, use_abspath, ccflags):
+    if use_abspath:
+        prefix = workdir
+    else:
+        prefix = ''
+    content = """[
+    {
+        "command": "%s mygcc.py cc -o test_main.o %s test_main.c",
+        "directory": "%s",
+        "file": "%s",
+        "output": "%s"
+    }
+]""" % (sys.executable,
+        ' '.join(['-c'] + ccflags),
+        workdir,
+        os.path.join(prefix, 'test_main.c'),
+        os.path.join(prefix, 'test_main.o'))
+    if sys.platform == 'win32':
+        content = content.replace('\\', '\\\\')
+    return content
+
 test = TestSCons.TestSCons()
 
 test.file_fixture('mylink.py')
@@ -56,35 +77,32 @@ abs_files = [
     'compile_commands_over_abs_1.json',
 ]
 
-example_rel_file = """[
-    {
-        "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
-        "directory": "%s",
-        "file": "test_main.c",
-        "output": "test_main.o"
-    }
-]""" % (sys.executable, test.workdir)
 
-if sys.platform == 'win32':
-    example_rel_file = example_rel_file.replace('\\', '\\\\')
+example_rel_file = get_db(test.workdir, False, [])
 
 for f in rel_files:
     # print("Checking:%s" % f)
     test.must_exist(f)
     test.must_match(f, example_rel_file, mode='r')
 
-example_abs_file = """[
-    {
-        "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
-        "directory": "%s",
-        "file": "%s",
-        "output": "%s"
-    }
-]""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
 
-if sys.platform == 'win32':
-    example_abs_file = example_abs_file.replace('\\', '\\\\')
+example_abs_file = get_db(test.workdir, True, [])
 
+for f in abs_files:
+    test.must_exist(f)
+    test.must_match(f, example_abs_file, mode='r')
+
+
+test.run(arguments='CCFLAGS=-g')
+
+example_rel_file = get_db(test.workdir, False, ['-g'])
+
+for f in rel_files:
+    test.must_exist(f)
+    test.must_match(f, example_rel_file, mode='r')
+
+
+example_abs_file = get_db(test.workdir, True, ['-g'])
 
 for f in abs_files:
     test.must_exist(f)

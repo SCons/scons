@@ -3,7 +3,7 @@ import sys
 
 compiler = sys.argv[1]
 clen = len(compiler) + 1
-opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
+opts, args = getopt.getopt(sys.argv[2:], 'co:xf:gK:')
 for opt, arg in opts:
     if opt == '-o':
         out = arg
