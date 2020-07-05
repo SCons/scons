@@ -62,6 +62,7 @@ def generate_all():
         if cp.returncode:
             print("Generation failed", file=sys.stderr)
             return False
+    return True
     
     
 if __name__ == "__main__":
