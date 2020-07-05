@@ -191,7 +191,7 @@ class _MSCOMMON_TRACE:
         try:
             TRACE_FH = open(_MSCOMMON_FILENAME.rewrite(TRACE_FILENAME, sync=DEBUG_LOGGING_ENABLED), 'w')
             TRACE_ENABLED = True
-        except:
+        except IOError:
             pass
 
     @classmethod
@@ -200,7 +200,7 @@ class _MSCOMMON_TRACE:
             # SCons and below
             ind = filename.rindex('SCons')
             return filename[ind:]
-        except:
+        except ValueError:
             # Not in SCons tree
             return filename
 
@@ -363,7 +363,6 @@ class _MSCOMMON_TRACE:
 
     @classmethod
     def trace(cls):
-        import traceback
         sys.settrace(cls.trace_current_module)
 
 if _MSCOMMON_TRACE.TRACE_ENABLED:
