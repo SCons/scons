@@ -4,11 +4,16 @@
 
                             Change Log
 
-NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
-NOTE: Please add your name below in alphabetical order by last name.
-NOTE: Please include a reference to any Issues resolved by your changes in the bullet(s) you add
+NOTE: The 4.0.0 Release of SCons will drops Python 2.7 Support
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
+
+      From John Doe:
+
+        - Whatever John Doe did.
+
+    
+RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
   From Dirk Baechle:
     - Updated documentation toolchain to work properly under Python3, also
@@ -100,10 +105,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed usage of abspath and path for RootDir objects on Windows. Previously
       env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
 
-  From Iosif Kurazs:
-    - Added a new flag called "linedraw" for the command line argument  "--tree"
-      that instructs scons to use single line drawing characters to draw the dependency tree.
-
   From Ivan Kravets, PlatformIO
     - New conditional C Scanner (`SCons.Scanner.C.CConditionalScanner()`)
       which interprets C/C Preprocessor conditional syntax (#ifdef, #if, #else,
@@ -114,6 +115,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       * Ignore `#include DYNAMIC_INCLUDE` directive that depends on a dynamic
         macro which is not located in a state TABLE.
       * Cleanup CPP expressions before evaluating (strip comments, carriage returns)
+
+  From Iosif Kurazs:
+    - Added a new flag called "linedraw" for the command line argument  "--tree"
+      that instructs scons to use single line drawing characters to draw the dependency tree.
 
   From Daniel Moody:
     - Add no_progress (-Q) option as a set-able option. However, setting it in the 

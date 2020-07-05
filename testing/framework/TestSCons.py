@@ -35,10 +35,10 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '3.1.2'
+default_version = '4.1.0.devyyyymmdd'
 
-python_version_unsupported = (2, 6, 0)
-python_version_deprecated = (2, 7, 0)
+python_version_unsupported = (3, 4, 0)
+python_version_deprecated = (3, 4, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built

@@ -13,7 +13,7 @@ __pycache__/
 /bootstrap/**
 .idea/
 src/build/**
-
+SCons.egg-info/
 
 # Translations
 *.mo

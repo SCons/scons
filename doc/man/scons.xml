@@ -7473,10 +7473,13 @@ and will silently revert to non-cached behavior in such cases.</para>
 <refsect1 id='authors'>
 <title>AUTHORS</title>
 
-<para>Originally: Steven Knight <email>knight@baldmt.com</email>
-and Anthony Roach <email>aroach@electriceyeball.com</email>.
-Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
-</para>
+  <para>Originally: Steven Knight
+    <email>knight@baldmt.com</email>
+    and Anthony Roach <email>aroach@electriceyeball.com</email>.
+  </para>
+  <para>
+    Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
+  </para>
 </refsect1>
 </refentry>
 </reference>
