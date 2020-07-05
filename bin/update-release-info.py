@@ -19,10 +19,8 @@ taken from the version tuple for final runs.  It then inserts information
 in various files:
   - The RELEASE header line in src/CHANGES.txt and src/Announce.txt.
   - The version string at the top of src/RELEASE.txt.
-  - The version string in the 'default_version' variable in SConstruct
-    and testing/framework/TestSCons.py.
-  - The copyright years in SConstruct and testing/framework/TestSCons.py.
-  - The month and year (used for documentation) in SConstruct.
+  - The version string in the 'default_version' variable in testing/framework/TestSCons.py.
+  - The copyright years in testing/framework/TestSCons.py.
   - The unsupported and deprecated Python floors in testing/framework/TestSCons.py
     and src/engine/SCons/Script/Main.py
   - The version string in the filenames in README.
@@ -128,8 +126,8 @@ class ReleaseInfo:
         if self.args.timestamp:
             date_string = self.args.timestamp
 
-        if self.args.mode == 'develop' and self.version_tuple[3] != 'dev':
-            self.version_tuple == self.version_tuple[:3] + ('dev', 0)
+        if self.args.mode == 'develop' and self.version_tuple[3] != 'a':
+            self.version_tuple == self.version_tuple[:3] + ('a', 0)
 
         if len(self.version_tuple) > 3 and self.version_tuple[3] != 'final':
             self.version_tuple = self.version_tuple[:4] + (date_string,)
@@ -141,9 +139,9 @@ class ReleaseInfo:
         else:
             self.version_type = 'final'
 
-        if self.version_type not in ['dev', 'beta', 'candidate', 'final']:
+        if self.version_type not in ['a', 'b', 'rc', 'final']:
             print(("""ERROR: `%s' is not a valid release type in version tuple;
-\tit must be one of dev, beta, candidate, or final""" % self.version_type))
+\tit must be one of a, b, rc, or final""" % self.version_type))
             sys.exit(1)
 
         try:
@@ -193,7 +191,7 @@ class UpdateFile:
 
     # Determine the pattern to match a version
 
-    _rel_types = r'(a|b|)'
+    _rel_types = r'[(a|b|rc)]'
     match_pat = r'\d+\.\d+\.\d+\.' + _rel_types + r'\.?(\d+|yyyymmdd)'
     match_rel = re.compile(match_pat)
 
@@ -253,8 +251,8 @@ def main(args, rel_info):
             # minor release, increment minor value
             minor = rel_info.version_tuple[1] + 1
             micro = 0
-        new_tuple = (rel_info.version_tuple[0], minor, micro, 'dev', 0)
-        new_version = '.'.join(map(str, new_tuple[:4])) + 'yyyymmdd'
+        new_tuple = (rel_info.version_tuple[0], minor, micro, 'a', 0)
+        new_version = '.'.join(map(str, new_tuple[:3])) + new_tuple[3] + 'yyyymmdd'
 
         rel_info.version_string = new_version
 
@@ -270,31 +268,23 @@ def main(args, rel_info):
         if DEBUG: t.file = '/tmp/CHANGES.txt'
         t.sub('(\nRELEASE .*)', r"""\nRELEASE  VERSION/DATE TO BE FILLED IN LATER\n
       From John Doe:\n
-        - Whatever John Doe did.\n
-    \1""")
+        - Whatever John Doe did.\n\n\1""")
 
         # Update src/RELEASE.txt
-
         t = UpdateFile('RELEASE.txt',
                        os.path.join('template', 'RELEASE.txt'))
         if DEBUG: t.file = '/tmp/RELEASE.txt'
         t.replace_version()
 
-
-        # Update CHANGES.txt
-        t = UpdateFile('CHANGES.txt')
-        if DEBUG: t.file = '/tmp/CHANGES.txt'
-        t.sub('\nRELEASE .*', '\nRELEASE ' + rel_info.version_string + ' - ' + rel_info.new_date)
-
         # Update README
         for readme_file in ['README.rst', 'README-SF.rst']:
             t = UpdateFile(readme_file)
-        if DEBUG: t.file = os.path.join('/tmp/', readme_file)
-        t.sub('-' + t.match_pat + r'\.', '-' + rel_info.version_string + '.', count=0)
-        for suf in ['tar', 'win32', 'zip']:
-            t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
-        '-%s.%s' % (rel_info.version_string, suf),
-        count = 0)
+            if DEBUG: t.file = os.path.join('/tmp/', readme_file)
+            t.sub('-' + t.match_pat + r'\.', '-' + rel_info.version_string + '.', count=0)
+            for suf in ['tar', 'win32', 'zip']:
+                t.sub(r'-(\d+\.\d+\.\d+)\.%s' % suf,
+                      '-%s.%s' % (rel_info.version_string, suf),
+                      count=0)
 
         # Update testing/framework/TestSCons.py
 
@@ -317,7 +307,7 @@ def main(args, rel_info):
 
         docyears = '2004 - %d' % rel_info.release_date[0]
         if os.path.exists(os.path.join('doc', 'user', 'main.in')):
-        # this is no longer used as of Dec 2013
+            # this is no longer used as of Dec 2013
             t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
         if DEBUG: t.file = '/tmp/main.in'
         ## TODO debug these
@@ -340,7 +330,7 @@ def parse_arguments():
     """
 
     parser = argparse.ArgumentParser(prog='update-release-info.py')
-    parser.add_argument('mode', nargs='?', choices=['develop', 'release', 'post'], default='develop')
+    parser.add_argument('mode', nargs='?', choices=['develop', 'release', 'post'], default='post')
     parser.add_argument('--verbose', dest='verbose', action='store_true', help='Enable verbose logging')
 
     parser.add_argument('--timestamp', dest='timestamp', help='Override the default current timestamp')
