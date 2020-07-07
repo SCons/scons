@@ -152,12 +152,10 @@ class Value(SCons.Node.Node):
         Get contents for signature calculations.
         :return: bytes
         """
-        text_contents = self.get_text_contents()
-        try:
-            return text_contents.encode()
-        except UnicodeDecodeError:
-            # Already encoded as python2 str are bytes
-            return text_contents
+        contents = str(self.value).encode('utf-8')
+        for kid in self.children(None):
+            contents = contents + kid.get_contents()
+        return contents
 
     def changed_since_last_build(self, target, prev_ni):
         cur_csig = self.get_csig()
@@ -178,7 +176,7 @@ class Value(SCons.Node.Node):
         except AttributeError:
             pass
 
-        contents = self.get_text_contents()
+        contents = self.get_contents().decode(errors='backslashreplace')
 
         self.get_ninfo().csig = contents
         return contents
