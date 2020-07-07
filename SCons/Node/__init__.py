@@ -206,7 +206,7 @@ def get_contents_entry(node):
         # string so calls to get_contents() in emitters and the
         # like (e.g. in qt.py) don't have to disambiguate by hand
         # or catch the exception.
-        return ''
+        return b''
     else:
         return _get_contents_map[node._func_get_contents](node)
 
@@ -215,8 +215,8 @@ def get_contents_dir(node):
     separated by new-lines. Ensure that the nodes are sorted."""
     contents = []
     for n in sorted(node.children(), key=lambda t: t.name):
-        contents.append('%s %s\n' % (n.get_csig(), n.name))
-    return ''.join(contents)
+        contents.append(('%s %s\n' % (n.get_csig(), n.name)).encode('utf-8'))
+    return b''.join(contents)
 
 def get_contents_file(node):
     if not node.rexists():

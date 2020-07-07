@@ -132,7 +132,7 @@ class Alias(SCons.Node.Node):
         """The contents of an alias is the concatenation
         of the content signatures of all its sources."""
         childsigs = [n.get_csig() for n in self.children()]
-        return ''.join(childsigs)
+        return ''.join(childsigs).encode('utf-8')
 
     def sconsign(self):
         """An Alias is not recorded in .sconsign files"""
