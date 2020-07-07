@@ -57,7 +57,7 @@ class AliasTestCase(unittest.TestCase):
             def get_csig(self):
                 return self.contents
             def get_contents(self):
-                return self.contents
+                return self.contents.encode()
 
         ans = SCons.Node.Alias.AliasNameSpace()
 
@@ -67,7 +67,7 @@ class AliasTestCase(unittest.TestCase):
         a.sources = [ DummyNode('one'), DummyNode('two'), DummyNode('three') ]
 
         c = a.get_contents()
-        assert c == 'onetwothree', c
+        assert c == 'onetwothree'.encode('utf-8'), c
 
     def test_lookup(self):
         """Test the lookup() method

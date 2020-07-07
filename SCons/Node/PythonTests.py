@@ -129,7 +129,7 @@ class ValueChildTestCase(unittest.TestCase):
         node._func_get_contents = 2  # Pretend to be a Dir.
         node.add_to_implicit([value])
         contents = node.get_contents()
-        expected_contents = '%s %s\n' % (value.get_csig(), value.name)
+        expected_contents = ('%s %s\n' % (value.get_csig(), value.name)).encode('utf-8')
         assert contents == expected_contents
 
 

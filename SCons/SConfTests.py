@@ -160,7 +160,7 @@ class SConfTestCase(unittest.TestCase):
 
         class MyAction:
             def get_contents(self, target, source, env):
-                return 'MyBuilder-MyAction $SOURCE $TARGET'
+                return b'MyBuilder-MyAction $SOURCE $TARGET'
 
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
