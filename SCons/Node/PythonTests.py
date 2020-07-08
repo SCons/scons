@@ -122,22 +122,39 @@ class ValueTestCase(unittest.TestCase):
         csig = v.get_csig(None)
         assert csig == 'aaacsig1csig2', csig
 
-    def test_get_content_with_child_binary_content(self):
+    def test_get_text_contents_with_children(self):
+        """Test calculating text contents with child nodes
+        """
         class DummyNode:
-            def __init__(self, contents):
-                self.contents = contents
-            def get_contents(self):
-                return self.contents
+            def __init__(self, csig):
+                self.csig = csig
+            def get_csig(self):
+                return self.csig
 
-        # Node with binary content that is not valid utf-8.
-        node_with_binary = DummyNode(b'\xff')
+        v = SCons.Node.Python.Value('aaa')
+        c1 = DummyNode(csig='csig1')
+        c2 = DummyNode(csig='csig2')
 
-        v = SCons.Node.Python.Value('v')
-        v.add_dependency([node_with_binary])
+        v.add_dependency([c1, c2])
+        text_contents = v.get_text_contents()
+        assert text_contents == 'aaacsig1csig2', text_contents
 
-        # Just make sure this call doesn't fail. Not sure what to check the
-        # return value against.
-        v.get_contents()
+    def test_get_content_with_children(self):
+        """Test calculating contents with child nodes
+        """
+        class DummyNode:
+            def __init__(self, csig):
+                self.csig = csig
+            def get_csig(self):
+                return self.csig
+
+        v = SCons.Node.Python.Value('aaa')
+        c1 = DummyNode(csig='csig1')
+        c2 = DummyNode(csig='csig2')
+
+        v.add_dependency([c1, c2])
+        contents = v.get_contents()
+        assert contents == v.get_text_contents().encode('utf-8'), contents
 
 
 class ValueNodeInfoTestCase(unittest.TestCase):
