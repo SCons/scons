@@ -14,14 +14,13 @@ RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
   
   From Eugene Huang:
     - Ensure all Node subclasses return 'bytes' in their get_contents()
-      methods. This was causing problems in Value.get_text_contents() as
-      'str' types do not have a decode() method.
-    - Make sure Value.get_contents() never fails because of decoding errors
-      from trying to decode child nodes binary contents.
-    - Make Value.get_csig() use children csigs instead of content for
-      efficiency. Using get_text_contents() is also bad because it is prone
-      to decoding errors which will prevent Value nodes from being used as
-      targets in some cases.
+      methods.
+    - Make Value.get_text_contents() calculate the contents using child node
+      csigs instead of child contents (similar to Alias node contents). The
+      new implementation is not prone to decoding errors so Value.get_csig()
+      should always work, whereas previously, Value nodes sometimes could not
+      be used as target nodes.
+
     
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
