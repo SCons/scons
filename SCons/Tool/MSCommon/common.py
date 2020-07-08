@@ -130,9 +130,10 @@ class _MSCOMMON_TRACE:
 
     # SCONS_MSCOMMON_TRACEFLAGS is internal-use so undocumented
     # Typical usage:
-    #    '0b1111' or '15' display all 
-    #    '0b0111' or '7'  display without all frames one below [default]
-    #    '0b0011' or '3'  display without all frames one below or return values
+    #    '0b1111' or '15' display arg lists, file locations, return values, and all frames one below
+    #    '0b0111' or '7'  display arg lists, file locations, and return values [default]
+    #    '0b0101' or '5'  display arg lists, and return values
+    #    '0b0011' or '3'  display arg lists, and file locations
     TRACEFLAGS = int(os.environ.get('SCONS_MSCOMMON_TRACEFLAGS', str(TRACEFLAGS_DISPLAY_DEFAULT)), 0)
 
     # display function argument lists w/select values
@@ -277,7 +278,7 @@ class _MSCOMMON_TRACE:
             name = frame.f_code.co_varnames[i]
             args += name
             if name in cls.FRAME_ARGUMENT_VALUES:
-                args += "=%s" % frame.f_locals[name]
+                args += "=%s" % repr(frame.f_locals[name])
         args += ")"
         return args
 
