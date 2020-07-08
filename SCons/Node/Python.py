@@ -176,10 +176,11 @@ class Value(SCons.Node.Node):
         except AttributeError:
             pass
 
-        contents = self.get_contents().decode(errors='backslashreplace')
+        csig = str(self.value)
+        csig += ''.join(child.get_csig() for child in self.children(None))
 
-        self.get_ninfo().csig = contents
-        return contents
+        self.get_ninfo().csig = csig
+        return csig
 
 
 def ValueWithMemo(value, built_value=None, name=None):

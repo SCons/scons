@@ -103,6 +103,25 @@ class ValueTestCase(unittest.TestCase):
         csig = v3.get_csig(None)
         assert csig == 'None', csig
 
+    def test_get_csig_with_children(self):
+        """Test calculating the content signature of a Value() object with child
+        nodes.
+        """
+        class DummyNode:
+            def __init__(self, csig):
+                self.csig = csig
+            def get_csig(self, calc=None):
+                return self.csig
+
+        v = SCons.Node.Python.Value('aaa')
+
+        c1 = DummyNode(csig='csig1')
+        c2 = DummyNode(csig='csig2')
+
+        v.add_dependency([c1, c2])
+        csig = v.get_csig(None)
+        assert csig == 'aaacsig1csig2', csig
+
     def test_get_content_with_child_binary_content(self):
         class DummyNode:
             def __init__(self, contents):
@@ -119,23 +138,6 @@ class ValueTestCase(unittest.TestCase):
         # Just make sure this call doesn't fail. Not sure what to check the
         # return value against.
         v.get_contents()
-
-    def test_get_csig_with_child_binary_content(self):
-        class DummyNode:
-            def __init__(self, contents):
-                self.contents = contents
-            def get_contents(self):
-                return self.contents
-
-        # Node with binary content that is not valid utf-8.
-        node_with_binary = DummyNode(b'\xff')
-
-        v = SCons.Node.Python.Value('v')
-        v.add_dependency([node_with_binary])
-
-        # Just make sure this call doesn't fail. Not sure what to check the
-        # return value against.
-        v.get_csig()
 
 
 class ValueNodeInfoTestCase(unittest.TestCase):
