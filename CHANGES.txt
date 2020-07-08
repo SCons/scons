@@ -17,11 +17,11 @@ RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
       methods. This was causing problems in Value.get_text_contents() as
       'str' types do not have a decode() method.
     - Make sure Value.get_contents() never fails because of decoding errors
-      from trying to decode child nodes binary contents. Modify
-      Value.get_csig() to use get_contents() as basis for csig instead since
-      get_text_contents() is prone to decoding errors, which prevented Value
-      nodes from being used as targets in some cases.
-
+      from trying to decode child nodes binary contents.
+    - Make Value.get_csig() use children csigs instead of content for
+      efficiency. Using get_text_contents() is also bad because it is prone
+      to decoding errors which will prevent Value nodes from being used as
+      targets in some cases.
     
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
