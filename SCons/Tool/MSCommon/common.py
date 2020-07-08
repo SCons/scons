@@ -122,42 +122,41 @@ class _MSCOMMON_TRACE:
     # set to '-' to print to stderr, else set to filename to log to
     TRACE_FILENAME = os.environ.get('SCONS_MSCOMMON_TRACE')
 
-    # display the function argument list w/select values
-    DISPLAY_FUNCTION_ARGLIST = True
-    DISPLAY_FUNCTION_LOCATION = True
+    TRACEFLAGS_DISPLAY_FUNCTION_ARGLIST   = 0b0001
+    TRACEFLAGS_DISPLAY_FUNCTION_LOCATION  = 0b0010
+    TRACEFLAGS_DISPLAY_RETURN_VALUES      = 0b0100
+    TRACEFLAGS_DISPLAY_ALLFRAMES_ONEBELOW = 0b1000
+    TRACEFLAGS_DISPLAY_DEFAULT            = 0b0111
+
+    # SCONS_MSCOMMON_TRACEFLAGS is internal-use so undocumented
+    # Typical usage:
+    #    '0b1111' or '15' display all 
+    #    '0b0111' or '7'  display without all frames one below [default]
+    #    '0b0011' or '3'  display without all frames one below or return values
+    TRACEFLAGS = int(os.environ.get('SCONS_MSCOMMON_TRACEFLAGS', str(TRACEFLAGS_DISPLAY_DEFAULT)), 0)
+
+    # display function argument lists w/select values
+    DISPLAY_FUNCTION_ARGLIST = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_FUNCTION_ARGLIST else False
+
+    # display function locations: file and line number
+    DISPLAY_FUNCTION_LOCATION = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_FUNCTION_LOCATION else False
+
+    # display function return values
+    DISPLAY_RETURN_VALUES = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_RETURN_VALUES else False
+
+    # display all frames one below the current module(s)
+    DISPLAY_ALLFRAMES_ONEBELOW = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_ALLFRAMES_ONEBELOW else False
 
     # number of frames above the current module
     FRAME_CALLER_FRAMES = 5
-
-    # when enabled, allow these external module/function calls (see debug below)
-    FRAME_WHITELIST_ENABLED = False
-    FRAME_WHITELIST_FUNCTIONS = [
-    ]
-
-    # when enabled, ignore these internal module/function calls (see debug below)
-    FRAME_BLACKLIST_ENABLED = False
-    FRAME_BLACKLIST_FUNCTIONS = [
-    ]
-
-    # debugging using the logging module
-    DEBUG_LOGGING_ENABLED = True if LOGFILE and LOGFILE != "-" else False
-
-    # keep external debug calls when using the logging module
-    DEBUG_WHITELIST_ENABLED = DEBUG_LOGGING_ENABLED
-    DEBUG_WHITELIST_FUNCTIONS = [
-        ('logging', 'debug'),
-    ]
-
-    # ignore internal debug calls when not using the logging module
-    DEBUG_BLACKLIST_ENABLED = not DEBUG_LOGGING_ENABLED
-    DEBUG_BLACKLIST_FUNCTIONS = [
-        ('common', 'debug'),
-    ]
 
     # function argument values of interest
     FRAME_ARGUMENT_VALUES = (
         'version',
         'msvc_version',
+        'name',
+        'key',
+        'path',
         'value',
         'host_arch',
         'target_arch',
@@ -166,6 +165,55 @@ class _MSCOMMON_TRACE:
         'search_version',
         'rollback',
     )
+
+    # when enabled, ignore these internal module/function returns
+    RETURN_BLACKLIST_ENABLED = True
+    RETURN_BLACKLIST_FUNCTIONS = [
+        # functions known to return None
+        ('_weakrefset', '_remove'),
+        ('codecs', '__init__'),
+        ('subprocess', 'Close'),
+        ('subprocess', '__del__'),
+        ('logging', 'debug'),
+        ('Environment', '__setitem__'),
+        ('Environment', 'PrependENVPath'),
+        ('sdk', '__init__'),
+        ('vs', '__init__'),
+        ('vc', '__init__'),
+        ('common', 'debug'),
+        ('common', 'add_env'),
+        ('common', 'write_script_env_cache'),
+    ]
+
+    # when enabled, allow these external module/function returns
+    RETURN_WHITELIST_ENABLED = False
+    RETURN_WHITELIST_FUNCTIONS = [
+    ]
+
+    # when enabled, ignore these internal module/function calls (see debug below)
+    CALL_BLACKLIST_ENABLED = False
+    CALL_BLACKLIST_FUNCTIONS = [
+    ]
+
+    # when enabled, allow these external module/function calls (see debug below)
+    CALL_WHITELIST_ENABLED = False
+    CALL_WHITELIST_FUNCTIONS = [
+    ]
+
+    # debugging using the logging module
+    DEBUG_LOGGING_ENABLED = True if LOGFILE and LOGFILE != "-" else False
+
+    # ignore internal debug calls when not using the logging module
+    DEBUG_BLACKLIST_ENABLED = not DEBUG_LOGGING_ENABLED
+    DEBUG_BLACKLIST_FUNCTIONS = [
+        ('common', 'debug'),
+    ]
+
+    # keep external debug calls when using the logging module
+    DEBUG_WHITELIST_ENABLED = DEBUG_LOGGING_ENABLED
+    DEBUG_WHITELIST_FUNCTIONS = [
+        ('logging', 'debug'),
+    ]
 
     # function call indentation
     FRAME_INDENT_NSPACES = 2
@@ -176,8 +224,17 @@ class _MSCOMMON_TRACE:
     FRAME_ENTRY_LOCATION = []
     FRAME_ENTRY_SLOT = -1
 
+    # chain length of previous display
+    FRAME_LAST_CHAINLENGTH = 0
+
     # parent module of this script (e.g, MSCommon)
     PARENT_MODULE = __name__.split('.')[-2]
+
+    # trace events of interest
+    if DISPLAY_RETURN_VALUES:
+        FRAME_TRACE_EVENTS = ('call', 'return')
+    else:
+        FRAME_TRACE_EVENTS = ('call', )
 
     # trace file processing
 
@@ -197,12 +254,20 @@ class _MSCOMMON_TRACE:
     @classmethod
     def get_relative_filename(cls, filename):
         try:
+            # TODO: works iff SCons does not have a 'lib' folder
+            # python library and below
+            ind = filename.rindex('lib')
+            return filename[ind:]
+        except ValueError:
+            pass
+        try:
             # SCons and below
             ind = filename.rindex('SCons')
             return filename[ind:]
         except ValueError:
-            # Not in SCons tree
-            return filename
+            pass
+        # not in python or SCons tree
+        return filename
 
     @classmethod
     def get_frame_arglist(cls, frame):
@@ -251,55 +316,93 @@ class _MSCOMMON_TRACE:
             cls.print_message(divstr)
 
     @classmethod
-    def split_parent_child(cls, filename):
-        if not filename:
-            return (None, None)
-        parent = None
-        more, child = os.path.split(filename)
-        child = os.path.splitext(child)[0]
-        if more:
-            _, parent = os.path.split(more)
-        return (parent, child)
+    def display_frame_return(cls, frame, arg, indent):
+        current_func = frame.f_code.co_name
+        if cls.DISPLAY_FUNCTION_LOCATION:
+            current_file = frame.f_code.co_filename.split('\\')[-1]
+            location = "(%s:%d) " % (current_file, frame.f_lineno)
+        else:
+            location = " "
+        outstr = "%sreturn %s%s-> %s" % (indent, current_func, location, arg)
+        cls.print_message(outstr)
 
     @classmethod
-    def is_whitelisted(cls, module, function):
+    def split_grandparent_parent_child(cls, frame):
+        grandparent, parent, child = None, None, None
+        ancestor, child = os.path.split(frame.f_code.co_filename)
+        child = os.path.splitext(child)[0]
+        if ancestor:
+            _, parent = os.path.split(ancestor)
+        back = frame.f_back
+        if not back:
+            return (grandparent, parent, child)
+        ancestor, _ = os.path.split(back.f_code.co_filename)
+        if ancestor:
+            _, grandparent = os.path.split(ancestor)
+        return (grandparent, parent, child)
+
+    @classmethod
+    def is_whitelisted(cls, event, module, function):
         pair = (module, function)
-        if cls.DEBUG_WHITELIST_ENABLED and pair in cls.DEBUG_WHITELIST_FUNCTIONS:
+        if cls.DISPLAY_ALLFRAMES_ONEBELOW:
             return True
-        if cls.FRAME_WHITELIST_ENABLED and pair in cls.FRAME_WHITELIST_FUNCTIONS:
-            return True
+        if event == 'return':
+            if cls.RETURN_WHITELIST_ENABLED and pair in cls.RETURN_WHITELIST_FUNCTIONS:
+                return True
+        else:
+            if cls.DEBUG_WHITELIST_ENABLED and pair in cls.DEBUG_WHITELIST_FUNCTIONS:
+                return True
+            if cls.CALL_WHITELIST_ENABLED and pair in cls.CALL_WHITELIST_FUNCTIONS:
+                return True
         return False
 
     @classmethod
-    def is_blacklisted(cls, module, function):
+    def is_blacklisted(cls, event, module, function):
         pair = (module, function)
-        if cls.DEBUG_BLACKLIST_ENABLED and pair in cls.DEBUG_BLACKLIST_FUNCTIONS:
-            return True
-        if cls.FRAME_BLACKLIST_ENABLED and pair in cls.FRAME_BLACKLIST_FUNCTIONS:
-            return True
+        if event == 'return':
+            if cls.RETURN_BLACKLIST_ENABLED and pair in cls.RETURN_BLACKLIST_FUNCTIONS:
+                return True
+            if cls.DISPLAY_ALLFRAMES_ONEBELOW:
+                return False
+        else:
+            if cls.DISPLAY_ALLFRAMES_ONEBELOW:
+                return False
+            if function[0] == "<":
+                # ignore native python calls (e.g., list comprehension)
+                return True
+            if cls.DEBUG_BLACKLIST_ENABLED and pair in cls.DEBUG_BLACKLIST_FUNCTIONS:
+                return True
+            if cls.CALL_BLACKLIST_ENABLED and pair in cls.CALL_BLACKLIST_FUNCTIONS:
+                return True
         return False
 
     @classmethod
     def trace_current_module(cls, frame, event, arg):
 
-        if event != 'call':
-            return
+        rval = cls.trace_current_module
 
-        # ignore native python calls (e.g., list comprehension)
-        if frame.f_code.co_name[0] == "<":
-            return
+        if event not in cls.FRAME_TRACE_EVENTS:
+            return rval
 
-        # ignore calls that are not directly the below parent module
-        parent, child = cls.split_parent_child(frame.f_code.co_filename)
+        # ignore events that are more than one frame below parent module
+        grandparent, parent, child = cls.split_grandparent_parent_child(frame)
         if parent != cls.PARENT_MODULE:
 
-            # ignore calls that are not whitelisted (e.g., logging debug)
-            if not cls.is_whitelisted(parent, frame.f_code.co_name):
-                return
+            # at most one frame deep
+            if grandparent != cls.PARENT_MODULE:
+                return None
 
-        # ignore calls that are blacklisted (e.g., common debug)
-        if cls.is_blacklisted(child, frame.f_code.co_name):
-            return
+            # ignore parent frames that are not whitelisted
+            if not cls.is_whitelisted(event, parent, frame.f_code.co_name):
+                return None
+
+            # ignore parent frames that are blacklisted
+            if cls.is_blacklisted(event, parent, frame.f_code.co_name):
+                return None
+
+        # ignore child frames that are blacklisted
+        if cls.is_blacklisted(event, child, frame.f_code.co_name):
+            return None
 
         # walk the stack frames above the current call
         # save the slot for the top-most module entry point
@@ -342,24 +445,44 @@ class _MSCOMMON_TRACE:
 
             indent = ''
             for i, f in enumerate(frame_chain):
+                if i:
+                    indent += cls.FRAME_INDENT_LITERAL
                 cls.display_frame(f, indent, divider=(i==divider_index))
-                indent += cls.FRAME_INDENT_LITERAL
 
             # save the entry point location information
-
             cls.FRAME_ENTRY_SLOT = entry_slot
             cls.FRAME_ENTRY_LOCATION = entry_location
             cls.FRAME_ENTRY_DEPTH = len(frame_chain) - 1
 
         else:
 
-            # existing call chain: write current frame
+            # existing call chain
 
+            gap = len(frame_chain) - cls.FRAME_LAST_CHAINLENGTH
+            if gap > 1:
+                # positive gap greater than one: fill in missing frames
+                n_indent = cls.FRAME_ENTRY_DEPTH
+                n_indent += entry_slot - cls.FRAME_ENTRY_SLOT - gap
+                n_indent += 1
+                indent = cls.FRAME_INDENT_LITERAL * n_indent
+                for f in frame_chain[1:gap]:
+                    cls.display_frame(f, indent)
+                    indent += cls.FRAME_INDENT_LITERAL
+
+            # display current frame
             n_indent = cls.FRAME_ENTRY_DEPTH
             n_indent += entry_slot - cls.FRAME_ENTRY_SLOT
-
             indent = cls.FRAME_INDENT_LITERAL * n_indent
-            cls.display_frame(frame, indent)
+
+            if event == 'return':
+                indent += cls.FRAME_INDENT_LITERAL
+                cls.display_frame_return(frame, repr(arg), indent)
+            else:
+                cls.display_frame(frame, indent)
+
+        cls.FRAME_LAST_CHAINLENGTH = len(frame_chain)
+
+        return rval
 
     @classmethod
     def trace(cls):
