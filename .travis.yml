@@ -91,3 +91,4 @@ jobs:
         - python bin/docs-create-example-outputs.py
         - python scripts/scons.py
         - ls -l build/dist
+        - python build/scons-local/scons.py --version
