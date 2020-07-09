@@ -391,19 +391,19 @@ class _MSCOMMON_TRACE:
 
             # at most one frame deep
             if grandparent != cls.PARENT_MODULE:
-                return None
+                return rval
 
             # ignore parent frames that are not whitelisted
             if not cls.is_whitelisted(event, parent, frame.f_code.co_name):
-                return None
+                return rval
 
             # ignore parent frames that are blacklisted
             if cls.is_blacklisted(event, parent, frame.f_code.co_name):
-                return None
+                return rval
 
         # ignore child frames that are blacklisted
         if cls.is_blacklisted(event, child, frame.f_code.co_name):
-            return None
+            return rval
 
         # walk the stack frames above the current call
         # save the slot for the top-most module entry point
