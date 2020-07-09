@@ -56,7 +56,9 @@ def install_local_package_files(env):
                      'scripts/scons-configure-cache.py',
                      'scripts/sconsign.py',
                      'bin/scons-time.py']
-    all_local_installed.extend(env.Install('#/build/scons-local', basedir_files))
+    for bf in basedir_files:
+        fn = os.path.basename(bf)
+        all_local_installed.append(env.SCons_revision('#/build/scons-local/%s'%fn, bf))
 
     rename_files = [('scons-${VERSION}.bat', 'scripts/scons.bat'),
                     ('scons-README', 'README-local'),
