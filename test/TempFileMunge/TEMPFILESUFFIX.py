@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -26,8 +24,6 @@ Verify that setting the $TEMPFILESUFFIX variable will cause
 it to appear at the end of name of the generated tempfile
 used for long command lines.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import stat
