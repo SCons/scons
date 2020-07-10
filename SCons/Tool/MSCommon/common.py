@@ -35,11 +35,44 @@ import glob
 
 import SCons.Util
 
-class _MSCOMMON_FILENAME:
 
-    # Internal use only:
-    #    SCONS_MSCOMMON_DEBUG=filename
-    #    SCONS_MSCOMMON_TRACE=filename
+class _MSCOMMON:
+
+    # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
+    # set to '-' to print to console, else set to filename to log to
+    DEBUG_LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
+
+    # SCONS_MSCOMMON_TRACE is internal-use so undocumented:
+    # set to '-' to print to stderr, else set to filename to log to
+    TRACE_LOGFILE = os.environ.get('SCONS_MSCOMMON_TRACE')
+
+    # bitflags for selectively enabling trace output
+    TRACE_DISPLAY_FUNCTION_ARGLIST   = 0b0001
+    TRACE_DISPLAY_FUNCTION_LOCATION  = 0b0010
+    TRACE_DISPLAY_RETURN_VALUES      = 0b0100
+    TRACE_DISPLAY_ALLFRAMES_ONEBELOW = 0b1000
+
+    # default trace output
+    TRACE_DISPLAY_DEFAULT            = 0b0111
+
+    # Typical usage:
+    #    '0b1111' or '15' display arg lists, file locations, return values, and all frames one below
+    #    '0b0111' or '7'  display arg lists, file locations, and return values [default]
+    #    '0b0101' or '5'  display arg lists, and return values
+    #    '0b0011' or '3'  display arg lists, and file locations
+
+    # SCONS_MSCOMMON_TRACEFLAGS is internal-use so undocumented
+    TRACEFLAGS = int(os.environ.get('SCONS_MSCOMMON_TRACEFLAGS', str(TRACE_DISPLAY_DEFAULT)), 0)
+
+    # debug configuration
+    DEBUG_ENABLED = True if DEBUG_LOGFILE else False
+    DEBUG_STDOUT  = True if DEBUG_ENABLED and DEBUG_LOGFILE == "-" else False
+    DEBUG_LOGGING = True if DEBUG_ENABLED and not DEBUG_STDOUT else False
+
+    # trace configuration
+    TRACE_ENABLED = True if TRACE_LOGFILE else False
+    TRACE_STDERR  = True if TRACE_ENABLED and TRACE_LOGFILE == "-" else False
+    TRACE_LOGGING = True if TRACE_ENABLED and not TRACE_STDERR else False
 
     # Rewrite filename *ONLY* when the rootname ends in "-#":
     #    root, ext = splitext(filename) -> root[:-1] + NNNN + ext
@@ -73,7 +106,7 @@ class _MSCOMMON_FILENAME:
         return filename
 
     @classmethod
-    def rewrite(cls, filename, sync=False):
+    def rewrite_filename(cls, filename, sync=False):
         if not filename:
             return filename
         root, ext = os.path.splitext(filename)
@@ -91,13 +124,10 @@ class _MSCOMMON_FILENAME:
         return filename
 
 
-# SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
-# set to '-' to print to console, else set to filename to log to
-LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
-if LOGFILE == '-':
+if _MSCOMMON.DEBUG_STDOUT:
     def debug(message):
         print(message)
-elif LOGFILE:
+elif _MSCOMMON.DEBUG_LOGGING:
     import logging
     logging.basicConfig(
         # This looks like:
@@ -109,7 +139,7 @@ elif LOGFILE:
             '#%(lineno)s'
             ':%(message)s: '
         ),
-        filename=_MSCOMMON_FILENAME.rewrite(LOGFILE),
+        filename=_MSCOMMON.rewrite_filename(_MSCOMMON.DEBUG_LOGFILE, sync=False),
         level=logging.DEBUG)
     debug = logging.getLogger(name=__name__).debug
 else:
@@ -118,35 +148,17 @@ else:
 
 class _MSCOMMON_TRACE:
 
-    # SCONS_MSCOMMON_TRACE is internal-use so undocumented:
-    # set to '-' to print to stderr, else set to filename to log to
-    TRACE_FILENAME = os.environ.get('SCONS_MSCOMMON_TRACE')
-
-    TRACEFLAGS_DISPLAY_FUNCTION_ARGLIST   = 0b0001
-    TRACEFLAGS_DISPLAY_FUNCTION_LOCATION  = 0b0010
-    TRACEFLAGS_DISPLAY_RETURN_VALUES      = 0b0100
-    TRACEFLAGS_DISPLAY_ALLFRAMES_ONEBELOW = 0b1000
-    TRACEFLAGS_DISPLAY_DEFAULT            = 0b0111
-
-    # SCONS_MSCOMMON_TRACEFLAGS is internal-use so undocumented
-    # Typical usage:
-    #    '0b1111' or '15' display arg lists, file locations, return values, and all frames one below
-    #    '0b0111' or '7'  display arg lists, file locations, and return values [default]
-    #    '0b0101' or '5'  display arg lists, and return values
-    #    '0b0011' or '3'  display arg lists, and file locations
-    TRACEFLAGS = int(os.environ.get('SCONS_MSCOMMON_TRACEFLAGS', str(TRACEFLAGS_DISPLAY_DEFAULT)), 0)
-
     # display function argument lists w/select values
-    DISPLAY_FUNCTION_ARGLIST = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_FUNCTION_ARGLIST else False
+    DISPLAY_FUNCTION_ARGLIST = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_FUNCTION_ARGLIST else False
 
     # display function locations: file and line number
-    DISPLAY_FUNCTION_LOCATION = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_FUNCTION_LOCATION else False
+    DISPLAY_FUNCTION_LOCATION = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_FUNCTION_LOCATION else False
 
     # display function return values
-    DISPLAY_RETURN_VALUES = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_RETURN_VALUES else False
+    DISPLAY_RETURN_VALUES = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_RETURN_VALUES else False
 
     # display all frames one below the current module(s)
-    DISPLAY_ALLFRAMES_ONEBELOW = True if TRACEFLAGS & TRACEFLAGS_DISPLAY_ALLFRAMES_ONEBELOW else False
+    DISPLAY_ALLFRAMES_ONEBELOW = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_ALLFRAMES_ONEBELOW else False
 
     # number of frames above the current module
     FRAME_CALLER_FRAMES = 5
@@ -167,7 +179,7 @@ class _MSCOMMON_TRACE:
         'rollback',
     )
 
-    # when enabled, ignore these internal module/function returns
+    # when enabled, ignore these module/function returns
     RETURN_BLACKLIST_ENABLED = True
     RETURN_BLACKLIST_FUNCTIONS = [
         # functions known to return None
@@ -186,32 +198,29 @@ class _MSCOMMON_TRACE:
         ('common', 'write_script_env_cache'),
     ]
 
-    # when enabled, allow these external module/function returns
+    # when enabled, allow these module/function returns
     RETURN_WHITELIST_ENABLED = False
     RETURN_WHITELIST_FUNCTIONS = [
     ]
 
-    # when enabled, ignore these internal module/function calls (see debug below)
+    # when enabled, ignore these module/function calls (see debug below)
     CALL_BLACKLIST_ENABLED = False
     CALL_BLACKLIST_FUNCTIONS = [
     ]
 
-    # when enabled, allow these external module/function calls (see debug below)
+    # when enabled, allow these module/function calls (see debug below)
     CALL_WHITELIST_ENABLED = False
     CALL_WHITELIST_FUNCTIONS = [
     ]
 
-    # debugging using the logging module
-    DEBUG_LOGGING_ENABLED = True if LOGFILE and LOGFILE != "-" else False
-
     # ignore internal debug calls when not using the logging module
-    DEBUG_BLACKLIST_ENABLED = not DEBUG_LOGGING_ENABLED
+    DEBUG_BLACKLIST_ENABLED = not _MSCOMMON.DEBUG_LOGGING
     DEBUG_BLACKLIST_FUNCTIONS = [
         ('common', 'debug'),
     ]
 
     # keep external debug calls when using the logging module
-    DEBUG_WHITELIST_ENABLED = DEBUG_LOGGING_ENABLED
+    DEBUG_WHITELIST_ENABLED = _MSCOMMON.DEBUG_LOGGING
     DEBUG_WHITELIST_FUNCTIONS = [
         ('logging', 'debug'),
     ]
@@ -238,19 +247,16 @@ class _MSCOMMON_TRACE:
         FRAME_TRACE_EVENTS = ('call', )
 
     # trace file processing
-
-    TRACE_ENABLED = False
-    TRACE_FH = None
-
-    if TRACE_FILENAME == '-':
-        TRACE_ENABLED = True
+    if _MSCOMMON.TRACE_STDERR:
         TRACE_FH = sys.stderr
-    elif TRACE_FILENAME:
+    elif _MSCOMMON.TRACE_LOGGING:
         try:
-            TRACE_FH = open(_MSCOMMON_FILENAME.rewrite(TRACE_FILENAME, sync=DEBUG_LOGGING_ENABLED), 'w')
-            TRACE_ENABLED = True
-        except IOError:
-            pass
+            TRACE_FH = open(_MSCOMMON.rewrite_filename(_MSCOMMON.TRACE_LOGFILE, sync=_MSCOMMON.DEBUG_LOGGING), 'w')
+        except IOError as e:
+            TRACE_FH = None
+            raise e
+    else:
+        TRACE_FH = None
 
     @classmethod
     def get_relative_filename(cls, filename):
@@ -330,7 +336,11 @@ class _MSCOMMON_TRACE:
     @classmethod
     def split_grandparent_parent_child(cls, frame):
         grandparent, parent, child = None, None, None
-        ancestor, child = os.path.split(frame.f_code.co_filename)
+        try:
+            ancestor, child = os.path.split(frame.f_code.co_filename)
+        except AttributeError:
+            # module teardown: os.path is None
+            return (grandparent, parent, child)
         child = os.path.splitext(child)[0]
         if ancestor:
             _, parent = os.path.split(ancestor)
@@ -363,17 +373,15 @@ class _MSCOMMON_TRACE:
         if event == 'return':
             if cls.RETURN_BLACKLIST_ENABLED and pair in cls.RETURN_BLACKLIST_FUNCTIONS:
                 return True
-            if cls.DISPLAY_ALLFRAMES_ONEBELOW:
-                return False
         else:
+            if cls.DEBUG_BLACKLIST_ENABLED and pair in cls.DEBUG_BLACKLIST_FUNCTIONS:
+                return True
+            if cls.CALL_BLACKLIST_ENABLED and pair in cls.CALL_BLACKLIST_FUNCTIONS:
+                return True
             if cls.DISPLAY_ALLFRAMES_ONEBELOW:
                 return False
             if function[0] == "<":
                 # ignore native python calls (e.g., list comprehension)
-                return True
-            if cls.DEBUG_BLACKLIST_ENABLED and pair in cls.DEBUG_BLACKLIST_FUNCTIONS:
-                return True
-            if cls.CALL_BLACKLIST_ENABLED and pair in cls.CALL_BLACKLIST_FUNCTIONS:
                 return True
         return False
 
@@ -385,17 +393,21 @@ class _MSCOMMON_TRACE:
         if event not in cls.FRAME_TRACE_EVENTS:
             return rval
 
-        # ignore events that are more than one frame below parent module
+        # ignore module teardown events
         grandparent, parent, child = cls.split_grandparent_parent_child(frame)
+        if not child:
+            return None
+
+        # ignore events that are more than one frame below parent module
         if parent != cls.PARENT_MODULE:
 
             # at most one frame deep
             if grandparent != cls.PARENT_MODULE:
-                return None
+                return rval
 
             # ignore parent frames that are not whitelisted
             if not cls.is_whitelisted(event, parent, frame.f_code.co_name):
-                return None
+                return rval
 
             # ignore parent frames that are blacklisted
             if cls.is_blacklisted(event, parent, frame.f_code.co_name):
@@ -489,7 +501,7 @@ class _MSCOMMON_TRACE:
     def trace(cls):
         sys.settrace(cls.trace_current_module)
 
-if _MSCOMMON_TRACE.TRACE_ENABLED:
+if _MSCOMMON.TRACE_ENABLED:
     _MSCOMMON_TRACE.trace()
 
 
