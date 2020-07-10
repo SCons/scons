@@ -40,6 +40,29 @@ def _rust_library_dict_to_list(library_dict):
         for name, kind in library_dict.items()
     ]
 
+def _Crate(env, target, source, type='bin', name=None, *args, **kwargs):
+    if name is None:
+        name = target
+    return env.Command(
+        target,
+        source,
+        (
+            '$RUSTC '
+            '$_RUSTCODEGENFLAGS '
+            '$_RUSTLIBFLAGS '
+            '$_RUSTLINTFLAGS '
+            '$RUSTFLAGS '
+            '--crate-type $CRATE_TYPE '
+            '--crate-name $CRATE_NAME '
+            '-o $TARGET '
+            '$SOURCES'
+        ),
+        CRATE_TYPE=type,
+        CRATE_NAME=name,
+        *args,
+        **kwargs,
+    )
+
 def generate(env):
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
@@ -90,6 +113,8 @@ def generate(env):
         '${_concat(RUSTLINTDENYPREFIX, RUSTLINTDENY, "", __env__)} '
         '${_concat(RUSTLINTFORBIDPREFIX, RUSTLINTFORBID, "", __env__)}'
     )
+
+    env.AddMethod(_Crate, "Crate")
 
 def exists(env):
     return env.Detect('rustc')

@@ -31,7 +31,7 @@ fn main() {
 """)
 test.write('SConstruct', r"""
 env = Environment()
-env.Program("hello", "hello.rs")
+env.Crate("hello", "hello.rs")
 """)
 test.run("hello")
 # TODO: Check the output of hello world
