@@ -12,6 +12,10 @@ RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
 
         - Whatever John Doe did.
 
+  From Rob Boehne:
+    - Fix subprocess execution of 'lslpp' on AIX to produce text standard i/o.
+    - Re-do the fix for suncxx tool (Oracle Studio compiler) now that only Python 3 is supported,
+      to avoid decoding errors.
     
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
