@@ -123,25 +123,90 @@ class _MSCOMMON:
         filename = cls._get_filename(root, n, ext)
         return filename
 
+    modulelist_debug = (
+        # current module and parent module
+        'MSCommon', 'Tool',
+        # TODO: python library and below iff scons does not have a lib folder
+        'lib', 
+        # scons modules
+        'SCons', 'test', 'scons'
+    )
+
+    modulelist_trace = (
+        # TODO: python library and below iff scons does not have a lib folder
+        'lib',
+        # scons modules
+        'SCons', 'test', 'scons'
+    )
+
+    @classmethod
+    def get_relative_filename(cls, filename, module_list):
+        if not filename:
+            return filename
+        for module in module_list:
+            try:
+                ind = filename.rindex(module)
+                return filename[ind:]
+            except ValueError:
+                pass
+        return filename
+
+    @classmethod
+    def get_relative_module(cls, filename, module_list):
+        if not filename:
+            return filename
+        if filename[0] == '<':
+            return filename
+        relname = cls.get_relative_filename(filename, module_list)
+        try:
+            ind = relname.rindex('.')
+            modname = relname[:ind]
+        except ValueError:
+            modname =  relname
+        modname = modname.replace('\\', '/')
+        return modname
+
+    @classmethod
+    def get_module(cls, filename):
+        if not filename:
+            return filename
+        if filename[0] == '<':
+            return filename
+        try:
+            ind = filename.rindex('.')
+            modname = filename[:ind]
+        except ValueError:
+            modname =  filename
+        modname = modname.replace('\\', '/')
+        return modname
 
 if _MSCOMMON.DEBUG_STDOUT:
     def debug(message):
         print(message)
 elif _MSCOMMON.DEBUG_LOGGING:
     import logging
+    class _MSCommon_Filter(logging.Filter):
+        # custom filter for relative filename when called from above MSCommon
+        def filter(self, record):
+            relfilename = _MSCOMMON.get_relative_filename(record.pathname, _MSCOMMON.modulelist_debug)
+            relfilename = relfilename.replace('\\', '/')
+            record.relfilename = relfilename
+            return True
     logging.basicConfig(
         # This looks like:
         #   00109ms:MSCommon/vc.py:find_vc_pdir#447:
         format=(
             '%(relativeCreated)05dms'
-            ':MSCommon/%(filename)s'
+            ':%(relfilename)s'
             ':%(funcName)s'
             '#%(lineno)s'
             ':%(message)s: '
         ),
         filename=_MSCOMMON.rewrite_filename(_MSCOMMON.DEBUG_LOGFILE, sync=False),
         level=logging.DEBUG)
-    debug = logging.getLogger(name=__name__).debug
+    logger = logging.getLogger(name=__name__)
+    logger.addFilter(_MSCommon_Filter())
+    debug = logger.debug
 else:
     def debug(x): return None
 
@@ -180,49 +245,44 @@ class _MSCOMMON_TRACE:
     )
 
     # when enabled, ignore these module/function returns
-    RETURN_BLACKLIST_ENABLED = True
-    RETURN_BLACKLIST_FUNCTIONS = [
+    RETURN_IGNORELIST_ENABLED = True
+    RETURN_IGNORELIST_FUNCTIONS = [
         # functions known to return None
-        ('_weakrefset', '_remove'),
-        ('codecs', '__init__'),
-        ('subprocess', 'Close'),
-        ('subprocess', '__del__'),
-        ('logging', 'debug'),
-        ('Environment', '__setitem__'),
-        ('Environment', 'PrependENVPath'),
-        ('sdk', '__init__'),
-        ('vs', '__init__'),
-        ('vc', '__init__'),
-        ('common', 'debug'),
-        ('common', 'add_env'),
-        ('common', 'write_script_env_cache'),
+        ('lib/_weakrefset', '_remove'),
+        ('lib/codecs', '__init__'),
+        ('lib/subprocess', 'Close'),
+        ('lib/subprocess', '__del__'),
+        ('lib/logging/__init__', 'debug'),
+        ('SCons/Environment', '__setitem__'),
+        ('SCons/Environment', 'PrependENVPath'),
+        ('SCons/Tool/MSCommon/sdk', '__init__'),
+        ('SCons/Tool/MSCommon/vs', '__init__'),
+        ('SCons/Tool/MSCommon/vc', '__init__'),
+        ('SCons/Tool/MSCommon/common', 'debug'),
+        ('SCons/Tool/MSCommon/common', 'add_env'),
+        ('SCons/Tool/MSCommon/common', 'write_script_env_cache'),
     ]
 
-    # when enabled, allow these module/function returns
-    RETURN_WHITELIST_ENABLED = False
-    RETURN_WHITELIST_FUNCTIONS = [
-    ]
+    # ignore internal debug calls
+    DEBUG_IGNORELIST_ENABLED = True
+    DEBUG_IGNORELIST_FUNCTIONS = []
 
-    # when enabled, ignore these module/function calls (see debug below)
-    CALL_BLACKLIST_ENABLED = False
-    CALL_BLACKLIST_FUNCTIONS = [
-    ]
-
-    # when enabled, allow these module/function calls (see debug below)
-    CALL_WHITELIST_ENABLED = False
-    CALL_WHITELIST_FUNCTIONS = [
-    ]
-
-    # ignore internal debug calls when not using the logging module
-    DEBUG_BLACKLIST_ENABLED = not _MSCOMMON.DEBUG_LOGGING
-    DEBUG_BLACKLIST_FUNCTIONS = [
-        ('common', 'debug'),
-    ]
+    if not _MSCOMMON.DEBUG_LOGGING:
+        DEBUG_IGNORELIST_FUNCTIONS += [
+            # ignore internal debug calls when not using the logging module
+            ('SCons/Tool/MSCommon/common', 'debug'),
+        ]
+    else:
+        DEBUG_IGNORELIST_FUNCTIONS += [
+            # ignore internal debug filter calls when using the logging module
+            ('SCons/Tool/MSCommon/common', 'get_relative_filename'),
+            ('SCons/Tool/MSCommon/common', 'filter'),
+        ]
 
     # keep external debug calls when using the logging module
-    DEBUG_WHITELIST_ENABLED = _MSCOMMON.DEBUG_LOGGING
-    DEBUG_WHITELIST_FUNCTIONS = [
-        ('logging', 'debug'),
+    DEBUG_ALLOWLIST_ENABLED = _MSCOMMON.DEBUG_LOGGING
+    DEBUG_ALLOWLIST_FUNCTIONS = [
+        ('lib/logging/__init__', 'debug'),
     ]
 
     # function call indentation
@@ -259,24 +319,6 @@ class _MSCOMMON_TRACE:
         TRACE_FH = None
 
     @classmethod
-    def get_relative_filename(cls, filename):
-        try:
-            # TODO: works iff SCons does not have a 'lib' folder
-            # python library and below
-            ind = filename.rindex('lib')
-            return filename[ind:]
-        except ValueError:
-            pass
-        try:
-            # SCons and below
-            ind = filename.rindex('SCons')
-            return filename[ind:]
-        except ValueError:
-            pass
-        # not in python or SCons tree
-        return filename
-
-    @classmethod
     def get_frame_arglist(cls, frame):
         args = "("
         for i in range(frame.f_code.co_argcount):
@@ -296,9 +338,9 @@ class _MSCOMMON_TRACE:
     def display_frame(cls, frame, indent, divider=False):
         current_func = frame.f_code.co_name
         if cls.DISPLAY_FUNCTION_LOCATION:
-            current_file = cls.get_relative_filename(frame.f_code.co_filename)
+            current_file = _MSCOMMON.get_relative_filename(frame.f_code.co_filename, _MSCOMMON.modulelist_trace)
             if frame.f_back:
-                from_file = cls.get_relative_filename(frame.f_back.f_code.co_filename)
+                from_file = _MSCOMMON.get_relative_filename(frame.f_back.f_code.co_filename, _MSCOMMON.modulelist_trace)
                 from_line = frame.f_back.f_lineno
                 if frame.f_back.f_code.co_filename == frame.f_code.co_filename:
                     from_where = " from %d" % from_line
@@ -334,49 +376,46 @@ class _MSCOMMON_TRACE:
         cls.print_message(outstr)
 
     @classmethod
-    def split_grandparent_parent_child(cls, frame):
-        grandparent, parent, child = None, None, None
-        try:
-            ancestor, child = os.path.split(frame.f_code.co_filename)
-        except AttributeError:
-            # module teardown: os.path is None
-            return (grandparent, parent, child)
-        child = os.path.splitext(child)[0]
-        if ancestor:
-            _, parent = os.path.split(ancestor)
-        back = frame.f_back
-        if not back:
-            return (grandparent, parent, child)
-        ancestor, _ = os.path.split(back.f_code.co_filename)
-        if ancestor:
-            _, grandparent = os.path.split(ancestor)
-        return (grandparent, parent, child)
+    def relmodule_caller_callee(cls, frame):
+        # default caller, callee values
+        rval = (None, None)
+        if not frame:
+            return '', rval, rval
+        # relative module name
+        relmodule = _MSCOMMON.get_relative_module(frame.f_code.co_filename, _MSCOMMON.modulelist_trace)
+        # callee parent and leaf modules
+        modname = _MSCOMMON.get_module(frame.f_code.co_filename)
+        callee = modname.split('/')[-2:]
+        if len(callee) < 2:
+            callee = [None] + callee
+        # check for caller
+        if not frame.f_back:
+            return relmodule, rval, callee
+        # caller parent and leaf modules
+        modname = _MSCOMMON.get_module(frame.f_back.f_code.co_filename)
+        caller = modname.split('/')[-2:]
+        if len(caller) < 2:
+            caller = [None] + caller
+        return relmodule, caller, callee
 
     @classmethod
-    def is_whitelisted(cls, event, module, function):
-        pair = (module, function)
+    def is_allowed(cls, event, relmodule, function):
+        pair = (relmodule, function)
         if cls.DISPLAY_ALLFRAMES_ONEBELOW:
             return True
-        if event == 'return':
-            if cls.RETURN_WHITELIST_ENABLED and pair in cls.RETURN_WHITELIST_FUNCTIONS:
-                return True
-        else:
-            if cls.DEBUG_WHITELIST_ENABLED and pair in cls.DEBUG_WHITELIST_FUNCTIONS:
-                return True
-            if cls.CALL_WHITELIST_ENABLED and pair in cls.CALL_WHITELIST_FUNCTIONS:
+        if event == 'call':
+            if cls.DEBUG_ALLOWLIST_ENABLED and pair in cls.DEBUG_ALLOWLIST_FUNCTIONS:
                 return True
         return False
 
     @classmethod
-    def is_blacklisted(cls, event, module, function):
-        pair = (module, function)
+    def is_ignored(cls, event, relmodule, function):
+        pair = (relmodule, function)
         if event == 'return':
-            if cls.RETURN_BLACKLIST_ENABLED and pair in cls.RETURN_BLACKLIST_FUNCTIONS:
+            if cls.RETURN_IGNORELIST_ENABLED and pair in cls.RETURN_IGNORELIST_FUNCTIONS:
                 return True
         else:
-            if cls.DEBUG_BLACKLIST_ENABLED and pair in cls.DEBUG_BLACKLIST_FUNCTIONS:
-                return True
-            if cls.CALL_BLACKLIST_ENABLED and pair in cls.CALL_BLACKLIST_FUNCTIONS:
+            if cls.DEBUG_IGNORELIST_ENABLED and pair in cls.DEBUG_IGNORELIST_FUNCTIONS:
                 return True
             if cls.DISPLAY_ALLFRAMES_ONEBELOW:
                 return False
@@ -393,28 +432,21 @@ class _MSCOMMON_TRACE:
         if event not in cls.FRAME_TRACE_EVENTS:
             return rval
 
-        # ignore module teardown events
-        grandparent, parent, child = cls.split_grandparent_parent_child(frame)
-        if not child:
-            return None
+        relmodule, (caller_parent, caller_child), (callee_parent, callee_child) = cls.relmodule_caller_callee(frame)
 
         # ignore events that are more than one frame below parent module
-        if parent != cls.PARENT_MODULE:
+        if callee_parent != cls.PARENT_MODULE:
 
             # at most one frame deep
-            if grandparent != cls.PARENT_MODULE:
+            if caller_parent != cls.PARENT_MODULE:
                 return rval
 
-            # ignore parent frames that are not whitelisted
-            if not cls.is_whitelisted(event, parent, frame.f_code.co_name):
+            # ignore frames that are not explicitly listed
+            if not cls.is_allowed(event, relmodule, frame.f_code.co_name):
                 return rval
 
-            # ignore parent frames that are blacklisted
-            if cls.is_blacklisted(event, parent, frame.f_code.co_name):
-                return None
-
-        # ignore child frames that are blacklisted
-        if cls.is_blacklisted(event, child, frame.f_code.co_name):
+        # ignore frames that are explicitly listed
+        if cls.is_ignored(event, relmodule, frame.f_code.co_name):
             return None
 
         # walk the stack frames above the current call
