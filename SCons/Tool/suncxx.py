@@ -55,7 +55,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
         from subprocess import DEVNULL 
 
         try:
-            with open('/var/sadm/install/contents', 'r') as f:
+            with open('/var/sadm/install/contents', 'r', encoding='UTF-8') as f:
                 sadm_contents = f.read()
         except EnvironmentError:
             pass
@@ -66,16 +66,14 @@ def get_package_info(package_name, pkginfo, pkgchk):
                 pathname = os.path.dirname(sadm_match.group(1))
 
         try:
-            popen_args = {'stdout': subprocess.PIPE,
-                          'stderr': DEVNULL}
-            popen_args['universal_newlines'] = True
             p = subprocess.Popen([pkginfo, '-l', package_name],
-                                 **popen_args)
+                                 universal_newlines=True,
+                                 stdout=subprocess.PIPE,
+                                 stderr=DEVNULL)
         except EnvironmentError:
             pass
         else:
             pkginfo_contents = p.communicate()[0]
-            pkginfo_contents.decode()
             version_re = re.compile(r'^ *VERSION:\s*(.*)$', re.M)
             version_match = version_re.search(pkginfo_contents)
             if version_match:
@@ -83,16 +81,14 @@ def get_package_info(package_name, pkginfo, pkgchk):
 
         if pathname is None:
             try:
-                popen_args = {'stdout': subprocess.PIPE,
-                              'stderr': DEVNULL}
-                popen_args['universal_newlines'] = True
                 p = subprocess.Popen([pkgchk, '-l', package_name],
-                                     **popen_args)
+                                     universal_newlines=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=DEVNULL)
             except EnvironmentError:
                 pass
             else:
                 pkgchk_contents = p.communicate()[0]
-                pkgchk_contents.decode()
                 pathname_re = re.compile(r'^Pathname:\s*(.*/bin/CC)$', re.M)
                 pathname_match = pathname_re.search(pkgchk_contents)
                 if pathname_match:
