@@ -1,10 +1,6 @@
-"""SCons.Platform.virtualenv
-
-Support for virtualenv.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,9 +20,8 @@ Support for virtualenv.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""'Platform" support for a Python virtualenv."""
 
 import os
 import sys
@@ -50,14 +45,14 @@ virtualenv_variables = ['VIRTUAL_ENV', 'PIPENV_ACTIVE']
 
 
 def _running_in_virtualenv():
-    """Returns True, if scons is executed within a virtualenv"""
+    """Returns True if scons is executed within a virtualenv"""
     # see https://stackoverflow.com/a/42580137
     return (hasattr(sys, 'real_prefix') or
             (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix))
 
 
 def _is_path_in(path, base):
-    """Returns true, if **path** is located under the **base** directory."""
+    """Returns true if **path** is located under the **base** directory."""
     if not path or not base: # empty path may happen, base too
         return False
     rp = os.path.relpath(path, base)

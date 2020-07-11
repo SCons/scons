@@ -1,16 +1,6 @@
-"""SCons.Defaults
-
-Builders and other things for the local site.  Here's where we'll
-duplicate the functionality of autoconf until we move it into the
-installation procedure or use something like qmconf.
-
-The code that reads the registry to find MSVC components was borrowed
-from distutils.msvccompiler.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,9 +20,15 @@ from distutils.msvccompiler.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+"""Builders and other things for the local site.
+
+Here's where we'll duplicate the functionality of autoconf until we
+move it into the installation procedure or use something like qmconf.
+
+The code that reads the registry to find MSVC components was borrowed
+from distutils.msvccompiler.
+"""
 
 import os
 import errno
@@ -58,9 +54,7 @@ _default_env = None
 # Lazily instantiate the default environment so the overhead of creating
 # it doesn't apply when it's not needed.
 def _fetch_DefaultEnvironment(*args, **kw):
-    """
-    Returns the already-created default construction environment.
-    """
+    """Returns the already-created default construction environment."""
     global _default_env
     return _default_env
 
