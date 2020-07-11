@@ -126,14 +126,14 @@ class _MSCOMMON:
     modulelist_debug = (
         # current module and parent module
         'MSCommon', 'Tool',
-        # TODO: python library and below iff scons does not have a lib folder
+        # python library and below: correct iff scons does not have a lib folder
         'lib', 
         # scons modules
         'SCons', 'test', 'scons'
     )
 
     modulelist_trace = (
-        # TODO: python library and below iff scons does not have a lib folder
+        # python library and below: correct iff scons does not have a lib folder
         'lib',
         # scons modules
         'SCons', 'test', 'scons'
@@ -186,7 +186,7 @@ if _MSCOMMON.DEBUG_STDOUT:
 elif _MSCOMMON.DEBUG_LOGGING:
     import logging
     class _MSCommon_Filter(logging.Filter):
-        # custom filter for relative filename when called from above MSCommon
+        # custom filter for module relative filename
         def filter(self, record):
             relfilename = _MSCOMMON.get_relative_filename(record.pathname, _MSCOMMON.modulelist_debug)
             relfilename = relfilename.replace('\\', '/')
@@ -279,9 +279,9 @@ class _MSCOMMON_TRACE:
             ('SCons/Tool/MSCommon/common', 'filter'),
         ]
 
-    # keep external debug calls when using the logging module
     DEBUG_ALLOWLIST_ENABLED = _MSCOMMON.DEBUG_LOGGING
     DEBUG_ALLOWLIST_FUNCTIONS = [
+        # keep external debug calls when using the logging module
         ('lib/logging/__init__', 'debug'),
     ]
 
