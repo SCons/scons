@@ -1,0 +1,11 @@
+import os
+
+my_temp_dir = os.path.join(os.getcwd(), 'my_temp_files')
+
+env = Environment(
+    BUILDCOM='${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH=16,
+    TEMPFILEDIR=my_temp_dir,
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')

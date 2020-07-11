@@ -32,16 +32,6 @@ import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
-test.write('echo.py', """\
-import sys
-print(sys.argv)
-""")
-
-echo_py = test.workpath('echo.py')
-
-st = os.stat(echo_py)
-os.chmod(echo_py, st[stat.ST_MODE] | 0o111)
-
 test.write('SConstruct', """
 import os
 env = Environment(
