@@ -55,6 +55,7 @@ def get_xlc(env, xlc=None, packages=[]):
         pipe = SCons.Action._subproc(env, ['lslpp', '-fc', package],
                 stdin = 'devnull',
                 stderr = 'devnull',
+                universal_newlines=True,
                 stdout = subprocess.PIPE)
         # output of lslpp is something like this:
         #     #Path:Fileset:File
