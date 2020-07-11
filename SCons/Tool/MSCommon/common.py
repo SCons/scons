@@ -376,7 +376,7 @@ class _MSCOMMON_TRACE:
         cls.print_message(outstr)
 
     @classmethod
-    def relmodule_caller_callee(cls, frame):
+    def get_relmodule_caller_callee(cls, frame):
         # default caller, callee values
         rval = (None, None)
         if not frame:
@@ -432,7 +432,7 @@ class _MSCOMMON_TRACE:
         if event not in cls.FRAME_TRACE_EVENTS:
             return rval
 
-        relmodule, (caller_parent, caller_child), (callee_parent, callee_child) = cls.relmodule_caller_callee(frame)
+        relmodule, (caller_parent, _), (callee_parent, _) = cls.get_relmodule_caller_callee(frame)
 
         # ignore events that are more than one frame below parent module
         if callee_parent != cls.PARENT_MODULE:
