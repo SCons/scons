@@ -16,7 +16,16 @@ RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
     - Fix subprocess execution of 'lslpp' on AIX to produce text standard i/o.
     - Re-do the fix for suncxx tool (Oracle Studio compiler) now that only Python 3 is supported,
       to avoid decoding errors.
-    
+
+  From Joseph Brill:
+    - Modify the MSCommon internal-use only debug logging records to contain the correct relative
+      file path when the debug function is called from outside the MSCommon module.
+    - Add an internal-use only function call and return trace facility for the MSCommon module.
+    - Modify the MSCommon internal-use only debug and trace file handling to optionally produce
+      debug and/or trace files for each invocation of SCons.  Provide a mechanism to optionally 
+      synchronize the MSCommon debug and trace file names when both are enabled.
+
+
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
   From Dirk Baechle:
