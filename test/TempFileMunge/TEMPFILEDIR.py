@@ -24,29 +24,44 @@ Verify that setting the $TEMPFILEDIR variable will cause
 the generated tempfile used for long command lines to be created in specified directory.
 And if not specified in one of TMPDIR, TEMP or TMP (based on os' normal usage of such)
 """
-import os.path
+from re import escape
+import tempfile
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.file_fixture('fixture/SConstruct.tempfiledir', 'SConstruct')
 
+expected_output = r"""Using tempfile __WORKDIR__/my_temp_files/\S+ for command line:
+xxx.py foo.out foo.in
+xxx.py @__WORKDIR__/my_temp_files/\S+
+Using tempfile __TEMPDIR__/\S+ for command line:
+xxx.py global_foo.out foo.in
+xxx.py @__TEMPDIR__/\S+
+"""
+
+wd_escaped = escape(test.workdir)
+td_escaped = escape(tempfile.gettempdir())
+expected_output =expected_output.replace("__WORKDIR__", wd_escaped)
+expected_output = expected_output.replace("__TEMPDIR__", td_escaped)
+
 test.write('foo.in', "foo.in\n")
 
 test.run(arguments='-n -Q .',
-         stdout="""\
-Using tempfile \\S+ for command line:
-xxx.py foo.out foo.in
-xxx.py \\S+
-""")
-
-try:
-    tempfile = test.stdout().splitlines()[0].split()[2]
-except IndexError:
-    test.fail_test("Unexpected output couldn't find tempfile")
-
-dirname = os.path.basename(os.path.dirname(tempfile))
-test.fail_test('my_temp_files' != dirname, message="Temp file not created in \"my_temp_files\" directory")
+         stdout=expected_output)
+# """\
+# Using tempfile \\S+ for command line:
+# xxx.py foo.out foo.in
+# xxx.py \\S+
+# """)
+#
+# try:
+#     tempfile = test.stdout().splitlines()[0].split()[2]
+# except IndexError:
+#     test.fail_test("Unexpected output couldn't find tempfile")
+#
+# dirname = os.path.basename(os.path.dirname(tempfile))
+# test.fail_test('my_temp_files' != dirname, message="Temp file not created in \"my_temp_files\" directory")
 test.pass_test()
 
 # Local Variables:
