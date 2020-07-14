@@ -537,6 +537,10 @@ Additional documentation for SCons is available at:
 
         http://www.scons.org/documentation.html
 
+Documentation toolchain
+=======================
+
+For an overview see https://github.com/SCons/scons/blob/master/doc/overview.rst
 
 Licensing
 =========
