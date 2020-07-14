@@ -27,6 +27,7 @@ And if not specified in one of TMPDIR, TEMP or TMP (based on os' normal usage of
 from re import escape
 import tempfile
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 
@@ -40,6 +41,8 @@ xxx.py global_foo.out foo.in
 xxx.py @__TEMPDIR__/\S+
 """
 
+if IS_WINDOWS:
+    expected_output = expected_output.replace('/','\\\\')
 wd_escaped = escape(test.workdir)
 td_escaped = escape(tempfile.gettempdir())
 expected_output =expected_output.replace("__WORKDIR__", wd_escaped)
