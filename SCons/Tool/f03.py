@@ -46,11 +46,15 @@ def generate(env):
     add_f03_to_env(env)
 
     fcomp = env.Detect(compilers) or 'f03'
-    env['F03']  = fcomp
-    env['SHF03']  = fcomp
+    if 'F03' not in env:
+        env['F03']  = fcomp
+    if 'SHF03' not in env:
+        env['SHF03']  = '$F03'
 
-    env['FORTRAN']  = fcomp
-    env['SHFORTRAN']  = fcomp
+    if 'FORTRAN' not in env:
+        env['FORTRAN']  = fcomp
+    if 'SHFORTRAN' not in env:
+        env['SHFORTRAN']  = '$FORTRAN'
 
 
 def exists(env):

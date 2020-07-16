@@ -9,6 +9,12 @@ NOTE: The 4.0.0 Release of SCons will drops Python 2.7 Support
 RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
 
   From Rob Boehne:
+    - Fix fortran tools to set SHFORTRAN variables to $FORTRAN, similarly SHF77, SHF90, SHF95,
+      SHF03 and SHF08 will default to the variables $F77, $F90, $F95, $F03 and $F08 respectively.
+      If you were depending on changing the value of FORTRAN (or $F[0-9][0-9]) having no effect
+      on the value of SHFORTRAN, this change will break that.   The values of FORTRAN, F77, F90,
+      F95, F03, F08 and SHFORTRAN, SHF77 (etc.) now are not overridden in generate if alredy set
+      by the user.
     - Fix subprocess execution of 'lslpp' on AIX to produce text standard i/o.
     - Re-do the fix for suncxx tool (Oracle Studio compiler) now that only Python 3 is supported,
       to avoid decoding errors.
