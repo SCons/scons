@@ -4,9 +4,16 @@
 
                             Change Log
 
-NOTE: The 4.0.0 Release of SCons will drops Python 2.7 Support
+NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
-RELEASE 4.1.0.devyyyymmdd - Mon, 04 Jul 2020 16:06:40 -0700
+RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+      From John Doe:
+
+        - Whatever John Doe did.
+
+
+RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
   From Rob Boehne:
     - Fix fortran tools to set SHFORTRAN variables to $FORTRAN, similarly SHF77, SHF90, SHF95,
