@@ -32,6 +32,8 @@ selection method.
 
 import SCons.Defaults
 import SCons.Tool
+import subprocess
+import shlex
 
 
 def _rust_library_dict_to_list(library_dict):
@@ -98,6 +100,11 @@ def generate(env):
         '${_concat(RUSTLIBSPREFIX, _rust_library_dict_to_list(RUSTLIBS), "", __env__)}'
     )
 
+    # Automatically append stdlib
+    # TODO: Evaluate lazily
+    libdir_command = env.subst('$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $RUSTFLAGS --print=target-libdir')
+    libdir = subprocess.run(shlex.split(libdir_command), stdout=subprocess.PIPE).stdout.decode().strip('\n')
+    env.Append(LIBS=env.Glob(libdir + "/libstd-*$SHLIBSUFFIX"))
 
     env['RUSTLINTWARNPREFIX'] = '-W'
     env['RUSTLINTWARN'] = []
