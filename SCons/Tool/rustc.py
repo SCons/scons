@@ -65,6 +65,12 @@ def _Crate(env, target, source, type='bin', name=None, *args, **kwargs):
         **kwargs,
     )
 
+def _find_rust_stdlib(env):
+    libdir_command = env.subst('$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $RUSTFLAGS --print=target-libdir')
+    # TODO: Python 2 comparability
+    libdir = subprocess.run(shlex.split(libdir_command), stdout=subprocess.PIPE).stdout.decode().strip('\n')
+    return env.Glob(libdir + "/libstd-*$SHLIBSUFFIX")
+
 def generate(env):
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
@@ -101,10 +107,8 @@ def generate(env):
     )
 
     # Automatically append stdlib
-    # TODO: Evaluate lazily
-    libdir_command = env.subst('$RUSTC $_RUSTCODEGENFLAGS $_RUSTLIBFLAGS $_RUSTLINTFLAGS $RUSTFLAGS --print=target-libdir')
-    libdir = subprocess.run(shlex.split(libdir_command), stdout=subprocess.PIPE).stdout.decode().strip('\n')
-    env.Append(LIBS=env.Glob(libdir + "/libstd-*$SHLIBSUFFIX"))
+    env['_find_rust_stdlib'] = _find_rust_stdlib
+    env.Append(LIBS='${_find_rust_stdlib(__env__)}')
 
     env['RUSTLINTWARNPREFIX'] = '-W'
     env['RUSTLINTWARN'] = []
