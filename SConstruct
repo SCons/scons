@@ -36,7 +36,7 @@ month_year = strftime('%B %Y')
 
 
 project = 'scons'
-default_version = '4.1.0.devyyyymmdd'
+default_version = '4.0.1'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 #
