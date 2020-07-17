@@ -1,4 +1,4 @@
-  A new SCons checkpoint release, 4.0.1, is now available
+  A new SCons release, 4.0.1, is now available
   on the SCons download page:
 
           https://scons.org/pages/download.html
