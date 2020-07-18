@@ -2117,10 +2117,13 @@ env = Environment(FOO='foo')
 env['FOO'] = 'foo'
 </programlisting>
 
-<!--TODO: need to describe a way for a user to tell... -->
-<para>Certain settings that affect tool detection have
-their effect only during initialization, and so need to
-be supplied as part of the calle to &f-Environment;.
+<!--TODO: how can the user tell which settings are init-only? -->
+<para>Note that certain settings which affect tool detection are
+referenced only during initialization, and so need to
+be supplied as part of the call to &f-Environment;.
+For example, setting &cv-link-MSVC_VERSION; selects the
+version of Microsoft Visual C++ you wish to use,
+but setting it after the &consenv; is constructed has no effect.
 </para>
 
 <para>
@@ -2141,9 +2144,9 @@ See &f-link-DefaultEnvironment; for more information.
 <para>As a convenience,
 &consvars; may also be set or modified by the
 <parameter>parse_flags</parameter>
-keyword argument, which applies the
+keyword argument, which causes the
 &f-link-env-MergeFlags;
-method (described below) to the argument value
+method to be applied to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
