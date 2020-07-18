@@ -2109,18 +2109,22 @@ env = Environment()
 <para>&Consenv; attributes called
 <firstterm>&ConsVars;</firstterm> may be set
 either by specifying them as keyword arguments when the object is created
-or by assigning them a value after the object is created:</para>
+or by assigning them a value after the object is created. These two are
+nominally equivalent:</para>
 
 <programlisting language="python">
 env = Environment(FOO='foo')
-env['BAR'] = 'bar'
+env['FOO'] = 'foo'
 </programlisting>
 
-<!--TODO: want to say this, but then have to provide a way for user to tell...
-<para>Certain settings that affect tool detection work
-only on initialization, so check that setting a value
-after creation is appropriate.</para>
--->
+<!--TODO: how can the user tell which settings are init-only? -->
+<para>Note that certain settings which affect tool detection are
+referenced only during initialization, and so need to
+be supplied as part of the call to &f-Environment;.
+For example, setting &cv-link-MSVC_VERSION; selects the
+version of Microsoft Visual C++ you wish to use,
+but setting it after the &consenv; is constructed has no effect.
+</para>
 
 <para>
 An existing &consenv; can be duplicated by calling the &f-link-env-Clone;
@@ -2140,9 +2144,9 @@ See &f-link-DefaultEnvironment; for more information.
 <para>As a convenience,
 &consvars; may also be set or modified by the
 <parameter>parse_flags</parameter>
-keyword argument, which applies the
+keyword argument, which causes the
 &f-link-env-MergeFlags;
-method (described below) to the argument value
+method to be applied to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
@@ -2153,7 +2157,7 @@ env = Environment(parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-the <envar>CPPPATH</envar> &consvar;
+the <envar>CPPPATH</envar> &consvar;,
 'EBUG' to
 <envar>CPPDEFINES</envar>,
 and 'm' to
@@ -2162,12 +2166,11 @@ and 'm' to
 are distributed to &consvars;.
 </para>
 
-
 <para>By default, a new &consenv; is
 initialized with a set of builder methods
 and &consvars; that are appropriate
 for the current platform.
-An optional <parameter>platform</parameter> keyword argument may be
+The optional <parameter>platform</parameter> keyword argument may be
 used to specify that the &consenv; should
 be initialized for a different platform:</para>
 
@@ -2211,6 +2214,19 @@ def my_platform(env):
 
 env = Environment(platform=my_platform)
 </programlisting>
+
+<para>
+The optional <parameter>tools</parameter> and <parameter>toolpath</parameter>
+keyword arguments affect the way tools available to the environment are initialized.
+See <xref linkend="tools"/> for details.
+</para>
+
+<para>
+The optional <parameter>variables</parameter> keyword argument
+allows passing a Variables object which will be used in the
+initialization of the &consenv;
+See <xref linkend="commandline_construction_variables"/> for details.
+</para>
 
 </refsect2>
 
@@ -2381,7 +2397,7 @@ env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
                   toolpath=['tools'])
 </programlisting>
 
-<para>The tool definition (<function>my_tool</function> in the example)
+<para>The tool specification (<function>my_tool</function> in the example)
 can use the
 <envar>PLATFORM</envar> variable from
 the &consenv; it is passed to customize the tool for different platforms.</para>
@@ -4055,14 +4071,14 @@ locations, or site-specific compiler options may need to be passed to the
 compiler.
 &SCons;
 provides a <firstterm>&Variables;</firstterm>
-object to support overriding &consvars;
-on the command line:</para>
+object to support overriding &consvars; with values obtained
+from various sources, often from the command line:</para>
 
 <screen>
 <userinput>scons VARIABLE=foo</userinput>
 </screen>
 
-<para>The variable values can also be specified in an SConscript file.</para>
+<para>The variable values can also be specified in a configuration file or an SConscript file.</para>
 
 <para>To obtain the object for manipulating values,
 call the &Variables; function:</para>
@@ -4080,7 +4096,14 @@ or the
 <parameter>files</parameter>
 argument is
 <constant>None</constant>,
-then no files will be read. The following example file
+then no files will be read
+(supplying <constant>None</constant> is necessary
+if there are no files but you want to specify
+<parameter>args</parameter> as a positional argument).
+</para>
+
+<para>
+The following example file
 contents could be used to set an alternative C compiler:</para>
 
 <programlisting language="python">
@@ -4092,7 +4115,7 @@ CC = 'my_cc'
 is specified, it is a dictionary of
 values that will override anything read from
 <parameter>files</parameter>.
-it is primarily intended to be passed the
+This is primarily intended to pass the
 &ARGUMENTS; dictionary that holds variables
 specified on the command line.
 Example:</para>
@@ -4101,6 +4124,13 @@ Example:</para>
 vars = Variables('custom.py')
 vars = Variables('overrides.py', ARGUMENTS)
 vars = Variables(None, {FOO:'expansion', BAR:7})
+</programlisting>
+
+<para>
+Calling &Variables; with no arguments is equivalent to:
+</para>
+<programlisting language="python">
+vars = Variables(files=None, args=ARGUMENTS)
 </programlisting>
 
   </listitem>
@@ -6516,7 +6546,8 @@ and an optional fourth:
   <listitem>
 <para>The name of the Scanner.
 This is mainly used
-to identify the Scanner internally.</para>
+to identify the Scanner internally.
+The default value is <literal>"NONE"</literal>.</para>
   </listitem>
   </varlistentry>
 
