@@ -123,7 +123,7 @@ def get_yacc_path(env, append_paths=False):
             if append_paths:
                 env.AppendENVPath('PATH', os.path.dirname(bin_path))
             return bin_path
-    SCons.Warnings.Warning('yacc tool requested, but yacc or bison binary not found in ENV PATH')
+    SCons.Warnings.SConsWarning('yacc tool requested, but yacc or bison binary not found in ENV PATH')
 
 
 def generate(env):

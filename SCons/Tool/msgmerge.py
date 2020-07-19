@@ -82,7 +82,7 @@ def generate(env,**kw):
           msgmerge_bin_dir = os.path.dirname(msgmerge)
           env.AppendENVPath('PATH', msgmerge_bin_dir)
       else:
-          SCons.Warnings.Warning('msgmerge tool requested, but binary not found in ENV PATH')
+          SCons.Warnings.SConsWarning('msgmerge tool requested, but binary not found in ENV PATH')
   try:
     env['MSGMERGE'] = _detect_msgmerge(env)
   except:

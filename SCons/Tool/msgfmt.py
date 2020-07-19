@@ -89,7 +89,7 @@ def generate(env,**kw):
           msgfmt_bin_dir = os.path.dirname(msgfmt)
           env.AppendENVPath('PATH', msgfmt_bin_dir)
       else:
-          SCons.Warnings.Warning('msgfmt tool requested, but binary not found in ENV PATH')
+          SCons.Warnings.SConsWarning('msgfmt tool requested, but binary not found in ENV PATH')
 
   try:
     env['MSGFMT'] = _detect_msgfmt(env)

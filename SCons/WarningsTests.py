@@ -45,7 +45,7 @@ class WarningsTestCase(unittest.TestCase):
         
         to = TestOutput()
         SCons.Warnings._warningOut=to
-        SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
         SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                             "Foo")
         assert to.out == "Foo", to.out
@@ -60,12 +60,12 @@ class WarningsTestCase(unittest.TestCase):
         SCons.Warnings._enabled = []
         SCons.Warnings._warningAsException = 0
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
         old = SCons.Warnings.warningAsException()
         assert old == 0, old
         exc_caught = 0
         try:
-            SCons.Warnings.warn(SCons.Warnings.Warning, "Foo")
+            SCons.Warnings.warn(SCons.Warnings.SConsWarning, "Foo")
         except:
             exc_caught = 1
         assert exc_caught == 1
@@ -74,7 +74,7 @@ class WarningsTestCase(unittest.TestCase):
         assert old == 1, old
         exc_caught = 0
         try:
-            SCons.Warnings.warn(SCons.Warnings.Warning, "Foo")
+            SCons.Warnings.warn(SCons.Warnings.SConsWarning, "Foo")
         except:
             exc_caught = 1
         assert exc_caught == 0
@@ -95,7 +95,7 @@ class WarningsTestCase(unittest.TestCase):
                             "Foo")
         assert to.out is None, to.out
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
         SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                             "Foo")
         assert to.out == "Foo", to.out
@@ -111,15 +111,15 @@ class WarningsTestCase(unittest.TestCase):
         assert to.out is None, to.out
 
         # Dependency warnings should still be enabled though
-        SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
         SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
                             "Foo")
         assert to.out == "Foo", to.out
 
         # Try reenabling all warnings...
-        SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
 
-        SCons.Warnings.enableWarningClass(SCons.Warnings.Warning)
+        SCons.Warnings.enableWarningClass(SCons.Warnings.SConsWarning)
         SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                             "Foo")
         assert to.out == "Foo", to.out

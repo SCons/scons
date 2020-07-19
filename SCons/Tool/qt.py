@@ -46,7 +46,7 @@ import SCons.Util
 import SCons.Tool.cxx
 cplusplus = SCons.Tool.cxx
 
-class ToolQtWarning(SCons.Warnings.Warning):
+class ToolQtWarning(SCons.Warnings.SConsWarning):
     pass
 
 class GeneratedMocFileNotIncluded(ToolQtWarning):

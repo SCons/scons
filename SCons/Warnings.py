@@ -33,27 +33,29 @@ import sys
 
 import SCons.Errors
 
-class Warning(SCons.Errors.UserError):
+class SConsWarning(SCons.Errors.UserError):
     pass
 
-class WarningOnByDefault(Warning):
+class WarningOnByDefault(SConsWarning):
     pass
 
 
 # NOTE:  If you add a new warning class, add it to the man page, too!
-class TargetNotBuiltWarning(Warning): # Should go to OnByDefault
+# Not all warnings are defined here, some are defined in the location of use
+
+class TargetNotBuiltWarning(SConsWarning): # Should go to OnByDefault
     pass
 
 class CacheVersionWarning(WarningOnByDefault):
     pass
 
-class CacheWriteErrorWarning(Warning):
+class CacheWriteErrorWarning(SConsWarning):
     pass
 
 class CorruptSConsignWarning(WarningOnByDefault):
     pass
 
-class DependencyWarning(Warning):
+class DependencyWarning(SConsWarning):
     pass
 
 class DevelopmentVersionWarning(WarningOnByDefault):
@@ -94,7 +96,7 @@ class VisualCMissingWarning(WarningOnByDefault):
 class VisualVersionMismatch(WarningOnByDefault):
     pass
 
-class VisualStudioMissingWarning(Warning):
+class VisualStudioMissingWarning(SConsWarning):
     pass
 
 class FortranCxxMixWarning(LinkWarning):
@@ -103,10 +105,10 @@ class FortranCxxMixWarning(LinkWarning):
 
 # Deprecation warnings
 
-class FutureDeprecatedWarning(Warning):
+class FutureDeprecatedWarning(SConsWarning):
     pass
 
-class DeprecatedWarning(Warning):
+class DeprecatedWarning(SConsWarning):
     pass
 
 class MandatoryDeprecatedWarning(DeprecatedWarning):
@@ -138,31 +140,41 @@ class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
 _enabled = []
 
 # If set, raise the warning as an exception
-_warningAsException = 0
+_warningAsException = False
 
 # If not None, a function to call with the warning
 _warningOut = None
 
 def suppressWarningClass(clazz):
-    """Suppresses all warnings that are of type clazz or
-    derived from clazz."""
-    _enabled.insert(0, (clazz, 0))
+    """Suppresses all warnings of type clazz or derived from clazz."""
+    _enabled.insert(0, (clazz, False))
 
 def enableWarningClass(clazz):
-    """Enables all warnings that are of type clazz or
-    derived from clazz."""
-    _enabled.insert(0, (clazz, 1))
+    """Enables all warnings of type clazz or derived from clazz."""
+    _enabled.insert(0, (clazz, True))
 
-def warningAsException(flag=1):
-    """Turn warnings into exceptions.  Returns the old value of the flag."""
+def warningAsException(flag=True):
+    """Set global _warningAsExeption flag.
+
+    Args:
+        flag: value to set warnings-as-exceptions to [default: True]
+
+    Returns:
+        The previous value.
+    """
     global _warningAsException
     old = _warningAsException
     _warningAsException = flag
     return old
 
 def warn(clazz, *args):
-    global _enabled, _warningAsException, _warningOut
+    """Issue a warning, accounting for SCons rules.
 
+    Check if warnings for this class are enabled.
+    If warnings are treated as exceptions, raise exception.
+    Use the global warning-emitter _warningOut, which allows selecting
+    different ways of presenting a traceback (see Script/Main.py)
+    """
     warning = clazz(args)
     for cls, flag in _enabled:
         if isinstance(warning, cls):
@@ -180,39 +192,36 @@ def process_warn_strings(arguments):
     The requests are strings passed to the --warn option or the
     SetOption('warn') function.
 
-    An argument to this option should be of the form <warning-class>
-    or no-<warning-class>.  The warning class is munged in order
-    to get an actual class name from the classes above, which we
-    need to pass to the {enable,disable}WarningClass() functions.
-    The supplied <warning-class> is split on hyphens, each element
-    is capitalized, then smushed back together.  Then the string
-    "Warning" is appended to get the class name.
+    An argument to this option should be of the form "warning-class"
+    or "no-warning-class".  The warning class is munged and has
+    the suffix "Warning" added in order to get an actual class name
+    from the classes above, which we need to pass to the
+    {enable,disable}WarningClass() functions.
 
-    For example, 'deprecated' will enable the DeprecatedWarning
-    class.  'no-dependency' will disable the DependencyWarning class.
+    For example, "deprecated" will enable the DeprecatedWarning class.
+    "no-dependency" will disable the DependencyWarning class.
 
     As a special case, --warn=all and --warn=no-all will enable or
-    disable (respectively) the base Warning class of all warnings.
+    disable (respectively) the base class of all SCons warnings.
     """
 
-    def _capitalize(s):
-        if s[:5] == "scons":
-            return "SCons" + s[5:]
-        else:
-            return s.capitalize()
+    def _classmunge(s):
+        """Convert a warning argument to SConsCase.
+
+        The result is CamelCase, except "Scons" is changed to "SCons"
+        """
+        s = s.replace("-", " ").title().replace(" ", "")
+        return s.replace("Scons", "SCons")
 
     for arg in arguments:
-
-        elems = arg.lower().split('-')
-        enable = 1
-        if elems[0] == 'no':
-            enable = 0
-            del elems[0]
-
-        if len(elems) == 1 and elems[0] == 'all':
-            class_name = "Warning"
+        enable = True
+        if arg.startswith("no-"):
+            enable = False
+            arg = arg[len("no-") :]
+        if arg == 'all':
+            class_name = "SConsWarning"
         else:
-            class_name = ''.join(map(_capitalize, elems)) + "Warning"
+            class_name = _classmunge(arg) + 'Warning'
         try:
             clazz = globals()[class_name]
         except KeyError:
