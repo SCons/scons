@@ -813,8 +813,8 @@ class NinjaState:
             pool="console",
             implicit=[str(self.ninja_file)],
             variables={
-                "cmd": "ninja -f {} -t compdb {}CC CXX > compile_commands.json".format(
-                    ninja_file, '-x ' if self.env.get('NINJA_COMPDB_EXPAND', True) else ''
+                "cmd": "{} -f {} -t compdb {}CC CXX > compile_commands.json".format(
+                    self.ninja_bin_path, str(self.ninja_file), '-x ' if self.env.get('NINJA_COMPDB_EXPAND', True) else ''
                 )
             },
         )
@@ -1347,10 +1347,11 @@ def exists(env):
 
     try:
         import ninja
+        return ninja.__file__
     except ImportError:
         SCons.Warnings.Warning("Failed to import ninja, attempt normal SCons build.")
         return False
-    return True
+
 
 added = None
 
