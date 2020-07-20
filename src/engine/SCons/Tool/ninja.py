@@ -29,6 +29,7 @@ import io
 import shutil
 import shlex
 import subprocess
+import textwrap
 
 from os.path import join as joinpath
 from os.path import splitext
@@ -768,13 +769,13 @@ class NinjaState:
 
             # Special handling for outputs and implicit since we need to
             # aggregate not replace for each builder.
-            for agg_key in ["outputs", "implicit"]:
+            for agg_key in ["outputs", "implicit", 'inputs']:
                 new_val = template_builds.get(agg_key, [])
 
                 # Use pop so the key is removed and so the update
                 # below will not overwrite our aggregated values.
                 cur_val = template_builder.pop(agg_key, [])
-                if isinstance(cur_val, list):
+                if is_List(cur_val):
                     new_val += cur_val
                 else:
                     new_val.append(cur_val)
@@ -812,8 +813,8 @@ class NinjaState:
             pool="console",
             implicit=[str(self.ninja_file)],
             variables={
-                "cmd": "{} -f {} -t compdb -x CC CXX > compile_commands.json".format(self.ninja_bin_path,
-                    str(self.ninja_file)
+                "cmd": "ninja -f {} -t compdb {}CC CXX > compile_commands.json".format(
+                    ninja_file, '-x ' if self.env.get('NINJA_COMPDB_EXPAND', True) else ''
                 )
             },
         )
@@ -929,7 +930,13 @@ def get_command_env(env):
         if windows:
             command_env += "set '{}={}' && ".format(key, value)
         else:
-            command_env += "{}={} ".format(key, value)
+            # We address here *only* the specific case that a user might have
+            # an environment variable which somehow gets included and has
+            # spaces in the value. These are escapes that Ninja handles. This
+            # doesn't make builds on paths with spaces (Ninja and SCons issues)
+            # nor expanding response file paths with spaces (Ninja issue) work.
+            value = value.replace(r' ', r'$ ')
+            command_env += "{}='{}' ".format(key, value)
 
     env["NINJA_ENV_VAR_CACHE"] = command_env
     return command_env
@@ -1208,6 +1215,27 @@ def ninja_contents(original):
 
     return wrapper
 
+def CheckNinjaCompdbExpand(env, context):
+    """ Configure check testing if ninja's compdb can expand response files"""
+
+    context.Message('Checking if ninja compdb can expand response files... ')
+    ret, output = context.TryAction(
+        action='ninja -f $SOURCE -t compdb -x CMD_RSP > $TARGET',
+        extension='.ninja',
+        text=textwrap.dedent("""
+            rule CMD_RSP
+              command = $cmd @$out.rsp > fake_output.txt
+              description = Building $out
+              rspfile = $out.rsp
+              rspfile_content = $rspc
+            build fake_output.txt: CMD_RSP fake_input.txt
+              cmd = echo
+              pool = console
+              rspc = "test"
+            """))
+    result = '@fake_output.txt.rsp' not in output
+    context.Result(result)
+    return result
 
 def ninja_stat(_self, path):
     """
@@ -1385,6 +1413,8 @@ def generate(env):
         env.Append(CCFLAGS=["/showIncludes"])
     else:
         env.Append(CCFLAGS=["-MD", "-MF", "${TARGET}.d"])
+
+    env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
     # Provide a way for custom rule authors to easily access command
     # generation.
