@@ -325,7 +325,7 @@ class SConsToNinjaTranslator:
             if handler is not None:
                 return handler(node.env if node.env else self.env, node)
 
-        SCons.Warnings.Warning(
+        SCons.Warnings.SConsWarning(
             "Found unhandled function action {}, "
             " generating scons command to build\n"
             "Note: this is less efficient than Ninja,"
@@ -1349,7 +1349,7 @@ def exists(env):
         import ninja
         return ninja.__file__
     except ImportError:
-        SCons.Warnings.Warning("Failed to import ninja, attempt normal SCons build.")
+        SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return False
 
 
@@ -1380,7 +1380,7 @@ def generate(env):
     try:
         import ninja
     except ImportError:
-        SCons.Warnings.Warning("Failed to import ninja, attempt normal SCons build.")
+        SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return
 
     env["DISABLE_AUTO_NINJA"] = GetOption('disable_execute_ninja')
@@ -1405,7 +1405,7 @@ def generate(env):
         env.Alias("$NINJA_ALIAS_NAME", ninja_file)
     else:
         if str(NINJA_STATE.ninja_file) != ninja_file_name:
-            SCons.Warnings.Warning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
+            SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
         ninja_file = [NINJA_STATE.ninja_file]
     
     # This adds the required flags such that the generated compile
@@ -1498,7 +1498,7 @@ def generate(env):
     if GetOption('disable_ninja'):
         return env
 
-    SCons.Warnings.Warning("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
+    SCons.Warnings.SConsWarning("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
 
     # This is the point of no return, anything after this comment
     # makes changes to SCons that are irreversible and incompatible
