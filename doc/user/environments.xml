@@ -367,11 +367,11 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    The <firstterm>external environment</firstterm>
+    The <firstterm>External Environment</firstterm>
     is the set of variables in the user's environment
-    at the time the user runs &SCons;.
-    These variables are available within the &SConscript; files
-    through the Python <literal>os.environ</literal> dictionary.
+    at the time the user runs &SCons;. These variables are not
+    automatically part of an &SCons; build
+    but are available to be examined if needed.
     See <xref linkend="sect-external-environments"></xref>, below.
 
     </para>
@@ -384,7 +384,7 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    A <firstterm>&consenv;</firstterm>
+    A <firstterm>&ConsEnv;</firstterm>
     is a distinct object created within
     a &SConscript; file and
     which contains values that
@@ -408,7 +408,7 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    An <firstterm>execution environment</firstterm>
+    An <firstterm>Execution Environment</firstterm>
     is the values that &SCons; sets
     when executing an external
     command (such as a compiler or linker)
@@ -429,7 +429,7 @@ environment, of directory names, suffixes, etc.
   Unlike &Make;,  &SCons; does not automatically
   copy or import values between different environments
   (with the exception of explicit clones of &consenvs;,
-  which inherit values from their parent).
+  which inherit the values from their parent).
   This is a deliberate design choice
   to make sure that builds are,
   by default, repeatable regardless of
@@ -477,8 +477,8 @@ environment, of directory names, suffixes, etc.
   variable settings that
   the user has in force
   when executing &SCons;
-  are available through the normal Python
-  <envar>os.environ</envar>
+  are available in the Python
+  <varname>os.environ</varname>
   dictionary.
   This means that you must add an
   <literal>import os</literal> statement
@@ -491,6 +491,8 @@ environment, of directory names, suffixes, etc.
    <scons_example name="environments_ex1">
      <file name="SConstruct" printme="1">
 import os
+
+print("Shell is", os.environ['SHELL'])
      </file>
      <file name="foo.c">
 int main() { }
@@ -500,7 +502,7 @@ int main() { }
   <para>
 
   More usefully, you can use the
-  <envar>os.environ</envar>
+  <varname>os.environ</varname>
   dictionary in your &SConscript;
   files to initialize &consenvs;
   with values from the user's external environment.
@@ -618,8 +620,9 @@ int main() { }
 
       <para>
 
-      You can fetch individual &consvars;
-      using the normal syntax
+      You can fetch individual values, known as
+      <firstterm>Construction Variables</firstterm>,
+      using the same syntax used
       for accessing individual named items in a Python dictionary:
 
       </para>
@@ -628,14 +631,20 @@ int main() { }
         <file name="SConstruct" printme="1">
 env = Environment()
 print("CC is: %s" % env['CC'])
+print("LATEX is: %s" % env.get('LATEX', None))
         </file>
       </scons_example>
 
       <para>
 
-      This example &SConstruct; file doesn't build anything,
-      but because it's actually a Python script,
-      it will print the value of &cv-link-CC; for us:
+      This example &SConstruct; file doesn't contain instructions
+      for building any targets, but because it's still a valid
+      &SConstruct; it will be evaulated and the Python
+      <function>print</function> calls will output the values
+      of &cv-link-CC; and &cv-link-LATEX; for us (using the
+      <function>.get()</function> method for fetching means
+      we get a default value back, rather than a failure,
+      if the variable is not set):
 
       </para>
 
@@ -650,7 +659,8 @@ print("CC is: %s" % env['CC'])
       attributes.
       If you want to have direct access to only the
       dictionary of &consvars;
-      you can fetch this using the &Dictionary; method:
+      you can fetch this using the &Dictionary; method
+      (although it's rarely necessary to use this method):
 
       </para>
 
@@ -1004,8 +1014,8 @@ env = DefaultEnvironment(tools=['gcc', 'gnulink'],
 
       <scons_example name="environments_ex2">
         <file name="SConstruct" printme="1">
-opt = Environment(CCFLAGS = '-O2')
-dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS='-O2')
+dbg = Environment(CCFLAGS='-g')
 
 opt.Program('foo', 'foo.c')
 
@@ -1035,8 +1045,8 @@ int main() { }
 
       <scons_example name="environments_ex3">
         <file name="SConstruct" printme="1">
-opt = Environment(CCFLAGS = '-O2')
-dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS='-O2')
+dbg = Environment(CCFLAGS='-g')
 
 opt.Program('foo', 'foo.c')
 
@@ -1133,7 +1143,7 @@ int main() { }
       <para>
 
       Like the &Environment; call that creates a construction environment,
-      the &Clone; method takes &consvar; assignments,
+      the &Clone; method takes &consvar; assignment keyword arguments,
       which will override the values in the copied construction environment.
       For example, suppose we want to use &gcc;
       to create three versions of a program,
@@ -1148,9 +1158,9 @@ int main() { }
 
       <scons_example name="environments_ex5">
         <file name="SConstruct" printme="1">
-env = Environment(CC = 'gcc')
-opt = env.Clone(CCFLAGS = '-O2')
-dbg = env.Clone(CCFLAGS = '-g')
+env = Environment(CC='gcc')
+opt = env.Clone(CCFLAGS='-O2')
+dbg = env.Clone(CCFLAGS='-g')
 
 env.Program('foo', 'foo.c')
 
@@ -1189,8 +1199,8 @@ int main() { }
 
       <scons_example name="environments_Replace1">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS = '-DDEFINE1')
-env.Replace(CCFLAGS = '-DDEFINE2')
+env = Environment(CCFLAGS='-DDEFINE1')
+env.Replace(CCFLAGS='-DDEFINE2')
 env.Program('foo.c')
         </file>
         <file name="foo.c">
@@ -1222,8 +1232,8 @@ int main() { }
       <scons_example name="environments_Replace-nonexistent">
         <file name="SConstruct" printme="1">
 env = Environment()
-env.Replace(NEW_VARIABLE = 'xyzzy')
-print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
+env.Replace(NEW_VARIABLE='xyzzy')
+print("NEW_VARIABLE = %s" % env['NEW_VARIABLE'])
         </file>
       </scons_example>
 
@@ -1257,12 +1267,12 @@ print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
 
       <scons_example name="environments_Replace2">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS = '-DDEFINE1')
-print("CCFLAGS = %s"%env['CCFLAGS'])
+env = Environment(CCFLAGS='-DDEFINE1')
+print("CCFLAGS = %s" % env['CCFLAGS'])
 env.Program('foo.c')
 
-env.Replace(CCFLAGS = '-DDEFINE2')
-print("CCFLAGS = %s"%env['CCFLAGS'])
+env.Replace(CCFLAGS='-DDEFINE2')
+print("CCFLAGS = %s" % env['CCFLAGS'])
 env.Program('bar.c')
         </file>
         <file name="foo.c">
@@ -1320,7 +1330,7 @@ int main() { }
       </para>
 
       <sconstruct>
-env.SetDefault(SPECIAL_FLAG = '-extra-option')
+env.SetDefault(SPECIAL_FLAG='-extra-option')
       </sconstruct>
 
       <para>
@@ -1538,6 +1548,79 @@ env.PrependUnique(CCFLAGS=['-g'])
 
       </para>
 
+      </section>
+
+      <section>
+      <title>Overriding Construction Variable Settings</title>
+
+      <para>
+
+      Rather than creating a cloned environmant for specific tasks,
+      you can <firstterm>override</firstterm> or add construction variables
+      when calling a builder method by passing them as keyword arguments.
+      The values of these overridden or added variables will only be in
+      effect when building that target, and will not affect other parts
+      of the build.
+      For example, if you want to add additional libraries for just one program:
+
+      </para>
+
+      <programlisting>
+env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
+      </programlisting>
+
+      <para>
+
+      or generate a shared library with a non-standard suffix:
+
+      </para>
+
+      <programlisting>
+env.SharedLibrary(
+    target='word',
+    source='word.cpp',
+    SHLIBSUFFIX='.ocx',
+    LIBSUFFIXES=['.ocx'],
+)
+      </programlisting>
+
+      <para>
+
+      When overriding this way, the Python-style keyword arguments
+      mean "set to this value".  If you want your override to augment
+      an existing value, you have to take some extra steps. XXX
+
+      </para>
+
+      <para>
+
+      It is also possible to use the <parameter>parse_flags</parameter>
+      keyword argument in an override to merge command-line
+      style arguments into the appropriate construction
+      variables. This works like the &f-link-env-MergeFlags; method,
+      which will be described later.
+
+      </para>
+
+      <para>
+
+      This example adds 'include' to &cv-link-CPPPATH;,
+      'EBUG' to &cv-link-CPPDEFINES;, and 'm' to &cv-link-LIBS;:
+
+      </para>
+
+      <programlisting>
+env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
+      </programlisting>
+
+      <para>
+
+      Using temporary overrides this way is lighter weight than making
+      a full construction environment, so it can help performance in
+      large projects which have lots of special case values to set.
+
+      </para>
+
     </section>
 
   </section>
@@ -1737,7 +1820,7 @@ env = Environment(ENV = os.environ)
       One of the most common requirements
       for manipulating a variable in the execution environment
       is to add one or more custom directories to a search
-      like the <envar>$PATH</envar> variable on Linux or POSIX systems,
+      like the <envar>PATH</envar> variable on Linux or POSIX systems,
       or the <envar>%PATH%</envar> variable on Windows,
       so that a locally-installed compiler or other utility
       can be found when &SCons; tries to execute it to update a target.

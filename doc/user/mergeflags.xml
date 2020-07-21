@@ -46,21 +46,26 @@
 
  <para>
 
- &SCons; construction environments have a &MergeFlags; method
- that merges a dictionary of values into the construction environment.
+ &SCons; &consenvs; have an &f-link-env-MergeFlags; method
+ that merges values from a passed-in argument into the &consenv;
+ If the argument is a dictionary,
  &MergeFlags; treats each value in the dictionary
  as a list of options such as one might pass to a command
  (such as a compiler or linker).
  &MergeFlags; will not duplicate an option
  if it already exists in the construction environment variable.
+ If the argument is a string, &MergeFlags; calls the
+ &f-link-env-ParseFlags; method to burst it out into a 
+ dictionary first, then acts on the result.
 
  </para>
 
  <para>
 
- &MergeFlags; tries to be intelligent about merging options.
+ &MergeFlags; tries to be intelligent about merging options,
+ knowing that different &consvars; may have different needs.
  When merging options to any variable
- whose name ends in <varname>PATH</varname>,
+ whose name ends in <literal>PATH</literal>,
  &MergeFlags; keeps the leftmost occurrence of the option,
  because in typical lists of directory paths,
  the first occurrence "wins."
@@ -74,8 +79,8 @@
  <scons_example name="mergeflags_MergeFlags1">
    <file name="SConstruct" printme="1">
 env = Environment()
-env.Append(CCFLAGS = '-option -O3 -O1')
-flags = { 'CCFLAGS' : '-whatever -O3' }
+env.Append(CCFLAGS='-option -O3 -O1')
+flags = {'CCFLAGS': '-whatever -O3'}
 env.MergeFlags(flags)
 print(env['CCFLAGS'])
    </file>
@@ -101,8 +106,8 @@ print(env['CCFLAGS'])
  <scons_example name="mergeflags_MergeFlags2">
    <file name="SConstruct" printme="1">
 env = Environment()
-env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
-flags = { 'CPPPATH' : ['/usr/opt/include', '/usr/local/include'] }
+env.Append(CPPPATH=['/include', '/usr/local/include', '/usr/include'])
+flags = {'CPPPATH': ['/usr/opt/include', '/usr/local/include']}
 env.MergeFlags(flags)
 print(env['CPPPATH'])
    </file>
@@ -135,8 +140,8 @@ print(env['CPPPATH'])
  <scons_example name="mergeflags_MergeFlags3">
    <file name="SConstruct" printme="1">
 env = Environment()
-env.Append(CCFLAGS = '-option -O3 -O1')
-env.Append(CPPPATH = ['/include', '/usr/local/include', '/usr/include'])
+env.Append(CCFLAGS='-option -O3 -O1')
+env.Append(CPPPATH=['/include', '/usr/local/include', '/usr/include'])
 env.MergeFlags('-whatever -I/usr/opt/include -O3 -I/usr/local/include')
 print(env['CCFLAGS'])
 print(env['CPPPATH'])
