@@ -1741,7 +1741,7 @@ void main() {
       it does not execute the commands with
       the external environment
       that you used to execute &SCons;.
-      Instead, it builds an exection environment from the values
+      Instead, it builds an execution environment from the values
       stored in the &cv-link-ENV; &consvar;
       and uses that for executing commands.
 
