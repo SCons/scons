@@ -17,7 +17,7 @@
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
-<title>Merging Options the Environment: the <parameter>merge_flags</parameter> Parameter</title>
+<title>Merging Options into the Environment: the <parameter>merge_flags</parameter> Parameter</title>
 
 <!--
 
@@ -52,7 +52,9 @@
  is given, its value is distributed to &consvars; in the
  new environment in the same way as
  described for the &MergeFlags; method.
- This also works when calling &f-link-env-Clone;.
+ This also works when calling &f-link-env-Clone;,
+ as well as in overrides to builder methods
+ (see <xref linkend="builder_overrides"/>).
 
  </para>
 
