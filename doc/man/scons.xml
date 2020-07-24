@@ -2707,7 +2707,7 @@ A <firstterm>Node</firstterm>
 is an internal SCons object
 which represents
 build targets or sources.
-See <xref linkend="node_objects"> for more information.</para>
+See <xref linkend="node_objects"/> for more information.</para>
 
 <para>The returned Node-list object
 can be passed to other builder methods as source(s)
