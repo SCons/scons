@@ -152,7 +152,7 @@ to <literal>'.dll'</literal>.
 <cvar name="IMPLIBNOVERSIONSYMLINKS">
 <summary>
 <para>
-Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when 
+Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when
 creating versioned import library for a shared library/loadable module. If not defined,
 then &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; is used to determine
 whether to disable symlink generation or not.
@@ -378,11 +378,27 @@ See also &cv-link-LINKFLAGS;  for linking static objects.
 <cvar name="SONAME">
 <summary>
 <para>
-Variable used to hard-code SONAME for versioned shared library/loadable module.
+Variable used to hard-code SONAME for versioned shared library/loadable module. This can not be used in the same environment as &cv-link-SOVERSION; because it would be ambiguous as to what the SONAME should be.
 <example_commands>
-env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
+env.SharedLibrary(
+  'test',
+  'test.c',
+  SHLIBVERSION='0.1.2',
+  SONAME='libtest.so.2')
 </example_commands>
-The variable is used, for example, by &t-link-gnulink; linker tool.
+The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SOVERSION">
+<summary>
+<para>
+Simlar to &cv-link-SONAME; but only modifies the version number, and not the name, suffix or prefix of a versioned shared library/loadable module.  This can not be used in the same environment as &cv-link-SONAME; because it would be ambiguous as to what the SONAME should be.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+</example_commands>
+The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
 </para>
 </summary>
 </cvar>

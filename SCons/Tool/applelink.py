@@ -39,8 +39,6 @@ import SCons.Util
 # the -rpath option, so we use the "link" tool instead of "gnulink".
 from . import link
 
-from SCons.Tool import ShLibSonameGenerator
-
 class AppleLinkInvalidCurrentVersionException(Exception):
     pass
 
@@ -71,12 +69,7 @@ def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_f
         print("_applelib_versioned_lib_soname: name={!r}".format(name))
     major = version.split('.')[0]
     (libname,_suffix) = name.split('.')
-    # if a desired SONAME was supplied, use that, otherwise create 
-    # a default from the major version
-    if env.get('SONAME'):
-        soname = ShLibSonameGenerator(env, libnode)
-    else:
-        soname = '.'.join([libname, major, _suffix])
+    soname = '.'.join([libname, major, _suffix])
     if Verbose:
         print("_applelib_versioned_lib_soname: soname={!r}".format(soname))
     return soname
@@ -192,7 +185,7 @@ def generate(env):
 
 
     # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
-    link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
+    link._setup_versioned_lib_variables(env, tool = 'applelink', use_soname = True)
     env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
     env['LINKCALLBACKS']['VersionedShLibSuffix'] = _applelib_versioned_lib_suffix
     env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
@@ -205,8 +198,8 @@ def generate(env):
     # override the default for loadable modules, which are different
     # on OS X than dynamic shared libs.  echoing what XCode does for
     # pre/suffixes:
-    env['LDMODULEPREFIX'] = '' 
-    env['LDMODULESUFFIX'] = '' 
+    env['LDMODULEPREFIX'] = ''
+    env['LDMODULESUFFIX'] = ''
     env['LDMODULEFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -bundle')
     env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 

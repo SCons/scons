@@ -46,8 +46,6 @@ from SCons.Tool.DCommon import isD
 
 from SCons.Tool.cxx import iscplusplus
 
-from SCons.Tool import ShLibSonameGenerator
-
 issued_mixed_link_warning = False
 
 
@@ -175,13 +173,7 @@ def _versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
     if Verbose:
         print("_versioned_lib_soname: name={!r}".format(name))
     major = version.split('.')[0]
-
-    # if a desired SONAME was supplied, use that, otherwise create 
-    # a default from the major version
-    if env.get('SONAME'):
-        soname = ShLibSonameGenerator(env, libnode)
-    else:
-        soname = name + '.' + major
+    soname = name + '.' + major
     if Verbose:
         print("_versioned_lib_soname: soname={!r}".format(soname))
     return soname
@@ -243,17 +235,14 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
 
 def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
     name_func = env['LINKCALLBACKS']['VersionedShLibName']
-    soname_func = env['LINKCALLBACKS']['VersionedShLibSoname']
+    soname_func = env['ShLibSonameGenerator']
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 
 
 def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
-    name_func = _versioned_ldmod_name
-    soname_func = _versioned_ldmod_soname
-
     name_func = env['LINKCALLBACKS']['VersionedLdModName']
-    soname_func = env['LINKCALLBACKS']['VersionedLdModSoname']
+    soname_func = env['LdModSonameGenerator']
 
     return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
 

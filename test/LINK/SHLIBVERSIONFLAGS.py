@@ -69,14 +69,34 @@ test.write('SConstruct', "SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3')\n")
 test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
 test.run(arguments = ['-c'])
 
-# stdout must contain SHLIBVERSIONFLAGS if there is SHLIBVERSION provided
+# stdout must contain SONAME if there is SONAME provided
 test = TestSCons.TestSCons()
 test.write('foo.c', foo_c_src)
 test.write('SConstruct', """
 SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SONAME='%s')
 """ % soname)
 test.run(stdout = sonameVersionFlags, match = TestSCons.match_re_dotall)
+test.must_exist(test.workpath(soname))
 test.run(arguments = ['-c'])
+
+# stdout must contain SOVERSION if there is SOVERSION provided
+test = TestSCons.TestSCons()
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', """
+SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SOVERSION='4')
+""")
+test.run(stdout = sonameVersionFlags, match = TestSCons.match_re_dotall)
+test.must_exist(test.workpath(soname))
+test.run(arguments = ['-c'])
+
+# test if both SONAME and SOVERSION are used
+test = TestSCons.TestSCons()
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', """
+SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SONAME='%s',SOVERSION='4')
+""" % soname)
+test.run(status=2,stderr=None)
+test.must_contain_all_lines(test.stderr(), ['Ambiguous library .so naming'])
 
 test.pass_test()
 

@@ -32,7 +32,7 @@ RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
   From Daniel Moody:
     - Added method on Node to test if its node used in SConf. (Github Issue #3626)
-
+    - Added SOVERSION to configure the SONAME just by version number (Github Issue #3247)
 
 
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
