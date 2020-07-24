@@ -189,7 +189,7 @@ void file2() { printf("file2.c\n"); }
     (&SCons; puts the output file name to the left
     of the source file names
     so that the order mimics that of an
-    assignment statement:  "program = source files".)
+    assignment statement:  <literal>program = source files</literal>.)
     This makes our example:
 
     </para>
@@ -462,10 +462,8 @@ Program('program', src_files)
 
     &SCons; also allows you to identify
     the output file and input source files
-    using Python keyword arguments.
-    The output file keyword is
-    <parameter>target</parameter>,
-    and the source file(s) keyword is (logically enough)
+    using Python keyword arguments
+    <parameter>target</parameter> and
     <parameter>source</parameter>.
     The Python syntax for this is:
 
