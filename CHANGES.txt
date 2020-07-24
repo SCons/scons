@@ -30,6 +30,8 @@ RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
     - Added Environment() variable TEMPFILEDIR which allows setting the directory which temp
       files createdby TEMPFILEMUNGE are created in.
 
+  From Daniel Moody:
+    - Added SOVERSION to configure the SONAME just by version number (Github Issue #3247)
 
 
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
@@ -53,7 +55,7 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
   From Joseph Brill:
     - MSVC updates: When there are multiple product installations (e.g, Community and
-      Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional, 
+      Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional,
       or Community installation will be selected before a Build Tools installation when
       "14.1" or "14.2" is requested, respectively. (GH Issue #3699).
     - MSVC updates: When there are multiple product installations of MSVC 2017 (e.g.,
@@ -67,7 +69,7 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
     - Test update: Reduce the number of "false negative" test failures for the interactive
       configuration test (test/interactive/configure.py).
     - MSVS update: Fix the development environment path for MSVS 7.0.
- 
+
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -84,9 +86,9 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
     - Add msys2 installed mingw default path to PATH for mingw tool.
       - C:\msys64\mingw64\bin
     - Purge obsolete internal build and tooling scripts
-    - Allow user specified location for vswhere.exe specified by VSWHERE. 
+    - Allow user specified location for vswhere.exe specified by VSWHERE.
       NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
-    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so 
+    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so
       package can create scripts which use the correct version of Python.
     - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
       NOTE: If your build depends on the above you must now add to your SHLIBVERSIONFLAGS
@@ -140,16 +142,16 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
       that instructs scons to use single line drawing characters to draw the dependency tree.
 
   From Daniel Moody:
-    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
+    - Add no_progress (-Q) option as a set-able option. However, setting it in the
       SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
       printed, since the option is not set when the build scripts first get read.
     - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
-    - User callable's called during substition expansion could possibly throw a TypeError 
-      exception, however SCons was using TypeError to detect if the callable had a different 
-      signature than expected, and would silently fail to report user's exceptions. Fixed to 
+    - User callable's called during substition expansion could possibly throw a TypeError
+      exception, however SCons was using TypeError to detect if the callable had a different
+      signature than expected, and would silently fail to report user's exceptions. Fixed to
       use signature module to detect function signature instead of TypeError. (Github Issue #3654)
     - Added storage of SConstructs and SConscripts nodes into global set for checking
-      if a given node is a SConstruct/SConscript. 
+      if a given node is a SConstruct/SConscript.
       Added new node function SCons.Node.is_sconscript(self) (Github Issue #3625)
 
   From Andrew Morrow:

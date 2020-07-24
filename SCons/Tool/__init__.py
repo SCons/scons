@@ -448,7 +448,7 @@ class _ImpLibInfoSupport:
 
 class _LibInfoGeneratorBase:
     """Generator base class for library-related info such as suffixes for
-    versioned libraries, symlink maps, sonames etc. It handles commonities
+    versioned libraries, symlink maps, sonames etc. It handles commonalties
     of SharedLibrary and LoadableModule
     """
     _support_classes = {'ShLib': _ShLibInfoSupport,
@@ -673,10 +673,14 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
     """Library soname generator. Returns library soname (e.g. libfoo.so.0) for
     a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
 
-    def __init__(self, libtype):
+    def __init__(self, libtype=None):
         super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
 
-    def __call__(self, env, libnode, **kw):
+    def __call__(self, env, libnode, *args, **kw):
+        # we can differentiate the type of this generator at the call time
+        # allowing us to decide this information during subst expansion
+        self.libtype = kw.get('libtype', self.libtype)
+
         """Returns a SONAME based on a shared library's node path"""
         Verbose = False
 
@@ -690,8 +694,15 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
             print("_LibSonameGenerator: libnode=%r" % libnode.get_path())
 
         soname = _call_env_subst(env, '$SONAME', **kw2)
+        version = _call_env_subst(env, '$SOVERSION', **kw2)
+        if soname and version:
+            raise SCons.Errors.UserError(
+                'Ambiguous library .so naming, both SONAME: %s and SOVERSION: %s are defined. '
+                'Only one can be defined for a target library.' % (soname, version))
+
         if not soname:
-            version = self.get_lib_version(env, **kw2)
+            if not version:
+                version = self.get_lib_version(env, **kw2)
             if Verbose:
                 print("_LibSonameGenerator: version=%r" % version)
             if version:
