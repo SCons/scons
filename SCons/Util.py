@@ -21,7 +21,7 @@ Various utility functions go here.
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION = 
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
@@ -1174,8 +1174,8 @@ def unique(s):
         while i < n:
             if t[i] != last:
                 t[lasti] = last = t[i]
-                lasti = lasti + 1
-            i = i + 1
+                lasti += 1
+            i += 1
         return t[:lasti]
     del t
 
