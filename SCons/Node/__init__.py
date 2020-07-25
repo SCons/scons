@@ -781,7 +781,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             # Handle issue where builder emits more than one target and
             # the source file for the builder is generated.
             # in that case only the first target was getting it's .implicit
-            # cleared when the source file is built (second scan). 
+            # cleared when the source file is built (second scan).
             # leaving only partial implicits from scan before source file is generated
             # typically the compiler only. Then scanned files are appended
             # This is persisted to sconsign and rebuild causes false rebuilds
@@ -952,6 +952,14 @@ class Node(object, metaclass=NoSlotsPyPy):
     def is_sconscript(self):
         """ Returns true if this node is an sconscript """
         return self in SConscriptNodes
+
+    def is_conftest(self):
+        """ Returns true if this node is an conftest node"""
+        try:
+            test = self.attributes.conftest_node
+        except AttributeError:
+            return False
+        return True
 
     def alter_targets(self):
         """Return a list of alternate targets for this Node.
