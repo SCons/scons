@@ -23,10 +23,12 @@ See its __doc__ string for a discussion of the format.
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
-<tool name="Packaging">
+<tool name="packaging">
 <summary>
 <para>
 Sets construction variables for the &b-Package; Builder.
+If this tool is enabled, the <option>--package-type</option>
+command-line option is also enabled.
 </para>
 </summary>
 <sets>
@@ -39,50 +41,78 @@ Sets construction variables for the &b-Package; Builder.
 <summary>
 <para>
 Builds software distribution packages.
-Packages consist of files to install and packaging information.
-The former may be specified with the &source; parameter and may be left out,
-in which case the &FindInstalledFiles; function will collect
-all files that have an &b-Install; or &b-InstallAs; Builder attached.
-If the &target; is not specified
-it will be deduced from additional information given to this Builder.
+A <firstterm>Package</firstterm> is a container format which
+includes files to install along with metadata.
+Packaging is optional, and must be enabled by specifying
+the &t-link-packaging; tool. For example:
+</para>
+
+<example_commands>
+env = Environment(tools=['default', 'packaging'])
+</example_commands>
+
+<para>
+&SCons; can build packages in a number of well known packaging formats.
+The target package type may be selected with the
+the &cv-link-PACKAGETYPE; construction variable
+or the <option>--package-type</option> command line option.
+The package type may be a list, in which case &SCons; will attempt
+to build packages for each type in the list. Example:
+</para>
+
+<example_commands>
+env.Package(PACKAGETYPE=['src_zip', 'src_targz'], <replaceable>...other args...</replaceable>)
+</example_commands>
+
+<para>
+The currently supported packagers are:
+</para>
+
+<informaltable frame="all">
+<tr><td><literal>msi</literal></td><td>Microsoft Installer package</td></tr>
+<tr><td><literal>rpm</literal></td><td>RPM Package Manger package</td></tr>
+<tr><td><literal>ipkg</literal></td><td>Itsy Package Management package</td></tr>
+<tr><td><literal>tarbz2</literal></td><td>bzip2-compressed tar file</td></tr>
+<tr><td><literal>targz</literal></td><td>gzip-compressed tar file</td></tr>
+<tr><td><literal>tarxz</literal></td><td>xz-compressed tar file</td></tr>
+<tr><td><literal>zip</literal></td><td>zip file</td></tr>
+<tr><td><literal>src_tarbz2</literal></td><td>bzip2-compressed tar file suitable as source to another packager</td></tr>
+<tr><td><literal>src_targz</literal></td><td>gzip-compressed tar file suitable as source to another packager</td></tr>
+<tr><td><literal>src_tarxz</literal></td><td>xz-compressed tar file suitable as source to another packager</td></tr>
+<tr><td><literal>src_zip</literal></td><td>zip file suitable as source to another packager</td></tr>
+</informaltable>
+
+<para>
+The file list to include in the package may be specified with
+the &source; keyword argument. If omitted,
+the &f-link-FindInstalledFiles; function is called to select
+all files that have an &b-link-Install;, &b-link-InstallAs;
+or &b-link-InstallVersionedLib; Builder attached.
+If the &target; keyword argument is omitted, the target name(s)
+will be deduced from the package type(s).
 </para>
 
 <para>
-The packaging information is specified
-with the help of construction variables documented below.
-This information is called a tag to stress that
-some of them can also be attached to files with the &Tag; function.
-The mandatory ones will complain if they were not specified.
-They vary depending on chosen target packager.
+The metadata comes partly from attributes of the files to be packaged,
+and partly from packaging <firstterm>tags</firstterm>.
+Tags can be passed as keyword arguments
+to the &b-Package; builder call,
+and may also be attached to files
+(or more accurately, Nodes representing files)
+with the &f-link-Tag; function.
+Some package-level tags are mandatory, and will lead to errors if omitted.
+The mandatory tags vary depending on the package type.
+<!-- TODO: should document which tags are mandatory for which packager -->
 </para>
 
 <para>
-The target packager may be selected with the "PACKAGETYPE" command line
-option or with the &cv-PACKAGETYPE; construction variable. Currently
-the following packagers available:
+While packaging, the builder uses a temporary location named
+by the value of the &cv-link-PACKAGEROOT; variable,
+so the package sources are copied there before packaging.
 </para>
 
-<blockquote>
-<simplelist type='vert' columns='1'>
-<member><literal>msi</literal> - Microsoft Installer</member>
-<member><literal>rpm</literal> - RPM Package Manger</member>
-<member><literal>ipkg</literal> - Itsy Package Management System</member>
-<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
-<member><literal>targz</literal> - gzip compressed tar</member>
-<member><literal>tarxz</literal> - xz compressed tar</member>
-<member><literal>zip</literal> - zip file</member>
-<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
-<member><literal>src_targz</literal> - gzip compressed tar source</member>
-<member><literal>src_tarxz</literal> - xz compressed tar source</member>
-<member><literal>src_zip</literal> - zip file source</member>
-</simplelist>
-</blockquote>
-
 <para>
-An updated list is always available under the
-<replaceable>package_type</replaceable> option when
-running <command>scons --help</command>
-on a project that has packaging activated.
+Packaging example:
 </para>
 
 <example_commands>
@@ -100,6 +130,21 @@ env.Package(
     SOURCE_URL="http://foo.org/foo-1.2.3.tar.gz",
 )
 </example_commands>
+
+<para>
+In this example, the target <filename>/bin/my_program</filename>
+created by the &b-Install; call would not be built by default
+since it is not under the project top directory.
+However, since no <parameter>source</parameter>
+is specified to the &b-Package; builder,
+it is selected for packaging by the call to &f-FindInstalledFiles;.
+Since packaging is done using &cv-PACKAGEROOT;, no write is
+actually done to the system's <filename>/bin</filename> directory,
+and the target <emphasis>will</emphasis> be selected since
+after rebasing to underneath &cv-PACKAGEROOT; it is now under
+the top directory of the project.
+</para>
+
 </summary>
 </builder>
 
@@ -201,27 +246,13 @@ placed if applicable.  The default value is "$NAME-$VERSION".
 <cvar name="PACKAGETYPE">
 <summary>
 <para>
-Selects the package type to build.  Currently these are available:
+Selects the package type to build when using the &b-link-Package;
+builder. May be a string or list of strings. See the docuentation
+for the builder for the currently supported types.
 </para>
 
-<blockquote>
-<simplelist type='vert' columns='1'>
-<member><literal>msi</literal> - Microsoft Installer</member>
-<member><literal>rpm</literal> - RPM Package Manger</member>
-<member><literal>ipkg</literal> - Itsy Package Management System</member>
-<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
-<member><literal>targz</literal> - gzip compressed tar</member>
-<member><literal>tarxz</literal> - xz compressed tar</member>
-<member><literal>zip</literal> - zip file</member>
-<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
-<member><literal>src_targz</literal> - gzip compressed tar source</member>
-<member><literal>src_tarxz</literal> - xz compressed tar source</member>
-<member><literal>src_zip</literal> - zip file source</member>
-</simplelist>
-</blockquote>
-
 <para>
-This may be overridden with the <option>package_type</option>
+&cv-PACKAGETYPE; may be overridden with the <option>--package-type</option>
 command line option.
 </para>
 </summary>
@@ -854,7 +885,7 @@ Annotates file or directory Nodes with
 information about how the
 &b-link-Package;
 Builder should package those files or directories.
-All tags are optional.
+All Node-level tags are optional.
 </para>
 
 <para>
@@ -862,12 +893,11 @@ Examples:
 </para>
 
 <example_commands>
-# makes sure the built library will be installed with 0o644 file
-# access mode
-Tag( Library( 'lib.c' ), UNIX_ATTR="0o644" )
+# makes sure the built library will be installed with 644 file access mode
+Tag(Library('lib.c'), UNIX_ATTR="0o644")
 
 # marks file2.txt to be a documentation file
-Tag( 'file2.txt', DOC )
+Tag('file2.txt', DOC)
 </example_commands>
 </summary>
 </scons_function>

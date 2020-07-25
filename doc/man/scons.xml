@@ -1162,12 +1162,15 @@ This implies
   </varlistentry>
 
   <varlistentry>
-  <term><option>--install-sandbox=<replaceable>path</replaceable></option></term>
+  <term><option>--install-sandbox=<replaceable>INSTALL_SANDBOX</replaceable></option></term>
   <listitem>
 <para>
-When using the &Install; functions, prepend <replaceable>path</replaceable>
+When using the &Install; builders, prepend
+<replaceable>INSTALL_SANDBOX</replaceable>
 to the installation paths such that all installed files will be placed
-underneath <replaceable>path</replaceable>.
+under that directory path. This option is unavailable if
+one of &b-link-Install;, &b-link-InstallAs; or
+&b-link-InstallVersionedLib; is not used in the SConscript files.
 </para>
   </listitem>
   </varlistentry>
@@ -1491,6 +1494,17 @@ dirs to the toolpath.</para>
 <!--  .ES -->
 <!--  scons \-p \-q -->
 <!--  .EE -->
+
+  <varlistentry>
+  <term><option>--package-type=<replaceable>PACKAGE_TYPE</replaceable></option></term>
+  <listitem>
+<para>The type
+of package to create when using the &b-link-Package; builder.
+Note this option is only available if the &t-link-packaging; tool
+has been enabled.
+</para>
+  </listitem>
+  </varlistentry>
 
   <varlistentry>
   <term><option>--profile=<replaceable>file</replaceable></option></term>
@@ -5540,7 +5554,7 @@ a = Action(build_it)
 </itemizedlist>
 
 <para>As usual the environment method form &f-link-env-Action;
-will expand &consvars; in any argument strings, 
+will expand &consvars; in any argument strings,
 including the action argument, at the time it is called,
 using the construction variables in the &consenv; through which
 it was called. The global function form &f-link-Action;
