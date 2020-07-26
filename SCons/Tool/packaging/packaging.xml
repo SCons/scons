@@ -68,25 +68,29 @@ env.Package(PACKAGETYPE=['src_zip', 'src_targz'], <replaceable>...other args...<
 The currently supported packagers are:
 </para>
 
-<informaltable frame="all">
-<tr><td><literal>msi</literal></td><td>Microsoft Installer package</td></tr>
-<tr><td><literal>rpm</literal></td><td>RPM Package Manger package</td></tr>
-<tr><td><literal>ipkg</literal></td><td>Itsy Package Management package</td></tr>
-<tr><td><literal>tarbz2</literal></td><td>bzip2-compressed tar file</td></tr>
-<tr><td><literal>targz</literal></td><td>gzip-compressed tar file</td></tr>
-<tr><td><literal>tarxz</literal></td><td>xz-compressed tar file</td></tr>
-<tr><td><literal>zip</literal></td><td>zip file</td></tr>
-<tr><td><literal>src_tarbz2</literal></td><td>bzip2-compressed tar file suitable as source to another packager</td></tr>
-<tr><td><literal>src_targz</literal></td><td>gzip-compressed tar file suitable as source to another packager</td></tr>
-<tr><td><literal>src_tarxz</literal></td><td>xz-compressed tar file suitable as source to another packager</td></tr>
-<tr><td><literal>src_zip</literal></td><td>zip file suitable as source to another packager</td></tr>
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="2">
+<tbody>
+<row><entry><literal>msi</literal></entry><entry>Microsoft Installer package</entry></row>
+<row><entry><literal>rpm</literal></entry><entry>RPM Package Manger package</entry></row>
+<row><entry><literal>ipkg</literal></entry><entry>Itsy Package Management package</entry></row>
+<row><entry><literal>tarbz2</literal></entry><entry>bzip2-compressed tar file</entry></row>
+<row><entry><literal>targz</literal></entry><entry>gzip-compressed tar file</entry></row>
+<row><entry><literal>tarxz</literal></entry><entry>xz-compressed tar file</entry></row>
+<row><entry><literal>zip</literal></entry><entry>zip file</entry></row>
+<row><entry><literal>src_tarbz2</literal></entry><entry>bzip2-compressed tar file suitable as source to another packager</entry></row>
+<row><entry><literal>src_targz</literal></entry><entry>gzip-compressed tar file suitable as source to another packager</entry></row>
+<row><entry><literal>src_tarxz</literal></entry><entry>xz-compressed tar file suitable as source to another packager</entry></row>
+<row><entry><literal>src_zip</literal></entry><entry>zip file suitable as source to another packager</entry></row>
+</tbody>
+</tgroup>
 </informaltable>
 
 <para>
 The file list to include in the package may be specified with
 the &source; keyword argument. If omitted,
-the &f-link-FindInstalledFiles; function is called to select
-all files that have an &b-link-Install;, &b-link-InstallAs;
+the &f-link-FindInstalledFiles; function is called behind the scenes
+to select all files that have an &b-link-Install;, &b-link-InstallAs;
 or &b-link-InstallVersionedLib; Builder attached.
 If the &target; keyword argument is omitted, the target name(s)
 will be deduced from the package type(s).
@@ -107,8 +111,8 @@ The mandatory tags vary depending on the package type.
 
 <para>
 While packaging, the builder uses a temporary location named
-by the value of the &cv-link-PACKAGEROOT; variable,
-so the package sources are copied there before packaging.
+by the value of the &cv-link-PACKAGEROOT; variable -
+the package sources are copied there before packaging.
 </para>
 
 <para>
@@ -137,7 +141,7 @@ created by the &b-Install; call would not be built by default
 since it is not under the project top directory.
 However, since no <parameter>source</parameter>
 is specified to the &b-Package; builder,
-it is selected for packaging by the call to &f-FindInstalledFiles;.
+it is selected for packaging by the default sources rule.
 Since packaging is done using &cv-PACKAGEROOT;, no write is
 actually done to the system's <filename>/bin</filename> directory,
 and the target <emphasis>will</emphasis> be selected since
