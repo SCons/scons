@@ -956,7 +956,7 @@ class Node(object, metaclass=NoSlotsPyPy):
     def is_conftest(self):
         """ Returns true if this node is an conftest node"""
         try:
-            test = self.attributes.conftest_node
+            self.attributes.conftest_node
         except AttributeError:
             return False
         return True
