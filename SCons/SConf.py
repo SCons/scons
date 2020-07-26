@@ -520,6 +520,7 @@ class SConfBase:
         # we override the store_info() method with a null place-holder
         # so we really control how it gets written.
         for n in nodes:
+            self._set_conftest_node(n)
             n.store_info = 0
             if not hasattr(n, 'attributes'):
                 n.attributes = SCons.Node.Node.Attrs()
@@ -532,6 +533,7 @@ class SConfBase:
                 for c in n.children(scan=False):
                     # Keep debug code here.
                     # print("Checking [%s] for builders and then setting keep_targetinfo"%c)
+                    self._set_conftest_node(c)
                     if  c.has_builder():
                         n.store_info = 0
                         if not hasattr(c, 'attributes'):
@@ -596,6 +598,7 @@ class SConfBase:
 
         nodesToBeBuilt = []
         sourcetext = self.env.Value(text)
+        self._set_conftest_node(sourcetext)
         f = "conftest"
 
         if text is not None:
@@ -605,12 +608,14 @@ class SConfBase:
 
             f = "_".join([f, textSig, textSigCounter])
             textFile = self.confdir.File(f + extension)
+            self._set_conftest_node(sourcetext)
             textFileNode = self.env.SConfSourceBuilder(target=textFile,
                                                        source=sourcetext)
             nodesToBeBuilt.extend(textFileNode)
 
             source = textFile
             target = textFile.File(f + "SConfActionsContentDummyTarget")
+            self._set_conftest_node(target)
         else:
             source = None
             target = None
@@ -728,6 +733,9 @@ class SConfBase:
         else:
             if not os.path.isdir( dirName ):
                 os.makedirs( dirName )
+
+    def _set_conftest_node(self, node):
+        node.attributes.conftest_node = 1
 
     def _startup(self):
         """Private method. Set up logstream, and set the environment
