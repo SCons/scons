@@ -396,8 +396,10 @@ The variable is used by linker tools which use the &t-link-link; tool such as &t
 <para>
 Simlar to &cv-link-SONAME; but only modifies the version number, and not the name, suffix or prefix of a versioned shared library/loadable module.  This can not be used in the same environment as &cv-link-SONAME; because it would be ambiguous as to what the SONAME should be.
 <example_commands>
-env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='3.4.1', SOVERSION='4')
 </example_commands>
+The previous example on linux for instance, will create a library named 'libtest.so.3.4.1' and a symlink to that library called 'libtest.so.4'. It will only make major version number symlinks. For example setting SOVERSION to '4.2' in the previous example command does not give symliked library 'litest.so.4.2', just 'libtest.so.4'.
+
 The variable is used by linker tools which use the &t-link-link; tool such as &t-link-gnulink; or &t-link-applelink;.
 </para>
 </summary>
