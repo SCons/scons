@@ -1162,13 +1162,13 @@ This implies
   </varlistentry>
 
   <varlistentry>
-  <term><option>--install-sandbox=<replaceable>INSTALL_SANDBOX</replaceable></option></term>
+  <term><option>--install-sandbox=<replaceable>sandbox_path</replaceable></option></term>
   <listitem>
 <para>
 When using the &Install; builders, prepend
-<replaceable>INSTALL_SANDBOX</replaceable>
+<replaceable>sandbox_path</replaceable>
 to the installation paths such that all installed files will be placed
-under that directory path. This option is unavailable if
+under that directory. This option is unavailable if
 one of &b-link-Install;, &b-link-InstallAs; or
 &b-link-InstallVersionedLib; is not used in the SConscript files.
 </para>
@@ -1496,10 +1496,13 @@ dirs to the toolpath.</para>
 <!--  .EE -->
 
   <varlistentry>
-  <term><option>--package-type=<replaceable>PACKAGE_TYPE</replaceable></option></term>
+  <term><option>--package-type=<replaceable>type</replaceable></option></term>
   <listitem>
-<para>The type
+<para>The type or types
 of package to create when using the &b-link-Package; builder.
+In the case of multiple types, <replaceable>type</replaceable>
+should be a comma-separated string; &SCons; will try to build
+for all of those packages.
 Note this option is only available if the &t-link-packaging; tool
 has been enabled.
 </para>
