@@ -477,9 +477,10 @@ environment, of directory names, suffixes, etc.
     we need to talk a little bit about the &Python; dictionary data type.
     A dictionary (also known by terms such as mapping, associative array
     and key-value store) associates keys with values, such
-    that accessing the dict by key gives you back the associated value;
-    setting by key creates the association (and replaces any
-    previous association for that key).
+    that asking the dict about a key gives you back the associated value
+    and assigning to a key creates the association - either a new
+    setting if the key was unknown, or replacing the previous
+    previous association if the key was already in the dict.
     Accessing can be done by using <literal>[]</literal>
     indexing notation, and dictionaries also provide a
     method named <methodname>get</methodname> which responds
@@ -487,7 +488,8 @@ environment, of directory names, suffixes, etc.
     you supply) if the key is not in the dictionary, which
     avoids failing in that case.  The syntax
     for a dictionary itself uses curly braces (<literal>{}</literal>).
-    Here are some simple examples using syntax that indicates
+    Here are some simple examples (inspired by those in the official
+    Python tutorial) using syntax that indicates
     interacting with the &Python; interpreter
     (<prompt>&gt;&gt;&gt;</prompt> is the interpreter prompt) -
     you can try these out:
@@ -515,7 +517,7 @@ None
 
     <para>
 
-    The &consenv; is written to behave like a &Python;
+    &Consenvs; are written to behave like a &Python;
     dictionary, and the &cv-ENV; construction variable in
     a &consenv; <emphasis>is</emphasis> a &Python; dictionary.
     The <varname>os.environ</varname> value that &Python; uses
@@ -537,8 +539,10 @@ None
   when executing &SCons;
   are available in the &Python;
   <varname>os.environ</varname>
-  dictionary.
-  This means that you must add an
+  dictionary. That syntax means the <varname>environ</varname>
+  attribute of the <systemitem>os</systemitem> module.
+  In Python, to access contents of a module you must first
+  <literal>import</literal> it - so you would include the
   <literal>import os</literal> statement
   to any &SConscript; file
   in which you want to use
@@ -587,7 +591,7 @@ void main() { }
       that control how the software is built.
       A &consenv; is an object
       that has a number of associated
-      &consvars;, each with a name and a value.
+      &consvars;, each with a name and a value, just like a dictionary.
       (A construction environment also has an attached
       set of &Builder; methods,
       about which we'll learn more later.)
@@ -652,7 +656,7 @@ int main() { }
         construction variable values,
         except that the user has explicitly specified use of the
         GNU C compiler &gcc;,
-        and further specifies that the <option>-O2</option>
+        and that the <option>-O2</option>
         (optimization level two)
         flag should be used when compiling the object file.
         In other words, the explicit initializations of
@@ -1144,8 +1148,8 @@ int main() { }
 
       <scons_example name="environments_ex4">
         <file name="SConstruct" printme="1">
-opt = Environment(CCFLAGS = '-O2')
-dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS='-O2')
+dbg = Environment(CCFLAGS='-g')
 
 o = opt.Object('foo-opt', 'foo.c')
 opt.Program(o)
