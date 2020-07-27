@@ -673,14 +673,10 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
     """Library soname generator. Returns library soname (e.g. libfoo.so.0) for
     a given node (e.g. /foo/bar/libfoo.so.0.1.2)"""
 
-    def __init__(self, libtype=None):
+    def __init__(self, libtype):
         super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
 
-    def __call__(self, env, libnode, *args, **kw):
-        # we can differentiate the type of this generator at the call time
-        # allowing us to decide this information during subst expansion
-        self.libtype = kw.get('libtype', self.libtype)
-
+    def __call__(self, env, libnode, **kw):
         """Returns a SONAME based on a shared library's node path"""
         Verbose = False
 
