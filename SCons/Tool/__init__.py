@@ -448,7 +448,7 @@ class _ImpLibInfoSupport:
 
 class _LibInfoGeneratorBase:
     """Generator base class for library-related info such as suffixes for
-    versioned libraries, symlink maps, sonames etc. It handles commonalties
+    versioned libraries, symlink maps, sonames etc. It handles commonalities
     of SharedLibrary and LoadableModule
     """
     _support_classes = {'ShLib': _ShLibInfoSupport,
