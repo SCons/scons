@@ -74,12 +74,15 @@ def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_f
         print("_applelib_versioned_lib_soname: soname={!r}".format(soname))
     return soname
 
+
 def _applelib_versioned_shlib_soname(env, libnode, version, prefix, suffix):
     return _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, link._versioned_shlib_name)
 
 
 # User programmatically describes how SHLIBVERSION maps to values for compat/current.
 _applelib_max_version_values = (65535, 255, 255)
+
+
 def _applelib_check_valid_version(version_string):
     """
     Check that the version # is valid.
