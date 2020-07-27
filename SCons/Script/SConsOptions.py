@@ -126,7 +126,7 @@ class SConsValues(optparse.Values):
                     # is not available.
                     raise AttributeError(attr)
 
-
+    # keep this list in sync with SetOption doc in SCons/Script/Main.xml
     settable = [
         'clean',
         'diskcheck',
