@@ -676,7 +676,7 @@ class _LibSonameGenerator(_LibInfoGeneratorBase):
     def __init__(self, libtype):
         super(_LibSonameGenerator, self).__init__(libtype, 'Soname')
 
-    def __call__(self, env, libnode, **kw):
+    def __call__(self, env, libnode, *args, **kw):
         """Returns a SONAME based on a shared library's node path"""
         Verbose = False
 
