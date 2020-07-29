@@ -779,7 +779,8 @@ temporarily overriding it via command line.
 The settable variables with their associated command-line options are:
 </para>
 
-<!-- this list comes directly from SConsValues.settable. Keep in sync. -->
+<!-- UPDATE_SETOPTION_DOCS -->
+<!-- This list comes directly from SConsValues.settable. Keep in sync. -->
 
 <informaltable rowsep="1" colsep="1" frame="topbot">
 <tgroup cols="2">
