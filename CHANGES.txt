@@ -28,7 +28,7 @@ RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
   From William Deegan:
     - Added Environment() variable TEMPFILEDIR which allows setting the directory which temp
-      files createdby TEMPFILEMUNGE are created in.
+      files created by TEMPFILEMUNGE are created in.
 
   From Daniel Moody:
     - Added method on Node to test if its node used in SConf. (Github Issue #3626)
