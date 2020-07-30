@@ -768,11 +768,15 @@ Multiple targets can be passed in to a single call to
 Sets &scons; option variable <parameter>name</parameter>
 to <parameter>value</parameter>.
 These options are all also settable via
-&scons; command-line options but the names may differ.
+&scons; command-line options but the variable name
+may differ from the command-line option name (see table).
 A value set via command-line option will take
 precedence over one set with &f-SetOption;, which
 allows setting a project default in the scripts and
 temporarily overriding it via command line.
+Options which affect the reading and processing of SConscript files
+are not settable this way, since those files must
+be read in order to find the &f-SetOption; call.
 </para>
 
 <para>
