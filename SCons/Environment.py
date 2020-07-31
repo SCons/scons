@@ -2436,7 +2436,7 @@ class OverrideEnvironment(Base):
     def setdefault(self, key, default=None):
         """Emulates the setdefault() method of dictionaries."""
         try:
-            return self.Dictionary(key)
+            return self.__getitem__(key)
         except KeyError:
             self.__dict__['overrides'][key] = default
             return default
