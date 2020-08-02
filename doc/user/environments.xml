@@ -878,7 +878,7 @@ scons: `.' is up to date.
 
       If a problem occurs when expanding a construction variable,
       by default it is expanded to <literal>''</literal>
-      (an empty string), and will not cause scons to fail.
+      (an empty string), and will not cause &scons; to fail.
       </para>
 
        <scons_example name="environments_missing1">
@@ -900,9 +900,9 @@ print("value is: %s"%env.subst( '-&gt;$MISSING&lt;-' ))
       which of these exceptions are actually fatal and which are
       allowed to occur safely.   By default, &NameError; and &IndexError;
       are the two exceptions that are allowed to occur: so instead of
-      causing scons to fail, these are caught, the variable expanded to
+      causing &scons; to fail, these are caught, the variable expanded to
       <literal>''</literal>
-      and scons execution continues.
+      and &scons; execution continues.
       To require that all construction variable names exist, and that
       indexes out of range are not allowed, call &AllowSubstExceptions;
       with no extra arguments.
@@ -1054,7 +1054,6 @@ env = DefaultEnvironment(tools=['gcc', 'gnulink'],
     </section>
 
     <section id='multiple_construction_envs'>
-
     <title>Multiple &ConsEnvs;</title>
 
       <para>
@@ -1986,10 +1985,10 @@ env.AppendENVPath('LIB', '/usr/local/lib')
       <para>
       Normally when using a tool from the construction environment,
       several different search locations are checked by default.
-      This includes the <filename>Scons/Tools/</filename> directory
-      in the &SCons; distribution and the 
-      directory <filename>site_scons/site_tools</filename>
-      relative to the root SConstruct file.
+      This includes the <filename>SCons/Tools/</filename> directory
+      that is part of the &scons; distribution
+      and the directory <filename>site_scons/site_tools</filename>
+      relative to the root &SConstruct; file.
       </para>
 
       <sconstruct>
@@ -2037,7 +2036,7 @@ SCons/Tool/SomeTool/__init__.py
 
     </section>
 
-	<section>
+    <section>
     <title>Nested Tools within a toolpath</title>
 
       <para>
@@ -2070,16 +2069,14 @@ SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
 
     </section>
 
-	<section>
+    <section>
     <title>Using sys.path within the toolpath</title>
 
       <para>
-      If we want to access tools externally to scons on the
-      <varname>sys.path</varname>
-      (one example would be tools installed via the &Python;
-      <command>pip</command> package manager)
-      One way to do this is to use
-      <varname>sys.path</varname> with the toolpath.
+      If we want to access tools external to &scons; which are findable
+      via <varname>sys.path</varname>
+      (for example, tools installed via Python's <command>pip</command> package manager),
+      it is possible to use <varname>sys.path</varname> with the toolpath.
 
       One thing to watch out for with this approach is that
       <varname>sys.path</varname>
@@ -2105,7 +2102,7 @@ env.SomeTool(targets, sources)
 
       <para>
       By using <varname>sys.path</varname> with the toolpath argument
-      and by using the nested syntax we can have scons search
+      and by using the nested syntax we can have &scons; search
       packages installed via <command>pip</command> for Tools.
       </para>
 
