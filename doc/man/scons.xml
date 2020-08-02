@@ -487,6 +487,11 @@ supports the same command-line options as GNU &Make;
 and many of those supported by <application>cons</application>.
 </para>
 
+<!-- The recommended approach of multiple <term> entries per <varlistentry> -->
+<!-- (if needed) is not used for Options, as the default presentation -->
+<!-- format for a varlist is changed from csv to one-per-line to improve -->
+<!-- display of Builders and Functions/Methods. Do the csv manually. -->
+
 <!-- Note: commented-out options are retained as they may be a model -->
 <!-- for future development directions. Do not remove. -->
 
