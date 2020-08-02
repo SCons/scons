@@ -2143,31 +2143,20 @@ version of Microsoft Visual C++ you wish to use,
 but setting it after the &consenv; is constructed has no effect.
 </para>
 
-<para>
-An existing &consenv; can be duplicated by calling the &f-link-env-Clone;
-method. Without arguments, it will be a copy with the same
-settings. Otherwise, &f-env-Clone; takes the same arguments as &f-Environment;,
-and uses the arguments to create a modified copy.
-</para>
-
-<para>
-&SCons; also provides a special &consenv; called the
-<firstterm>&DefEnv;</firstterm>.
-The &defenv; is used only for global functions, that is,
-construction activities called without the context of a regular &consenv;.
-See &f-link-DefaultEnvironment; for more information.
-</para>
-
 <para>As a convenience,
 &consvars; may also be set or modified by the
 <parameter>parse_flags</parameter>
-keyword argument, which causes the
+keyword argument during object creation, 
+which has the effect of the
 &f-link-env-MergeFlags;
-method to be applied to the argument value
+method being applied to the argument value
 after all other processing is completed.
 This is useful either if the exact content of the flags is unknown
 (for example, read from a control file)
-or if the flags need to be distributed to a number of &consvars;.</para>
+or if the flags need to be distributed to a number of &consvars;.
+&f-link-env-ParseFlags; describes how these arguments
+are distributed to &consvars;.
+</para>
 
 <programlisting language="python">
 env = Environment(parse_flags='-Iinclude -DEBUG -lm')
@@ -2179,8 +2168,21 @@ the <envar>CPPPATH</envar> &consvar;,
 <envar>CPPDEFINES</envar>,
 and 'm' to
 <envar>LIBS</envar>.
-&f-link-env-ParseFlags; describes how these arguments
-are distributed to &consvars;.
+</para>
+
+<para>
+An existing &consenv; can be duplicated by calling the &f-link-env-Clone;
+method. Without arguments, it will be a copy with the same
+settings. Otherwise, &f-env-Clone; takes the same arguments as &f-Environment;,
+and uses the arguments to create a modified copy.
+</para>
+
+<para>
+&SCons; provides a special &consenv; called the
+<firstterm>&DefEnv;</firstterm>.
+The &defenv; is used only for global functions, that is,
+construction activities called without the context of a regular &consenv;.
+See &f-link-DefaultEnvironment; for more information.
 </para>
 
 <para>By default, a new &consenv; is
@@ -2639,12 +2641,14 @@ and
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </programlisting>
 
-<para>It is possible to <firstterm>override</firstterm> (replace or add)
-&consvars; when calling a
-builder method by passing them as keyword arguments.
+<para>Keyword arguments that are not specifically
+recognized are treated as &consvar;
+<firstterm>overrides</firstterm>,
+which replace or add those variables on a limited basis.
 These overrides
-will only be in effect when building that target, and will not
-affect other parts of the build. For example, if you want to specify
+will only be in effect when building the target of the builder call,
+and will not affect other parts of the build.
+For example, if you want to specify
 some libraries needed by just one program:</para>
 
 <programlisting language="python">
@@ -2654,9 +2658,12 @@ env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 <para>or generate a shared library with a non-standard suffix:</para>
 
 <programlisting language="python">
-env.SharedLibrary('word', 'word.cpp',
-                  SHLIBSUFFIX='.ocx',
-                  LIBSUFFIXES=['.ocx'])
+env.SharedLibrary(
+    target='word',
+    source='word.cpp',
+    SHLIBSUFFIX='.ocx',
+    LIBSUFFIXES=['.ocx'],
+)
 </programlisting>
 
 <para>Note that both the &cv-link-SHLIBSUFFIX;
@@ -2665,12 +2672,12 @@ variables must be set if you want &scons; to search automatically
 for dependencies on the non-standard library names;
 see the descriptions below of these variables for more information.</para>
 
-<para>It is also possible to use the
+<para>The optional
 <parameter>parse_flags</parameter>
-keyword argument in an override,
-to merge command-line style arguments
-into the appropriate &consvars;
-(see &f-link-env-MergeFlags;).
+keyword argument is recognized by builders.
+This works similarly to the 
+&f-link-env-MergeFlags; method, where the argument value is
+broken into individual settings and merged into the appropriate &consvars;.
 </para>
 
 <programlisting language="python">
@@ -2688,21 +2695,22 @@ and 'm' to
 &scons;
 are, in fact,
 methods of a &consenv; object,
-they may also be called without an explicit environment:</para>
+many may also be called without an explicit environment:</para>
 
 <programlisting language="python">
 Program('hello', 'hello.c')
 SharedLibrary('word', 'word.cpp')
 </programlisting>
 
-<para>In this case,
-the methods are called internally using a default construction
-environment that consists of the tools and values that
+<para>If called this way, methods will internally use the
+&defenv; that consists of the tools and values that
 &scons;
 has determined are appropriate for the local system.</para>
 
 <para>Builder methods that can be called without an explicit
-environment may be called from custom Python modules that you
+environment (indicated in the listing of builders without
+a leading <literal><replaceable>env</replaceable>.</literal>)
+may be called from custom Python modules that you
 import into an SConscript file by adding the following
 to the Python module:</para>
 
@@ -2715,7 +2723,8 @@ containing Nodes that will be built.
 A <firstterm>Node</firstterm>
 is an internal SCons object
 which represents
-build targets or sources.</para>
+build targets or sources.
+See <xref linkend="node_objects"/> for more information.</para>
 
 <para>The returned Node-list object
 can be passed to other builder methods as source(s)
@@ -4658,7 +4667,7 @@ vars.AddVariables(
 
 </refsect2>
 
-<refsect2 id='file_and_directory_nodes'>
+<refsect2 id='node_objects'>
 <title>File and Directory Nodes</title>
 
 <para>
