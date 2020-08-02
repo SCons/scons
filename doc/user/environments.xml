@@ -697,7 +697,7 @@ print("LATEX is: %s" % env.get('LATEX', None))
 
       This example &SConstruct; file doesn't contain instructions
       for building any targets, but because it's still a valid
-      &SConstruct; it will be evaulated and the &Python;
+      &SConstruct; it will be evaluated and the &Python;
       <function>print</function> calls will output the values
       of &cv-link-CC; and &cv-link-LATEX; for us (remember using the
       <methodname>.get()</methodname> method for fetching means
@@ -1761,7 +1761,7 @@ void main() {
       from which you called &SCons;.
       This means that &SCons; might not
       necessarily find all of the tools
-      that you can successfully execute from the command line yourself.
+      that you can successfully execute from the command line.
 
     </para>
 
