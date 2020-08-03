@@ -103,7 +103,7 @@ for line in build_lines:
 
 if missing:
     print("===== standard output is missing the following lines:")
-    print(string.join(missing, '\n'))
+    print('\n'.join(missing))
     print("===== STDOUT ========================================")
     print(stdout)
     test.fail_test()
@@ -124,7 +124,7 @@ for line in log_lines:
 
 if missing:
     print("===== log file 'log.txt' is missing the following lines:")
-    print(string.join(missing, '\n'))
+    print('\n'.join(missing))
     print("===== STDOUT ===========================================")
     print(log)
     test.fail_test()
