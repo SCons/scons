@@ -2096,6 +2096,10 @@ class DirTestCase(_tempdirTestCase):
         SCons.Node.FS.File.get_contents = get_contents_override.__get__(
             None, SCons.Node.FS)
 
+        # Call get_csig() to test get_contents() usage. The actual results of
+        # the calls to get_csig() are not relevant for this test. If any
+        # exceptions are raised, we must first reset the get_contents function
+        # before reraising it or other tests will fail too.
         exception = None
         try:
             f1.get_csig()
@@ -2103,7 +2107,6 @@ class DirTestCase(_tempdirTestCase):
             f3.get_csig()
         except Exception as e:
             exception = e
-            print('exception %s' % e)
 
         SCons.Node.FS.File.get_contents = SCons.Node.FS.File._old_get_contents
         delattr(SCons.Node.FS.File, '_old_get_contents')
