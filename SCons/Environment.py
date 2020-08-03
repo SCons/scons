@@ -452,6 +452,10 @@ class SubstitutionEnvironment:
         """Emulates the items() method of dictionaries."""
         return self._dict.items()
 
+    def setdefault(self, key, default=None):
+        """Emulates the setdefault() method of dictionaries."""
+        return self._dict.setdefault(key, default)
+
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
         if node_factory is _null:
             node_factory = self.fs.File
@@ -2407,10 +2411,15 @@ class OverrideEnvironment(Base):
             return 1
         return self.__dict__['__subject'].__contains__(key)
 
-    def Dictionary(self):
+    def Dictionary(self, *args):
         d = self.__dict__['__subject'].Dictionary().copy()
         d.update(self.__dict__['overrides'])
-        return d
+        if not args:
+            return d
+        dlist = [d[x] for x in args]
+        if len(dlist) == 1:
+            dlist = dlist[0]
+        return dlist
 
     def items(self):
         """Emulates the items() method of dictionaries."""
@@ -2423,6 +2432,14 @@ class OverrideEnvironment(Base):
     def values(self):
         """Emulates the values() method of dictionaries."""
         return self.Dictionary().values()
+
+    def setdefault(self, key, default=None):
+        """Emulates the setdefault() method of dictionaries."""
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            self.__dict__['overrides'][key] = default
+            return default
 
     # Overridden private construction environment methods.
     def _update(self, other):

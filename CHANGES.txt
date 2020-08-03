@@ -12,6 +12,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
         - Whatever John Doe did.
 
+  From Mats Wichmann:
+    - Complete tests for Dictionary, env.keys() and env.values() for
+      OverrideEnvironment. Enable env.setdefault() method, add tests.
+
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
