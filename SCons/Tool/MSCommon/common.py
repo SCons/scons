@@ -47,13 +47,15 @@ class _MSCOMMON:
     TRACE_LOGFILE = os.environ.get('SCONS_MSCOMMON_TRACE')
 
     # bitflags for selectively enabling trace output
-    TRACE_DISPLAY_FUNCTION_ARGLIST   = 0b0001
-    TRACE_DISPLAY_FUNCTION_LOCATION  = 0b0010
-    TRACE_DISPLAY_RETURN_VALUES      = 0b0100
-    TRACE_DISPLAY_ALLFRAMES_ONEBELOW = 0b1000
+    TRACE_DISPLAY_FUNCTION_ARGLIST   = 0b0001 # 1
+    TRACE_DISPLAY_FUNCTION_LOCATION  = 0b0010 # 2
+    TRACE_DISPLAY_RETURN_VALUES      = 0b0100 # 4
+    TRACE_DISPLAY_ALLFRAMES_ONEBELOW = 0b1000 # 8
 
     # default trace output
-    TRACE_DISPLAY_DEFAULT            = 0b0111
+    TRACE_DISPLAY_DEFAULT = TRACE_DISPLAY_FUNCTION_ARGLIST | \
+                            TRACE_DISPLAY_FUNCTION_LOCATION | \
+                            TRACE_DISPLAY_RETURN_VALUES
 
     # Typical usage:
     #    '0b1111' or '15' display arg lists, file locations, return values, and all frames one below
