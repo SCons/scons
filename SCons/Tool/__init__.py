@@ -483,10 +483,12 @@ class _LibInfoGeneratorBase:
     def get_lib_noversionsymlinks(self, env, *args, **kw):
         return self._support.get_lib_noversionsymlinks(env, *args, **kw)
 
-    # Returns name of generator linker callback that shall be used to generate
-    # our info for a versioned library. For example, if our libtype is 'ShLib'
-    # and infoname is 'Prefix', it would return 'VersionedShLibPrefix'.
     def get_versioned_lib_info_generator(self, **kw):
+        """
+        Returns name of generator linker callback that will be used to generate
+        our info for a versioned library. For example, if our libtype is 'ShLib'
+        and infoname is 'Prefix', it would return 'VersionedShLibPrefix'.
+        """
         try:
             libtype = kw['generator_libtype']
         except KeyError:
