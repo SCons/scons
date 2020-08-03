@@ -12,14 +12,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
         - Whatever John Doe did.
 
-  From Joseph Brill:
-    - Modify the MSCommon internal-use only debug logging records to contain the correct relative
-      file path when the debug function is called from outside the MSCommon module.
-    - Add an internal-use only function call and return trace facility for the MSCommon module.
-    - Modify the MSCommon internal-use only debug and trace file handling to optionally produce
-      debug and/or trace files for each invocation of SCons.  Provide a mechanism to optionally 
-      synchronize the MSCommon debug and trace file names when both are enabled.
-
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
@@ -44,6 +36,7 @@ RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
   From Daniel Moody:
     - Added method on Node to test if its node used in SConf. (Github Issue #3626)
+
 
 
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
