@@ -2097,8 +2097,8 @@ class DirTestCase(_tempdirTestCase):
             None, SCons.Node.FS)
 
         # Call get_csig() to test get_contents() usage. The actual results of
-        # the calls to get_csig() are not relevant for this test. If any
-        # exceptions are raised, we must first reset the get_contents function
+        # the calls to get_csig() are not relevant for this test. If an
+        # exception is raised, we must first reset the get_contents function
         # before reraising it or other tests will fail too.
         exception = None
         try:
