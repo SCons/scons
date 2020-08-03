@@ -3222,7 +3222,7 @@ class File(Base):
         if csig is None:
 
             try:
-                if self.get_size() < File.md5_chunksize:
+                if self.get_size() < File.md5_chunksize * 1024:
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()
