@@ -30,28 +30,38 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 A dictionary mapping the names of the builders
-available through this environment
-to underlying Builder objects.
-Builders named
-Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
-are available by default.
-If you initialize this variable when an
-Environment is created:
+available through the &consenv; to underlying Builder objects.
+Custom builders need to be added to this to make them available.
+</para>
+
+<para>
+A platform-dependent default list of builders such as
+&b-link-Program;, &b-link-Library; etc. is used to
+populate this &consvar; when the &consenv; is initialized
+via the presence/absence of the tools those builders depend on.
+&cv-BUILDERS; can be examined to learn which builders will
+actually be available at run-time.
+</para>
+
+<para>
+Note that if you initialize this &consvar; through
+assignment when the &consenv; is created,
+that value for &cv-BUILDERS; will override any defaults:
 </para>
 
 <example_commands>
-env = Environment(BUILDERS = {'NewBuilder' : foo})
+bld = Builder(action='foobuild &lt; $SOURCE > $TARGET')
+env = Environment(BUILDERS={'NewBuilder': bld})
 </example_commands>
 
 <para>
-the default Builders will no longer be available.
-To use a new Builder object in addition to the default Builders,
+To instead use a new Builder object in addition to the default Builders,
 add your new Builder object like this:
 </para>
 
 <example_commands>
 env = Environment()
-env.Append(BUILDERS = {'NewBuilder' : foo})
+env.Append(BUILDERS={'NewBuilder': bld})
 </example_commands>
 
 <para>
@@ -60,7 +70,7 @@ or this:
 
 <example_commands>
 env = Environment()
-env['BUILDERS']['NewBuilder'] = foo
+env['BUILDERS']['NewBuilder'] = bld
 </example_commands>
 </summary>
 </cvar>
@@ -662,7 +672,7 @@ caching by calling &f-env-CacheDir;.
 </para>
 
 <para>
-When derived-file caching 
+When derived-file caching
 is being used and
 &scons;
 finds a derived file that needs to be rebuilt,
@@ -723,7 +733,7 @@ the first time a
 <parameter>cache_dir</parameter>
 is used for a build,
 or to bring a cache up to date after
-a build with cache updating disabled 
+a build with cache updating disabled
 (<option>--cache-disable</option>
 or <option>--cache-readonly</option>)
 has been done.
@@ -1401,7 +1411,7 @@ Returns a JSON-formatted string representation of the environment.
 </varlistentry>
 </variablelist>
 
-If <varname>key</varname> is 
+If <varname>key</varname> is
 <constant>None</constant> (the default) the entire
 dictionary of &consvars; is serialized.
 If supplied, it is taken as the name of a &consvar;
@@ -1459,6 +1469,14 @@ Return a new construction environment
 initialized with the specified
 <parameter>key</parameter>=<replaceable>value</replaceable>
 pairs.
+The keyword arguments
+<parameter>parse_flags</parameter>,
+<parameter>platform</parameter>,
+<parameter>toolpath</parameter>,
+<parameter>tools</parameter>
+and <parameter>variables</parameter>
+are also specially recognized.
+See the manpage section "Construction Environments" for more details.
 </para>
 </summary>
 </scons_function>
@@ -2673,7 +2691,7 @@ env.Requires('foo', 'file-that-must-be-built-before-foo')
 
 <scons_function name="Scanner">
 <arguments>
-(function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive])
+(function, [name, argument, skeys, path_function, node_class, node_factory, scan_check, recursive])
 </arguments>
 <summary>
 <para>

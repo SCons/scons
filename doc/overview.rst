@@ -125,7 +125,7 @@ method form, or both, exist. If all four exist you will get:
 *f-link-foobar*
     which is a link to the description of the global Function
 
-*f-env-link-foobar*
+*f-link-env-foobar*
     which is a link to the description of the environment method
 
 

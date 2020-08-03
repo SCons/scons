@@ -417,11 +417,11 @@ Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
     SCons-4.0.0-py3-none-any.whl
-    SCons-4.0.0.tar.gz
-    SCons-4.0.0.zip
-    scons-doc-4.0.0.tar.gz
-    scons-local-4.0.0.tar.gz
-    scons-local-4.0.0.zip
+    SCons-4.2.0ayyyymmdd.tar.gz
+    SCons-4.2.0ayyyymmdd.zip
+    scons-doc-4.2.0ayyyymmdd.tar.gz
+    scons-local-4.2.0ayyyymmdd.tar.gz
+    scons-local-4.2.0ayyyymmdd.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
@@ -537,6 +537,10 @@ Additional documentation for SCons is available at:
 
         http://www.scons.org/documentation.html
 
+Documentation toolchain
+=======================
+
+For an overview see https://github.com/SCons/scons/blob/master/doc/overview.rst
 
 Licensing
 =========

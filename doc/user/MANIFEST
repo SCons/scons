@@ -36,6 +36,7 @@ nodes.xml
 output.xml
 parseconfig.xml
 parseflags.xml
+parse_flags_arg.xml
 preface.xml
 python.xml
 repositories.xml

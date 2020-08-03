@@ -180,7 +180,6 @@ class SubstitutionTestCase(unittest.TestCase):
 
     def test___cmp__(self):
         """Test comparing SubstitutionEnvironments."""
-
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x')
         env3 = SubstitutionEnvironment(XXX = 'xxx')
@@ -203,8 +202,7 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env['XXX'] == 'x', env['XXX']
 
     def test___setitem__(self):
-        """Test setting a variable in a SubstitutionEnvironment
-        """
+        """Test setting a variable in a SubstitutionEnvironment."""
         env1 = SubstitutionEnvironment(XXX = 'x')
         env2 = SubstitutionEnvironment(XXX = 'x', YYY = 'y')
         env1['YYY'] = 'y'
@@ -254,6 +252,13 @@ class SubstitutionTestCase(unittest.TestCase):
         assert len(items) == 2, items
         for k, v in testdata.items():
             assert (k, v) in items, items
+
+    def test_setdefault(self):
+        """Test the SubstitutionEnvironment setdefault() method."""
+        env = SubstitutionEnvironment(XXX = 'x')
+        assert env.setdefault('XXX', 'z') == 'x', env['XXX']
+        assert env.setdefault('YYY', 'y') == 'y', env['YYY']
+        assert 'YYY' in env
 
     def test_arg2nodes(self):
         """Test the arg2nodes method."""
@@ -3583,15 +3588,27 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert 'ZZZ' not in env2
         assert 'ZZZ' in env3
 
-    def test_items(self):
+    def test_Dictionary(self):
         """Test the OverrideEnvironment Dictionary() method"""
         env, env2, env3 = self.envs
+        # nothing overrriden
         items = env.Dictionary()
         assert items == {'XXX' : 'x', 'YYY' : 'y'}, items
+        # env2 overrides XXX, YYY unchanged
         items = env2.Dictionary()
         assert items == {'XXX' : 'x2', 'YYY' : 'y'}, items
+        # env3 overrides XXX, YYY, adds ZZZ
         items = env3.Dictionary()
         assert items == {'XXX' : 'x3', 'YYY' : 'y3', 'ZZZ' : 'z3'}, items
+        # test one-arg and multi-arg Dictionary
+        assert env3.Dictionary('XXX') == 'x3', env3.Dictionary('XXX')
+        xxx, yyy = env2.Dictionary('XXX', 'YYY')
+        assert xxx == 'x2', xxx
+        assert yyy == 'y', yyy
+        del env3['XXX']
+        assert 'XXX' not in env3.Dictionary()
+        assert 'XXX' not in env2.Dictionary()
+        assert 'XXX' not in env.Dictionary()
 
     def test_items(self):
         """Test the OverrideEnvironment items() method"""
@@ -3602,6 +3619,36 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert items == [('XXX', 'x2'), ('YYY', 'y')], items
         items = sorted(env3.items())
         assert items == [('XXX', 'x3'), ('YYY', 'y3'), ('ZZZ', 'z3')], items
+
+    def test_keys(self):
+        """Test the OverrideEnvironment keys() method"""
+        env, env2, env3 = self.envs
+        keys = sorted(env.keys())
+        assert keys == ['XXX', 'YYY'], keys
+        keys = sorted(env2.keys())
+        assert keys == ['XXX', 'YYY'], keys
+        keys = sorted(env3.keys())
+        assert keys == ['XXX', 'YYY', 'ZZZ'], keys
+
+    def test_values(self):
+        """Test the OverrideEnvironment values() method"""
+        env, env2, env3 = self.envs
+        values = sorted(env.values())
+        assert values == ['x', 'y'], values
+        values = sorted(env2.values())
+        assert values == ['x2', 'y'], values
+        values = sorted(env3.values())
+        assert values == ['x3', 'y3', 'z3'], values
+
+    def test_setdefault(self):
+        """Test the OverrideEnvironment setdefault() method."""
+        env, env2, env3 = self.envs
+        # does not set for existing key
+        assert env2.setdefault('XXX', 'z') == 'x2', env2['XXX']
+        # set/return using default for non-existing key
+        assert env2.setdefault('ZZZ', 'z2') == 'z2', env2['ZZZ']
+        # set did not leak through to base env
+        assert 'ZZZ' not in env
 
     def test_gvars(self):
         """Test the OverrideEnvironment gvars() method"""

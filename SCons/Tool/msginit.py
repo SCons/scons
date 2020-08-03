@@ -91,7 +91,7 @@ def generate(env,**kw):
           msginit_bin_dir = os.path.dirname(msginit)
           env.AppendENVPath('PATH', msginit_bin_dir)
       else:
-          SCons.Warnings.Warning('msginit tool requested, but binary not found in ENV PATH')
+          SCons.Warnings.SConsWarning('msginit tool requested, but binary not found in ENV PATH')
 
   try:
     env['MSGINIT'] = _detect_msginit(env)

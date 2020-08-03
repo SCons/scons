@@ -286,7 +286,7 @@ def generate(env, **kw):
             xgettext_bin_dir = os.path.dirname(xgettext)
             env.AppendENVPath('PATH', xgettext_bin_dir)
         else:
-            SCons.Warnings.Warning('xgettext tool requested, but binary not found in ENV PATH')
+            SCons.Warnings.SConsWarning('xgettext tool requested, but binary not found in ENV PATH')
     try:
         env['XGETTEXT'] = _detect_xgettext(env)
     except:

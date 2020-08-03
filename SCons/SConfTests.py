@@ -162,6 +162,9 @@ class SConfTestCase(unittest.TestCase):
             def get_contents(self, target, source, env):
                 return 'MyBuilder-MyAction $SOURCE $TARGET'
 
+        class Attrs:
+            __slots__ = ('shared', '__dict__')
+
         class MyBuilder(SCons.Builder.BuilderBase):
             def __init__(self):
                 self.prefix = ''
@@ -178,6 +181,7 @@ class SConfTestCase(unittest.TestCase):
                         self.side_effects = []
                         self.builder = None
                         self.prerequisites = None
+                        self.attributes = Attrs()
                     def disambiguate(self):
                         return self
                     def has_builder(self):
