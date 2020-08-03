@@ -205,7 +205,13 @@ class TempFileMunge:
         else:
             suffix = '.lnk'
 
-        fd, tmp = tempfile.mkstemp(suffix, text=True)
+        if 'TEMPFILEDIR' in env:
+            tempfile_dir = env.subst('$TEMPFILEDIR')
+            os.makedirs(tempfile_dir, exist_ok=True)
+        else:
+            tempfile_dir = None
+
+        fd, tmp = tempfile.mkstemp(suffix, dir=tempfile_dir, text=True)
         native_tmp = SCons.Util.get_native_path(tmp)
 
         if env.get('SHELL', None) == 'sh':

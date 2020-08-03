@@ -93,7 +93,7 @@ def get_lex_path(env, append_paths=False):
             if append_paths:
                 env.AppendENVPath('PATH', os.path.dirname(bin_path))
             return bin_path
-    SCons.Warnings.Warning('lex tool requested, but lex or flex binary not found in ENV PATH')
+    SCons.Warnings.SConsWarning('lex tool requested, but lex or flex binary not found in ENV PATH')
 
 
 def generate(env):

@@ -101,7 +101,7 @@ def Jar(env, target = None, source = [], *args, **kw):
     # no target and want implicit target to be made and the arg
     # was actaully the list of sources
     if SCons.Util.is_List(target) and source == []:
-        SCons.Warnings.Warning("Making implicit target jar file, " +
+        SCons.Warnings.SConsWarning("Making implicit target jar file, " +
                               "and treating the list as sources")
         source = target
         target = None
@@ -123,7 +123,7 @@ def Jar(env, target = None, source = [], *args, **kw):
             target = os.path.splitext(str(source[0]))[0] + env.subst('$JARSUFFIX')
         except:
             # something strange is happening but attempt anyways
-            SCons.Warnings.Warning("Could not make implicit target from sources, using directory")
+            SCons.Warnings.SConsWarning("Could not make implicit target from sources, using directory")
             target = os.path.basename(str(env.Dir('.'))) + env.subst('$JARSUFFIX')
 
     # make lists out of our target and sources
@@ -192,7 +192,7 @@ def Jar(env, target = None, source = [], *args, **kw):
             except:
                 pass
 
-            SCons.Warnings.Warning("File: " + str(s) + " could not be identified as File or Directory, skipping.")
+            SCons.Warnings.SConsWarning("File: " + str(s) + " could not be identified as File or Directory, skipping.")
 
     # at this point all our sources have been converted to classes or directories of class
     # so pass it to the Jar builder

@@ -10,7 +10,7 @@ Note that because this subsystem just *selects* a callable that can
 modify a construction environment, it's possible for people to define
 their own "tool specification" in an arbitrary callable function.  No
 one needs to use or tie in to this subsystem in order to roll their own
-tool definition.
+tool specifications.
 """
 
 #

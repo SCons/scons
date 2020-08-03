@@ -87,14 +87,14 @@
     (brief) overview of *what* these functions do to decide if this
     chapter is where they should read in more detail.  -->
     <para>
-    This chapter describes the &MergeFlags;, &ParseFlags;, and &ParseConfig; methods of a &consenv;.
+    This chapter describes the &MergeFlags;, &ParseFlags;, and &ParseConfig;
+    methods of a &consenv;, as well as the <parameter>parse_flags</parameter>
+    keyword argument to methods that construct environments.
     </para>
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="mergeflags.xml"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="parse_flags_arg.xml"/>
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="parseflags.xml"/>
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="parseconfig.xml"/>
-    <!--
-    XXX parse_flags= option of Environment()
-    -->
   </chapter>
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="output.xml"/>
