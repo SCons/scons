@@ -2072,7 +2072,7 @@ class DirTestCase(_tempdirTestCase):
         test.subdir('chunksize_dir')
         test.write(['chunksize_dir', 'f1'], 'a' * (chunksize - 1))
         test.write(['chunksize_dir', 'f2'], 'a' * chunksize)
-        test.write(['chunksize_dir', 'f3'], 'a' * (chunksize * 1024))
+        test.write(['chunksize_dir', 'f3'], 'a' * (chunksize * 1024 + 1))
 
         dir = self.fs.Dir('chunksize_dir')
         f1 = dir.File('f1')
@@ -2080,7 +2080,7 @@ class DirTestCase(_tempdirTestCase):
         f3 = dir.File('f3')
 
         # Expect f1 and f2 to call get_contents(), while f3 will not because it
-        # will do reads of chunksize bytes at a time.
+        # should do reads of chunksize kilobytes at a time.
         expected_get_contents_calls = {f1, f2}
         self.actual_get_contents_calls = 0
 
