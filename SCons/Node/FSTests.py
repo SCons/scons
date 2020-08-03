@@ -2066,13 +2066,13 @@ class DirTestCase(_tempdirTestCase):
         get_contents() is called; otherwise, it verifies that get_contents()
         is not called.
         """
-        chunksize = SCons.Node.FS.File.md5_chunksize
+        chunksize_bytes = SCons.Node.FS.File.md5_chunksize
         test = self.test
 
         test.subdir('chunksize_dir')
-        test.write(['chunksize_dir', 'f1'], 'a' * (chunksize - 1))
-        test.write(['chunksize_dir', 'f2'], 'a' * chunksize)
-        test.write(['chunksize_dir', 'f3'], 'a' * (chunksize * 1024 + 1))
+        test.write(['chunksize_dir', 'f1'], 'a' * (chunksize_bytes // 1024 - 1))
+        test.write(['chunksize_dir', 'f2'], 'a' * (chunksize_bytes // 1024))
+        test.write(['chunksize_dir', 'f3'], 'a' * (chunksize_bytes + 1))
 
         dir = self.fs.Dir('chunksize_dir')
         f1 = dir.File('f1')
