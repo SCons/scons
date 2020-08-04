@@ -2058,15 +2058,15 @@ class DirTestCase(_tempdirTestCase):
         assert g.get_csig() + " g" == files[2], files
         assert s.get_csig() + " sub" == files[3], files
 
-    def test_md5_chunksize(self):
+    def test_hash_chunksize(self):
         """
-        Test verifying that File.get_csig() correctly uses md5_chunksize. This
-        variable is documented as the md5 chunksize in kilobytes. This test
-        verifies that if the file size is less than the md5 chunksize,
+        Test verifying that File.get_csig() correctly uses hash_chunksize. This
+        variable is documented as the hash chunksize in kilobytes. This test
+        verifies that if the file size is less than the hash chunksize,
         get_contents() is called; otherwise, it verifies that get_contents()
         is not called.
         """
-        chunksize_bytes = SCons.Node.FS.File.md5_chunksize
+        chunksize_bytes = SCons.Node.FS.File.hash_chunksize
         test = self.test
 
         test.subdir('chunksize_dir')

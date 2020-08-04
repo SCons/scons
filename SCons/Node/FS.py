@@ -2731,7 +2731,7 @@ class File(Base):
 
     def get_content_hash(self):
         """
-        Compute and return the MD5 hash for this file.
+        Compute and return the hash for this file.
         """
         if not self.rexists():
             return hash_signature('')
@@ -3624,7 +3624,7 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = MD5filesignature(cachefile, File.hash_chunksize)
+            self.cachedir_csig = hash_file_signature(cachefile, File.hash_chunksize)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
