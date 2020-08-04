@@ -80,22 +80,22 @@ class _MSCOMMON:
     # Typical usage specifications:
     #
     #    display arg lists, file locations, return values, and all frames one below:
-    #       "15", "0b1111", "0xF", "1|2|4|8", "1<<0|1<<1|1<<2|1<<3",
+    #       "15", "0b1111", "0xF", "1+2+4+8", "1|2|4|8", "1<<0|1<<1|1<<2|1<<3",
     #       "FUNCTION_ARGLIST|FUNCTION_LOCATION|RETURN_VALUES|ALLFRAMES_ONEBELOW",
     #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION|TRACE_DISPLAY_RETURN_VALUES|TRACE_DISPLAY_ALLFRAMES_ONEBELOW"
     #
     #    display arg lists, file locations, and return values [default]:
-    #       "7", "0b0111', "0x7", "1|2|4", "1<<0|1<<1|1<<2",
+    #       "7", "0b0111', "0x7", "1+2+4", "1|2|4", "1<<0|1<<1|1<<2",
     #       "FUNCTION_ARGLIST|FUNCTION_LOCATION|RETURN_VALUES",
     #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION|TRACE_DISPLAY_RETURN_VALUES"
     #
     #    display arg lists, and return values:
-    #       "5", "0b0101", "0x5", "1|4", "1<<0|1<<2",
+    #       "5", "0b0101", "0x5", "1+4", "1|4", "1<<0|1<<2",
     #       "FUNCTION_ARGLIST|RETURN_VALUES",
     #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_RETURN_VALUES"
     #
     #    display arg lists, and file locations:
-    #       "3", "0b0011", "0x3", "1|2", "1<<0|1<<1",
+    #       "3", "0b0011", "0x3", "1+2", "1|2", "1<<0|1<<1",
     #       "FUNCTION_ARGLIST|FUNCTION_LOCATION",
     #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION"
     #
@@ -104,6 +104,7 @@ class _MSCOMMON:
     #    set SCONS_MSCOMMON_TRACEFLAGS=15
     #    set SCONS_MSCOMMON_TRACEFLAGS=0b1111
     #    set SCONS_MSCOMMON_TRACEFLAGS=0xF
+    #    set SCONS_MSCOMMON_TRACEFLAGS="1+2+4+8"
     #    set SCONS_MSCOMMON_TRACEFLAGS="1|2|4|8"
     #    set SCONS_MSCOMMON_TRACEFLAGS="1<<0|1<<1|1<<2|1<<3"
     #    set SCONS_MSCOMMON_TRACEFLAGS="FUNCTION_ARGLIST|FUNCTION_LOCATION|RETURN_VALUES|ALLFRAMES_ONEBELOW"
