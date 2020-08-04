@@ -15,6 +15,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
+    - Added support for a new command-line parameter "--hash-format" to override the default
+      hash format that SCons uses. It can also be set via SetOption('hash_format'). Supported
+      values include md5, sha1, and sha256, but you can also use any other algorithm that is
+      offered by your Python interpreter's hashlib package.
 
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
@@ -134,10 +138,6 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
       when the value can't be converted to a string or if having a name is otherwise desirable.
     - Fixed usage of abspath and path for RootDir objects on Windows. Previously
       env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
-    - Added support for a new command-line parameter "--hash-format" to override the default
-      hash format that SCons uses. It can also be set via SetOption('hash_format'). Supported
-      values include md5, sha1, and sha256, but you can also use any other algorithm that is
-      offered by your Python interpreter's hashlib package.
 
   From Ivan Kravets, PlatformIO
     - New conditional C Scanner (`SCons.Scanner.C.CConditionalScanner()`)
