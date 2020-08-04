@@ -276,16 +276,17 @@ class _MSCOMMON:
         # compile the environment string
         try:
             code = compile(envstr, "<string>", "eval")
-        except:
+        except SyntaxError:
             raise ValueError('Trace display compilation failed: %s' % cls.TRACEFLAGS_ENV)
         # verify the environment string contains only known symbols
         for co_name in code.co_names:
             if co_name not in symbols:
-                raise NameError("Undefined trace display symbol: %s" % co_name)
+                # NameError
+                raise ValueError("Trace display symbol undefined: %s" % co_name)
         # evaluate the environment string
         try:
             cls._TRACEFLAGS = eval(code, {"__builtins__": {}}, symbols)
-        except:
+        except (TypeError, ZeroDivisionError):
             raise ValueError('Trace display evaluation failed: %s' % cls.TRACEFLAGS_ENV)
         return cls._TRACEFLAGS
 
