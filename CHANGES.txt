@@ -20,6 +20,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       debug and/or trace files for each invocation of SCons.  Provide a mechanism to optionally 
       synchronize the MSCommon debug and trace file names when both are enabled.
 
+  From Adam Gross:
+    - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
+      User-facing behavior does not change with this fix (GH Issue #3726).
+
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
@@ -44,6 +48,7 @@ RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
   From Daniel Moody:
     - Added method on Node to test if its node used in SConf. (Github Issue #3626)
+
 
 
 RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
