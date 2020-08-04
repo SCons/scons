@@ -52,19 +52,66 @@ class _MSCOMMON:
     TRACE_DISPLAY_RETURN_VALUES      = 0b0100 # 4
     TRACE_DISPLAY_ALLFRAMES_ONEBELOW = 0b1000 # 8
 
-    # default trace output
+    # default trace output (numeric)
     TRACE_DISPLAY_DEFAULT = TRACE_DISPLAY_FUNCTION_ARGLIST | \
                             TRACE_DISPLAY_FUNCTION_LOCATION | \
                             TRACE_DISPLAY_RETURN_VALUES
 
-    # Typical usage:
-    #    '0b1111' or '15' display arg lists, file locations, return values, and all frames one below
-    #    '0b0111' or '7'  display arg lists, file locations, and return values [default]
-    #    '0b0101' or '5'  display arg lists, and return values
-    #    '0b0011' or '3'  display arg lists, and file locations
+    # bitflag symbols available in the SCONS_MSCOMMON_TRACEFLAGS environment variable.
+    # Short names without the "TRACE_DISPLAY_" prefix are available as well.
+    TRACE_DISPLAY_SYMBOLS = {
+        "TRACE_DISPLAY_FUNCTION_ARGLIST"   : TRACE_DISPLAY_FUNCTION_ARGLIST,
+        "TRACE_DISPLAY_FUNCTION_LOCATION"  : TRACE_DISPLAY_FUNCTION_LOCATION,
+        "TRACE_DISPLAY_RETURN_VALUES"      : TRACE_DISPLAY_RETURN_VALUES,
+        "TRACE_DISPLAY_ALLFRAMES_ONEBELOW" : TRACE_DISPLAY_ALLFRAMES_ONEBELOW,
+    }
+
+    # If specified, the environment variable SCONS_MSCOMMON_TRACEFLAGS string
+    # is evaluated.
+    #
+    # Python number formats (e.g., binary, hexadecimal, decimal) are supported
+    # as well as two forms of the bit field variable names (i.e., long names and
+    # short names). As the string is evaluated, bitwise operators and regular
+    # numeric operators may be used.  The value may be a quoted string.
+    #
+    # If SCONS_MSCOMMON_TRACEFLAGS is not specified, the TRACE_DISPLAY_DEFAULT
+    # numeric value above is used.
+    #
+    # Typical usage specifications:
+    #
+    #    display arg lists, file locations, return values, and all frames one below:
+    #       "15", "0b1111", "0xF", "1|2|4|8", "1<<0|1<<1|1<<2|1<<3",
+    #       "FUNCTION_ARGLIST|FUNCTION_LOCATION|RETURN_VALUES|ALLFRAMES_ONEBELOW",
+    #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION|TRACE_DISPLAY_RETURN_VALUES|TRACE_DISPLAY_ALLFRAMES_ONEBELOW"
+    #
+    #    display arg lists, file locations, and return values [default]:
+    #       "7", "0b0111', "0x7", "1|2|4", "1<<0|1<<1|1<<2",
+    #       "FUNCTION_ARGLIST|FUNCTION_LOCATION|RETURN_VALUES",
+    #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION|TRACE_DISPLAY_RETURN_VALUES"
+    #
+    #    display arg lists, and return values:
+    #       "5", "0b0101", "0x5", "1|4", "1<<0|1<<2",
+    #       "FUNCTION_ARGLIST|RETURN_VALUES",
+    #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_RETURN_VALUES"
+    #
+    #    display arg lists, and file locations:
+    #       "3", "0b0011", "0x3", "1|2", "1<<0|1<<1",
+    #       "FUNCTION_ARGLIST|FUNCTION_LOCATION",
+    #       "TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION"
+    #
+    # Examples (all produce the same output):
+    #
+    #    set SCONS_MSCOMMON_TRACEFLAGS=15
+    #    set SCONS_MSCOMMON_TRACEFLAGS=0b1111
+    #    set SCONS_MSCOMMON_TRACEFLAGS=0xF
+    #    set SCONS_MSCOMMON_TRACEFLAGS="1|2|4|8"
+    #    set SCONS_MSCOMMON_TRACEFLAGS="1<<0|1<<1|1<<2|1<<3"
+    #    set SCONS_MSCOMMON_TRACEFLAGS="FUNCTION_ARGLIST|FUNCTION_LOCATION|RETURN_VALUES|ALLFRAMES_ONEBELOW"
+    #    set "SCONS_MSCOMMON_TRACEFLAGS=TRACE_DISPLAY_FUNCTION_ARGLIST|TRACE_DISPLAY_FUNCTION_LOCATION|TRACE_DISPLAY_RETURN_VALUES|TRACE_DISPLAY_ALLFRAMES_ONEBELOW"
+    #
 
     # SCONS_MSCOMMON_TRACEFLAGS is internal-use so undocumented
-    TRACEFLAGS = int(os.environ.get('SCONS_MSCOMMON_TRACEFLAGS', str(TRACE_DISPLAY_DEFAULT)), 0)
+    TRACEFLAGS_ENV = os.environ.get('SCONS_MSCOMMON_TRACEFLAGS')
 
     # debug configuration
     DEBUG_ENABLED = True if DEBUG_LOGFILE else False
@@ -129,7 +176,7 @@ class _MSCOMMON:
         # current module and parent module
         'MSCommon', 'Tool',
         # python library and below: correct iff scons does not have a lib folder
-        'lib', 
+        'lib',
         # scons modules
         'SCons', 'test', 'scons'
     )
@@ -182,6 +229,65 @@ class _MSCOMMON:
         modname = modname.replace('\\', '/')
         return modname
 
+    _TRACEFLAGS = None
+
+    @classmethod
+    def get_trace_display_traceflags(cls):
+        # evaluate environment variable once
+        if cls._TRACEFLAGS is not None:
+            return cls._TRACEFLAGS
+        # environment variable not defined
+        if cls.TRACEFLAGS_ENV is None:
+            cls._TRACEFLAGS = cls.TRACE_DISPLAY_DEFAULT
+            return cls._TRACEFLAGS
+        envstr = cls.TRACEFLAGS_ENV
+        # iteratively strip all balanced outer quotes
+        while 1:
+            if envstr.startswith('"') and envstr.endswith('"'):
+                # strip "..."
+                envstr = envstr.strip('"')
+            elif envstr.startswith("'") and envstr.endswith("'"):
+                # strip '...'
+                envstr = envstr.strip("'")
+            elif envstr.startswith('"""') and envstr.endswith('"""'):
+                # strip """..."""
+                envstr = envstr.strip('"""')
+            else:
+                # no balanced outer quotes
+                break
+            # if environment variable is empty use default
+            if not envstr:
+                cls._TRACEFLAGS = cls.TRACE_DISPLAY_DEFAULT
+                return cls._TRACEFLAGS
+        # attempt simple conversion for numeric strings
+        try:
+            cls._TRACEFLAGS = int(envstr, 0)
+            return cls._TRACEFLAGS
+        except ValueError:
+            pass
+        # prepare symbols: long names and short names
+        symbols = {}
+        prefix = "TRACE_DISPLAY_"
+        for key, value in cls.TRACE_DISPLAY_SYMBOLS.items():
+            symbols[key] = value
+            if key.startswith(prefix):
+                symbols[key[len(prefix):]] = value
+        # compile the environment string
+        try:
+            code = compile(envstr, "<string>", "eval")
+        except:
+            raise ValueError('Trace display compilation failed: %s' % cls.TRACEFLAGS_ENV)
+        # verify the environment string contains only known symbols
+        for co_name in code.co_names:
+            if co_name not in symbols:
+                raise NameError("Undefined trace display symbol: %s" % co_name)
+        # evaluate the environment string
+        try:
+            cls._TRACEFLAGS = eval(code, {"__builtins__": {}}, symbols)
+        except:
+            raise ValueError('Trace display evaluation failed: %s' % cls.TRACEFLAGS_ENV)
+        return cls._TRACEFLAGS
+
 if _MSCOMMON.DEBUG_STDOUT:
     def debug(message):
         print(message)
@@ -215,17 +321,20 @@ else:
 
 class _MSCOMMON_TRACE:
 
+    # trace display specification
+    TRACEFLAGS = _MSCOMMON.get_trace_display_traceflags()
+
     # display function argument lists w/select values
-    DISPLAY_FUNCTION_ARGLIST = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_FUNCTION_ARGLIST else False
+    DISPLAY_FUNCTION_ARGLIST = True if TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_FUNCTION_ARGLIST else False
 
     # display function locations: file and line number
-    DISPLAY_FUNCTION_LOCATION = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_FUNCTION_LOCATION else False
+    DISPLAY_FUNCTION_LOCATION = True if TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_FUNCTION_LOCATION else False
 
     # display function return values
-    DISPLAY_RETURN_VALUES = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_RETURN_VALUES else False
+    DISPLAY_RETURN_VALUES = True if TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_RETURN_VALUES else False
 
     # display all frames one below the current module(s)
-    DISPLAY_ALLFRAMES_ONEBELOW = True if _MSCOMMON.TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_ALLFRAMES_ONEBELOW else False
+    DISPLAY_ALLFRAMES_ONEBELOW = True if TRACEFLAGS & _MSCOMMON.TRACE_DISPLAY_ALLFRAMES_ONEBELOW else False
 
     # number of frames above the current module
     FRAME_CALLER_FRAMES = 5
