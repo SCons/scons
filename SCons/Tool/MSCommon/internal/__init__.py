@@ -32,5 +32,5 @@ from .config import _MSCONFIG
 from .debug import debug
 
 if _MSCONFIG.TRACE_ENABLED:
-    from .trace import trace
+    from . import trace
 

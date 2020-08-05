@@ -25,9 +25,7 @@ Trace output for working with the Microsoft tool chain.
 #
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import sys
-import glob
 
 from .config import _MSCONFIG
 
@@ -496,5 +494,3 @@ class _TRACE:
 if _MSCONFIG.TRACE_ENABLED:
     _TRACE.trace()
 
-def trace():
-    return None
