@@ -367,11 +367,11 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    The <firstterm>external environment</firstterm>
+    The <firstterm>External Environment</firstterm>
     is the set of variables in the user's environment
-    at the time the user runs &SCons;.
-    These variables are available within the &SConscript; files
-    through the Python <literal>os.environ</literal> dictionary.
+    at the time the user runs &SCons;. These variables are not
+    automatically part of an &SCons; build
+    but are available to be examined if needed.
     See <xref linkend="sect-external-environments"></xref>, below.
 
     </para>
@@ -384,7 +384,7 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    A <firstterm>&consenv;</firstterm>
+    A <firstterm>&ConsEnv;</firstterm>
     is a distinct object created within
     a &SConscript; file and
     which contains values that
@@ -408,7 +408,7 @@ environment, of directory names, suffixes, etc.
     <listitem>
     <para>
 
-    An <firstterm>execution environment</firstterm>
+    An <firstterm>Execution Environment</firstterm>
     is the values that &SCons; sets
     when executing an external
     command (such as a compiler or linker)
@@ -429,7 +429,7 @@ environment, of directory names, suffixes, etc.
   Unlike &Make;,  &SCons; does not automatically
   copy or import values between different environments
   (with the exception of explicit clones of &consenvs;,
-  which inherit values from their parent).
+  which inherit the values from their parent).
   This is a deliberate design choice
   to make sure that builds are,
   by default, repeatable regardless of
@@ -468,6 +468,66 @@ environment, of directory names, suffixes, etc.
 
   </para>
 
+  <sidebar>
+    <title>Sidebar: Python Dictionaries</title>
+
+    <para>
+
+    If you're not familiar with the &Python; programming language,
+    we need to talk a little bit about the &Python; dictionary data type.
+    A dictionary (also known by terms such as mapping, associative array
+    and key-value store) associates keys with values, such
+    that asking the dict about a key gives you back the associated value
+    and assigning to a key creates the association - either a new
+    setting if the key was unknown, or replacing the previous
+    previous association if the key was already in the dict.
+    Accessing can be done by using <literal>[]</literal>
+    indexing notation, and dictionaries also provide a
+    method named <methodname>get</methodname> which responds
+    with a default value (<constant>None</constant> or a default
+    you supply) if the key is not in the dictionary, which
+    avoids failing in that case.  The syntax
+    for a dictionary itself uses curly braces (<literal>{}</literal>).
+    Here are some simple examples (inspired by those in the official
+    Python tutorial) using syntax that indicates
+    interacting with the &Python; interpreter
+    (<prompt>&gt;&gt;&gt;</prompt> is the interpreter prompt) -
+    you can try these out:
+
+    </para>
+
+    <screen>
+<prompt>&gt;&gt;&gt;</prompt> <userinput>tel = {'jack': 4098, 'sape': 4139}</userinput>
+<prompt>&gt;&gt;&gt;</prompt> <userinput>tel['guido'] = 4098</userinput>
+<prompt>&gt;&gt;&gt;</prompt> <userinput>tel['jack']</userinput>
+4098
+<prompt>&gt;&gt;&gt;</prompt> <userinput>del tel['sape']</userinput>
+<prompt>&gt;&gt;&gt;</prompt> <userinput>tel['irv'] = 4127</userinput>
+<prompt>&gt;&gt;&gt;</prompt> <userinput>print(tel)</userinput>
+{'jack': 4098, 'guido': 4127, 'irv': 4127}
+<prompt>&gt;&gt;&gt;</prompt> <userinput>'guido' in tel</userinput>
+True
+<prompt>&gt;&gt;&gt;</prompt> <userinput>print(tel['jack'])</userinput>
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+KeyError: 'jack'
+<prompt>&gt;&gt;&gt;</prompt> <userinput>print(tel.get('jack'))</userinput>
+None
+    </screen>
+
+    <para>
+
+    &Consenvs; are written to behave like a &Python;
+    dictionary, and the &cv-ENV; construction variable in
+    a &consenv; <emphasis>is</emphasis> a &Python; dictionary.
+    The <varname>os.environ</varname> value that &Python; uses
+    to make available the external environment is also a
+    dictionary.  We will need these concepts in this chapter.
+
+    </para>
+
+  </sidebar>
+
   <section id="sect-external-environments">
   <title>Using Values From the External Environment</title>
 
@@ -477,10 +537,12 @@ environment, of directory names, suffixes, etc.
   variable settings that
   the user has in force
   when executing &SCons;
-  are available through the normal Python
-  <envar>os.environ</envar>
-  dictionary.
-  This means that you must add an
+  are available in the &Python;
+  <varname>os.environ</varname>
+  dictionary. That syntax means the <varname>environ</varname>
+  attribute of the <systemitem>os</systemitem> module.
+  In Python, to access contents of a module you must first
+  <literal>import</literal> it - so you would include the
   <literal>import os</literal> statement
   to any &SConscript; file
   in which you want to use
@@ -491,22 +553,22 @@ environment, of directory names, suffixes, etc.
    <scons_example name="environments_ex1">
      <file name="SConstruct" printme="1">
 import os
+
+print("Shell is", os.environ['SHELL'])
      </file>
      <file name="foo.c">
-int main() { }
+void main() { }
      </file>
    </scons_example>
 
   <para>
 
   More usefully, you can use the
-  <envar>os.environ</envar>
+  <varname>os.environ</varname>
   dictionary in your &SConscript;
   files to initialize &consenvs;
   with values from the user's external environment.
-  See the next section,
-  <xref linkend="sect-construction-environments"></xref>,
-  for information on how to do this.
+  Read on to the next section for information on how to do this.
 
   </para>
 
@@ -518,7 +580,7 @@ int main() { }
     <para>
 
       It is rare that all of the software in a large,
-      complicated system needs to be built the same way.
+      complicated system needs to be built exactly the same way.
       For example, different source files may need different options
       enabled on the command line,
       or different executable programs need to be linked
@@ -529,7 +591,7 @@ int main() { }
       that control how the software is built.
       A &consenv; is an object
       that has a number of associated
-      &consvars;, each with a name and a value.
+      &consvars;, each with a name and a value, just like a dictionary.
       (A construction environment also has an attached
       set of &Builder; methods,
       about which we'll learn more later.)
@@ -579,10 +641,8 @@ env = Environment()
 
        <scons_example name="environments_ex1">
          <file name="SConstruct" printme="1">
- env = Environment(CC = 'gcc',
-                   CCFLAGS = '-O2')
-
- env.Program('foo.c')
+env = Environment(CC='gcc', CCFLAGS='-O2')
+env.Program('foo.c')
          </file>
          <file name="foo.c">
 int main() { }
@@ -596,7 +656,7 @@ int main() { }
         construction variable values,
         except that the user has explicitly specified use of the
         GNU C compiler &gcc;,
-        and further specifies that the <option>-O2</option>
+        and that the <option>-O2</option>
         (optimization level two)
         flag should be used when compiling the object file.
         In other words, the explicit initializations of
@@ -618,9 +678,10 @@ int main() { }
 
       <para>
 
-      You can fetch individual &consvars;
-      using the normal syntax
-      for accessing individual named items in a Python dictionary:
+      You can fetch individual values, known as
+      <firstterm>Construction Variables</firstterm>,
+      using the same syntax used
+      for accessing individual named items in a &Python; dictionary:
 
       </para>
 
@@ -628,14 +689,20 @@ int main() { }
         <file name="SConstruct" printme="1">
 env = Environment()
 print("CC is: %s" % env['CC'])
+print("LATEX is: %s" % env.get('LATEX', None))
         </file>
       </scons_example>
 
       <para>
 
-      This example &SConstruct; file doesn't build anything,
-      but because it's actually a Python script,
-      it will print the value of &cv-link-CC; for us:
+      This example &SConstruct; file doesn't contain instructions
+      for building any targets, but because it's still a valid
+      &SConstruct; it will be evaluated and the &Python;
+      <function>print</function> calls will output the values
+      of &cv-link-CC; and &cv-link-LATEX; for us (remember using the
+      <methodname>.get()</methodname> method for fetching means
+      we get a default value back, rather than a failure,
+      if the variable is not set):
 
       </para>
 
@@ -646,11 +713,11 @@ print("CC is: %s" % env['CC'])
       <para>
 
       A &consenv;
-      is actually an object with associated methods and
-      attributes.
+      is actually an object with associated methods and attributes.
       If you want to have direct access to only the
       dictionary of &consvars;
-      you can fetch this using the &Dictionary; method:
+      you can fetch this using the &f-link-env-Dictionary; method
+      (although it's rarely necessary to use this method):
 
       </para>
 
@@ -689,7 +756,7 @@ for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX']:
 
       If you want to loop and print the values of
       all of the &consvars; in a &consenv;,
-      the Python code to do that in sorted order might look something like:
+      the &Python; code to do that in sorted order might look something like:
 
       </para>
 
@@ -732,7 +799,7 @@ print(env.Dump())
 
       <sconstruct>
 env = Environment()
-print("CC is: %s"%env.subst('$CC'))
+print("CC is: %s" % env.subst('$CC'))
       </sconstruct>
 
       <para>
@@ -748,8 +815,8 @@ print("CC is: %s"%env.subst('$CC'))
       </para>
 
       <sconstruct>
-env = Environment(CCFLAGS = '-DFOO')
-print("CCCOM is: %s"%env['CCCOM'])
+env = Environment(CCFLAGS='-DFOO')
+print("CCCOM is: %s" % env['CCCOM'])
       </sconstruct>
 
       <para>
@@ -774,8 +841,8 @@ scons: `.' is up to date.
       </para>
 
       <sconstruct>
-env = Environment(CCFLAGS = '-DFOO')
-print("CCCOM is: %s"%env.subst('$CCCOM'))
+env = Environment(CCFLAGS='-DFOO')
+print("CCCOM is: %s" % env.subst('$CCCOM'))
       </sconstruct>
 
       <para>
@@ -811,13 +878,13 @@ scons: `.' is up to date.
 
       If a problem occurs when expanding a construction variable,
       by default it is expanded to <literal>''</literal>
-      (an empty string), and will not cause scons to fail.
+      (an empty string), and will not cause &scons; to fail.
       </para>
 
        <scons_example name="environments_missing1">
          <file name="SConstruct" printme="1">
 env = Environment()
-print("value is: %s"%env.subst( '->$MISSING&lt;-' ))
+print("value is: %s"%env.subst( '-&gt;$MISSING&lt;-' ))
         </file>
       </scons_example>
 
@@ -833,9 +900,9 @@ print("value is: %s"%env.subst( '->$MISSING&lt;-' ))
       which of these exceptions are actually fatal and which are
       allowed to occur safely.   By default, &NameError; and &IndexError;
       are the two exceptions that are allowed to occur: so instead of
-      causing scons to fail, these are caught, the variable expanded to
+      causing &scons; to fail, these are caught, the variable expanded to
       <literal>''</literal>
-      and scons execution continues.
+      and &scons; execution continues.
       To require that all construction variable names exist, and that
       indexes out of range are not allowed, call &AllowSubstExceptions;
       with no extra arguments.
@@ -845,7 +912,7 @@ print("value is: %s"%env.subst( '->$MISSING&lt;-' ))
          <file name="SConstruct" printme="1">
 AllowSubstExceptions()
 env = Environment()
-print("value is: %s"%env.subst( '->$MISSING&lt;-' ))
+print("value is: %s"%env.subst( '-&gt;$MISSING&lt;-' ))
         </file>
       </scons_example>
 
@@ -865,7 +932,7 @@ print("value is: %s"%env.subst( '->$MISSING&lt;-' ))
          <file name="SConstruct" printme="1">
 AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
 env = Environment()
-print("value is: %s"%env.subst( '->${1 / 0}&lt;-' ))
+print("value is: %s"%env.subst( '-&gt;${1 / 0}&lt;-' ))
         </file>
       </scons_example>
 
@@ -986,7 +1053,7 @@ env = DefaultEnvironment(tools=['gcc', 'gnulink'],
 
     </section>
 
-    <section>
+    <section id='multiple_construction_envs'>
     <title>Multiple &ConsEnvs;</title>
 
       <para>
@@ -1004,8 +1071,8 @@ env = DefaultEnvironment(tools=['gcc', 'gnulink'],
 
       <scons_example name="environments_ex2">
         <file name="SConstruct" printme="1">
-opt = Environment(CCFLAGS = '-O2')
-dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS='-O2')
+dbg = Environment(CCFLAGS='-g')
 
 opt.Program('foo', 'foo.c')
 
@@ -1035,8 +1102,8 @@ int main() { }
 
       <scons_example name="environments_ex3">
         <file name="SConstruct" printme="1">
-opt = Environment(CCFLAGS = '-O2')
-dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS='-O2')
+dbg = Environment(CCFLAGS='-g')
 
 opt.Program('foo', 'foo.c')
 
@@ -1080,8 +1147,8 @@ int main() { }
 
       <scons_example name="environments_ex4">
         <file name="SConstruct" printme="1">
-opt = Environment(CCFLAGS = '-O2')
-dbg = Environment(CCFLAGS = '-g')
+opt = Environment(CCFLAGS='-O2')
+dbg = Environment(CCFLAGS='-g')
 
 o = opt.Object('foo-opt', 'foo.c')
 opt.Program(o)
@@ -1125,14 +1192,14 @@ int main() { }
       to share the same values for one or more variables.
       Rather than always having to repeat all of the common
       variables when you create each construction environment,
-      you can use the &Clone; method
+      you can use the &f-link-env-Clone; method
       to create a copy of a construction environment.
 
       </para>
 
       <para>
 
-      Like the &Environment; call that creates a construction environment,
+      Like the &f-link-Environment; call that creates a construction environment,
       the &Clone; method takes &consvar; assignments,
       which will override the values in the copied construction environment.
       For example, suppose we want to use &gcc;
@@ -1148,9 +1215,9 @@ int main() { }
 
       <scons_example name="environments_ex5">
         <file name="SConstruct" printme="1">
-env = Environment(CC = 'gcc')
-opt = env.Clone(CCFLAGS = '-O2')
-dbg = env.Clone(CCFLAGS = '-g')
+env = Environment(CC='gcc')
+opt = env.Clone(CCFLAGS='-O2')
+dbg = env.Clone(CCFLAGS='-g')
 
 env.Program('foo', 'foo.c')
 
@@ -1183,14 +1250,14 @@ int main() { }
       <para>
 
       You can replace existing construction variable values
-      using the &Replace; method:
+      using the &f-link-env-Replace; method:
 
       </para>
 
       <scons_example name="environments_Replace1">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS = '-DDEFINE1')
-env.Replace(CCFLAGS = '-DDEFINE2')
+env = Environment(CCFLAGS='-DDEFINE1')
+env.Replace(CCFLAGS='-DDEFINE2')
 env.Program('foo.c')
         </file>
         <file name="foo.c">
@@ -1222,8 +1289,8 @@ int main() { }
       <scons_example name="environments_Replace-nonexistent">
         <file name="SConstruct" printme="1">
 env = Environment()
-env.Replace(NEW_VARIABLE = 'xyzzy')
-print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
+env.Replace(NEW_VARIABLE='xyzzy')
+print("NEW_VARIABLE = %s" % env['NEW_VARIABLE'])
         </file>
       </scons_example>
 
@@ -1257,12 +1324,12 @@ print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
 
       <scons_example name="environments_Replace2">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS = '-DDEFINE1')
-print("CCFLAGS = %s"%env['CCFLAGS'])
+env = Environment(CCFLAGS='-DDEFINE1')
+print("CCFLAGS = %s" % env['CCFLAGS'])
 env.Program('foo.c')
 
-env.Replace(CCFLAGS = '-DDEFINE2')
-print("CCFLAGS = %s"%env['CCFLAGS'])
+env.Replace(CCFLAGS='-DDEFINE2')
+print("CCFLAGS = %s" % env['CCFLAGS'])
 env.Program('bar.c')
         </file>
         <file name="foo.c">
@@ -1313,14 +1380,14 @@ int main() { }
       that a construction variable should be
       set to a value only if the construction environment
       does not already have that variable defined
-      You can do this with the &SetDefault; method,
+      You can do this with the &f-link-env-SetDefault; method,
       which behaves similarly to the <function>set_default</function>
-      method of Python dictionary objects:
+      method of &Python; dictionary objects:
 
       </para>
 
       <sconstruct>
-env.SetDefault(SPECIAL_FLAG = '-extra-option')
+env.SetDefault(SPECIAL_FLAG='-extra-option')
       </sconstruct>
 
       <para>
@@ -1345,7 +1412,7 @@ env.SetDefault(SPECIAL_FLAG = '-extra-option')
 
       You can append a value to
       an existing construction variable
-      using the &Append; method:
+      using the &f-link-env-Append; method:
 
       </para>
 
@@ -1419,7 +1486,7 @@ print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
       Some times it's useful to add a new value
       only if the existing construction variable
       doesn't already contain the value.
-      This can be done using the &AppendUnique; method:
+      This can be done using the &f-link-env-AppendUnique; method:
 
       </para>
 
@@ -1445,14 +1512,14 @@ env.AppendUnique(CCFLAGS=['-g'])
 
       You can append a value to the beginning of
       an existing construction variable
-      using the &Prepend; method:
+      using the &f-link-env-Prepend; method:
 
       </para>
 
       <scons_example name="environments_ex9">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS = ['-DMY_VALUE'])
-env.Prepend(CCFLAGS = ['-DFIRST'])
+env = Environment(CCFLAGS=['-DMY_VALUE'])
+env.Prepend(CCFLAGS=['-DFIRST'])
 env.Program('foo.c')
         </file>
         <file name="foo.c">
@@ -1481,8 +1548,8 @@ int main() { }
       <scons_example name="environments_Prepend-nonexistent">
         <file name="SConstruct" printme="1">
 env = Environment()
-env.Prepend(NEW_VARIABLE = 'added')
-print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
+env.Prepend(NEW_VARIABLE='added')
+print("NEW_VARIABLE = %s" % env['NEW_VARIABLE'])
         </file>
       </scons_example>
 
@@ -1521,7 +1588,7 @@ print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
       to the beginning of a construction variable
       only if the existing value
       doesn't already contain the to-be-added value.
-      This can be done using the &PrependUnique; method:
+      This can be done using the &f-link-env-PrependUnique; method:
 
       </para>
 
@@ -1538,6 +1605,132 @@ env.PrependUnique(CCFLAGS=['-g'])
 
       </para>
 
+      </section>
+
+      <section id="builder_overrides">
+      <title>Overriding Construction Variable Settings</title>
+
+      <para>
+
+      Rather than creating a cloned environmant for specific tasks,
+      you can <firstterm>override</firstterm> or add construction variables
+      when calling a builder method by passing them as keyword arguments.
+      The values of these overridden or added variables will only be in
+      effect when building that target, and will not affect other parts
+      of the build.
+      For example, if you want to add additional libraries for just one program:
+
+      </para>
+
+      <programlisting>
+env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
+      </programlisting>
+
+      <para>
+
+      or generate a shared library with a non-standard suffix:
+
+      </para>
+
+      <programlisting>
+env.SharedLibrary(
+    target='word',
+    source='word.cpp',
+    SHLIBSUFFIX='.ocx',
+    LIBSUFFIXES=['.ocx'],
+)
+      </programlisting>
+
+      <para>
+
+      When overriding this way, the &Python; keyword arguments in
+      the builder call mean "set to this value".
+      If you want your override to augment an existing value,
+      you have to take some extra steps.
+      Inside the builder call,
+      it is possible to substitute in the existing value by using
+      a string containing the variable name prefaced by a
+      dollar sign (<literal>$</literal>).
+
+      </para>
+
+      <scons_example name="builders_override_ex1">
+        <file name="SConstruct" printme="1">
+env = Environment(CPPDEFINES="FOO")
+env.Object(target="foo1.o", source="foo.c")
+env.Object(target="foo2.o", source="foo.c", CPPDEFINES="BAR")
+env.Object(target="foo3.o", source="foo.c", CPPDEFINES=["BAR", "$CPPDEFINES"])
+        </file>
+        <file name="foo.c">
+void main() { }
+        </file>
+      </scons_example>
+
+      <para>
+
+      Which yields:
+
+      </para>
+
+      <scons_output example="builders_override_ex1" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      It is also possible to use the <parameter>parse_flags</parameter>
+      keyword argument in an override to merge command-line
+      style arguments into the appropriate construction
+      variables. This works like the &f-link-env-MergeFlags; method,
+      which will be fully described in the next chapter.
+
+      </para>
+
+      <para>
+
+      This example adds 'include' to &cv-link-CPPPATH;,
+      'EBUG' to &cv-link-CPPDEFINES;, and 'm' to &cv-link-LIBS;:
+
+      </para>
+
+      <scons_example name="builders_override_ex2">
+        <file name="SConstruct" printme="1">
+env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
+        </file>
+        <file name="hello.c">
+#include &lt;stdio.h&gt;
+void main() {
+        printf("Hello, world\n");
+}
+        </file>
+      </scons_example>
+
+      <para>
+
+      So when executed:
+
+      </para>
+
+      <scons_output example="builders_override_ex2" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
+
+      <para>
+
+      Using temporary overrides this way is lighter weight than making
+      a full construction environment, so it can help performance in
+      large projects which have lots of special case values to set.
+      However, keep in mind that this only works well when the
+      targets are unique.  Using builder overrides to try to build
+      the same target with different sets of flags or other construction
+      variables will lead to the
+      <computeroutput>scons: *** Two environments with different actions...</computeroutput>
+      error described in <xref linkend="multiple_construction_envs"/>
+      above. In this case you will actually want to create separate
+      environments.
+
+      </para>
+
     </section>
 
   </section>
@@ -1549,12 +1742,11 @@ env.PrependUnique(CCFLAGS=['-g'])
 
       When &SCons; builds a target file,
       it does not execute the commands with
-      the same external environment
+      the external environment
       that you used to execute &SCons;.
-      Instead, it uses the dictionary
-      stored in the &cv-link-ENV; construction variable
-      as the external environment
-      for executing commands.
+      Instead, it builds an execution environment from the values
+      stored in the &cv-link-ENV; &consvar;
+      and uses that for executing commands.
 
     </para>
 
@@ -1564,11 +1756,11 @@ env.PrependUnique(CCFLAGS=['-g'])
       is that the &PATH; environment variable,
       which controls where the operating system
       will look for commands and utilities,
-      is not the same as in the external environment
+      will almost certainly not be the same as in the external environment
       from which you called &SCons;.
-      This means that &SCons; will not, by default,
+      This means that &SCons; might not
       necessarily find all of the tools
-      that you can execute from the command line.
+      that you can successfully execute from the command line.
 
     </para>
 
@@ -1598,21 +1790,21 @@ env.PrependUnique(CCFLAGS=['-g'])
 
     <sconstruct>
 path = ['/usr/local/bin', '/bin', '/usr/bin']
-env = Environment(ENV = {'PATH' : path})
+env = Environment(ENV={'PATH': path})
     </sconstruct>
 
     <para>
 
-    Assign a dictionary to the &cv-ENV;
+    Assigning a dictionary to the &cv-ENV;
     construction variable in this way
-    completely resets the external environment
+    completely resets the execution environment,
     so that the only variable that will be
     set when external commands are executed
     will be the &PATH; value.
     If you want to use the rest of
     the values in &cv-ENV; and only
-    set the value of &PATH;,
-    the most straightforward way is probably:
+    set the value of &PATH;, you can assign a value only
+    to that variable:
 
     </para>
 
@@ -1623,11 +1815,10 @@ env['ENV']['PATH'] = ['/usr/local/bin', '/bin', '/usr/bin']
     <para>
 
     Note that &SCons; does allow you to define
-    the directories in the &PATH; in a string,
+    the directories in the &PATH; in a string with paths
     separated by the pathname-separator character
-    for your system (':' on POSIX systems, ';' on Windows
-    or use <literal>os.pathsep</literal> for portability).
-
+    for your system (<literal>':'</literal> on POSIX systems,
+    <literal>';'</literal> on Windows).
 
     </para>
 
@@ -1638,10 +1829,18 @@ env['ENV']['PATH'] = '/usr/local/bin:/bin:/usr/bin'
     <para>
 
     But doing so makes your &SConscript; file less portable,
-    (although in this case that may not be a huge concern
-    since the directories you list are likely system-specific, anyway).
+    since it will be correct only for the system type that
+    matches the separator. You can use the &Python;
+    <varname>os.pathsep</varname> for for greater portability -
+    don't worry too much if this &Python; syntax doesn't make sense
+    since there are other ways available:
 
     </para>
+
+    <sconstruct>
+import os
+env['ENV']['PATH'] = os.pathsep.join(['/usr/local/bin', '/bin', '/usr/bin'])
+    </sconstruct>
 
     <!--
 
@@ -1678,20 +1877,20 @@ for key in keys:
 
       <para>
 
-      You may want to propagate the external &PATH;
+      You may want to propagate the external environment &PATH;
       to the execution environment for commands.
       You do this by initializing the &PATH;
       variable with the &PATH; value from
-      the <literal>os.environ</literal>
+      the <varname>os.environ</varname>
       dictionary,
-      which is Python's way of letting you
+      which is &Python;'s way of letting you
       get at the external environment:
 
       </para>
 
       <sconstruct>
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+env = Environment(ENV={'PATH': os.environ['PATH']})
       </sconstruct>
 
       <para>
@@ -1707,7 +1906,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
       <sconstruct>
 import os
-env = Environment(ENV = os.environ)
+env = Environment(ENV=os.environ)
       </sconstruct>
 
       <para>
@@ -1736,12 +1935,13 @@ env = Environment(ENV = os.environ)
 
       One of the most common requirements
       for manipulating a variable in the execution environment
-      is to add one or more custom directories to a search
-      like the <envar>$PATH</envar> variable on Linux or POSIX systems,
-      or the <envar>%PATH%</envar> variable on Windows,
+      is to add one or more custom directories to a path search variable
+      like <envar>PATH</envar> on Linux or POSIX systems,
+      or <envar>%PATH%</envar> on Windows,
       so that a locally-installed compiler or other utility
       can be found when &SCons; tries to execute it to update a target.
-      &SCons; provides &PrependENVPath; and &AppendENVPath; functions
+      &SCons; provides &f-link-env-PrependENVPath;
+      and &f-link-env-AppendENVPath; functions
       to make adding things to execution variables convenient.
       You call these functions by specifying the variable
       to which you want the value added,
@@ -1753,7 +1953,7 @@ env = Environment(ENV = os.environ)
       </para>
 
       <sconstruct>
-env = Environment(ENV = os.environ)
+env = Environment(ENV=os.environ)
 env.PrependENVPath('PATH', '/usr/local/bin')
 env.AppendENVPath('LIB', '/usr/local/lib')
       </sconstruct>
@@ -1785,14 +1985,15 @@ env.AppendENVPath('LIB', '/usr/local/lib')
       <para>
       Normally when using a tool from the construction environment,
       several different search locations are checked by default.
-      This includes the <filename>Scons/Tools/</filename> directory
-      inbuilt to scons and the directory <filename>site_scons/site_tools</filename>
-      relative to the root SConstruct file.
+      This includes the <filename>SCons/Tools/</filename> directory
+      that is part of the &scons; distribution
+      and the directory <filename>site_scons/site_tools</filename>
+      relative to the root &SConstruct; file.
       </para>
 
       <sconstruct>
 # Builtin tool or tool located within site_tools
-env = Environment(tools = ['SomeTool'])
+env = Environment(tools=['SomeTool'])
 env.SomeTool(targets, sources)
 
 # The search locations would include by default
@@ -1809,13 +2010,17 @@ SCons/Tool/SomeTool/__init__.py
 
       <para>
       In some cases you may want to specify a different location to search for tools.
-      The Environment constructor contains an option for this called toolpath
+      The &f-link-Environment; function contains an option for this called
+      <parameter>toolpath</parameter>
       This can be used to add additional search directories.
       </para>
 
       <sconstruct>
 # Tool located within the toolpath directory option
-env = Environment(tools = ['SomeTool'], toolpath = ['/opt/SomeToolPath', '/opt/SomeToolPath2'])
+env = Environment(
+    tools=['SomeTool'],
+    toolpath=['/opt/SomeToolPath', '/opt/SomeToolPath2']
+)
 env.SomeTool(targets, sources)
 
 # The search locations in this example would include:
@@ -1831,20 +2036,26 @@ SCons/Tool/SomeTool/__init__.py
 
     </section>
 
-	<section>
+    <section>
     <title>Nested Tools within a toolpath</title>
 
       <para>
-      &SCons; 3.0 now supports the ability for a Builder to be located
-	  within a sub-directory / sub-package of the toolpath.
-	  This is similar to namespacing within python.
-	  With nested or namespaced tools we can use the dot notation
-	  to specify a sub-directory that the tool is located under.
+
+      Since &SCons; 3.0, a Builder may be located
+      within a sub-directory / sub-package of the toolpath.
+      This is similar to namespacing within &Python;.
+      <!-- TODO: that was an advanced topic!!! -->
+      With nested or namespaced tools we can use the dot notation
+      to specify a sub-directory that the tool is located under.
+
       </para>
 
       <sconstruct>
 # namespaced target
-env = Environment(tools = ['SubDir1.SubDir2.SomeTool'], toolpath = ['/opt/SomeToolPath'])
+env = Environment(
+    tools=['SubDir1.SubDir2.SomeTool'],
+    toolpath=['/opt/SomeToolPath']
+)
 env.SomeTool(targets, sources)
 
 # With this example the search locations would include
@@ -1856,26 +2067,21 @@ SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
 ./site_scons/site_tools/SubDir1/SubDir2/SomeTool/__init__.py
       </sconstruct>
 
-      <para>
-      For python2 It's important to note when creating tools within sub-directories,
-      there needs to be a __init__.py file within each directory.
-      This file can just be empty.
-      This is the same constraint used by python when loading modules
-      from within sub-directories (packages).
-      For python3 this appears to be no longer a requirement.
-      </para>
     </section>
 
-	<section>
+    <section>
     <title>Using sys.path within the toolpath</title>
 
       <para>
-      If we want to access tools externally to scons on the sys.path
-      (one example would be tools installed via the pip package manager)
-      One way to do this is to use sys.path with the toolpath.
+      If we want to access tools external to &scons; which are findable
+      via <varname>sys.path</varname>
+      (for example, tools installed via Python's <command>pip</command> package manager),
+      it is possible to use <varname>sys.path</varname> with the toolpath.
 
-      One thing to watch out for with this approach is that sys.path
-      can sometimes contains paths to .egg files instead of directories.
+      One thing to watch out for with this approach is that
+      <varname>sys.path</varname>
+      can sometimes contains paths to <filename>.egg</filename>
+      files instead of directories.
       So we need to filter those out with this approach.
       </para>
 
@@ -1884,16 +2090,20 @@ SCons/Tool/SubDir1/SubDir2/SomeTool/__init__.py
 
 searchpaths = []
 for item in sys.path:
-    if os.path.isdir(item): searchpaths.append(item)
+    if os.path.isdir(item):
+        searchpaths.append(item)
 
-env = Environment(tools = ['someinstalledpackage.SomeTool'], toolpath = searchpaths)
+env = Environment(
+    tools=['someinstalledpackage.SomeTool'],
+    toolpath=searchpaths
+)
 env.SomeTool(targets, sources)
       </sconstruct>
 
       <para>
-      By using sys.path with the toolpath argument
-      and by using the nested syntax we can have scons search
-      packages installed via pip for Tools.
+      By using <varname>sys.path</varname> with the toolpath argument
+      and by using the nested syntax we can have &scons; search
+      packages installed via <command>pip</command> for Tools.
       </para>
 
 <sconstruct>
@@ -1914,29 +2124,40 @@ C:\Python35\Lib\site-packages\someinstalledpackage\SomeTool\__init__.py
       <para>
       In some cases you may want to use a tool
       located within a installed external pip package.
-      This is possible by the use of sys.path with the toolpath.
+      This is possible by the use of
+      <varname>sys.path</varname> with the toolpath.
       However in that situation you need to provide a prefix to the toolname
-      to indicate where it is located within sys.path
+      to indicate where it is located within <varname>sys.path</varname>.
       </para>
 
       <sconstruct>
 searchpaths = []
 for item in sys.path:
-    if os.path.isdir(item): searchpaths.append(item)
-env = Environment(tools = ['tools_example.subdir1.subdir2.SomeTool'], toolpath = searchpaths)
+    if os.path.isdir(item):
+        searchpaths.append(item)
+env = Environment(
+    tools=['tools_example.subdir1.subdir2.SomeTool'],
+    toolpath=searchpaths
+)
 env.SomeTool(targets, sources)
       </sconstruct>
 
       <para>
-      To avoid the use of a prefix within the name of the tool or filtering sys.path for directories,
-      we can use the <function>PyPackageDir(modulename)</function> function to locate the directory of the python package.
-      <function>PyPackageDir</function> returns a Dir object which represents the path of the directory
+      To avoid the use of a prefix within the name of the tool or filtering
+      <varname>sys.path</varname> for directories,
+      we can use &f-link-PyPackageDir; function to locate the directory of
+      the python package.
+      &f-PyPackageDir; returns a Dir object which represents the path of the
+      directory
       for the python package / module specified as a parameter.
       </para>
 
       <sconstruct>
 # namespaced target using sys.path
-env = Environment(tools = ['SomeTool'], toolpath = [PyPackageDir('tools_example.subdir1.subdir2')])
+env = Environment(
+    tools=['SomeTool'],
+    toolpath=[PyPackageDir('tools_example.subdir1.subdir2')]
+)
 env.SomeTool(targets, sources)
       </sconstruct>
 

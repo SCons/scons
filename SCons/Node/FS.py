@@ -2634,7 +2634,8 @@ class File(Base):
     NodeInfo = FileNodeInfo
     BuildInfo = FileBuildInfo
 
-    md5_chunksize = 64
+    # Although the command-line argument is in kilobytes, this is in bytes.
+    md5_chunksize = 65536
 
     def diskcheck_match(self):
         diskcheck_match(self, self.isdir,
@@ -2736,7 +2737,7 @@ class File(Base):
             return MD5signature('')
         fname = self.rfile().get_abspath()
         try:
-            cs = MD5filesignature(fname, chunksize=File.md5_chunksize * 1024)
+            cs = MD5filesignature(fname, chunksize=File.md5_chunksize)
         except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
@@ -3623,7 +3624,7 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize * 1024)
+            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
