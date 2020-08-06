@@ -9,7 +9,7 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From William Deegan:
-    - Fix yaccc tool, not respecting YACC set at time of tool initialization.
+    - Fix yacc tool, not respecting YACC set at time of tool initialization.
 
 
   From Adam Gross:
