@@ -8,9 +8,9 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From William Deegan:
+    - Fix yaccc tool, not respecting YACC set at time of tool initialization.
 
-        - Whatever John Doe did.
 
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
