@@ -8,13 +8,14 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
-
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
+
+  From Rocco Matano:
+    - Fix Zip tool to respect ZIPCOMSTR. Previously all zip builder calls would yield something
+      like zip(["test.zip"], ["zip_scons.py"]) and ignore ZIPCOMSTR if ZIPCOM and ZIPCOMSTR
+      weren't set after the Environment/Tool is initialized. (Explained in PR #3659)
 
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
