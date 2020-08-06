@@ -42,12 +42,21 @@ env = Environment(tools=['zip'],
                   ZIPCOM = r'%(_python_)s mycompile.py zip $TARGET $SOURCES',
                   ZIPCOMSTR = 'Zipping $TARGET from $SOURCE')
 env.Zip('aaa.zip', 'aaa.in')
+
+# Issue explained in PR #3569 - setting ZIPCOM/ZIPCOMSTR after env initialization
+# is ignored and yields zip() instead of desired ZIPCOMSTR>
+env2 = Environment(tools=['zip'])
+env2['ZIPCOM'] = r'%(_python_)s mycompile.py zip $TARGET $SOURCES'
+env2['ZIPCOMSTR']="TESTING ONE TWO THREE $TARGET from $SOURCE"
+env2.Zip('aaa2.zip', 'aaa.in')
+
 """ % locals())
 
 test.write('aaa.in', 'aaa.in\n/*zip*/\n')
 
 test.run(stdout = test.wrap_stdout("""\
 Zipping aaa.zip from aaa.in
+TESTING ONE TWO THREE aaa2.zip from aaa.in
 """))
 
 test.must_match('aaa.zip', "aaa.in\n")

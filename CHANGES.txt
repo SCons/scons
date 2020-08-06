@@ -8,10 +8,10 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
-
+  From Rocco Matano:
+    - Fix Zip tool to respect ZIPCOMSTR. Previously all zip builder calls would yield something
+      like zip(["test.zip"], ["zip_scons.py"]) and ignore ZIPCOMSTR if ZIPCOM and ZIPCOMSTR
+      weren't set after the Environment/Tool is initialized. (Explained in PR #3659)
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
