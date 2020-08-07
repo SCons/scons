@@ -54,6 +54,8 @@ src, target = sys.argv[1:]
 
 with open(logfile, 'ab') as f:
     f.write(('%s -> %s\\n' % (src, target)).encode())
+with open(target, 'wb') as ofp, open(src, 'rb') as ifp:
+    ofp.write(ifp.read())
 
 # Give the other threads a chance to start.
 time.sleep(1)
@@ -79,6 +81,14 @@ test.write('baz.in', 'baz.in\n')
 
 test.run(arguments = "-j 4 .")
 
+test.must_match('h1.out', 'h1.in\n')
+test.must_match('g2.out', 'g2.in\n')
+test.must_match('f3.out', 'f3.in\n')
+test.must_exist('log.txt')
+test.must_exist('log.out')
+
+stdout = test.stdout()
+
 
 build_lines =  [
     'build.py h1.in h1.out', 
@@ -86,7 +96,20 @@ build_lines =  [
     'build.py f3.in f3.out', 
 ]
 
-test.must_contain_all_lines(test.stdout(), build_lines)
+missing = []
+for line in build_lines:
+    if stdout.find(line) == -1:
+        missing.append(line)
+
+if missing:
+    print("===== standard output is missing the following lines:")
+    print('\n'.join(missing))
+    print("===== STDOUT ========================================")
+    print(stdout)
+    test.fail_test()
+
+
+log = test.read('log.txt', mode='r')
 
 log_lines = [
     'f3.in -> f3.out',
@@ -94,8 +117,17 @@ log_lines = [
     'g2.in -> g2.out',
 ]
 
-test.must_contain_all_lines(test.read('log.txt', mode='r'), log_lines)
+missing = []
+for line in log_lines:
+    if log.find(line) == -1:
+        missing.append(line)
 
+if missing:
+    print("===== log file 'log.txt' is missing the following lines:")
+    print('\n'.join(missing))
+    print("===== STDOUT ===========================================")
+    print(log)
+    test.fail_test()
 
 test.pass_test()
 
