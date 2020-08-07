@@ -42,7 +42,9 @@ import SCons.Util
 
 import zipfile
 
-zipcompression = zipfile.ZIP_DEFLATED
+zip_compression = zipfile.ZIP_DEFLATED
+
+
 def zip(target, source, env):
     compression = env.get('ZIPCOMPRESSION', 0)
     zf = zipfile.ZipFile(str(target[0]), 'w', compression)
@@ -52,19 +54,20 @@ def zip(target, source, env):
                 for fname in filenames:
                     path = os.path.join(dirpath, fname)
                     if os.path.isfile(path):
-
                         zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))))
         else:
             zf.write(str(s), os.path.relpath(str(s), str(env.get('ZIPROOT', ''))))
     zf.close()
 
-zipAction = SCons.Action.Action(zip, varlist=['ZIPCOMPRESSION'])
+# Fix PR #3569 - If you don't specify ZIPCOM and ZIPCOMSTR when creating
+# env, then it will ignore ZIPCOMSTR set afterwards.
+zipAction = SCons.Action.Action(zip, "$ZIPCOMSTR", varlist=['ZIPCOMPRESSION'])
 
-ZipBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
-                                   source_factory = SCons.Node.FS.Entry,
-                                   source_scanner = SCons.Defaults.DirScanner,
-                                   suffix = '$ZIPSUFFIX',
-                                   multi = 1)
+ZipBuilder = SCons.Builder.Builder(action=SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
+                                   source_factory=SCons.Node.FS.Entry,
+                                   source_scanner=SCons.Defaults.DirScanner,
+                                   suffix='$ZIPSUFFIX',
+                                   multi=1)
 
 
 def generate(env):
@@ -75,12 +78,13 @@ def generate(env):
         bld = ZipBuilder
         env['BUILDERS']['Zip'] = bld
 
-    env['ZIP']        = 'zip'
-    env['ZIPFLAGS']   = SCons.Util.CLVar('')
-    env['ZIPCOM']     = zipAction
-    env['ZIPCOMPRESSION'] =  zipcompression
-    env['ZIPSUFFIX']  = '.zip'
-    env['ZIPROOT']    = SCons.Util.CLVar('')
+    env['ZIP'] = 'zip'
+    env['ZIPFLAGS'] = SCons.Util.CLVar('')
+    env['ZIPCOM'] = zipAction
+    env['ZIPCOMPRESSION'] = zip_compression
+    env['ZIPSUFFIX'] = '.zip'
+    env['ZIPROOT'] = SCons.Util.CLVar('')
+
 
 def exists(env):
     return True
