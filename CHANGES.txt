@@ -8,9 +8,6 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From William Deegan:
-    - Fix yacc tool, not respecting YACC set at time of tool initialization.
-
   From Joseph Brill:
     - Modify the MSCommon internal-use only debug logging records to contain the correct relative
       file path when the debug function is called from outside the MSCommon module.
@@ -18,6 +15,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Modify the MSCommon internal-use only debug and trace file handling to optionally produce
       debug and/or trace files for each invocation of SCons.  Provide a mechanism to optionally 
       synchronize the MSCommon debug and trace file names when both are enabled.
+
+  From William Deegan:
+    - Fix yacc tool, not respecting YACC set at time of tool initialization.
 
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
