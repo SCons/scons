@@ -657,16 +657,12 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     return False
 
-def cached_get_installed_vcs(env=None):
+def get_installed_vcs(env=None):
     global __INSTALLED_VCS_RUN
 
-    if __INSTALLED_VCS_RUN is None:
-        ret = get_installed_vcs(env)
-        __INSTALLED_VCS_RUN = ret
+    if __INSTALLED_VCS_RUN is not None:
+        return __INSTALLED_VCS_RUN
 
-    return __INSTALLED_VCS_RUN
-
-def get_installed_vcs(env=None):
     installed_versions = []
 
     for ver in _VCVER:
@@ -687,7 +683,9 @@ def get_installed_vcs(env=None):
             raise
         except VisualCException as e:
             debug('did not find VC %s: caught exception %s' % (ver, str(e)))
-    return installed_versions
+
+    __INSTALLED_VCS_RUN = installed_versions
+    return __INSTALLED_VCS_RUN
 
 def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
@@ -758,7 +756,7 @@ def get_default_version(env):
         return msvs_version
 
     if not msvc_version:
-        installed_vcs = cached_get_installed_vcs(env)
+        installed_vcs = get_installed_vcs(env)
         debug('installed_vcs:%s' % installed_vcs)
         if not installed_vcs:
             #msg = 'No installed VCs'
@@ -853,7 +851,7 @@ def msvc_find_valid_batch_script(env, version):
             warn_msg = "VC version %s not installed.  " + \
                        "C/C++ compilers are most likely not set correctly.\n" + \
                        " Installed versions are: %s"
-            warn_msg = warn_msg % (version, cached_get_installed_vcs(env))
+            warn_msg = warn_msg % (version, get_installed_vcs(env))
             SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
             continue
 
@@ -948,7 +946,7 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
-    vcs = cached_get_installed_vcs(env)
+    vcs = get_installed_vcs(env)
     if version is None:
         return len(vcs) > 0
     return version in vcs

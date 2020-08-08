@@ -8,6 +8,10 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
+      is not exposed externally and update external references accordingly.
+
   From William Deegan:
     - Fix yacc tool, not respecting YACC set at time of tool initialization.
 
