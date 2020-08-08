@@ -9,8 +9,10 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
-    - MSVS update: Remove unnecessary calls to find all installed versions of msvc when
-      constructing the installed visual studios list.
+    - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
+      is not exposed externally and update external references accordingly.
+    - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
+      when constructing the installed visual studios list.
 
   From William Deegan:
     - Fix yacc tool, not respecting YACC set at time of tool initialization.
