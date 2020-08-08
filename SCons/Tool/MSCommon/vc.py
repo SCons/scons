@@ -947,8 +947,7 @@ def get_installed_vcs(env=None):
         setup_installed_vctoolsets(env)
 
     __INSTALLED_VCS_RUN = installed_versions
-
-    return installed_versions
+    return __INSTALLED_VCS_RUN
 
 def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
