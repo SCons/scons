@@ -24,6 +24,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       like zip(["test.zip"], ["zip_scons.py"]) and ignore ZIPCOMSTR if ZIPCOM and ZIPCOMSTR
       weren't set after the Environment/Tool is initialized. (Explained in PR #3659)
 
+  From Daniel Moody:
+    - Fix issue where java parsed a class incorrectly from lambdas used after a new.
+
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
