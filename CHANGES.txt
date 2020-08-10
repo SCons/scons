@@ -1,4 +1,4 @@
-
+﻿
 
                  SCons - a software construction tool
 
@@ -9,6 +9,8 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
+    - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
+      is not exposed externally and update external references accordingly.
     - Modify the MSCommon internal-use only debug logging records to contain the correct relative
       file path when the debug function is called from outside the MSCommon module.
 

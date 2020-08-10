@@ -82,7 +82,7 @@ test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
 
-installed_msvc_versions = msvc.cached_get_installed_vcs()
+installed_msvc_versions = msvc.get_installed_vcs()
 # MSVC guaranteed to be at least one version on the system or else
 # skip_if_not_msvc() function would have skipped the test
 
