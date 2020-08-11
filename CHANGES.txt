@@ -29,8 +29,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       OverrideEnvironment. Enable env.setdefault() method, add tests.
 
   From Joachim Kuebart:
-    - Suppress missing SConscript deprecation warning if `must_exist` is
-      used.
+    - Suppress missing SConscript deprecation warning if `must_exist=False`
+      is used.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
