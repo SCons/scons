@@ -162,6 +162,9 @@ def generate(env):
 
 
 def exists(env):
+    if 'YACC' in env:
+        return env.Detect(env['YACC'])
+
     if sys.platform == 'win32':
         return get_yacc_path(env)
     else:
