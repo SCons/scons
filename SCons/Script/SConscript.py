@@ -172,7 +172,7 @@ def handle_missing_SConscript(f, must_exist=None):
         msg = "Fatal: missing SConscript '%s'" % f.get_internal_path()
         raise SCons.Errors.UserError(msg)
 
-    if SCons.Script._warn_missing_sconscript_deprecated:
+    if SCons.Script._warn_missing_sconscript_deprecated and must_exist is None:
         msg = "Calling missing SConscript without error is deprecated.\n" + \
               "Transition by adding must_exist=0 to SConscript calls.\n" + \
               "Missing SConscript '%s'" % f.get_internal_path()
