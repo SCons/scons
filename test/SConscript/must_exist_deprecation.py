@@ -36,25 +36,7 @@ test = TestSCons.TestSCons()
 # catch the exception if is raised, send it on as a warning
 # this gives us traceability of the line responsible
 SConstruct_path = test.workpath('SConstruct')
-test.write(SConstruct_path, """\
-import SCons
-from SCons.Warnings import _warningOut
-import sys
-
-DefaultEnvironment(tools=[])
-# 1. call should succeed without deprecation warning
-try:
-    SConscript('missing/SConscript', must_exist=False)
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-# 2. call should succeed with deprecation warning
-try:
-    SConscript('missing/SConscript')
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-""")
+test.file_fixture("fixture/SConstruct")
 
 # we should see two warnings, the second being the deprecation message.
 # need to build the path in the expected msg in an OS-agnostic way
