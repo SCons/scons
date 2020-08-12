@@ -109,7 +109,7 @@ commands to build them.</para>
 which specifies the files to be built (<firstterm>targets</firstterm>),
 and, if necessary, the rules to build those files.  Premade
 rules exist for building many common software components
-such as executable programs, object files, libraries,
+such as executable programs, object files and libraries,
 so that for many software projects,
 only the target and input files (<firstterm>sources</firstterm>)
 need be specified.</para>
@@ -277,8 +277,10 @@ the command line (including the contents of the
 <link linkend="v-SCONSFLAGS">&SCONSFLAGS;</link>
 environment variable, if set) is processed.
 Command-line options (see <xref linkend="options"/>) are consumed.
-Any variable argument assignments are collected, and
-remaining arguments are taken as the targets to build.</para>
+Any variable argument assignments
+(see <xref linkend="commandline_construction_variables"/>)
+are collected, and
+remaining arguments are taken as targets to build.</para>
 
 <para>Values of variables to be passed to the SConscript files
 may be specified on the command line:</para>
@@ -307,21 +309,55 @@ if necessary. Each &ARGLIST; entry is a tuple containing
 (<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
 </para>
 
-<para>Targets on the command line may be files, directories,
+<para>&SCons; acts on the <firstterm>selected targets</firstterm>,
+whether the requested operation is build, no-exec or clean.
+Targets are selected as follows:
+</para>
+<orderedlist>
+<listitem>
+<para>
+Targets specified on the command line.
+These may be files, directories,
 or phony targets defined using the &f-link-Alias; function.
-The command line targets are made available in the
+Directory targets are scanned by &scons; for any targets
+that may be found with a destination in or under that directory.
+The targets listed on the command line are made available in the
 <link linkend="v-COMMAND_LINE_TARGETS">&COMMAND_LINE_TARGETS;</link> list.
 </para>
-
+</listitem>
+<listitem>
 <para>If no targets are specified on the command line,
-&scons;
-will build the default targets. The default targets
-are those specified in the SConscript files via calls
-to the &f-link-Default; function; if none, the default targets are
-those target files in or below the current directory.
-Targets specified via the &Default; function are available
-in the <link linkend="v-DEFAULT_TARGETS">&DEFAULT_TARGETS;</link> list.
+&scons; will select those targets
+specified in the SConscript files via calls
+to the &f-link-Default; function. These are
+known as the <firstterm>default targets</firstterm>,
+and are made available in the
+<link linkend="v-DEFAULT_TARGETS">&DEFAULT_TARGETS;</link> list.
 </para>
+</listitem>
+<listitem>
+<para>
+If there are no targets from the previous steps,
+&scons; selects the current directory for scanning,
+unless command-line options which affect the target
+scan are detected (<option>-C</option>,
+<option>-d</option>, <option>-u</option>, <option>-U</option>).
+Since targets thus selected were not the result of
+user instructions, this target list is not made available
+for direct inspection; use the <option>--debug=explain</option>
+option if they need to be examined.
+</para>
+</listitem>
+<listitem>
+<para>
+&scons; always adds to the selected targets any intermediate
+targets which are necessary to build the specified ones.
+For example, if constructing a shared library or dll from C
+source files, &scons; will also build the object files which
+will make up the library.
+</para>
+</listitem>
+</orderedlist>
 
 <para>To ignore the default targets specified
 through calls to &Default; and instead build all
@@ -377,11 +413,12 @@ also the related <option>-D</option> and <option>-U</option> options):</para>
 requested, as &scons; needs to make
 sure any dependent files are built.</para>
 
-<para>Specifying "cleanup" targets in SConscript files is not usually necessary.
+<para>Specifying "cleanup" targets in SConscript files is
+usually not necessary.
 The
 <option>-c</option>
-flag removes all files
-necessary to build the specified target:</para>
+flag removes all selected targets:
+</para>
 
 <screen>
 <userinput>scons -c .</userinput>
@@ -515,10 +552,11 @@ and many of those supported by <application>cons</application>.
     <option>--remove</option>
   </term>
   <listitem>
-<para>Clean up by removing the specified targets and their
-dependencies, as well as any files or directories associated
-with the specified targets through calls to the &f-link-Clean; function.
-Will not remove any targets specified by the &f-link-NoClean; function.
+<para>Clean up by removing the selected targets,
+well as any files or directories associated
+with a selected target through calls to the &f-link-Clean; function.
+Will not remove any targets which are marked for
+preservation through calls to the &f-link-NoClean; function.
 </para>
   </listitem>
   </varlistentry>
@@ -1449,6 +1487,7 @@ be appropriate for most uses.</para>
   <varlistentry>
   <term>
     <option>-n</option>,
+    <option>--no-exec</option>,
     <option>--just-print</option>,
     <option>--dry-run</option>,
     <option>--recon</option>
