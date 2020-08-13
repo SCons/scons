@@ -109,16 +109,17 @@ commands to build them.</para>
 which specifies the files to be built (<firstterm>targets</firstterm>),
 and, if necessary, the rules to build those files.  Premade
 rules exist for building many common software components
-such as executable programs, object files, libraries,
+such as executable programs, object files and libraries,
 so that for many software projects,
-only the target and input files need be specified.</para>
+only the target and input files (<firstterm>sources</firstterm>)
+need be specified.</para>
 
 <para>
 When invoked, &scons;
 searches for a file named
 &SConstruct;
 (it also checks alternate spellings
-&Sconstruct;, &sconstruct;, &SConstruct.py; &Sconstruct.py;
+&Sconstruct;, &sconstruct;, &SConstruct.py;, &Sconstruct.py;
 and &sconstruct.py;
 in that order) in the current directory and reads its
 configuration from that file.
@@ -214,12 +215,10 @@ that you want to use to build your target files
 are not in standard system locations,
 &scons;
 will not find them unless
-you explicitly include the locations into the value of
-<varname>PATH</varname> in the <varname>ENV</varname>
-variable in the internal &consenv;.
-Whenever you create a &consenv;,
-you can propagate the value of <envar>PATH</envar>
-from your external environment as follows:</para>
+you explicitly include the locations into the
+execution environment by setting the path in the
+<varname>ENV</varname> &consvar; in the
+internal &consenv;:</para>
 
 <programlisting language="python">
 import os
@@ -229,13 +228,18 @@ env = Environment(ENV={'PATH': os.environ['PATH']})
 <para>Similarly, if the commands use specific
 external environment variables that &scons;
 does not recognize, they can be propagated into
-the internal environment:</para>
+the execution environment:</para>
 
 <programlisting language="python">
 import os
-env = Environment(ENV={'PATH': os.environ['PATH'],
-                       'ANDROID_HOME': os.environ['ANDROID_HOME'],
-                       'ANDROID_NDK_HOME': os.environ['ANDROID_NDK_HOME']})
+
+env = Environment(
+    ENV={
+        'PATH': os.environ['PATH'],
+        'ANDROID_HOME': os.environ['ANDROID_HOME'],
+        'ANDROID_NDK_HOME': os.environ['ANDROID_NDK_HOME'],
+    }
+)
 </programlisting>
 
 <para>Or you may explicitly propagate the invoking user's
@@ -269,12 +273,14 @@ ability to define new scanners for unknown input file types.</para>
 is normally executed in a top-level directory containing an
 &SConstruct; file.
 When &scons; is invoked,
-the command line (including the contents
-of the &SCONSFLAGS; environment variable,
-if set) is processed.
+the command line (including the contents of the
+<link linkend="v-SCONSFLAGS">&SCONSFLAGS;</link>
+environment variable, if set) is processed.
 Command-line options (see <xref linkend="options"/>) are consumed.
-Any variable argument assignments are collected, and
-remaining arguments are taken as the targets to build.</para>
+Any variable argument assignments
+(see <xref linkend="commandline_construction_variables"/>)
+are collected, and
+remaining arguments are taken as targets to build.</para>
 
 <para>Values of variables to be passed to the SConscript files
 may be specified on the command line:</para>
@@ -283,8 +289,8 @@ may be specified on the command line:</para>
 <userinput>scons debug=1</userinput>
 </screen>
 
-<para>These variables are available
-through the &ARGUMENTS; dictionary,
+<para>These variables are available through the
+<link linkend="v-ARGUMENTS">&ARGUMENTS;</link> dictionary,
 and can be used in the SConscript files to modify
 the build in any way:</para>
 
@@ -296,28 +302,62 @@ else:
 </programlisting>
 
 <para>The command-line variable arguments are also available
-in the &ARGLIST; list,
+in the <link linkend="v-ARGLIST">&ARGLIST;</link> list,
 indexed by their order on the command line.
 This allows you to process them in order rather than by name,
 if necessary. Each &ARGLIST; entry is a tuple containing
 (<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
 </para>
 
-<para>Targets on the command line may be files, directories,
-or phony targets defined using the &Alias; function.
-The command line targets are made available in the
-&COMMAND_LINE_TARGETS; list.
+<para>&SCons; acts on the <firstterm>selected targets</firstterm>,
+whether the requested operation is build, no-exec or clean.
+Targets are selected as follows:
 </para>
-
+<orderedlist>
+<listitem>
+<para>
+Targets specified on the command line.
+These may be files, directories,
+or phony targets defined using the &f-link-Alias; function.
+Directory targets are scanned by &scons; for any targets
+that may be found with a destination in or under that directory.
+The targets listed on the command line are made available in the
+<link linkend="v-COMMAND_LINE_TARGETS">&COMMAND_LINE_TARGETS;</link> list.
+</para>
+</listitem>
+<listitem>
 <para>If no targets are specified on the command line,
-&scons;
-will build the default targets. The default targets
-are those specified in the SConscript files via calls
-to the &Default; function; if none, the default targets are
-those target files in or below the current directory.
-Targets specified via the &Default; function are available
-in the &DEFAULT_TARGETS; list.
+&scons; will select those targets
+specified in the SConscript files via calls
+to the &f-link-Default; function. These are
+known as the <firstterm>default targets</firstterm>,
+and are made available in the
+<link linkend="v-DEFAULT_TARGETS">&DEFAULT_TARGETS;</link> list.
 </para>
+</listitem>
+<listitem>
+<para>
+If there are no targets from the previous steps,
+&scons; selects the current directory for scanning,
+unless command-line options which affect the target
+scan are detected (<option>-C</option>,
+<option>-d</option>, <option>-u</option>, <option>-U</option>).
+Since targets thus selected were not the result of
+user instructions, this target list is not made available
+for direct inspection; use the <option>--debug=explain</option>
+option if they need to be examined.
+</para>
+</listitem>
+<listitem>
+<para>
+&scons; always adds to the selected targets any intermediate
+targets which are necessary to build the specified ones.
+For example, if constructing a shared library or dll from C
+source files, &scons; will also build the object files which
+will make up the library.
+</para>
+</listitem>
+</orderedlist>
 
 <para>To ignore the default targets specified
 through calls to &Default; and instead build all
@@ -373,11 +413,12 @@ also the related <option>-D</option> and <option>-U</option> options):</para>
 requested, as &scons; needs to make
 sure any dependent files are built.</para>
 
-<para>Specifying "cleanup" targets in SConscript files is not usually necessary.
+<para>Specifying "cleanup" targets in SConscript files is
+usually not necessary.
 The
 <option>-c</option>
-flag removes all files
-necessary to build the specified target:</para>
+flag removes all selected targets:
+</para>
 
 <screen>
 <userinput>scons -c .</userinput>
@@ -394,11 +435,11 @@ and <filename>export</filename>.</para>
 
 <para>
 Additional files or directories to remove can be specified using the
-&Clean; function in the SConscript files.
+&f-link-Clean; function in the SConscript files.
 Conversely, targets that would normally be removed by the
 <option>-c</option>
 invocation can be retained by calling the
-&NoClean; function with those targets.</para>
+&f-link-NoClean; function with those targets.</para>
 
 <para>&scons;
 supports building multiple targets in parallel via a
@@ -414,7 +455,7 @@ of simultaneous tasks that may be spawned:</para>
 
 <para>&scons;
 can maintain a cache of target (derived) files that can
-be shared between multiple builds.  When caching is enabled in a
+be shared between multiple builds.  When derived-file caching is enabled in an
 SConscript file, any target files built by
 &scons;
 will be copied
@@ -511,11 +552,12 @@ and many of those supported by <application>cons</application>.
     <option>--remove</option>
   </term>
   <listitem>
-<para>Clean up by removing all target files for which a construction
-command is specified.
-Also remove any files or directories associated to the construction command
-using the &Clean; function.
-Will not remove any targets specified by the &NoClean; function.</para>
+<para>Clean up by removing the selected targets,
+well as any files or directories associated
+with a selected target through calls to the &f-link-Clean; function.
+Will not remove any targets which are marked for
+preservation through calls to the &f-link-NoClean; function.
+</para>
   </listitem>
   </varlistentry>
 
@@ -1445,6 +1487,7 @@ be appropriate for most uses.</para>
   <varlistentry>
   <term>
     <option>-n</option>,
+    <option>--no-exec</option>,
     <option>--just-print</option>,
     <option>--dry-run</option>,
     <option>--recon</option>
@@ -2152,7 +2195,7 @@ but setting it after the &consenv; is constructed has no effect.
 <para>As a convenience,
 &consvars; may also be set or modified by the
 <parameter>parse_flags</parameter>
-keyword argument during object creation, 
+keyword argument during object creation,
 which has the effect of the
 &f-link-env-MergeFlags;
 method being applied to the argument value
@@ -2681,7 +2724,7 @@ see the descriptions below of these variables for more information.</para>
 <para>The optional
 <parameter>parse_flags</parameter>
 keyword argument is recognized by builders.
-This works similarly to the 
+This works similarly to the
 &f-link-env-MergeFlags; method, where the argument value is
 broken into individual settings and merged into the appropriate &consvars;.
 </para>
@@ -3072,7 +3115,7 @@ that can be used in SConscript files
 to affect how you want the build to be performed.</para>
 
 <variablelist>
-  <varlistentry>
+  <varlistentry id="v-ARGLIST">
   <term>&ARGLIST;</term>
   <listitem>
 <para>A list of the
@@ -3104,7 +3147,7 @@ for key, value in ARGLIST:
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-ARGUMENTS">
   <term>&ARGUMENTS;</term>
   <listitem>
 <para>A dictionary of all the
@@ -3129,7 +3172,7 @@ else:
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-BUILD_TARGETS">
   <term>&BUILD_TARGETS;</term>
   <listitem>
 <para>A list of the targets which
@@ -3175,7 +3218,7 @@ if 'special/program' in BUILD_TARGETS:
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-COMMAND_LINE_TARGETS">
   <term>&COMMAND_LINE_TARGETS;</term>
   <listitem>
 <para>A list of the targets explicitly specified on
@@ -3198,7 +3241,7 @@ if 'special/program' in COMMAND_LINE_TARGETS:
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-DEFAULT_TARGETS">
   <term>&DEFAULT_TARGETS;</term>
   <listitem>
 <para>A list of the target
@@ -7464,7 +7507,7 @@ release, it may be necessary to specify
     </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-SCONSFLAGS">
     <term><envar>SCONSFLAGS</envar></term>
     <listitem>
 <para>A string of options that will be used by &scons;
