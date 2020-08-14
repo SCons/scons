@@ -262,8 +262,6 @@ def process_warn_strings(arguments, flavor="warn"):
     disable (respectively) the base class of all SCons warnings.
 
     """
-    import os
-    pid = os.getpid()
 
     def _classmunge(s):
         """Convert a warning argument to SConsCase.
