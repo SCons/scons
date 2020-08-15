@@ -153,7 +153,7 @@ class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
 # A table of requests to override warning defaults.
 # This is a list of Warntype tuples consisting of a class object and a value.
 # A False value means disabled, True means enabled,
-Warntype = namedtuple("Warntype", 'cls, warn, error', defaults=(False, False))
+Warntype = namedtuple("Warntype", 'cls, warn, error')
 _enabled = []
 
 # If true, raise any warning as an exception
