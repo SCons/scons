@@ -2388,12 +2388,15 @@ as well as using the ordinary default tools for the platform.
 </para>
 
 <para>
-Tools in a specified toolpath are used in preference to any other location;
-tools in a <filename>site_tools</filename> directory are also
-take precedence over built-in ones.  For example, adding
+Directories specified via <parameter>toolpath</parameter> are prepended
+to the existing tool path. The default tool path is any <filename>site_tools</filename>
+directories, so tools in a specified <parameter>toolpath</parameter>
+take priority,
+followed by tools in a <filename>site_tools</filename> directory,
+followed by built-in tools.  For example, adding
 a tool specification module <filename>gcc.py</filename> to the toolpath
 directory would override the built-in &t-link-gcc; tool.
-The toolpath is
+The tool path is
 stored in the environment and will be
 used by subsequent calls to the &f-link-Tool; method,
 as well as by &f-link-env-Clone;.
