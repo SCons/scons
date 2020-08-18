@@ -158,13 +158,6 @@ class RCScannerTestCase3(unittest.TestCase):
         deps_match(self, deps, headers)
         
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(RCScannerTestCase1())
-    suite.addTest(RCScannerTestCase2())
-    suite.addTest(RCScannerTestCase3())
-    return suite
-
 if __name__ == "__main__":
     unittest.main()
 
