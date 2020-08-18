@@ -1,0 +1,16 @@
+
+import os
+import subprocess
+
+
+compiler="ifort"
+flags="-g -gen-interfaces -warn all -fpp"
+
+files=Glob("*.F90")
+
+env=Environment(ENV=os.environ,
+                F90=compiler,
+                F90FLAGS=flags,
+                LINK=compiler)
+env.Program(target='submod_driver',source=files)
+

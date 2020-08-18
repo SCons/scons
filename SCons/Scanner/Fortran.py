@@ -53,11 +53,12 @@ class F90Scanner(SCons.Scanner.Classic):
     """
 
     def __init__(self, name, suffixes, path_variable,
-                 use_regex, incl_regex, def_regex, *args, **kw):
+                 use_regex, incl_regex, def_regex, submod_regex, *args, **kw):
 
         self.cre_use = re.compile(use_regex, re.M)
         self.cre_incl = re.compile(incl_regex, re.M)
         self.cre_def = re.compile(def_regex, re.M)
+        self.cre_submod = re.compile(submod_regex, re.M)
 
         def _scan(node, env, path, self=self):
             node = node.rfile()
@@ -87,6 +88,8 @@ class F90Scanner(SCons.Scanner.Classic):
             modules = self.cre_use.findall(node.get_text_contents())
             # retrieve all defined module names
             defmodules = self.cre_def.findall(node.get_text_contents())
+            # retrieve all defined submodule info
+            defsubmods = self.cre_submod.findall(node.get_text_contents())
 
             # Remove all USE'd module names that are defined in the same file
             # (case-insensitively)
@@ -95,9 +98,25 @@ class F90Scanner(SCons.Scanner.Classic):
                 d[m.lower()] = 1
             modules = [m for m in modules if m.lower() not in d]
 
+            # deal with submodule info
+            submodules=None
+            for s in defsubmods:
+                if (len(defsubmods[0][1])>0):
+                    # for the case of the submodule depending on another
+                    # submodule, need a little special handling as the
+                    # suffix is different
+                    submodules=defsubmods[0][0]+"@"+defsubmods[0][1]
+                else:
+                    # for the case of the submodule depending on a
+                    # proper module, just add to the existing
+                    # list
+                    modules.append(defsubmods[0][0])
             # Convert module name to a .mod filename
             suffix = env.subst('$FORTRANMODSUFFIX')
             modules = [x.lower() + suffix for x in modules]
+            if submodules:
+                suffix = env.subst('$FORTRANSUBMODSUFFIX')
+                modules.append(submodules.lower() + suffix)
             # Remove unique items from the list
             mods_and_includes = SCons.Util.unique(includes+modules)
             node.includes = mods_and_includes
@@ -125,7 +144,7 @@ class F90Scanner(SCons.Scanner.Classic):
 
 def FortranScan(path_variable="FORTRANPATH"):
     """Return a prototype Scanner instance for scanning source files
-    for Fortran USE & INCLUDE statements"""
+    for Fortran USE, INCLUDE, MODULE and SUBMODULE statements"""
 
 #   The USE statement regex matches the following:
 #
@@ -309,12 +328,64 @@ def FortranScan(path_variable="FORTRANPATH"):
 
     def_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION|PURE|ELEMENTAL)(\w+)"""
 
+#   The SUBMODULE statement regex finds module definitions by matching
+#   the following:
+#
+#   SUBMODULE (module_name) submodule_name
+#   SUBMODULE (module_name:parent_submodule_name) submodule_name
+#
+#   but *not* the following:
+#
+#   There are no other uses of the SUBMODULE keyword, so we don't
+#   need to worry about any exclusions.
+#
+#   Here is a breakdown of the regex:
+#
+#   (?i)                               : regex is case insensitive
+#   ^\s*                               : any amount of white space
+#   SUBMODULE                          : match the string SUBMODULE
+#   \s*                                : any amount of white space
+#   \(                                 : opening paren of the parent specification
+#   \s*                                : any amount of white space
+#   (\w+)                              : match one or more alphanumeric
+#                                        characters that make up the parent
+#                                        module name and save it in a group
+#   \s*                                : any amount of white space
+#   :?                                 : the colon separating the parent entity
+#                                        names, if it exists
+#   \s*                                : any amount of white space
+#   (\w+)?                             : match one or more alphanumeric
+#                                        characters that make up the parent
+#                                        submodule name and save it in a group,
+#                                        if it exists
+#   \s*                                : any amount of white space
+#   \)                                 : closing paren of the parent module
+#
+#
+# The result of this will be as follows: for the case of
+#
+# SUBMODULE (blah) ...,
+#
+# the regex will return [('blah', '')], and for the case of
+#
+# SUBMODULE (bleep:blap) ...,
+#
+# the regex will return [('bleep','blap')], which will be useful
+# in the definition of various dependency data, as the cases of the parent
+# being a proper module, versus a proper submodule, should be handled a
+# little differently.
+#
+
+    submod_regex = r"""(?i)^\s*SUBMODULE\s*\(\s*(\w+)\s*:?\s*(\w+)?\s*\)"""
+
+
     scanner = F90Scanner("FortranScan",
                          "$FORTRANSUFFIXES",
                          path_variable,
                          use_regex,
                          include_regex,
-                         def_regex)
+                         def_regex,
+                         submod_regex)
     return scanner
 
 # Local Variables:

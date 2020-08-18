@@ -75,6 +75,28 @@ def _fortranEmitter(target, source, env):
     modules = [x.lower() + suffix for x in modules]
     for m in modules:
        target.append(env.fs.File(m, moddir))
+
+    # doing something here similar to that above,
+    # but for submodules
+
+    # This has to match the submod_regex in the Fortran scanner,
+    # but additionally will return the name of the submodule itself
+    submod_regex = r"""(?i)^\s*SUBMODULE\s*\(\s*(\w+)\s*:?\s*(\w+)?\s*\)\s*(\w+)"""
+    cre = re.compile(submod_regex,re.M)
+    # Retrieve submodule info
+    submodules = cre.findall(node.get_text_contents())
+    # Convert module name to a .smod filename
+    suffix = env.subst('$FORTRANSUBMODSUFFIX', target=target, source=source)
+
+    # finish up
+    # need to parameterize this at some point, but this should work
+    # at least for intel and gnu
+    submodules2=list()
+    for x in submodules:
+        submodules2.append((x[0]).lower() + "@" + (x[2]).lower() + suffix)
+    for s in submodules2:
+       target.append(env.fs.File(s, moddir))
+
     return (target, source)
 
 def FortranEmitter(target, source, env):
@@ -178,6 +200,7 @@ def add_fortran_to_env(env):
 
     env['FORTRANMODPREFIX'] = ''     # like $LIBPREFIX
     env['FORTRANMODSUFFIX'] = '.mod' # like $LIBSUFFIX
+    env['FORTRANSUBMODSUFFIX'] = '.smod' # like $LIBSUFFIX
 
     env['FORTRANMODDIR'] = ''          # where the compiler should place .mod files
     env['FORTRANMODDIRPREFIX'] = ''    # some prefix to $FORTRANMODDIR - similar to $INCPREFIX
