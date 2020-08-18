@@ -35,6 +35,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       OverrideEnvironment. Enable env.setdefault() method, add tests.
     - Raise an error if an option (not otherwise consumed) is used which
       looks like an abbreviation of one one added by AddOption. (#3653)
+    - Change error (to UserError) and error message in case a requested
+      Tool module is not found.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
