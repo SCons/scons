@@ -30,6 +30,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
+    - Raise an error if an option (not otherwise consumed) is used which
+      looks like an abbreviation of one one added by AddOption. (#3653)
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`

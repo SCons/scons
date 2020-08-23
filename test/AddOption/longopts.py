@@ -51,6 +51,16 @@ test.run('-Q -q . --myargument=helloworld',
 test.run('-Q -q . --myarg=helloworld',
          stdout="myargument: gully\nmyarg: helloworld\n")
 
+# Issue #3653: add a check for an abbreviation which never gets AddOption'd.
+test.run('-Q -q . --myargumen=helloworld', status=2,
+         stdout="myargument: gully\nmyarg: balla\n",
+         stderr="""\
+usage: scons [OPTION] [TARGET] ...
+
+SCons Error: no such option: cannot use abbreviated option --myargumen, use --myargument instead
+""")
+
+
 test.pass_test()
 
 # Local Variables:
