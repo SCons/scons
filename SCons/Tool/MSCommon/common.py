@@ -42,19 +42,46 @@ if LOGFILE == '-':
         print(message)
 elif LOGFILE:
     import logging
+    modulelist = (
+        # root module and parent/root module
+        'MSCommon', 'Tool',
+        # python library and below: correct iff scons does not have a lib folder
+        'lib',
+        # scons modules
+        'SCons', 'test', 'scons'
+    )
+    def get_relative_filename(filename, module_list):
+        if not filename:
+            return filename
+        for module in module_list:
+            try:
+                ind = filename.rindex(module)
+                return filename[ind:]
+            except ValueError:
+                pass
+        return filename
+    class _Debug_Filter(logging.Filter):
+        # custom filter for module relative filename
+        def filter(self, record):
+            relfilename = get_relative_filename(record.pathname, modulelist)
+            relfilename = relfilename.replace('\\', '/')
+            record.relfilename = relfilename
+            return True
     logging.basicConfig(
         # This looks like:
         #   00109ms:MSCommon/vc.py:find_vc_pdir#447:
         format=(
             '%(relativeCreated)05dms'
-            ':MSCommon/%(filename)s'
+            ':%(relfilename)s'
             ':%(funcName)s'
             '#%(lineno)s'
             ':%(message)s: '
         ),
         filename=LOGFILE,
         level=logging.DEBUG)
-    debug = logging.getLogger(name=__name__).debug
+    logger = logging.getLogger(name=__name__)
+    logger.addFilter(_Debug_Filter())
+    debug = logger.debug
 else:
     def debug(x): return None
 
