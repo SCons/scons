@@ -148,7 +148,10 @@ regardless of the actual file names or number of such files.</para>
 looks for a directory named
 <filename>site_scons</filename>
 in various system directories and in the directory containing the
-&SConstruct; file and prepends the ones it
+&SConstruct; file
+or, if specified, the
+directory from the <option>--site-dir</option> option instead,
+and prepends the ones it
 finds to the Python module search path (<varname>sys.path</varname>),
 thus allowing modules in such directories to be imported in
 the normal Python way in SConscript files.
@@ -2302,31 +2305,32 @@ See <xref linkend="commandline_construction_variables"/> for details.
 <title>Tools</title>
 
 <para>
-&SCons; has a large number of predefined tools which
-are used to help initialize the &consenv;,
-and additional tools can be added.
-An &scons; <firstterm>tool specification</firstterm>
-is only responsible for setup.
+&SCons; has a large number of predefined tools
+(more properly, <firstterm>tool specifications</firstterm>)
+which are used to help initialize the &consenv;.
+An &scons; tool is only responsible for setup.
 For example, if the SConscript file declares
 the need to construct an object file from
 a C-language source file by calling the
 &b-link-Object; builder, then a tool representing
 an available C compiler needs to have run first,
 to set up the builder and all the &consvars;
-it needs, in that &consenv;. Normally this
+it needs in the associated &consenv;; the tool itself
+is not called in the process of the build. Normally this
 happens invisibly: &scons; has per-platform
 lists of default tools, and it runs through those tools,
-calling the ones which are actually applicable
-(skipping those where necessary programs are not
-installed on the build system, etc.).
+calling the ones which are actually applicable,
+skipping those where necessary programs are not
+installed on the build system, or other preconditions are not met.
 </para>
 
 <para>
 A specific set of tools
-with which to initialize the environment when
+with which to initialize an environment when
 creating it
 may be specified using the optional keyword argument
-<parameter>tools</parameter>.
+<parameter>tools</parameter>, which takes a list
+of tool names.
 This is useful to override the defaults,
 to specify non-default built-in tools, and
 to supply added tools:</para>
@@ -2336,7 +2340,7 @@ env = Environment(tools=['msvc', 'lex'])
 </programlisting>
 
 <para>
-Tools can also be called by using the &f-link-Tool;
+Tools can also be directly called by using the &f-link-Tool;
 method (see below).
 </para>
 
@@ -2351,39 +2355,51 @@ The tool name <literal>'default'</literal> can
 be used to retain the default list.
 </para>
 
-<para>If no <parameter>tools</parameter> list is specified,
-or the list includes <literal>'default'</literal>,
-then &scons; will detect usable tools,
-using the value of <varname>PATH</varname>
-in the <varname>ENV</varname> &consvar; (<emphasis>not</emphasis>
-the external <envar>PATH</envar> from <varname>os.environ</varname>)
+<para>If no <parameter>tools</parameter> argument is specified,
+or if <parameter>tools</parameter> includes <literal>'default'</literal>,
+then &scons; will auto-detect usable tools,
+using the execution environment value of <varname>PATH</varname>
+(that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname> -
+the external evironment <envar>PATH</envar> from <varname>os.environ</varname>
+is <emphasis>not</emphasis> used)
 for looking up any backing programs, and the platform name in effect
 to determine the default tools for that platform.
 Changing the <varname>PATH</varname>
 variable after the &consenv; is constructed will not cause the tools to
-be redetected.</para>
+be re-detected.</para>
 
-<para>To help locate added tools, specify the
-<parameter>toolpath</parameter> keyword argument:</para>
+<para>
+Additional tools can be added to a project either by
+placing them in a <filename>site_tools</filename> subdirectory
+of a site directory, or in a custom location specified to
+&scons; by giving the
+<parameter>toolpath</parameter> keyword argument.
+<parameter>toolpath</parameter> also takes a list as its value:
+</para>
 
 <programlisting language="python">
 env = Environment(tools=['default', 'foo'], toolpath=['tools'])
 </programlisting>
 
 <para>
-This looks for a tool specification in <filename>tools/foo.py</filename>
+This looks for a tool specification module <filename>foo.py</filename>
+in directory <filename>tools</filename> and in the standard locations,
 as well as using the ordinary default tools for the platform.
 </para>
 
 <para>
-Tools in the toolpath are used in preference to
-any of the built-in ones.  For example, adding
-a tool <filename>gcc.py</filename> to the toolpath
-directory would override the built-in gcc tool.
-The toolpath is
+Directories specified via <parameter>toolpath</parameter> are prepended
+to the existing tool path. The default tool path is any <filename>site_tools</filename>
+directories, so tools in a specified <parameter>toolpath</parameter>
+take priority,
+followed by tools in a <filename>site_tools</filename> directory,
+followed by built-in tools.  For example, adding
+a tool specification module <filename>gcc.py</filename> to the toolpath
+directory would override the built-in &t-link-gcc; tool.
+The tool path is
 stored in the environment and will be
-picked up by subsequent calls to the
-&f-Clone; and &f-Tool; methods:
+used by subsequent calls to the &f-link-Tool; method,
+as well as by &f-link-env-Clone;.
 </para>
 
 <programlisting language="python">
@@ -2393,7 +2409,7 @@ derived.CustomBuilder()
 </programlisting>
 
 <para>
-A tool specification must include two functions:
+A tool specification module must include two functions:
 </para>
 
 <variablelist>
@@ -2412,7 +2428,8 @@ to vary its initialization.</para>
     <term><function>exists</function>(<parameter>env</parameter>)</term>
     <listitem>
 <para>Return <constant>True</constant> if the tool can
-be called. Usually this means looking up one or more
+be called in the context of <parameter>env</parameter>.
+Usually this means looking up one or more
 known programs using the <envar>PATH</envar> from the
 supplied <parameter>env</parameter>, but the tool can
 make the "exists" decision in any way it chooses.
@@ -2420,6 +2437,18 @@ make the "exists" decision in any way it chooses.
     </listitem>
   </varlistentry>
 </variablelist>
+
+<note>
+<para>
+At the moment, user-added tools do not automatically have their
+<function>exists</function> function called.
+As a result, it is recommended that the <function>generate</function>
+function be defensively coded - that is, do not rely on any
+necessary existence checks already having been performed.
+This is expected to be a temporary limitation,
+and the <function>exists</function> function should still be provided.
+</para>
+</note>
 
 <para>The elements of the <parameter>tools</parameter> list may also
 be functions or callable objects,
@@ -6906,7 +6935,7 @@ script named
 <para>The MinGW <filename>bin</filename>
 directory must be in your <envar>PATH</envar>
 environment variable or the
-<envar>ENV['PATH']</envar> &consvar; for &scons;
+<varname>['ENV']['PATH']</varname> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
 Python interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
