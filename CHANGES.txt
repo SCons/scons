@@ -11,6 +11,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Joseph Brill:
     - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
       is not exposed externally and update external references accordingly.
+    - Modify the MSCommon internal-use only debug logging records to contain the correct relative
+      file path when the debug function is called from outside the MSCommon module.
     - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
       when constructing the installed visual studios list.
 
@@ -26,9 +28,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       like zip(["test.zip"], ["zip_scons.py"]) and ignore ZIPCOMSTR if ZIPCOM and ZIPCOMSTR
       weren't set after the Environment/Tool is initialized. (Explained in PR #3659)
 
+  From Daniel Moody:
+    - Fix issue where java parsed a class incorrectly from lambdas used after a new.
+
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
+
+  From Joachim Kuebart:
+    - Suppress missing SConscript deprecation warning if `must_exist=False`
+      is used.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
