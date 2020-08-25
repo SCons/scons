@@ -285,7 +285,7 @@ class SConsOptionParser(optparse.OptionParser):
         try:
             if opt != self._match_long_opt(opt):
                 raise optparse.BadOptionError(
-                    "cannot use abbreviated option %s, use %s instead"
+                    "'%s'. Did you mean '%s'?"
                     % (opt, self._match_long_opt(opt))
                 )
         except optparse.BadOptionError:

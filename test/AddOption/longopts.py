@@ -57,7 +57,7 @@ test.run('-Q -q . --myargumen=helloworld', status=2,
          stderr="""\
 usage: scons [OPTION] [TARGET] ...
 
-SCons Error: no such option: cannot use abbreviated option --myargumen, use --myargument instead
+SCons Error: no such option: '--myargumen'. Did you mean '--myargument'?
 """)
 
 
