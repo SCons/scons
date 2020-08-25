@@ -39,7 +39,8 @@ import SCons.Util
 # the -rpath option, so we use the "link" tool instead of "gnulink".
 from . import link
 
-from SCons.Tool import ShLibSonameGenerator
+from .linkCommon import ShLibSonameGenerator
+
 
 class AppleLinkInvalidCurrentVersionException(Exception):
     pass
