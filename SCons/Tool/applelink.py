@@ -45,6 +45,7 @@ from .linkCommon import ShLibSonameGenerator
 class AppleLinkInvalidCurrentVersionException(Exception):
     pass
 
+
 class AppleLinkInvalidCompatibilityVersionException(Exception):
     pass
 
@@ -71,7 +72,7 @@ def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_f
     if Verbose:
         print("_applelib_versioned_lib_soname: name={!r}".format(name))
     major = version.split('.')[0]
-    (libname,_suffix) = name.split('.')
+    (libname, _suffix) = name.split('.')
     # if a desired SONAME was supplied, use that, otherwise create 
     # a default from the major version
     if env.get('SONAME'):
@@ -82,12 +83,15 @@ def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_f
         print("_applelib_versioned_lib_soname: soname={!r}".format(soname))
     return soname
 
+
 def _applelib_versioned_shlib_soname(env, libnode, version, prefix, suffix):
     return _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, link._versioned_shlib_name)
 
 
 # User programmatically describes how SHLIBVERSION maps to values for compat/current.
 _applelib_max_version_values = (65535, 255, 255)
+
+
 def _applelib_check_valid_version(version_string):
     """
     Check that the version # is valid.
@@ -100,17 +104,18 @@ def _applelib_check_valid_version(version_string):
     """
     parts = version_string.split('.')
     if len(parts) > 3:
-        return False, "Version string has too many periods [%s]"%version_string
+        return False, "Version string has too many periods [%s]" % version_string
     if len(parts) <= 0:
-        return False, "Version string unspecified [%s]"%version_string
+        return False, "Version string unspecified [%s]" % version_string
 
     for (i, p) in enumerate(parts):
         try:
             p_i = int(p)
         except ValueError:
-            return False, "Version component %s (from %s) is not a number"%(p, version_string)
+            return False, "Version component %s (from %s) is not a number" % (p, version_string)
         if p_i < 0 or p_i > _applelib_max_version_values[i]:
-            return False, "Version component %s (from %s) is not valid value should be between 0 and %d"%(p, version_string, _applelib_max_version_values[i])
+            return False, "Version component %s (from %s) is not valid value should be between 0 and %d" % (
+            p, version_string, _applelib_max_version_values[i])
 
     return True, ""
 
@@ -191,9 +196,8 @@ def generate(env):
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -dynamiclib')
     env['SHLINKCOM'] = env['SHLINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
-
     # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
-    link._setup_versioned_lib_variables(env, tool = 'applelink')#, use_soname = use_soname)
+    link._setup_versioned_lib_variables(env, tool='applelink') #, use_soname=True)
     env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
     env['LINKCALLBACKS']['VersionedShLibSuffix'] = _applelib_versioned_lib_suffix
     env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
@@ -206,13 +210,12 @@ def generate(env):
     # override the default for loadable modules, which are different
     # on OS X than dynamic shared libs.  echoing what XCode does for
     # pre/suffixes:
-    env['LDMODULEPREFIX'] = '' 
-    env['LDMODULESUFFIX'] = '' 
+    env['LDMODULEPREFIX'] = ''
+    env['LDMODULESUFFIX'] = ''
     env['LDMODULEFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -bundle')
     env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
     env['__SHLIBVERSIONFLAGS'] = '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}'
-
 
 
 def exists(env):
