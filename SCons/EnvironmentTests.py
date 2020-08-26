@@ -1376,7 +1376,7 @@ def generate(env, **kw):
         env[k] = v
 
 def exists(env):
-    return 1
+    return True
 """)
 
         env = self.TestEnvironment(tools = [('faketool', {'a':1, 'b':2, 'c':3})],
@@ -1856,14 +1856,14 @@ def exists(env):
 
         test.write('xxx.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['XXX'] = 'one'
 """)
 
         test.write('yyy.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['YYY'] = 'two'
 """)
@@ -2481,14 +2481,14 @@ f5: \
 
         test.write('xxx.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['XXX'] = 'one'
 """)
 
         test.write('yyy.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['YYY'] = 'two'
 """)
@@ -3951,16 +3951,7 @@ class EnvironmentVariableTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [ SubstitutionTestCase,
-                 BaseTestCase,
-                 OverrideEnvironmentTestCase,
-                 NoSubstitutionProxyTestCase,
-                 EnvironmentVariableTestCase ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
