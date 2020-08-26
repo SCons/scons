@@ -24,8 +24,6 @@ Lib tool variables:
 """
 
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -46,11 +44,6 @@ Lib tool variables:
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import os
-import subprocess
-
 import SCons.Action
 import SCons.Builder
 import SCons.Defaults
@@ -58,6 +51,7 @@ import SCons.Scanner.D
 import SCons.Tool
 
 import SCons.Tool.DCommon as DCommon
+from SCons.Tool.linkCommon import ShLibSonameGenerator
 
 
 def generate(env):
@@ -133,7 +127,7 @@ def generate(env):
     env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
     # NOTE: this is a quick hack, the soname will only work if there is
     # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+    env['DShLibSonameGenerator'] = ShLibSonameGenerator
     # NOTE: this is only for further reference, currently $SHDLIBVERSION does
     # not work, the user must use $SHLIBVERSION
     env['SHDLIBVERSION'] = '$SHLIBVERSION'
