@@ -193,7 +193,7 @@ def _versioned_implib_symlinks(env, libnode, version, prefix, suffix, **kw):
     symlinks = [(link0, libnode)]
 
     if Verbose:
-        print("_versioned_implib_symlinks: return symlinks=%r" % linkStringizeLibSymlinks(symlinks))
+        print("_versioned_implib_symlinks: return symlinks=%r" % StringizeLibSymlinks(symlinks))
 
     return symlinks
 
