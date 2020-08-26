@@ -36,13 +36,13 @@ are the same as those supported by the <function>add_option</function>
 method in the standard Python library module <systemitem>optparse</systemitem>,
 with a few additional capabilities noted below.
 See the documentation for
-<emphasis>optparse</emphasis>
+<systemitem>optparse</systemitem>
 for a thorough discussion of its option-processing capabities.
 </para>
 
 <para>
 In addition to the arguments and values supported by the
-<emphasis>optparse</emphasis>
+<systemitem>optparse</systemitem>
 <function>add_option</function>
 method, &f-AddOption;
 allows setting the
