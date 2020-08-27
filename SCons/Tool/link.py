@@ -9,8 +9,6 @@ selection method.
 """
 
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -30,7 +28,6 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 import re
@@ -46,7 +43,9 @@ from SCons.Tool.DCommon import isD
 
 from SCons.Tool.cxx import iscplusplus
 
-from SCons.Tool import ShLibSonameGenerator
+from SCons.Tool.linkCommon import StringizeLibSymlinks, ShLibSonameGenerator, EmitLibSymlinks, ShLibSymlinkGenerator, \
+    LdModSymlinkGenerator, ShLibPrefixGenerator, ShLibSuffixGenerator, LdModPrefixGenerator, LdModSuffixGenerator, \
+    LdModSonameGenerator
 
 issued_mixed_link_warning = False
 
@@ -97,17 +96,17 @@ def _lib_emitter(target, source, env, **kw):
             print("_lib_emitter: symlinks={!r}".format(symlinks))
 
         if symlinks:
-            SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
+            EmitLibSymlinks(env, symlinks, target[0])
             target[0].attributes.shliblinks = symlinks
     return (target, source)
 
 
 def shlib_emitter(target, source, env):
-    return _lib_emitter(target, source, env, symlink_generator=SCons.Tool.ShLibSymlinkGenerator)
+    return _lib_emitter(target, source, env, symlink_generator=ShLibSymlinkGenerator)
 
 
 def ldmod_emitter(target, source, env):
-    return _lib_emitter(target, source, env, symlink_generator=SCons.Tool.LdModSymlinkGenerator)
+    return _lib_emitter(target, source, env, symlink_generator=LdModSymlinkGenerator)
 
 
 # This is generic enough to be included here...
@@ -142,14 +141,14 @@ def _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator,
 
 
 def _versioned_shlib_name(env, libnode, version, prefix, suffix, **kw):
-    prefix_generator = SCons.Tool.ShLibPrefixGenerator
-    suffix_generator = SCons.Tool.ShLibSuffixGenerator
+    prefix_generator = ShLibPrefixGenerator
+    suffix_generator = ShLibSuffixGenerator
     return _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw)
 
 
 def _versioned_ldmod_name(env, libnode, version, prefix, suffix, **kw):
-    prefix_generator = SCons.Tool.LdModPrefixGenerator
-    suffix_generator = SCons.Tool.LdModSuffixGenerator
+    prefix_generator = LdModPrefixGenerator
+    suffix_generator = LdModSuffixGenerator
     return _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw)
 
 
@@ -236,7 +235,8 @@ def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, so
         symlinks = [(link0, libnode), (link1, libnode)]
 
     if Verbose:
-        print("_versioned_lib_symlinks: return symlinks={!r}".format(SCons.Tool.StringizeLibSymlinks(symlinks)))
+        print("_versioned_lib_symlinks: return symlinks={!r}".format(
+            StringizeLibSymlinks(symlinks)))
 
     return symlinks
 
@@ -301,8 +301,8 @@ def _setup_versioned_lib_variables(env, **kw):
             env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
         env['_SHLIBSONAME'] = '${ShLibSonameGenerator(__env__,TARGET)}'
         env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
-        env['ShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
-        env['LdModSonameGenerator'] = SCons.Tool.LdModSonameGenerator
+        env['ShLibSonameGenerator'] = ShLibSonameGenerator
+        env['LdModSonameGenerator'] = LdModSonameGenerator
     else:
         env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
         env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'

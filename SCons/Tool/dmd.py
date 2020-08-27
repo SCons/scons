@@ -50,8 +50,6 @@ LIBS
 """
 
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -72,11 +70,6 @@ LIBS
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import os
-import subprocess
-
 import SCons.Action
 import SCons.Builder
 import SCons.Defaults
@@ -84,6 +77,7 @@ import SCons.Scanner.D
 import SCons.Tool
 
 import SCons.Tool.DCommon as DCommon
+from SCons.Tool.linkCommon import ShLibSonameGenerator
 
 
 def generate(env):
@@ -128,7 +122,8 @@ def generate(env):
 
     env['SHDLINK'] = '$DC'
     env['SHDLINKFLAGS'] = SCons.Util.CLVar('$DLINKFLAGS -shared -defaultlib=libphobos2.so')
-    env['SHDLINKCOM'] = '$DLINK -of$TARGET $SHDLINKFLAGS $__SHDLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
+    env[
+        'SHDLINKCOM'] = '$DLINK -of$TARGET $SHDLINKFLAGS $__SHDLIBVERSIONFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS'
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
@@ -139,7 +134,8 @@ def generate(env):
     env['_DLIBDIRFLAGS'] = '${_concat(DLIBDIRPREFIX, LIBPATH, DLIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
-    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLIBFLAGS'.format('-c ' if env['PLATFORM'] == 'win32' else '')
+    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLIBFLAGS'.format(
+        '-c ' if env['PLATFORM'] == 'win32' else '')
 
     # env['_DLIBFLAGS'] = '${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)}'
 
@@ -157,7 +153,7 @@ def generate(env):
     env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
     # NOTE: this is a quick hack, the soname will only work if there is
     # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+    env['DShLibSonameGenerator'] = ShLibSonameGenerator
     # NOTE: this is only for further reference, currently $SHDLIBVERSION does
     # not work, the user must use $SHLIBVERSION
     env['SHDLIBVERSION'] = '$SHLIBVERSION'
@@ -171,7 +167,6 @@ def generate(env):
 
 def exists(env):
     return env.Detect(['dmd', 'ldmd2', 'gdmd'])
-
 
 # Local Variables:
 # tab-width:4
