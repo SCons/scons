@@ -642,16 +642,18 @@ class SubstitutionEnvironment:
             else:
                 overrides[key] = SCons.Subst.scons_subst_once(value, self, key)
         env = OverrideEnvironment(self, overrides)
-        if merges: env.MergeFlags(merges)
+        if merges:
+            env.MergeFlags(merges)
         return env
 
     def ParseFlags(self, *flags):
-        """
-        Parse the set of flags and return a dict with the flags placed
-        in the appropriate entry.  The flags are treated as a typical
-        set of command-line flags for a GNU-like toolchain and used to
-        populate the entries in the dict immediately below.  If one of
-        the flag strings begins with a bang (exclamation mark), it is
+        """Return a dict of parsed flags.
+
+        Parse ``flags`` and return a dict with the flags distributed into
+        the appropriate construction variable names.  The flags are treated
+        as a typical set of command-line flags for a GNU-like toolchain and
+        used to populate the entries in the dict immediately below.
+        If one of the flag strings begins with a bang (exclamation mark), it is
         assumed to be a command and the rest of the string is executed;
         the result of that evaluation is then added to the dict.
         """
@@ -741,6 +743,9 @@ class SubstitutionEnvironment:
                         t = ('-arch', arg)
                         dict['CCFLAGS'].append(t)
                         dict['LINKFLAGS'].append(t)
+                    elif append_next_arg_to == '--param':
+                        t = ('--param', arg)
+                        dict['CCFLAGS'].append(t)
                     else:
                         dict[append_next_arg_to].append(arg)
                     append_next_arg_to = None
@@ -792,11 +797,13 @@ class SubstitutionEnvironment:
                         dict['FRAMEWORKPATH'].append(arg[2:])
                     else:
                         append_next_arg_to = 'FRAMEWORKPATH'
-                elif arg in ['-mno-cygwin',
-                             '-pthread',
-                             '-openmp',
-                             '-fmerge-all-constants',
-                             '-fopenmp']:
+                elif arg in [
+                    '-mno-cygwin',
+                    '-pthread',
+                    '-openmp',
+                    '-fmerge-all-constants',
+                    '-fopenmp',
+                ]:
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
                 elif arg == '-mwindows':
@@ -810,7 +817,16 @@ class SubstitutionEnvironment:
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-imacros', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
+                elif arg in [
+                    '-include',
+                    '-imacros',
+                    '-isysroot',
+                    '-isystem',
+                    '-iquote',
+                    '-idirafter',
+                    '-arch',
+                    '--param',
+                ]:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
@@ -819,24 +835,30 @@ class SubstitutionEnvironment:
             do_parse(arg)
         return dict
 
-    def MergeFlags(self, args, unique=1, dict=None):
-        """
-        Merge the dict in args into the construction variables of this
-        env, or the passed-in dict.  If args is not a dict, it is
-        converted into a dict using ParseFlags.  If unique is not set,
-        the flags are appended rather than merged.
-        """
+    def MergeFlags(self, args, unique=True):
+        """Merge flags into construction variables.
 
-        if dict is None:
-            dict = self
+        Merges the flags from ``args`` into this construction environent.
+        If ``args`` is not a dict, it is first converted to a dictionary with
+        flags distributed into appropriate construction variables.
+        See :meth:`ParseFlags`.
+
+        Args:
+            args: flags to merge
+            unique: merge flags rather than appending (default: True)
+
+        """
         if not SCons.Util.is_Dict(args):
             args = self.ParseFlags(args)
+
         if not unique:
             self.Append(**args)
-            return self
+            return
+
         for key, value in args.items():
             if not value:
                 continue
+            value = SCons.Util.Split(value)
             try:
                 orig = self[key]
             except KeyError:
@@ -873,7 +895,6 @@ class SubstitutionEnvironment:
                     if v not in t:
                         t.insert(0, v)
             self[key] = t
-        return self
 
 
 def default_decide_source(dependency, target, prev_ni, repo_node=None):
@@ -1012,7 +1033,8 @@ class Base(SubstitutionEnvironment):
             self._dict[key] = val
 
         # Finally, apply any flags to be merged in
-        if parse_flags: self.MergeFlags(parse_flags)
+        if parse_flags:
+            self.MergeFlags(parse_flags)
 
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
@@ -1164,9 +1186,7 @@ class Base(SubstitutionEnvironment):
     #######################################################################
 
     def Append(self, **kw):
-        """Append values to existing construction variables
-        in an Environment.
-        """
+        """Append values to existing construction variables in an Environment."""
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             # It would be easier on the eyes to write this using
@@ -1453,7 +1473,8 @@ class Base(SubstitutionEnvironment):
         clone.Replace(**new)
 
         # Finally, apply any flags to be merged in
-        if parse_flags: clone.MergeFlags(parse_flags)
+        if parse_flags:
+            clone.MergeFlags(parse_flags)
 
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
@@ -1623,7 +1644,7 @@ class Base(SubstitutionEnvironment):
         """
         if function is None:
             def parse_conf(env, cmd, unique=unique):
-                return env.MergeFlags(cmd, unique)
+                env.MergeFlags(cmd, unique)
             function = parse_conf
         if SCons.Util.is_List(command):
             command = ' '.join(command)
