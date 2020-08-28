@@ -198,11 +198,11 @@ env.Command('${SOURCE.basename}.out', 'foo.in', action=build)
   have pre-defined <literal>*COMSTR</literal> variables for that purpose,
   but that is not the case when calling &f-Command;,
   where &SCons; has no specific knowledge of the action ahead of time.
-  If the action argument to &f-Command is not already an &Action; object,
+  If the action argument to &f-Command; is not already an &Action; object,
   it will construct one for you with suitable defaults,
   which include a message based on the type of action.
   However, you can also construct the &Action; object yourself
-  and pass that, which gives you much more control.
+  to pass to &f-Command;, which gives you much more control.
   Here's an evolution of the example from above showing this approach:
 
   </para>
