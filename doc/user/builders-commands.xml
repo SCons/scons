@@ -215,7 +215,7 @@ def build(target, source, env):
     # Whatever it takes to build
     return None
 
-act = Action(build, cmdstr="Building ${SOURCE}")
+act = Action(build, cmdstr="Building ${TARGET}")
 env.Command('foo.out', 'foo.in', action=act)
      </file>
      <file name="foo.in">
