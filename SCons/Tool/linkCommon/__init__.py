@@ -511,10 +511,10 @@ def _call_env_subst(env, string, *args, **kw):
 
 def smart_link(source, target, env, for_signature):
     import SCons.Tool.cxx
-    import SCons.Tool.fortran
+    import SCons.Tool.FortranCommon
 
     has_cplusplus = SCons.Tool.cxx.iscplusplus(source)
-    has_fortran = SCons.Tool.fortran.isfortran(env, source)
+    has_fortran = SCons.Tool.FortranCommon.isfortran(env, source)
     has_d = isD(env, source)
     if has_cplusplus and has_fortran and not has_d:
         global issued_mixed_link_warning
