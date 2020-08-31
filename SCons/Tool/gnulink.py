@@ -33,6 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Tool.linkCommon
 import SCons.Util
 import SCons.Tool
 import sys
@@ -55,8 +56,8 @@ def generate(env):
 
     # OpenBSD doesn't usually use SONAME for libraries
     use_soname = not sys.platform.startswith('openbsd')
-    link._setup_versioned_lib_variables(env, tool='gnulink', use_soname=use_soname)
-    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+    SCons.Tool.linkCommon._setup_versioned_lib_variables(env, tool='gnulink', use_soname=use_soname)
+    env['LINKCALLBACKS'] = SCons.Tool.linkCommon._versioned_lib_callbacks()
 
     # # For backward-compatibility with older SCons versions
     # env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('')

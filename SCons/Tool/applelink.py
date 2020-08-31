@@ -33,6 +33,7 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import SCons.Tool.linkCommon
 import SCons.Util
 
 # Even though the Mac is based on the GNU toolchain, it doesn't understand
@@ -85,7 +86,8 @@ def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_f
 
 
 def _applelib_versioned_shlib_soname(env, libnode, version, prefix, suffix):
-    return _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, link._versioned_shlib_name)
+    return _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix,
+                                          SCons.Tool.linkCommon._versioned_shlib_name)
 
 
 # User programmatically describes how SHLIBVERSION maps to values for compat/current.
@@ -197,8 +199,8 @@ def generate(env):
     env['SHLINKCOM'] = env['SHLINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
     # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
-    link._setup_versioned_lib_variables(env, tool='applelink') #, use_soname=True)
-    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+    SCons.Tool.linkCommon._setup_versioned_lib_variables(env, tool='applelink', use_soname=True)
+    env['LINKCALLBACKS'] = SCons.Tool.linkCommon._versioned_lib_callbacks()
     env['LINKCALLBACKS']['VersionedShLibSuffix'] = _applelib_versioned_lib_suffix
     env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
 

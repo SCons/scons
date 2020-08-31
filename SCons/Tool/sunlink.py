@@ -30,6 +30,7 @@ selection method.
 
 import os.path
 
+import SCons.Tool.linkCommon
 import SCons.Util
 
 from . import link
@@ -62,12 +63,12 @@ def generate(env):
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
     # Support for versioned libraries
-    link._setup_versioned_lib_variables(env, tool = 'sunlink', use_soname=True)
+    SCons.Tool.linkCommon._setup_versioned_lib_variables(env, tool ='sunlink', use_soname=True)
 
     env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -h $_SHLIBSONAME'
     env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -h $_LDMODULESONAME'
 
-    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+    env['LINKCALLBACKS'] = SCons.Tool.linkCommon._versioned_lib_callbacks()
 
 def exists(env):
     return ccLinker

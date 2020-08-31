@@ -23,7 +23,15 @@ Common link/shared library logic
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
+import re
+import sys
 from typing import Callable
+
+import SCons.Util
+import SCons.Warnings
+from SCons.Tool.DCommon import isD
+from SCons.Tool.FortranCommon import isfortran
+from SCons.Tool.cxx import iscplusplus
 from SCons.Util import is_List
 
 
@@ -501,3 +509,262 @@ def _call_env_subst(env, string, *args, **kw):
         except KeyError:
             pass
     return env.subst(string, *args, **kw2)
+
+
+def smart_link(source, target, env, for_signature):
+    has_cplusplus = iscplusplus(source)
+    has_fortran = isfortran(env, source)
+    has_d = isD(env, source)
+    if has_cplusplus and has_fortran and not has_d:
+        global issued_mixed_link_warning
+        if not issued_mixed_link_warning:
+            msg = "Using $CXX to link Fortran and C++ code together.\n\t" + \
+                  "This may generate a buggy executable if the '%s'\n\t" + \
+                  "compiler does not know how to deal with Fortran runtimes."
+            SCons.Warnings.warn(SCons.Warnings.FortranCxxMixWarning,
+                                msg % env.subst('$CXX'))
+            issued_mixed_link_warning = True
+        return '$CXX'
+    elif has_d:
+        env['LINKCOM'] = env['DLINKCOM']
+        env['SHLINKCOM'] = env['SHDLINKCOM']
+        return '$DC'
+    elif has_fortran:
+        return '$FORTRAN'
+    elif has_cplusplus:
+        return '$CXX'
+    return '$CC'
+
+
+def _lib_emitter(target, source, env, **kw):
+    Verbose = False
+    if Verbose:
+        print("_lib_emitter: target[0]={!r}".format(target[0].get_path()))
+    for tgt in target:
+        if SCons.Util.is_String(tgt):
+            tgt = env.File(tgt)
+        tgt.attributes.shared = 1
+
+    try:
+        symlink_generator = kw['symlink_generator']
+    except KeyError:
+        pass
+    else:
+        if Verbose:
+            print("_lib_emitter: symlink_generator={!r}".format(symlink_generator))
+        symlinks = symlink_generator(env, target[0])
+        if Verbose:
+            print("_lib_emitter: symlinks={!r}".format(symlinks))
+
+        if symlinks:
+            EmitLibSymlinks(env, symlinks, target[0])
+            target[0].attributes.shliblinks = symlinks
+    return target, source
+
+
+def shlib_emitter(target, source, env):
+    return _lib_emitter(target, source, env, symlink_generator=ShLibSymlinkGenerator)
+
+
+def ldmod_emitter(target, source, env):
+    return _lib_emitter(target, source, env, symlink_generator=LdModSymlinkGenerator)
+
+
+def _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw):
+    """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so'"""
+    Verbose = False
+
+    if Verbose:
+        print("_versioned_lib_name: libnode={!r}".format(libnode.get_path()))
+        print("_versioned_lib_name: version={!r}".format(version))
+        print("_versioned_lib_name: prefix={!r}".format(prefix))
+        print("_versioned_lib_name: suffix={!r}".format(suffix))
+        print("_versioned_lib_name: suffix_generator={!r}".format(suffix_generator))
+
+    versioned_name = os.path.basename(libnode.get_path())
+    if Verbose:
+        print("_versioned_lib_name: versioned_name={!r}".format(versioned_name))
+
+    versioned_prefix = prefix_generator(env, **kw)
+    versioned_suffix = suffix_generator(env, **kw)
+    if Verbose:
+        print("_versioned_lib_name: versioned_prefix={!r}".format(versioned_prefix))
+        print("_versioned_lib_name: versioned_suffix={!r}".format(versioned_suffix))
+
+    versioned_prefix_re = '^' + re.escape(versioned_prefix)
+    versioned_suffix_re = re.escape(versioned_suffix) + '$'
+    name = re.sub(versioned_prefix_re, prefix, versioned_name)
+    name = re.sub(versioned_suffix_re, suffix, name)
+    if Verbose:
+        print("_versioned_lib_name: name={!r}".format(name))
+    return name
+
+
+def _versioned_shlib_name(env, libnode, version, prefix, suffix, **kw):
+    prefix_generator = ShLibPrefixGenerator
+    suffix_generator = ShLibSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw)
+
+
+def _versioned_ldmod_name(env, libnode, version, prefix, suffix, **kw):
+    prefix_generator = LdModPrefixGenerator
+    suffix_generator = LdModSuffixGenerator
+    return _versioned_lib_name(env, libnode, version, prefix, suffix, prefix_generator, suffix_generator, **kw)
+
+
+def _versioned_lib_suffix(env, suffix, version):
+    """For suffix='.so' and version='0.1.2' it returns '.so.0.1.2'"""
+    Verbose = False
+    if Verbose:
+        print("_versioned_lib_suffix: suffix={!r}".format(suffix))
+        print("_versioned_lib_suffix: version={!r}".format(version))
+    if not suffix.endswith(version):
+        suffix = suffix + '.' + version
+    if Verbose:
+        print("_versioned_lib_suffix: return suffix={!r}".format(suffix))
+    return suffix
+
+
+def _versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
+    """For libnode='/optional/dir/libfoo.so.X.Y.Z' it returns 'libfoo.so.X'"""
+    Verbose = False
+    if Verbose:
+        print("_versioned_lib_soname: version={!r}".format(version))
+    name = name_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print("_versioned_lib_soname: name={!r}".format(name))
+    major = version.split('.')[0]
+
+    # if a desired SONAME was supplied, use that, otherwise create
+    # a default from the major version
+    if env.get('SONAME'):
+        soname = ShLibSonameGenerator(env, libnode)
+    else:
+        soname = name + '.' + major
+    if Verbose:
+        print("_versioned_lib_soname: soname={!r}".format(soname))
+    return soname
+
+
+def _versioned_shlib_soname(env, libnode, version, prefix, suffix):
+    return _versioned_lib_soname(env, libnode, version, prefix, suffix, _versioned_shlib_name)
+
+
+def _versioned_ldmod_soname(env, libnode, version, prefix, suffix):
+    return _versioned_lib_soname(env, libnode, version, prefix, suffix, _versioned_ldmod_name)
+
+
+def _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func):
+    """Generate link names that should be created for a versioned shared library.
+       Returns a dictionary in the form { linkname : linktarget }
+    """
+    Verbose = False
+
+    if Verbose:
+        print("_versioned_lib_symlinks: libnode={!r}".format(libnode.get_path()))
+        print("_versioned_lib_symlinks: version={!r}".format(version))
+
+    if sys.platform.startswith('openbsd'):
+        # OpenBSD uses x.y shared library versioning numbering convention
+        # and doesn't use symlinks to backwards-compatible libraries
+        if Verbose:
+            print("_versioned_lib_symlinks: return symlinks={!r}".format(None))
+        return None
+
+    linkdir = libnode.get_dir()
+    if Verbose:
+        print("_versioned_lib_symlinks: linkdir={!r}".format(linkdir.get_path()))
+
+    name = name_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print("_versioned_lib_symlinks: name={!r}".format(name))
+
+    soname = soname_func(env, libnode, version, prefix, suffix)
+    if Verbose:
+        print("_versioned_lib_symlinks: soname={!r}".format(soname))
+
+    link0 = env.fs.File(soname, linkdir)
+    link1 = env.fs.File(name, linkdir)
+
+    # We create direct symlinks, not daisy-chained.
+    if link0 == libnode:
+        # This enables SHLIBVERSION without periods (e.g. SHLIBVERSION=1)
+        symlinks = [(link1, libnode)]
+    else:
+        # This handles usual SHLIBVERSION, i.e. '1.2', '1.2.3', etc.
+        symlinks = [(link0, libnode), (link1, libnode)]
+
+    if Verbose:
+        print("_versioned_lib_symlinks: return symlinks={!r}".format(
+            StringizeLibSymlinks(symlinks)))
+
+    return symlinks
+
+
+def _versioned_shlib_symlinks(env, libnode, version, prefix, suffix):
+    name_func = env['LINKCALLBACKS']['VersionedShLibName']
+    soname_func = env['LINKCALLBACKS']['VersionedShLibSoname']
+
+    return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
+
+
+def _versioned_ldmod_symlinks(env, libnode, version, prefix, suffix):
+    name_func = _versioned_ldmod_name
+    soname_func = _versioned_ldmod_soname
+
+    name_func = env['LINKCALLBACKS']['VersionedLdModName']
+    soname_func = env['LINKCALLBACKS']['VersionedLdModSoname']
+
+    return _versioned_lib_symlinks(env, libnode, version, prefix, suffix, name_func, soname_func)
+
+
+def _versioned_lib_callbacks():
+    return {
+        'VersionedShLibSuffix': _versioned_lib_suffix,
+        'VersionedLdModSuffix': _versioned_lib_suffix,
+        'VersionedShLibSymlinks': _versioned_shlib_symlinks,
+        'VersionedLdModSymlinks': _versioned_ldmod_symlinks,
+        'VersionedShLibName': _versioned_shlib_name,
+        'VersionedLdModName': _versioned_ldmod_name,
+        'VersionedShLibSoname': _versioned_shlib_soname,
+        'VersionedLdModSoname': _versioned_ldmod_soname,
+    }.copy()
+
+
+issued_mixed_link_warning = False
+
+
+def _setup_versioned_lib_variables(env, **kw):
+    """
+    Setup all variables required by the versioning machinery
+    """
+
+    tool = None
+    try:
+        tool = kw['tool']
+    except KeyError:
+        pass
+
+    use_soname = False
+    try:
+        use_soname = kw['use_soname']
+    except KeyError:
+        pass
+
+    # The $_SHLIBVERSIONFLAGS define extra commandline flags used when
+    # building VERSIONED shared libraries. It's always set, but used only
+    # when VERSIONED library is built (see __SHLIBVERSIONFLAGS in SCons/Defaults.py).
+    if use_soname:
+        # If the linker uses SONAME, then we need this little automata
+        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -Wl,-soname=$_SHLIBSONAME'
+        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
+        env['_SHLIBSONAME'] = '${ShLibSonameGenerator(__env__,TARGET)}'
+        env['_LDMODULESONAME'] = '${LdModSonameGenerator(__env__,TARGET)}'
+        env['ShLibSonameGenerator'] = ShLibSonameGenerator
+        env['LdModSonameGenerator'] = LdModSonameGenerator
+    else:
+        env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
+        env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'
+
+    # LDOMDULVERSIONFLAGS should always default to $SHLIBVERSIONFLAGS
+    env['LDMODULEVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
