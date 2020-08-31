@@ -30,8 +30,6 @@ from typing import Callable
 import SCons.Util
 import SCons.Warnings
 from SCons.Tool.DCommon import isD
-from SCons.Tool.FortranCommon import isfortran
-from SCons.Tool.cxx import iscplusplus
 from SCons.Util import is_List
 
 
@@ -512,8 +510,11 @@ def _call_env_subst(env, string, *args, **kw):
 
 
 def smart_link(source, target, env, for_signature):
-    has_cplusplus = iscplusplus(source)
-    has_fortran = isfortran(env, source)
+    import SCons.Tool.cxx
+    import SCons.Tool.fortran
+
+    has_cplusplus = SCons.Tool.cxx.iscplusplus(source)
+    has_fortran = SCons.Tool.fortran.isfortran(env, source)
     has_d = isD(env, source)
     if has_cplusplus and has_fortran and not has_d:
         global issued_mixed_link_warning

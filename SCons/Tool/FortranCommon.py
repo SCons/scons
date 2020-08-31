@@ -5,8 +5,6 @@ Stuff for processing Fortran, common to all fortran dialects.
 """
 
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -26,13 +24,11 @@ Stuff for processing Fortran, common to all fortran dialects.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
 import os.path
 
 import SCons.Action
-import SCons.Defaults
 import SCons.Scanner.Fortran
 import SCons.Tool
 import SCons.Util
@@ -78,10 +74,12 @@ def _fortranEmitter(target, source, env):
     return (target, source)
 
 def FortranEmitter(target, source, env):
+    import SCons.Defaults
     target, source = _fortranEmitter(target, source, env)
     return SCons.Defaults.StaticObjectEmitter(target, source, env)
 
 def ShFortranEmitter(target, source, env):
+    import SCons.Defaults
     target, source = _fortranEmitter(target, source, env)
     return SCons.Defaults.SharedObjectEmitter(target, source, env)
 

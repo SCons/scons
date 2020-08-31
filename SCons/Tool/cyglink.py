@@ -12,14 +12,13 @@ import re
 import os
 
 import SCons.Action
-import SCons.Tool.linkCommon
+import SCons.Tool.linkCommon as linkCommon
 from SCons.Tool.linkCommon import ImpLibSymlinkGenerator, StringizeLibSymlinks, EmitLibSymlinks, ImpLibPrefixGenerator, \
     ImpLibSuffixGenerator, ImpLibNameGenerator
 import SCons.Util
 import SCons.Tool
 
 from . import gnulink
-from . import link
 
 
 def _lib_generator(target, source, env, for_signature, **kw):
@@ -157,7 +156,7 @@ def _versioned_lib_suffix(env, suffix, version):
 
 
 def _versioned_implib_name(env, libnode, version, prefix, suffix, **kw):
-    return SCons.Tool.linkCommon._versioned_lib_name(env, libnode, version, prefix, suffix,
+    return linkCommon._versioned_lib_name(env, libnode, version, prefix, suffix,
                                                      ImpLibPrefixGenerator,
                                                      ImpLibSuffixGenerator,
                                                      implib_libtype=kw['libtype'])
@@ -231,8 +230,8 @@ def generate(env):
         'VersionedShLibSuffix': _versioned_lib_suffix,
         'VersionedLdModSuffix': _versioned_lib_suffix,
         'VersionedImpLibSuffix': _versioned_lib_suffix,
-        'VersionedShLibName': SCons.Tool.linkCommon._versioned_shlib_name,
-        'VersionedLdModName': SCons.Tool.linkCommon._versioned_ldmod_name,
+        'VersionedShLibName': linkCommon._versioned_shlib_name,
+        'VersionedLdModName': linkCommon._versioned_ldmod_name,
         'VersionedShLibImpLibName': lambda *args: _versioned_implib_name(*args, libtype='ShLib'),
         'VersionedLdModImpLibName': lambda *args: _versioned_implib_name(*args, libtype='LdMod'),
         'VersionedShLibImpLibSymlinks': lambda *args: _versioned_implib_symlinks(*args, libtype='ShLib'),

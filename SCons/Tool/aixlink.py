@@ -8,8 +8,6 @@ selection method.
 """
 
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -30,8 +28,6 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import os
 import os.path
 
@@ -42,7 +38,6 @@ from . import link
 
 import SCons.Tool.cxx
 cplusplus = SCons.Tool.cxx
-#cplusplus = __import__('cxx', globals(), locals(), [])
 
 
 def smart_linkflags(source, target, env, for_signature):
@@ -51,6 +46,7 @@ def smart_linkflags(source, target, env, for_signature):
         if build_dir:
             return '-qtempinc=' + os.path.join(build_dir, 'tempinc')
     return ''
+
 
 def generate(env):
     """
@@ -64,12 +60,13 @@ def generate(env):
     env['SHLINKFLAGS']    = SCons.Util.CLVar('$LINKFLAGS -qmkshrobj -qsuppress=1501-218')
     env['SHLIBSUFFIX']    = '.a'
 
+
 def exists(env):
     # TODO: sync with link.smart_link() to choose a linker
     linkers = { 'CXX': ['aixc++'], 'CC': ['aixcc'] }
     alltools = []
     for langvar, linktools in linkers.items():
-        if langvar in env: # use CC over CXX when user specified CC but not CXX
+        if langvar in env:  # use CC over CXX when user specified CC but not CXX
             return SCons.Tool.FindTool(linktools, env)
         alltools.extend(linktools)
     return SCons.Tool.FindTool(alltools, env)
