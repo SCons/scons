@@ -98,7 +98,7 @@ def _lib_emitter(target, source, env, **kw):
         if symlinks:
             EmitLibSymlinks(env, symlinks, target[0])
             target[0].attributes.shliblinks = symlinks
-    return (target, source)
+    return target, source
 
 
 def shlib_emitter(target, source, env):
@@ -335,11 +335,6 @@ def generate(env):
     env['_LIBFLAGS'] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
     env['LIBLINKPREFIX'] = '-l'
     env['LIBLINKSUFFIX'] = ''
-
-    if env['PLATFORM'] == 'hpux':
-        env['SHLIBSUFFIX'] = '.sl'
-    elif env['PLATFORM'] == 'aix':
-        env['SHLIBSUFFIX'] = '.a'
 
     # For most platforms, a loadable module is the same as a shared
     # library.  Platforms which are different can override these, but

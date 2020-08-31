@@ -39,6 +39,8 @@ def generate(env):
     #Based on HP-UX11i: ARG_MAX=2048000 - 3000 for environment expansion
     env['MAXLINELENGTH']  = 2045000
 
+    env['SHLIBSUFFIX'] = '.sl'
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
