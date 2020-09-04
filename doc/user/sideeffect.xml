@@ -175,7 +175,7 @@ f1 = env.Command(
  Say a program that you need to call to build a target file
  will also update a log file describing what the program
  does while building the target.
- The folowing configuration
+ The following configuration
  would have &SCons; invoke a hypothetical
  script named <application>build</application>
  (in the local directory)
