@@ -94,8 +94,10 @@ class ToolTestCase(unittest.TestCase):
         exc_caught = None
         try:
             p = SCons.Tool.Tool('_does_not_exist_')
-        except SCons.Errors.UserError:
+        except SCons.Errors.UserError as e:
             exc_caught = 1
+            # Old msg was Python-style "No tool named", check for new msg:
+            assert "No tool module" in str(e), e
         assert exc_caught, "did not catch expected UserError"
 
 
