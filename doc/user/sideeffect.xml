@@ -128,7 +128,8 @@ f1 = env.Command(
  <para>
 
  In general, &SideEffect; is not intended for the case when
- a command produces extra files. For example, the
+ a command produces extra target files (that is, files which
+ will be used as sources to other build steps). For example, the
  the Microsoft Visual C/C++ compiler is capable of performing
  incremental linking, for which it uses a status file - such that
  linking <filename>foo.exe</filename> also produces
@@ -136,11 +137,10 @@ f1 = env.Command(
  if the <option>/INCREMENTAL</option> option was supplied.
  Specifying <filename>foo.ilk</filename> as a
  side-effect of <filename>foo.exe</filename>
- is <emphasis>not</emphasis> a recommended use of &SideEffect;,
- because &SCons; handle side-effect files
+ is <emphasis>not</emphasis> a recommended use of &SideEffect;
+ since <filename>foo.ilk</filename> is used by the link.
+ &SCons; handles side-effect files
  slightly differently in its analysis of the dependency graph.
- In addition, if using &SideEffect; this way, you have to
- specify it for each extra file.
  When a command produces multiple output files,
  they should be specified as multiple targets of
  the call to the relevant builder function.
@@ -155,7 +155,8 @@ f1 = env.Command(
 
  Unfortunately, the tool which sets up the &b-Program; builder
  for the MSVC compiler chain does not come prebuilt
- with an understanding of the above - changing the target list
+ with an understanding of the details of the <filename>.ilk</filename>
+ example - that the target list would need to change 
  in the presence of that specific option flag. Unlike the trivial
  example above where we could simply tell the &Command; builder
  there were two targets of the action, modifying the
