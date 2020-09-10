@@ -431,7 +431,7 @@ def main():
                         # Ensure that we don't ignore corrupt DB files,
                         # this was handled by calling my_import('SCons.dblite')
                         # again in earlier versions...
-                        SCons.dblite.ignore_corrupt_dbfiles = 0
+                        SCons.dblite.IGNORE_CORRUPT_DBFILES = False
                 except ImportError:
                     sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
                     print(helpstr)
@@ -474,7 +474,7 @@ def main():
                     # Ensure that we don't ignore corrupt DB files,
                     # this was handled by calling my_import('SCons.dblite')
                     # again in earlier versions...
-                    SCons.dblite.ignore_corrupt_dbfiles = 0
+                    SCons.dblite.IGNORE_CORRUPT_DBFILES = False
                 Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
             else:
                 Do_SConsignDir(a)
