@@ -52,7 +52,8 @@
  This can be used just to flag a dependency for use in subsequent
  build steps, although there is usually a better way to do that.
  The primary use for the &SideEffect; method
- is to prevent two build steps from simultaneously modifying the same file.
+ is to prevent two build steps from simultaneously modifying
+ or accessing the same file in a way that could impact each other.
 
  </para>
 
@@ -62,7 +63,7 @@
  will also put data into <filename>log</filename>, which is used
  as a source for the command to generate <filename>file2</filename>,
  but <filename>log</filename> is unknown to &SCons; on a clean
- build: it neither exists, nor is it the target of any builder.
+ build: it neither exists, nor is it a target output by any builder.
  The <filename>SConscript</filename> uses
  &SideEffect; to inform &SCons; about the additional output file.
 
