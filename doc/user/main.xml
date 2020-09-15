@@ -105,7 +105,6 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="file-removal.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="hierarchy.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="separate.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variants.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="gettext.xml"/>
   <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-built-in.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-writing.xml"/>

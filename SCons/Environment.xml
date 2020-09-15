@@ -3171,8 +3171,8 @@ def create(target, source, env):
     # A function that will write a 'prefix=$SOURCE'
     # string into the file name specified as the
     # $TARGET.
-    f = open(str(target[0]), 'wb')
-    f.write('prefix=' + source[0].get_contents())
+    with open(str(target[0]), 'wb') as f:
+        f.write('prefix=' + source[0].get_contents())
 
 # Fetch the prefix= argument, if any, from the command
 # line, and use /usr/local as the default.
@@ -3206,90 +3206,75 @@ env.UpdateValue(target = Value(output), source = Value(input))
 </arguments>
 <summary>
 <para>
-Use the
-&f-VariantDir;
-function to create a copy of your sources in another location:
-if a name under
-<parameter>variant_dir</parameter>
-is not found but exists under
-<parameter>src_dir</parameter>,
-the file or directory is copied to
-<parameter>variant_dir</parameter>.
-Target files can be built in a different directory
-than the original sources by simply refering to the sources (and targets)
-within the variant tree.
-</para>
-
-<para>
+Sets up an alternate build location.
+When building in the <parameter>variant_dir</parameter>,
+&SCons; backfills as needed with files from <parameter>src_dir</parameter>
+to create a complete build directory.
 &f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
 to set up multiple builds with different options
-(<parameter>variants</parameter>).
-The
-<parameter>src_dir</parameter>
-location must be in or underneath the SConstruct file's directory, and
-<parameter>variant_dir</parameter>
-may not be underneath
-<parameter>src_dir</parameter>.
-<!--
-TODO: Can the above restrictions be clarified or relaxed?
-TODO: The latter restriction is clearly not completely right;
-TODO: src_dir = '.' works fine with a build dir under it.
--->
+(<emphasis>variants</emphasis>).
 </para>
 
 <para>
-The default behavior is for
-&scons;
-to physically duplicate the source files in the variant tree.
+The
+<parameter>variant</parameter>
+location must be in or underneath the project top directory,
+and <parameter>src_dir</parameter>
+may not be underneath
+<parameter>variant_dir</parameter>.
+</para>
+
+<para>
+By default, &SCons;
+physically duplicates the source files and SConscript files
+as needed into the variant tree.
 Thus, a build performed in the variant tree is guaranteed to be identical
 to a build performed in the source tree even if
 intermediate source files are generated during the build,
-or preprocessors or other scanners search for included files
+or if preprocessors or other scanners search for included files
 relative to the source file,
-or individual compilers or other invoked tools are hard-coded
+or if individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
+Only the files &SCons; calculates are needed for the build are
+duplicated into <parameter>variant_dir</parameter>.
 </para>
 
 <para>
 If possible on the platform,
-the duplication is performed by linking rather than copying;
-see also the
+the duplication is performed by linking rather than copying.
+This behavior is affected by the
 <option>--duplicate</option>
 command-line option.
-Moreover, only the files needed for the build are duplicated;
-files and directories that are not used are not present in
-<parameter>variant_dir</parameter>.
 </para>
 
 <para>
-Duplicating the source tree may be disabled by setting the
-<literal>duplicate</literal>
+Physically duplicating the source files may be disabled by setting the
+<parameter>duplicate</parameter>
 argument to
-<literal>0</literal>
-(zero).
+<constant>False</constant>.
 This will cause
-&scons;
+&SCons;
 to invoke Builders using the path names of source files in
 <parameter>src_dir</parameter>
 and the path names of derived files within
 <parameter>variant_dir</parameter>.
-This is always more efficient than
-<literal>duplicate=1</literal>,
-and is usually safe for most builds
-(but see above for cases that may cause problems).
+This is more efficient than
+<literal>duplicate=True</literal>,
+and is safe for most builds;
+revert to <constant>True</constant>
+if it causes problems.
 </para>
 
 <para>
-Note that
 &f-VariantDir;
-works most naturally with a subsidiary SConscript file.
-However, you would then call the subsidiary SConscript file
-not in the source directory, but in the
+works most naturally with used with a subsidiary SConscript file.
+The subsidiary SConscript file is called as if it
+were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
-<literal>duplicate</literal>.
+<parameter>duplicate</parameter>.
 This is how you tell
 &scons;
 which variant of a source tree to build:
@@ -3319,15 +3304,11 @@ Examples:
 # use names in the build directory, not the source directory
 VariantDir('build', 'src', duplicate=0)
 Program('build/prog', 'build/source.c')
-</example_commands>
 
-<example_commands>
 # this builds both the source and docs in a separate subtree
 VariantDir('build', '.', duplicate=0)
 SConscript(dirs=['build/src','build/doc'])
-</example_commands>
 
-<example_commands>
 # same as previous example, but only uses SConscript
 SConscript(dirs='src', variant_dir='build/src', duplicate=0)
 SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)

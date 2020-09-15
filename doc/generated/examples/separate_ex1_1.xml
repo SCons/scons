@@ -3,6 +3,8 @@ SConscript  hello.c
 % <userinput>scons -Q</userinput>
 cc -o build/hello.o -c build/hello.c
 cc -o build/hello build/hello.o
+% <userinput>ls src</userinput>
+SConscript  hello.c
 % <userinput>ls build</userinput>
 SConscript  hello  hello.c  hello.o
 </screen>
