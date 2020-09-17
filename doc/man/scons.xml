@@ -4237,6 +4237,13 @@ Calling &Variables; with no arguments is equivalent to:
 vars = Variables(files=None, args=ARGUMENTS)
 </programlisting>
 
+<para>
+Note that since the variables are eventually added as &consvars;,
+you should choose variable names which do not conflict with
+pre-defined &consvars; that your project will make use of
+(see <xref linkend="construction_variables"/>).
+</para>
+
   </listitem>
   </varlistentry>
   </variablelist>
