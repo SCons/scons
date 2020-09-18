@@ -1657,7 +1657,7 @@ foo.c
         <para>
 
         You can use this last characteristic as a way to enforce at least
-        one of your valid options being chosen by specifing the valid
+        one of your valid options being chosen by specifying the valid
         values with the <parameter>names</parameter> parameter and then
         giving a value not in that list as the <parameter>default</parameter>
         parameter - that way if no value is given on the command line,
