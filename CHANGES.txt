@@ -36,7 +36,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Raise an error if an option (not otherwise consumed) is used which
       looks like an abbreviation of one one added by AddOption. (#3653)
     - Fix three issues in MergeFlags: signature/return did not match
-      documentation or existing usage; merging --param arguments did
+      documentation or existing usage - the implementation now no longer
+      returns the passed env; merging --param arguments did
       not work (issue #3107); passing a dict to merge where the values
       are strings failed (issue #2961).
 
