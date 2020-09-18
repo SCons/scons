@@ -8,6 +8,9 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Michał Górny:
+    - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
+
   From Joseph Brill:
     - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
       is not exposed externally and update external references accordingly.
