@@ -107,14 +107,13 @@ class PlatformTestCase(unittest.TestCase):
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
-        assert str
 
+        exc_caught = None
         try:
             p = SCons.Platform.Platform('_does_not_exist_')
         except SCons.Errors.UserError:
-            pass
-        else:   # TODO pylint E0704: bare raise not inside except
-            raise
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
 
         env = Environment()
         SCons.Platform.Platform()(env)

@@ -84,19 +84,21 @@ class ToolTestCase(unittest.TestCase):
         assert env['INCPREFIX'] == '-I', env['INCPREFIX']
         assert env['TOOLS'] == ['g++'], env['TOOLS']
 
+        exc_caught = None
         try:
             SCons.Tool.Tool()
         except TypeError:
-            pass
-        else:   # TODO pylint E0704: bare raise not inside except
-            raise
+            exc_caught = 1
+        assert exc_caught, "did not catch expected UserError"
 
+        exc_caught = None
         try:
             p = SCons.Tool.Tool('_does_not_exist_')
-        except SCons.Errors.SConsEnvironmentError:
-            pass
-        else:   # TODO pylint E0704: bare raise not inside except
-            raise
+        except SCons.Errors.UserError as e:
+            exc_caught = 1
+            # Old msg was Python-style "No tool named", check for new msg:
+            assert "No tool module" in str(e), e
+        assert exc_caught, "did not catch expected UserError"
 
 
     def test_pathfind(self):
