@@ -1,5 +1,11 @@
-#
-# __COPYRIGHT__
+"""SCons.PathList
+
+A module for handling lists of directory paths (the sort of things
+that get set as CPPPATH, LIBPATH, etc.) with as much caching of data and
+efficiency as we can, while still keeping the evaluation delayed so that we
+Do the Right Thing (almost) regardless of how the variable is specified.
+
+"""
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,17 +27,6 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__doc__ = """SCons.PathList
-
-A module for handling lists of directory paths (the sort of things
-that get set as CPPPATH, LIBPATH, etc.) with as much caching of data and
-efficiency as we can, while still keeping the evaluation delayed so that we
-Do the Right Thing (almost) regardless of how the variable is specified.
-
-"""
-
 import os
 
 import SCons.Memoize
@@ -45,6 +40,7 @@ import SCons.Util
 TYPE_STRING_NO_SUBST = 0        # string with no '$'
 TYPE_STRING_SUBST = 1           # string containing '$'
 TYPE_OBJECT = 2                 # other object
+
 
 def node_conv(obj):
     """
@@ -65,6 +61,7 @@ def node_conv(obj):
     else:
         result = get()
     return result
+
 
 class _PathList:
     """
@@ -126,15 +123,20 @@ class _PathList:
         PathList for a specific target and source.
         """
         result = []
-        for type, value in self.pathlist:
-            if type == TYPE_STRING_SUBST:
-                value = env.subst(value, target=target, source=source,
-                                  conv=node_conv)
+        for pathlist_type, value in self.pathlist:
+            if pathlist_type == TYPE_STRING_SUBST:
+                # We override conv below to use absolute paths when possible.
+                # This avoids problems with relative paths when the target's
+                # working directory is different than the FS object's working
+                # directory.
+                value = env.subst(
+                    value, target=target, source=source,
+                    conv=lambda x: x.abspath if hasattr(x, 'abspath') else x)
                 if SCons.Util.is_Sequence(value):
                     result.extend(SCons.Util.flatten(value))
                 elif value:
                     result.append(value)
-            elif type == TYPE_OBJECT:
+            elif pathlist_type == TYPE_OBJECT:
                 value = node_conv(value)
                 if value:
                     result.append(value)
