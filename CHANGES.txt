@@ -8,6 +8,9 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Michał Górny:
+    - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
+
   From Joseph Brill:
     - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
       is not exposed externally and update external references accordingly.
@@ -35,8 +38,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       OverrideEnvironment. Enable env.setdefault() method, add tests.
     - Raise an error if an option (not otherwise consumed) is used which
       looks like an abbreviation of one one added by AddOption. (#3653)
-    - Tool module not found is now a UserError to more clearly indicate this is
+    - Tool module not found will now raise a UserError to more clearly indicate this is
       probably an SConscript problem, and to make the traceback more relevant.
+    - Fix three issues with MergeFlags: 
+      - Signature/return did not match documentation or existing usage - the implementation 
+        now no longer returns the passed env
+      - merging --param arguments did not work (issue #3107); 
+      - passing a dict to merge where the values are strings failed (issue #2961).
+    - Include previously-excluded SideEffect section in User Guide.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
