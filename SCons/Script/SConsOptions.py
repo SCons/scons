@@ -261,6 +261,63 @@ class SConsOptionParser(optparse.OptionParser):
         sys.stderr.write("SCons Error: %s\n" % msg)
         sys.exit(2)
 
+    def _process_short_opts(self, rargs, values):
+        """
+        SCons-specific processing of short options.
+
+        This is copied directly from the normal
+        optparse._process_short_opts() method, except that, if configured
+        to do so, we catch the exception thrown when an unknown option
+        is encountered and just stick it back on the "leftover" arguments
+        for later (re-)processing.
+        """
+        arg = rargs.pop(0)
+        stop = False
+        i = 1
+        for ch in arg[1:]:
+            opt = "-" + ch
+            option = self._short_opt.get(opt)
+            i += 1                      # we have consumed a character
+
+            try:
+                if not option:
+                    raise optparse.BadOptionError(opt)
+            except optparse.BadOptionError:
+                if self.preserve_unknown_options:
+                    # SCons-specific:  if requested, add unknown options to
+                    # the "leftover arguments" list for later processing.
+                    self.largs.append(arg)
+                    return
+                raise
+
+            if option.takes_value():
+                # Any characters left in arg?  Pretend they're the
+                # next arg, and stop consuming characters of arg.
+                if i < len(arg):
+                    rargs.insert(0, arg[i:])
+                    stop = True
+
+                nargs = option.nargs
+                if len(rargs) < nargs:
+                    if nargs == 1:
+                        self.error(_("%s option requires an argument") % opt)
+                    else:
+                        self.error(_("%s option requires %d arguments")
+                                   % (opt, nargs))
+                elif nargs == 1:
+                    value = rargs.pop(0)
+                else:
+                    value = tuple(rargs[0:nargs])
+                    del rargs[0:nargs]
+
+            else:                       # option doesn't take a value
+                value = None
+
+            option.process(opt, value, values, self)
+
+            if stop:
+                break
+
     def _process_long_opt(self, rargs, values):
         """
         SCons-specific processing of long options.
@@ -413,7 +470,7 @@ class SConsOptionParser(optparse.OptionParser):
             self.local_option_group = group
 
         result = group.add_option(*args, **kw)
-
+        
         if result:
             # The option was added successfully.  We now have to add the
             # default value to our object that holds the default values
@@ -508,7 +565,7 @@ def Parser(version):
     """
 
     formatter = SConsIndentedHelpFormatter(max_help_position=30)
-
+    
     op = SConsOptionParser(option_class=SConsOption,
                            add_help_option=False,
                            formatter=formatter,
