@@ -787,33 +787,36 @@ sys.exit(0)
         d = env.ParseFlags([])
         assert d == empty, d
 
-        s = "-I/usr/include/fum -I bar -X\n" + \
-            '-I"C:\\Program Files\\ASCEND\\include" ' + \
-            "-L/usr/fax -L foo -lxxx -l yyy " + \
-            '-L"C:\\Program Files\\ASCEND" -lascend ' + \
-            "-Wa,-as -Wl,-link " + \
-            "-Wl,-rpath=rpath1 " + \
-            "-Wl,-R,rpath2 " + \
-            "-Wl,-Rrpath3 " + \
-            "-Wp,-cpp " + \
-            "-std=c99 " + \
-            "-std=c++0x " + \
-            "-framework Carbon " + \
-            "-frameworkdir=fwd1 " + \
-            "-Ffwd2 " + \
-            "-F fwd3 " + \
-            "-dylib_file foo-dylib " + \
-            "-pthread " + \
-            "-fmerge-all-constants " +\
-            "-fopenmp " + \
-            "-mno-cygwin -mwindows " + \
-            "-arch i386 -isysroot /tmp " + \
-            "-iquote /usr/include/foo1 " + \
-            "-isystem /usr/include/foo2 " + \
-            "-idirafter /usr/include/foo3 " + \
-            "-imacros /usr/include/foo4 " + \
-            "+DD64 " + \
+        s = (
+            "-I/usr/include/fum -I bar -X "
+            '-I"C:\\Program Files\\ASCEND\\include" '
+            "-L/usr/fax -L foo -lxxx -l yyy "
+            '-L"C:\\Program Files\\ASCEND" -lascend '
+            "-Wa,-as -Wl,-link "
+            "-Wl,-rpath=rpath1 "
+            "-Wl,-R,rpath2 "
+            "-Wl,-Rrpath3 "
+            "-Wp,-cpp "
+            "-std=c99 "
+            "-std=c++0x "
+            "-framework Carbon "
+            "-frameworkdir=fwd1 "
+            "-Ffwd2 "
+            "-F fwd3 "
+            "-dylib_file foo-dylib "
+            "-pthread "
+            "-fmerge-all-constants "
+            "-fopenmp "
+            "-mno-cygwin -mwindows "
+            "-arch i386 -isysroot /tmp "
+            "-iquote /usr/include/foo1 "
+            "-isystem /usr/include/foo2 "
+            "-idirafter /usr/include/foo3 "
+            "-imacros /usr/include/foo4 "
+            "--param l1-cache-size=32 --param l2-cache-size=6144 "
+            "+DD64 "
             "-DFOO -DBAR=value -D BAZ "
+        )
 
         d = env.ParseFlags(s)
 
@@ -827,6 +830,7 @@ sys.exit(0)
                                 ('-isystem', '/usr/include/foo2'),
                                 ('-idirafter', '/usr/include/foo3'),
                                 ('-imacros', env.fs.File('/usr/include/foo4')),
+                                ('--param', 'l1-cache-size=32'), ('--param', 'l2-cache-size=6144'),
                                 '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
@@ -852,24 +856,40 @@ sys.exit(0)
 
 
     def test_MergeFlags(self):
-        """Test the MergeFlags() method
-        """
+        """Test the MergeFlags() method."""
+
         env = SubstitutionEnvironment()
+        # does not set flag if value empty
         env.MergeFlags('')
         assert 'CCFLAGS' not in env, env['CCFLAGS']
-        env.MergeFlags('-X')
-        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        # merges value if flag did not exist
         env.MergeFlags('-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
 
-        env = SubstitutionEnvironment(CCFLAGS=None)
-        env.MergeFlags('-Y')
-        assert env['CCFLAGS'] == ['-Y'], env['CCFLAGS']
+        # avoid SubstitutionEnvironment for these, has no .Append method,
+        # which is needed for unique=False test
+        env = Environment(CCFLAGS=None)
+        # merge with existing but empty flag
+        env.MergeFlags('-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        # default Unique=True enforces no dupes
+        env.MergeFlags('-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        # Unique=False allows dupes
+        env.MergeFlags('-X', unique=False)
+        assert env['CCFLAGS'] == ['-X', '-X'], env['CCFLAGS']
 
-        env = SubstitutionEnvironment()
-        env.MergeFlags({'A':['aaa'], 'B':['bbb']})
+        # merge from a dict with list values
+        env = SubstitutionEnvironment(B='b')
+        env.MergeFlags({'A': ['aaa'], 'B': ['bb', 'bbb']})
         assert env['A'] == ['aaa'], env['A']
-        assert env['B'] == ['bbb'], env['B']
+        assert env['B'] == ['b', 'bb', 'bbb'], env['B']
+
+        # issue #2961: merge from a dict with string values
+        env = SubstitutionEnvironment(B='b')
+        env.MergeFlags({'A': 'aaa', 'B': 'bb bbb'})
+        assert env['A'] == ['aaa'], env['A']
+        assert env['B'] == ['b', 'bb', 'bbb'], env['B']
 
         # issue #3665: if merging dict which is a compound object
         # (i.e. value can be lists, etc.), the value object should not
@@ -881,6 +901,7 @@ sys.exit(0)
             pass
         flags = {'CFLAGS': ['-pipe', '-pthread', '-g']}
         import copy
+
         saveflags = copy.deepcopy(flags)
         env.MergeFlags(flags)
         self.assertEqual(flags, saveflags)
