@@ -43,6 +43,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Suppress missing SConscript deprecation warning if `must_exist=False`
       is used.
 
+  From Dillan Mills:
+    - Fix support for short options (`-x`). 
+
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
 
