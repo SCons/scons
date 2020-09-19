@@ -31,7 +31,7 @@ those do not end up treated as targets.
 
 import TestSCons
 
-test = TestSCons.TestSCons()
+test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 test.write('SConstruct', """\
 env = Environment()
@@ -48,13 +48,13 @@ print(COMMAND_LINE_TARGETS)
 """)
 
 # arg using =
-test.run('-Q -q --extra=A TARG', status=1, stdout="A\n['TARG']\n")
+test.run('-Q -q --extra=A TARG', status=1, stdout="A\n\\['TARG'\\]\n")
 # arg not using =
-test.run('-Q -q --extra A TARG', status=1, stdout="A\n['TARG']\n")
+test.run('-Q -q --extra A TARG', status=1, stdout="A\n\\['TARG'\\]\n")
 # short arg with space
-test.run('-Q -q -x A TARG', status=1, stdout="A\n['TARG']\n")
+test.run('-Q -q -x A TARG', status=1, stdout="A\n\\['TARG'\\]\n")
 # short arg with no space
-test.run('-Q -q -xA TARG', status=1, stdout="A\n['TARG']\n")
+test.run('-Q -q -xA TARG', status=1, stdout="A\n\\['TARG'\\]\n")
 
 test.write('SConstruct', """\
 env = Environment()
@@ -72,7 +72,7 @@ print(COMMAND_LINE_TARGETS)
 
 # many args and opts
 test.run('-Q -q --extra=A B TARG1 -x C D TARG2 -xE F TARG3 --extra G H TARG4', 
-        status=1, stdout="[('A', 'B'), ('C', 'D'), ('E', 'F'), ('G', 'H')]\n['TARG1', 'TARG2', 'TARG3', 'TARG4']\n")
+        status=1, stdout="\\[\\('A', 'B'\\), \\('C', 'D'\\), \\('E', 'F'\\), \\('G', 'H'\\)\\]\n\\['TARG1', 'TARG2', 'TARG3', 'TARG4'\\]\n")
 
 test.write('SConstruct', """\
 env = Environment()
@@ -89,17 +89,70 @@ print(COMMAND_LINE_TARGETS)
 """)
 
 # opt value and target are same name
-test.run('-Q -q --extra=TARG1 TARG1', status=1, stdout="TARG1\n['TARG1']\n")
-test.run('-Q -q --extra TARG1 TARG1', status=1, stdout="TARG1\n['TARG1']\n")
-test.run('-Q -q -xTARG1 TARG1', status=1, stdout="TARG1\n['TARG1']\n")
-test.run('-Q -q -x TARG1 TARG1', status=1, stdout="TARG1\n['TARG1']\n")
+test.run('-Q -q --extra=TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
+test.run('-Q -q --extra TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
+test.run('-Q -q -xTARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
+test.run('-Q -q -x TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
 
 # equals in opt value
-test.run('-Q -q --extra=A=B TARG1', status=1, stdout="A=B\n['TARG1']\n")
-test.run('-Q -q --extra A=B TARG1', status=1, stdout="A=B\n['TARG1']\n")
-test.run('-Q -q -xA=B TARG1', status=1, stdout="A=B\n['TARG1']\n")
-test.run('-Q -q -x A=B TARG1', status=1, stdout="A=B\n['TARG1']\n")
+test.run('-Q -q --extra=A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
+test.run('-Q -q --extra A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
+test.run('-Q -q -xA=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
+test.run('-Q -q -x A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
 
+test.write('SConstruct', """\
+env = Environment()
+AddOption('-x', '--extra',
+          nargs=1,
+          dest='extra',
+          action='store',
+          type='string',
+          metavar='ARG1',
+          default=(),
+          help='An argument to the option')
+if 'A' in BUILD_TARGETS:
+        BUILD_TARGETS.append('B')
+print(str(GetOption('extra')))
+print(COMMAND_LINE_TARGETS)
+""")
+
+# Nested target
+test.run('-Q -q -x A TARG1', status=1, stdout="A\n\\['TARG1'\\]\n")
+
+test.write('SConstruct', """\
+env = Environment()
+AddOption('-x', '--extra',
+          nargs=1,
+          dest='extra',
+          action='store',
+          type='string',
+          metavar='ARG1',
+          default=(),
+          help='An argument to the option')
+if 'A' in BUILD_TARGETS:
+        AddOption('--foo',
+                  nargs=1,
+                  dest='foo',
+                  action='store',
+                  type='string',
+                  metavar='FOO1',
+                  default=(),
+                  help='An argument to the option')
+print(str(GetOption('extra')))
+print(str(GetOption('foo')))
+print(COMMAND_LINE_TARGETS)
+""")
+
+# nested option
+test.run('-Q -q -x A --foo=C TARG1', status=2, stdout="A\n", stderr="""\
+AttributeError: 'Values' object has no attribute 'foo':
+  File ".+SConstruct", line \\d+:
+    print\\(str\\(GetOption\\('foo'\\)\\)\\)
+  File ".+SCons/Script/Main.py", line \\d+:
+    return getattr\\(OptionsParser.values, name\\)
+  File ".+SCons/Script/SConsOptions.py", line \\d+:
+    return getattr\\(self.__dict__\\['__defaults__'\\], attr\\)
+""")
 
 
 test.pass_test()
