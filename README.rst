@@ -98,32 +98,19 @@ Nothing special.
 Executing SCons Without Installing
 ==================================
 
-You can execute the local SCons directly from the SCons subdirectory by first
-setting the SCONS_LIB_DIR environment variable to the local SCons
-subdirectory, and then executing the local scripts/scons.py script to
-populate the build/scons/ subdirectory.  You would do this as follows on a
-Linux or UNIX system (using sh or a derivative like bash or ksh)::
+You can execute the SCons directly from this repository. For Linux or UNIX::
 
-        $ setenv MYSCONS=`pwd`
-        $ python $MYSCONS/scripts/scons.py [arguments]
+    $ python scripts/scons.py [arguments]
 
 Or on Windows::
 
-        C:\scons>set MYSCONS=%cd%
-        C:\scons>python %MYSCONS%\scripts\scons.py [arguments]
+    C:\scons>python scripts\scons.py [arguments]
 
-An alternative approach is to skip the above and use::
-
-        $ python scripts/scons.py [arguments]
-
-
-You can use the -C option to have SCons change directory to another location
-where you already have a build configuration set up::
+If you run SCons this way, it will execute `SConstruct` file for this repo,
+which will build and pack SCons itself. Use the -C option to change directory
+to your project::
 
     $ python scripts/scons.py -C /some/other/location [arguments]
-
-For simplicity in the following examples, we will only show the bootstrap.py
-approach.
 
 
 Installation

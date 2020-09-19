@@ -82,7 +82,8 @@
 
   <chapter id="chap-manip-options">
     <title>Automatically Putting Command-line Options into their Construction Variables</title>
-    <!-- TODO:  This intro paragraph should describe at a high-level
+    <!-- TODO:  combine this into a chapter document.
+    This intro paragraph should describe at a high-level
     what these things do.  People are likely to use the intro as a
     (brief) overview of *what* these functions do to decide if this
     chapter is where they should read in more detail.  -->
@@ -106,58 +107,33 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="separate.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variants.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="gettext.xml"/>
-
-  <!--
-
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-built-in.xml"/>
-
-  -->
-
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-built-in.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-writing.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-commands.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="add-method.xml"/>
-
-  <!--
-
-  XXX Action()
-  XXX AddPostAction()
-  XXX AddPreAction()
-
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="actions.xml"/>
-
-  -->
-
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="actions.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scanners.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="repositories.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sconf.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="caching.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="alias.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="java.xml"/>
-
-  <!--
-
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="run.xml"/>
-
-  -->
-
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="run.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="misc.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="external.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="troubleshoot.xml"/>
 
-<!--   Appendix below here -->
+  <!--   Appendix below here -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variables.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tools.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="functions.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tasks.xml"/>
 
-  <!--
-
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="python.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="example.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="make.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ant.xml"/>
-
-  -->
+  <!-- These sections are only sekeletons: -->
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="python.xml"/> -->
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="example.xml"/> -->
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="make.xml"/> -->
+  <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ant.xml"/> -->
 
 </book>

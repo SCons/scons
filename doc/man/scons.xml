@@ -4237,6 +4237,13 @@ Calling &Variables; with no arguments is equivalent to:
 vars = Variables(files=None, args=ARGUMENTS)
 </programlisting>
 
+<para>
+Note that since the variables are eventually added as &consvars;,
+you should choose variable names which do not unintentionally change
+pre-defined &consvars; that your project will make use of
+(see <xref linkend="construction_variables"/>).
+</para>
+
   </listitem>
   </varlistentry>
   </variablelist>
@@ -5521,18 +5528,21 @@ and emitter functions.</para>
 function will turn its
 <parameter>action</parameter>
 keyword argument into an appropriate
-internal Action object.
+internal Action object, as will
+the &f-link-Command; function.
 You can also explicitly create Action objects
 for passing to &f-Builder;, or other functions
 that take actions as arguments,
 by calling the &f-link-Action; factory function.
-This can be used to configure
-an Action object more flexibly,
-or it may simply be more efficient
-than letting each separate Builder object
-create a separate Action
-when multiple
-Builder objects need to do the same thing.</para>
+This may more efficient when multiple
+Builder objects need to do the same thing
+rather than letting each of those Builder objects
+create a separate Action object.
+It also allows more flexible configuration
+of an Action object. For example, to control
+the message printed when the action is taken
+you need to create the action object using &f-Action;.
+</para>
 
 <para>The
 &Action; factory function
@@ -5652,23 +5662,22 @@ it was called. The global function form &f-link-Action;
 the Action object is actually used.
 </para>
 
-<para>The second argument to &f-Action;
-is optional and is used to define the output
+<para>The optional second argument to &f-Action;
+is used to control the output
 which is printed when the Action is actually performed.
-In the absence of this parameter,
-or if it's an empty string,
+If this parameter is omitted,
+or if the value is an empty string,
 a default output depending on the type of the action is used.
 For example, a command-line action will print the executed command.
-The argument must be either a Python function or a string:</para>
+The following argument types are accepted:
+</para>
 
 <itemizedlist>
   <listitem>
 <para>If the output argument is a function,
-it must return a string
+the function will be called to obtain a string
 describing the action being executed.
-A function may also be specified using the
-<parameter>strfunction</parameter>
-keyword argument. The function
+The function
 must accept these three keyword arguments:</para>
 
   <simplelist type="vert">
@@ -5689,17 +5698,28 @@ more than one target file or source file.</para>
 
   <listitem>
 <para>If the output argument is a string,
-substitution is performed on it before it is printed.
-The output string may also be specified using the
-<parameter>cmdstr</parameter>
-keyword argument.
+substitution is performed on the string before it is printed.
 The string typically contains variables, notably
 <literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
 or consists of just a single
 variable, which is optionally defined somewhere else.
-SCons itself heavily uses the latter variant.</para>
+&SCons; itself heavily uses the latter variant.</para>
+  </listitem>
+
+  <listitem>
+<para>If the argument is <constant>None</constant>,
+output is suppressed entirely.</para>
   </listitem>
 </itemizedlist>
+
+<para>
+Instead of using a positional argument,
+the <parameter>cmdstr</parameter>
+keyword argument may be used to specify the output string,
+or the <parameter>strfunction</parameter> keyword argument
+may be used to specify a function to return the output string,
+Use <literal>cmdstr=None</literal> to suppress output.
+</para>
 
 <para>Examples:</para>
 

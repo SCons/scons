@@ -625,6 +625,9 @@ env.Command('directory_build_info',
 
   </section>
 
+  <!-- Former unpublished chapter now included as a section here: -->
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sideeffect.xml"/>
+
   <section>
   <title>Virtual environments (virtualenvs)</title>
 

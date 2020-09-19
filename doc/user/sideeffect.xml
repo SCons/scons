@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -13,11 +13,11 @@
     %variables-mod;
 ]>
 
-<chapter id="chap-sideeffect"
+<section id="sect-sideeffect"
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
-<title>Sideeffect files</title>
+<title>Declaring Additional Outputs: the &f-SideEffect; Function </title>
 
 <!--
 
@@ -46,31 +46,25 @@
 
  <para>
 
- If &SCons; is unaware that a build step produces an extra file,
- the &SideEffect; method can be used to identify it,
- so that the file can be used as a dependency in subsequent build steps.
- However, the primary use for the &SideEffect; method
- is to prevent two build steps from simultaneously modifying the same file.
-
- </para>
-
- <para>
- TODO: currently doesn't work due to issue #2154:
- https://github.com/SCons/scons/issues/2154
- </para>
- 
- <para>
-
- If more than one build step creates or manipulates the same file,
- it can cause unpleasant results if both build steps are run at the same time.
- The shared file is declared as a side-effect of building the primary targets
- and &SCons; will prevent the two build steps from running in parallel.
+ Sometimes the way an action is defined causes effects on files
+ that &SCons; does not recognize as targets. The &f-link-SideEffect;
+ method can be used to informs &SCons; about such files.
+ This can be used just to flag a dependency for use in subsequent
+ build steps, although there is usually a better way to do that.
+ The primary use for the &SideEffect; method
+ is to prevent two build steps from simultaneously modifying
+ or accessing the same file in a way that could impact each other.
 
  </para>
 
  <para>
 
- In this example, the <filename>SConscript</filename> uses
+ In this example, the rule to build <filename>file1</filename>
+ will also put data into <filename>log</filename>, which is used
+ as a source for the command to generate <filename>file2</filename>,
+ but <filename>log</filename> is unknown to &SCons; on a clean
+ build: it neither exists, nor is it a target output by any builder.
+ The <filename>SConscript</filename> uses
  &SideEffect; to inform &SCons; about the additional output file.
 
  </para>
@@ -78,36 +72,116 @@
  <scons_example name="sideeffect_simple">
    <file name="SConstruct" printme="1">
 env = Environment()
-f2 = env.Command('file2', 'log', Copy('$TARGET', '$SOURCE'))
-f1 = env.Command('file1', [],
-    'echo >$TARGET data1; echo >log updated file1')
-env.SideEffect('log', env.Command('file1', [],
-    'echo >$TARGET data1; echo >log updated file1'))
+f2 = env.Command(
+    target='file2',
+    source='log',
+    action=Copy('$TARGET', '$SOURCE')
+)
+f1 = env.Command(
+    target='file1',
+    source=[],
+    action='echo >$TARGET data1; echo >log updated file1'
+)
+env.SideEffect('log', f1)
    </file>
  </scons_example>
 
  <para>
 
- Even when run in parallel mode, &SCons; will run the two steps in order:
+ Without the &f-SideEffect;, this build would fail with a message
+ <computeroutput>Source `log' not found, needed by target `file2'</computeroutput>,
+ but now it can proceed:
 
  </para>
 
  <scons_output example="sideeffect_simple" suffix="1">
-    <scons_output_command>scons -Q --jobs=2</scons_output_command>
+    <scons_output_command>scons -Q</scons_output_command>
  </scons_output>
 
  <para>
 
- Sometimes a program the you need to call
- to build a target file
- will also update another file,
- such as a log file describing what the program
+ However, it is better to actually identify
+ <filename>log</filename> as a target, since in this
+ case that's what it is:
+
+ </para>
+
+ <scons_example name="sideeffect_simple2">
+   <file name="SConstruct" printme="1">
+env = Environment()
+f2 = env.Command(
+    target='file2',
+    source='log',
+    action=Copy('$TARGET', '$SOURCE')
+)
+f1 = env.Command(
+    target=['file1', 'log'],
+    source=[],
+    action='echo >$TARGET data1; echo >log updated file1'
+)
+   </file>
+ </scons_example>
+
+ <scons_output example="sideeffect_simple2" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+ </scons_output>
+
+ <para>
+
+ In general, &SideEffect; is not intended for the case when
+ a command produces extra target files (that is, files which
+ will be used as sources to other build steps). For example, the
+ the Microsoft Visual C/C++ compiler is capable of performing
+ incremental linking, for which it uses a status file - such that
+ linking <filename>foo.exe</filename> also produces
+ a <filename>foo.ilk</filename>, or uses it if it was already present,
+ if the <option>/INCREMENTAL</option> option was supplied.
+ Specifying <filename>foo.ilk</filename> as a
+ side-effect of <filename>foo.exe</filename>
+ is <emphasis>not</emphasis> a recommended use of &SideEffect;
+ since <filename>foo.ilk</filename> is used by the link.
+ &SCons; handles side-effect files
+ slightly differently in its analysis of the dependency graph.
+ When a command produces multiple output files,
+ they should be specified as multiple targets of
+ the call to the relevant builder function.
+ The &SideEffect; function itself should really only be used
+ when it's important to ensure that commands are not executed in parallel,
+ such as when a "peripheral" file (such as a log file)
+ may actually be updated by more than one command invocation.
+
+ </para>
+
+ <para>
+
+ Unfortunately, the tool which sets up the &b-Program; builder
+ for the MSVC compiler chain does not come prebuilt
+ with an understanding of the details of the <filename>.ilk</filename>
+ example - that the target list would need to change 
+ in the presence of that specific option flag. Unlike the trivial
+ example above where we could simply tell the &Command; builder
+ there were two targets of the action, modifying the
+ chain of events for a builder like &b-Program;,
+ though not inherently complex, is definitely an
+ advanced &SCons; topic.  It's okay to use &SideEffect; here
+ to get started, as long as it comes with an understanding
+ that it's "not quite right". Perhaps leave a comment in
+ the file as a reminder, if it does turn out to cause problems later.
+
+ </para>
+
+ <para>
+
+ So if the main use is to prevent parallelism problems,
+ here is an example to illustrate.
+ Say a program that you need to call to build a target file
+ will also update a log file describing what the program
  does while building the target.
- For example, we the folowing configuration
+ The following configuration
  would have &SCons; invoke a hypothetical
  script named <application>build</application>
  (in the local directory)
- with command-line arguments that write
+ with command-line arguments telling it to write
  log information to a common
  <filename>logfile.txt</filename> file:
 
@@ -115,10 +189,16 @@ env.SideEffect('log', env.Command('file1', [],
 
  <screen>
 env = Environment()
-env.Command('file1.out', 'file.in',
-            './build --log logfile.txt $SOURCE $TARGET')
-env.Command('file2.out', 'file.in',
-            './build --log logfile.txt $SOURCE $TARGET')
+env.Command(
+    target='file1.out',
+    source='file1.in',
+    action='./build --log logfile.txt $SOURCE $TARGET'
+)
+env.Command(
+    target='file2.out',
+    source='file2.in',
+    action='./build --log logfile.txt $SOURCE $TARGET'
+)
  </screen>
 
  <para>
@@ -156,10 +236,16 @@ env.Command('file2.out', 'file.in',
  <scons_example name="sideeffect_shared">
    <file name="SConstruct" printme="1">
 env = Environment()
-f1 = env.Command('file1.out', 'file1.in',
-                 './build --log logfile.txt $SOURCE $TARGET')
-f2 = env.Command('file2.out', 'file2.in',
-                 './build --log logfile.txt $SOURCE $TARGET')
+f1 = env.Command(
+    target='file1.out',
+    source='file1.in',
+    action='./build --log logfile.txt $SOURCE $TARGET'
+)
+f2 = env.Command(
+    target='file2.out',
+    source='file2.in',
+    action='./build --log logfile.txt $SOURCE $TARGET'
+)
 env.SideEffect('logfile.txt', f1 + f2)
    </file>
    <file name="file1.in">file1.in</file>
@@ -177,7 +263,7 @@ cat
 
  This makes sure the the two
  <application>./build</application> steps are run sequentially,
- even withthe <filename>--jobs=2</filename> in the command line:
+ even with the <filename>--jobs=2</filename> in the command line:
 
  </para>
 
@@ -189,20 +275,23 @@ cat
 
  The &SideEffect; function can be called multiple
  times for the same side-effect file.
- Additionally, the name used as a &SideEffect; does not
- even need to actually exist as a file on disk.
+ In fact, the name used as a &SideEffect; does not
+ even need to actually exist as a file on disk -
  &SCons; will still make sure
  that the relevant targets
- will be executed sequentially, not in parallel:
+ will be executed sequentially, not in parallel.
+ The side effect is actually a pseudo-target, and &SCons;
+ mainly cares whether nodes are listed as depending on it,
+ not about its contents.
 
  </para>
 
  <scons_example name="sideeffect_parallel">
    <file name="SConstruct" printme="1">
 env = Environment()
-f1 = env.Command('file1.out', [], 'echo >$TARGET data1')
+f1 = env.Command('file1.out', [], action='echo >$TARGET data1')
 env.SideEffect('not_really_updated', f1)
-f2 = env.Command('file2.out', [], 'echo >$TARGET data2')
+f2 = env.Command('file2.out', [], action='echo >$TARGET data2')
 env.SideEffect('not_really_updated', f2)
    </file>
  </scons_example>
@@ -211,28 +300,5 @@ env.SideEffect('not_really_updated', f2)
     <scons_output_command>scons -Q --jobs=2</scons_output_command>
  </scons_output>
 
- <para>
+ </section>
 
- Note that it might be tempting to
- use &SideEffect; for additional target files
- that a command produces.
- For example, versions the Microsoft Visual C/C++ compiler
- produce a <filename>foo.ilk</filename>
- alongside compiling <filename>foo.obj</filename> file.
- Specifying <filename>foo.ilk</filename> as a
- side-effect of <filename>foo.obj</filename>
- is <emphasis>not</emphasis> a recommended use of &SideEffect;,
- because &SCons; handle side-effect files
- slightly differently in its analysis of the dependency graph.
- When a command produces multiple output files,
- they should be specified as multiple targets of
- the call to the relevant builder function,
- and the &SideEffect; function itself should really only be used
- when it's important to ensure that commands are not executed in parallel,
- such as when a "peripheral" file (such as a log file)
- may actually updated by more than one command invocation.
-
- </para>
-
- </chapter>
- 
