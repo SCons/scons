@@ -45,6 +45,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Dillan Mills:
     - Fix support for short options (`-x`). 
+    - Add support for long and short options with nargs != '?' to contain spaces:
+      - `--extra A B C` and `-x A B C` will both work as expected
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
