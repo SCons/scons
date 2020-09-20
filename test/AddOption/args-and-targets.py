@@ -113,11 +113,12 @@ AddOption('-x', '--extra',
 if 'A' in BUILD_TARGETS:
         BUILD_TARGETS.append('B')
 print(str(GetOption('extra')))
-print(COMMAND_LINE_TARGETS)
+print(BUILD_TARGETS)
 """)
 
 # Nested target
 test.run('-Q -q -x A TARG1', status=1, stdout="A\n\\['TARG1'\\]\n")
+test.run('-Q -q -x A A TARG1', status=1, stdout="A\n\\['A', 'TARG1', 'B'\\]\n")
 
 test.write('SConstruct', """\
 env = Environment()
@@ -153,6 +154,8 @@ AttributeError: 'Values' object has no attribute 'foo':
   File ".+SCons/Script/SConsOptions.py", line \\d+:
     return getattr\\(self.__dict__\\['__defaults__'\\], attr\\)
 """)
+test.run('-Q -q -x A A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\]\n")
+
 
 
 test.pass_test()
