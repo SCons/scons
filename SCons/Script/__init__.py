@@ -218,9 +218,16 @@ def _Add_Arguments(alist):
 def _Remove_Argument(aarg):
     if aarg:
         a, b = aarg.split('=', 1)
-        ARGUMENTS.pop(a, None)
+
+        # remove from ARGLIST first which would contain duplicates if -x A=B A=B was specified on the CL
         if (a, b) in ARGLIST:
             ARGLIST.remove((a, b))
+
+            # Set ARGUMENTS[A] back to latest value in ARGLIST (remove first in case no matching values left in ARGLIST)
+            ARGUMENTS.pop(a, None)
+            for item in ARGLIST:
+                if item[0] == a:
+                    ARGUMENTS[a] = item[1]
 
 def _Add_Targets(tlist):
     if tlist:

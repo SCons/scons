@@ -86,19 +86,50 @@ AddOption('-x', '--extra',
           help='An argument to the option')
 print(str(GetOption('extra')))
 print(COMMAND_LINE_TARGETS)
+print(ARGUMENTS.get('A', None))
 """)
 
 # opt value and target are same name
-test.run('-Q -q --extra=TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
-test.run('-Q -q --extra TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
-test.run('-Q -q -xTARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
-test.run('-Q -q -x TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\n")
+test.run('-Q -q --extra=TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q --extra TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q -xTARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q -x TARG1 TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+
+# target first
+test.run('-Q -q TARG1 --extra=TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q TARG1 --extra TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q TARG1 -xTARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q TARG1 -x TARG1', status=1, stdout="TARG1\n\\['TARG1'\\]\nNone\n")
 
 # equals in opt value
-test.run('-Q -q --extra=A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
-test.run('-Q -q --extra A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
-test.run('-Q -q -xA=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
-test.run('-Q -q -x A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\n")
+test.run('-Q -q --extra=A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q --extra A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q -xA=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nNone\n")
+test.run('-Q -q -x A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nNone\n")
+
+# equals in opt value and a different argument
+test.run('-Q -q --extra=A=B A=C TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+test.run('-Q -q --extra A=B A=C TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+test.run('-Q -q -xA=B A=C TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+test.run('-Q -q -x A=B A=C TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+
+# different argument first
+test.run('-Q -q A=C --extra=A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+test.run('-Q -q A=C --extra A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+test.run('-Q -q A=C -xA=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+test.run('-Q -q A=C -x A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nC\n")
+
+# equals in opt value and the same as an argument
+test.run('-Q -q --extra=A=B A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+test.run('-Q -q --extra A=B A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+test.run('-Q -q -xA=B A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+test.run('-Q -q -x A=B A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+
+# same argument first
+test.run('-Q -q A=B --extra=A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+test.run('-Q -q A=B --extra A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+test.run('-Q -q A=B -xA=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
+test.run('-Q -q A=B -x A=B TARG1', status=1, stdout="A=B\n\\['TARG1'\\]\nB\n")
 
 test.write('SConstruct', """\
 env = Environment()
@@ -119,6 +150,7 @@ print(BUILD_TARGETS)
 # Nested target
 test.run('-Q -q -x A TARG1', status=1, stdout="A\n\\['TARG1'\\]\n")
 test.run('-Q -q -x A A TARG1', status=1, stdout="A\n\\['A', 'TARG1', 'B'\\]\n")
+test.run('-Q -q A -x A TARG1', status=1, stdout="A\n\\['A', 'TARG1', 'B'\\]\n")
 
 test.write('SConstruct', """\
 env = Environment()
@@ -155,6 +187,7 @@ AttributeError: 'Values' object has no attribute 'foo':
     return getattr\\(self.__dict__\\['__defaults__'\\], attr\\)
 """)
 test.run('-Q -q -x A A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\]\n")
+test.run('-Q -q A -x A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\]\n")
 
 
 
