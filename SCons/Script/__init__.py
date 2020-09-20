@@ -223,8 +223,9 @@ def _Remove_Argument(aarg):
         if (a, b) in ARGLIST:
             ARGLIST.remove((a, b))
 
-            # Set ARGUMENTS[A] back to latest value in ARGLIST (remove first in case no matching values left in ARGLIST)
+            # Remove first in case no matching values left in ARGLIST
             ARGUMENTS.pop(a, None)
+            # Set ARGUMENTS[A] back to latest value in ARGLIST (assuming order matches CL order)
             for item in ARGLIST:
                 if item[0] == a:
                     ARGUMENTS[a] = item[1]
