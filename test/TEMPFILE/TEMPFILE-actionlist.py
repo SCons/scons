@@ -29,13 +29,7 @@ import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
 test.verbose_set(True)
-
-test.write('SConstruct', """
-env = Environment(BUILDCOM=['${TEMPFILE("xxx.py -otempfile $SOURCE")}',
-                            '${TEMPFILE("yyy.py -o$TARGET tempfile")}'],
-                  MAXLINELENGTH=1)
-env.Command('file.output', 'file.input', '$BUILDCOM')
-""")
+test.file_fixture('fixture/SConstruct-tempfile-actionlist', 'SConstruct')
 
 test.write('file.input', "file.input\n")
 
