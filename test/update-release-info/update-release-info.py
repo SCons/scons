@@ -27,7 +27,8 @@ have the appropriate triggers to cause the modifications.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os, sys, time
+import os
+import time
 
 import TestRuntest
 

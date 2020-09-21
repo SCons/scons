@@ -30,7 +30,6 @@ Test that we can generate Visual Studio 8.0 project (.vcproj) and
 solution (.sln) files that look correct.
 """
 
-import os
 import sys
 
 import TestSConsMSVS

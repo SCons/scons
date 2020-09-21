@@ -59,7 +59,6 @@ rest of our code will find our pre-loaded compatibility module.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import sys
 import importlib
 
@@ -81,7 +80,6 @@ def rename_module(new, old):
 # Default pickle protocol. Higher protocols are more efficient/featured
 # but incompatible with older Python versions.
 # Negative numbers choose the highest available protocol.
-import pickle
 
 # Was pickle.HIGHEST_PROTOCOL
 # Changed to 4 so that python 3.8's not incompatible with previous versions

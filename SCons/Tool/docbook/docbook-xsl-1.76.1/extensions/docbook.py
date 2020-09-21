@@ -1,7 +1,5 @@
 # docbook.py: extension module
 # $Id: docbook.py 8353 2009-03-17 16:57:50Z mzjn $
-import sys
-import string
 import libxml2
 import libxslt
 import re

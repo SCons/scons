@@ -35,14 +35,10 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    import dumbdbm
-    use_dbm = 'dumbdbm'
+    import dbm.dumb
+    use_dbm='dbm.dumb'
 except ImportError:
-    try:
-        import dbm.dumb
-        use_dbm='dbm.dumb'
-    except ImportError:
-        test.skip_test('No dumbdbm or dbm.dumb in this version of Python; skipping test.\n')
+    test.skip_test('No dbm.dumb in this version of Python; skipping test.\n')
 
 test.subdir('subdir')
 

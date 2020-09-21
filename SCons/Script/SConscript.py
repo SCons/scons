@@ -46,7 +46,6 @@ from SCons.Util import is_List, is_String, is_Dict, flatten
 from SCons.Node import SConscriptNodes
 from . import Main
 
-import collections
 import os
 import os.path
 import re

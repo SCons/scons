@@ -43,7 +43,6 @@ be able to depend on any other type of "thing."
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import collections
 import copy
 from itertools import chain
@@ -823,24 +822,20 @@ class Node(object, metaclass=NoSlotsPyPy):
 
     def release_target_info(self):
         """Called just after this node has been marked
-         up-to-date or was built completely.
+        up-to-date or was built completely.
 
-         This is where we try to release as many target node infos
-         as possible for clean builds and update runs, in order
-         to minimize the overall memory consumption.
+        This is where we try to release as many target node infos
+        as possible for clean builds and update runs, in order
+        to minimize the overall memory consumption.
 
-         By purging attributes that aren't needed any longer after
-         a Node (=File) got built, we don't have to care that much how
-         many KBytes a Node actually requires...as long as we free
-         the memory shortly afterwards.
+        By purging attributes that aren't needed any longer after
+        a Node (=File) got built, we don't have to care that much how
+        many KBytes a Node actually requires...as long as we free
+        the memory shortly afterwards.
 
-         @see: built() and File.release_target_info()
-         """
+        @see: built() and File.release_target_info()
+        """
         pass
-
-    #
-    #
-    #
 
     def add_to_waiting_s_e(self, node):
         self.waiting_s_e.add(node)

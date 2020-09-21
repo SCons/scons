@@ -31,7 +31,6 @@ import sys
 import copy
 import re
 import types
-import codecs
 import pprint
 import hashlib
 from collections import UserDict, UserList, UserString, OrderedDict
