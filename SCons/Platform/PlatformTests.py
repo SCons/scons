@@ -193,12 +193,14 @@ class TempFileMungeTestCase(unittest.TestCase):
         assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
 
     def test_tempfilecreation_once(self):
-        # Init class with cmd, such that the fully expanded
-        # string reads "a test command line".
-        # Note, how we're using a command string here that is
-        # actually longer than the substituted one. This is to ensure
-        # that the TempFileMunge class internally really takes the
-        # length of the expanded string into account.
+        """
+        Init class with cmd, such that the fully expanded
+        string reads "a test command line".
+        Note, how we're using a command string here that is
+        actually longer than the substituted one. This is to ensure
+        that the TempFileMunge class internally really takes the
+        length of the expanded string into account.
+        """
         defined_cmd = "a $VERY $OVERSIMPLIFIED line"
         t = SCons.Platform.TempFileMunge(defined_cmd)
         env = SCons.Environment.SubstitutionEnvironment(tools=[])
@@ -224,7 +226,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
-        assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
+        assert cmd == target[0].attributes.tempfile_cmdlist[defined_cmd]
 
 
 

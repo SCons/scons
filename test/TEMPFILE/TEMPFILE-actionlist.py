@@ -28,7 +28,6 @@ list invokes each command in the list.
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
-test.verbose_set(True)
 test.file_fixture('fixture/SConstruct-tempfile-actionlist', 'SConstruct')
 
 test.write('file.input', "file.input\n")

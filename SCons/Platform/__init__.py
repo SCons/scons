@@ -269,9 +269,9 @@ class TempFileMunge:
             try:
                 # Storing in tempfile_cmdlist by self.cmd provided when intializing
                 # $TEMPFILE{} fixes issue raised in PR #3140 and #3553
-                self.attributes.tempfile_cmdlist[self.cmd] = cmdlist
+                node.attributes.tempfile_cmdlist[self.cmd] = cmdlist
             except AttributeError:
-                pass
+                node.attributes.tempfile_cmdlist = {self.cmd:cmdlist}
 
         return cmdlist
 
