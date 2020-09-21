@@ -29,7 +29,6 @@ Verify that {Set,Get}Option('clean') works correctly to control
 cleaning behavior.
 """
 
-import os
 
 import TestSCons
 

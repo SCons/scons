@@ -32,7 +32,6 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import subprocess
 
 from . import posix
@@ -70,8 +69,6 @@ def get_xlc(env, xlc=None, packages=[]):
             or ('/' not in xlc and filename.endswith('/' + xlc)):
                 xlcVersion = fileset.split()[1]
                 xlcPath, sep, xlc = filename.rpartition('/')
-            pass
-        pass
     return (xlcPath, xlc, xlcVersion)
 
 def generate(env):

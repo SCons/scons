@@ -72,7 +72,6 @@ class EnvironmentValue:
                 # Now we need to parse the specified string
                 result = _dollar_exps.sub(sub_match, args)
                 print(result)
-            pass
         except TypeError:
             # likely callable? either way we don't parse
             self._parsed = self.value

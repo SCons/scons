@@ -30,7 +30,6 @@ Definition Language) files.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import re
 
 import SCons.Node.FS
 import SCons.Scanner

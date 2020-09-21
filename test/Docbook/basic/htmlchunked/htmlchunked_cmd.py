@@ -27,7 +27,6 @@ Test the chunked HTML builder while using
 the xsltproc executable, if it exists.
 """
 
-import os
 import TestSCons
 
 test = TestSCons.TestSCons()

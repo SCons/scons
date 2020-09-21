@@ -46,7 +46,6 @@ def _call_linker_cb(env, callback, args, result=None):
     except (KeyError, TypeError):
         if Verbose:
             print('_call_linker_cb: env["LINKCALLBACKS"][%r] not found or can not be used' % callback)
-        pass
     else:
         if Verbose:
             print('_call_linker_cb: env["LINKCALLBACKS"][%r] found' % callback)

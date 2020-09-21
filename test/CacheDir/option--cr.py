@@ -29,8 +29,6 @@ Test the --cache-readonly option when retrieving derived files from a
 CacheDir. It should retrieve as normal but not update files.
 """
 
-import os.path
-import shutil
 
 import TestSCons
 

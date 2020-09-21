@@ -27,7 +27,6 @@ import SCons.compat
 
 import collections
 import os
-import sys
 import unittest
 
 import TestCmd

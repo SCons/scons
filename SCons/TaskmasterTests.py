@@ -24,7 +24,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
-import copy
 import sys
 import unittest
 
@@ -867,10 +866,9 @@ class TaskmasterTestCase(unittest.TestCase):
         except MyException as e:
             exc_caught = 1
             exc_value = e
-        except Exception as e:
-            exc_actually_caught = e
+        except Exception as exc_actually_caught:
             pass
-        assert exc_caught, "did not catch expected MyException: %s"%exc_actually_caught
+        assert exc_caught, "did not catch expected MyException: %s" % exc_actually_caught
         assert str(exc_value) == "exception value", exc_value
         assert built_text is None, built_text
 

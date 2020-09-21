@@ -42,7 +42,6 @@ files correctly.
 # replicate the bug.
 
 import TestSCons
-from os import path
 
 test = TestSCons.TestSCons()
 
