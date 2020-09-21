@@ -190,10 +190,14 @@ class TempFileMunge:
 
         # Check if we already created the temporary file for this target
         # It should have been previously done by Action.strfunction() call
-        node = target[0] if SCons.Util.is_List(target) else target
+        if SCons.Util.is_List(target):
+            node = target[0]
+        else:
+            node = target
+
         cmdlist = None
 
-        if isinstance(self.cmd, list):
+        if SCons.Util.is_List(self.cmd):
             cmdlist_key = tuple(self.cmd)
         else:
             cmdlist_key = self.cmd
