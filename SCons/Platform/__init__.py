@@ -189,6 +189,15 @@ class TempFileMunge:
         if length <= maxline:
             return self.cmd
 
+        # Check if we already created the temporary file for this target
+        # It should have been previously done by Action.strfunction() call
+        node = target[0] if SCons.Util.is_List(target) else target
+        cmdlist = None
+        if node and hasattr(node.attributes, 'tempfile_cmdlist'):
+            cmdlist = node.attributes.tempfile_cmdlist.get(self.cmd, None)
+        if cmdlist is not None:
+            return cmdlist
+
         # Default to the .lnk suffix for the benefit of the Phar Lap
         # linkloc linker, which likes to append an .lnk suffix if
         # none is given.
@@ -253,6 +262,17 @@ class TempFileMunge:
                 self._print_cmd_str(target, source, env, cmdstr)
 
         cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
+
+        # Store the temporary file command list into the target Node.attributes
+        # to avoid creating two temporary files one for print and one for execute.
+        if node is not None:
+            try:
+                # Storing in tempfile_cmdlist by self.cmd provided when intializing
+                # $TEMPFILE{} fixes issue raised in PR #3140 and #3553
+                self.attributes.tempfile_cmdlist[self.cmd] = cmdlist
+            except AttributeError:
+                pass
+
         return cmdlist
 
     def _print_cmd_str(self, target, source, env, cmdstr):

@@ -218,6 +218,7 @@ class TempFileMungeTestCase(unittest.TestCase):
 
             def __init__(self):
                 self.attributes = self.Attrs()
+
         target = [Node()]
         cmd = t(target, None, env, 0)
         # ...and restoring its setting.
