@@ -111,17 +111,18 @@ tex = test.where_is('tex')
 
 if dvipdf and tex:
 
-    test.write("wrapper.py", """import os
+    test.write("wrapper.py", """\
+import subprocess
 import sys
 cmd = " ".join(sys.argv[1:])
 open('%s', 'a').write("%%s\\n" %% cmd)
-os.system(cmd)
+subprocess.run(cmd, shell=True)
 """ % test.workpath('wrapper.out').replace('\\', '\\\\'))
 
     test.write('SConstruct', """
 import os
 ENV = {'PATH' : os.environ['PATH']}
-foo = Environment(DVIPDFFLAGS = '-N', ENV = ENV)
+foo = Environment(DVIPDFFLAGS = '-R2', ENV = ENV)
 dvipdf = foo.Dictionary('DVIPDF')
 bar = Environment(DVIPDF = r'%(_python_)s wrapper.py ' + dvipdf, ENV = ENV)
 foo.PDF(target = 'foo.pdf',

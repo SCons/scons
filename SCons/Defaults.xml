@@ -1,0 +1,598 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<cvar name ="_concat">
+<summary>
+<para>
+A function used to produce variables like &cv-_CPPINCFLAGS;. It takes
+four or five
+arguments: a prefix to concatenate onto each element, a list of
+elements, a suffix to concatenate onto each element, an environment
+for variable interpolation, and an optional function that will be
+called to transform the list before concatenation.
+</para>
+
+<example_commands>
+env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="CONFIGUREDIR">
+<summary>
+<para>
+The name of the directory in which
+Configure context test files are written.
+The default is
+<filename>.sconf_temp</filename>
+in the top-level directory
+containing the
+<filename>SConstruct</filename>
+file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CONFIGURELOG">
+<summary>
+<para>
+The name of the Configure context log file.
+The default is
+<filename>config.log</filename>
+in the top-level directory
+containing the
+<filename>SConstruct</filename>
+file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_CPPDEFFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the C preprocessor command-line options
+to define values.
+The value of &cv-_CPPDEFFLAGS; is created
+by respectively prepending and appending
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
+to the beginning and end
+of each definition in &cv-CPPDEFINES;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CPPDEFINES">
+<summary>
+<para>
+A platform independent specification of C preprocessor definitions.
+The definitions will be added to command lines
+through the automatically-generated
+&cv-_CPPDEFFLAGS; construction variable (see above),
+which is constructed according to
+the type of value of &cv-CPPDEFINES;:
+</para>
+
+<para>
+If &cv-CPPDEFINES; is a string,
+the values of the
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
+construction variables
+will be respectively prepended and appended to the beginning and end
+of each definition in &cv-CPPDEFINES;.
+</para>
+
+<example_commands>
+# Will add -Dxyz to POSIX compiler command lines,
+# and /Dxyz to Microsoft Visual C++ command lines.
+env = Environment(CPPDEFINES='xyz')
+</example_commands>
+
+<para>
+If &cv-CPPDEFINES; is a list,
+the values of the
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
+construction variables
+will be respectively prepended and appended to the beginning and end
+of each element in the list.
+If any element is a list or tuple,
+then the first item is the name being
+defined and the second item is its value:
+</para>
+
+<example_commands>
+# Will add -DB=2 -DA to POSIX compiler command lines,
+# and /DB=2 /DA to Microsoft Visual C++ command lines.
+env = Environment(CPPDEFINES=[('B', 2), 'A'])
+</example_commands>
+
+<para>
+If &cv-CPPDEFINES; is a dictionary,
+the values of the
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
+construction variables
+will be respectively prepended and appended to the beginning and end
+of each item from the dictionary.
+The key of each dictionary item
+is a name being defined
+to the dictionary item's corresponding value;
+if the value is
+<literal>None</literal>,
+then the name is defined without an explicit value.
+Note that the resulting flags are sorted by keyword
+to ensure that the order of the options on the
+command line is consistent each time
+&scons;
+is run.
+</para>
+
+<example_commands>
+# Will add -DA -DB=2 to POSIX compiler command lines,
+# and /DA /DB=2 to Microsoft Visual C++ command lines.
+env = Environment(CPPDEFINES={'B':2, 'A':None})
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="CPPDEFPREFIX">
+<summary>
+<para>
+The prefix used to specify preprocessor definitions
+on the C compiler command line.
+This will be prepended to the beginning of each definition
+in the &cv-CPPDEFINES; construction variable
+when the &cv-_CPPDEFFLAGS; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CPPDEFSUFFIX">
+<summary>
+<para>
+The suffix used to specify preprocessor definitions
+on the C compiler command line.
+This will be appended to the end of each definition
+in the &cv-CPPDEFINES; construction variable
+when the &cv-_CPPDEFFLAGS; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_CPPINCFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the C preprocessor command-line options
+for specifying directories to be searched for include files.
+The value of &cv-_CPPINCFLAGS; is created
+by respectively prepending and appending &cv-INCPREFIX; and &cv-INCSUFFIX;
+to the beginning and end
+of each directory in &cv-CPPPATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CPPPATH">
+<summary>
+<para>
+The list of directories that the C preprocessor will search for include
+directories. The C/C++ implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in CPPPATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+</para>
+
+<example_commands>
+env = Environment(CPPPATH='#/include')
+</example_commands>
+
+<para>
+The directory look-up can also be forced using the
+&Dir;()
+function:
+</para>
+
+<example_commands>
+include = Dir('include')
+env = Environment(CPPPATH=include)
+</example_commands>
+
+<para>
+The directory list will be added to command lines
+through the automatically-generated
+&cv-_CPPINCFLAGS;
+construction variable,
+which is constructed by
+respectively prepending and appending the value of the
+&cv-INCPREFIX; and &cv-INCSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-CPPPATH;.
+Any command lines you define that need
+the CPPPATH directory list should
+include &cv-_CPPINCFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(CCCOM="my_compiler $_CPPINCFLAGS -c -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="Dir">
+<summary>
+<para>
+A function that converts a string
+into a Dir instance relative to the target being built.
+</para>
+</summary>
+</cvar>
+
+<cvar name="Dirs">
+<summary>
+<para>
+A function that converts a list of strings
+into a list of Dir instances relative to the target being built.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DSUFFIXES">
+<summary>
+<para>
+The list of suffixes of files that will be scanned
+for imported D package files.
+The default list is <literal>['.d']</literal>.
+</para>
+</summary>
+</cvar>
+
+<cvar name="File">
+<summary>
+<para>
+A function that converts a string into a File instance relative to the
+target being built.
+</para>
+</summary>
+</cvar>
+
+<cvar name="IDLSUFFIXES">
+<summary>
+<para>
+The list of suffixes of files that will be scanned
+for IDL implicit dependencies
+(#include or import lines).
+The default list is:
+</para>
+
+<example_commands>
+[".idl", ".IDL"]
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="INCPREFIX">
+<summary>
+<para>
+The prefix used to specify an include directory on the C compiler command
+line.
+This will be prepended to the beginning of each directory
+in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
+when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
+variables are automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="INCSUFFIX">
+<summary>
+<para>
+The suffix used to specify an include directory on the C compiler command
+line.
+This will be appended to the end of each directory
+in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
+when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
+variables are automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="INSTALL">
+<summary>
+<para>
+A function to be called to install a file into a
+destination file name.
+The default function copies the file into the destination
+(and sets the destination file's mode and permission bits
+to match the source file's).
+The function takes the following arguments:
+</para>
+
+<example_commands>
+def install(dest, source, env):
+</example_commands>
+
+<para>
+<varname>dest</varname>
+is the path name of the destination file.
+<varname>source</varname>
+is the path name of the source file.
+<varname>env</varname>
+is the construction environment
+(a dictionary of construction values)
+in force for this file installation.
+</para>
+</summary>
+</cvar>
+
+<cvar name="INSTALLSTR">
+<summary>
+<para>
+The string displayed when a file is
+installed into a destination file name.
+The default is:
+</para>
+<example_commands>
+Install file: "$SOURCE" as "$TARGET"
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="LATEXSUFFIXES">
+<summary>
+<para>
+The list of suffixes of files that will be scanned
+for LaTeX implicit dependencies
+(<literal>\include</literal> or <literal>\import</literal> files).
+The default list is:
+</para>
+
+<example_commands>
+[".tex", ".ltx", ".latex"]
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="_LIBDIRFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the linker command-line options
+for specifying directories to be searched for library.
+The value of &cv-_LIBDIRFLAGS; is created
+by respectively prepending and appending &cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
+to the beginning and end
+of each directory in &cv-LIBPATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBDIRPREFIX">
+<summary>
+<para>
+The prefix used to specify a library directory on the linker command line.
+This will be prepended to the beginning of each directory
+in the &cv-LIBPATH; construction variable
+when the &cv-_LIBDIRFLAGS; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBDIRSUFFIX">
+<summary>
+<para>
+The suffix used to specify a library directory on the linker command line.
+This will be appended to the end of each directory
+in the &cv-LIBPATH; construction variable
+when the &cv-_LIBDIRFLAGS; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_LIBFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the linker command-line options
+for specifying libraries to be linked with the resulting target.
+The value of &cv-_LIBFLAGS; is created
+by respectively prepending and appending &cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
+to the beginning and end
+of each filename in &cv-LIBS;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBLINKPREFIX">
+<summary>
+<para>
+The prefix used to specify a library to link on the linker command line.
+This will be prepended to the beginning of each library
+in the &cv-LIBS; construction variable
+when the &cv-_LIBFLAGS; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBLINKSUFFIX">
+<summary>
+<para>
+The suffix used to specify a library to link on the linker command line.
+This will be appended to the end of each library
+in the &cv-LIBS; construction variable
+when the &cv-_LIBFLAGS; variable is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBPATH">
+<summary>
+<para>
+The list of directories that will be searched for libraries.
+The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
+because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in LIBPATH will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+</para>
+
+<example_commands>
+env = Environment(LIBPATH='#/libs')
+</example_commands>
+
+<para>
+The directory look-up can also be forced using the
+&Dir;()
+function:
+</para>
+
+<example_commands>
+libs = Dir('libs')
+env = Environment(LIBPATH=libs)
+</example_commands>
+
+<para>
+The directory list will be added to command lines
+through the automatically-generated
+&cv-_LIBDIRFLAGS;
+construction variable,
+which is constructed by
+respectively prepending and appending the values of the
+&cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-LIBPATH;.
+Any command lines you define that need
+the LIBPATH directory list should
+include &cv-_LIBDIRFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="LIBS">
+<summary>
+<para>
+A list of one or more libraries
+that will be linked with
+any executable programs
+created by this environment.
+</para>
+
+<para>
+The library list will be added to command lines
+through the automatically-generated
+&cv-_LIBFLAGS;
+construction variable,
+which is constructed by
+respectively prepending and appending the values of the
+&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
+construction variables
+to the beginning and end
+of each filename in &cv-LIBS;.
+Any command lines you define that need
+the LIBS library list should
+include &cv-_LIBFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+</example_commands>
+
+<para>
+If you add a
+File
+object to the
+&cv-LIBS;
+list, the name of that file will be added to
+&cv-_LIBFLAGS;,
+and thus the link line, as is, without
+&cv-LIBLINKPREFIX;
+or
+&cv-LIBLINKSUFFIX;.
+For example:
+</para>
+
+<example_commands>
+env.Append(LIBS=File('/tmp/mylib.so'))
+</example_commands>
+
+<para>
+In all cases, scons will add dependencies from the executable program to
+all the libraries in this list.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RDirs">
+<summary>
+<para>
+A function that converts a string into a list of Dir instances by
+searching the repositories.
+</para>
+</summary>
+</cvar>
+
+<scons_function name="DefaultEnvironment">
+<arguments signature="global">
+([**kwargs])
+</arguments>
+<summary>
+<para>
+Instantiates and returns the default &consenv; object.
+The &defenv; is used internally by SCons
+in order to execute many of the global functions in this list
+(that is, those not called as methods of a specific &consenv;).
+It is not mandatory to call &f-DefaultEnvironment;:
+the &defenv; will be instantiated automatically when the
+build phase begins if the function has not been called,
+however calling it explicitly gives the opportunity to
+affect and examine the contents of the &defenv;.
+</para>
+<para>
+The &defenv; is a singleton, so the keyword
+arguments affect it only on the first call, on subsequent
+calls the already-constructed object is returned and
+any keyword arguments are silently ignored.
+The &defenv; can be modified after instantiation
+in the same way as any &consenv;.
+Modifying the &defenv; has no effect on the &consenv;
+constructed by an &f-link-Environment; or &f-link-Clone; call.
+</para>
+</summary>
+</scons_function>
+
+</sconsdoc>

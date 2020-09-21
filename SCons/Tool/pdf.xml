@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="pdf">
+<summary>
+<para>
+Sets construction variables for the Portable Document Format builder.
+</para>
+</summary>
+<sets>
+<item>PDFPREFIX</item>
+<item>PDFSUFFIX</item>
+</sets>
+</tool>
+
+<builder name="PDF">
+<summary>
+<para>
+Builds a <filename>.pdf</filename> file
+from a <filename>.dvi</filename> input file
+(or, by extension, a <filename>.tex</filename>,
+<filename>.ltx</filename>,
+or
+<filename>.latex</filename> input file).
+The suffix specified by the &cv-link-PDFSUFFIX; construction variable
+(<filename>.pdf</filename> by default)
+is added automatically to the target
+if it is not already present.  Example:
+</para>
+
+<example_commands>
+# builds from aaa.tex
+env.PDF(target = 'aaa.pdf', source = 'aaa.tex')
+# builds bbb.pdf from bbb.dvi
+env.PDF(target = 'bbb', source = 'bbb.dvi')
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="PDFPREFIX">
+<summary>
+<para>
+The prefix used for PDF file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PDFSUFFIX">
+<summary>
+<para>
+The suffix used for PDF file names.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

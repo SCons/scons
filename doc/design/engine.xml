@@ -1104,13 +1104,13 @@ you set it up with another environment...
   </para>
 
 	<programlisting>
-	env.Dependency(target = 'output1', dependency = 'input_1 input_2')
-	env.Dependency(target = 'output2', dependency = ['input_1', 'input_2'])
-	env.Dependency(target = 'output3', dependency = ['white space input'])
+	env.Depends(target = 'output1', dependency = 'input_1 input_2')
+	env.Depends(target = 'output2', dependency = ['input_1', 'input_2'])
+	env.Depends(target = 'output3', dependency = ['white space input'])
 
-	env.Dependency(target = 'output_a output_b', dependency = 'input_3')
-	env.Dependency(target = ['output_c', 'output_d'], dependency = 'input_4')
-	env.Dependency(target = ['white space output'], dependency = 'input_5')
+	env.Depends(target = 'output_a output_b', dependency = 'input_3')
+	env.Depends(target = ['output_c', 'output_d'], dependency = 'input_4')
+	env.Depends(target = ['white space output'], dependency = 'input_5')
 	</programlisting>
 
   <para>
@@ -1129,7 +1129,7 @@ you set it up with another environment...
   </para>
 
 	<programlisting>
-	env.Dependency(target = 'archive.tar.gz', dependency = 'SConstruct')
+	env.Depends(target = 'archive.tar.gz', dependency = 'SConstruct')
 	</programlisting>
 
  </section>

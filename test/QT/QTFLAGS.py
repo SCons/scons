@@ -35,28 +35,31 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.subdir( 'qt', ['qt', 'bin'], ['qt', 'include'], ['qt', 'lib'],
-             'work1', 'work2')
-
 test.Qt_dummy_installation()
+test.subdir('work1', 'work2')
 
-test.run(chdir=test.workpath('qt','lib'), arguments = '.',
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+test.run(
+    chdir=test.workpath('qt', 'lib'),
+    arguments='.',
+    stderr=TestSCons.noisy_ar,
+    match=TestSCons.match_re_dotall,
+)
 
 QT = test.workpath('qt')
 QT_LIB = 'myqt'
-QT_MOC = '%s %s' % (_python_, test.workpath('qt','bin','mymoc.py'))
-QT_UIC = '%s %s' % (_python_, test.workpath('qt','bin','myuic.py'))
+QT_MOC = '%s %s' % (_python_, test.workpath('qt', 'bin', 'mymoc.py'))
+QT_UIC = '%s %s' % (_python_, test.workpath('qt', 'bin', 'myuic.py'))
 
-def createSConstruct(test,place,overrides):
-    test.write(place, """
-env = Environment(QTDIR = r'%s',
-                  QT_LIB = r'%s',
-                  QT_MOC = r'%s',
-                  QT_UIC = r'%s',
-                  %s
-                  tools=['default','qt'])
+def createSConstruct(test, place, overrides):
+    test.write(place, """\
+env = Environment(
+    tools=['default','qt'],
+    QTDIR = r'%s',
+    QT_LIB = r'%s',
+    QT_MOC = r'%s',
+    QT_UIC = r'%s',
+    %s  # last because 'overrides' may add comma
+)
 if ARGUMENTS.get('variant_dir', 0):
     if ARGUMENTS.get('chdir', 0):
         SConscriptChdir(1)
@@ -67,7 +70,7 @@ if ARGUMENTS.get('variant_dir', 0):
 else:
     sconscript = File('SConscript')
 Export("env")
-SConscript( sconscript )
+SConscript(sconscript)
 """ % (QT, QT_LIB, QT_MOC, QT_UIC, overrides))
 
 

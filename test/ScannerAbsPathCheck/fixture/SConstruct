@@ -18,6 +18,7 @@ def verify_paths(node, env, scanpaths, arg):
                         (sdk_root_subdir, scanpaths[1].abspath))
     return []
 
+
 # Create a scanner that generates a path using the variables in env['PYPATH'].
 pyscan = Scanner(name='pythonfile',
                  function=verify_paths,

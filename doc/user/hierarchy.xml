@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -11,7 +11,7 @@
     %tools-mod;
     <!ENTITY % variables-mod SYSTEM "../generated/variables.mod">
     %variables-mod;
-    
+
 ]>
 
 <chapter id="chap-hierarchical"
@@ -508,7 +508,7 @@ x
     In the previous example,
     each of the subsidiary &SConscript; files
     created its own construction environment
-    by calling &Environment; separately.
+    by calling &f-link-Environment; separately.
     This obviously works fine,
     but if each program must be built
     with the same construction variables,
@@ -521,10 +521,10 @@ x
 
     <para>
 
-    &SCons; supports the ability to <emphasis>export</emphasis> variables
-    from a parent &SConscript; file
-    to its subsidiary &SConscript; files,
-    which allows you to share common initialized
+    &SCons; supports the ability to <firstterm>export</firstterm> variables
+    from an &SConscript; file
+    so they can be <firstterm>imported</firstterm> by other
+    &SConscript; files, thus allowing you to share common initialized
     values throughout your build hierarchy.
 
     </para>
@@ -534,17 +534,12 @@ x
 
       <para>
 
-      There are two ways to export a variable,
-      such as a construction environment,
-      from an &SConscript; file,
-      so that it may be used by other &SConscript; files.
-      First, you can call the &Export;
-      function with a list of variables,
-      or a string of white-space separated variable names.
-      Each call to &Export; adds one
-      or more variables to a global list
-      of variables that are available for import
-      by other &SConscript; files.
+      There are two ways to export a variable
+      from an &SConscript; file.
+      The first way is to call the &f-link-Export; function.
+      &Export; is pretty flexible - in the simplest form,
+      you pass it a string that represents the name of
+      the variable, and &Export; stores that with its value:
 
       </para>
 
@@ -567,21 +562,74 @@ Export('env', 'debug')
 
       <para>
 
-      Because white space is not legal in Python variable names,
-      the &Export; function will even automatically split
-      a string into separate names for you:
+      Because a Python identifier cannot contain spaces,
+      &Export; assumes a string containing spaces is is a
+      shortcut for multiple variable names to export and
+      splits it up for you:
 
       </para>
 
       <sconstruct>
+env = Environment()
+debug = ARGUMENTS['debug']
 Export('env debug')
       </sconstruct>
 
       <para>
 
-      Second, you can specify a list of
-      variables to export as a second argument
-      to the &SConscript; function call:
+      You can also pass &Export; a dictionary of values.
+      This form allows the opportunity to export a variable
+      from the current scope under a different name -
+      in this example, the value of <varname>foo</varname>
+      is exported under the name <literal>"bar"</literal>:
+
+      <sconstruct>
+env = Environment()
+foo = "FOO"
+args = {"env": env, "bar": foo}
+Export(args)
+      </sconstruct>
+
+      </para>
+
+      <para>
+
+      &Export; will also accept arguments in keyword style.
+      This form adds the ability to create exported variables
+      that have not actually been set locally in the SConscript file.
+      When used this way, the key is the intended variable name,
+      not a string representation as with the other forms:
+
+      </para>
+
+      <sconstruct>
+Export(MODE="DEBUG", TARGET="arm")
+      </sconstruct>
+
+      <para>
+
+      The styles can be mixed, though Python function calling
+      syntax requires all non-keyword arguments to precede any
+      keyword arguments in the call.
+
+      </para>
+
+      <para>
+
+      The &Export; function adds the variables to a global
+      location from which other &SConscript; files can import.
+      Calls to &Export; are cumulative. When you call &Export;
+      you are actually updating a Python dictionary, so it
+      is fine to export a variable you have already exported,
+      but when doing so, the previous value is lost.
+
+      </para>
+
+      <para>
+
+      The other way to export is you can specify a list of
+      variables as a second argument
+      to the &f-link-SConscript; function call:
 
       </para>
 
@@ -591,7 +639,7 @@ SConscript('src/SConscript', 'env')
 
       <para>
 
-      Or as the &exports; keyword argument:
+      Or (preferably, for readability) using the &exports; keyword argument:
 
       </para>
 
@@ -602,8 +650,8 @@ SConscript('src/SConscript', exports='env')
       <para>
 
       These calls export the specified variables
-      to only the listed &SConscript; files.
-      You may, however, specify more than one
+      to only the listed &SConscript; file(s).
+      You may specify more than one
       &SConscript; file in a list:
 
       </para>
@@ -632,7 +680,7 @@ SConscript(['src1/SConscript',
       Once a variable has been exported from a calling
       &SConscript; file,
       it may be used in other &SConscript; files
-      by calling the &Import; function:
+      by calling the &f-link-Import; function:
 
       </para>
 
@@ -643,40 +691,63 @@ env.Program('prog', ['prog.c'])
 
       <para>
 
-      The &Import; call makes the <literal>env</literal> construction
-      environment available to the &SConscript; file,
-      after which the variable can be used to build
-      programs, libraries, etc.
+      The &Import; call makes the previously defined <varname>env</varname>
+      variable available to the &SConscript; file.
+      Assuming <varname>env</varname> is a &consenv;,
+      after import it can be used to build programs, libraries, etc.
+      The use case of passing around a &consenv; is extremely common
+      in larger &scons; builds.
 
       </para>
 
       <para>
 
       Like the &Export; function,
-      the &Import; function can be used
+      the &Import; function can be called
       with multiple variable names:
 
       </para>
 
       <sconstruct>
 Import('env', 'debug')
-env = env.Clone(DEBUG = debug)
+env = env.Clone(DEBUG=debug)
 env.Program('prog', ['prog.c'])
       </sconstruct>
 
       <para>
 
-      And the &Import; function will similarly
-      split a string along white-space
+      In this example, we pull in the common &consenv;
+      <varname>env</varname>, and
+      use the value of the <varname>debug</varname>
+      variable to make a modified copy by passing
+      that to a &f-link-Clone; call.
+
+      </para>
+
+      <para>
+
+      The &Import; function will (like &Export;)
+      split a string containing white-space
       into separate variable names:
 
       </para>
 
       <sconstruct>
 Import('env debug')
-env = env.Clone(DEBUG = debug)
+env = env.Clone(DEBUG=debug)
 env.Program('prog', ['prog.c'])
       </sconstruct>
+
+      <para>
+
+      &Import; prefers a local definition to a global one,
+      so that if there is a global export of <varname>foo</varname>,
+      <emphasis>and</emphasis> the calling SConscript has
+      exported <varname>foo</varname> to this SConscript,
+      the import will find the <varname>foo</varname>
+      exported to this SConscript.
+
+      </para>
 
       <para>
 
@@ -689,7 +760,7 @@ env.Program('prog', ['prog.c'])
 
       <sconstruct>
 Import('*')
-env = env.Clone(DEBUG = debug)
+env = env.Clone(DEBUG=debug)
 env.Program('prog', ['prog.c'])
       </sconstruct>
 
@@ -697,7 +768,7 @@ env.Program('prog', ['prog.c'])
 
       If you're dealing with a lot of &SConscript; files,
       this can be a lot simpler than keeping
-      arbitrary lists of imported variables in each file.
+      arbitrary lists of imported variables up to date in each file.
 
       </para>
 
@@ -713,13 +784,14 @@ env.Program('prog', ['prog.c'])
       &SConscript; file in some way.
       For example,
       suppose that you want to create one
-      library from source files
-      scattered throughout a number
-      of subsidiary &SConscript; files.
-      You can do this by using the &Return;
+      library from object files built by
+      several subsidiary &SConscript; files.
+      You can do this by using the &f-link-Return;
       function to return values
       from the subsidiary &SConscript; files
-      to the calling file.
+      to the calling file. Like &Import; and &Export;,
+      &Return; takes a string representation of the variable
+      name, not the variable name itself.
 
       </para>
 
@@ -727,8 +799,8 @@ env.Program('prog', ['prog.c'])
 
       If, for example, we have two subdirectories
       &foo; and &bar;
-      that should each contribute a source
-      file to a Library,
+      that should each contribute an object
+      file to a library,
       what we'd like to be able to do is
       collect the object files
       from the subsidiary &SConscript; calls
@@ -770,7 +842,7 @@ void bar(void) { printf("bar/bar.c\n"); }
 
       We can do this by using the &Return;
       function in the
-      <literal>foo/SConscript</literal> file like this:
+      <filename>foo/SConscript</filename> file like this:
 
       </para>
 
@@ -780,7 +852,7 @@ void bar(void) { printf("bar/bar.c\n"); }
       <para>
 
       (The corresponding
-      <literal>bar/SConscript</literal>
+      <filename>bar/SConscript</filename>
       file should be pretty obvious.)
       Then when we run &SCons;,
       the object files from the subsidiary subdirectories

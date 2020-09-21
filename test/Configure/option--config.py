@@ -30,11 +30,10 @@ Verify use of the --config=<auto|force|cache> option.
 
 import os.path
 
-import TestSCons
+from TestSCons import TestSCons, ConfigCheckInfo, _obj
+from TestCmd import IS_WINDOWS
 
-_obj = TestSCons._obj
-
-test = TestSCons.TestSCons()
+test = TestSCons()
 
 test.subdir('include')
 
@@ -59,7 +58,20 @@ test.write(['include', 'non_system_header0.h'], """
 /* A header */
 """)
 
-conftest_0_c = os.path.join(".sconf_temp", "conftest_0.c")
+conftest_0_c_hash = 'cda36b76729ffb03bf36a48d13b2d98d'
+conftest_1_c_hash = 'acc476a565a3f6d5d67ddc21f187d062'
+
+if IS_WINDOWS:
+  conftest_0_obj_suffix = '_213c72f9eb682c6f27f2eb78ed8bd57a'+_obj
+  conftest_1_obj_suffix = '_7c505229a64dccfea6e7cfdffe76bd2a'+_obj
+else:
+  conftest_0_obj_suffix = '_9b191e4c46e9d6ba17c8cd4d730900cf'+_obj
+  conftest_1_obj_suffix = '_b9da1a844a8707269188b28a62c0d83e'+_obj
+
+conftest_0_base = os.path.join(".sconf_temp", "conftest_%s_0%%s"%conftest_0_c_hash)
+conftest_0_c = conftest_0_base%'.c'
+conftest_1_base = os.path.join(".sconf_temp", "conftest_%s_0%%s"%conftest_1_c_hash)
+
 SConstruct_file_line = test.python_file_line(SConstruct_path, 6)[:-1]
 
 expect = """
@@ -70,36 +82,67 @@ scons: *** "%(conftest_0_c)s" is not yet built and cache is forced.
 test.run(arguments='--config=cache', status=2, stderr=expect)
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
-                        "Checking for C header file non_system_header1.h... "],
-                       ["yes", "no"],
-                       [[((".c", NCR), (_obj, NCR))],
-                        [((".c", NCR), (_obj, NCF))]],
-                       "config.log", ".sconf_temp", "SConstruct")
+test.checkConfigureLogAndStdout(checks=[
+    ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
+                    'yes', 
+                    [((".c", NCR), 
+                    (_obj, NCR))],
+                    conftest_0_base
+                    ),
+    ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
+                    'no', 
+                    [((".c", NCR), 
+                    (_obj, NCF))],
+                    conftest_1_base)]
+)
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
-                        "Checking for C header file non_system_header1.h... "],
-                       ["yes", "no"],
-                       [[((".c", CR), (_obj, CR))],
-                        [((".c", CR), (_obj, CF))]],
-                       "config.log", ".sconf_temp", "SConstruct")
+test.checkConfigureLogAndStdout(checks=[
+    ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
+                    'yes',
+                    [((".c", CR),
+                      (conftest_0_obj_suffix, CR))],
+                    conftest_0_base,
+                    ),
+    ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
+                    'no',
+                    [((".c", CR),
+                      (conftest_1_obj_suffix, CF))],
+                    conftest_1_base)]
+)
+
 
 test.run(arguments='--config=force')
-test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
-                        "Checking for C header file non_system_header1.h... "],
-                       ["yes", "no"],
-                       [[((".c", NCR), (_obj, NCR))],
-                        [((".c", NCR), (_obj, NCF))]],
-                       "config.log", ".sconf_temp", "SConstruct")
+test.checkConfigureLogAndStdout(checks=[
+    ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
+                    'yes',
+                    [((".c", NCR),
+                      (conftest_0_obj_suffix, NCR))],
+                    conftest_0_base,
+                    ),
+    ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
+                    'no',
+                    [((".c", NCR),
+                      (conftest_1_obj_suffix, NCF))],
+                    conftest_1_base)]
+)
+
 
 test.run(arguments='--config=cache')
-test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
-                        "Checking for C header file non_system_header1.h... "],
-                       ["yes", "no"],
-                       [[((".c", CR), (_obj, CR))],
-                        [((".c", CR), (_obj, CF))]],
-                       "config.log", ".sconf_temp", "SConstruct")
+test.checkConfigureLogAndStdout(checks=[
+    ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
+                    'yes',
+                    [((".c", CR),
+                      (conftest_0_obj_suffix, CR))],
+                    conftest_0_base,
+                    ),
+    ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
+                    'no',
+                    [((".c", CR),
+                      (conftest_1_obj_suffix, CF))],
+                    conftest_1_base)]
+)
+
 
 test.write(['include', 'non_system_header1.h'], """
 /* Another header */
@@ -107,21 +150,35 @@ test.write(['include', 'non_system_header1.h'], """
 test.unlink(['include', 'non_system_header0.h'])
 
 test.run(arguments='--config=cache')
-test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
-                        "Checking for C header file non_system_header1.h... "],
-                       ["yes", "no"],
-                       [[((".c", CR), (_obj, CR))],
-                        [((".c", CR), (_obj, CF))]],
-                       "config.log", ".sconf_temp", "SConstruct")
+
+test.checkConfigureLogAndStdout(checks=[
+    ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
+                    'yes',
+                    [((".c", CR),
+                      (conftest_0_obj_suffix, CR))],
+                    conftest_0_base,
+                    ),
+    ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
+                    'no',
+                    [((".c", CR),
+                      (conftest_1_obj_suffix, CF))],
+                    conftest_1_base)]
+)
 
 test.run(arguments='--config=auto')
-test.checkLogAndStdout(["Checking for C header file non_system_header0.h... ",
-                        "Checking for C header file non_system_header1.h... "],
-                       ["no", "yes"],
-                       [[((".c", CR), (_obj, NCF))],
-                        [((".c", CR), (_obj, NCR))]],
-                       "config.log", ".sconf_temp", "SConstruct")
-
+test.checkConfigureLogAndStdout(checks=[
+    ConfigCheckInfo("Checking for C header file non_system_header0.h... ",
+                    'no',
+                    [((".c", CR),
+                      (conftest_0_obj_suffix, NCF))],
+                    conftest_0_base,
+                    ),
+    ConfigCheckInfo("Checking for C header file non_system_header1.h... ",
+                    'yes',
+                    [((".c", CR),
+                      (conftest_1_obj_suffix, NCR))],
+                    conftest_1_base)]
+)
 
 test.file_fixture('test_main.c')
 

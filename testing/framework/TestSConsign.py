@@ -1,5 +1,4 @@
 # __COPYRIGHT__
-from __future__ import print_function
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 

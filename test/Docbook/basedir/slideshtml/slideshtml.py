@@ -33,34 +33,24 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 if not (sys.platform.startswith('linux') and
-        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides') and
-        os.path.isdir('/usr/share/xml/docbook/custom/slides/3.3.1')):
+        os.path.isdir('/usr/share/xml/docbook/stylesheet/docbook-xsl/slides')):
     test.skip_test('Wrong OS or no "slides" stylesheets installed, skipping test.\n')
 
 try:
-    import libxml2
-    import libxslt
-except:
-    try:
-        import lxml
-    except:
-        test.skip_test('Cannot find installed Python binding for libxml2 or lxml, skipping test.\n')
+    import lxml
+except Exception:
+    test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
 test.dir_fixture('image')
 
 # Normal invocation
 test.run(stderr=None)
-test.must_exist(test.workpath('output/index.html'))
-test.must_exist(test.workpath('output/toc.html'))
-test.must_exist(test.workpath('output/foil01.html'))
-test.must_exist(test.workpath('output/foilgroup01.html'))
+test.must_not_be_empty(test.workpath('output/index.html'))
+test.must_contain(test.workpath('output/index.html'), 'sfForming')
 
 # Cleanup
 test.run(arguments='-c')
 test.must_not_exist(test.workpath('output/index.html'))
-test.must_not_exist(test.workpath('output/toc.html'))
-test.must_not_exist(test.workpath('output/foil01.html'))
-test.must_not_exist(test.workpath('output/foilgroup01.html'))
 
 test.pass_test()
 

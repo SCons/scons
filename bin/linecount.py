@@ -21,15 +21,13 @@
 # in each category, the number of non-blank lines, and the number of
 # non-comment lines.  The last figure (non-comment) lines is the most
 # interesting one for most purposes.
-from __future__ import division, print_function
-
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
 fmt = "%-16s  %5s  %7s  %9s  %11s  %11s"
 
-class Collection(object):
+class Collection:
   def __init__(self, name, files=None, pred=None):
     self._name = name
     if files is None:

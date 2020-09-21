@@ -1,3 +1,12 @@
+import xsltver
+
+v = xsltver.detectXsltVersion('/usr/share/xml/docbook/stylesheet/docbook-xsl')
+
+ns_ext = ''
+if v >= (1, 78, 0):
+    # Use namespace-aware input file
+    ns_ext = 'ns'
+    
 env = Environment(tools=['docbook'])
-env.DocbookSlidesHtml('manual.html', 'virt', xsl='slides.xsl')
+env.DocbookSlidesHtml('manual.html', 'virt'+ns_ext, xsl='slides.xsl')
 

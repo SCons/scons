@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="rpcgen">
+<summary>
+<para>
+Sets construction variables for building with RPCGEN.
+</para>
+</summary>
+<sets>
+<item>RPCGEN</item>
+<item>RPCGENFLAGS</item>
+<item>RPCGENCLIENTFLAGS</item>
+<item>RPCGENHEADERFLAGS</item>
+<item>RPCGENSERVICEFLAGS</item>
+<item>RPCGENXDRFLAGS</item>
+</sets>
+<uses>
+</uses>
+</tool>
+
+<builder name="RPCGenClient">
+<summary>
+<para>
+Generates an RPC client stub (<filename>_clnt.c</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+</para>
+
+<example_commands>
+# Builds src/rpcif_clnt.c
+env.RPCGenClient('src/rpcif.x')
+</example_commands>
+</summary>
+</builder>
+
+<builder name="RPCGenHeader">
+<summary>
+<para>
+Generates an RPC header (<filename>.h</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+</para>
+
+<example_commands>
+# Builds src/rpcif.h
+env.RPCGenHeader('src/rpcif.x')
+</example_commands>
+</summary>
+</builder>
+
+<builder name="RPCGenService">
+<summary>
+<para>
+Generates an RPC server-skeleton (<filename>_svc.c</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+</para>
+
+<example_commands>
+# Builds src/rpcif_svc.c
+env.RPCGenClient('src/rpcif.x')
+</example_commands>
+</summary>
+</builder>
+
+<builder name="RPCGenXDR">
+<summary>
+<para>
+Generates an RPC XDR routine (<filename>_xdr.c</filename>) file
+from a specified RPC (<filename>.x</filename>) source file.
+Because rpcgen only builds output files
+in the local directory,
+the command will be executed
+in the source file's directory by default.
+</para>
+
+<example_commands>
+# Builds src/rpcif_xdr.c
+env.RPCGenClient('src/rpcif.x')
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="RPCGEN">
+<summary>
+<para>
+The RPC protocol compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPCGENCLIENTFLAGS">
+<summary>
+<para>
+Options passed to the RPC protocol compiler
+when generating client side stubs.
+These are in addition to any flags specified in the
+&cv-link-RPCGENFLAGS;
+construction variable.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPCGENFLAGS">
+<summary>
+<para>
+General options passed to the RPC protocol compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPCGENHEADERFLAGS">
+<summary>
+<para>
+Options passed to the RPC protocol compiler
+when generating a header file.
+These are in addition to any flags specified in the
+&cv-link-RPCGENFLAGS;
+construction variable.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPCGENSERVICEFLAGS">
+<summary>
+<para>
+Options passed to the RPC protocol compiler
+when generating server side stubs.
+These are in addition to any flags specified in the
+&cv-link-RPCGENFLAGS;
+construction variable.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RPCGENXDRFLAGS">
+<summary>
+<para>
+Options passed to the RPC protocol compiler
+when generating XDR routines.
+These are in addition to any flags specified in the
+&cv-link-RPCGENFLAGS;
+construction variable.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

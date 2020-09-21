@@ -31,7 +31,8 @@ be aware of the necessary created glossary files.
 Test configuration contributed by Robert Managan.
 """
 
-import os
+import subprocess
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -39,10 +40,10 @@ test = TestSCons.TestSCons()
 latex = test.where_is('latex')
 
 if not latex:
-    test.skip_test("Could not find latex; skipping test(s).\n")
+    test.skip_test("Could not find 'latex'; skipping test(s).\n")
 
-gloss = os.system('kpsewhich glossary.sty')
-if not gloss==0:
+cp = subprocess.run('kpsewhich glossary.sty', shell=True)
+if cp.returncode:
     test.skip_test("glossary.sty not installed; skipping test(s).\n")
 
 test.write('SConstruct', """\

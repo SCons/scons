@@ -58,7 +58,7 @@ SConscript('src/SConscript', variant_dir='build')
 
     test.run(arguments=".")
 
-    project_guid = "{25F6CE89-8E22-2910-8B6E-FFE6DC1E2792}"
+    project_guid = "{CB4637F1-2205-50B7-B115-DCFA0DA68FB1}"
     vcproj = test.read(['src', project_file], 'r')
     expect = test.msvs_substitute(expected_vcprojfile, vc_version, None, 'SConstruct',
                                   project_guid=project_guid)

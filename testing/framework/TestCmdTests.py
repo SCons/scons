@@ -26,20 +26,16 @@ import os
 import shutil
 import signal
 import stat
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-from contextlib import closing
+import subprocess
 import sys
 import tempfile
 import time
 import types
 import unittest
-try:
-    from collections import UserList
-except ImportError:
-    from UserList import UserList
+from io import StringIO
+from contextlib import closing
+from collections import UserList
+from subprocess import PIPE
 
 from SCons.Util import to_bytes, to_str
 
@@ -68,20 +64,6 @@ def _clear_dict(dict, *keys):
         except KeyError:
             pass
 
-import subprocess
-
-try:
-    subprocess.Popen.terminate
-except AttributeError:
-    if sys.platform == 'win32':
-        import win32process
-        def terminate(self):
-            win32process.TerminateProcess(self._handle, 1)
-    else:
-        def terminate(self):
-            os.kill(self.pid, signal.SIGTERM)
-    method = types.MethodType(terminate, None, subprocess.Popen)
-    setattr(subprocess.Popen, 'terminate', method)
 
 class ExitError(Exception):
     pass
@@ -158,35 +140,39 @@ class TestCmdTestCase(unittest.TestCase):
         data = data.replace("\r\n", "\n")
         return data
 
-    def call_python(self, input, python=None):
+    def call_python(self, indata, python=None):
         if python is None:
             python = sys.executable
-        p = subprocess.Popen(python,
-                             stdin=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
-        stdout, stderr = p.communicate(to_bytes(input))
-        stdout = self.translate_newlines(to_str(stdout))
-        stderr = self.translate_newlines(to_str(stderr))
-        return stdout, stderr, p.returncode
+        cp = subprocess.run(python, input=to_bytes(indata), stderr=PIPE, stdout=PIPE)
+        stdout = self.translate_newlines(to_str(cp.stdout))
+        stderr = self.translate_newlines(to_str(cp.stderr))
+        return stdout, stderr, cp.returncode
 
-    def popen_python(self, input, status=0, stdout="", stderr="", python=None):
+    def popen_python(self, indata, status=0, stdout="", stderr="", python=None):
         if python is None:
             python = sys.executable
-        _stdout, _stderr, _status = self.call_python(input, python)
-        _stdout = self.translate_newlines(_stdout)
-        _stderr = self.translate_newlines(_stderr)
-        assert _status == status, \
-                "status = %s, expected %s\n" % (str(_status), str(status)) + \
-                "STDOUT ===================\n" + _stdout + \
-                "STDERR ===================\n" + _stderr
-        assert _stdout == stdout, \
-                "Expected STDOUT ==========\n" + stdout + \
-                "Actual STDOUT ============\n" + _stdout + \
-                "STDERR ===================\n" + _stderr
-        assert _stderr == stderr, \
-                "Expected STDERR ==========\n" + stderr + \
-                "Actual STDERR ============\n" + _stderr
+        _stdout, _stderr, _status = self.call_python(indata, python)
+        assert _status == status, (
+            "status = %s, expected %s\n" % (str(_status), str(status))
+            + "STDOUT ===================\n"
+            + _stdout
+            + "STDERR ===================\n"
+            + _stderr
+        )
+        assert _stdout == stdout, (
+            "Expected STDOUT ==========\n"
+            + stdout
+            + "Actual STDOUT ============\n"
+            + _stdout
+            + "STDERR ===================\n"
+            + _stderr
+        )
+        assert _stderr == stderr, (
+            "Expected STDERR ==========\n"
+            + stderr
+            + "Actual STDERR ============\n"
+            + _stderr
+        )
 
     def run_match(self, content, *args):
         expect = "%s:  %s:  %s:  %s\n" % args
@@ -253,32 +239,21 @@ class cleanup_TestCase(TestCmdTestCase):
             shutil.rmtree = save_rmtree
 
     def test_atexit(self):
-        """Test cleanup() when atexit is used"""
-        self.popen_python("""from __future__ import print_function
-import sys
-sys.path = ['%s'] + sys.path
+        """Test cleanup when atexit is used"""
+        self.popen_python("""\
 import atexit
-def my_exitfunc():
-    print("my_exitfunc()")
-atexit.register(my_exitfunc)
-import TestCmd
-result = TestCmd.TestCmd(workdir = '')
-sys.exit(0)
-""" % self.orig_cwd, stdout='my_exitfunc()\n')
-
-    @unittest.skipIf(TestCmd.IS_PY3, "No sys.exitfunc in Python 3")
-    def test_exitfunc(self):
-        """Test cleanup() when sys.exitfunc is set"""
-        self.popen_python("""from __future__ import print_function
 import sys
-sys.path = ['%s'] + sys.path
-def my_exitfunc():
-    print("my_exitfunc()")
-sys.exitfunc = my_exitfunc
 import TestCmd
-result = TestCmd.TestCmd(workdir = '')
+
+sys.path = ['%s'] + sys.path
+
+@atexit.register
+def cleanup():
+    print("cleanup()")
+
+result = TestCmd.TestCmd(workdir='')
 sys.exit(0)
-""" % self.orig_cwd, stdout='my_exitfunc()\n')
+""" % self.orig_cwd, stdout='cleanup()\n')
 
 
 class chmod_TestCase(TestCmdTestCase):
@@ -609,7 +584,7 @@ sys.exit(0)
 
     def test_diff_stderr_not_affecting_diff_stdout(self):
         """Test diff_stderr() not affecting diff_stdout() behavior"""
-        self.popen_python(r"""from __future__ import print_function
+        self.popen_python(r"""
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -716,7 +691,7 @@ sys.exit(0)
 
     def test_diff_stdout_not_affecting_diff_stderr(self):
         """Test diff_stdout() not affecting diff_stderr() behavior"""
-        self.popen_python(r"""from __future__ import print_function
+        self.popen_python(r"""
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -2089,7 +2064,7 @@ sys.exit(0)
 
     def test_set_diff_function_stdout(self):
         """Test set_diff_function():  stdout"""
-        self.popen_python("""from __future__ import print_function
+        self.popen_python("""\
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -2118,7 +2093,7 @@ diff_stdout:
 
     def test_set_diff_function_stderr(self):
         """Test set_diff_function():  stderr """
-        self.popen_python("""from __future__ import print_function
+        self.popen_python("""\
 import sys
 sys.path = ['%s'] + sys.path
 import TestCmd
@@ -2518,7 +2493,7 @@ script_recv:  STDERR:  input
             stderr = test.stderr()
             assert stderr == expect_stderr, stderr
 
-            p = test.start(combine=1, stdin=1)
+            p = test.start(combine=True, stdin=1)
             p.send('input\n')
             test.finish(p)
             expect_stdout = """\
@@ -2693,7 +2668,7 @@ class stdin_TestCase(TestCmdTestCase):
     def test_stdin(self):
         """Test stdin()"""
         run_env = TestCmd.TestCmd(workdir = '')
-        run_env.write('run', """from __future__ import print_function
+        run_env.write('run', """\
 import fileinput
 for line in fileinput.input():
     print('Y'.join(line[:-1].split('X')))
@@ -2750,33 +2725,46 @@ sys.stderr.write("run2 STDERR second line\\n")
         assert output == "run1 STDOUT ['foo', 'bar']\nrun1 STDOUT second line\n", output
 
 
-
 class subdir_TestCase(TestCmdTestCase):
     def test_subdir(self):
         """Test subdir()"""
-        test = TestCmd.TestCmd(workdir = '', subdir = ['no', 'such', 'subdir'])
-        assert not os.path.exists(test.workpath('no'))
+        # intermediate directories are created
+        test = TestCmd.TestCmd(workdir='', subdir=['no', 'such', 'subdir'])
+        assert os.path.exists(test.workpath('no'))
 
-        test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
-        assert test.subdir('bar') == 1
-        assert test.subdir(['foo', 'succeed']) == 1
-        if os.name != "nt":
-            os.chmod(test.workpath('foo'), 0o500)
-            assert test.subdir(['foo', 'fail']) == 0
-        assert test.subdir(['sub', 'dir', 'ectory'], 'sub') == 1
-        assert test.subdir('one',
-                           UserList(['one', 'two']),
-                           ['one', 'two', 'three']) == 3
+        test = TestCmd.TestCmd(workdir='', subdir='foo')
         assert os.path.isdir(test.workpath('foo'))
+
+        # single subdir
+        assert test.subdir('bar')
         assert os.path.isdir(test.workpath('bar'))
+
+        # subdir "works" even if existing
+        assert test.subdir('bar')
+
+        # single subdir as a list
+        assert test.subdir(['foo', 'succeed'])
         assert os.path.isdir(test.workpath('foo', 'succeed'))
+
         if os.name != "nt":
             assert not os.path.exists(test.workpath('foo', 'fail'))
-        assert os.path.isdir(test.workpath('sub'))
-        assert not os.path.exists(test.workpath('sub', 'dir'))
-        assert not os.path.exists(test.workpath('sub', 'dir', 'ectory'))
-        assert os.path.isdir(test.workpath('one', 'two', 'three'))
 
+        # subdir creation without write permissions fails
+        if os.name != "nt":
+            os.chmod(test.workpath('foo'), 0o500)
+            assert not test.subdir(['foo', 'fail'])
+
+        # create descended path
+        assert test.subdir(['sub', 'dir', 'ectory'])
+        assert os.path.isdir(test.workpath('sub'))
+        assert os.path.exists(test.workpath('sub', 'dir'))
+        assert os.path.exists(test.workpath('sub', 'dir', 'ectory'))
+
+        # test multiple subdirs in one call, each should "succeed"
+        assert (
+            test.subdir('one', UserList(['one', 'two']), ['one', 'two', 'three']) == 3
+        )
+        assert os.path.isdir(test.workpath('one', 'two', 'three'))
 
 
 class symlink_TestCase(TestCmdTestCase):
@@ -3332,15 +3320,13 @@ class variables_TestCase(TestCmdTestCase):
             'TestCmd',
         ]
 
-        script = "from __future__ import print_function\n" + \
-                 "import TestCmd\n" + \
+        script = "import TestCmd\n" + \
                  '\n'.join([ "print(TestCmd.%s\n)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
-        script = "from __future__ import print_function\n" + \
-                 "from TestCmd import *\n" + \
+        script = "from TestCmd import *\n" + \
                  '\n'.join([ "print(%s)" % v for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()

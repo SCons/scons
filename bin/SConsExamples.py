@@ -86,8 +86,6 @@
 # can see if there are any problems executing the command.
 #
 
-from __future__ import print_function
-
 import os
 import re
 import sys
@@ -417,15 +415,9 @@ def exampleNamesAreUnique(dpath):
 sys.path.append(os.path.join(os.getcwd(), 'testing/framework'))
 sys.path.append(os.path.join(os.getcwd(), 'build', 'testing/framework'))
 
-scons_py = os.path.join('bootstrap', 'src', 'script', 'scons.py')
-if not os.path.exists(scons_py):
-    scons_py = os.path.join('src', 'script', 'scons.py')
-
+scons_py = os.path.join('scripts', 'scons.py')
 scons_py = os.path.join(os.getcwd(), scons_py)
-
-scons_lib_dir = os.path.join(os.getcwd(), 'bootstrap', 'src', 'engine')
-if not os.path.exists(scons_lib_dir):
-    scons_lib_dir = os.path.join(os.getcwd(), 'src', 'engine')
+scons_lib_dir = os.path.join(os.getcwd(), 'SCons')
 
 os.environ['SCONS_LIB_DIR'] = scons_lib_dir
 
@@ -485,7 +477,7 @@ def my_RDirs(self, pathlist, orig_RDirs=orig_RDirs):
     return [str(x).replace(os.sep, Sep) for x in orig_RDirs(self, pathlist)]
 SCons.Node.FS.File.RDirs = my_RDirs
 
-class Curry(object):
+class Curry:
     def __init__(self, fun, *args, **kwargs):
         self.fun = fun
         self.pending = args[:]
@@ -506,7 +498,7 @@ def Str(target, source, env, cmd=""):
         result.append(' '.join(map(str, cmd)))
     return '\\n'.join(result)
 
-class ToolSurrogate(object):
+class ToolSurrogate:
     def __init__(self, tool, variable, func, varlist):
         self.tool = tool
         if not isinstance(variable, list):
@@ -750,8 +742,7 @@ def command_ls(args, c, test, values):
         for a in args:
             l.extend(ls(test.workpath('WORK', a)))
         return l
-    else:
-        return ls(test.workpath('WORK'))
+    return ls(test.workpath('WORK'))
 
 def command_sleep(args, c, test, values):
     time.sleep(int(args[0]))
@@ -834,7 +825,7 @@ def create_scons_output(e):
 
         # Massage file names in stack traces (sometimes reported as absolute
         # paths) to a consistent relative path.
-        engine_re = re.compile(r' File ".*/src/engine/SCons/')
+        engine_re = re.compile(r' File ".*/SCons/')
 
         # Python 2.5 changed the stack trace when the module is read
         # from standard input from read "... line 7, in ?" to
@@ -882,7 +873,7 @@ def create_scons_output(e):
             if not command.output and lines:
                 ncontent = '\n'.join(lines)
                 ncontent = address_re.sub(r' at 0x700000>', ncontent)
-                ncontent = engine_re.sub(r' File "bootstrap/src/engine/SCons/', ncontent)
+                ncontent = engine_re.sub(r' File "SCons/', ncontent)
                 ncontent = file_re.sub(r'\1 <module>', ncontent)
                 ncontent = nodelist_re.sub(r"\1 'NodeList' object \2", ncontent)
                 ncontent = ncontent.replace('__ROOT__', '')

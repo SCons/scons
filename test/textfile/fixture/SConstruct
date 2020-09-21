@@ -1,0 +1,22 @@
+DefaultEnvironment(tools=[])
+
+
+env = Environment(tools=['textfile'])
+data0 = ['Goethe', 'Schiller']
+data = ['lalala', 42, data0, 'tanteratei']
+
+env.Textfile('foo1', data)
+env.Textfile('foo2', data, LINESEPARATOR='|*')
+env.Textfile('foo1a.txt', data + [''])
+env.Textfile('foo2a.txt', data + [''], LINESEPARATOR='|*')
+
+# recreate the list with the data wrapped in Value()
+data0 = list(map(Value, data0))
+data = list(map(Value, data))
+data[2] = data0
+
+env.Substfile('bar1', data)
+env.Substfile('bar2', data, LINESEPARATOR='|*')
+data.append(Value(''))
+env.Substfile('bar1a.txt', data)
+env.Substfile('bar2a.txt', data, LINESEPARATOR='|*')

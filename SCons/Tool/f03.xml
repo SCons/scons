@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="f03">
+<summary>
+<para>
+Set construction variables for generic POSIX Fortran 03 compilers.
+</para>
+</summary>
+<sets>
+<item>F03</item>
+<item>F03FLAGS</item>
+<item>F03COM</item>
+<item>F03PPCOM</item>
+<item>SHF03</item>
+<item>SHF03FLAGS</item>
+<item>SHF03COM</item>
+<item>SHF03PPCOM</item>
+<item>_F03INCFLAGS</item>
+</sets>
+<uses>
+<item>F03COMSTR</item>
+<item>F03PPCOMSTR</item>
+<item>SHF03COMSTR</item>
+<item>SHF03PPCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="F03">
+<summary>
+<para>
+The Fortran 03 compiler.
+You should normally set the &cv-link-FORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-link-F03; if you need to use a specific compiler
+or compiler version for Fortran 03 files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03COM">
+<summary>
+<para>
+The command line used to compile a Fortran 03 source file to an object file.
+You only need to set &cv-link-F03COM; if you need to use a specific
+command line for Fortran 03 files.
+You should normally set the &cv-link-FORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03COMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 03 source file
+is compiled to an object file.
+If not set, then &cv-link-F03COM; or &cv-link-FORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03FILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the F03 dialect will be used. By
+default, this is ['.f03']
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03PPFILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the compilation + preprocessor pass for
+F03 dialect will be used. By default, this is empty
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03FLAGS">
+<summary>
+<para>
+General user-specified options that are passed to the Fortran 03 compiler.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from &cv-link-F03PATH;.
+See
+&cv-link-_F03INCFLAGS;
+below,
+for the variable that expands to those options.
+You only need to set &cv-link-F03FLAGS; if you need to define specific
+user options for Fortran 03 files.
+You should normally set the &cv-link-FORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_F03INCFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the Fortran 03 compiler command-line options
+for specifying directories to be searched for include files.
+The value of &cv-link-_F03INCFLAGS; is created
+by appending &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+to the beginning and end
+of each directory in &cv-link-F03PATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03PATH">
+<summary>
+<para>
+The list of directories that the Fortran 03 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in &cv-link-F03FLAGS; because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in &cv-link-F03PATH; will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+You only need to set &cv-link-F03PATH; if you need to define a specific
+include path for Fortran 03 files.
+You should normally set the &cv-link-FORTRANPATH; variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+</para>
+
+<example_commands>
+env = Environment(F03PATH='#/include')
+</example_commands>
+
+<para>
+The directory look-up can also be forced using the
+&Dir;()
+function:
+</para>
+
+<example_commands>
+include = Dir('include')
+env = Environment(F03PATH=include)
+</example_commands>
+
+<para>
+The directory list will be added to command lines
+through the automatically-generated
+&cv-link-_F03INCFLAGS;
+construction variable,
+which is constructed by
+appending the values of the
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-link-F03PATH;.
+Any command lines you define that need
+the F03PATH directory list should
+include &cv-link-_F03INCFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(F03COM="my_compiler $_F03INCFLAGS -c -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="F03PPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran 03 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-link-F03FLAGS; and &cv-link-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-link-F03PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 03 files.
+You should normally set the &cv-link-FORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F03PPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 03 source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-F03PPCOM; or &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF03">
+<summary>
+<para>
+The Fortran 03 compiler used for generating shared-library objects.
+You should normally set the &cv-link-SHFORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-link-SHF03; if you need to use a specific compiler
+or compiler version for Fortran 03 files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF03COM">
+<summary>
+<para>
+The command line used to compile a Fortran 03 source file
+to a shared-library object file.
+You only need to set &cv-link-SHF03COM; if you need to use a specific
+command line for Fortran 03 files.
+You should normally set the &cv-link-SHFORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF03COMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 03 source file
+is compiled to a shared-library object file.
+If not set, then &cv-link-SHF03COM; or &cv-link-SHFORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF03FLAGS">
+<summary>
+<para>
+Options that are passed to the Fortran 03 compiler
+to generated shared-library objects.
+You only need to set &cv-link-SHF03FLAGS; if you need to define specific
+user options for Fortran 03 files.
+You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF03PPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran 03 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-link-SHF03FLAGS; and &cv-link-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-link-SHF03PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 03 files.
+You should normally set the &cv-link-SHFORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF03PPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 03 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-SHF03PPCOM; or &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

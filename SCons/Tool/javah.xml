@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="javah">
+<summary>
+<para>
+Sets construction variables for the &javah; tool.
+</para>
+</summary>
+<sets>
+<item>JAVAH</item>
+<item>JAVAHFLAGS</item>
+<item>JAVAHCOM</item>
+<item>JAVACLASSSUFFIX</item>
+</sets>
+<uses>
+<item>JAVAHCOMSTR</item>
+<item>JAVACLASSPATH</item>
+</uses>
+</tool>
+
+<builder name="JavaH">
+<summary>
+<para>
+Builds C header and source files for
+implementing Java native methods.
+The target can be either a directory
+in which the header files will be written,
+or a header file name which
+will contain all of the definitions.
+The source can be the names of <filename>.class</filename> files,
+the names of <filename>.java</filename> files
+to be compiled into <filename>.class</filename> files
+by calling the &b-link-Java; builder method,
+or the objects returned from the
+&b-Java;
+builder method.
+</para>
+
+<para>
+If the construction variable
+&cv-link-JAVACLASSDIR;
+is set, either in the environment
+or in the call to the
+&b-JavaH;
+builder method itself,
+then the value of the variable
+will be stripped from the
+beginning of any <filename>.class</filename> file names.
+</para>
+
+<para>
+Examples:
+</para>
+
+<example_commands>
+# builds java_native.h
+classes = env.Java(target="classdir", source="src")
+env.JavaH(target="java_native.h", source=classes)
+
+# builds include/package_foo.h and include/package_bar.h
+env.JavaH(target="include", source=["package/foo.class", "package/bar.class"])
+
+# builds export/foo.h and export/bar.h
+env.JavaH(
+    target="export",
+    source=["classes/foo.class", "classes/bar.class"],
+    JAVACLASSDIR="classes",
+)
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="JAVAH">
+<summary>
+<para>
+The Java generator for C header and stub files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="JAVAHCOM">
+<summary>
+<para>
+The command line used to generate C header and stub files
+from Java classes.
+Any options specified in the &cv-link-JAVAHFLAGS; construction variable
+are included on this command line.
+</para>
+</summary>
+</cvar>
+
+<cvar name="JAVAHCOMSTR">
+<summary>
+<para>
+The string displayed when C header and stub files
+are generated from Java classes.
+If this is not set, then &cv-link-JAVAHCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(JAVAHCOMSTR="Generating header/stub file(s) $TARGETS from $SOURCES")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="JAVAHFLAGS">
+<summary>
+<para>
+General options passed to the C header and stub file generator
+for Java classes.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

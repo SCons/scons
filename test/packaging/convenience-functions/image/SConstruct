@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 env  = Environment(tools=['default', 'packaging'])
 prog = env.Install( 'bin/', ["f1", "f2"] )
 env.File( "f3" )

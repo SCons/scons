@@ -34,8 +34,6 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-# test.verbose_set(1)
-
 #  Test issue # 2580
 test.dir_fixture('applelink_image')
 test.run(arguments='-f SConstruct_gh2580 -Q -n', stdout='gcc -o foo.o -c -Fframeworks foo.c\n')
@@ -88,7 +86,7 @@ for SHLIBVERSION, APPLELINK_CURRENT_VERSION, APPLELINK_COMPATIBILITY_VERSION, sh
         #     **locals())
         otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version REPLACEME)\n".format(**locals())
         otool_output = re.escape(otool_output)
-        otool_output = otool_output.replace('REPLACEME','\d+\.\d+\.\d+')
+        otool_output = otool_output.replace('REPLACEME',r'\d+\.\d+\.\d+')
 
 
         test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output, match=TestSCons.match_re_dotall)
@@ -124,7 +122,7 @@ for SHLIBVERSION, \
     else:
         # Should contain -Wl,-current_version,{APPLELINK_CURRENT_VERSION}
         test.must_contain_all_lines(test.stdout(),
-                                    ['-Wl,-current_version,{APPLELINK_CURRENT_VERSION}'.format(**locals())])
+                                    ['-Wl,-current_version,{APPLELINK_CURRENT_VERSION}'.format(**locals()), 'libfoo.4.dynlib'])
 
     if APPLELINK_NO_COMPATIBILITY_VERSION:
         # Should not contain -Wl,-compatibility_version
@@ -133,7 +131,7 @@ for SHLIBVERSION, \
     else:
         # Should contain -Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}
         test.must_contain_all_lines(test.stdout(),
-                                    ['-Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}'.format(**locals())])
+                                    ['-Wl,-compatibility_version,{APPLELINK_COMPATIBILITY_VERSION}'.format(**locals()), 'libfoo.4.dynlib'])
 
     if not extra_flags:
         # Now run otool -L to get the compat and current version info and verify it's correct in the library.
@@ -147,7 +145,7 @@ for SHLIBVERSION, \
             APPLELINK_COMPATIBILITY_VERSION = '0.0.0'
         otool_output = "libfoo.{SHLIBVERSION}.dylib:\n\tlibfoo.{SHLIBVERSION}.dylib (compatibility version {APPLELINK_COMPATIBILITY_VERSION}, current version {APPLELINK_CURRENT_VERSION})\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version REPLACEME)\n".format(
             **locals())
-        otool_output = re.escape(otool_output).replace('REPLACEME','\d+\.\d+\.\d+')
+        otool_output = re.escape(otool_output).replace('REPLACEME',r'\d+\.\d+\.\d+')
 
         test.run(program='/usr/bin/otool', arguments='-L libfoo.%s.dylib' % SHLIBVERSION, stdout=otool_output, match=TestSCons.match_re_dotall)
 

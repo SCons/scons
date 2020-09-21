@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="cc">
+<summary>
+<para>
+Sets construction variables for generic POSIX C compilers.
+</para>
+</summary>
+<sets>
+<item><!--_CCCOMCOM--></item>
+<item>FRAMEWORKS</item>
+<item>FRAMEWORKPATH</item>
+<item>CC</item>
+<item>CFLAGS</item>
+<item>CCFLAGS</item>
+<item>CCCOM</item>
+<item>SHCC</item>
+<item>SHCFLAGS</item>
+<item>SHCCFLAGS</item>
+<item>SHCCCOM</item>
+<item>CPPDEFPREFIX</item>
+<item>CPPDEFSUFFIX</item>
+<item>INCPREFIX</item>
+<item>INCSUFFIX</item>
+<item>SHOBJSUFFIX</item>
+<item><!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME--></item>
+<item>CFILESUFFIX</item>
+</sets>
+<uses>
+<item>PLATFORM</item>
+<item>CCCOMSTR</item>
+<item>SHCCCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="CC">
+<summary>
+<para>
+The C compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CCCOM">
+<summary>
+<para>
+The command line used to compile a C source file to a (static) object
+file.  Any options specified in the &cv-link-CFLAGS;, &cv-link-CCFLAGS; and
+&cv-link-CPPFLAGS; construction variables are included on this command line.
+See also &cv-link-SHCCCOM; for compiling to shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CCCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a C source file
+is compiled to a (static) object file.
+If not set, then &cv-link-CCCOM; (the command line) is displayed.
+See also &cv-link-SHCCCOMSTR; for compiling to shared objects.
+</para>
+
+<example_commands>
+env = Environment(CCCOMSTR = "Compiling static object $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="CCFLAGS">
+<summary>
+<para>
+General options that are passed to the C and C++ compilers.
+See also &cv-link-SHCCFLAGS; for compiling to shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CFLAGS">
+<summary>
+<para>
+General options that are passed to the C compiler (C only; not C++).
+See also &cv-link-SHCFLAGS; for compiling to shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CPPFLAGS">
+<summary>
+<para>
+User-specified C preprocessor options.
+These will be included in any command that uses the C preprocessor,
+including not just compilation of C and C++ source files
+via the &cv-link-CCCOM;,
+&cv-link-SHCCCOM;,
+&cv-link-CXXCOM; and
+&cv-link-SHCXXCOM; command lines,
+but also the &cv-link-FORTRANPPCOM;,
+&cv-link-SHFORTRANPPCOM;,
+&cv-link-F77PPCOM; and
+&cv-link-SHF77PPCOM; command lines
+used to compile a Fortran source file,
+and the &cv-link-ASPPCOM; command line
+used to assemble an assembly language source file,
+after first running each file through the C preprocessor.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from &cv-link-CPPPATH;.
+See &cv-link-_CPPINCFLAGS;, below,
+for the variable that expands to those options.
+</para>
+</summary>
+</cvar>
+
+<cvar name="CPPSUFFIXES">
+<summary>
+<para>
+The list of suffixes of files that will be scanned
+for C preprocessor implicit dependencies
+(#include lines).
+The default list is:
+</para>
+
+<example_commands>
+[".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
+ ".h", ".H", ".hxx", ".hpp", ".hh",
+ ".F", ".fpp", ".FPP",
+ ".m", ".mm",
+ ".S", ".spp", ".SPP"]
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="SHCC">
+<summary>
+<para>
+The C compiler used for generating shared-library objects.
+See also &cv-link-CC; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHCCCOM">
+<summary>
+<para>
+The command line used to compile a C source file
+to a shared-library object file.
+Any options specified in the &cv-link-SHCFLAGS;,
+&cv-link-SHCCFLAGS; and
+&cv-link-CPPFLAGS; construction variables
+are included on this command line.
+See also &cv-link-CCCOM; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHCCCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a C source file
+is compiled to a shared object file.
+If not set, then &cv-link-SHCCCOM; (the command line) is displayed.
+See also &cv-link-CCCOMSTR; for compiling to static objects.
+</para>
+
+<example_commands>
+env = Environment(SHCCCOMSTR = "Compiling shared object $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="SHCCFLAGS">
+<summary>
+<para>
+Options that are passed to the C and C++ compilers
+to generate shared-library objects.
+See also &cv-link-CCFLAGS; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHCFLAGS">
+<summary>
+<para>
+Options that are passed to the C compiler (only; not C++)
+to generate shared-library objects.
+See also &cv-link-CFLAGS; for compiling to static objects.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

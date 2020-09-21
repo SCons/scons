@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+        <!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+        %scons;
+        <!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+        %builders-mod;
+        <!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+        %functions-mod;
+        <!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+        %tools-mod;
+        <!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+        %variables-mod;
+        ]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+    <tool name="compilation_db">
+        <summary>
+            <para>
+                Sets up &b-link-CompilationDatabase; builder which generates a clang tooling compatible compilation database.
+            </para>
+        </summary>
+        <sets>
+            <item>COMPILATIONDB_COMSTR</item>
+<!--            
+            <item>__COMPILATIONDB_UACTION</item>
+            <item>__COMPILATIONDB_UOUTPUT</item>
+            <item>__COMPILATIONDB_USOURCE</item>
+            <item>__COMPILATIONDB_ENV</item>
+-->            
+            <item>COMPILATIONDB_USE_ABSPATH</item>
+        </sets>
+    </tool>
+
+    <builder name="CompilationDatabase">
+        <summary>
+            <para>
+                The &b-CompilationDatabase; builder writes a JSON formatted compilation
+                    database according to the
+                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification
+                </ulink> which is consumed by a number of clang tools, editors, and other tools.
+            </para>
+            <para>
+                If you don't specify any files, the builder will default to <filename>compile_commands.json</filename>.
+            </para>
+            <para>
+                If you specify a single file as below
+                <programlisting language="python">
+env.CompilationDatabase('my_output.json')
+                </programlisting>
+                SCons will automatically use that as the target file.
+                If you specify more than one source, the source list will be ignored.
+            </para>
+            <para>
+                You should not specify source files. The &b-CompilationDatabase; builder instruments SCons to collect them from all
+                the C, C++, assembly source/target pairs.
+            </para>
+            <para>
+                NOTE: You must load the &t-compilation_db; tool prior to specifying any part of your build or some source/target
+                files will not show up in your output file.
+            </para>
+            <para>
+                <emphasis>Available since &scons; 4.0.</emphasis>
+            </para>
+        </summary>
+    </builder>
+
+    <cvar name="COMPILATIONDB_COMSTR">
+        <summary>
+            <para>
+                The string displayed when CompilationDatabase builder's action is run.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="COMPILATIONDB_USE_ABSPATH">
+        <summary>
+            <para>
+                This is a boolean flag to instruct &b-link-CompilationDatabase; to
+                write the <literal>file</literal> and <literal>target</literal> members
+                in the compilation database with absolute or relative paths.
+            </para>
+            <para>
+                The default value is False (use relative paths)
+            </para>
+        </summary>
+    </cvar>
+<!--  Internal env vars for use by CompilationDatabase builder/pseudobuilder only   -->
+<!--    <cvar name="__COMPILATIONDB_UACTION">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+<!--    <cvar name="__COMPILATIONDB_UOUTPUT">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+<!--    <cvar name="__COMPILATIONDB_USOURCE">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+<!--    <cvar name="__COMPILATIONDB_ENV">-->
+<!--        <summary>-->
+<!--            <para>-->
+<!--                This variable stores the action for building a target.-->
+<!--                It's intended for internal usage by &b-link-CompilationDatabase; only.-->
+<!--            </para>-->
+<!--        </summary>-->
+<!--    </cvar>-->
+
+
+</sconsdoc>

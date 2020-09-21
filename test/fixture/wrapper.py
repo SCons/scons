@@ -7,4 +7,4 @@ if __name__ == '__main__':
     if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
         with open(path, 'wb') as f:
             f.write(b"wrapper.py\n")
-    subprocess.call(sys.argv[1:])
+    subprocess.run(sys.argv[1:])

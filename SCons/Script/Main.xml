@@ -1,0 +1,901 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+
+<scons_function name="AddOption">
+<arguments signature="global">
+(arguments)
+</arguments>
+<summary>
+<para>
+Adds a local (project-specific) command-line option.
+<parameter>arguments</parameter>
+are the same as those supported by the <function>add_option</function>
+method in the standard Python library module <systemitem>optparse</systemitem>,
+with a few additional capabilities noted below.
+See the documentation for
+<systemitem>optparse</systemitem>
+for a thorough discussion of its option-processing capabities.
+</para>
+
+<para>
+In addition to the arguments and values supported by the
+<systemitem>optparse</systemitem>
+<function>add_option</function>
+method, &f-AddOption;
+allows setting the
+<parameter>nargs</parameter>
+keyword value to
+a string consisting of a question mark
+(<literal>'?'</literal>)
+to indicate that the option argument for
+that option string is optional.
+If the option string is present on the
+command line but has no matching option
+argument, the value of the
+<parameter>const</parameter>
+keyword argument is produced as the value
+of the option.
+If the option string is omitted from
+the command line, the value of the
+<parameter>default</parameter>
+keyword argument is produced, as usual;
+if there is no
+<parameter>default</parameter>
+keyword argument in the &f-AddOption; call,
+<constant>None</constant> is produced.
+</para>
+
+<para>
+<systemitem>optparse</systemitem> recognizes
+abbreviations of long option names,
+as long as they can be unambiguously resolved.
+For example, if
+<function>add_option</function> is called to
+define a <option>--devicename</option> option,
+it will recognize <option>--device</option>,
+<option>--dev</option>
+and so forth as long as there is no other option
+which could also match to the same abbreviation.
+Options added via
+&f-AddOption; do not support
+the automatic recognition of abbreviations.
+Instead, to allow specific abbreviations,
+include them as synonyms in the &f-AddOption; call itself.
+</para>
+
+<para>
+Once a new command-line option has been added with
+&f-AddOption;,
+the option value may be accessed using
+&f-link-GetOption;
+or
+&f-link-env-GetOption;.
+&f-link-SetOption; is not currently supported for
+options added with &f-AddOption;.
+<!-- was:
+The value may also be set using
+&f-SetOption;
+or
+&f-env.SetOption;,
+if conditions in a
+&SConscript;
+require overriding any default value.
+Note however that a
+value specified on the command line will
+<emphasis>always</emphasis>
+override a value set by any SConscript file.
+-->
+</para>
+
+<para>
+Help text for an option is a combination
+of the string supplied in the
+<parameter>help</parameter> keyword
+argument to &f-AddOption; and information
+collected from the other keyword arguments.
+Such help is displayed if the
+<option>-h</option> command line option
+is used (but not with <option>-H</option>).
+Help for all local options is displayed
+under the separate heading
+<emphasis role="bold">Local Options</emphasis>.
+The options are unsorted - they will appear
+in the help text in the order in which the
+&f-AddOption;
+calls occur.
+</para>
+
+<para>
+Example:
+</para>
+
+<example_commands>
+AddOption(
+    '--prefix',
+    dest='prefix',
+    nargs=1,
+    type='string',
+    action='store',
+    metavar='DIR',
+    help='installation prefix',
+)
+env = Environment(PREFIX=GetOption('prefix'))
+</example_commands>
+
+<para>For that example,
+the following help text would be produced:</para>
+
+<screen>
+Local Options:
+  --prefix=DIR                installation prefix
+</screen>
+
+<para>
+Help text for local options may be unavailable if
+the &f-link-Help; function has been called,
+see the &f-Help; documentation for details.
+</para>
+
+<note>
+<para>
+As an artifact of the internal implementation,
+the behavior of options added by &AddOption;
+which take option arguments is undefined
+<emphasis>if</emphasis> whitespace
+(rather than an <literal>=</literal> sign) is used as
+the separator on the command line.
+Users should avoid such usage; it is recommended
+to add a note to this effect to project documentation
+if the situation is likely to arise.
+In addition, if the <parameter>nargs</parameter>
+keyword is used to specify more than one following
+option argument (that is, with a value of <constant>2</constant>
+or greater), such arguments would necessarily
+be whitespace separated, triggering the issue.
+Developers should not use &AddOption; this way.
+Future versions of &SCons; will likely forbid such usage.
+</para>
+</note>
+
+</summary>
+</scons_function>
+
+<scons_function name="GetBuildFailures">
+<arguments signature="global">
+()
+</arguments>
+<summary>
+<para>
+Returns a list of exceptions for the
+actions that failed while
+attempting to build targets.
+Each element in the returned list is a
+<classname>BuildError</classname>
+object
+with the following attributes
+that record various aspects
+of the build failure:
+</para>
+
+<para>
+<literal>.node</literal>
+The node that was being built
+when the build failure occurred.
+</para>
+
+<para>
+<literal>.status</literal>
+The numeric exit status
+returned by the command or Python function
+that failed when trying to build the
+specified Node.
+</para>
+
+<para>
+<literal>.errstr</literal>
+The SCons error string
+describing the build failure.
+(This is often a generic
+message like "Error 2"
+to indicate that an executed
+command exited with a status of 2.)
+</para>
+
+<para>
+<literal>.filename</literal>
+The name of the file or
+directory that actually caused the failure.
+This may be different from the
+<literal>.node</literal>
+attribute.
+For example,
+if an attempt to build a target named
+<filename>sub/dir/target</filename>
+fails because the
+<filename>sub/dir</filename>
+directory could not be created,
+then the
+<literal>.node</literal>
+attribute will be
+<filename>sub/dir/target</filename>
+but the
+<literal>.filename</literal>
+attribute will be
+<filename>sub/dir</filename>.
+</para>
+
+<para>
+<literal>.executor</literal>
+The SCons Executor object
+for the target Node
+being built.
+This can be used to retrieve
+the construction environment used
+for the failed action.
+</para>
+
+<para>
+<literal>.action</literal>
+The actual SCons Action object that failed.
+This will be one specific action
+out of the possible list of
+actions that would have been
+executed to build the target.
+</para>
+
+<para>
+<literal>.command</literal>
+The actual expanded command that was executed and failed,
+after expansion of
+&cv-link-TARGET;,
+&cv-link-SOURCE;,
+and other construction variables.
+</para>
+
+<para>
+Note that the
+&f-GetBuildFailures;
+function
+will always return an empty list
+until any build failure has occurred,
+which means that
+&f-GetBuildFailures;
+will always return an empty list
+while the
+&SConscript;
+files are being read.
+Its primary intended use is
+for functions that will be
+executed before SCons exits
+by passing them to the
+standard Python
+<function>atexit.register</function>()
+function.
+Example:
+</para>
+
+<example_commands>
+import atexit
+
+def print_build_failures():
+    from SCons.Script import GetBuildFailures
+    for bf in GetBuildFailures():
+        print("%s failed: %s" % (bf.node, bf.errstr))
+
+atexit.register(print_build_failures)
+</example_commands>
+</summary>
+</scons_function>
+
+<scons_function name="GetOption">
+<arguments>
+(name)
+</arguments>
+<summary>
+<para>
+This function provides a way to query the value of
+SCons options set on scons command line
+(or set using the
+&f-link-SetOption;
+function).
+The options supported are:
+</para>
+
+<para>
+<variablelist>
+<varlistentry>
+<term><literal>cache_debug</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--cache-debug</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>cache_disable</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--cache-disable</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>cache_force</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--cache-force</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>cache_show</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--cache-show</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>clean</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-c</option>, <option>--clean</option>
+and <option>--remove</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>config</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--config</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>directory</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-C</option> and <option>--directory</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>diskcheck</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--diskcheck</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>duplicate</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--duplicate</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>file</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-f</option>, <option>--file</option>, <option>--makefile</option> and <option>--sconstruct</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>help</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-h</option> and <option>--help</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>ignore_errors</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--ignore-errors</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>implicit_cache</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--implicit-cache</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>implicit_deps_changed</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--implicit-deps-changed</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>implicit_deps_unchanged</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--implicit-deps-unchanged</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>interactive</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--interact</option> and <option>--interactive</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>keep_going</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-k</option> and <option>--keep-going</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>max_drift</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--max-drift</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>no_exec</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-n</option>,
+<option>--no-exec</option>, <option>--just-print</option>,
+<option>--dry-run</option> and <option>--recon</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>no_site_dir</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--no-site-dir</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>num_jobs</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-j</option> and <option>--jobs</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>profile_file</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--profile</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>question</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-q</option> and <option>--question</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>random</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--random</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>repository</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-Y</option>, <option>--repository</option> and <option>--srcdir</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>silent</literal></term>
+<listitem>
+<para>
+which corresponds to <option>-s</option>, <option>--silent</option> and <option>--quiet</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>site_dir</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--site-dir</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>stack_size</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--stack-size</option>;
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>taskmastertrace_file</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--taskmastertrace</option>; and
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>warn</literal></term>
+<listitem>
+<para>
+which corresponds to <option>--warn</option> and <option>--warning</option>.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</para>
+
+<para>
+See the documentation for the
+corresponding command line option for information about each specific
+option.
+</para>
+</summary>
+</scons_function>
+
+<scons_function name="Progress">
+<arguments signature="global">
+(callable, [interval])
+</arguments>
+<arguments signature="global">
+(string, [interval, file, overwrite])
+</arguments>
+<arguments signature="global">
+(list_of_strings, [interval, file, overwrite])
+</arguments>
+<summary>
+<para>
+Allows SCons to show progress made during the build
+by displaying a string or calling a function while
+evaluating Nodes (e.g. files).
+</para>
+
+<para>
+If the first specified argument is a Python callable
+(a function or an object that has a
+<methodname>__call__</methodname> method),
+the function will be called
+once every
+<varname>interval</varname>
+times a Node is evaluated (default <constant>1</constant>).
+The callable will be passed the evaluated Node
+as its only argument.
+(For future compatibility,
+it's a good idea to also add
+<parameter>*args</parameter>
+and
+<parameter>**kwargs</parameter>
+as arguments to your function or method signatures.
+This will prevent the code from breaking
+if &SCons; ever changes the interface
+to call the function with additional arguments in the future.)
+</para>
+
+<para>
+An example of a simple custom progress function
+that prints a string containing the Node name
+every 10 Nodes:
+</para>
+
+<example_commands>
+def my_progress_function(node, *args, **kwargs):
+    print('Evaluating node %s!' % node)
+Progress(my_progress_function, interval=10)
+</example_commands>
+
+<para>
+A more complicated example of a custom progress display object
+that prints a string containing a count
+every 100 evaluated Nodes.
+Note the use of
+<literal>\r</literal>
+(a carriage return)
+at the end so that the string
+will overwrite itself on a display:
+</para>
+
+<example_commands>
+import sys
+class ProgressCounter(object):
+    count = 0
+    def __call__(self, node, *args, **kw):
+        self.count += 100
+        sys.stderr.write('Evaluated %s nodes\r' % self.count)
+
+Progress(ProgressCounter(), interval=100)
+</example_commands>
+
+<para>
+If the first argument to
+&f-Progress; is a string or list of strings,
+it is taken as text to be displayed every
+<varname>interval</varname>
+evaluated Nodes.
+If the first argument is a list of strings,
+then each string in the list will be displayed
+in rotating fashion every
+<varname>interval</varname>
+evaluated Nodes.
+</para>
+
+<para>
+The default is to print the string on standard output.
+An alternate output stream
+may be specified with the
+<parameter>file</parameter>
+keyword argument, which the
+caller must pass already opened.
+</para>
+
+<para>
+The following will print a series of dots
+on the error output,
+one dot for every 100 evaluated Nodes:
+</para>
+
+<example_commands>
+import sys
+Progress('.', interval=100, file=sys.stderr)
+</example_commands>
+
+<para>
+If the string contains the verbatim substring
+<literal>$TARGET;</literal>,
+it will be replaced with the Node.
+Note that, for performance reasons, this is
+<emphasis>not</emphasis>
+a regular SCons variable substition,
+so you can not use other variables
+or use curly braces.
+The following example will print the name of
+every evaluated Node,
+using a carriage return)
+(<literal>\r</literal>)
+to cause each line to overwritten by the next line,
+and the
+<parameter>overwrite</parameter>
+keyword argument (default <literal>False</literal>)
+to make sure the previously-printed
+file name is overwritten with blank spaces:
+</para>
+
+<example_commands>
+import sys
+Progress('$TARGET\r', overwrite=True)
+</example_commands>
+
+<para>
+A list of strings can be used to implement a "spinner"
+on the user's screen as follows, changing every
+five evaluated Nodes:
+</para>
+
+<example_commands>
+Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
+</example_commands>
+</summary>
+</scons_function>
+
+<scons_function name="Precious">
+<arguments>
+(target, ...)
+</arguments>
+<summary>
+<para>
+Marks each given
+<varname>target</varname>
+as precious so it is not deleted before it is rebuilt. Normally
+&scons;
+deletes a target before building it.
+Multiple targets can be passed in to a single call to
+&f-Precious;.
+</para>
+</summary>
+</scons_function>
+
+<scons_function name="Pseudo">
+<arguments>
+(target, ...)
+</arguments>
+<summary>
+<para>
+This indicates that each given
+<varname>target</varname>
+should not be created by the build rule, and if the target is created,
+an error will be generated. This is similar to the gnu make .PHONY
+target. However, in the vast majority of cases, an
+&f-Alias;
+is more appropriate.
+
+Multiple targets can be passed in to a single call to
+&f-Pseudo;.
+</para>
+</summary>
+</scons_function>
+<scons_function name="SetOption">
+<arguments>
+(name, value)
+</arguments>
+<summary>
+<para>
+Sets &scons; option variable <parameter>name</parameter>
+to <parameter>value</parameter>.
+These options are all also settable via
+&scons; command-line options but the variable name
+may differ from the command-line option name (see table).
+A value set via command-line option will take
+precedence over one set with &f-SetOption;, which
+allows setting a project default in the scripts and
+temporarily overriding it via command line.
+Options which affect the reading and processing of SConscript files
+are not settable this way, since those files must
+be read in order to find the &f-SetOption; call.
+</para>
+
+<para>
+The settable variables with their associated command-line options are:
+</para>
+
+<!-- UPDATE_SETOPTION_DOCS -->
+<!-- This list comes directly from SConsValues.settable. Keep in sync. -->
+
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="2">
+<thead>
+<row><entry>Variable</entry><entry>Command-line options</entry></row>
+</thead>
+<tbody>
+<row><entry>
+<varname>clean</varname>
+</entry><entry>
+<option>-c</option>, <option>--clean</option>, <option>--remove</option>
+</entry></row>
+<row><entry>
+<varname>diskcheck</varname>
+</entry><entry>
+<option>--diskcheck</option>
+</entry></row>
+<row><entry>
+<varname>duplicate</varname>
+</entry><entry>
+<option>--duplicate</option>
+</entry></row>
+<row><entry>
+<varname>help</varname>
+</entry><entry>
+<option>-h</option>, <option>--help</option>
+</entry></row>
+<row><entry>
+<varname>implicit_cache</varname>
+</entry><entry>
+<option>--implicit-cache</option>
+</entry></row>
+<!--TODO: add implicit-deps-changed, implicit-deps-unchanged ? -->
+<row><entry>
+<varname>max_drift</varname>
+</entry><entry>
+<option>--max-drift</option>
+</entry></row>
+<row><entry>
+<varname>md5_chunksize</varname>
+</entry><entry>
+<option>--md5-chunksize</option>
+</entry></row>
+<row><entry>
+<varname>no_exec</varname>
+</entry><entry>
+<option>-n</option>, <option>--no-exec</option>,
+<option>--just-print</option>, <option>--dry-run</option>,
+<option>--recon</option>
+</entry></row>
+<row><entry>
+<varname>no_progress</varname>
+</entry><entry>
+<option>-Q</option>
+</entry></row>
+<row><entry>
+<varname>num_jobs</varname>
+</entry><entry>
+<option>-j</option>, <option>--jobs</option>
+</entry></row>
+<row><entry>
+<varname>random</varname>
+</entry><entry>
+<option>--random</option>
+</entry></row>
+<row><entry>
+<varname>silent</varname>
+</entry><entry>
+<option>--silent</option>.
+</entry></row>
+<row><entry>
+<varname>stack_size</varname>
+</entry><entry>
+<option>--stack-size</option>
+</entry></row>
+<row><entry>
+<varname>warn</varname>
+</entry><entry>
+<option>--warn</option>.
+</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>
+See the documentation in the manpage for the
+corresponding command line option for information about each specific option.
+Option values which are boolean in nature (that is, they are
+either on or off) should be set to a true value (<constant>True</constant>,
+<constant>1</constant>) or a false value (<constant>False</constant>,
+<constant>0</constant>).
+</para>
+
+<note>
+<para>
+If <varname>no_progress</varname> is set via &f-SetOption;
+there will still be initial progress output as &SCons; has
+to start reading SConscript files before it can see the
+&f-SetOption; in an SConscript file:
+<computeroutput>scons: Reading SConscript files ...</computeroutput>
+</para>
+</note>
+
+<para>
+Example:
+</para>
+
+<example_commands>
+SetOption('max_drift', True)
+</example_commands>
+</summary>
+</scons_function>
+
+</sconsdoc>

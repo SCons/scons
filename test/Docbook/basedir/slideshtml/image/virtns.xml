@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dbs:slides xmlns="http://docbook.org/ns/docbook"
+            xmlns:dbs="http://docbook.org/ns/docbook-slides"
+            xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>Virtuelles Kopieren</title>
+
+    <titleabbrev>Virtuelles Kopieren</titleabbrev>
+
+    <copyright>
+      <year>2007</year>
+
+      <holder>Femutec GmbH</holder>
+    </copyright>
+
+    <author>
+      <firstname>Dirk</firstname>
+
+      <surname>Baechle</surname>
+    </author>
+
+    <pubdate>09.07.2007</pubdate>
+  </info>
+
+<dbs:foilgroup>
+<title>Group</title>
+  <dbs:foil>
+    <title>sfForming</title>
+
+  </dbs:foil>
+</dbs:foilgroup>
+</dbs:slides>
+

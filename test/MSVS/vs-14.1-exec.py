@@ -81,6 +81,7 @@ env.Program('foo.c')
 """ % locals())
 
 test.write(['sub dir', 'foo.c'], r"""
+#include <stdio.h>
 int
 main(int argc, char *argv)
 {

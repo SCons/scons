@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="intelc">
+<summary>
+<para>
+Sets construction variables for the Intel C/C++ compiler
+(Linux and Windows, version 7 and later).
+Calls the &t-gcc; or &t-msvc;
+(on Linux and Windows, respectively)
+to set underlying variables.
+</para>
+</summary>
+<sets>
+<item>CC</item>
+<item>CXX</item>
+<item>LINK</item>
+<item>AR</item>
+<item><!--LD--></item>
+<item>INTEL_C_COMPILER_VERSION</item>
+</sets>
+<uses>
+</uses>
+</tool>
+
+<cvar name="INTEL_C_COMPILER_VERSION">
+<summary>
+<para>
+Set by the "intelc" Tool
+to the major version number of the Intel C compiler
+selected for use.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

@@ -24,7 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import sys
 import TestSCons
 
@@ -37,9 +36,8 @@ if sys.platform == 'win32':
     test.skip_test('CXXVERSION not set with MSVC, skipping test.')
 
 
-test.write("versioned.py",
-"""from __future__ import print_function
-import os
+test.write("versioned.py", """\
+import subprocess
 import sys
 if '-dumpversion' in sys.argv:
     print('3.9.9')
@@ -50,7 +48,7 @@ if '--version' in sys.argv:
 if sys.argv[1] not in [ '2.9.9', '3.9.9' ]:
     print('wrong version', sys.argv[1], 'when wrapping', sys.argv[2])
     sys.exit(1)
-os.system(" ".join(sys.argv[2:]))
+subprocess.run(" ".join(sys.argv[2:]), shell=True)
 """)
 
 test.write('SConstruct', """

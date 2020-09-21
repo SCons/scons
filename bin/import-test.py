@@ -35,7 +35,7 @@ directory = sys.argv[1]
 Top = None
 TopPath = None
 
-class Dir(object):
+class Dir:
     def __init__(self, path):
         self.path = path
         self.entries = {}
@@ -82,7 +82,7 @@ def print_files(dir):
 
 for dirpath, dirnames, filenames in os.walk(directory):
     dir = lookup(dirpath)
-    for f in fnames:
+    for f in filenames:
         dir.entries[f] = None
 
 subdir_list = []

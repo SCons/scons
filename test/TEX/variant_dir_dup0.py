@@ -42,8 +42,8 @@ latex = test.where_is('latex')
 dvipdf = test.where_is('dvipdf')
 makeindex = test.where_is('makeindex')
 bibtex = test.where_is('bibtex')
-if not latex or not makeindex or not bibtex or not dvipdf:
-    test.skip_test("Could not find 'latex', 'makeindex', 'bibtex', or dvipdf; skipping test.\n")
+if not all((latex, makeindex, bibtex, dvipdf)):
+    test.skip_test("Could not find one or more of 'latex', 'makeindex', 'bibtex', or 'dvipdf'; skipping test.\n")
 
 test.subdir(['docs'])
 

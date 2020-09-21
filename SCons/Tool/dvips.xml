@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="dvips">
+<summary>
+<para>
+Sets construction variables for the dvips utility.
+</para>
+</summary>
+<sets>
+<item>DVIPS</item>
+<item>DVIPSFLAGS</item>
+<item>PSCOM</item>
+<item>PSPREFIX</item>
+<item>PSSUFFIX</item>
+</sets>
+<uses>
+<item>PSCOMSTR</item>
+</uses>
+</tool>
+
+<builder name="PostScript">
+<summary>
+<para>
+Builds a <filename>.ps</filename> file
+from a <filename>.dvi</filename> input file
+(or, by extension, a <filename>.tex</filename>,
+<filename>.ltx</filename>,
+or
+<filename>.latex</filename> input file).
+The suffix specified by the &cv-link-PSSUFFIX; construction variable
+(<filename>.ps</filename> by default)
+is added automatically to the target
+if it is not already present.  Example:
+</para>
+
+<example_commands>
+# builds from aaa.tex
+env.PostScript(target = 'aaa.ps', source = 'aaa.tex')
+# builds bbb.ps from bbb.dvi
+env.PostScript(target = 'bbb', source = 'bbb.dvi')
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="DVIPS">
+<summary>
+<para>
+The TeX DVI file to PostScript converter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="DVIPSFLAGS">
+<summary>
+<para>
+General options passed to the TeX DVI file to PostScript converter.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PSCOM">
+<summary>
+<para>
+The command line used to convert TeX DVI files into a PostScript file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PSCOMSTR">
+<summary>
+<para>
+The string displayed when a TeX DVI file
+is converted into a PostScript file.
+If this is not set, then &cv-link-PSCOM; (the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PSPREFIX">
+<summary>
+<para>
+The prefix used for PostScript file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PSSUFFIX">
+<summary>
+<para>
+The prefix used for PostScript file names.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

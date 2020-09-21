@@ -9,6 +9,7 @@ assignees: ''
 
 ## Please bring your issue to the SCons users mailing list before filing an issue here
 ## See: https://scons.org/bugs.html
+## or join our Discord server : https://discord.gg/bXVpWAy
 
 
 **Describe the bug**

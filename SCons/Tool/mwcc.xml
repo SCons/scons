@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="mwcc">
+<summary>
+<para>
+Sets construction variables for the Metrowerks CodeWarrior compiler.
+</para>
+</summary>
+<sets>
+<item>MWCW_VERSIONS</item>
+<item>MWCW_VERSION</item>
+<item><!--CCCOMFLAGS--></item>
+<item>CC</item>
+<item>CCCOM</item>
+<item>CXX</item>
+<item>CXXCOM</item>
+<item>SHCC</item>
+<item>SHCCFLAGS</item>
+<item>SHCFLAGS</item>
+<item>SHCCCOM</item>
+<item>SHCXX</item>
+<item>SHCXXFLAGS</item>
+<item>SHCXXCOM</item>
+<item>CFILESUFFIX</item>
+<item>CXXFILESUFFIX</item>
+<item>CPPDEFPREFIX</item>
+<item>CPPDEFSUFFIX</item>
+<item>INCPREFIX</item>
+<item>INCSUFFIX</item>
+</sets>
+<uses>
+<item>CCCOMSTR</item>
+<item>CXXCOMSTR</item>
+<item>SHCCCOMSTR</item>
+<item>SHCXXCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="MWCW_VERSION">
+<summary>
+<para>
+The version number of the MetroWerks CodeWarrior C compiler
+to be used.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MWCW_VERSIONS">
+<summary>
+<para>
+A list of installed versions of the MetroWerks CodeWarrior C compiler
+on this system.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

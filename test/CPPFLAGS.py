@@ -32,68 +32,18 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-# Writing this to accomodate both our in-line tool chain and the
+# Writing this to accommodate both our in-line tool chain and the
 # MSVC command lines is too hard, and will be completely unnecessary
 # some day when we separate our tests.  Punt for now.
 if sys.platform == 'win32':
     test.skip_test('Skipping on win32.\n')
 
-
-
 if sys.platform == 'win32':
-
-    test.write('mylink.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a[0] != '/':
-        break
-    args.pop(0)
-    if a[:5] == '/OUT:': out = a[5:]
-with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
-    for l in ifp.readlines():
-        if l[:5] != '#link':
-            ofp.write(l)
-sys.exit(0)
-""")
-
+    test.file_fixture('mylink_win32.py', 'mylink.py')
 else:
+     test.file_fixture('mylink.py')
 
-    test.write('mylink.py', r"""
-import getopt
-import sys
-opts, args = getopt.getopt(sys.argv[1:], 'o:s:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-with open(out, 'w') as ofp:
-    for f in args:
-        with open(f, 'r') as ifp:
-            for l in ifp.readlines():
-                if l[:5] != '#link':
-                    ofp.write(l)
-sys.exit(0)
-""")
-
-test.write('mygcc.py', r"""
-import getopt
-import os
-import sys
-compiler = sys.argv[1]
-clen = len(compiler) + 1
-opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-    elif opt == '-x':
-        with open('mygcc.out', 'a') as f:
-            f.write(compiler + "\n")
-with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
-    for l in ifp.readlines():
-        if l[:clen] != '#' + compiler:
-            ofp.write(l)
-sys.exit(0)
-""")
-
+test.file_fixture('mygcc.py')
 
 
 test.write('SConstruct', """

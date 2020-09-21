@@ -13,7 +13,7 @@ if __name__ == '__main__':
     with open(sys.argv[2], 'wb') as ofp:
         for f in sys.argv[3:]:
             with open(f, 'rb') as ifp:
-                lines = [ln for ln in ifp.readlines() if ln != line]
+                lines = [ln for ln in ifp if ln != line]
                 for ln in lines:
                     ofp.write(ln)
     sys.exit(0)

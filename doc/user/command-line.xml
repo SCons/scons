@@ -84,7 +84,7 @@
 
     Any command-line argument containing an <literal>=</literal>
     (equal sign) is considered a variable setting with the form
-    <varname>variable</varname>=<varname>value</varname>.
+    <varname>variable</varname>=<replaceable>value</replaceable>.
     &SCons; provides direct access to
     all of the command-line variable settings,
     the ability to apply command-line variable settings
@@ -132,7 +132,7 @@
     &SCons; has many <emphasis>command-line options</emphasis>
     that control its behavior.
     A &SCons; <emphasis>command-line option</emphasis>
-    always begins with one or two <literal>-</literal> (hyphen)
+    always begins with one or two hyphen (<literal>-</literal>)
     characters.
 
     </para>
@@ -146,9 +146,9 @@
       the same command-line options every time
       they run &SCons;.
       For example, you might find it saves time
-      to specify a value of <literal>-j 2</literal>
+      to specify a value of <option>-j 2</option>
       to have &SCons; run up to two build commands in parallel.
-      To avoid having to type <literal>-j 2</literal> by hand
+      To avoid having to type <option>-j 2</option> by hand
       every time,
       you can set the external environment variable
       &SCONSFLAGS; to a string containing
@@ -162,7 +162,7 @@
       you're using a POSIX shell that's
       compatible with the Bourne shell,
       and you always want &SCons; to use the
-      <literal>-Q</literal> option,
+      <option>-Q</option> option,
       you can set the &SCONSFLAGS;
       environment as follows:
 
@@ -174,8 +174,8 @@ def b(target, source, env):
     pass
 def s(target, source, env):
     return "    ... [build output] ..."
-a = Action(b, strfunction = s)
-env = Environment(BUILDERS = {'A' : Builder(action=a)})
+a = Action(b, strfunction=s)
+env = Environment(BUILDERS={'A': Builder(action=a)})
 env.A('foo.out', 'foo.in')
         </file>
         <file name="foo.in">
@@ -192,7 +192,7 @@ foo.in
       <para>
 
       Users of &csh;-style shells on POSIX systems
-      can set the &SCONSFLAGS; environment as follows:
+      can set the &SCONSFLAGS; environment variable as follows:
 
       </para>
 
@@ -215,30 +215,30 @@ $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
 
       <para>
 
-      &SCons; provides the &GetOption; function
+      &SCons; provides the &f-link-GetOption; function
       to get the values set by the various command-line options.
-      One common use of this is to check whether or not
-      the <literal>-h</literal> or <literal>--help</literal> option
-      has been specified.
-      Normally, &SCons; does not print its help text
-      until after it has read all of the &SConscript; files,
-      because it's possible that help text has been added
-      by some subsidiary &SConscript; file deep in the
-      source tree hierarchy.
-      Of course, reading all of the &SConscript; files
-      takes extra time.
 
       </para>
 
       <para>
 
+      One use case for &GetOption; is to check whether or not
+      the <option>-h</option> or <option>--help</option> option
+      has been specified.
+      Normally, &SCons; does not print its help text
+      until after it has read all of the SConscript files,
+      because it's possible that help text has been added
+      by some subsidiary SConscript file deep in the
+      source tree hierarchy.
+      Of course, reading all of the SConscript files
+      takes extra time.
       If you know that your configuration does not define
-      any additional help text in subsidiary &SConscript; files,
+      any additional help text in subsidiary SConscript files,
       you can speed up the command-line help available to users
       by using the &GetOption; function to load the
-      subsidiary &SConscript; files only if the
+      subsidiary SConscript files only if the
       the user has <emphasis>not</emphasis> specified
-      the <literal>-h</literal> or <literal>--help</literal> option,
+      the <option>-h</option> or <option>--help</option> option,
       like so:
 
       </para>
@@ -251,15 +251,28 @@ if not GetOption('help'):
       <para>
 
       In general, the string that you pass to the
-      &GetOption; function to fetch the value of a command-line
+      &f-GetOption; function to fetch the value of a command-line
       option setting is the same as the "most common" long option name
       (beginning with two hyphen characters),
       although there are some exceptions.
       The list of &SCons; command-line options
-      and the &GetOption; strings for fetching them,
+      and the &f-GetOption; strings for fetching them,
       are available in the
       <xref linkend="sect-command-line-option-strings"></xref> section,
       below.
+
+      </para>
+
+      <para>
+
+      &f-GetOption; can be used to retrieve the values of options
+      defined by calls to &f-link-AddOption;. A &f-GetOption; call
+      must appear after the &f-AddOption; call for that option.
+      If the &f-AddOption; call supplied a <parameter>dest</parameter>
+      keyword argument, a string with that name is what to pass
+      as the argument to &f-GetOption;, otherwise it is a
+      (possibly modified) version of the first long option name -
+      see &f-link-AddOption;.
 
       </para>
 
@@ -272,7 +285,7 @@ if not GetOption('help'):
 
       You can also set the values of &SCons;
       command-line options from within the &SConscript; files
-      by using the &SetOption; function.
+      by using the &f-link-SetOption; function.
       The strings that you use to set the values of &SCons;
       command-line options are available in the
       <xref linkend="sect-command-line-option-strings"></xref> section,
@@ -283,17 +296,17 @@ if not GetOption('help'):
       <para>
 
       One use of the &SetOption; function is to
-      specify a value for the <literal>-j</literal>
-      or <literal>--jobs</literal> option,
+      specify a value for the <option>-j</option>
+      or <option>--jobs</option> option,
       so that users get the improved performance
       of a parallel build without having to specify the option by hand.
       A complicating factor is that a good value
-      for the <literal>-j</literal> option is
+      for the <option>-j</option> option is
       somewhat system-dependent.
       One rough guideline is that the more processors
       your system has,
       the higher you want to set the
-      <literal>-j</literal> value,
+      <option>-j</option> value,
       in order to take advantage of the number of CPUs.
 
       </para>
@@ -303,7 +316,7 @@ if not GetOption('help'):
       For example, suppose the administrators
       of your development systems
       have standardized on setting a
-      <varname>NUM_CPU</varname> environment variable
+      <envar>NUM_CPU</envar> environment variable
       to the number of processors on each system.
       A little bit of Python code
       to access the environment variable
@@ -317,7 +330,7 @@ if not GetOption('help'):
 import os
 num_cpu = int(os.environ.get('NUM_CPU', 2))
 SetOption('num_jobs', num_cpu)
-print("running with -j %s"%GetOption('num_jobs'))
+print("running with -j %s" % GetOption('num_jobs'))
         </file>
         <file name="foo.in">
 foo.in
@@ -327,16 +340,16 @@ foo.in
       <para>
 
       The above snippet of code
-      sets the value of the <literal>--jobs</literal> option
+      sets the value of the <option>--jobs</option> option
       to the value specified in the
-      <varname>$NUM_CPU</varname> environment variable.
+      <varname>NUM_CPU</varname> environment variable.
       (This is one of the exception cases
       where the string is spelled differently from
       the from command-line option.
-      The string for fetching or setting the <literal>--jobs</literal>
-      value is <literal>num_jobs</literal>
+      The string for fetching or setting the <option>--jobs</option>
+      value is <parameter>num_jobs</parameter>
       for historical reasons.)
-      The code in this example prints the <literal>num_jobs</literal>
+      The code in this example prints the <parameter>num_jobs</parameter>
       value for illustrative purposes.
       It uses a default value of <literal>2</literal>
       to provide some minimal parallelism even on
@@ -350,7 +363,7 @@ foo.in
 
       <para>
 
-      But if the <varname>$NUM_CPU</varname>
+      But if the <envar>NUM_CPU</envar>
       environment variable is set,
       then we use that for the default number of jobs:
 
@@ -364,10 +377,10 @@ foo.in
       <para>
 
       But any explicit
-      <literal>-j</literal> or <literal>--jobs</literal>
+      <option>-j</option> or <option>--jobs</option>
       value the user specifies an the command line is used first,
       regardless of whether or not
-      the <varname>$NUM_CPU</varname> environment
+      the <envar>NUM_CPU</envar> environment
       variable is set:
 
       </para>
@@ -385,12 +398,19 @@ foo.in
 
       <para>
 
-      The strings that you can pass to the &GetOption;
-      and &SetOption; functions usually correspond to the
+      The strings that you can pass to the &f-link-GetOption;
+      and &f-link-SetOption; functions usually correspond to the
       first long-form option name
       (beginning with two hyphen characters:  <literal>--</literal>),
       after replacing any remaining hyphen characters
       with underscores.
+
+      </para>
+
+      <para>
+
+      &SetOption; is not currently supported for
+      options added with &AddOption;.
 
       </para>
 
@@ -597,7 +617,7 @@ foo.in
       <para>
 
       &SCons; also allows you to define your own
-      command-line options with the &AddOption; function.
+      command-line options with the &f-link-AddOption; function.
       The &AddOption; function takes the same arguments
       as the <function>add_option</function> method
       from the standard Python library module <emphasis>optparse</emphasis>.
@@ -614,15 +634,28 @@ foo.in
       Once you have added a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
-      using the standard &GetOption; function.
+      using the standard &f-link-GetOption; function.
+      The argument to &f-GetOption; must be the name of the
+      variable which will hold the option,
+      which is the value of the <parameter>dest</parameter>
+      keyword parameter, if given. If not given, it is the name
+      (without the leading hyphens) of the first long option name
+      given to &AddOption;
+      after replacing any remaining hyphen characters
+      with underscores, since hyphens are not legal in Python
+      identifier names.
+
+      </para>
+
+      <para>
+      &SetOption; is not currently supported for
+      options added with &AddOption;.
       <!--
       (The value can also be set using &SetOption;,
       although that's not very useful in practice
       because a default value can be specified in
       directly in the &AddOption; call.)
       -->
-      &SetOption; is not currently supported for
-      options added with &AddOption;.
       </para>
 
       <para>
@@ -634,15 +667,17 @@ foo.in
 
       <scons_example name="commandline_AddOption">
         <file name="SConstruct" printme="1">
-AddOption('--prefix',
-          dest='prefix',
-          type='string',
-          nargs=1,
-          action='store',
-          metavar='DIR',
-          help='installation prefix')
+AddOption(
+    '--prefix',
+    dest='prefix',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='installation prefix',
+)
 
-env = Environment(PREFIX = GetOption('prefix'))
+env = Environment(PREFIX=GetOption('prefix'))
 
 installed_foo = env.Install('$PREFIX/usr/bin', 'foo.in')
 Default(installed_foo)
@@ -655,14 +690,14 @@ foo.in
       <para>
 
       The above code uses the &GetOption; function
-      to set the <varname>$PREFIX</varname>
+      to set the <envar>$PREFIX</envar>
       construction variable to any
       value that the user specifies with a command-line
-      option of <literal>--prefix</literal>.
-      Because <varname>$PREFIX</varname>
+      option of <option>--prefix</option>.
+      Because <envar>$PREFIX</envar>
       will expand to a null string if it's not initialized,
       running &SCons; without the
-      option of <literal>--prefix</literal>
+      option of <option>--prefix</option>
       will install the file in the
       <filename>/usr/bin/</filename> directory:
 
@@ -674,7 +709,7 @@ foo.in
 
       <para>
 
-      But specifying <literal>--prefix=/tmp/install</literal>
+      But specifying <option>--prefix=/tmp/install</option>
       on the command line causes the file to be installed in the
       <filename>/tmp/install/usr/bin/</filename> directory:
 
@@ -688,13 +723,13 @@ foo.in
       <para>
       Option-arguments separated from long options by whitespace,
       rather than by an <literal>=</literal>, cannot be correctly
-      resolved by <command>scons</command>.
-      While <literal>--input=ARG</literal>
-      is clearly opt followed by arg, for <literal>--input ARG</literal>
+      resolved by &SCons;.
+      While <option>--input=ARG</option>
+      is clearly opt followed by arg, for <option>--input ARG</option>
       it is not possible to tell without instructions whether
       <parameter>ARG</parameter> is an argument belonging to the
       <parameter>input</parameter> option or a positional argument.
-      <command>scons</command> treats positional arguments as either
+      &SCons; treats positional arguments as either
       command-line build options or command-line targets
       which are made available for use in an &SConscript;
       (see the immediately following sections for details).
@@ -702,21 +737,21 @@ foo.in
       takes place. Since &AddOption; calls, which provide
       the processing instructions to resolve any ambiguity,
       happen in an &SConscript;,
-      <command>scons</command> does not know in time
+      &SCons; does not know in time
       for options added this way, and unexpected things will happen,
       such as option-arguments assigned as targets and/or exceptions
       due to missing option-arguments.
       </para>
       <para>
       As a result, this usage style should be avoided when invoking
-      <command>scons</command>.  For single-argument
-      options, use the <literal>--input=ARG</literal> form on the
+      &scons;.  For single-argument
+      options, use the <option>--input=ARG</option> form on the
       command line. For multiple-argument options
       (<parameter>nargs</parameter> greater than one),
       set <parameter>nargs</parameter> to one in
       &AddOption; calls and either: combine the option-arguments into one word
       with a separator, and parse the result in your own code
-      (see the built-in <parameter>--debug</parameter> option, which
+      (see the built-in <option>--debug</option> option, which
       allows specifying multiple arguments as a single comma-separated
       word, for an example of such usage); or allow the option to
       be specified multiple times by setting
@@ -730,13 +765,13 @@ foo.in
   </section>
 
   <section id="sect-command-line-variables">
-  <title>Command-Line <varname>variable</varname>=<varname>value</varname> Build Variables</title>
+  <title>Command-Line <varname>variable</varname>=<replaceable>value</replaceable> Build Variables</title>
 
     <para>
 
     You may want to control various aspects
     of your build by allowing the user
-    to specify <varname>variable</varname>=<varname>value</varname>
+    to specify <varname>variable</varname>=<replaceable>value</replaceable>
     values on the command line.
     For example, suppose you
     want users to be able to
@@ -753,7 +788,7 @@ foo.in
 
     &SCons; provides an &ARGUMENTS; dictionary
     that stores all of the
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<replaceable>value</replaceable>
     assignments from the command line.
     This allows you to modify
     aspects of your build in response
@@ -762,8 +797,7 @@ foo.in
     that users <emphasis>always</emphasis>
     specify a variable,
     you probably want to use
-    the Python
-    <literal>ARGUMENTS.get()</literal> function,
+    the Python dictionary <methodname>get</methodname> method,
     which allows you to specify a default value
     to be used if there is no specification
     on the command line.)
@@ -783,7 +817,7 @@ foo.in
 env = Environment()
 debug = ARGUMENTS.get('debug', 0)
 if int(debug):
-    env.Append(CCFLAGS = '-g')
+    env.Append(CCFLAGS='-g')
 env.Program('prog.c')
        </file>
        <file name="prog.c">
@@ -813,7 +847,7 @@ prog.c
     the last values used to build the object files,
     and as a result correctly rebuilds
     the object and executable files
-    only when the value of the <literal>debug</literal>
+    only when the value of the <parameter>debug</parameter>
     argument has changed.
 
     </para>
@@ -845,7 +879,7 @@ prog.c
     To accomodate these requirements,
     &SCons; provides an &ARGLIST; variable
     that gives you direct access to
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<replaceable>value</replaceable>
     settings on the command line,
     in the exact order they were specified,
     and without removing any duplicate settings.
@@ -873,7 +907,7 @@ cppdefines = []
 for key, value in ARGLIST:
     if key == 'define':
         cppdefines.append(value)
-env = Environment(CPPDEFINES = cppdefines)
+env = Environment(CPPDEFINES=cppdefines)
 env.Object('prog.c')
        </file>
        <file name="prog.c">
@@ -898,7 +932,7 @@ prog.c
     variables do not interfere with each other,
     but merely provide slightly different views
     into how the user specified
-    <varname>variable</varname>=<varname>value</varname>
+    <varname>variable</varname>=<replaceable>value</replaceable>
     settings on the command line.
     You can use both variables in the same
     &SCons; configuration.
@@ -943,8 +977,7 @@ prog.c
       a program for release,
       and that the value of this variable
       should be added to the command line
-      with the appropriate <literal>-D</literal> option
-      (or other command line option)
+      with the appropriate define
       to pass the value to the C compiler.
       Here's how you might do that by setting
       the appropriate value in a dictionary for the
@@ -955,9 +988,8 @@ prog.c
       <scons_example name="commandline_Variables1">
         <file name="SConstruct" printme="1">
 vars = Variables(None, ARGUMENTS)
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add('RELEASE', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program(['foo.c', 'bar.c'])
         </file>
         <file name="foo.c">
@@ -975,11 +1007,8 @@ bar.c
       (the <literal>vars = Variables(None, ARGUMENTS)</literal> call).
       It then uses the object's &Add;
       method to indicate that the &RELEASE;
-      variable can be set on the command line,
-      and that its default value will be <literal>0</literal>
-      (the third argument to the &Add; method).
-      The second argument is a line of help text;
-      we'll learn how to use it in the next section.
+      variable can be set on the command line, and that
+      if not set the default value will be <literal>0</literal>.
 
       </para>
 
@@ -1003,18 +1032,19 @@ bar.c
 
       <para>
 
-      NOTE:  Before &SCons; release 0.98.1, these build variables
-      were known as "command-line build options."
-      The class was actually named the &Options; class,
-      and in the sections below,
-      the various functions were named
+      Historical note:  In old &SCons; (prior to 0.98.1),
+      these build variables were known as "command-line build options."
+      The class was named the &Options; class,
+      and the predefined functions to construct options were named
       &BoolOption;, &EnumOption;, &ListOption;,
-      &PathOption;, &PackageOption; and &AddOptions;.
-      These older names still work,
-      and you may encounter them in older
-      &SConscript; files,
-      but they have been officially deprecated
-      as of &SCons; version 2.0.
+      &PathOption;, &PackageOption; and &AddOptions; (contrast
+      with the current names in "Pre-Defined Build Variable Functions"
+      below.  You may encounter these names in older
+      &SConscript; files, wiki pages, blog entries, StackExchange
+      articles, etc.
+      These old names no longer work, but a mental substitution
+      of <quote>Variable</quote>" for <quote>Option</quote>
+      will let the concepts transfer to current usage models.
 
       </para>
 
@@ -1032,12 +1062,17 @@ bar.c
       when the user runs <literal>scons -h</literal>.
       You could write this text by hand,
       but &SCons; provides an easier way.
-      &Variables; objects support a
+      Variables objects support a
       &GenerateHelpText; method
       that will, as its name suggests,
       generate text that describes
       the various variables that
-      have been added to it.
+      have been added to it. The default text includes
+      the help string itself plus other information
+      such as allowed values.
+      (The generated text can also be customized by
+      replacing the <methodname>FormatVariableHelpText</methodname>
+      method).
       You then pass the output from this method to
       the &Help; function:
 
@@ -1046,8 +1081,8 @@ bar.c
       <scons_example name="commandline_Variables_Help">
         <file name="SConstruct" printme="1">
 vars = Variables(None, ARGUMENTS)
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars)
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars)
 Help(vars.GenerateHelpText(env))
         </file>
       </scons_example>
@@ -1055,7 +1090,7 @@ Help(vars.GenerateHelpText(env))
       <para>
 
       &SCons; will now display some useful text
-      when the <literal>-h</literal> option is used:
+      when the <option>-h</option> option is used:
 
       </para>
 
@@ -1093,9 +1128,8 @@ Help(vars.GenerateHelpText(env))
       <scons_example name="commandline_Variables_custom_py_1">
         <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program(['foo.c', 'bar.c'])
 Help(vars.GenerateHelpText(env))
         </file>
@@ -1139,12 +1173,11 @@ RELEASE = 1
 
       <scons_example name="commandline_Variables_custom_py_2">
         <file name="SConstruct">
-   vars = Variables('custom.py')
-   vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-   env = Environment(variables = vars,
-                     CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
-   env.Program(['foo.c', 'bar.c'])
-   Help(vars.GenerateHelpText(env))
+vars = Variables('custom.py')
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
+env.Program(['foo.c', 'bar.c'])
+Help(vars.GenerateHelpText(env))
         </file>
         <file name="foo.c">
 foo.c
@@ -1195,6 +1228,8 @@ vars = Variables('custom.py', ARGUMENTS)
       &SCons; provides a number of functions
       that provide ready-made behaviors
       for various types of command-line build variables.
+      These functions all return a tuple which is ready
+      to be passed to an &Add; call.
 
       </para>
 
@@ -1230,9 +1265,8 @@ vars = Variables('custom.py', ARGUMENTS)
         <scons_example name="commandline_BoolVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(BoolVariable('RELEASE', 'Set to build for release', 0))
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add(BoolVariable('RELEASE', help='Set to build for release', default=0))
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1312,7 +1346,7 @@ foo.c
       </section>
 
       <section>
-      <title>Single Value From a List:  the &EnumVariable; Build Variable Function</title>
+      <title>Single Value From a Selection:  the &EnumVariable; Build Variable Function</title>
 
         <para>
 
@@ -1334,11 +1368,17 @@ foo.c
         <scons_example name="commandline_EnumVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue')))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(
+    EnumVariable(
+        'COLOR',
+        help='Set background color',
+        default='red',
+        allowed_values=('red', 'green', 'blue'),
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
+Help(vars.GenerateHelpText(env))
           </file>
           <file name="foo.c">
 foo.c
@@ -1373,6 +1413,20 @@ foo.c
 
         <para>
 
+        This example can also serve to further illustrate help
+        generation: the help message here picks up not only the
+        <parameter>help</parameter> text, but augments it with
+        information gathered from <parameter>allowed_values</parameter>
+        and <parameter>default</parameter>:
+
+        </para>
+
+        <scons_output example="commandline_EnumVariable" suffix="3">
+          <scons_output_command>scons -Q -h</scons_output_command>
+        </scons_output>
+
+        <para>
+
         The &EnumVariable; function also supports a way
         to map alternate names to allowed values.
         Suppose, for example,
@@ -1388,11 +1442,16 @@ foo.c
         <scons_example name="EnumVariable_map">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue'),
-                    map={'navy':'blue'}))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(
+    EnumVariable(
+        'COLOR',
+        help='Set background color',
+        default='red',
+        allowed_values=('red', 'green', 'blue'),
+        map={'navy': 'blue'},
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1424,7 +1483,7 @@ foo.c
 
         </para>
 
-        <scons_output example="commandline_EnumVariable" suffix="3">
+        <scons_output example="commandline_EnumVariable" suffix="4">
           <scons_output_command>scons -Q COLOR=Red foo.o</scons_output_command>
           <scons_output_command>scons -Q COLOR=BLUE foo.o</scons_output_command>
           <scons_output_command>scons -Q COLOR=nAvY foo.o</scons_output_command>
@@ -1443,12 +1502,17 @@ foo.c
         <scons_example name="commandline_EnumVariable_ic1">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue'),
-                    map={'navy':'blue'},
-                    ignorecase=1))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(
+    EnumVariable(
+        'COLOR',
+        help='Set background color',
+        default='red',
+        allowed_values=('red', 'green', 'blue'),
+        map={'navy': 'blue'},
+        ignorecase=1,
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1483,12 +1547,17 @@ foo.c
         <scons_example name="commandline_EnumVariable_ic2">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(EnumVariable('COLOR', 'Set background color', 'red',
-                    allowed_values=('red', 'green', 'blue'),
-                    map={'navy':'blue'},
-                    ignorecase=2))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLOR' : '"${COLOR}"'})
+vars.Add(
+    EnumVariable(
+        'COLOR',
+        help='Set background color',
+        default='red',
+        allowed_values=('red', 'green', 'blue'),
+        map={'navy': 'blue'},
+        ignorecase=2,
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'COLOR': '"${COLOR}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1532,10 +1601,12 @@ foo.c
         <scons_example name="commandline_ListVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(ListVariable('COLORS', 'List of colors', 0,
-                    ['red', 'green', 'blue']))
-env = Environment(variables = vars,
-                  CPPDEFINES={'COLORS' : '"${COLORS}"'})
+vars.Add(
+    ListVariable(
+        'COLORS', help='List of colors', default=0, names=['red', 'green', 'blue']
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'COLORS': '"${COLORS}"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1583,6 +1654,29 @@ foo.c
           <scons_output_command>scons -Q COLORS=magenta foo.o</scons_output_command>
         </scons_output>
 
+        <para>
+
+        You can use this last characteristic as a way to enforce at least
+        one of your valid options being chosen by specifying the valid
+        values with the <parameter>names</parameter> parameter and then
+        giving a value not in that list as the <parameter>default</parameter>
+        parameter - that way if no value is given on the command line,
+        the default is chosen, and it will error out with an invalid value.
+        The example is, in fact, set up that way by using
+        <literal>0</literal> as the default:
+
+        </para>
+
+        <scons_output example="commandline_ListVariable" suffix="4">
+          <scons_output_command>scons -Q foo.o</scons_output_command>
+        </scons_output>
+
+        <para>
+
+        This technique works for &EnumVariable; as well.
+
+        </para>
+
       </section>
 
       <section>
@@ -1603,11 +1697,12 @@ foo.c
         <scons_example name="commandline_PathVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(PathVariable('CONFIG',
-                    'Path to configuration file',
-                    '__ROOT__/etc/my_config'))
-env = Environment(variables = vars,
-                  CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+vars.Add(
+    PathVariable(
+        'CONFIG', help='Path to configuration file', default='__ROOT__/etc/my_config'
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'CONFIG_FILE': '"$CONFIG"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1623,7 +1718,7 @@ foo.c
 
         <para>
 
-        This then allows the user to
+        This allows you to
         override the &CONFIG; build variable
         on the command line as necessary:
 
@@ -1652,19 +1747,22 @@ foo.c
         that you can use to change this behavior.
         If you want to ensure that any specified paths are,
         in fact, files and not directories,
-        use the &PathVariable_PathIsFile; method:
+        use the &PathVariable_PathIsFile; method as the validation function:
 
         </para>
 
         <scons_example name="commandline_PathIsFile">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(PathVariable('CONFIG',
-                    'Path to configuration file',
-                    '__ROOT__/etc/my_config',
-                    PathVariable.PathIsFile))
-env = Environment(variables = vars,
-                  CPPDEFINES={'CONFIG_FILE' : '"$CONFIG"'})
+vars.Add(
+    PathVariable(
+        'CONFIG',
+        help='Path to configuration file',
+        default='__ROOT__/etc/my_config',
+        validator=PathVariable.PathIsFile,
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'CONFIG_FILE': '"$CONFIG"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1679,19 +1777,22 @@ foo.c
 
         Conversely, to ensure that any specified paths are
         directories and not files,
-        use the &PathVariable_PathIsDir; method:
+        use the &PathVariable_PathIsDir; method as the validation function:
 
         </para>
 
         <scons_example name="commandline_PathIsDir">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(PathVariable('DBDIR',
-                    'Path to database directory',
-                    '__ROOT__/var/my_dbdir',
-                    PathVariable.PathIsDir))
-env = Environment(variables = vars,
-                  CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+vars.Add(
+    PathVariable(
+        'DBDIR',
+        help='Path to database directory',
+        default='__ROOT__/var/my_dbdir',
+        validator=PathVariable.PathIsDir,
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'DBDIR': '"$DBDIR"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1708,19 +1809,22 @@ foo.c
         are directories,
         and you would like the directory created
         if it doesn't already exist,
-        use the &PathVariable_PathIsDirCreate; method:
+        use the &PathVariable_PathIsDirCreate; method as the validation function:
 
         </para>
 
         <scons_example name="commandline_PathIsDirCreate">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(PathVariable('DBDIR',
-                    'Path to database directory',
-                    '__ROOT__/var/my_dbdir',
-                    PathVariable.PathIsDirCreate))
-env = Environment(variables = vars,
-                  CPPDEFINES={'DBDIR' : '"$DBDIR"'})
+vars.Add(
+    PathVariable(
+        'DBDIR',
+        help='Path to database directory',
+        default='__ROOT__/var/my_dbdir',
+        validator=PathVariable.PathIsDirCreate,
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'DBDIR': '"$DBDIR"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1743,12 +1847,15 @@ foo.c
         <scons_example name="commandline_PathAccept">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(PathVariable('OUTPUT',
-                    'Path to output file or directory',
-                    None,
-                    PathVariable.PathAccept))
-env = Environment(variables = vars,
-                  CPPDEFINES={'OUTPUT' : '"$OUTPUT"'})
+vars.Add(
+    PathVariable(
+        'OUTPUT',
+        help='Path to output file or directory',
+        default=None,
+        validator=PathVariable.PathAccept,
+    )
+)
+env = Environment(variables=vars, CPPDEFINES={'OUTPUT': '"$OUTPUT"'})
 env.Program('foo.c')
           </file>
           <file name="foo.c">
@@ -1777,13 +1884,12 @@ foo.c
 
         <scons_example name="commandline_PackageVariable">
           <file name="SConstruct" printme="1">
-vars = Variables('custom.py')
-vars.Add(PackageVariable('PACKAGE',
-                       'Location package',
-                       '__ROOT__/opt/location'))
-env = Environment(variables = vars,
-                  CPPDEFINES={'PACKAGE' : '"$PACKAGE"'})
-env.Program('foo.c')
+vars = Variables("custom.py")
+vars.Add(
+    PackageVariable("PACKAGE", help="Location package", default="__ROOT__/opt/location")
+)
+env = Environment(variables=vars, CPPDEFINES={"PACKAGE": '"$PACKAGE"'})
+env.Program("foo.c")
           </file>
           <file name="foo.c">
 foo.c
@@ -1798,8 +1904,8 @@ foo.c
 
         <para>
 
-        When the &SConscript; file uses the &PackageVariable; funciton,
-        user can now still use the default
+        When the &SConscript; file uses the &PackageVariable; function,
+        the user can still use the default
         or supply an overriding path name,
         but can now explicitly set the
         specified variable to a value
@@ -1828,16 +1934,17 @@ foo.c
       Lastly, &SCons; provides a way to add
       multiple build variables to a &Variables; object at once.
       Instead of having to call the &Add; method
-      multiple times,
-      you can call the &AddVariables;
-      method with a list of build variables
-      to be added to the object.
+      multiple times, you can call the &AddVariables;
+      method with the build variables to be added to the object.
       Each build variable is specified
       as either a tuple of arguments,
-      just like you'd pass to the &Add; method itself,
       or as a call to one of the pre-defined
-      functions for pre-packaged command-line build variables.
-      in any order:
+      functions for pre-packaged command-line build variables,
+      which returns such a tuple. Note that an individual tuple
+      cannot take keyword arguments in the way that a call to
+      &Add; or one of the build variable functions can.
+      The order of variables given to &AddVariables; does not
+      matter.
 
       </para>
 
@@ -1847,18 +1954,25 @@ vars = Variables()
 vars.AddVariables(
     ('RELEASE', 'Set to 1 to build for release', 0),
     ('CONFIG', 'Configuration file', '/etc/my_config'),
-    BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
-    EnumVariable('debug', 'debug output and symbols', 'no',
-               allowed_values=('yes', 'no', 'full'),
-               map={}, ignorecase=0),  # case sensitive
+    BoolVariable('warnings',
+                 help='compilation with -Wall and similiar',
+                 default=1),
+    EnumVariable('debug',
+                 help='debug output and symbols',
+                 default='no',
+                 allowed_values=('yes', 'no', 'full'),
+                 map={},
+                 ignorecase=0),
     ListVariable('shared',
-               'libraries to build as shared libraries',
-               'all',
-               names = list_of_libs),
+                 help='libraries to build as shared libraries',
+                 default='all',
+                 names = list_of_libs),
     PackageVariable('x11',
-                  'use X11 installed here (yes = search some places)',
-                  'yes'),
-    PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
+                    help='use X11 installed here (yes = search some places)',
+                    default='yes'),
+    PathVariable('qtdir',
+                 help='where the root of Qt is installed',
+                 default=qtdir),
 )
         </file>
       </scons_example>
@@ -1905,12 +2019,11 @@ vars.AddVariables(
       <scons_example name="commandline_UnknownVariables">
         <file name="SConstruct" printme="1">
 vars = Variables(None)
-vars.Add('RELEASE', 'Set to 1 to build for release', 0)
-env = Environment(variables = vars,
-                  CPPDEFINES={'RELEASE_BUILD' : '${RELEASE}'})
+vars.Add('RELEASE', help='Set to 1 to build for release', default=0)
+env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 unknown = vars.UnknownVariables()
 if unknown:
-    print("Unknown variables: %s"%unknown.keys())
+    print("Unknown variables: %s" % " ".join(unknown.keys()))
     Exit(1)
 env.Program('foo.c')
         </file>
@@ -1927,12 +2040,12 @@ foo.c
       that are <emphasis>not</emphasis>
       among the variables known to the &Variables; object
       (from having been specified using
-      the &Variables; object's&Add; method).
-      In the examble above,
+      the &Variables; object's &Add; method).
+      In the example above,
       we check for whether the dictionary
-      returned by the &UnknownVariables; is non-empty,
+      returned by &UnknownVariables; is non-empty,
       and if so print the Python list
-      containing the names of the unknwown variables
+      containing the names of the unknown variables
       and then call the &Exit; function
       to terminate &SCons;:
 
@@ -1959,8 +2072,9 @@ foo.c
       Note that you must delay the call of &UnknownVariables;
       until after you have applied the &Variables; object
       to a construction environment
-      with the <literal>variables=</literal>
-      keyword argument of an &Environment; call.
+      with the <parameter>variables=</parameter>
+      keyword argument of an &Environment; call: the variables
+      in the object are not fully processed until this has happened.
 
       </para>
 
@@ -2202,7 +2316,7 @@ int bar() { printf("prog2/bar.c\n"); }
 
       Lastly, if for some reason you don't want
       any targets built by default,
-      you can use the Python <literal>None</literal>
+      you can use the Python <constant>None</constant>
       variable:
 
       </para>
@@ -2269,7 +2383,7 @@ prog1.c
         &DEFAULT_TARGETS; list takes place during the
         first phase when &SCons; is reading up the &SConscript; files,
         which is obvious if
-        we leave off the <literal>-Q</literal> flag when we run &SCons;:)
+        we leave off the <option>-Q</option> flag when we run &SCons;:)
 
         </para>
 
@@ -2384,7 +2498,7 @@ else:
 prog1 = Program('prog1.c')
 Program('prog2.c')
 Default(prog1)
-print ("BUILD_TARGETS is %s" % [str(t) for t in BUILD_TARGETS])
+print("BUILD_TARGETS is %s" % [str(t) for t in BUILD_TARGETS])
         </file>
         <file name="prog1.c">
 prog1.c

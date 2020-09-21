@@ -8,8 +8,6 @@
 # etc. so that you can diff trees without having to ignore changes in
 # version lines.
 #
-from __future__ import print_function
-
 import difflib
 import getopt
 import os.path

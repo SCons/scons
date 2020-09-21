@@ -1,0 +1,10 @@
+# Packages needed for development, packaging, and distribution, but not for running SCons
+
+# This will check if the README.rst will render o.k. on pypi and not block an upload
+# Can be used with twinecheck
+# See: https://github.com/pypa/readme_renderer
+readme-renderer
+sphinx
+sphinx_rtd_theme
+lxml==4.5.0
+rst2pdf

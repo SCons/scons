@@ -20,7 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
@@ -31,8 +30,6 @@ test = TestSCons.TestSCons()
 
 test.subdir('SCons')
 test.write(['SCons','Script.py'], """
-from __future__ import print_function
-
 def main ():
     print("SCons.Script")
 """)

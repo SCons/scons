@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="ar">
+<summary>
+<para>
+Sets construction variables for the &ar; library archiver.
+</para>
+</summary>
+<sets>
+<item>AR</item>
+<item>ARFLAGS</item>
+<item>ARCOM</item>
+<item>LIBPREFIX</item>
+<item>LIBSUFFIX</item>
+<item>RANLIB</item>
+<item>RANLIBFLAGS</item>
+<item>RANLIBCOM</item>
+</sets>
+<uses>
+</uses>
+</tool>
+
+<cvar name="AR">
+<summary>
+<para>
+The static library archiver.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ARCOM">
+<summary>
+<para>
+The command line used to generate a static library from object files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="ARCOMSTR">
+<summary>
+<para>
+The string displayed when a static library is
+generated from object files.
+If this is not set, then &cv-link-ARCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(ARCOMSTR = "Archiving $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="ARFLAGS">
+<summary>
+<para>
+General options passed to the static library archiver.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RANLIB">
+<summary>
+<para>
+The archive indexer.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RANLIBCOM">
+<summary>
+<para>
+The command line used to index a static library archive.
+</para>
+</summary>
+</cvar>
+
+<cvar name="RANLIBCOMSTR">
+<summary>
+<para>
+The string displayed when a static library archive is indexed.
+If this is not set, then &cv-link-RANLIBCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(RANLIBCOMSTR = "Indexing $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="RANLIBFLAGS">
+<summary>
+<para>
+General options passed to the archive indexer.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

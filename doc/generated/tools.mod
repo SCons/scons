@@ -20,6 +20,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-cc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cc</literal>">
 <!ENTITY t-clang "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>clang</literal>">
 <!ENTITY t-clangxx "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>clangxx</literal>">
+<!ENTITY t-compilation_db "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>compilation_db</literal>">
 <!ENTITY t-cvf "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cvf</literal>">
 <!ENTITY t-cXX "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cXX</literal>">
 <!ENTITY t-cyglink "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cyglink</literal>">
@@ -78,11 +79,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-mwcc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>mwcc</literal>">
 <!ENTITY t-mwld "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>mwld</literal>">
 <!ENTITY t-nasm "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>nasm</literal>">
-<!ENTITY t-Packaging "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Packaging</literal>">
 <!ENTITY t-packaging "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>packaging</literal>">
+<!ENTITY t-Packaging "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Packaging</literal>">
 <!ENTITY t-pdf "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdf</literal>">
 <!ENTITY t-pdflatex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdflatex</literal>">
 <!ENTITY t-pdftex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>pdftex</literal>">
+<!ENTITY t-python "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>python</literal>">
 <!ENTITY t-qt "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>qt</literal>">
 <!ENTITY t-rmic "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</literal>">
 <!ENTITY t-rpcgen "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>rpcgen</literal>">
@@ -107,12 +109,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-zip "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>zip</literal>">
 
 <!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
 
-<!--
-
-  Entities that are links to the tool entries in the appendix.
+  Entities that are links to the tool entries
 
 -->
 
@@ -128,6 +126,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-cc "<link linkend='t-cc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cc</literal></link>">
 <!ENTITY t-link-clang "<link linkend='t-clang' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>clang</literal></link>">
 <!ENTITY t-link-clangxx "<link linkend='t-clangxx' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>clangxx</literal></link>">
+<!ENTITY t-link-compilation_db "<link linkend='t-compilation_db' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>compilation_db</literal></link>">
 <!ENTITY t-link-cvf "<link linkend='t-cvf' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cvf</literal></link>">
 <!ENTITY t-link-cXX "<link linkend='t-cXX' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cXX</literal></link>">
 <!ENTITY t-link-cyglink "<link linkend='t-cyglink' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>cyglink</literal></link>">
@@ -186,11 +185,12 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-mwcc "<link linkend='t-mwcc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>mwcc</literal></link>">
 <!ENTITY t-link-mwld "<link linkend='t-mwld' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>mwld</literal></link>">
 <!ENTITY t-link-nasm "<link linkend='t-nasm' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>nasm</literal></link>">
-<!ENTITY t-link-Packaging "<link linkend='t-Packaging' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>Packaging</literal></link>">
 <!ENTITY t-link-packaging "<link linkend='t-packaging' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>packaging</literal></link>">
+<!ENTITY t-link-Packaging "<link linkend='t-Packaging' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>Packaging</literal></link>">
 <!ENTITY t-link-pdf "<link linkend='t-pdf' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdf</literal></link>">
 <!ENTITY t-link-pdflatex "<link linkend='t-pdflatex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdflatex</literal></link>">
 <!ENTITY t-link-pdftex "<link linkend='t-pdftex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>pdftex</literal></link>">
+<!ENTITY t-link-python "<link linkend='t-python' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>python</literal></link>">
 <!ENTITY t-link-qt "<link linkend='t-qt' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>qt</literal></link>">
 <!ENTITY t-link-rmic "<link linkend='t-rmic' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rmic</literal></link>">
 <!ENTITY t-link-rpcgen "<link linkend='t-rpcgen' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>rpcgen</literal></link>">
@@ -213,7 +213,3 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-xgettext "<link linkend='t-xgettext' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>xgettext</literal></link>">
 <!ENTITY t-link-yacc "<link linkend='t-yacc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>yacc</literal></link>">
 <!ENTITY t-link-zip "<link linkend='t-zip' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>zip</literal></link>">
-
-<!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->

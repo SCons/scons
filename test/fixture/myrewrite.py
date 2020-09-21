@@ -10,7 +10,7 @@ import sys
 if __name__ == '__main__':
     line = ('/*' + sys.argv[1] + '*/\n').encode()
     with open(sys.argv[2], 'rb') as ifp:
-        lines = [ln for ln in ifp.readlines() if ln != line]
+        lines = [ln for ln in ifp if ln != line]
     with open(sys.argv[2], 'wb') as ofp:
         for ln in lines:
             ofp.write(ln)

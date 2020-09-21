@@ -9,7 +9,7 @@ if [ "$base" != "engine" ]; then
    exit
 fi
 
-DEVDIR=../../doc/developer
+DEVDIR=../doc/developer
 if [ ! -d $DEVDIR ]; then
    mkdir $DEVDIR
 fi

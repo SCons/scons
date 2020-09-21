@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="mssdk">
+<summary>
+<para>
+Sets variables for Microsoft Platform SDK and/or Windows SDK.
+Note that unlike most other Tool modules,
+mssdk does not set construction variables,
+but sets the <emphasis>environment variables</emphasis>
+in the environment &SCons; uses to execute
+the Microsoft toolchain:
+<literal>%INCLUDE%</literal>,
+<literal>%LIB%</literal>,
+<literal>%LIBPATH%</literal> and
+<literal>%PATH%</literal>.
+</para>
+</summary>
+<sets>
+</sets>
+<uses>
+<item>MSSDK_DIR</item>
+<item>MSSDK_VERSION</item>
+<item>MSVS_VERSION</item>
+</uses>
+</tool>
+
+<cvar name="MSSDK_DIR">
+<summary>
+<para>
+The directory containing the Microsoft SDK
+(either Platform SDK or Windows SDK)
+to be used for compilation.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MSSDK_VERSION">
+<summary>
+<para>
+The version string of the Microsoft SDK
+(either Platform SDK or Windows SDK)
+to be used for compilation.
+Supported versions include
+<literal>6.1</literal>,
+<literal>6.0A</literal>,
+<literal>6.0</literal>,
+<literal>2003R2</literal>
+and 
+<literal>2003R1</literal>.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

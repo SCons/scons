@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="midl">
+<summary>
+<para>
+Sets construction variables for the Microsoft IDL compiler.
+</para>
+</summary>
+<sets>
+<item>MIDL</item>
+<item>MIDLFLAGS</item>
+<item>MIDLCOM</item>
+</sets>
+<uses>
+<item>MIDLCOMSTR</item>
+</uses>
+</tool>
+
+<builder name="TypeLibrary">
+<summary>
+<para>
+Builds a Windows type library (<filename>.tlb</filename>)
+file from an input IDL file (<filename>.idl</filename>).
+In addition, it will build the associated interface stub and
+proxy source files,
+naming them according to the base name of the <filename>.idl</filename> file.
+For example,
+</para>
+
+<example_commands>
+env.TypeLibrary(source="foo.idl")
+</example_commands>
+
+<para>
+Will create <filename>foo.tlb</filename>,
+<filename>foo.h</filename>,
+<filename>foo_i.c</filename>,
+<filename>foo_p.c</filename>
+and
+<filename>foo_data.c</filename>
+files.
+</para>
+</summary>
+</builder>
+
+<cvar name="MIDL">
+<summary>
+<para>
+The Microsoft IDL compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MIDLCOM">
+<summary>
+<para>
+The command line used to pass files to the Microsoft IDL compiler.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MIDLCOMSTR">
+<summary>
+<para>
+The string displayed when
+the Microsoft IDL compiler is called.
+If this is not set, then &cv-link-MIDLCOM; (the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MIDLFLAGS">
+<summary>
+<para>
+General options passed to the Microsoft IDL compiler.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

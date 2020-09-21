@@ -36,27 +36,33 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-env = Environment(tools=[], FOO = 'fff', BAR = 'bbb')
+env = Environment(tools=[], FOO='fff', BAR='bbb')
 print(Dir('ddd'))
 print(Dir('$FOO'))
 print(Dir('${BAR}_$BAR'))
+rv = Dir(['mmm', 'nnn'])
+rv_msg = [node.path for node in rv]
+print(rv_msg)
 print(env.Dir('eee'))
 print(env.Dir('$FOO'))
 print(env.Dir('${BAR}_$BAR'))
+rv = env.Dir(['ooo', 'ppp'])
+rv_msg = [node.path for node in rv]
+print(rv_msg)
 """)
 
-test.run(stdout = test.wrap_stdout(read_str = """\
+test.run(stdout=test.wrap_stdout(read_str="""\
 ddd
 $FOO
 ${BAR}_$BAR
+['mmm', 'nnn']
 eee
 fff
 bbb_bbb
-""", build_str = """\
+['ooo', 'ppp']
+""", build_str="""\
 scons: `.' is up to date.
 """))
-
-
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
@@ -66,7 +72,7 @@ def my_mkdir(target=None, source=None, env=None):
 
 MDBuilder = Builder(action=my_mkdir, target_factory=Dir)
 env = Environment(tools=[])
-env.Append(BUILDERS = {'MD':MDBuilder})
+env.Append(BUILDERS={'MD': MDBuilder})
 env.MD(target='sub1', source=['SConstruct'])
 env.MD(target='sub2', source=['SConstruct'], OVERRIDE='foo')
 """)

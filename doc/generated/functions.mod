@@ -25,11 +25,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clone</function>">
 <!ENTITY f-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
 <!ENTITY f-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Configure</function>">
-<!ENTITY f-Copy "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Copy</function>">
 <!ENTITY f-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Decider</function>">
 <!ENTITY f-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Default</function>">
 <!ENTITY f-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultEnvironment</function>">
 <!ENTITY f-Depends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Depends</function>">
+<!ENTITY f-Detect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Detect</function>">
 <!ENTITY f-Dictionary "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dictionary</function>">
 <!ENTITY f-Dir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dir</function>">
 <!ENTITY f-Dump "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Dump</function>">
@@ -80,7 +80,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetDefault</function>">
 <!ENTITY f-SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SetOption</function>">
 <!ENTITY f-SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SideEffect</function>">
-<!ENTITY f-SourceCode "<function xmlns='http://www.scons.org/dbxsd/v1.0'>SourceCode</function>">
 <!ENTITY f-Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Split</function>">
 <!ENTITY f-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>subst</function>">
 <!ENTITY f-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
@@ -106,11 +105,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Clone</function>">
 <!ENTITY f-env-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Command</function>">
 <!ENTITY f-env-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Configure</function>">
-<!ENTITY f-env-Copy "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Copy</function>">
 <!ENTITY f-env-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Decider</function>">
 <!ENTITY f-env-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Default</function>">
 <!ENTITY f-env-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DefaultEnvironment</function>">
 <!ENTITY f-env-Depends "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Depends</function>">
+<!ENTITY f-env-Detect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Detect</function>">
 <!ENTITY f-env-Dictionary "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Dictionary</function>">
 <!ENTITY f-env-Dir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Dir</function>">
 <!ENTITY f-env-Dump "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Dump</function>">
@@ -161,7 +160,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-SetDefault "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SetDefault</function>">
 <!ENTITY f-env-SetOption "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SetOption</function>">
 <!ENTITY f-env-SideEffect "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SideEffect</function>">
-<!ENTITY f-env-SourceCode "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.SourceCode</function>">
 <!ENTITY f-env-Split "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Split</function>">
 <!ENTITY f-env-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.subst</function>">
 <!ENTITY f-env-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Tag</function>">
@@ -171,12 +169,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-WhereIs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.WhereIs</function>">
 
 <!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->
 
-<!--
-
-  Entities that are links to the function entries in the appendix.
+  Entities that are links to the function entries
 
 -->
 
@@ -197,11 +191,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Clone "<link linkend='f-Clone' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Clone</function></link>">
 <!ENTITY f-link-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Command</function></link>">
 <!ENTITY f-link-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Configure</function></link>">
-<!ENTITY f-link-Copy "<link linkend='f-Copy' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Copy</function></link>">
 <!ENTITY f-link-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Decider</function></link>">
 <!ENTITY f-link-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Default</function></link>">
 <!ENTITY f-link-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DefaultEnvironment</function></link>">
 <!ENTITY f-link-Depends "<link linkend='f-Depends' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Depends</function></link>">
+<!ENTITY f-link-Detect "<link linkend='f-Detect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Detect</function></link>">
 <!ENTITY f-link-Dictionary "<link linkend='f-Dictionary' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Dictionary</function></link>">
 <!ENTITY f-link-Dir "<link linkend='f-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Dir</function></link>">
 <!ENTITY f-link-Dump "<link linkend='f-Dump' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Dump</function></link>">
@@ -252,7 +246,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-SetDefault "<link linkend='f-SetDefault' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SetDefault</function></link>">
 <!ENTITY f-link-SetOption "<link linkend='f-SetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SetOption</function></link>">
 <!ENTITY f-link-SideEffect "<link linkend='f-SideEffect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SideEffect</function></link>">
-<!ENTITY f-link-SourceCode "<link linkend='f-SourceCode' xmlns='http://www.scons.org/dbxsd/v1.0'><function>SourceCode</function></link>">
 <!ENTITY f-link-Split "<link linkend='f-Split' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Split</function></link>">
 <!ENTITY f-link-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>subst</function></link>">
 <!ENTITY f-link-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Tag</function></link>">
@@ -278,11 +271,11 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Clone "<link linkend='f-Clone' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Clone</function></link>">
 <!ENTITY f-link-env-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Command</function></link>">
 <!ENTITY f-link-env-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Configure</function></link>">
-<!ENTITY f-link-env-Copy "<link linkend='f-Copy' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Copy</function></link>">
 <!ENTITY f-link-env-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Decider</function></link>">
 <!ENTITY f-link-env-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Default</function></link>">
 <!ENTITY f-link-env-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DefaultEnvironment</function></link>">
 <!ENTITY f-link-env-Depends "<link linkend='f-Depends' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Depends</function></link>">
+<!ENTITY f-link-env-Detect "<link linkend='f-Detect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Detect</function></link>">
 <!ENTITY f-link-env-Dictionary "<link linkend='f-Dictionary' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Dictionary</function></link>">
 <!ENTITY f-link-env-Dir "<link linkend='f-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Dir</function></link>">
 <!ENTITY f-link-env-Dump "<link linkend='f-Dump' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Dump</function></link>">
@@ -333,7 +326,6 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-SetDefault "<link linkend='f-SetDefault' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SetDefault</function></link>">
 <!ENTITY f-link-env-SetOption "<link linkend='f-SetOption' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SetOption</function></link>">
 <!ENTITY f-link-env-SideEffect "<link linkend='f-SideEffect' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SideEffect</function></link>">
-<!ENTITY f-link-env-SourceCode "<link linkend='f-SourceCode' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.SourceCode</function></link>">
 <!ENTITY f-link-env-Split "<link linkend='f-Split' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Split</function></link>">
 <!ENTITY f-link-env-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.subst</function></link>">
 <!ENTITY f-link-env-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Tag</function></link>">
@@ -341,7 +333,3 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Value "<link linkend='f-Value' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Value</function></link>">
 <!ENTITY f-link-env-VariantDir "<link linkend='f-VariantDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.VariantDir</function></link>">
 <!ENTITY f-link-env-WhereIs "<link linkend='f-WhereIs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.WhereIs</function></link>">
-
-<!--
-THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
--->

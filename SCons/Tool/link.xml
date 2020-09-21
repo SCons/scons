@@ -1,0 +1,399 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="link">
+<summary>
+<para>
+Sets construction variables for generic POSIX linkers. This is
+a "smart" linker tool which selects a compiler to complete the linking
+based on the types of source files.
+</para>
+</summary>
+<sets>
+<item>LINK</item>
+<item>LINKFLAGS</item>
+<item>LINKCOM</item>
+<item>LIBDIRPREFIX</item>
+<item>LIBDIRSUFFIX</item>
+<item>LIBLINKPREFIX</item>
+<item>LIBLINKSUFFIX</item>
+<item>SHLINK</item>
+<item>SHLINKFLAGS</item>
+<item>SHLINKCOM</item>
+<item>SHLIBSUFFIX</item>
+<item>__SHLIBVERSIONFLAGS</item>
+<item>LDMODULE</item>
+<item>LDMODULEPREFIX</item>
+<item>LDMODULESUFFIX</item>
+<item>LDMODULEFLAGS</item>
+<item>LDMODULECOM</item>
+<item>LDMODULEVERSION</item>
+<item>LDMODULENOVERSIONSYMLINKS</item>
+<item>LDMODULEVERSIONFLAGS</item>
+<item>__LDMODULEVERSIONFLAGS</item>
+</sets>
+<uses>
+<item>LINKCOMSTR</item>
+<item>SHLINKCOMSTR</item>
+<item>LDMODULECOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="__LDMODULEVERSIONFLAGS">
+<summary>
+<para>
+This construction variable automatically introduces &cv-link-_LDMODULEVERSIONFLAGS;
+if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
+</para>
+</summary>
+</cvar>
+
+<cvar name="__SHLIBVERSIONFLAGS">
+<summary>
+<para>
+This construction variable automatically introduces &cv-link-_SHLIBVERSIONFLAGS;
+if &cv-link-SHLIBVERSION; is set. Othervise it evaluates to an empty string.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_LDMODULESONAME">
+<summary>
+<para>
+A macro that automatically generates loadable module's SONAME based on $TARGET,
+$LDMODULEVERSION and $LDMODULESUFFIX. Used by &b-link-LoadableModule; builder
+when the linker tool supports SONAME (e.g. &t-link-gnulink;).
+</para>
+</summary>
+</cvar>
+
+<cvar name="_LDMODULEVERSIONFLAGS">
+<summary>
+<para>
+This macro automatically introduces extra flags to &cv-link-LDMODULECOM; when
+building versioned &b-link-LoadableModule; (that is when
+&cv-link-LDMODULEVERSION; is set). <literal>_LDMODULEVERSIONFLAGS</literal>
+usually adds &cv-link-SHLIBVERSIONFLAGS; and some extra dynamically generated
+options (such as <literal>-Wl,-soname=$_LDMODULESONAME</literal>).  It is unused
+by plain (unversioned) loadable modules.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_SHLIBVERSIONFLAGS">
+<summary>
+<para>
+This macro automatically introduces extra flags to &cv-link-SHLINKCOM; when
+building versioned &b-link-SharedLibrary; (that is when &cv-link-SHLIBVERSION;
+is set). <literal>_SHLIBVERSIONFLAGS</literal> usually adds &cv-link-SHLIBVERSIONFLAGS;
+and some extra dynamically generated options (such as
+<literal>-Wl,-soname=$_SHLIBSONAME</literal>. It is unused by "plain"
+(unversioned) shared libraries.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_SHLIBSONAME">
+<summary>
+<para>
+A macro that automatically generates shared library's SONAME based on $TARGET,
+$SHLIBVERSION and $SHLIBSUFFIX. Used by &b-link-SharedLibrary; builder when
+the linker tool supports SONAME (e.g. &t-link-gnulink;).
+</para>
+</summary>
+</cvar>
+
+<cvar name="IMPLIBPREFIX">
+<summary>
+<para>
+The prefix used for import library names. For example, cygwin uses import
+libraries (<literal>libfoo.dll.a</literal>) in pair with dynamic libraries
+(<literal>cygfoo.dll</literal>). The &t-link-cyglink; linker sets
+&cv-link-IMPLIBPREFIX; to <literal>'lib'</literal> and &cv-link-SHLIBPREFIX;
+to <literal>'cyg'</literal>.
+</para>
+</summary>
+</cvar>
+
+<cvar name="IMPLIBSUFFIX">
+<summary>
+<para>
+The suffix used for import library names. For example, cygwin uses import
+libraries (<literal>libfoo.dll.a</literal>) in pair with dynamic libraries
+(<literal>cygfoo.dll</literal>). The &t-link-cyglink; linker sets
+&cv-link-IMPLIBSUFFIX; to <literal>'.dll.a'</literal> and &cv-link-SHLIBSUFFIX;
+to <literal>'.dll'</literal>.
+</para>
+</summary>
+</cvar>
+
+<cvar name="IMPLIBNOVERSIONSYMLINKS">
+<summary>
+<para>
+Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when 
+creating versioned import library for a shared library/loadable module. If not defined,
+then &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; is used to determine
+whether to disable symlink generation or not.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULE">
+<summary>
+<para>
+The linker for building loadable modules.
+By default, this is the same as &cv-link-SHLINK;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULECOM">
+<summary>
+<para>
+The command line for building loadable modules.
+On Mac OS X, this uses the &cv-link-LDMODULE;,
+&cv-link-LDMODULEFLAGS; and
+&cv-link-FRAMEWORKSFLAGS; variables.
+On other systems, this is the same as &cv-link-SHLINK;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULECOMSTR">
+<summary>
+<para>
+If set, the string displayed when building loadable modules.
+If not set, then &cv-link-LDMODULECOM; (the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULEFLAGS">
+<summary>
+<para>
+General user options passed to the linker for building loadable modules.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULENOVERSIONSYMLINKS">
+<summary>
+<para>
+Instructs the &b-link-LoadableModule; builder to not automatically create symlinks
+for versioned modules. Defaults to <literal>$SHLIBNOVERSIONSYMLINKS</literal>
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULEPREFIX">
+<summary>
+<para>
+The prefix used for loadable module file names.
+On Mac OS X, this is null;
+on other systems, this is
+the same as &cv-link-SHLIBPREFIX;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULESUFFIX">
+<summary>
+<para>
+The suffix used for loadable module file names.
+On Mac OS X, this is null;
+on other systems, this is
+the same as $SHLIBSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LDMODULEVERSIONFLAGS">
+<summary>
+<para>
+Extra flags added to &cv-link-LDMODULECOM; when building versioned
+&b-link-LoadableModule;. These flags are only used when &cv-link-LDMODULEVERSION; is
+set.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LINK">
+<summary>
+<para>
+The linker.
+See also &cv-link-SHLINK; for linking shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LINKCOM">
+<summary>
+<para>
+The command line used to link object files into an executable.
+See also &cv-link-SHLINKCOM; for linking shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LINKCOMSTR">
+<summary>
+<para>
+If set, the string displayed when object files
+are linked into an executable.
+If not set, then &cv-link-LINKCOM; (the command line) is displayed.
+See also &cv-link-SHLINKCOMSTR;.  for linking shared objects.
+</para>
+
+<example_commands>
+env = Environment(LINKCOMSTR = "Linking $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="LINKFLAGS">
+<summary>
+<para>
+General user options passed to the linker.
+Note that this variable should
+<emphasis>not</emphasis>
+contain
+<option>-l</option>
+(or similar) options for linking with the libraries listed in &cv-link-LIBS;,
+nor
+<option>-L</option>
+(or similar) library search path options
+that scons generates automatically from &cv-link-LIBPATH;.
+See
+&cv-link-_LIBFLAGS;
+above,
+for the variable that expands to library-link options,
+and
+&cv-link-_LIBDIRFLAGS;
+above,
+for the variable that expands to library search path options.
+See also &cv-link-SHLINKFLAGS;.  for linking shared objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLIBNOVERSIONSYMLINKS">
+<summary>
+<para>
+Instructs the &b-link-SharedLibrary; builder to not create symlinks for versioned
+shared libraries.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLIBVERSIONFLAGS">
+<summary>
+<para>
+Extra flags added to &cv-link-SHLINKCOM; when building versioned
+&b-link-SharedLibrary;. These flags are only used when &cv-link-SHLIBVERSION; is
+set.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLINK">
+<summary>
+<para>
+The linker for programs that use shared libraries.
+See also &cv-link-LINK; for linking static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLINKCOM">
+<summary>
+<para>
+The command line used to link programs using shared libraries.
+See also &cv-link-LINKCOM; for linking static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLINKCOMSTR">
+<summary>
+<para>
+The string displayed when programs using shared libraries are linked.
+If this is not set, then &cv-link-SHLINKCOM; (the command line) is displayed.
+See also &cv-link-LINKCOMSTR;  for linking static objects.
+</para>
+
+<example_commands>
+env = Environment(SHLINKCOMSTR = "Linking shared $TARGET")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="SHLINKFLAGS">
+<summary>
+<para>
+General user options passed to the linker for programs using shared libraries.
+Note that this variable should
+<emphasis>not</emphasis>
+contain
+<option>-l</option>
+(or similar) options for linking with the libraries listed in &cv-link-LIBS;,
+nor
+<option>-L</option>
+(or similar) include search path options
+that scons generates automatically from &cv-link-LIBPATH;.
+See
+&cv-link-_LIBFLAGS;
+above,
+for the variable that expands to library-link options,
+and
+&cv-link-_LIBDIRFLAGS;
+above,
+for the variable that expands to library search path options.
+See also &cv-link-LINKFLAGS;  for linking static objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SONAME">
+<summary>
+<para>
+Variable used to hard-code SONAME for versioned shared library/loadable module.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
+</example_commands>
+The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+</summary>
+</cvar>
+
+<cvar name="STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME">
+  <summary>
+    <para>
+      When this variable is true, static objects and shared objects are assumed to be the same; that is, SCons does not check for linking static objects into a shared library.
+    </para>
+  </summary>
+</cvar>
+
+
+</sconsdoc>

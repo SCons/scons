@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="f08">
+<summary>
+<para>
+Set construction variables for generic POSIX Fortran 08 compilers.
+</para>
+</summary>
+<sets>
+<item>F08</item>
+<item>F08FLAGS</item>
+<item>F08COM</item>
+<item>F08PPCOM</item>
+<item>SHF08</item>
+<item>SHF08FLAGS</item>
+<item>SHF08COM</item>
+<item>SHF08PPCOM</item>
+<item>_F08INCFLAGS</item>
+</sets>
+<uses>
+<item>F08COMSTR</item>
+<item>F08PPCOMSTR</item>
+<item>SHF08COMSTR</item>
+<item>SHF08PPCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="F08">
+<summary>
+<para>
+The Fortran 08 compiler.
+You should normally set the &cv-link-FORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-link-F08; if you need to use a specific compiler
+or compiler version for Fortran 08 files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08COM">
+<summary>
+<para>
+The command line used to compile a Fortran 08 source file to an object file.
+You only need to set &cv-link-F08COM; if you need to use a specific
+command line for Fortran 08 files.
+You should normally set the &cv-link-FORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08COMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 08 source file
+is compiled to an object file.
+If not set, then &cv-link-F08COM; or &cv-link-FORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08FILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the F08 dialect will be used. By
+default, this is ['.f08']
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08PPFILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the compilation + preprocessor pass for
+F08 dialect will be used. By default, this is empty
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08FLAGS">
+<summary>
+<para>
+General user-specified options that are passed to the Fortran 08 compiler.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include search path options
+that scons generates automatically from &cv-link-F08PATH;.
+See
+&cv-link-_F08INCFLAGS;
+below,
+for the variable that expands to those options.
+You only need to set &cv-link-F08FLAGS; if you need to define specific
+user options for Fortran 08 files.
+You should normally set the &cv-link-FORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_F08INCFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the Fortran 08 compiler command-line options
+for specifying directories to be searched for include files.
+The value of &cv-link-_F08INCFLAGS; is created
+by appending &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+to the beginning and end
+of each directory in &cv-link-F08PATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08PATH">
+<summary>
+<para>
+The list of directories that the Fortran 08 compiler will search for include
+directories. The implicit dependency scanner will search these
+directories for include files. Don't explicitly put include directory
+arguments in &cv-link-F08FLAGS; because the result will be non-portable
+and the directories will not be searched by the dependency scanner. Note:
+directory names in &cv-link-F08PATH; will be looked-up relative to the SConscript
+directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+You only need to set &cv-link-F08PATH; if you need to define a specific
+include path for Fortran 08 files.
+You should normally set the &cv-link-FORTRANPATH; variable,
+which specifies the include path
+for the default Fortran compiler
+for all Fortran versions.
+</para>
+
+<example_commands>
+env = Environment(F08PATH='#/include')
+</example_commands>
+
+<para>
+The directory look-up can also be forced using the
+&Dir;()
+function:
+</para>
+
+<example_commands>
+include = Dir('include')
+env = Environment(F08PATH=include)
+</example_commands>
+
+<para>
+The directory list will be added to command lines
+through the automatically-generated
+&cv-link-_F08INCFLAGS;
+construction variable,
+which is constructed by
+appending the values of the
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-link-F08PATH;.
+Any command lines you define that need
+the F08PATH directory list should
+include &cv-link-_F08INCFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(F08COM="my_compiler $_F08INCFLAGS -c -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="F08PPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran 08 source file to an object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-link-F08FLAGS; and &cv-link-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-link-F08PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 08 files.
+You should normally set the &cv-link-FORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="F08PPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 08 source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-F08PPCOM; or &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF08">
+<summary>
+<para>
+The Fortran 08 compiler used for generating shared-library objects.
+You should normally set the &cv-link-SHFORTRAN; variable,
+which specifies the default Fortran compiler
+for all Fortran versions.
+You only need to set &cv-link-SHF08; if you need to use a specific compiler
+or compiler version for Fortran 08 files.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF08COM">
+<summary>
+<para>
+The command line used to compile a Fortran 08 source file
+to a shared-library object file.
+You only need to set &cv-link-SHF08COM; if you need to use a specific
+command line for Fortran 08 files.
+You should normally set the &cv-link-SHFORTRANCOM; variable,
+which specifies the default command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF08COMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 08 source file
+is compiled to a shared-library object file.
+If not set, then &cv-link-SHF08COM; or &cv-link-SHFORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF08FLAGS">
+<summary>
+<para>
+Options that are passed to the Fortran 08 compiler
+to generated shared-library objects.
+You only need to set &cv-link-SHF08FLAGS; if you need to define specific
+user options for Fortran 08 files.
+You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+which specifies the user-specified options
+passed to the default Fortran compiler
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF08PPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran 08 source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified in the &cv-link-SHF08FLAGS; and &cv-link-CPPFLAGS; construction variables
+are included on this command line.
+You only need to set &cv-link-SHF08PPCOM; if you need to use a specific
+C-preprocessor command line for Fortran 08 files.
+You should normally set the &cv-link-SHFORTRANPPCOM; variable,
+which specifies the default C-preprocessor command line
+for all Fortran versions.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHF08PPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran 08 source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-SHF08PPCOM; or &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

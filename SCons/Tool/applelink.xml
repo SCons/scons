@@ -1,0 +1,254 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+        <!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+        %scons;
+        <!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+        %builders-mod;
+        <!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+        %functions-mod;
+        <!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+        %tools-mod;
+        <!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+        %variables-mod;
+        ]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+    <tool name="applelink">
+        <summary>
+            <para>
+                Sets construction variables for the Apple linker
+                (similar to the GNU linker).
+            </para>
+        </summary>
+        <sets>
+            <item>FRAMEWORKPATHPREFIX</item>
+            <item>_FRAMEWORKPATH</item>
+            <item>_FRAMEWORKS</item>
+            <item>LINKCOM</item>
+            <item>SHLINKFLAGS</item>
+            <item>SHLINKCOM</item>
+            <item>LDMODULEPREFIX</item>
+            <item>LDMODULESUFFIX</item>
+            <item>LDMODULEFLAGS</item>
+            <item>LDMODULECOM</item>
+            <item>APPLELINK_CURRENT_VERSION</item>
+            <item>APPLELINK_COMPATIBILITY_VERSION</item>
+            <item>APPLELINK_NO_CURRENT_VERSION</item>
+            <item>APPLELINK_NO_COMPATIBILITY_VERSION</item>
+            <item>_APPLELINK_CURRENT_VERSION</item>
+            <item>_APPLELINK_COMPATIBILITY_VERSION</item>
+        </sets>
+        <uses>
+            <item>FRAMEWORKSFLAGS</item>
+        </uses>
+    </tool>
+
+
+    <cvar name="APPLELINK_COMPATIBILITY_VERSION">
+        <summary>
+            <para>
+                On Mac OS X this is used to set the linker flag:
+
+                -compatibility_version
+            </para>
+            <para>
+                The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
+                255, Z can be omitted or between 1 and 255. This value will be derived from &cv-link-SHLIBVERSION; if
+                not
+                specified. The lowest digit will be dropped and replaced by a 0.
+            </para>
+            <para>
+                If the &cv-link-APPLELINK_NO_COMPATIBILITY_VERSION; is set then no -compatibility_version will be
+                output.
+            </para>
+            <para>See MacOS's ld manpage for more details</para>
+        </summary>
+    </cvar>
+
+    <cvar name="APPLELINK_NO_COMPATIBILITY_VERSION">
+        <summary>
+            <para>
+                Set this to any True (1|True|non-empty string) value to disable adding -compatibility_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para>
+                This overrides &cv-link-APPLELINK_COMPATIBILITY_VERSION;.
+            </para>
+        </summary>
+    </cvar>
+
+
+    <cvar name="_APPLELINK_COMPATIBILITY_VERSION">
+        <summary>
+            <para>
+                A macro (by default a generator function) used to create the linker flags to specify
+                apple's linker's -compatibility_version flag.
+                The default generator uses &cv-link-APPLELINK_COMPATIBILITY_VERSION;
+                and &cv-link-APPLELINK_NO_COMPATIBILITY_VERSION; and  &cv-link-SHLIBVERSION;
+                to determine the correct flag.
+            </para>
+        </summary>
+    </cvar>
+
+
+    <cvar name="APPLELINK_CURRENT_VERSION">
+        <summary>
+            <para>
+                On Mac OS X this is used to set the linker flag:
+
+                -current_version
+            </para>
+            <para>
+                The value is specified as X[.Y[.Z]] where X is between 1 and 65535, Y can be omitted or between 1 and
+                255, Z can be omitted or between 1 and 255. This value will be set to &cv-link-SHLIBVERSION; if not
+                specified.
+            </para>
+            <para>
+                If the &cv-link-APPLELINK_NO_CURRENT_VERSION; is set then no -current_version will be
+                output.
+            </para>
+            <para>See MacOS's ld manpage for more details</para>
+
+        </summary>
+    </cvar>
+
+
+    <cvar name="APPLELINK_NO_CURRENT_VERSION">
+        <summary>
+            <para>
+                Set this to any True (1|True|non-empty string) value to disable adding -current_version flag when
+                generating versioned shared libraries.
+            </para>
+            <para>
+                This overrides &cv-link-APPLELINK_CURRENT_VERSION;.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="_APPLELINK_CURRENT_VERSION">
+        <summary>
+            <para>
+                A macro (by default a generator function) used to create the linker flags to specify apple's linker's
+                -current_version flag.  The default generator uses &cv-link-APPLELINK_CURRENT_VERSION; and
+                &cv-link-APPLELINK_NO_CURRENT_VERSION; and  &cv-link-SHLIBVERSION; to determine the correct flag.
+            </para>
+        </summary>
+    </cvar>
+
+
+    <cvar name="FRAMEWORKSFLAGS">">
+        <summary>
+            <para>
+                On Mac OS X with gcc,
+                general user-supplied frameworks options to be added at
+                the end of a command
+                line building a loadable module.
+                (This has been largely superseded by
+                the &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKPATHPREFIX;,
+                &cv-link-FRAMEWORKPREFIX; and &cv-link-FRAMEWORKS; variables
+                described above.)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="FRAMEWORKS">
+        <summary>
+            <para>
+                On Mac OS X with gcc, a list of the framework names to be linked into a
+                program or shared library or bundle.
+                The default value is the empty list.
+                For example:
+            </para>
+
+            <example_commands>
+env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
+            </example_commands>
+
+        </summary>
+    </cvar>
+
+    <cvar name="FRAMEWORKPREFIX">
+        <summary>
+            <para>
+                On Mac OS X with gcc,
+                the prefix to be used for linking in frameworks
+                (see &cv-link-FRAMEWORKS;).
+                The default value is
+                <option>-framework</option>.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="_FRAMEWORKS">
+        <summary>
+            <para>
+                On Mac OS X with gcc,
+                an automatically-generated construction variable
+                containing the linker command-line options
+                for linking with FRAMEWORKS.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="FRAMEWORKPATH">
+        <summary>
+            <para>
+                On Mac OS X with gcc,
+                a list containing the paths to search for frameworks.
+                Used by the compiler to find framework-style includes like
+                #include &lt;Fmwk/Header.h&gt;.
+                Used by the linker to find user-specified frameworks when linking (see
+                &cv-link-FRAMEWORKS;).
+                For example:
+            </para>
+
+            <example_commands>
+env.AppendUnique(FRAMEWORKPATH='#myframeworkdir')
+            </example_commands>
+
+            <para>
+                will add
+            </para>
+
+            <example_commands>
+... -Fmyframeworkdir
+            </example_commands>
+
+            <para>
+                to the compiler and linker command lines.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="FRAMEWORKPATHPREFIX">
+        <summary>
+            <para>
+                On Mac OS X with gcc, the prefix to be used for the FRAMEWORKPATH entries.
+                (see &cv-link-FRAMEWORKPATH;).
+                The default value is
+                <option>-F</option>.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="_FRAMEWORKPATH">
+        <summary>
+            <para>
+                On Mac OS X with gcc, an automatically-generated construction variable
+                containing the linker command-line options corresponding to
+                &cv-link-FRAMEWORKPATH;.
+            </para>
+        </summary>
+    </cvar>
+
+</sconsdoc>

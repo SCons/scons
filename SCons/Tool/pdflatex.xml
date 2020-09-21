@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="pdflatex">
+<summary>
+<para>
+Sets construction variables for the &pdflatex; utility.
+</para>
+</summary>
+<sets>
+<item>PDFLATEX</item>
+<item>PDFLATEXFLAGS</item>
+<item>PDFLATEXCOM</item>
+<item>LATEXRETRIES</item>
+</sets>
+<uses>
+<item>PDFLATEXCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="PDFLATEX">
+<summary>
+<para>
+The &pdflatex; utility.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PDFLATEXCOM">
+<summary>
+<para>
+The command line used to call the &pdflatex; utility.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PDFLATEXCOMSTR">
+<summary>
+<para>
+The string displayed when calling the &pdflatex; utility.
+If this is not set, then &cv-link-PDFLATEXCOM; (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(PDFLATEX;COMSTR = "Building $TARGET from LaTeX input $SOURCES")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="PDFLATEXFLAGS">
+<summary>
+<para>
+General options passed to the &pdflatex; utility.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<cvar name="ESCAPE">
+<summary>
+<para>
+A function that will be called to escape shell special characters in
+command lines. The function should take one argument: the command line
+string to escape; and should return the escaped command line.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBPREFIX">
+<summary>
+<para>
+The prefix used for (static) library file names.
+A default value is set for each platform
+(posix, win32, os2, etc.),
+but the value is overridden by individual tools
+(ar, mslib, sgiar, sunar, tlib, etc.)
+to reflect the names of the libraries they create.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBPREFIXES">
+<summary>
+<para>
+A list of all legal prefixes for library file names.
+When searching for library dependencies,
+SCons will look for files with these prefixes,
+the base library name,
+and suffixes in the &cv-LIBSUFFIXES; list.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBSUFFIX">
+<summary>
+<para>
+The suffix used for (static) library file names.
+A default value is set for each platform
+(posix, win32, os2, etc.),
+but the value is overridden by individual tools
+(ar, mslib, sgiar, sunar, tlib, etc.)
+to reflect the names of the libraries they create.
+</para>
+</summary>
+</cvar>
+
+<cvar name="LIBSUFFIXES">
+<summary>
+<para>
+A list of all legal suffixes for library file names.
+When searching for library dependencies,
+SCons will look for files with prefixes, in the &cv-LIBPREFIXES; list,
+the base library name,
+and these suffixes.
+</para>
+</summary>
+</cvar>
+
+<cvar name="OBJPREFIX">
+<summary>
+<para>
+The prefix used for (static) object file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="OBJSUFFIX">
+<summary>
+<para>
+The suffix used for (static) object file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PLATFORM">
+<summary>
+<para>
+The name of the platform used to create the Environment.  If no platform is
+specified when the Environment is created,
+&scons;
+autodetects the platform.
+</para>
+
+<example_commands>
+env = Environment(tools = [])
+if env['PLATFORM'] == 'cygwin':
+    Tool('mingw')(env)
+else:
+    Tool('msvc')(env)
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="HOST_OS">
+    <summary>
+<para>
+        The name of the host operating system used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </summary>
+</cvar>
+
+<cvar name="HOST_ARCH">
+    <summary>
+<para>
+        The name of the host hardware architecture used to create the Environment.
+        If a platform is specified when creating the Environment, then
+        that Platform's logic will handle setting this value.
+        This value is immutable, and should not be changed by the user after
+        the Environment is initialized.
+        Currently only set for Win32.
+</para>
+    </summary>
+</cvar>
+
+<cvar name="TARGET_OS">
+    <summary>
+<para>
+        The name of the target operating system for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_OS, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </summary>
+</cvar>
+
+<cvar name="TARGET_ARCH">
+    <summary>
+<para>
+        The name of the target hardware architecture for the compiled objects
+        created by this Environment.
+        This defaults to the value of HOST_ARCH, and the user can override it.
+        Currently only set for Win32.
+</para>
+    </summary>
+</cvar>
+
+
+<cvar name="PROGPREFIX">
+<summary>
+<para>
+The prefix used for executable file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="PROGSUFFIX">
+<summary>
+<para>
+The suffix used for executable file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHELL">
+<summary>
+<para>
+A string naming the shell program that will be passed to the
+&cv-SPAWN;
+function.
+See the
+&cv-SPAWN;
+construction variable for more information.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLIBPREFIX">
+<summary>
+<para>
+The prefix used for shared library file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHLIBSUFFIX">
+<summary>
+<para>
+The suffix used for shared library file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHOBJPREFIX">
+<summary>
+<para>
+The prefix used for shared object file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHOBJSUFFIX">
+<summary>
+<para>
+The suffix used for shared object file names.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEMPFILEPREFIX">
+<summary>
+<para>
+The prefix for a temporary file used
+to store lines lines longer than $MAXLINELENGTH
+as operations which call out to a shell will fail
+if the line is too long, which particularly
+impacts linking.
+The default is '@', which works for the Microsoft
+and GNU toolchains on Windows.
+Set this appropriately for other toolchains,
+for example '-@' for the diab compiler
+or '-via' for ARM toolchain.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEMPFILESUFFIX">
+<summary>
+<para>
+The suffix used for the temporary file name
+used for long command lines. The name should
+include the dot ('.') if one is wanted as
+it will not be added automatically.
+The default is '.lnk'.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEMPFILEARGJOIN">
+<summary>
+<para>
+The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by &cv-MAXLINELENGTH;.
+The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
+Note this value is used literally and not expanded by the subst logic.
+</para>
+</summary>
+</cvar>
+
+<cvar name="TEMPFILEDIR">
+<summary>
+<para>
+The directory to create the tempfile in.
+</para>
+</summary>
+</cvar>
+</sconsdoc>

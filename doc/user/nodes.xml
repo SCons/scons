@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -299,7 +299,7 @@ int main() { printf("Hello, world!\n"); }
     the <literal>object_list[0]</literal>
     extracts an actual Node <emphasis>object</emphasis>
     from the list,
-    and the Python <literal>print</literal> statement
+    and the Python <function>print</function> function
     converts the object to a string for printing.
 
     </para>

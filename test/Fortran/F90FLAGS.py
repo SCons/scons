@@ -34,7 +34,7 @@ test = TestSCons.TestSCons()
 _exe = TestSCons._exe
 
 test.file_fixture('mylink.py')
-test.file_fixture(os.path.join('fixture', 'myfortran_flags.py'))
+test.file_fixture(['fixture', 'myfortran_flags.py'])
 
 test.write('SConstruct', """
 env = Environment(LINK = r'%(_python_)s mylink.py',

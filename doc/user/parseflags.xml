@@ -46,7 +46,7 @@
 
  <para>
 
- &SCons; has a bewildering array of construction variables
+ &SCons; has a bewildering array of &consvars;
  for different types of options when building programs.
  Sometimes you may not know exactly which variable
  should be used for a particular option.
@@ -55,10 +55,10 @@
 
  <para>
 
- &SCons; construction environments have a &ParseFlags; method
+ &SCons; &consenvs; have a &f-link-env-ParseFlags; method
  that takes a set of typical command-line options
  and distributes them into the appropriate construction variables.
- Historically, it was created to support the &ParseConfig; method,
+ Historically, it was created to support the &f-link-env-ParseConfig; method,
  so it focuses on options used by the GNU Compiler Collection (GCC)
  for the C and C++ toolchains.
 
@@ -68,7 +68,7 @@
 
  &ParseFlags; returns a dictionary containing the options
  distributed into their respective construction variables.
- Normally, this dictionary would be passed to &MergeFlags;
+ Normally, this dictionary would then be passed to &MergeFlags;
  to merge the options into a &consenv;,
  but the dictionary can be edited if desired to provide
  additional functionality.
@@ -80,14 +80,13 @@
 
  <scons_example name="parseflags_ex1">
    <file name="SConstruct" printme="1">
-from __future__ import print_function
 env = Environment()
 d = env.ParseFlags("-I/opt/include -L/opt/lib -lfoo")
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
         print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
 int main() { return 0; }
@@ -120,17 +119,16 @@ int main() { return 0; }
 
  <scons_example name="parseflags_ex2">
    <file name="SConstruct" printme="1">
-from __future__ import print_function
 env = Environment()
 d = env.ParseFlags("-whatever")
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
         print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
- int main() { return 0; }
+void main() { return 0; }
    </file>
  </scons_example>
 
@@ -147,17 +145,16 @@ env.Program('f1.c')
 
  <scons_example name="parseflags_ex3">
    <file name="SConstruct" printme="1">
-from __future__ import print_function
 env = Environment()
 d = env.ParseFlags(["-I/opt/include", ["-L/opt/lib", "-lfoo"]])
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
         print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
-int main() { return 0; }
+void main() { return 0; }
    </file>
  </scons_example>
 
@@ -167,7 +164,8 @@ int main() { return 0; }
 
  <para>
 
- If a string begins with a "!" (an exclamation mark, often called a bang),
+ If a string begins with a an exclamation mark (<literal>!</literal>,
+ sometimes also called a bang),
  the string is passed to the shell for execution.
  The output of the command is then parsed:
 
@@ -175,17 +173,16 @@ int main() { return 0; }
 
  <scons_example name="parseflags_ex4">
    <file name="SConstruct" printme="1">
-from __future__ import print_function
 env = Environment()
 d = env.ParseFlags(["!echo -I/opt/include", "!echo -L/opt/lib", "-lfoo"])
-for k,v in sorted(d.items()):
+for k, v in sorted(d.items()):
     if v:
         print(k, v)
 env.MergeFlags(d)
-env.Program('f1.c')
+env.Program("f1.c")
    </file>
    <file name="f1.c">
-int main() { return 0; }
+void main() { return 0; }
    </file>
  </scons_example>
 

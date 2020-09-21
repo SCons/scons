@@ -1,0 +1,8 @@
+recursive-include SCons/Tool/docbook *
+
+# For license file
+include LICENSE
+
+
+
+

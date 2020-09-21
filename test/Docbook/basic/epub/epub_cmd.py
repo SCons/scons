@@ -38,10 +38,10 @@ test.dir_fixture('image')
 
 # Normal invocation
 test.run(arguments=['-f','SConstruct.cmd','DOCBOOK_XSLTPROC=%s'%xsltproc], stderr=None)
-test.must_exist(test.workpath('manual.epub'))
-test.must_exist(test.workpath('OEBPS','toc.ncx'))
-test.must_exist(test.workpath('OEBPS','content.opf'))
-test.must_exist(test.workpath('META-INF','container.xml'))
+test.must_not_be_empty(test.workpath('manual.epub'))
+test.must_not_be_empty(test.workpath('OEBPS','toc.ncx'))
+test.must_not_be_empty(test.workpath('OEBPS','content.opf'))
+test.must_not_be_empty(test.workpath('META-INF','container.xml'))
 
 # Cleanup
 test.run(arguments=['-f','SConstruct.cmd','-c','DOCBOOK_XSLTPROC=%s'%xsltproc])

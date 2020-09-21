@@ -6,8 +6,6 @@
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
 #
-from __future__ import print_function
-
 import os
 import sys
 import subprocess
@@ -15,21 +13,25 @@ import subprocess
 import SConsDoc
 
 # Directory where all generated files are stored
-gen_folder = os.path.join('doc','generated')
+gen_folder = os.path.join('doc', 'generated')
 
 def argpair(key):
     """ Return the argument pair *.gen,*.mod for the given key. """
-    arg = '%s,%s' % (os.path.join(gen_folder, '%s.gen' % key),
-                     os.path.join(gen_folder, '%s.mod' % key))
-    
+    arg = '%s,%s' % (
+        os.path.join(gen_folder, '%s.gen' % key),
+        os.path.join(gen_folder, '%s.mod' % key),
+    )
+
     return arg
 
 def generate_all():
-    """ Scan for XML files in the src directory and call scons-proc.py
-        to generate the *.gen/*.mod files from it.
+    """Generate the entity files.
+
+    Scan for XML files in the SCons directory and call scons-proc.py
+    to generate the *.gen/*.mod files from it.
     """
     flist = []
-    for path, dirs, files in os.walk('src'):
+    for path, dirs, files in os.walk('SCons'):
         for f in files:
             if f.endswith('.xml'):
                 fpath = os.path.join(path, f)
@@ -38,21 +40,31 @@ def generate_all():
 
     if flist:
         # Does the destination folder exist
-        if not os.path.isdir(gen_folder):
-            try:
-                os.makedirs(gen_folder)
-            except:
-                print("Couldn't create destination folder %s! Exiting..." % gen_folder)
-                return
+        try:
+            os.makedirs(gen_folder, exist_ok=True)
+        except Exception:
+            print("Couldn't create destination folder %s! Exiting..." % gen_folder, file=sys.stdout)
+            return False
+
         # Call scons-proc.py
-        _ = subprocess.call([sys.executable,
-                              os.path.join('bin','scons-proc.py'),
-                              '-b', argpair('builders'),
-                              '-f', argpair('functions'),
-                              '-t', argpair('tools'),
-                              '-v', argpair('variables')] + flist,
-                             shell=False)
+        cp = subprocess.run(
+            [
+                sys.executable,
+                os.path.join('bin', 'scons-proc.py'),
+                '-b', argpair('builders'),
+                '-f', argpair('functions'),
+                '-t', argpair('tools'),
+                '-v', argpair('variables'),
+            ] + flist,
+            shell=False,
+        )
+
+        if cp.returncode:
+            print("Generation failed", file=sys.stderr)
+            return False
+    return True
     
     
 if __name__ == "__main__":
-    generate_all()
+    if not generate_all():
+        sys.exit(1)

@@ -1,0 +1,376 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="fortran">
+<summary>
+<para>
+Set construction variables for generic POSIX Fortran compilers.
+</para>
+</summary>
+<sets>
+<item>FORTRAN</item>
+<item>FORTRANFLAGS</item>
+<item>FORTRANCOM</item>
+<item>SHFORTRAN</item>
+<item>SHFORTRANFLAGS</item>
+<item>SHFORTRANCOM</item>
+<item>SHFORTRANPPCOM</item>
+</sets>
+<uses>
+<item>FORTRANCOMSTR</item>
+<item>FORTRANPPCOMSTR</item>
+<item>SHFORTRANCOMSTR</item>
+<item>SHFORTRANPPCOMSTR</item>
+</uses>
+</tool>
+
+<cvar name="FORTRAN">
+<summary>
+<para>
+The default Fortran compiler
+for all versions of Fortran.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANCOM">
+<summary>
+<para>
+The command line used to compile a Fortran source file to an object file.
+By default, any options specified
+in the &cv-link-FORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS; construction variables
+are included on this command line.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran source file
+is compiled to an object file.
+If not set, then &cv-link-FORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANFILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the FORTRAN dialect will be used. By
+default, this is ['.f', '.for', '.ftn']
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANPPFILESUFFIXES">
+<summary>
+<para>
+The list of file extensions for which the compilation + preprocessor pass for
+FORTRAN dialect will be used. By default, this is ['.fpp', '.FPP']
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANFLAGS">
+<summary>
+<para>
+General user-specified options that are passed to the Fortran compiler.
+Note that this variable does
+<emphasis>not</emphasis>
+contain
+<option>-I</option>
+(or similar) include or module search path options
+that scons generates automatically from &cv-link-FORTRANPATH;.
+See
+&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
+below,
+for the variables that expand those options.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_FORTRANINCFLAGS">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the Fortran compiler command-line options
+for specifying directories to be searched for include
+files and module files.
+The value of &cv-link-_FORTRANINCFLAGS; is created
+by respectively prepending and appending
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+to the beginning and end
+of each directory in &cv-link-FORTRANPATH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANMODDIR">
+<summary>
+<para>
+Directory location where the Fortran compiler should place
+any module files it generates.  This variable is empty, by default. Some
+Fortran compilers will internally append this directory in the search path
+for module files, as well.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANMODDIRPREFIX">
+<summary>
+<para>
+The prefix used to specify a module directory on the Fortran compiler command
+line.
+This will be prepended to the beginning of the directory
+in the &cv-link-FORTRANMODDIR; construction variables
+when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANMODDIRSUFFIX">
+<summary>
+<para>
+The suffix used to specify a module directory on the Fortran compiler command
+line.
+This will be appended to the end of the directory
+in the &cv-link-FORTRANMODDIR; construction variables
+when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
+</para>
+</summary>
+</cvar>
+
+<cvar name="_FORTRANMODFLAG">
+<summary>
+<para>
+An automatically-generated construction variable
+containing the Fortran compiler command-line option
+for specifying the directory location where the Fortran
+compiler should place any module files that happen to get
+generated during compilation.
+The value of &cv-link-_FORTRANMODFLAG; is created
+by respectively prepending and appending
+&cv-link-FORTRANMODDIRPREFIX; and &cv-link-FORTRANMODDIRSUFFIX;
+to the beginning and end of the directory in &cv-link-FORTRANMODDIR;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANMODPREFIX">
+<summary>
+<para>
+The module file prefix used by the Fortran compiler.  SCons assumes that
+the Fortran compiler follows the quasi-standard naming convention for
+module files of
+<filename>module_name.mod</filename>.
+As a result, this variable is left empty, by default.  For situations in
+which the compiler does not necessarily follow the normal convention,
+the user may use this variable.  Its value will be appended to every
+module file name as scons attempts to resolve dependencies.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANMODSUFFIX">
+<summary>
+<para>
+The module file suffix used by the Fortran compiler.  SCons assumes that
+the Fortran compiler follows the quasi-standard naming convention for
+module files of
+<filename>module_name.mod</filename>.
+As a result, this variable is set to ".mod", by default.  For situations
+in which the compiler does not necessarily follow the normal convention,
+the user may use this variable.  Its value will be appended to every
+module file name as scons attempts to resolve dependencies.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANPATH">
+<summary>
+<para>
+The list of directories that the Fortran compiler will search for
+include files and (for some compilers) module files. The Fortran implicit
+dependency scanner will search these directories for include files (but
+not module files since they are autogenerated and, as such, may not
+actually exist at the time the scan takes place). Don't explicitly put
+include directory arguments in FORTRANFLAGS because the result will be
+non-portable and the directories will not be searched by the dependency
+scanner. Note: directory names in FORTRANPATH will be looked-up relative
+to the SConscript directory when they are used in a command. To force
+&scons;
+to look-up a directory relative to the root of the source tree use #:
+</para>
+
+<example_commands>
+env = Environment(FORTRANPATH='#/include')
+</example_commands>
+
+<para>
+The directory look-up can also be forced using the
+&Dir;()
+function:
+</para>
+
+<example_commands>
+include = Dir('include')
+env = Environment(FORTRANPATH=include)
+</example_commands>
+
+<para>
+The directory list will be added to command lines
+through the automatically-generated
+&cv-link-_FORTRANINCFLAGS;
+construction variable,
+which is constructed by
+respectively prepending and appending the values of the
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+construction variables
+to the beginning and end
+of each directory in &cv-link-FORTRANPATH;.
+Any command lines you define that need
+the FORTRANPATH directory list should
+include &cv-link-_FORTRANINCFLAGS;:
+</para>
+
+<example_commands>
+env = Environment(FORTRANCOM="my_compiler $_FORTRANINCFLAGS -c -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="FORTRANPPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran source file to an object file
+after first running the file through the C preprocessor.
+By default, any options specified in the &cv-link-FORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+construction variables are included on this command line.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANPPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran source file
+is compiled to an object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-FORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANSUFFIXES">
+<summary>
+<para>
+The list of suffixes of files that will be scanned
+for Fortran implicit dependencies
+(INCLUDE lines and USE statements).
+The default list is:
+</para>
+
+<example_commands>
+[".f", ".F", ".for", ".FOR", ".ftn", ".FTN", ".fpp", ".FPP",
+".f77", ".F77", ".f90", ".F90", ".f95", ".F95"]
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="SHFORTRAN">
+<summary>
+<para>
+The default Fortran compiler used for generating shared-library objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHFORTRANCOM">
+<summary>
+<para>
+The command line used to compile a Fortran source file
+to a shared-library object file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHFORTRANCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran source file
+is compiled to a shared-library object file.
+If not set, then &cv-link-SHFORTRANCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHFORTRANFLAGS">
+<summary>
+<para>
+Options that are passed to the Fortran compiler
+to generate shared-library objects.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHFORTRANPPCOM">
+<summary>
+<para>
+The command line used to compile a Fortran source file to a
+shared-library object file
+after first running the file through the C preprocessor.
+Any options specified
+in the &cv-link-SHFORTRANFLAGS; and
+&cv-link-CPPFLAGS; construction variables
+are included on this command line.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SHFORTRANPPCOMSTR">
+<summary>
+<para>
+If set, the string displayed when a Fortran source file
+is compiled to a shared-library object file
+after first running the file through the C preprocessor.
+If not set, then &cv-link-SHFORTRANPPCOM;
+(the command line) is displayed.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

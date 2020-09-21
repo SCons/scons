@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+
+<scons_function name="AllowSubstExceptions">
+<arguments signature="global">
+([exception, ...])
+</arguments>
+<summary>
+<para>
+Specifies the exceptions that will be allowed
+when expanding construction variables.
+By default,
+any construction variable expansions that generate a
+<literal>NameError</literal>
+or
+<literal>IndexError</literal>
+exception will expand to a
+<literal>''</literal>
+(an empty string) and not cause scons to fail.
+All exceptions not in the specified list
+will generate an error message
+and terminate processing.
+</para>
+
+<para>
+If
+&f-AllowSubstExceptions;
+is called multiple times,
+each call completely overwrites the previous list
+of allowed exceptions.
+</para>
+
+<para>
+Example:
+</para>
+
+<example_commands>
+# Requires that all construction variable names exist.
+# (You may wish to do this if you want to enforce strictly
+# that all construction variables must be defined before use.)
+AllowSubstExceptions()
+
+# Also allow a string containing a zero-division expansion
+# like '${1 / 0}' to evalute to ''.
+AllowSubstExceptions(IndexError, NameError, ZeroDivisionError)
+</example_commands>
+</summary>
+</scons_function>
+
+</sconsdoc>

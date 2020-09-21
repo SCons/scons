@@ -37,7 +37,7 @@ if sys.platform == 'win32':
     test.skip_test('CCVERSION not set with MSVC, skipping test.')
 
 test.dir_fixture('CCVERSION-fixture')
-test.file_fixture(os.path.join('CC-fixture', 'foo.c'))
+test.file_fixture(['CC-fixture', 'foo.c'])
 
 test.write('SConstruct', """
 cc = Environment().Dictionary('CC')

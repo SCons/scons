@@ -24,7 +24,6 @@
 
 -->
 
-<!-- lifted from troff+man by doclifter -->
 <refentry id='sconsign1'
           xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -53,14 +52,15 @@
 <para>The
 <command>sconsign</command>
 command
-displays the contents of one or more signature
-("<markup>sconsign</markup>")
-files specified by the user.</para>
+displays the contents of one or more signature database
+(<firstterm>sconsign</firstterm>)
+files used by the <command>scons</command> build tool.
+</para>
 
 <para>By default,
 <command>sconsign</command>
 dumps the entire contents of the
-specified file(s).
+sconsign file(s).
 Without the verbose option,
 each entry is printed in the following format:</para>
 
@@ -74,14 +74,18 @@ file: signature timestamp length
 
 <para><emphasis role="bold">None</emphasis>
 is printed
-in place of any missing timestamp, build signature ("bsig"),
-or content signature ("csig")
+in place of any missing timestamp, <firstterm>build signature</firstterm>
+(<emphasis role="bold">bsig</emphasis>),
+or <firstterm>content signature</firstterm>
+(<emphasis role="bold">csig</emphasis>)
 values for
 any entry
 or any of its dependencies.
 If the entry has no implicit dependencies,
 or no build action,
-the lines are simply omitted.
+the lines are simply omitted.</para>
+
+<para>
 The verbose option expands the display into a more human
 readable format.
 </para>
@@ -89,9 +93,9 @@ readable format.
 <para>By default,
 <command>sconsign</command>
 assumes that any
-<emphasis>file</emphasis>
+<replaceable>file</replaceable>
 arguments that end with a
-<markup>.dbm</markup>
+<filename>.dbm</filename>
 suffix contains
 signature entries for
 more than one directory
@@ -100,11 +104,11 @@ was specified by the
 <emphasis role="bold">SConsignFile</emphasis>
 function).
 Any
-<emphasis>file</emphasis>
+<replaceable>file</replaceable>
 argument that ends in
-<markup>.dblite</markup>
+<filename>.dblite</filename>
 is assumed to be a traditional
-<markup>.sconsign</markup>
+sconsign
 file containing the signature entries
 for a single directory.
 If neither of those is true,
@@ -120,7 +124,7 @@ options.
 </para>
 <para>
 If there are no
-<emphasis>file</emphasis>
+<replaceable>file</replaceable>
 arguments, the name
 <filename>.sconsign.dblite</filename>
 is assumed.
@@ -128,13 +132,18 @@ is assumed.
 
 </refsect1>
 
-<refsect1 id='options'><title>OPTIONS</title>
+<refsect1 id='options'>
+<title>OPTIONS</title>
 <para>Various options control what information is printed
 and the format:</para>
 
 <variablelist>
   <varlistentry>
-  <term>-a, --act, --action</term>
+  <term>
+    <option>-a</option>,
+    <option>--act</option>,
+    <option>--action</option>
+  </term>
   <listitem>
 <para>Prints the build action information
 for all entries or the specified entries.</para>
@@ -142,7 +151,10 @@ for all entries or the specified entries.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-c, --csig</term>
+  <term>
+    <option>-c</option>,
+    <option>--csig</option>
+  </term>
   <listitem>
 <para>Prints the content signature (csig) information
 for all entries or the specified entries.</para>
@@ -150,11 +162,14 @@ for all entries or the specified entries.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-d DIRECTORY, --dir=DIRECTORY</term>
+  <term>
+    <option>-d <replaceable>DIRECTORY</replaceable></option>,
+    <option>--dir=<replaceable>DIRECTORY</replaceable></option>
+  </term>
   <listitem>
 <para>When the signatures are being
 read from a
-<markup>.dbm</markup>
+<filename>.dbm</filename>
 file, or the
 <option>-f dbm</option>
 or
@@ -163,29 +178,35 @@ options are used,
 prints information about
 only the signatures
 for entries in the specified
-<emphasis>DIRECTORY</emphasis>.</para>
+<replaceable>DIRECTORY</replaceable>.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-e ENTRY, --entry=ENTRY</term>
+  <term>
+    <option>-e <replaceable>ENTRY</replaceable></option>,
+    <option>--entry=<replaceable>ENTRY</replaceable></option>
+  </term>
   <listitem>
 <para>Prints information about only the specified
-<emphasis>ENTRY</emphasis>.
-Multiple -e options may be used,
+<replaceable>ENTRY</replaceable>.
+Multiple <option>-e</option> options may be used,
 in which case information about each
-<emphasis>ENTRY</emphasis>
+<replaceable>ENTRY</replaceable>
 is printed in the order in which the
 options are specified on the command line.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-f FORMAT, --format=FORMAT</term>
+  <term>
+    <option>-f <replaceable>FORMAT</replaceable></option>,
+    <option>--format=<replaceable>FORMAT</replaceable></option>
+  </term>
   <listitem>
 <para>The file(s) to be printed
 are in the specified
-<emphasis>FORMAT</emphasis>.
+<replaceable>FORMAT</replaceable>.
 Legal values are
 <emphasis role="bold">dbm</emphasis>
 (the DBM format used
@@ -196,20 +217,26 @@ or
 <command>sconsign</command>
 (the default format
 used for an individual
-<markup>.sconsign</markup>
+<filename>.sconsign</filename>
 file in each directory).</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-h, --help</term>
+  <term>
+    <option>-h</option>,
+    <option>--help</option>
+  </term>
   <listitem>
 <para>Prints a help message and exits.</para>
 
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-i, --implicit</term>
+  <term>
+    <option>-i</option>,
+    <option>--implicit</option>
+  </term>
   <listitem>
 <para>Prints the list of cached implicit dependencies
 for all entries or for the specified entries.</para>
@@ -217,7 +244,7 @@ for all entries or for the specified entries.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>--raw</term>
+  <term><option>--raw</option></term>
   <listitem>
 <para>Prints a pretty-printed representation
 of the raw Python dictionary that holds
@@ -228,7 +255,10 @@ An entry's build action is still printed in its usual format.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-r, --readable</term>
+  <term>
+    <option>-r</option>,
+    <option>--readable</option>
+  </term>
   <listitem>
 <para>Prints timestamps in a human-readable string,
 enclosed in single quotes.</para>
@@ -236,7 +266,10 @@ enclosed in single quotes.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-t, --timestamp</term>
+  <term>
+    <option>-t</option>,
+    <option>--timestamp</option>
+  </term>
   <listitem>
 <para>Prints the timestamp information
 for all entries or the specified entries.</para>
@@ -244,7 +277,10 @@ for all entries or the specified entries.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term>-v, --verbose</term>
+  <term>
+    <option>-v</option>,
+    <option>--verbose</option>
+  </term>
   <listitem>
 <para>Prints labels identifying each field being printed.</para>
 
@@ -253,34 +289,40 @@ for all entries or the specified entries.</para>
 </variablelist>
 </refsect1>
 
-<refsect1 id='environment'><title>ENVIRONMENT</title>
+<refsect1 id='environment'>
+<title>ENVIRONMENT</title>
 <variablelist>
   <varlistentry>
-  <term>SCONS_LIB_DIR</term>
+  <term><envar>SCONS_LIB_DIR</envar></term>
   <listitem>
 <para>Specifies the directory that contains the SCons Python module directory
 (e.g.
-<filename class='directory'>/home/aroach/scons-src-0.01/src/engine</filename>).
-on the command line.</para>
+<filename class='directory'>/home/aroach/scons-src/SCons</filename>).
+</para>
 
   </listitem>
   </varlistentry>
 </variablelist>
 </refsect1>
 
-<refsect1 id='see_also'><title>SEE ALSO</title>
-<para><emphasis role="bold">scons</emphasis>,
-<emphasis role="bold">scons</emphasis>
-User Manual,
-<emphasis role="bold">scons</emphasis>
-Design Document,
-<emphasis role="bold">scons</emphasis>
-source code.</para>
-
+<refsect1 id='see_also'>
+<title>SEE ALSO</title>
+<para>
+<command>scons</command>,
+the SCons User Guide at
+<ulink url="https://scons.org/doc/production/HTML/scons-user.html"/>,
+the SCons source code
+<ulink url="https://github.com/SCons/scons">
+on GitHub</ulink>.
+</para>
 </refsect1>
 
-<refsect1 id='authors'><title>AUTHORS</title>
-<para>Steven Knight &lt;knight at baldmt dot com&gt;</para>
+<refsect1 id='authors'>
+<title>AUTHORS</title>
+<para>Originally: Steven Knight <email>knight@baldmt.com</email>
+  and Anthony Roach <email>aroach@electriceyeball.com</email>.</para>
+  <para>
+Since 2010: The SCons Development Team <email>scons-dev@scons.org</email>.
+</para>
 </refsect1>
 </refentry>
-

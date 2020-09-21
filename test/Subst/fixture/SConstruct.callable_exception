@@ -1,0 +1,11 @@
+class TestCallable(object):
+    def __init__(self, thing, makePathsRelative = True, debug = False):
+        pass
+    def __call__(self, target, source, env, for_signature):
+       raise TypeError("User callable exception")
+
+env = Environment()
+env["TESTCLASS"] = TestCallable
+env["CCCOM"] = "$CC $_CCCOMCOM $CCFLAGS -o ${TESTCLASS('$TARGET')} -c ${TESTCLASS('$SOURCES')}"
+
+env.Program(target='test_main', source='test_main.c')

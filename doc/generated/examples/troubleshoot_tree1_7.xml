@@ -1,0 +1,25 @@
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --tree=derived,status</userinput>
+cc -o f1.o -c -I. f1.c
+cc -o f2.o -c -I. f2.c
+cc -o f3.o -c -I. f3.c
+cc -o prog f1.o f2.o f3.o
+ E         = exists
+  R        = exists in repository only
+   b       = implicit builder
+   B       = explicit builder
+    S      = side effect
+     P     = precious
+      A    = always build
+       C   = current
+        N  = no clean
+         H = no cache
+
+[E b      ]+-.
+[E B   C  ]  +-f1.o
+[E B   C  ]  +-f2.o
+[E B   C  ]  +-f3.o
+[E B   C  ]  +-prog
+[E B   C  ]    +-f1.o
+[E B   C  ]    +-f2.o
+[E B   C  ]    +-f3.o
+</screen>
