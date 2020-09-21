@@ -1343,8 +1343,7 @@ def _exec_main(parser, values):
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
-        # compat layer imports "cProfile" for us if it's available.
-        from profile import Profile
+        from cProfile import Profile
 
         prof = Profile()
         try:
