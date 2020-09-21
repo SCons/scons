@@ -1,5 +1,5 @@
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -192,14 +192,15 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
 
-
     def test_tempfilecreation_once(self):
-        # Init class with cmd, such that the fully expanded
-        # string reads "a test command line".
-        # Note, how we're using a command string here that is
-        # actually longer than the substituted one. This is to ensure
-        # that the TempFileMunge class internally really takes the
-        # length of the expanded string into account.
+        """
+        Init class with cmd, such that the fully expanded
+        string reads "a test command line".
+        Note, how we're using a command string here that is
+        actually longer than the substituted one. This is to ensure
+        that the TempFileMunge class internally really takes the
+        length of the expanded string into account.
+        """
         defined_cmd = "a $VERY $OVERSIMPLIFIED line"
         t = SCons.Platform.TempFileMunge(defined_cmd)
         env = SCons.Environment.SubstitutionEnvironment(tools=[])
@@ -219,12 +220,14 @@ class TempFileMungeTestCase(unittest.TestCase):
 
             def __init__(self):
                 self.attributes = self.Attrs()
+
         target = [Node()]
         cmd = t(target, None, env, 0)
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
-        assert cmd == getattr(target[0].attributes, 'tempfile_cmdlist', None)
+        assert cmd == target[0].attributes.tempfile_cmdlist[defined_cmd]
+
 
 
 class PlatformEscapeTestCase(unittest.TestCase):
