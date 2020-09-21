@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test how we handle dangling symlinks as source files.
 """
 
-import os
 
 import TestSCons
 

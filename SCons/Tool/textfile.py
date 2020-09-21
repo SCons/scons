@@ -48,8 +48,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons
 
-import os
-import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value

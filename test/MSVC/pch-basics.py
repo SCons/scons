@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify PCH works to build a simple exe and a simple dll.
 """
  
-import time
  
 import TestSCons
  

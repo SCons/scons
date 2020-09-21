@@ -25,9 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import collections
-import os
 import re
-import sys
 import unittest
 
 import SCons.Errors

@@ -33,7 +33,6 @@ a regular environment or in an activated virtualenv.
 
 import TestSCons
 import SCons.Platform.virtualenv
-import sys
 import os
 import re
 

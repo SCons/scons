@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that the func -p and --prefix options specify what log files to use.
 """
 
-import os.path
 
 import TestSCons_time
 

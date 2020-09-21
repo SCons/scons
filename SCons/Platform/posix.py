@@ -33,10 +33,7 @@ selection method.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import errno
-import os
-import os.path
 import subprocess
-import sys
 import select
 
 import SCons.Util

@@ -25,8 +25,6 @@ it to appear at the front of name of the generated tempfile
 used for long command lines.
 """
 
-import os
-import stat
 
 import TestSCons
 
