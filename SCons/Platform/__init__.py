@@ -193,8 +193,14 @@ class TempFileMunge:
         # It should have been previously done by Action.strfunction() call
         node = target[0] if SCons.Util.is_List(target) else target
         cmdlist = None
+
+        if isinstance(self.cmd, list):
+            cmdlist_key = tuple(self.cmd)
+        else:
+            cmdlist_key = self.cmd
+
         if node and hasattr(node.attributes, 'tempfile_cmdlist'):
-            cmdlist = node.attributes.tempfile_cmdlist.get(self.cmd, None)
+            cmdlist = node.attributes.tempfile_cmdlist.get(cmdlist_key, None)
         if cmdlist is not None:
             return cmdlist
 
@@ -269,9 +275,9 @@ class TempFileMunge:
             try:
                 # Storing in tempfile_cmdlist by self.cmd provided when intializing
                 # $TEMPFILE{} fixes issue raised in PR #3140 and #3553
-                node.attributes.tempfile_cmdlist[self.cmd] = cmdlist
+                node.attributes.tempfile_cmdlist[cmdlist_key] = cmdlist
             except AttributeError:
-                node.attributes.tempfile_cmdlist = {self.cmd:cmdlist}
+                node.attributes.tempfile_cmdlist = {cmdlist_key:cmdlist}
 
         return cmdlist
 
