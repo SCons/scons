@@ -190,6 +190,69 @@ test.run('-Q -q -x A A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\
 test.run('-Q -q A -x A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\]\n")
 
 
+############################################
+################ Fail Case #################
+############################################
+
+test.write('SConstruct', """\
+env = Environment()
+if 'A' in BUILD_TARGETS:
+        BUILD_TARGETS.append('B')
+AddOption('-x', '--extra',
+          nargs=1,
+          dest='extra',
+          action='store',
+          type='string',
+          metavar='ARG1',
+          default=(),
+          help='An argument to the option')
+print(str(GetOption('extra')))
+print(BUILD_TARGETS)
+""")
+
+# Nested target
+test.run('-Q -q -x A TARG1', status=1, stdout="A\n\\['TARG1'\\]\n")
+test.run('-Q -q -x A A TARG1', status=1, stdout="A\n\\['A', 'TARG1', 'B'\\]\n")
+test.run('-Q -q A -x A TARG1', status=1, stdout="A\n\\['A', 'TARG1', 'B'\\]\n")
+
+test.write('SConstruct', """\
+env = Environment()
+if 'A' in BUILD_TARGETS:
+        AddOption('--foo',
+                  nargs=1,
+                  dest='foo',
+                  action='store',
+                  type='string',
+                  metavar='FOO1',
+                  default=(),
+                  help='An argument to the option')
+AddOption('-x', '--extra',
+          nargs=1,
+          dest='extra',
+          action='store',
+          type='string',
+          metavar='ARG1',
+          default=(),
+          help='An argument to the option')
+print(str(GetOption('extra')))
+print(str(GetOption('foo')))
+print(COMMAND_LINE_TARGETS)
+""")
+
+# nested option
+test.run('-Q -q -x A --foo=C TARG1', status=2, stdout="A\n", stderr="""\
+AttributeError: 'Values' object has no attribute 'foo':
+  File ".+SConstruct", line \\d+:
+    print\\(str\\(GetOption\\('foo'\\)\\)\\)
+  File ".+SCons/Script/Main.py", line \\d+:
+    return getattr\\(OptionsParser.values, name\\)
+  File ".+SCons/Script/SConsOptions.py", line \\d+:
+    return getattr\\(self.__dict__\\['__defaults__'\\], attr\\)
+""")
+test.run('-Q -q -x A A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\]\n")
+test.run('-Q -q A -x A --foo=C TARG1', status=1, stdout="A\nC\n\\['A', 'TARG1'\\]\n")
+
+
 
 test.pass_test()
 
