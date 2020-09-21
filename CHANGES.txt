@@ -51,9 +51,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       - passing a dict to merge where the values are strings failed (issue #2961).
     - Include previously-excluded SideEffect section in User Guide.
 
-
   From Simon Tegelid
-    - Fix using TEMPFILE in multiple actions in an action list.
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
+
+
 
 
 
