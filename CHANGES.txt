@@ -46,6 +46,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       - merging --param arguments did not work (issue #3107); 
       - passing a dict to merge where the values are strings failed (issue #2961).
     - Include previously-excluded SideEffect section in User Guide.
+    - Make sure cProfile is used if profiling - SCons was expecting
+      the Util module to monkeypatch in cProfile as profile if available,
+      but this is no longer being done.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
