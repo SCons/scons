@@ -1,13 +1,13 @@
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q COLOR=Red foo.o</userinput>
 
 scons: *** Invalid value for option COLOR: Red.  Valid values are: ('red', 'green', 'blue')
-File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
+File "/home/my/project/SConstruct", line 10, in &lt;module&gt;
 % <userinput>scons -Q COLOR=BLUE foo.o</userinput>
 
 scons: *** Invalid value for option COLOR: BLUE.  Valid values are: ('red', 'green', 'blue')
-File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
+File "/home/my/project/SConstruct", line 10, in &lt;module&gt;
 % <userinput>scons -Q COLOR=nAvY foo.o</userinput>
 
 scons: *** Invalid value for option COLOR: nAvY.  Valid values are: ('red', 'green', 'blue')
-File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
+File "/home/my/project/SConstruct", line 10, in &lt;module&gt;
 </screen>

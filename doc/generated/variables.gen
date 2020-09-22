@@ -7753,6 +7753,15 @@ Note this value is used literally and not expanded by the subst logic.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-TEMPFILEDIR">
+    <term>
+      <envar>TEMPFILEDIR</envar>
+    </term>
+    <listitem><para>
+The directory to create the tempfile in.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-TEMPFILEPREFIX">
     <term>
       <envar>TEMPFILEPREFIX</envar>

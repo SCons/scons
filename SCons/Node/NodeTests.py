@@ -25,9 +25,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import SCons.compat
 
 import collections
-import os
 import re
-import sys
 import unittest
 
 import SCons.Errors
@@ -584,7 +582,7 @@ class NodeTestCase(unittest.TestCase):
     def test_get_csig(self):
         """Test generic content signature calculation
         """
-        
+
         class TestNodeInfo(SCons.Node.NodeInfoBase):
             __slots__ = ('csig',)
         try:
@@ -623,7 +621,7 @@ class NodeTestCase(unittest.TestCase):
             __slots__ = ('csig',)
         SCons.Node.Node.NodeInfo = TestNodeInfo
         node = SCons.Node.Node()
- 
+
         binfo = node.get_binfo()
         assert isinstance(binfo, SCons.Node.BuildInfoBase), binfo
 
@@ -1256,6 +1254,19 @@ class NodeTestCase(unittest.TestCase):
         SCons.Node.SConscriptNodes.add(n2)
         assert not n.is_sconscript()
         assert n2.is_sconscript()
+
+    def test_conftests(self):
+        """Test the is_conftest() function."""
+        # check nodes are not sconscript unless added to the list
+        n=SCons.Node.Node()
+        n2=SCons.Node.Node()
+        assert not n.is_conftest()
+        assert not n2.is_conftest()
+
+        # add node to sconscript list and verify
+        n2.attributes.conftest_node = 1
+        assert not n.is_conftest()
+        assert n2.is_conftest()
 
     def test_Annotate(self):
         """Test using an interface-specific Annotate function."""

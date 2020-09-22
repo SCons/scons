@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import unittest
 import os.path
 import os
-import sys
 
 import SCons.Errors
 from SCons.Tool.wix import *

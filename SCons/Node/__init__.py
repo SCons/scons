@@ -43,7 +43,6 @@ be able to depend on any other type of "thing."
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import collections
 import copy
 from itertools import chain
@@ -781,7 +780,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             # Handle issue where builder emits more than one target and
             # the source file for the builder is generated.
             # in that case only the first target was getting it's .implicit
-            # cleared when the source file is built (second scan). 
+            # cleared when the source file is built (second scan).
             # leaving only partial implicits from scan before source file is generated
             # typically the compiler only. Then scanned files are appended
             # This is persisted to sconsign and rebuild causes false rebuilds
@@ -823,24 +822,20 @@ class Node(object, metaclass=NoSlotsPyPy):
 
     def release_target_info(self):
         """Called just after this node has been marked
-         up-to-date or was built completely.
+        up-to-date or was built completely.
 
-         This is where we try to release as many target node infos
-         as possible for clean builds and update runs, in order
-         to minimize the overall memory consumption.
+        This is where we try to release as many target node infos
+        as possible for clean builds and update runs, in order
+        to minimize the overall memory consumption.
 
-         By purging attributes that aren't needed any longer after
-         a Node (=File) got built, we don't have to care that much how
-         many KBytes a Node actually requires...as long as we free
-         the memory shortly afterwards.
+        By purging attributes that aren't needed any longer after
+        a Node (=File) got built, we don't have to care that much how
+        many KBytes a Node actually requires...as long as we free
+        the memory shortly afterwards.
 
-         @see: built() and File.release_target_info()
-         """
+        @see: built() and File.release_target_info()
+        """
         pass
-
-    #
-    #
-    #
 
     def add_to_waiting_s_e(self, node):
         self.waiting_s_e.add(node)
@@ -952,6 +947,14 @@ class Node(object, metaclass=NoSlotsPyPy):
     def is_sconscript(self):
         """ Returns true if this node is an sconscript """
         return self in SConscriptNodes
+
+    def is_conftest(self):
+        """ Returns true if this node is an conftest node"""
+        try:
+            self.attributes.conftest_node
+        except AttributeError:
+            return False
+        return True
 
     def alter_targets(self):
         """Return a list of alternate targets for this Node.

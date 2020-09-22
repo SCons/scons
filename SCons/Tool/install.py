@@ -29,13 +29,13 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 from shutil import copy2, copymode, copystat
 
 import SCons.Action
 import SCons.Tool
+from SCons.Tool.linkCommon import StringizeLibSymlinks, CreateLibSymlinks, EmitLibSymlinks
 import SCons.Util
 
 #
@@ -213,9 +213,9 @@ def installShlibLinks(dest, source, env):
     Verbose = False
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print('installShlibLinks: symlinks={!r}'.format(SCons.Tool.StringizeLibSymlinks(symlinks)))
+        print('installShlibLinks: symlinks={!r}'.format(StringizeLibSymlinks(symlinks)))
     if symlinks:
-        SCons.Tool.CreateLibSymlinks(env, symlinks)
+        CreateLibSymlinks(env, symlinks)
     return
 
 def installFunc(target, source, env):
@@ -292,7 +292,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
         print("add_versioned_targets_to_INSTALLED_FILES: target={!r}".format(list(map(str, target))))
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
-        SCons.Tool.EmitLibSymlinks(env, symlinks, target[0])
+        EmitLibSymlinks(env, symlinks, target[0])
     _UNIQUE_INSTALLED_FILES = None
     return (target, source)
 

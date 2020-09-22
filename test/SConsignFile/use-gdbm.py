@@ -35,14 +35,10 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 try:
-    import gdbm
-    use_dbm = "gdbm"
+    import dbm.gnu
+    use_dbm = "dbm.gnu"
 except ImportError:
-    try:
-        import dbm.gnu
-        use_dbm = "dbm.gnu"
-    except ImportError:
-        test.skip_test('No GNU dbm in this version of Python; skipping test.\n')
+    test.skip_test('No GNU dbm in this version of Python; skipping test.\n')
 
 test.subdir('subdir')
 

@@ -1112,7 +1112,7 @@ def _main(parser):
     SCons.Job.explicit_stack_size = options.stack_size
 
     if options.md5_chunksize:
-        SCons.Node.FS.File.md5_chunksize = options.md5_chunksize
+        SCons.Node.FS.File.md5_chunksize = options.md5_chunksize * 1024
 
     platform = SCons.Platform.platform_module()
 
@@ -1343,8 +1343,7 @@ def _exec_main(parser, values):
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
-        # compat layer imports "cProfile" for us if it's available.
-        from profile import Profile
+        from cProfile import Profile
 
         prof = Profile()
         try:

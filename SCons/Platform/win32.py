@@ -288,7 +288,6 @@ def get_program_files_dir():
             val, tok = SCons.Util.RegQueryValueEx(k, 'ProgramFilesDir')
         except SCons.Util.RegError:
             val = ''
-            pass
 
     if val == '':
         # A reasonable default if we can't read the registry

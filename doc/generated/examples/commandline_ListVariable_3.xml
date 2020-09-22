@@ -2,5 +2,5 @@
 
 scons: *** Error converting option: COLORS
 Invalid value(s) for option: magenta
-File "/home/my/project/SConstruct", line 6, in &lt;module&gt;
+File "/home/my/project/SConstruct", line 7, in &lt;module&gt;
 </screen>

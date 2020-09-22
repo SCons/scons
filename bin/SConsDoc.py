@@ -41,9 +41,11 @@ Builder example:
     <para>This is the summary description of an SCons Builder.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
-    The name of any builder may be interpolated
+    The name of this builder may be interpolated
     anywhere in the document by specifying the
-    &b-BUILDER; element.  It need not be on a line by itself.</para>
+    &b-BUILDER; element. A link to this definition may be
+    interpolated by specifying the &b-link-BUILDER; element.
+    </para>
 
     Unlike normal XML, blank lines are significant in these
     descriptions and serve to separate paragraphs.
@@ -59,16 +61,28 @@ Builder example:
 Function example:
 
     <scons_function name="FUNCTION">
-    <arguments>
+    <arguments signature="SIGTYPE">
     (arg1, arg2, key=value)
     </arguments>
     <summary>
     <para>This is the summary description of an SCons function.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
-    The name of any builder may be interpolated
+    If the "signature" attribute is specified, SIGTYPE may be one
+    of "global", "env" or "both" (the default if omitted is "both"),
+    to indicate the signature applies to the global form or the
+    environment form, or to generate both with the same signature
+    (excepting the insertion of "env.").
+    This allows for the cases of
+    describing that only one signature should be generated,
+    or both signatures should be generated and they differ,
+    or both signatures should be generated and they are the same.
+    The name of this function may be interpolated
     anywhere in the document by specifying the
-    &f-FUNCTION; element.  It need not be on a line by itself.</para>
+    &f-FUNCTION; element or the &f-env-FUNCTION; element.
+    Links to this definition may be interpolated by specifying
+    the &f-link-FUNCTION: or &f-link-env-FUNCTION; element.
+    </para>
 
     <example>
     print("this is example code, it will be offset and indented")
@@ -83,9 +97,11 @@ Construction variable example:
     <para>This is the summary description of a construction variable.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
-    The name of any construction variable may be interpolated
+    The name of this construction variable may be interpolated
     anywhere in the document by specifying the
-    &t-VARIABLE; element.  It need not be on a line by itself.</para>
+    &cv-VARIABLE; element. A link to this definition may be
+    interpolated by specifying the &cv-link-VARIABLE; element.
+    </para>
 
     <example>
     print("this is example code, it will be offset and indented")
@@ -100,9 +116,11 @@ Tool example:
     <para>This is the summary description of an SCons Tool.
     It will get placed in the man page,
     and in the appropriate User's Guide appendix.
-    The name of any tool may be interpolated
+    The name of this tool may be interpolated
     anywhere in the document by specifying the
-    &t-TOOL; element. It need not be on a line by itself.</para>
+    &t-TOOL; element. A link to this definition may be
+    interpolated by specifying the &t-link-TOOL; element.
+    </para>
 
     <example>
     print("this is example code, it will be offset and indented")

@@ -32,7 +32,11 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import math, sys, os.path, glob, string, re
+import glob
+import math
+import os.path
+import re
+import sys
 
 is_windows = sys.platform == 'win32'
 is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or
@@ -448,7 +452,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
     if not topdir:
         # Normally this is an error, but it might not be if the compiler is
         # on $PATH and the user is importing their env.
-        class ICLTopDirWarning(SCons.Warnings.Warning):
+        class ICLTopDirWarning(SCons.Warnings.SConsWarning):
             pass
         if (is_mac or is_linux) and not env.Detect('icc') or \
            is_windows and not env.Detect('icl'):
@@ -569,7 +573,7 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         if not licdir:
             licdir = defaultlicdir
             if not os.path.exists(licdir):
-                class ICLLicenseDirWarning(SCons.Warnings.Warning):
+                class ICLLicenseDirWarning(SCons.Warnings.SConsWarning):
                     pass
                 SCons.Warnings.enableWarningClass(ICLLicenseDirWarning)
                 SCons.Warnings.warn(ICLLicenseDirWarning,

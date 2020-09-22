@@ -69,7 +69,7 @@ if "--debug=memoizer" in _args:
     import SCons.Warnings
     try:
         SCons.Memoize.EnableMemoization()
-    except SCons.Warnings.Warning:
+    except SCons.Warnings.SConsWarning:
         # Some warning was thrown.  Arrange for it to be displayed
         # or not after warnings are configured.
         from . import Main

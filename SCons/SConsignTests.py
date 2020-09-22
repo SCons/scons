@@ -24,7 +24,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
-import sys
 import unittest
 
 import TestCmd
@@ -382,18 +381,7 @@ class writeTestCase(SConsignTestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [
-        BaseTestCase,
-        SConsignDBTestCase,
-        SConsignDirFileTestCase,
-        SConsignFileTestCase,
-        writeTestCase,
-    ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

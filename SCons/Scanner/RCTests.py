@@ -24,7 +24,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import unittest
-import sys
 import collections
 import os
 
@@ -157,13 +156,6 @@ class RCScannerTestCase3(unittest.TestCase):
         headers = ['t1.h']
         deps_match(self, deps, headers)
         
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(RCScannerTestCase1())
-    suite.addTest(RCScannerTestCase2())
-    suite.addTest(RCScannerTestCase3())
-    return suite
 
 if __name__ == "__main__":
     unittest.main()

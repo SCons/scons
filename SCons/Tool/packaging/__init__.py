@@ -36,7 +36,7 @@ from SCons.Errors import UserError, SConsEnvironmentError
 from SCons.Script import AddOption, GetOption
 from SCons.Util import is_List, make_path_relative
 from SCons.Variables import *
-from SCons.Warnings import warn, Warning
+from SCons.Warnings import warn, SConsWarning
 
 
 __all__ = [
@@ -306,7 +306,7 @@ def stripinstallbuilder(target, source, env):
                     and file.builder.name in ["InstallBuilder", "InstallAsBuilder"])
 
     if len([src for src in source if has_no_install_location(src)]):
-        warn(Warning, "there are files to package which have no\
+        warn(SConsWarning, "there are files to package which have no\
         InstallBuilder attached, this might lead to irreproducible packages")
 
     n_source = []

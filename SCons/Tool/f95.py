@@ -46,11 +46,15 @@ def generate(env):
     add_f95_to_env(env)
 
     fcomp = env.Detect(compilers) or 'f95'
-    env['F95']  = fcomp
-    env['SHF95']  = fcomp
+    if 'F95' not in env:
+        env['F95']  = fcomp
+    if 'SHF95' not in env:
+        env['SHF95']  = '$F95'
 
-    env['FORTRAN']  = fcomp
-    env['SHFORTRAN']  = fcomp
+    if 'FORTRAN' not in env:
+        env['FORTRAN']  = fcomp
+    if 'SHFORTRAN' not in env:
+        env['SHFORTRAN']  = '$FORTRAN'
 
 
 def exists(env):

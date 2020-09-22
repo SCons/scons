@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -27,24 +25,10 @@ it to appear at the end of name of the generated tempfile
 used for long command lines.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import os
-import stat
 
 import TestSCons
 
 test = TestSCons.TestSCons(match=TestSCons.match_re)
-
-test.write('echo.py', """\
-import sys
-print(sys.argv)
-""")
-
-echo_py = test.workpath('echo.py')
-
-st = os.stat(echo_py)
-os.chmod(echo_py, st[stat.ST_MODE] | 0o111)
 
 test.write('SConstruct', """
 import os

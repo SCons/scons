@@ -54,9 +54,7 @@ __doc__ = """
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import operator
 import sys
-import traceback
 from abc import ABC, abstractmethod
 from itertools import chain
 

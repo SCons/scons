@@ -211,7 +211,7 @@ class Taskmaster:
         try:
             import threading
             self.guard = threading.Lock()
-        except:
+        except ImportError:
             self.guard = DummyLock()
 
         # keep track of the order tasks are begun in
@@ -255,7 +255,7 @@ class ParallelTestCase(unittest.TestCase):
 
         try:
             import threading
-        except:
+        except ImportError:
             raise NoThreadsException()
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)

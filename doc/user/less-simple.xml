@@ -189,7 +189,7 @@ void file2() { printf("file2.c\n"); }
     (&SCons; puts the output file name to the left
     of the source file names
     so that the order mimics that of an
-    assignment statement:  "program = source files".)
+    assignment statement:  <literal>program = source files</literal>.)
     This makes our example:
 
     </para>
@@ -462,31 +462,29 @@ Program('program', src_files)
 
     &SCons; also allows you to identify
     the output file and input source files
-    using Python keyword arguments.
-    The output file is known as the
-    <emphasis>target</emphasis>,
-    and the source file(s) are known (logically enough) as the
-    <emphasis>source</emphasis>.
+    using Python keyword arguments
+    <parameter>target</parameter> and
+    <parameter>source</parameter>.
     The Python syntax for this is:
 
     </para>
 
     <programlisting>
 src_files = Split('main.c file1.c file2.c')
-Program(target = 'program', source = src_files)
+Program(target='program', source=src_files)
     </programlisting>
 
     <para>
 
     Because the keywords explicitly identify
-    what each argument is,
-    you can actually reverse the order if you prefer:
+    what each argument is, the order does
+    not matter and you can reverse it if you prefer:
 
     </para>
 
     <programlisting>
 src_files = Split('main.c file1.c file2.c')
-Program(source = src_files, target = 'program')
+Program(source=src_files, target='program')
     </programlisting>
 
     <para>
@@ -641,65 +639,6 @@ Program('bar', bar_files)
     <para>
 
     This is functionally equivalent to the previous example.
-
-    </para>
-
-  </section>
-
-  <section>
-  <title>Overriding construction variables when calling a Builder</title>
-
-    <para>
-
-    It is possible to override or add construction variables
-    when calling a builder method by passing additional keyword arguments.
-    These overridden or added variables will only be in effect when
-    building the target, so they will not affect other parts of the build.
-    For example, if you want to add additional libraries for just one program:
-
-    </para>
-
-    <programlisting>
-env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
-    </programlisting>
-
-    <para>
-
-    or generate a shared library with a non-standard suffix:
-
-    </para>
-
-    <programlisting>
-env.SharedLibrary('word', 'word.cpp',
-                  SHLIBSUFFIX='.ocx',
-                  LIBSUFFIXES=['.ocx'])
-    </programlisting>
-
-    <para>
-
-    It is also possible to use the <literal>parse_flags</literal>
-    keyword argument in an override to merge command-line
-    style arguments into the appropriate construction
-    variables (see &f-link-env-MergeFlags;).
-
-    </para>
-
-    <para>
-
-    This example adds 'include' to &cv-link-CPPPATH;,
-    'EBUG' to &cv-link-CPPDEFINES;, and 'm' to &cv-link-LIBS;.
-
-    </para>
-
-    <programlisting>
-env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
-    </programlisting>
-
-    <para>
-
-    Within the call to the builder action the environment is not cloned,
-    instead an OverrideEnvironment() is created which is more
-    light weight than a whole Environment()
 
     </para>
 
