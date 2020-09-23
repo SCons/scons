@@ -40,14 +40,14 @@ context.Log(msg)
 
 context.BuildProg(text, ext)
     Function called to build a program, using "ext" for the file
-    extention.  Must return an empty string for success, an error
+    extension.  Must return an empty string for success, an error
     message for failure.  For reliable test results building should
     be done just like an actual program would be build, using the
     same command and arguments (including configure results so far).
 
 context.CompileProg(text, ext)
     Function called to compile a program, using "ext" for the file
-    extention.  Must return an empty string for success, an error
+    extension.  Must return an empty string for success, an error
     message for failure.  For reliable test results compiling should be
     done just like an actual source file would be compiled, using the
     same command and arguments (including configure results so far).
