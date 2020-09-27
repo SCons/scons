@@ -1,24 +1,4 @@
-"""SCons.Platform
-
-SCons platform selection.
-
-This looks for modules that define a callable object that can modify a
-construction environment as appropriate for a given platform.
-
-Note that we take a more simplistic view of "platform" than Python does.
-We're looking for a single string that determines a set of
-tool-independent variables with which to initialize a construction
-environment.  Consequently, we'll examine both sys.platform and os.name
-(and anything else that might come in to play) in order to return some
-specification which is unique enough for our purposes.
-
-Note that because this subsystem just *selects* a callable that can
-modify a construction environment, it's possible for people to define
-their own "platform specification" in an arbitrary callable function.
-No one needs to use or tie in to this subsystem in order to roll
-their own platform definition.
-"""
-
+# MIT License
 #
 # Copyright The SCons Foundation
 #
@@ -40,7 +20,25 @@ their own platform definition.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""SCons platform selection.
+
+Looks for modules that define a callable object that can modify a
+construction environment as appropriate for a given platform.
+
+Note that we take a more simplistic view of "platform" than Python does.
+We're looking for a single string that determines a set of
+tool-independent variables with which to initialize a construction
+environment.  Consequently, we'll examine both sys.platform and os.name
+(and anything else that might come in to play) in order to return some
+specification which is unique enough for our purposes.
+
+Note that because this subsystem just *selects* a callable that can
+modify a construction environment, it's possible for people to define
+their own "platform specification" in an arbitrary callable function.
+No one needs to use or tie in to this subsystem in order to roll
+their own platform definition.
+"""
 
 import SCons.compat
 

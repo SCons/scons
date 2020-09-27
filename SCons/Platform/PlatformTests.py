@@ -1,3 +1,4 @@
+# MIT License
 #
 # Copyright The SCons Foundation
 #
@@ -19,16 +20,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import SCons.compat
 
 import collections
 import unittest
 import os
 
+import SCons.compat
 import SCons.Errors
 import SCons.Platform
 import SCons.Environment
