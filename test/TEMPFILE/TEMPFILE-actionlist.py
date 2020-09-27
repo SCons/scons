@@ -1,5 +1,6 @@
+#!/usr/bin/env python
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,46 +22,32 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__doc__ = """Module to define supported Windows chip architectures.
+"""
+Verify that using $TEMPFILE in multiple actions in a
+list invokes each command in the list.
 """
 
+import TestSCons
 
-class ArchDefinition:
-    """
-    A class for defining architecture-specific settings and logic.
-    """
-    def __init__(self, arch, synonyms=[]):
-        self.arch = arch
-        self.synonyms = synonyms
+test = TestSCons.TestSCons(match=TestSCons.match_re)
+test.file_fixture('fixture/SConstruct-tempfile-actionlist', 'SConstruct')
 
-SupportedArchitectureList = [
-    ArchDefinition(
-        'x86',
-        ['i386', 'i486', 'i586', 'i686'],
-    ),
+test.write('file.input', "file.input\n")
 
-    ArchDefinition(
-        'x86_64',
-        ['AMD64', 'amd64', 'em64t', 'EM64T', 'x86_64'],
-    ),
+test.run(arguments='-n -Q .',
+         stdout="""\
+Using tempfile \\S+ for command line:
+xxx.py -otempfile file.input
+xxx.py @\\S+
+Using tempfile \\S+ for command line:
+yyy.py -ofile.output tempfile
+yyy.py @\\S+
+""")
 
-    ArchDefinition(
-        'ia64',
-        ['IA64'],
-    ),
-    
-    ArchDefinition(
-        'arm',
-        ['ARM'],
-    ),
+test.pass_test()
 
-]
-
-SupportedArchitectureMap = {}
-for a in SupportedArchitectureList:
-    SupportedArchitectureMap[a.arch] = a
-    for s in a.synonyms:
-        SupportedArchitectureMap[s] = a
-
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

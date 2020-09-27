@@ -1,14 +1,6 @@
-"""SCons.Platform.win32
-
-Platform-specific initialization for Win32 systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -28,9 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Platform-specific initialization for Win32 systems.
+
+There normally shouldn't be any need to import this module directly.  It
+will usually be imported through the generic SCons.Platform.Platform()
+selection method.
+"""
 
 import os
 import os.path
@@ -288,7 +284,6 @@ def get_program_files_dir():
             val, tok = SCons.Util.RegQueryValueEx(k, 'ProgramFilesDir')
         except SCons.Util.RegError:
             val = ''
-            pass
 
     if val == '':
         # A reasonable default if we can't read the registry

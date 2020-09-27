@@ -32,7 +32,6 @@ import glob
 import os
 import TestSCons
 import time
-from stat import *
 
 test = TestSCons.TestSCons()
 

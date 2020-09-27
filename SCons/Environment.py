@@ -1,16 +1,6 @@
-"""SCons.Environment
-
-Base class for construction Environments.  These are
-the primary objects used to communicate dependency and
-construction information to the build engine.
-
-Keyword arguments supplied when the construction Environment
-is created are construction variables used to initialize the
-Environment
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,8 +21,14 @@ Environment
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Base class for construction Environments.
 
+These are the primary objects used to communicate dependency and
+construction information to the build engine.
+
+Keyword arguments supplied when the construction Environment is created
+are construction variables used to initialize the Environment.
+"""
 
 import copy
 import os

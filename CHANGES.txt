@@ -31,6 +31,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and a SConscript file is being run that is not in the source root
       directory.
 
+  From Joachim Kuebart:
+    - Suppress missing SConscript deprecation warning if `must_exist=False`
+      is used.
+
   From Rocco Matano:
     - Fix Zip tool to respect ZIPCOMSTR. Previously all zip builder calls would yield something
       like zip(["test.zip"], ["zip_scons.py"]) and ignore ZIPCOMSTR if ZIPCOM and ZIPCOMSTR
@@ -52,10 +56,20 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       - merging --param arguments did not work (issue #3107); 
       - passing a dict to merge where the values are strings failed (issue #2961).
     - Include previously-excluded SideEffect section in User Guide.
+    - Clean up unneeded imports (autoflake tool).
+    - Make sure cProfile is used if profiling - SCons was expecting
+      the Util module to monkeypatch in cProfile as profile if available,
+      but this is no longer being done.
 
-  From Joachim Kuebart:
-    - Suppress missing SConscript deprecation warning if `must_exist=False`
-      is used.
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
+
+
+
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700

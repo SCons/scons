@@ -1,51 +1,6 @@
-"""SCons.Variables.PathVariable
-
-This file defines an option type for SCons implementing path settings.
-
-To be used whenever a user-specified path override should be allowed.
-
-Arguments to PathVariable are:
-  option-name  = name of this option on the command line (e.g. "prefix")
-  option-help  = help string for option
-  option-dflt  = default value for this option
-  validator    = [optional] validator for option value.  Predefined validators are:
-
-                     PathAccept -- accepts any path setting; no validation
-                     PathIsDir  -- path must be an existing directory
-                     PathIsDirCreate -- path must be a dir; will create
-                     PathIsFile -- path must be a file
-                     PathExists -- path must exist (any type) [default]
-
-                 The validator is a function that is called and which
-                 should return True or False to indicate if the path
-                 is valid.  The arguments to the validator function
-                 are: (key, val, env).  The key is the name of the
-                 option, the val is the path specified for the option,
-                 and the env is the env to which the Options have been
-                 added.
-
-Usage example::
-
-  Examples:
-      prefix=/usr/local
-
-  opts = Variables()
-
-  opts = Variables()
-  opts.Add(PathVariable('qtdir',
-                        'where the root of Qt is installed',
-                        qtdir, PathIsDir))
-  opts.Add(PathVariable('qt_includes',
-                      'where the Qt includes are installed',
-                      '$qtdir/includes', PathIsDirCreate))
-  opts.Add(PathVariable('qt_libraries',
-                      'where the Qt library is installed',
-                      '$qtdir/lib'))
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -65,9 +20,48 @@ Usage example::
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Option type for path Variables.
+
+This file defines an option type for SCons implementing path settings.
+
+To be used whenever a user-specified path override should be allowed.
+
+Arguments to PathVariable are:
+  option-name  = name of this option on the command line (e.g. "prefix")
+  option-help  = help string for option
+  option-dflt  = default value for this option
+  validator    = [optional] validator for option value.  Predefined are:
+    PathAccept -- accepts any path setting; no validation
+    PathIsDir  -- path must be an existing directory
+    PathIsDirCreate -- path must be a dir; will create
+    PathIsFile -- path must be a file
+    PathExists -- path must exist (any type) [default]
+
+  The validator is a function that is called and which should return
+  True or False to indicate if the path is valid.  The arguments
+  to the validator function are: (key, val, env).  The key is the
+  name of the option, the val is the path specified for the option,
+  and the env is the env to which the Options have been added.
+
+Usage example::
+
+  Examples:
+      prefix=/usr/local
+
+  opts = Variables()
+
+  opts = Variables()
+  opts.Add(PathVariable('qtdir',
+                        'where the root of Qt is installed',
+                        qtdir, PathIsDir))
+  opts.Add(PathVariable('qt_includes',
+                      'where the Qt includes are installed',
+                      '$qtdir/includes', PathIsDirCreate))
+  opts.Add(PathVariable('qt_libraries',
+                      'where the Qt library is installed',
+                      '$qtdir/lib'))
+"""
 
 __all__ = ['PathVariable',]
 

@@ -1,11 +1,6 @@
-"""SCons.PathList
-
-A module for handling lists of directory paths (the sort of things
-that get set as CPPPATH, LIBPATH, etc.) with as much caching of data and
-efficiency as we can, while still keeping the evaluation delayed so that we
-Do the Right Thing (almost) regardless of how the variable is specified.
-
-"""
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,6 +21,14 @@ Do the Right Thing (almost) regardless of how the variable is specified.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+"""Handle lists of directory paths.
+
+These are the path lists that get set as CPPPATH, LIBPATH,
+etc.) with as much caching of data and efficiency as we can, while
+still keeping the evaluation delayed so that we Do the Right Thing
+(almost) regardless of how the variable is specified.
+"""
 
 import os
 

@@ -29,7 +29,6 @@ Test that we can generate Visual Studio 7.1 project (.vcproj) and
 solution (.sln) files that contain SCC information and look correct.
 """
 
-import os
 
 import TestSConsMSVS
 

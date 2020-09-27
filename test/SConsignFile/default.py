@@ -29,7 +29,6 @@ Verify the default behavior of SConsignFile(), called with no arguments.
 """
 
 import TestSCons
-import os.path
 
 _python_ = TestSCons._python_
 

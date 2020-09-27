@@ -1,20 +1,6 @@
-"""SCons.Script
-
-This file implements the main() function used by the scons script.
-
-Architecturally, this *is* the scons script, and will likely only be
-called from the external "scons" wrapper.  Consequently, anything here
-should not be, or be considered, part of the build engine.  If it's
-something that we expect other software to want to use, it should go in
-some other module.  If it's specific to the "scons" script invocation,
-it goes here.
-"""
-
-unsupported_python_version = (3, 4, 0)
-deprecated_python_version = (3, 4, 0)
-
-
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -35,8 +21,19 @@ deprecated_python_version = (3, 4, 0)
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The main() function used by the scons script.
 
+Architecturally, this *is* the scons script, and will likely only be
+called from the external "scons" wrapper.  Consequently, anything here
+should not be, or be considered, part of the build engine.  If it's
+something that we expect other software to want to use, it should go in
+some other module.  If it's specific to the "scons" script invocation,
+it goes here.
+"""
+
+# these define the range of versions SCons supports
+unsupported_python_version = (3, 4, 0)
+deprecated_python_version = (3, 4, 0)
 
 import SCons.compat
 
@@ -1343,8 +1340,7 @@ def _exec_main(parser, values):
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
-        # compat layer imports "cProfile" for us if it's available.
-        from profile import Profile
+        from cProfile import Profile
 
         prof = Profile()
         try:

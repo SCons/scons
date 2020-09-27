@@ -1,11 +1,6 @@
-"""SCons.Scanner
-
-The Scanner package for the SCons software construction utility.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,9 +20,8 @@ The Scanner package for the SCons software construction utility.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The Scanner package for the SCons software construction utility."""
 
 import re
 
@@ -43,16 +37,16 @@ class _Null:
 _null = _Null
 
 def Scanner(function, *args, **kw):
-    """
-    Public interface factory function for creating different types
-    of Scanners based on the different types of "functions" that may
-    be supplied.
+    """Factory function to create a Scanner Object.
+
+    Creates the appropriate Scanner based on the type of "function".
 
     TODO:  Deprecate this some day.  We've moved the functionality
     inside the Base class and really don't need this factory function
     any more.  It was, however, used by some of our Tool modules, so
     the call probably ended up in various people's custom modules
     patterned on SCons code.
+
     """
     if SCons.Util.is_Dict(function):
         return Selector(function, *args, **kw)
@@ -60,10 +54,8 @@ def Scanner(function, *args, **kw):
         return Base(function, *args, **kw)
 
 
-
 class FindPathDirs:
-    """
-    A class to bind a specific E{*}PATH variable name to a function that
+    """Class to bind a specific E{*}PATH variable name to a function that
     will return all of the E{*}path directories.
     """
     def __init__(self, variable):
@@ -82,66 +74,25 @@ class FindPathDirs:
 
 
 class Base:
+    """Base class for dependency scanners.
+
+    This implements straightforward, single-pass scanning of a single file.
     """
-    The base class for dependency scanners.  This implements
-    straightforward, single-pass scanning of a single file.
-    """
-
-    def __init__(self,
-                 function,
-                 name = "NONE",
-                 argument = _null,
-                 skeys = _null,
-                 path_function = None,
-                 # Node.FS.Base so that, by default, it's okay for a
-                 # scanner to return a Dir, File or Entry.
-                 node_class = SCons.Node.FS.Base,
-                 node_factory = None,
-                 scan_check = None,
-                 recursive = None):
-        """
-        Construct a new scanner object given a scanner function.
-
-        'function' - a scanner function taking two or three
-        arguments and returning a list of strings.
-
-        'name' - a name for identifying this scanner object.
-
-        'argument' - an optional argument that, if specified, will be
-        passed to both the scanner function and the path_function.
-
-        'skeys' - an optional list argument that can be used to determine
-        which scanner should be used for a given Node. In the case of File
-        nodes, for example, the 'skeys' would be file suffixes.
-
-        'path_function' - a function that takes four or five arguments
-        (a construction environment, Node for the directory containing
-        the SConscript file that defined the primary target, list of
-        target nodes, list of source nodes, and optional argument for
-        this instance) and returns a tuple of the directories that can
-        be searched for implicit dependency files.  May also return a
-        callable() which is called with no args and returns the tuple
-        (supporting Bindable class).
-
-        'node_class' - the class of Nodes which this scan will return.
-        If node_class is None, then this scanner will not enforce any
-        Node conversion and will return the raw results from the
-        underlying scanner function.
-
-        'node_factory' - the factory function to be called to translate
-        the raw results returned by the scanner function into the
-        expected node_class objects.
-
-        'scan_check' - a function to be called to first check whether
-        this node really needs to be scanned.
-
-        'recursive' - specifies that this scanner should be invoked
-        recursively on all of the implicit dependencies it returns
-        (the canonical example being #include lines in C source files).
-        May be a callable, which will be called to filter the list
-        of nodes found to select a subset for recursive scanning
-        (the canonical example being only recursively scanning
-        subdirectories within a directory).
+    def __init__(
+        self,
+        function,
+        name="NONE",
+        argument=_null,
+        skeys=_null,
+        path_function=None,
+        # Node.FS.Base so that, by default, it's okay for a
+        # scanner to return a Dir, File or Entry.
+        node_class=SCons.Node.FS.Base,
+        node_factory=None,
+        scan_check=None,
+        recursive=None,
+    ):
+        """Construct a new scanner object given a scanner function.
 
         The scanner function's first argument will be a Node that should
         be scanned for dependencies, the second argument will be an
@@ -152,14 +103,55 @@ class Base:
 
         Examples:
 
-        s = Scanner(my_scanner_function)
+          s = Scanner(my_scanner_function)
+          s = Scanner(function = my_scanner_function)
+          s = Scanner(function = my_scanner_function, argument = 'foo')
 
-        s = Scanner(function = my_scanner_function)
+        Args:
+            function: a scanner function taking two or three arguments
+              and returning a list of strings.
 
-        s = Scanner(function = my_scanner_function, argument = 'foo')
+            name: a name for identifying this scanner object.
+
+            argument: an optional argument that, if specified, will be
+              passed to both the scanner function and the path_function.
+
+            skeys: an optional list argument that can be used
+              to determine which scanner should be used for a given
+              Node. In the case of File nodes, for example, the 'skeys'
+              would be file suffixes.
+
+            path_function: a function that takes four or five arguments
+              (a construction environment, Node for the directory
+              containing the SConscript file that defined the primary
+              target, list of target nodes, list of source nodes, and
+              optional argument for this instance) and returns a tuple
+              of the directories that can be searched for implicit
+              dependency files.  May also return a callable() which
+              is called with no args and returns the tuple (supporting
+              Bindable class).
+
+            node_class: the class of Nodes which this scan will return.
+              If node_class is None, then this scanner will not enforce
+              any Node conversion and will return the raw results from
+              the underlying scanner function.
+
+            node_factory: the factory function to be called to
+              translate the raw results returned by the scanner function
+              into the expected node_class objects.
+
+            scan_check: a function to be called to first check whether
+              this node really needs to be scanned.
+
+            recursive: specifies that this scanner should be invoked
+              recursively on all of the implicit dependencies it returns
+              (the canonical example being #include lines in C source
+              files).  May be a callable, which will be called to filter
+              the list of nodes found to select a subset for recursive
+              scanning (the canonical example being only recursively
+              scanning subdirectories within a directory).
 
         """
-
         # Note: this class could easily work with scanner functions that take
         # something other than a filename as an argument (e.g. a database
         # node) and a dependencies list that aren't file names. All that
@@ -196,11 +188,15 @@ class Base:
             return self.path_function(env, dir, target, source)
 
     def __call__(self, node, env, path=()):
-        """
-        This method scans a single object. 'node' is the node
-        that will be passed to the scanner function, and 'env' is the
-        environment that will be passed to the scanner function. A list of
-        direct dependency nodes for the specified node will be returned.
+        """Scans a single object.
+
+        Args:
+          node: the node that will be passed to the scanner function
+          env: the environment that will be passed to the scanner function.
+
+        Returns:
+          A list of direct dependency nodes for the specified node.
+
         """
         if self.scan_check and not self.scan_check(node, env):
             return []

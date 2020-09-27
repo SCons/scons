@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # runtest.py - wrapper script for running SCons tests
 #

@@ -22,11 +22,9 @@ SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCommonTests.py 1.3.D001 2010/06/03 12:58:27 knight"
 
-import difflib
 import os
 import re
 import signal
-import stat
 import sys
 import unittest
 
