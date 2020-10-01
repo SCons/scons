@@ -3250,7 +3250,7 @@ command-line option.
 </para>
 
 <para>
-Physically duplicating the source files may be disabled by setting the
+Duplicating the source files may be disabled by setting the
 <parameter>duplicate</parameter>
 argument to
 <constant>False</constant>.

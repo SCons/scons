@@ -166,7 +166,7 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    The main thing to understand is that when you set up a variant directory,
+    The important thing to understand is that when you set up a variant directory,
     &SCons; performs the build <emphasis>in that directory</emphasis>.
     It turns out it's easiest to ensure where build products end up
     by just building in place.
