@@ -24,6 +24,7 @@ Options:
      --builddir DIR        Directory in which packages were built.
   -d --debug               Run test scripts under the Python debugger.
   -D --devmode             Run tests in Python's development mode (3.7+ only)
+     --e2e-only            Run only the end-to-end tests
   -e --external            Run the script in external mode (for external Tools)
   -f --file FILE           Only run tests listed in FILE.
   -j --jobs JOBS           Run tests in JOBS parallel jobs.
@@ -54,6 +55,7 @@ Options:
                            and a percentage value, based on the total and
                            current number of tests.
   -t --time                Print test execution time.
+     --unit-only           Run only the unit tests
   -v VERSION               Specify the SCons version.
      --verbose=LEVEL       Set verbose level:
                              1 = print executed commands,
@@ -110,6 +112,7 @@ suppress_output = False
 allow_pipe_files = True
 quit_on_failure = False
 excludelistfile = None
+e2e_only = unit_only = False
 
 script = sys.argv[0].split("/")[-1]
 usagestr = """\
@@ -175,6 +178,8 @@ opts, args = getopt.getopt(
         "exec=",
         "verbose=",
         "exclude-list=",
+        "e2e-only",
+        "unit-only",
     ],
 )
 
@@ -241,6 +246,10 @@ for o, a in opts:
         scons = a
     elif o in ['--exclude-list']:
         excludelistfile = a
+    elif o in ['--e2e-only']:
+        e2e_only = True
+    elif o in ['--unit-only']:
+        unit_only = True
 
 
 class Unbuffered():
@@ -553,6 +562,27 @@ if old_pythonpath:
 
 
 # ---[ test discovery ]------------------------------------
+# This section figures which tests to run.
+#
+# The initial testlist is made by reading from the testlistfile,
+# if supplied, or by looking at the test arguments, if supplied,
+# or by looking for all test files if the "all" argument is supplied.
+# One of the three is required.
+#
+# Each test path, whichever of the three sources it comes from,
+# specifies either a test file or a directory to search for
+# SCons tests. SCons code layout assumes that any file under the 'src'
+# subdirectory that ends with 'Tests.py' is a unit test, and any Python
+# script (*.py) under the 'test' subdirectory is an end-to-end test.
+# We need to track these because they are invoked differently.
+# find_unit_tests and find_e2e_tests are used for this searching.
+#
+# Note that there are some tests under 'src' that *begin* with
+# 'test_', but they're packaging and installation tests, not
+# functional tests, so we don't execute them by default.  (They can
+# still be executed by hand, though).
+#
+# Test exclusions, if specified, are then applied.
 
 tests = []
 excludetests = []
@@ -594,25 +624,10 @@ def find_e2e_tests(directory):
 
 if testlistfile:
     with open(testlistfile, 'r') as f:
-        tests = f.readlines()
-    tests = [x for x in tests if x[0] != '#']
-    tests = [x[:-1] for x in tests]
-    tests = [x.strip() for x in tests]
+        tests = [x[:-1].strip() for x in f if not x.startswith('#')]
     tests = [x for x in tests if x]
 else:
     testpaths = []
-
-    # Each test path specifies a test file, or a directory to search for
-    # SCons tests. SCons code layout assumes that any file under the 'SCons'
-    # subdirectory that ends with 'Tests.py' is a unit test, and any Python
-    # script (*.py) under the 'test' subdirectory an end-to-end test.
-    # We need to track these because they are invoked differently.
-    #
-    # Note that there are some tests under 'SCons' that *begin* with
-    # 'test_', but they're packaging and installation tests, not
-    # functional tests, so we don't execute them by default.  (They can
-    # still be executed by hand, though).
-
     if options.all:
         testpaths = ['SCons', 'test']
     elif args:
@@ -622,24 +637,25 @@ else:
         # Clean up path so it can match startswith's below
         # sys.stderr.write("Changed:%s->"%tp)
         # remove leading ./ or .\
-        if tp[0] == '.' and tp[1] in (os.sep, os.altsep):
+        if tp.startswith('.') and tp[1] in (os.sep, os.altsep):
             tp = tp[2:]
         # tp = os.path.normpath(tp)
         # sys.stderr.write('->%s<-'%tp)
         # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.startswith('SCons') or path.startswith('testing'):
+                if path.startswith(('SCons', 'testing')) and not e2e_only:
                     for p in find_unit_tests(path):
                         unittests.append(p)
-                elif path.startswith('test'):
+                elif path.startswith('test') and not unit_only:
                     for p in find_e2e_tests(path):
                         endtests.append(p)
             else:
-                if path.endswith("Tests.py"):
+                if path.endswith("Tests.py") and not e2e_only:
                     unittests.append(path)
                 else:
-                    endtests.append(path)
+                    if not unit_only:
+                        endtests.append(path)
 
     tests.extend(unittests)
     tests.extend(endtests)
@@ -697,10 +713,9 @@ def log_result(t, io_lock=None):
     we need to lock access to the log to avoid interleaving. The same
     would apply if output was a file.
 
-    :param t: a completed testcase
-    :type t: Test
-    :param io_lock:
-    :type io_lock: threading.Lock
+    Args:
+        t (Test): (completed) testcase instance
+        io_lock (threading.lock): (optional) lock to use
     """
 
     # there is no lock in single-job run, which includes
@@ -727,6 +742,18 @@ def log_result(t, io_lock=None):
 
 
 def run_test(t, io_lock=None, run_async=True):
+    """ Run a testcase.
+
+    Builds the command line to give to execute().
+    Also the best place to record some information that will be
+    used in output, which in some conditions is printed here.
+
+    Args:
+        t (Test): testcase instance
+        io_lock (threading.Lock): (optional) lock to use
+        run_async (bool): whether to run asynchronously
+    """
+
     t.headline = ""
     command_args = []
     if debug:
@@ -738,7 +765,7 @@ def run_test(t, io_lock=None, run_async=True):
         # For example --runner TestUnit.TAPTestRunner
         command_args.append('--runner ' + options.runner)
     t.command_args = [escape(python)] + command_args
-    t.command_str = " ".join([escape(python)] + command_args)
+    t.command_str = " ".join(t.command_args)
     if printcommand:
         if print_progress:
             t.headline += "%d/%d (%.2f%s) %s\n" % (
@@ -753,7 +780,7 @@ def run_test(t, io_lock=None, run_async=True):
     if not suppress_output and not catch_output:
         # defer printing the headline until test is done
         sys.stdout.write(t.headline)
-    head, tail = os.path.split(t.abspath)
+    head, _ = os.path.split(t.abspath)
     fixture_dirs = []
     if head:
         fixture_dirs.append(head)
@@ -775,7 +802,7 @@ class RunTest(threading.Thread):
     """
     def __init__(self, queue=None, io_lock=None,
                  group=None, target=None, name=None, args=(), kwargs=None):
-        super(RunTest, self).__init__(group=group, target=target, name=name)
+        super().__init__(group=group, target=target, name=name)
         self.queue = queue
         self.io_lock = io_lock
 
@@ -856,6 +883,7 @@ if options.output:
 if fail:
     sys.exit(1)
 elif no_result:
+    # if no fails, but skips were found
     sys.exit(2)
 else:
     sys.exit(0)
