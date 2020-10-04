@@ -33,7 +33,6 @@ environment or in unactivated virtualenv.
 
 import TestSCons
 import SCons.Platform.virtualenv
-import sys
 import os
 import re
 

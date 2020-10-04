@@ -13,11 +13,11 @@
     %variables-mod;
 ]>
 
-<chapter id="chap-variants"
+<section id="sect-variants"
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
-<title>Variant Builds</title>
+<title>Variant Build Examples</title>
 
 <!--
 
@@ -44,30 +44,6 @@
 
 -->
 
-<!--
-
-=head1 Variant builds
-
-=head2 Variations on a theme
-
-Other variations of this model are possible. For example, you might decide
-that you want to separate out your include files into platform dependent and
-platform independent files. In this case, you'd have to define an
-alternative to C<$INCLUDE> for platform-dependent files. Most F<Conscript>
-files, generating purely platform-independent include files, would not have
-to change.
-
-You might also want to be able to compile your whole system with debugging
-or profiling, for example, enabled. You could do this with appropriate
-command line options, such as C<DEBUG=on>. This would then be translated
-into the appropriate platform-specific requirements to enable debugging
-(this might include turning off optimization, for example). You could
-optionally vary the name space for these different types of systems, but, as
-we'll see in the next section, it's not B<essential> to do this, since Cons
-is pretty smart about rebuilding things when you change options.
-
--->
-
   <para>
 
   The &variant_dir; keyword argument of
@@ -76,9 +52,15 @@ is pretty smart about rebuilding things when you change options.
   variant builds using &SCons;.
   Suppose, for example, that we want to
   build a program for both Windows and Linux platforms,
-  but that we want to build it in a shared directory
+  but that we want to build it in directory on a network share
   with separate side-by-side build directories
   for the Windows and Linux versions of the program.
+  We have to do a little bit of work to construct paths,
+  to make sure unwanted location dependencies don't creep in.
+  The top-relative path reference can be useful here.
+  To avoid writing conditional code based on platform,
+  we can build the <parameter>variant_dir</parameter>
+  path dynamically:
 
   </para>
 
@@ -90,13 +72,15 @@ include = "#export/$PLATFORM/include"
 lib = "#export/$PLATFORM/lib"
 bin = "#export/$PLATFORM/bin"
 
-env = Environment(PLATFORM = platform,
-                  BINDIR = bin,
-                  INCDIR = include,
-                  LIBDIR = lib,
-                  CPPPATH = [include],
-                  LIBPATH = [lib],
-                  LIBS = 'world')
+env = Environment(
+    PLATFORM=platform,
+    BINDIR=bin,
+    INCDIR=include,
+    LIBDIR=lib,
+    CPPPATH=[include],
+    LIBPATH=[lib],
+    LIBS='world',
+)
 
 Export('env')
 
@@ -155,20 +139,32 @@ int world() { printf "world.c\n"; }
     <scons_output_command>scons -Q OS=windows</scons_output_command>
   </scons_output>
 
-  <!--
+  <para>
+
+  In order to build several variants at once when using the
+  <parameter>variant_dir</parameter> argument to &SConscript;,
+  you can call the function repeatedely - this example
+  does so in a loop. Note that the &f-link-SConscript; trick of
+  passing a list of script files, or a list of source directories,
+  does not work with <parameter>variant_dir</parameter>,
+  &SCons; allows only a single &SConscript; to be given if
+  <parameter>variant_dir</parameter> is used.
+
+  </para>
 
   <scons_example name="variants_ex2">
     <file name="SConstruct" printme="1">
-env = Environment(OS = ARGUMENTS.get('OS'))
+env = Environment(OS=ARGUMENTS.get('OS'))
 for os in ['newell', 'post']:
     SConscript('src/SConscript', variant_dir='build/' + os)
     </file>
   </scons_example>
 
+  <!--
   <scons_output example="variants_ex2" suffix="1">
     <scons_output_command>scons -Q</scons_output_command>
   </scons_output>
 
   -->
 
-</chapter>
+</section>

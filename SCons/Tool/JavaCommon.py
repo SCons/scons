@@ -87,9 +87,10 @@ if java_parsing:
     #     any alphanumeric token surrounded by angle brackets (generics);
     #     the multi-line comment begin and end tokens /* and */;
     #     array declarations "[]".
+    #     Lambda function symbols: ->
     _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"{\};.()]|' +
                           r'\d*\.\d*|[A-Za-z_][\w$.]*|<[A-Za-z_]\w+>|' +
-                          r'/\*|\*/|\[\])')
+                          r'/\*|\*/|\[\]|->)')
 
 
     class OuterState:

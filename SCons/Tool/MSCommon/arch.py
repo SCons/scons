@@ -26,7 +26,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 __doc__ = """Module to define supported Windows chip architectures.
 """
 
-import os
 
 class ArchDefinition:
     """

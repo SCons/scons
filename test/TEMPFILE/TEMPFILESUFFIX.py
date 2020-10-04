@@ -20,24 +20,22 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify that setting the $TEMPFILEPREFIX variable will cause
-it to appear at the front of name of the generated tempfile
+Verify that setting the $TEMPFILESUFFIX variable will cause
+it to appear at the end of name of the generated tempfile
 used for long command lines.
 """
 
-import os
-import stat
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('SConstruct', """
 import os
 env = Environment(
     BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
     MAXLINELENGTH = 16,
-    TEMPFILEPREFIX = '-via',
+    TEMPFILESUFFIX = '.foo',
 )
 env.AppendENVPath('PATH', os.curdir)
 env.Command('foo.out', 'foo.in', '$BUILDCOM')
@@ -49,7 +47,7 @@ test.run(arguments = '-n -Q .',
          stdout = """\
 Using tempfile \\S+ for command line:
 xxx.py foo.out foo.in
-xxx.py -via\\S+
+xxx.py \\S+
 """)
 
 test.write('SConstruct', """
@@ -61,7 +59,7 @@ def print_cmd_line(s, targets, sources, env):
 env = Environment(
     BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
     MAXLINELENGTH = 16,
-    TEMPFILEPREFIX = '-via',
+    TEMPFILESUFFIX = '.foo',
     PRINT_CMD_LINE_FUNC=print_cmd_line
 )
 env.AppendENVPath('PATH', os.curdir)
@@ -87,7 +85,7 @@ env = Environment(
     TEMPFILE = TestTempFileMunge,
     BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
     MAXLINELENGTH = 16,
-    TEMPFILEPREFIX = '-via',
+    TEMPFILESUFFIX = '.foo',
 
 )
 env.AppendENVPath('PATH', os.curdir)
@@ -98,7 +96,7 @@ test.run(arguments = '-n -Q .',
          stdout = """\
 Using tempfile \\S+ for command line:
 xxx.py foo.out foo.in
-xxx.py -via\\S+
+xxx.py \\S+
 """)
 
 test.pass_test()

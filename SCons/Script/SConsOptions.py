@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,9 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import optparse
 import re
@@ -126,7 +124,8 @@ class SConsValues(optparse.Values):
                     # is not available.
                     raise AttributeError(attr)
 
-
+    # keep this list in sync with the SetOption doc in SCons/Script/Main.xml
+    # search for UPDATE_SETOPTION_DOCS there.
     settable = [
         'clean',
         'diskcheck',
@@ -276,8 +275,7 @@ class SConsOptionParser(optparse.OptionParser):
         """
         arg = rargs.pop(0)
 
-        # Value explicitly attached to arg?  Pretend it's the next
-        # argument.
+        # Value explicitly attached to arg?  Pretend it's the next argument.
         if "=" in arg:
             (opt, next_arg) = arg.split("=", 1)
             rargs.insert(0, next_arg)
@@ -287,7 +285,11 @@ class SConsOptionParser(optparse.OptionParser):
             had_explicit_value = False
 
         try:
-            opt = self._match_long_opt(opt)
+            if opt != self._match_long_opt(opt):
+                raise optparse.BadOptionError(
+                    "'%s'. Did you mean '%s'?"
+                    % (opt, self._match_long_opt(opt))
+                )
         except optparse.BadOptionError:
             if self.preserve_unknown_options:
                 # SCons-specific:  if requested, add unknown options to
@@ -401,7 +403,7 @@ class SConsOptionParser(optparse.OptionParser):
         """
         Adds a local option to the parser.
 
-        This is initiated by a SetOption() call to add a user-defined
+        This is initiated by an AddOption() call to add a user-defined
         command-line option.  We add the option to a separate option
         group for the local options, creating the group if necessary.
         """

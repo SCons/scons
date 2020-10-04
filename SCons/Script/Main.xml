@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+Copyright The SCons Foundation
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -36,13 +36,13 @@ are the same as those supported by the <function>add_option</function>
 method in the standard Python library module <systemitem>optparse</systemitem>,
 with a few additional capabilities noted below.
 See the documentation for
-<emphasis>optparse</emphasis>
+<systemitem>optparse</systemitem>
 for a thorough discussion of its option-processing capabities.
 </para>
 
 <para>
 In addition to the arguments and values supported by the
-<emphasis>optparse</emphasis>
+<systemitem>optparse</systemitem>
 <function>add_option</function>
 method, &f-AddOption;
 allows setting the
@@ -80,10 +80,10 @@ it will recognize <option>--device</option>,
 and so forth as long as there is no other option
 which could also match to the same abbreviation.
 Options added via
-<function>AddOption</function> do not support
+&f-AddOption; do not support
 the automatic recognition of abbreviations.
 Instead, to allow specific abbreviations,
-include them in the &f-AddOption; call.
+include them as synonyms in the &f-AddOption; call itself.
 </para>
 
 <para>
@@ -99,7 +99,7 @@ options added with &f-AddOption;.
 The value may also be set using
 &f-SetOption;
 or
-<function>env.SetOption</function>(),
+&f-env.SetOption;,
 if conditions in a
 &SConscript;
 require overriding any default value.
@@ -765,123 +765,135 @@ Multiple targets can be passed in to a single call to
 </arguments>
 <summary>
 <para>
-This function provides a way to set a select subset of the scons command
-line options from a SConscript file. The options supported are:
+Sets &scons; option variable <parameter>name</parameter>
+to <parameter>value</parameter>.
+These options are all also settable via
+&scons; command-line options but the variable name
+may differ from the command-line option name (see table).
+A value set via command-line option will take
+precedence over one set with &f-SetOption;, which
+allows setting a project default in the scripts and
+temporarily overriding it via command line.
+Options which affect the reading and processing of SConscript files
+are not settable this way, since those files must
+be read in order to find the &f-SetOption; call.
 </para>
 
 <para>
-<variablelist>
-<varlistentry>
-<term><literal>clean</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-c</option>, <option>--clean</option>
-and <option>--remove</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>duplicate</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--duplicate</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>help</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-h</option> and <option>--help</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_cache</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-cache</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>max_drift</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--max-drift</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_exec</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-n</option>, <option>--no-exec</option>,
-<option>--just-print</option>, <option>--dry-run</option>
-and <option>--recon</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>num_jobs</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-j</option> and <option>--jobs</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>random</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--random</option>; and
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>silent</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--silent</option>.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_progress</literal></term>
-<listitem>
-<para>
-which corresponds to -Q.
-</para>
-<para>
-    Note: The initial progress output will still be output as this is done before the SConstruct/SConscript which contains the SetOption is processed
-    <literal>scons: Reading SConscript files ...</literal>
-</para>
-<para><emphasis>Available since &scons; 4.0.</emphasis></para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>stack_size</literal></term>
-<listitem>
-<para>
-which corresponds to --stack-size.
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
+The settable variables with their associated command-line options are:
 </para>
 
+<!-- UPDATE_SETOPTION_DOCS -->
+<!-- This list comes directly from SConsValues.settable. Keep in sync. -->
+
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="2">
+<thead>
+<row><entry>Variable</entry><entry>Command-line options</entry></row>
+</thead>
+<tbody>
+<row><entry>
+<varname>clean</varname>
+</entry><entry>
+<option>-c</option>, <option>--clean</option>, <option>--remove</option>
+</entry></row>
+<row><entry>
+<varname>diskcheck</varname>
+</entry><entry>
+<option>--diskcheck</option>
+</entry></row>
+<row><entry>
+<varname>duplicate</varname>
+</entry><entry>
+<option>--duplicate</option>
+</entry></row>
+<row><entry>
+<varname>help</varname>
+</entry><entry>
+<option>-h</option>, <option>--help</option>
+</entry></row>
+<row><entry>
+<varname>implicit_cache</varname>
+</entry><entry>
+<option>--implicit-cache</option>
+</entry></row>
+<!--TODO: add implicit-deps-changed, implicit-deps-unchanged ? -->
+<row><entry>
+<varname>max_drift</varname>
+</entry><entry>
+<option>--max-drift</option>
+</entry></row>
+<row><entry>
+<varname>md5_chunksize</varname>
+</entry><entry>
+<option>--md5-chunksize</option>
+</entry></row>
+<row><entry>
+<varname>no_exec</varname>
+</entry><entry>
+<option>-n</option>, <option>--no-exec</option>,
+<option>--just-print</option>, <option>--dry-run</option>,
+<option>--recon</option>
+</entry></row>
+<row><entry>
+<varname>no_progress</varname>
+</entry><entry>
+<option>-Q</option>
+</entry></row>
+<row><entry>
+<varname>num_jobs</varname>
+</entry><entry>
+<option>-j</option>, <option>--jobs</option>
+</entry></row>
+<row><entry>
+<varname>random</varname>
+</entry><entry>
+<option>--random</option>
+</entry></row>
+<row><entry>
+<varname>silent</varname>
+</entry><entry>
+<option>--silent</option>.
+</entry></row>
+<row><entry>
+<varname>stack_size</varname>
+</entry><entry>
+<option>--stack-size</option>
+</entry></row>
+<row><entry>
+<varname>warn</varname>
+</entry><entry>
+<option>--warn</option>.
+</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
 <para>
-See the documentation for the
-corresponding command line option for information about each specific
-option.
+See the documentation in the manpage for the
+corresponding command line option for information about each specific option.
+Option values which are boolean in nature (that is, they are
+either on or off) should be set to a true value (<constant>True</constant>,
+<constant>1</constant>) or a false value (<constant>False</constant>,
+<constant>0</constant>).
 </para>
+
+<note>
+<para>
+If <varname>no_progress</varname> is set via &f-SetOption;
+there will still be initial progress output as &SCons; has
+to start reading SConscript files before it can see the
+&f-SetOption; in an SConscript file:
+<computeroutput>scons: Reading SConscript files ...</computeroutput>
+</para>
+</note>
 
 <para>
 Example:
 </para>
 
 <example_commands>
-SetOption('max_drift', 1)
+SetOption('max_drift', True)
 </example_commands>
 </summary>
 </scons_function>

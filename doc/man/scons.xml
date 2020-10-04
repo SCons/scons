@@ -148,7 +148,10 @@ regardless of the actual file names or number of such files.</para>
 looks for a directory named
 <filename>site_scons</filename>
 in various system directories and in the directory containing the
-&SConstruct; file and prepends the ones it
+&SConstruct; file
+or, if specified, the
+directory from the <option>--site-dir</option> option instead,
+and prepends the ones it
 finds to the Python module search path (<varname>sys.path</varname>),
 thus allowing modules in such directories to be imported in
 the normal Python way in SConscript files.
@@ -512,9 +515,7 @@ by appropriate setting of &consvars;.</para>
 
 <para>&scons;
 requires Python 3.5 or higher.
-There should be no other dependencies or requirements to run &scons;,
-although the <package>pywin32</package> Python package is
-strongly recommended if running on Windows systems.
+There should be no other dependencies or requirements to run &scons;.
 </para>
 
 </refsect1>
@@ -2317,31 +2318,32 @@ See <xref linkend="commandline_construction_variables"/> for details.
 <title>Tools</title>
 
 <para>
-&SCons; has a large number of predefined tools which
-are used to help initialize the &consenv;,
-and additional tools can be added.
-An &scons; <firstterm>tool specification</firstterm>
-is only responsible for setup.
+&SCons; has a large number of predefined tools
+(more properly, <firstterm>tool specifications</firstterm>)
+which are used to help initialize the &consenv;.
+An &scons; tool is only responsible for setup.
 For example, if the SConscript file declares
 the need to construct an object file from
 a C-language source file by calling the
 &b-link-Object; builder, then a tool representing
 an available C compiler needs to have run first,
 to set up the builder and all the &consvars;
-it needs, in that &consenv;. Normally this
+it needs in the associated &consenv;; the tool itself
+is not called in the process of the build. Normally this
 happens invisibly: &scons; has per-platform
 lists of default tools, and it runs through those tools,
-calling the ones which are actually applicable
-(skipping those where necessary programs are not
-installed on the build system, etc.).
+calling the ones which are actually applicable,
+skipping those where necessary programs are not
+installed on the build system, or other preconditions are not met.
 </para>
 
 <para>
 A specific set of tools
-with which to initialize the environment when
+with which to initialize an environment when
 creating it
 may be specified using the optional keyword argument
-<parameter>tools</parameter>.
+<parameter>tools</parameter>, which takes a list
+of tool names.
 This is useful to override the defaults,
 to specify non-default built-in tools, and
 to supply added tools:</para>
@@ -2351,7 +2353,7 @@ env = Environment(tools=['msvc', 'lex'])
 </programlisting>
 
 <para>
-Tools can also be called by using the &f-link-Tool;
+Tools can also be directly called by using the &f-link-Tool;
 method (see below).
 </para>
 
@@ -2366,39 +2368,51 @@ The tool name <literal>'default'</literal> can
 be used to retain the default list.
 </para>
 
-<para>If no <parameter>tools</parameter> list is specified,
-or the list includes <literal>'default'</literal>,
-then &scons; will detect usable tools,
-using the value of <varname>PATH</varname>
-in the <varname>ENV</varname> &consvar; (<emphasis>not</emphasis>
-the external <envar>PATH</envar> from <varname>os.environ</varname>)
+<para>If no <parameter>tools</parameter> argument is specified,
+or if <parameter>tools</parameter> includes <literal>'default'</literal>,
+then &scons; will auto-detect usable tools,
+using the execution environment value of <varname>PATH</varname>
+(that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname> -
+the external evironment <envar>PATH</envar> from <varname>os.environ</varname>
+is <emphasis>not</emphasis> used)
 for looking up any backing programs, and the platform name in effect
 to determine the default tools for that platform.
 Changing the <varname>PATH</varname>
 variable after the &consenv; is constructed will not cause the tools to
-be redetected.</para>
+be re-detected.</para>
 
-<para>To help locate added tools, specify the
-<parameter>toolpath</parameter> keyword argument:</para>
+<para>
+Additional tools can be added to a project either by
+placing them in a <filename>site_tools</filename> subdirectory
+of a site directory, or in a custom location specified to
+&scons; by giving the
+<parameter>toolpath</parameter> keyword argument.
+<parameter>toolpath</parameter> also takes a list as its value:
+</para>
 
 <programlisting language="python">
 env = Environment(tools=['default', 'foo'], toolpath=['tools'])
 </programlisting>
 
 <para>
-This looks for a tool specification in <filename>tools/foo.py</filename>
+This looks for a tool specification module <filename>foo.py</filename>
+in directory <filename>tools</filename> and in the standard locations,
 as well as using the ordinary default tools for the platform.
 </para>
 
 <para>
-Tools in the toolpath are used in preference to
-any of the built-in ones.  For example, adding
-a tool <filename>gcc.py</filename> to the toolpath
-directory would override the built-in gcc tool.
-The toolpath is
+Directories specified via <parameter>toolpath</parameter> are prepended
+to the existing tool path. The default tool path is any <filename>site_tools</filename>
+directories, so tools in a specified <parameter>toolpath</parameter>
+take priority,
+followed by tools in a <filename>site_tools</filename> directory,
+followed by built-in tools.  For example, adding
+a tool specification module <filename>gcc.py</filename> to the toolpath
+directory would override the built-in &t-link-gcc; tool.
+The tool path is
 stored in the environment and will be
-picked up by subsequent calls to the
-&f-Clone; and &f-Tool; methods:
+used by subsequent calls to the &f-link-Tool; method,
+as well as by &f-link-env-Clone;.
 </para>
 
 <programlisting language="python">
@@ -2408,7 +2422,7 @@ derived.CustomBuilder()
 </programlisting>
 
 <para>
-A tool specification must include two functions:
+A tool specification module must include two functions:
 </para>
 
 <variablelist>
@@ -2427,7 +2441,8 @@ to vary its initialization.</para>
     <term><function>exists</function>(<parameter>env</parameter>)</term>
     <listitem>
 <para>Return <constant>True</constant> if the tool can
-be called. Usually this means looking up one or more
+be called in the context of <parameter>env</parameter>.
+Usually this means looking up one or more
 known programs using the <envar>PATH</envar> from the
 supplied <parameter>env</parameter>, but the tool can
 make the "exists" decision in any way it chooses.
@@ -2435,6 +2450,18 @@ make the "exists" decision in any way it chooses.
     </listitem>
   </varlistentry>
 </variablelist>
+
+<note>
+<para>
+At the moment, user-added tools do not automatically have their
+<function>exists</function> function called.
+As a result, it is recommended that the <function>generate</function>
+function be defensively coded - that is, do not rely on any
+necessary existence checks already having been performed.
+This is expected to be a temporary limitation,
+and the <function>exists</function> function should still be provided.
+</para>
+</note>
 
 <para>The elements of the <parameter>tools</parameter> list may also
 be functions or callable objects,
@@ -4223,6 +4250,13 @@ Calling &Variables; with no arguments is equivalent to:
 vars = Variables(files=None, args=ARGUMENTS)
 </programlisting>
 
+<para>
+Note that since the variables are eventually added as &consvars;,
+you should choose variable names which do not unintentionally change
+pre-defined &consvars; that your project will make use of
+(see <xref linkend="construction_variables"/>).
+</para>
+
   </listitem>
   </varlistentry>
   </variablelist>
@@ -5507,18 +5541,21 @@ and emitter functions.</para>
 function will turn its
 <parameter>action</parameter>
 keyword argument into an appropriate
-internal Action object.
+internal Action object, as will
+the &f-link-Command; function.
 You can also explicitly create Action objects
 for passing to &f-Builder;, or other functions
 that take actions as arguments,
 by calling the &f-link-Action; factory function.
-This can be used to configure
-an Action object more flexibly,
-or it may simply be more efficient
-than letting each separate Builder object
-create a separate Action
-when multiple
-Builder objects need to do the same thing.</para>
+This may more efficient when multiple
+Builder objects need to do the same thing
+rather than letting each of those Builder objects
+create a separate Action object.
+It also allows more flexible configuration
+of an Action object. For example, to control
+the message printed when the action is taken
+you need to create the action object using &f-Action;.
+</para>
 
 <para>The
 &Action; factory function
@@ -5638,23 +5675,22 @@ it was called. The global function form &f-link-Action;
 the Action object is actually used.
 </para>
 
-<para>The second argument to &f-Action;
-is optional and is used to define the output
+<para>The optional second argument to &f-Action;
+is used to control the output
 which is printed when the Action is actually performed.
-In the absence of this parameter,
-or if it's an empty string,
+If this parameter is omitted,
+or if the value is an empty string,
 a default output depending on the type of the action is used.
 For example, a command-line action will print the executed command.
-The argument must be either a Python function or a string:</para>
+The following argument types are accepted:
+</para>
 
 <itemizedlist>
   <listitem>
 <para>If the output argument is a function,
-it must return a string
+the function will be called to obtain a string
 describing the action being executed.
-A function may also be specified using the
-<parameter>strfunction</parameter>
-keyword argument. The function
+The function
 must accept these three keyword arguments:</para>
 
   <simplelist type="vert">
@@ -5675,17 +5711,28 @@ more than one target file or source file.</para>
 
   <listitem>
 <para>If the output argument is a string,
-substitution is performed on it before it is printed.
-The output string may also be specified using the
-<parameter>cmdstr</parameter>
-keyword argument.
+substitution is performed on the string before it is printed.
 The string typically contains variables, notably
 <literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
 or consists of just a single
 variable, which is optionally defined somewhere else.
-SCons itself heavily uses the latter variant.</para>
+&SCons; itself heavily uses the latter variant.</para>
+  </listitem>
+
+  <listitem>
+<para>If the argument is <constant>None</constant>,
+output is suppressed entirely.</para>
   </listitem>
 </itemizedlist>
+
+<para>
+Instead of using a positional argument,
+the <parameter>cmdstr</parameter>
+keyword argument may be used to specify the output string,
+or the <parameter>strfunction</parameter> keyword argument
+may be used to specify a function to return the output string,
+Use <literal>cmdstr=None</literal> to suppress output.
+</para>
 
 <para>Examples:</para>
 
@@ -6921,7 +6968,7 @@ script named
 <para>The MinGW <filename>bin</filename>
 directory must be in your <envar>PATH</envar>
 environment variable or the
-<envar>ENV['PATH']</envar> &consvar; for &scons;
+<varname>['ENV']['PATH']</varname> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
 Python interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin

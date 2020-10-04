@@ -32,7 +32,6 @@ could be bytes instead of a string which would fail when combining cache signatu
 which ended up a mixture of bytes and strings.
 """
 
-import os
 
 import TestSCons
 

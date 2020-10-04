@@ -45,8 +45,7 @@ Requirements
 ------------
 
 Running SCons requires Python 3.5 or higher. There should be no other
-dependencies or requirements to run SCons, although the pywin32 Python
-package is strongly recommended if running on Windows systems.
+dependencies or requirements to run SCons.
 
 
 By default, SCons knows how to search for available programming tools on

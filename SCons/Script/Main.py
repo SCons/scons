@@ -1,20 +1,6 @@
-"""SCons.Script
-
-This file implements the main() function used by the scons script.
-
-Architecturally, this *is* the scons script, and will likely only be
-called from the external "scons" wrapper.  Consequently, anything here
-should not be, or be considered, part of the build engine.  If it's
-something that we expect other software to want to use, it should go in
-some other module.  If it's specific to the "scons" script invocation,
-it goes here.
-"""
-
-unsupported_python_version = (3, 4, 0)
-deprecated_python_version = (3, 4, 0)
-
-
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -35,8 +21,19 @@ deprecated_python_version = (3, 4, 0)
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The main() function used by the scons script.
 
+Architecturally, this *is* the scons script, and will likely only be
+called from the external "scons" wrapper.  Consequently, anything here
+should not be, or be considered, part of the build engine.  If it's
+something that we expect other software to want to use, it should go in
+some other module.  If it's specific to the "scons" script invocation,
+it goes here.
+"""
+
+# these define the range of versions SCons supports
+unsupported_python_version = (3, 4, 0)
+deprecated_python_version = (3, 4, 0)
 
 import SCons.compat
 
@@ -49,6 +46,7 @@ import time
 import traceback
 import sysconfig
 import platform
+import threading
 
 import SCons.CacheDir
 import SCons.Debug
@@ -81,17 +79,6 @@ exit_status = 0   # final exit status, assume success by default
 this_build_status = 0   # "exit status" of an individual build
 num_jobs = None
 delayed_warnings = []
-
-
-def fetch_win32_parallel_msg():
-    # A subsidiary function that exists solely to isolate this import
-    # so we don't have to pull it in on all platforms, and so that an
-    # in-line "import" statement in the _main() function below doesn't
-    # cause warnings about local names shadowing use of the 'SCons'
-    # global in nest scopes and UnboundLocalErrors and the like in some
-    # versions (2.1) of Python.
-    import SCons.Platform.win32
-    return SCons.Platform.win32.parallel_msg
 
 
 def revert_io():
@@ -1290,16 +1277,19 @@ def _build_targets(fs, options, targets, target_top):
     # As of 3.7, python removed support for threadless platforms.
     # See https://www.python.org/dev/peps/pep-0011/
     is_37_or_later = sys.version_info >= (3, 7)
-    python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy or is_37_or_later
+    # python_has_threads = sysconfig.get_config_var('WITH_THREAD') or is_pypy or is_37_or_later
+
+    # As of python 3.4 threading has a dummy_threading module for use when there is no threading
+    # it's get_ident() will allways return -1, while real threading modules get_ident() will
+    # always return a positive integer
+    python_has_threads = threading.get_ident() != -1
     # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     if num_jobs > 1:
         msg = None
-        if sys.platform == 'win32':
-            msg = fetch_win32_parallel_msg()
-        elif jobs.num_jobs == 1 or not python_has_threads:
+        if jobs.num_jobs == 1 or not python_has_threads:
             msg = "parallel builds are unsupported by this version of Python;\n" + \
                   "\tignoring -j or num_jobs option.\n"
         if msg:
@@ -1349,8 +1339,7 @@ def _exec_main(parser, values):
         import pdb
         pdb.Pdb().runcall(_main, parser)
     elif options.profile_file:
-        # compat layer imports "cProfile" for us if it's available.
-        from profile import Profile
+        from cProfile import Profile
 
         prof = Profile()
         try:
