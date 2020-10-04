@@ -515,9 +515,7 @@ by appropriate setting of &consvars;.</para>
 
 <para>&scons;
 requires Python 3.5 or higher.
-There should be no other dependencies or requirements to run &scons;,
-although the <package>pywin32</package> Python package is
-strongly recommended if running on Windows systems.
+There should be no other dependencies or requirements to run &scons;.
 </para>
 
 </refsect1>
