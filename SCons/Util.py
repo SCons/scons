@@ -648,22 +648,9 @@ try:
     RegError        = winreg.error
 
 except ImportError:
-    try:
-        import win32api
-        import win32con
-        can_read_reg = 1
-        hkey_mod = win32con
-
-        RegOpenKeyEx    = win32api.RegOpenKeyEx
-        RegEnumKey      = win32api.RegEnumKey
-        RegEnumValue    = win32api.RegEnumValue
-        RegQueryValueEx = win32api.RegQueryValueEx
-        RegError        = win32api.error
-
-    except ImportError:
-        class _NoError(Exception):
-            pass
-        RegError = _NoError
+    class _NoError(Exception):
+        pass
+    RegError = _NoError
 
 
 # Make sure we have a definition of WindowsError so we can

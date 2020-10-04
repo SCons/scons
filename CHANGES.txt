@@ -19,6 +19,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Refactor SCons.Tool to move all common shared and loadable module linking logic to SCons.Tool.linkCommon
     - Remove pywin32 imports from SCons.Script.Main. No longer needed.
     - pywin32 no longer necessary for SCons install. (pip install SCons will no longer also require pywin32 on win32)
+    - Remove pywin32 usage from SCons.Util where it was used for accessing the registry. Python native winreg
+      library already includes this functionality.
+    - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
