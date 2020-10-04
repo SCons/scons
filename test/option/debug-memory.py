@@ -30,10 +30,11 @@ Test that the --debug=memory option works.
 import re
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
-if not test.IS_WINDOWS:
+if not IS_WINDOWS:
     try:
         import resource  # noqa: F401
     except ImportError:
