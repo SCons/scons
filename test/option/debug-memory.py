@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 
 if not test.IS_WINDOWS:
     try:
-        import resource
+        import resource  # noqa: F401
     except ImportError:
         x = "Python version has no 'resource' skipping tests.\n"
         test.skip_test(x)
