@@ -90,7 +90,6 @@ def dumpLoggedInstances(classes, file=sys.stdout):
                     file.write('        %20s : %s\n' % (key, value))
 
 
-
 if sys.platform[:5] == "linux":
     # Linux doesn't actually support memory usage stats from getrusage().
     def memory():
@@ -102,28 +101,23 @@ elif sys.platform[:6] == 'darwin':
     #TODO really get memory stats for OS X
     def memory():
         return 0
+elif sys.platform == 'win32':
+    from SCons.compat.win32 import get_peak_memory_usage
+    memory = get_peak_memory_usage
 else:
     try:
         import resource
     except ImportError:
-        try:
-            import win32process
-            import win32api
-        except ImportError:
-            def memory():
-                return 0
-        else:
-            def memory():
-                process_handle = win32api.GetCurrentProcess()
-                memory_info = win32process.GetProcessMemoryInfo( process_handle )
-                return memory_info['PeakWorkingSetSize']
+        def memory():
+            return 0
     else:
         def memory():
             res = resource.getrusage(resource.RUSAGE_SELF)
             return res[4]
 
-# returns caller's stack
+
 def caller_stack():
+    """return caller's stack"""
     import traceback
     tb = traceback.extract_stack()
     # strip itself and the caller from the output
