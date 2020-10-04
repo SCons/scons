@@ -105,19 +105,18 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="file-removal.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="hierarchy.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="separate.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="variants.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="gettext.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="repositories.xml"/>
   <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-built-in.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-writing.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="builders-commands.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="add-method.xml"/>
   <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="actions.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scanners.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="repositories.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="sconf.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="caching.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="alias.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="java.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="gettext.xml"/>
   <!-- <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="run.xml"/> -->
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="misc.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="external.xml"/>
