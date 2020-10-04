@@ -80,17 +80,6 @@ num_jobs = None
 delayed_warnings = []
 
 
-def fetch_win32_parallel_msg():
-    # A subsidiary function that exists solely to isolate this import
-    # so we don't have to pull it in on all platforms, and so that an
-    # in-line "import" statement in the _main() function below doesn't
-    # cause warnings about local names shadowing use of the 'SCons'
-    # global in nest scopes and UnboundLocalErrors and the like in some
-    # versions (2.1) of Python.
-    import SCons.Platform.win32
-    return SCons.Platform.win32.parallel_msg
-
-
 def revert_io():
     # This call is added to revert stderr and stdout to the original
     # ones just in case some build rule or something else in the system
@@ -1288,9 +1277,7 @@ def _build_targets(fs, options, targets, target_top):
     jobs = SCons.Job.Jobs(num_jobs, taskmaster)
     if num_jobs > 1:
         msg = None
-        if sys.platform == 'win32':
-            msg = fetch_win32_parallel_msg()
-        elif jobs.num_jobs == 1 or not python_has_threads:
+        if jobs.num_jobs == 1 or not python_has_threads:
             msg = "parallel builds are unsupported by this version of Python;\n" + \
                   "\tignoring -j or num_jobs option.\n"
         if msg:
