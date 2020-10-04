@@ -17,6 +17,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix yacc tool, not respecting YACC set at time of tool initialization.
     - Refactor SCons.Tool to move all common shared and loadable module linking logic to SCons.Tool.linkCommon
+    - Remove pywin32 usage from SCons.Util where it was used for accessing the registry. Python native winreg
+      library already includes this functionality.
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
