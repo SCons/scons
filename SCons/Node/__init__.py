@@ -42,6 +42,7 @@ be able to depend on any other type of "thing."
 
 import collections
 import copy
+import os
 from itertools import chain
 
 try:

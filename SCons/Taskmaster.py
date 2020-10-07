@@ -452,6 +452,7 @@ class Task(ABC):
                 parents[p] = parents.get(p, 0) + 1
             t.waiting_parents = set()
 
+        temporary_side_effects_seen = set()
         for t in targets:
             if t.side_effects is not None:
                 for s in t.side_effects:
@@ -472,9 +473,16 @@ class Task(ABC):
                             self.tm.candidates.append(p)
 
                     if s.side_effect_temporary:
-                        for side_effect_source in s.sources:
-                            if side_effect_source not in targets:
-                                side_effect_source.side_effects.remove(s)
+                        temporary_side_effects_seen.add(s)
+
+        # Remove all temporary side effects from all sources. This prevents
+        # problems if the temporary side effect is picked up again by another
+        # target.
+        for s in temporary_side_effects_seen:
+            for side_effect_source in s.sources:
+                side_effect_source.side_effects.remove(s)
+            s.sources = []
+
 
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract

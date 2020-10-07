@@ -27,19 +27,27 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import sys
 import TestSCons
 
-test = TestSCons.TestSCons()
-
-if sys.platform != 'win32':
-    msg = "Skipping typelib test on non-Windows platform '%s'\n" % sys.platform
-    test.skip_test(msg)
-
-test.dir_fixture('typelib')
-
 # Run with 4 jobs to expose any race conditions related to the generated .tlh
-# and .tli files.
-test.run('-j 4 .')
+# and .tli files. Then run again with only 1 job to expose any issues handling
+# two different binaries one after another with the same typelib dependency.
+print_skip_message = True
+for arg in ['-j 4 .', '.']:
+    test = TestSCons.TestSCons()
 
-test.pass_test()
+    if sys.platform != 'win32':
+        # Only print the skip message once.
+        msg = "Skipping typelib test on non-Windows platform '%s'\n" % sys.platform \
+            if print_skip_message else None
+        test.skip_test(msg)
+        print_skip_message = False
+
+    test.dir_fixture('typelib')
+
+    test.run('-j 4 .')
+    test.run('--clean .')
+    test.run()
+
+    test.pass_test()
 
 # Local Variables:
 # tab-width:4
