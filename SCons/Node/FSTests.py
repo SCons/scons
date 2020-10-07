@@ -1409,7 +1409,7 @@ class FSTestCase(_tempdirTestCase):
         # test Entry.get_contents()
         e = fs.Entry('does_not_exist')
         c = e.get_contents()
-        assert c == "", c
+        assert c == b"", c
         assert e.__class__ == SCons.Node.FS.Entry
 
         test.write("file", "file\n")
@@ -1439,7 +1439,7 @@ class FSTestCase(_tempdirTestCase):
         test.subdir("dir")
         e = fs.Entry('dir')
         c = e.get_contents()
-        assert c == "", c
+        assert c == b"", c
         assert e.__class__ == SCons.Node.FS.Dir
 
         c = e.get_text_contents()
@@ -1453,7 +1453,7 @@ class FSTestCase(_tempdirTestCase):
             e = fs.Entry('dangling_symlink')
             c = e.get_contents()
             assert e.__class__ == SCons.Node.FS.Entry, e.__class__
-            assert c == "", c
+            assert c == b"", c
             c = e.get_text_contents()
             assert c == "", c
 
@@ -2046,14 +2046,14 @@ class DirTestCase(_tempdirTestCase):
         e = self.fs.Dir(os.path.join('d', 'empty'))
         s = self.fs.Dir(os.path.join('d', 'sub'))
 
-        files = d.get_contents().split('\n')
+        files = d.get_contents().split('\n'.encode('utf-8'))
 
-        assert e.get_contents() == '', e.get_contents()
+        assert e.get_contents() == b'', e.get_contents()
         assert e.get_text_contents() == '', e.get_text_contents()
-        assert e.get_csig() + " empty" == files[0], files
-        assert f.get_csig() + " f" == files[1], files
-        assert g.get_csig() + " g" == files[2], files
-        assert s.get_csig() + " sub" == files[3], files
+        assert (e.get_csig() + " empty").encode('utf-8') == files[0], files
+        assert (f.get_csig() + " f").encode('utf-8') == files[1], files
+        assert (g.get_csig() + " g").encode('utf-8') == files[2], files
+        assert (s.get_csig() + " sub").encode('utf-8') == files[3], files
 
     def test_md5_chunksize(self):
         """
@@ -2588,7 +2588,7 @@ class FileTestCase(_tempdirTestCase):
                 return self.timestamp
 
             def get_contents(self):
-                return self.name
+                return self.name.encode()
 
             def get_ninfo(self):
                 """ mocked to ensure csig will equal the filename"""

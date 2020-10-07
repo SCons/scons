@@ -2047,9 +2047,9 @@ class ActionCallerTestCase(unittest.TestCase):
         af = SCons.Action.ActionFactory(str, strfunc)
         ac = SCons.Action.ActionCaller(af, [], {})
         c = ac.get_contents([], [], Environment())
-        assert c == "<built-in function str>" or \
-               c == "<type 'str'>" or \
-               c == "<class 'str'>", repr(c)
+        assert c == b"<built-in function str>" or \
+               c == b"<type 'str'>" or \
+               c == b"<class 'str'>", repr(c)
         # ^^ class str for python3
 
     def test___call__(self):

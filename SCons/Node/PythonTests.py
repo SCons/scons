@@ -101,8 +101,58 @@ class ValueTestCase(unittest.TestCase):
         csig = v3.get_csig(None)
         assert csig == 'None', csig
 
+    def test_get_csig_with_children(self):
+        """Test calculating the content signature of a Value() object with child
+        nodes.
+        """
+        class DummyNode:
+            def __init__(self, csig):
+                self.csig = csig
+            def get_csig(self, calc=None):
+                return self.csig
 
+        v = SCons.Node.Python.Value('aaa')
 
+        c1 = DummyNode(csig='csig1')
+        c2 = DummyNode(csig='csig2')
+
+        v.add_dependency([c1, c2])
+        csig = v.get_csig(None)
+        assert csig == 'aaacsig1csig2', csig
+
+    def test_get_text_contents_with_children(self):
+        """Test calculating text contents with child nodes
+        """
+        class DummyNode:
+            def __init__(self, csig):
+                self.csig = csig
+            def get_csig(self):
+                return self.csig
+
+        v = SCons.Node.Python.Value('aaa')
+        c1 = DummyNode(csig='csig1')
+        c2 = DummyNode(csig='csig2')
+
+        v.add_dependency([c1, c2])
+        text_contents = v.get_text_contents()
+        assert text_contents == 'aaacsig1csig2', text_contents
+
+    def test_get_content_with_children(self):
+        """Test calculating contents with child nodes
+        """
+        class DummyNode:
+            def __init__(self, csig):
+                self.csig = csig
+            def get_csig(self):
+                return self.csig
+
+        v = SCons.Node.Python.Value('aaa')
+        c1 = DummyNode(csig='csig1')
+        c2 = DummyNode(csig='csig2')
+
+        v.add_dependency([c1, c2])
+        contents = v.get_contents()
+        assert contents == v.get_text_contents().encode('utf-8'), contents
 
 
 class ValueNodeInfoTestCase(unittest.TestCase):
@@ -127,7 +177,7 @@ class ValueChildTestCase(unittest.TestCase):
         node._func_get_contents = 2  # Pretend to be a Dir.
         node.add_to_implicit([value])
         contents = node.get_contents()
-        expected_contents = '%s %s\n' % (value.get_csig(), value.name)
+        expected_contents = ('%s %s\n' % (value.get_csig(), value.name)).encode('utf-8')
         assert contents == expected_contents
 
 

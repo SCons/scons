@@ -1405,7 +1405,7 @@ class ActionCaller:
             except AttributeError:
                 # No __call__() method, so it might be a builtin
                 # or something like that.  Do the best we can.
-                contents = repr(actfunc)
+                contents = repr(actfunc).encode()
 
         return contents
 

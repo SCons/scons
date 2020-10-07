@@ -158,7 +158,7 @@ class SConfTestCase(unittest.TestCase):
 
         class MyAction:
             def get_contents(self, target, source, env):
-                return 'MyBuilder-MyAction $SOURCE $TARGET'
+                return b'MyBuilder-MyAction $SOURCE $TARGET'
 
         class Attrs:
             __slots__ = ('shared', '__dict__')

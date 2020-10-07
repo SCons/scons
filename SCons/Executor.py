@@ -638,7 +638,7 @@ class Null(object, metaclass=NoSlotsPyPy):
     def __call__(self, *args, **kw):
         return 0
     def get_contents(self):
-        return ''
+        return b''
     def _morph(self):
         """Morph this Null executor to a real Executor object."""
         batches = self.batches

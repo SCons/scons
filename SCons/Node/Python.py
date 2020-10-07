@@ -132,26 +132,20 @@ class Value(SCons.Node.Node):
     def get_text_contents(self):
         """By the assumption that the node.built_value is a
         deterministic product of the sources, the contents of a Value
-        are the concatenation of all the contents of its sources.  As
-        the value need not be built when get_contents() is called, we
+        are the concatenation of all the content signatures of its sources.
+        As the value need not be built when get_contents() is called, we
         cannot use the actual node.built_value."""
-        ###TODO: something reasonable about universal newlines
         contents = str(self.value)
-        for kid in self.children(None):
-            contents = contents + kid.get_contents().decode()
+        contents += ''.join(n.get_csig() for n in self.children())
         return contents
 
     def get_contents(self):
         """
-        Get contents for signature calculations.
+        Same as get_text_contents() but encode as utf-8 in case other
+        functions rely on get_contents() existing.
         :return: bytes
         """
-        text_contents = self.get_text_contents()
-        try:
-            return text_contents.encode()
-        except UnicodeDecodeError:
-            # Already encoded as python2 str are bytes
-            return text_contents
+        return self.get_text_contents().encode('utf-8')
 
     def changed_since_last_build(self, target, prev_ni):
         cur_csig = self.get_csig()
@@ -172,10 +166,9 @@ class Value(SCons.Node.Node):
         except AttributeError:
             pass
 
-        contents = self.get_text_contents()
+        csig = self.get_text_contents()
 
-        self.get_ninfo().csig = contents
-        return contents
+        return csig
 
 
 def ValueWithMemo(value, built_value=None, name=None):

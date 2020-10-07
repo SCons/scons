@@ -31,6 +31,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
 
+  From Eugene Huang:
+    - Ensure all Node subclasses return 'bytes' in their get_contents()
+      methods.
+    - Make Value.get_text_contents() calculate the contents using child node
+      csigs instead of child contents (similar to Alias node contents). The
+      new implementation is not prone to decoding errors so Value.get_csig()
+      should always work, whereas previously, Value nodes sometimes could not
+      be used as target nodes.
+
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
       is used.

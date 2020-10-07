@@ -1851,7 +1851,8 @@ class Dir(Base):
     def get_text_contents(self):
         """We already emit things in text, so just return the binary
         version."""
-        return self.get_contents()
+        # Function get_contents_dir() returns utf-8 encoded text.
+        return self.get_contents().decode('utf-8')
 
     def get_contents(self):
         """Return content signatures and names of all our children
