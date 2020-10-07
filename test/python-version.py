@@ -29,7 +29,6 @@ Verify the behavior of our check for unsupported or deprecated versions
 of Python.
 """
 
-import os
 import re
 
 import TestCmd

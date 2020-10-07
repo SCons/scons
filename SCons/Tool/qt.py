@@ -35,7 +35,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 import re
-import glob
 
 import SCons.Action
 import SCons.Builder
@@ -46,7 +45,7 @@ import SCons.Util
 import SCons.Tool.cxx
 cplusplus = SCons.Tool.cxx
 
-class ToolQtWarning(SCons.Warnings.Warning):
+class ToolQtWarning(SCons.Warnings.SConsWarning):
     pass
 
 class GeneratedMocFileNotIncluded(ToolQtWarning):

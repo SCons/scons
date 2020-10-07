@@ -33,7 +33,6 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import re
 
 import SCons.Action
 import SCons.Defaults
@@ -48,9 +47,10 @@ def generate(env):
     add_all_to_env(env)
     add_fortran_to_env(env)
 
-    fc = env.Detect(compilers) or 'f77'
-    env['SHFORTRAN'] = fc
-    env['FORTRAN'] = fc
+    if 'FORTRAN' not in env:
+        env['FORTRAN'] = env.Detect(compilers) or 'f77'
+    if 'SHFORTRAN' not in env:
+        env['SHFORTRAN'] = '$FORTRAN'
 
 def exists(env):
     return env.Detect(compilers)

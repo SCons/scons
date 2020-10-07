@@ -1,11 +1,6 @@
-"""SCons.Scanner.C
-
-This module implements the dependency scanner for C/C++ code.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,9 +20,8 @@ This module implements the dependency scanner for C/C++ code.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Dependency scanner for C/C++ code."""
 
 import SCons.Node.FS
 import SCons.Scanner
@@ -36,8 +30,7 @@ import SCons.Util
 import SCons.cpp
 
 class SConsCPPScanner(SCons.cpp.PreProcessor):
-    """
-    SCons-specific subclass of the cpp.py module's processing.
+    """SCons-specific subclass of the cpp.py module's processing.
 
     We subclass this so that: 1) we can deal with files represented
     by Nodes, not strings; 2) we can keep track of the files that are
@@ -81,8 +74,7 @@ def dictify_CPPDEFINES(env):
     return cppdefines
 
 class SConsCPPScannerWrapper:
-    """
-    The SCons wrapper around a cpp.py scanner.
+    """The SCons wrapper around a cpp.py scanner.
 
     This is the actual glue between the calling conventions of generic
     SCons scanners, and the (subclass of) cpp.py class that knows how
@@ -116,12 +108,14 @@ def CScanner():
     # knows how to evaluate #if/#ifdef/#else/#elif lines when searching
     # for #includes.  This is commented out for now until we add the
     # right configurability to let users pick between the scanners.
-    #return SConsCPPScannerWrapper("CScanner", "CPPPATH")
+    # return SConsCPPScannerWrapper("CScanner", "CPPPATH")
 
-    cs = SCons.Scanner.ClassicCPP("CScanner",
-                                  "$CPPSUFFIXES",
-                                  "CPPPATH",
-                                  '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
+    cs = SCons.Scanner.ClassicCPP(
+        "CScanner",
+        "$CPPSUFFIXES",
+        "CPPPATH",
+        r'^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")',
+    )
     return cs
 
 
@@ -131,8 +125,7 @@ def CScanner():
 
 
 class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
-    """
-    SCons-specific subclass of the cpp.py module's processing.
+    """SCons-specific subclass of the cpp.py module's processing.
 
     We subclass this so that: 1) we can deal with files represented
     by Nodes, not strings; 2) we can keep track of the files that are

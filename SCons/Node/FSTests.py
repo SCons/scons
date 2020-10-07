@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,11 +20,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
-
 import os
 import os.path
 import sys
@@ -1697,7 +1695,6 @@ class FSTestCase(_tempdirTestCase):
             except AttributeError:
                 # could be python 3.7 or newer, make sure splitdrive can do UNC
                 assert ntpath.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive'
-                pass
             path = strip_slash(path)
             return '//' + path[1:]
 
@@ -2060,6 +2057,65 @@ class DirTestCase(_tempdirTestCase):
         assert f.get_csig() + " f" == files[1], files
         assert g.get_csig() + " g" == files[2], files
         assert s.get_csig() + " sub" == files[3], files
+
+    def test_md5_chunksize(self):
+        """
+        Test verifying that File.get_csig() correctly uses md5_chunksize. This
+        variable is documented as the md5 chunksize in kilobytes. This test
+        verifies that if the file size is less than the md5 chunksize,
+        get_contents() is called; otherwise, it verifies that get_contents()
+        is not called.
+        """
+        chunksize_bytes = SCons.Node.FS.File.md5_chunksize
+        test = self.test
+
+        test.subdir('chunksize_dir')
+        test.write(['chunksize_dir', 'f1'], 'a' * (chunksize_bytes // 1024 - 1))
+        test.write(['chunksize_dir', 'f2'], 'a' * (chunksize_bytes // 1024))
+        test.write(['chunksize_dir', 'f3'], 'a' * (chunksize_bytes + 1))
+
+        dir = self.fs.Dir('chunksize_dir')
+        f1 = dir.File('f1')
+        f2 = dir.File('f2')
+        f3 = dir.File('f3')
+
+        # Expect f1 and f2 to call get_contents(), while f3 will not because it
+        # should do reads of chunksize kilobytes at a time.
+        expected_get_contents_calls = {f1, f2}
+        self.actual_get_contents_calls = 0
+
+        def get_contents_override(file_object):
+            self.actual_get_contents_calls += 1
+            if file_object in expected_get_contents_calls:
+                return file_object._old_get_contents()
+            else:
+                raise Exception('get_contents was unexpectedly called on node '
+                                '%s' % file_object)
+
+        SCons.Node.FS.File._old_get_contents = SCons.Node.FS.File.get_contents
+        SCons.Node.FS.File.get_contents = get_contents_override.__get__(
+            None, SCons.Node.FS)
+
+        # Call get_csig() to test get_contents() usage. The actual results of
+        # the calls to get_csig() are not relevant for this test. If an
+        # exception is raised, we must first reset the get_contents function
+        # before reraising it or other tests will fail too.
+        exception = None
+        try:
+            f1.get_csig()
+            f2.get_csig()
+            f3.get_csig()
+        except Exception as e:
+            exception = e
+
+        SCons.Node.FS.File.get_contents = SCons.Node.FS.File._old_get_contents
+        delattr(SCons.Node.FS.File, '_old_get_contents')
+
+        if exception:
+            raise exception
+
+        assert self.actual_get_contents_calls == len(expected_get_contents_calls), \
+            self.actual_get_contents_calls
 
     def test_implicit_re_scans(self):
         """Test that adding entries causes a directory to be re-scanned

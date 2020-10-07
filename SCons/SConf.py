@@ -1,18 +1,6 @@
-"""SCons.SConf
-
-Autoconf-like configuration support.
-
-In other words, SConf allows to run tests on the build machine to detect
-capabilities of system and do some things based on result: generate config
-files, header files for C/C++, update variables in environment.
-
-Tests on the build system can detect if compiler sees header files, if
-libraries are installed, if some command line options are supported etc.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,8 +20,16 @@ libraries are installed, if some command line options are supported etc.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""Autoconf-like configuration support.
+
+In other words, SConf allows to run tests on the build machine to detect
+capabilities of system and do some things based on result: generate config
+files, header files for C/C++, update variables in environment.
+
+Tests on the build system can detect if compiler sees header files, if
+libraries are installed, if some command line options are supported etc.
+"""
 
 import SCons.compat
 
@@ -136,7 +132,7 @@ def CreateConfigHBuilder(env):
         env.SConfigHBuilder(k, env.Value(v))
 
 
-class SConfWarning(SCons.Warnings.Warning):
+class SConfWarning(SCons.Warnings.SConsWarning):
     pass
 SCons.Warnings.enableWarningClass(SConfWarning)
 
@@ -520,6 +516,7 @@ class SConfBase:
         # we override the store_info() method with a null place-holder
         # so we really control how it gets written.
         for n in nodes:
+            self._set_conftest_node(n)
             n.store_info = 0
             if not hasattr(n, 'attributes'):
                 n.attributes = SCons.Node.Node.Attrs()
@@ -532,6 +529,7 @@ class SConfBase:
                 for c in n.children(scan=False):
                     # Keep debug code here.
                     # print("Checking [%s] for builders and then setting keep_targetinfo"%c)
+                    self._set_conftest_node(c)
                     if  c.has_builder():
                         n.store_info = 0
                         if not hasattr(c, 'attributes'):
@@ -596,6 +594,7 @@ class SConfBase:
 
         nodesToBeBuilt = []
         sourcetext = self.env.Value(text)
+        self._set_conftest_node(sourcetext)
         f = "conftest"
 
         if text is not None:
@@ -605,12 +604,14 @@ class SConfBase:
 
             f = "_".join([f, textSig, textSigCounter])
             textFile = self.confdir.File(f + extension)
+            self._set_conftest_node(sourcetext)
             textFileNode = self.env.SConfSourceBuilder(target=textFile,
                                                        source=sourcetext)
             nodesToBeBuilt.extend(textFileNode)
 
             source = textFile
             target = textFile.File(f + "SConfActionsContentDummyTarget")
+            self._set_conftest_node(target)
         else:
             source = None
             target = None
@@ -728,6 +729,9 @@ class SConfBase:
         else:
             if not os.path.isdir( dirName ):
                 os.makedirs( dirName )
+
+    def _set_conftest_node(self, node):
+        node.attributes.conftest_node = 1
 
     def _startup(self):
         """Private method. Set up logstream, and set the environment

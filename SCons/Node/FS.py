@@ -1,17 +1,6 @@
-"""scons.Node.FS
-
-File system nodes.
-
-These Nodes represent the canonical external objects that people think
-of when they think of building software: files and directories.
-
-This holds a "default_fs" variable that should be initialized with an FS
-that can be used by scripts or modules looking for the canonical default.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,7 +20,15 @@ that can be used by scripts or modules looking for the canonical default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""File system nodes.
+
+These Nodes represent the canonical external objects that people think
+of when they think of building software: files and directories.
+
+This holds a "default_fs" variable that should be initialized with an FS
+that can be used by scripts or modules looking for the canonical default.
+"""
 
 import fnmatch
 import os
@@ -46,7 +43,7 @@ import importlib.util
 
 import SCons.Action
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
+from SCons.Debug import logInstanceCreation, Trace
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
@@ -55,8 +52,6 @@ import SCons.Subst
 import SCons.Util
 from SCons.Util import MD5signature, MD5filesignature, MD5collect
 import SCons.Warnings
-
-from SCons.Debug import Trace
 
 print_duplicate = 0
 
@@ -2634,7 +2629,8 @@ class File(Base):
     NodeInfo = FileNodeInfo
     BuildInfo = FileBuildInfo
 
-    md5_chunksize = 64
+    # Although the command-line argument is in kilobytes, this is in bytes.
+    md5_chunksize = 65536
 
     def diskcheck_match(self):
         diskcheck_match(self, self.isdir,
@@ -2736,7 +2732,7 @@ class File(Base):
             return MD5signature('')
         fname = self.rfile().get_abspath()
         try:
-            cs = MD5filesignature(fname, chunksize=File.md5_chunksize * 1024)
+            cs = MD5filesignature(fname, chunksize=File.md5_chunksize)
         except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
@@ -3623,7 +3619,7 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize * 1024)
+            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig

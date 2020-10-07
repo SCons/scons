@@ -53,6 +53,7 @@ import SCons.Defaults
 import SCons.Tool
 
 import SCons.Tool.DCommon as DCommon
+import SCons.Tool.linkCommon
 
 
 def generate(env):
@@ -120,7 +121,7 @@ def generate(env):
     env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
     # NOTE: this is a quick hack, the soname will only work if there is
     # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    env['DShLibSonameGenerator'] = SCons.Tool.ShLibSonameGenerator
+    env['DShLibSonameGenerator'] = SCons.Tool.linkCommon.ShLibSonameGenerator
     # NOTE: this is only for further reference, currently $SHDLIBVERSION does
     # not work, the user must use $SHLIBVERSION
     env['SHDLIBVERSION'] = '$SHLIBVERSION'

@@ -46,11 +46,15 @@ def generate(env):
     add_f77_to_env(env)
 
     fcomp = env.Detect(compilers) or 'f77'
-    env['F77']  = fcomp
-    env['SHF77']  = fcomp
+    if 'F77' not in env:
+        env['F77'] = fcomp
+    if 'SHF77' not in env:
+        env['SHF77']  = '$F77'
 
-    env['FORTRAN']  = fcomp
-    env['SHFORTRAN']  = fcomp
+    if 'FORTRAN' not in env:
+        env['FORTRAN']  = fcomp
+    if 'SHFORTRAN' not in env:
+        env['SHFORTRAN']  = '$FORTRAN'
 
 def exists(env):
     return env.Detect(compilers)

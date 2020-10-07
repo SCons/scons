@@ -1,0 +1,17 @@
+import SCons
+from SCons.Warnings import _warningOut
+import sys
+
+DefaultEnvironment(tools=[])
+# 1. call should succeed without deprecation warning
+try:
+    SConscript('missing/SConscript', must_exist=False)
+except SCons.Errors.UserError as e:
+    if _warningOut:
+        _warningOut(e)
+# 2. call should succeed with deprecation warning
+try:
+    SConscript('missing/SConscript')
+except SCons.Errors.UserError as e:
+    if _warningOut:
+        _warningOut(e)

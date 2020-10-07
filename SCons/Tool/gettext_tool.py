@@ -42,7 +42,7 @@ def generate(env,**kw):
             tool_bin_dir = os.path.dirname(tool)
             env.AppendENVPath('PATH', tool_bin_dir)
         else:
-            SCons.Warnings.Warning(t + ' tool requested, but binary not found in ENV PATH')
+            SCons.Warnings.SConsWarning(t + ' tool requested, but binary not found in ENV PATH')
     env.Tool(t)
   env.AddMethod(_translate, 'Translate')
 #############################################################################

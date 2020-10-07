@@ -1,89 +1,60 @@
-  A new SCons release, 4.0.0, is now available
+  A new SCons checkpoint release, 2.0.0ayyyymmdd, is now available
   on the SCons download page:
 
           https://scons.org/pages/download.html
 
-  Here is a summary of the changes since 3.1.2:
+  XXX The primary purpose of this release ... XXX
+
+  A SCons "checkpoint release" is intended to provide early access to
+  new features so they can be tested in the field before being released
+  for adoption by other software distributions.
+
+  Note that a checkpoint release is developed using the same test-driven
+  development methodology as all SCons releases.  Existing SCons
+  functionality should all work as it does in previous releases (except
+  for any changes identified in the release notes) and early adopters
+  should be able to use a checkpoint release safely for production work
+  with existing SConscript files.  If not, it represents not only a bug
+  in SCons but also a hole in the regression test suite, and we want to
+  hear about it.
+
+  New features may be more lightly tested than in past releases,
+  especially as concerns their interaction with all of the other
+  functionality in SCons.  We are especially interested in hearing bug
+  reports about new functionality.
+
+  We do not recommend that downstream distributions (Debian, Fedora,
+  etc.) package a checkpoint release, mainly to avoid confusing the
+  "public" release numbering with the long checkpoint release names.
+
+  Here is a summary of the changes since 1.3.0:
 
   NEW FUNCTIONALITY
 
-    - Added support for scanning multiple entries in an action string if
-      IMPLICIT_COMMAND_DEPENDENCIES is set to 2 or 'all'. This enables more thorough
-      action scanning where every item in each command line is scanned to determine
-      if it is a non-source and non-target path and added to the list of implicit dependencies
-      for the target.
-    - Added new module SCons.Scanner.Python to allow scanning .py files.
-    - Added support for explicitly passing a name when creating Value() nodes. This may be useful
-      when the value can't be converted to a string or if having a name is otherwise desirable.
-    - Added a new flag called "linedraw" for the command line argument  "--tree"
-      that instructs scons to use single line drawing characters to draw the dependency tree.
-    - Add CompilationDatabase() builder in compilation_db tool. Contributed by MongoDB.
-      Setting COMPILATIONDB_USE_ABSPATH to True|False controls whether the files are absolute or relative
-      paths.  Address Issue #3693 and #3694 found during development.
-
+    - List new features (presumably why a checkpoint is being released)
 
   DEPRECATED FUNCTIONALITY
 
-    - Drop support for Python 2.7. SCons will be Python 3.5+ going forward.
-    - Remove deprecated SourceCode()
+    - List anything that's been deprecated since the last release
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
-    - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
-      NOTE: If your build depends on the above you must now add to your SHLIBVERSIONFLAGS
-    - Microsoft Visual Studio - switch to using uuid module to generate GUIDs rather than hand rolled
-      method using md5 directly.
-      NOTE: This change affects the following builders' output. If your build depends on the output of these builders
-      you will likely see a rebuild.
-      * Package() (with PACKAGETYPE='msi')
-      * MSVSSolution()
-      * MSVSProject()
-    - Improve Visual Studio solution/project generation code to add support
-      for a per-variant cppflags. Intellisense can be affected by cppflags,
-      this is especially important when it comes to /std:c++* which specifies
-      what C++ standard version to target. SCons will append /Zc:__cplusplus
-      to the project's cppflags when a /std:c++* flag is found as this is
-      required for intellisense to use the C++ standard version from cppflags.
-    - Allow user specified location for vswhere.exe specified by VSWHERE.
-      NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
-    - Fixed Github Issue 3628 - Hardcoding pickle protocol to 4 (supports python 3.4+)
-      and skipping Python 3.8's new pickle protocol 5 whose main advantage is for out-of-band data buffers.
-      NOTE: If you used Python 3.8 with SCons 3.0.0 or above, you may get a a pickle protocol error. Remove your
-      .sconsign.dblite. You will end up with a full rebuild.
-
+    - List modifications to existing features, where the previous behavior
+      wouldn't actually be considered a bug
 
   FIXES
 
-    - Cleanup dangling symlinks before running builders (Issue #3516)
-    - Fixed usage of abspath and path for RootDir objects on Windows. Previously
-      env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
-    - Fix Issue #3469 - Fixed improper reuse of temporary and compiled files by Configure when changing
-      the order and/or number of tests.  This is done by using the hash of the generated temporary files
-      content and (For the target files) the hash of the action.
-      So where previously files would be named:
-      - config_1.c, config_1.o, config_1
-      The will now be named (For example)
-      - conftest_68b375d16e812c43e6d72d6e93401e7c_0.c,
-        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187.o
-        or
-        conftest_68b375d16e812c43e6d72d6e93401e7c_0.o
-        conftest_68b375d16e812c43e6d72d6e93401e7c_0_5713f09fc605f46b2ab2f7950455f187 (for executable)
+    - List fixes of outright bugs
 
   IMPROVEMENTS
 
-    - Improve performance of Subst by preventing unnecessary frame
-      allocations by no longer defining the *Subber classes inside of their
-      respective function calls.
-    - Improve performance of Subst in some cases by preventing
-      unnecessary calls to eval when a token is surrounded in braces
-      but is not a function call.
-    - Improve performance of subst by removing unnecessary recursion.
+    - List improvements that wouldn't be visible to the user in the
+      documentation:  performance improvements (describe the circumstances
+      under which they would be observed), or major code cleanups
 
   PACKAGING
 
-    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so
-      package can create scripts which use the correct version of Python.
+    - List changes in the way SCons is packaged and/or released
 
   DOCUMENTATION
 

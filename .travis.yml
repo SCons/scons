@@ -15,7 +15,7 @@ os:
 
 install:
   # needed for Docbook tests, must be in virtualenv context
-  - pip install lxml==4.5.0
+  - pip install -r requirements.txt
   # do the rest of the image setup
   - ./.travis/install.sh
 
@@ -77,3 +77,18 @@ jobs:
         - coverage report
         - coverage xml -i -o coverage_xml.xml
         - codecov -X gcov --file coverage_xml.xml
+
+    - &scons_build_job
+      name: SCons Build
+      python: 3.7
+      install:
+        - sudo apt-get -y install docbook-xml docbook-xsl xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf
+        - sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra texlive-font-utils latexmk
+        - pip install -r requirements.txt
+      script:
+        - python bin/docs-update-generated.py
+        - python bin/docs-validate.py
+        - python bin/docs-create-example-outputs.py
+        - python scripts/scons.py
+        - ls -l build/dist
+        - python build/scons-local/scons.py --version

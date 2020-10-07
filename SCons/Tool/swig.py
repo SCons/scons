@@ -190,7 +190,7 @@ def generate(env):
             swig_bin_dir = os.path.dirname(swig)
             env.AppendENVPath('PATH', swig_bin_dir)
         else:
-            SCons.Warnings.Warning('swig tool requested, but binary not found in ENV PATH')
+            SCons.Warnings.SConsWarning('swig tool requested, but binary not found in ENV PATH')
 
     if 'SWIG' not in env:
         env['SWIG'] = env.Detect(swigs) or swigs[0]

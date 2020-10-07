@@ -35,10 +35,10 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '3.1.2'
+default_version = '4.0.2ayyyymmdd'
 
-python_version_unsupported = (2, 6, 0)
-python_version_deprecated = (2, 7, 0)
+python_version_unsupported = (3, 4, 0)
+python_version_deprecated = (3, 4, 0)
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
@@ -188,7 +188,7 @@ def initialize_sconsflags(ignore_python_version):
     # support the --warn=no-visual-c-missing warning.)
     visual_c = os.environ.get('TESTSCONS_SCONSFLAGS',
                               '--warn=no-visual-c-missing')
-    if visual_c:
+    if visual_c and visual_c not in sconsflags:
         sconsflags.append(visual_c)
     os.environ['SCONSFLAGS'] = ' '.join(sconsflags)
     return save_sconsflags

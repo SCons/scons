@@ -29,7 +29,6 @@ Verify basic generation of timing information from an input fake-project
 .zip file.
 """
 
-import sys
 
 import TestSCons_time
 

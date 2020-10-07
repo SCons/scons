@@ -29,8 +29,6 @@ Verify the ability to set the $AS construction variable to a different
 assembler (a wrapper we create).
 """
 
-import os
-import sys
 
 import TestSCons
 

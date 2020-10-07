@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -22,8 +20,6 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 Verify that we can import and use the contents of Platform and Tool
 modules directly.
@@ -31,7 +27,6 @@ modules directly.
 
 import os
 import re
-import sys
 
 # must do this here, since TestSCons will chdir
 tooldir = os.path.join(os.getcwd(), 'SCons', 'Tool')
@@ -78,6 +73,8 @@ ignore = ('__init__.py',
         'MSCommon',
         # clang common
         "clangCommon",
+        # link common logic
+        "linkCommon",
         # Sun pkgchk and pkginfo common stuff
         'sun_pkg.py',
         # RPM utilities

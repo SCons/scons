@@ -18,6 +18,7 @@ depends.xml
 environments.xml
 errors.xml
 example.xml
+external.xml
 factories.xml
 file-removal.xml
 functions.xml
@@ -35,6 +36,7 @@ nodes.xml
 output.xml
 parseconfig.xml
 parseflags.xml
+parse_flags_arg.xml
 preface.xml
 python.xml
 repositories.xml
@@ -42,6 +44,7 @@ run.xml
 scanners.xml
 sconf.xml
 separate.xml
+sideeffect.xml
 simple.xml
 tasks.xml
 tools.xml

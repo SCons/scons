@@ -1361,7 +1361,7 @@ PDF renderer <literal>fop</literal> or <literal>xep</literal>.
     <listitem><para>
 The path to the external executable <literal>xmllint</literal>, if it's installed.
 Note, that this is only used as last fallback for resolving
-XIncludes, if no libxml2 or lxml Python binding can be imported
+XIncludes, if no lxml Python binding can be imported
 in the current system.
 </para>
 </listitem>
@@ -1405,7 +1405,7 @@ The path to the external executable <literal>xsltproc</literal>
 (or <literal>saxon</literal>, <literal>xalan</literal>), if one of them
 is installed.
 Note, that this is only used as last fallback for XSL transformations, if
-no libxml2 or lxml Python binding can be imported in the current system.
+no lxml Python binding can be imported in the current system.
 </para>
 </listitem>
   </varlistentry>
@@ -3038,22 +3038,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       <envar>HOST_ARCH</envar>
     </term>
     <listitem><para>
-Sets the host architecture for Visual Studio compiler. If not set,
-default to the detected host architecture: note that this may depend
-on the python you are using.
-This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect. 
-</para>
-
-<para>
-Valid values are the same as for &cv-TARGET_ARCH;.
-</para>
-
-<para>
-This is currently only used on Windows, but in the future it will be
-used on other OSes as well.
-</para>
-<para>
         The name of the host hardware architecture used to create the Environment.
         If a platform is specified when creating the Environment, then
         that Platform's logic will handle setting this value.
@@ -3061,7 +3045,23 @@ used on other OSes as well.
         the Environment is initialized.
         Currently only set for Win32.
 </para>
-    </listitem>
+    <para>
+Sets the host architecture for Visual Studio compiler. If not set,
+default to the detected host architecture: note that this may depend
+on the python you are using.
+This variable must be passed as an argument to the Environment()
+constructor; setting it later has no effect.
+</para>
+
+<para>
+Valid values are the same as for &cv-link-TARGET_ARCH;.
+</para>
+
+<para>
+This is currently only used on Windows, but in the future it may be
+used on other OSes as well.
+</para>
+</listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>
@@ -3810,7 +3810,7 @@ the same as $SHLIBSUFFIX.
       <envar>LDMODULEVERSION</envar>
     </term>
     <listitem><para>
-When this construction variable is defined, a versioned loadable module
+When this &consvar; is defined, a versioned loadable module
 is created by &b-link-LoadableModule; builder. This activates the
 &cv-link-_LDMODULEVERSIONFLAGS; and thus modifies the &cv-link-LDMODULECOM; as
 required, adds the version number to the library name, and creates the symlinks
@@ -4165,7 +4165,7 @@ for a list of license names and SPDX codes.
       <envar>LINESEPARATOR</envar>
     </term>
     <listitem><para>
-The separator used by the &b-Substfile; and &b-Textfile; builders.
+The separator used by the &b-link-Substfile; and &b-link-Textfile; builders.
 This value is used between sources when constructing the target.
 It defaults to the current system line separator.
 </para>
@@ -4589,17 +4589,32 @@ will be compiled separately.
       <envar>MSVC_USE_SCRIPT</envar>
     </term>
     <listitem><para>
-Use a batch script to set up Microsoft Visual Studio compiler
+Use a batch script to set up Microsoft Visual Studio compiler.
 </para>
 
 <para>
-&cv-MSVC_USE_SCRIPT; overrides &cv-MSVC_VERSION; and &cv-TARGET_ARCH;.
-If set to the name of a Visual Studio .bat file (e.g. vcvars.bat),
-SCons will run that bat file and extract the relevant variables from
-the result (typically %INCLUDE%, %LIB%, and %PATH%).  Setting
-MSVC_USE_SCRIPT to None bypasses the Visual Studio autodetection
-entirely; use this if you are running SCons in a Visual Studio cmd
-window and importing the shell's environment variables.
+If set to the name of a Visual Studio <filename>.bat</filename> file
+(e.g. <filename>vcvars.bat</filename>),
+&SCons; will run that batch file instead of the auto-detected one,
+and extract the relevant variables from the result (typically
+<envar>%INCLUDE%</envar>,
+<envar>%LIB%</envar>, and
+<envar>%PATH%</envar>) for supplying to the build.
+This can be useful to force the use of a compiler version that
+&SCons; does not detect.
+</para>
+
+<para>
+Setting
+&cv-MSVC_USE_SCRIPT; to <constant>None</constant> bypasses the
+Visual Studio autodetection entirely;
+use this if you are running SCons in a Visual Studio cmd
+window and importing the shell's environment variables - that
+is, if you are sure everything is set correctly already and
+you don't want &SCons; to change anything.
+</para>
+<para>
+&cv-MSVC_USE_SCRIPT; overrides &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
 </para>
 </listitem>
   </varlistentry>
@@ -4616,7 +4631,7 @@ If &cv-MSVC_UWP_APP; is set, the Visual Studio environment will be set up to poi
 to the Windows Store compatible libraries and Visual Studio runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
-This flag will only have an effect with Visual Studio 2015+.
+This flag will only have an effect with Visual Studio 2015 or later.
 This variable must be passed as an argument to the Environment()
 constructor; setting it later has no effect.
 </para>
@@ -4663,7 +4678,7 @@ Valid values for Windows are
 <literal>7.1</literal>,
 <literal>7.0</literal>,
 and <literal>6.0</literal>.
-Versions ending in <literal>Exp</literal> refer to "Express" or 
+Versions ending in <literal>Exp</literal> refer to "Express" or
 "Express for Desktop" editions.
 </para>
 
@@ -7111,7 +7126,7 @@ The suffix used for shared library file names.
       <envar>SHLIBVERSION</envar>
     </term>
     <listitem><para>
-When this construction variable is defined, a versioned shared library
+When this &consvar; is defined, a versioned shared library
 is created by the &b-link-SharedLibrary; builder. This activates the
 &cv-link-_SHLIBVERSIONFLAGS; and thus modifies the &cv-link-SHLINKCOM; as
 required, adds the version number to the library name, and creates the symlinks
@@ -7320,9 +7335,9 @@ in which the command should be executed.
       <envar>SUBST_DICT</envar>
     </term>
     <listitem><para>
-The dictionary used by the &b-Substfile; or &b-Textfile; builders
+The dictionary used by the &b-link-Substfile; or &b-link-Textfile; builders
 for substitution values.
-It can be anything acceptable to the dict() constructor,
+It can be anything acceptable to the <function>dict()</function> constructor,
 so in addition to a dictionary,
 lists of tuples are also acceptable.
 </para>
@@ -7333,7 +7348,7 @@ lists of tuples are also acceptable.
       <envar>SUBSTFILEPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for &b-Substfile; file names,
+The prefix used for &b-link-Substfile; file names,
 an empty string by default.
 </para>
 </listitem>
@@ -7343,7 +7358,7 @@ an empty string by default.
       <envar>SUBSTFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for &b-Substfile; file names,
+The suffix used for &b-link-Substfile; file names,
 an empty string by default.
 </para>
 </listitem>
@@ -7651,43 +7666,48 @@ for more information).
       <envar>TARGET_ARCH</envar>
     </term>
     <listitem><para>
-Sets the target architecture for Visual Studio compiler (i.e. the arch
-of the binaries generated by the compiler). If not set, default to
-&cv-HOST_ARCH;, or, if that is unset, to the architecture of the
-running machine's OS (note that the python build or architecture has no
-effect).
-This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect.  
-This is currently only used on Windows, but in the future it will be
-used on other OSes as well.
-If this is set and MSVC_VERSION is not set, this will search for 
-all installed MSVC's that support the TARGET_ARCH, selecting the 
-latest version for use.
-</para>
-
-<para>
-Valid values for Windows are
-<literal>x86</literal>,
-<literal>arm</literal>,
-<literal>i386</literal>
-(for 32 bits); 
-<literal>amd64</literal>,
-<literal>arm64</literal>,
-<literal>emt64</literal>,
-<literal>x86_64</literal>
-(for 64 bits);
-and <literal>ia64</literal> (Itanium).
-
-For example, if you want to compile 64-bit binaries, you would set
-<literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
-</para>
-<para>
         The name of the target hardware architecture for the compiled objects
         created by this Environment.
         This defaults to the value of HOST_ARCH, and the user can override it.
         Currently only set for Win32.
 </para>
-    </listitem>
+    <para>
+Sets the target architecture for Visual Studio compiler (i.e. the arch
+of the binaries generated by the compiler). If not set, default to
+&cv-link-HOST_ARCH;, or, if that is unset, to the architecture of the
+running machine's OS (note that the python build or architecture has no
+effect).
+This variable must be passed as an argument to the Environment()
+constructor; setting it later has no effect.
+This is currently only used on Windows, but in the future it will be
+used on other OSes as well.
+If this is set and &cv-link-MSVC_VERSION; is not set, this will search for
+all installed MSVC's that support the &cv-TARGET_ARCH;, selecting the
+latest version for use.
+</para>
+
+<para>
+On Windows, valid target values are
+<literal>x86</literal>,
+<literal>arm</literal>,
+<literal>i386</literal>
+for 32-bit targets and
+<literal>amd64</literal>,
+<literal>arm64</literal>,
+<literal>em64t</literal>,
+<literal>x86_64</literal>
+and <literal>ia64</literal> (Itanium)
+for 64-bit targets.
+Note that not all target architectures are
+supported for all Visual Studio / MSVC versions
+check the relevant Microsoft documentation.
+</para>
+
+<para>
+For example, if you want to compile 64-bit binaries, you would set
+<literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
+</para>
+</listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>
@@ -7730,6 +7750,15 @@ The suffix used for tar file names.
 The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by &cv-MAXLINELENGTH;.
 The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
 Note this value is used literally and not expanded by the subst logic.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILEDIR">
+    <term>
+      <envar>TEMPFILEDIR</envar>
+    </term>
+    <listitem><para>
+The directory to create the tempfile in.
 </para>
 </listitem>
   </varlistentry>
@@ -7823,7 +7852,7 @@ directories for \include and \import files.
       <envar>TEXTFILEPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for &b-Textfile; file names,
+The prefix used for &b-link-Textfile; file names,
 an empty string by default.
 </para>
 </listitem>
@@ -7833,7 +7862,7 @@ an empty string by default.
       <envar>TEXTFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for &b-Textfile; file names;
+The suffix used for &b-link-Textfile; file names;
 <filename>.txt</filename> by default.
 </para>
 </listitem>
@@ -7901,7 +7930,7 @@ The version of the project, specified as a string.
       <envar>VSWHERE</envar>
     </term>
     <listitem><para>
-Specify the location of <filename>vswhere.exe</filename>. 
+Specify the location of <filename>vswhere.exe</filename>.
 </para>
 
 <para>

@@ -61,9 +61,10 @@ def parse_docs(args, include_entities=True):
         if include_entities:
             try:
                 h.parseXmlFile(f)
-            except:
-                sys.stderr.write("error in %s\n" % f)
-                raise
+            except Exception as e:
+                print("error parsing %s\n" % f, file=sys.stderr)
+                print(str(e), file=sys.stderr)
+                sys.exit(1)
         else:
             # mode we read (text/bytes) has to match handling in SConsDoc
             with open(f, 'r') as fp:
@@ -71,9 +72,10 @@ def parse_docs(args, include_entities=True):
             if content:
                 try:
                     h.parseContent(content, include_entities)
-                except:
-                    sys.stderr.write("error in %s\n" % f)
-                    raise
+                except Exception as e:
+                    print("error parsing %s\n" % f, file=sys.stderr)
+                    print(str(e), file=sys.stderr)
+                    sys.exit(1)
     return h
 
 Warning = """\
@@ -408,6 +410,7 @@ if SConsDoc.validate_all_xml(['SCons']):
     print("OK")
 else:
     print("Validation failed! Please correct the errors above and try again.")
+    sys.exit(1)
 
 # Step 3: Creating actual documentation snippets, using the
 #         fully resolved and updated entities from the *.mod files.

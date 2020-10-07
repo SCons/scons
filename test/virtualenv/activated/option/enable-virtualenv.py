@@ -30,7 +30,6 @@ Ensure that the --enable-virtualenv flag works.
 
 import TestSCons
 import SCons.Platform.virtualenv
-import sys
 import os
 import re
 

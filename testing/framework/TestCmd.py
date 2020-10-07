@@ -309,7 +309,6 @@ import tempfile
 import threading
 import time
 import traceback
-import types
 from collections import UserList, UserString
 from subprocess import PIPE, STDOUT
 

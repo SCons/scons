@@ -99,7 +99,6 @@ __author__ = "Steven Knight <knight at baldmt dot com>"
 __revision__ = "TestCommon.py 1.3.D001 2010/06/03 12:58:27 knight"
 __version__ = "1.3"
 
-import copy
 import glob
 import os
 import stat

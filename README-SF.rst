@@ -48,8 +48,7 @@ Execution Requirements
 ======================
 
 Running SCons requires Python 3.5 or higher. There should be no other
-dependencies or requirements to run scons, although the pywin32 Python
-package is strongly recommended if running on Windows systems.
+dependencies or requirements to run scons.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named 'cc', a C++
@@ -391,18 +390,15 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-        build/dist/scons-3.1.2.tar.gz
-        build/dist/scons-3.1.2.zip
-        build/dist/scons-doc-3.1.2.tar.gz
-        build/dist/scons-local-3.1.2.tar.gz
-        build/dist/scons-local-3.1.2.zip
-        build/dist/scons-src-3.1.2.tar.gz
-        build/dist/scons-src-3.1.2.zip
+    SCons-4.0.0-py3-none-any.whl
+    SCons-4.1.0.devyyyymmdd.tar.gz
+    SCons-4.1.0.devyyyymmdd.zip
+    scons-doc-4.1.0.devyyyymmdd.tar.gz
+    scons-local-4.1.0.devyyyymmdd.tar.gz
+    scons-local-4.1.0.devyyyymmdd.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
-packages for which you don't have the proper utilities installed.  For
-example, if you don't have Debian packaging tools installed, it should just
-not build the .deb package, not fail the build.
+packages for which you don't have the proper utilities installed.
 
 If you receive a build error, please report it to the scons-devel mailing list
 and open a bug report on the SCons bug tracker.

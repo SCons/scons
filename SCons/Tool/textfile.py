@@ -48,8 +48,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons
 
-import os
-import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value
@@ -124,8 +122,8 @@ def _action(target, source, env):
     # write the file
     try:
         target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
-    except (OSError, IOError):
-        raise SCons.Errors.UserError("Can't write target file %s" % target[0])
+    except (OSError, IOError) as e:
+        raise SCons.Errors.UserError("Can't write target file %s [%s]" % (target[0],e))
 
     # separate lines by 'linesep' only if linesep is not empty
     lsep = None

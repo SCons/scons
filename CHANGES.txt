@@ -4,11 +4,97 @@
 
                             Change Log
 
-NOTE: The 4.0.0 Release of SCons will drop Python 2.7 Support
-NOTE: Please add your name below in alphabetical order by last name.
-NOTE: Please include a reference to any Issues resolved by your changes in the bullet(s) you add
+NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From Joseph Brill:
+    - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
+      is not exposed externally and update external references accordingly.
+    - Modify the MSCommon internal-use only debug logging records to contain the correct relative
+      file path when the debug function is called from outside the MSCommon module.
+
+  From William Deegan:
+    - Fix yacc tool, not respecting YACC set at time of tool initialization.
+    - Refactor SCons.Tool to move all common shared and loadable module linking logic to SCons.Tool.linkCommon
+    - Remove pywin32 imports from SCons.Script.Main. No longer needed.
+    - Switch to use ctypes instead of pywin32 (requiring an extra pip install) - Fixes Github Issue #2291
+       - pywin32 no longer necessary for SCons install. (pip install SCons will no longer also require pywin32 on win32)
+       - Remove pywin32 usage from SCons.Util where it was used for accessing the registry. Python native winreg
+         library already includes this functionality.
+       - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
+
+  From Michał Górny:
+    - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
+
+  From Adam Gross:
+    - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
+      User-facing behavior does not change with this fix (GH Issue #3726).
+
+  From Joachim Kuebart:
+    - Suppress missing SConscript deprecation warning if `must_exist=False`
+      is used.
+
+  From Rocco Matano:
+    - Fix Zip tool to respect ZIPCOMSTR. Previously all zip builder calls would yield something
+      like zip(["test.zip"], ["zip_scons.py"]) and ignore ZIPCOMSTR if ZIPCOM and ZIPCOMSTR
+      weren't set after the Environment/Tool is initialized. (Explained in PR #3659)
+
+  From Daniel Moody:
+    - Fix issue where java parsed a class incorrectly from lambdas used after a new.
+
+  From Mats Wichmann:
+    - Complete tests for Dictionary, env.keys() and env.values() for
+      OverrideEnvironment. Enable env.setdefault() method, add tests.
+    - Raise an error if an option (not otherwise consumed) is used which
+      looks like an abbreviation of one one added by AddOption. (#3653)
+    - Tool module not found will now raise a UserError to more clearly indicate this is
+      probably an SConscript problem, and to make the traceback more relevant.
+    - Fix three issues with MergeFlags: 
+      - Signature/return did not match documentation or existing usage - the implementation 
+        now no longer returns the passed env
+      - merging --param arguments did not work (issue #3107); 
+      - passing a dict to merge where the values are strings failed (issue #2961).
+    - Include previously-excluded SideEffect section in User Guide.
+    - Clean up unneeded imports (autoflake tool).
+    - Make sure cProfile is used if profiling - SCons was expecting
+      the Util module to monkeypatch in cProfile as profile if available,
+      but this is no longer being done.
+
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
+
+
+
+
+
+RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
+
+  From Rob Boehne:
+    - Fix fortran tools to set SHFORTRAN variables to $FORTRAN, similarly SHF77, SHF90, SHF95,
+      SHF03 and SHF08 will default to the variables $F77, $F90, $F95, $F03 and $F08 respectively.
+      If you were depending on changing the value of FORTRAN (or $F[0-9][0-9]) having no effect
+      on the value of SHFORTRAN, this change will break that.   The values of FORTRAN, F77, F90,
+      F95, F03, F08 and SHFORTRAN, SHF77 (etc.) now are not overridden in generate if alredy set
+      by the user.
+    - Fix subprocess execution of 'lslpp' on AIX to produce text standard i/o.
+    - Re-do the fix for suncxx tool (Oracle Studio compiler) now that only Python 3 is supported,
+      to avoid decoding errors.
+
+  From William Deegan:
+    - Added Environment() variable TEMPFILEDIR which allows setting the directory which temp
+      files createdby TEMPFILEMUNGE are created in.
+
+  From Daniel Moody:
+    - Added method on Node to test if its node used in SConf. (Github Issue #3626)
+
+
+
+RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
 
   From Dirk Baechle:
     - Updated documentation toolchain to work properly under Python3, also
@@ -29,7 +115,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
     - MSVC updates: When there are multiple product installations (e.g, Community and
-      Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional, 
+      Build Tools) of MSVC 2017 or MSVC 2019, an Enterprise, Professional,
       or Community installation will be selected before a Build Tools installation when
       "14.1" or "14.2" is requested, respectively. (GH Issue #3699).
     - MSVC updates: When there are multiple product installations of MSVC 2017 (e.g.,
@@ -38,7 +124,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (GH Issue #3699).
     - MSVC updates: An MSVC 6.0 installation now appears in the installed versions list
       when msvc debug output is enabled (GH Issue #3699).
- 
+    - MSVS test updates: Tests for building a program using generated MSVS project and
+      solution files using MSVS 2015 and later now work as expected on x86 hosts.
+    - Test update: Reduce the number of "false negative" test failures for the interactive
+      configuration test (test/interactive/configure.py).
+    - MSVS update: Fix the development environment path for MSVS 7.0.
+
   From William Deegan:
     - Fix broken clang + MSVC 2019 combination by using MSVC configuration logic to
       propagate'VCINSTALLDIR' and 'VCToolsInstallDir' which clang tools use to locate
@@ -55,9 +146,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add msys2 installed mingw default path to PATH for mingw tool.
       - C:\msys64\mingw64\bin
     - Purge obsolete internal build and tooling scripts
-    - Allow user specified location for vswhere.exe specified by VSWHERE. 
+    - Allow user specified location for vswhere.exe specified by VSWHERE.
       NOTE: This must be set at the time the 'msvc' 'msvs' and/or 'mslink' tool(s) are initialized to have any effect.
-    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so 
+    - Resolve Issue #3451 and Issue #3450 - Rewrite SCons setup.py and packaging. Move script logic to entry points so
       package can create scripts which use the correct version of Python.
     - Resolve Issue #3248 - Removing '-Wl,-Bsymbolic' from SHLIBVERSIONFLAGS
       NOTE: If your build depends on the above you must now add to your SHLIBVERSIONFLAGS
@@ -95,10 +186,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed usage of abspath and path for RootDir objects on Windows. Previously
       env.fs.Dir("T:").abspath would return "T:\T:" and now it correctly returns "T:".
 
-  From Iosif Kurazs:
-    - Added a new flag called "linedraw" for the command line argument  "--tree"
-      that instructs scons to use single line drawing characters to draw the dependency tree.
-
   From Ivan Kravets, PlatformIO
     - New conditional C Scanner (`SCons.Scanner.C.CConditionalScanner()`)
       which interprets C/C Preprocessor conditional syntax (#ifdef, #if, #else,
@@ -110,17 +197,21 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         macro which is not located in a state TABLE.
       * Cleanup CPP expressions before evaluating (strip comments, carriage returns)
 
+  From Iosif Kurazs:
+    - Added a new flag called "linedraw" for the command line argument  "--tree"
+      that instructs scons to use single line drawing characters to draw the dependency tree.
+
   From Daniel Moody:
-    - Add no_progress (-Q) option as a set-able option. However, setting it in the 
+    - Add no_progress (-Q) option as a set-able option. However, setting it in the
       SConstruct/SConscript will still cause "scons: Reading SConscript files ..." to be
       printed, since the option is not set when the build scripts first get read.
     - Added check for SONAME in environment to setup symlinks correctly (Github Issue #3246)
-    - User callable's called during substition expansion could possibly throw a TypeError 
-      exception, however SCons was using TypeError to detect if the callable had a different 
-      signature than expected, and would silently fail to report user's exceptions. Fixed to 
+    - User callable's called during substition expansion could possibly throw a TypeError
+      exception, however SCons was using TypeError to detect if the callable had a different
+      signature than expected, and would silently fail to report user's exceptions. Fixed to
       use signature module to detect function signature instead of TypeError. (Github Issue #3654)
     - Added storage of SConstructs and SConscripts nodes into global set for checking
-      if a given node is a SConstruct/SConscript. 
+      if a given node is a SConstruct/SConscript.
       Added new node function SCons.Node.is_sconscript(self) (Github Issue #3625)
 
   From Andrew Morrow:
@@ -201,6 +292,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       repository / website (scons-cookbook.readthedocs.io).
     - Clean up test harness and tests' use of subdir, file_fixture and
       dir_fixture.
+    - SubstitutionEnvironment and OverrideEnvironment now have keys()
+      and values() methods to better emulate a dict (already had items()).
+    - Rename internal Warning base class to SConsWarning to avoid any
+      possible confusion with Python's own Warning class.
 
 
 RELEASE 3.1.2 - Mon, 17 Dec 2019 02:06:27 +0000

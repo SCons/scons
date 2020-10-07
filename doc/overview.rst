@@ -92,12 +92,19 @@ Entities
 ========
 
 We are using entities for special keywords like ``SCons`` that should
-appear with the same formatting throughout the text. These are kept in
-a single file ``doc/scons.mod`` which gets included by the documents.
+appear with the same formatting throughout the text. This allows a
+single place to make styling changes if needed. These are kept in
+a single file ``doc/scons.mod`` which gets included by the documents,
+and can be used anywhere in the documentation files.
 
-Additionally, for each Tool, Builder, Cvar (construction variable) and
-Function, a bunch of linkends in the form of entities get defined. They
-can be used in the MAN page and the User manual.
+Additionally, for the definitions of the four special types available
+in the SCons doctype - Tool, Builder, Construction Variable and Function -
+a bunch of reference links in the form of entities are generated.
+These entities can be used in the MAN page and the User manual.
+Note that the four type tags themselves (``<tool>``, ``<builder>``,
+``<cvar>`` and ``<function>``) can only be used in documentation
+sources in the ``SCons`` directory; the build will not scan for these
+in the ``doc`` directory.
 
 When you add an XML file in the ``SCons/Tools`` folder, e.g. for
 a tool named ``foobar``, you can use the two entities
@@ -125,7 +132,7 @@ method form, or both, exist. If all four exist you will get:
 *f-link-foobar*
     which is a link to the description of the global Function
 
-*f-env-link-foobar*
+*f-link-env-foobar*
     which is a link to the description of the environment method
 
 
@@ -134,12 +141,12 @@ By calling the script
 ::
 
     python bin/docs-update-generated.py
-    
+
 you can recreate the lists of entities (``*.mod``) in the ``generated``
-folder, if required.  At the same time, this will generate the ``*.gen``
+folder.  At the same time, this will generate the matching ``*.gen``
 files, which list the full description of all the Builders, Tools,
-Functions and CVars for the MAN page and the User Guide's appendix. 
-Thus, you want to regenerate when there's a change to 
+Functions and CVars for the MAN page and the User Guide's appendix.
+Thus, you want to regenerate when there's a change to
 any of those four special elements, or an added or deleted element.
 These generated files are left checked in so in the normal case you
 can just rebuild the docs without having to first generate the entity
@@ -150,14 +157,59 @@ refer to the start of the Python script ``bin/SConsDoc.py``. It explains
 the available tags and the exact syntax in detail.
 
 
-Examples
-========
+Linking
+=======
+
+Normal Docbook (v4.5 style, as of this writing) in-document linking
+is supported, as is linking to documents with a web address.
+For any element in a document, you can include an ``id=name``
+attribute to set an identifier, and write a link to that identifier.
+Many of the section headings already have such identifiers,
+and it is fine to add more, as long as they remain unique.
+As noted in the previous section, for the special types,
+entities are generated which contain links,
+so you can just use those entities instead
+of writing the link reference manually.
+
+There is something to keep in mind about linking, however.
+Cross-document links between the MAN page and the User Guide
+do not work.  But some text is shared between the two, which
+allows the appearance of such linking, and this is where it
+gets a little confusing.  The text defined by the four special
+types is generated into the ``*.gen`` files,
+which get included both in the appropriate places in the MAN page,
+and in the Appendix in the User Guide.  Using entities within
+this shared content is fine.  Writing links in this shared
+content to element identifiers defined elsewhere is not.
+
+That sounds a little confusing so here is a real example:
+an xml source file in ``SCons`` defines the ``SCANNERS``
+construction variable by using ``<cvar name="SCANNERS"> ... </cvar>``.
+This will generate the linking entity ``&cv-link-SCANNERS;``,
+which can be used anywhere the ``doc/generated/variables.gen``
+file is included (i.e. MAN page and User Guide for now)
+to leave a link to this definition.
+But the text written inside the ``SCANNERS`` definition
+also wants to refer to the "Builder Objects" and "Scanner
+Objects" sections in the MAN page, as this contains relevant
+further description. This reference should not include an
+XML link, even though the MAN page defines the two identifiers
+``scanner_objects`` and ``builder_objects``, because this
+definition will *also* be included in the User Guide, which
+has no such section names or identifiers.  It is better here
+to write it all in text, as in *See the manpage section
+"Builder Objects"* than to leave a dangling reference in one
+of the docs.
+
+SCons Examples
+==============
 
 In the User Guide, we support automatically created examples. This
 means that the output of the specified source files and SConstructs
 is generated by running them with the current SCons version.  We do this
 to ensure that the output displayed in the manual is identical to what
-you get when you run the example on the command-line.
+you get when you run the example on the command-line, without having
+to remember to manually update the example outputs all the time.
 
 A short description about how these examples have to be defined can be
 found at the start of the file ``bin/SConsExamples.py``. Call
@@ -212,17 +264,17 @@ User Guide.
 
 *generated*
     Entity lists and outputs of the UserGuide examples. They get generated
-    by the update scripts ``bin/docs-update-generated.py`` 
+    by the update scripts ``bin/docs-update-generated.py``
     and ``bin/docs-create-example-outputs.py``.
 
 *images*
     Images for the ``overview.rst`` document.
-  
+
 *xsd*
     The SCons Docbook schema (XSD), based on the Docbook v4.5 DTD/XSD.
-  
+
 *xslt*
     XSLT transformation scripts for converting the special SCons
     tags like ``scons_output`` to valid Docbook during document
     processing.
-  
+

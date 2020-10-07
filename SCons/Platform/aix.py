@@ -1,14 +1,6 @@
-"""SCons.Platform.aix
-
-Platform-specific initialization for IBM AIX systems.
-
-There normally shouldn't be any need to import this module directly.  It
-will usually be imported through the generic SCons.Platform.Platform()
-selection method.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -28,11 +20,14 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Platform-specific initialization for IBM AIX systems.
 
-import os
+There normally shouldn't be any need to import this module directly.  It
+will usually be imported through the generic SCons.Platform.Platform()
+selection method.
+"""
+
 import subprocess
 
 from . import posix
@@ -55,6 +50,7 @@ def get_xlc(env, xlc=None, packages=[]):
         pipe = SCons.Action._subproc(env, ['lslpp', '-fc', package],
                 stdin = 'devnull',
                 stderr = 'devnull',
+                universal_newlines=True,
                 stdout = subprocess.PIPE)
         # output of lslpp is something like this:
         #     #Path:Fileset:File
@@ -69,8 +65,6 @@ def get_xlc(env, xlc=None, packages=[]):
             or ('/' not in xlc and filename.endswith('/' + xlc)):
                 xlcVersion = fileset.split()[1]
                 xlcPath, sep, xlc = filename.rpartition('/')
-            pass
-        pass
     return (xlcPath, xlc, xlcVersion)
 
 def generate(env):
