@@ -3,6 +3,8 @@ recursive-include SCons/Tool/docbook *
 # For license file
 include LICENSE
 
+include scons.1 sconsign.1 scons-time.1
+recursive-include build/doc/man *.1
 
 
 
