@@ -12,7 +12,9 @@ copyright_years = strftime('2001 - %Y')
 # This gets inserted into the man pages to reflect the month of release.
 month_year = strftime('%B %Y')
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -36,7 +38,7 @@ month_year = strftime('%B %Y')
 
 
 project = 'scons'
-default_version = '4.0.1'
+default_version = '4.0.1.9998'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 #
@@ -193,14 +195,21 @@ Export('command_line', 'env', 'whereis', 'revaction')
 SConscript('doc/SConscript')
 
 
+# Copy manpage's into base dir for inclusign in pypi packages
+man_pages = env.Install("#/", Glob("#/build/doc/man/*.1"))
+
 # Build packages for pypi
-env.Command('$DISTDIR/SCons-${VERSION}-py3-none-any.whl', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+wheel = env.Command('$DISTDIR/SCons-${VERSION}-py3-none-any.whl', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
             '$PYTHON setup.py bdist_wheel')
 
-env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+zip_file = env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
             '$PYTHON setup.py sdist --format=zip')
-env.Command('$DISTDIR/SCons-${VERSION}.tar.gz', ['setup.cfg', 'setup.py', 'SCons/__init__.py'],
+tgz_file = env.Command('$DISTDIR/SCons-${VERSION}.tar.gz', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
             '$PYTHON setup.py sdist --format=gztar')
+
+# Now set depends so the above run in a particular order
+env.Depends(tgz_file, [zip_file, wheel])
+env.AddPostAction(tgz_file, Delete(man_pages))
 
 # TODO add auto copyright date to README.rst, LICENSE
 # TODO build API DOCS
