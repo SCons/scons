@@ -2918,22 +2918,16 @@ target file's directory.</para>
 <programlisting language="python">
 # scons will change to the "sub" subdirectory
 # before executing the "cp" command.
-env.Command(
-    target='sub/dir/foo.out',
-    source='sub/dir/foo.in',
-    action="cp dir/foo.in dir/foo.out",
-    chdir='sub',
-)
+env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
+            "cp dir/foo.in dir/foo.out",
+            chdir='sub')
 
 # Because chdir is not a string, scons will change to the
 # target's directory ("sub/dir") before executing the
 # "cp" command.
-env.Command(
-    target='sub/dir/foo.out',
-    source='sub/dir/foo.in',
-    action="cp foo.in foo.out",
-    chdir=True,
-)
+env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
+            "cp foo.in foo.out",
+            chdir=1)
 </programlisting>
 
 <para>Note that &SCons; will
@@ -6519,8 +6513,9 @@ and the result substituted in.
 So in the following case:</para>
 
 <programlisting language="python">
-env.Command('foo.out', 'foo.in',
-    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''')
+env.Command(
+    'foo.out', 'foo.in', "echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET"
+)
 </programlisting>
 
 <para>the command executed will be either</para>
@@ -6556,8 +6551,9 @@ env=Environment()
 env['COND'] = 1
 env['FOO'] = ['foo1', 'foo2']
 env['BAR'] = 'barbar'
-env.Command('foo.out', 'foo.in',
-    'echo ${COND==1 and FOO or BAR} &gt; $TARGET')
+env.Command(
+    'foo.out', 'foo.in', "echo ${COND==1 and FOO or BAR} &gt; $TARGET"
+)
 </programlisting>
 
 <para>will execute:</para>
