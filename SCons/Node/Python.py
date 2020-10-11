@@ -129,7 +129,7 @@ class Value(SCons.Node.Node):
             self.built_value = self.value
         return self.built_value
 
-    def get_text_contents(self):
+    def get_text_contents(self) -> str:
         """By the assumption that the node.built_value is a
         deterministic product of the sources, the contents of a Value
         are the concatenation of all the contents of its sources.  As
@@ -141,16 +141,13 @@ class Value(SCons.Node.Node):
             contents = contents + kid.get_contents().decode()
         return contents
 
-    def get_contents(self):
-        """
-        Get contents for signature calculations.
-        :return: bytes
-        """
+    def get_contents(self) -> bytes:
+        """Get contents for signature calculations."""
         text_contents = self.get_text_contents()
         try:
             return text_contents.encode()
-        except UnicodeDecodeError:
-            # Already encoded as python2 str are bytes
+        except AttributeError:
+            # Should not happen, as get_text_contents returns str
             return text_contents
 
     def changed_since_last_build(self, target, prev_ni):

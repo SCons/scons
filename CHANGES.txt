@@ -63,6 +63,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Make sure cProfile is used if profiling - SCons was expecting
       the Util module to monkeypatch in cProfile as profile if available,
       but this is no longer being done.
+    - Some Python 2 compat dropped
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
