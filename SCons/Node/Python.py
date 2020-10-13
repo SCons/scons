@@ -143,19 +143,14 @@ class Value(SCons.Node.Node):
 
     def get_contents(self) -> bytes:
         """Get contents for signature calculations."""
-        text_contents = self.get_text_contents()
-        try:
-            return text_contents.encode()
-        except AttributeError:
-            # Should not happen, as get_text_contents returns str
-            return text_contents
+        return self.get_text_contents().encode()
 
     def changed_since_last_build(self, target, prev_ni):
         cur_csig = self.get_csig()
         try:
             return cur_csig != prev_ni.csig
         except AttributeError:
-            return 1
+            return True
 
     def get_csig(self, calc=None):
         """Because we're a Python value node and don't have a real
