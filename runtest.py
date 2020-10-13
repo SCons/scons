@@ -293,8 +293,8 @@ def escape(s):
 if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
-    def spawn_it(command_args):
-        cp = subprocess.run(command_args, shell=False)
+    def spawn_it(command_args, env):
+        cp = subprocess.run(command_args, shell=False, env=env)
         return cp.stdout, cp.stderr, cp.returncode
 else:
     # Else, we catch the output of both pipes...
@@ -310,7 +310,7 @@ else:
         #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
         # and pass temp file objects to Popen() instead of the ubiquitous
         # subprocess.PIPE.
-        def spawn_it(command_args):
+        def spawn_it(command_args, env):
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
@@ -318,7 +318,8 @@ else:
             cp = subprocess.run(command_args,
                                 stdout=tmp_stdout,
                                 stderr=tmp_stderr,
-                                shell=False)
+                                shell=False,
+                                env=env)
 
             try:
                 # Rewind to start of files
@@ -348,11 +349,12 @@ else:
         #   (but the subprocess isn't writing anything there).
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
-        def spawn_it(command_args):
+        def spawn_it(command_args, env):
             cp = subprocess.run(command_args,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                shell=False)
+                                shell=False,
+                                env=env)
             return cp.stdout, cp.stderr, cp.returncode
 
 
@@ -380,8 +382,8 @@ class RuntestBase(ABC):
 
 class SystemExecutor(RuntestBase):
     """ Test class for tests executed with spawn_it() """
-    def execute(self):
-        self.stderr, self.stdout, s = spawn_it(self.command_args)
+    def execute(self, env):
+        self.stderr, self.stdout, s = spawn_it(self.command_args, env)
         self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
@@ -400,7 +402,7 @@ class PopenExecutor(RuntestBase):
     # and the 'allow_pipe_files' option, please check out the
     # definition of spawn_it() above.
     if allow_pipe_files:
-        def execute(self):
+        def execute(self, env):
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
@@ -408,7 +410,8 @@ class PopenExecutor(RuntestBase):
             cp = subprocess.run(self.command_str.split(),
                                 stdout=tmp_stdout,
                                 stderr=tmp_stderr,
-                                shell=False)
+                                shell=False,
+                                env=env)
             self.status = cp.returncode
 
             try:
@@ -423,11 +426,12 @@ class PopenExecutor(RuntestBase):
                 tmp_stdout.close()
                 tmp_stderr.close()
     else:
-        def execute(self):
+        def execute(self, env):
             cp = subprocess.run(self.command_str.split(),
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                shell=False)
+                                shell=False,
+                                env=env)
             self.status = cp.returncode
             self.stdout = cp.stdout
             self.stderr = cp.stderr
@@ -756,11 +760,16 @@ def run_test(t, io_lock=None, run_async=True):
     if head:
         fixture_dirs.append(head)
     fixture_dirs.append(os.path.join(scriptpath, 'test', 'fixture'))
-    os.environ['FIXTURE_DIRS'] = os.pathsep.join(fixture_dirs)
+
+    # Set the list of fixture dirs directly in the environment. Just putting
+    # it in os.environ and spawning the process is racy. Make it reliable by
+    # overriding the environment passed to execute().
+    env = dict(os.environ)
+    env['FIXTURE_DIRS'] = os.pathsep.join(fixture_dirs)
 
     test_start_time = time_func()
     if execute_tests:
-        t.execute()
+        t.execute(env)
 
     t.test_time = time_func() - test_start_time
     log_result(t, io_lock=io_lock)
