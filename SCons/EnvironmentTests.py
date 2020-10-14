@@ -3280,7 +3280,7 @@ def generate(env):
         env = self.TestEnvironment(LIB='lll', FOO='fff', BAR='bbb')
         env.File('mylll.pdb')
         env.Dir('mymmm.pdb')
-        env.Dir('mynnn.pdb')
+        env.File('mynnn.pdb')
 
         foo = env.Object('foo.obj', 'foo.cpp')[0]
         bar = env.Object('bar.obj', 'bar.cpp')[0]
@@ -3315,7 +3315,7 @@ def generate(env):
         hhh = env.Object('hhh.obj', 'hhh.cpp')[0]
         ddd = env.Object('ddd.obj', 'ddd.cpp')[0]
         s = env.SideEffect('mynnn.pdb', ['hhh.obj', 'ddd.obj'], temporary=True)[0]
-        assert s.__class__.__name__ == 'Dir', s.__class__.__name__
+        assert s.__class__.__name__ == 'File', s.__class__.__name__
         assert s.get_internal_path() == 'mynnn.pdb'
         assert s.side_effect
         assert s.side_effect_temporary
