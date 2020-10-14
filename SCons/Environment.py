@@ -2266,6 +2266,13 @@ class Base(SubstitutionEnvironment):
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
                 raise UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
+
+            if temporary and side_effect.is_up_to_date():
+                # Only add a temporary side effect if it is not already
+                # up-to-date. Otherwise, we can consider the temporary
+                # side effect to not be necessary.
+                continue
+
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             side_effect.side_effect_temporary = temporary and 1 or 0
