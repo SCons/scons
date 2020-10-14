@@ -1491,12 +1491,9 @@ SConscript(sconscript)
             self.run(program=python, stdin="""\
 import sysconfig, sys, os.path
 py_ver = 'python%d%d' % sys.version_info[:2]
-# use distutils to help find include and lib path
-# TODO: PY3 fine to use sysconfig.get_config_var("INCLUDEPY")
 try:
-    import distutils.sysconfig
-    exec_prefix = distutils.sysconfig.EXEC_PREFIX
-    include = distutils.sysconfig.get_python_inc()
+    exec_prefix = sysconfig.get_config_var("exec_prefix")
+    include = sysconfig.get_config_var("INCLUDEPY")
     print(include)
     lib_path = os.path.join(exec_prefix, 'libs')
     if not os.path.exists(lib_path):
