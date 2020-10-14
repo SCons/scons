@@ -23,6 +23,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
        - Remove pywin32 usage from SCons.Util where it was used for accessing the registry. Python native winreg
          library already includes this functionality.
        - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
+    - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
+    - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
+
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
