@@ -1823,7 +1823,11 @@ class TimeSCons(TestSCons):
         # TODO(sgk):  allow the caller to specify the target (argument)
         # that must be up-to-date.
         self.add_timing_options(kw)
-        self.up_to_date(arguments='.', **kw)
+
+        # Build up regex for
+        # SConscript:/private/var/folders/ng/48pttrpj239fw5rmm3x65pxr0000gn/T/testcmd.12081.pk1bv5i5/SConstruct  took 533.646 ms
+        read_str = 'SConscript:.*\n'
+        self.up_to_date(arguments='.', read_str=read_str, **kw)
         sys.stdout.write(self.stdout())
         stats = self.collect_stats(self.stdout())
         # time-commands should always be 0.0 on a null build, because
@@ -1884,6 +1888,27 @@ class TimeSCons(TestSCons):
                 source = os.path.join(root, filename)
                 destination = source.replace(source_dir, dest_dir)
                 shutil.copy2(source, destination)
+
+    def up_to_date(self, arguments='.', read_str="", **kw):
+        """Asserts that all of the targets listed in arguments is
+        up to date, but does not make any assumptions on other targets.
+        This function is most useful in conjunction with the -n option.
+        Note: This custom version for timings tests does NOT escape
+              read_str.
+        """
+        s = ""
+        for arg in arguments.split():
+            s = s + "scons: `%s' is up to date.\n" % arg
+        kw['arguments'] = arguments
+        stdout = self.wrap_stdout(read_str="REPLACEME", build_str=s)
+        # Append '.*' so that timing output that comes after the
+        # up-to-date output is okay.
+        stdout = re.escape(stdout) + '.*'
+        stdout = stdout.replace('REPLACEME', read_str)
+        kw['stdout'] = stdout
+        kw['match'] = self.match_re_dotall
+        self.run(**kw)
+
 
 
 # In some environments, $AR will generate a warning message to stderr
