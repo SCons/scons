@@ -29,7 +29,9 @@ import unittest
 
 import SCons.Errors
 
-from SCons.Subst import *
+from SCons.Subst import (Literal, SUBST_CMD, SUBST_RAW, SUBST_SIG, SpecialAttrWrapper, collections,
+                         escape_list, quote_spaces, scons_subst, scons_subst_list, scons_subst_once,
+                         subst_dict)
 
 class DummyNode:
     """Simple node work-alike."""
