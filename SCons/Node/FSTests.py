@@ -3729,7 +3729,6 @@ class clearTestCase(unittest.TestCase):
         f.clear()
         for attr in optional_attrs:
             assert not hasattr(f, attr), attr
-        assert not f.cached, f.cached
 
 
 class disambiguateTestCase(unittest.TestCase):
