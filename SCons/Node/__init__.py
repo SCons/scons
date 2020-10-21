@@ -869,10 +869,12 @@ class Node(object, metaclass=NoSlotsPyPy):
         self.clear_memoized_values()
         self.ninfo = self.new_ninfo()
         self.executor_cleanup()
-        try:
-            delattr(self, '_calculated_sig')
-        except AttributeError:
-            pass
+        for attr in ['cachedir_csig', 'cachesig', 'contentsig']:
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                pass
+        self.cached = 0
         self.includes = None
 
     def clear_memoized_values(self):

@@ -35,6 +35,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       User-facing behavior does not change with this fix (GH Issue #3726).
     - Fix occasional test failures caused by not being able to find a file or directory fixture
       when running multiple tests with multiple jobs.
+    - Fix incorrect cache hits and/or misses when running in interactive mode by having
+      SCons.Node.Node.clear() clear out all caching-related state.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`

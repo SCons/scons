@@ -3722,6 +3722,14 @@ class clearTestCase(unittest.TestCase):
         assert not f.exists()
         assert not f.rexists()
         assert str(f) == test.workpath('f'), str(f)
+        # Now verify clear() resets optional File-specific attributes
+        optional_attrs = ['cachedir_csig', 'cachesig', 'contentsig']
+        for attr in optional_attrs:
+            setattr(f, attr, 'xyz')
+        f.clear()
+        for attr in optional_attrs:
+            assert not hasattr(f, attr), attr
+        assert not f.cached, f.cached
 
 
 class disambiguateTestCase(unittest.TestCase):
