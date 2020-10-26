@@ -33,7 +33,13 @@ from collections import UserDict as UD, UserList as UL
 import TestCmd
 import TestUnit
 
-from SCons.Environment import *
+from SCons.Environment import (
+    Environment,
+    NoSubstitutionProxy,
+    OverrideEnvironment,
+    SubstitutionEnvironment,
+    is_valid_construction_var,
+)
 import SCons.Warnings
 
 def diff_env(env1, env2):
