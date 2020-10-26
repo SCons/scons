@@ -92,8 +92,7 @@ def generate(env):
         # clang -dumpversion is of no use
         with pipe.stdout:
             line = pipe.stdout.readline()
-        if sys.version_info[0] > 2:
-            line = line.decode()
+        line = line.decode()
         match = re.search(r'clang +version +([0-9]+(?:\.[0-9]+)+)', line)
         if match:
             env['CXXVERSION'] = match.group(1)

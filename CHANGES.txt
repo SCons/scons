@@ -33,6 +33,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
+    - Fix occasional test failures caused by not being able to find a file or directory fixture
+      when running multiple tests with multiple jobs.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
@@ -68,6 +70,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       any Clone of that instance.  Now tries to detect this and calls
       MethodWrapper to set up the method the same way env.AddMethod does.
       MethodWrapper moved to Util to avoid a circular import. Fixes #3028.
+    - Some Python 2 compatibility code dropped
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
