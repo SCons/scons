@@ -1,12 +1,6 @@
-"""SCons.Script.SConscript
-
-This module defines the Python API provided to SConscript and SConstruct
-files.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +21,7 @@ files.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""This module defines the Python API provided to SConscript files."""
 
 import SCons
 import SCons.Action
@@ -46,7 +40,6 @@ from SCons.Util import is_List, is_String, is_Dict, flatten
 from SCons.Node import SConscriptNodes
 from . import Main
 
-import collections
 import os
 import os.path
 import re

@@ -2,5 +2,5 @@
 
 scons: *** Error converting option: RELEASE
 Invalid value for boolean option: bad_value
-File "/home/my/project/SConstruct", line 5, in &lt;module&gt;
+File "/home/my/project/SConstruct", line 3, in &lt;module&gt;
 </screen>

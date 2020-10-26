@@ -29,8 +29,6 @@ Test printing build actions when using the --cache-show option and
 retrieving derived files from a CacheDir.
 """
 
-import os.path
-import shutil
 
 import TestSCons
 

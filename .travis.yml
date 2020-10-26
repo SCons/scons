@@ -92,3 +92,4 @@ jobs:
         - python scripts/scons.py
         - ls -l build/dist
         - python build/scons-local/scons.py --version
+        - ./.travis/verify_packages.sh

@@ -1,11 +1,6 @@
-"""SCons.Scanner.LaTeX
-
-This module implements the dependency scanner for LaTeX code.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,9 +20,8 @@ This module implements the dependency scanner for LaTeX code.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Dependency scanner for LaTeX code."""
 
 import os.path
 import re
@@ -96,7 +90,6 @@ class FindENVPathDirs:
         return tuple(dir.Rfindalldirs(path))
 
 
-
 def LaTeXScanner():
     """
     Return a prototype Scanner instance for scanning LaTeX source files
@@ -108,6 +101,7 @@ def LaTeXScanner():
                graphics_extensions = TexGraphics,
                recursive = 0)
     return ds
+
 
 def PDFLaTeXScanner():
     """
@@ -121,9 +115,9 @@ def PDFLaTeXScanner():
                recursive = 0)
     return ds
 
+
 class LaTeX(SCons.Scanner.Base):
-    """
-    Class for scanning LaTeX files for included files.
+    """Class for scanning LaTeX files for included files.
 
     Unlike most scanners, which use regular expressions that just
     return the included file name, this returns a tuple consisting

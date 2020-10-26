@@ -1,29 +1,25 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # runtest.py - wrapper script for running SCons tests
 #
 # The SCons test suite consists of:
 #
-#  - unit tests        - included in *Tests.py files from src/ dir
+#  - unit tests        - included in *Tests.py files from SCons/ dir
 #  - end-to-end tests  - these are *.py files in test/ directory that
 #                        require custom SCons framework from testing/
 #
 # This script adds SCons/ and testing/ directories to PYTHONPATH,
 # performs test discovery and processes them according to options.
-#
-# With -p (--package) option, script tests specified package from
-# build directory and sets PYTHONPATH to reference modules unpacked
-# during build process for testing purposes (build/test-*).
 
 """
 Options:
   -a --all                 Run all tests.
   -b --baseline BASE       Run test scripts against baseline BASE.
-     --builddir DIR        Directory in which packages were built.
   -d --debug               Run test scripts under the Python debugger.
   -D --devmode             Run tests in Python's development mode (3.7+ only)
+     --e2e-only            Run only the end-to-end tests
   -e --external            Run the script in external mode (for external Tools)
   -f --file FILE           Only run tests listed in FILE.
   -j --jobs JOBS           Run tests in JOBS parallel jobs.
@@ -37,15 +33,6 @@ Options:
                            chars! You might run into some deadlocks else.
   -o --output FILE         Save the output from a test run to the log file.
   -P PYTHON                Use the specified Python interpreter.
-  -p --package PACKAGE     Test against the specified PACKAGE:
-                             deb           Debian
-                             local-tar-gz  .tar.gz standalone package
-                             local-zip     .zip standalone package
-                             rpm           Red Hat
-                             src-tar-gz    .tar.gz source package
-                             src-zip       .zip source package
-                             tar-gz        .tar.gz distribution
-                             zip           .zip distribution
      --passed              Summarize which tests passed.
   -q --quiet               Don't print the test being executed.
      --quit-on-failure     Quit on any test failure.
@@ -54,6 +41,7 @@ Options:
                            and a percentage value, based on the total and
                            current number of tests.
   -t --time                Print test execution time.
+     --unit-only           Run only the unit tests
   -v VERSION               Specify the SCons version.
      --verbose=LEVEL       Set verbose level:
                              1 = print executed commands,
@@ -87,7 +75,6 @@ from queue import Queue
 cwd = os.getcwd()
 
 baseline = None
-builddir = os.path.join(cwd, 'build')
 external = 0
 devmode = False
 debug = ''
@@ -95,7 +82,6 @@ execute_tests = True
 jobs = 1
 list_only = False
 printcommand = True
-package = None
 print_passed_summary = False
 scons = None
 scons_exec = False
@@ -103,13 +89,13 @@ testlistfile = None
 version = ''
 print_times = False
 python = None
-sp = []
 print_progress = True
 catch_output = False
 suppress_output = False
 allow_pipe_files = True
 quit_on_failure = False
 excludelistfile = None
+e2e_only = unit_only = False
 
 script = sys.argv[0].split("/")[-1]
 usagestr = """\
@@ -153,7 +139,6 @@ opts, args = getopt.getopt(
     "b:dDef:hj:klnP:p:qsv:Xx:t",
     [
         "baseline=",
-        "builddir=",
         "debug",
         "devmode", 
         "external",
@@ -164,7 +149,6 @@ opts, args = getopt.getopt(
         "list",
         "no-exec",
         "nopipefiles",
-        "package=",
         "passed",
         "python=",
         "quiet",
@@ -175,16 +159,14 @@ opts, args = getopt.getopt(
         "exec=",
         "verbose=",
         "exclude-list=",
+        "e2e-only",
+        "unit-only",
     ],
 )
 
 for o, a in opts:
     if o in ['-b', '--baseline']:
         baseline = a
-    elif o in ['--builddir']:
-        builddir = a
-        if not os.path.isabs(builddir):
-            builddir = os.path.normpath(os.path.join(cwd, builddir))
     elif o in ['-d', '--debug']:
         for d in sys.path:
             pdb = os.path.join(d, 'pdb.py')
@@ -215,8 +197,6 @@ for o, a in opts:
         execute_tests = False
     elif o in ['--nopipefiles']:
         allow_pipe_files = False
-    elif o in ['-p', '--package']:
-        package = a
     elif o in ['--passed']:
         print_passed_summary = True
     elif o in ['-P', '--python']:
@@ -241,9 +221,13 @@ for o, a in opts:
         scons = a
     elif o in ['--exclude-list']:
         excludelistfile = a
+    elif o in ['--e2e-only']:
+        e2e_only = True
+    elif o in ['--unit-only']:
+        unit_only = True
 
 
-class Unbuffered():
+class Unbuffered:
     """ class to arrange for stdout/stderr to be unbuffered """
     def __init__(self, file):
         self.file = file
@@ -261,7 +245,7 @@ sys.stderr = Unbuffered(sys.stderr)
 
 if options.output:
     logfile = open(options.output, 'w')
-    class Tee():
+    class Tee:
         def __init__(self, openfile, stream):
             self.file = openfile
             self.stream = stream
@@ -296,12 +280,8 @@ else:
                     return f
         return None
 
-sp.append(builddir)
-sp.append(cwd)
 
-#
 _ws = re.compile(r'\s')
-
 
 def escape(s):
     if _ws.search(s):
@@ -313,8 +293,8 @@ def escape(s):
 if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
-    def spawn_it(command_args):
-        cp = subprocess.run(command_args, shell=False)
+    def spawn_it(command_args, env):
+        cp = subprocess.run(command_args, shell=False, env=env)
         return cp.stdout, cp.stderr, cp.returncode
 else:
     # Else, we catch the output of both pipes...
@@ -330,7 +310,7 @@ else:
         #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
         # and pass temp file objects to Popen() instead of the ubiquitous
         # subprocess.PIPE.
-        def spawn_it(command_args):
+        def spawn_it(command_args, env):
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
@@ -338,7 +318,8 @@ else:
             cp = subprocess.run(command_args,
                                 stdout=tmp_stdout,
                                 stderr=tmp_stderr,
-                                shell=False)
+                                shell=False,
+                                env=env)
 
             try:
                 # Rewind to start of files
@@ -368,11 +349,12 @@ else:
         #   (but the subprocess isn't writing anything there).
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
-        def spawn_it(command_args):
+        def spawn_it(command_args, env):
             cp = subprocess.run(command_args,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                shell=False)
+                                shell=False,
+                                env=env)
             return cp.stdout, cp.stderr, cp.returncode
 
 
@@ -400,8 +382,8 @@ class RuntestBase(ABC):
 
 class SystemExecutor(RuntestBase):
     """ Test class for tests executed with spawn_it() """
-    def execute(self):
-        self.stderr, self.stdout, s = spawn_it(self.command_args)
+    def execute(self, env):
+        self.stderr, self.stdout, s = spawn_it(self.command_args, env)
         self.status = s
         if s < 0 or s > 2:
             sys.stdout.write("Unexpected exit status %d\n" % s)
@@ -414,13 +396,13 @@ class PopenExecutor(RuntestBase):
     by calling subprocess.run (behind the covers uses Popen.
     Very similar to SystemExecutor, but uses command_str
     instead of command_args, and doesn't allow for not catching
-    the output.
+    the output).
     """
     # For an explanation of the following 'if ... else'
     # and the 'allow_pipe_files' option, please check out the
     # definition of spawn_it() above.
     if allow_pipe_files:
-        def execute(self):
+        def execute(self, env):
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
@@ -428,7 +410,8 @@ class PopenExecutor(RuntestBase):
             cp = subprocess.run(self.command_str.split(),
                                 stdout=tmp_stdout,
                                 stderr=tmp_stderr,
-                                shell=False)
+                                shell=False,
+                                env=env)
             self.status = cp.returncode
 
             try:
@@ -443,11 +426,12 @@ class PopenExecutor(RuntestBase):
                 tmp_stdout.close()
                 tmp_stderr.close()
     else:
-        def execute(self):
+        def execute(self, env):
             cp = subprocess.run(self.command_str.split(),
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                shell=False)
+                                shell=False,
+                                env=env)
             self.status = cp.returncode
             self.stdout = cp.stdout
             self.stderr = cp.stderr
@@ -553,11 +537,36 @@ if old_pythonpath:
 
 
 # ---[ test discovery ]------------------------------------
+# This section figures which tests to run.
+#
+# The initial testlist is made by reading from the testlistfile,
+# if supplied, or by looking at the test arguments, if supplied,
+# or by looking for all test files if the "all" argument is supplied.
+# One of the three is required.
+#
+# Each test path, whichever of the three sources it comes from,
+# specifies either a test file or a directory to search for
+# SCons tests. SCons code layout assumes that any file under the 'SCons'
+# subdirectory that ends with 'Tests.py' is a unit test, and any Python
+# script (*.py) under the 'test' subdirectory is an end-to-end test.
+# We need to track these because they are invoked differently.
+# find_unit_tests and find_e2e_tests are used for this searching.
+#
+# Note that there are some tests under 'SCons' that *begin* with
+# 'test_', but they're packaging and installation tests, not
+# functional tests, so we don't execute them by default.  (They can
+# still be executed by hand, though).
+#
+# Test exclusions, if specified, are then applied.
 
-tests = []
-excludetests = []
 unittests = []
 endtests = []
+
+
+def scanlist(testlist):
+    """Process a testlist file"""
+    tests = [t.strip() for t in testlist if not t.startswith('#')]
+    return [t for t in tests if t]
 
 
 def find_unit_tests(directory):
@@ -583,7 +592,7 @@ def find_e2e_tests(directory):
             continue
         try:
             with open(os.path.join(dirpath, ".exclude_tests")) as f:
-                excludes = [e.split("#", 1)[0].strip() for e in f.readlines()]
+                excludes = scanlist(f)
         except EnvironmentError:
             excludes = []
         for fname in filenames:
@@ -592,27 +601,12 @@ def find_e2e_tests(directory):
     return sorted(result)
 
 
+# initial selection:
 if testlistfile:
     with open(testlistfile, 'r') as f:
-        tests = f.readlines()
-    tests = [x for x in tests if x[0] != '#']
-    tests = [x[:-1] for x in tests]
-    tests = [x.strip() for x in tests]
-    tests = [x for x in tests if x]
+        tests = scanlist(f)
 else:
     testpaths = []
-
-    # Each test path specifies a test file, or a directory to search for
-    # SCons tests. SCons code layout assumes that any file under the 'SCons'
-    # subdirectory that ends with 'Tests.py' is a unit test, and any Python
-    # script (*.py) under the 'test' subdirectory an end-to-end test.
-    # We need to track these because they are invoked differently.
-    #
-    # Note that there are some tests under 'SCons' that *begin* with
-    # 'test_', but they're packaging and installation tests, not
-    # functional tests, so we don't execute them by default.  (They can
-    # still be executed by hand, though).
-
     if options.all:
         testpaths = ['SCons', 'test']
     elif args:
@@ -622,47 +616,44 @@ else:
         # Clean up path so it can match startswith's below
         # sys.stderr.write("Changed:%s->"%tp)
         # remove leading ./ or .\
-        if tp[0] == '.' and tp[1] in (os.sep, os.altsep):
+        if tp.startswith('.') and tp[1] in (os.sep, os.altsep):
             tp = tp[2:]
         # tp = os.path.normpath(tp)
         # sys.stderr.write('->%s<-'%tp)
         # sys.stderr.write("to:%s\n"%tp)
         for path in glob.glob(tp):
             if os.path.isdir(path):
-                if path.startswith('SCons') or path.startswith('testing'):
-                    for p in find_unit_tests(path):
-                        unittests.append(p)
+                if path.startswith(('SCons', 'testing')):
+                    unittests.extend(find_unit_tests(path))
                 elif path.startswith('test'):
-                    for p in find_e2e_tests(path):
-                        endtests.append(p)
+                    endtests.extend(find_e2e_tests(path))
             else:
                 if path.endswith("Tests.py"):
                     unittests.append(path)
-                else:
+                elif path.endswith(".py"):
                     endtests.append(path)
+    tests = unittests + endtests
 
-    tests.extend(unittests)
-    tests.extend(endtests)
-    tests.sort()
+# Remove exclusions:
+if e2e_only:
+    tests = [t for t in tests if not t.endswith("Tests.py")]
+if unit_only:
+    tests = [t for t in tests if t.endswith("Tests.py")]
+if excludelistfile:
+    with open(excludelistfile, 'r') as f:
+        excludetests = scanlist(f)
+    tests = [t for t in tests if t not in excludetests]
 
 if not tests:
     sys.stderr.write(usagestr + """
-runtest.py:  No tests were found.
-             Tests can be specified on the command line, read from file
-             with -f option, or discovered with -a to run all tests.
+runtest: no tests were found.
+         Tests can be specified on the command line, read from a file with
+         the -f/--file option, or discovered with -a/--all to run all tests.
 """)
     sys.exit(1)
 
-if excludelistfile:
-    with open(excludelistfile, 'r') as f:
-        excludetests = f.readlines()
-    excludetests = [x for x in excludetests if x[0] != '#']
-    excludetests = [x[:-1] for x in excludetests]
-    excludetests = [x.strip() for x in excludetests]
-    excludetests = [x for x in excludetests if x]
 
 # ---[ test processing ]-----------------------------------
-tests = [t for t in tests if t not in excludetests]
 tests = [Test(t, n + 1) for n, t in enumerate(tests)]
 
 if list_only:
@@ -697,10 +688,9 @@ def log_result(t, io_lock=None):
     we need to lock access to the log to avoid interleaving. The same
     would apply if output was a file.
 
-    :param t: a completed testcase
-    :type t: Test
-    :param io_lock:
-    :type io_lock: threading.Lock
+    Args:
+        t (Test): (completed) testcase instance
+        io_lock (threading.lock): (optional) lock to use
     """
 
     # there is no lock in single-job run, which includes
@@ -727,6 +717,18 @@ def log_result(t, io_lock=None):
 
 
 def run_test(t, io_lock=None, run_async=True):
+    """ Run a testcase.
+
+    Builds the command line to give to execute().
+    Also the best place to record some information that will be
+    used in output, which in some conditions is printed here.
+
+    Args:
+        t (Test): testcase instance
+        io_lock (threading.Lock): (optional) lock to use
+        run_async (bool): whether to run asynchronously
+    """
+
     t.headline = ""
     command_args = []
     if debug:
@@ -738,7 +740,7 @@ def run_test(t, io_lock=None, run_async=True):
         # For example --runner TestUnit.TAPTestRunner
         command_args.append('--runner ' + options.runner)
     t.command_args = [escape(python)] + command_args
-    t.command_str = " ".join([escape(python)] + command_args)
+    t.command_str = " ".join(t.command_args)
     if printcommand:
         if print_progress:
             t.headline += "%d/%d (%.2f%s) %s\n" % (
@@ -753,16 +755,21 @@ def run_test(t, io_lock=None, run_async=True):
     if not suppress_output and not catch_output:
         # defer printing the headline until test is done
         sys.stdout.write(t.headline)
-    head, tail = os.path.split(t.abspath)
+    head, _ = os.path.split(t.abspath)
     fixture_dirs = []
     if head:
         fixture_dirs.append(head)
     fixture_dirs.append(os.path.join(scriptpath, 'test', 'fixture'))
-    os.environ['FIXTURE_DIRS'] = os.pathsep.join(fixture_dirs)
+
+    # Set the list of fixture dirs directly in the environment. Just putting
+    # it in os.environ and spawning the process is racy. Make it reliable by
+    # overriding the environment passed to execute().
+    env = dict(os.environ)
+    env['FIXTURE_DIRS'] = os.pathsep.join(fixture_dirs)
 
     test_start_time = time_func()
     if execute_tests:
-        t.execute()
+        t.execute(env)
 
     t.test_time = time_func() - test_start_time
     log_result(t, io_lock=io_lock)
@@ -775,7 +782,7 @@ class RunTest(threading.Thread):
     """
     def __init__(self, queue=None, io_lock=None,
                  group=None, target=None, name=None, args=(), kwargs=None):
-        super(RunTest, self).__init__(group=group, target=target, name=name)
+        super().__init__(group=group, target=target, name=name)
         self.queue = queue
         self.io_lock = io_lock
 
@@ -856,6 +863,7 @@ if options.output:
 if fail:
     sys.exit(1)
 elif no_result:
+    # if no fails, but skips were found
     sys.exit(2)
 else:
     sys.exit(0)

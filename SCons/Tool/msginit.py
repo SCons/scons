@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Warnings
 import SCons.Builder
-import re
 
 #############################################################################
 def _optional_no_translator_flag(env):

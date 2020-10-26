@@ -1,18 +1,6 @@
-"""SCons.SConf
-
-Autoconf-like configuration support.
-
-In other words, SConf allows to run tests on the build machine to detect
-capabilities of system and do some things based on result: generate config
-files, header files for C/C++, update variables in environment.
-
-Tests on the build system can detect if compiler sees header files, if
-libraries are installed, if some command line options are supported etc.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,8 +20,16 @@ libraries are installed, if some command line options are supported etc.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""Autoconf-like configuration support.
+
+In other words, SConf allows to run tests on the build machine to detect
+capabilities of system and do some things based on result: generate config
+files, header files for C/C++, update variables in environment.
+
+Tests on the build system can detect if compiler sees header files, if
+libraries are installed, if some command line options are supported etc.
+"""
 
 import SCons.compat
 

@@ -31,7 +31,6 @@ be aware of the created synctex.gz file.
 Test configuration contributed by Robert Managan.
 """
 
-import os
 import TestSCons
 
 test = TestSCons.TestSCons()

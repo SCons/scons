@@ -515,9 +515,7 @@ by appropriate setting of &consvars;.</para>
 
 <para>&scons;
 requires Python 3.5 or higher.
-There should be no other dependencies or requirements to run &scons;,
-although the <package>pywin32</package> Python package is
-strongly recommended if running on Windows systems.
+There should be no other dependencies or requirements to run &scons;.
 </para>
 
 </refsect1>
@@ -4237,6 +4235,13 @@ Calling &Variables; with no arguments is equivalent to:
 vars = Variables(files=None, args=ARGUMENTS)
 </programlisting>
 
+<para>
+Note that since the variables are eventually added as &consvars;,
+you should choose variable names which do not unintentionally change
+pre-defined &consvars; that your project will make use of
+(see <xref linkend="construction_variables"/>).
+</para>
+
   </listitem>
   </varlistentry>
   </variablelist>
@@ -6177,14 +6182,25 @@ env.Command('marker', 'input_file', action=[MyBuildAction, Touch('$TARGET')])
 
 <para>Before executing a command,
 &scons;
-performs &consvar; substitution on the string that makes up
-the command line of the builder.
-&Consvars; to be interpolated are indicated in the
+performs variable substitution on the string that makes up
+the action part of the builder.
+Variables to be interpolated are indicated in the
 string with a leading
 <literal>$</literal>, to distinguish them from plain text
 which is not to be substituted.
+The name may be surrounded by curly braces
+(<literal>${}</literal>)
+to separate the name from surrounding characters if necessary.
+Curly braces are required when you use
+Python list subscripting/slicing notation on a variable
+to select one or more items from a list,
+or access a variable's special attributes,
+or use Python expression substitution.
+</para>
+
+<para>
 Besides regular &consvars;, scons provides the following
-special variables for each command execution:</para>
+special variables for use in expanding commands:</para>
 
 <variablelist>
   <varlistentry>
@@ -6256,45 +6272,39 @@ changed since the target was last built.</para>
   </varlistentry>
 </variablelist>
 
-<para>Note that the above variables are reserved
-and may not be assigned to in the &consenv;.</para>
+<para>These names are reserved
+and may not be assigned to or used as &consvars;.</para>
 
-<para>For example, given the &consvars;
-<literal>CC='cc'</literal>,
-<literal>targets=['foo']</literal>
-and
-<literal>sources=['foo.c', 'bar.c']</literal>:
+<para>For example, the following builder call:
 </para>
 
 <programlisting language="python">
-action='$CC -c -o $TARGET $SOURCES'
+env = Environment(CC='cc')
+env.Command(
+    target=['foo'],
+    source=['foo.c', 'bar.c'],
+    action='@echo $CC -c -o $TARGET $SOURCES'
+)
 </programlisting>
 
-<para>would produce the command line:</para>
+<para>would produce the following output:</para>
 
 <screen>
 cc -c -o foo foo.c bar.c
 </screen>
 
-<para>Variable names may be surrounded by curly braces
-(<emphasis role="bold">{}</emphasis>)
-to separate the name from surrounding characters which
-are not part of the name.
-Within the curly braces, a variable name may use
-Python list subscripting/slicing notation to select one
-or more items from a list.
-In the previous example, the string:
+<para>
+In the previous example, a string
 <code>${SOURCES[1]}</code>
-would produce:</para>
+would expand to: <computeroutput>bar.c</computeroutput>.
+</para>
 
-<screen>
-bar.c
-</screen>
-
-<para>Additionally, a variable name may
+<para>A variable name may
 have the following
 modifiers appended within the enclosing curly braces
-to access properties of the interpolated string:</para>
+to access properties of the interpolated string.
+These are known as <firstterm>special attributes</firstterm>.
+</para>
 
 <simplelist>
   <member><parameter>base</parameter> -
@@ -6373,23 +6383,18 @@ ${SOURCE.rsrcdir}    =&gt; /usr/repository/src
 </literallayout>
 
 <para>
-Modifiers can be combined, like
-<literal>${TARGET.base.windows}</literal>,
+Some modifiers can be combined, like
 <literal>${TARGET.srcpath.base)</literal>,
 <literal>${TARGET.file.suffix}</literal>, etc.
 </para>
 
-<para>Note that curly braces braces may also be used
-to enclose arbitrary Python code to be evaluated.
-(In fact, this is how the above modifiers are substituted,
-they are simply attributes of the Python objects
-that represent &cv-TARGET;, &cv-SOURCES;, etc.)
+<para>The curly brace notation may also be used
+to enclose a Python expression to be evaluated.
 See <xref linkend='python_code_substitution'/> below
-for more thorough examples of
-how this can be used.</para>
+for a description.</para>
 
-<para>Lastly, a variable name
-may be a callable Python function
+<para>A variable name
+may also be a Python function
 associated with a
 &consvar; in the environment.
 The function should
@@ -6419,6 +6424,12 @@ def foo(target, source, env, for_signature):
 # Will expand $BAR to "bar baz"
 env=Environment(FOO=foo, BAR="$FOO baz")
 </programlisting>
+
+<para>As a reminder, this evaluation happens when
+<literal>$BAR</literal> is actually used in a
+builder action.  The value of <literal>env['BAR']</literal>
+will be exactly as it was set: <literal>"$FOO baz"</literal>.
+</para>
 
 <para>You can use this feature to pass arguments to a
 Python function by creating a callable class
@@ -6491,19 +6502,20 @@ echo Last build occurred  . &gt; $TARGET
 <title>Python Code Substitution</title>
 
 <para>
-Any Python code within curly braces
-(<emphasis role="bold">{}</emphasis>)
-and introduced by the variable prefix <literal>$</literal>
-will be evaluated using the Python <function>eval</function> statement,
-with the Python globals set to
-the current environment's set of &consvars;, and the result
-substituted in.
+If a substitutable expression using the notation
+<literal>${something}</literal> does not appear to match one of
+the other substitution patterns,
+it is evaluated as a Python expression.
+This uses Python's <function>eval</function> function,
+with the <parameter>globals</parameter> parameter set to
+the current environment's set of &consvars;,
+and the result substituted in.
 So in the following case:</para>
 
 <programlisting language="python">
-env['COND'] = 0
-env.Command('foo.out', 'foo.in',
-    '''echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET''')
+env.Command(
+    'foo.out', 'foo.in', "echo ${COND==1 and 'FOO' or 'BAR'} &gt; $TARGET"
+)
 </programlisting>
 
 <para>the command executed will be either</para>
@@ -6525,7 +6537,7 @@ built, not when the SConscript is being read.  So if
 <literal>env['COND']</literal> is changed
 later in the SConscript, the final value will be used.</para>
 
-<para>Here's a more interesting example.  Note that all of
+<para>Here's a more complete example.  Note that all of
 <envar>COND</envar>,
 <envar>FOO</envar>,
 and
@@ -6536,17 +6548,29 @@ separated by spaces.</para>
 
 <programlisting language="python">
 env=Environment()
-env['COND'] = 0
+env['COND'] = 1
 env['FOO'] = ['foo1', 'foo2']
 env['BAR'] = 'barbar'
-env.Command('foo.out', 'foo.in',
-    'echo ${COND==1 and FOO or BAR} &gt; $TARGET')
-
-# Will execute this:
-#  echo foo1 foo2 &gt; foo.out
+env.Command(
+    'foo.out', 'foo.in', "echo ${COND==1 and FOO or BAR} &gt; $TARGET"
+)
 </programlisting>
 
-<para>SCons uses the following rules when converting &consvars; into
+<para>will execute:</para>
+<screen>
+echo foo1 foo2 &gt; foo.out
+</screen>
+
+<para>
+In point of fact, Python expression evaluation is
+how the special attributes are substituted:
+they are simply attributes of the Python objects
+that represent &cv-TARGET;, &cv-SOURCES;, etc.,
+which &SCons; passes to <function>eval</function> which
+returns the value.
+</para>
+
+<para>&SCons; uses the following rules when converting &consvars; into
 command lines:</para>
 
 <variablelist>
@@ -6584,6 +6608,16 @@ contain embedded newline characters.</para>
   </listitem>
   </varlistentry>
 </variablelist>
+
+<note><para>
+Use of the Python <function>eval</function> function
+is considered to have security implications, since,
+depending on input sources,
+arbitrary unchecked strings of code can be executed by the Python interpreter.
+Although &SCons; makes use of it in a somewhat restricted context,
+you should be aware of this issue when using the
+<literal>${python-expression-for-subst}</literal> form.
+</para></note>
 </refsect2>
 
 <refsect2 id='scanner_objects'>
@@ -6608,8 +6642,7 @@ a Python function that will process
 the Node (file)
 and return a list of File Nodes
 representing the implicit
-dependencies (file names) found in the contents;
-or:
+dependencies (file names) found in the contents.
 </para></listitem>
 <listitem><para>
 a dictionary that maps keys

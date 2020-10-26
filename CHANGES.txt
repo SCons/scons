@@ -19,10 +19,28 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix yacc tool, not respecting YACC set at time of tool initialization.
     - Refactor SCons.Tool to move all common shared and loadable module linking logic to SCons.Tool.linkCommon
+    - Remove pywin32 imports from SCons.Script.Main. No longer needed.
+    - Switch to use ctypes instead of pywin32 (requiring an extra pip install) - Fixes Github Issue #2291
+       - pywin32 no longer necessary for SCons install. (pip install SCons will no longer also require pywin32 on win32)
+       - Remove pywin32 usage from SCons.Util where it was used for accessing the registry. Python native winreg
+         library already includes this functionality.
+       - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
+    - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
+    - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
+
+
+  From Michał Górny:
+    - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
 
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
+    - Fix occasional test failures caused by not being able to find a file or directory fixture
+      when running multiple tests with multiple jobs.
+
+  From Joachim Kuebart:
+    - Suppress missing SConscript deprecation warning if `must_exist=False`
+      is used.
 
   From Rocco Matano:
     - Fix Zip tool to respect ZIPCOMSTR. Previously all zip builder calls would yield something
@@ -37,10 +55,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       OverrideEnvironment. Enable env.setdefault() method, add tests.
     - Raise an error if an option (not otherwise consumed) is used which
       looks like an abbreviation of one one added by AddOption. (#3653)
+    - Tool module not found will now raise a UserError to more clearly indicate this is
+      probably an SConscript problem, and to make the traceback more relevant.
+    - Fix three issues with MergeFlags: 
+      - Signature/return did not match documentation or existing usage - the implementation 
+        now no longer returns the passed env
+      - merging --param arguments did not work (issue #3107); 
+      - passing a dict to merge where the values are strings failed (issue #2961).
+    - Include previously-excluded SideEffect section in User Guide.
+    - Clean up unneeded imports (autoflake tool).
+    - Make sure cProfile is used if profiling - SCons was expecting
+      the Util module to monkeypatch in cProfile as profile if available,
+      but this is no longer being done.
+    - Some Python 2 compatibility code dropped
 
-  From Joachim Kuebart:
-    - Suppress missing SConscript deprecation warning if `must_exist=False`
-      is used.
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
+
+
+
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700

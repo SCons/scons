@@ -73,8 +73,7 @@ Execution Requirements
 ======================
 
 Running SCons requires Python 3.5 or higher. There should be no other
-dependencies or requirements to run scons, although the pywin32 Python
-package is strongly recommended if running on Windows systems.
+dependencies or requirements to run scons
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named 'cc', a C++

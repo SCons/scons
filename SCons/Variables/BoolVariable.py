@@ -1,18 +1,6 @@
-"""SCons.Variables.BoolVariable
-
-This file defines the option type for SCons implementing true/false values.
-
-Usage example::
-
-    opts = Variables()
-    opts.Add(BoolVariable('embedded', 'build for an embedded system', 0))
-    ...
-    if env['embedded'] == 1:
-    ...
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,9 +20,17 @@ Usage example::
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Option type for true/false Variables.
+
+Usage example::
+
+    opts = Variables()
+    opts.Add(BoolVariable('embedded', 'build for an embedded system', 0))
+    ...
+    if env['embedded'] == 1:
+    ...
+"""
 
 __all__ = ['BoolVariable',]
 

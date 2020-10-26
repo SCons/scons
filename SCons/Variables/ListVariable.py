@@ -1,31 +1,6 @@
-"""SCons.Variables.ListVariable
-
-This file defines the option type for SCons implementing 'lists'.
-
-A 'list' option may either be 'all', 'none' or a list of names
-separated by comma. After the option has been processed, the option
-value holds either the named list elements, all list elements or no
-list elements at all.
-
-Usage example::
-
-    list_of_libs = Split('x11 gl qt ical')
-
-    opts = Variables()
-    opts.Add(ListVariable('shared',
-                      'libraries to build as shared libraries',
-                      'all',
-                      elems = list_of_libs))
-    ...
-    for lib in list_of_libs:
-     if lib in env['shared']:
-         env.SharedObject(...)
-     else:
-         env.Object(...)
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -46,7 +21,35 @@ Usage example::
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Option type for list Variables.
+
+This file defines the option type for SCons implementing 'lists'.
+
+A 'list' option may either be 'all', 'none' or a list of names
+separated by comma. After the option has been processed, the option
+value holds either the named list elements, all list elements or no
+list elements at all.
+
+Usage example::
+
+    list_of_libs = Split('x11 gl qt ical')
+
+    opts = Variables()
+    opts.Add(
+        ListVariable(
+            'shared',
+            'libraries to build as shared libraries',
+            'all',
+            elems=list_of_libs,
+        )
+    )
+    ...
+    for lib in list_of_libs:
+        if lib in env['shared']:
+            env.SharedObject(...)
+        else:
+            env.Object(...)
+"""
 
 # Known Bug: This should behave like a Set-Type, but does not really,
 # since elements can occur twice.

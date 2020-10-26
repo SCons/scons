@@ -1,11 +1,6 @@
-"""scons.Node.Python
-
-Python nodes.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,9 +20,8 @@ Python nodes.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Python nodes."""
 
 import SCons.Node
 
@@ -135,7 +129,7 @@ class Value(SCons.Node.Node):
             self.built_value = self.value
         return self.built_value
 
-    def get_text_contents(self):
+    def get_text_contents(self) -> str:
         """By the assumption that the node.built_value is a
         deterministic product of the sources, the contents of a Value
         are the concatenation of all the contents of its sources.  As
@@ -147,24 +141,16 @@ class Value(SCons.Node.Node):
             contents = contents + kid.get_contents().decode()
         return contents
 
-    def get_contents(self):
-        """
-        Get contents for signature calculations.
-        :return: bytes
-        """
-        text_contents = self.get_text_contents()
-        try:
-            return text_contents.encode()
-        except UnicodeDecodeError:
-            # Already encoded as python2 str are bytes
-            return text_contents
+    def get_contents(self) -> bytes:
+        """Get contents for signature calculations."""
+        return self.get_text_contents().encode()
 
     def changed_since_last_build(self, target, prev_ni):
         cur_csig = self.get_csig()
         try:
             return cur_csig != prev_ni.csig
         except AttributeError:
-            return 1
+            return True
 
     def get_csig(self, calc=None):
         """Because we're a Python value node and don't have a real

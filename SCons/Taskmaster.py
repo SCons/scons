@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,43 +21,33 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
+"""Generic Taskmaster module for the SCons build engine.
 
-__doc__ = """
-    Generic Taskmaster module for the SCons build engine.
-    =====================================================
+This module contains the primary interface(s) between a wrapping user
+interface and the SCons build engine.  There are two key classes here:
 
-    This module contains the primary interface(s) between a wrapping user
-    interface and the SCons build engine.  There are two key classes here:
+Taskmaster
+    This is the main engine for walking the dependency graph and
+    calling things to decide what does or doesn't need to be built.
 
-    Taskmaster
-    ----------
-        This is the main engine for walking the dependency graph and
-        calling things to decide what does or doesn't need to be built.
+Task
+    This is the base class for allowing a wrapping interface to
+    decide what does or doesn't actually need to be done.  The
+    intention is for a wrapping interface to subclass this as
+    appropriate for different types of behavior it may need.
 
-    Task
-    ----
-        This is the base class for allowing a wrapping interface to
-        decide what does or doesn't actually need to be done.  The
-        intention is for a wrapping interface to subclass this as
-        appropriate for different types of behavior it may need.
+    The canonical example is the SCons native Python interface,
+    which has Task subclasses that handle its specific behavior,
+    like printing "'foo' is up to date" when a top-level target
+    doesn't need to be built, and handling the -c option by removing
+    targets as its "build" action.  There is also a separate subclass
+    for suppressing this output when the -q option is used.
 
-        The canonical example is the SCons native Python interface,
-        which has Task subclasses that handle its specific behavior,
-        like printing "'foo' is up to date" when a top-level target
-        doesn't need to be built, and handling the -c option by removing
-        targets as its "build" action.  There is also a separate subclass
-        for suppressing this output when the -q option is used.
-
-        The Taskmaster instantiates a Task object for each (set of)
-        target(s) that it decides need to be evaluated and/or built.
+    The Taskmaster instantiates a Task object for each (set of)
+    target(s) that it decides need to be evaluated and/or built.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import operator
 import sys
-import traceback
 from abc import ABC, abstractmethod
 from itertools import chain
 

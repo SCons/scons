@@ -34,13 +34,6 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-try:
-    import weakref
-except ImportError:
-    x = "Python version has no 'weakref' module; skipping tests.\n"
-    test.skip_test(x)
-
-
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
