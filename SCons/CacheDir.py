@@ -55,7 +55,20 @@ def CacheRetrieveFunc(target, source, env):
         if fs.islink(cachefile):
             fs.symlink(fs.readlink(cachefile), t.get_internal_path())
         else:
-            env.copy_from_cache(cachefile, t.get_internal_path())
+            try:
+                env.copy_from_cache(cachefile, t.get_internal_path())
+            except:
+                try:
+                    # In case file was partially retrieved (and now corrupt)
+                    # delete it to avoid poisoning commands like 'ar' that
+                    # read from the initial state of the file they are writing
+                    # to.
+                    t.fs.unlink(t.get_internal_path())
+                except:
+                    pass
+
+                raise
+
             try:
                 os.utime(cachefile, None)
             except OSError:
@@ -70,7 +83,7 @@ def CacheRetrieveString(target, source, env):
     cd = env.get_CacheDir()
     cachedir, cachefile = cd.cachepath(t)
     if t.fs.exists(cachefile):
-        return "Retrieved `%s' from cache" % t.get_internal_path()
+        return "Retrieving `%s' from cache" % t.get_internal_path()
     return None
 
 CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
