@@ -54,6 +54,7 @@ import SCons.SConsign
 import SCons.Subst
 import SCons.Tool
 import SCons.Util
+from SCons.Util import MethodWrapper
 import SCons.Warnings
 
 class _Null:
@@ -180,48 +181,17 @@ def _delete_duplicates(l, keep_last):
 # Shannon at the following page (there called the "transplant" class):
 #
 # ASPN : Python Cookbook : Dynamically added methods to a class
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+# https://code.activestate.com/recipes/81732/
 #
 # We had independently been using the idiom as BuilderWrapper, but
 # factoring out the common parts into this base class, and making
 # BuilderWrapper a subclass that overrides __call__() to enforce specific
 # Builder calling conventions, simplified some of our higher-layer code.
+#
+# Note: MethodWrapper moved to SCons.Util as it was needed there
+# and otherwise we had a circular import problem.
 
-class MethodWrapper:
-    """
-    A generic Wrapper class that associates a method (which can
-    actually be any callable) with an object.  As part of creating this
-    MethodWrapper object an attribute with the specified (by default,
-    the name of the supplied method) is added to the underlying object.
-    When that new "method" is called, our __call__() method adds the
-    object as the first argument, simulating the Python behavior of
-    supplying "self" on method calls.
-
-    We hang on to the name by which the method was added to the underlying
-    base class so that we can provide a method to "clone" ourselves onto
-    a new underlying object being copied (without which we wouldn't need
-    to save that info).
-    """
-    def __init__(self, object, method, name=None):
-        if name is None:
-            name = method.__name__
-        self.object = object
-        self.method = method
-        self.name = name
-        setattr(self.object, name, self)
-
-    def __call__(self, *args, **kwargs):
-        nargs = (self.object,) + args
-        return self.method(*nargs, **kwargs)
-
-    def clone(self, new_object):
-        """
-        Returns an object that re-binds the underlying "method" to
-        the specified new object.
-        """
-        return self.__class__(new_object, self.method, self.name)
-
-class BuilderWrapper(MethodWrapper):
+class BuilderWrapper(SCons.Util.MethodWrapper):
     """
     A MethodWrapper subclass that that associates an environment with
     a Builder.
@@ -248,7 +218,7 @@ class BuilderWrapper(MethodWrapper):
             target = [target]
         if source is not None and not SCons.Util.is_List(source):
             source = [source]
-        return MethodWrapper.__call__(self, target, source, *args, **kw)
+        return super().__call__(target, source, *args, **kw)
 
     def __repr__(self):
         return '<BuilderWrapper %s>' % repr(self.name)
@@ -2377,7 +2347,7 @@ class OverrideEnvironment(Base):
         # Environment they are being constructed with and so will not
         # have access to overrided values. So we rebuild them with the
         # OverrideEnvironment so they have access to overrided values.
-        if isinstance(attr, (MethodWrapper, BuilderWrapper)):
+        if isinstance(attr, MethodWrapper):
             return attr.clone(self)
         else:
             return attr

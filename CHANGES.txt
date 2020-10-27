@@ -65,6 +65,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Make sure cProfile is used if profiling - SCons was expecting
       the Util module to monkeypatch in cProfile as profile if available,
       but this is no longer being done.
+    - Cleanup in SCons.Util.AddMethod. If called with an environment instance
+      as the object to modify, the method would not be correctly set up in
+      any Clone of that instance.  Now tries to detect this and calls
+      MethodWrapper to set up the method the same way env.AddMethod does.
+      MethodWrapper moved to Util to avoid a circular import. Fixes #3028.
     - Some Python 2 compatibility code dropped
 
   From Simon Tegelid

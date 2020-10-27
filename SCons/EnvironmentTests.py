@@ -33,7 +33,13 @@ from collections import UserDict as UD, UserList as UL
 import TestCmd
 import TestUnit
 
-from SCons.Environment import *
+from SCons.Environment import (
+    Environment,
+    NoSubstitutionProxy,
+    OverrideEnvironment,
+    SubstitutionEnvironment,
+    is_valid_construction_var,
+)
 import SCons.Warnings
 
 def diff_env(env1, env2):
@@ -721,7 +727,7 @@ sys.exit(0)
         r = env4.func2()
         assert r == 'func2-4', r
 
-        # Test that clones don't re-bind an attribute that the user
+        # Test that clones don't re-bind an attribute that the user set.
         env1 = Environment(FOO = '1')
         env1.AddMethod(func2)
         def replace_func2():
@@ -730,6 +736,18 @@ sys.exit(0)
         env2 = env1.Clone(FOO = '2')
         r = env2.func2()
         assert r == 'replace_func2', r
+
+        # Test clone rebinding if using global AddMethod.
+        env1 = Environment(FOO='1')
+        SCons.Util.AddMethod(env1, func2)
+        r = env1.func2()
+        assert r == 'func2-1', r
+        r = env1.func2('-xxx')
+        assert r == 'func2-1-xxx', r
+        env2 = env1.Clone(FOO='2')
+        r = env2.func2()
+        assert r == 'func2-2', r
+
 
     def test_Override(self):
         """Test overriding construction variables"""
