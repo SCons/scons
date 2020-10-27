@@ -56,6 +56,14 @@ abs_files = [
     'compile_commands_over_abs_1.json',
 ]
 
+filter_build_files = [
+    'compile_commands_filter_build.json',
+]
+
+filter_build2_files = [
+    'compile_commands_filter_build2.json',
+]
+
 example_rel_file = """[
     {
         "command": "%(exe)s mygcc.py cc -o %(output_file)s -c %(variant_src_file)s",
@@ -114,5 +122,46 @@ if sys.platform == 'win32':
 for f in abs_files:
     test.must_exist(f)
     test.must_match(f, example_abs_file, mode='r')
+
+example_filter_build_file = """[
+    {
+        "command": "%(exe)s mygcc.py cc -o %(output_file)s -c %(variant_src_file)s",
+        "directory": "%(workdir)s",
+        "file": "%(src_file)s",
+        "output": "%(output_file)s"
+    }
+]""" % {'exe': sys.executable,
+        'workdir': test.workdir,
+        'src_file': os.path.join('src', 'test_main.c'),
+        'output_file': os.path.join('build', 'test_main.o'),
+        'variant_src_file': os.path.join('build', 'test_main.c')
+        }
+
+if sys.platform == 'win32':
+    example_filter_build_file = example_filter_build_file.replace('\\', '\\\\')
+
+for f in filter_build_files:
+    test.must_exist(f)
+    test.must_match(f, example_filter_build_file, mode='r')
+
+example_filter_build2_file = """[
+    {
+        "command": "%(exe)s mygcc.py cc -o %(output2_file)s -c %(src_file)s",
+        "directory": "%(workdir)s",
+        "file": "%(src_file)s",
+        "output": "%(output2_file)s"
+    }
+]""" % {'exe': sys.executable,
+        'workdir': test.workdir,
+        'src_file': os.path.join('src', 'test_main.c'),
+        'output2_file': os.path.join('build2', 'test_main.o'),
+        }
+
+if sys.platform == 'win32':
+    example_filter_build2_file = example_filter_build2_file.replace('\\', '\\\\')
+
+for f in filter_build2_files:
+    test.must_exist(f)
+    test.must_match(f, example_filter_build2_file, mode='r')
 
 test.pass_test()

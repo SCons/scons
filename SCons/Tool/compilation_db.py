@@ -31,6 +31,7 @@ which is the name that most clang tools search for by default.
 
 import json
 import itertools
+import fnmatch
 import SCons
 
 from .cxx import CXXSuffixes
@@ -51,7 +52,6 @@ class __CompilationDbNode(SCons.Node.Python.Value):
     def __init__(self, value):
         SCons.Node.Python.Value.__init__(self, value)
         self.Decider(changed_since_last_build_node)
-
 
 def changed_since_last_build_node(child, target, prev_ni, node):
     """ Dummy decider to force always building"""
@@ -135,6 +135,7 @@ def write_compilation_db(target, source, env):
     entries = []
 
     use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
+    use_path_filter = env.subst('$COMPILATIONDB_USE_PATH_FILTER')
 
     for s in __COMPILATION_DB_ENTRIES:
         entry = s.read()
@@ -147,6 +148,9 @@ def write_compilation_db(target, source, env):
         else:
             source_file = source_file.srcnode().path
             output_file = output_file.path
+
+        if use_path_filter and not fnmatch.fnmatch(output_file, use_path_filter):
+            continue
 
         path_entry = {'directory': entry['directory'],
                       'command': entry['command'],
@@ -244,6 +248,7 @@ def generate(env, **kwargs):
     )
 
     env['COMPILATIONDB_USE_ABSPATH'] = False
+    env['COMPILATIONDB_USE_PATH_FILTER'] = ''
 
 
 def exists(env):

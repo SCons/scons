@@ -38,6 +38,7 @@ See its __doc__ string for a discussion of the format.
             <item>__COMPILATIONDB_ENV</item>
 -->            
             <item>COMPILATIONDB_USE_ABSPATH</item>
+            <item>COMPILATIONDB_USE_PATH_FILTER</item>
         </sets>
     </tool>
 
@@ -62,10 +63,10 @@ env.CompilationDatabase('my_output.json')
             </para>
             <para>
                 You should not specify source files. The &b-CompilationDatabase; builder instruments SCons to collect them from all
-                the C, C++, assembly source/target pairs.
+                the C, C++, assembly source/output pairs.
             </para>
             <para>
-                NOTE: You must load the &t-compilation_db; tool prior to specifying any part of your build or some source/target
+                NOTE: You must load the &t-compilation_db; tool prior to specifying any part of your build or some source/output
                 files will not show up in your output file.
             </para>
             <para>
@@ -86,11 +87,24 @@ env.CompilationDatabase('my_output.json')
         <summary>
             <para>
                 This is a boolean flag to instruct &b-link-CompilationDatabase; to
-                write the <literal>file</literal> and <literal>target</literal> members
+                write the <literal>file</literal> and <literal>output</literal> members
                 in the compilation database with absolute or relative paths.
             </para>
             <para>
                 The default value is False (use relative paths)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="COMPILATIONDB_USE_PATH_FILTER">
+        <summary>
+            <para>
+                This is a string which instructs &b-link-CompilationDatabase; to
+                only include entries where the <literal>output</literal> member
+                matches the pattern in the filter string using fnmatch.
+            </para>
+            <para>
+                The default value is an empty string '', which means no entries will be filtered.
             </para>
         </summary>
     </cvar>
