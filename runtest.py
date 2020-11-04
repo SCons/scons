@@ -2,63 +2,19 @@
 #
 # Copyright The SCons Foundation
 #
-# runtest.py - wrapper script for running SCons tests
-#
-# The SCons test suite consists of:
-#
-#  - unit tests        - included in *Tests.py files from SCons/ dir
-#  - end-to-end tests  - these are *.py files in test/ directory that
-#                        require custom SCons framework from testing/
-#
-# This script adds SCons/ and testing/ directories to PYTHONPATH,
-# performs test discovery and processes them according to options.
+"""runtest - wrapper script for running SCons tests
 
-"""
-Options:
-  -a --all                 Run all tests.
-  -b --baseline BASE       Run test scripts against baseline BASE.
-  -d --debug               Run test scripts under the Python debugger.
-  -D --devmode             Run tests in Python's development mode (3.7+ only)
-     --e2e-only            Run only the end-to-end tests
-  -e --external            Run the script in external mode (for external Tools)
-  -f --file FILE           Only run tests listed in FILE.
-  -j --jobs JOBS           Run tests in JOBS parallel jobs.
-  -k --no-progress         Suppress count and percent progress messages.
-  -l --list                List available tests and exit.
-  -n --no-exec             No execute, just print command lines.
-     --nopipefiles         Do not use the "file pipe" workaround for Popen()
-                           for starting tests. WARNING: use only when too much
-                           file traffic is giving you trouble AND you can be
-                           sure that none of your tests create output >65K
-                           chars! You might run into some deadlocks else.
-  -o --output FILE         Save the output from a test run to the log file.
-  -P PYTHON                Use the specified Python interpreter.
-     --passed              Summarize which tests passed.
-  -q --quiet               Don't print the test being executed.
-     --quit-on-failure     Quit on any test failure.
-     --runner CLASS        Alternative test runner class for unit tests.
-  -s --short-progress      Short progress, prints only the command line.
-                           and a percentage value, based on the total and
-                           current number of tests.
-  -t --time                Print test execution time.
-     --unit-only           Run only the unit tests
-  -v VERSION               Specify the SCons version.
-     --verbose=LEVEL       Set verbose level:
-                             1 = print executed commands,
-                             2 = print commands and non-zero output,
-                             3 = print commands and all output.
-  -X                       Test script is executable, don't feed to Python.
-  -x --exec SCRIPT         Test SCRIPT.
-     --xml file            Save results to file in SCons XML format.
-     --exclude-list FILE   List of tests to exclude in the current selection.
-                           Use to exclude tests when using the -a option.
+The SCons test suite consists of:
 
-Environment Variables:
-  PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
-  TESTCMD_VERBOSE: turn on verbosity in TestCommand
+ * unit tests        - *Tests.py files from the SCons/ dir
+ * end-to-end tests  - *.py files in the test/ directory that
+                       require the custom SCons framework from testing/
+
+This script adds SCons/ and testing/ directories to PYTHONPATH,
+performs test discovery and processes tests according to options.
 """
 
-import getopt
+import argparse
 import glob
 import os
 import re
@@ -69,171 +25,177 @@ import tempfile
 import threading
 import time
 from abc import ABC, abstractmethod
-from optparse import OptionParser, BadOptionError
+from pathlib import Path
 from queue import Queue
 
 cwd = os.getcwd()
 
-baseline = None
-external = 0
-devmode = False
-debug = ''
-execute_tests = True
-jobs = 1
-list_only = False
-printcommand = True
-print_passed_summary = False
+debug = None
 scons = None
-scons_exec = False
-testlistfile = None
-version = ''
-print_times = False
-python = None
-print_progress = True
 catch_output = False
 suppress_output = False
-allow_pipe_files = True
-quit_on_failure = False
-excludelistfile = None
-e2e_only = unit_only = False
 
-script = sys.argv[0].split("/")[-1]
+script = os.path.basename(sys.argv[0])
 usagestr = """\
-Usage: %(script)s [OPTIONS] [TEST ...]
+%(script)s [OPTIONS] [TEST ...]
        %(script)s -h|--help
 """ % locals()
 
-helpstr = usagestr + __doc__
+epilogstr = """\
+Environment Variables:
+  PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
+  TESTCMD_VERBOSE: turn on verbosity in TestCommand\
+"""
 
-# "Pass-through" option parsing -- an OptionParser that ignores
-# unknown options and lets them pile up in the leftover argument
-# list.  Useful to gradually port getopt to optparse.
-
-class PassThroughOptionParser(OptionParser):
-    def _process_long_opt(self, rargs, values):
-        try:
-            OptionParser._process_long_opt(self, rargs, values)
-        except BadOptionError as err:
-            self.largs.append(err.opt_str)
-    def _process_short_opts(self, rargs, values):
-        try:
-            OptionParser._process_short_opts(self, rargs, values)
-        except BadOptionError as err:
-            self.largs.append(err.opt_str)
-
-parser = PassThroughOptionParser(add_help_option=False)
-parser.add_option('-a', '--all', action='store_true', help="Run all tests.")
-parser.add_option('-o', '--output',
-                  help="Save the output from a test run to the log file.")
-parser.add_option('--runner', metavar='class',
-                  help="Test runner class for unit tests.")
-parser.add_option('--xml', help="Save results to file in SCons XML format.")
-(options, args) = parser.parse_args()
-
-# print("options:", options)
-# print("args:", args)
-
-
-opts, args = getopt.getopt(
-    args,
-    "b:dDef:hj:klnP:p:qsv:Xx:t",
-    [
-        "baseline=",
-        "debug",
-        "devmode", 
-        "external",
-        "file=",
-        "help",
-        "no-progress",
-        "jobs=",
-        "list",
-        "no-exec",
-        "nopipefiles",
-        "passed",
-        "python=",
-        "quiet",
-        "quit-on-failure",
-        "short-progress",
-        "time",
-        "version=",
-        "exec=",
-        "verbose=",
-        "exclude-list=",
-        "e2e-only",
-        "unit-only",
-    ],
+parser = argparse.ArgumentParser(
+    usage=usagestr, epilog=epilogstr, allow_abbrev=False,
+    formatter_class=argparse.RawDescriptionHelpFormatter
 )
 
-for o, a in opts:
-    if o in ['-b', '--baseline']:
-        baseline = a
-    elif o in ['-d', '--debug']:
-        for d in sys.path:
-            pdb = os.path.join(d, 'pdb.py')
-            if os.path.exists(pdb):
-                debug = pdb
-                break
-    elif o in ['-D', '--devmode']:
-        devmode = True
-    elif o in ['-e', '--external']:
-        external = True
-    elif o in ['-f', '--file']:
-        if not os.path.isabs(a):
-            a = os.path.join(cwd, a)
-        testlistfile = a
-    elif o in ['-h', '--help']:
-        print(helpstr)
-        sys.exit(0)
-    elif o in ['-j', '--jobs']:
-        jobs = int(a)
-        # don't let tests write stdout/stderr directly if multi-job,
-        # or outputs will interleave and be hard to read
-        catch_output = True
-    elif o in ['-k', '--no-progress']:
-        print_progress = False
-    elif o in ['-l', '--list']:
-        list_only = True
-    elif o in ['-n', '--no-exec']:
-        execute_tests = False
-    elif o in ['--nopipefiles']:
-        allow_pipe_files = False
-    elif o in ['--passed']:
-        print_passed_summary = True
-    elif o in ['-P', '--python']:
-        python = a
-    elif o in ['-q', '--quiet']:
-        printcommand = False
-        suppress_output = catch_output = True
-    elif o in ['--quit-on-failure']:
-        quit_on_failure = True
-    elif o in ['-s', '--short-progress']:
-        print_progress = True
-        suppress_output = catch_output = True
-    elif o in ['-t', '--time']:
-        print_times = True
-    elif o in ['--verbose']:
-        os.environ['TESTCMD_VERBOSE'] = a
-    elif o in ['-v', '--version']:
-        version = a
-    elif o in ['-X']:
-        scons_exec = True
-    elif o in ['-x', '--exec']:
-        scons = a
-    elif o in ['--exclude-list']:
-        excludelistfile = a
-    elif o in ['--e2e-only']:
-        e2e_only = True
-    elif o in ['--unit-only']:
-        unit_only = True
+# test selection options:
+testsel = parser.add_argument_group(description='Test selection options:')
+testsel.add_argument(metavar='TEST', nargs='*', dest='testlist',
+                     help="Select TEST(s) (tests and/or directories) to run")
+testlisting = testsel.add_mutually_exclusive_group()
+testlisting.add_argument('-f', '--file', metavar='FILE', dest='testlistfile',
+                     help="Select only tests in FILE")
+testlisting.add_argument('-a', '--all', action='store_true',
+                     help="Select all tests")
+testsel.add_argument('--exclude-list', metavar="FILE", dest='excludelistfile',
+                     help="""Exclude tests in FILE from current selection""")
+testtype = testsel.add_mutually_exclusive_group()
+testtype.add_argument('--e2e-only', action='store_true',
+                      help="Exclude unit tests from selection")
+testtype.add_argument('--unit-only', action='store_true',
+                      help="Exclude end-to-end tests from selection")
 
+# miscellaneous options
+parser.add_argument('-b', '--baseline', metavar='BASE',
+                    help="Run test scripts against baseline BASE.")
+parser.add_argument('-d', '--debug', action='store_true',
+                    help="Run test scripts under the Python debugger.")
+parser.add_argument('-D', '--devmode', action='store_true',
+                    help="Run tests in Python's development mode (Py3.7+ only).")
+parser.add_argument('-e', '--external', action='store_true',
+                    help="Run the script in external mode (for external Tools)")
+parser.add_argument('-j', '--jobs', metavar='JOBS', default=1, type=int,
+                    help="Run tests in JOBS parallel jobs.")
+parser.add_argument('-l', '--list', action='store_true', dest='list_only',
+                    help="List available tests and exit.")
+parser.add_argument('-n', '--no-exec', action='store_false',
+                    dest='execute_tests',
+                    help="No execute, just print command lines.")
+parser.add_argument('--nopipefiles', action='store_false',
+                    dest='allow_pipe_files',
+                    help="""Do not use the "file pipe" workaround for Popen()
+                           for starting tests. WARNING: use only when too much
+                           file traffic is giving you trouble AND you can be
+                           sure that none of your tests create output >65K
+                           chars! You might run into some deadlocks else.""")
+parser.add_argument('-P', '--python', metavar='PYTHON',
+                    help="Use the specified Python interpreter.")
+parser.add_argument('--quit-on-failure', action='store_true',
+                    help="Quit on any test failure.")
+parser.add_argument('--runner', metavar='CLASS',
+                    help="Test runner class for unit tests.")
+parser.add_argument('-X', dest='scons_exec', action='store_true',
+                    help="Test script is executable, don't feed to Python.")
+parser.add_argument('-x', '--exec', metavar="SCRIPT",
+                    help="Test using SCRIPT as path to SCons.")
 
-class Unbuffered:
-    """ class to arrange for stdout/stderr to be unbuffered """
+outctl = parser.add_argument_group(description='Output control options:')
+outctl.add_argument('-k', '--no-progress', action='store_false',
+                    dest='print_progress',
+                    help="Suppress count and progress percentage messages.")
+outctl.add_argument('--passed', action='store_true',
+                    dest='print_passed_summary',
+                    help="Summarize which tests passed.")
+outctl.add_argument('-q', '--quiet', action='store_false',
+                    dest='printcommand',
+                    help="Don't print the test being executed.")
+outctl.add_argument('-s', '--short-progress', action='store_true',
+                    help="""Short progress, prints only the command line
+                             and a progress percentage.""")
+outctl.add_argument('-t', '--time', action='store_true', dest='print_times',
+                    help="Print test execution time.")
+outctl.add_argument('--verbose', metavar='LEVEL', type=int, choices=range(1, 4),
+                    help="""Set verbose level:
+                             1 = print executed commands,
+                             2 = print commands and non-zero output,
+                             3 = print commands and all output.""")
+
+logctl = parser.add_argument_group(description='Log control options:')
+logctl.add_argument('-o', '--output', metavar='LOG', help="Save console output to LOG.")
+logctl.add_argument('--xml', metavar='XML', help="Save results to XML in SCons XML format.")
+
+# process args and handle a few specific cases:
+args = parser.parse_args()
+
+# we can't do this check with an argparse exclusive group,
+# since the cmdline tests (args.testlist) are not optional
+if args.testlist and (args.testlistfile or args.all):
+    sys.stderr.write(
+        parser.format_usage()
+        + "error: command line tests cannot be combined with -f/--file or -a/--all\n"
+    )
+    sys.exit(1)
+
+if args.testlistfile:
+    try:
+        p = Path(args.testlistfile)
+        args.testlistfile = p.resolve(strict=True)
+    except FileNotFoundError:
+        sys.stderr.write(
+            parser.format_usage()
+            + "error: -f/--file testlist file \"%s\" not found\n" % p
+        )
+        sys.exit(1)
+
+if args.excludelistfile:
+    try:
+        p = Path(args.excludelistfile)
+        args.excludelistfile = p.resolve(strict=True)
+    except FileNotFoundError:
+        sys.stderr.write(
+            parser.format_usage()
+            + "error: --exclude-list file \"%s\" not found\n" % p
+        )
+        sys.exit(1)
+
+if args.jobs > 1:
+    # don't let tests write stdout/stderr directly if multi-job,
+    # else outputs will interleave and be hard to read
+    catch_output = True
+
+if not args.printcommand:
+    suppress_output = catch_output = True
+
+if args.verbose:
+    os.environ['TESTCMD_VERBOSE'] = str(args.verbose)
+
+if args.short_progress:
+    args.print_progress = True
+    suppress_output = catch_output = True
+
+if args.debug:
+    for d in sys.path:
+        pdb = os.path.join(d, 'pdb.py')
+        if os.path.exists(pdb):
+            debug = pdb
+        break
+
+if args.exec:
+    scons = args.exec
+
+# --- setup stdout/stderr ---
+class Unbuffered():
     def __init__(self, file):
         self.file = file
+
     def write(self, arg):
         self.file.write(arg)
         self.file.flush()
+
     def __getattr__(self, attr):
         return getattr(self.file, attr)
 
@@ -243,9 +205,9 @@ sys.stderr = Unbuffered(sys.stderr)
 # possible alternative: switch to using print, and:
 # print = functools.partial(print, flush)
 
-if options.output:
-    logfile = open(options.output, 'w')
-    class Tee:
+if args.output:
+    logfile = open(args.output, 'w')
+    class Tee():
         def __init__(self, openfile, stream):
             self.file = openfile
             self.stream = stream
@@ -257,6 +219,7 @@ if options.output:
 
 # --- define helpers ----
 if sys.platform in ('win32', 'cygwin'):
+
     def whereis(file):
         pathext = [''] + os.environ['PATHEXT'].split(os.pathsep)
         for d in os.environ['PATH'].split(os.pathsep):
@@ -268,6 +231,7 @@ if sys.platform in ('win32', 'cygwin'):
         return None
 
 else:
+
     def whereis(file):
         for d in os.environ['PATH'].split(os.pathsep):
             f = os.path.join(d, file)
@@ -293,12 +257,14 @@ def escape(s):
 if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
+
     def spawn_it(command_args, env):
         cp = subprocess.run(command_args, shell=False, env=env)
         return cp.stdout, cp.stderr, cp.returncode
+
 else:
     # Else, we catch the output of both pipes...
-    if allow_pipe_files:
+    if args.allow_pipe_files:
         # The subprocess.Popen() suffers from a well-known
         # problem. Data for stdout/stderr is read into a
         # memory buffer of fixed size, 65K which is not very much.
@@ -307,19 +273,22 @@ else:
         # be able to write the rest of its output. Hang!
         # In order to work around this, we follow a suggestion
         # by Anders Pearson in
-        #   http://http://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
+        #   https://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
         # and pass temp file objects to Popen() instead of the ubiquitous
         # subprocess.PIPE.
+
         def spawn_it(command_args, env):
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            cp = subprocess.run(command_args,
-                                stdout=tmp_stdout,
-                                stderr=tmp_stderr,
-                                shell=False,
-                                env=env)
+            cp = subprocess.run(
+                command_args,
+                stdout=tmp_stdout,
+                stderr=tmp_stderr,
+                shell=False,
+                env=env,
+            )
 
             try:
                 # Rewind to start of files
@@ -349,12 +318,15 @@ else:
         #   (but the subprocess isn't writing anything there).
         #   Hence a deadlock.
         # Be dragons here! Better don't use this!
+
         def spawn_it(command_args, env):
-            cp = subprocess.run(command_args,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                shell=False,
-                                env=env)
+            cp = subprocess.run(
+                command_args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False,
+                env=env,
+            )
             return cp.stdout, cp.stderr, cp.returncode
 
 
@@ -401,17 +373,20 @@ class PopenExecutor(RuntestBase):
     # For an explanation of the following 'if ... else'
     # and the 'allow_pipe_files' option, please check out the
     # definition of spawn_it() above.
-    if allow_pipe_files:
+    if args.allow_pipe_files:
+
         def execute(self, env):
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
-            cp = subprocess.run(self.command_str.split(),
-                                stdout=tmp_stdout,
-                                stderr=tmp_stderr,
-                                shell=False,
-                                env=env)
+            cp = subprocess.run(
+                self.command_str.split(),
+                stdout=tmp_stdout,
+                stderr=tmp_stderr,
+                shell=False,
+                env=env,
+            )
             self.status = cp.returncode
 
             try:
@@ -426,15 +401,16 @@ class PopenExecutor(RuntestBase):
                 tmp_stdout.close()
                 tmp_stderr.close()
     else:
+
         def execute(self, env):
-            cp = subprocess.run(self.command_str.split(),
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                shell=False,
-                                env=env)
-            self.status = cp.returncode
-            self.stdout = cp.stdout
-            self.stderr = cp.stderr
+            cp = subprocess.run(
+                self.command_str.split(),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False,
+                env=env,
+            )
+            self.status, self.stdout, self.stderr = cp.returncode, cp.stdout, cp.stderr
 
 class XML(PopenExecutor):
     """ Test class for tests that will output in scons xml """
@@ -456,84 +432,67 @@ class XML(PopenExecutor):
         f.write('  <time>%.1f</time>\n' % self.total_time)
         f.write('  </results>\n')
 
-if options.xml:
+if args.xml:
     Test = XML
 else:
     Test = SystemExecutor
 
 # --- start processing ---
 
-sd = None
-tools_dir = None
-ld = None
-
-if not baseline or baseline == '.':
-    base = cwd
-elif baseline == '-':
+if not args.baseline or args.baseline == '.':
+    baseline = cwd
+elif args.baseline == '-':
     print("This logic used to checkout from svn. It's been removed. If you used this, please let us know on devel mailing list, IRC, or discord server")
     sys.exit(-1)
 else:
-    base = baseline
+    baseline = args.baseline
+scons_runtest_dir = baseline
 
-scons_runtest_dir = base
-
-if not external:
-    scons_script_dir = sd or os.path.join(base, 'scripts')
-    scons_tools_dir = tools_dir or os.path.join(base, 'bin')
-    scons_lib_dir = ld or base
+if not args.external:
+    scons_script_dir = os.path.join(baseline, 'scripts')
+    scons_tools_dir = os.path.join(baseline, 'bin')
+    scons_lib_dir = baseline
 else:
-    scons_script_dir = sd or ''
-    scons_tools_dir = tools_dir or ''
-    scons_lib_dir = ld or ''
+    scons_script_dir = ''
+    scons_tools_dir = ''
+    scons_lib_dir = ''
 
-pythonpath_dir = scons_lib_dir
+testenv = {
+    'SCONS_RUNTEST_DIR': scons_runtest_dir,
+    'SCONS_TOOLS_DIR': scons_tools_dir,
+    'SCONS_SCRIPT_DIR': scons_script_dir,
+    'SCONS_CWD': cwd,
+}
 
 if scons:
     # Let the version of SCons that the -x option pointed to find
     # its own modules.
-    os.environ['SCONS'] = scons
+    testenv['SCONS'] = scons
 elif scons_lib_dir:
     # Because SCons is really aggressive about finding its modules,
     # it sometimes finds SCons modules elsewhere on the system.
     # This forces SCons to use the modules that are being tested.
-    os.environ['SCONS_LIB_DIR'] = scons_lib_dir
+    testenv['SCONS_LIB_DIR'] = scons_lib_dir
 
-if scons_exec:
-    os.environ['SCONS_EXEC'] = '1'
+if args.scons_exec:
+    testenv['SCONS_EXEC'] = '1'
 
-if external:
-    os.environ['SCONS_EXTERNAL_TEST'] = '1'
+if args.external:
+    testenv['SCONS_EXTERNAL_TEST'] = '1'
 
-os.environ['SCONS_RUNTEST_DIR'] = scons_runtest_dir
-os.environ['SCONS_SCRIPT_DIR'] = scons_script_dir
-os.environ['SCONS_TOOLS_DIR'] = scons_tools_dir
-os.environ['SCONS_CWD'] = cwd
-os.environ['SCONS_VERSION'] = version
+# Insert scons path and path for testing framework to PYTHONPATH
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+frameworkpath = os.path.join(scriptpath, 'testing', 'framework')
+testenv['PYTHONPATH'] = os.pathsep.join((scons_lib_dir, frameworkpath))
+pythonpath = os.environ.get('PYTHONPATH')
+if pythonpath:
+    testenv['PYTHONPATH'] = testenv['PYTHONPATH'] + os.pathsep + pythonpath
 
-old_pythonpath = os.environ.get('PYTHONPATH')
+os.environ.update(testenv)
 
 # Clear _JAVA_OPTIONS which java tools output to stderr when run breaking tests
 if '_JAVA_OPTIONS' in os.environ:
     del os.environ['_JAVA_OPTIONS']
-
-# FIXME: the following is necessary to pull in half of the testing
-#        harness from $srcdir/etc. Those modules should be transfered
-#        to testing/, in which case this manipulation of PYTHONPATH
-#        should be able to go away.
-pythonpaths = [pythonpath_dir]
-
-scriptpath = os.path.dirname(os.path.realpath(__file__))
-
-# Add path for testing framework to PYTHONPATH
-pythonpaths.append(os.path.join(scriptpath, 'testing', 'framework'))
-
-
-os.environ['PYTHONPATH'] = os.pathsep.join(pythonpaths)
-
-if old_pythonpath:
-    os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + \
-                               os.pathsep + \
-                               old_pythonpath
 
 
 # ---[ test discovery ]------------------------------------
@@ -559,12 +518,9 @@ if old_pythonpath:
 #
 # Test exclusions, if specified, are then applied.
 
-unittests = []
-endtests = []
-
 
 def scanlist(testlist):
-    """Process a testlist file"""
+    """ Process a testlist file """
     tests = [t.strip() for t in testlist if not t.startswith('#')]
     return [t for t in tests if t]
 
@@ -585,7 +541,6 @@ def find_unit_tests(directory):
 def find_e2e_tests(directory):
     """ Look for end-to-end tests """
     result = []
-
     for dirpath, dirnames, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
@@ -602,25 +557,24 @@ def find_e2e_tests(directory):
 
 
 # initial selection:
-if testlistfile:
-    with open(testlistfile, 'r') as f:
+unittests = []
+endtests = []
+if args.testlistfile:
+    with args.testlistfile.open() as f:
         tests = scanlist(f)
 else:
     testpaths = []
-    if options.all:
+    if args.all:
         testpaths = ['SCons', 'test']
-    elif args:
-        testpaths = args
+    elif args.testlist:
+        testpaths = args.testlist
 
     for tp in testpaths:
         # Clean up path so it can match startswith's below
-        # sys.stderr.write("Changed:%s->"%tp)
         # remove leading ./ or .\
         if tp.startswith('.') and tp[1] in (os.sep, os.altsep):
             tp = tp[2:]
-        # tp = os.path.normpath(tp)
-        # sys.stderr.write('->%s<-'%tp)
-        # sys.stderr.write("to:%s\n"%tp)
+
         for path in glob.glob(tp):
             if os.path.isdir(path):
                 if path.startswith(('SCons', 'testing')):
@@ -632,46 +586,49 @@ else:
                     unittests.append(path)
                 elif path.endswith(".py"):
                     endtests.append(path)
-    tests = unittests + endtests
+    tests = sorted(unittests + endtests)
+
 
 # Remove exclusions:
-if e2e_only:
+if args.e2e_only:
     tests = [t for t in tests if not t.endswith("Tests.py")]
-if unit_only:
+if args.unit_only:
     tests = [t for t in tests if t.endswith("Tests.py")]
-if excludelistfile:
-    with open(excludelistfile, 'r') as f:
+if args.excludelistfile:
+    with args.excludelistfile.open() as f:
         excludetests = scanlist(f)
     tests = [t for t in tests if t not in excludetests]
 
 if not tests:
-    sys.stderr.write(usagestr + """
-runtest: no tests were found.
-         Tests can be specified on the command line, read from a file with
-         the -f/--file option, or discovered with -a/--all to run all tests.
+    sys.stderr.write(parser.format_usage() + """
+error: no tests were found.
+       Tests can be specified on the command line, read from a file with
+       the -f/--file option, or discovered with -a/--all to run all tests.
 """)
     sys.exit(1)
-
 
 # ---[ test processing ]-----------------------------------
 tests = [Test(t, n + 1) for n, t in enumerate(tests)]
 
-if list_only:
+if args.list_only:
     for t in tests:
         sys.stdout.write(t.path + "\n")
     sys.exit(0)
 
-if not python:
+if not args.python:
     if os.name == 'java':
-        python = os.path.join(sys.prefix, 'jython')
+        args.python = os.path.join(sys.prefix, 'jython')
     else:
-        python = sys.executable
-os.environ["python_executable"] = python
+        args.python = sys.executable
+os.environ["python_executable"] = args.python
 
-if print_times:
+if args.print_times:
+
     def print_time(fmt, tm):
         sys.stdout.write(fmt % tm)
+
 else:
+
     def print_time(fmt, tm):
         pass
 
@@ -710,7 +667,7 @@ def log_result(t, io_lock=None):
         if io_lock:
             io_lock.release()
 
-    if quit_on_failure and t.status == 1:
+    if args.quit_on_failure and t.status == 1:
         print("Exiting due to error")
         print(t.status)
         sys.exit(1)
@@ -733,19 +690,18 @@ def run_test(t, io_lock=None, run_async=True):
     command_args = []
     if debug:
         command_args.append(debug)
-    if devmode and sys.version_info >= (3, 7, 0):
-            command_args.append('-X dev')
+    if args.devmode and sys.version_info >= (3, 7, 0):
+        command_args.append('-X dev')
     command_args.append(t.path)
-    if options.runner and t.path in unittests:
+    if args.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
-        command_args.append('--runner ' + options.runner)
-    t.command_args = [escape(python)] + command_args
+        command_args.append('--runner ' + args.runner)
+    t.command_args = [escape(args.python)] + command_args
     t.command_str = " ".join(t.command_args)
-    if printcommand:
-        if print_progress:
+    if args.printcommand:
+        if args.print_progress:
             t.headline += "%d/%d (%.2f%s) %s\n" % (
-                t.num,
-                total_num_tests,
+                t.num, total_num_tests,
                 float(t.num) * 100.0 / float(total_num_tests),
                 "%",
                 t.command_str,
@@ -768,7 +724,7 @@ def run_test(t, io_lock=None, run_async=True):
     env['FIXTURE_DIRS'] = os.pathsep.join(fixture_dirs)
 
     test_start_time = time_func()
-    if execute_tests:
+    if args.execute_tests:
         t.execute(env)
 
     t.test_time = time_func() - test_start_time
@@ -776,12 +732,11 @@ def run_test(t, io_lock=None, run_async=True):
 
 
 class RunTest(threading.Thread):
-    """ Test Runner class
+    """ Test Runner class.
 
     One instance will be created for each job thread in multi-job mode
     """
-    def __init__(self, queue=None, io_lock=None,
-                 group=None, target=None, name=None, args=(), kwargs=None):
+    def __init__(self, queue=None, io_lock=None, group=None, target=None, name=None):
         super().__init__(group=group, target=target, name=name)
         self.queue = queue
         self.io_lock = io_lock
@@ -791,14 +746,14 @@ class RunTest(threading.Thread):
             run_test(t, io_lock=self.io_lock, run_async=True)
             self.queue.task_done()
 
-if jobs > 1:
-    print("Running tests using %d jobs" % jobs)
+if args.jobs > 1:
+    print("Running tests using %d jobs" % args.jobs)
     testq = Queue()
     for t in tests:
         testq.put(t)
     testlock = threading.Lock()
     # Start worker threads to consume the queue
-    threads = [RunTest(queue=testq, io_lock=testlock) for _ in range(jobs)]
+    threads = [RunTest(queue=testq, io_lock=testlock) for _ in range(args.jobs)]
     for t in threads:
         t.daemon = True
         t.start()
@@ -817,8 +772,8 @@ passed = [t for t in tests if t.status == 0]
 fail = [t for t in tests if t.status == 1]
 no_result = [t for t in tests if t.status == 2]
 
-if len(tests) != 1 and execute_tests:
-    if passed and print_passed_summary:
+if len(tests) != 1 and args.execute_tests:
+    if passed and args.print_passed_summary:
         if len(passed) == 1:
             sys.stdout.write("\nPassed the following test:\n")
         else:
@@ -840,21 +795,21 @@ if len(tests) != 1 and execute_tests:
         paths = [x.path for x in no_result]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
 
-if options.xml:
-    if options.xml == '-':
+if args.xml:
+    if args.output == '-':
         f = sys.stdout
     else:
-        f = open(options.xml, 'w')
+        f = open(args.xml, 'w')
     tests[0].header(f)
     #f.write("test_result = [\n")
     for t in tests:
         t.write(f)
     tests[0].footer(f)
     #f.write("];\n")
-    if options.xml != '-':
+    if args.output != '-':
         f.close()
 
-if options.output:
+if args.output:
     if isinstance(sys.stdout, Tee):
         sys.stdout.file.close()
     if isinstance(sys.stderr, Tee):
