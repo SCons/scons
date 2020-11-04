@@ -2686,8 +2686,11 @@ class FileTestCase(_tempdirTestCase):
             print("%15s -> csig:%s" % (i3.name, i3.ninfo.csig))
             print("%15s -> csig:%s" % (i4.name, i4.ninfo.csig))
 
-        self.assertEqual(i2.name, i2.ninfo.csig,
-                         "gamma.h's fake csig should equal gamma.h but equals:%s" % i2.ninfo.csig)
+        self.assertEqual(
+            i2.name,
+            i2.ninfo.csig,
+            "gamma.h's fake csig should equal gamma.h but equals:%s" % i2.ninfo.csig,
+        )
 
 
 class GlobTestCase(_tempdirTestCase):
@@ -3673,7 +3676,8 @@ class CacheDirTestCase(unittest.TestCase):
 
         f9 = fs.File('f9')
         r = f9.get_cachedir_csig()
-        assert r == 'd41d8cd98f00b204e9800998ecf8427e', r
+        exsig = SCons.Util.MD5signature(SCons.Util.NOFILE)
+        assert r == exsig, r
 
 
 class clearTestCase(unittest.TestCase):

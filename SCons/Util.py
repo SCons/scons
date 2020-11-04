@@ -35,6 +35,10 @@ from types import MethodType, FunctionType
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
+# this string will be hashed if a Node refers to a file that doesn't exist
+# in order to distinguish from a file that exists but is empty.
+NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
+
 # unused?
 def dictify(keys, values, result=None):
     if result is None:
