@@ -141,6 +141,7 @@ if args.testlist and (args.testlistfile or args.all):
     sys.exit(1)
 
 if args.testlistfile:
+    # args.testlistfile changes from a string to a pathlib Path object
     try:
         p = Path(args.testlistfile)
         if sys.version_info.major == 3 and sys.version_info.minor < 6:
@@ -155,12 +156,13 @@ if args.testlistfile:
         sys.exit(1)
 
 if args.excludelistfile:
+    # args.excludelistfile changes from a string to a pathlib Path object
     try:
         p = Path(args.excludelistfile)
         if sys.version_info.major == 3 and sys.version_info.minor < 6:
-            args.testlistfile = p.resolve()
+            args.excludelistfile = p.resolve()
         else:
-            args.testlistfile = p.resolve(strict=True)
+            args.excludelistfile = p.resolve(strict=True)
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
