@@ -15,7 +15,6 @@ performs test discovery and processes tests according to options.
 """
 
 import argparse
-import functools
 import glob
 import os
 import re
@@ -162,7 +161,6 @@ if args.excludelistfile:
             args.testlistfile = p.resolve()
         else:
             args.testlistfile = p.resolve(strict=True)
-        args.excludelistfile = p.myresolve()
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
