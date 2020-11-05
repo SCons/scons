@@ -15,6 +15,7 @@ performs test discovery and processes tests according to options.
 """
 
 import argparse
+import functools
 import glob
 import os
 import re
@@ -143,7 +144,10 @@ if args.testlist and (args.testlistfile or args.all):
 if args.testlistfile:
     try:
         p = Path(args.testlistfile)
-        args.testlistfile = p.resolve(strict=True)
+        if sys.version_info.major == 3 and sys.version_info.minor < 6:
+            args.testlistfile = p.resolve()
+        else:
+            args.testlistfile = p.resolve(strict=True)
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
@@ -154,7 +158,11 @@ if args.testlistfile:
 if args.excludelistfile:
     try:
         p = Path(args.excludelistfile)
-        args.excludelistfile = p.resolve(strict=True)
+        if sys.version_info.major == 3 and sys.version_info.minor < 6:
+            args.testlistfile = p.resolve()
+        else:
+            args.testlistfile = p.resolve(strict=True)
+        args.excludelistfile = p.myresolve()
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
