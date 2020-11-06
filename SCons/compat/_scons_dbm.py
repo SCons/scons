@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,18 +20,14 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__doc__ = """
-dbm compatibility module for Python versions that don't have dbm.
+"""dbm compatibility module for Python versions that don't have dbm.
 
 This does not not NOT (repeat, *NOT*) provide complete dbm functionality.
 It's just a stub on which to hang just enough pieces of dbm functionality
 that the whichdb.whichdb() implementstation in the various 2.X versions of
 Python won't blow up even if dbm wasn't compiled in.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 class error(Exception):
     pass

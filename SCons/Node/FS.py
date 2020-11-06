@@ -1,17 +1,6 @@
-"""scons.Node.FS
-
-File system nodes.
-
-These Nodes represent the canonical external objects that people think
-of when they think of building software: files and directories.
-
-This holds a "default_fs" variable that should be initialized with an FS
-that can be used by scripts or modules looking for the canonical default.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,7 +20,15 @@ that can be used by scripts or modules looking for the canonical default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""File system nodes.
+
+These Nodes represent the canonical external objects that people think
+of when they think of building software: files and directories.
+
+This holds a "default_fs" variable that should be initialized with an FS
+that can be used by scripts or modules looking for the canonical default.
+"""
 
 import fnmatch
 import os
@@ -46,7 +43,7 @@ import importlib.util
 
 import SCons.Action
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
+from SCons.Debug import logInstanceCreation, Trace
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
@@ -55,8 +52,6 @@ import SCons.Subst
 import SCons.Util
 from SCons.Util import hash_signature, hash_file_signature, hash_collect
 import SCons.Warnings
-
-from SCons.Debug import Trace
 
 print_duplicate = 0
 
@@ -439,7 +434,7 @@ class EntryProxy(SCons.Util.Proxy):
 
     # In PY3 if a class defines __eq__, then it must explicitly provide
     # __hash__.  Since SCons.Util.Proxy provides __eq__ we need the following
-    # see: https://docs.python.org/3.1/reference/datamodel.html#object.__hash__
+    # see: https://docs.python.org/3/reference/datamodel.html#object.__hash__
     __hash__ = SCons.Util.Delegate('__hash__')
 
     def __get_abspath(self):

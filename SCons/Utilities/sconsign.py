@@ -2,7 +2,9 @@
 #
 # SCons - a Software Constructor
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,6 +24,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+"""Utility script to dump information from SCons signature database."""
 
 import getopt
 import os
@@ -94,11 +98,6 @@ def default_mapper(entry, name):
         val = eval("entry." + name)
     except AttributeError:
         val = None
-    if sys.version_info.major >= 3 and isinstance(val, bytes):
-        # This is a dirty hack for py 2/3 compatibility. csig is a bytes object
-        # in Python3 while Python2 bytes are str. Hence, we decode the csig to a
-        # Python3 string
-        val = val.decode()
     return str(val)
 
 
@@ -323,8 +322,8 @@ class Do_SConsignDB:
             sys.stderr.write("sconsign: ignoring invalid `%s' file `%s': %s\n"
                              % (self.dbm_name, fname, e))
             exc_type, _, _ = sys.exc_info()
-            if exc_type.__name__ == "ValueError" and sys.version_info < (3,0,0):
-                sys.stderr.write("Python 2 only supports pickle protocols 0-2.\n")
+            if exc_type.__name__ == "ValueError":
+                sys.stderr.write("unrecognized pickle protocol.\n")
             return
 
         if Print_Directories:

@@ -1,9 +1,6 @@
-"""SCons.Util
-
-Various utility functions go here.
-"""
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,30 +21,25 @@ Various utility functions go here.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Various SCons utility functions."""
 
 import os
 import sys
 import copy
 import re
-import types
-import codecs
 import pprint
 import hashlib
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
+from types import MethodType, FunctionType
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
-# Below not used?
-# InstanceType    = types.InstanceType
-
-MethodType      = types.MethodType
-FunctionType    = types.FunctionType
-
-def dictify(keys, values, result={}):
-    for k, v in zip(keys, values):
-        result[k] = v
+# unused?
+def dictify(keys, values, result=None):
+    if result is None:
+        result = {}
+    result.update(dict(zip(keys, values)))
     return result
 
 _altsep = os.altsep
@@ -637,6 +629,41 @@ class Delegate:
         else:
             return self
 
+
+class MethodWrapper:
+    """A generic Wrapper class that associates a method with an object.
+
+    As part of creating this MethodWrapper object an attribute with the
+    specified name (by default, the name of the supplied method) is added
+    to the underlying object.  When that new "method" is called, our
+    __call__() method adds the object as the first argument, simulating
+    the Python behavior of supplying "self" on method calls.
+
+    We hang on to the name by which the method was added to the underlying
+    base class so that we can provide a method to "clone" ourselves onto
+    a new underlying object being copied (without which we wouldn't need
+    to save that info).
+    """
+    def __init__(self, object, method, name=None):
+        if name is None:
+            name = method.__name__
+        self.object = object
+        self.method = method
+        self.name = name
+        setattr(self.object, name, self)
+
+    def __call__(self, *args, **kwargs):
+        nargs = (self.object,) + args
+        return self.method(*nargs, **kwargs)
+
+    def clone(self, new_object):
+        """
+        Returns an object that re-binds the underlying "method" to
+        the specified new object.
+        """
+        return self.__class__(new_object, self.method, self.name)
+
+
 # attempt to load the windows registry module:
 can_read_reg = 0
 try:
@@ -652,22 +679,9 @@ try:
     RegError        = winreg.error
 
 except ImportError:
-    try:
-        import win32api
-        import win32con
-        can_read_reg = 1
-        hkey_mod = win32con
-
-        RegOpenKeyEx    = win32api.RegOpenKeyEx
-        RegEnumKey      = win32api.RegEnumKey
-        RegEnumValue    = win32api.RegEnumValue
-        RegQueryValueEx = win32api.RegQueryValueEx
-        RegError        = win32api.error
-
-    except ImportError:
-        class _NoError(Exception):
-            pass
-        RegError = _NoError
+    class _NoError(Exception):
+        pass
+    RegError = _NoError
 
 
 # Make sure we have a definition of WindowsError so we can
@@ -1113,7 +1127,7 @@ def adjustixes(fname, pre, suf, ensure_suffix=False):
 
 
 # From Tim Peters,
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+# https://code.activestate.com/recipes/52560
 # ASPN: Python Cookbook: Remove duplicates from a sequence
 # (Also in the printed Python Cookbook.)
 
@@ -1187,9 +1201,8 @@ def unique(s):
     return u
 
 
-
 # From Alex Martelli,
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+# https://code.activestate.com/recipes/52560
 # ASPN: Python Cookbook: Remove duplicates from a sequence
 # First comment, dated 2001/10/13.
 # (Also in the printed Python Cookbook.)
@@ -1392,42 +1405,41 @@ def make_path_relative(path):
     return path
 
 
-
-# The original idea for AddMethod() and RenameFunction() come from the
+# The original idea for AddMethod() came from the
 # following post to the ActiveState Python Cookbook:
 #
-#   ASPN: Python Cookbook : Install bound methods in an instance
-#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
+# ASPN: Python Cookbook : Install bound methods in an instance
+# https://code.activestate.com/recipes/223613
 #
-# That code was a little fragile, though, so the following changes
-# have been wrung on it:
-#
+# Changed as follows:
 # * Switched the installmethod() "object" and "function" arguments,
 #   so the order reflects that the left-hand side is the thing being
 #   "assigned to" and the right-hand side is the value being assigned.
-#
-# * Changed explicit type-checking to the "try: klass = object.__class__"
-#   block in installmethod() below so that it still works with the
-#   old-style classes that SCons uses.
-#
-# * Replaced the by-hand creation of methods and functions with use of
-#   the "new" module, as alluded to in Alex Martelli's response to the
-#   following Cookbook post:
-#
-#   ASPN: Python Cookbook : Dynamically added methods to a class
-#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+# * The instance/class detection is changed a bit, as it's all
+#   new-style classes now with Py3.
+# * The by-hand construction of the function object from renamefunction()
+#   is not needed, the remaining bit is now used inline in AddMethod.
 
 def AddMethod(obj, function, name=None):
-    """
-    Adds either a bound method to an instance or the function itself (or an unbound method in Python 2) to a class.
-    If name is ommited the name of the specified function
-    is used by default.
+    """Adds a method to an object.
+
+    Adds `function` to `obj` if `obj` is a class object.
+    Adds `function` as a bound method if `obj` is an instance object.
+    If `obj` looks like an environment instance, use `MethodWrapper`
+    to add it.  If `name` is supplied it is used as the name of `function`.
+
+    Although this works for any class object, the intent as a public
+    API is to be used on Environment, to be able to add a method to all
+    construction environments; it is preferred to use env.AddMethod
+    to add to an individual environment.
 
     Example::
 
+        class A:
+            ...
         a = A()
         def f(self, x, y):
-        self.z = x + y
+            self.z = x + y
         AddMethod(f, A, "add")
         a.add(2, 4)
         print(a.z)
@@ -1437,31 +1449,23 @@ def AddMethod(obj, function, name=None):
     if name is None:
         name = function.__name__
     else:
-        function = RenameFunction(function, name)
+        # "rename"
+        function = FunctionType(
+            function.__code__, function.__globals__, name, function.__defaults__
+        )
 
-    # Note the Python version checks - WLB
-    # Python 3.3 dropped the 3rd parameter from types.MethodType
     if hasattr(obj, '__class__') and obj.__class__ is not type:
-        # "obj" is an instance, so it gets a bound method.
-        if sys.version_info[:2] > (3, 2):
-            method = MethodType(function, obj)
+        # obj is an instance, so it gets a bound method.
+        if hasattr(obj, "added_methods"):
+            method = MethodWrapper(obj, function, name)
+            obj.added_methods.append(method)
         else:
-            method = MethodType(function, obj, obj.__class__)
+            method = MethodType(function, obj)
     else:
-        # Handle classes
+        # obj is a class
         method = function
 
     setattr(obj, name, method)
-
-def RenameFunction(function, name):
-    """
-    Returns a function identical to the specified function, but with
-    the specified name.
-    """
-    return FunctionType(function.__code__,
-                        function.__globals__,
-                        name,
-                        function.__defaults__)
 
 
 # Default hash function. SCons-internal.
@@ -1617,8 +1621,7 @@ def silent_intern(x):
 
 # From Dinu C. Gherman,
 # Python Cookbook, second edition, recipe 6.17, p. 277.
-# Also:
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
+# Also: https://code.activestate.com/recipes/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
 
 class Null:
@@ -1657,9 +1660,6 @@ class NullSeq(Null):
         return self
     def __setitem__(self, i, v):
         return self
-
-
-del __revision__
 
 
 def to_bytes(s):

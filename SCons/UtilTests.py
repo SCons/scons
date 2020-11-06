@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,9 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
@@ -196,11 +194,7 @@ class UtilTestCase(unittest.TestCase):
         try:
             node, expect, withtags = self.tree_case_1()
 
-            if sys.version_info.major < 3:
-                IOStream = io.BytesIO
-            else:
-                IOStream = io.StringIO
-
+            IOStream = io.StringIO
             sys.stdout = IOStream()
             print_tree(node, get_children)
             actual = sys.stdout.getvalue()
@@ -252,11 +246,6 @@ class UtilTestCase(unittest.TestCase):
     def test_is_Dict(self):
         assert is_Dict({})
         assert is_Dict(UserDict())
-
-        # os.environ is not a dictionary in python 3
-        if sys.version_info < (3, 0):
-            assert is_Dict(os.environ)
-
         try:
             class mydict(dict):
                 pass

@@ -1,16 +1,6 @@
-"""SCons.Environment
-
-Base class for construction Environments.  These are
-the primary objects used to communicate dependency and
-construction information to the build engine.
-
-Keyword arguments supplied when the construction Environment
-is created are construction variables used to initialize the
-Environment
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,8 +21,14 @@ Environment
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Base class for construction Environments.
 
+These are the primary objects used to communicate dependency and
+construction information to the build engine.
+
+Keyword arguments supplied when the construction Environment is created
+are construction variables used to initialize the Environment.
+"""
 
 import copy
 import os
@@ -58,6 +54,7 @@ import SCons.SConsign
 import SCons.Subst
 import SCons.Tool
 import SCons.Util
+from SCons.Util import MethodWrapper
 import SCons.Warnings
 
 class _Null:
@@ -184,48 +181,17 @@ def _delete_duplicates(l, keep_last):
 # Shannon at the following page (there called the "transplant" class):
 #
 # ASPN : Python Cookbook : Dynamically added methods to a class
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+# https://code.activestate.com/recipes/81732/
 #
 # We had independently been using the idiom as BuilderWrapper, but
 # factoring out the common parts into this base class, and making
 # BuilderWrapper a subclass that overrides __call__() to enforce specific
 # Builder calling conventions, simplified some of our higher-layer code.
+#
+# Note: MethodWrapper moved to SCons.Util as it was needed there
+# and otherwise we had a circular import problem.
 
-class MethodWrapper:
-    """
-    A generic Wrapper class that associates a method (which can
-    actually be any callable) with an object.  As part of creating this
-    MethodWrapper object an attribute with the specified (by default,
-    the name of the supplied method) is added to the underlying object.
-    When that new "method" is called, our __call__() method adds the
-    object as the first argument, simulating the Python behavior of
-    supplying "self" on method calls.
-
-    We hang on to the name by which the method was added to the underlying
-    base class so that we can provide a method to "clone" ourselves onto
-    a new underlying object being copied (without which we wouldn't need
-    to save that info).
-    """
-    def __init__(self, object, method, name=None):
-        if name is None:
-            name = method.__name__
-        self.object = object
-        self.method = method
-        self.name = name
-        setattr(self.object, name, self)
-
-    def __call__(self, *args, **kwargs):
-        nargs = (self.object,) + args
-        return self.method(*nargs, **kwargs)
-
-    def clone(self, new_object):
-        """
-        Returns an object that re-binds the underlying "method" to
-        the specified new object.
-        """
-        return self.__class__(new_object, self.method, self.name)
-
-class BuilderWrapper(MethodWrapper):
+class BuilderWrapper(SCons.Util.MethodWrapper):
     """
     A MethodWrapper subclass that that associates an environment with
     a Builder.
@@ -252,7 +218,7 @@ class BuilderWrapper(MethodWrapper):
             target = [target]
         if source is not None and not SCons.Util.is_List(source):
             source = [source]
-        return MethodWrapper.__call__(self, target, source, *args, **kw)
+        return super().__call__(target, source, *args, **kw)
 
     def __repr__(self):
         return '<BuilderWrapper %s>' % repr(self.name)
@@ -642,17 +608,23 @@ class SubstitutionEnvironment:
             else:
                 overrides[key] = SCons.Subst.scons_subst_once(value, self, key)
         env = OverrideEnvironment(self, overrides)
-        if merges: env.MergeFlags(merges)
+        if merges:
+            env.MergeFlags(merges)
         return env
 
     def ParseFlags(self, *flags):
-        """
-        Parse the set of flags and return a dict with the flags placed
-        in the appropriate entry.  The flags are treated as a typical
-        set of command-line flags for a GNU-like toolchain and used to
-        populate the entries in the dict immediately below.  If one of
-        the flag strings begins with a bang (exclamation mark), it is
-        assumed to be a command and the rest of the string is executed;
+        """Return a dict of parsed flags.
+
+        Parse ``flags`` and return a dict with the flags distributed into
+        the appropriate construction variable names.  The flags are treated
+        as a typical set of command-line flags for a GNU-like toolchain,
+        such as might have been generated by one of the \*-config scripts,
+        and used to populate the entries based on knowledge embedded in
+        this method - the choices are not expected to be portable to other
+        toolchains.
+
+        If one of the ``flags`` strings begins with a bang (exclamation mark),
+        it is assumed to be a command and the rest of the string is executed;
         the result of that evaluation is then added to the dict.
         """
         dict = {
@@ -741,6 +713,9 @@ class SubstitutionEnvironment:
                         t = ('-arch', arg)
                         dict['CCFLAGS'].append(t)
                         dict['LINKFLAGS'].append(t)
+                    elif append_next_arg_to == '--param':
+                        t = ('--param', arg)
+                        dict['CCFLAGS'].append(t)
                     else:
                         dict[append_next_arg_to].append(arg)
                     append_next_arg_to = None
@@ -792,11 +767,13 @@ class SubstitutionEnvironment:
                         dict['FRAMEWORKPATH'].append(arg[2:])
                     else:
                         append_next_arg_to = 'FRAMEWORKPATH'
-                elif arg in ['-mno-cygwin',
-                             '-pthread',
-                             '-openmp',
-                             '-fmerge-all-constants',
-                             '-fopenmp']:
+                elif arg in [
+                    '-mno-cygwin',
+                    '-pthread',
+                    '-openmp',
+                    '-fmerge-all-constants',
+                    '-fopenmp',
+                ]:
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
                 elif arg == '-mwindows':
@@ -810,7 +787,16 @@ class SubstitutionEnvironment:
                 elif arg[0] == '+':
                     dict['CCFLAGS'].append(arg)
                     dict['LINKFLAGS'].append(arg)
-                elif arg in ['-include', '-imacros', '-isysroot', '-isystem', '-iquote', '-idirafter', '-arch']:
+                elif arg in [
+                    '-include',
+                    '-imacros',
+                    '-isysroot',
+                    '-isystem',
+                    '-iquote',
+                    '-idirafter',
+                    '-arch',
+                    '--param',
+                ]:
                     append_next_arg_to = arg
                 else:
                     dict['CCFLAGS'].append(arg)
@@ -819,24 +805,30 @@ class SubstitutionEnvironment:
             do_parse(arg)
         return dict
 
-    def MergeFlags(self, args, unique=1, dict=None):
-        """
-        Merge the dict in args into the construction variables of this
-        env, or the passed-in dict.  If args is not a dict, it is
-        converted into a dict using ParseFlags.  If unique is not set,
-        the flags are appended rather than merged.
-        """
+    def MergeFlags(self, args, unique=True):
+        """Merge flags into construction variables.
 
-        if dict is None:
-            dict = self
+        Merges the flags from ``args`` into this construction environent.
+        If ``args`` is not a dict, it is first converted to a dictionary with
+        flags distributed into appropriate construction variables.
+        See :meth:`ParseFlags`.
+
+        Args:
+            args: flags to merge
+            unique: merge flags rather than appending (default: True)
+
+        """
         if not SCons.Util.is_Dict(args):
             args = self.ParseFlags(args)
+
         if not unique:
             self.Append(**args)
-            return self
+            return
+
         for key, value in args.items():
             if not value:
                 continue
+            value = SCons.Util.Split(value)
             try:
                 orig = self[key]
             except KeyError:
@@ -873,7 +865,6 @@ class SubstitutionEnvironment:
                     if v not in t:
                         t.insert(0, v)
             self[key] = t
-        return self
 
 
 def default_decide_source(dependency, target, prev_ni, repo_node=None):
@@ -1012,7 +1003,8 @@ class Base(SubstitutionEnvironment):
             self._dict[key] = val
 
         # Finally, apply any flags to be merged in
-        if parse_flags: self.MergeFlags(parse_flags)
+        if parse_flags:
+            self.MergeFlags(parse_flags)
 
     #######################################################################
     # Utility methods that are primarily for internal use by SCons.
@@ -1164,9 +1156,7 @@ class Base(SubstitutionEnvironment):
     #######################################################################
 
     def Append(self, **kw):
-        """Append values to existing construction variables
-        in an Environment.
-        """
+        """Append values to existing construction variables in an Environment."""
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
             # It would be easier on the eyes to write this using
@@ -1453,7 +1443,8 @@ class Base(SubstitutionEnvironment):
         clone.Replace(**new)
 
         # Finally, apply any flags to be merged in
-        if parse_flags: clone.MergeFlags(parse_flags)
+        if parse_flags:
+            clone.MergeFlags(parse_flags)
 
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
@@ -1608,7 +1599,7 @@ class Base(SubstitutionEnvironment):
             if name[:len(prefix)] == prefix and name[-len(suffix):] == suffix:
                 return path
 
-    def ParseConfig(self, command, function=None, unique=1):
+    def ParseConfig(self, command, function=None, unique=True):
         """
         Use the specified function to parse the output of the command
         in order to modify the current environment.  The 'command' can
@@ -1628,7 +1619,7 @@ class Base(SubstitutionEnvironment):
         command = self.subst(command)
         return function(self, self.backtick(command))
 
-    def ParseDepends(self, filename, must_exist=None, only_one=0):
+    def ParseDepends(self, filename, must_exist=None, only_one=False):
         """
         Parse a mkdep-style file for explicit dependencies.  This is
         completely abusable, and should be unnecessary in the "normal"
@@ -2354,7 +2345,7 @@ class OverrideEnvironment(Base):
         # Environment they are being constructed with and so will not
         # have access to overrided values. So we rebuild them with the
         # OverrideEnvironment so they have access to overrided values.
-        if isinstance(attr, (MethodWrapper, BuilderWrapper)):
+        if isinstance(attr, MethodWrapper):
             return attr.clone(self)
         else:
             return attr

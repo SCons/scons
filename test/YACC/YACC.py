@@ -58,8 +58,8 @@ test.must_match('bbb.c',        "bbb.yacc" + os.linesep + "myyacc.py" + os.lines
 test.must_match('ccc.cc',       "ccc.yacc" + os.linesep + "myyacc.py" + os.linesep)
 test.must_match('ddd.m',        "ddd.yacc" + os.linesep + "myyacc.py" + os.linesep)
 
-
-
+test.run(arguments="-n -f SConstruct_YACC_before")
+test.fail_test('SOMETHING_DUMB' not in  test.stdout(), "YACC is not overridden to be SOMETHING_DUMB")
 
 test.pass_test()
 

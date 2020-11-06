@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
 
@@ -34,7 +33,13 @@ from collections import UserDict as UD, UserList as UL
 import TestCmd
 import TestUnit
 
-from SCons.Environment import *
+from SCons.Environment import (
+    Environment,
+    NoSubstitutionProxy,
+    OverrideEnvironment,
+    SubstitutionEnvironment,
+    is_valid_construction_var,
+)
 import SCons.Warnings
 
 def diff_env(env1, env2):
@@ -722,7 +727,7 @@ sys.exit(0)
         r = env4.func2()
         assert r == 'func2-4', r
 
-        # Test that clones don't re-bind an attribute that the user
+        # Test that clones don't re-bind an attribute that the user set.
         env1 = Environment(FOO = '1')
         env1.AddMethod(func2)
         def replace_func2():
@@ -731,6 +736,18 @@ sys.exit(0)
         env2 = env1.Clone(FOO = '2')
         r = env2.func2()
         assert r == 'replace_func2', r
+
+        # Test clone rebinding if using global AddMethod.
+        env1 = Environment(FOO='1')
+        SCons.Util.AddMethod(env1, func2)
+        r = env1.func2()
+        assert r == 'func2-1', r
+        r = env1.func2('-xxx')
+        assert r == 'func2-1-xxx', r
+        env2 = env1.Clone(FOO='2')
+        r = env2.func2()
+        assert r == 'func2-2', r
+
 
     def test_Override(self):
         """Test overriding construction variables"""
@@ -787,33 +804,36 @@ sys.exit(0)
         d = env.ParseFlags([])
         assert d == empty, d
 
-        s = "-I/usr/include/fum -I bar -X\n" + \
-            '-I"C:\\Program Files\\ASCEND\\include" ' + \
-            "-L/usr/fax -L foo -lxxx -l yyy " + \
-            '-L"C:\\Program Files\\ASCEND" -lascend ' + \
-            "-Wa,-as -Wl,-link " + \
-            "-Wl,-rpath=rpath1 " + \
-            "-Wl,-R,rpath2 " + \
-            "-Wl,-Rrpath3 " + \
-            "-Wp,-cpp " + \
-            "-std=c99 " + \
-            "-std=c++0x " + \
-            "-framework Carbon " + \
-            "-frameworkdir=fwd1 " + \
-            "-Ffwd2 " + \
-            "-F fwd3 " + \
-            "-dylib_file foo-dylib " + \
-            "-pthread " + \
-            "-fmerge-all-constants " +\
-            "-fopenmp " + \
-            "-mno-cygwin -mwindows " + \
-            "-arch i386 -isysroot /tmp " + \
-            "-iquote /usr/include/foo1 " + \
-            "-isystem /usr/include/foo2 " + \
-            "-idirafter /usr/include/foo3 " + \
-            "-imacros /usr/include/foo4 " + \
-            "+DD64 " + \
+        s = (
+            "-I/usr/include/fum -I bar -X "
+            '-I"C:\\Program Files\\ASCEND\\include" '
+            "-L/usr/fax -L foo -lxxx -l yyy "
+            '-L"C:\\Program Files\\ASCEND" -lascend '
+            "-Wa,-as -Wl,-link "
+            "-Wl,-rpath=rpath1 "
+            "-Wl,-R,rpath2 "
+            "-Wl,-Rrpath3 "
+            "-Wp,-cpp "
+            "-std=c99 "
+            "-std=c++0x "
+            "-framework Carbon "
+            "-frameworkdir=fwd1 "
+            "-Ffwd2 "
+            "-F fwd3 "
+            "-dylib_file foo-dylib "
+            "-pthread "
+            "-fmerge-all-constants "
+            "-fopenmp "
+            "-mno-cygwin -mwindows "
+            "-arch i386 -isysroot /tmp "
+            "-iquote /usr/include/foo1 "
+            "-isystem /usr/include/foo2 "
+            "-idirafter /usr/include/foo3 "
+            "-imacros /usr/include/foo4 "
+            "--param l1-cache-size=32 --param l2-cache-size=6144 "
+            "+DD64 "
             "-DFOO -DBAR=value -D BAZ "
+        )
 
         d = env.ParseFlags(s)
 
@@ -827,6 +847,7 @@ sys.exit(0)
                                 ('-isystem', '/usr/include/foo2'),
                                 ('-idirafter', '/usr/include/foo3'),
                                 ('-imacros', env.fs.File('/usr/include/foo4')),
+                                ('--param', 'l1-cache-size=32'), ('--param', 'l2-cache-size=6144'),
                                 '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
@@ -852,24 +873,40 @@ sys.exit(0)
 
 
     def test_MergeFlags(self):
-        """Test the MergeFlags() method
-        """
+        """Test the MergeFlags() method."""
+
         env = SubstitutionEnvironment()
+        # does not set flag if value empty
         env.MergeFlags('')
         assert 'CCFLAGS' not in env, env['CCFLAGS']
-        env.MergeFlags('-X')
-        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        # merges value if flag did not exist
         env.MergeFlags('-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
 
-        env = SubstitutionEnvironment(CCFLAGS=None)
-        env.MergeFlags('-Y')
-        assert env['CCFLAGS'] == ['-Y'], env['CCFLAGS']
+        # avoid SubstitutionEnvironment for these, has no .Append method,
+        # which is needed for unique=False test
+        env = Environment(CCFLAGS=None)
+        # merge with existing but empty flag
+        env.MergeFlags('-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        # default Unique=True enforces no dupes
+        env.MergeFlags('-X')
+        assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
+        # Unique=False allows dupes
+        env.MergeFlags('-X', unique=False)
+        assert env['CCFLAGS'] == ['-X', '-X'], env['CCFLAGS']
 
-        env = SubstitutionEnvironment()
-        env.MergeFlags({'A':['aaa'], 'B':['bbb']})
+        # merge from a dict with list values
+        env = SubstitutionEnvironment(B='b')
+        env.MergeFlags({'A': ['aaa'], 'B': ['bb', 'bbb']})
         assert env['A'] == ['aaa'], env['A']
-        assert env['B'] == ['bbb'], env['B']
+        assert env['B'] == ['b', 'bb', 'bbb'], env['B']
+
+        # issue #2961: merge from a dict with string values
+        env = SubstitutionEnvironment(B='b')
+        env.MergeFlags({'A': 'aaa', 'B': 'bb bbb'})
+        assert env['A'] == ['aaa'], env['A']
+        assert env['B'] == ['b', 'bb', 'bbb'], env['B']
 
         # issue #3665: if merging dict which is a compound object
         # (i.e. value can be lists, etc.), the value object should not
@@ -881,6 +918,7 @@ sys.exit(0)
             pass
         flags = {'CFLAGS': ['-pipe', '-pthread', '-g']}
         import copy
+
         saveflags = copy.deepcopy(flags)
         env.MergeFlags(flags)
         self.assertEqual(flags, saveflags)
@@ -1376,7 +1414,7 @@ def generate(env, **kw):
         env[k] = v
 
 def exists(env):
-    return 1
+    return True
 """)
 
         env = self.TestEnvironment(tools = [('faketool', {'a':1, 'b':2, 'c':3})],
@@ -1856,14 +1894,14 @@ def exists(env):
 
         test.write('xxx.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['XXX'] = 'one'
 """)
 
         test.write('yyy.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['YYY'] = 'two'
 """)
@@ -2456,16 +2494,16 @@ f5: \
         exc_caught = None
         try:
             env.Tool('does_not_exist')
-        except SCons.Errors.SConsEnvironmentError:
+        except SCons.Errors.UserError:
             exc_caught = 1
-        assert exc_caught, "did not catch expected SConsEnvironmentError"
+        assert exc_caught, "did not catch expected UserError"
 
         exc_caught = None
         try:
             env.Tool('$NONE')
-        except SCons.Errors.SConsEnvironmentError:
+        except SCons.Errors.UserError:
             exc_caught = 1
-        assert exc_caught, "did not catch expected SConsEnvironmentError"
+        assert exc_caught, "did not catch expected UserError"
 
         # Use a non-existent toolpath directory just to make sure we
         # can call Tool() with the keyword argument.
@@ -2481,14 +2519,14 @@ f5: \
 
         test.write('xxx.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['XXX'] = 'one'
 """)
 
         test.write('yyy.py', """\
 def exists(env):
-    1
+    return True
 def generate(env):
     env['YYY'] = 'two'
 """)
@@ -3951,16 +3989,7 @@ class EnvironmentVariableTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.TestSuite()
-    tclasses = [ SubstitutionTestCase,
-                 BaseTestCase,
-                 OverrideEnvironmentTestCase,
-                 NoSubstitutionProxyTestCase,
-                 EnvironmentVariableTestCase ]
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests(list(map(tclass, names)))
-    TestUnit.run(suite)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4

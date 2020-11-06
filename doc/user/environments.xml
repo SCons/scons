@@ -379,7 +379,7 @@ environment, of directory names, suffixes, etc.
     </varlistentry>
 
     <varlistentry>
-    <term>&ConsEnv;</term>
+    <term>Construction Environment</term>
 
     <listitem>
     <para>
@@ -479,15 +479,16 @@ environment, of directory names, suffixes, etc.
     and key-value store) associates keys with values, such
     that asking the dict about a key gives you back the associated value
     and assigning to a key creates the association - either a new
-    setting if the key was unknown, or replacing the previous
-    previous association if the key was already in the dict.
-    Accessing can be done by using <literal>[]</literal>
-    indexing notation, and dictionaries also provide a
+    setting if the key was unknown, or replacing the
+    previous association if the key was already in the dictionary.
+    Values can be retrieved using <firstterm>item access</firstterm>
+    (the key name in square brackets (<literal>[]</literal>)),
+    and dictionaries also provide a
     method named <methodname>get</methodname> which responds
-    with a default value (<constant>None</constant> or a default
-    you supply) if the key is not in the dictionary, which
-    avoids failing in that case.  The syntax
-    for a dictionary itself uses curly braces (<literal>{}</literal>).
+    with a default value, either <constant>None</constant> or a value
+    you supply as the second argument, if the key is not in the dictionary,
+    which avoids failing in that case.  The syntax
+    for initializing a dictionary uses curly braces (<literal>{}</literal>).
     Here are some simple examples (inspired by those in the official
     Python tutorial) using syntax that indicates
     interacting with the &Python; interpreter
@@ -498,7 +499,7 @@ environment, of directory names, suffixes, etc.
 
     <screen>
 <prompt>&gt;&gt;&gt;</prompt> <userinput>tel = {'jack': 4098, 'sape': 4139}</userinput>
-<prompt>&gt;&gt;&gt;</prompt> <userinput>tel['guido'] = 4098</userinput>
+<prompt>&gt;&gt;&gt;</prompt> <userinput>tel['guido'] = 4127</userinput>
 <prompt>&gt;&gt;&gt;</prompt> <userinput>tel['jack']</userinput>
 4098
 <prompt>&gt;&gt;&gt;</prompt> <userinput>del tel['sape']</userinput>
@@ -522,7 +523,8 @@ None
     a &consenv; <emphasis>is</emphasis> a &Python; dictionary.
     The <varname>os.environ</varname> value that &Python; uses
     to make available the external environment is also a
-    dictionary.  We will need these concepts in this chapter.
+    dictionary.  We will need these concepts in this chapter
+    and throughout the rest of this guide.
 
     </para>
 
@@ -538,10 +540,10 @@ None
   the user has in force
   when executing &SCons;
   are available in the &Python;
-  <varname>os.environ</varname>
-  dictionary. That syntax means the <varname>environ</varname>
+  <varname>os.environ</varname> dictionary.
+  That syntax means the <varname>environ</varname>
   attribute of the <systemitem>os</systemitem> module.
-  In Python, to access contents of a module you must first
+  In Python, to access the contents of a module you must first
   <literal>import</literal> it - so you would include the
   <literal>import os</literal> statement
   to any &SConscript; file

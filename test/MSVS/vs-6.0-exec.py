@@ -29,7 +29,6 @@ Test that we can actually build a simple program using our generated
 Visual Studio 6 project (.dsp) and solution (.dsw) files.
 """
 
-import os
 import sys
 
 import TestSConsMSVS

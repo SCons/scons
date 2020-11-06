@@ -27,7 +27,6 @@ Test SWIG behavior with a live, installed SWIG.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
 import sys
 
 import TestSCons
