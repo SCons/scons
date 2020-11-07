@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 #
 # __COPYRIGHT__
@@ -34,21 +33,17 @@ import os
 
 import TestRuntest
 
-test = TestRuntest.TestRuntest()
-
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
 test_fail_py = os.path.join('test', 'fail.py')
 test_no_result_py = os.path.join('test', 'no_result.py')
 test_pass_py = os.path.join('test', 'pass.py')
 
+test = TestRuntest.TestRuntest()
 test.subdir('test')
-
-test.write_failing_test(['test', 'fail.py'])
-
-test.write_no_result_test(['test', 'no_result.py'])
-
-test.write_passing_test(['test', 'pass.py'])
+test.write_failing_test(test_fail_py)
+test.write_no_result_test(test_no_result_py)
+test.write_passing_test(test_pass_py)
 
 expect_stdout = """\
 %(pythonstring)s%(pythonflags)s %(test_fail_py)s
@@ -71,10 +66,14 @@ NO RESULT TEST STDERR
 PASSING TEST STDERR
 """
 
-test.run(arguments='-k test',
-         status=1,
-         stdout=expect_stdout,
-         stderr=expect_stderr)
+test.run(
+    arguments='-k test',
+    status=1,
+    stdout=expect_stdout,
+    stderr=expect_stderr
+)
+test.must_exist('failed_tests.log')
+test.must_contain('failed_tests.log', test_fail_py)
 
 test.pass_test()
 

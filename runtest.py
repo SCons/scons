@@ -61,6 +61,8 @@ testlisting.add_argument('-f', '--file', metavar='FILE', dest='testlistfile',
                      help="Select only tests in FILE")
 testlisting.add_argument('-a', '--all', action='store_true',
                      help="Select all tests")
+testlisting.add_argument('--retry', action='store_true',
+                     help="Rerun the last failed tests in 'failed_tests.log'")
 testsel.add_argument('--exclude-list', metavar="FILE", dest='excludelistfile',
                      help="""Exclude tests in FILE from current selection""")
 testtype = testsel.add_mutually_exclusive_group()
@@ -87,11 +89,8 @@ parser.add_argument('-n', '--no-exec', action='store_false',
                     help="No execute, just print command lines.")
 parser.add_argument('--nopipefiles', action='store_false',
                     dest='allow_pipe_files',
-                    help="""Do not use the "file pipe" workaround for Popen()
-                           for starting tests. WARNING: use only when too much
-                           file traffic is giving you trouble AND you can be
-                           sure that none of your tests create output >65K
-                           chars! You might run into some deadlocks else.""")
+                    help="""Do not use the "file pipe" workaround for subprocess
+                           for starting tests. See source code for warnings.""")
 parser.add_argument('-P', '--python', metavar='PYTHON',
                     help="Use the specified Python interpreter.")
 parser.add_argument('--quit-on-failure', action='store_true',
@@ -102,6 +101,14 @@ parser.add_argument('-X', dest='scons_exec', action='store_true',
                     help="Test script is executable, don't feed to Python.")
 parser.add_argument('-x', '--exec', metavar="SCRIPT",
                     help="Test using SCRIPT as path to SCons.")
+parser.add_argument('--faillog', dest='error_log', metavar="FILE",
+                    default='failed_tests.log',
+                    help="Log failed tests to FILE (enabled by default, "
+                         "default file 'failed_tests.log')")
+parser.add_argument('--no-faillog', dest='error_log',
+                    action='store_const', const=None,
+                    default='failed_tests.log',
+                    help="Do not log failed tests to a file")
 
 outctl = parser.add_argument_group(description='Output control options:')
 outctl.add_argument('-k', '--no-progress', action='store_false',
@@ -123,6 +130,8 @@ outctl.add_argument('--verbose', metavar='LEVEL', type=int, choices=range(1, 4),
                              1 = print executed commands,
                              2 = print commands and non-zero output,
                              3 = print commands and all output.""")
+# maybe add?
+# outctl.add_argument('--version', action='version', version='%s 1.0' % script)
 
 logctl = parser.add_argument_group(description='Log control options:')
 logctl.add_argument('-o', '--output', metavar='LOG', help="Save console output to LOG.")
@@ -132,13 +141,17 @@ logctl.add_argument('--xml', metavar='XML', help="Save results to XML in SCons X
 args = parser.parse_args()
 
 # we can't do this check with an argparse exclusive group,
-# since the cmdline tests (args.testlist) are not optional
-if args.testlist and (args.testlistfile or args.all):
+# since the cmdline tests (args.testlist) are not optional args,
+# exclusive only works with optional args.
+if args.testlist and (args.testlistfile or args.all or args.retry):
     sys.stderr.write(
         parser.format_usage()
-        + "error: command line tests cannot be combined with -f/--file or -a/--all\n"
+        + "error: command line tests cannot be combined with -f/--filei -a/--all or --retry\n"
     )
     sys.exit(1)
+
+if args.retry:
+    args.testlistfile = 'failed_tests.log'
 
 if args.testlistfile:
     # args.testlistfile changes from a string to a pathlib Path object
@@ -196,7 +209,7 @@ if args.exec:
     scons = args.exec
 
 # --- setup stdout/stderr ---
-class Unbuffered():
+class Unbuffered:
     def __init__(self, file):
         self.file = file
 
@@ -215,7 +228,7 @@ sys.stderr = Unbuffered(sys.stderr)
 
 if args.output:
     logfile = open(args.output, 'w')
-    class Tee():
+    class Tee:
         def __init__(self, openfile, stream):
             self.file = openfile
             self.stream = stream
@@ -780,6 +793,7 @@ passed = [t for t in tests if t.status == 0]
 fail = [t for t in tests if t.status == 1]
 no_result = [t for t in tests if t.status == 2]
 
+# print summaries, but only if multiple tests were run
 if len(tests) != 1 and args.execute_tests:
     if passed and args.print_passed_summary:
         if len(passed) == 1:
@@ -802,6 +816,14 @@ if len(tests) != 1 and args.execute_tests:
             sys.stdout.write("\nNO RESULT from the following %d tests:\n" % len(no_result))
         paths = [x.path for x in no_result]
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
+
+# save the fails to a file
+if fail and args.error_log:
+    paths = [x.path for x in fail]
+    #print(f"DEBUG: Writing fails to {args.error_log}")
+    with open(args.error_log, "w") as f:
+        for test in paths:
+            print(test, file=f)
 
 if args.xml:
     if args.output == '-':
