@@ -140,13 +140,13 @@ logctl.add_argument('--xml', metavar='XML', help="Save results to XML in SCons X
 # process args and handle a few specific cases:
 args = parser.parse_args()
 
-# we can't do this check with an argparse exclusive group,
-# since the cmdline tests (args.testlist) are not optional args,
-# exclusive only works with optional args.
+# we can't do this check with an argparse exclusive group, since those
+# only work with optional args, and the cmdline tests (args.testlist)
+# are not optional args,
 if args.testlist and (args.testlistfile or args.all or args.retry):
     sys.stderr.write(
         parser.format_usage()
-        + "error: command line tests cannot be combined with -f/--filei -a/--all or --retry\n"
+        + "error: command line tests cannot be combined with -f/--file, -a/--all or --retry\n"
     )
     sys.exit(1)
 
