@@ -72,7 +72,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       MethodWrapper moved to Util to avoid a circular import. Fixes #3028.
     - Some Python 2 compatibility code dropped
     - Rework runtest.py to use argparse for arg handling (was a mix
-      of hand-coded and optparse, with a stated intent to "gradually port")
+      of hand-coded and optparse, with a stated intent to "gradually port").
+    - Add options to runtest to generate/not generate a log of failed tests,
+      and to rerun such tests. Useful when an error cascades through several
+      tests, can quickly try if a change improves all the fails. Dropped
+      runtest test for fallback from qmtest, not needed; added new tests.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
