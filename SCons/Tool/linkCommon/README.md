@@ -58,3 +58,46 @@ The current code provides the following hooks a compiler can use to customize:
         'VersionedShLibSoname': _versioned_shlib_soname,
         'VersionedLdModSoname': _versioned_ldmod_soname,
 ```
+
+
+User can request:
+env.SharedLibrary('a',sources, SHLIBVERSION)
+env.SharedLibrary('liba.so',sources, SHLIBVERSION)
+Ideally we'll keep the 'a' for use in constructing all follow on. To do this we have to do it in the Builder() or at
+least prevent  BuilderBase._create_nodes() from discarding this info if it's available.
+
+
+Firstly check if [SH|LD]LIBNOVERSIONSYMLINKS defined or if [SH|LD]LIBVERSION is not defined, if so we do nothing special
+
+The emitter can calculate the filename stem 'a' above and store it on the target node. Then also create the symlinks
+and store those on the node. We should have all the information needed by the time the emitter is called.
+Same should apply for loadable modules..
+This should be vastly simpler.
+Unfortunately we cannot depend on the target having an OverrideEnvironment() which we could populate all the related
+env variables in the emitter...
+Maybe we can force one at that point?
+
+
+SOVERSION can be specified, if not, then defaults to major portion of SHLIBVERSION
+SONAME can be specified, if not defaults to ${SHLIBPREFIX}lib_name${SOVERSION}
+
+NOTE: mongodb uses Append(SHLIBEMITTER=.. )  for their libdeps stuff. (So test 
+with that once you have new logic working)
+
+
+TODO:
+1. Generate proper naming for:
+   * shared library (altered by emitter if SHLIBVERSION is set)
+   * soname'd library (for symlink) - SHLIB_SONAME_SYMLINK
+   * non versioned shared library (for symlink) - SHLIB_NOVERSION_SYMLINK
+2. in emitter also, actually create the symlinks (if SHLIBVERSION is set) and 
+   add to node.attributes.symlinks. (note bsd doesn't do this so skip if on bsd)
+3. We need to check somewhere if SONAME and SOVERSION are both set and thrown an error. 
+   Probably in the emitter to it will traceback to where the SharedLibrary() which
+   yielded the issue is located.
+4. Generate proper linker soname compiler construct (-Wl,soname=libxyz.1.so for example)
+
+hrm.. tricky.
+SHLIBSUFFIX needs to have .${SHLIBVERSION}${SHLIBSUFFIX} as it's value when 
+fixing a sharedlibrary()'s target file name (from a -> liba.1.2.3.so)
+But when creating the symlinks for the rest, we need to drop the versioned SHLIBSUFFIX
