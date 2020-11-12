@@ -1468,8 +1468,19 @@ def AddMethod(obj, function, name=None):
     setattr(obj, name, method)
 
 
-# Default hash function. SCons-internal.
+# Default hash function and format. SCons-internal.
 _hash_function = None
+_hash_format = None
+
+
+def get_hash_format():
+    """
+    Retrieves the hash format or None if not overridden. A return value of None
+    does not guarantee that MD5 is being used; instead, it means that the
+    default precedence order documented in SCons.Util.set_hash_format is
+    respected.
+    """
+    return _hash_format
 
 
 def set_hash_format(hash_format):
@@ -1480,8 +1491,9 @@ def set_hash_format(hash_format):
     Currently the default behavior is to use the first available format of
     the following options: MD5, SHA1, SHA256.
     """
-    global _hash_function
+    global _hash_format, _hash_function
 
+    _hash_format = hash_format
     if hash_format:
         hash_format_lower = hash_format.lower()
         _hash_function = getattr(hashlib, hash_format_lower, None)
@@ -1513,7 +1525,7 @@ def set_hash_format(hash_format):
 # TODO: Should this go somewhere else? Is this unnecessary? Case #1 could be
 # handled in the TestCmd module, but I was worried about breaking people
 # who mischievously calls get_csig() during startup.
-set_hash_format('md5')
+set_hash_format(None)
 
 
 def _get_hash_object(hash_format):

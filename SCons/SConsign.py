@@ -52,12 +52,20 @@ sig_files = []
 # extension the underlying DB module will add).
 DataBase = {}
 DB_Module = SCons.dblite
-DB_Name = ".sconsign"
+DB_Name = None
 DB_sync_list = []
 
 
 def Get_DataBase(dir):
     global DataBase, DB_Module, DB_Name
+
+    if DB_Name is None:
+        hash_format = SCons.Util.get_hash_format()
+        if hash_format is None:
+            DB_Name = ".sconsign"
+        else:
+            DB_Name = ".sconsign_%s" % hash_format
+
     top = dir.fs.Top
     if not os.path.isabs(DB_Name) and top.repositories:
         mode = "c"
