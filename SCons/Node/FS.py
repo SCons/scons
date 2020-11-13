@@ -2664,6 +2664,8 @@ class File(Base):
     def _morph(self):
         """Turn a file system node into a File object."""
         self.scanner_paths = {}
+        if self.abspath.endswith('package1'):
+            raise Exception(self.abspath)
         if not hasattr(self, '_local'):
             self._local = 0
         if not hasattr(self, 'released_target_info'):
@@ -3724,7 +3726,10 @@ class FileFinder:
         return None
 
     def _find_file_key(self, filename, paths, verbose=None):
-        return (filename, paths)
+        # Note: paths could be a list, which is not hashable. If it is, convert
+        # it to a tuple.
+        paths_entry = tuple(paths) if isinstance(paths, list) else paths
+        return (filename, paths_entry)
 
     @SCons.Memoize.CountDictCall(_find_file_key)
     def find_file(self, filename, paths, verbose=None):
@@ -3773,6 +3778,8 @@ class FileFinder:
                 result = node
                 break
 
+        print('value: %s (%s)' % (result, type(result)))
+        print('key: %s (%s)' % (memo_key, type(memo_key)))
         memo_dict[memo_key] = result
 
         return result
