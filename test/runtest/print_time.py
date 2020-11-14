@@ -42,13 +42,9 @@ test_no_result_py = re.escape(os.path.join('test', 'no_result.py'))
 test_pass_py = re.escape(os.path.join('test', 'pass.py'))
 
 test = TestRuntest.TestRuntest(match = TestCmd.match_re)
-
 test.subdir('test')
-
 test.write_failing_test(['test', 'fail.py'])
-
 test.write_no_result_test(['test', 'no_result.py'])
-
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
