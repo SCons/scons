@@ -116,33 +116,40 @@ def scan(node, env, path=()):
 
         module_components = search_string.split('.')
         module_joined = '/'.join(module_components)
-        print('%s - %s' % (module_joined, [str(s) for s in search_paths]))
-        node = SCons.Node.FS.find_file(module_joined, search_paths, verbose=True)
-        if node:
-            # The fact that we were able to find the node without appending .py
-            # means that this is a directory import.
-            nodes.append(env.Dir(node).File('__init__.py'))
 
-            # Take a dependency on all __init__.py files from all imported
-            # packages unless it's a relative import. If it's a relative
-            # import, we don't need to take the dependency because Python
-            # requires that all referenced packages have already been imported,
-            # which means that the dependency has already been established.
-            # XXX TODO: This part is broken and needs to be fixed.
-            if not is_relative and len(module_components) > 1:
-                import_dirs = module_components
-                for i in range(len(import_dirs)):
-                    init_path = '/'.join(module_components[:i+1] + ['__init__.py'])
-                    # TODO: Passing search_paths is not correct.
-                    init_node = SCons.Node.FS.find_file(init_path, search_paths, verbose=True)
-                    if init_node:
-                        nodes.append(init_node)
-        else:
-            node = SCons.Node.FS.find_file(module_joined + '.py', search_paths, verbose=True)
+        # For an import of "p", it could either result in a directory named
+        # p or a file named p.py. We can't do two consecutive searches for p
+        # then p.py because the first search could return a result that is
+        # lower in the search_paths precedence order. As a result, it is safest
+        # to iterate over search_paths and check whether p or p.py exists in
+        # each path. This allows us to cleanly respect the precedence order.
+        for path in search_paths:
+            paths = [path]
+            node = SCons.Node.FS.find_file(module_joined, paths, verbose=True)
             if node:
-                nodes.append(node)
+                # The fact that we were able to find the node without appending .py
+                # means that this is a directory import.
+                nodes.append(env.Dir(node).File('__init__.py'))
 
-    print('nodes: %s' % [str(n) for n in nodes])
+                # Take a dependency on all __init__.py files from all imported
+                # packages unless it's a relative import. If it's a relative
+                # import, we don't need to take the dependency because Python
+                # requires that all referenced packages have already been imported,
+                # which means that the dependency has already been established.
+                # XXX TODO: This part is broken and needs to be fixed.
+                if not is_relative and len(module_components) > 1:
+                    import_dirs = module_components
+                    for i in range(len(import_dirs)):
+                        init_path = '/'.join(module_components[:i+1] + ['__init__.py'])
+                        # TODO: Passing search_paths is not correct.
+                        init_node = SCons.Node.FS.find_file(init_path, paths, verbose=True)
+                        if init_node:
+                            nodes.append(init_node)
+            else:
+                node = SCons.Node.FS.find_file(module_joined + '.py', paths, verbose=True)
+                if node:
+                    nodes.append(node)
+
     return sorted(nodes)
 
 

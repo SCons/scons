@@ -2664,8 +2664,6 @@ class File(Base):
     def _morph(self):
         """Turn a file system node into a File object."""
         self.scanner_paths = {}
-        if self.abspath.endswith('package1'):
-            raise Exception(self.abspath)
         if not hasattr(self, '_local'):
             self._local = 0
         if not hasattr(self, 'released_target_info'):
@@ -3727,7 +3725,7 @@ class FileFinder:
 
     def _find_file_key(self, filename, paths, verbose=None):
         # Note: paths could be a list, which is not hashable. If it is, convert
-        # it to a tuple.
+        # it to a tuple, which is hashable.
         paths_entry = tuple(paths) if isinstance(paths, list) else paths
         return (filename, paths_entry)
 
@@ -3778,8 +3776,6 @@ class FileFinder:
                 result = node
                 break
 
-        print('value: %s (%s)' % (result, type(result)))
-        print('key: %s (%s)' % (memo_key, type(memo_key)))
         memo_dict[memo_key] = result
 
         return result

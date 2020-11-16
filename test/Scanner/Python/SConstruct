@@ -2,10 +2,10 @@ import sys
 
 env = Environment(tools=['python'])
 for source, target in [
-	('to_be_copied', 'package1'),
-	('to_be_copied', 'package2'),
+    ('to_be_copied', 'package1'),
+    ('to_be_copied', 'package2'),
 ]:
-	env.Command(target, source, Copy('$TARGET', '$SOURCE'))
+    env.Command(env.Dir(target), env.Dir(source), Copy('$TARGET', '$SOURCE'))
 # Don't set a dependency on the copy actions on purpose. Scanner should find
 # the dependencies automatically.
 env.Command('a.out', 'script.py', '$PYTHON $SOURCE $TARGET', PYTHON=sys.executable)
