@@ -32,7 +32,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 test.dir_fixture('Python')
-test.run(arguments = '--debug=stacktrace .', stdout='')
+test.run(arguments = '-n --tree=prune --debug=stacktrace .', stdout='')
 test.pass_test()
 
 # Local Variables:
