@@ -92,10 +92,14 @@ def scan(node, env, path=()):
         # if the same header is included many times.
         node.includes = list(map(SCons.Util.silent_intern, includes))
 
-    # XXX TODO: Sort?
     nodes = []
     if callable(path):
         path = path()
+
+    # If there are no paths, there is no point in parsing includes in the loop.
+    if not path:
+        return []
+
     for module, imports in includes:
         is_relative = module.startswith('.')
         if is_relative:
@@ -111,7 +115,7 @@ def scan(node, env, path=()):
             search_paths = [current_dir]
             search_string = module_lstripped
         else:
-            search_paths = [env.Dir(p) for p in tuple(path)]
+            search_paths = [env.Dir(p) for p in path]
             search_string = module
 
         module_components = search_string.split('.')
@@ -123,8 +127,8 @@ def scan(node, env, path=()):
         # lower in the search_paths precedence order. As a result, it is safest
         # to iterate over search_paths and check whether p or p.py exists in
         # each path. This allows us to cleanly respect the precedence order.
-        for path in search_paths:
-            paths = [path]
+        for search_path in search_paths:
+            paths = [search_path]
             node = SCons.Node.FS.find_file(module_joined, paths, verbose=True)
             if node:
                 # The fact that we were able to find the node without appending .py
@@ -136,7 +140,6 @@ def scan(node, env, path=()):
                 # import, we don't need to take the dependency because Python
                 # requires that all referenced packages have already been imported,
                 # which means that the dependency has already been established.
-                # XXX TODO: This part is broken and needs to be fixed.
                 if not is_relative and len(module_components) > 1:
                     import_dirs = module_components
                     for i in range(len(import_dirs)):
@@ -150,7 +153,8 @@ def scan(node, env, path=()):
                 if node:
                     nodes.append(node)
 
-    return sorted(nodes)
+    print('returning nodes %s' % ([str(n) for n in nodes]))
+    return nodes
 
 
 PythonSuffixes = ['.py']
