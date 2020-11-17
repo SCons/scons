@@ -1,1 +1,1 @@
-from . import helper
+from . import helper  # noqa: F401
