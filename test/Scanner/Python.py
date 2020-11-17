@@ -24,15 +24,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Template for end-to-end test file.
-Replace this with a description of the test.
+Functional test for the Python scanner. Validates that the scanner is able to
+find dynamically generated dependencies. The SConstruct copies in the
+dependencies and runs a script. The expected behavior is that the scanner
+picks up these dependencies, so SCons understands that the script shouldn't
+be run until the files are copied.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 test.dir_fixture('Python')
-test.run(arguments = '--debug=stacktrace .', stdout='')
+test.run(arguments = '.')
 test.pass_test()
 
 # Local Variables:

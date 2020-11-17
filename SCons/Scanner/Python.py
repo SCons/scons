@@ -136,26 +136,24 @@ def scan(node, env, path=()):
             # This allows us to cleanly respect the precedence order.
             for search_path in search_paths:
                 paths = [search_path]
-                # See if p/__init__.py exists.
-                node = SCons.Node.FS.find_file(package_path, paths, verbose=True)
-                if node:
-                    nodes.append(node)
-                else:
-                    node = SCons.Node.FS.find_file(module_path, paths, verbose=True)
-                    if node:
-                        nodes.append(node)
+                node = SCons.Node.FS.find_file(package_path, paths)
+                if not node:
+                    node = SCons.Node.FS.find_file(module_path, paths)
 
                 if node:
+                    nodes.append(node)
+
                     # Take a dependency on all __init__.py files from all imported
                     # packages unless it's a relative import. If it's a relative
                     # import, we don't need to take the dependency because Python
                     # requires that all referenced packages have already been imported,
                     # which means that the dependency has already been established.
-                    if not is_relative and len(module_components) > 1:
-                        for i in range(len(module_components[:-1])):
-                            init_path = '/'.join(module_components[:i+1] + ['__init__.py'])
-                            init_node = SCons.Node.FS.find_file(init_path, paths, verbose=True)
-                            if init_node:
+                    if not is_relative:
+                        import_dirs = module_components
+                        for i in range(len(import_dirs)):
+                            init_path = '/'.join(import_dirs[:i+1] + ['__init__.py'])
+                            init_node = SCons.Node.FS.find_file(init_path, paths)
+                            if init_node and init_node not in nodes:
                                 nodes.append(init_node)
 
                     # The import was found, so no need to keep iterating through
