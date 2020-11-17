@@ -35,6 +35,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       User-facing behavior does not change with this fix (GH Issue #3726).
     - Fix occasional test failures caused by not being able to find a file or directory fixture
       when running multiple tests with multiple jobs.
+    - Add support to the Python scanner for finding dynamically generated dependencies.
+      Previously the scanner only found imports if they existed on disk at scanning time.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
