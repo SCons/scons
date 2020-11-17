@@ -82,6 +82,40 @@ def find_include_names(node):
     return all_matches
 
 
+def find_import(import_path, search_paths):
+    """
+    Finds the specified import in the various search paths.
+    For an import of "p", it could either result in a file named p.py or
+    p/__init__.py. We can't do two consecutive searches for p then p.py
+    because the first search could return a result that is lower in the
+    search_paths precedence order. As a result, it is safest to iterate over
+    search_paths and check whether p or p.py exists in each path. This allows
+    us to cleanly respect the precedence order.
+
+    If the import is found, returns a tuple containing:
+        1. Discovered dependency node (e.g. p/__init__.py or p.py)
+        2. True if the import was a package, False if the import was a module.
+        3. The Dir node in search_paths that the import is relative to.
+    If the import is not found, returns a tuple containing (None, False, None).
+    Callers should check for failure by checking whether the first entry in the
+    tuple is not None.
+    """
+    for search_path in search_paths:
+        paths = [search_path]
+        # Note: if the same import is present as a package and a module, Python
+        # prefers the package. As a result, we always look for x/__init__.py
+        # before looking for x.py.
+        node = SCons.Node.FS.find_file(import_path + '/__init__.py', paths)
+        if node:
+            return node, True, search_path
+        else:
+            node = SCons.Node.FS.find_file(import_path + '.py', paths)
+            if node:
+                return node, False, search_path
+
+    return None, False, None
+
+
 def scan(node, env, path=()):
     # cache the includes list in node so we only scan it once:
     if node.includes is not None:
@@ -118,47 +152,46 @@ def scan(node, env, path=()):
             search_paths = [env.Dir(p) for p in path]
             search_string = module
 
-        if not imports:
-            imports = [None]
+        module_components = [x for x in search_string.split('.') if x]
+        package_dir = None
+        hit_dir = None
+        if not module_components:
+            # This is just a "from . import x".
+            package_dir = search_paths[0]
+        else:
+            # Translate something like "import x.y" to a call to find_import
+            # with 'x/y' as the path. find_import will then determine whether
+            # we can find 'x/y/__init__.py' or 'x/y.py'.
+            import_node, is_dir, hit_dir = find_import(
+                '/'.join(module_components), search_paths)
+            if import_node:
+                nodes.append(import_node)
+                if is_dir:
+                    package_dir = import_node.dir
 
-        for i in imports:
-            module_components = search_string.split('.')
-            import_components = [i] if i is not None else []
-            components = [x for x in module_components + import_components if x]
-            module_path = '/'.join(components) + '.py'
-            package_path = '/'.join(components + ['__init__.py'])
+        # If the statement was something like "from x import y, z", whether we
+        # iterate over imports depends on whether x was a package or module.
+        # If it was a module, y and z are just functions so we don't need to
+        # search for them. If it was a package, y and z are either packages or
+        # modules and we do need to search for them.
+        if package_dir and imports:
+            for i in imports:
+                import_node, _, _ = find_import(i, [package_dir])
+                if import_node:
+                    nodes.append(import_node)
 
-            # For an import of "p", it could either result in a file named p.py or
-            # p/__init__.py. We can't do two consecutive searches for p then p.py
-            # because the first search could return a result that is lower in the
-            # search_paths precedence order. As a result, it is safest to iterate
-            # over search_paths and check whether p or p.py exists in each path.
-            # This allows us to cleanly respect the precedence order.
-            for search_path in search_paths:
-                paths = [search_path]
-                node = SCons.Node.FS.find_file(package_path, paths)
-                if not node:
-                    node = SCons.Node.FS.find_file(module_path, paths)
-
-                if node:
-                    nodes.append(node)
-
-                    # Take a dependency on all __init__.py files from all imported
-                    # packages unless it's a relative import. If it's a relative
-                    # import, we don't need to take the dependency because Python
-                    # requires that all referenced packages have already been imported,
-                    # which means that the dependency has already been established.
-                    if not is_relative:
-                        import_dirs = module_components
-                        for i in range(len(import_dirs)):
-                            init_path = '/'.join(import_dirs[:i+1] + ['__init__.py'])
-                            init_node = SCons.Node.FS.find_file(init_path, paths)
-                            if init_node and init_node not in nodes:
-                                nodes.append(init_node)
-
-                    # The import was found, so no need to keep iterating through
-                    # search_paths.
-                    break
+        # Take a dependency on all __init__.py files from all imported
+        # packages unless it's a relative import. If it's a relative
+        # import, we don't need to take the dependency because Python
+        # requires that all referenced packages have already been imported,
+        # which means that the dependency has already been established.
+        if hit_dir and not is_relative:
+            import_dirs = module_components
+            for i in range(len(import_dirs)):
+                init_path = '/'.join(import_dirs[:i+1] + ['__init__.py'])
+                init_node = SCons.Node.FS.find_file(init_path, [hit_dir])
+                if init_node and init_node not in nodes:
+                    nodes.append(init_node)
 
     return sorted(nodes)
 
