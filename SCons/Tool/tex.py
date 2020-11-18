@@ -791,7 +791,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 file_basename = os.path.join(targetdir, 'bu*.aux')
                 file_list = glob.glob(file_basename)
                 # remove the suffix '.aux'
-                for fl in file_list:
+                for fl in file_list.copy():
                     file_list.append(SCons.Util.splitext(fl)[0])
             # for multibib we need a list of files
             if suffix_list[-1] == 'multibib':
