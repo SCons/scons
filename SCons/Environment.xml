@@ -2853,7 +2853,7 @@ if 'FOO' not in env: env['FOO'] = 'foo'
 
 <scons_function name="SideEffect">
 <arguments>
-(side_effect, target)
+(side_effect, target, temporary=False)
 </arguments>
 <summary>
 <para>
@@ -2910,6 +2910,19 @@ with the
 or
 &f-env-Clean;
 function.
+</para>
+
+<para>
+If <parameter>temporary</parameter> is set to
+<option>True</option>, the side effect is removed
+from all build actions once at least one action
+completes. This parameter should only be used in
+special cases where a build tool performs a
+one-time generation of a side effect and then leaves
+it in place for the duration of the build. In this case,
+SCons will avoid executing these actions at the same time
+until the first one completes. After that, SCons will
+no longer treat this file as a side effect.
 </para>
 </summary>
 </scons_function>
