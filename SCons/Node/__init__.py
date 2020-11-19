@@ -42,6 +42,7 @@ be able to depend on any other type of "thing."
 
 import collections
 import copy
+import os
 from itertools import chain
 
 try:
@@ -539,6 +540,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                  'includes',
                  'attributes',
                  'side_effect',
+                 'side_effect_temporary',
                  'side_effects',
                  'linked',
                  '_memo',
@@ -602,6 +604,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         self.includes = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
         self.side_effect = 0 # true iff this node is a side effect
+        self.side_effect_temporary = 0 # true iff this node is a temporary side effect
         self.side_effects = [] # the side effects of building this target
         self.linked = 0 # is this node linked to the variant directory?
         self.changed_since_last_build = 0
@@ -1059,6 +1062,9 @@ class Node(object, metaclass=NoSlotsPyPy):
             self._children_reset()
         self._add_child(self.implicit, self.implicit_set, deps)
 
+        if os.name == 'nt':
+            self._add_windows_typelib_dependencies(deps)
+
     def scan(self):
         """Scan this node's dependents for implicit dependencies."""
         # Don't bother scanning non-derived files, because we don't
@@ -1330,6 +1336,28 @@ class Node(object, metaclass=NoSlotsPyPy):
                 added = 1
         if added:
             self._children_reset()
+
+    def _add_windows_typelib_dependencies(self, deps):
+        """
+        Adds typelib side effects on Windows. This is useful if a file
+        #import's a type library because the compiler automatically generates
+        .tlh and .tli files in the build directory. The compiler does not
+        synchronize writes of these files so they should be considered side
+        effects. Make them temporary because once the first action runs,
+        no more writes will happen.
+        """
+        env = self.get_build_env()
+        if env.get('TYPELIB_SIDE_EFFECTS', True):
+            executor = self.get_executor()
+            targets = executor.get_all_targets() if executor else None
+            if targets:
+                for d in deps:
+                    if d.name.endswith(('.dll', '.tlb', '.ocx')):
+                        basename = os.path.splitext(d.name)[0]
+                        env.SideEffect([
+                            targets[0].dir.File(basename + '.tlh'),
+                            targets[0].dir.File(basename + '.tli'),
+                        ], targets, temporary=True)
 
     def set_specific_source(self, source):
         self.add_source(source)

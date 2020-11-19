@@ -3298,6 +3298,7 @@ def generate(env):
         env = self.TestEnvironment(LIB='lll', FOO='fff', BAR='bbb')
         env.File('mylll.pdb')
         env.Dir('mymmm.pdb')
+        env.File('mynnn.pdb')
 
         foo = env.Object('foo.obj', 'foo.cpp')[0]
         bar = env.Object('bar.obj', 'bar.cpp')[0]
@@ -3305,6 +3306,7 @@ def generate(env):
         assert s.__class__.__name__ == 'Entry', s.__class__.__name__
         assert s.get_internal_path() == 'mylib.pdb'
         assert s.side_effect
+        assert not s.side_effect_temporary
         assert foo.side_effects == [s]
         assert bar.side_effects == [s]
 
@@ -3314,6 +3316,7 @@ def generate(env):
         assert s.__class__.__name__ == 'File', s.__class__.__name__
         assert s.get_internal_path() == 'mylll.pdb'
         assert s.side_effect
+        assert not s.side_effect_temporary
         assert fff.side_effects == [s], fff.side_effects
         assert bbb.side_effects == [s], bbb.side_effects
 
@@ -3323,8 +3326,19 @@ def generate(env):
         assert s.__class__.__name__ == 'Dir', s.__class__.__name__
         assert s.get_internal_path() == 'mymmm.pdb'
         assert s.side_effect
+        assert not s.side_effect_temporary
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
+
+        hhh = env.Object('hhh.obj', 'hhh.cpp')[0]
+        ddd = env.Object('ddd.obj', 'ddd.cpp')[0]
+        s = env.SideEffect('mynnn.pdb', ['hhh.obj', 'ddd.obj'], temporary=True)[0]
+        assert s.__class__.__name__ == 'File', s.__class__.__name__
+        assert s.get_internal_path() == 'mynnn.pdb'
+        assert s.side_effect
+        assert s.side_effect_temporary
+        assert hhh.side_effects == [s], hhh.side_effects
+        assert ddd.side_effects == [s], ddd.side_effects
 
     def test_Split(self):
         """Test the Split() method"""

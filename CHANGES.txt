@@ -35,6 +35,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       User-facing behavior does not change with this fix (GH Issue #3726).
     - Fix occasional test failures caused by not being able to find a file or directory fixture
       when running multiple tests with multiple jobs.
+    - Fix MSVC build failures when compiling multiple files from the same directory that
+      all use `#import` to import the same typelibs (GH Issue #2161). To fix this, SCons now
+      supports a new parameter to the `SideEffect` function: `temporary`. This parameter
+      should only be set to `True` in special cases where a build tool performs a one-time
+      one-time generation of a side effect and then leaves it in place for the duration of the build.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
