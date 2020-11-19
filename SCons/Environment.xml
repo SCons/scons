@@ -286,31 +286,22 @@ until the Action object is actually used.
 </arguments>
 <summary>
 <para>
-When called with the
-<function>AddMethod</function>()
-form,
-adds the specified
-<parameter>function</parameter>
-to the specified
-<parameter>object</parameter>
-as the specified method
-<parameter>name</parameter>.
-When called using the
-&f-env-AddMethod; form,
-adds the specified
-<parameter>function</parameter>
-to the construction environment
-<replaceable>env</replaceable>
-as the specified method
-<parameter>name</parameter>.
-In both cases, if
-<parameter>name</parameter>
-is omitted or
-<constant>None</constant>,
-the name of the
-specified
-<parameter>function</parameter>
-itself is used for the method name.
+Adds <parameter>function</parameter> to an object as a method.
+<parameter>function</parameter> will be called with an instance
+object as the first argument as for other methods.
+If <parameter>name</parameter> is given, it is used as
+the name of the new method, else the name of
+<parameter>function</parameter> is used.
+</para>
+<para>
+When the global function &f-AddMethod; is called,
+the object to add the method to must be passed as the first argument;
+typically this will be &Environment;,
+in order to create a method which applies to all &consenvs;
+subsequently constructed.
+When called using the &f-env-AddMethod; form,
+the method is added to the specified &consenv; only.
+Added methods propagate through &f-env-Clone; calls.
 </para>
 
 <para>
@@ -318,22 +309,17 @@ Examples:
 </para>
 
 <example_commands>
-# Note that the first argument to the function to
-# be attached as a method must be the object through
-# which the method will be called; the Python
-# convention is to call it 'self'.
+# Function to add must accept an instance argument.
+# The Python convention is to call this 'self'.
 def my_method(self, arg):
     print("my_method() got", arg)
 
-# Use the global AddMethod() function to add a method
-# to the Environment class.  This
+# Use the global function to add a method to the Environment class:
 AddMethod(Environment, my_method)
 env = Environment()
 env.my_method('arg')
 
-# Add the function as a method, using the function
-# name for the method call.
-env = Environment()
+# Use the optional name argument to set the name of the method:
 env.AddMethod(my_method, 'other_method_name')
 env.other_method_name('another arg')
 </example_commands>

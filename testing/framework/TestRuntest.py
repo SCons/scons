@@ -36,8 +36,6 @@ else:
     pythonstring = python
 pythonstring = pythonstring.replace('\\', '\\\\')
 pythonflags = ''
-if sys.version_info[0] < 3:
-    pythonflags = ' -tt'
 
 failing_test_template = """\
 import sys

@@ -25,60 +25,54 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test that by default tests are invoked directly via Python, not
-using qmtest.
+Test a list of tests in failed_tests.log to run with the --retry option
 """
 
-import os
+import os.path
 
 import TestRuntest
 
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
+test_fail_py = os.path.join('test', 'fail.py')
+test_pass_py = os.path.join('test', 'pass.py')
 
 test = TestRuntest.TestRuntest()
-
 test.subdir('test')
-
-test_fail_py      = os.path.join('test', 'fail.py')
-test_no_result_py = os.path.join('test', 'no_result.py')
-test_pass_py      = os.path.join('test', 'pass.py')
-
 test.write_failing_test(test_fail_py)
-test.write_no_result_test(test_no_result_py)
 test.write_passing_test(test_pass_py)
+
+test.write('failed_tests.log', """\
+%(test_fail_py)s
+""" % locals())
 
 expect_stdout = """\
 %(pythonstring)s%(pythonflags)s %(test_fail_py)s
 FAILING TEST STDOUT
-%(pythonstring)s%(pythonflags)s %(test_no_result_py)s
-NO RESULT TEST STDOUT
 %(pythonstring)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
 
 Failed the following test:
 \t%(test_fail_py)s
-
-NO RESULT from the following test:
-\t%(test_no_result_py)s
 """ % locals()
 
 expect_stderr = """\
 FAILING TEST STDERR
-NO RESULT TEST STDERR
 PASSING TEST STDERR
 """
 
 testlist = [
     test_fail_py,
-    test_no_result_py,
     test_pass_py,
 ]
 
-test.run(arguments = '-k %s' % ' '.join(testlist),
-         status = 1,
-         stdout = expect_stdout,
-         stderr = expect_stderr)
+test.run(
+    arguments='-k --no-faillog %s' % ' '.join(testlist),
+    status=1,
+    stdout=expect_stdout,
+    stderr=expect_stderr,
+)
+test.must_not_exist('failing_tests.log')
 
 test.pass_test()
 

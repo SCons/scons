@@ -35,7 +35,7 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 try:
-    from xml.dom.minidom import *
+    from xml.dom.minidom import parse
 except ImportError:
     test.skip_test('Canoot import xml.dom.minidom skipping test\n')
 

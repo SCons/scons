@@ -29,7 +29,9 @@ import unittest
 
 import SCons.Errors
 
-from SCons.Subst import *
+from SCons.Subst import (Literal, SUBST_CMD, SUBST_RAW, SUBST_SIG, SpecialAttrWrapper, collections,
+                         escape_list, quote_spaces, scons_subst, scons_subst_list, scons_subst_once,
+                         subst_dict)
 
 class DummyNode:
     """Simple node work-alike."""
@@ -541,9 +543,7 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst('$foo.bar.3.0', env)
         except SCons.Errors.UserError as e:
             expect = [
-                # Python 2.3, 2.4
-                "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
-                # Python 2.5
+                # Python 2.5 and later
                 "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
             ]
             assert str(e) in expect, e

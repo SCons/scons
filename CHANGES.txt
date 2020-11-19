@@ -33,6 +33,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
+    - Fix occasional test failures caused by not being able to find a file or directory fixture
+      when running multiple tests with multiple jobs.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
@@ -63,6 +65,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Make sure cProfile is used if profiling - SCons was expecting
       the Util module to monkeypatch in cProfile as profile if available,
       but this is no longer being done.
+    - Cleanup in SCons.Util.AddMethod. If called with an environment instance
+      as the object to modify, the method would not be correctly set up in
+      any Clone of that instance.  Now tries to detect this and calls
+      MethodWrapper to set up the method the same way env.AddMethod does.
+      MethodWrapper moved to Util to avoid a circular import. Fixes #3028.
+    - Some Python 2 compatibility code dropped
+    - Rework runtest.py to use argparse for arg handling (was a mix
+      of hand-coded and optparse, with a stated intent to "gradually port").
+    - Add options to runtest to generate/not generate a log of failed tests,
+      and to rerun such tests. Useful when an error cascades through several
+      tests, can quickly try if a change improves all the fails. Dropped
+      runtest test for fallback from qmtest, not needed; added new tests.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command

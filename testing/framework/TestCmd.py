@@ -344,13 +344,13 @@ def is_List(e):
 
 
 def to_bytes(s):
-    if isinstance(s, bytes) or bytes is str:
+    if isinstance(s, bytes):
         return s
     return bytes(s, 'utf-8')
 
 
 def to_str(s):
-    if bytes is str or is_String(s):
+    if is_String(s):
         return s
     return str(s, 'utf-8')
 
@@ -469,7 +469,7 @@ def match_exact(lines=None, matches=None, newline=os.sep):
     :returns: an object (1) on match, else None, like re.match
 
     """
-    if isinstance(lines, bytes) or bytes is str:
+    if isinstance(lines, bytes):
         newline = to_bytes(newline)
 
     if not is_List(lines):

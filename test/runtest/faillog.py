@@ -25,40 +25,52 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that we find tests under the SCons/ tree only if they end
-with *Tests.py.
+Test a list of tests in failed_tests.log to run with the --retry option
 """
 
-import os
+import os.path
 
 import TestRuntest
 
-test = TestRuntest.TestRuntest()
-test.subdir(['SCons'], ['SCons', 'suite'])
-
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
-src_passTests_py = os.path.join('SCons', 'passTests.py')
-src_suite_passTests_py = os.path.join('SCons', 'suite', 'passTests.py')
+test_fail_py = os.path.join('test', 'fail.py')
+test_pass_py = os.path.join('test', 'pass.py')
 
-test.write_passing_test(['SCons', 'pass.py'])
-test.write_passing_test(['SCons', 'passTests.py'])
-test.write_passing_test(['SCons', 'suite', 'pass.py'])
-test.write_passing_test(['SCons', 'suite', 'passTests.py'])
+test = TestRuntest.TestRuntest()
+test.subdir('test')
+test.write_failing_test(test_fail_py)
+test.write_passing_test(test_pass_py)
 
 expect_stdout = """\
-%(pythonstring)s%(pythonflags)s %(src_passTests_py)s
+%(pythonstring)s%(pythonflags)s %(test_fail_py)s
+FAILING TEST STDOUT
+%(pythonstring)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
-%(pythonstring)s%(pythonflags)s %(src_suite_passTests_py)s
-PASSING TEST STDOUT
+
+Failed the following test:
+\t%(test_fail_py)s
 """ % locals()
 
 expect_stderr = """\
+FAILING TEST STDERR
 PASSING TEST STDERR
-PASSING TEST STDERR
-""" % locals()
+"""
 
-test.run(arguments='-k SCons', stdout=expect_stdout, stderr=expect_stderr)
+testlist = [
+    test_fail_py,
+    test_pass_py,
+]
+
+test.run(
+    arguments='-k --faillog=fail.log %s' % ' '.join(testlist),
+    status=1,
+    stdout=expect_stdout,
+    stderr=expect_stderr,
+)
+test.must_exist('fail.log')
+test.must_contain('fail.log', test_fail_py)
+test.must_not_exist('failed_tests.log')
 
 test.pass_test()
 

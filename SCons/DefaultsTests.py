@@ -30,7 +30,7 @@ import TestCmd
 
 import SCons.Errors
 
-from SCons.Defaults import *
+from SCons.Defaults import mkdir_func
 
 class DefaultsTestCase(unittest.TestCase):
     def test_mkdir_func0(self):
