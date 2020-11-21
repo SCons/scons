@@ -100,17 +100,25 @@
     <para>
 
     The compilation database can be populated with
-    source and target files either with paths relative
+    source and output files either with paths relative
     to the top of the build, or using absolute paths.
     This is controlled by
     <envar>COMPILATIONDB_USE_ABSPATH=(True|False)</envar>
     which defaults to <constant>False</constant>.
+    The entries in this file can be filtered by using
+    <envar>COMPILATIONDB_USE_PATH_FILTER='fnmatch pattern'</envar> where the
+    filter string is a
+    <ulink url="https://docs.python.org/3/library/fnmatch.html">
+      <citetitle>fnmatch</citetitle>
+    </ulink>
+    based pattern. This filtering can be used for outputting different build
+    variants to different compilation database files.
 
     </para>
 
     <para>
 
-    Example of absolute paths for target and source:
+    Example of absolute paths for output and source:
 
     </para>
 
@@ -126,14 +134,14 @@ env.CompilationDatabase('compile_commands.json')
         "command": "gcc -o test_main.o -c test_main.c",
         "directory": "/home/user/sandbox",
         "file": "/home/user/sandbox/test_main.c",
-        "target": "/home/user/sandbox/test_main.o"
+        "output": "/home/user/sandbox/test_main.o"
     }
 ]
     </programlisting>
 
     <para>
 
-    Example of relative paths for target and source:
+    Example of relative paths for output and source:
 
     </para>
 
@@ -148,7 +156,46 @@ env.CompilationDatabase('compile_commands.json')
         "command": "gcc -o test_main.o -c test_main.c",
         "directory": "/home/user/sandbox",
         "file": "test_main.c",
-        "target": "test_main.o"
+        "output": "test_main.o"
+    }
+]
+    </programlisting>
+
+    <para>
+
+    Example of using filtering for build variants:
+
+    </para>
+
+    <sconstruct>
+env = Environment()
+env.Tool('compilation_db')
+
+env1 = env.Clone()
+env1['COMPILATIONDB_USE_PATH_FILTER'] = 'build/linux32/*'
+env1.CompilationDatabase('compile_commands-linux32.json')
+
+env2 = env.Clone()
+env2['COMPILATIONDB_USE_PATH_FILTER'] = 'build/linux64/*'
+env2.CompilationDatabase('compile_commands-linux64.json')
+    </sconstruct>
+    <programlisting language="json">
+[
+    {
+        "command": "gcc -m32 -o build/linux32/test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "output": "build/linux32/test_main.o"
+    }
+]
+    </programlisting>
+    <programlisting language="json">
+[
+    {
+        "command": "gcc -m64 -o build/linux64/test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "output": "build/linux64/test_main.o"
     }
 ]
     </programlisting>
