@@ -694,7 +694,7 @@ def tool_list(platform, env):
         assemblers = ['masm', 'nasm', 'gas', '386asm']
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
-        other_plat_tools = ['msvs', 'midl']
+        other_plat_tools = ['msvs', 'midl', 'wix']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]  # 'mslink']
@@ -794,7 +794,6 @@ def tool_list(platform, env):
         # TODO: merge 'install' into 'filesystem' and
         # make 'filesystem' the default
         'filesystem',
-        'wix',  # 'midl', 'msvs',
         # Parser generators
         'lex', 'yacc',
         # Foreign function interface

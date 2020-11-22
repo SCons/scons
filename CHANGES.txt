@@ -79,6 +79,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       runtest test for fallback from qmtest, not needed; added new tests.
     - Eliminate tex tool usage of "for foo in range(len(iterable))"
     - Restore internal Trace function to functional state.
+    - Move wix tool into windows-specific section.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
