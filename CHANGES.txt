@@ -30,7 +30,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
     - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
 
-
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
 
@@ -83,7 +82,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       runtest test for fallback from qmtest, not needed; added new tests.
     - Eliminate tex tool usage of "for foo in range(len(iterable))"
     - Restore internal Trace function to functional state.
-    - Move wix tool into windows-specific section.
+    - Only try to initialize the wix tool by default (or when tool `default` is explicitly installed)
+      on Windows based systems.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
