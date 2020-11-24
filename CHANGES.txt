@@ -8,6 +8,10 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From James Benton:
+    - Add COMPILATIONDB_PATH_FILTER env option for CompilationDatabase() builder which allows
+      filtering of entries based on the output file paths using glob style file matching (issue #3742).
+
   From Joseph Brill:
     - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
       is not exposed externally and update external references accordingly.
@@ -86,9 +90,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
       in the action list.
 
-  From James Benton:
-    - Add COMPILATIONDB_USE_PATH_FILTER env option for CompilationDatabase() builder which allows
-      filtering of entries based on the output file paths using fnmatch (issue #3742).
 
 
 

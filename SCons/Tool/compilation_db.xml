@@ -38,7 +38,7 @@ See its __doc__ string for a discussion of the format.
             <item>__COMPILATIONDB_ENV</item>
 -->            
             <item>COMPILATIONDB_USE_ABSPATH</item>
-            <item>COMPILATIONDB_USE_PATH_FILTER</item>
+            <item>COMPILATIONDB_PATH_FILTER</item>
         </sets>
     </tool>
 
@@ -96,15 +96,17 @@ env.CompilationDatabase('my_output.json')
         </summary>
     </cvar>
 
-    <cvar name="COMPILATIONDB_USE_PATH_FILTER">
+    <cvar name="COMPILATIONDB_PATH_FILTER">
         <summary>
             <para>
                 This is a string which instructs &b-link-CompilationDatabase; to
                 only include entries where the <literal>output</literal> member
-                matches the pattern in the filter string using fnmatch.
+                matches the pattern in the filter string using fnmatch, which
+                uses glob style wildcards.
+
             </para>
             <para>
-                The default value is an empty string '', which means no entries will be filtered.
+                The default value is an empty string '', which disables filtering.
             </para>
         </summary>
     </cvar>

@@ -106,13 +106,15 @@
     <envar>COMPILATIONDB_USE_ABSPATH=(True|False)</envar>
     which defaults to <constant>False</constant>.
     The entries in this file can be filtered by using
-    <envar>COMPILATIONDB_USE_PATH_FILTER='fnmatch pattern'</envar> where the
-    filter string is a
+
+    <envar>COMPILATIONDB_PATH_FILTER='fnmatch pattern'</envar>
+    where the filter string is a
     <ulink url="https://docs.python.org/3/library/fnmatch.html">
       <citetitle>fnmatch</citetitle>
     </ulink>
-    based pattern. This filtering can be used for outputting different build
-    variants to different compilation database files.
+    based pattern which is a typical file glob syntax.
+    This filtering can be used for outputting different
+    build variants to different compilation database files.
 
     </para>
 
@@ -172,11 +174,11 @@ env = Environment()
 env.Tool('compilation_db')
 
 env1 = env.Clone()
-env1['COMPILATIONDB_USE_PATH_FILTER'] = 'build/linux32/*'
+env1['COMPILATIONDB_PATH_FILTER'] = 'build/linux32/*'
 env1.CompilationDatabase('compile_commands-linux32.json')
 
 env2 = env.Clone()
-env2['COMPILATIONDB_USE_PATH_FILTER'] = 'build/linux64/*'
+env2['COMPILATIONDB_PATH_FILTER'] = 'build/linux64/*'
 env2.CompilationDatabase('compile_commands-linux64.json')
     </sconstruct>
     <programlisting language="json">

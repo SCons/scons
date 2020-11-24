@@ -33,8 +33,8 @@ env.CompilationDatabase('compile_commands_over_abs_1.json', COMPILATIONDB_USE_AB
 env.CompilationDatabase('compile_commands_over_abs_0.json', COMPILATIONDB_USE_ABSPATH=0)
 
 # Try filter for build and build2 output
-env.CompilationDatabase('compile_commands_filter_build.json', COMPILATIONDB_USE_PATH_FILTER='build/*')
-env.CompilationDatabase('compile_commands_filter_build2.json', COMPILATIONDB_USE_PATH_FILTER='build2/*')
+env.CompilationDatabase('compile_commands_filter_build.json', COMPILATIONDB_PATH_FILTER='build/*')
+env.CompilationDatabase('compile_commands_filter_build2.json', COMPILATIONDB_PATH_FILTER='build2/*')
 
 env.VariantDir('build','src')
 env.Program('build/main', 'build/test_main.c')

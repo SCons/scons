@@ -135,7 +135,7 @@ def write_compilation_db(target, source, env):
     entries = []
 
     use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
-    use_path_filter = env.subst('$COMPILATIONDB_USE_PATH_FILTER')
+    use_path_filter = env.subst('$COMPILATIONDB_PATH_FILTER')
 
     for s in __COMPILATION_DB_ENTRIES:
         entry = s.read()
@@ -248,7 +248,7 @@ def generate(env, **kwargs):
     )
 
     env['COMPILATIONDB_USE_ABSPATH'] = False
-    env['COMPILATIONDB_USE_PATH_FILTER'] = ''
+    env['COMPILATIONDB_PATH_FILTER'] = ''
 
 
 def exists(env):
