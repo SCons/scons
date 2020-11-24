@@ -30,6 +30,7 @@ import os
 import shutil
 import stat
 import sys
+import shutil
 import tempfile
 import uuid
 
@@ -61,31 +62,28 @@ def CacheRetrieveFunc(target, source, env) -> int:
         cd.CacheDebug('CacheRetrieve(%s):  %s not in cache\n', t, cachefile)
         return 1
     cd.hits += 1
-    cd.CacheDebug('CacheRetrieve(%s):  retrieving from %s\n', t, cachefile)
     if SCons.Action.execute_actions:
         if fs.islink(cachefile):
             fs.symlink(fs.readlink(cachefile), t.get_internal_path())
         else:
             try:
                 env.copy_from_cache(cachefile, t.get_internal_path())
-            except:
-                try:
+            except (shutil.SameFileError, IOError) as e:
                     # In case file was partially retrieved (and now corrupt)
                     # delete it to avoid poisoning commands like 'ar' that
                     # read from the initial state of the file they are writing
                     # to.
                     t.fs.unlink(t.get_internal_path())
-                except:
-                    pass
-
-                raise
+                    cd.CacheDebug('CacheRetrieve(%s):  Error while retrieving from %s deleting %s\n', t, cachefile)
+                    raise e
 
             try:
                 os.utime(cachefile, None)
             except OSError:
                 pass
         st = fs.stat(cachefile)
-        fs.chmod(t.get_internal_path(), stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
+        fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    cd.CacheDebug('CacheRetrieve(%s):  retrieved from %s\n', t, cachefile)
     return 0
 
 def CacheRetrieveString(target, source, env) -> str:
@@ -93,7 +91,7 @@ def CacheRetrieveString(target, source, env) -> str:
     cd = env.get_CacheDir()
     cachedir, cachefile = cd.cachepath(t)
     if t.fs.exists(cachefile):
-        return "Retrieving `%s' from cache" % t.get_internal_path()
+        return "Retrieved `%s' from cache" % t.get_internal_path()
     return None
 
 CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
