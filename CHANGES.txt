@@ -82,6 +82,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       tests, can quickly try if a change improves all the fails. Dropped
       runtest test for fallback from qmtest, not needed; added new tests.
     - Eliminate tex tool usage of "for foo in range(len(iterable))"
+    - Restore internal Trace function to functional state.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
