@@ -30,10 +30,12 @@ import pickle
 import time
 
 import SCons.dblite
+import SCons.sdiskcache
 import SCons.Warnings
 from SCons.compat import PICKLE_PROTOCOL
 from SCons.Util import print_time
 
+DEBUG = False
 
 def corrupt_dblite_warning(filename) -> None:
     SCons.Warnings.warn(
@@ -54,8 +56,9 @@ sig_files = []
 # "DB_Name" is the base name of the database file (minus any
 # extension the underlying DB module will add).
 DataBase = {}
-DB_Module = SCons.dblite
-DB_Name = None
+#DB_Module = SCons.dblite
+DB_Module = SCons.sdiskcache
+DB_Name = ".sconsign"
 DB_sync_list = []
 
 def current_sconsign_filename():
@@ -71,6 +74,17 @@ def current_sconsign_filename():
         return ".sconsign"
     return ".sconsign_" + current_hash_algorithm
 
+# a debugging decorator, not for production usage
+def dbwrap(func):
+    def wrapper(dnode):
+        db, mode = func(dnode)
+        if DEBUG:
+            print(f"Get_DataBase returns {db=}, {mode=}")
+        return db, mode
+
+    return wrapper
+
+@dbwrap
 def Get_DataBase(dir):
     global DB_Name
 
@@ -86,7 +100,8 @@ def Get_DataBase(dir):
                     return DataBase[d], mode
                 except KeyError:
                     path = d.entry_abspath(DB_Name)
-                    try: db = DataBase[d] = DB_Module.open(path, mode)
+                    try:
+                        db = DataBase[d] = DB_Module.open(path, mode)
                     except OSError:
                         pass
                     else:
@@ -126,13 +141,13 @@ def write() -> None:
         try:
             syncmethod = db.sync
         except AttributeError:
-            pass # Not all dbm modules have sync() methods.
+            pass  # Not all dbm modules have sync() methods.
         else:
             syncmethod()
         try:
             closemethod = db.close
         except AttributeError:
-            pass # Not all dbm modules have close() methods.
+            pass  # Not all dbm modules have close() methods.
         else:
             closemethod()
 
@@ -142,20 +157,21 @@ def write() -> None:
 
 
 class SConsignEntry:
-    """
-    Wrapper class for the generic entry in a .sconsign file.
+    """Wrapper class for the generic entry in an sconsign file.
+
     The Node subclass populates it with attributes as it pleases.
 
     XXX As coded below, we do expect a '.binfo' attribute to be added,
     but we'll probably generalize this in the next refactorings.
     """
+
     __slots__ = ("binfo", "ninfo", "__weakref__")
     current_version_id = 2
 
     def __init__(self) -> None:
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
-        #_version_id = self.current_version_id
+        # _version_id = self.current_version_id
         pass
 
     def convert_to_sconsign(self) -> None:
@@ -199,15 +215,11 @@ class Base:
         self.to_be_merged = {}
 
     def get_entry(self, filename):
-        """
-        Fetch the specified entry attribute.
-        """
+        """Fetch the specified entry attribute."""
         return self.entries[filename]
 
     def set_entry(self, filename, obj) -> None:
-        """
-        Set the entry.
-        """
+        """Set the entry."""
         self.entries[filename] = obj
         self.dirty = True
 
@@ -261,16 +273,21 @@ class DB(Base):
         except KeyError:
             pass
         else:
-            try:
-                self.entries = pickle.loads(rawentries)
-                if not isinstance(self.entries, dict):
-                    self.entries = {}
-                    raise TypeError
-            except KeyboardInterrupt:
-                raise
-            except Exception as e:
-                SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                    "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.get_tpath(), e))
+            if DEBUG:
+                print(f"rawentries is a {type(rawentries)}")
+            if isinstance(rawentries, dict):
+                self.entries = rawentries
+            else:
+                try:
+                    self.entries = pickle.loads(rawentries)
+                    if not isinstance(self.entries, dict):
+                        self.entries = {}
+                        raise TypeError
+                except KeyboardInterrupt:
+                    raise
+                except Exception as e:
+                    SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
+                                        "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.get_tpath(), e))
             for key, entry in self.entries.items():
                 entry.convert_from_sconsign(dir, key)
 
@@ -421,11 +438,9 @@ ForDirectory = DB
 
 
 def File(name, dbm_module=None) -> None:
-    """
-    Arrange for all signatures to be stored in a global .sconsign.db*
-    file.
-    """
+    """Store the SCons signatures in a global .sconsign.* database."""
     global ForDirectory, DB_Name, DB_Module
+
     if name is None:
         ForDirectory = DirFile
         DB_Module = None
