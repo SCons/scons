@@ -73,6 +73,7 @@ class dblite:
         _os_chown = None
 
     _os_replace = os.replace
+    _os_chmod = os.chmod
     _shutil_copyfile = shutil.copyfile
     _time_time = time.time
 
@@ -147,12 +148,20 @@ class dblite:
         self._check_writable()
         with self._open(self._tmp_name, "wb", self._mode) as f:
             self._pickle_dump(self._dict, f, self._pickle_protocol)
-        self._os_replace(self._tmp_name, self._file_name)
+
+        try:
+            self._os_replace(self._tmp_name, self._file_name)
+        except PermissionError:
+            # if we couldn't replace due to perms, try to fiddle them and retry
+            self._os_chmod(self._file_name, 0o777)
+            self._os_replace(self._tmp_name, self._file_name)
+
         if self._os_chown is not None and self._chown_to > 0:  # don't chown to root or -1
             try:
                 self._os_chown(self._file_name, self._chown_to, self._chgrp_to)
             except OSError:
                 pass
+
         self._needs_sync = False
         if KEEP_ALL_FILES:
             self._shutil_copyfile(
