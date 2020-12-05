@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify SConsignFile() when used with dbhash.
@@ -36,8 +35,9 @@ test = TestSCons.TestSCons()
 
 try:
     import dbm.bsd
+    use_dbm = 'dbm.bsd'
 except ImportError:
-    test.skip_test('No dbhash in this version of Python; skipping test.\n')
+    test.skip_test('No dbm.bsd in this version of Python; skipping test.\n')
 
 test.subdir('subdir')
 
@@ -50,11 +50,11 @@ sys.exit(0)
 
 #
 test.write('SConstruct', """
-import sys
-import dbhash
-SConsignFile('.sconsign', dbhash)
+import %(use_dbm
+SConsignFile('.sconsign', %(use_dbm)s)
+DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
+env = Environment(BUILDERS={'B': B}, tools=[])
 env.B(target = 'f1.out', source = 'f1.in')
 env.B(target = 'f2.out', source = 'f2.in')
 env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')

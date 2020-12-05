@@ -3,6 +3,7 @@
 # MIT License
 #
 # Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -47,8 +48,8 @@ sys.exit(0)
 test.write('SConstruct', """
 import %(use_db)s
 SConsignFile(dbm_module=%(use_db)s)
-B = Builder(action=r'%(_python_)s build.py $TARGETS $SOURCES')
 DefaultEnvironment(tools=[])
+B = Builder(action=r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS={'B': B}, tools=[])
 env.B(target='f1.out', source='f1.in')
 env.B(target='f2.out', source='f2.in')
