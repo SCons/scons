@@ -25,15 +25,12 @@
 
 """Verify SConsignFile() when used with explicit SCons.dblite."""
 
-import os.path
-
 import TestSCons
 
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-import SCons.dblite
 use_db = 'SCons.dblite'
 
 test.subdir('subdir')
