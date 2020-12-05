@@ -71,7 +71,6 @@ class dblite:
         _os_chown = os.chown
     except AttributeError:
         _os_chown = None
-
     _os_replace = os.replace
     _os_chmod = os.chmod
     _shutil_copyfile = shutil.copyfile
@@ -152,8 +151,15 @@ class dblite:
         try:
             self._os_replace(self._tmp_name, self._file_name)
         except PermissionError:
-            # if we couldn't replace due to perms, try to fiddle them and retry
-            self._os_chmod(self._file_name, 0o777)
+            # If we couldn't replace due to perms, try to change and retry.
+            # This is mainly for Windows - on POSIX the file permissions
+            # don't matter, the os.replace would have worked anyway.
+            # We're giving up if the retry fails, just let the Python
+            # exception abort us.
+            try:
+                self._os_chmod(self._file_name, 0o777)
+            except PermissionError:
+                pass
             self._os_replace(self._tmp_name, self._file_name)
 
         if self._os_chown is not None and self._chown_to > 0:  # don't chown to root or -1
@@ -166,7 +172,8 @@ class dblite:
         if KEEP_ALL_FILES:
             self._shutil_copyfile(
                 self._file_name,
-                self._file_name + "_" + str(int(self._time_time())))
+                self._file_name + "_" + str(int(self._time_time()))
+            )
 
     def _check_writable(self):
         if self._flag == "r":
