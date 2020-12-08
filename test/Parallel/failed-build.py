@@ -106,6 +106,8 @@ env.Fail(target='f3', source='f3.in')
 env.MyCopy(target='f4', source='f4.in')
 env.MyCopy(target='f5', source='f5.in')
 env.MyCopy(target='f6', source='f6.in')
+env.Depends('f5', 'f3')
+env.Depends('f6', 'f4')
 """ % locals())
 
 test.write('f3.in', "f3.in\n")
