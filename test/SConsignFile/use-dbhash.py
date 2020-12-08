@@ -50,7 +50,7 @@ sys.exit(0)
 
 #
 test.write('SConstruct', """
-import %(use_dbm
+import %(use_dbm)s
 SConsignFile('.sconsign', %(use_dbm)s)
 DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
