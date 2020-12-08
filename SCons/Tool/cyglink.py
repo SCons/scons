@@ -120,14 +120,14 @@ def _lib_emitter(target, source, env, **kw):
         implib_target.attributes.shared = 1
         target.append(implib_target)
 
-    symlinks = ImpLibSymlinkGenerator(env, implib_target,
-                                      implib_libtype=libtype,
-                                      generator_libtype=libtype + 'ImpLib')
-    if Verbose:
-        print("_lib_emitter: implib symlinks=%r" % StringizeLibSymlinks(symlinks))
-    if symlinks:
-        EmitLibSymlinks(env, symlinks, implib_target, clean_targets=target[0])
-        implib_target.attributes.shliblinks = symlinks
+        symlinks = ImpLibSymlinkGenerator(env, implib_target,
+                                          implib_libtype=libtype,
+                                          generator_libtype=libtype + 'ImpLib')
+        if Verbose:
+            print("_lib_emitter: implib symlinks=%r" % StringizeLibSymlinks(symlinks))
+        if symlinks:
+            EmitLibSymlinks(env, symlinks, implib_target, clean_targets=target[0])
+            implib_target.attributes.shliblinks = symlinks
 
     return (target, source)
 
