@@ -86,7 +86,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on Windows based systems.
     - Pick a better "Topic" Trove classifier for SCons: SW Dev / Build Tools
     - Use os.replace instead of os.rename in dblite so don't need to
-      special-case Windows here.
+      special-case Windows here. dblite is the default storage engine for the SConsign file(s).
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
