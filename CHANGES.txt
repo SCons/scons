@@ -85,6 +85,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Only try to initialize the wix tool by default (or when tool `default` is explicitly installed)
       on Windows based systems.
     - Pick a better "Topic" Trove classifier for SCons: SW Dev / Build Tools
+    - Use os.replace instead of os.rename in dblite so don't need to
+      special-case Windows here.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command

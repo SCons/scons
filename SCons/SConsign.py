@@ -35,10 +35,12 @@ from SCons.compat import PICKLE_PROTOCOL
 
 
 def corrupt_dblite_warning(filename):
-    SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                        "Ignoring corrupt .sconsign file: %s"%filename)
+    SCons.Warnings.warn(
+        SCons.Warnings.CorruptSConsignWarning,
+        "Ignoring corrupt .sconsign file: %s" % filename,
+    )
 
-SCons.dblite.ignore_corrupt_dbfiles = 1
+SCons.dblite.IGNORE_CORRUPT_DBFILES = True
 SCons.dblite.corruption_warning = corrupt_dblite_warning
 
 # XXX Get rid of the global array so this becomes re-entrant.
@@ -141,7 +143,7 @@ class SConsignEntry:
     def __getstate__(self):
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -154,7 +156,7 @@ class SConsignEntry:
 
     def __setstate__(self, state):
         for key, value in state.items():
-            if key not in ('_version_id','__weakref__'):
+            if key not in ('_version_id', '__weakref__'):
                 setattr(self, key, value)
 
 
