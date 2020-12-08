@@ -1606,7 +1606,7 @@ class Base(SubstitutionEnvironment):
         prefix = self.subst('$'+prefix)
 
         for path in paths:
-            dir,name = os.path.split(str(path))
+            name = os.path.basename(str(path))
             if name[:len(prefix)] == prefix and name[-len(suffix):] == suffix:
                 return path
 

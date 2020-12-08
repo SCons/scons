@@ -120,6 +120,7 @@ def _lib_emitter(target, source, env, **kw):
         implib_target.attributes.shared = 1
         target.append(implib_target)
 
+        # Only create the symlinks if there is actually an import library
         symlinks = ImpLibSymlinkGenerator(env, implib_target,
                                           implib_libtype=libtype,
                                           generator_libtype=libtype + 'ImpLib')

@@ -545,14 +545,22 @@ class Variable_Method_Caller:
             frame = frame.f_back
         return None
 
-# if $version_var is not empty, returns env[flags_var], otherwise returns None
 def __libversionflags(env, version_var, flags_var):
+    """
+    if $version_var is not empty, returns env[flags_var], otherwise returns None
+    :param env:
+    :param version_var:
+    :param flags_var:
+    :return:
+    """
     try:
         if env.subst('$'+version_var):
             return env[flags_var]
     except KeyError:
         pass
     return None
+
+
 
 ConstructionEnvironment = {
     'BUILDERS'      : {},
