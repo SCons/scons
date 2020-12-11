@@ -87,6 +87,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Pick a better "Topic" Trove classifier for SCons: SW Dev / Build Tools
     - Use os.replace instead of os.rename in dblite so don't need to
       special-case Windows here. dblite is the default storage engine for the SConsign file(s).
+    - Fix cut-n-paste error in msvc debug printout.
 
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
