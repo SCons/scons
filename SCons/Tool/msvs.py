@@ -607,8 +607,8 @@ class _DSPGenerator:
                 config.platform = 'Win32'
 
             self.configs[variant] = config
-            # DEBUG
-            # print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'")
+            # DEBUG: leave enabled, test/MSVS/CPPPATH-dirs.py expects this
+            print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'")
 
         for i in range(len(variants)):
             AddConfig(self, variants[i], buildtarget[i], outdir[i], runfile[i], cmdargs[i], cppdefines[i], cpppaths[i], cppflags[i])
