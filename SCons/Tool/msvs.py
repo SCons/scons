@@ -607,6 +607,7 @@ class _DSPGenerator:
                 config.platform = 'Win32'
 
             self.configs[variant] = config
+            # DEBUG: leave enabled, test/MSVS/CPPPATH-dirs.py expects this
             print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dspfile) + "'")
 
         for i in range(len(variants)):
@@ -1444,7 +1445,9 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
                         '\t</ItemGroup>\n' % str(self.sconscript))
 
     def Parse(self):
-        print("_GenerateV10DSP.Parse()")
+        # DEBUG
+        # print("_GenerateV10DSP.Parse()")
+        pass
 
     def Build(self):
         try:
@@ -1530,7 +1533,8 @@ class _GenerateV7DSW(_DSWGenerator):
                 config.platform = 'Win32'
 
             self.configs[variant] = config
-            print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dswfile) + "'")
+            # DEBUG
+            # print("Adding '" + self.name + ' - ' + config.variant + '|' + config.platform + "' to '" + str(dswfile) + "'")
 
         if 'variant' not in env:
             raise SCons.Errors.InternalError("You must specify a 'variant' argument (i.e. 'Debug' or " +\

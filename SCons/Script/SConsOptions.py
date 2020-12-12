@@ -28,12 +28,8 @@ import textwrap
 
 no_hyphen_re = re.compile(r'(\s+|(?<=[\w!\"\'&.,?])-{2,}(?=\w))')
 
-try:
-    from gettext import gettext
-except ImportError:
-    def gettext(message):
-        return message
-_ = gettext
+import gettext
+_ = gettext.gettext
 
 import SCons.Node.FS
 import SCons.Platform.virtualenv

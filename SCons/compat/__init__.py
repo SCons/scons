@@ -85,15 +85,6 @@ def rename_module(new, old):
 # Python 3.8 introduced protocol 5 which is mainly an improvement for for out-of-band data buffers
 PICKLE_PROTOCOL = 4
 
-import shutil
-try:
-    shutil.SameFileError
-except AttributeError:
-    class SameFileError(Exception):
-        pass
-
-    shutil.SameFileError = SameFileError
-
 
 class NoSlotsPyPy(type):
     """ Metaclass for PyPy compatitbility.

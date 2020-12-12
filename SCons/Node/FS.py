@@ -2721,7 +2721,7 @@ class File(Base):
             try:
                 return contents.decode('latin-1')
             except UnicodeDecodeError as e:
-                return contents.decode('utf-8', error='backslashreplace')
+                return contents.decode('utf-8', errors='backslashreplace')
 
 
     def get_content_hash(self):

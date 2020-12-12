@@ -429,18 +429,23 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 return result
 
         # Now decide if latex will need to be run again due to newglossary command.
-        for ig in range(len(newglossary_suffix)):
-            if check_MD5(suffix_nodes[newglossary_suffix[ig][2]],newglossary_suffix[ig][2]) or (count == 1):
+        for ng in newglossary_suffix:
+            if check_MD5(suffix_nodes[ng[2]], ng[2]) or (count == 1):
                 # We must run makeindex
                 if Verbose:
                     print("Need to run makeindex for newglossary")
-                newglfile = suffix_nodes[newglossary_suffix[ig][2]]
-                MakeNewGlossaryAction = SCons.Action.Action("$MAKENEWGLOSSARYCOM ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s" % (newglossary_suffix[ig][2],newglossary_suffix[ig][0],newglossary_suffix[ig][1]), "$MAKENEWGLOSSARYCOMSTR")
+                newglfile = suffix_nodes[ng[2]]
+                MakeNewGlossaryAction = SCons.Action.Action(
+                    "$MAKENEWGLOSSARYCOM ${SOURCE.filebase}%s -s ${SOURCE.filebase}.ist -t ${SOURCE.filebase}%s -o ${SOURCE.filebase}%s"
+                    % (ng[2], ng[0], ng[1]),
+                    "$MAKENEWGLOSSARYCOMSTR",
+                )
 
                 result = MakeNewGlossaryAction(newglfile, newglfile, env)
                 if result != 0:
-                    check_file_error_message('%s (newglossary)' % env['MAKENEWGLOSSARY'],
-                                             newglossary_suffix[ig][0])
+                    check_file_error_message(
+                        '%s (newglossary)' % env['MAKENEWGLOSSARY'], ng[0]
+                    )
                     return result
 
         # Now decide if latex needs to be run yet again to resolve warnings.
@@ -786,8 +791,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                 file_basename = os.path.join(targetdir, 'bu*.aux')
                 file_list = glob.glob(file_basename)
                 # remove the suffix '.aux'
-                for i in range(len(file_list)):
-                    file_list.append(SCons.Util.splitext(file_list[i])[0])
+                for fl in file_list.copy():
+                    file_list.append(SCons.Util.splitext(fl)[0])
             # for multibib we need a list of files
             if suffix_list[-1] == 'multibib':
                 for multibibmatch in multibib_re.finditer(content):
@@ -797,8 +802,8 @@ def tex_emitter_core(target, source, env, graphics_extensions):
                         baselist = multibibmatch.group(1).split(',')
                         if Verbose:
                             print("multibib list ", baselist)
-                        for i in range(len(baselist)):
-                            file_list.append(os.path.join(targetdir, baselist[i]))
+                        for bl in baselist:
+                            file_list.append(os.path.join(targetdir, bl))
             # now define the side effects
             for file_name in file_list:
                 for suffix in suffix_list[:-1]:

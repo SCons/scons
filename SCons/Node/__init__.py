@@ -42,15 +42,9 @@ be able to depend on any other type of "thing."
 
 import collections
 import copy
-from itertools import chain
-
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
+from itertools import chain, zip_longest
 
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
 import SCons.Util
@@ -59,6 +53,8 @@ from SCons.Util import hash_signature
 from SCons.Debug import Trace
 
 from SCons.compat import NoSlotsPyPy
+from SCons.Debug import logInstanceCreation, Trace
+from SCons.Util import MD5signature
 
 print_duplicate = 0
 
