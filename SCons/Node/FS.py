@@ -2729,7 +2729,7 @@ class File(Base):
     def get_content_hash(self) -> str:
         """Compute and return the hash of the file contents."""
         if not self.rexists():
-            return MD5signature('')
+            return MD5signature(SCons.Util.NOFILE)
         fname = self.rfile().get_abspath()
         try:
             cs = MD5filesignature(fname, chunksize=File.md5_chunksize)
