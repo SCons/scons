@@ -23,9 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Verify the default behavior of env.SConsignFile(), called with no arguments.
-"""
+"""Verify the behavior of env.SConsignFile() called with a subst-able path."""
 
 import TestSCons
 
