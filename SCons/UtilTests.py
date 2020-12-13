@@ -21,20 +21,22 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import SCons.compat
-
+from collections import UserDict, UserList, UserString, OrderedDict
 import functools
 import io
 import os
 import sys
 import unittest
-from collections import UserDict, UserList, UserString
 
 import TestCmd
 
 import SCons.Errors
+import SCons.compat
+from SCons.Util import hash_signature, get_os_env_bool, get_env_bool, flatten, to_bytes, to_String, render_tree, to_str, \
+    is_Dict, is_String, is_List, splitext, print_tree, is_Tuple, silent_intern, get_native_path, get_environment_var, \
+    display, containsAny, containsAll, containsOnly, WhereIs, Selector, adjustixes, Proxy, AddPathIfNotExists, \
+    PrependPath, NodeList, AppendPath, LogicalLines, hash_collect
 
-from SCons.Util import *
 
 class OutBuffer:
     def __init__(self):
