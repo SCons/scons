@@ -51,6 +51,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Daniel Moody:
     - Fix issue where java parsed a class incorrectly from lambdas used after a new.
 
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
+
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
       OverrideEnvironment. Enable env.setdefault() method, add tests.
@@ -89,15 +96,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       special-case Windows here. dblite is the default storage engine for the SConsign file(s).
     - Fix cut-n-paste error in msvc debug printout and make some debug output
       in msvs and msvsTests.py be off until needed (uncomment to use)
-
-  From Simon Tegelid
-    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
-      with an action list like this:
-      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
-      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
-      in the action list.
-
-
+    - Fix Issue #3014 - Empty file and missing file have same csig
 
 
 
