@@ -41,6 +41,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
 
+  From Jason Kenny
+    - Fix python3 crash when Value node get_text_content when child content does not have decode()
+      NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's
+      children. This may break your code. It now concatenates the csig() of all children.
+
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
       is used.
@@ -132,8 +137,6 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
       removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
 
-  From Jason Kenny
-    - Fix python3 crash when Value node get_text_content when child content does not have decode()
 
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
