@@ -68,17 +68,18 @@ test.must_not_exist('f1.out')
 test.must_not_exist('f2.out')
 
 #
-# Test with --md5-chunksize
+# Test with both synonyms: --hash-chunksize and --md5-chunksize
 #
-test.run(arguments = '--md5-chunksize=128 .',
-         stdout=expected_stdout,
-         stderr='')
-test.must_exist('f1.out')
-test.must_exist('f2.out')
+for name in ['--md5-chunksize', '--hash-chunksize']:
+    test.run(arguments = '%s=128 .' % name,
+             stdout=expected_stdout,
+             stderr='')
+    test.must_exist('f1.out')
+    test.must_exist('f2.out')
 
-test.run(arguments = '--md5-chunksize=128 -c .')
-test.must_not_exist('f1.out')
-test.must_not_exist('f2.out')
+    test.run(arguments = '%s=128 -c .' % name)
+    test.must_not_exist('f1.out')
+    test.must_not_exist('f2.out')
 
 test.pass_test()
 

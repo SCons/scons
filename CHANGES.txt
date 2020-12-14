@@ -38,10 +38,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       User-facing behavior does not change with this fix (GH Issue #3726).
     - Fix occasional test failures caused by not being able to find a file or directory fixture
       when running multiple tests with multiple jobs.
-    - Added support for a new command-line parameter "--hash-format" to override the default
-      hash format that SCons uses. It can also be set via SetOption('hash_format'). Supported
-      values include md5, sha1, and sha256, but you can also use any other algorithm that is
-      offered by your Python interpreter's hashlib package.
+    - Added support for a new command-line parameter `--hash-format` to override the default
+      hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
+      values include `md5`, `sha1`, `sha256`, and `blake2b`. For all hash formats other than
+      the default of `md5`, the SConsign database will include the name of the hash format.
+      In addition, the default Decider is now called `content` instead of `MD5`.
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
 

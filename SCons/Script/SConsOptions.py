@@ -710,10 +710,26 @@ def Parser(version):
                   action="help",
                   help="Print this message and exit.")
 
+    def warn_md5_chunksize_deprecated(option, opt, value, parser):
+        if opt == '--md5-chunksize':
+            SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                                "Parameter %s is deprecated. Use "
+                                "--hash-chunksize instead." % opt)
+
+        setattr(parser.values, option.dest, value)
+
+    op.add_option('--hash-chunksize', '--md5-chunksize',
+                  nargs=1, type="int",
+                  dest='md5_chunksize', default=SCons.Node.FS.File.hash_chunksize,
+                  action="callback",
+                  help="Set chunk-size for hash signature computation to N kilobytes.",
+                  callback=warn_md5_chunksize_deprecated,
+                  metavar="N")
+
     op.add_option('--hash-format',
                   dest='hash_format',
                   action='store',
-                  help='Hash format (e.g. md5, sha1, or sha256).')
+                  help='Hash format (e.g. md5, sha1, sha256, or blake2b).')
 
     op.add_option('-i', '--ignore-errors',
                   dest='ignore_errors', default=False,
@@ -773,13 +789,6 @@ def Parser(version):
                   dest='max_drift', default=SCons.Node.FS.default_max_drift,
                   action="store",
                   help="Set maximum system clock drift to N seconds.",
-                  metavar="N")
-
-    op.add_option('--md5-chunksize',
-                  nargs=1, type="int",
-                  dest='md5_chunksize', default=SCons.Node.FS.File.hash_chunksize,
-                  action="store",
-                  help="Set chunk-size for hash signature computation to N kilobytes.",
                   metavar="N")
 
     op.add_option('-n', '--no-exec', '--just-print', '--dry-run', '--recon',

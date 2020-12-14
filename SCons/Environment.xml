@@ -1060,24 +1060,24 @@ timestamp, such as can happen when restoring files from backup archives.
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><literal>"MD5"</literal></term>
+<term><literal>"content"</literal></term>
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
-as determined be performing an MD5 checksum
+as determined be performing an checksum
 on the dependency's contents
 and comparing it to the checksum recorded the
 last time the target was built.
-<literal>content</literal>
+<literal>MD5</literal>
 can be used as a synonym for
-<literal>MD5</literal>.
+<literal>content</literal>, but it is deprecated.
 </para>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><literal>"MD5-timestamp"</literal></term>
+<term><literal>"content-timestamp"</literal></term>
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
@@ -1090,7 +1090,7 @@ assumed to be up-to-date and
 rebuilt.
 This provides behavior very similar
 to the
-<literal>MD5</literal>
+<literal>content</literal>
 behavior of always checksumming file contents,
 with an optimization of not checking
 the contents of files whose timestamps haven't changed.
@@ -1103,9 +1103,9 @@ that runs a build,
 updates a file,
 and runs the build again,
 all within a single second.
-<literal>content-timestamp</literal>
+<literal>MD5-timestamp</literal>
 can be used as a synonym for
-<literal>MD5-timestamp</literal>.
+<literal>content-timestamp</literal>, but it is deprecated.
 </para>
 </listitem>
 </varlistentry>

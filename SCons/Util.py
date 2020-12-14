@@ -1500,9 +1500,17 @@ def set_hash_format(hash_format):
     _hash_format = hash_format
     if hash_format:
         hash_format_lower = hash_format.lower()
+        allowed_hash_formats = ['md5', 'sha1', 'sha256', 'blake2b']
+        if hash_format_lower not in allowed_hash_formats:
+            from SCons.Warnings import UserError
+            raise UserError('Hash format "%s" is not supported by SCons. Only '
+                            'the following hash formats are supported.' %
+                            allowed_hash_formats)
+
         _hash_function = getattr(hashlib, hash_format_lower, None)
         if _hash_function is None:
-            raise Exception(
+            from SCons.Warnings import UserError
+            raise UserError(
                 'Hash format "%s" is not available in your Python '
                 'interpreter.' % hash_format_lower)
     else:
@@ -1514,11 +1522,12 @@ def set_hash_format(hash_format):
                 _hash_function = getattr(hashlib, choice)
                 _hash_function()
                 break
-            except Exception:
+            except:
                 pass
         else:
             # This is not expected to happen in practice.
-            raise Exception(
+            from SCons.Warnings import UserError
+            raise UserError(
                 'Your Python interpreter does not have MD5, SHA1, or SHA256. '
                 'SCons requires at least one.')
 
@@ -1526,9 +1535,6 @@ def set_hash_format(hash_format):
 #    1. This code is running in a unit test.
 #    2. This code is running in a consumer that does hash operations while
 #       SConscript files are being loaded.
-# TODO: Should this go somewhere else? Is this unnecessary? Case #1 could be
-# handled in the TestCmd module, but I was worried about breaking people
-# who mischievously calls get_csig() during startup.
 set_hash_format(None)
 
 
@@ -1541,11 +1547,13 @@ def _get_hash_object(hash_format):
     """
     if hash_format is None:
         if _hash_function is None:
-            raise Exception('There is no default hash function. Did you call '
+            from SCons.Errors import UserError
+            raise UserError('There is no default hash function. Did you call '
                             'a hashing function before SCons was initialized?')
         return _hash_function()
     elif not hasattr(hashlib, hash_format):
-        raise Exception(
+        from SCons.Errors import UserError
+        raise UserError(
             'Hash format "%s" is not available in your Python interpreter.' %
             hash_format)
     else:
@@ -1602,10 +1610,27 @@ def hash_collect(signatures, hash_format=None):
         return hash_signature(', '.join(signatures), hash_format)
 
 
+_md5_warning_shown = False
+
+def _show_md5_warning(function_name):
+    """
+    Shows a deprecation warning for various MD5 functions.
+    """
+    global _md5_warning_shown
+
+    if not _md5_warning_shown:
+        import SCons.Warnings
+
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                            "Function %s is deprecated" % function_name)
+        _md5_warning_shown = True
+
+
 def MD5signature(s):
     """
     Deprecated. Use hash_signature instead.
     """
+    _show_md5_warning("MD5signature")
     return hash_signature(s)
 
 
@@ -1613,6 +1638,7 @@ def MD5filesignature(fname, chunksize=65536):
     """
     Deprecated. Use hash_file_signature instead.
     """
+    _show_md5_warning("MD5filesignature")
     return hash_file_signature(fname, chunksize)
 
 
@@ -1620,6 +1646,7 @@ def MD5collect(signatures):
     """
     Deprecated. Use hash_collect instead.
     """
+    _show_md5_warning("MD5collect")
     return hash_collect(signatures)
 
 
