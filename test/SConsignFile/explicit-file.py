@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-"""
-Verify the default behavior of SConsignFile(), called with no arguments.
-"""
+"""Verify the behavior of env.SConsignFile() called with a subst-able path."""
 
 import TestSCons
 
@@ -44,14 +41,15 @@ with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
 
 #
 test.write('SConstruct', """
-e = Environment(XXX = 'scons')
+DefaultEnvironment(tools=[])
+e = Environment(XXX='scons', tools=[])
 e.SConsignFile('my_${XXX}ign')
-B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
-env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'f5.out', source = 'f5.in')
-env.B(target = 'f6.out', source = 'f6.in')
-env.B(target = 'subdir/f7.out', source = 'subdir/f7.in')
-env.B(target = 'subdir/f8.out', source = 'subdir/f8.in')
+B = Builder(action=r'%(_python_)s build.py $TARGETS $SOURCES')
+env = Environment(BUILDERS={'B': B}, tools=[])
+env.B(target='f5.out', source='f5.in')
+env.B(target='f6.out', source='f6.in')
+env.B(target='subdir/f7.out', source='subdir/f7.in')
+env.B(target='subdir/f8.out', source='subdir/f8.in')
 """ % locals())
 
 test.write('f5.in', "f5.in\n")
@@ -70,7 +68,7 @@ test.must_match('f6.out', "f6.in\n")
 test.must_match(['subdir', 'f7.out'], "subdir/f7.in\n")
 test.must_match(['subdir', 'f8.out'], "subdir/f8.in\n")
 
-test.up_to_date(arguments = '.')
+test.up_to_date(arguments='.')
 
 test.must_exist(test.workpath('my_sconsign.dblite'))
 test.must_not_exist(test.workpath('.sconsign'))
