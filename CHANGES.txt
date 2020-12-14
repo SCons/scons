@@ -132,6 +132,9 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
       removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
 
+  From Jason Kenny
+    - Fix python3 crash when Value node get_text_content when child content does not have decode()
+
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support
       for a per-variant cppflags. Intellisense can be affected by cppflags,
