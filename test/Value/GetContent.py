@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 #
-# MIT License
-#
-# Copyright The SCons Foundation
+# __COPYRIGHT__
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,53 +20,31 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify the ability to make a SConsignFile() in a non-existent
-subdirectory.
+Test the Value node as a build target
 """
-
-import os
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-sub_dir = os.path.join('sub', 'dir')
-bar_foo_txt = os.path.join('bar', 'foo.txt')
-
 test.write('SConstruct', """
-import SCons.dblite
-DefaultEnvironment(tools=[])
-env = Environment(tools=[])
-env.SConsignFile("sub/dir/sconsign", SCons.dblite)
-env.Install('bar', 'foo.txt')
+import SCons.Script
+def null_build(target, source, env):
+    pass
+env = DefaultEnvironment()
+env['BUILDERS']['ValueBuilder'] =  SCons.Builder.Builder(
+    action=SCons.Action.Action(null_build),
+    target_factory=SCons.Node.Python.Value,    
+)    
+v = env.ValueBuilder("myvalue",env.Dir("#"))
+v[0].get_text_contents()
 """)
 
-test.write('foo.txt', "Foo\n")
-expect = test.wrap_stdout(
-    read_str='Mkdir("%s")\n' % sub_dir,
-    build_str='Install file: "foo.txt" as "%s"\n' % bar_foo_txt,
-)
-
-test.run(options='-n', stdout=expect)
-
-test.must_not_exist(['bar', 'foo.txt'])
-
-test.must_not_exist('sub')
-test.must_not_exist(['sub', 'dir'])
-test.must_not_exist(['sub', 'dir', '.sconsign.dblite'])
-
-test.run(stdout=expect)
-
-test.must_match(['bar', 'foo.txt'], "Foo\n")
-
-test.must_exist(['sub', 'dir', 'sconsign.dblite'])
-
+test.run()
 test.pass_test()
 
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

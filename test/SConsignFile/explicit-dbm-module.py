@@ -23,9 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Verify SConsignFile() when used with dbhash.
-"""
+"""Verify SConsignFile() when used with explicit SCons.dblite."""
 
 import TestSCons
 
@@ -33,11 +31,7 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-try:
-    import dbm.bsd
-    use_dbm = 'dbm.bsd'
-except ImportError:
-    test.skip_test('No dbm.bsd in this version of Python; skipping test.\n')
+use_db = 'SCons.dblite'
 
 test.subdir('subdir')
 
@@ -48,17 +42,16 @@ with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
 sys.exit(0)
 """)
 
-#
 test.write('SConstruct', """
-import %(use_dbm)s
-SConsignFile('.sconsign', %(use_dbm)s)
+import %(use_db)s
+SConsignFile(dbm_module=%(use_db)s)
 DefaultEnvironment(tools=[])
-B = Builder(action = r'%(_python_)s build.py $TARGETS $SOURCES')
+B = Builder(action=r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS={'B': B}, tools=[])
-env.B(target = 'f1.out', source = 'f1.in')
-env.B(target = 'f2.out', source = 'f2.in')
-env.B(target = 'subdir/f3.out', source = 'subdir/f3.in')
-env.B(target = 'subdir/f4.out', source = 'subdir/f4.in')
+env.B(target='f1.out', source='f1.in')
+env.B(target='f2.out', source='f2.in')
+env.B(target='subdir/f3.out', source='subdir/f3.in')
+env.B(target='subdir/f4.out', source='subdir/f4.in')
 """ % locals())
 
 test.write('f1.in', "f1.in\n")
@@ -68,22 +61,20 @@ test.write(['subdir', 'f4.in'], "subdir/f4.in\n")
 
 test.run()
 
-test.must_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('.sconsign.dblite'))
+test.must_exist(test.workpath('.sconsign.dblite'))
+test.must_not_exist(test.workpath('.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
-  
+
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
 test.must_match(['subdir', 'f3.out'], "subdir/f3.in\n")
 test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
-test.up_to_date(arguments = '.')
+test.up_to_date(arguments='.')
 
-test.must_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('.sconsign.dblite'))
+test.must_exist(test.workpath('.sconsign.dblite'))
+test.must_not_exist(test.workpath('.sconsign'))
 test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
 
 test.pass_test()
 

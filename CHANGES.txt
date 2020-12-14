@@ -42,6 +42,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       hash format that SCons uses. It can also be set via SetOption('hash_format'). Supported
       values include md5, sha1, and sha256, but you can also use any other algorithm that is
       offered by your Python interpreter's hashlib package.
+    - Fix incorrect cache hits and/or misses when running in interactive mode by having
+      SCons.Node.Node.clear() clear out all caching-related state.
+
+  From Jason Kenny
+    - Fix python3 crash when Value node get_text_content when child content does not have decode()
+      NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's
+      children. This may break your code. It now concatenates the csig() of all children.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
@@ -54,6 +61,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
     - Fix issue where java parsed a class incorrectly from lambdas used after a new.
+
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
 
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
@@ -93,15 +107,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       special-case Windows here. dblite is the default storage engine for the SConsign file(s).
     - Fix cut-n-paste error in msvc debug printout and make some debug output
       in msvs and msvsTests.py be off until needed (uncomment to use)
-
-  From Simon Tegelid
-    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
-      with an action list like this:
-      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
-      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
-      in the action list.
-
-
+    - Fix Issue #3014 - Empty file and missing file have same csig
 
 
 
@@ -134,6 +140,7 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
     - Updated documentation toolchain to work properly under Python3, also
       removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
+
 
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support

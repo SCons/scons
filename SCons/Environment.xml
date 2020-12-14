@@ -2743,58 +2743,76 @@ SConscript('bar/SConscript')	# will chdir to bar
 
 <scons_function name="SConsignFile">
 <arguments>
-([file, dbm_module])
+([name, dbm_module])
 </arguments>
 <summary>
 <para>
-This tells
-&scons;
-to store all file signatures
-in the specified database
-<parameter>file</parameter>.
-If the
-<parameter>file</parameter>
-name is omitted,
-<filename>.sconsign</filename>
-is used by default.
-(The actual file name(s) stored on disk
-may have an appropriated suffix appended
-by the
-<parameter>dbm_module</parameter>.)
-If
-<parameter>file</parameter>
-is not an absolute path name,
-the file is placed in the same directory as the top-level
-&SConstruct;
-file.
+Specify where to store the &SCons; file signature database,
+and which database format to use.
+This may be useful to specify alternate
+database files and/or file locations for different types of builds.
 </para>
-
+<para>
+The optional <parameter>name</parameter> argument
+is the base name of the database file(s).
+If not an absolute path name,
+these are placed relative to the directory containing the
+top-level &SConstruct; file.
+The default is
+<filename>.sconsign</filename>.
+The actual database file(s) stored on disk
+may have an appropriate suffix appended
+by the chosen
+<parameter>dbm_module</parameter>
+</para>
+<para>
+The optional <parameter>dbm_module</parameter>
+argument specifies which
+Python database module to use
+for reading/writing the file.
+The module must be imported first;
+then the imported module name
+is passed as the argument.
+The default is a custom
+<systemitem>SCons.dblite</systemitem>
+module that uses pickled
+Python data structures,
+which works on all Python versions.
+See documentation of the Python
+<systemitem>dbm</systemitem> module
+for other available types.
+</para>
+<para>
+If called with no arguments,
+the database will default to
+<filename>.sconsign.dblite</filename>
+in the top directory of the project,
+which is also the default if
+if &f-SConsignFile; is not called.
+</para>
+<para>
+The setting is global, so the only difference
+between the global function and the environment method form
+is variable expansion on <parameter>name</parameter>.
+There should only be one active call to this
+function/method in a given build setup.
+</para>
 <para>
 If
-<parameter>file</parameter>
-is
+<parameter>name</parameter>
+is set to
 <constant>None</constant>,
-then
 &scons;
 will store file signatures
 in a separate
 <filename>.sconsign</filename>
 file in each directory,
-not in one global database file.
-(This was the default behavior
-prior to SCons 0.96.91 and 0.97.)
-</para>
-
-<para>
-The optional
-<parameter>dbm_module</parameter>
-argument can be used to specify
-which Python database module
-The default is to use a custom
-<filename>SCons.dblite</filename>
-module that uses pickled
-Python data structures,
-and which works on all Python versions.
+not in a single combined database file.
+This is a backwards-compatibility meaure to support
+what was the default behavior
+prior to &SCons; 0.97 (i.e. before 2008).
+Use of this mode is discouraged and may be
+deprecated in a future &SCons; release.
 </para>
 
 <para>
@@ -2803,20 +2821,25 @@ Examples:
 
 <example_commands>
 # Explicitly stores signatures in ".sconsign.dblite"
-# in the top-level SConstruct directory (the
-# default behavior).
+# in the top-level SConstruct directory (the default behavior).
 SConsignFile()
 
 # Stores signatures in the file "etc/scons-signatures"
 # relative to the top-level SConstruct directory.
+# SCons will add a database suffix to this name.
 SConsignFile("etc/scons-signatures")
 
 # Stores signatures in the specified absolute file name.
+# SCons will add a database suffix to this name.
 SConsignFile("/home/me/SCons/signatures")
 
 # Stores signatures in a separate .sconsign file
 # in each directory.
 SConsignFile(None)
+
+# Stores signatures in a GNU dbm format .sconsign file
+import dbm.gnu
+SConsignFile(dbm_module=dbm.gnu)
 </example_commands>
 </summary>
 </scons_function>
