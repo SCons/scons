@@ -1519,12 +1519,9 @@ def set_hash_format(hash_format):
         # to md5 for backwards compatibility.
         choices = ['md5', 'sha1', 'sha256']
         for choice in choices:
-            try:
-                _hash_function = getattr(hashlib, choice)
-                _hash_function()
+            _hash_function = getattr(hashlib, choice, None)
+            if _hash_function is not None:
                 break
-            except:
-                pass
         else:
             # This is not expected to happen in practice.
             from SCons.Errors import UserError
