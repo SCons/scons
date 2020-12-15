@@ -1125,7 +1125,7 @@ the help message not to be displayed.
 This value determines the hashing algorithm used in generating content signatures
 or &f-link-CacheDir; keys.</para>
 
-<para>The supported list of values are: md5, sha1, sha256, and blake2b.
+<para>The supported list of values are: md5, sha1, and sha256.
 However, the Python interpreter used to run SCons must have the corresponding
 support available in hashlib to use the specified algorithm.</para>
   </listitem>

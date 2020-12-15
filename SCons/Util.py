@@ -1500,16 +1500,17 @@ def set_hash_format(hash_format):
     _hash_format = hash_format
     if hash_format:
         hash_format_lower = hash_format.lower()
-        allowed_hash_formats = ['md5', 'sha1', 'sha256', 'blake2b']
+        allowed_hash_formats = ['md5', 'sha1', 'sha256']
         if hash_format_lower not in allowed_hash_formats:
-            from SCons.Warnings import UserError
+            from SCons.Errors import UserError
             raise UserError('Hash format "%s" is not supported by SCons. Only '
-                            'the following hash formats are supported.' %
-                            allowed_hash_formats)
+                            'the following hash formats are supported: %s' %
+                            (hash_format_lower,
+                             ', '.join(allowed_hash_formats)))
 
         _hash_function = getattr(hashlib, hash_format_lower, None)
         if _hash_function is None:
-            from SCons.Warnings import UserError
+            from SCons.Errors import UserError
             raise UserError(
                 'Hash format "%s" is not available in your Python '
                 'interpreter.' % hash_format_lower)
@@ -1526,7 +1527,7 @@ def set_hash_format(hash_format):
                 pass
         else:
             # This is not expected to happen in practice.
-            from SCons.Warnings import UserError
+            from SCons.Errors import UserError
             raise UserError(
                 'Your Python interpreter does not have MD5, SHA1, or SHA256. '
                 'SCons requires at least one.')

@@ -21,7 +21,7 @@ def VerifyCsig():
         assert csig == 'efe5c6daa743540e9561934e3e18628b336013f7', csig
     elif hash_format == 'sha256':
         assert csig == 'a28bb79aa5ca8a5eb2dc5910a103d1a6312e79d73ed8054787cee78cc532a6aa', csig
-    else:
+    elif hash_format != 'testfailure':
         raise Exception('Hash format %s is not supported in '
                         'test/option/hash-format/SConstruct' % hash_format)
 atexit.register(VerifyCsig)

@@ -29,19 +29,26 @@ import os
 import TestSCons
 
 # Test passing the hash format by command-line.
-for algorithm in ['md5', 'sha1', 'sha256', 'blake2b', None]:
+INVALID_ALGORITHM = 'testfailure'
+for algorithm in ['md5', 'sha1', 'sha256', INVALID_ALGORITHM, None]:
     test = TestSCons.TestSCons()
     test.dir_fixture('hash-format')
 
-    if algorithm is not None:
+    if algorithm == INVALID_ALGORITHM:
+        # Expect failure due to an unsupported/invalid algorithm.
+        test.run('--hash-format=%s .' % algorithm, stderr=r"""
+scons: \*\*\* Hash format "{}" is not supported by SCons. Only the following hash formats are supported: md5, sha1, sha256
+File "[^"]+", line \d+, in \S+
+""".format(algorithm), status=2, match=TestSCons.match_re)
+        continue
+    elif algorithm is not None:
         # Skip any algorithm that the Python interpreter doesn't have.
         if hasattr(hashlib, algorithm):
             expected_dblite = test.workpath('.sconsign_%s.dblite' % algorithm)
             test.run('--hash-format=%s .' % algorithm)
         else:
-            test.skip_test('Skipping test with --hash-format=%s because that '
-                           'algorithm is not available.' % algorithm)
-            continue
+            print('Skipping test with --hash-format=%s because that '
+                  'algorithm is not available.' % algorithm)
     else:
         # The SConsign file in the hash-format folder has logic to call
         # SCons.Util.set_hash_format('sha256') if the default algorithm is
@@ -56,7 +63,15 @@ for algorithm in ['md5', 'sha1', 'sha256', 'blake2b', None]:
     assert os.path.isfile(expected_dblite), \
         "%s does not exist when running algorithm %s" % (expected_dblite,
                                                          algorithm)
-    test.pass_test()
+
+    test.run('-C .')
+    os.unlink(expected_dblite)
+
+# In this case, the SConstruct file will use SetOption to override the hash
+# format.
+test.run()
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

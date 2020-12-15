@@ -729,7 +729,7 @@ def Parser(version):
     op.add_option('--hash-format',
                   dest='hash_format',
                   action='store',
-                  help='Hash format (e.g. md5, sha1, sha256, or blake2b).')
+                  help='Hash format (e.g. md5, sha1, or sha256).')
 
     op.add_option('-i', '--ignore-errors',
                   dest='ignore_errors', default=False,
