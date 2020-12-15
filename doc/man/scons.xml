@@ -102,35 +102,49 @@ orchestrates the construction of software
 (and other tangible products such as documentation files)
 by determining which
 component pieces must be built or rebuilt and invoking the necessary
-commands to build them.</para>
+commands to build them.
+&SCons; offers many features to improve developer productivity
+such as parallel builds, caching of build artefacts, and
+a database of information about previous builds so details do
+not have to be recalculated each run.
+</para>
 
-<para>You instruct
-&scons; by writing a configuration file
-which specifies the files to be built (<firstterm>targets</firstterm>),
-and, if necessary, the rules to build those files.  Premade
-rules exist for building many common software components
+<para>You set up an &SCons;
+build system by writing a configuration file
+that describes things to build (<firstterm>targets</firstterm>), and,
+if necessary, the rules to build those files (<firstterm>actions</firstterm>).
+&SCons; comes with a collection of <firstterm>Builder</firstterm> methods
+which apply premade rules for building many common software components
 such as executable programs, object files and libraries,
 so that for many software projects,
-only the target and input files (<firstterm>sources</firstterm>)
-need be specified.</para>
+only the targets and input files (<firstterm>sources</firstterm>)
+need be specified in a call to a builder.
+&scons; thus can operate at a level of abstraction above that of pure files.
+For example if you specify a library target named "foo",
+&scons; keeps track of the actual operating system dependent filename
+(for example <filename>libfoo.so</filename> on a GNU/Linux system),
+and how to refer to that library in later construction steps
+that want to use it, so you don't have to specify that precise
+information yourself.
+&scons; can also scan automatically for dependency information,
+such as header files included by source code files,
+so this does not have to be specified manually.
+</para>
 
 <para>
 When invoked, &scons;
-searches for a file named
+looks for a file named
 &SConstruct;
-(it also checks alternate spellings
-&Sconstruct;, &sconstruct;, &SConstruct.py;, &Sconstruct.py;
-and &sconstruct.py;
-in that order) in the current directory and reads its
-configuration from that file.
-An alternate file name may be
-specified via the
-<option>-f</option>
-option.
+in the current directory and reads the
+build configuration from that file
+(other names are possible,
+see <xref linkend="configuration_files"/> for more information).
+An &SConstruct; file is required:
+&scons; will quit if it does not find one.
 The &SConstruct;
-file can specify subsidiary
+file may specify subsidiary
 configuration files by calling the
-&SConscriptFunc; function.
+&f-link-SConscript; function.
 By convention,
 these subsidiary files are named
 &SConscript;,
@@ -156,9 +170,10 @@ finds to the Python module search path (<varname>sys.path</varname>),
 thus allowing modules in such directories to be imported in
 the normal Python way in SConscript files.
 For each found site directory,
-if it contains a file <filename>site_init.py</filename>
-it is evaluated, and if it contains a directory
-<filename>site_tools</filename> the path to it
+(1) if it contains a file <filename>site_init.py</filename>
+that file is evaluated,
+and (2) if it contains a directory
+<filename>site_tools</filename> the path to that directory
 is prepended to the default toolpath.
 See the
 <option>--site-dir</option>
@@ -169,18 +184,24 @@ controlling the site directories.
 </para>
 
 <para>
-&scons; configuration files are written in the
+SConscript files are written in the
 <firstterm>Python</firstterm> programming language,
 although it is normally not necessary to be a Python
 programmer to use &scons; effectively.
+SConscript files are invoked in a context that makes
+the facilities described in this manual page available
+in their local namespace without any special steps.
 Standard Python scripting capabilities
 such as flow control, data manipulation, and imported Python libraries
 are available to use to handle complicated build situations.
+Other Python files can be made a part of the build system,
+but they do not automatically have the &SCons; context and
+need to import it if they need access (described later).
 </para>
 
 <para>
 &scons;
-reads and executes all of the SConscript files
+reads and executes all of the included SConscript files
 <emphasis>before</emphasis>
 it begins building any targets.
 To make this clear,
@@ -344,7 +365,7 @@ If there are no targets from the previous steps,
 &scons; selects the current directory for scanning,
 unless command-line options which affect the target
 scan are detected (<option>-C</option>,
-<option>-d</option>, <option>-u</option>, <option>-U</option>).
+<option>-D</option>, <option>-u</option>, <option>-U</option>).
 Since targets thus selected were not the result of
 user instructions, this target list is not made available
 for direct inspection; use the <option>--debug=explain</option>
@@ -2156,8 +2177,57 @@ repositories are searched in the order specified.</para>
 
 <refsect1 id='configuration_file_reference'>
 <title>CONFIGURATION FILE REFERENCE</title>
-<!--  .SS Python Basics -->
-<!--  XXX Adding this in the future would be a help. -->
+
+<refsect2 id='configuration_files'>
+<title>Configuration Files</title>
+<para>
+The build configuration consists of one or more configuration files
+(SConscript files).
+The main file is named <filename>SConstruct</filename> by
+default, though if necessary, &scons; also checks for alternate spellings
+&Sconstruct;, &sconstruct;, &SConstruct.py;, &Sconstruct.py;
+and &sconstruct.py;
+in that order.
+An alternate file name (including a path to another
+directory) may be specified via the <option>-f</option> option.
+Except for the main file,
+these files are not searched for automatically by &scons; -
+additional configuration files are added to the build
+through calls to the &f-link-SConscript; function.
+This allows parts of the build to be conditionally
+included or excluded at run-time depending on how &scons; is invoked.
+</para>
+
+<para>
+Each SConscript file in a build configuration is invoked
+independently in a separate context.
+This provides necessary isolation so that different parts of
+the build don't accidentally step on each other.
+You have to be explicit about sharing information,
+by using the &f-link-Export; function or the &exports; argument
+to the &SConscript; function, as well as the &f-link-Return; function
+in a called SConscript file, and comsume shared information by using the
+&f-link-Import; function.
+</para>
+
+<para>
+The following sections describe the various &SCons; facilities
+that can be used in SConscript files.  Quick links:
+</para>
+
+<simplelist type="vert">
+  <member><link linkend='construction_environments'>Construction Environments</link></member>
+  <member><link linkend='tools'>Tools</link></member>
+  <member><link linkend='builder_methods'>Builder Methods</link></member>
+  <member><link linkend='methods_and_functions_to_do_things'>Methods and Functions to do Things</link></member>
+  <member><link linkend='sconscript_variables'>SConscript Variables</link></member>
+  <member><link linkend='construction_variables'>Construction Variables</link></member>
+  <member><link linkend='configure_contexts'>Configure Contexts</link></member>
+  <member><link linkend='commandline_construction_variables'>Command-Line Construction Variables</link></member>
+  <member><link linkend='node_objects'>Node Objects</link></member>
+</simplelist>
+
+</refsect2>
 
 <refsect2 id='construction_environments'>
 <title>Construction Environments</title>
@@ -3351,12 +3421,11 @@ from SCons.Script import *
 <para>A &consenv; has an associated dictionary of
 <firstterm>&consvars;</firstterm>
 that are used by built-in or user-supplied build rules.
-&Consvar; naming must follow the same rules as for
+&Consvar; naming must follow the same rules as used for
 Python identifiers:
 the initial character must be an underscore or letter,
-followed by any number of underscores, letters, or digits.</para>
-
-<para>A &consenv; is not a Python dictionary,
+followed by any number of underscores, letters, or digits.
+A &consenv; is not a Python dictionary itself,
 but it can be indexed like one to access a
 &consvar;:</para>
 
