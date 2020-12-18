@@ -59,8 +59,8 @@ jobs:
       dist: bionic  # required for Python >= 3.8
 
     - <<: *test_job
-      python: 3.9-dev
-      dist: bionic  # required for Python >= 3.8
+      python: 3.9
+      dist: focal  # required for Python >= 3.8
 
     - &coverage_jobs
       dist: bionic
