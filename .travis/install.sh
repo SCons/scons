@@ -50,11 +50,13 @@ else
 #    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
 
     # dependencies for ldc tests
-    export SCONS_LDC_VERSION=1.21.0
-    wget https://github.com/ldc-developers/ldc/releases/download/v${SCONS_LDC_VERSION}/ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
-#    wget https://github.com/ldc-developers/ldc/releases/download/v1.15.0/ldc2-1.15.0-linux-x86_64.tar.xz
-    tar xf ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
-    sudo cp -rf ldc2-${SCONS_LDC_VERSION}-linux-x86_64/* /
+    # this install method basically worked until 20.04, though a little messy.
+    # rather than further tweaking, replace it with the recommended snap install
+    #export SCONS_LDC_VERSION=1.21.0
+    #wget https://github.com/ldc-developers/ldc/releases/download/v${SCONS_LDC_VERSION}/ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
+    #tar xf ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
+    #sudo cp -rf ldc2-${SCONS_LDC_VERSION}-linux-x86_64/* /
+    sudo snap install ldc2 --classic
 
     # Failing.. ?
 #    ls -l /usr/lib*/*python*{so,a}*
