@@ -108,7 +108,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix Issue #3014 - Empty file and missing file have same csig
     - Refactor env.Append/Prepend to remove Py 1.5 era need to nest
       try blocks, can now "continue" at the appropriate places.
-
+    - Add /snap/bin to env['PATH'] on POSIX, although this is only
+      really useful for a subset of POSIX systems that use snaps.
+      Was needed for CI builds, which run on Ubuntu LTS images.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
