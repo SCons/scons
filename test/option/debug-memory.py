@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,8 +23,6 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 """
 Test that the --debug=memory option works.
 """
@@ -31,19 +30,16 @@ Test that the --debug=memory option works.
 import re
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
-try:
-    import resource
-except ImportError:
+if not IS_WINDOWS:
     try:
-        import win32process
-        import win32api
+        import resource  # noqa: F401
     except ImportError:
-        x = "Python version has no 'resource' or 'win32api/win32process' module; skipping tests.\n"
+        x = "Python version has no 'resource' skipping tests.\n"
         test.skip_test(x)
-
 
 
 test.write('SConstruct', """

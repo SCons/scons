@@ -81,7 +81,7 @@
   if you only need to execute one specific command
   to build a single file (or group of files).
   For these situations, &SCons; supports a
-  &Command; &Builder; that arranges
+  &f-link-Command; builder that arranges
   for a specific action to be executed
   to build a specific file or files.
   This looks a lot like the other builders
@@ -119,7 +119,7 @@ foo.in
   This is often more convenient than
   creating a &Builder; object
   and adding it to the &cv-link-BUILDERS; variable
-  of a &consenv;
+  of a &consenv;.
 
   </para>
 
@@ -134,9 +134,11 @@ foo.in
   <scons_example name="builderscommands_ex2">
      <file name="SConstruct" printme="1">
 env = Environment()
+
 def build(target, source, env):
     # Whatever it takes to build
     return None
+
 env.Command('foo.out', 'foo.in', build)
      </file>
      <file name="foo.in">
@@ -157,8 +159,7 @@ foo.in
   <para>
 
   Note that &cv-link-SOURCE; and &cv-link-TARGET; are expanded 
-  in the source and target as well as of SCons 1.1,
-  so you can write:
+  in the source and target as well, so you can write:
 
   </para>
 
@@ -168,7 +169,6 @@ env.Command('${SOURCE.basename}.out', 'foo.in', build)
      </file>
   </scons_example>
 
-
   <para>
 
   which does the same thing as the previous example, but allows you
@@ -176,5 +176,61 @@ env.Command('${SOURCE.basename}.out', 'foo.in', build)
 
   </para>
 
+  <para>
+
+  It may be helpful to use the <parameter>action</parameter>
+  keyword to specify the action, is this makes things more clear
+  to the reader:
+
+  </para>
+
+  <scons_example name="builderscommands_ex4">
+     <file name="SConstruct" printme="1">
+env.Command('${SOURCE.basename}.out', 'foo.in', action=build)
+     </file>
+  </scons_example>
+
+  <para>
+
+  The method described in
+  <xref linkend="sect-controlling-build-output"/> for controlling
+  build output works well when used with pre-defined builders which
+  have pre-defined <literal>*COMSTR</literal> variables for that purpose,
+  but that is not the case when calling &f-Command;,
+  where &SCons; has no specific knowledge of the action ahead of time.
+  If the action argument to &f-Command; is not already an &Action; object,
+  it will construct one for you with suitable defaults,
+  which include a message based on the type of action.
+  However, you can also construct the &Action; object yourself
+  to pass to &f-Command;, which gives you much more control.
+  Here's an evolution of the example from above showing this approach:
+
+  </para>
+
+  <scons_example name="builderscommands_ex5">
+     <file name="SConstruct" printme="1">
+env = Environment()
+
+def build(target, source, env):
+    # Whatever it takes to build
+    return None
+
+act = Action(build, cmdstr="Building ${TARGET}")
+env.Command('foo.out', 'foo.in', action=act)
+     </file>
+     <file name="foo.in">
+foo.in
+     </file>
+  </scons_example>
+
+  <para>
+
+  Which executes as follows:
+
+  </para>
+
+  <scons_output example="builderscommands_ex5" suffix="1">
+    <scons_output_command>scons -Q</scons_output_command>
+  </scons_output>
 
 </chapter>

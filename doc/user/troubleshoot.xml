@@ -69,8 +69,8 @@
   odds are pretty good that someone else will run into
   the same problem, too.
   If so, please let the SCons development team know
-  (preferably by filing a bug report
-  or feature request at our project pages at tigris.org)
+  using the contact information at
+  <ulink url="https://scons.org/contact.html"/>
   so that we can use your feedback
   to try to come up with a better way to help you,
   and others, get the necessary insight into &SCons; behavior

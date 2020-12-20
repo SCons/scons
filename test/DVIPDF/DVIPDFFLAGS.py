@@ -122,7 +122,7 @@ subprocess.run(cmd, shell=True)
     test.write('SConstruct', """
 import os
 ENV = {'PATH' : os.environ['PATH']}
-foo = Environment(DVIPDFFLAGS = '-N', ENV = ENV)
+foo = Environment(DVIPDFFLAGS = '-R2', ENV = ENV)
 dvipdf = foo.Dictionary('DVIPDF')
 bar = Environment(DVIPDF = r'%(_python_)s wrapper.py ' + dvipdf, ENV = ENV)
 foo.PDF(target = 'foo.pdf',

@@ -379,7 +379,7 @@ environment, of directory names, suffixes, etc.
     </varlistentry>
 
     <varlistentry>
-    <term>&ConsEnv;</term>
+    <term>Construction Environment</term>
 
     <listitem>
     <para>

@@ -1,34 +1,6 @@
-"""SCons.Variables.PackageVariable
-
-This file defines the option type for SCons implementing 'package
-activation'.
-
-To be used whenever a 'package' may be enabled/disabled and the
-package path may be specified.
-
-Usage example:
-
-  Examples:
-      x11=no   (disables X11 support)
-      x11=yes  (will search for the package installation dir)
-      x11=/usr/local/X11 (will check this path for existence)
-
-  To replace autoconf's --with-xxx=yyy ::
-
-      opts = Variables()
-      opts.Add(PackageVariable('x11',
-                             'use X11 installed here (yes = search some places',
-                             'yes'))
-      ...
-      if env['x11'] == True:
-          dir = ... search X11 in some standard places ...
-          env['x11'] = dir
-      if env['x11']:
-          ... build with x11 ...
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -48,9 +20,35 @@ Usage example:
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Option type for package Variables.
+
+This file defines the option type for SCons implementing 'package activation'.
+
+To be used whenever a 'package' may be enabled/disabled and the
+package path may be specified.
+
+Usage example:
+
+  Examples:
+      x11=no   (disables X11 support)
+      x11=yes  (will search for the package installation dir)
+      x11=/usr/local/X11 (will check this path for existence)
+
+  To replace autoconf's --with-xxx=yyy ::
+
+
+      opts = Variables()
+      opts.Add(PackageVariable('x11',
+                             'use X11 installed here (yes = search some places',
+                             'yes'))
+      ...
+      if env['x11'] == True:
+          dir = ... search X11 in some standard places ...
+          env['x11'] = dir
+      if env['x11']:
+          ... build with x11 ...
+"""
 
 __all__ = ['PackageVariable',]
 

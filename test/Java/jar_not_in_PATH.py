@@ -29,7 +29,6 @@ Ensures that the Tool gets initialized, even when jar is not directly
 found via the PATH variable (issue #2730).
 """
 
-import os
 
 import TestSCons
 

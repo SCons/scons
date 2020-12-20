@@ -48,8 +48,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons
 
-import os
-import re
 
 from SCons.Node import Node
 from SCons.Node.Python import Value
@@ -76,8 +74,8 @@ def _do_subst(node, subs):
     if 'b' in TEXTFILE_FILE_WRITE_MODE:
         try:
             contents = bytearray(contents, 'utf-8')
-        except UnicodeDecodeError:
-            # contents is already utf-8 encoded python 2 str i.e. a byte array
+        except TypeError:
+            # TODO: this should not happen, get_text_contents returns text
             contents = bytearray(contents)
 
     return contents

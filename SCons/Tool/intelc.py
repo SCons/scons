@@ -32,7 +32,11 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import math, sys, os.path, glob, string, re
+import glob
+import math
+import os.path
+import re
+import sys
 
 is_windows = sys.platform == 'win32'
 is_win64 = is_windows and (os.environ['PROCESSOR_ARCHITECTURE'] == 'AMD64' or

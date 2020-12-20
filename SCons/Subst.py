@@ -1,11 +1,6 @@
-"""SCons.Subst
-
-SCons string substitution.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,7 +21,7 @@ SCons string substitution.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons string substitution."""
 
 import collections
 import re
@@ -36,17 +31,19 @@ import SCons.Errors
 from SCons.Util import is_String, is_Sequence
 
 # Indexed by the SUBST_* constants below.
-_strconv = [SCons.Util.to_String_for_subst,
-            SCons.Util.to_String_for_subst,
-            SCons.Util.to_String_for_signature]
-
-
+_strconv = [
+    SCons.Util.to_String_for_subst,
+    SCons.Util.to_String_for_subst,
+    SCons.Util.to_String_for_signature,
+]
 
 AllowableExceptions = (IndexError, NameError)
+
 
 def SetAllowableExceptions(*excepts):
     global AllowableExceptions
     AllowableExceptions = [_f for _f in excepts if _f]
+
 
 def raise_exception(exception, target, s):
     name = exception.__class__.__name__
@@ -55,7 +52,6 @@ def raise_exception(exception, target, s):
         raise SCons.Errors.BuildError(target[0], msg)
     else:
         raise SCons.Errors.UserError(msg)
-
 
 
 class Literal:

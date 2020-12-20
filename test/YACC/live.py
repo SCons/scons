@@ -29,8 +29,6 @@ Test YACC and YACCFLAGS with a live yacc compiler.
 """
 
 import TestSCons
-import sys
-import os
 
 _exe = TestSCons._exe
 _python_ = TestSCons._python_

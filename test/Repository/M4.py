@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that $M4 and $M4FLAGS work with repositories.
 """
 
-import os
 
 import TestSCons
 

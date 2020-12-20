@@ -29,7 +29,6 @@ Verify substition of the $TARGET string in progress output, including
 overwriting it by setting the overwrite= keyword argument.
 """
 
-import os
 
 import TestSCons
 

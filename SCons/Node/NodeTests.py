@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import SCons.compat
 
 import collections
-import os
 import re
-import sys
 import unittest
 
 import SCons.Errors
@@ -1300,6 +1297,7 @@ class NodeTestCase(unittest.TestCase):
         n.includes = 'testincludes'
         n.Tag('found_includes', {'testkey':'testvalue'})
         n.implicit = 'testimplicit'
+        n.cached = 1
 
         x = MyExecutor()
         n.set_executor(x)
@@ -1307,6 +1305,7 @@ class NodeTestCase(unittest.TestCase):
         n.clear()
 
         assert n.includes is None, n.includes
+        assert n.cached == 0, n.cached
         assert x.cleaned_up
 
     def test_get_subst_proxy(self):

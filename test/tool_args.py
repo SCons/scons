@@ -29,7 +29,6 @@ Test the ability to pass a dictionary of keyword arguments to
 a Tool specification's generate() method.
 """
 
-import os.path
 
 import TestSCons
 

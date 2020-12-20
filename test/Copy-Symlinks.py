@@ -29,8 +29,6 @@ Verify that the Copy() Action symlink soft-copy support works.
 """
 
 import os
-import stat
-import sys
 import TestSCons
 
 import SCons.Defaults

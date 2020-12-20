@@ -143,7 +143,6 @@ except:
     # the test framework
     test.skip_test('Throwing no result for this test because of bug ' +
         'related here: https://github.com/SCons/scons/issues/2907\n')
-    pass
 #test.must_exist(['java', 'classes', 'foopack', 'foopack.class'])
 #test.must_exist(['java', 'classes', 'foopack', 'foopackJNI.class'])
 test.must_exist(['java', 'classes', 'foopack.class'])

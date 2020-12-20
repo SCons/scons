@@ -1,21 +1,6 @@
-"""SCons.Variables.EnumVariable
-
-This file defines the option type for SCons allowing only specified
-input-values.
-
-Usage example::
-
-    opts = Variables()
-    opts.Add(EnumVariable('debug', 'debug output and symbols', 'no',
-                      allowed_values=('yes', 'no', 'full'),
-                      map={}, ignorecase=2))
-    ...
-    if env['debug'] == 'full':
-    ...
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -35,9 +20,30 @@ Usage example::
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Option type for enumeration Variables.
+
+This file defines the option type for SCons allowing only specified
+input-values.
+
+Usage example::
+
+    opts = Variables()
+    opts.Add(
+        EnumVariable(
+            'debug',
+            'debug output and symbols',
+            'no',
+            allowed_values=('yes', 'no', 'full'),
+            map={},
+            ignorecase=2,
+        )
+    )
+    ...
+    if env['debug'] == 'full':
+    ...
+"""
+
 
 __all__ = ['EnumVariable',]
 

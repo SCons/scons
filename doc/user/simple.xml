@@ -459,7 +459,7 @@ int main() { printf("Goodbye, world!\n"); }
      we see the output from calling the <function>print</function>
      function in between the messages about
      reading the &SConscript; files,
-     indicating that that is when the
+     indicating that is when the
      Python statements are being executed:
 
      </para>

@@ -32,7 +32,6 @@ rare no-md5 Pythons comes into play (some entities ban the use
 of md5 as unsafe, although SCons does not use it in a security context.
 """
 
-import sys
 import os
 
 import TestSCons

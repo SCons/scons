@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,17 +20,13 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Handle lists of directory paths.
 
-__doc__ = """SCons.PathList
-
-A module for handling lists of directory paths (the sort of things
-that get set as CPPPATH, LIBPATH, etc.) with as much caching of data and
-efficiency as we can, while still keeping the evaluation delayed so that we
-Do the Right Thing (almost) regardless of how the variable is specified.
-
+These are the path lists that get set as CPPPATH, LIBPATH,
+etc.) with as much caching of data and efficiency as we can, while
+still keeping the evaluation delayed so that we Do the Right Thing
+(almost) regardless of how the variable is specified.
 """
 
 import os

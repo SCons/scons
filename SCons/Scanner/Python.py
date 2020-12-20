@@ -1,18 +1,6 @@
-"""SCons.Scanner.Python
-
-This module implements the dependency scanner for Python code.
-
-One important note about the design is that this does not take any dependencies
-upon packages or binaries in the Python installation unless they are listed in
-PYTHONPATH. To do otherwise would have required code to determine where the
-Python installation is, which is outside of the scope of a scanner like this.
-If consumers want to pick up dependencies upon these packages, they must put
-those directories in PYTHONPATH.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,9 +20,17 @@ those directories in PYTHONPATH.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Dependency scanner for Python code.
+
+One important note about the design is that this does not take any dependencies
+upon packages or binaries in the Python installation unless they are listed in
+PYTHONPATH. To do otherwise would have required code to determine where the
+Python installation is, which is outside of the scope of a scanner like this.
+If consumers want to pick up dependencies upon these packages, they must put
+those directories in PYTHONPATH.
+
+"""
 
 import itertools
 import os
@@ -55,8 +51,7 @@ def path_function(env, dir=None, target=None, source=None, argument=None):
 
 
 def find_include_names(node):
-    """
-    Scans the node for all imports.
+    """Scans the node for all imports.
 
     Returns a list of tuples. Each tuple has two elements:
         1. The main import (e.g. module, module.file, module.module2)

@@ -28,8 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that multiple target files get retrieved from a CacheDir correctly.
 """
 
-import os.path
-import shutil
 
 import TestSCons
 

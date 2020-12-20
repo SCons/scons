@@ -184,13 +184,16 @@ class Tool:
             if debug: sys.stderr.write("Spec Found? .%s :%s\n" % (self.name, spec))
 
         if spec is None:
-            error_string = "No module named %s" % self.name
-            raise SCons.Errors.SConsEnvironmentError(error_string)
+            sconstools = os.path.normpath(sys.modules['SCons.Tool'].__path__[0])
+            if self.toolpath:
+                sconstools = ", ".join(self.toolpath) + ", " + sconstools
+            error_string = "No tool module '%s' found in %s" % (self.name, sconstools)
+            raise SCons.Errors.UserError(error_string)
 
         module = importlib.util.module_from_spec(spec)
         if module is None:
             if debug: print("MODULE IS NONE:%s" % self.name)
-            error_string = "No module named %s" % self.name
+            error_string = "Tool module '%s' failed import" % self.name
             raise SCons.Errors.SConsEnvironmentError(error_string)
 
         # Don't reload a tool we already loaded.
@@ -691,7 +694,7 @@ def tool_list(platform, env):
         assemblers = ['masm', 'nasm', 'gas', '386asm']
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
-        other_plat_tools = ['msvs', 'midl']
+        other_plat_tools = ['msvs', 'midl', 'wix']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]  # 'mslink']
@@ -791,7 +794,6 @@ def tool_list(platform, env):
         # TODO: merge 'install' into 'filesystem' and
         # make 'filesystem' the default
         'filesystem',
-        'wix',  # 'midl', 'msvs',
         # Parser generators
         'lex', 'yacc',
         # Foreign function interface

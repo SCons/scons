@@ -25,7 +25,6 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
-import os
 test = TestSCons.TestSCons()
 
 # also exclude these tests since it overides the exit function which doesnt work with coverage 
@@ -35,7 +34,7 @@ if test.coverage_run():
     test.skip_test("This test replaces the exit function which is needed by coverage to write test data; skipping test.")
 
 sconstruct = """
-from SCons.exitfuncs import *
+from SCons.exitfuncs import register
 
 def x1():
     print("running x1")

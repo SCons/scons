@@ -1,0 +1,6 @@
+DefaultEnvironment(tools=[])
+env = Environment(tools=[],
+                  BUILDCOM=['${TEMPFILE("xxx.py -otempfile $SOURCE")}',
+                            '${TEMPFILE("yyy.py -o$TARGET tempfile")}'],
+                  MAXLINELENGTH=1)
+env.Command('file.output', 'file.input', '$BUILDCOM')

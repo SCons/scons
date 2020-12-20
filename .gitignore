@@ -52,3 +52,7 @@ htmlcov
 
 # Mac junk
 **/.DS_Store
+
+
+# SCons specific
+*.1

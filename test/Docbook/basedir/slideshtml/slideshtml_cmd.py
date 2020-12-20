@@ -28,7 +28,6 @@ the xsltproc executable, if it exists.
 """
 
 import os
-import sys
 import TestSCons
 
 test = TestSCons.TestSCons()

@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,11 +20,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.compat
-
 import os
 import os.path
 import sys
@@ -1694,7 +1692,6 @@ class FSTestCase(_tempdirTestCase):
             except AttributeError:
                 # could be python 3.7 or newer, make sure splitdrive can do UNC
                 assert ntpath.splitdrive(r'\\split\drive\test')[0] == r'\\split\drive'
-                pass
             path = strip_slash(path)
             return '//' + path[1:]
 
@@ -2689,8 +2686,11 @@ class FileTestCase(_tempdirTestCase):
             print("%15s -> csig:%s" % (i3.name, i3.ninfo.csig))
             print("%15s -> csig:%s" % (i4.name, i4.ninfo.csig))
 
-        self.assertEqual(i2.name, i2.ninfo.csig,
-                         "gamma.h's fake csig should equal gamma.h but equals:%s" % i2.ninfo.csig)
+        self.assertEqual(
+            i2.name,
+            i2.ninfo.csig,
+            "gamma.h's fake csig should equal gamma.h but equals:%s" % i2.ninfo.csig,
+        )
 
 
 class GlobTestCase(_tempdirTestCase):
@@ -3676,7 +3676,8 @@ class CacheDirTestCase(unittest.TestCase):
 
         f9 = fs.File('f9')
         r = f9.get_cachedir_csig()
-        assert r == 'd41d8cd98f00b204e9800998ecf8427e', r
+        exsig = SCons.Util.MD5signature(SCons.Util.NOFILE)
+        assert r == exsig, r
 
 
 class clearTestCase(unittest.TestCase):
@@ -3725,6 +3726,13 @@ class clearTestCase(unittest.TestCase):
         assert not f.exists()
         assert not f.rexists()
         assert str(f) == test.workpath('f'), str(f)
+        # Now verify clear() resets optional File-specific attributes
+        optional_attrs = ['cachedir_csig', 'cachesig', 'contentsig']
+        for attr in optional_attrs:
+            setattr(f, attr, 'xyz')
+        f.clear()
+        for attr in optional_attrs:
+            assert not hasattr(f, attr), attr
 
 
 class disambiguateTestCase(unittest.TestCase):

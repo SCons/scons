@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the requirement to place files in a given subdirectory before archiving.
 """
 
-import os
 import subprocess
 
 import TestSCons

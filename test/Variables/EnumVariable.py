@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test the EnumVariable canned Variable type.
 """
 
-import os.path
 
 import TestSCons
 

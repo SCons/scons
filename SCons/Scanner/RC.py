@@ -1,12 +1,6 @@
-"""SCons.Scanner.RC
-
-This module implements the dependency scanner for RC (Interface
-Definition Language) files.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,20 +20,17 @@ Definition Language) files.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Dependency scanner for RC (Interface Definition Language) files."""
 
-import re
 
 import SCons.Node.FS
 import SCons.Scanner
 
 
 def no_tlb(nodes):
-    """
-    Filter out .tlb files as they are binary and shouldn't be scanned
-    """
+    """Filter out .tlb files as they are binary and shouldn't be scanned."""
+
     # print("Nodes:%s"%[str(n) for n in nodes])
     return [n for n in nodes if str(n)[-4:] != '.tlb']
 
@@ -47,16 +38,16 @@ def no_tlb(nodes):
 def RCScan():
     """Return a prototype Scanner instance for scanning RC source files"""
 
-    res_re= r'^(?:\s*#\s*(?:include)|' \
-            r'.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)' \
-            r'\s*.*?)' \
-            r'\s*(<|"| )([^>"\s]+)(?:[>"\s])*$'
-    resScanner = SCons.Scanner.ClassicCPP("ResourceScanner",
-                                          "$RCSUFFIXES",
-                                          "CPPPATH",
-                                          res_re,
-                                          recursive=no_tlb)
-    
+    res_re = (
+        r'^(?:\s*#\s*(?:include)|'
+        r'.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)'
+        r'\s*.*?)'
+        r'\s*(<|"| )([^>"\s]+)(?:[>"\s])*$'
+    )
+    resScanner = SCons.Scanner.ClassicCPP(
+        "ResourceScanner", "$RCSUFFIXES", "CPPPATH", res_re, recursive=no_tlb
+    )
+
     return resScanner
 
 # Local Variables:

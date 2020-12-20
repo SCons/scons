@@ -29,7 +29,6 @@ Make sure, that the examples given in user guide all work.
 """
 
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 

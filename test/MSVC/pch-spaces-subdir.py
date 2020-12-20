@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify PCH works if variant dir has spaces in its name
 """
 
-import time
 
 import TestSCons
 

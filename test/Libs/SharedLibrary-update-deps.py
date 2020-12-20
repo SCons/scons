@@ -30,7 +30,6 @@ This is https://github.com/SCons/scons/issues/2903
 """
 
 import sys
-import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()

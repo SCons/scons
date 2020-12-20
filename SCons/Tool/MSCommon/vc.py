@@ -43,7 +43,6 @@ import SCons.Util
 import subprocess
 import os
 import platform
-import sys
 from string import digits as string_digits
 from subprocess import PIPE
 
@@ -204,7 +203,7 @@ def get_host_target(env):
 
     # Retain user requested TARGET_ARCH
     req_target_platform = env.get('TARGET_ARCH')
-    debug("HOST_ARCH:" + str(req_target_platform))
+    debug("TARGET_ARCH:" + str(req_target_platform))
     if req_target_platform:
         # If user requested a specific platform then only try that one.
         target_platform = req_target_platform
@@ -221,9 +220,12 @@ def get_host_target(env):
         target = _ARCH_TO_CANONICAL[target_platform.lower()]
     except KeyError:
         all_archs = str(list(_ARCH_TO_CANONICAL.keys()))
-        raise MSVCUnsupportedTargetArch("Unrecognized target architecture %s\n\tValid architectures: %s" % (target_platform, all_archs))
+        raise MSVCUnsupportedTargetArch(
+            "Unrecognized target architecture %s\n\tValid architectures: %s"
+            % (target_platform, all_archs)
+        )
 
-    return (host, target,req_target_platform)
+    return (host, target, req_target_platform)
 
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.

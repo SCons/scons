@@ -1,26 +1,6 @@
-"""SCons.Platform
-
-SCons platform selection.
-
-This looks for modules that define a callable object that can modify a
-construction environment as appropriate for a given platform.
-
-Note that we take a more simplistic view of "platform" than Python does.
-We're looking for a single string that determines a set of
-tool-independent variables with which to initialize a construction
-environment.  Consequently, we'll examine both sys.platform and os.name
-(and anything else that might come in to play) in order to return some
-specification which is unique enough for our purposes.
-
-Note that because this subsystem just *selects* a callable that can
-modify a construction environment, it's possible for people to define
-their own "platform specification" in an arbitrary callable function.
-No one needs to use or tie in to this subsystem in order to roll
-their own platform definition.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -40,8 +20,25 @@ their own platform definition.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""SCons platform selection.
+
+Looks for modules that define a callable object that can modify a
+construction environment as appropriate for a given platform.
+
+Note that we take a more simplistic view of "platform" than Python does.
+We're looking for a single string that determines a set of
+tool-independent variables with which to initialize a construction
+environment.  Consequently, we'll examine both sys.platform and os.name
+(and anything else that might come in to play) in order to return some
+specification which is unique enough for our purposes.
+
+Note that because this subsystem just *selects* a callable that can
+modify a construction environment, it's possible for people to define
+their own "platform specification" in an arbitrary callable function.
+No one needs to use or tie in to this subsystem in order to roll
+their own platform definition.
+"""
 
 import SCons.compat
 
@@ -191,9 +188,20 @@ class TempFileMunge:
 
         # Check if we already created the temporary file for this target
         # It should have been previously done by Action.strfunction() call
-        node = target[0] if SCons.Util.is_List(target) else target
-        cmdlist = getattr(node.attributes, 'tempfile_cmdlist', None) \
-                    if node is not None else None
+        if SCons.Util.is_List(target):
+            node = target[0]
+        else:
+            node = target
+
+        cmdlist = None
+
+        if SCons.Util.is_List(self.cmd):
+            cmdlist_key = tuple(self.cmd)
+        else:
+            cmdlist_key = self.cmd
+
+        if node and hasattr(node.attributes, 'tempfile_cmdlist'):
+            cmdlist = node.attributes.tempfile_cmdlist.get(cmdlist_key, None)
         if cmdlist is not None:
             return cmdlist
 
@@ -260,14 +268,18 @@ class TempFileMunge:
                     str(cmd[0]) + " " + " ".join(args))
                 self._print_cmd_str(target, source, env, cmdstr)
 
+        cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
+
         # Store the temporary file command list into the target Node.attributes
         # to avoid creating two temporary files one for print and one for execute.
-        cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
         if node is not None:
-            try :
-                setattr(node.attributes, 'tempfile_cmdlist', cmdlist)
+            try:
+                # Storing in tempfile_cmdlist by self.cmd provided when intializing
+                # $TEMPFILE{} fixes issue raised in PR #3140 and #3553
+                node.attributes.tempfile_cmdlist[cmdlist_key] = cmdlist
             except AttributeError:
-                pass
+                node.attributes.tempfile_cmdlist = {cmdlist_key:cmdlist}
+
         return cmdlist
 
     def _print_cmd_str(self, target, source, env, cmdstr):

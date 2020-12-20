@@ -27,10 +27,6 @@ __doc__ = """
 Common functions for Microsoft Visual Studio and Visual C/C++.
 """
 
-import copy
-import os
-import re
-import subprocess
 
 import SCons.Errors
 import SCons.Platform.win32

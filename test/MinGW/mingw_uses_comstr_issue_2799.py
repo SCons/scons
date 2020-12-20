@@ -28,7 +28,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Test that mingw respects SHLINKCOMSTR, SHCCCOMSTR, and LDMODULECOMSTR
 """
 
-import sys
 import TestSCons
 
 _python_ = TestSCons._python_

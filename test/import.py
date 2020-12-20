@@ -27,7 +27,6 @@ modules directly.
 
 import os
 import re
-import sys
 
 # must do this here, since TestSCons will chdir
 tooldir = os.path.join(os.getcwd(), 'SCons', 'Tool')

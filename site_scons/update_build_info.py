@@ -14,3 +14,4 @@ def update_init_file(env):
                        'import SCons.compat # noqa'],
                       )
     env.Precious(si)
+    env.NoClean(si)  # Don't clean this file as it breaks the build.

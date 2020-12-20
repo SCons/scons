@@ -29,8 +29,6 @@ Test the --cache-disable option when retrieving derived files from a
 CacheDir.
 """
 
-import os.path
-import shutil
 
 import TestSCons
 

@@ -30,7 +30,6 @@ Check if SCons.Platform.virtualenv.Virtualenv() works in SConscript.
 
 import TestSCons
 import SCons.Platform.virtualenv
-import sys
 
 test = TestSCons.TestSCons()
 

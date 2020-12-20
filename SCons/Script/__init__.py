@@ -1,18 +1,6 @@
-"""SCons.Script
-
-This file implements the main() function used by the scons script.
-
-Architecturally, this *is* the scons script, and will likely only be
-called from the external "scons" wrapper.  Consequently, anything here
-should not be, or be considered, part of the build engine.  If it's
-something that we expect other software to want to use, it should go in
-some other module.  If it's specific to the "scons" script invocation,
-it goes here.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,20 +20,23 @@ it goes here.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The main() function used by the scons script.
+
+Architecturally, this *is* the scons script, and will likely only be
+called from the external "scons" wrapper.  Consequently, anything here
+should not be, or be considered, part of the build engine.  If it's
+something that we expect other software to want to use, it should go in
+some other module.  If it's specific to the "scons" script invocation,
+it goes here.
+"""
 
 import time
 start_time = time.time()
 
 import collections
 import os
-
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 import sys
 
@@ -134,7 +125,6 @@ GetBuildFailures        = Main.GetBuildFailures
 #profiling               = Main.profiling
 #repositories            = Main.repositories
 
-#
 from . import SConscript
 _SConscript = SConscript
 
@@ -282,7 +272,11 @@ _no_missing_sconscript = False
 _warn_missing_sconscript_deprecated = True
 
 def set_missing_sconscript_error(flag=1):
-    """Set behavior on missing file in SConscript() call. Returns previous value"""
+    """Set behavior on missing file in SConscript() call.
+
+    Returns:
+        previous value
+    """
     global _no_missing_sconscript
     old = _no_missing_sconscript
     _no_missing_sconscript = flag

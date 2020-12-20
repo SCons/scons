@@ -34,9 +34,7 @@ import os
 import TestRuntest
 
 test = TestRuntest.TestRuntest()
-
-test.subdir(['SCons'],
-            ['SCons', 'suite'])
+test.subdir(['SCons'], ['SCons', 'suite'])
 
 pythonstring = TestRuntest.pythonstring
 pythonflags = TestRuntest.pythonflags
@@ -44,11 +42,8 @@ src_passTests_py = os.path.join('SCons', 'passTests.py')
 src_suite_passTests_py = os.path.join('SCons', 'suite', 'passTests.py')
 
 test.write_passing_test(['SCons', 'pass.py'])
-
 test.write_passing_test(['SCons', 'passTests.py'])
-
 test.write_passing_test(['SCons', 'suite', 'pass.py'])
-
 test.write_passing_test(['SCons', 'suite', 'passTests.py'])
 
 expect_stdout = """\

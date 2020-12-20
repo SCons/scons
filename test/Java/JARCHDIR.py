@@ -33,7 +33,6 @@ Includes logic to make sure that expansions of $JARCHDIR that include
 ${TARGET} or ${SOURCE} work.
 """
 
-import os
 
 import TestSCons
 

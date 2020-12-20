@@ -37,9 +37,7 @@ if not hasattr(os.path, 'pardir'):
 import TestRuntest
 
 test = TestRuntest.TestRuntest()
-
 test_pass_py = os.path.join('test', 'pass.py')
-
 head, python = os.path.split(TestRuntest.python)
 head, dir = os.path.split(head)
 

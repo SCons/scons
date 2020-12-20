@@ -30,7 +30,6 @@ is no Default() in the SConstruct file and there are no command-line
 arguments, or a null command-line argument.
 """
 
-import os.path
 
 import TestSCons
 

@@ -31,8 +31,6 @@ to push the file to the CacheDir after the build signature had already
 been cleared (as a sign that the built file should now be rescanned).
 """
 
-import os.path
-import shutil
 
 import TestSCons
 

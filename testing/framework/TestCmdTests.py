@@ -24,13 +24,11 @@ __revision__ = "TestCmdTests.py 1.3.D001 2010/06/03 12:58:27 knight"
 
 import os
 import shutil
-import signal
 import stat
 import subprocess
 import sys
 import tempfile
 import time
-import types
 import unittest
 from io import StringIO
 from contextlib import closing

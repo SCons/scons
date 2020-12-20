@@ -26,10 +26,10 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test a list of tests to run in a file specified with the -f option.
+The commented-out test should not run.
 """
 
 import os.path
-import re
 
 import TestRuntest
 
@@ -42,11 +42,8 @@ test_pass_py = os.path.join('test', 'pass.py')
 test = TestRuntest.TestRuntest()
 
 test.subdir('test')
-
 test.write_failing_test(['test', 'fail.py'])
-
 test.write_no_result_test(['test', 'no_result.py'])
-
 test.write_passing_test(['test', 'pass.py'])
 
 test.write('t.txt', """\

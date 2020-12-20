@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,21 +20,21 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__doc__ = """
-SCons compatibility package for old Python versions
+"""SCons compatibility package for old Python versions
 
 This subpackage holds modules that provide backwards-compatible
-implementations of various things that we'd like to use in SCons but which
-only show up in later versions of Python than the early, old version(s)
-we still support.
+implementations of various things from newer Python versions
+that we cannot count on because SCons still supported older Pythons.
 
 Other code will not generally reference things in this package through
 the SCons.compat namespace.  The modules included here add things to
 the builtins namespace or the global module list so that the rest
 of our code can use the objects and names imported here regardless of
-Python version.
+Python version. As a result, if this module is used, it should violate
+the normal convention for imports (standard library imports first,
+then program-specific imports, each ordered aplhabetically)
+and needs to be listed first.
 
 The rest of the things here will be in individual compatibility modules
 that are either: 1) suitably modified copies of the future modules that
@@ -57,9 +58,6 @@ function defined below loads the module as the "real" name (without the
 rest of our code will find our pre-loaded compatibility module.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import os
 import sys
 import importlib
 
@@ -81,21 +79,11 @@ def rename_module(new, old):
 # Default pickle protocol. Higher protocols are more efficient/featured
 # but incompatible with older Python versions.
 # Negative numbers choose the highest available protocol.
-import pickle
 
 # Was pickle.HIGHEST_PROTOCOL
 # Changed to 4 so that python 3.8's not incompatible with previous versions
 # Python 3.8 introduced protocol 5 which is mainly an improvement for for out-of-band data buffers
 PICKLE_PROTOCOL = 4
-
-import shutil
-try:
-    shutil.SameFileError
-except AttributeError:
-    class SameFileError(Exception):
-        pass
-
-    shutil.SameFileError = SameFileError
 
 
 class NoSlotsPyPy(type):

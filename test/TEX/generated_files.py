@@ -33,7 +33,6 @@ Test courtesy Rob Managan.
 """
 
 import TestSCons
-import os
 
 test = TestSCons.TestSCons()
 

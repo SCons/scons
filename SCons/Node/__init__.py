@@ -1,26 +1,6 @@
-"""SCons.Node
-
-The Node package for the SCons software construction utility.
-
-This is, in many ways, the heart of SCons.
-
-A Node is where we encapsulate all of the dependency information about
-any thing that SCons can build, or about any thing which SCons can use
-to build some other thing.  The canonical "thing," of course, is a file,
-but a Node can also represent something remote (like a web page) or
-something completely abstract (like an Alias).
-
-Each specific type of "thing" is specifically represented by a subclass
-of the Node base class:  Node.FS.File for files, Node.Alias for aliases,
-etc.  Dependency information is kept here in the base class, and
-information specific to files/aliases/etc. is in the subclass.  The
-goal, if we've done this correctly, is that any type of "thing" should
-be able to depend on any other type of "thing."
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -41,28 +21,36 @@ be able to depend on any other type of "thing."
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The Node package for the SCons software construction utility.
 
-import os
+This is, in many ways, the heart of SCons.
+
+A Node is where we encapsulate all of the dependency information about
+any thing that SCons can build, or about any thing which SCons can use
+to build some other thing.  The canonical "thing," of course, is a file,
+but a Node can also represent something remote (like a web page) or
+something completely abstract (like an Alias).
+
+Each specific type of "thing" is specifically represented by a subclass
+of the Node base class:  Node.FS.File for files, Node.Alias for aliases,
+etc.  Dependency information is kept here in the base class, and
+information specific to files/aliases/etc. is in the subclass.  The
+goal, if we've done this correctly, is that any type of "thing" should
+be able to depend on any other type of "thing."
+
+"""
+
 import collections
 import copy
-from itertools import chain
-
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
+from itertools import chain, zip_longest
 
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
 import SCons.Util
-from SCons.Util import MD5signature
-
-from SCons.Debug import Trace
-
 from SCons.compat import NoSlotsPyPy
+from SCons.Debug import logInstanceCreation, Trace
+from SCons.Util import MD5signature
 
 print_duplicate = 0
 
@@ -823,24 +811,20 @@ class Node(object, metaclass=NoSlotsPyPy):
 
     def release_target_info(self):
         """Called just after this node has been marked
-         up-to-date or was built completely.
+        up-to-date or was built completely.
 
-         This is where we try to release as many target node infos
-         as possible for clean builds and update runs, in order
-         to minimize the overall memory consumption.
+        This is where we try to release as many target node infos
+        as possible for clean builds and update runs, in order
+        to minimize the overall memory consumption.
 
-         By purging attributes that aren't needed any longer after
-         a Node (=File) got built, we don't have to care that much how
-         many KBytes a Node actually requires...as long as we free
-         the memory shortly afterwards.
+        By purging attributes that aren't needed any longer after
+        a Node (=File) got built, we don't have to care that much how
+        many KBytes a Node actually requires...as long as we free
+        the memory shortly afterwards.
 
-         @see: built() and File.release_target_info()
-         """
+        @see: built() and File.release_target_info()
+        """
         pass
-
-    #
-    #
-    #
 
     def add_to_waiting_s_e(self, node):
         self.waiting_s_e.add(node)
@@ -877,10 +861,12 @@ class Node(object, metaclass=NoSlotsPyPy):
         self.clear_memoized_values()
         self.ninfo = self.new_ninfo()
         self.executor_cleanup()
-        try:
-            delattr(self, '_calculated_sig')
-        except AttributeError:
-            pass
+        for attr in ['cachedir_csig', 'cachesig', 'contentsig']:
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                pass
+        self.cached = 0
         self.includes = None
 
     def clear_memoized_values(self):

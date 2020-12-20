@@ -197,7 +197,7 @@ if env['PLATFORM'] == 'win32':
 
   </section>
 
-  <section>
+  <section id="sect-controlling-build-output">
   <title>Controlling How &SCons; Prints Build Commands:  the <envar>$*COMSTR</envar> Variables</title>
 
     <para>

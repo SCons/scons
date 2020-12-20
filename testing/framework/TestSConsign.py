@@ -19,7 +19,6 @@ in this subclass.
 
 import os
 import os.path
-import sys
 
 from TestSCons import *
 from TestSCons import __all__

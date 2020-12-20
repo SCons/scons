@@ -29,8 +29,6 @@ Test but which only shows on windows when one generated file depends on another 
 In this case flex and yacc are an example.
 """
 
-import os
-import stat
 
 import TestSCons
 from TestCmd import IS_WINDOWS

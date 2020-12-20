@@ -33,7 +33,6 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import re
 
 import SCons.Action
 import SCons.Defaults

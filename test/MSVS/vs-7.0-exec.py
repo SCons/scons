@@ -29,7 +29,6 @@ Test that we can actually build a simple program using our generated
 Visual Studio 7.0 project (.vcproj) and solution (.sln) files.
 """
 
-import os
 import sys
 
 import TestSConsMSVS

@@ -29,7 +29,6 @@ Verify output when a Progress() call is initialized with the list
 that represents a canonical "spinner" on the output.
 """
 
-import os
 
 import TestSCons
 

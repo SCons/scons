@@ -1,9 +1,6 @@
-"""SCons.Conftest
-
-Autoconf-like configuration support; low level implementation of tests.
-"""
-
+# MIT License
 #
+# Copyright The SCons Foundation
 # Copyright (c) 2003 Stichting NLnet Labs
 # Copyright (c) 2001, 2002, 2003 Steven Knight
 #
@@ -25,80 +22,72 @@ Autoconf-like configuration support; low level implementation of tests.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-#
-# The purpose of this module is to define how a check is to be performed.
-# Use one of the Check...() functions below.
-#
+"""Autoconf-like configuration support
 
-#
-# A context class is used that defines functions for carrying out the tests,
-# logging and messages.  The following methods and members must be present:
-#
-# context.Display(msg)  Function called to print messages that are normally
-#                       displayed for the user.  Newlines are explicitly used.
-#                       The text should also be written to the logfile!
-#
-# context.Log(msg)      Function called to write to a log file.
-#
-# context.BuildProg(text, ext)
-#                       Function called to build a program, using "ext" for the
-#                       file extention.  Must return an empty string for
-#                       success, an error message for failure.
-#                       For reliable test results building should be done just
-#                       like an actual program would be build, using the same
-#                       command and arguments (including configure results so
-#                       far).
-#
-# context.CompileProg(text, ext)
-#                       Function called to compile a program, using "ext" for
-#                       the file extention.  Must return an empty string for
-#                       success, an error message for failure.
-#                       For reliable test results compiling should be done just
-#                       like an actual source file would be compiled, using the
-#                       same command and arguments (including configure results
-#                       so far).
-#
-# context.AppendLIBS(lib_name_list)
-#                       Append "lib_name_list" to the value of LIBS.
-#                       "lib_namelist" is a list of strings.
-#                       Return the value of LIBS before changing it (any type
-#                       can be used, it is passed to SetLIBS() later.)
-#
-# context.PrependLIBS(lib_name_list)
-#                       Prepend "lib_name_list" to the value of LIBS.
-#                       "lib_namelist" is a list of strings.
-#                       Return the value of LIBS before changing it (any type
-#                       can be used, it is passed to SetLIBS() later.)
-#
-# context.SetLIBS(value)
-#                       Set LIBS to "value".  The type of "value" is what
-#                       AppendLIBS() returned.
-#                       Return the value of LIBS before changing it (any type
-#                       can be used, it is passed to SetLIBS() later.)
-#
-# context.headerfilename
-#                       Name of file to append configure results to, usually
-#                       "confdefs.h".
-#                       The file must not exist or be empty when starting.
-#                       Empty or None to skip this (some tests will not work!).
-#
-# context.config_h      (may be missing). If present, must be a string, which
-#                       will be filled with the contents of a config_h file.
-#
-# context.vardict       Dictionary holding variables used for the tests and
-#                       stores results from the tests, used for the build
-#                       commands.
-#                       Normally contains "CC", "LIBS", "CPPFLAGS", etc.
-#
-# context.havedict      Dictionary holding results from the tests that are to
-#                       be used inside a program.
-#                       Names often start with "HAVE_".  These are zero
-#                       (feature not present) or one (feature present).  Other
-#                       variables may have any value, e.g., "PERLVERSION" can
-#                       be a number and "SYSTEMNAME" a string.
-#
+The purpose of this module is to define how a check is to be performed.
+
+A context class is used that defines functions for carrying out the tests,
+logging and messages.  The following methods and members must be present:
+
+context.Display(msg)
+    Function called to print messages that are normally displayed
+    for the user.  Newlines are explicitly used.  The text should
+    also be written to the logfile!
+
+context.Log(msg)
+    Function called to write to a log file.
+
+context.BuildProg(text, ext)
+    Function called to build a program, using "ext" for the file
+    extension.  Must return an empty string for success, an error
+    message for failure.  For reliable test results building should
+    be done just like an actual program would be build, using the
+    same command and arguments (including configure results so far).
+
+context.CompileProg(text, ext)
+    Function called to compile a program, using "ext" for the file
+    extension.  Must return an empty string for success, an error
+    message for failure.  For reliable test results compiling should be
+    done just like an actual source file would be compiled, using the
+    same command and arguments (including configure results so far).
+
+context.AppendLIBS(lib_name_list)
+    Append "lib_name_list" to the value of LIBS.  "lib_namelist" is
+    a list of strings.  Return the value of LIBS before changing it
+    (any type can be used, it is passed to SetLIBS() later.)
+
+context.PrependLIBS(lib_name_list)
+    Prepend "lib_name_list" to the value of LIBS.  "lib_namelist" is
+    a list of strings.  Return the value of LIBS before changing it
+    (any type can be used, it is passed to SetLIBS() later.)
+
+context.SetLIBS(value)
+    Set LIBS to "value".  The type of "value" is what AppendLIBS()
+    returned.  Return the value of LIBS before changing it (any type
+    can be used, it is passed to SetLIBS() later.)
+
+context.headerfilename
+    Name of file to append configure results to, usually "confdefs.h".
+    The file must not exist or be empty when starting.  Empty or None
+    to skip this (some tests will not work!).
+
+context.config_h  (may be missing).
+    If present, must be a string, which will be filled with the
+    contents of a config_h file.
+
+context.vardict
+    Dictionary holding variables used for the tests and stores results
+    from the tests, used for the build commands.  Normally contains
+    "CC", "LIBS", "CPPFLAGS", etc.
+
+context.havedict
+    Dictionary holding results from the tests that are to be used
+    inside a program.  Names often start with "HAVE_".  These are zero
+    (feature not present) or one (feature present).  Other variables
+    may have any value, e.g., "PERLVERSION" can be a number and
+    "SYSTEMNAME" a string.
+"""
 
 import re
 
