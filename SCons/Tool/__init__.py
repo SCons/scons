@@ -1,20 +1,6 @@
-"""SCons.Tool
-
-SCons tool selection.
-
-This looks for modules that define a callable object that can modify
-a construction environment as appropriate for a given tool (or tool
-chain).
-
-Note that because this subsystem just *selects* a callable that can
-modify a construction environment, it's possible for people to define
-their own "tool specification" in an arbitrary callable function.  No
-one needs to use or tie in to this subsystem in order to roll their own
-tool specifications.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -35,7 +21,22 @@ tool specifications.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool
+
+SCons tool selection.
+
+This looks for modules that define a callable object that can modify
+a construction environment as appropriate for a given tool (or tool
+chain).
+
+Note that because this subsystem just *selects* a callable that can
+modify a construction environment, it's possible for people to define
+their own "tool specification" in an arbitrary callable function.  No
+one needs to use or tie in to this subsystem in order to roll their own
+tool specifications.
+"""
+
+
 
 import sys
 import os

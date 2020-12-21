@@ -1,13 +1,6 @@
-"""SCons.Tool.DCommon
-
-Common code for the various D tools.
-
-Coded by Russel Winder (russel@winder.org.uk)
-2012-09-06
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,9 +20,14 @@ Coded by Russel Winder (russel@winder.org.uk)
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.DCommon
+
+Common code for the various D tools.
+
+Coded by Russel Winder (russel@winder.org.uk)
+2012-09-06
+"""
 
 import os.path
 
@@ -58,7 +56,6 @@ def allAtOnceEmitter(target, source, env):
         env.SideEffect(str(target[0]) + '.o', target[0])
         env.Clean(target[0], str(target[0]) + '.o')
     return target, source
-
 
 # Local Variables:
 # tab-width:4
