@@ -1,3 +1,4 @@
+from SCons.Errors import UserError
 from SCons.Tool import createSharedLibBuilder
 from SCons.Util import CLVar
 from . import lib_emitter, EmitLibSymlinks, StringizeLibSymlinks
@@ -21,7 +22,6 @@ def shlib_symlink_emitter(target, source, env, **kw):
             print("shlib_symlink_emitter: %sVERSION=%s" % (var_prefix, shlibversion))
 
         libnode = target[0]
-        linkdir = libnode.get_dir()
         shlib_soname_symlink = env.subst('$%s_SONAME_SYMLINK' % var_prefix, target=target, source=source)
         shlib_noversion_symlink = env.subst('$%s_NOVERSION_SYMLINK' % var_prefix, target=target, source=source)
 
@@ -63,12 +63,11 @@ def _soversion(target, source, env, for_signature):
 
 
 def _soname(target, source, env, for_signature):
-
     if 'SONAME' in env:
         # Now verify that SOVERSION is not also set as that is not allowed
         if 'SOVERSION' in env:
-            raise SCons.Errors.UserError('Ambiguous library .so naming, both SONAME: %s and SOVERSION: %s are defined. '
-                                         'Only one can be defined for a target library.' % (env['SONAME'], env['SOVERSION']))
+            raise UserError('Ambiguous library .so naming, both SONAME: %s and SOVERSION: %s are defined. '
+                            'Only one can be defined for a target library.' % (env['SONAME'], env['SOVERSION']))
         return '$SONAME'
     else:
         return "$_get_shlib_dir$SHLIBPREFIX$_get_shlib_stem$_SHLIBSOVERSION${SHLIBSUFFIX}"
@@ -90,7 +89,7 @@ def _get_shlib_stem(target, source, env, for_signature):
     shlibsuffix = env.subst("$_SHLIBSUFFIX")
 
     if verbose and not for_signature:
-        print("_get_shlib_stem: target_name:%s shlibprefix:%s shlibsuffix:%s"%(target_name, shlibprefix, shlibsuffix))
+        print("_get_shlib_stem: target_name:%s shlibprefix:%s shlibsuffix:%s" % (target_name, shlibprefix, shlibsuffix))
 
     if target_name.startswith(shlibprefix):
         target_name = target_name[len(shlibprefix):]
@@ -99,7 +98,7 @@ def _get_shlib_stem(target, source, env, for_signature):
         target_name = target_name[:-len(shlibsuffix)]
 
     if verbose and not for_signature:
-        print("_get_shlib_stem: target_name:%s AFTER"%(target_name,))
+        print("_get_shlib_stem: target_name:%s AFTER" % (target_name,))
 
     return target_name
 
@@ -109,9 +108,10 @@ def _get_shlib_dir(target, source, env, for_signature):
     Get the directory the shlib is in.
     """
     if target.dir:
-        return "%s/"%str(target.dir)
+        return "%s/" % str(target.dir)
     else:
         return ""
+
 
 def setup_shared_lib_logic(env):
     """

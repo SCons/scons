@@ -9,7 +9,7 @@ selection method.
 """
 
 from SCons.Tool.linkCommon import StringizeLibSymlinks, EmitLibSymlinks
-from SCons.Util import CLVar
+from SCons.Util import CLVar, is_String
 from . import gnulink
 
 
