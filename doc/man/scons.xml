@@ -104,9 +104,9 @@ by determining which
 component pieces must be built or rebuilt and invoking the necessary
 commands to build them.
 &SCons; offers many features to improve developer productivity
-such as parallel builds, caching of build artefacts, and
-a database of information about previous builds so details do
-not have to be recalculated each run.
+such as parallel builds, caching of build artifacts,
+and a database of information about previous builds so
+details do not have to be recalculated each run.
 </para>
 
 <para>You set up an &SCons;
