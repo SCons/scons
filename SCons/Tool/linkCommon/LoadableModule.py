@@ -46,7 +46,7 @@ def _ldmodule_soname(target, source, env, for_signature):
     if 'SONAME' in env:
         return '$SONAME'
     else:
-        return "$LDMODULEPREFIX$_get_ldmodule_stem$_LDMODULESOVERSION${LDMODULESUFFIX}"
+        return "$LDMODULEPREFIX$_get_ldmodule_stem${LDMODULESUFFIX}$_LDMODULESOVERSION"
 
 
 def setup_loadable_module_logic(env):
@@ -71,11 +71,11 @@ def setup_loadable_module_logic(env):
 
     # This is the non versioned LDMODULE filename
     # If LDMODULEVERSION is defined then this will symlink to $LDMODULENAME
-    env['LDMODULE_NOVERSION_SYMLINK'] = '${LDMODULEPREFIX}$_get_ldmodule_stem${LDMODULESUFFIX}'
+    env['LDMODULE_NOVERSION_SYMLINK'] = '$_get_shlib_dir${LDMODULEPREFIX}$_get_ldmodule_stem${LDMODULESUFFIX}'
 
     # This is the sonamed file name
     # If LDMODULEVERSION is defined then this will symlink to $LDMODULENAME
-    env['LDMODULE_SONAME_SYMLINK'] = '$_LDMODULESONAME'
+    env['LDMODULE_SONAME_SYMLINK'] = '$_get_shlib_dir$_LDMODULESONAME'
 
     env['_LDMODULEVERSION'] = "${LDMODULEVERSION and '.'+LDMODULEVERSION or ''}"
     env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
