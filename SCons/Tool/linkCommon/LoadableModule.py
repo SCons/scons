@@ -48,6 +48,16 @@ def _ldmodule_soname(target, source, env, for_signature):
     else:
         return "$LDMODULEPREFIX$_get_ldmodule_stem${LDMODULESUFFIX}$_LDMODULESOVERSION"
 
+def _LDMODULEVERSION(target, source, env, for_signature):
+    """
+    Return "." + version if it's set, otherwise just a blank
+    """
+    value = env.subst('$LDMODULEVERSION', target=target, source=source)
+    # print("_has_LDMODULEVERSION:%s"%value)
+    if value:
+        return "."+value
+    else:
+        return ""
 
 def setup_loadable_module_logic(env):
     """
@@ -77,13 +87,14 @@ def setup_loadable_module_logic(env):
     # If LDMODULEVERSION is defined then this will symlink to $LDMODULENAME
     env['LDMODULE_SONAME_SYMLINK'] = '$_get_shlib_dir$_LDMODULESONAME'
 
-    env['_LDMODULEVERSION'] = "${LDMODULEVERSION and '.'+LDMODULEVERSION or ''}"
+    env['_LDMODULEVERSION'] =  _LDMODULEVERSION
+
     env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -Wl,-soname=$_LDMODULESONAME'
 
     env['LDMODULEEMITTER'] = [lib_emitter, ldmod_symlink_emitter]
 
     env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
-    env['_LDMODULESUFFIX'] = '${_LDMODULEVERSION}${LDMODULESUFFIX}'
+    env['_LDMODULESUFFIX'] = '${LDMODULESUFFIX}${_LDMODULEVERSION}'
     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'
 
     env['LDMODULE'] = '$SHLINK'

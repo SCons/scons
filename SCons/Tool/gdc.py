@@ -116,7 +116,6 @@ def generate(env):
 
     # Support for versioned libraries
     env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -Wl,-soname=$_SHLIBSONAME'
-'
 
     # TODO: Fix with new versioned shared lib logic
     # env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
