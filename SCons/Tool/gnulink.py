@@ -9,6 +9,10 @@ selection method.
 """
 
 #
+# MIT License
+#
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -33,10 +37,8 @@ selection method.
 import SCons.Tool.linkCommon
 import SCons.Util
 import SCons.Tool
-import sys
 
 from . import link
-import SCons.Tool.linkCommon as linkCommon
 
 
 def generate(env):
@@ -51,11 +53,6 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
-
-    # OpenBSD doesn't usually use SONAME for libraries
-    use_soname = not sys.platform.startswith('openbsd')
-    linkCommon._setup_versioned_lib_variables(env, tool='gnulink', use_soname=use_soname)
-    env['LINKCALLBACKS'] = linkCommon._versioned_lib_callbacks()
 
 
 def exists(env):

@@ -31,26 +31,21 @@ selection method.
 
 """
 
-
 import SCons.Tool
 import SCons.Util
 import SCons.Warnings
-
-from SCons.Tool.linkCommon import smart_link, shlib_emitter, ldmod_emitter
+from SCons.Tool import createProgBuilder
+from SCons.Tool.linkCommon import smart_link
+from SCons.Tool.linkCommon.LoadableModule import setup_loadable_module_logic
+from SCons.Tool.linkCommon.SharedLibrary import setup_shared_lib_logic
 
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
-    SCons.Tool.createSharedLibBuilder(env)
-    SCons.Tool.createProgBuilder(env)
+    createProgBuilder(env)
 
-    env['SHLINK'] = '$LINK'
-    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
-    env['SHLINKCOM'] = '$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-
-    # don't set up the emitter, because AppendUnique will generate a list
-    # starting with None :-(
-    env.Append(SHLIBEMITTER=[shlib_emitter])
+    setup_shared_lib_logic(env)
+    setup_loadable_module_logic(env)
 
     env['SMARTLINK'] = smart_link
     env['LINK'] = "$SMARTLINK"
@@ -63,20 +58,6 @@ def generate(env):
     env['_LIBFLAGS'] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
     env['LIBLINKPREFIX'] = '-l'
     env['LIBLINKSUFFIX'] = ''
-
-    # For most platforms, a loadable module is the same as a shared
-    # library.  Platforms which are different can override these, but
-    # setting them the same means that LoadableModule works everywhere.
-    SCons.Tool.createLoadableModuleBuilder(env)
-    env['LDMODULE'] = '$SHLINK'
-    env.Append(LDMODULEEMITTER=[ldmod_emitter])
-    env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
-    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'
-    env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
-    env[
-        'LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $__LDMODULEVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-    env['LDMODULEVERSION'] = '$SHLIBVERSION'
-    env['LDMODULENOVERSIONSYMLINKS'] = '$SHLIBNOVERSIONSYMLINKS'
 
 
 def exists(env):

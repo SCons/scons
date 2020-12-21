@@ -9,6 +9,10 @@ selection method.
 """
 
 #
+# MIT License
+#
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -29,14 +33,14 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import SCons.Tool.linkCommon
-import SCons.Util
-
 # Even though the Mac is based on the GNU toolchain, it doesn't understand
 # the -rpath option, so we use the "link" tool instead of "gnulink".
+from SCons.Util import CLVar
+
 from . import link
 
-from .linkCommon import ShLibSonameGenerator
+# User programmatically describes how SHLIBVERSION maps to values for compat/current.
+_APPLELIB_MAX_VERSION_VALUES = (65535, 255, 255)
 
 
 class AppleLinkInvalidCurrentVersionException(Exception):
@@ -45,49 +49,6 @@ class AppleLinkInvalidCurrentVersionException(Exception):
 
 class AppleLinkInvalidCompatibilityVersionException(Exception):
     pass
-
-
-def _applelib_versioned_lib_suffix(env, suffix, version):
-    """For suffix='.dylib' and version='0.1.2' it returns '.0.1.2.dylib'"""
-    Verbose = False
-    if Verbose:
-        print("_applelib_versioned_lib_suffix: suffix={!r}".format(suffix))
-        print("_applelib_versioned_lib_suffix: version={!r}".format(version))
-    if version not in suffix:
-        suffix = "." + version + suffix
-    if Verbose:
-        print("_applelib_versioned_lib_suffix: return suffix={!r}".format(suffix))
-    return suffix
-
-
-def _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix, name_func):
-    """For libnode='/optional/dir/libfoo.X.Y.Z.dylib' it returns 'libfoo.X.dylib'"""
-    Verbose = False
-    if Verbose:
-        print("_applelib_versioned_lib_soname: version={!r}".format(version))
-    name = name_func(env, libnode, version, prefix, suffix)
-    if Verbose:
-        print("_applelib_versioned_lib_soname: name={!r}".format(name))
-    major = version.split('.')[0]
-    (libname, _suffix) = name.split('.')
-    # if a desired SONAME was supplied, use that, otherwise create 
-    # a default from the major version
-    if env.get('SONAME'):
-        soname = ShLibSonameGenerator(env, libnode)
-    else:
-        soname = '.'.join([libname, major, _suffix])
-    if Verbose:
-        print("_applelib_versioned_lib_soname: soname={!r}".format(soname))
-    return soname
-
-
-def _applelib_versioned_shlib_soname(env, libnode, version, prefix, suffix):
-    return _applelib_versioned_lib_soname(env, libnode, version, prefix, suffix,
-                                          SCons.Tool.linkCommon._versioned_shlib_name)
-
-
-# User programmatically describes how SHLIBVERSION maps to values for compat/current.
-_applelib_max_version_values = (65535, 255, 255)
 
 
 def _applelib_check_valid_version(version_string):
@@ -111,9 +72,9 @@ def _applelib_check_valid_version(version_string):
             p_i = int(p)
         except ValueError:
             return False, "Version component %s (from %s) is not a number" % (p, version_string)
-        if p_i < 0 or p_i > _applelib_max_version_values[i]:
+        if p_i < 0 or p_i > _APPLELIB_MAX_VERSION_VALUES[i]:
             return False, "Version component %s (from %s) is not valid value should be between 0 and %d" % (
-            p, version_string, _applelib_max_version_values[i])
+                p, version_string, _APPLELIB_MAX_VERSION_VALUES[i])
 
     return True, ""
 
@@ -191,14 +152,8 @@ def generate(env):
 
     env['_FRAMEWORKS'] = '${_concat("-framework ", FRAMEWORKS, "", __env__)}'
     env['LINKCOM'] = env['LINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
-    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -dynamiclib')
+    env['SHLINKFLAGS'] = CLVar('$LINKFLAGS -dynamiclib')
     env['SHLINKCOM'] = env['SHLINKCOM'] + ' $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
-
-    # see: http://docstore.mik.ua/orelly/unix3/mac/ch05_04.htm  for proper naming
-    SCons.Tool.linkCommon._setup_versioned_lib_variables(env, tool='applelink', use_soname=True)
-    env['LINKCALLBACKS'] = SCons.Tool.linkCommon._versioned_lib_callbacks()
-    env['LINKCALLBACKS']['VersionedShLibSuffix'] = _applelib_versioned_lib_suffix
-    env['LINKCALLBACKS']['VersionedShLibSoname'] = _applelib_versioned_shlib_soname
 
     env['_APPLELINK_CURRENT_VERSION'] = _applelib_currentVersionFromSoVersion
     env['_APPLELINK_COMPATIBILITY_VERSION'] = _applelib_compatVersionFromSoVersion
@@ -210,10 +165,21 @@ def generate(env):
     # pre/suffixes:
     env['LDMODULEPREFIX'] = ''
     env['LDMODULESUFFIX'] = ''
-    env['LDMODULEFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -bundle')
-    env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
+    env['LDMODULEFLAGS'] = CLVar('$LINKFLAGS -bundle')
+    env[
+        'LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS' \
+                         ' $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
-    env['__SHLIBVERSIONFLAGS'] = '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}'
+    # New stuff
+    #
+    env['_SHLIBSUFFIX'] = '${_SHLIBVERSION}${SHLIBSUFFIX}'
+
+    env[
+        '__SHLIBVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
+                                 '"SHLIBVERSION","_APPLELINK_CURRENT_VERSION", "_SHLIBVERSIONFLAGS")}'
+    env[
+        '__LDMODULEVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
+                                    '"LDMODULEVERSION","_APPLELINK_CURRENT_VERSION", "_LDMODULEVERSIONFLAGS")}'
 
 
 def exists(env):

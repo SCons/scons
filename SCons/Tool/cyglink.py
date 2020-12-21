@@ -8,211 +8,153 @@ selection method.
 
 """
 
-import re
-import os
-
-import SCons.Action
-import SCons.Tool.linkCommon as linkCommon
-from SCons.Tool.linkCommon import ImpLibSymlinkGenerator, StringizeLibSymlinks, EmitLibSymlinks, ImpLibPrefixGenerator, \
-    ImpLibSuffixGenerator, ImpLibNameGenerator
-import SCons.Util
-import SCons.Tool
-
+from SCons.Tool.linkCommon import StringizeLibSymlinks, EmitLibSymlinks
+from SCons.Util import CLVar
 from . import gnulink
 
 
-def _lib_generator(target, source, env, for_signature, **kw):
-    try:
-        cmd = kw['cmd']
-    except KeyError:
-        cmd = SCons.Util.CLVar(['$SHLINK'])
+def cyglink_lib_emitter(target, source, env, **kw):
+    verbose = True
 
-    try:
-        vp = kw['varprefix']
-    except KeyError:
-        vp = 'SHLIB'
-
-    dll = env.FindIxes(target, '%sPREFIX' % vp, '%sSUFFIX' % vp)
-    if dll: cmd.extend(['-o', dll])
-
-    cmd.extend(['$SHLINKFLAGS', '$__%sVERSIONFLAGS' % vp, '$__RPATH'])
-
-    implib = env.FindIxes(target, 'IMPLIBPREFIX', 'IMPLIBSUFFIX')
-    if implib:
-        cmd.extend([
-            '-Wl,--out-implib=' + implib.get_string(for_signature),
-            '-Wl,--export-all-symbols',
-            '-Wl,--enable-auto-import',
-            '-Wl,--whole-archive', '$SOURCES',
-            '-Wl,--no-whole-archive', '$_LIBDIRFLAGS', '$_LIBFLAGS'
-        ])
+    if 'variable_prefix' in kw:
+        var_prefix = kw['variable_prefix']
     else:
-        cmd.extend(['$SOURCES', '$_LIBDIRFLAGS', '$_LIBFLAGS'])
+        var_prefix = 'SHLIB'
 
-    return [cmd]
+    no_import_lib = env.get('no_import_lib', False)
 
+    if verbose:
+        print("cyglink_lib_emitter: target[0]={!r}".format(target[0].get_path()))
 
-def shlib_generator(target, source, env, for_signature):
-    return _lib_generator(target, source, env, for_signature,
-                          varprefix='SHLIB',
-                          cmd=SCons.Util.CLVar(['$SHLINK']))
-
-
-def ldmod_generator(target, source, env, for_signature):
-    return _lib_generator(target, source, env, for_signature,
-                          varprefix='LDMODULE',
-                          cmd=SCons.Util.CLVar(['$LDMODULE']))
-
-
-def _lib_emitter(target, source, env, **kw):
-    Verbose = False
-
-    if Verbose:
-        print("_lib_emitter: target[0]=%r" % target[0].get_path())
-
-    try:
-        vp = kw['varprefix']
-    except KeyError:
-        vp = 'SHLIB'
-
-    try:
-        libtype = kw['libtype']
-    except KeyError:
-        libtype = 'ShLib'
-
-    dll = env.FindIxes(target, '%sPREFIX' % vp, '%sSUFFIX' % vp)
-    no_import_lib = env.get('no_import_lib', 0)
-
-    if Verbose:
-        print("_lib_emitter: dll=%r" % dll.get_path())
-
-    if not dll or len(target) > 1:
-        raise SCons.Errors.UserError(
-            "A shared library should have exactly one target with the suffix: %s" % env.subst("$%sSUFFIX" % vp))
-
-    # Remove any "lib" after the prefix
-    pre = env.subst('$%sPREFIX' % vp)
-    if dll.name[len(pre):len(pre) + 3] == 'lib':
-        dll.name = pre + dll.name[len(pre) + 3:]
-
-    if Verbose:
-        print("_lib_emitter: dll.name=%r" % dll.name)
-
-    orig_target = target
-    target = [env.fs.File(dll)]
-    target[0].attributes.shared = 1
-
-    if Verbose:
-        print("_lib_emitter: after target=[env.fs.File(dll)]: target[0]=%r" % target[0].get_path())
-
-    # Append an import lib target
     if not no_import_lib:
-        # Create list of target libraries as strings
-        target_strings = env.ReplaceIxes(orig_target[0],
-                                         '%sPREFIX' % vp, '%sSUFFIX' % vp,
-                                         'IMPLIBPREFIX', 'IMPLIBSUFFIX')
-        if Verbose:
-            print("_lib_emitter: target_strings=%r" % target_strings)
+        # Specify import lib and add to targets
 
-        implib_target = env.fs.File(target_strings)
-        if Verbose:
-            print("_lib_emitter: implib_target=%r" % implib_target.get_path())
-        implib_target.attributes.shared = 1
-        target.append(implib_target)
+        import_lib = env.subst('$%s_IMPLIBNAME' % var_prefix, target=target, source=source)
+        import_lib_target = env.fs.File(import_lib)
+        import_lib_target.attributes.shared = 1
+        target.append(import_lib_target)
 
-        # Only create the symlinks if there is actually an import library
-        symlinks = ImpLibSymlinkGenerator(env, implib_target,
-                                          implib_libtype=libtype,
-                                          generator_libtype=libtype + 'ImpLib')
-        if Verbose:
-            print("_lib_emitter: implib symlinks=%r" % StringizeLibSymlinks(symlinks))
-        if symlinks:
-            EmitLibSymlinks(env, symlinks, implib_target, clean_targets=target[0])
-            implib_target.attributes.shliblinks = symlinks
+        if verbose:
+            print("cyglink_lib_emitter: import_lib={}".format(import_lib))
+            print("cyglink_lib_emitter: target=%s" % target)
 
-    return (target, source)
+    for tgt in target:
+        if is_String(tgt):
+            tgt = env.File(tgt)
+        tgt.attributes.shared = 1
+
+    return target, source
 
 
-def shlib_emitter(target, source, env):
-    return _lib_emitter(target, source, env, varprefix='SHLIB', libtype='ShLib')
+def cyglink_ldmodule_emitter(target, source, env, **kw):
+    return cyglink_lib_emitter(target, source, env, variable_prefix='LDMODULE')
 
 
-def ldmod_emitter(target, source, env):
-    return _lib_emitter(target, source, env, varprefix='LDMODULE', libtype='LdMod')
-
-
-def _versioned_lib_suffix(env, suffix, version):
-    """Generate versioned shared library suffix from a unversioned one.
-       If suffix='.dll', and version='0.1.2', then it returns '-0-1-2.dll'"""
-    Verbose = False
-    if Verbose:
-        print("_versioned_lib_suffix: suffix= ", suffix)
-        print("_versioned_lib_suffix: version= ", version)
-    cygversion = re.sub(r'\.', '-', version)
-    if not suffix.startswith('-' + cygversion):
-        suffix = '-' + cygversion + suffix
-    if Verbose:
-        print("_versioned_lib_suffix: return suffix= ", suffix)
-    return suffix
-
-
-def _versioned_implib_name(env, libnode, version, prefix, suffix, **kw):
-    return linkCommon._versioned_lib_name(env, libnode, version, prefix, suffix,
-                                                     ImpLibPrefixGenerator,
-                                                     ImpLibSuffixGenerator,
-                                                     implib_libtype=kw['libtype'])
-
-
-def _versioned_implib_symlinks(env, libnode, version, prefix, suffix, **kw):
-    """Generate link names that should be created for a versioned shared library.
-       Returns a list in the form [ (link, linktarget), ... ]
+def cyglink_shlib_symlink_emitter(target, source, env, **kw):
     """
-    Verbose = False
+    On cygwin, we only create a symlink from the non-versioned implib to the versioned implib.
+    We don't version the shared library itself.
+    :param target:
+    :param source:
+    :param env:
+    :param kw:
+    :return:
+    """
+    verbose = True
 
-    if Verbose:
-        print("_versioned_implib_symlinks: libnode=%r" % libnode.get_path())
-        print("_versioned_implib_symlinks: version=%r" % version)
+    if 'variable_prefix' in kw:
+        var_prefix = kw['variable_prefix']
+    else:
+        var_prefix = 'SHLIB'
 
-    try:
-        libtype = kw['libtype']
-    except KeyError:
-        libtype = 'ShLib'
+    no_import_lib = env.get('no_import_lib', False)
+    if no_import_lib in ['1', 'True', 'true', True]:
+        if verbose:
+            print("cyglink_shlib_symlink_emitter: no_import_lib=%s" % no_import_lib)
+        return target, source
 
-    linkdir = os.path.dirname(libnode.get_path())
-    if Verbose:
-        print("_versioned_implib_symlinks: linkdir=%r" % linkdir)
+    no_symlinks = env.subst('$%sNOVERSIONSYMLINKS' % var_prefix)
+    if no_symlinks in ['1', 'True', 'true', True]:
+        return target, source
 
-    name = ImpLibNameGenerator(env, libnode,
-                               implib_libtype=libtype,
-                               generator_libtype=libtype + 'ImpLib')
-    if Verbose:
-        print("_versioned_implib_symlinks: name=%r" % name)
+    shlibversion = env.subst('$%sVERSION' % var_prefix)
+    if shlibversion:
+        if verbose:
+            print("cyglink_shlib_symlink_emitter: %sVERSION=%s" % (var_prefix, shlibversion))
 
-    major = version.split('.')[0]
+        # The implib (added by the cyglink_lib_emitter)
+        imp_lib_node = target[1]
+        shlib_noversion_symlink = env.subst('$%s_NOVERSION_SYMLINK' % var_prefix, target=target[0], source=source)
 
-    link0 = env.fs.File(os.path.join(linkdir, name))
-    symlinks = [(link0, libnode)]
+        if verbose:
+            print("cyglink_shlib_symlink_emitter: shlib_noversion_symlink :%s" % shlib_noversion_symlink)
+            print("cyglink_shlib_symlink_emitter: imp_lib_node            :%s" % imp_lib_node)
 
-    if Verbose:
-        print("_versioned_implib_symlinks: return symlinks=%r" % StringizeLibSymlinks(symlinks))
+        symlinks = [(env.File(shlib_noversion_symlink), imp_lib_node)]
 
-    return symlinks
+        if verbose:
+            print("cyglink_shlib_symlink_emitter: symlinks={!r}".format(
+                ', '.join(["%r->%r" % (k, v) for k, v in StringizeLibSymlinks(symlinks)])
+            ))
+
+        if symlinks:
+            # This does the actual symlinking
+            EmitLibSymlinks(env, symlinks, target[0])
+
+            # This saves the information so if the versioned shared library is installed
+            # it can faithfully reproduce the correct symlinks
+            target[0].attributes.shliblinks = symlinks
+
+    return target, source
 
 
-shlib_action = SCons.Action.Action(shlib_generator, generator=1)
-ldmod_action = SCons.Action.Action(ldmod_generator, generator=1)
+def cyglink_ldmod_symlink_emitter(target, source, env, **kw):
+    return cyglink_shlib_symlink_emitter(target, source, env, variable_prefix='LDMODULE')
+
+
+def cyglink_shlibversion(target, source, env, for_signature):
+    var_prefix = 'SHLIB'
+    var = '%sVERSION' % var_prefix
+    if var not in env:
+        return ''
+
+    version = env.subst("$%s" % var, target=target, source=source)
+    version = version.replace('.', '-')
+    return "." + version
+
+
+def cyglink_ldmodule_version(target, source, env, for_signature):
+    var_prefix = 'LDMODULE'
+    var = '%sVERSION' % var_prefix
+    if var not in env:
+        return ''
+
+    version = env.subst("$%s" % var, target=target, source=source)
+    version = version.replace('.', '-')
+    return "." + version
+
+
+def _implib_pre_flags(target, source, env, for_signature):
+    no_import_lib = env.get('no_import_lib', False)
+    if no_import_lib in ['1', 'True', 'true', True]:
+        return ''
+    else:
+        return '-Wl,--out-implib=${TARGETS[1]} -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive'
+
+
+def _implib_post_flags(target, source, env, for_signature):
+    no_import_lib = env.get('no_import_lib', False)
+    if no_import_lib in ['1', 'True', 'true', True]:
+        return ''
+    else:
+        return '-Wl,--no-whole-archive'
 
 
 def generate(env):
     """Add Builders and construction variables for cyglink to an Environment."""
     gnulink.generate(env)
 
-    env['LINKFLAGS'] = SCons.Util.CLVar('-Wl,-no-undefined')
-
-    env['SHLINKCOM'] = shlib_action
-    env['LDMODULECOM'] = ldmod_action
-    env.Append(SHLIBEMITTER=[shlib_emitter])
-    env.Append(LDMODULEEMITTER=[ldmod_emitter])
+    env['LINKFLAGS'] = CLVar('-Wl,-no-undefined')
 
     env['SHLIBPREFIX'] = 'cyg'
     env['SHLIBSUFFIX'] = '.dll'
@@ -221,33 +163,43 @@ def generate(env):
     env['IMPLIBSUFFIX'] = '.dll.a'
 
     # Variables used by versioned shared libraries
+    # SHLIBVERSIONFLAGS and LDMODULEVERSIONFLAGS are same as in gnulink...
     env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
     env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS'
 
-    # SHLIBVERSIONFLAGS and LDMODULEVERSIONFLAGS are same as in gnulink...
+    env['_IMPLIB_PRE_SOURCES'] = _implib_pre_flags
+    env['_IMPLIB_POST_SOURCES'] = _implib_post_flags
+    env['SHLINKCOM'] = '$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH ' \
+                       '$_IMPLIB_PRE_SOURCES $SOURCES  $_IMPLIB_POST_SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LDMODULECOM'] = '$LDMODULE -o $TARGET $SHLINKFLAGS $__LDMODULEVERSIONFLAGS $__RPATH ' \
+                         '$_IMPLIB_PRE_SOURCES $SOURCES $_IMPLIB_POST_SOURCES $_LIBDIRFLAGS  $_LIBFLAGS'
 
-    # LINKCALLBACKS are NOT inherited from gnulink
-    env['LINKCALLBACKS'] = {
-        'VersionedShLibSuffix': _versioned_lib_suffix,
-        'VersionedLdModSuffix': _versioned_lib_suffix,
-        'VersionedImpLibSuffix': _versioned_lib_suffix,
-        'VersionedShLibName': linkCommon._versioned_shlib_name,
-        'VersionedLdModName': linkCommon._versioned_ldmod_name,
-        'VersionedShLibImpLibName': lambda *args: _versioned_implib_name(*args, libtype='ShLib'),
-        'VersionedLdModImpLibName': lambda *args: _versioned_implib_name(*args, libtype='LdMod'),
-        'VersionedShLibImpLibSymlinks': lambda *args: _versioned_implib_symlinks(*args, libtype='ShLib'),
-        'VersionedLdModImpLibSymlinks': lambda *args: _versioned_implib_symlinks(*args, libtype='LdMod'),
-    }
+    # Overwrite emitters. Cyglink does things differently when creating symlinks
+    env['SHLIBEMITTER'] = [cyglink_lib_emitter, cyglink_shlib_symlink_emitter]
+    env['LDMODULEEMITTER'] = [cyglink_ldmodule_emitter, cyglink_ldmod_symlink_emitter]
 
+    # This is the non versioned shlib filename
+    # If SHLIBVERSION is defined then this will symlink to $SHLIBNAME
+    env['SHLIB_NOVERSION_SYMLINK'] = '${IMPLIBPREFIX}$_get_shlib_stem${IMPLIBSUFFIX}'
+    env['LDMODULE_NOVERSION_SYMLINK'] = '${IMPLIBPREFIX}$_get_ldmodule_stem${IMPLIBSUFFIX}'
+
+    env['SHLIB_IMPLIBNAME'] = '${IMPLIBPREFIX}$_get_shlib_stem${_SHLIB_IMPLIBSUFFIX}'
+    env['LDMODULE_IMPLIBNAME'] = '${IMPLIBPREFIX}$_get_ldmodule_stem${_LDMODULE_IMPLIBSUFFIX}'
+
+    env['_cyglink_shlibversion'] = cyglink_shlibversion
+    env['_SHLIB_IMPLIBSUFFIX'] = '${_cyglink_shlibversion}${IMPLIBSUFFIX}'
+    env['_SHLIBSUFFIX'] = '${_cyglink_shlibversion}${SHLIBSUFFIX}'
+
+    env['_cyglink_ldmodule_version'] = cyglink_ldmodule_version
+
+    env['_LDMODULESUFFIX'] = '${_cyglink_ldmodule_version}${LDMODULESUFFIX}'
+    env['_LDMODULE_IMPLIBSUFFIX'] = '${_cyglink_ldmodule_version}${IMPLIBSUFFIX}'
+
+    # Remove variables set by default initialization which aren't needed/used by cyglink
     # these variables were set by gnulink but are not used in cyglink
-    try:
-        del env['_SHLIBSONAME']
-    except KeyError:
-        pass
-    try:
-        del env['_LDMODULESONAME']
-    except KeyError:
-        pass
+    for rv in ['_SHLIBSONAME', '_LDMODULESONAME']:
+        if rv in env:
+            del env[rv]
 
 
 def exists(env):

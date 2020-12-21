@@ -50,8 +50,7 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
-from SCons.Tool.linkCommon import ShLibPrefixGenerator, LdModPrefixGenerator, ShLibSuffixGenerator, \
-    LdModSuffixGenerator, LibSymlinksActionFunction, LibSymlinksStrFun
+from SCons.Tool.linkCommon import LibSymlinksActionFunction, LibSymlinksStrFun
 
 DefaultToolpath = []
 
@@ -348,8 +347,8 @@ def createSharedLibBuilder(env):
                        LibSymlinksAction]
         shared_lib = SCons.Builder.Builder(action=action_list,
                                            emitter="$SHLIBEMITTER",
-                                           prefix=ShLibPrefixGenerator,
-                                           suffix=ShLibSuffixGenerator,
+                                           prefix="$SHLIBPREFIX",
+                                           suffix="$_SHLIBSUFFIX",
                                            target_scanner=ProgramScanner,
                                            src_suffix='$SHOBJSUFFIX',
                                            src_builder='SharedObject')
@@ -374,8 +373,8 @@ def createLoadableModuleBuilder(env):
                        LibSymlinksAction]
         ld_module = SCons.Builder.Builder(action=action_list,
                                           emitter="$LDMODULEEMITTER",
-                                          prefix=LdModPrefixGenerator,
-                                          suffix=LdModSuffixGenerator,
+                                          prefix="$LDMODULEPREFIX",
+                                          suffix="$_LDMODULESUFFIX",
                                           target_scanner=ProgramScanner,
                                           src_suffix='$SHOBJSUFFIX',
                                           src_builder='SharedObject')
