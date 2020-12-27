@@ -56,6 +56,7 @@ int abc(int a) {
   """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools=['mingw','link','g++'])
 #env.Tool('mingw')
 env.SharedLibrary('foobar', 'foobar.cc')

@@ -187,6 +187,9 @@ def generate(env):
     env['LIBSUFFIX'] = '.a'
     env['PROGSUFFIX'] = '.exe'
 
+    # Handle new versioned shared library logic
+    env['_SHLIBSUFFIX'] = '$SHLIBSUFFIX'
+
 
 def exists(env):
     mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
