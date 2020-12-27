@@ -251,7 +251,7 @@ compositeLinkAction = exeLinkAction + embedManifestExeCheckAction
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
-    SCons.Tool.createSharedLibBuilder(env)
+    SCons.Tool.createSharedLibBuilder(env, shlib_suffix='$SHLIBSUFFIX')
     SCons.Tool.createProgBuilder(env)
 
     env['SHLINK']      = '$LINK'
@@ -313,7 +313,7 @@ def generate(env):
     # are subject to different build parameters (LDMODULE* variables).
     # Therefore LDMODULE* variables correspond as much as possible to
     # SHLINK*/SHLIB* ones.
-    SCons.Tool.createLoadableModuleBuilder(env)
+    SCons.Tool.createLoadableModuleBuilder(env, loadable_module_suffix='$LDMODULESUFFIX')
     env['LDMODULE'] = '$SHLINK'
     env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'

@@ -332,11 +332,15 @@ def createStaticLibBuilder(env):
     return static_lib
 
 
-def createSharedLibBuilder(env):
+def createSharedLibBuilder(env, shlib_suffix='$_SHLIBSUFFIX'):
     """This is a utility function that creates the SharedLibrary
     Builder in an Environment if it is not there already.
 
     If it is already there, we return the existing one.
+
+    Args:
+        shlib_suffix: The suffix specified for the shared library builder
+
     """
 
     try:
@@ -349,7 +353,7 @@ def createSharedLibBuilder(env):
         shared_lib = SCons.Builder.Builder(action=action_list,
                                            emitter="$SHLIBEMITTER",
                                            prefix="$SHLIBPREFIX",
-                                           suffix="$_SHLIBSUFFIX",
+                                           suffix=shlib_suffix,
                                            target_scanner=ProgramScanner,
                                            src_suffix='$SHOBJSUFFIX',
                                            src_builder='SharedObject')
@@ -358,11 +362,15 @@ def createSharedLibBuilder(env):
     return shared_lib
 
 
-def createLoadableModuleBuilder(env):
+def createLoadableModuleBuilder(env, loadable_module_suffix='$_LDMODULESUFFIX'):
     """This is a utility function that creates the LoadableModule
     Builder in an Environment if it is not there already.
 
     If it is already there, we return the existing one.
+
+    Args:
+        loadable_module_suffix: The suffix specified for the loadable module builder
+
     """
 
     try:
@@ -375,7 +383,7 @@ def createLoadableModuleBuilder(env):
         ld_module = SCons.Builder.Builder(action=action_list,
                                           emitter="$LDMODULEEMITTER",
                                           prefix="$LDMODULEPREFIX",
-                                          suffix="$_LDMODULESUFFIX",
+                                          suffix=loadable_module_suffix,
                                           target_scanner=ProgramScanner,
                                           src_suffix='$SHOBJSUFFIX',
                                           src_builder='SharedObject')
