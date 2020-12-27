@@ -166,19 +166,16 @@ def generate(env):
     env['LDMODULEPREFIX'] = ''
     env['LDMODULESUFFIX'] = ''
     env['LDMODULEFLAGS'] = CLVar('$LINKFLAGS -bundle')
-    env[
-        'LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS' \
+    env['LDMODULECOM'] = '$LDMODULE -o ${TARGET} $LDMODULEFLAGS' \
                          ' $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $_FRAMEWORKPATH $_FRAMEWORKS $FRAMEWORKSFLAGS'
 
     # New stuff
     #
     env['_SHLIBSUFFIX'] = '${_SHLIBVERSION}${SHLIBSUFFIX}'
 
-    env[
-        '__SHLIBVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
+    env['__SHLIBVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
                                  '"SHLIBVERSION","_APPLELINK_CURRENT_VERSION", "_SHLIBVERSIONFLAGS")}'
-    env[
-        '__LDMODULEVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
+    env['__LDMODULEVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
                                     '"LDMODULEVERSION","_APPLELINK_CURRENT_VERSION", "_LDMODULEVERSIONFLAGS")}'
 
 
