@@ -1,10 +1,7 @@
-"""
-This tests the MinGW C/C++ compiler support.
-"""
-
 #!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,9 +21,10 @@ This tests the MinGW C/C++ compiler support.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+"""
+This tests the MinGW C/C++ compiler support.
+"""
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
@@ -45,6 +43,9 @@ if sys.platform != 'win32':
 test.write('SConstruct',"""
 from SCons.Tool.mingw import exists
 import sys
+
+DefaultEnvironment(tools=[])
+
 env = Environment()
 if exists(env):
     print('mingw exists')
@@ -59,6 +60,7 @@ test.subdir('header')
 
 # Do the actual testing:
 test.write('SConstruct',"""
+DefaultEnvironment(tools=[])
 env=Environment(tools=['mingw'])
 assert env['CC'] == 'gcc'
 env.StaticLibrary('static', 'static.cpp')

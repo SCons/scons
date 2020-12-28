@@ -1,13 +1,3 @@
-"""SCons.Tool.gnulink
-
-Tool-specific initialization for the gnu linker.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
 #
 # MIT License
 #
@@ -32,7 +22,15 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+"""SCons.Tool.gnulink
 
+Tool-specific initialization for the gnu linker.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
 
 import SCons.Tool.linkCommon
 import SCons.Util

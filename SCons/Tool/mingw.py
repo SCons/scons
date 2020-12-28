@@ -48,6 +48,7 @@ mingw_paths = [
     r'C:\msys64\mingw64\bin',
     r'C:\cygwin\bin',
     r'C:\msys',
+    r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
 ]
 
 
@@ -141,6 +142,11 @@ def generate(env):
     mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
+
+        # Adjust path if we found it in a chocolatey install
+        if mingw_bin_dir == r'C:\ProgramData\chocolatey\bin':
+            mingw_bin_dir = r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
+
         env.AppendENVPath('PATH', mingw_bin_dir)
 
     # Most of mingw is the same as gcc and friends...
@@ -161,6 +167,7 @@ def generate(env):
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM'] = shlib_action
+    env['SHLINKCOMSTR'] = shlib_generator
     env['LDMODULECOM'] = ldmodule_action
     env.Append(SHLIBEMITTER=[shlib_emitter])
     env.Append(LDMODULEEMITTER=[shlib_emitter])
@@ -189,6 +196,8 @@ def generate(env):
 
     # Handle new versioned shared library logic
     env['_SHLIBSUFFIX'] = '$SHLIBSUFFIX'
+    env["SHLIBPREFIX"] = ""
+
 
 
 def exists(env):

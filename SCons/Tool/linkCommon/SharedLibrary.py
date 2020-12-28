@@ -41,7 +41,7 @@ def shlib_symlink_emitter(target, source, env, **kw):
         if shlib_soname_symlink != libnode:
             # If soname and library name machine, don't symlink them together
             symlinks.append((env.File(shlib_soname_symlink), libnode))
-        
+
         symlinks.append((env.File(shlib_noversion_symlink), libnode))
 
         if verbose:
@@ -152,9 +152,7 @@ def setup_shared_lib_logic(env):
 
     # This is the non versioned shlib filename
     # If SHLIBVERSION is defined then this will symlink to $SHLIBNAME
-    env[
-        "SHLIB_NOVERSION_SYMLINK"
-    ] = "${_get_shlib_dir}${SHLIBPREFIX}$_get_shlib_stem${SHLIBSUFFIX}"
+    env["SHLIB_NOVERSION_SYMLINK"] = "${_get_shlib_dir}${SHLIBPREFIX}$_get_shlib_stem${SHLIBSUFFIX}"
 
     # This is the sonamed file name
     # If SHLIBVERSION is defined then this will symlink to $SHLIBNAME
@@ -172,8 +170,6 @@ def setup_shared_lib_logic(env):
 
     env["SHLINKFLAGS"] = CLVar("$LINKFLAGS -shared")
 
-    env[
-        "SHLINKCOM"
-    ] = "$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS"
+    env["SHLINKCOM"] = "$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS"
     env["SHLINKCOMSTR"] = "$SHLINKCOM"
     env["SHLINK"] = "$LINK"
