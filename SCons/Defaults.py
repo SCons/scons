@@ -45,6 +45,7 @@ import SCons.Environment
 import SCons.PathList
 import SCons.Subst
 import SCons.Tool
+import SCons.Scanner.Dir
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -134,7 +135,6 @@ ProgScan = SCons.Tool.ProgramScanner
 # These aren't really tool scanners, so they don't quite belong with
 # the rest of those in Tool/__init__.py, but I'm not sure where else
 # they should go.  Leave them here for now.
-import SCons.Scanner.Dir
 
 DirScanner = SCons.Scanner.Dir.DirScanner()
 DirEntryScanner = SCons.Scanner.Dir.DirEntryScanner()
@@ -575,7 +575,7 @@ class Variable_Method_Caller:
 
 def __libversionflags(env, version_var, flags_var):
     """
-    if $version_var is not empty, returns env[flags_var], otherwise returns None
+    if version_var is not empty, returns env[flags_var], otherwise returns None
     :param env:
     :param version_var:
     :param flags_var:
