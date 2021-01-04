@@ -1252,6 +1252,17 @@ class Base(SubstitutionEnvironment):
 
         self.scanner_map_delete(kw)
 
+    def _canonicalize(self, path):
+        """Allow Dirs and strings beginning with # for top-relative.
+
+        Note this uses the current env's fs (in self).
+        """
+        if not is_String(path):  # typically a Dir
+            path = str(path)
+        if path and path[0] == '#':
+            path = str(self.fs.Dir(path))
+        return path
+
     def AppendENVPath(self, name, newpath, envname = 'ENV',
                       sep = os.pathsep, delete_existing=0):
         """Append path elements to the path 'name' in the 'ENV'
