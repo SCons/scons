@@ -2249,6 +2249,7 @@ class Base(SubstitutionEnvironment):
         side_effects = self.arg2nodes(side_effect, self.fs.Entry)
         targets = self.arg2nodes(target, self.fs.Entry)
 
+        added_side_effects = []
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
                 raise UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
@@ -2256,8 +2257,10 @@ class Base(SubstitutionEnvironment):
             side_effect.side_effect = 1
             self.Precious(side_effect)
             for target in targets:
-                target.side_effects.append(side_effect)
-        return side_effects
+                if side_effect not in target.side_effects:
+                    target.side_effects.append(side_effect)
+                    added_side_effects.append(side_effect)
+        return added_side_effects
 
     def Split(self, arg):
         """This function converts a string or list into a list of strings

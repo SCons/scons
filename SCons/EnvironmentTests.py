@@ -3326,6 +3326,12 @@ def generate(env):
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
 
+        # Verify that duplicate side effects are not allowed.
+        before = len(ggg.side_effects)
+        s = env.SideEffect('mymmm.pdb', ggg)
+        assert len(s) == 0, len(s)
+        assert len(ggg.side_effects) == before, len(ggg.side_effects)
+
     def test_Split(self):
         """Test the Split() method"""
         env = self.TestEnvironment(FOO = 'fff', BAR = 'bbb')
