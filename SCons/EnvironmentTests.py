@@ -3301,7 +3301,9 @@ def generate(env):
 
         foo = env.Object('foo.obj', 'foo.cpp')[0]
         bar = env.Object('bar.obj', 'bar.cpp')[0]
-        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])[0]
+        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])
+        assert len(s) == 1, len(s)
+        s = s[0]
         assert s.__class__.__name__ == 'Entry', s.__class__.__name__
         assert s.get_internal_path() == 'mylib.pdb'
         assert s.side_effect
@@ -3310,7 +3312,9 @@ def generate(env):
 
         fff = env.Object('fff.obj', 'fff.cpp')[0]
         bbb = env.Object('bbb.obj', 'bbb.cpp')[0]
-        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])[0]
+        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])
+        assert len(s) == 1, len(s)
+        s = s[0]
         assert s.__class__.__name__ == 'File', s.__class__.__name__
         assert s.get_internal_path() == 'mylll.pdb'
         assert s.side_effect
@@ -3319,7 +3323,9 @@ def generate(env):
 
         ggg = env.Object('ggg.obj', 'ggg.cpp')[0]
         ccc = env.Object('ccc.obj', 'ccc.cpp')[0]
-        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])[0]
+        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])
+        assert len(s) == 1, len(s)
+        s = s[0]
         assert s.__class__.__name__ == 'Dir', s.__class__.__name__
         assert s.get_internal_path() == 'mymmm.pdb'
         assert s.side_effect

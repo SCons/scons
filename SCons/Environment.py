@@ -2256,10 +2256,13 @@ class Base(SubstitutionEnvironment):
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             self.Precious(side_effect)
+            added = False
             for target in targets:
                 if side_effect not in target.side_effects:
                     target.side_effects.append(side_effect)
-                    added_side_effects.append(side_effect)
+                    added = True
+            if added:
+                added_side_effects.append(side_effect)
         return added_side_effects
 
     def Split(self, arg):
