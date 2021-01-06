@@ -41,7 +41,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
     - Change Environment.SideEffect() to not add duplicate side effects. 
-      NOTE: The list of returned side effects will not include any duplicate side effects.
+      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
 
   From Jason Kenny
     - Fix python3 crash when Value node get_text_content when child content does not have decode()
