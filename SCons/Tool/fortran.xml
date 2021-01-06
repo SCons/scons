@@ -85,7 +85,7 @@ If not set, then &cv-link-FORTRANCOM;
 <summary>
 <para>
 The list of file extensions for which the FORTRAN dialect will be used. By
-default, this is ['.f', '.for', '.ftn']
+default, this is <literal>['.f', '.for', '.ftn']</literal>
 </para>
 </summary>
 </cvar>
@@ -94,7 +94,7 @@ default, this is ['.f', '.for', '.ftn']
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-FORTRAN dialect will be used. By default, this is ['.fpp', '.FPP']
+FORTRAN dialect will be used. By default, this is <literal>['.fpp', '.FPP']</literal>
 </para>
 </summary>
 </cvar>

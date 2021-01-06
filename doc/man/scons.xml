@@ -6879,20 +6879,35 @@ suffix as a C source file.</para>
 </refsect2>
 
 <refsect2 id='f_file_suffix'>
-<title>.F file suffix</title>
+<title>Fortran file suffixes</title>
 
-<para>&scons; handles the upper-case
-<filename>.F</filename>
-file suffix differently,
+<para>&scons; handles upper-case
+Fortran file suffixes differently
 depending on the capabilities of
 the underlying system.
 On a case-sensitive system
 such as Linux or UNIX,
 &scons; treats a file with a
 <filename>.F</filename>
-suffix as a Fortran source file
+as a Fortran source file
 that is to be first run through
-the standard C preprocessor.
+the standard C preprocessor, 
+while the lower-case version is not.
+This matches the convention of <command>gfortran</command>,
+which may also be followed by other Fortran compilers.
+This also applies to other naming variants,
+<filename>.FOR</filename>,
+<filename>.FTN</filename>,
+<filename>.F90</filename>,
+<filename>.F95</filename>,
+<filename>.F03</filename> and
+<filename>.F08</filename>;
+files suffixed with
+<filename>.FPP</filename>
+and <filename>.fpp</filename>
+are both run through the preprocessor,
+as indicated by the <literal>pp</literal>
+part of the name.
 On a case-insensitive system
 such as Windows,
 &scons; treats a file with a
@@ -6900,6 +6915,15 @@ such as Windows,
 suffix as a Fortran source file that should
 <emphasis>not</emphasis>
 be run through the C preprocessor.</para>
+<para>
+<emphasis>Run through the C preprocessor</emphasis>
+here means that a different set of &consvars; will
+be applied in constructed commands, for example
+&cv-link-FORTRANPPCOM; and &cv-link-FORTRANPPCOMSTR;
+instead of
+&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR;.
+See the Fortran-related &consvars; for more details.
+</para>
 </refsect2>
 
 <refsect2 id='windows_cygwin_tools_and_cygwin_python_v'>
