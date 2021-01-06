@@ -106,7 +106,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix cut-n-paste error in msvc debug printout and make some debug output
       in msvs and msvsTests.py be off until needed (uncomment to use)
     - Fix Issue #3014 - Empty file and missing file have same csig
-
+    - Refactor env.Append/Prepend to remove Py 1.5 era need to nest
+      try blocks, can now "continue" at the appropriate places.
 
 
 
