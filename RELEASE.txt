@@ -40,7 +40,9 @@
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
     - Environment.SideEffect() no longer adds duplicate side effects.
-      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
+      NOTE: The list of returned side effect Nodes will not include any
+      duplicate side effect Nodes.
+    - /snap/bin is added to the default search path for the 'posix' platform.
 
   FIXES
 
