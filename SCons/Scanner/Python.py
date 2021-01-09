@@ -130,10 +130,6 @@ def scan(node, env, path=()):
     if callable(path):
         path = path()
 
-    # If there are no paths, there is no point in parsing includes in the loop.
-    if not path:
-        return []
-
     for module, imports in includes:
         is_relative = module.startswith('.')
         if is_relative:
@@ -151,6 +147,11 @@ def scan(node, env, path=()):
         else:
             search_paths = [env.Dir(p) for p in path]
             search_string = module
+
+        # If there are no paths, there is no point in parsing includes for this
+        # iteration of the loop.
+        if not search_paths:
+            continue
 
         module_components = [x for x in search_string.split('.') if x]
         package_dir = None
