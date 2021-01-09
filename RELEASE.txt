@@ -39,8 +39,8 @@
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+    - Environment.SideEffect() no longer adds duplicate side effects.
+      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
 
   FIXES
 

@@ -2693,11 +2693,13 @@ class File(Base):
     def scanner_key(self):
         return self.get_suffix()
 
-    def get_contents(self):
+    def get_contents(self) -> bytes:
+        """Return the contents of the file as bytes."""
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
-    def get_text_contents(self):
-        """
+    def get_text_contents(self) -> str:
+        """Return the contents of the file in text form.
+
         This attempts to figure out what the encoding of the text is
         based upon the BOM bytes, and then decodes the contents so that
         it's a valid python string.
@@ -2721,15 +2723,13 @@ class File(Base):
             try:
                 return contents.decode('latin-1')
             except UnicodeDecodeError as e:
-                return contents.decode('utf-8', error='backslashreplace')
+                return contents.decode('utf-8', errors='backslashreplace')
 
 
-    def get_content_hash(self):
-        """
-        Compute and return the MD5 hash for this file.
-        """
+    def get_content_hash(self) -> str:
+        """Compute and return the hash of the file contents."""
         if not self.rexists():
-            return MD5signature('')
+            return MD5signature(SCons.Util.NOFILE)
         fname = self.rfile().get_abspath()
         try:
             cs = MD5filesignature(fname, chunksize=File.md5_chunksize)
@@ -2740,7 +2740,7 @@ class File(Base):
         return cs
 
     @SCons.Memoize.CountMethodCall
-    def get_size(self):
+    def get_size(self) -> int:
         try:
             return self._memo['get_size']
         except KeyError:
@@ -2749,14 +2749,14 @@ class File(Base):
         if self.rexists():
             size = self.rfile().getsize()
         else:
-            size = 0
+            # sentinel value for doesn't exist, even in repository
+            size = -1
 
         self._memo['get_size'] = size
-
         return size
 
     @SCons.Memoize.CountMethodCall
-    def get_timestamp(self):
+    def get_timestamp(self) -> int:
         try:
             return self._memo['get_timestamp']
         except KeyError:
@@ -2768,7 +2768,6 @@ class File(Base):
             timestamp = 0
 
         self._memo['get_timestamp'] = timestamp
-
         return timestamp
 
     convert_copy_attrs = [
@@ -2779,7 +2778,6 @@ class File(Base):
         'bactsig',
         'ninfo',
     ]
-
 
     convert_sig_attrs = [
         'bsourcesigs',
@@ -3173,7 +3171,7 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
-    def get_max_drift_csig(self):
+    def get_max_drift_csig(self) -> str:
         """
         Returns the content signature currently stored for this node
         if it's been unmodified longer than the max_drift value, or the
@@ -3199,15 +3197,8 @@ class File(Base):
 
         return None
 
-    def get_csig(self):
-        """
-        Generate a node's content signature, the digested signature
-        of its content.
-
-        node - the node
-        cache - alternate node to use for the signature cache
-        returns - the content signature
-        """
+    def get_csig(self) -> str:
+        """Generate a node's content signature."""
         ninfo = self.get_ninfo()
         try:
             return ninfo.csig
@@ -3216,9 +3207,11 @@ class File(Base):
 
         csig = self.get_max_drift_csig()
         if csig is None:
-
             try:
-                if self.get_size() < File.md5_chunksize:
+                size = self.get_size()
+                if size == -1:
+                    contents = SCons.Util.NOFILE
+                elif size < File.md5_chunksize:
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()

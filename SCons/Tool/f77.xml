@@ -91,7 +91,7 @@ for all Fortran versions.
 <summary>
 <para>
 The list of file extensions for which the F77 dialect will be used. By
-default, this is ['.f77']
+default, this is <literal>['.f77']</literal>
 </para>
 </summary>
 </cvar>
@@ -100,7 +100,7 @@ default, this is ['.f77']
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F77 dialect will be used. By default, this is empty
+F77 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>

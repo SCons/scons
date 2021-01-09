@@ -8,6 +8,10 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From James Benton:
+    - Add COMPILATIONDB_PATH_FILTER env option for CompilationDatabase() builder which allows
+      filtering of entries based on the output file paths using glob style file matching (issue #3742).
+
   From Joseph Brill:
     - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
       is not exposed externally and update external references accordingly.
@@ -26,7 +30,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
     - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
 
-
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
 
@@ -35,8 +38,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       User-facing behavior does not change with this fix (GH Issue #3726).
     - Fix occasional test failures caused by not being able to find a file or directory fixture
       when running multiple tests with multiple jobs.
+    - Fix incorrect cache hits and/or misses when running in interactive mode by having
+      SCons.Node.Node.clear() clear out all caching-related state.
+    - Change Environment.SideEffect() to not add duplicate side effects. 
+      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
     - Add support to the Python scanner for finding dynamically generated dependencies.
       Previously the scanner only found imports if they existed on disk at scanning time.
+
+  From Jason Kenny
+    - Fix python3 crash when Value node get_text_content when child content does not have decode()
+      NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's
+      children. This may break your code. It now concatenates the csig() of all children.
+>>>>>>> master
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
@@ -49,6 +62,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
     - Fix issue where java parsed a class incorrectly from lambdas used after a new.
+
+  From Simon Tegelid
+    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
+      with an action list like this:
+      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
+      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
+      in the action list.
 
   From Mats Wichmann:
     - Complete tests for Dictionary, env.keys() and env.values() for
@@ -79,15 +99,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and to rerun such tests. Useful when an error cascades through several
       tests, can quickly try if a change improves all the fails. Dropped
       runtest test for fallback from qmtest, not needed; added new tests.
-
-  From Simon Tegelid
-    - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
-      with an action list like this:
-      ['${TEMPFILE("xxx.py -otempfile $SOURCE")}', '${TEMPFILE("yyy.py -o$TARGET tempfile")}']
-      Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
-      in the action list.
-
-
+    - Eliminate tex tool usage of "for foo in range(len(iterable))"
+    - Restore internal Trace function to functional state.
+    - Only try to initialize the wix tool by default (or when tool `default` is explicitly installed)
+      on Windows based systems.
+    - Pick a better "Topic" Trove classifier for SCons: SW Dev / Build Tools
+    - Use os.replace instead of os.rename in dblite so don't need to
+      special-case Windows here. dblite is the default storage engine for the SConsign file(s).
+    - Fix cut-n-paste error in msvc debug printout and make some debug output
+      in msvs and msvsTests.py be off until needed (uncomment to use)
+    - Fix Issue #3014 - Empty file and missing file have same csig
+    - Refactor env.Append/Prepend to remove Py 1.5 era need to nest
+      try blocks, can now "continue" at the appropriate places.
 
 
 
@@ -119,6 +142,7 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
     - Updated documentation toolchain to work properly under Python3, also
       removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
+
 
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support

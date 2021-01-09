@@ -70,7 +70,7 @@
 
     <para>
 
-    Tooling which wants to perform analysis and modification 
+    Tooling to perform analysis and modification
     of source code often needs to know not only the source code
     itself, but also how it will be compiled, as the compilation line
     affects the behavior of macros, includes, etc. &SCons; has a
@@ -93,66 +93,194 @@
     compilation database in this format
     by enabling the &t-link-compilation_db; tool
     and calling the &b-link-CompilationDatabase; builder
-    (available since 4.0).
+    (<emphasis>available since &scons; 4.0</emphasis>).
 
     </para>
 
     <para>
 
     The compilation database can be populated with
-    source and target files either with paths relative
+    source and output files either with paths relative
     to the top of the build, or using absolute paths.
     This is controlled by
     <envar>COMPILATIONDB_USE_ABSPATH=(True|False)</envar>
     which defaults to <constant>False</constant>.
+    The entries in this file can be filtered by using
+
+    <envar>COMPILATIONDB_PATH_FILTER='pattern'</envar>
+    where the filter pattern is a string following the Python
+    <ulink url="https://docs.python.org/3/library/fnmatch.html">
+      <systemitem>fnmatch</systemitem>
+    </ulink>
+    syntax.
+    This filtering can be used for outputting different
+    build variants to different compilation database files.
 
     </para>
 
     <para>
 
-    Example of absolute paths for target and source:
+    The following example illustrates generating a compilation
+    database containing absolute paths:
 
     </para>
 
-    <sconstruct>
+    <scons_example name="external_cdb_ex1">
+      <file name="SConstruct" printme="1">
 env = Environment(COMPILATIONDB_USE_ABSPATH=True)
 env.Tool('compilation_db')
-env.CompilationDatabase('compile_commands.json')
-    </sconstruct>
+env.CompilationDatabase()
+env.Program('hello.c')
+      </file>
+      <file name="hello.c">
+int main( int argc, char* argv[] )
+{
+  return 0;
+}
+      </file>
+    </scons_example>
+
+    <scons_output example="external_cdb_ex1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para><filename>compile_commands.json</filename> contains:</para>
 
     <programlisting language="json">
 [
     {
-        "command": "gcc -o test_main.o -c test_main.c",
+        "command": "gcc -o hello.o -c hello.c",
         "directory": "/home/user/sandbox",
-        "file": "/home/user/sandbox/test_main.c",
-        "target": "/home/user/sandbox/test_main.o"
+        "file": "/home/user/sandbox/hello.c",
+        "output": "/home/user/sandbox/hello.o"
     }
 ]
     </programlisting>
 
     <para>
 
-    Example of relative paths for target and source:
+    Notice that the generated database contains only an entry for
+    the <filename>hello.c/hello.o</filename> pairing,
+    and nothing for the generation of the final executable
+    <filename>hello</filename> - the transformation of
+    <filename>hello.o</filename> to <filename>hello</filename>
+    does not have any information that affects interpretation
+    of the source code,
+    so it is not interesting to the compilation database.
 
     </para>
 
-    <sconstruct>
+    <para>
+
+    Although it can be a little surprising at first glance,
+    a compilation database target is, like any other target,
+    subject to &scons; target selection rules.
+    This means if you set a default target (that does not
+    include the compilation database), or use command-line
+    targets, it might not be selected for building.
+    This can actually be an advantage, since you don't
+    necessarily want to regenerate the compilation database
+    every build.
+    The following example
+    shows selecting relative paths (the default)
+    for output and source,
+    and also giving a non-default name to the database.
+    In order to be able to generate the database separately from building,
+    an alias is set referring to the database,
+    which can then be used as a target - here we are only
+    building the compilation database target, not the code.
+
+    </para>
+
+    <scons_example name="external_cdb_ex2">
+      <file name="SConstruct" printme="1">
 env = Environment()
 env.Tool('compilation_db')
-env.CompilationDatabase('compile_commands.json')
-    </sconstruct>
+cdb = env.CompilationDatabase('compile_database.json')
+Alias('cdb', cdb)
+env.Program('test_main.c')
+      </file>
+      <file name="test_main.c">
+#include "test_main.h"
+int main( int argc, char* argv[] )
+{
+  return 0;
+}
+      </file>
+      <file name="test_main.h">
+/* dummy include file */
+      </file>
+    </scons_example>
+
+    <scons_output example="external_cdb_ex2" suffix="1">
+      <scons_output_command>scons -Q cdb</scons_output_command>
+    </scons_output>
+
+    <para><filename>compile_database.json</filename> contains:</para>
+
     <programlisting language="json">
 [
     {
         "command": "gcc -o test_main.o -c test_main.c",
         "directory": "/home/user/sandbox",
         "file": "test_main.c",
-        "target": "test_main.o"
+        "output": "test_main.o"
+    }
+]
+    </programlisting>
+
+    <para>
+
+    The following (incomplete) example shows using filtering
+    to separate build variants.
+    In the case of using variants,
+    you want different compilation databases for each,
+    since the build parameters differ, so the code analysis
+    needs to see the correct build lines for the 32-bit build
+    and 64-bit build hinted at here.
+    For simplicity of presentation,
+    the example omits the setup details of the variant directories:
+
+    </para>
+
+    <sconstruct>
+env = Environment()
+env.Tool('compilation_db')
+
+env1 = env.Clone()
+env1['COMPILATIONDB_PATH_FILTER'] = 'build/linux32/*'
+env1.CompilationDatabase('compile_commands-linux32.json')
+
+env2 = env.Clone()
+env2['COMPILATIONDB_PATH_FILTER'] = 'build/linux64/*'
+env2.CompilationDatabase('compile_commands-linux64.json')
+    </sconstruct>
+
+    <para><filename>compile_commands-linux32.json</filename> contains:</para>
+
+    <programlisting language="json">
+[
+    {
+        "command": "gcc -m32 -o build/linux32/test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "output": "build/linux32/test_main.o"
+    }
+]
+    </programlisting>
+
+    <para><filename>compile_commands-linux64.json</filename> contains:</para>
+
+    <programlisting language="json">
+[
+    {
+        "command": "gcc -m64 -o build/linux64/test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "output": "build/linux64/test_main.o"
     }
 ]
     </programlisting>
 
   </section>
-
 </chapter>

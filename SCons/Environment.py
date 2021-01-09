@@ -53,9 +53,27 @@ import SCons.SConf
 import SCons.SConsign
 import SCons.Subst
 import SCons.Tool
-import SCons.Util
-from SCons.Util import MethodWrapper
 import SCons.Warnings
+from SCons.Util import (
+    AppendPath,
+    CLVar,
+    LogicalLines,
+    MethodWrapper,
+    PrependPath,
+    Split,
+    WhereIs,
+    flatten,
+    is_Dict,
+    is_List,
+    is_Sequence,
+    is_String,
+    is_Tuple,
+    md5,
+    semi_deepcopy,
+    semi_deepcopy_dict,
+    to_String_for_subst,
+    uniquer_hashables,
+)
 
 class _Null:
     pass
@@ -69,18 +87,17 @@ _warn_target_signatures_deprecated = True
 CleanTargets = {}
 CalculatorArgs = {}
 
-semi_deepcopy = SCons.Util.semi_deepcopy
-semi_deepcopy_dict = SCons.Util.semi_deepcopy_dict
-
 def alias_builder(env, target, source):
     pass
 
-AliasBuilder = SCons.Builder.Builder(action = alias_builder,
-                                     target_factory = SCons.Node.Alias.default_ans.Alias,
-                                     source_factory = SCons.Node.FS.Entry,
-                                     multi = 1,
-                                     is_explicit = None,
-                                     name='AliasBuilder')
+AliasBuilder = SCons.Builder.Builder(
+    action=alias_builder,
+    target_factory=SCons.Node.Alias.default_ans.Alias,
+    source_factory=SCons.Node.FS.Entry,
+    multi=True,
+    is_explicit=None,
+    name='AliasBuilder',
+)
 
 def apply_tools(env, tools, toolpath):
     # Store the toolpath in the Environment.
@@ -91,7 +108,7 @@ def apply_tools(env, tools, toolpath):
         return
     # Filter out null tools from the list.
     for tool in [_f for _f in tools if _f]:
-        if SCons.Util.is_List(tool) or isinstance(tool, tuple):
+        if is_List(tool) or isinstance(tool, tuple):
             toolname = tool[0]
             toolargs = tool[1] # should be a dict of kw args
             tool = env.Tool(toolname, **toolargs)
@@ -191,7 +208,7 @@ def _delete_duplicates(l, keep_last):
 # Note: MethodWrapper moved to SCons.Util as it was needed there
 # and otherwise we had a circular import problem.
 
-class BuilderWrapper(SCons.Util.MethodWrapper):
+class BuilderWrapper(MethodWrapper):
     """
     A MethodWrapper subclass that that associates an environment with
     a Builder.
@@ -214,9 +231,9 @@ class BuilderWrapper(SCons.Util.MethodWrapper):
         if source is _null:
             source = target
             target = None
-        if target is not None and not SCons.Util.is_List(target):
+        if target is not None and not is_List(target):
             target = [target]
-        if source is not None and not SCons.Util.is_List(source):
+        if source is not None and not is_List(source):
             source = [source]
         return super().__call__(target, source, *args, **kw)
 
@@ -390,9 +407,8 @@ class SubstitutionEnvironment:
             # key and we don't need to check.  If we do check, using a
             # global, pre-compiled regular expression directly is more
             # efficient than calling another function or a method.
-            if key not in self._dict \
-               and not _is_valid_var.match(key):
-                    raise UserError("Illegal construction variable `%s'" % key)
+            if key not in self._dict and not _is_valid_var.match(key):
+                raise UserError("Illegal construction variable `%s'" % key)
             self._dict[key] = value
 
     def get(self, key, default=None):
@@ -431,24 +447,24 @@ class SubstitutionEnvironment:
         if not args:
             return []
 
-        args = SCons.Util.flatten(args)
+        args = flatten(args)
 
         nodes = []
         for v in args:
-            if SCons.Util.is_String(v):
+            if is_String(v):
                 n = None
                 for l in lookup_list:
                     n = l(v)
                     if n is not None:
                         break
                 if n is not None:
-                    if SCons.Util.is_String(n):
+                    if is_String(n):
                         # n = self.subst(n, raw=1, **kw)
                         kw['raw'] = 1
                         n = self.subst(n, **kw)
                         if node_factory:
                             n = node_factory(n)
-                    if SCons.Util.is_List(n):
+                    if is_List(n):
                         nodes.extend(n)
                     else:
                         nodes.append(n)
@@ -456,7 +472,7 @@ class SubstitutionEnvironment:
                     # v = node_factory(self.subst(v, raw=1, **kw))
                     kw['raw'] = 1
                     v = node_factory(self.subst(v, **kw))
-                    if SCons.Util.is_List(v):
+                    if is_List(v):
                         nodes.extend(v)
                     else:
                         nodes.append(v)
@@ -492,7 +508,7 @@ class SubstitutionEnvironment:
         nkw = {}
         for k, v in kw.items():
             k = self.subst(k, raw, target, source)
-            if SCons.Util.is_String(v):
+            if is_String(v):
                 v = self.subst(v, raw, target, source)
             nkw[k] = v
         return nkw
@@ -511,7 +527,7 @@ class SubstitutionEnvironment:
         """Substitute a path list, turning EntryProxies into Nodes
         and leaving Nodes (and other objects) as-is."""
 
-        if not SCons.Util.is_List(path):
+        if not is_List(path):
             path = [path]
 
         def s(obj):
@@ -524,23 +540,23 @@ class SubstitutionEnvironment:
             try:
                 get = obj.get
             except AttributeError:
-                obj = SCons.Util.to_String_for_subst(obj)
+                obj = to_String_for_subst(obj)
             else:
                 obj = get()
             return obj
 
         r = []
         for p in path:
-            if SCons.Util.is_String(p):
+            if is_String(p):
                 p = self.subst(p, target=target, source=source, conv=s)
-                if SCons.Util.is_List(p):
+                if is_List(p):
                     if len(p) == 1:
                         p = p[0]
                     else:
                         # We have an object plus a string, or multiple
                         # objects that we need to smush together.  No choice
                         # but to make them into a string.
-                        p = ''.join(map(SCons.Util.to_String_for_subst, p))
+                        p = ''.join(map(to_String_for_subst, p))
             else:
                 p = s(p)
             r.append(p)
@@ -558,7 +574,7 @@ class SubstitutionEnvironment:
              }
         # if the command is a list, assume it's been quoted
         # othewise force a shell
-        if not SCons.Util.is_List(command): kw['shell'] = True
+        if not is_List(command): kw['shell'] = True
         # run constructed command
         p = SCons.Action._subproc(self, command, **kw)
         out,err = p.communicate()
@@ -618,7 +634,7 @@ class SubstitutionEnvironment:
         Parse ``flags`` and return a dict with the flags distributed into
         the appropriate construction variable names.  The flags are treated
         as a typical set of command-line flags for a GNU-like toolchain,
-        such as might have been generated by one of the \*-config scripts,
+        such as might have been generated by one of the {foo}-config scripts,
         and used to populate the entries based on knowledge embedded in
         this method - the choices are not expected to be portable to other
         toolchains.
@@ -628,18 +644,18 @@ class SubstitutionEnvironment:
         the result of that evaluation is then added to the dict.
         """
         dict = {
-            'ASFLAGS'       : SCons.Util.CLVar(''),
-            'CFLAGS'        : SCons.Util.CLVar(''),
-            'CCFLAGS'       : SCons.Util.CLVar(''),
-            'CXXFLAGS'      : SCons.Util.CLVar(''),
+            'ASFLAGS'       : CLVar(''),
+            'CFLAGS'        : CLVar(''),
+            'CCFLAGS'       : CLVar(''),
+            'CXXFLAGS'      : CLVar(''),
             'CPPDEFINES'    : [],
-            'CPPFLAGS'      : SCons.Util.CLVar(''),
+            'CPPFLAGS'      : CLVar(''),
             'CPPPATH'       : [],
-            'FRAMEWORKPATH' : SCons.Util.CLVar(''),
-            'FRAMEWORKS'    : SCons.Util.CLVar(''),
+            'FRAMEWORKPATH' : CLVar(''),
+            'FRAMEWORKS'    : CLVar(''),
             'LIBPATH'       : [],
             'LIBS'          : [],
-            'LINKFLAGS'     : SCons.Util.CLVar(''),
+            'LINKFLAGS'     : CLVar(''),
             'RPATH'         : [],
         }
 
@@ -648,7 +664,7 @@ class SubstitutionEnvironment:
             if not arg:
                 return
 
-            if not SCons.Util.is_String(arg):
+            if not is_String(arg):
                 for t in arg: do_parse(t)
                 return
 
@@ -818,7 +834,7 @@ class SubstitutionEnvironment:
             unique: merge flags rather than appending (default: True)
 
         """
-        if not SCons.Util.is_Dict(args):
+        if not is_Dict(args):
             args = self.ParseFlags(args)
 
         if not unique:
@@ -828,7 +844,7 @@ class SubstitutionEnvironment:
         for key, value in args.items():
             if not value:
                 continue
-            value = SCons.Util.Split(value)
+            value = Split(value)
             try:
                 orig = self[key]
             except KeyError:
@@ -952,7 +968,7 @@ class Base(SubstitutionEnvironment):
             platform = self._dict.get('PLATFORM', None)
             if platform is None:
                 platform = SCons.Platform.Platform()
-        if SCons.Util.is_String(platform):
+        if is_String(platform):
             platform = SCons.Platform.Platform(platform)
         self._dict['PLATFORM'] = str(platform)
         platform(self)
@@ -1081,7 +1097,7 @@ class Base(SubstitutionEnvironment):
             # claim they can scan the same suffix, earlier scanners
             # in the list will overwrite later scanners, so that
             # the result looks like a "first match" to the user.
-            if not SCons.Util.is_List(scanners):
+            if not is_List(scanners):
                 scanners = [scanners]
             else:
                 scanners = scanners[:] # copy so reverse() doesn't mod original
@@ -1156,88 +1172,92 @@ class Base(SubstitutionEnvironment):
     #######################################################################
 
     def Append(self, **kw):
-        """Append values to existing construction variables in an Environment."""
+        """Append values to construction variables in an Environment.
+
+        The variable is created if it is not already present.
+        """
+
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            # It would be easier on the eyes to write this using
-            # "continue" statements whenever we finish processing an item,
-            # but Python 1.5.2 apparently doesn't let you use "continue"
-            # within try:-except: blocks, so we have to nest our code.
             try:
-                if key == 'CPPDEFINES' and SCons.Util.is_String(self._dict[key]):
+                if key == 'CPPDEFINES' and is_String(self._dict[key]):
                     self._dict[key] = [self._dict[key]]
                 orig = self._dict[key]
             except KeyError:
-                # No existing variable in the environment, so just set
-                # it to the new value.
-                if key == 'CPPDEFINES' and SCons.Util.is_String(val):
+                # No existing var in the environment, so set to the new value.
+                if key == 'CPPDEFINES' and is_String(val):
                     self._dict[key] = [val]
                 else:
                     self._dict[key] = val
+                continue
+
+            try:
+                # Check if the original looks like a dict: has .update?
+                update_dict = orig.update
+            except AttributeError:
+                try:
+                    # Just try to add them together.  This will work
+                    # in most cases, when the original and new values
+                    # are compatible types.
+                    self._dict[key] = orig + val
+                except (KeyError, TypeError):
+                    try:
+                        # Check if the original is a list: has .append?
+                        add_to_orig = orig.append
+                    except AttributeError:
+                        # The original isn't a list, but the new
+                        # value is (by process of elimination),
+                        # so insert the original in the new value
+                        # (if there's one to insert) and replace
+                        # the variable with it.
+                        if orig:
+                            val.insert(0, orig)
+                        self._dict[key] = val
+                    else:
+                        # The original is a list, so append the new
+                        # value to it (if there's a value to append).
+                        if val:
+                            add_to_orig(val)
+                continue
+
+            # The original looks like a dictionary, so update it
+            # based on what we think the value looks like.
+            # We can't just try adding the value because
+            # dictionaries don't have __add__() methods, and
+            # things like UserList will incorrectly coerce the
+            # original dict to a list (which we don't want).
+            if is_List(val):
+                if key == 'CPPDEFINES':
+                    tmp = []
+                    for (k, v) in orig.items():
+                        if v is not None:
+                            tmp.append((k, v))
+                        else:
+                            tmp.append((k,))
+                    orig = tmp
+                    orig += val
+                    self._dict[key] = orig
+                else:
+                    for v in val:
+                        orig[v] = None
             else:
                 try:
-                    # Check if the original looks like a dictionary.
-                    # If it is, we can't just try adding the value because
-                    # dictionaries don't have __add__() methods, and
-                    # things like UserList will incorrectly coerce the
-                    # original dict to a list (which we don't want).
-                    update_dict = orig.update
-                except AttributeError:
-                    try:
-                        # Most straightforward:  just try to add them
-                        # together.  This will work in most cases, when the
-                        # original and new values are of compatible types.
-                        self._dict[key] = orig + val
-                    except (KeyError, TypeError):
-                        try:
-                            # Check if the original is a list.
-                            add_to_orig = orig.append
-                        except AttributeError:
-                            # The original isn't a list, but the new
-                            # value is (by process of elimination),
-                            # so insert the original in the new value
-                            # (if there's one to insert) and replace
-                            # the variable with it.
-                            if orig:
-                                val.insert(0, orig)
-                            self._dict[key] = val
-                        else:
-                            # The original is a list, so append the new
-                            # value to it (if there's a value to append).
-                            if val:
-                                add_to_orig(val)
-                else:
-                    # The original looks like a dictionary, so update it
-                    # based on what we think the value looks like.
-                    if SCons.Util.is_List(val):
-                        if key == 'CPPDEFINES':
-                            tmp = []
-                            for (k, v) in orig.items():
-                                if v is not None:
-                                    tmp.append((k, v))
-                                else:
-                                    tmp.append((k,))
-                            orig = tmp
-                            orig += val
-                            self._dict[key] = orig
-                        else:
-                            for v in val:
-                                orig[v] = None
+                    update_dict(val)
+                except (AttributeError, TypeError, ValueError):
+                    if is_Dict(val):
+                        for k, v in val.items():
+                            orig[k] = v
                     else:
-                        try:
-                            update_dict(val)
-                        except (AttributeError, TypeError, ValueError):
-                            if SCons.Util.is_Dict(val):
-                                for k, v in val.items():
-                                    orig[k] = v
-                            else:
-                                orig[val] = None
+                        orig[val] = None
+
         self.scanner_map_delete(kw)
 
-    # allow Dirs and strings beginning with # for top-relative
-    # Note this uses the current env's fs (in self).
     def _canonicalize(self, path):
-        if not SCons.Util.is_String(path): # typically a Dir
+        """Allow Dirs and strings beginning with # for top-relative.
+
+        Note this uses the current env's fs (in self).
+        """
+        if not is_String(path):  # typically a Dir
             path = str(path)
         if path and path[0] == '#':
             path = str(self.fs.Dir(path))
@@ -1259,8 +1279,7 @@ class Base(SubstitutionEnvironment):
         if envname in self._dict and name in self._dict[envname]:
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.AppendPath(orig, newpath, sep, delete_existing,
-                                   canonicalize=self._canonicalize)
+        nv = AppendPath(orig, newpath, sep, delete_existing, canonicalize=self._canonicalize)
 
         if envname not in self._dict:
             self._dict[envname] = {}
@@ -1275,30 +1294,29 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            if SCons.Util.is_List(val):
+            if is_List(val):
                 val = _delete_duplicates(val, delete_existing)
             if key not in self._dict or self._dict[key] in ('', None):
                 self._dict[key] = val
-            elif SCons.Util.is_Dict(self._dict[key]) and \
-                 SCons.Util.is_Dict(val):
+            elif is_Dict(self._dict[key]) and is_Dict(val):
                 self._dict[key].update(val)
-            elif SCons.Util.is_List(val):
+            elif is_List(val):
                 dk = self._dict[key]
                 if key == 'CPPDEFINES':
                     tmp = []
                     for i in val:
-                        if SCons.Util.is_List(i):
+                        if is_List(i):
                             if len(i) >= 2:
                                 tmp.append((i[0], i[1]))
                             else:
                                 tmp.append((i[0],))
-                        elif SCons.Util.is_Tuple(i):
+                        elif is_Tuple(i):
                             tmp.append(i)
                         else:
                             tmp.append((i,))
                     val = tmp
                     # Construct a list of (key, value) tuples.
-                    if SCons.Util.is_Dict(dk):
+                    if is_Dict(dk):
                         tmp = []
                         for (k, v) in dk.items():
                             if v is not None:
@@ -1306,23 +1324,23 @@ class Base(SubstitutionEnvironment):
                             else:
                                 tmp.append((k,))
                         dk = tmp
-                    elif SCons.Util.is_String(dk):
+                    elif is_String(dk):
                         dk = [(dk,)]
                     else:
                         tmp = []
                         for i in dk:
-                            if SCons.Util.is_List(i):
+                            if is_List(i):
                                 if len(i) >= 2:
                                     tmp.append((i[0], i[1]))
                                 else:
                                     tmp.append((i[0],))
-                            elif SCons.Util.is_Tuple(i):
+                            elif is_Tuple(i):
                                 tmp.append(i)
                             else:
                                 tmp.append((i,))
                         dk = tmp
                 else:
-                    if not SCons.Util.is_List(dk):
+                    if not is_List(dk):
                         dk = [dk]
                 if delete_existing:
                     dk = [x for x in dk if x not in val]
@@ -1331,22 +1349,22 @@ class Base(SubstitutionEnvironment):
                 self._dict[key] = dk + val
             else:
                 dk = self._dict[key]
-                if SCons.Util.is_List(dk):
+                if is_List(dk):
                     if key == 'CPPDEFINES':
                         tmp = []
                         for i in dk:
-                            if SCons.Util.is_List(i):
+                            if is_List(i):
                                 if len(i) >= 2:
                                     tmp.append((i[0], i[1]))
                                 else:
                                     tmp.append((i[0],))
-                            elif SCons.Util.is_Tuple(i):
+                            elif is_Tuple(i):
                                 tmp.append(i)
                             else:
                                 tmp.append((i,))
                         dk = tmp
                         # Construct a list of (key, value) tuples.
-                        if SCons.Util.is_Dict(val):
+                        if is_Dict(val):
                             tmp = []
                             for (k, v) in val.items():
                                 if v is not None:
@@ -1354,7 +1372,7 @@ class Base(SubstitutionEnvironment):
                                 else:
                                     tmp.append((k,))
                             val = tmp
-                        elif SCons.Util.is_String(val):
+                        elif is_String(val):
                             val = [(val,)]
                         if delete_existing:
                             dk = list(filter(lambda x, val=val: x not in val, dk))
@@ -1373,9 +1391,9 @@ class Base(SubstitutionEnvironment):
                                 self._dict[key] = dk + [val]
                 else:
                     if key == 'CPPDEFINES':
-                        if SCons.Util.is_String(dk):
+                        if is_String(dk):
                             dk = [dk]
-                        elif SCons.Util.is_Dict(dk):
+                        elif is_Dict(dk):
                             tmp = []
                             for (k, v) in dk.items():
                                 if v is not None:
@@ -1383,12 +1401,12 @@ class Base(SubstitutionEnvironment):
                                 else:
                                     tmp.append((k,))
                             dk = tmp
-                        if SCons.Util.is_String(val):
+                        if is_String(val):
                             if val in dk:
                                 val = []
                             else:
                                 val = [val]
-                        elif SCons.Util.is_Dict(val):
+                        elif is_Dict(val):
                             tmp = []
                             for i,j in val.items():
                                 if j is not None:
@@ -1483,7 +1501,7 @@ class Base(SubstitutionEnvironment):
     def Decider(self, function):
         copy_function = self._copy2_from_cache
         if function in ('MD5', 'content'):
-            if not SCons.Util.md5:
+            if not md5:
                 raise UserError("MD5 signatures are not available in this version of Python.")
             function = self._changed_content
         elif function == 'MD5-timestamp':
@@ -1511,7 +1529,7 @@ class Base(SubstitutionEnvironment):
             progs (str or list): one or more command names to check for
 
         """
-        if not SCons.Util.is_List(progs):
+        if not is_List(progs):
             progs = [progs]
         for prog in progs:
             path = self.WhereIs(prog)
@@ -1616,7 +1634,7 @@ class Base(SubstitutionEnvironment):
             def parse_conf(env, cmd, unique=unique):
                 return env.MergeFlags(cmd, unique)
             function = parse_conf
-        if SCons.Util.is_List(command):
+        if is_List(command):
             command = ' '.join(command)
         command = self.subst(command)
         return function(self, self.backtick(command))
@@ -1634,7 +1652,7 @@ class Base(SubstitutionEnvironment):
         filename = self.subst(filename)
         try:
             with open(filename, 'r') as fp:
-                lines = SCons.Util.LogicalLines(fp).readlines()
+                lines = LogicalLines(fp).readlines()
         except IOError:
             if must_exist:
                 raise
@@ -1666,68 +1684,68 @@ class Base(SubstitutionEnvironment):
         return SCons.Platform.Platform(platform)(self)
 
     def Prepend(self, **kw):
-        """Prepend values to existing construction variables
-        in an Environment.
+        """Prepend values to construction variables in an Environment.
+
+        The variable is created if it is not already present.
         """
+
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            # It would be easier on the eyes to write this using
-            # "continue" statements whenever we finish processing an item,
-            # but Python 1.5.2 apparently doesn't let you use "continue"
-            # within try:-except: blocks, so we have to nest our code.
             try:
                 orig = self._dict[key]
             except KeyError:
-                # No existing variable in the environment, so just set
-                # it to the new value.
+                # No existing var in the environment so set to the new value.
                 self._dict[key] = val
+                continue
+
+            try:
+                # Check if the original looks like a dict: has .update?
+                update_dict = orig.update
+            except AttributeError:
+                try:
+                    # Just try to add them together.  This will work
+                    # in most cases, when the original and new values
+                    # are compatible types.
+                    self._dict[key] = val + orig
+                except (KeyError, TypeError):
+                    try:
+                        # Check if the added value is a list: has .append?
+                        add_to_val = val.append
+                    except AttributeError:
+                        # The added value isn't a list, but the
+                        # original is (by process of elimination),
+                        # so insert the the new value in the original
+                        # (if there's one to insert).
+                        if val:
+                            orig.insert(0, val)
+                    else:
+                        # The added value is a list, so append
+                        # the original to it (if there's a value
+                        # to append) and replace the original.
+                        if orig:
+                            add_to_val(orig)
+                        self._dict[key] = val
+                continue
+
+            # The original looks like a dictionary, so update it
+            # based on what we think the value looks like.
+            # We can't just try adding the value because
+            # dictionaries don't have __add__() methods, and
+            # things like UserList will incorrectly coerce the
+            # original dict to a list (which we don't want).
+            if is_List(val):
+                for v in val:
+                    orig[v] = None
             else:
                 try:
-                    # Check if the original looks like a dictionary.
-                    # If it is, we can't just try adding the value because
-                    # dictionaries don't have __add__() methods, and
-                    # things like UserList will incorrectly coerce the
-                    # original dict to a list (which we don't want).
-                    update_dict = orig.update
-                except AttributeError:
-                    try:
-                        # Most straightforward:  just try to add them
-                        # together.  This will work in most cases, when the
-                        # original and new values are of compatible types.
-                        self._dict[key] = val + orig
-                    except (KeyError, TypeError):
-                        try:
-                            # Check if the added value is a list.
-                            add_to_val = val.append
-                        except AttributeError:
-                            # The added value isn't a list, but the
-                            # original is (by process of elimination),
-                            # so insert the the new value in the original
-                            # (if there's one to insert).
-                            if val:
-                                orig.insert(0, val)
-                        else:
-                            # The added value is a list, so append
-                            # the original to it (if there's a value
-                            # to append).
-                            if orig:
-                                add_to_val(orig)
-                            self._dict[key] = val
-                else:
-                    # The original looks like a dictionary, so update it
-                    # based on what we think the value looks like.
-                    if SCons.Util.is_List(val):
-                        for v in val:
-                            orig[v] = None
+                    update_dict(val)
+                except (AttributeError, TypeError, ValueError):
+                    if is_Dict(val):
+                        for k, v in val.items():
+                            orig[k] = v
                     else:
-                        try:
-                            update_dict(val)
-                        except (AttributeError, TypeError, ValueError):
-                            if SCons.Util.is_Dict(val):
-                                for k, v in val.items():
-                                    orig[k] = v
-                            else:
-                                orig[val] = None
+                        orig[val] = None
+
         self.scanner_map_delete(kw)
 
     def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep,
@@ -1746,7 +1764,7 @@ class Base(SubstitutionEnvironment):
         if envname in self._dict and name in self._dict[envname]:
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.PrependPath(orig, newpath, sep, delete_existing,
+        nv = PrependPath(orig, newpath, sep, delete_existing,
                                     canonicalize=self._canonicalize)
 
         if envname not in self._dict:
@@ -1762,16 +1780,15 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
-            if SCons.Util.is_List(val):
+            if is_List(val):
                 val = _delete_duplicates(val, not delete_existing)
             if key not in self._dict or self._dict[key] in ('', None):
                 self._dict[key] = val
-            elif SCons.Util.is_Dict(self._dict[key]) and \
-                 SCons.Util.is_Dict(val):
+            elif is_Dict(self._dict[key]) and is_Dict(val):
                 self._dict[key].update(val)
-            elif SCons.Util.is_List(val):
+            elif is_List(val):
                 dk = self._dict[key]
-                if not SCons.Util.is_List(dk):
+                if not is_List(dk):
                     dk = [dk]
                 if delete_existing:
                     dk = [x for x in dk if x not in val]
@@ -1780,7 +1797,7 @@ class Base(SubstitutionEnvironment):
                 self._dict[key] = val + dk
             else:
                 dk = self._dict[key]
-                if SCons.Util.is_List(dk):
+                if is_List(dk):
                     # By elimination, val is not a list.  Since dk is a
                     # list, wrap val in a list first.
                     if delete_existing:
@@ -1845,7 +1862,7 @@ class Base(SubstitutionEnvironment):
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(self, tool, toolpath=None, **kw):
-        if SCons.Util.is_String(tool):
+        if is_String(tool):
             tool = self.subst(tool)
             if toolpath is None:
                 toolpath = self.get('toolpath', [])
@@ -1861,17 +1878,17 @@ class Base(SubstitutionEnvironment):
                 path = self['ENV']['PATH']
             except KeyError:
                 pass
-        elif SCons.Util.is_String(path):
+        elif is_String(path):
             path = self.subst(path)
         if pathext is None:
             try:
                 pathext = self['ENV']['PATHEXT']
             except KeyError:
                 pass
-        elif SCons.Util.is_String(pathext):
+        elif is_String(pathext):
             pathext = self.subst(pathext)
-        prog = SCons.Util.CLVar(self.subst(prog)) # support "program --with-args"
-        path = SCons.Util.WhereIs(prog[0], path, pathext, reject)
+        prog = CLVar(self.subst(prog)) # support "program --with-args"
+        path = WhereIs(prog[0], path, pathext, reject)
         if path: return path
         return None
 
@@ -1885,7 +1902,7 @@ class Base(SubstitutionEnvironment):
 
     def Action(self, *args, **kw):
         def subst_string(a, self=self):
-            if SCons.Util.is_String(a):
+            if is_String(a):
                 a = self.subst(a)
             return a
         nargs = list(map(subst_string, args))
@@ -1914,7 +1931,7 @@ class Base(SubstitutionEnvironment):
 
     def Alias(self, target, source=[], action=None, **kw):
         tlist = self.arg2nodes(target, self.ans.Alias)
-        if not SCons.Util.is_List(source):
+        if not is_List(source):
             source = [source]
         source = [_f for _f in source if _f]
 
@@ -2062,7 +2079,7 @@ class Base(SubstitutionEnvironment):
         """
         """
         s = self.subst(name)
-        if SCons.Util.is_Sequence(s):
+        if is_Sequence(s):
             result=[]
             for e in s:
                 result.append(self.fs.Dir(e, *args, **kw))
@@ -2071,7 +2088,7 @@ class Base(SubstitutionEnvironment):
 
     def PyPackageDir(self, modulename):
         s = self.subst(modulename)
-        if SCons.Util.is_Sequence(s):
+        if is_Sequence(s):
             result=[]
             for e in s:
                 result.append(self.fs.PyPackageDir(e))
@@ -2100,7 +2117,7 @@ class Base(SubstitutionEnvironment):
         """
         """
         s = self.subst(name)
-        if SCons.Util.is_Sequence(s):
+        if is_Sequence(s):
             result=[]
             for e in s:
                 result.append(self.fs.Entry(e, *args, **kw))
@@ -2128,7 +2145,7 @@ class Base(SubstitutionEnvironment):
         """
         """
         s = self.subst(name)
-        if SCons.Util.is_Sequence(s):
+        if is_Sequence(s):
             result=[]
             for e in s:
                 result.append(self.fs.File(e, *args, **kw))
@@ -2141,11 +2158,11 @@ class Base(SubstitutionEnvironment):
         return SCons.Node.FS.find_file(file, tuple(nodes))
 
     def Flatten(self, sequence):
-        return SCons.Util.flatten(sequence)
+        return flatten(sequence)
 
     def GetBuildPath(self, files):
         result = list(map(str, self.arg2nodes(files, self.fs.Entry)))
-        if SCons.Util.is_List(files):
+        if is_List(files):
             return result
         else:
             return result[0]
@@ -2209,7 +2226,7 @@ class Base(SubstitutionEnvironment):
     def Scanner(self, *args, **kw):
         nargs = []
         for arg in args:
-            if SCons.Util.is_String(arg):
+            if is_String(arg):
                 arg = self.subst(arg)
             nargs.append(arg)
         nkw = self.subst_kw(kw)
@@ -2233,15 +2250,21 @@ class Base(SubstitutionEnvironment):
         side_effects = self.arg2nodes(side_effect, self.fs.Entry)
         targets = self.arg2nodes(target, self.fs.Entry)
 
+        added_side_effects = []
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
                 raise UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))
             side_effect.add_source(targets)
             side_effect.side_effect = 1
             self.Precious(side_effect)
+            added = False
             for target in targets:
-                target.side_effects.append(side_effect)
-        return side_effects
+                if side_effect not in target.side_effects:
+                    target.side_effects.append(side_effect)
+                    added = True
+            if added:
+                added_side_effects.append(side_effect)
+        return added_side_effects
 
     def Split(self, arg):
         """This function converts a string or list into a list of strings
@@ -2257,9 +2280,9 @@ class Base(SubstitutionEnvironment):
 
         In all cases, the function returns a list of Nodes and strings."""
 
-        if SCons.Util.is_List(arg):
+        if is_List(arg):
             return list(map(self.subst, arg))
-        elif SCons.Util.is_String(arg):
+        elif is_String(arg):
             return self.subst(arg).split()
         else:
             return [self.subst(arg)]
@@ -2303,7 +2326,7 @@ class Base(SubstitutionEnvironment):
         """
         from SCons.Tool import install
         if install._UNIQUE_INSTALLED_FILES is None:
-            install._UNIQUE_INSTALLED_FILES = SCons.Util.uniquer_hashables(install._INSTALLED_FILES)
+            install._UNIQUE_INSTALLED_FILES = uniquer_hashables(install._INSTALLED_FILES)
         return install._UNIQUE_INSTALLED_FILES
 
 
