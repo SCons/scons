@@ -1,6 +1,7 @@
 """
-These tests verify that SCons fails appropriately where the user has tried to supply multiple command line
-options via a single string rather than providing a list of strings, one string per option.
+These tests verify that SCons fails appropriately where the user has
+tried to supply multiple command line options via a single string rather
+than providing a list of strings, one string per option.
 """
 
 #
@@ -53,7 +54,7 @@ def testForTool(tool):
 
     result = {
         'dmd': ".*unrecognized switch '-m64 -O'.*",
-        'gdc': ".*unrecognized command line option.*",
+        'gdc': ".*unrecognized command.line option.*",
         'ldc': ".*Unknown command line argument '-m64 -O'.*",
         }[tool]
 

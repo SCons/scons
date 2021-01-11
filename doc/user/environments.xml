@@ -1770,7 +1770,7 @@ void main() {
 
       The default value of the &PATH; environment variable
       on a POSIX system
-      is <literal>/usr/local/bin:/bin:/usr/bin</literal>.
+      is <literal>/usr/local/bin:/opt/bin:/bin:/usr/bin:/snap/bin</literal>.
       The default value of the &PATH; environment variable
       on a Windows system comes from the Windows registry
       value for the command interpreter.
