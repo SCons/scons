@@ -111,6 +111,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add /snap/bin to env['PATH'] on POSIX, although this is only
       really useful for a subset of POSIX systems that use snaps.
       Was needed for CI builds, which run on Ubuntu LTS images.
+    - Eliminate Py2-ism __nonzero__ (now __bool__). Work around issue #3860
+      where a check for BuilderBase raising exc. on __bool__ was optimized out.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700

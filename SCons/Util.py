@@ -125,11 +125,8 @@ class NodeList(UserList):
 #                 self.data = [ initlist,]
 
 
-    def __nonzero__(self):
-        return len(self.data) != 0
-
     def __bool__(self):
-        return self.__nonzero__()
+        return len(self.data) != 0
 
     def __str__(self):
         return ' '.join(map(str, self.data))
@@ -1563,8 +1560,6 @@ class Null:
         return self
     def __repr__(self):
         return "Null(0x%08X)" % id(self)
-    def __nonzero__(self):
-        return False
     def __bool__(self):
         return False
     def __getattr__(self, name):
