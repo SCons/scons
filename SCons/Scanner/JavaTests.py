@@ -143,7 +143,7 @@ class JavaScannerDirClasspath(unittest.TestCase):
                                JAVACLASSPATH=[test.workpath()])
         s = SCons.Scanner.Java.JavaScanner()
         deps = s(DummyNode('dummy'), env)
-        expected = ['bootclasspath.jar', 'classpath.jar', 'Test.class', 'com/Test.class']
+        expected = ['Test.class', 'com/Test.class']
         deps_match(self, deps, expected)
 
 

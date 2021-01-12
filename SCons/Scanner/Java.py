@@ -50,9 +50,10 @@ def _subst_libs(env, libs):
     return libs
 
 
-def _collect_files(list, dirname, files):
+def _collect_classes(list, dirname, files):
     for fname in files:
-        list.append(os.path.join(str(dirname), fname))
+        if os.path.splitext(fname)[1] == ".class":
+            list.append(os.path.join(str(dirname), fname))
 
 
 def scan(node, env, libpath=()):
@@ -70,19 +71,23 @@ def scan(node, env, libpath=()):
     classpath = _subst_libs(env, classpath)
 
     result = []
-    for lib in classpath:
-        if SCons.Util.is_String(lib) and "*" in lib:
-            result += env.Glob(lib)
-        elif os.path.isdir(str(lib)):
-            # grab the in-memory nodes
-            env.Dir(lib).walk(_collect_files, result)
-            # now the on-disk ones
-            for root, dirs, files in os.walk(str(lib)):
-                _collect_files(result, root, files)
-        elif os.path.splitext(str(lib))[1] in ['.zip', '.jar']:
-            result.append(lib)
+    for path in classpath:
+        if SCons.Util.is_String(path) and "*" in path:
+            libs = env.Glob(path)
+        else:
+            libs = [path]
 
-    return list(filter(lambda x: os.path.splitext(str(x))[1] in ['.class', '.zip', '.jar'], result))
+        for lib in libs:
+            if os.path.isdir(str(lib)):
+                # grab the in-memory nodes
+                env.Dir(lib).walk(_collect_classes, result)
+                # now the on-disk ones
+                for root, dirs, files in os.walk(str(lib)):
+                    _collect_classes(result, root, files)
+            else:
+                result.append(lib)
+
+    return list(filter(lambda x: os.path.splitext(str(x))[1] in [".class", ".zip", ".jar"], result))
 
 
 def JavaScanner():
