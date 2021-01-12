@@ -56,6 +56,16 @@ def _collect_files(list, dirname, files):
 
 
 def scan(node, env, libpath=()):
+    """Scan for files on the JAVACLASSPATH.
+
+    The classpath can contain:
+     - Explicit paths to JAR/Zip files
+     - Wildcards (*)
+     - Directories which contain classes in an unnamed package
+     - Parent directories of the root package for classes in a named package
+
+     Class path entries that are neither directories nor archives (.zip or JAR files) nor the asterisk (*) wildcard character are ignored.
+     """
     classpath = env.get('JAVACLASSPATH', [])
     classpath = _subst_libs(env, classpath)
 
@@ -69,7 +79,7 @@ def scan(node, env, libpath=()):
             # now the on-disk ones
             for root, dirs, files in os.walk(str(lib)):
                 _collect_files(result, root, files)
-        else:
+        elif os.path.splitext(str(lib))[1] in ['.zip', '.jar']:
             result.append(lib)
 
     return list(filter(lambda x: os.path.splitext(str(x))[1] in ['.class', '.zip', '.jar'], result))
