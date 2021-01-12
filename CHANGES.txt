@@ -113,6 +113,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Was needed for CI builds, which run on Ubuntu LTS images.
     - Eliminate Py2-ism __nonzero__ (now __bool__). Work around issue #3860
       where a check for BuilderBase raising exc. on __bool__ was optimized out.
+      This issue was found due to a bug in Python 3.10.0a4. See issue #3860 for details.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
