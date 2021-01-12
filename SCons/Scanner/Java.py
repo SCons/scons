@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+
 import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
@@ -47,6 +49,7 @@ def _subst_libs(env, libs):
         libs = [libs]
     return libs
 
+
 def scan(node, env, libpath=()):
     classpath = env.get('JAVACLASSPATH', [])
     classpath = _subst_libs(env, classpath)
@@ -54,20 +57,8 @@ def scan(node, env, libpath=()):
     bootclasspath = env.get('JAVABOOTCLASSPATH', [])
     bootclasspath = _subst_libs(env, bootclasspath)
 
-    if callable(libpath):
-        libpath = libpath()
+    return bootclasspath + classpath
 
-    result = []
-
-    for lib in classpath + bootclasspath:
-        if SCons.Util.is_String(lib):
-            l = SCons.Node.FS.find_file(lib, libpath)
-            if l:
-                result.append(l)
-        else:
-            result.append(lib)
-
-    return result
 
 def JavaScanner():
     return SCons.Scanner.Base(scan, 'JavaScanner',

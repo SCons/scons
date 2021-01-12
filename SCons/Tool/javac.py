@@ -113,9 +113,10 @@ def emit_java_classes(target, source, env):
 
         if source_file_based:
             base = f.name[:-len(java_suffix)]
-            if not pkg_dir:
-                pkg_dir = sourcedir.rel_path(f.dir)
-            t = target[0].Dir(pkg_dir).File(base + class_suffix)
+            if pkg_dir:
+                t = target[0].Dir(pkg_dir).File(base + class_suffix)
+            else:
+                t = target[0].File(base + class_suffix)
             t.attributes.java_classdir = classdir
             t.attributes.java_sourcedir = f.dir
             t.attributes.java_classname = classname(base)
