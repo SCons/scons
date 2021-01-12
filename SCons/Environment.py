@@ -1538,7 +1538,7 @@ class Base(SubstitutionEnvironment):
 
 
     def Dictionary(self, *args):
-        """Return construction variables from an environment.
+        r"""Return construction variables from an environment.
 
         Args:
           \*args (optional): variable names to look up
