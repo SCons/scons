@@ -44,8 +44,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
 
   From David Hart:
-    - Add JavaScanner to include JAVACLASSPATH and JAVABOOTCLASSPATH as dependencies when using the Java tool.
-    - Fix incorrect Java classpath generation when a NodeList is used as part of JAVA*CLASSPATH.
+    - Add JavaScanner to include JAVACLASSPATH as a dependency when using the Java tool.
+    - Fix incorrect Java classpath generation when a NodeList is used as part of any JAVA*PATH variables.
 
   From Jason Kenny
     - Fix python3 crash when Value node get_text_content when child content does not have decode()

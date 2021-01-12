@@ -23,6 +23,8 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os 
+
 import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
@@ -48,14 +50,29 @@ def _subst_libs(env, libs):
     return libs
 
 
+def _collect_files(list, dirname, files):
+    for fname in files:
+        list.append(os.path.join(str(dirname), fname))
+
+
 def scan(node, env, libpath=()):
     classpath = env.get('JAVACLASSPATH', [])
     classpath = _subst_libs(env, classpath)
 
-    bootclasspath = env.get('JAVABOOTCLASSPATH', [])
-    bootclasspath = _subst_libs(env, bootclasspath)
+    result = []
+    for lib in classpath:
+        if SCons.Util.is_String(lib) and "*" in lib:
+            result += env.Glob(lib)
+        elif os.path.isdir(str(lib)):
+            # grab the in-memory nodes
+            env.Dir(lib).walk(_collect_files, result)
+            # now the on-disk ones
+            for root, dirs, files in os.walk(str(lib)):
+                _collect_files(result, root, files)
+        else:
+            result.append(lib)
 
-    return bootclasspath + classpath
+    return list(filter(lambda x: os.path.splitext(str(x))[1] in ['.class', '.zip', '.jar'], result))
 
 
 def JavaScanner():
