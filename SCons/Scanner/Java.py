@@ -23,8 +23,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import os
-
 import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
@@ -41,8 +39,8 @@ def _subst_libs(env, libs):
             libs = libs.split()
     elif SCons.Util.is_Sequence(libs):
         _libs = []
-        for l in libs:
-            _libs += _subst_libs(env, l)
+        for lib in libs:
+            _libs += _subst_libs(env, lib)
         libs = _libs
     else:
         # libs is an object (Node, for example)
