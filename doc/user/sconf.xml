@@ -166,7 +166,7 @@ if not conf.CheckCHeader('math.h'):
     print('Math.h must be installed!')
     Exit(1)
 if conf.CheckCHeader('foo.h'):
-    conf.env.Append('-DHAS_FOO_H')
+    conf.env.Append(CCFLAGS='-DHAS_FOO_H')
 env = conf.Finish()
     </sconstruct>
 
@@ -221,7 +221,7 @@ env = Environment()
 conf = Configure(env)
 if not conf.CheckFunc('strcpy'):
     print('Did not find strcpy(), using local version')
-    conf.env.Append(CPPDEFINES='-Dstrcpy=my_local_strcpy')
+    conf.env.Append(CCFLAGS='-Dstrcpy=my_local_strcpy')
 env = conf.Finish()
     </sconstruct>
 
