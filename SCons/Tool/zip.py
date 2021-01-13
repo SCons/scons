@@ -8,8 +8,9 @@ selection method.
 
 """
 
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,39 +30,62 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import os.path
+import os
 
 import SCons.Builder
 import SCons.Defaults
 import SCons.Node.FS
 import SCons.Util
 
+import time
 import zipfile
+
 
 zip_compression = zipfile.ZIP_DEFLATED
 
 
-def zip(target, source, env):
-    compression = env.get('ZIPCOMPRESSION', 0)
-    zf = zipfile.ZipFile(str(target[0]), 'w', compression)
+def _create_zipinfo_for_file(fname, arcname, date_time, compression):
+    st = os.stat(fname)
+    if not date_time:
+        mtime = time.localtime(st.st_mtime)
+        date_time = mtime[0:6]
+    zinfo = zipfile.ZipInfo(filename=arcname, date_time=date_time)
+    zinfo.external_attr = (st.st_mode & 0xFFFF) << 16  # Unix attributes
+    zinfo.compress_type = compression
+    zinfo.file_size = st.st_size
+    return zinfo
+
+
+def zip_builder(target, source, env):
+    compression = env.get('ZIPCOMPRESSION', zipfile.ZIP_STORED)
+    zip_root = str(env.get('ZIPROOT', ''))
+    date_time = env.get('ZIP_OVERRIDE_TIMESTAMP')
+
+    files = []
     for s in source:
         if s.isdir():
             for dirpath, dirnames, filenames in os.walk(str(s)):
                 for fname in filenames:
                     path = os.path.join(dirpath, fname)
                     if os.path.isfile(path):
-                        zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))))
+                        files.append(path)
         else:
-            zf.write(str(s), os.path.relpath(str(s), str(env.get('ZIPROOT', ''))))
-    zf.close()
+            files.append(str(s))
+
+    with zipfile.ZipFile(str(target[0]), 'w', compression) as zf:
+        for fname in files:
+            arcname = os.path.relpath(fname, zip_root)
+            # TODO: Switch to ZipInfo.from_file when 3.6 becomes the base python version
+            zinfo = _create_zipinfo_for_file(fname, arcname, date_time, compression)
+            with open(fname, "rb") as f:
+                zf.writestr(zinfo, f.read())
+
 
 # Fix PR #3569 - If you don't specify ZIPCOM and ZIPCOMSTR when creating
 # env, then it will ignore ZIPCOMSTR set afterwards.
-zipAction = SCons.Action.Action(zip, "$ZIPCOMSTR", varlist=['ZIPCOMPRESSION'])
+zipAction = SCons.Action.Action(zip_builder, "$ZIPCOMSTR",
+                                varlist=['ZIPCOMPRESSION', 'ZIPROOT', 'ZIP_OVERRIDE_TIMESTAMP'])
 
 ZipBuilder = SCons.Builder.Builder(action=SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
                                    source_factory=SCons.Node.FS.Entry,

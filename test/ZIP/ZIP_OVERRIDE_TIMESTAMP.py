@@ -33,44 +33,36 @@ test = TestSCons.TestSCons()
 import zipfile
 
 
-test.subdir('sub1')
-test.subdir(['sub1', 'sub2'])
+def zipfile_get_file_datetime(zipfilename, fname):
+    """Returns the date_time of the given file with the archive."""
+    with zipfile.ZipFile(zipfilename, 'r') as zf:
+        for info in zf.infolist():
+            if info.filename == fname:
+                return info.date_time
+    
+    raise Exception("Unable to find %s" % fname)
+
 
 test.write('SConstruct', """
 env = Environment(tools = ['zip'])
-env.Zip(target = 'aaa.zip', source = ['sub1/file1'], ZIPROOT='sub1')
-env.Zip(target = 'bbb.zip', source = ['sub1/file2', 'sub1/sub2/file2'], ZIPROOT='sub1')
+env.Zip(target = 'aaa.zip', source = ['file1'], ZIP_OVERRIDE_TIMESTAMP=(1983,3,11,1,2,2))
 """ % locals())
 
-test.write(['sub1', 'file1'], "file1\n")
-test.write(['sub1', 'file2'], "file2a\n")
-test.write(['sub1', 'sub2', 'file2'], "file2b\n")
+test.write(['file1'], "file1\n")
 
 test.run(arguments = 'aaa.zip', stderr = None)
 
 test.must_exist('aaa.zip')
 
-# TEST: Zip file should contain 'file1', not 'sub1/file1', because of ZIPROOT.
 with zipfile.ZipFile('aaa.zip', 'r') as zf:
     test.fail_test(zf.testzip() is not None)
 
 files = test.zipfile_files('aaa.zip')
-test.fail_test(test.zipfile_files('aaa.zip') != ['file1'],
+test.fail_test(files != ['file1'],
                message='Zip file aaa.zip has wrong files: %s' % repr(files))
 
-###
-
-test.run(arguments = 'bbb.zip', stderr = None)
-
-test.must_exist('bbb.zip')
-
-# TEST: Zip file should contain 'sub2/file2', not 'sub1/sub2/file2', because of ZIPROOT.
-with zipfile.ZipFile('bbb.zip', 'r') as zf:
-    test.fail_test(zf.testzip() is not None)
-
-files = test.zipfile_files('bbb.zip')
-test.fail_test(test.zipfile_files('bbb.zip') != ['file2', 'sub2/file2'],
-               message='Zip file bbb.zip has wrong files: %s' % repr(files))
-
+date_time = zipfile_get_file_datetime('aaa.zip', 'file1')
+test.fail_test(date_time != (1983, 3, 11, 1, 2, 2),
+               message="Zip file aaa.zip#file1 has wrong date_time: %s" % repr(date_time))
 
 test.pass_test()

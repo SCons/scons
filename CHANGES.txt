@@ -43,6 +43,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Change Environment.SideEffect() to not add duplicate side effects. 
       NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
 
+  From David H:
+    - Add ZIP_OVERRIDE_TIMESTAMP env option to Zip builder which allows for overriding of the file
+      modification times in the archive.
+    - Fix Zip builder not rebuilding when ZIPROOT env option was changed.
+
   From Jason Kenny
     - Fix python3 crash when Value node get_text_content when child content does not have decode()
       NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's

@@ -164,4 +164,20 @@ containing a file with the name
 </para>
 </summary>
 </cvar>
+
+<cvar name="ZIP_OVERRIDE_TIMESTAMP">
+<summary>
+<para>
+An optional timestamp which overrides the last modification time of
+the file when stored inside the Zip archive. This is a tuple of six values:
+
+Year (>= 1980)
+Month (one-based)
+Day of month (one-based)
+Hours (zero-based)
+Minutes (zero-based)
+Seconds (zero-based)
+</para>
+</summary>
+</cvar>
 </sconsdoc>
