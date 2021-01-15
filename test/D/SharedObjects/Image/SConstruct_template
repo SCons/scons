@@ -10,4 +10,11 @@ env = Environment(
 
 shobj = env.SharedObject('code.d')
 env.SharedLibrary('answer', shobj)
-env.SharedLibrary('answer_versioned', shobj, SHLIBVERSION='1.1.1', SONAME='1')
+ver_lib = env.SharedLibrary('answer_versioned', shobj, SHLIBVERSION='1.1.1', SOVERSION='4')
+
+shlibfile = ver_lib[0]
+try:
+    for (f,t) in ver_lib[0].attributes.shliblinks:
+        print("SYMLINK:%s,%s"%(f,t))
+except AttributeError:
+    print("NOSYMLINK")

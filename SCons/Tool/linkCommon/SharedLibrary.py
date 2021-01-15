@@ -123,7 +123,7 @@ def _get_shlib_stem(target, source, env, for_signature):
     :param for_signature:
     :return:
     """
-    verbose = True
+    verbose = False
 
     target_name = str(target.name)
     shlibprefix = env.subst("$SHLIBPREFIX")
