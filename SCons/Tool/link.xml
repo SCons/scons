@@ -387,6 +387,24 @@ The variable is used, for example, by &t-link-gnulink; linker tool.
 </summary>
 </cvar>
 
+<cvar name="SOVERSION">
+<summary>
+<para>
+This will construct the <varname>SONAME</varname> using on the base library name 
+(<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
+to create <varname>SONAME</varname>.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+</example_commands>
+The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+<para>
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
+which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
+</para>
+</summary>
+</cvar>
+
 <cvar name="STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME">
   <summary>
     <para>

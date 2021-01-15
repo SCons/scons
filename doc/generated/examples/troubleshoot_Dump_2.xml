@@ -91,7 +91,7 @@ scons: Reading SConscript files ...
   'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES '
               '$SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM","$SHCXXCOMSTR")}',
   'SHCXXFLAGS': ['$CXXFLAGS'],
-  'SHELL': 'command',
+  'SHELL': None,
   'SHLIBPREFIX': '',
   'SHLIBSUFFIX': '.dll',
   'SHOBJPREFIX': '$OBJPREFIX',
@@ -117,6 +117,7 @@ scons: Reading SConscript files ...
   '__DSHLIBVERSIONFLAGS': '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
   '__LDMODULEVERSIONFLAGS': '${__libversionflags(__env__,"LDMODULEVERSION","_LDMODULEVERSIONFLAGS")}',
   '__SHLIBVERSIONFLAGS': '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}',
+  '__lib_either_version_flag': &lt;function __lib_either_version_flag at 0x700000&gt;,
   '__libversionflags': &lt;function __libversionflags at 0x700000&gt;,
   '_concat': &lt;function _concat at 0x700000&gt;,
   '_defines': &lt;function _defines at 0x700000&gt;,

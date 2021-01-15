@@ -257,14 +257,6 @@ DRPATHSUFFIX.
 </summary>
 </cvar>
 
-<cvar name="DShLibSonameGenerator">
-<summary>
-<para>
-DShLibSonameGenerator.
-</para>
-</summary>
-</cvar>
-
 <cvar name="DVERPREFIX">
 <summary>
 <para>
@@ -323,7 +315,9 @@ See also &cv-link-DCOMSTR; for compiling to static objects.
 <cvar name="SHDLIBVERSIONFLAGS">
 <summary>
 <para>
-SHDLIBVERSIONFLAGS.
+Extra flags added to &cv-link-SHDLINKCOM; when building versioned
+&b-link-SharedLibrary;. These flags are only used when &cv-link-SHLIBVERSION; is
+set.
 </para>
 </summary>
 </cvar>
