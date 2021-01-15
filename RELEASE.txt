@@ -45,6 +45,8 @@
     - /snap/bin is added to the default search path for the 'posix' platform.
     - Completely rewrote versioned shared libraries logic. 
     - Added support for SOVERSION
+    - No longer automatically disable setting SONAME on shared libraries on OpenBSD.
+
 
 
   FIXES
