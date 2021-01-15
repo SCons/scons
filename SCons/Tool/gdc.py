@@ -117,16 +117,6 @@ def generate(env):
     # Support for versioned libraries
     env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -Wl,-soname=$_SHLIBSONAME'
 
-    # TODO: Fix with new versioned shared lib logic
-    # env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
-    # # NOTE: this is a quick hack, the soname will only work if there is
-    # # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    # env['DShLibSonameGenerator'] = SCons.Tool.linkCommon.ShLibSonameGenerator
-    # NOTE: this is only for further reference, currently $SHDLIBVERSION does
-    # not work, the user must use $SHLIBVERSION
-    env['SHDLIBVERSION'] = '$SHLIBVERSION'
-    env['SHDLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS'
-
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -o $TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
         emitter=DCommon.allAtOnceEmitter,
