@@ -63,8 +63,6 @@ def testForTool(tool):
 
     test.run(status=2, stdout=None, stderr=result, match=TestSCons.match_re_dotall)
 
-    # test.fail_test(not test.match_re_dotall(test.stderr(), result))
-
     test.pass_test()
 
 # Local Variables:
