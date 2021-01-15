@@ -40,9 +40,8 @@ DefaultEnvironment( tools = [ 'swig' ] )
 test = TestSCons.TestSCons()
 
 # Check for prerequisites of this test.
-for pre_req in ['swig', 'python']:
-    if not test.where_is(pre_req):
-        test.skip_test('Can not find installed "' + pre_req + '", skipping test.%s' % os.linesep)
+if not test.where_is('swig'):
+    test.skip_test('Can not find installed "swig", skipping test.%s' % os.linesep)
 
 python, python_include, python_libpath, python_lib = \
              test.get_platform_python_info(python_h_required=True)

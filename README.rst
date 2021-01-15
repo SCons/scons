@@ -25,6 +25,10 @@ SCons - a software construction tool
    :target: https://codecov.io/gh/SCons/scons
    :alt: CodeCov Coverage Status
 
+.. image:: https://github.com/SCons/scons/workflows/SCons%20Build/badge.svg
+   :target: https://github.com/SCons/scons/actions?query=workflow%3A%22SCons+Build%22
+   :alt: Github Actions
+
 
 Welcome to the SCons development tree.  The real purpose of this tree is to
 package SCons for production distribution in a variety of formats, not just to

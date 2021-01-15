@@ -1,0 +1,51 @@
+# This action builds SCons, mainly to make sure the docs generate.
+
+name: SCons Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        #python -m pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        sudo apt-get update
+        sudo apt-get -y install docbook-xml docbook-xsl xsltproc fop docbook-xsl-doc-pdf
+        # try to keeo the texlive install as small as we can to save some time/space
+        sudo apt-get -y --no-install-recommends install texlive biber texmaker ghostscript texlive-latex-base texlive-latex-extra texlive-bibtex-extra texlive-font-utils latexmk
+    # This is disabled until the run can be configured to only
+    # check the code that matters, else we fail on non-essentials
+    # like the bench/ stuff.
+    #- name: Lint with flake8
+    #  run: |
+    #    # stop the build if there are Python syntax errors or undefined names
+    #    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    #    # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+    #    flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Update Doc sources (some parts are generated)
+      run: |
+        python bin/docs-update-generated.py
+        python bin/docs-validate.py
+        python bin/docs-create-example-outputs.py
+    - name: Build SCons packages
+      run: |
+        python scripts/scons.py
+    - name: Verify package
+      run: |
+        ls -l build/dist
+        python build/scons-local/scons.py --version

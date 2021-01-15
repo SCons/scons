@@ -70,7 +70,7 @@
 
     <para>
 
-    Tooling which wants to perform analysis and modification 
+    Tooling to perform analysis and modification
     of source code often needs to know not only the source code
     itself, but also how it will be compiled, as the compilation line
     affects the behavior of macros, includes, etc. &SCons; has a
@@ -93,7 +93,7 @@
     compilation database in this format
     by enabling the &t-link-compilation_db; tool
     and calling the &b-link-CompilationDatabase; builder
-    (available since 4.0).
+    (<emphasis>available since &scons; 4.0</emphasis>).
 
     </para>
 
@@ -107,12 +107,12 @@
     which defaults to <constant>False</constant>.
     The entries in this file can be filtered by using
 
-    <envar>COMPILATIONDB_PATH_FILTER='fnmatch pattern'</envar>
-    where the filter string is a
+    <envar>COMPILATIONDB_PATH_FILTER='pattern'</envar>
+    where the filter pattern is a string following the Python
     <ulink url="https://docs.python.org/3/library/fnmatch.html">
-      <citetitle>fnmatch</citetitle>
+      <systemitem>fnmatch</systemitem>
     </ulink>
-    based pattern which is a typical file glob syntax.
+    syntax.
     This filtering can be used for outputting different
     build variants to different compilation database files.
 
@@ -120,38 +120,104 @@
 
     <para>
 
-    Example of absolute paths for output and source:
+    The following example illustrates generating a compilation
+    database containing absolute paths:
 
     </para>
 
-    <sconstruct>
+    <scons_example name="external_cdb_ex1">
+      <file name="SConstruct" printme="1">
 env = Environment(COMPILATIONDB_USE_ABSPATH=True)
 env.Tool('compilation_db')
-env.CompilationDatabase('compile_commands.json')
-    </sconstruct>
+env.CompilationDatabase()
+env.Program('hello.c')
+      </file>
+      <file name="hello.c">
+int main( int argc, char* argv[] )
+{
+  return 0;
+}
+      </file>
+    </scons_example>
+
+    <scons_output example="external_cdb_ex1" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para><filename>compile_commands.json</filename> contains:</para>
 
     <programlisting language="json">
 [
     {
-        "command": "gcc -o test_main.o -c test_main.c",
+        "command": "gcc -o hello.o -c hello.c",
         "directory": "/home/user/sandbox",
-        "file": "/home/user/sandbox/test_main.c",
-        "output": "/home/user/sandbox/test_main.o"
+        "file": "/home/user/sandbox/hello.c",
+        "output": "/home/user/sandbox/hello.o"
     }
 ]
     </programlisting>
 
     <para>
 
-    Example of relative paths for output and source:
+    Notice that the generated database contains only an entry for
+    the <filename>hello.c/hello.o</filename> pairing,
+    and nothing for the generation of the final executable
+    <filename>hello</filename> - the transformation of
+    <filename>hello.o</filename> to <filename>hello</filename>
+    does not have any information that affects interpretation
+    of the source code,
+    so it is not interesting to the compilation database.
 
     </para>
 
-    <sconstruct>
+    <para>
+
+    Although it can be a little surprising at first glance,
+    a compilation database target is, like any other target,
+    subject to &scons; target selection rules.
+    This means if you set a default target (that does not
+    include the compilation database), or use command-line
+    targets, it might not be selected for building.
+    This can actually be an advantage, since you don't
+    necessarily want to regenerate the compilation database
+    every build.
+    The following example
+    shows selecting relative paths (the default)
+    for output and source,
+    and also giving a non-default name to the database.
+    In order to be able to generate the database separately from building,
+    an alias is set referring to the database,
+    which can then be used as a target - here we are only
+    building the compilation database target, not the code.
+
+    </para>
+
+    <scons_example name="external_cdb_ex2">
+      <file name="SConstruct" printme="1">
 env = Environment()
 env.Tool('compilation_db')
-env.CompilationDatabase('compile_commands.json')
-    </sconstruct>
+cdb = env.CompilationDatabase('compile_database.json')
+Alias('cdb', cdb)
+env.Program('test_main.c')
+      </file>
+      <file name="test_main.c">
+#include "test_main.h"
+int main( int argc, char* argv[] )
+{
+  return 0;
+}
+      </file>
+      <file name="test_main.h">
+/* dummy include file */
+      </file>
+    </scons_example>
+
+    <scons_output example="external_cdb_ex2" suffix="1">
+      <scons_output_command>scons -Q cdb</scons_output_command>
+    </scons_output>
+
+    <para><filename>compile_database.json</filename> contains:</para>
+
     <programlisting language="json">
 [
     {
@@ -165,7 +231,15 @@ env.CompilationDatabase('compile_commands.json')
 
     <para>
 
-    Example of using filtering for build variants:
+    The following (incomplete) example shows using filtering
+    to separate build variants.
+    In the case of using variants,
+    you want different compilation databases for each,
+    since the build parameters differ, so the code analysis
+    needs to see the correct build lines for the 32-bit build
+    and 64-bit build hinted at here.
+    For simplicity of presentation,
+    the example omits the setup details of the variant directories:
 
     </para>
 
@@ -181,6 +255,9 @@ env2 = env.Clone()
 env2['COMPILATIONDB_PATH_FILTER'] = 'build/linux64/*'
 env2.CompilationDatabase('compile_commands-linux64.json')
     </sconstruct>
+
+    <para><filename>compile_commands-linux32.json</filename> contains:</para>
+
     <programlisting language="json">
 [
     {
@@ -191,6 +268,9 @@ env2.CompilationDatabase('compile_commands-linux64.json')
     }
 ]
     </programlisting>
+
+    <para><filename>compile_commands-linux64.json</filename> contains:</para>
+
     <programlisting language="json">
 [
     {
@@ -203,5 +283,4 @@ env2.CompilationDatabase('compile_commands-linux64.json')
     </programlisting>
 
   </section>
-
 </chapter>

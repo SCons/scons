@@ -2920,6 +2920,12 @@ or
 &f-env-Clean;
 function.
 </para>
+
+<para>
+This function returns the list of side effect Node objects that were successfully added.
+If the list of side effects contained any side effects that had already been added,
+they are not added and included in the returned list.
+</para>
 </summary>
 </scons_function>
 

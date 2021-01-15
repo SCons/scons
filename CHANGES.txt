@@ -40,6 +40,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       when running multiple tests with multiple jobs.
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
+    - Change Environment.SideEffect() to not add duplicate side effects. 
+      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
 
   From Jason Kenny
     - Fix python3 crash when Value node get_text_content when child content does not have decode()
@@ -104,8 +106,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix cut-n-paste error in msvc debug printout and make some debug output
       in msvs and msvsTests.py be off until needed (uncomment to use)
     - Fix Issue #3014 - Empty file and missing file have same csig
-
-
+    - Refactor env.Append/Prepend to remove Py 1.5 era need to nest
+      try blocks, can now "continue" at the appropriate places.
+    - Add /snap/bin to env['PATH'] on POSIX, although this is only
+      really useful for a subset of POSIX systems that use snaps.
+      Was needed for CI builds, which run on Ubuntu LTS images.
+    - Eliminate Py2-ism __nonzero__ (now __bool__). Work around issue #3860
+      where a check for BuilderBase raising exc. on __bool__ was optimized out.
+      This issue was found due to a bug in Python 3.10.0a4. See issue #3860 for details.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
