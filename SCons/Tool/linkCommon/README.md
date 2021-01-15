@@ -1,3 +1,19 @@
+# Current implementation details
+
+The code has been simplified to use Subst expansion do most of the work.
+
+The following internal env vars have been added which are python functions (note also ldmodule where shlib is below)
+* `_get_shlib_stem` - given a library name `libxyz.so.1.1.0` it will retrievve `xyz`
+* `_get_shlib_dir` - given a library with a path `DEF/a/b/libxyz.so.1.1.0` it will retrieve `DEF`
+* `_SHLIBSOVERSION` - will look for `SOVERSION` and then `SHLIBVERSION` to determine the `SOVERSION` to be used in file naming
+* `_SHLIBSONAME` - will check for and error if both `SONAME` and `SOVERSION` are defined, otherwise will generate the proper filenaming for SONAME
+* `_SHLIBVERSION` - will return `SHLIBVERSION` or "" if SHLIBVERSION is defined
+* `_SHLIBVERSIONFLAGS` - will return proper compiler flags for SHLIBVERSION
+* `__SHLIBVERSIONFLAGS` - compiler defined proper versioned shared library flags
+* `SHLIB_SONAME_SYMLINK` - this is the symlink for SONAME to be used (`libxyz.1.so`)
+* `SHLIB_NOVERSION_SYMLINK` - this is the symlink for non-versioned filename (`libxyz.so`)
+Shared library file nodes will have `node.attributes.shliblinks` which is a tuple of the symlinks to be created
+
 
 
 # Versioned Shared Library and Loadable modules requirements
@@ -46,19 +62,6 @@ For **openbsd** the following rules for symlinks apply
    * OpenBSD uses x.y shared library versioning numbering convention and doesn't use symlinks to backwards-compatible libraries
 
 
-The current code provides the following hooks a compiler can use to customize:
-
-```        
-        'VersionedShLibSuffix': _versioned_lib_suffix,
-        'VersionedLdModSuffix': _versioned_lib_suffix,
-        'VersionedShLibSymlinks': _versioned_shlib_symlinks,
-        'VersionedLdModSymlinks': _versioned_ldmod_symlinks,
-        'VersionedShLibName': _versioned_shlib_name,
-        'VersionedLdModName': _versioned_ldmod_name,
-        'VersionedShLibSoname': _versioned_shlib_soname,
-        'VersionedLdModSoname': _versioned_ldmod_soname,
-```
-
 
 User can request:
 env.SharedLibrary('a',sources, SHLIBVERSION)
@@ -84,20 +87,3 @@ SONAME can be specified, if not defaults to ${SHLIBPREFIX}lib_name${SOVERSION}
 NOTE: mongodb uses Append(SHLIBEMITTER=.. )  for their libdeps stuff. (So test 
 with that once you have new logic working)
 
-
-TODO:
-1. Generate proper naming for:
-   * shared library (altered by emitter if SHLIBVERSION is set)
-   * soname'd library (for symlink) - SHLIB_SONAME_SYMLINK
-   * non versioned shared library (for symlink) - SHLIB_NOVERSION_SYMLINK
-2. in emitter also, actually create the symlinks (if SHLIBVERSION is set) and 
-   add to node.attributes.symlinks. (note bsd doesn't do this so skip if on bsd)
-3. We need to check somewhere if SONAME and SOVERSION are both set and thrown an error. 
-   Probably in the emitter to it will traceback to where the SharedLibrary() which
-   yielded the issue is located.
-4. Generate proper linker soname compiler construct (-Wl,soname=libxyz.1.so for example)
-
-hrm.. tricky.
-SHLIBSUFFIX needs to have .${SHLIBVERSION}${SHLIBSUFFIX} as it's value when 
-fixing a sharedlibrary()'s target file name (from a -> liba.1.2.3.so)
-But when creating the symlinks for the rest, we need to drop the versioned SHLIBSUFFIX
