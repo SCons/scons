@@ -29,6 +29,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
        - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
     - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
     - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
+    - Completely rewrote versioned shared libraries logic. Added support for SOVERSION via dmoody's initial PR #3733
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.

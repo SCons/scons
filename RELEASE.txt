@@ -43,6 +43,9 @@
       NOTE: The list of returned side effect Nodes will not include any
       duplicate side effect Nodes.
     - /snap/bin is added to the default search path for the 'posix' platform.
+    - Completely rewrote versioned shared libraries logic. 
+    - Added support for SOVERSION
+
 
   FIXES
 
