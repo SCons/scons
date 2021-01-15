@@ -319,13 +319,6 @@ See also &cv-link-DCOMSTR; for compiling to static objects.
 </summary>
 </cvar>
 
-<cvar name="SHDLIBVERSION">
-<summary>
-<para>
-SHDLIBVERSION.
-</para>
-</summary>
-</cvar>
 
 <cvar name="SHDLIBVERSIONFLAGS">
 <summary>

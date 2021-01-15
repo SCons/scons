@@ -1,11 +1,6 @@
-"""
-These tests verify that SCons fails appropriately where the user has
-tried to supply multiple command line options via a single string rather
-than providing a list of strings, one string per option.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,9 +20,13 @@ than providing a list of strings, one string per option.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+These tests verify that SCons fails appropriately where the user has
+tried to supply multiple command line options via a single string rather
+than providing a list of strings, one string per option.
+"""
+
 
 import TestSCons
 
@@ -50,7 +49,6 @@ def testForTool(tool):
         config = f.read().format(tool)
     test.write('SConstruct', config)
 
-    test.run(status=2, stdout=None, stderr=None)
 
     result = {
         'dmd': ".*unrecognized switch '-m64 -O'.*",
@@ -58,11 +56,14 @@ def testForTool(tool):
         'ldc': ".*Unknown command line argument '-m64 -O'.*",
         }[tool]
 
+
     from SCons.Environment import Base
     if tool == 'dmd' and Base()['DC'] == 'gdmd':
         result = ".*unrecognized command line option '-m64 -O'.*"
 
-    test.fail_test(not test.match_re_dotall(test.stderr(), result))
+    test.run(status=2, stdout=None, stderr=result, match=TestSCons.match_re_dotall)
+
+    # test.fail_test(not test.match_re_dotall(test.stderr(), result))
 
     test.pass_test()
 

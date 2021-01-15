@@ -151,18 +151,7 @@ def generate(env):
     env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
     # Support for versioned libraries
-    env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -L-soname=$_SHDLIBSONAME'
-
-    # TODO: Fix this with new logic
-    # env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
-    # # NOTE: this is a quick hack, the soname will only work if there is
-    # # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    # env['DShLibSonameGenerator'] = ShLibSonameGenerator
-
-    # NOTE: this is only for further reference, currently $SHDLIBVERSION does
-    # not work, the user must use $SHLIBVERSION
-    env['SHDLIBVERSION'] = '$SHLIBVERSION'
-    env['SHDLIBVERSIONFLAGS'] = []
+    env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -L-soname=$_SHLIBSONAME'
 
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -of$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',
