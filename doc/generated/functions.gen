@@ -44,31 +44,22 @@ until the Action object is actually used.
     <term><function>AddMethod</function>(<parameter>object, function, [name]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>AddMethod</methodname>(<parameter>function, [name]</parameter>)</term>
     <listitem><para>
-When called with the
-<function>AddMethod</function>()
-form,
-adds the specified
-<parameter>function</parameter>
-to the specified
-<parameter>object</parameter>
-as the specified method
-<parameter>name</parameter>.
-When called using the
-&f-env-AddMethod; form,
-adds the specified
-<parameter>function</parameter>
-to the construction environment
-<replaceable>env</replaceable>
-as the specified method
-<parameter>name</parameter>.
-In both cases, if
-<parameter>name</parameter>
-is omitted or
-<constant>None</constant>,
-the name of the
-specified
-<parameter>function</parameter>
-itself is used for the method name.
+Adds <parameter>function</parameter> to an object as a method.
+<parameter>function</parameter> will be called with an instance
+object as the first argument as for other methods.
+If <parameter>name</parameter> is given, it is used as
+the name of the new method, else the name of
+<parameter>function</parameter> is used.
+</para>
+<para>
+When the global function &f-AddMethod; is called,
+the object to add the method to must be passed as the first argument;
+typically this will be &Environment;,
+in order to create a method which applies to all &consenvs;
+subsequently constructed.
+When called using the &f-env-AddMethod; form,
+the method is added to the specified &consenv; only.
+Added methods propagate through &f-env-Clone; calls.
 </para>
 
 <para>
@@ -76,22 +67,17 @@ Examples:
 </para>
 
 <example_commands>
-# Note that the first argument to the function to
-# be attached as a method must be the object through
-# which the method will be called; the Python
-# convention is to call it 'self'.
+# Function to add must accept an instance argument.
+# The Python convention is to call this 'self'.
 def my_method(self, arg):
     print("my_method() got", arg)
 
-# Use the global AddMethod() function to add a method
-# to the Environment class.  This
+# Use the global function to add a method to the Environment class:
 AddMethod(Environment, my_method)
 env = Environment()
 env.my_method('arg')
 
-# Add the function as a method, using the function
-# name for the method call.
-env = Environment()
+# Use the optional name argument to set the name of the method:
 env.AddMethod(my_method, 'other_method_name')
 env.other_method_name('another arg')
 </example_commands>
@@ -106,13 +92,13 @@ are the same as those supported by the <function>add_option</function>
 method in the standard Python library module <systemitem>optparse</systemitem>,
 with a few additional capabilities noted below.
 See the documentation for
-<emphasis>optparse</emphasis>
+<systemitem>optparse</systemitem>
 for a thorough discussion of its option-processing capabities.
 </para>
 
 <para>
 In addition to the arguments and values supported by the
-<emphasis>optparse</emphasis>
+<systemitem>optparse</systemitem>
 <function>add_option</function>
 method, &f-AddOption;
 allows setting the
@@ -150,10 +136,10 @@ it will recognize <option>--device</option>,
 and so forth as long as there is no other option
 which could also match to the same abbreviation.
 Options added via
-<function>AddOption</function> do not support
+&f-AddOption; do not support
 the automatic recognition of abbreviations.
 Instead, to allow specific abbreviations,
-include them in the &f-AddOption; call.
+include them as synonyms in the &f-AddOption; call itself.
 </para>
 
 <para>
@@ -169,7 +155,7 @@ options added with &f-AddOption;.
 The value may also be set using
 &f-SetOption;
 or
-<function>env.SetOption</function>(),
+&f-env.SetOption;,
 if conditions in a
 &SConscript;
 require overriding any default value.
@@ -597,7 +583,7 @@ caching by calling &f-env-CacheDir;.
 </para>
 
 <para>
-When derived-file caching 
+When derived-file caching
 is being used and
 &scons;
 finds a derived file that needs to be rebuilt,
@@ -658,7 +644,7 @@ the first time a
 <parameter>cache_dir</parameter>
 is used for a build,
 or to bring a cache up to date after
-a build with cache updating disabled 
+a build with cache updating disabled
 (<option>--cache-disable</option>
 or <option>--cache-readonly</option>)
 has been done.
@@ -1369,7 +1355,7 @@ Returns a JSON-formatted string representation of the environment.
 </varlistentry>
 </variablelist>
 
-If <varname>key</varname> is 
+If <varname>key</varname> is
 <constant>None</constant> (the default) the entire
 dictionary of &consvars; is serialized.
 If supplied, it is taken as the name of a &consvar;
@@ -1471,6 +1457,14 @@ Return a new construction environment
 initialized with the specified
 <parameter>key</parameter>=<replaceable>value</replaceable>
 pairs.
+The keyword arguments
+<parameter>parse_flags</parameter>,
+<parameter>platform</parameter>,
+<parameter>toolpath</parameter>,
+<parameter>tools</parameter>
+and <parameter>variables</parameter>
+are also specially recognized.
+See the manpage section "Construction Environments" for more details.
 </para>
 </listitem>
   </varlistentry>
@@ -3341,8 +3335,8 @@ Return('val1 val2')
 </listitem>
   </varlistentry>
   <varlistentry id="f-Scanner">
-    <term><function>Scanner</function>(<parameter>function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Scanner</methodname>(<parameter>function, [argument, keys, path_function, node_class, node_factory, scan_check, recursive]</parameter>)</term>
+    <term><function>Scanner</function>(<parameter>function, [name, argument, skeys, path_function, node_class, node_factory, scan_check, recursive]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Scanner</methodname>(<parameter>function, [name, argument, skeys, path_function, node_class, node_factory, scan_check, recursive]</parameter>)</term>
     <listitem><para>
 Creates a Scanner object for
 the specified
@@ -3636,57 +3630,75 @@ SConscript('bar/SConscript')	# will chdir to bar
 </listitem>
   </varlistentry>
   <varlistentry id="f-SConsignFile">
-    <term><function>SConsignFile</function>(<parameter>[file, dbm_module]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>SConsignFile</methodname>(<parameter>[file, dbm_module]</parameter>)</term>
+    <term><function>SConsignFile</function>(<parameter>[name, dbm_module]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>SConsignFile</methodname>(<parameter>[name, dbm_module]</parameter>)</term>
     <listitem><para>
-This tells
-&scons;
-to store all file signatures
-in the specified database
-<parameter>file</parameter>.
-If the
-<parameter>file</parameter>
-name is omitted,
-<filename>.sconsign</filename>
-is used by default.
-(The actual file name(s) stored on disk
-may have an appropriated suffix appended
-by the
-<parameter>dbm_module</parameter>.)
-If
-<parameter>file</parameter>
-is not an absolute path name,
-the file is placed in the same directory as the top-level
-&SConstruct;
-file.
+Specify where to store the &SCons; file signature database,
+and which database format to use.
+This may be useful to specify alternate
+database files and/or file locations for different types of builds.
 </para>
-
+<para>
+The optional <parameter>name</parameter> argument
+is the base name of the database file(s).
+If not an absolute path name,
+these are placed relative to the directory containing the
+top-level &SConstruct; file.
+The default is
+<filename>.sconsign</filename>.
+The actual database file(s) stored on disk
+may have an appropriate suffix appended
+by the chosen
+<parameter>dbm_module</parameter>
+</para>
+<para>
+The optional <parameter>dbm_module</parameter>
+argument specifies which
+Python database module to use
+for reading/writing the file.
+The module must be imported first;
+then the imported module name
+is passed as the argument.
+The default is a custom
+<systemitem>SCons.dblite</systemitem>
+module that uses pickled
+Python data structures,
+which works on all Python versions.
+See documentation of the Python
+<systemitem>dbm</systemitem> module
+for other available types.
+</para>
+<para>
+If called with no arguments,
+the database will default to
+<filename>.sconsign.dblite</filename>
+in the top directory of the project,
+which is also the default if
+if &f-SConsignFile; is not called.
+</para>
+<para>
+The setting is global, so the only difference
+between the global function and the environment method form
+is variable expansion on <parameter>name</parameter>.
+There should only be one active call to this
+function/method in a given build setup.
+</para>
 <para>
 If
-<parameter>file</parameter>
-is
+<parameter>name</parameter>
+is set to
 <constant>None</constant>,
-then
 &scons;
 will store file signatures
 in a separate
 <filename>.sconsign</filename>
 file in each directory,
-not in one global database file.
-(This was the default behavior
-prior to SCons 0.96.91 and 0.97.)
-</para>
-
-<para>
-The optional
-<parameter>dbm_module</parameter>
-argument can be used to specify
-which Python database module
-The default is to use a custom
-<filename>SCons.dblite</filename>
-module that uses pickled
-Python data structures,
-and which works on all Python versions.
+not in a single combined database file.
+This is a backwards-compatibility meaure to support
+what was the default behavior
+prior to &SCons; 0.97 (i.e. before 2008).
+Use of this mode is discouraged and may be
+deprecated in a future &SCons; release.
 </para>
 
 <para>
@@ -3695,20 +3707,25 @@ Examples:
 
 <example_commands>
 # Explicitly stores signatures in ".sconsign.dblite"
-# in the top-level SConstruct directory (the
-# default behavior).
+# in the top-level SConstruct directory (the default behavior).
 SConsignFile()
 
 # Stores signatures in the file "etc/scons-signatures"
 # relative to the top-level SConstruct directory.
+# SCons will add a database suffix to this name.
 SConsignFile("etc/scons-signatures")
 
 # Stores signatures in the specified absolute file name.
+# SCons will add a database suffix to this name.
 SConsignFile("/home/me/SCons/signatures")
 
 # Stores signatures in a separate .sconsign file
 # in each directory.
 SConsignFile(None)
+
+# Stores signatures in a GNU dbm format .sconsign file
+import dbm.gnu
+SConsignFile(dbm_module=dbm.gnu)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -3731,123 +3748,132 @@ if 'FOO' not in env: env['FOO'] = 'foo'
     <term><function>SetOption</function>(<parameter>name, value</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>SetOption</methodname>(<parameter>name, value</parameter>)</term>
     <listitem><para>
-This function provides a way to set a select subset of the scons command
-line options from a SConscript file. The options supported are:
+Sets &scons; option variable <parameter>name</parameter>
+to <parameter>value</parameter>.
+These options are all also settable via
+&scons; command-line options but the variable name
+may differ from the command-line option name (see table).
+A value set via command-line option will take
+precedence over one set with &f-SetOption;, which
+allows setting a project default in the scripts and
+temporarily overriding it via command line.
+Options which affect the reading and processing of SConscript files
+are not settable this way, since those files must
+be read in order to find the &f-SetOption; call.
 </para>
 
 <para>
-<variablelist>
-<varlistentry>
-<term><literal>clean</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-c</option>, <option>--clean</option>
-and <option>--remove</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>duplicate</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--duplicate</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>help</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-h</option> and <option>--help</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_cache</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-cache</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>max_drift</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--max-drift</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_exec</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-n</option>, <option>--no-exec</option>,
-<option>--just-print</option>, <option>--dry-run</option>
-and <option>--recon</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>num_jobs</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-j</option> and <option>--jobs</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>random</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--random</option>; and
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>silent</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--silent</option>.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_progress</literal></term>
-<listitem>
-<para>
-which corresponds to -Q.
-</para>
-<para>
-    Note: The initial progress output will still be output as this is done before the SConstruct/SConscript which contains the SetOption is processed
-    <literal>scons: Reading SConscript files ...</literal>
-</para>
-<para><emphasis>Available since &scons; 4.0.</emphasis></para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>stack_size</literal></term>
-<listitem>
-<para>
-which corresponds to --stack-size.
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
+The settable variables with their associated command-line options are:
 </para>
 
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="2">
+<thead>
+<row><entry>Variable</entry><entry>Command-line options</entry></row>
+</thead>
+<tbody>
+<row><entry>
+<varname>clean</varname>
+</entry><entry>
+<option>-c</option>, <option>--clean</option>, <option>--remove</option>
+</entry></row>
+<row><entry>
+<varname>diskcheck</varname>
+</entry><entry>
+<option>--diskcheck</option>
+</entry></row>
+<row><entry>
+<varname>duplicate</varname>
+</entry><entry>
+<option>--duplicate</option>
+</entry></row>
+<row><entry>
+<varname>help</varname>
+</entry><entry>
+<option>-h</option>, <option>--help</option>
+</entry></row>
+<row><entry>
+<varname>implicit_cache</varname>
+</entry><entry>
+<option>--implicit-cache</option>
+</entry></row>
+<!--TODO: add implicit-deps-changed, implicit-deps-unchanged ? -->
+<row><entry>
+<varname>max_drift</varname>
+</entry><entry>
+<option>--max-drift</option>
+</entry></row>
+<row><entry>
+<varname>md5_chunksize</varname>
+</entry><entry>
+<option>--md5-chunksize</option>
+</entry></row>
+<row><entry>
+<varname>no_exec</varname>
+</entry><entry>
+<option>-n</option>, <option>--no-exec</option>,
+<option>--just-print</option>, <option>--dry-run</option>,
+<option>--recon</option>
+</entry></row>
+<row><entry>
+<varname>no_progress</varname>
+</entry><entry>
+<option>-Q</option>
+</entry></row>
+<row><entry>
+<varname>num_jobs</varname>
+</entry><entry>
+<option>-j</option>, <option>--jobs</option>
+</entry></row>
+<row><entry>
+<varname>random</varname>
+</entry><entry>
+<option>--random</option>
+</entry></row>
+<row><entry>
+<varname>silent</varname>
+</entry><entry>
+<option>--silent</option>.
+</entry></row>
+<row><entry>
+<varname>stack_size</varname>
+</entry><entry>
+<option>--stack-size</option>
+</entry></row>
+<row><entry>
+<varname>warn</varname>
+</entry><entry>
+<option>--warn</option>.
+</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
 <para>
-See the documentation for the
-corresponding command line option for information about each specific
-option.
+See the documentation in the manpage for the
+corresponding command line option for information about each specific option.
+Option values which are boolean in nature (that is, they are
+either on or off) should be set to a true value (<constant>True</constant>,
+<constant>1</constant>) or a false value (<constant>False</constant>,
+<constant>0</constant>).
 </para>
+
+<note>
+<para>
+If <varname>no_progress</varname> is set via &f-SetOption;
+there will still be initial progress output as &SCons; has
+to start reading SConscript files before it can see the
+&f-SetOption; in an SConscript file:
+<computeroutput>scons: Reading SConscript files ...</computeroutput>
+</para>
+</note>
 
 <para>
 Example:
 </para>
 
 <example_commands>
-SetOption('max_drift', 1)
+SetOption('max_drift', True)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -3908,6 +3934,12 @@ with the
 or
 &f-env-Clean;
 function.
+</para>
+
+<para>
+This function returns the list of side effect Node objects that were successfully added.
+If the list of side effects contained any side effects that had already been added,
+they are not added and included in the returned list.
 </para>
 </listitem>
   </varlistentry>
@@ -4054,7 +4086,7 @@ Annotates file or directory Nodes with
 information about how the
 &b-link-Package;
 Builder should package those files or directories.
-All tags are optional.
+All Node-level tags are optional.
 </para>
 
 <para>
@@ -4062,12 +4094,11 @@ Examples:
 </para>
 
 <example_commands>
-# makes sure the built library will be installed with 0o644 file
-# access mode
-Tag( Library( 'lib.c' ), UNIX_ATTR="0o644" )
+# makes sure the built library will be installed with 644 file access mode
+Tag(Library('lib.c'), UNIX_ATTR="0o644")
 
 # marks file2.txt to be a documentation file
-Tag( 'file2.txt', DOC )
+Tag('file2.txt', DOC)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -4181,8 +4212,8 @@ def create(target, source, env):
     # A function that will write a 'prefix=$SOURCE'
     # string into the file name specified as the
     # $TARGET.
-    f = open(str(target[0]), 'wb')
-    f.write('prefix=' + source[0].get_contents())
+    with open(str(target[0]), 'wb') as f:
+        f.write('prefix=' + source[0].get_contents())
 
 # Fetch the prefix= argument, if any, from the command
 # line, and use /usr/local as the default.
@@ -4213,90 +4244,75 @@ env.UpdateValue(target = Value(output), source = Value(input))
     <term><function>VariantDir</function>(<parameter>variant_dir, src_dir, [duplicate]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>VariantDir</methodname>(<parameter>variant_dir, src_dir, [duplicate]</parameter>)</term>
     <listitem><para>
-Use the
-&f-VariantDir;
-function to create a copy of your sources in another location:
-if a name under
-<parameter>variant_dir</parameter>
-is not found but exists under
-<parameter>src_dir</parameter>,
-the file or directory is copied to
-<parameter>variant_dir</parameter>.
-Target files can be built in a different directory
-than the original sources by simply refering to the sources (and targets)
-within the variant tree.
-</para>
-
-<para>
+Sets up an alternate build location.
+When building in the <parameter>variant_dir</parameter>,
+&SCons; backfills as needed with files from <parameter>src_dir</parameter>
+to create a complete build directory.
 &f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
 to set up multiple builds with different options
-(<parameter>variants</parameter>).
-The
-<parameter>src_dir</parameter>
-location must be in or underneath the SConstruct file's directory, and
-<parameter>variant_dir</parameter>
-may not be underneath
-<parameter>src_dir</parameter>.
-<!--
-TODO: Can the above restrictions be clarified or relaxed?
-TODO: The latter restriction is clearly not completely right;
-TODO: src_dir = '.' works fine with a build dir under it.
--->
+(<emphasis>variants</emphasis>).
 </para>
 
 <para>
-The default behavior is for
-&scons;
-to physically duplicate the source files in the variant tree.
+The
+<parameter>variant</parameter>
+location must be in or underneath the project top directory,
+and <parameter>src_dir</parameter>
+may not be underneath
+<parameter>variant_dir</parameter>.
+</para>
+
+<para>
+By default, &SCons;
+physically duplicates the source files and SConscript files
+as needed into the variant tree.
 Thus, a build performed in the variant tree is guaranteed to be identical
 to a build performed in the source tree even if
 intermediate source files are generated during the build,
-or preprocessors or other scanners search for included files
+or if preprocessors or other scanners search for included files
 relative to the source file,
-or individual compilers or other invoked tools are hard-coded
+or if individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
+Only the files &SCons; calculates are needed for the build are
+duplicated into <parameter>variant_dir</parameter>.
 </para>
 
 <para>
 If possible on the platform,
-the duplication is performed by linking rather than copying;
-see also the
+the duplication is performed by linking rather than copying.
+This behavior is affected by the
 <option>--duplicate</option>
 command-line option.
-Moreover, only the files needed for the build are duplicated;
-files and directories that are not used are not present in
-<parameter>variant_dir</parameter>.
 </para>
 
 <para>
-Duplicating the source tree may be disabled by setting the
-<literal>duplicate</literal>
+Duplicating the source files may be disabled by setting the
+<parameter>duplicate</parameter>
 argument to
-<literal>0</literal>
-(zero).
+<constant>False</constant>.
 This will cause
-&scons;
+&SCons;
 to invoke Builders using the path names of source files in
 <parameter>src_dir</parameter>
 and the path names of derived files within
 <parameter>variant_dir</parameter>.
-This is always more efficient than
-<literal>duplicate=1</literal>,
-and is usually safe for most builds
-(but see above for cases that may cause problems).
+This is more efficient than
+<literal>duplicate=True</literal>,
+and is safe for most builds;
+revert to <constant>True</constant>
+if it causes problems.
 </para>
 
 <para>
-Note that
 &f-VariantDir;
-works most naturally with a subsidiary SConscript file.
-However, you would then call the subsidiary SConscript file
-not in the source directory, but in the
+works most naturally with used with a subsidiary SConscript file.
+The subsidiary SConscript file is called as if it
+were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
-<literal>duplicate</literal>.
+<parameter>duplicate</parameter>.
 This is how you tell
 &scons;
 which variant of a source tree to build:
@@ -4326,15 +4342,11 @@ Examples:
 # use names in the build directory, not the source directory
 VariantDir('build', 'src', duplicate=0)
 Program('build/prog', 'build/source.c')
-</example_commands>
 
-<example_commands>
 # this builds both the source and docs in a separate subtree
 VariantDir('build', '.', duplicate=0)
 SConscript(dirs=['build/src','build/doc'])
-</example_commands>
 
-<example_commands>
 # same as previous example, but only uses SConscript
 SConscript(dirs='src', variant_dir='build/src', duplicate=0)
 SConscript(dirs='doc', variant_dir='build/doc', duplicate=0)

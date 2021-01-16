@@ -324,28 +324,38 @@ and typesetter and the LaTeX structured formatter and typesetter.
     </term>
     <listitem><para>
 A dictionary mapping the names of the builders
-available through this environment
-to underlying Builder objects.
-Builders named
-Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
-are available by default.
-If you initialize this variable when an
-Environment is created:
+available through the &consenv; to underlying Builder objects.
+Custom builders need to be added to this to make them available.
+</para>
+
+<para>
+A platform-dependent default list of builders such as
+&b-link-Program;, &b-link-Library; etc. is used to
+populate this &consvar; when the &consenv; is initialized
+via the presence/absence of the tools those builders depend on.
+&cv-BUILDERS; can be examined to learn which builders will
+actually be available at run-time.
+</para>
+
+<para>
+Note that if you initialize this &consvar; through
+assignment when the &consenv; is created,
+that value for &cv-BUILDERS; will override any defaults:
 </para>
 
 <example_commands>
-env = Environment(BUILDERS = {'NewBuilder' : foo})
+bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
+env = Environment(BUILDERS={'NewBuilder': bld})
 </example_commands>
 
 <para>
-the default Builders will no longer be available.
-To use a new Builder object in addition to the default Builders,
+To instead use a new Builder object in addition to the default Builders,
 add your new Builder object like this:
 </para>
 
 <example_commands>
 env = Environment()
-env.Append(BUILDERS = {'NewBuilder' : foo})
+env.Append(BUILDERS={'NewBuilder': bld})
 </example_commands>
 
 <para>
@@ -354,7 +364,7 @@ or this:
 
 <example_commands>
 env = Environment()
-env['BUILDERS']['NewBuilder'] = foo
+env['BUILDERS']['NewBuilder'] = bld
 </example_commands>
 </listitem>
   </varlistentry>
@@ -562,7 +572,24 @@ section of the RPM
       <envar>COMPILATIONDB_COMSTR</envar>
     </term>
     <listitem><para>
-                The string displayed when CompilationDatabase builder's action is run.
+                The string displayed when the &b-CompilationDatabase;
+                builder's action is run.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-COMPILATIONDB_PATH_FILTER">
+    <term>
+      <envar>COMPILATIONDB_PATH_FILTER</envar>
+    </term>
+    <listitem><para>
+                A string which instructs &b-link-CompilationDatabase; to
+                only include entries where the <literal>output</literal> member
+                matches the pattern in the filter string using fnmatch, which
+                uses glob style wildcards.
+
+            </para>
+            <para>
+                The default value is an empty string '', which disables filtering.
             </para>
         </listitem>
   </varlistentry>
@@ -571,9 +598,10 @@ section of the RPM
       <envar>COMPILATIONDB_USE_ABSPATH</envar>
     </term>
     <listitem><para>
-                This is a boolean flag to instruct &b-link-CompilationDatabase; to
-                write the <literal>file</literal> and <literal>target</literal> members
-                in the compilation database with absolute or relative paths.
+                A boolean flag to instruct &b-link-CompilationDatabase;
+                whether to write the <literal>file</literal> and
+                <literal>output</literal> members
+                in the compilation database using absolute or relative paths.
             </para>
             <para>
                 The default value is False (use relative paths)
@@ -1479,15 +1507,6 @@ DRPATHSUFFIX.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-DShLibSonameGenerator">
-    <term>
-      <envar>DShLibSonameGenerator</envar>
-    </term>
-    <listitem><para>
-DShLibSonameGenerator.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-DSUFFIXES">
     <term>
       <envar>DSUFFIXES</envar>
@@ -1696,7 +1715,7 @@ If not set, then &cv-link-F03COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F03 dialect will be used. By
-default, this is ['.f03']
+default, this is <literal>['.f03']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -1834,7 +1853,7 @@ If not set, then &cv-link-F03PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F03 dialect will be used. By default, this is empty
+F03 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -1884,7 +1903,7 @@ If not set, then &cv-link-F08COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F08 dialect will be used. By
-default, this is ['.f08']
+default, this is <literal>['.f08']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2022,7 +2041,7 @@ If not set, then &cv-link-F08PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F08 dialect will be used. By default, this is empty
+F08 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2072,7 +2091,7 @@ If not set, then &cv-link-F77COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F77 dialect will be used. By
-default, this is ['.f77']
+default, this is <literal>['.f77']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2210,7 +2229,7 @@ If not set, then &cv-link-F77PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F77 dialect will be used. By default, this is empty
+F77 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2260,7 +2279,7 @@ If not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F90 dialect will be used. By
-default, this is ['.f90']
+default, this is <literal>['.f90']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2397,7 +2416,7 @@ If not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F90 dialect will be used. By default, this is empty
+F90 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2447,7 +2466,7 @@ If not set, then &cv-link-F95COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F95 dialect will be used. By
-default, this is ['.f95']
+default, this is <literal>['.f95']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2585,7 +2604,7 @@ If not set, then &cv-link-F95PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F95 dialect will be used. By default, this is empty
+F95 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2643,7 +2662,7 @@ If not set, then &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the FORTRAN dialect will be used. By
-default, this is ['.f', '.for', '.ftn']
+default, this is <literal>['.f', '.for', '.ftn']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2859,7 +2878,7 @@ If not set, then &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-FORTRAN dialect will be used. By default, this is ['.fpp', '.FPP']
+FORTRAN dialect will be used. By default, this is <literal>['.fpp', '.FPP']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -3046,7 +3065,7 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
         Currently only set for Win32.
 </para>
     <para>
-Sets the host architecture for Visual Studio compiler. If not set,
+Sets the host architecture for the Visual C++ compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
 This variable must be passed as an argument to the Environment()
@@ -4589,7 +4608,7 @@ will be compiled separately.
       <envar>MSVC_USE_SCRIPT</envar>
     </term>
     <listitem><para>
-Use a batch script to set up Microsoft Visual Studio compiler.
+Use a batch script to set up the Microsoft Visual C++ compiler.
 </para>
 
 <para>
@@ -4608,7 +4627,7 @@ This can be useful to force the use of a compiler version that
 Setting
 &cv-MSVC_USE_SCRIPT; to <constant>None</constant> bypasses the
 Visual Studio autodetection entirely;
-use this if you are running SCons in a Visual Studio cmd
+use this if you are running SCons in a Visual Studio <command>cmd</command>
 window and importing the shell's environment variables - that
 is, if you are sure everything is set correctly already and
 you don't want &SCons; to change anything.
@@ -4627,8 +4646,8 @@ Build libraries for a Universal Windows Platform (UWP) Application.
 </para>
 
 <para>
-If &cv-MSVC_UWP_APP; is set, the Visual Studio environment will be set up to point
-to the Windows Store compatible libraries and Visual Studio runtimes. In doing so,
+If &cv-MSVC_UWP_APP; is set, the Visual C++ environment will be set up to point
+to the Windows Store compatible libraries and Visual C++ runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
 This flag will only have an effect with Visual Studio 2015 or later.
@@ -4654,7 +4673,7 @@ Sets the preferred  version of Microsoft Visual C/C++ to use.
 If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
 latest version of Visual C/C++ installed on your system.  If the
 specified version isn't installed, tool initialization will fail.
-This variable must be passed as an argument to the Environment()
+This variable must be passed as an argument to the &f-link-Environment;
 constructor; setting it later has no effect.
 </para>
 
@@ -5129,27 +5148,13 @@ placed if applicable.  The default value is "$NAME-$VERSION".
       <envar>PACKAGETYPE</envar>
     </term>
     <listitem><para>
-Selects the package type to build.  Currently these are available:
+Selects the package type to build when using the &b-link-Package;
+builder. May be a string or list of strings. See the docuentation
+for the builder for the currently supported types.
 </para>
 
-<blockquote>
-<simplelist type="vert" columns="1">
-<member><literal>msi</literal> - Microsoft Installer</member>
-<member><literal>rpm</literal> - RPM Package Manger</member>
-<member><literal>ipkg</literal> - Itsy Package Management System</member>
-<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
-<member><literal>targz</literal> - gzip compressed tar</member>
-<member><literal>tarxz</literal> - xz compressed tar</member>
-<member><literal>zip</literal> - zip file</member>
-<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
-<member><literal>src_targz</literal> - gzip compressed tar source</member>
-<member><literal>src_tarxz</literal> - xz compressed tar source</member>
-<member><literal>src_zip</literal> - zip file source</member>
-</simplelist>
-</blockquote>
-
 <para>
-This may be overridden with the <option>package_type</option>
+&cv-PACKAGETYPE; may be overridden with the <option>--package-type</option>
 command line option.
 </para>
 </listitem>
@@ -5191,7 +5196,7 @@ env['PCH'] = 'StdAfx.pch'
     </term>
     <listitem><para>
 The command line used by the
-&b-PCH;
+&b-link-PCH;
 builder to generated a precompiled header.
 </para>
 </listitem>
@@ -5212,8 +5217,8 @@ If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
     </term>
     <listitem><para>
 A construction variable that, when expanded,
-adds the <literal>/yD</literal> flag to the command line
-only if the &cv-PDB; construction variable is set.
+adds the <option>/yD</option> flag to the command line
+only if the &cv-link-PDB; construction variable is set.
 </para>
 </listitem>
   </varlistentry>
@@ -6056,9 +6061,9 @@ for specifying directories to be searched
 by the resource compiler.
 The value of &cv-RCINCFLAGS; is created
 by respectively prepending and appending
-&cv-RCINCPREFIX; and &cv-RCINCSUFFIX;
+&cv-link-RCINCPREFIX; and &cv-link-RCINCSUFFIX;
 to the beginning and end
-of each directory in &cv-CPPPATH;.
+of each directory in &cv-link-CPPPATH;.
 </para>
 </listitem>
   </varlistentry>
@@ -6070,8 +6075,8 @@ of each directory in &cv-CPPPATH;.
 The prefix (flag) used to specify an include directory
 on the resource compiler command line.
 This will be prepended to the beginning of each directory
-in the &cv-CPPPATH; construction variable
-when the &cv-RCINCFLAGS; variable is expanded.
+in the &cv-link-CPPPATH; construction variable
+when the &cv-link-RCINCFLAGS; variable is expanded.
 </para>
 </listitem>
   </varlistentry>
@@ -6083,8 +6088,8 @@ when the &cv-RCINCFLAGS; variable is expanded.
 The suffix used to specify an include directory
 on the resource compiler command line.
 This will be appended to the end of each directory
-in the &cv-CPPPATH; construction variable
-when the &cv-RCINCFLAGS; variable is expanded.
+in the &cv-link-CPPPATH; construction variable
+when the &cv-link-RCINCFLAGS; variable is expanded.
 </para>
 </listitem>
   </varlistentry>
@@ -6498,21 +6503,14 @@ See also &cv-link-DCOMSTR; for compiling to static objects.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-SHDLIBVERSION">
-    <term>
-      <envar>SHDLIBVERSION</envar>
-    </term>
-    <listitem><para>
-SHDLIBVERSION.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-SHDLIBVERSIONFLAGS">
     <term>
       <envar>SHDLIBVERSIONFLAGS</envar>
     </term>
     <listitem><para>
-SHDLIBVERSIONFLAGS.
+Extra flags added to &cv-link-SHDLINKCOM; when building versioned
+&b-link-SharedLibrary;. These flags are only used when &cv-link-SHLIBVERSION; is
+set.
 </para>
 </listitem>
   </varlistentry>
@@ -7292,6 +7290,25 @@ for more information).
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SOVERSION">
+    <term>
+      <envar>SOVERSION</envar>
+    </term>
+    <listitem><para>
+This will construct the <varname>SONAME</varname> using on the base library name 
+(<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
+to create <varname>SONAME</varname>.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+</example_commands>
+The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+<para>
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
+which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-SPAWN">
     <term>
       <envar>SPAWN</envar>
@@ -7672,7 +7689,7 @@ for more information).
         Currently only set for Win32.
 </para>
     <para>
-Sets the target architecture for Visual Studio compiler (i.e. the arch
+Sets the target architecture for the Visual C++ compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 &cv-link-HOST_ARCH;, or, if that is unset, to the architecture of the
 running machine's OS (note that the python build or architecture has no
@@ -7699,8 +7716,8 @@ for 32-bit targets and
 and <literal>ia64</literal> (Itanium)
 for 64-bit targets.
 Note that not all target architectures are
-supported for all Visual Studio / MSVC versions
-check the relevant Microsoft documentation.
+supported for all Visual Studio / MSVC versions.
+Check the relevant Microsoft documentation.
 </para>
 
 <para>

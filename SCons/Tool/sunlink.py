@@ -8,7 +8,9 @@ selection method.
 """
 
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,13 +32,9 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import os
 import os.path
 
 import SCons.Util
-
 from . import link
 
 ccLinker = None
@@ -56,19 +54,20 @@ for d in dirs:
         ccLinker = linker
         break
 
+
 def generate(env):
     """Add Builders and construction variables for Forte to an Environment."""
     link.generate(env)
-    
+
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -G')
 
     env['RPATHPREFIX'] = '-R'
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
-    # Support for versioned libraries
-    link._setup_versioned_lib_variables(env, tool = 'sunlink', use_soname = True) 
-    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
+    env['_SHLIBVERSIONFLAGS'] = '$SHLIBVERSIONFLAGS -h $_SHLIBSONAME'
+    env['_LDMODULEVERSIONFLAGS'] = '$LDMODULEVERSIONFLAGS -h $_LDMODULESONAME'
+
 
 def exists(env):
     return ccLinker

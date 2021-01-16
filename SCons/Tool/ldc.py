@@ -1,3 +1,27 @@
+# MIT License
+#
+# Copyright The SCons Foundation
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 """SCons.Tool.ldc
 
 Tool-specific initialization for the LDC compiler.
@@ -23,26 +47,7 @@ Lib tool variables:
     LIBS - Same as for the linker. (libraries to pull into the .lib)
 """
 
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
 
 import SCons.Action
 import SCons.Builder
@@ -51,7 +56,6 @@ import SCons.Scanner.D
 import SCons.Tool
 
 import SCons.Tool.DCommon as DCommon
-from SCons.Tool.linkCommon import ShLibSonameGenerator
 
 
 def generate(env):
@@ -123,15 +127,8 @@ def generate(env):
     env['_DRPATH'] = '${_concat(DRPATHPREFIX, RPATH, DRPATHSUFFIX, __env__)}'
 
     # Support for versioned libraries
-    env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -L-soname=$_SHDLIBSONAME'
-    env['_SHDLIBSONAME'] = '${DShLibSonameGenerator(__env__,TARGET)}'
-    # NOTE: this is a quick hack, the soname will only work if there is
-    # c/c++ linker loaded which provides callback for the ShLibSonameGenerator
-    env['DShLibSonameGenerator'] = ShLibSonameGenerator
-    # NOTE: this is only for further reference, currently $SHDLIBVERSION does
-    # not work, the user must use $SHLIBVERSION
-    env['SHDLIBVERSION'] = '$SHLIBVERSION'
-    env['SHDLIBVERSIONFLAGS'] = []
+    env['_SHDLIBVERSIONFLAGS'] = '$SHDLIBVERSIONFLAGS -L-soname=$_SHLIBSONAME'
+
 
     env['BUILDERS']['ProgramAllAtOnce'] = SCons.Builder.Builder(
         action='$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -of=$TARGET $DLINKFLAGS $__DRPATH $SOURCES $_DLIBDIRFLAGS $_DLIBFLAGS',

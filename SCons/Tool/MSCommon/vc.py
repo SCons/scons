@@ -1,5 +1,7 @@
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,6 +22,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+"""Module for Visual C/C++ detection and configuration.
 
 # TODO:
 #   * gather all the information from a single vswhere call instead
@@ -33,10 +36,8 @@
 #   * test on 64 bits XP +  VS 2005 (and VS 6 if possible)
 #   * SDK
 #   * Assembly
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__doc__ = """Module for Visual C/C++ detection and configuration.
 """
+
 import SCons.compat
 import SCons.Util
 
