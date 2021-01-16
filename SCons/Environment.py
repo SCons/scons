@@ -1995,15 +1995,16 @@ class Base(SubstitutionEnvironment):
         return SCons.Builder.Builder(**nkw)
 
     def CacheDir(self, path):
-        import SCons.CacheDir
         if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path
 
-        # Now initialized the CacheDir and prevent a race condition which can
-        # happen when there's no existing cache dir and you are building with
-        # multiple threads, but initializing it before the task walk starts
-        self.get_CacheDir()
+        if SCons.Action.execute_actions:
+            # Only initialize the CacheDir if  -n/-no_exec was NOT specified.
+            # Now initialized the CacheDir and prevent a race condition which can
+            # happen when there's no existing cache dir and you are building with
+            # multiple threads, but initializing it before the task walk starts
+            self.get_CacheDir()
 
     def Clean(self, targets, files):
         global CleanTargets

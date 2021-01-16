@@ -31,7 +31,6 @@ import unittest
 from collections import UserDict as UD, UserList as UL
 
 import TestCmd
-import TestUnit
 
 from SCons.Environment import (
     Environment,
@@ -41,6 +40,7 @@ from SCons.Environment import (
     is_valid_construction_var,
 )
 import SCons.Warnings
+
 
 def diff_env(env1, env2):
     s1 = "env1 = {\n"
@@ -2804,6 +2804,8 @@ def generate(env):
         test_cachedir_config = os.path.join(test_cachedir, 'config')
         test_foo = os.path.join(test.workpath(), 'foo-cachedir')
         test_foo_config = os.path.join(test_foo,'config')
+        test_foo1 = os.path.join(test.workpath(), 'foo1-cachedir')
+        test_foo1_config = os.path.join(test_foo1, 'config')
 
         env = self.TestEnvironment(CD = test_cachedir)
 
@@ -2814,6 +2816,14 @@ def generate(env):
         env.CacheDir('$CD')
         assert env._CacheDir_path == test_cachedir, env._CacheDir_path
         assert os.path.isfile(test_cachedir_config), "No file %s"%test_cachedir_config
+
+        # Now verify that -n/-no_exec wil prevent the CacheDir/config from being created
+        import SCons.Action
+        SCons.Action.execute_actions = False
+        env.CacheDir(test_foo1)
+        assert env._CacheDir_path == test_foo1, env._CacheDir_path
+        assert not os.path.isfile(test_foo1_config), "No file %s"%test_foo1_config
+
 
     def test_Clean(self):
         """Test the Clean() method"""
