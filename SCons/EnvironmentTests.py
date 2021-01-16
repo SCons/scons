@@ -2797,13 +2797,24 @@ def generate(env):
 
     def test_CacheDir(self):
         """Test the CacheDir() method"""
-        env = self.TestEnvironment(CD = 'CacheDir')
 
-        env.CacheDir('foo')
-        assert env._CacheDir_path == 'foo', env._CacheDir_path
+        test = TestCmd.TestCmd(workdir = '')
+        save = os.getcwd()
+
+        test_cachedir = os.path.join(test.workpath(),'CacheDir')
+        test_cachedir_config = os.path.join(test_cachedir, 'config')
+        test_foo = os.path.join(test.workpath(), 'foo-cachedir')
+        test_foo_config = os.path.join(test_foo,'config')
+
+        env = self.TestEnvironment(CD = test_cachedir)
+
+        env.CacheDir(test_foo)
+        assert env._CacheDir_path == test_foo, env._CacheDir_path
+        assert os.path.isfile(test_foo_config), "No file %s"%test_foo_config
 
         env.CacheDir('$CD')
-        assert env._CacheDir_path == 'CacheDir', env._CacheDir_path
+        assert env._CacheDir_path == test_cachedir, env._CacheDir_path
+        assert os.path.isfile(test_cachedir_config), "No file %s"%test_cachedir_config
 
     def test_Clean(self):
         """Test the Clean() method"""
