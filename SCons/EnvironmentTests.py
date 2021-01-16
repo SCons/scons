@@ -2799,7 +2799,6 @@ def generate(env):
         """Test the CacheDir() method"""
 
         test = TestCmd.TestCmd(workdir = '')
-        save = os.getcwd()
 
         test_cachedir = os.path.join(test.workpath(),'CacheDir')
         test_cachedir_config = os.path.join(test_cachedir, 'config')
