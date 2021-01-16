@@ -1420,8 +1420,8 @@ env.SetDefault(SPECIAL_FLAG='-extra-option')
 
       <scons_example name="environments_ex8">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS = ['-DMY_VALUE'])
-env.Append(CCFLAGS = ['-DLAST'])
+env = Environment(CPPDEFINES=['MY_VALUE'])
+env.Append(CPPDEFINES=['LAST'])
 env.Program('foo.c')
         </file>
         <file name="foo.c">
@@ -1431,7 +1431,9 @@ int main() { }
 
       <para>
 
-      &SCons; then supplies both the <literal>-DMY_VALUE</literal> and
+      &SCons; then adjusts both the &CPPDEFINES; values with the correct
+      prefix/suffix, so that on Linux or POSIX, it will emit the
+      <literal>-DMY_VALUE</literal> and
       <literal>-DLAST</literal> flags when compiling the object file:
 
       </para>
@@ -1520,8 +1522,8 @@ env.AppendUnique(CCFLAGS=['-g'])
 
       <scons_example name="environments_ex9">
         <file name="SConstruct" printme="1">
-env = Environment(CCFLAGS=['-DMY_VALUE'])
-env.Prepend(CCFLAGS=['-DFIRST'])
+env = Environment(CPPDEFINES=['MY_VALUE'])
+env.Prepend(CPPDEFINES=['FIRST'])
 env.Program('foo.c')
         </file>
         <file name="foo.c">
@@ -1531,7 +1533,9 @@ int main() { }
 
       <para>
 
-      &SCons; then supplies both the <literal>-DFIRST</literal> and
+      &SCons; then adjusts both the &CPPDEFINES; values with the correct
+      prefix/suffix, so that on Linux or POSIX, it will emit the
+      <literal>-DFIRST</literal> and
       <literal>-DMY_VALUE</literal> flags when compiling the object file:
 
       </para>
