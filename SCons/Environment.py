@@ -2000,6 +2000,11 @@ class Base(SubstitutionEnvironment):
             path = self.subst(path)
         self._CacheDir_path = path
 
+        # Now initialized the CacheDir and prevent a race condition which can
+        # happen when there's no existing cache dir and you are building with
+        # multiple threads, but initializing it before the task walk starts
+        self.get_CacheDir()
+
     def Clean(self, targets, files):
         global CleanTargets
         tlist = self.arg2nodes(targets, self.fs.Entry)
