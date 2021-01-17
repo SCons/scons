@@ -194,7 +194,6 @@ class CacheDir:
                 msg = "Failed to read cache configuration for " + path
                 raise SCons.Errors.SConsEnvironmentError(msg)
 
-
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:
             if cache_debug == '-':

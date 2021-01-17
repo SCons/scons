@@ -31,6 +31,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
     - Completely rewrote versioned shared libraries logic. Added support for SOVERSION via dmoody's initial PR #3733
     - No longer automatically disable setting SONAME on shared libraries on OpenBSD.
+    - Fix race condition bug when initializing a scons cache directory at the
+      same time from multiple threads or processes. Problem described in PR #3114.
+      This is a simpler fix which should avoid some problems identified with the initial PR.
+      (Credit to Fredrik Medley for reporting the issue, the initial PR, and discussing and testing
+       this solution)
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
