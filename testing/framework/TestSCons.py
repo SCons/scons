@@ -12,9 +12,28 @@ from those classes, as well as any overridden or additional methods or
 attributes defined in this subclass.
 """
 
-# __COPYRIGHT__
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+# MIT License
+#
+# Copyright The SCons Foundation
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
 import re
@@ -22,6 +41,7 @@ import shutil
 import sys
 import time
 import subprocess
+import zipfile
 from collections import namedtuple
 
 from TestCommon import *
@@ -1603,6 +1623,16 @@ else:
             return False
         else:
             return True
+
+    def zipfile_contains(self, zipfilename, names):
+        """Returns True if zipfilename contains all the names, False otherwise."""
+        with zipfile.ZipFile(zipfilename, 'r') as zf:
+            return all(elem in zf.namelist() for elem in names)
+
+    def zipfile_files(self, fname):
+        """Returns all the filenames in zip file fname."""
+        with zipfile.ZipFile(fname, 'r') as zf:
+            return zf.namelist()
 
 
 class Stat:
