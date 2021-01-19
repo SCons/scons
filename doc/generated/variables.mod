@@ -638,6 +638,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-YACCHXXFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCHXXFILESUFFIX</envar>">
 <!ENTITY cv-YACCVCGFILESUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCVCGFILESUFFIX</envar>">
 <!ENTITY cv-ZIP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIP</envar>">
+<!ENTITY cv-ZIP_OVERRIDE_TIMESTAMP "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIP_OVERRIDE_TIMESTAMP</envar>">
 <!ENTITY cv-ZIPCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOM</envar>">
 <!ENTITY cv-ZIPCOMPRESSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOMPRESSION</envar>">
 <!ENTITY cv-ZIPCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$ZIPCOMSTR</envar>">
@@ -1281,6 +1282,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-YACCHXXFILESUFFIX "<link linkend='cv-YACCHXXFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCHXXFILESUFFIX</envar></link>">
 <!ENTITY cv-link-YACCVCGFILESUFFIX "<link linkend='cv-YACCVCGFILESUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCVCGFILESUFFIX</envar></link>">
 <!ENTITY cv-link-ZIP "<link linkend='cv-ZIP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIP</envar></link>">
+<!ENTITY cv-link-ZIP_OVERRIDE_TIMESTAMP "<link linkend='cv-ZIP_OVERRIDE_TIMESTAMP' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIP_OVERRIDE_TIMESTAMP</envar></link>">
 <!ENTITY cv-link-ZIPCOM "<link linkend='cv-ZIPCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOM</envar></link>">
 <!ENTITY cv-link-ZIPCOMPRESSION "<link linkend='cv-ZIPCOMPRESSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOMPRESSION</envar></link>">
 <!ENTITY cv-link-ZIPCOMSTR "<link linkend='cv-ZIPCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$ZIPCOMSTR</envar></link>">
