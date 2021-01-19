@@ -3630,7 +3630,7 @@ if not conf.CheckCHeader("math.h"):
     Exit(1)
 if conf.CheckLibWithHeader("qt", "qapp.h", "c++", "QApplication qapp(0,0);"):
     # do stuff for qt - usage, e.g.
-    conf.env.Append(CPPFLAGS="-DWITH_QT")
+    conf.env.Append(CPPDEFINES="WITH_QT")
 env = conf.Finish()
 </programlisting>
 

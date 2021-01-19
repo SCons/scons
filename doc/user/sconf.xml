@@ -166,7 +166,7 @@ if not conf.CheckCHeader('math.h'):
     print('Math.h must be installed!')
     Exit(1)
 if conf.CheckCHeader('foo.h'):
-    conf.env.Append('-DHAS_FOO_H')
+    conf.env.Append(CPPDEFINES='HAS_FOO_H')
 env = conf.Finish()
     </sconstruct>
 
@@ -221,7 +221,7 @@ env = Environment()
 conf = Configure(env)
 if not conf.CheckFunc('strcpy'):
     print('Did not find strcpy(), using local version')
-    conf.env.Append(CPPDEFINES='-Dstrcpy=my_local_strcpy')
+    conf.env.Append(CPPDEFINES='strcpy=my_local_strcpy')
 env = conf.Finish()
     </sconstruct>
 
@@ -295,7 +295,7 @@ env = Environment()
 conf = Configure(env)
 if not conf.CheckType('off_t'):
     print('Did not find off_t typedef, assuming int')
-    conf.env.Append(CCFLAGS='-Doff_t=int')
+    conf.env.Append(CPPDEFINES='off_t=int')
 env = conf.Finish()
     </sconstruct>
 
@@ -314,7 +314,7 @@ env = Environment()
 conf = Configure(env)
 if not conf.CheckType('off_t', '#include &lt;sys/types.h&gt;\n'):
     print('Did not find off_t typedef, assuming int')
-    conf.env.Append(CCFLAGS='-Doff_t=int')
+    conf.env.Append(CPPDEFINES='off_t=int')
 env = conf.Finish()
     </sconstruct>
 
