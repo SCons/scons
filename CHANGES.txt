@@ -6,7 +6,7 @@
 
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
 
   From James Benton:
     - Add COMPILATIONDB_PATH_FILTER env option for CompilationDatabase() builder which allows
