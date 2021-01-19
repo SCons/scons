@@ -8843,6 +8843,23 @@ The zip compression and file packaging utility.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-ZIP_OVERRIDE_TIMESTAMP">
+    <term>
+      <envar>ZIP_OVERRIDE_TIMESTAMP</envar>
+    </term>
+    <listitem><para>
+An optional timestamp which overrides the last modification time of
+the file when stored inside the Zip archive. This is a tuple of six values:
+
+Year (&gt;= 1980)
+Month (one-based)
+Day of month (one-based)
+Hours (zero-based)
+Minutes (zero-based)
+Seconds (zero-based)
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-ZIPCOM">
     <term>
       <envar>ZIPCOM</envar>
