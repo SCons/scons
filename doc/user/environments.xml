@@ -1431,10 +1431,10 @@ int main() { }
 
       <para>
 
-      &SCons; then adjusts both the &CPPDEFINES; values with the correct
-      prefix/suffix, so that on Linux or POSIX, it will emit the
+      &SCons; then generates the preprocessor define arguments from &CPPDEFINES; values with the correct
+      prefix/suffix. For example on Linux or POSIX, the following arguments would be generated:
       <literal>-DMY_VALUE</literal> and
-      <literal>-DLAST</literal> flags when compiling the object file:
+      <literal>-DLAST</literal>
 
       </para>
 
@@ -1533,10 +1533,10 @@ int main() { }
 
       <para>
 
-      &SCons; then adjusts both the &CPPDEFINES; values with the correct
-      prefix/suffix, so that on Linux or POSIX, it will emit the
+          &SCons; then generates the preprocessor define arguments from &CPPDEFINES; values with the correct
+      prefix/suffix. For example on Linux or POSIX, the following arguments would be generated:
       <literal>-DFIRST</literal> and
-      <literal>-DMY_VALUE</literal> flags when compiling the object file:
+      <literal>-DMY_VALUE</literal>
 
       </para>
 
