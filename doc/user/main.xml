@@ -51,16 +51,16 @@
     <subtitle>User Guide</subtitle>
 
     <author>
-      <firstname>Steven</firstname>
-      <surname>Knight</surname>
+      <firstname>SCons</firstname>
+      <surname>Development Team</surname>
     </author>
 
-    <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
+    <corpauthor>The SCons Development Team</corpauthor>
 
-    <pubdate>2004 - 2020</pubdate>
+    <pubdate>2004 - 2021</pubdate>
 
     <copyright>
-      <year>2004 - 2020</year>
+      <year>2004 - 2021</year>
       <holder>The SCons Foundation</holder>
     </copyright>
 
