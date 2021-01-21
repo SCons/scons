@@ -87,7 +87,7 @@ Note that, by default,
 &scons;
 does
 <emphasis>not</emphasis>
-propagate the environment in force when you
+propagate the environment in effect when you
 execute
 &scons;
 to the commands used to build target files.
@@ -108,7 +108,7 @@ you must do so explicitly:
 
 <example_commands>
 import os
-env = Environment(ENV = os.environ)
+env = Environment(ENV=os.environ.copy())
 </example_commands>
 
 <para>
@@ -126,7 +126,7 @@ as the invoking shell (or other process):
 
 <example_commands>
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+env = Environment(ENV={'PATH': os.environ['PATH']})
 </example_commands>
 </summary>
 </cvar>

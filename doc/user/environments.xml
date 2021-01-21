@@ -1383,7 +1383,7 @@ int main() { }
       set to a value only if the construction environment
       does not already have that variable defined
       You can do this with the &f-link-env-SetDefault; method,
-      which behaves similarly to the <function>set_default</function>
+      which behaves similarly to the <function>setdefault</function>
       method of &Python; dictionary objects:
 
       </para>
@@ -1431,10 +1431,11 @@ int main() { }
 
       <para>
 
-      &SCons; then generates the preprocessor define arguments from &CPPDEFINES; values with the correct
-      prefix/suffix. For example on Linux or POSIX, the following arguments would be generated:
-      <literal>-DMY_VALUE</literal> and
-      <literal>-DLAST</literal>
+      Note &cv-link-CPPDEFINES; is the preferred way to set preprocessor defines,
+      as &SCons; will generate the command line arguments using the correct
+      prefix/suffix for the platform, leaving the usage portable.
+      If you use &cv-link-CCFLAGS; and &cv-link-SHCCFLAGS;,
+      you need to include them in their final form, which is less portable.
 
       </para>
 
@@ -1487,7 +1488,7 @@ print("NEW_VARIABLE = %s"%env['NEW_VARIABLE'])
 
       <para>
 
-      Some times it's useful to add a new value
+      Sometimes it's useful to add a new value
       only if the existing construction variable
       doesn't already contain the value.
       This can be done using the &f-link-env-AppendUnique; method:
@@ -1510,11 +1511,11 @@ env.AppendUnique(CCFLAGS=['-g'])
     </section>
 
     <section>
-    <title>Appending to the Beginning of Values:  the &Prepend; Method</title>
+    <title>Prepending to the Beginning of Values:  the &Prepend; Method</title>
 
       <para>
 
-      You can append a value to the beginning of
+      You can prepend a value to the beginning of
       an existing construction variable
       using the &f-link-env-Prepend; method:
 
@@ -1912,7 +1913,7 @@ env = Environment(ENV={'PATH': os.environ['PATH']})
 
       <sconstruct>
 import os
-env = Environment(ENV=os.environ)
+env = Environment(ENV=os.environ.copy())
       </sconstruct>
 
       <para>
@@ -1959,7 +1960,7 @@ env = Environment(ENV=os.environ)
       </para>
 
       <sconstruct>
-env = Environment(ENV=os.environ)
+env = Environment(ENV=os.environ.copy())
 env.PrependENVPath('PATH', '/usr/local/bin')
 env.AppendENVPath('LIB', '/usr/local/lib')
       </sconstruct>

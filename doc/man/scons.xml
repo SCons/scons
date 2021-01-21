@@ -269,7 +269,7 @@ complete external environment:</para>
 
 <programlisting language="python">
 import os
-env = Environment(ENV=os.environ)
+env = Environment(ENV=os.environ.copy())
 </programlisting>
 
 <para>This comes at the expense of making your build
@@ -2574,7 +2574,7 @@ A nested tool name uses a dot to represent a directory separator</para>
 
 <programlisting language="python">
 # namespaced builder
-env = Environment(ENV=os.environ, tools=['SubDir1.SubDir2.SomeTool'])
+env = Environment(ENV=os.environ.copy(), tools=['SubDir1.SubDir2.SomeTool'])
 env.SomeTool(targets, sources)
 
 # Search Paths
@@ -5060,7 +5060,7 @@ arguments must not both be used for the same Builder.</para>
   <varlistentry>
   <term><parameter>prefix</parameter></term>
   <listitem>
-<para>The prefix that will be prepended to the target file name.
+<para>The prefix to prepend to the target file name.
 <parameter>prefix</parameter> may be:</para>
 
   <itemizedlist>
@@ -5098,13 +5098,13 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
   <varlistentry>
   <term><parameter>suffix</parameter></term>
   <listitem>
-<para>The suffix that will be appended to the target file name.
+<para>The suffix to append to the target file name.
 This may be specified in the same manner as the prefix above.
 If the suffix is a string, then
 &scons;
-will append a '.' to the beginning of the suffix if it's not already
-there.  The string returned by callable object (or obtained from the
-dictionary) is untouched and must append its own '.'  to the beginning
+prepends a '.' to the suffix if it's not already there.
+The string returned by the callable object (or obtained from the
+dictionary) is untouched and you need to manually prepend a '.'
 if one is desired.</para>
 
 <programlisting language="python">
@@ -6961,7 +6961,7 @@ such as Linux or UNIX,
 <filename>.F</filename>
 as a Fortran source file
 that is to be first run through
-the standard C preprocessor, 
+the standard C preprocessor,
 while the lower-case version is not.
 This matches the convention of <command>gfortran</command>,
 which may also be followed by other Fortran compilers.
