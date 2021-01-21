@@ -62,8 +62,8 @@ except Exception:
 prefer_xsltproc = False
 
 # Regexs for parsing Docbook XML sources of MAN pages
-re_manvolnum = re.compile("<manvolnum>([^<]*)</manvolnum>")
-re_refname = re.compile("<refname>([^<]*)</refname>")
+re_manvolnum = re.compile(r"<manvolnum>([^<]*)</manvolnum>")
+re_refname = re.compile(r"<refname>([^<]*)</refname>")
 
 #
 # Helper functions
@@ -203,8 +203,8 @@ def _detect(env):
 #
 # Scanners
 #
-include_re = re.compile('fileref\\s*=\\s*["|\']([^\\n]*)["|\']')
-sentity_re = re.compile('<!ENTITY\\s+%*\\s*[^\\s]+\\s+SYSTEM\\s+["|\']([^\\n]*)["|\']>')
+include_re = re.compile(r'fileref\\s*=\\s*["|\']([^\\n]*)["|\']')
+sentity_re = re.compile(r'<!ENTITY\\s+%*\\s*[^\\s]+\\s+SYSTEM\\s+["|\']([^\\n]*)["|\']>')
 
 def __xml_scan(node, env, path, arg):
     """ Simple XML file scanner, detecting local images and XIncludes as implicit dependencies. """
