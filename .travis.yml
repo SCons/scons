@@ -36,6 +36,7 @@ jobs:
   # allow coverage to fail, so we can still do testing for all platforms
   allow_failures:
     - python: pypy3
+    - python: 3.10-dev
 
   include:
     - &test_job
@@ -49,18 +50,24 @@ jobs:
 
     - <<: *test_job
       python: 3.6
+      dist: xenial
 
-    - <<: *test_job
-      python: 3.7
-      dist: xenial  # required for Python >= 3.7
+    # to keep number of runs down, skip this since tested in 'coverage'
+    #- <<: *test_job
+    #  python: 3.7
+    #  dist: xenial  # required for Python >= 3.7
 
     - <<: *test_job
       python: 3.8
-      dist: bionic  # required for Python >= 3.8
+      dist: bionic
 
     - <<: *test_job
       python: 3.9
-      dist: focal  # required for Python >= 3.8
+      dist: focal
+
+    - <<: *test_job
+      python: 3.10-dev
+      dist: focal
 
     - &coverage_jobs
       dist: bionic
