@@ -695,6 +695,14 @@ class _ActionAction(ActionBase):
                 print_func(cmd, target, source, env)
         stat = 0
         if execute:
+            print(">"*80)
+            print("self:", self, "type(self):", type(self))
+            print("target:", *map(str, target))
+            print("source:", *map(str, source))
+            print("env:", env)
+            print("executor:", executor)
+            print("<"*80)
+
             stat = self.execute(target, source, env, executor=executor, chdir=chdir)
             if isinstance(stat, SCons.Errors.BuildError):
                 s = exitstatfunc(stat.status)
