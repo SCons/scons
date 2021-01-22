@@ -5,6 +5,7 @@ set PATH=C:\\%WINPYTHON%;C:\\%WINPYTHON%\\Scripts;C:\\ProgramData\\chocolatey\\b
 C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off pip setuptools wheel
 C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off coverage codecov
 set STATIC_DEPS=true & C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off lxml
+C:\\%WINPYTHON%\\python.exe -m pip install -U --progress-bar off -r requirements.txt
 REM install 3rd party tools to test with
 choco install --allow-empty-checksums dmd ldc swig vswhere xsltproc winflexbison
 set SCONS_CACHE_MSVC_CONFIG=true
