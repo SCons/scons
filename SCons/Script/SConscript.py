@@ -287,6 +287,7 @@ def _SConscript(fs, *files, **kw):
 
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
+                            
                 else:
                     handle_missing_SConscript(f, kw.get('must_exist', None))
 
