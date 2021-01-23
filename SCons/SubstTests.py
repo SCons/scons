@@ -590,7 +590,9 @@ class scons_subst_TestCase(SubstTestCase):
         except SCons.Errors.UserError as e:
             expect = [
                 # Python 3.5 (and 3.x?)
-                "TypeError `func() missing 2 required positional arguments: 'b' and 'c'' trying to evaluate `${func(1)}'"
+                "TypeError `func() missing 2 required positional arguments: 'b' and 'c'' trying to evaluate `${func(1)}'",
+                # Python 3.10
+                "TypeError `scons_subst_TestCase.test_subst_type_errors.<locals>.func() missing 2 required positional arguments: 'b' and 'c'' trying to evaluate `${func(1)}'",
             ]
             assert str(e) in expect, repr(str(e))
         else:

@@ -145,7 +145,7 @@ def rfile(n):
 def default_exitstatfunc(s):
     return s
 
-strip_quotes = re.compile('^[\'"](.*)[\'"]$')
+strip_quotes = re.compile(r'^[\'"](.*)[\'"]$')
 
 
 def _callable_contents(obj):

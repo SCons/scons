@@ -8,9 +8,10 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Mats Wichmann:
+    - Initial support in tests for Python 3.10 - expected bytecode and
+      one changed expected exception message. Change some more regexes
+      to be specified as rawstrings in response to DeprecationWarnings.
 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
