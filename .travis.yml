@@ -68,6 +68,7 @@ jobs:
     - <<: *test_job
       python: 3.10-dev
       dist: focal
+      env: BUILD_LXML_FROM_GIT=1
 
     - &coverage_jobs
       dist: bionic
