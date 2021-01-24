@@ -45,6 +45,18 @@ else
     sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
     sudo apt-get update && sudo apt-get install dmd-compiler dub
 
+
+    if [[ "$BUILD_LXML_FROM_GIT" == "1" ]]; then
+        pip uninstall lxml
+        # for ubuntu 20.04 needed this as well
+        sudo apt install libxslt1-dev
+
+        # then use git versions of cythong and lxml (lxml's cython build uses xslt1-config which is why the above was needed)
+        pip install git+https://github.com/cython/cython.git@0.29.x
+        pip install git+https://github.com/lxml/lxml.git
+    fi
+
+
 #    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
 #    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
 #    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
