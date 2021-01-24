@@ -53,7 +53,7 @@ else
         # for ubuntu 20.04 needed this as well
         sudo apt install libxslt1-dev
 
-        # then use git versions of cythong and lxml (lxml's cython build uses xslt1-config which is why the above was needed)
+        # then use git versions of cython and lxml (lxml's cython build uses xslt1-config which is why the above was needed)
         pip install git+https://github.com/cython/cython.git@0.29.x
         pip install git+https://github.com/lxml/lxml.git
     fi
