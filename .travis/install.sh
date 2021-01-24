@@ -47,7 +47,9 @@ else
 
 
     if [[ "$BUILD_LXML_FROM_GIT" == "1" ]]; then
-        pip uninstall lxml
+        pip uninstall -y lxml
+        pip cache purge
+
         # for ubuntu 20.04 needed this as well
         sudo apt install libxslt1-dev
 
