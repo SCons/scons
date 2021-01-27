@@ -33,7 +33,13 @@ test = TestSCons.TestSCons()
 try:
     import ninja
 except ImportError:
-    test.skip_test("Could not find module in python")
+    test.skip_test("Could not find ninja module in python")
+
+
+ninja_binary = test.where_is('ninja')
+if not ninja_binary:
+    test.skip_test("Could not find ninja. Skipping test.")
+
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
@@ -47,15 +53,21 @@ ninja_bin = os.path.abspath(os.path.join(
 
 test.dir_fixture('ninja-fixture')
 
-lib_suffix = '.lib' if IS_WINDOWS else '.so'
-staticlib_suffix = '.lib' if IS_WINDOWS else '.a'
-lib_prefix = '' if IS_WINDOWS else 'lib'
-
-win32 = ", 'WIN32'" if IS_WINDOWS else ''
+if IS_WINDOWS:
+    lib_suffix = '.lib'
+    staticlib_suffix = '.lib'
+    lib_prefix = ''
+    win32 = ", 'WIN32'"
+else:
+    lib_suffix = '.so'
+    staticlib_suffix = '.a'
+    lib_prefix = 'lib'
+    win32 = ''
 
 test.write('SConstruct', """
 env = Environment()
 env.Tool('ninja')
+env['NINJA'] = "%(ninja_bin)s"
 
 shared_lib = env.SharedLibrary(target = 'test_impl', source = 'test_impl.c', CPPDEFINES=['LIBRARY_BUILD'%(win32)s])
 env.Program(target = 'test', source = 'test1.c', LIBS=['test_impl'], LIBPATH=['.'], RPATH='.')
