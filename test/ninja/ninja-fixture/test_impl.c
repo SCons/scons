@@ -16,4 +16,5 @@ DLLEXPORT int
 library_function(void)
 {
     printf("library_function");
+    return 0;
 }
