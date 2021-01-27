@@ -339,6 +339,7 @@ class SConsToNinjaTranslator:
         if build is not None:
             build["order_only"] = get_order_only(node)
 
+        #TODO: WPD Is this testing the filename to verify it's a configure context generated file?
         if 'conftest' not in str(node):
             node_callback = getattr(node.attributes, "ninja_build_callback", None)
             if callable(node_callback):
@@ -1477,8 +1478,8 @@ def exists(env):
         return False
 
     try:
-        import ninja
-        return ninja.__file__
+        import __init__
+        return __init__.__file__
     except ImportError:
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return False
@@ -1509,7 +1510,7 @@ def generate(env):
 
 
     try:
-        import ninja
+        import __init__
     except ImportError:
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return
@@ -1721,6 +1722,7 @@ def generate(env):
 
     # This makes SCons more aggressively cache MD5 signatures in the
     # SConsign file.
+    # TODO: WPD shouldn't this be set to 0?
     env.SetOption("max_drift", 1)
 
     # The Serial job class is SIGNIFICANTLY (almost twice as) faster
@@ -1732,12 +1734,12 @@ def generate(env):
 
     if NINJA_STATE is None:
         NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax.Writer)
-        NINJA_STATE.ninja_bin_path = env.get('NINJA_BIN')
+        NINJA_STATE.ninja_bin_path = env.get('NINJA')
         if not NINJA_STATE.ninja_bin_path:
             # default to using ninja installed with python module
             ninja_bin = 'ninja.exe' if env["PLATFORM"] == "win32" else 'ninja'
             NINJA_STATE.ninja_bin_path = os.path.abspath(os.path.join(
-                ninja.__file__,
+                __init__.__file__,
                 os.pardir,
                 'data',
                 'bin',
@@ -1801,7 +1803,7 @@ def generate(env):
     # platforms and versions of Python.
     build_dir = env.subst("$BUILD_DIR")
     if build_dir == "":
-        build_dir = "."
+        build_dir = ".."
     os.environ["TMPDIR"] = env.Dir("{}/.response_files".format(build_dir)).get_abspath()
     os.environ["TEMP"] = os.environ["TMPDIR"]
     os.environ["TMP"] = os.environ["TMPDIR"]
