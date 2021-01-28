@@ -1,3 +1,5 @@
+# MIT License
+#
 # Copyright 2020 MongoDB Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -1478,8 +1480,8 @@ def exists(env):
         return False
 
     try:
-        import __init__
-        return __init__.__file__
+        import ninja
+        return ninja.__file__
     except ImportError:
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return False
@@ -1510,7 +1512,7 @@ def generate(env):
 
 
     try:
-        import __init__
+        import ninja
     except ImportError:
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return
@@ -1739,7 +1741,7 @@ def generate(env):
             # default to using ninja installed with python module
             ninja_bin = 'ninja.exe' if env["PLATFORM"] == "win32" else 'ninja'
             NINJA_STATE.ninja_bin_path = os.path.abspath(os.path.join(
-                __init__.__file__,
+                ninja.__file__,
                 os.pardir,
                 'data',
                 'bin',
@@ -1803,7 +1805,7 @@ def generate(env):
     # platforms and versions of Python.
     build_dir = env.subst("$BUILD_DIR")
     if build_dir == "":
-        build_dir = ".."
+        build_dir = "."
     os.environ["TMPDIR"] = env.Dir("{}/.response_files".format(build_dir)).get_abspath()
     os.environ["TEMP"] = os.environ["TMPDIR"]
     os.environ["TMP"] = os.environ["TMPDIR"]
