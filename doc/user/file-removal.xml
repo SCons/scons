@@ -204,8 +204,7 @@ Clean(t, 'foo.log')
       </file>
       <file name="SConstruct">
 env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="foo.in">

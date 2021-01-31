@@ -12,6 +12,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Initial support in tests for Python 3.10 - expected bytecode and
       one changed expected exception message. Change some more regexes
       to be specified as rawstrings in response to DeprecationWarnings.
+    - Add an example of adding an emitter to User Guide (concept
+      from Jeremy Elson)
 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
