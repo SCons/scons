@@ -1648,6 +1648,11 @@ def get_os_env_bool(name, default=False):
     """
     return get_env_bool(os.environ, name, default)
 
+def print_time():
+    """Hack to return a value from Main if can't import Main."""
+    from SCons.Script.Main import print_time
+    return print_time
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

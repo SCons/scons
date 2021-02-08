@@ -34,6 +34,7 @@ _ = gettext.gettext
 import SCons.Node.FS
 import SCons.Platform.virtualenv
 import SCons.Warnings
+from . import Main
 
 OptionValueError        = optparse.OptionValueError
 SUPPRESS_HELP           = optparse.SUPPRESS_HELP
@@ -837,7 +838,6 @@ def Parser(version):
     tree_options = ["all", "derived", "prune", "status", "linedraw"]
 
     def opt_tree(option, opt, value, parser, tree_options=tree_options):
-        from . import Main
         tp = Main.TreePrinter()
         for o in value.split(','):
             if o == 'all':

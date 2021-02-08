@@ -185,7 +185,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
 
     def execute(self):
         if print_time:
-            start_time = time.time()
+            start_time = time.perf_counter()
             global first_command_start
             if first_command_start is None:
                 first_command_start = start_time
@@ -193,7 +193,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         if print_time:
             global cumulative_command_time
             global last_command_end
-            finish_time = time.time()
+            finish_time = time.perf_counter()
             last_command_end = finish_time
             cumulative_command_time = cumulative_command_time+finish_time-start_time
             if print_action_timestamps:
@@ -1010,7 +1010,7 @@ def _main(parser):
 
     progress_display("scons: Reading SConscript files ...")
 
-    start_time = time.time()
+    start_time = time.perf_counter()
     try:
         for script in scripts:
             SCons.Script._SConscript._SConscript(fs, script)
@@ -1024,7 +1024,7 @@ def _main(parser):
         sys.stderr.write("scons: *** %s  Stop.\n" % e)
         sys.exit(2)
     global sconscript_time
-    sconscript_time = time.time() - start_time
+    sconscript_time = time.perf_counter() - start_time
 
     progress_display("scons: done reading SConscript files.")
 
@@ -1423,7 +1423,7 @@ def main():
     SCons.Taskmaster.dump_stats()
 
     if print_time:
-        total_time = time.time() - SCons.Script.start_time
+        total_time = time.perf_counter() - SCons.Script.start_time
         if num_jobs == 1:
             ct = cumulative_command_time
         else:
