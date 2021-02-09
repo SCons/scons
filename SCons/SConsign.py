@@ -103,7 +103,7 @@ def write():
     global sig_files
 
     if print_time():
-        time1 = time.perf_counter()
+        start_time = time.perf_counter()
 
     for sig_file in sig_files:
         sig_file.write(sync=0)
@@ -122,8 +122,8 @@ def write():
             closemethod()
 
     if print_time():
-        time2 = time.perf_counter()
-        print('Total SConsign sync time: %f seconds' % (time2 - time1))
+        elapsed = time.perf_counter() - start_time
+        print('Total SConsign sync time: %f seconds' % elapsed)
 
 
 class SConsignEntry:

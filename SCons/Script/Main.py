@@ -185,7 +185,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
 
     def execute(self):
         if print_time:
-            start_time = time.perf_counter()
+            start_time = time.time()
             global first_command_start
             if first_command_start is None:
                 first_command_start = start_time
@@ -193,7 +193,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         if print_time:
             global cumulative_command_time
             global last_command_end
-            finish_time = time.perf_counter()
+            finish_time = time.time()
             last_command_end = finish_time
             cumulative_command_time = cumulative_command_time+finish_time-start_time
             if print_action_timestamps:
@@ -1423,7 +1423,7 @@ def main():
     SCons.Taskmaster.dump_stats()
 
     if print_time:
-        total_time = time.perf_counter() - SCons.Script.start_time
+        total_time = time.time() - SCons.Script.start_time
         if num_jobs == 1:
             ct = cumulative_command_time
         else:
