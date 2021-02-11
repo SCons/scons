@@ -122,9 +122,9 @@ from SCons.Util import is_String, is_List
 class _null:
     pass
 
-print_actions = 1
-execute_actions = 1
-print_actions_presub = 0
+print_actions = True
+execute_actions = True
+print_actions_presub = False
 
 # Use pickle protocol 1 when pickling functions for signature
 # otherwise python3 and python2 will yield different pickles

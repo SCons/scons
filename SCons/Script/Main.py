@@ -68,11 +68,11 @@ import SCons.Script.Interactive
 # Global variables
 first_command_start = None
 last_command_end = None
-print_objects = 0
-print_memoizer = 0
-print_stacktrace = 0
-print_time = 0
-print_action_timestamps = 0
+print_objects = False
+print_memoizer = False
+print_stacktrace = False
+print_time = False
+print_action_timestamps = False
 sconscript_time = 0
 cumulative_command_time = 0
 exit_status = 0   # final exit status, assume success by default
@@ -195,11 +195,20 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
             global last_command_end
             finish_time = time.time()
             last_command_end = finish_time
-            cumulative_command_time = cumulative_command_time+finish_time-start_time
+            cumulative_command_time += finish_time - start_time
             if print_action_timestamps:
-                sys.stdout.write("Command execution start timestamp: %s: %f\n"%(str(self.node), start_time))
-                sys.stdout.write("Command execution end timestamp: %s: %f\n"%(str(self.node), finish_time))
-            sys.stdout.write("Command execution time: %s: %f seconds\n"%(str(self.node), finish_time-start_time))
+                sys.stdout.write(
+                    "Command execution start timestamp: %s: %f\n"
+                    % (str(self.node), start_time)
+                )
+                sys.stdout.write(
+                    "Command execution end timestamp: %s: %f\n"
+                    % (str(self.node), finish_time)
+                )
+            sys.stdout.write(
+                "Command execution time: %s: %f seconds\n"
+                % (str(self.node), (finish_time - start_time))
+            )
 
     def do_failed(self, status=2):
         _BuildFailures.append(self.exception[1])
@@ -658,22 +667,22 @@ def _set_debug_values(options):
     if print_objects:
         SCons.Debug.track_instances = True
     if "presub" in debug_values:
-        SCons.Action.print_actions_presub = 1
+        SCons.Action.print_actions_presub = True
     if "stacktrace" in debug_values:
-        print_stacktrace = 1
+        print_stacktrace = True
     if "stree" in debug_values:
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
-        print_time = 1
+        print_time = True
     if "action-timestamps" in debug_values:
-        print_time = 1
-        print_action_timestamps = 1
+        print_time = True
+        print_action_timestamps = True
     if "tree" in debug_values:
         options.tree_printers.append(TreePrinter())
     if "prepare" in debug_values:
-        SCons.Taskmaster.print_prepare = 1
+        SCons.Taskmaster.print_prepare = True
     if "duplicate" in debug_values:
-        SCons.Node.print_duplicate = 1
+        SCons.Node.print_duplicate = True
 
 def _create_path(plist):
     path = '.'
@@ -1010,7 +1019,8 @@ def _main(parser):
 
     progress_display("scons: Reading SConscript files ...")
 
-    start_time = time.perf_counter()
+    if print_time:
+        start_time = time.time()
     try:
         for script in scripts:
             SCons.Script._SConscript._SConscript(fs, script)
@@ -1023,8 +1033,9 @@ def _main(parser):
         revert_io()
         sys.stderr.write("scons: *** %s  Stop.\n" % e)
         sys.exit(2)
-    global sconscript_time
-    sconscript_time = time.perf_counter() - start_time
+    if print_time:
+        global sconscript_time
+        sconscript_time = time.time() - start_time
 
     progress_display("scons: done reading SConscript files.")
 
