@@ -26,7 +26,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import TestSCons
-from TestCmd import IS_WINDOWS
+from TestCmd import IS_WINDOWS, IS_MACOS
 
 test = TestSCons.TestSCons()
 
@@ -63,6 +63,9 @@ else:
     staticlib_suffix = '.a'
     lib_prefix = 'lib'
     win32 = ''
+
+if IS_MACOS:
+    lib_suffix = '.dylib'
 
 test.write('SConstruct', """
 env = Environment()
