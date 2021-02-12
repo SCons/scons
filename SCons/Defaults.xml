@@ -87,7 +87,7 @@ of each definition in &cv-CPPDEFINES;.
 <cvar name="CPPDEFINES">
 <summary>
 <para>
-A platform independent specification of C preprocessor definitions.
+A platform independent specification of C preprocessor macro definitions.
 The definitions will be added to command lines
 through the automatically-generated
 &cv-_CPPDEFFLAGS; construction variable (see above),
@@ -159,7 +159,7 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 <cvar name="CPPDEFPREFIX">
 <summary>
 <para>
-The prefix used to specify preprocessor definitions
+The prefix used to specify preprocessor macro definitions
 on the C compiler command line.
 This will be prepended to the beginning of each definition
 in the &cv-CPPDEFINES; construction variable
@@ -171,7 +171,7 @@ when the &cv-_CPPDEFFLAGS; variable is automatically generated.
 <cvar name="CPPDEFSUFFIX">
 <summary>
 <para>
-The suffix used to specify preprocessor definitions
+The suffix used to specify preprocessor macro definitions
 on the C compiler command line.
 This will be appended to the end of each definition
 in the &cv-CPPDEFINES; construction variable

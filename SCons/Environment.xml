@@ -486,41 +486,144 @@ Multiple targets can be passed in to a single call to
 </arguments>
 <summary>
 <para>
-Appends the specified keyword arguments
-to the end of construction variables in the environment.
-If the Environment does not have
-the specified construction variable,
-it is simply added to the environment.
-If the values of the construction variable
-and the keyword argument are the same type,
-then the two values will be simply added together.
-Otherwise, the construction variable
-and the value of the keyword argument
-are both coerced to lists,
-and the lists are added together.
-(See also the &Prepend; method).
+Intelligently append values to &consvars; in the current &consenv;.
+The &consvars; and values to add to them are passed as 
+<parameter>key=val</parameter> pairs (Python keyword arguments).
+&f-env-Append; is designed to allow adding values
+without normally having to know the data type of an existing &consvar;.
+Regular Python syntax can also be used to manipulate the &consvar;,
+but for that you must know the type of the &consvar;:
+for example, different Python syntax is needed to combine
+a list of values with a single string value, or vice versa.
+Some pre-defined &consvars; do have type expectations
+based on how &SCons; will use them,
+for example &cv-link-CPPDEFINES; is normally a string
+or list of strings, while &cv-link-LIBEMITTER;
+would expect a callable or list of callables,
+and &cv-link-BUILDERS; would expect a mapping type.
 </para>
 
 <para>
-Example:
+The following descriptions apply to both the append
+and prepend functions, the only difference being
+the insertion point of the added values.
+</para>
+<para>
+If the &consenv; does not have the &consvar;
+indicated by <parameter>key</parameter>,
+<parameter>val</parameter>
+is added to the environment under that key as-is.
+</para>
+
+<para>
+<parameter>val</parameter> can be almost any type,
+and &SCons; will combine it with an existing value into an appropriate type,
+but there are a few special cases to be aware of.
+When two strings are combined,
+the result is normally a new string,
+with the caller responsible for supplying any needed separation.
+The exception to this is the &consvar; &cv-link-CPPDEFINES;
+and so is treated as lists of strings, that is,
+adding a string will result in a separate string entry,
+not a combined string. For &cv-CPPDEFINES; as well as
+for &cv-link-LIBS;, and the various <varname>*PATH</varname>
+variables, &SCons; will supply the compiler-specific
+syntax (e.g. adding <literal>-D</literal> or <literal>/D</literal>
+for &cv-CPPDEFINES;, so this syntax should be omitted when
+adding values to these variables.
+Example (gcc syntax shown in the expansion of &CPPDEFINES;):
 </para>
 
 <example_commands>
-env.Append(CCFLAGS = ' -g', FOO = ['foo.yyy'])
+env = Environment(CXXFLAGS="-std=c11", CPPDEFINES="RELEASE")
+print("CXXFLAGS={}, CPPDEFINES={}".format(env['CXXFLAGS'], env['CPPDEFINES']))
+# notice including a leading space in CXXFLAGS value
+env.Append(CXXFLAGS=" -O", CPPDEFINES="EXTRA")
+print("CXXFLAGS={}, CPPDEFINES={}".format(env['CXXFLAGS'], env['CPPDEFINES']))
+print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
 </example_commands>
+
+<screen>
+$ scons -Q
+CXXFLAGS=-std=c11, CPPDEFINES=RELEASE
+CXXFLAGS=-std=c11 -O, CPPDEFINES=['RELEASE', 'EXTRA']
+CPPDEFINES will expand to -DRELEASE -DEXTRA
+scons: `.' is up to date.
+</screen>
+
+<para>
+Because &cv-link-CPPDEFINES; is intended to
+describe C/C++ pre-processor macro definitions,
+it accepts additional syntax.
+Preprocessor macros can be valued, or un-valued, as in
+<computeroutput>-DBAR=1</computeroutput> or
+<computeroutput>-DFOO</computeroutput>.
+The macro can be be supplied as a complete string including the value,
+or as a tuple/list of macro/value, or as a dictionary.
+Example (again gcc syntax in the expanded defines):
+</para>
+
+<example_commands>
+env = Environment(CPPDEFINES="FOO")
+print("CPPDEFINES={}".format(env['CPPDEFINES']))
+env.Append(CPPDEFINES="BAR=1")
+print("CPPDEFINES={}".format(env['CPPDEFINES']))
+env.Append(CPPDEFINES=("OTHER", 2))
+print("CPPDEFINES={}".format(env['CPPDEFINES']))
+env.Append(CPPDEFINES={"EXTRA": "arg"})
+print("CPPDEFINES={}".format(env['CPPDEFINES']))
+print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
+</example_commands>
+<screen>
+$ scons -Q
+CPPDEFINES=FOO
+CPPDEFINES=['FOO', 'BAR=1']
+CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2)]
+CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
+CPPDEFINES will expand to -DFOO -DBAR=1 -DOTHER=2 -DEXTRA=arg
+scons: `.' is up to date.
+</screen>
+<para>
+Adding a string <parameter>val</parameter>
+to a dictonary &consvar; will enter
+<parameter>val</parameter> as the key in the dict,
+and <literal>None</literal> as its value.
+Using a tuple type to supply a key + value only works
+for the special case of &cv-link-CPPDEFINES;
+described above.
+</para>
+<para>
+Although most combinations of types work without
+needing to know the details, some combinations
+do not make sense and a Python exception will be raised.
+</para>
+<para>
+When using &f-env-Append; to modify &consvars; 
+which are path specifications (normally, 
+those names which end in <varname>PATH</varname>),
+it is recommended to add the values as a list of strings,
+even if there is only a single string to add.
+The same goes for adding library names to &cv-LIBS;.
+</para>
+<example_commands>
+env.Append(CPPPATH=["#/include"])
+</example_command)
+<para>
+See also &f-link-env-AppendUnique;,
+&f-link-env-Prepend; and &f-link-env-PrependUnique;.
+</para>
+
 </summary>
 </scons_function>
 
 <scons_function name="AppendENVPath">
 <arguments signature="env">
-(name, newpath, [envname, sep, delete_existing])
+(name, newpath, [envname, sep, delete_existing=True])
 </arguments>
 <summary>
 <para>
-This appends new path elements to the given path in the
-specified external environment
-(<literal>ENV</literal>
-by default).
+Append new path elements to the given path in the
+specified external environment (&cv-link-ENV; by default).
 This will only add
 any particular path once (leaving the last one it encounters and
 ignoring the rest, to preserve path order),
@@ -537,7 +640,7 @@ string, in which case a list will be returned instead of a string.
 <para>
 If
 <parameter>delete_existing</parameter>
-is 0, then adding a path that already exists
+is <constant>False</constant>, then adding a path that already exists
 will not move it to the end; it will stay where it is in the list.
 </para>
 
@@ -546,37 +649,36 @@ Example:
 </para>
 
 <example_commands>
-print 'before:',env['ENV']['INCLUDE']
+print('before:', env['ENV']['INCLUDE'])
 include_path = '/foo/bar:/foo'
 env.AppendENVPath('INCLUDE', include_path)
-print 'after:',env['ENV']['INCLUDE']
+print('after:', env['ENV']['INCLUDE'])
+</example_commands>
 
-yields:
+<para>Yields:</para>
+<screen>
 before: /foo:/biz
 after: /biz:/foo/bar:/foo
-</example_commands>
+</screen>
 </summary>
 </scons_function>
 
 <scons_function name="AppendUnique">
 <arguments signature="env">
-(key=val, [...], delete_existing=0)
+(key=val, [...], delete_existing=False)
 </arguments>
 <summary>
 <para>
-Appends the specified keyword arguments
-to the end of construction variables in the environment.
-If the Environment does not have
-the specified construction variable,
-it is simply added to the environment.
-If the construction variable being appended to is a list,
-then any value(s) that already exist in the
-construction variable will
-<emphasis>not</emphasis>
-be added again to the list.
-However, if delete_existing is 1,
-existing matching values are removed first, so
-existing values in the arg list move to the end of the list.
+Append values to &consvars; in the current &consenv;,
+maintaining uniqueness.
+Works like &f-link-env-Append; (see for details),
+except that values already present in the &consvar;
+will not be added again.
+If <parameter>delete_existing</parameter>
+is <constant>True</constant>,
+the existing matching value is first removed,
+and the requested value is added,
+having the effect of moving such values to the end.
 </para>
 
 <para>
@@ -584,8 +686,14 @@ Example:
 </para>
 
 <example_commands>
-env.AppendUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
+env.AppendUnique(CCFLAGS='-g', FOO=['foo.yyy'])
 </example_commands>
+
+<para>
+See also &f-link-env-Append;,
+&f-link-env-Prepend;
+and &f-link-env-PrependUnique;.
+</para>
 </summary>
 </scons_function>
 
@@ -612,7 +720,7 @@ including the
 argument,
 at the time it is called
 using the construction variables in the
-<parameter>env</parameter>
+<varname>env</varname>
 construction environment through which
 &f-env-Builder; was called.
 The
@@ -819,7 +927,7 @@ Example:
 
 <example_commands>
 env2 = env.Clone()
-env3 = env.Clone(CCFLAGS = '-g')
+env3 = env.Clone(CCFLAGS='-g')
 </example_commands>
 
 <para>
@@ -828,8 +936,10 @@ the &f-link-Environment; constructor:
 </para>
 
 <example_commands>
-def MyTool(env): env['FOO'] = 'bar'
-env4 = env.Clone(tools = ['msvc', MyTool])
+def MyTool(env):
+    env['FOO'] = 'bar'
+
+env4 = env.Clone(tools=['msvc', MyTool])
 </example_commands>
 
 <para>
@@ -1293,9 +1403,9 @@ Find an executable from one or more choices:
 Returns the first value from <parameter>progs</parameter>
 that was found, or <constant>None</constant>.
 Executable is searched by checking the paths specified
-by <parameter>env</parameter><literal>['ENV']['PATH']</literal>.
+by <varname>env</varname><literal>['ENV']['PATH']</literal>.
 On Windows systems, additionally applies the filename suffixes found in
-<parameter>env</parameter><literal>['ENV']['PATHEXT']</literal>
+<varname>env</varname><literal>['ENV']['PATHEXT']</literal>
 but will not include any such extension in the return value.
 &f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
 </para>
@@ -1426,7 +1536,7 @@ While this SConstruct:
 </para>
 
 <example_commands>
-env=Environment()
+env = Environment()
 print(env.Dump())
 </example_commands>
 
@@ -1615,16 +1725,16 @@ Example:
 </para>
 
 <example_commands>
-Install( '/bin', [ 'executable_a', 'executable_b' ] )
+Install('/bin', ['executable_a', 'executable_b'])
 
 # will return the file node list
-# [ '/bin/executable_a', '/bin/executable_b' ]
+# ['/bin/executable_a', '/bin/executable_b']
 FindInstalledFiles()
 
-Install( '/lib', [ 'some_library' ] )
+Install('/lib', ['some_library'])
 
 # will return the file node list
-# [ '/bin/executable_a', '/bin/executable_b', '/lib/some_library' ]
+# ['/bin/executable_a', '/bin/executable_b', '/lib/some_library']
 FindInstalledFiles()
 </example_commands>
 </summary>
@@ -1655,15 +1765,15 @@ Example:
 </para>
 
 <example_commands>
-Program( 'src/main_a.c' )
-Program( 'src/main_b.c' )
-Program( 'main_c.c' )
+Program('src/main_a.c')
+Program('src/main_b.c')
+Program('main_c.c')
 
 # returns ['main_c.c', 'src/main_a.c', 'SConstruct', 'src/main_b.c']
 FindSourceFiles()
 
 # returns ['src/main_b.c', 'src/main_a.c' ]
-FindSourceFiles( 'src' )
+FindSourceFiles('src')
 </example_commands>
 
 <para>
@@ -1931,8 +2041,8 @@ Examples:
 <example_commands>
 env.Ignore('foo', 'foo.c')
 env.Ignore('bar', ['bar1.h', 'bar2.h'])
-env.Ignore('.','foobar.obj')
-env.Ignore('bar','bar/foobar.obj')
+env.Ignore('.', 'foobar.obj')
+env.Ignore('bar', 'bar/foobar.obj')
 </example_commands>
 </summary>
 </scons_function>
@@ -2009,9 +2119,9 @@ Examples:
 
 <example_commands>
 # Prepend a path to the shell PATH.
-env.MergeShellPaths({'PATH':'/usr/local/bin'} )
+env.MergeShellPaths({'PATH': '/usr/local/bin'})
 # Append two dirs to the shell INCLUDE.
-env.MergeShellPaths({'INCLUDE':['c:/inc1', 'c:/inc2']}, prepend=0 )
+env.MergeShellPaths({'INCLUDE': ['c:/inc1', 'c:/inc2']}, prepend=0)
 </example_commands>
 </summary>
 </scons_function>
@@ -2398,7 +2508,7 @@ Example:
 </para>
 
 <example_commands>
-env = Environment(platform = Platform('win32'))
+env = Environment(platform=Platform('win32'))
 </example_commands>
 
 <para>
@@ -2440,19 +2550,10 @@ will work on Windows systems.
 </arguments>
 <summary>
 <para>
-Appends the specified keyword arguments
-to the beginning of construction variables in the environment.
-If the Environment does not have
-the specified construction variable,
-it is simply added to the environment.
-If the values of the construction variable
-and the keyword argument are the same type,
-then the two values will be simply added together.
-Otherwise, the construction variable
-and the value of the keyword argument
-are both coerced to lists,
-and the lists are added together.
-(See also the Append method, above.)
+Prepend values to &consvars; in the current &consenv;,
+Works like &f-link-env-Append; (see for details),
+except that values are added to the front,
+rather than the end, of any existing value of the &consvar;
 </para>
 
 <para>
@@ -2460,8 +2561,14 @@ Example:
 </para>
 
 <example_commands>
-env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
+env.Prepend(CCFLAGS='-g ', FOO=['foo.yyy'])
 </example_commands>
+
+<para>
+See also &f-link-env-Append;,
+&f-link-env-AppendUnique;
+and &f-link-env-PrependUnique;.
+</para>
 </summary>
 </scons_function>
 
@@ -2471,18 +2578,16 @@ env.Prepend(CCFLAGS = '-g ', FOO = ['foo.yyy'])
 </arguments>
 <summary>
 <para>
-This appends new path elements to the given path in the
-specified external environment
-(&cv-ENV;
-by default).
+Prepend new path elements to the given path in the
+specified external environment (&cv-link-ENV; by default).
 This will only add
 any particular path once (leaving the first one it encounters and
 ignoring the rest, to preserve path order),
 and to help assure this,
 will normalize all paths (using
-<literal>os.path.normpath</literal>
+<systemitem>os.path.normpath</systemitem>
 and
-<literal>os.path.normcase</literal>).
+<systemitem>os.path.normcase</systemitem>).
 This can also handle the
 case where the given old path variable is a list instead of a
 string, in which case a list will be returned instead of a string.
@@ -2491,7 +2596,8 @@ string, in which case a list will be returned instead of a string.
 <para>
 If
 <parameter>delete_existing</parameter>
-is 0, then adding a path that already exists
+is <constant>False</constant>,
+then adding a path that already exists
 will not move it to the beginning;
 it will stay where it is in the list.
 </para>
@@ -2501,42 +2607,39 @@ Example:
 </para>
 
 <example_commands>
-print 'before:',env['ENV']['INCLUDE']
+print('before:', env['ENV']['INCLUDE'])
 include_path = '/foo/bar:/foo'
 env.PrependENVPath('INCLUDE', include_path)
-print 'after:',env['ENV']['INCLUDE']
+print('after:', env['ENV']['INCLUDE'])
 </example_commands>
 
-<para>
-The above example will print:
-</para>
+<para>Yields:</para>
 
-<example_commands>
+<screen>
 before: /biz:/foo
 after: /foo/bar:/foo:/biz
-</example_commands>
+</screen>
 </summary>
 </scons_function>
 
 <scons_function name="PrependUnique">
 <arguments signature="env">
-(key=val, delete_existing=0, [...])
+(key=val, delete_existing=False, [...])
 </arguments>
 <summary>
 <para>
-Appends the specified keyword arguments
-to the beginning of construction variables in the environment.
-If the Environment does not have
-the specified construction variable,
-it is simply added to the environment.
-If the construction variable being appended to is a list,
-then any value(s) that already exist in the
-construction variable will
-<emphasis>not</emphasis>
-be added again to the list.
-However, if delete_existing is 1,
-existing matching values are removed first, so
-existing values in the arg list move to the front of the list.
+Prepend values to &consvars; in the current &consenv;,
+maintaining uniqueness.
+Works like &f-link-env-Append; (see for details),
+except that values are added to the front,
+rather than the end, of any existing value of the the &consvar;,
+and values already present in the &consvar;
+will not be added again.
+If <parameter>delete_existing</parameter>
+is <constant>True</constant>,
+the existing matching value is first removed,
+and the requested value is inserted,
+having the effect of moving such values to the front.
 </para>
 
 <para>
@@ -2544,8 +2647,14 @@ Example:
 </para>
 
 <example_commands>
-env.PrependUnique(CCFLAGS = '-g', FOO = ['foo.yyy'])
+env.PrependUnique(CCFLAGS='-g', FOO=['foo.yyy'])
 </example_commands>
+
+<para>
+See also &f-link-env-Append;,
+&f-link-env-AppendUnique;
+and &f-link-env-Prepend;.
+</para>
 </summary>
 </scons_function>
 
@@ -2587,7 +2696,7 @@ Example:
 </para>
 
 <example_commands>
-env.Replace(CCFLAGS = '-g', FOO = 'foo.xxx')
+env.Replace(CCFLAGS='-g', FOO='foo.xxx')
 </example_commands>
 </summary>
 </scons_function>
@@ -2853,9 +2962,9 @@ The following statements are equivalent:
 </para>
 
 <example_commands>
-env.SetDefault(FOO = 'foo')
-
-if 'FOO' not in env: env['FOO'] = 'foo'
+env.SetDefault(FOO='foo')
+if 'FOO' not in env:
+    env['FOO'] = 'foo'
 </example_commands>
 </summary>
 </scons_function>
@@ -3060,12 +3169,13 @@ Example:
 print(env.subst("The C compiler is: $CC"))
 
 def compile(target, source, env):
-    sourceDir = env.subst("${SOURCE.srcdir}",
-                          target=target,
-                          source=source)
+    sourceDir = env.subst(
+        "${SOURCE.srcdir}",
+        target=target,
+        source=source
+    )
 
-source_nodes = env.subst('$EXPAND_TO_NODELIST',
-                         conv=lambda x: x)
+source_nodes = env.subst('$EXPAND_TO_NODELIST', conv=lambda x: x)
 </example_commands>
 </summary>
 </scons_function>
@@ -3348,11 +3458,11 @@ searches the paths in the
 <parameter>path</parameter> keyword argument,
 or if <constant>None</constant> (the default)
 the paths listed in the &consenv;
-(<parameter>env</parameter><literal>['ENV']['PATH']</literal>).
+(<varname>env</varname><literal>['ENV']['PATH']</literal>).
 The external environment's path list
 (<literal>os.environ['PATH']</literal>)
 is used as a fallback if the key
-<parameter>env</parameter><literal>['ENV']['PATH']</literal>
+<varname>env</varname><literal>['ENV']['PATH']</literal>
 does not exist.
 </para>
 <para>
@@ -3361,11 +3471,11 @@ programs with any of the file extensions listed in the
 <parameter>pathext</parameter> keyword argument,
 or if <constant>None</constant> (the default)
 the pathname extensions listed in the &consenv;
-(<parameter>env</parameter><literal>['ENV']['PATHEXT']</literal>).
+(<varname>env</varname><literal>['ENV']['PATHEXT']</literal>).
 The external environment's pathname extensions list
 (<literal>os.environ['PATHEXT']</literal>)
 is used as a fallback if the key
-<parameter>env</parameter><literal>['ENV']['PATHEXT']</literal>
+<varname>env</varname><literal>['ENV']['PATHEXT']</literal>
 does not exist.
 </para>
 <para>
