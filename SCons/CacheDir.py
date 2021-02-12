@@ -102,7 +102,7 @@ def CachePushFunc(target, source, env):
 
     cd.CacheDebug('CachePush(%s):  pushing to %s\n', t, cachefile)
 
-    tempfile = f"{cachefile}.tmp{cache_tmp_uuid}"
+    tempfile = "%s.tmp%s"%(cachefile,cache_tmp_uuid)
     errfmt = "Unable to copy %s to cache. Cache file is %s"
 
     if not fs.isdir(cachedir):
