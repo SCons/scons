@@ -1487,14 +1487,15 @@ def exists(env):
         return False
 
 
-added = None
+ninja_builder_initialized = False
+
 
 def generate(env):
     """Generate the NINJA builders."""
     from SCons.Script import AddOption, GetOption
-    global added
-    if not added:
-        added = 1
+    global ninja_builder_initialized
+    if not ninja_builder_initialized:
+        ninja_builder_initialized = 1
 
         AddOption('--disable-execute-ninja',
             dest='disable_execute_ninja',
