@@ -1068,7 +1068,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
 
             for key, value in custom_env.items():
                 variables["env"] += env.subst(
-                    f"export {key}={value};", target=targets, source=sources, executor=executor
+                    "export %s=%s;"%(key, value), target=targets, source=sources, executor=executor
                 ) + " "
         return rule, variables, [tool_command]
 
@@ -1178,7 +1178,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
         # Possibly these could be ignore and the build would still work, however it may not always
         # rebuild correctly, so we hard stop, and force the user to fix the issue with the provided
         # ninja rule.
-        raise Exception(f"Could not resolve path for {provider_dep} dependency on node '{node}'")
+        raise Exception("Could not resolve path for %s dependency on node '%s'"%(provider_dep, node))
 
     ninja_build = {
         "order_only": get_order_only(node),
