@@ -637,6 +637,13 @@ class NinjaState:
             },
         }
 
+        if env['PLATFORM'] == 'darwin' and env['AR'] == 'ar':
+            self.rules["AR"] = {
+                "command": "rm -f $out && $env$AR $rspc",
+                "description": "Archiving $out",
+                "pool": "local_pool",
+            }
+
         self.pools = {
             "local_pool": self.env.GetOption("num_jobs"),
             "install_pool": self.env.GetOption("num_jobs") / 2,
