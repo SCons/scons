@@ -486,7 +486,8 @@ Multiple targets can be passed in to a single call to
 </arguments>
 <summary>
 <para>
-Intelligently append values to &consvars; in the current &consenv;.
+Intelligently append values to &consvars; in the &consenv;
+named by <varname>env</varname>.
 The &consvars; and values to add to them are passed as 
 <parameter>key=val</parameter> pairs (Python keyword arguments).
 &f-env-Append; is designed to allow adding values
@@ -501,6 +502,7 @@ for example &cv-link-CPPDEFINES; is normally a string
 or list of strings, while &cv-link-LIBEMITTER;
 would expect a callable or list of callables,
 and &cv-link-BUILDERS; would expect a mapping type.
+Consult the documentation for the various &consvars; for more details.
 </para>
 
 <para>
@@ -509,7 +511,7 @@ and prepend functions, the only difference being
 the insertion point of the added values.
 </para>
 <para>
-If the &consenv; does not have the &consvar;
+If <varname>env</varname>.  does not have a &consvar;
 indicated by <parameter>key</parameter>,
 <parameter>val</parameter>
 is added to the environment under that key as-is.
@@ -523,13 +525,14 @@ When two strings are combined,
 the result is normally a new string,
 with the caller responsible for supplying any needed separation.
 The exception to this is the &consvar; &cv-link-CPPDEFINES;
-and so is treated as lists of strings, that is,
+in which each entry will be postprocessed, 
+so the contents are treated as a list of strings, that is,
 adding a string will result in a separate string entry,
 not a combined string. For &cv-CPPDEFINES; as well as
 for &cv-link-LIBS;, and the various <varname>*PATH</varname>
 variables, &SCons; will supply the compiler-specific
 syntax (e.g. adding <literal>-D</literal> or <literal>/D</literal>
-for &cv-CPPDEFINES;, so this syntax should be omitted when
+for &cv-CPPDEFINES;), so this syntax should be omitted when
 adding values to these variables.
 Example (gcc syntax shown in the expansion of &CPPDEFINES;):
 </para>
@@ -574,6 +577,7 @@ env.Append(CPPDEFINES={"EXTRA": "arg"})
 print("CPPDEFINES={}".format(env['CPPDEFINES']))
 print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
 </example_commands>
+
 <screen>
 $ scons -Q
 CPPDEFINES=FOO
@@ -583,6 +587,7 @@ CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
 CPPDEFINES will expand to -DFOO -DBAR=1 -DOTHER=2 -DEXTRA=arg
 scons: `.' is up to date.
 </screen>
+
 <para>
 Adding a string <parameter>val</parameter>
 to a dictonary &consvar; will enter
@@ -592,11 +597,13 @@ Using a tuple type to supply a key + value only works
 for the special case of &cv-link-CPPDEFINES;
 described above.
 </para>
+
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
 do not make sense and a Python exception will be raised.
 </para>
+
 <para>
 When using &f-env-Append; to modify &consvars; 
 which are path specifications (normally, 
@@ -605,9 +612,11 @@ it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
 The same goes for adding library names to &cv-LIBS;.
 </para>
+
 <example_commands>
 env.Append(CPPPATH=["#/include"])
-</example_command)
+</example_commands>
+
 <para>
 See also &f-link-env-AppendUnique;,
 &f-link-env-Prepend; and &f-link-env-PrependUnique;.
