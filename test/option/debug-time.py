@@ -95,15 +95,15 @@ def get_command_time(stdout):
 test.write('pass.py', "pass\n")
 test.read(test.program)
 
-start_time = time.time()
+start_time = time.perf_counter()
 test.run(program=TestSCons.python, arguments=test.workpath('pass.py'))
-overhead = time.time() - start_time 
+overhead = time.perf_counter() - start_time
 
 
 
-start_time = time.time()
+start_time = time.perf_counter()
 test.run(arguments = "-j1 --debug=time . SLEEP=0")
-complete_time = time.time() - start_time
+complete_time = time.perf_counter() - start_time
 
 
 
@@ -132,7 +132,7 @@ warnings = []
 
 if  targets != expected_targets:
     failures.append("""\
-Scons reported the targets of timing information as %(targets)s, 
+Scons reported the targets of timing information as %(targets)s,
 but the actual targets should have been %(expected_targets)s.
 """ %locals())
 

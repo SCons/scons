@@ -1887,11 +1887,11 @@ class TimeSCons(TestSCons):
         --debug=memory and --debug=time options to have SCons report
         its own memory and timing statistics.
         """
-        self.startTime = time.time()
+        self.startTime = time.perf_counter()
         try:
             result = TestSCons.run(self, *args, **kw)
         finally:
-            self.endTime = time.time()
+            self.endTime = time.perf_counter()
         return result
 
     def copy_timing_configuration(self, source_dir, dest_dir):
