@@ -897,6 +897,10 @@ class NinjaState:
             implicit=[str(self.ninja_file)],
             variables={
                 "cmd": "{} -f {} -t compdb {}CC CXX > compile_commands.json".format(
+                    # NINJA_COMPDB_EXPAND - should only be true for ninja
+                    # This was added to ninja's compdb tool in version 1.9.0 (merged April 2018)
+                    # https://github.com/ninja-build/ninja/pull/1223
+                    # TODO: add check in generate to check version and enable this by default if it's available.
                     self.ninja_bin_path, str(self.ninja_file), '-x ' if self.env.get('NINJA_COMPDB_EXPAND', True) else ''
                 )
             },
@@ -990,6 +994,7 @@ def get_command_env(env):
     scons_specified_env = {
         key: value
         for key, value in ENV.items()
+        # TODO: Remove this filter, unless there's a good reason to keep. SCons's behavior shouldn't depend on shell's.
         if key not in os.environ or os.environ.get(key, None) != value
     }
 
@@ -1213,6 +1218,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
     #     env["NINJA_POOL"] = "ls_pool"
     #     env.Command("ls")
     #
+    # TODO: Why not alloe env['NINJA_POOL'] ? (bdbaddog)
     if node.env and node.env.get("NINJA_POOL", None) is not None:
         ninja_build["pool"] = node.env["NINJA_POOL"]
 
@@ -1534,8 +1540,10 @@ def generate(env):
     ninja_builder_obj = SCons.Builder.Builder(action=always_exec_ninja_action)
     env.Append(BUILDERS={"Ninja": ninja_builder_obj})
 
+    # TODO: Can't we simplify this to just be NINJA_FILENAME ? (bdbaddog)
     env["NINJA_PREFIX"] = env.get("NINJA_PREFIX", "build")
     env["NINJA_SUFFIX"] = env.get("NINJA_SUFFIX", "ninja")
+
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_BUILDDIR'] = env.get("NINJA_BUILDDIR", env.Dir(".ninja").path)
     ninja_file_name = env.subst("${NINJA_PREFIX}.${NINJA_SUFFIX}")

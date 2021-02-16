@@ -292,7 +292,7 @@ env2.CompilationDatabase('compile_commands-linux64.json')
         <para>
             <ulink url="https://ninja-build.org/"><citetitle>Ninja Build System</citetitle></ulink>
         </para>
-        
+
         <para>
                 <ulink url="https://ninja-build.org/manual.html#ref_ninja_file">
       <citetitle>Ninja File Format Specification</citetitle>
