@@ -972,7 +972,7 @@ def get_comstr(env, action, targets, sources):
 
 def get_command_env(env):
     """
-    Return a string that sets the enrivonment for any environment variables that
+    Return a string that sets the environment for any environment variables that
     differ between the OS environment and the SCons command ENV.
 
     It will be compatible with the default shell of the operating system.
