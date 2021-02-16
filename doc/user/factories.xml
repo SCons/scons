@@ -150,7 +150,7 @@ Command("file.out", [], Copy("$TARGET", "file.in"))
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Copy("tempfile", "$SOURCE"),
         "modify tempfile",
         Copy("$TARGET", "tempfile"),
@@ -159,8 +159,8 @@ Command(
       </file>
       <file name="SConstruct">
 import os
-env = DefaultEnvironment()
-env.AppendENVPath('PATH', os.getcwd())
+denv = DefaultEnvironment()
+denv.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -222,7 +222,7 @@ Command("LinkIn", "FileOrDirectoryOut", Copy("$TARGET", "$SOURCE", False))
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Delete("tempfile"),
         Copy("tempfile", "$SOURCE"),
         "modify tempfile",
@@ -232,8 +232,8 @@ Command(
       </file>
       <file name="SConstruct">
 import os
-env = DefaultEnvironment()
-env.AppendENVPath('PATH', os.getcwd())
+denv = DefaultEnvironment()
+denv.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -266,7 +266,7 @@ touch $*
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Delete("$TARGET"),
         Copy("$TARGET", "$SOURCE"),
     ],
@@ -323,7 +323,7 @@ Command(
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Copy("tempfile", "$SOURCE"),
         "modify tempfile",
         Move("$TARGET", "tempfile"),
@@ -332,8 +332,8 @@ Command(
       </file>
       <file name="SConstruct">
 import os
-env = DefaultEnvironment()
-env.AppendENVPath('PATH', os.getcwd())
+denv = DefaultEnvironment()
+denv.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -370,7 +370,7 @@ touch $*
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Copy("$TARGET", "$SOURCE"),
         Touch("$TARGET"),
     ]
@@ -378,8 +378,8 @@ Command(
       </file>
       <file name="SConstruct">
 import os
-env = DefaultEnvironment()
-env.AppendENVPath('PATH', os.getcwd())
+denv = DefaultEnvironment()
+denv.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -417,7 +417,7 @@ SConscript('S')
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Delete("tempdir"),
         Mkdir("tempdir"),
         Copy("tempdir/${SOURCE.file}", "$SOURCE"),
@@ -429,8 +429,8 @@ Command(
       </file>
       <file name="SConstruct">
 import os
-env = DefaultEnvironment()
-env.AppendENVPath('PATH', os.getcwd())
+denv = DefaultEnvironment()
+denv.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -470,7 +470,7 @@ touch $*
 Command(
     "file.out",
     "file.in",
-    [
+    action=[
         Copy("$TARGET", "$SOURCE"),
         Chmod("$TARGET", 0o755),
     ]
