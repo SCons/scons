@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<!--
+ MIT License
+
+ Copyright The SCons Foundation
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+        <!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+        %scons;
+        <!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+        %builders-mod;
+        <!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+        %functions-mod;
+        <!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+        %tools-mod;
+        <!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+        %variables-mod;
+        ]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+    <tool name="ninja">
+        <summary>
+            <para>
+                Generate ninja build files and run ninja to build the bulk of your targets.
+            </para>
+        </summary>
+        <sets>
+            <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
+            <item>NINJA_MSVC_DEPS_PREFIX</item>
+            <item>NINJA_BUILDDIR</item>
+            <item>NINJA_REGENERATE_DEPS</item>
+            <item>NINJA_COMPDB_EXPAND</item>
+            <item>NINJA_ENV_VAR_CACHE</item>
+            <item>NINJA_POOL</item>
+            <item>DISABLE_AUTO_NINJA</item>
+            <item>__NINJA_NO</item>
+
+            <item>NINJA_PREFIX</item>
+            <item>NINJA_SUFFIX</item>
+            <item>NINJA_ALIAS_NAME</item>
+
+            <item>_NINJA_REGENERATE_DEPS_FUNC</item>
+        </sets>
+
+        <uses>
+            <item>CCCOM</item>
+            <item>CXXCOM</item>
+            <item>SHCXXCOM</item>
+            <item>CC</item>
+            <item>CXX</item>
+
+            <item>LINKCOM</item>
+            <item>LINK</item>
+
+            <item>SHLINKCOM</item>
+            <item>SHLINK</item>
+
+            <item>ARCOM</item>
+            <item>AR</item>
+            <item>RANLIB</item>
+            <item>ARFLAGS</item>
+            <item>RANLIBCOM</item>
+            <item>PLATFORM</item>
+
+        </uses>
+    </tool>
+
+    <cvar name="NINJA_GENERATED_SOURCE_SUFFIXES">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_MSVC_DEPS_PREFIX">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_BUILDDIR">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_REGENERATE_DEPS">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_COMPDB_EXPAND">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_ENV_VAR_CACHE">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_POOL">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="DISABLE_AUTO_NINJA">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="__NINJA_NO">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+
+    <cvar name="NINJA_PREFIX">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+
+    <cvar name="NINJA_SUFFIX">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+
+    <cvar name="NINJA_ALIAS_NAME">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="_NINJA_REGENERATE_DEPS_FUNC">
+        <summary>
+            <para>
+                The C compiler.
+            </para>
+        </summary>
+    </cvar>
+
+
+</sconsdoc>
