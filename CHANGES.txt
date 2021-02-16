@@ -8,12 +8,20 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Daniel Moody:
+    - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
+      This fixes cases for shared cache where two systems write to the same
+      cache tmpfile at the same time because the happened to get the same pid.
+
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
       one changed expected exception message. Change some more regexes
       to be specified as rawstrings in response to DeprecationWarnings.
     - Add an example of adding an emitter to User Guide (concept
       from Jeremy Elson)
+    - Add timing information for sconsign database dump when --debug=time
+      is selected. Also switch to generally using time.perf_counter,
+      which is the Python recommended way for timing short durations.
 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
@@ -57,7 +65,7 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       when running multiple tests with multiple jobs.
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
-    - Change Environment.SideEffect() to not add duplicate side effects. 
+    - Change Environment.SideEffect() to not add duplicate side effects.
       NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
 
   From David H:
@@ -96,10 +104,10 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       looks like an abbreviation of one one added by AddOption. (#3653)
     - Tool module not found will now raise a UserError to more clearly indicate this is
       probably an SConscript problem, and to make the traceback more relevant.
-    - Fix three issues with MergeFlags: 
-      - Signature/return did not match documentation or existing usage - the implementation 
+    - Fix three issues with MergeFlags:
+      - Signature/return did not match documentation or existing usage - the implementation
         now no longer returns the passed env
-      - merging --param arguments did not work (issue #3107); 
+      - merging --param arguments did not work (issue #3107);
       - passing a dict to merge where the values are strings failed (issue #2961).
     - Include previously-excluded SideEffect section in User Guide.
     - Clean up unneeded imports (autoflake tool).

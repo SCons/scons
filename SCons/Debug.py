@@ -193,7 +193,7 @@ if sys.platform == 'win32':
 else:
     TraceDefault = '/dev/tty'
 TimeStampDefault = False
-StartTime = time.time()
+StartTime = time.perf_counter()
 PreviousTime = StartTime
 
 def Trace(msg, tracefile=None, mode='w', tstamp=False):
@@ -238,7 +238,7 @@ def Trace(msg, tracefile=None, mode='w', tstamp=False):
             # Assume we were passed an open file pointer.
             fp = tracefile
     if tstamp:
-        now = time.time()
+        now = time.perf_counter()
         fp.write('%8.4f %8.4f:  ' % (now - StartTime, now - PreviousTime))
         PreviousTime = now
     fp.write(msg)
