@@ -203,6 +203,7 @@ t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
 Clean(t, 'foo.log')
       </file>
       <file name="SConstruct">
+import os
 env = DefaultEnvironment()
 env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')

@@ -158,6 +158,7 @@ Command(
 )
       </file>
       <file name="SConstruct">
+import os
 env = DefaultEnvironment()
 env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
@@ -230,6 +231,7 @@ Command(
 )
       </file>
       <file name="SConstruct">
+import os
 env = DefaultEnvironment()
 env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
@@ -329,6 +331,7 @@ Command(
 )
       </file>
       <file name="SConstruct">
+import os
 env = DefaultEnvironment()
 env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
@@ -374,6 +377,7 @@ Command(
 )
       </file>
       <file name="SConstruct">
+import os
 env = DefaultEnvironment()
 env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
@@ -424,6 +428,7 @@ Command(
 )
       </file>
       <file name="SConstruct">
+import os
 env = DefaultEnvironment()
 env.AppendENVPath('PATH', os.getcwd())
 SConscript('S')

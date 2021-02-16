@@ -115,7 +115,8 @@ bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
 
     <scons_example name="builderswriting_ex1">
        <file name="SConstruct">
-bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+import os
+bld=Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
 env = Environment(BUILDERS={'Foo': bld})
 env.AppendENVPath('PATH', os.getcwd())
 env.Foo('file.foo', 'file.input')
@@ -129,7 +130,7 @@ cat
     </scons_example>
 
     <sconstruct>
-bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
 env = Environment(BUILDERS={'Foo': bld})
     </sconstruct>
 
@@ -225,6 +226,7 @@ hello.c
 
     <scons_example name="builderswriting_ex3">
        <file name="SConstruct">
+import os
 env = Environment()
 env.AppendENVPath('PATH', os.getcwd())
 bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
@@ -303,6 +305,7 @@ env.Program('hello.c')
 
     <scons_example name="builderswriting_ex4">
        <file name="SConstruct">
+import os
 bld = Builder(
     action='foobuild &lt; $SOURCE &gt; $TARGET',
     suffix='.foo',
@@ -606,6 +609,7 @@ def generate_actions(source, target, env, for_signature):
 
     <scons_example name="builderswriting_ex6">
        <file name="SConstruct">
+import os
 def generate_actions(source, target, env, for_signature):
     return 'foobuild &lt; %s &gt; %s' % (source[0], target[0])
 
@@ -689,6 +693,7 @@ env.Foo('file')
 
     <scons_example name="builderswriting_ex7">
        <file name="SConstruct">
+import os
 def modify_targets(target, source, env):
     target.append('new_target')
     source.append('new_source')
