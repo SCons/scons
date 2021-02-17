@@ -2612,9 +2612,20 @@ env.SomeTool(targets, sources)
 <title>Builder Methods</title>
 
 <para>You tell &scons; what to build
-by calling <firstterm>Builders</firstterm>, functions which know to take a
-particular action to produce a particular result type
-when given source files of a particular type. &scons;
+by calling <firstterm>Builders</firstterm>,
+functions which take
+particular actions to produce a particular result type
+(conventionally described by the builder name)
+when given source files of a particular type. 
+Calling a builder defines one or more targets to the build system;
+whether the targets are actually built on a given
+invocation is determined by command-line options,
+target selection rules, and whether &SCons;
+determines the target(s) are out of date.
+</para>
+
+<para>
+&SCons;
 defines a number of builders, and you can also write your own.
 Builders are attached to a &consenv; as methods,
 and the available builder methods are listed as
@@ -2625,11 +2636,12 @@ for debugging purposes:
 </para>
 
 <programlisting language="python">
+env = Environment()
 print("Builders:", list(env['BUILDERS']))
 </programlisting>
 
 <para>
-Builder methods always take two arguments:
+Builder methods take two required arguments:
 <replaceable>target</replaceable>
 (a target or a list of targets to be built)
 and
@@ -2637,9 +2649,13 @@ and
 (a source or list of sources to be used as input
 when building),
 although in some circumstances,
-the target argument can actually be omitted (see below).
+the target argument can be omitted (see below).
 Builder methods also take a variety of
 keyword arguments, described below.
+The builder <emphasis>may</emphasis> add other targets
+beyond those requested if indicated by an <firstterm>Emitter</firstterm>
+(see <xref linkend="builder_objects"/> and, for example,
+&cv-link-PROGEMITTER; for more information).
 </para>
 
 <para>Because long lists of file names
@@ -2856,7 +2872,7 @@ has determined are appropriate for the local system.</para>
 
 <para>Builder methods that can be called without an explicit
 environment (indicated in the listing of builders without
-a leading <literal><replaceable>env</replaceable>.</literal>)
+a leading <varname>env.</varname>)
 may be called from custom Python modules that you
 import into an SConscript file by adding the following
 to the Python module:</para>
@@ -2865,32 +2881,38 @@ to the Python module:</para>
 from SCons.Script import *
 </programlisting>
 
-<para>All builder methods return a list-like object
-containing Nodes that will be built.
-A <firstterm>Node</firstterm>
-is an internal SCons object
-which represents
-build targets or sources.
-See <xref linkend="node_objects"/> for more information.</para>
+<para>Builder methods return a <firstterm>Node-list</firstterm>,
+a list-like object whose elements are Nodes,
+&SCons;' internal representation of build targets or sources.
+See <xref linkend="node_objects"/> for more information.
+</para>
 
 <para>The returned Node-list object
 can be passed to other builder methods as source(s)
 or passed to any &SCons; function or method
 where a filename would normally be accepted.
-For example, if it were necessary
+Node-lists should not be used to set &consvars;
+such as &cv-link-LIBS; that expect to do transformation
+on strings - for that case,
+use the base name of the library as a string.
+</para>
+
+<para> For example, 
 to add a specific preprocessor define
-when compiling one specific object file:</para>
+when compiling one specific object file
+but not the others:</para>
 
 <programlisting language="python">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
 env.Program(source=['foo.c', bar_obj_list, 'main.c'])
 </programlisting>
 
-<para>Using a Node in this way
+<para>Using a Node as in this example
 makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
-when calling the &Program; builder method.</para>
+when calling the &Program; builder method.
+</para>
 
 <para>Builder calls will automatically "flatten"
 lists passed as source and target, so they are free to
