@@ -157,10 +157,10 @@ Command(
     ],
 )
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "modify" command to work -->
       <file name="SConstruct">
-import os
-denv = DefaultEnvironment()
-denv.AppendENVPath('PATH', os.getcwd())
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -230,10 +230,10 @@ Command(
     ],
 )
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "modify" command to work -->
       <file name="SConstruct">
-import os
-denv = DefaultEnvironment()
-denv.AppendENVPath('PATH', os.getcwd())
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -330,10 +330,10 @@ Command(
     ],
 )
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "modify" command to work -->
       <file name="SConstruct">
-import os
-denv = DefaultEnvironment()
-denv.AppendENVPath('PATH', os.getcwd())
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -377,9 +377,6 @@ Command(
 )
       </file>
       <file name="SConstruct">
-import os
-denv = DefaultEnvironment()
-denv.AppendENVPath('PATH', os.getcwd())
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -427,10 +424,10 @@ Command(
     ],
 )
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "process" command to work -->
       <file name="SConstruct">
-import os
-denv = DefaultEnvironment()
-denv.AppendENVPath('PATH', os.getcwd())
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
