@@ -29,15 +29,15 @@ See its __doc__ string for a discussion of the format.
 -->
 
 <!DOCTYPE sconsdoc [
-        <!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+        <!ENTITY % scons SYSTEM '../../../doc/scons.mod'>
         %scons;
-        <!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+        <!ENTITY % builders-mod SYSTEM '../../../doc/generated/builders.mod'>
         %builders-mod;
-        <!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+        <!ENTITY % functions-mod SYSTEM '../../../doc/generated/functions.mod'>
         %functions-mod;
-        <!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+        <!ENTITY % tools-mod SYSTEM '../../../doc/generated/tools.mod'>
         %tools-mod;
-        <!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+        <!ENTITY % variables-mod SYSTEM '../../../doc/generated/variables.mod'>
         %variables-mod;
         ]>
 
@@ -48,7 +48,7 @@ See its __doc__ string for a discussion of the format.
     <tool name="ninja">
         <summary>
             <para>
-                Generate ninja build files and run ninja to build the bulk of your targets.
+                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs ninja.
             </para>
         </summary>
         <sets>
@@ -62,8 +62,8 @@ See its __doc__ string for a discussion of the format.
             <item>DISABLE_AUTO_NINJA</item>
             <item>__NINJA_NO</item>
 
-            <item>NINJA_PREFIX</item>
-            <item>NINJA_SUFFIX</item>
+            <item>NINJA_FILE_NAME</item>
+
             <item>NINJA_ALIAS_NAME</item>
             <item>NINJA_SYNTAX</item>
 
@@ -93,6 +93,60 @@ See its __doc__ string for a discussion of the format.
 
         </uses>
     </tool>
+
+    <builder name="Ninja">
+        <summary>
+            <para>
+                &b-Ninja; is a special builder which
+                adds a target to create a ninja build file.
+                The builder does not require any source files to be specified,
+
+            </para>
+            <para>
+                If called with no arguments,
+                the builder will default to a target name of
+                <filename>ninja.build</filename>.
+            </para>
+            <para>
+                If called with a single positional argument,
+                &scons; will "deduce" the target name from that source
+                argument, giving it the same name, and then
+                ignore the source.
+                This is the usual way to call the builder if a
+                non-default target name is wanted.
+            </para>
+            <para>
+                If called with either the
+                <parameter>target=</parameter>
+                or <parameter>source=</parameter> keyword arguments,
+                the value of the argument is taken as the target name.
+                If called with both, the
+                <parameter>target=</parameter>
+                value is used and <parameter>source=</parameter> is ignored.
+                If called with multiple sources,
+                the source list will be ignored,
+                since there is no way to deduce what the intent was;
+                in this case the default target name will be used.
+            </para>
+            <note>
+                <para>
+                    You must load the &t-ninja; tool prior to specifying
+                    any part of your build or some source/output
+                    files will not show up in the compilation database.
+                </para>
+                <para>
+                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
+                    package</ulink>.
+                    This can be done via
+                    <command>pip install ninja</command>
+                </para>
+            </note>
+            <para>
+                <emphasis>Available since &scons; 4.2.</emphasis>
+            </para>
+        </summary>
+    </builder>
+
 
     <cvar name="NINJA_GENERATED_SOURCE_SUFFIXES">
         <summary>
@@ -197,25 +251,13 @@ See its __doc__ string for a discussion of the format.
     </cvar>
 
 
-    <cvar name="NINJA_PREFIX">
+    <cvar name="NINJA_FILE_NAME">
         <summary>
             <para>
-                The basename for the <filename>ninja.build</filename> file (so in that case just
-                <filename>ninja</filename>
+                The filename for the generated Ninja build file defaults to <filename>ninja.build</filename>
             </para>
         </summary>
     </cvar>
-
-
-    <cvar name="NINJA_SUFFIX">
-        <summary>
-            <para>
-                The suffix for the <filename>ninja.build</filename> file (so in that case just
-                <filename>build</filename>
-            </para>
-        </summary>
-    </cvar>
-
 
     <cvar name="NINJA_ALIAS_NAME">
         <summary>
