@@ -53,7 +53,7 @@ A list of all legal prefixes for library file names.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
-and suffixes in the &cv-LIBSUFFIXES; list.
+and suffixes from the &cv-link-LIBSUFFIXES; list.
 </para>
 </summary>
 </cvar>
@@ -76,7 +76,7 @@ to reflect the names of the libraries they create.
 <para>
 A list of all legal suffixes for library file names.
 When searching for library dependencies,
-SCons will look for files with prefixes, in the &cv-LIBPREFIXES; list,
+SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
 and these suffixes.
 </para>

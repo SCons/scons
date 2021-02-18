@@ -2881,20 +2881,16 @@ to the Python module:</para>
 from SCons.Script import *
 </programlisting>
 
-<para>Builder methods return a <firstterm>Node-list</firstterm>,
+<para>Builder methods return a <classname>NodeList</classname>
 a list-like object whose elements are Nodes,
 &SCons;' internal representation of build targets or sources.
 See <xref linkend="node_objects"/> for more information.
 </para>
 
-<para>The returned Node-list object
+<para>The returned i<classname>NodeList</classname> object
 can be passed to other builder methods as source(s)
 or passed to any &SCons; function or method
 where a filename would normally be accepted.
-Node-lists should not be used to set &consvars;
-such as &cv-link-LIBS; that expect to do transformation
-on strings - for that case,
-use the base name of the library as a string.
 </para>
 
 <para> For example, 
@@ -2951,7 +2947,7 @@ operator (<literal>+</literal> or <literal>+=</literal>)
 to append builder results to a Python list.
 Because the list and the object are different types,
 Python will not update the original list in place,
-but will instead create a new Node-list object
+but will instead create a new <classname>NodeList</classname> object
 containing the concatenation of the list
 elements and the builder results.
 This will cause problems for any other Python variables
