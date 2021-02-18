@@ -25,7 +25,7 @@
 
 import collections
 import re
-from inspect import signature
+from inspect import getfullargspec
 import SCons.Errors
 
 from SCons.Util import is_String, is_Sequence
@@ -420,7 +420,7 @@ class StringSubber:
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
             if (isinstance(s, SCons.Util.Null) or
-                set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
+                    getfullargspec(s).args[:4] == ['target', 'source', 'env', 'for_signature']):
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,

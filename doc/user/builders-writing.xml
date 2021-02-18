@@ -654,7 +654,11 @@ def generate_actions(source, target, env, for_signature):
 
     <para>
 
-    The &generator; must return a
+    The required arguments must be listed in the function signature
+    in the correct order to be interpreted as a &generator;. More
+    arguments may be specified, but any extra required arguments must
+    be filled (such as by using a Python &partial; function or a &lambda;)
+    before the &generator; is called. The &generator; must return a
     command string or other action that will be used to
     build the specified target(s) from the specified source(s).
 
