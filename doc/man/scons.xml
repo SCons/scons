@@ -2828,7 +2828,7 @@ broken into individual settings and merged into the appropriate &consvars;.
 </para>
 
 <programlisting language="python">
-env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
+env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to

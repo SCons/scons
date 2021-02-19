@@ -1702,7 +1702,8 @@ void main() { }
 
       <scons_example name="builders_override_ex2">
         <file name="SConstruct" printme="1">
-env = Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
+env = Environment()
+env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
         </file>
         <file name="hello.c">
 #include &lt;stdio.h&gt;
