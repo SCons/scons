@@ -114,14 +114,17 @@ def _soname(target, source, env, for_signature):
         return "$SHLIBPREFIX$_get_shlib_stem${SHLIBSUFFIX}$_SHLIBSOVERSION"
 
 
-def _get_shlib_stem(target, source, env, for_signature):
-    """
-    Get the basename for a library (so for libxyz.so, return xyz)
-    :param target:
-    :param source:
-    :param env:
-    :param for_signature:
-    :return:
+def _get_shlib_stem(target, source, env, for_signature: bool) -> str:
+    """Get the base name of a shared library.
+
+    Args:
+        target: target node containing the lib name
+        source: source node, not used
+        env: environment context for running subst
+        for_signature: whether this is being done for signature generation
+
+    Returns:
+        the library name without prefix/suffix
     """
     verbose = False
 
@@ -135,10 +138,12 @@ def _get_shlib_stem(target, source, env, for_signature):
             % (target_name, shlibprefix, shlibsuffix)
         )
 
-    if target_name.startswith(shlibprefix):
-        target_name = target_name[len(shlibprefix) :]
+    if shlibprefix and target_name.startswith(shlibprefix):
+        # skip pathlogical case were target _is_ the prefix
+        if target_name != shlibprefix:
+            target_name = target_name[len(shlibprefix) :]
 
-    if target_name.endswith(shlibsuffix):
+    if shlibsuffix and target_name.endswith(shlibsuffix):
         target_name = target_name[: -len(shlibsuffix)]
 
     if verbose and not for_signature:
@@ -147,9 +152,17 @@ def _get_shlib_stem(target, source, env, for_signature):
     return target_name
 
 
-def _get_shlib_dir(target, source, env, for_signature):
-    """
-    Get the directory the shlib is in.
+def _get_shlib_dir(target, source, env, for_signature: bool) -> str:
+    """Get the directory the shared library is in.
+
+    Args:
+        target: target node
+        source: source node, not used
+        env: environment context, not used
+        for_signature: whether this is being done for signature generation
+
+    Returns:
+        the directory the library will be in (empty string if '.')
     """
     if target.dir and str(target.dir) != ".":
         print("target.dir:%s" % target.dir)
@@ -159,10 +172,10 @@ def _get_shlib_dir(target, source, env, for_signature):
 
 
 def setup_shared_lib_logic(env):
-    """
-    Just the logic for shared libraries
-    :param env:
-    :return:
+    """Initialize an environment for shared library building.
+
+    Args:
+        env: environment to set up
     """
     createSharedLibBuilder(env)
 
