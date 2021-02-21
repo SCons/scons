@@ -23,14 +23,18 @@
 
 """Common routines for gettext tools
 
-Used by several tools of `gettext` toolset.
+Used by several tools of the `gettext` toolset.
 """
 
 import os
 import re
 
+import SCons.Environment
+import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
+from SCons.Builder import BuilderBase
+from SCons.Util import NodeList
 
 class XgettextToolWarning(SCons.Warnings.SConsWarning):
     pass
@@ -82,21 +86,17 @@ class _POTargetFactory:
     default for all produced nodes.
     """
 
-    def __init__(self, env, nodefault=True, alias=None, precious=True
-                 , noclean=True):
+    def __init__(self, env, nodefault=True, alias=None, precious=True, noclean=True):
         """ Object constructor.
 
-        **Arguments**
-
-            - *env* (`SCons.Environment.Environment`)
-            - *nodefault* (`boolean`) - if `True`, produced nodes will be ignored
+        Args:
+            env: construction environment
+            nodefault (bool): if true, produced nodes will be ignored
               from default target `'.'`
-            - *alias* (`string`) - if provided, produced nodes will be automatically
+            alias (str) - if provided, produced nodes will be automatically
               added to this alias, and alias will be set as `AlwaysBuild`
-            - *precious* (`boolean`) - if `True`, the produced nodes will be set as
-              `Precious`.
-            - *noclen* (`boolean`) - if `True`, the produced nodes will be excluded
-              from `Clean`.
+            precious (boo): if true, the produced nodes will be set as `Precious`.
+            noclean (bool): if true, the produced nodes will be excluded from `Clean`.
         """
         self.env = env
         self.alias = alias
@@ -104,7 +104,7 @@ class _POTargetFactory:
         self.noclean = noclean
         self.nodefault = nodefault
 
-    def _create_node(self, name, factory, directory=None, create=1):
+    def _create_node(self, name, factory, directory=None, create=True):
         """ Create node, and set it up to factory settings. """
         node = factory(name, directory, create)
         node.set_noclean(self.noclean)
@@ -115,11 +115,11 @@ class _POTargetFactory:
             self.env.AlwaysBuild(self.env.Alias(self.alias, node))
         return node
 
-    def Entry(self, name, directory=None, create=1):
+    def Entry(self, name, directory=None, create=True):
         """ Create `SCons.Node.FS.Entry` """
         return self._create_node(name, self.env.fs.Entry, directory, create)
 
-    def File(self, name, directory=None, create=1):
+    def File(self, name, directory=None, create=True):
         """ Create `SCons.Node.FS.File` """
         return self._create_node(name, self.env.fs.File, directory, create)
 
@@ -128,15 +128,18 @@ _re_comment = re.compile(r'(#[^\n\r]+)$', re.M)
 _re_lang = re.compile(r'([a-zA-Z0-9_]+)', re.M)
 
 
-def _read_linguas_from_files(env, linguas_files=None):
+def _read_linguas_from_files(env, linguas_files=None) -> list:
     """ Parse `LINGUAS` file and return list of extracted languages """
+
     global _re_comment
     global _re_lang
-    if not SCons.Util.is_List(linguas_files) \
-            and not SCons.Util.is_String(linguas_files) \
-            and not isinstance(linguas_files, SCons.Node.FS.Base) \
-            and linguas_files:
-        # If, linguas_files==True or such, then read 'LINGUAS' file.
+    if (
+        not SCons.Util.is_List(linguas_files)
+        and not SCons.Util.is_String(linguas_files)
+        and not isinstance(linguas_files, SCons.Node.FS.Base)
+        and linguas_files
+    ):
+        # If linguas_files==True or such, then read 'LINGUAS' file.
         linguas_files = ['LINGUAS']
     if linguas_files is None:
         return []
@@ -147,9 +150,6 @@ def _read_linguas_from_files(env, linguas_files=None):
         ls = [l for l in _re_lang.findall(contents) if l]
         linguas.extend(ls)
     return linguas
-
-
-from SCons.Builder import BuilderBase
 
 
 class _POFileBuilder(BuilderBase):
@@ -208,7 +208,7 @@ class _POFileBuilder(BuilderBase):
             kw['target_factory'] = _POTargetFactory(env, alias=alias).File
         BuilderBase.__init__(self, **kw)
 
-    def _execute(self, env, target, source, *args, **kw):
+    def _execute(self, env, target, source, *args, **kw) -> NodeList:
         """ Execute builder's actions.
 
         Here we append to `target` the languages read from `$LINGUAS_FILE` and
@@ -216,7 +216,6 @@ class _POFileBuilder(BuilderBase):
         The arguments and return value are same as for
         `SCons.Builder.BuilderBase._execute()`.
         """
-        import SCons.Node
         linguas_files = None
         if 'LINGUAS_FILE' in env and env['LINGUAS_FILE']:
             linguas_files = env['LINGUAS_FILE']
@@ -242,7 +241,7 @@ class _POFileBuilder(BuilderBase):
             result.extend(r)
         if linguas_files is not None:
             env['LINGUAS_FILE'] = linguas_files
-        return SCons.Node.NodeList(result)
+        return NodeList(result)
 
 
 def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
@@ -303,30 +302,26 @@ class RPaths:
     def __init__(self, env):
         """ Initialize `RPaths` callable object.
 
-          **Arguments**:
-
-            - *env* - a `SCons.Environment.Environment` object, defines *current
-              working dir*.
+        Arg:
+            env: a :mod:`SCons.Environment.Environment` object,
+              defines current working dir.
         """
         self.env = env
 
     # FIXME: I'm not sure, how it should be implemented (what the *args are in
     # general, what is **kw).
-    def __call__(self, nodes, *args, **kw):
+    def __call__(self, nodes, *args, **kw) -> tuple:
         """ Return nodes' paths (strings) relative to current working directory.
 
-          **Arguments**:
+        Args:
+            nodes: (SCons.Node.FS.Base) - list of nodes.
+            args:  currently unused.
+            kw: currently unused.
 
-            - *nodes* ([`SCons.Node.FS.Base`]) - list of nodes.
-            - *args* -  currently unused.
-            - *kw* - currently unused.
-
-          **Returns**:
-
-           - Tuple of strings, which represent paths relative to current working
-             directory (for given environment).
+      Returns:
+           Tuple of strings, which represent paths relative to current working
+           directory (for given environment).
         """
-        import SCons.Node.FS
         rpaths = ()
         cwd = self.env.fs.getcwd().get_abspath()
         for node in nodes:

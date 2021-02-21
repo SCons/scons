@@ -12,6 +12,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
+    
+  From Mats Wichmann:
+    - Unify the NodeList definitions - there were two, and didn't need to be.
+      Two unit tests had to be updated to make sure they're expecting the
+      right string representation. Alias now returns a NodeList like other
+      builders. Added some return type annotions.
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700

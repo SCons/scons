@@ -3208,11 +3208,12 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
-    def get_max_drift_csig(self) -> Optional[str]:
-        """
-        Returns the content signature currently stored for this node
-        if it's been unmodified longer than the max_drift value, or the
-        max_drift value is 0.  Returns None otherwise.
+    def get_max_drift_csig(self) -> str:
+        """Returns the node's csig, considering max_drift.
+
+        The csig is retrieved if the node has been unmodified longer
+        than the max_drift value, or if max_drift is 0. An empty
+        string is returned if not.
         """
         old = self.get_stored_info()
         mtime = self.get_timestamp()
@@ -3243,7 +3244,7 @@ class File(Base):
             pass
 
         csig = self.get_max_drift_csig()
-        if csig is None:
+        if not csig:
             try:
                 size = self.get_size()
                 if size == -1:
@@ -3336,12 +3337,11 @@ class File(Base):
     __dmap_sig_cache = {}
 
 
-    def _build_dependency_map(self, binfo):
+    def _build_dependency_map(self, binfo) -> dict:
         """
         Build mapping from file -> signature
 
         Args:
-            self - self
             binfo - buildinfo from node being considered
 
         Returns:
@@ -3350,28 +3350,31 @@ class File(Base):
 
         # For an "empty" binfo properties like bsources
         # do not exist: check this to avoid exception.
-        if (len(binfo.bsourcesigs) + len(binfo.bdependsigs) +
-            len(binfo.bimplicitsigs)) == 0:
+        if not any ((binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs)):
             return {}
 
-        binfo.dependency_map = { child:signature for child, signature in zip(chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
-                                     chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs))}
+        binfo.dependency_map = {
+            child: signature
+            for child, signature in zip(
+                chain(binfo.bsources, binfo.bdepends, binfo.bimplicit),
+                chain(binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs),
+            )
+        }
 
         return binfo.dependency_map
 
-    # @profile
     def _add_strings_to_dependency_map(self, dmap):
         """
-        In the case comparing node objects isn't sufficient, we'll add the strings for the nodes to the dependency map
-        :return:
+        In the case comparing node objects isn't sufficient,
+        we'll add the strings for the nodes to the dependency map
         """
 
         first_string = str(next(iter(dmap)))
 
         # print("DMAP:%s"%id(dmap))
         if first_string not in dmap:
-                string_dict = {str(child): signature for child, signature in dmap.items()}
-                dmap.update(string_dict)
+            string_dict = {str(child): sig for child, sig in dmap.items()}
+            dmap.update(string_dict)
         return dmap
 
     def _get_previous_signatures(self, dmap):
@@ -3380,7 +3383,6 @@ class File(Base):
         build in order of the node/files in children.
 
         Args:
-            self - self
             dmap - Dictionary of file -> csig
 
         Returns:

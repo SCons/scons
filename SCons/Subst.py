@@ -28,7 +28,8 @@ import re
 from inspect import signature, Parameter
 
 import SCons.Errors
-from SCons.Util import is_String, is_Sequence
+import SCons.Util
+from SCons.Util import is_String, is_Sequence, NodeList
 
 # Indexed by the SUBST_* constants below.
 _strconv = [
@@ -183,9 +184,11 @@ class NLWrapper:
     def __init__(self, list, func):
         self.list = list
         self.func = func
-    def _return_nodelist(self):
+
+    def _return_nodelist(self) -> NodeList:
         return self.nodelist
-    def _gen_nodelist(self):
+
+    def _gen_nodelist(self) -> NodeList:
         mylist = self.list
         if mylist is None:
             mylist = []
@@ -193,9 +196,11 @@ class NLWrapper:
             mylist = [mylist]
         # The map(self.func) call is what actually turns
         # a list into appropriate proxies.
-        self.nodelist = SCons.Util.NodeList(list(map(self.func, mylist)))
+        nfunc = self.func
+        self.nodelist = NodeList([nfunc(n) for n in mylist])
         self._create_nodelist = self._return_nodelist
         return self.nodelist
+
     _create_nodelist = _gen_nodelist
 
 

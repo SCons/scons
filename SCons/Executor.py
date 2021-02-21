@@ -31,6 +31,7 @@ import SCons.Util
 from SCons.compat import NoSlotsPyPy
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
+from SCons.Util import NodeList, UniqueList
 
 class Batch:
     """Remembers exact association between targets
@@ -97,11 +98,11 @@ def rfile(node):
     Node, e.g.).
     """
     try:
-        rfile = node.rfile
+        node_rfile = node.rfile
     except AttributeError:
         return node
     else:
-        return rfile()
+        return node_rfile()
 
 
 def execute_nothing(obj, target, kw):
@@ -216,10 +217,10 @@ class Executor(object, metaclass=NoSlotsPyPy):
             else:
                 cs.extend(list(map(rfile, b.sources)))
                 ct.extend(b.targets)
-        self._changed_sources_list = SCons.Util.NodeList(cs)
-        self._changed_targets_list = SCons.Util.NodeList(ct)
-        self._unchanged_sources_list = SCons.Util.NodeList(us)
-        self._unchanged_targets_list = SCons.Util.NodeList(ut)
+        self._changed_sources_list = NodeList(cs)
+        self._changed_targets_list = NodeList(ct)
+        self._unchanged_sources_list = NodeList(us)
+        self._unchanged_targets_list = NodeList(ut)
 
     def _get_changed_sources(self, *args, **kw):
         try:
@@ -238,14 +239,14 @@ class Executor(object, metaclass=NoSlotsPyPy):
     def _get_source(self, *args, **kw):
         return rfile(self.batches[0].sources[0]).get_subst_proxy()
 
-    def _get_sources(self, *args, **kw):
-        return SCons.Util.NodeList([rfile(n).get_subst_proxy() for n in self.get_all_sources()])
+    def _get_sources(self, *args, **kw) -> NodeList:
+        return NodeList([rfile(n).get_subst_proxy() for n in self.get_all_sources()])
 
     def _get_target(self, *args, **kw):
         return self.batches[0].targets[0].get_subst_proxy()
 
-    def _get_targets(self, *args, **kw):
-        return SCons.Util.NodeList([n.get_subst_proxy() for n in self.get_all_targets()])
+    def _get_targets(self, *args, **kw) -> NodeList:
+        return NodeList([n.get_subst_proxy() for n in self.get_all_targets()])
 
     def _get_unchanged_sources(self, *args, **kw):
         try:
@@ -295,7 +296,7 @@ class Executor(object, metaclass=NoSlotsPyPy):
             result.extend(batch.sources)
         return result
 
-    def get_all_children(self):
+    def get_all_children(self) -> UniqueList:
         """Returns all unique children (dependencies) for all batches
         of this Executor.
 
@@ -306,27 +307,27 @@ class Executor(object, metaclass=NoSlotsPyPy):
         over and over), so removing the duplicates once up front should
         save the Taskmaster a lot of work.
         """
-        result = SCons.Util.UniqueList([])
+        result = UniqueList()
         for target in self.get_all_targets():
             result.extend(target.children())
         return result
 
-    def get_all_prerequisites(self):
+    def get_all_prerequisites(self) -> UniqueList:
         """Returns all unique (order-only) prerequisites for all batches
         of this Executor.
         """
-        result = SCons.Util.UniqueList([])
+        result = UniqueList()
         for target in self.get_all_targets():
             if target.prerequisites is not None:
                 result.extend(target.prerequisites)
         return result
 
-    def get_action_side_effects(self):
+    def get_action_side_effects(self) -> UniqueList:
 
         """Returns all side effects for all batches of this
         Executor used by the underlying Action.
         """
-        result = SCons.Util.UniqueList([])
+        result = UniqueList()
         for target in self.get_action_targets():
             result.extend(target.side_effects)
         return result
@@ -577,8 +578,12 @@ def get_NullEnvironment():
     return nullenv
 
 class Null(object, metaclass=NoSlotsPyPy):
-    """A null Executor, with a null build Environment, that does
-    nothing when the rest of the methods call it.
+    """A null Executor which does nothing.
+
+    Mainly used to avoid constantly checking for a sentinel:
+    other methods can call this without breaking in the classic way
+    (AttributeError: 'NoneType' object has no attribute 'foo')
+    But this does have the capability of morphing into a "real" executor.
 
     This might be able to disappear when we refactor things to
     disassociate Builders from Nodes entirely, so we're not
@@ -605,34 +610,49 @@ class Null(object, metaclass=NoSlotsPyPy):
         if SCons.Debug.track_instances:
             logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]
+
     def get_build_env(self):
         return get_NullEnvironment()
+
     def get_build_scanner_path(self):
         return None
+
     def cleanup(self):
         pass
+
     def prepare(self):
         pass
+
     def get_unignored_sources(self, *args, **kw):
         return tuple(())
+
     def get_action_targets(self):
         return []
+
     def get_action_list(self):
         return []
+
     def get_all_targets(self):
         return self.batches[0].targets
+
     def get_all_sources(self):
         return self.batches[0].targets[0].sources
-    def get_all_children(self):
-        return self.batches[0].targets[0].children()
-    def get_all_prerequisites(self):
-        return []
-    def get_action_side_effects(self):
-        return []
+
+    def get_all_children(self) -> UniqueList:
+        return UniqueList(self.batches[0].targets[0].children())
+
+    def get_all_prerequisites(self) -> UniqueList:
+        return UniqueList()
+
+    def get_action_side_effects(self) -> UniqueList:
+        return UniqueList()
+
     def __call__(self, *args, **kw):
         return 0
+
     def get_contents(self):
         return ''
+
     def _morph(self):
         """Morph this Null executor to a real Executor object."""
         batches = self.batches
@@ -646,9 +666,11 @@ class Null(object, metaclass=NoSlotsPyPy):
     def add_pre_action(self, action):
         self._morph()
         self.add_pre_action(action)
+
     def add_post_action(self, action):
         self._morph()
         self.add_post_action(action)
+
     def set_action_list(self, action):
         self._morph()
         self.set_action_list(action)

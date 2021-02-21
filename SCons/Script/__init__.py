@@ -390,14 +390,13 @@ del name
 SConscript = _SConscript.DefaultEnvironmentCall('SConscript')
 
 # Make SConscript look enough like the module it used to be so
-# that pychecker doesn't barf.
-SConscript.__name__ = 'SConscript'
-
-SConscript.Arguments = ARGUMENTS
-SConscript.ArgList = ARGLIST
-SConscript.BuildTargets = BUILD_TARGETS
-SConscript.CommandLineTargets = COMMAND_LINE_TARGETS
-SConscript.DefaultTargets = DEFAULT_TARGETS
+# that pychecker and mypy don't barf.
+setattr(SConscript, "__name__", "SConscript")
+setattr(SConscript, "Arguments", ARGUMENTS)
+setattr(SConscript, "ArgList", ARGLIST)
+setattr(SConscript, "BuildTargets", BUILD_TARGETS)
+setattr(SConscript, "CommandLineTargets", COMMAND_LINE_TARGETS)
+setattr(SConscript, "DefaultTargets", DEFAULT_TARGETS)
 
 # The global Command() function must be handled differently than the
 # global functions for other construction environment methods because

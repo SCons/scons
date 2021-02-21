@@ -29,6 +29,7 @@ import unittest
 
 import SCons.Taskmaster
 import SCons.Errors
+from SCons.Util import UniqueList
 
 
 built_text = None
@@ -222,15 +223,16 @@ class Node:
                     return self.targets
                 def get_all_targets(self):
                     return self.targets
-                def get_all_children(self):
-                    result = []
+                def get_all_children(self) -> UniqueList:
+                    result = UniqueList()
                     for node in self.targets:
                         result.extend(node.children())
                     return result
-                def get_all_prerequisites(self):
-                    return []
-                def get_action_side_effects(self):
-                    return []
+                def get_all_prerequisites(self) -> UniqueList:
+                    return UniqueList()
+                def get_action_side_effects(self) -> UniqueList:
+                    return UniqueList()
+
             self.executor = Executor()
             self.executor.targets = self.targets
         return self.executor
@@ -899,15 +901,15 @@ class TaskmasterTestCase(unittest.TestCase):
                 raise Exception("Executor.prepare() exception")
             def get_all_targets(self):
                 return self.nodes
-            def get_all_children(self):
-                result = []
+            def get_all_children(self) -> UniqueList:
+                result = UniqueList()
                 for node in self.nodes:
                     result.extend(node.children())
                 return result
-            def get_all_prerequisites(self):
-                return []
-            def get_action_side_effects(self):
-                return []
+            def get_all_prerequisites(self) -> UniqueList:
+                return UniqueList()
+            def get_action_side_effects(self) -> UniqueList:
+                return UniqueList()
 
         n11 = Node("n11")
         n11.executor = ExceptionExecutor()

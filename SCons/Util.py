@@ -46,7 +46,7 @@ PYPY = hasattr(sys, 'pypy_translation_info')
 
 # this string will be hashed if a Node refers to a file that doesn't exist
 # in order to distinguish from a file that exists but is empty.
-NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
+NOFILE = b"SCONS_MAGIC_MISSING_FILE_STRING"
 
 # unused?
 def dictify(keys, values, result=None) -> dict:
@@ -146,23 +146,14 @@ class NodeList(UserList):
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
 
-    def __getitem__(self, index):
-        """
-        This comes for free on py2,
-        but py3 slices of NodeList are returning a list
-        breaking slicing nodelist and refering to
-        properties and methods on contained object
-        """
-#        return self.__class__(self.data[index])
-
-        if isinstance(index, slice):
-            # Expand the slice object using range()
-            # limited by number of items in self.data
-            indices = index.indices(len(self.data))
-            return self.__class__([self[x] for x in range(*indices)])
-
-        # Return one item of the tart
-        return self.data[index]
+    # obs: previous versions had a custom __getitem__ method for Py3 with the
+    # following comment in the docstring, which seems to no longer be true.
+    # If it needs to be retrieved, rel_4.2.0 in git has the last version.
+    #
+    #    This comes for free on py2,
+    #    but py3 slices of NodeList are returning a list
+    #    breaking slicing nodelist and refering to
+    #    properties and methods on contained object
 
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
@@ -1400,7 +1391,7 @@ def uniquer(seq, idfun=None):
 # idfun() argument and function-call overhead by assuming that all
 # items in the sequence are hashable.  Order-preserving.
 
-def uniquer_hashables(seq):
+def uniquer_hashables(seq) -> list:
     seen = {}
     result = []
     result_append = result.append  # perf: avoid repeated method lookups

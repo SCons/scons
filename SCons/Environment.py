@@ -59,6 +59,7 @@ from SCons.Util import (
     CLVar,
     LogicalLines,
     MethodWrapper,
+    NodeList,
     PrependPath,
     Split,
     WhereIs,
@@ -432,14 +433,14 @@ class SubstitutionEnvironment:
         """Emulates the setdefault() method of dictionaries."""
         return self._dict.setdefault(key, default)
 
-    def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
+    def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw) -> NodeList:
         if node_factory is _null:
             node_factory = self.fs.File
         if lookup_list is _null:
             lookup_list = self.lookup_list
 
         if not args:
-            return []
+            return NodeList()
 
         args = flatten(args)
 
@@ -473,7 +474,7 @@ class SubstitutionEnvironment:
             else:
                 nodes.append(v)
 
-        return nodes
+        return NodeList(nodes)
 
     def gvars(self):
         return self._dict
@@ -1920,27 +1921,27 @@ class Base(SubstitutionEnvironment):
         nkw = self.subst_kw(kw)
         return SCons.Action.Action(*nargs, **nkw)
 
-    def AddPreAction(self, files, action):
+    def AddPreAction(self, files, action) -> NodeList:
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
-            uniq[executor] = 1
+            uniq[executor] = True
         for executor in uniq.keys():
             executor.add_pre_action(action)
         return nodes
 
-    def AddPostAction(self, files, action):
+    def AddPostAction(self, files, action) -> NodeList:
         nodes = self.arg2nodes(files, self.fs.Entry)
         action = SCons.Action.Action(action)
         uniq = {}
         for executor in [n.get_executor() for n in nodes]:
-            uniq[executor] = 1
+            uniq[executor] = True
         for executor in uniq.keys():
             executor.add_post_action(action)
         return nodes
 
-    def Alias(self, target, source=[], action=None, **kw):
+    def Alias(self, target, source=[], action=None, **kw) -> NodeList:
         tlist = self.arg2nodes(target, self.ans.Alias)
         if not is_List(source):
             source = [source]
@@ -1962,7 +1963,7 @@ class Base(SubstitutionEnvironment):
             for t in tlist:
                 bld = t.get_builder(AliasBuilder)
                 result.extend(bld(self, t, source))
-            return result
+            return NodeList(result)
 
         nkw = self.subst_kw(kw)
         nkw.update({
@@ -1991,10 +1992,10 @@ class Base(SubstitutionEnvironment):
                 b = SCons.Builder.Builder(**nkw)
             t.convert()
             result.extend(b(self, t, t.sources + source))
-        return result
+        return NodeList(result)
 
-    def AlwaysBuild(self, *targets):
-        tlist = []
+    def AlwaysBuild(self, *targets) -> NodeList:
+        tlist = NodeList()
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
         for t in tlist:
@@ -2087,7 +2088,7 @@ class Base(SubstitutionEnvironment):
         bld = SCons.Builder.Builder(**bkw)
         return bld(self, target, source, **kw)
 
-    def Depends(self, target, dependency):
+    def Depends(self, target, dependency) -> NodeList:
         """Explicity specify that 'target's depend on 'dependency'."""
         tlist = self.arg2nodes(target, self.fs.Entry)
         dlist = self.arg2nodes(dependency, self.fs.Entry)
@@ -2115,18 +2116,18 @@ class Base(SubstitutionEnvironment):
             return result
         return self.fs.PyPackageDir(s)
 
-    def NoClean(self, *targets):
+    def NoClean(self, *targets) -> NodeList:
         """Tags a target so that it will not be cleaned by -c"""
-        tlist = []
+        tlist = NodeList()
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
         for t in tlist:
             t.set_noclean()
         return tlist
 
-    def NoCache(self, *targets):
+    def NoCache(self, *targets) -> NodeList:
         """Tags a target so that it will not be cached"""
-        tlist = []
+        tlist = NodeList()
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
         for t in tlist:
@@ -2190,7 +2191,7 @@ class Base(SubstitutionEnvironment):
     def Glob(self, pattern, ondisk=True, source=False, strings=False, exclude=None):
         return self.fs.Glob(self.subst(pattern), ondisk, source, strings, exclude)
 
-    def Ignore(self, target, dependency):
+    def Ignore(self, target, dependency) -> NodeList:
         """Ignore a dependency."""
         tlist = self.arg2nodes(target, self.fs.Entry)
         dlist = self.arg2nodes(dependency, self.fs.Entry)
@@ -2213,16 +2214,16 @@ class Base(SubstitutionEnvironment):
                    ret.append(t)
         return ret
 
-    def Precious(self, *targets):
-        tlist = []
+    def Precious(self, *targets) -> NodeList:
+        tlist = NodeList()
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
         for t in tlist:
             t.set_precious()
         return tlist
 
-    def Pseudo(self, *targets):
-        tlist = []
+    def Pseudo(self, *targets) -> NodeList:
+        tlist = NodeList()
         for t in targets:
             tlist.extend(self.arg2nodes(t, self.fs.Entry))
         for t in tlist:
@@ -2233,7 +2234,7 @@ class Base(SubstitutionEnvironment):
         dirs = self.arg2nodes(list(dirs), self.fs.Dir)
         self.fs.Repository(*dirs, **kw)
 
-    def Requires(self, target, prerequisite):
+    def Requires(self, target, prerequisite) -> NodeList:
         """Specify that 'prerequisite' must be built before 'target',
         (but 'target' does not actually depend on 'prerequisite'
         and need not be rebuilt if it changes)."""
@@ -2264,13 +2265,13 @@ class Base(SubstitutionEnvironment):
                 self.Execute(SCons.Defaults.Mkdir(sconsign_dir))
         SCons.SConsign.File(name, dbm_module)
 
-    def SideEffect(self, side_effect, target):
+    def SideEffect(self, side_effect, target) -> NodeList:
         """Tell scons that side_effects are built as side
         effects of building targets."""
         side_effects = self.arg2nodes(side_effect, self.fs.Entry)
         targets = self.arg2nodes(target, self.fs.Entry)
 
-        added_side_effects = []
+        added_side_effects = NodeList()
         for side_effect in side_effects:
             if side_effect.multiple_side_effect_has_builder():
                 raise UserError("Multiple ways to build the same target were specified for: %s" % str(side_effect))

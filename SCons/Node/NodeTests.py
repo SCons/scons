@@ -1346,18 +1346,19 @@ class NodeTestCase(unittest.TestCase):
         assert r == 0, r
 
 
+#TODO: no more Node.Nodelist, merge this to UtilTests (or drop?)
 class NodeListTestCase(unittest.TestCase):
     def test___str__(self):
         """Test"""
         n1 = MyNode("n1")
         n2 = MyNode("n2")
         n3 = MyNode("n3")
-        nl = SCons.Node.NodeList([n3, n2, n1])
+        nl = SCons.Util.NodeList([n3, n2, n1])
 
         l = [1]
         ul = collections.UserList([2])
         s = str(nl)
-        assert s == "['n3', 'n2', 'n1']", s
+        assert s == "n3 n2 n1", s
 
         r = repr(nl)
         r = re.sub(r'at (0[xX])?[0-9a-fA-F]+', 'at 0x', r)

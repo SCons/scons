@@ -100,6 +100,7 @@ There are the following methods for internal use within this module:
 """
 
 from collections import UserDict, UserList
+from typing import Tuple
 
 import SCons.Action
 import SCons.Debug
@@ -109,6 +110,7 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Debug import logInstanceCreation
 from SCons.Errors import InternalError, UserError
+from SCons.Util import NodeList
 
 class _Null:
     pass
@@ -475,9 +477,8 @@ class BuilderBase:
             result.append(f)
         return result
 
-    def _create_nodes(self, env, target = None, source = None):
-        """Create and return lists of target and source nodes.
-        """
+    def _create_nodes(self, env, target=None, source=None) -> Tuple[NodeList, NodeList]:
+        """Create and return lists of target and source nodes."""
         src_suf = self.get_src_suffix(env)
 
         target_factory = env.get_factory(self.target_factory)
@@ -495,10 +496,10 @@ class BuilderBase:
             except AttributeError:
                 raise UserError("Do not know how to create a target from source `%s'" % slist[0])
             except IndexError:
-                tlist = []
+                tlist = NodeList()
             else:
                 splitext = lambda S: self.splitext(S,env)
-                tlist = [ t_from_s(pre, suf, splitext) ]
+                tlist = NodeList([t_from_s(pre, suf, splitext)])
         else:
             # orig_target = target
             target = self._adjustixes(target, pre, suf, self.ensure_suffix)
@@ -539,21 +540,22 @@ class BuilderBase:
 
         return tlist, slist
 
-    def _execute(self, env, target, source, overwarn={}, executor_kw={}):
+    def _execute(self, env, target, source, overwarn={}, executor_kw={}) -> NodeList:
         # We now assume that target and source are lists or None.
         if self.src_builder:
             source = self.src_builder_sources(env, source, overwarn)
 
         if self.single_source and len(source) > 1 and target is None:
             result = []
-            if target is None: target = [None]*len(source)
+            if target is None:
+                target = [None] * len(source)
             for tgt, src in zip(target, source):
                 if tgt is not None:
                     tgt = [tgt]
                 if src is not None:
                     src = [src]
                 result.extend(self._execute(env, tgt, src, overwarn))
-            return SCons.Node.NodeList(result)
+            return NodeList(result)
 
         overwarn.warn()
 
@@ -615,9 +617,9 @@ class BuilderBase:
 
         if env.get("SCONF_NODE"):
             for node in tlist:
-                node.attributes.conftest_node = 1
+                node.attributes.conftest_node = True
 
-        return SCons.Node.NodeList(tlist)
+        return NodeList(tlist)
 
     def __call__(self, env, target=None, source=None, chdir=_null, **kw):
         # We now assume that target and source are lists or None.
@@ -735,7 +737,7 @@ class BuilderBase:
                 sdict[suf] = bld
         return sdict
 
-    def src_builder_sources(self, env, source, overwarn={}):
+    def src_builder_sources(self, env, source, overwarn={}) -> NodeList:
         sdict = self._get_sdict(env)
 
         src_suffixes = self.src_suffixes(env)

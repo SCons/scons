@@ -29,14 +29,12 @@ import SCons.Node.Alias
 class AliasTestCase(unittest.TestCase):
 
     def test_AliasNameSpace(self):
-        """Test creating an Alias name space
-        """
+        """Test creating an Alias name space."""
         ans = SCons.Node.Alias.AliasNameSpace()
         assert ans is not None, ans
 
     def test_ANS_Alias(self):
-        """Test the Alias() factory
-        """
+        """Test the Alias() factory."""
         ans = SCons.Node.Alias.AliasNameSpace()
 
         a1 = ans.Alias('a1')
@@ -46,8 +44,7 @@ class AliasTestCase(unittest.TestCase):
         assert a1 is a2, (a1, a2)
 
     def test_get_contents(self):
-        """Test the get_contents() method
-        """
+        """Test the get_contents() method."""
         class DummyNode:
             def __init__(self, contents):
                 self.contents = contents
@@ -67,8 +64,7 @@ class AliasTestCase(unittest.TestCase):
         assert c == 'onetwothree', c
 
     def test_lookup(self):
-        """Test the lookup() method
-        """
+        """Test the lookup() method."""
         ans = SCons.Node.Alias.AliasNameSpace()
 
         ans.Alias('a1')
@@ -82,8 +78,7 @@ class AliasTestCase(unittest.TestCase):
         assert a is None, a
 
     def test_Alias(self):
-        """Test creating an Alias() object
-        """
+        """Test creating an Alias() object."""
         a1 = SCons.Node.Alias.Alias('a')
         assert a1.name == 'a', a1.name
 

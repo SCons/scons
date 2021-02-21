@@ -1709,13 +1709,14 @@ class Node(object, metaclass=NoSlotsPyPy):
             lines = ["%s:\n" % preamble] + lines
             return ( ' '*11).join(lines)
 
-class NodeList(collections.UserList):
-    def __str__(self):
-        return str(list(map(str, self.data)))
+def get_children(node, parent):
+    return node.children()
 
-def get_children(node, parent): return node.children()
-def ignore_cycle(node, stack): pass
-def do_nothing(node, parent): pass
+def ignore_cycle(node, stack):
+    pass
+
+def do_nothing(node, parent):
+    pass
 
 class Walker:
     """An iterator for walking a Node tree.

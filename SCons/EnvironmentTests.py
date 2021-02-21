@@ -262,6 +262,7 @@ class SubstitutionTestCase(unittest.TestCase):
             return dict[name]
 
         nodes = env.arg2nodes("Util.py UtilTests.py", Factory)
+        assert isinstance(nodes, SCons.Util.NodeList), type(nodes)
         assert len(nodes) == 1, nodes
         assert isinstance(nodes[0], X)
         assert nodes[0].name == "Util.py UtilTests.py", nodes[0].name
@@ -2680,7 +2681,10 @@ def generate(env):
         """Test the Alias() method"""
         env = self.TestEnvironment(FOO='kkk', BAR='lll', EA='export_alias')
 
-        tgt = env.Alias('new_alias')[0]
+        tlist = env.Alias('new_alias')
+        assert isinstance(tlist, SCons.Util.NodeList), type(tlist)
+        tgt = tlist[0]
+        assert isinstance(tgt, SCons.Node.Alias.Alias), type(tgt)
         assert str(tgt) == 'new_alias', tgt
         assert tgt.sources == [], tgt.sources
         assert not hasattr(tgt, 'builder'), tgt.builder

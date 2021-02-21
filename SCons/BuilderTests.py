@@ -270,13 +270,13 @@ class BuilderTestCase(unittest.TestCase):
         nnn2 = MyNode("nnn2")
         tlist = builder(env, target = [nnn1, nnn2], source = [])
         s = mystr(tlist)
-        assert s == "['nnn1', 'nnn2']", s
+        assert s == "nnn1 nnn2", s
         l = list(map(str, tlist))
         assert l == ['nnn1', 'nnn2'], l
 
         tlist = builder(env, target = 'n3', source = 'n4')
         s = mystr(tlist)
-        assert s == "['n3']", s
+        assert s == "n3", s
         target = tlist[0]
         l = list(map(str, tlist))
         assert l == ['n3'], l
@@ -285,7 +285,7 @@ class BuilderTestCase(unittest.TestCase):
 
         tlist = builder(env, target = 'n4 n5', source = ['n6 n7'])
         s = mystr(tlist)
-        assert s == "['n4 n5']", s
+        assert s == "n4 n5", s
         l = list(map(str, tlist))
         assert l == ['n4 n5'], l
         target = tlist[0]
@@ -294,7 +294,7 @@ class BuilderTestCase(unittest.TestCase):
 
         tlist = builder(env, target = ['n8 n9'], source = 'n10 n11')
         s = mystr(tlist)
-        assert s == "['n8 n9']", s
+        assert s == "n8 n9", s
         l = list(map(str, tlist))
         assert l == ['n8 n9'], l
         target = tlist[0]

@@ -30,7 +30,7 @@ import SCons.Defaults
 import SCons.Environment
 from SCons.Errors import UserError, SConsEnvironmentError
 from SCons.Script import AddOption, GetOption
-from SCons.Util import is_List, make_path_relative
+from SCons.Util import is_List, make_path_relative, NodeList
 from SCons.Variables import EnumVariable
 from SCons.Warnings import warn, SConsWarning
 
@@ -85,9 +85,8 @@ def Tag(env, target, source, *more_tags, **kw_tags):
                 k = 'PACKAGING_' + k
             t.Tag(k, v)
 
-def Package(env, target=None, source=None, **kw):
-    """ Entry point for the package tool.
-    """
+def Package(env, target=None, source=None, **kw) -> NodeList:
+    """ Entry point for the package tool."""
     # check if we need to find the source files ourselves
     if not source:
         source = env.FindInstalledFiles()
@@ -192,7 +191,7 @@ def Package(env, target=None, source=None, **kw):
     target = env.arg2nodes(target, env.fs.Entry)
     #XXX: target set above unused... what was the intent?
     targets.extend(env.Alias('package', targets))
-    return targets
+    return NodeList(targets)
 
 #
 # SCons tool initialization functions
@@ -218,7 +217,7 @@ def generate(env):
         env['BUILDERS']['Tag'] = Tag
 
 def exists(env):
-    return 1
+    return True
 
 # XXX
 def options(opts):

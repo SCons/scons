@@ -903,7 +903,7 @@ class NodeListTestCase(unittest.TestCase):
 
     def test_null(self):
         """Test a null NodeList"""
-        nl = NodeList([])
+        nl = NodeList()
         r = str(nl)
         assert r == '', r
         for node in nl:
