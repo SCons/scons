@@ -2614,9 +2614,9 @@ env.SomeTool(targets, sources)
 <para>You tell &scons; what to build
 by calling <firstterm>Builders</firstterm>,
 functions which take
-particular actions to produce a particular result type
-(conventionally described by the builder name)
-when given source files of a particular type. 
+particular action(s) to produce a particular result type
+(conventionally described by the builder name such as &b-Program;)
+when given source files of a particular type.
 Calling a builder defines one or more targets to the build system;
 whether the targets are actually built on a given
 invocation is determined by command-line options,
@@ -2630,7 +2630,7 @@ defines a number of builders, and you can also write your own.
 Builders are attached to a &consenv; as methods,
 and the available builder methods are listed as
 key-value pairs in the
-<envar>BUILDERS</envar> attribute of the &consenv;.
+<varname>BUILDERS</varname> attribute of the &consenv;.
 The available builders can be displayed like this
 for debugging purposes:
 </para>
@@ -2642,16 +2642,23 @@ print("Builders:", list(env['BUILDERS']))
 
 <para>
 Builder methods take two required arguments:
-<replaceable>target</replaceable>
-(a target or a list of targets to be built)
+<parameter>target</parameter>
 and
-<replaceable>source</replaceable>
-(a source or list of sources to be used as input
-when building),
-although in some circumstances,
-the target argument can be omitted (see below).
+<parameter>source</parameter>.
+Either can be passed as a scalar or as a list.
+The target and source arguments
+can be specified either as positional arguments,
+in which case <parameter>target</parameter> comes first, or as
+keyword arguments, using <parameter>target=</parameter>
+and <parameter>source=</parameter>.
+Although both arguments are required,
+in one particular case the target argument can actually be omitted
+because it can be inferred and &SCons; supplies it (see below).
 Builder methods also take a variety of
 keyword arguments, described below.
+</para>
+
+<para>
 The builder <emphasis>may</emphasis> add other targets
 beyond those requested if indicated by an <firstterm>Emitter</firstterm>
 (see <xref linkend="builder_objects"/> and, for example,
@@ -2671,11 +2678,6 @@ strings of white-space characters as the delimiter.
 method, but succeeds even if the input isn't a string.)</para>
 
 <para>
-The target and source arguments to a builder method
-can be specified either as positional arguments,
-in which case the target comes first, or as
-keyword arguments, using <parameter>target=</parameter>
-and <parameter>source=</parameter>.
 The following are equivalent examples of calling the
 &Program; builder method:
 </para>
@@ -2703,6 +2705,7 @@ contains separator characters, the search follows down
 from the starting point, which is the top of the directory tree for
 an absolute path and the current directory for a relative path.
 </para>
+
 <para>
 &scons; recognizes a third way to specify
 path strings: if the string begins with
@@ -2881,26 +2884,24 @@ to the Python module:</para>
 from SCons.Script import *
 </programlisting>
 
-<para>Builder methods return a <classname>NodeList</classname>
+<para>Builder methods return a <classname>NodeList</classname>,
 a list-like object whose elements are Nodes,
 &SCons;' internal representation of build targets or sources.
 See <xref linkend="node_objects"/> for more information.
-</para>
-
-<para>The returned i<classname>NodeList</classname> object
+The returned <classname>NodeList</classname> object
 can be passed to other builder methods as source(s)
 or passed to any &SCons; function or method
 where a filename would normally be accepted.
 </para>
 
-<para> For example, 
+<para> For example,
 to add a specific preprocessor define
 when compiling one specific object file
 but not the others:</para>
 
 <programlisting language="python">
 bar_obj_list = env.StaticObject('bar.c', CPPDEFINES='-DBAR')
-env.Program(source=['foo.c', bar_obj_list, 'main.c'])
+env.Program("prog", ['foo.c', bar_obj_list, 'main.c'])
 </programlisting>
 
 <para>Using a Node as in this example
@@ -2909,6 +2910,16 @@ by avoiding having to specify
 a platform-specific object suffix
 when calling the &Program; builder method.
 </para>
+
+<para>The <classname>NodeList</classname> object
+is also convenient to pass to the &f-link-Default; function,
+for the same reason of avoiding a platform-specific name:
+</para>
+
+<programlisting language="python">
+tgt = env.Program("prog", ["foo.c", "bar.c", "main.c"])
+Default(tgt)
+</programlisting>
 
 <para>Builder calls will automatically "flatten"
 lists passed as source and target, so they are free to
@@ -3476,14 +3487,34 @@ env = Environment(CC="cc")
 env2 = env.Clone(CC="cl.exe")
 </programlisting>
 
+<para>
+&Consvars; can also be supplied as keyword
+arguments to a builder, in which case those settings
+affect only the work done by that builder call,
+and not the &consenv; as a whole.
+This concept is called an <firstterm>override</firstterm>:
+</para>
+
+<programlisting language="python">
+env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
+</programlisting>
+
 <para>A number of useful &consvars; are automatically defined by
 scons for each supported platform, and additional &consvars;
 can be defined by the user. The following is a list of the possible
-automatically defined &consvars;.  The actual list available
+automatically defined &consvars;.
+</para>
+
+<para>Note the actual list available
 at execution time will not include all of these, as the ones
 detected as not being useful (wrong platform, necessary
 external command or files not installed, etc.) will not be set up.
-:</para>
+Correct build setups should be resilient to the possible
+absence of certain &consvars; before using them,
+for example by using a &Python; dictionary
+<function>get</function> method to retrieve the value and
+taking alternative action if the return indicates the variable is unset.
+</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED CONSTRUCTION VARIABLE DESCRIPTIONS -->

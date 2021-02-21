@@ -526,19 +526,16 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 <summary>
 <para>
 A list of one or more libraries
-that will be linked with
-any executable programs
-created by this environment,
-or if used in an override,
-executable programs created by the Builder for which
-the override is in effect.
+that will be added to the link line
+for linking with any executable program
+created by the &consenv; or override.
 </para>
 
 <para>
 String-valued library names should include
-only the library base names
-(without prefixes such as <filename>lib</filename>
-or suffixes such as <filename>.so</filename> or <filename>.dll</filename>).
+only the library base names,
+without prefixes such as <filename>lib</filename>
+or suffixes such as <filename>.so</filename> or <filename>.dll</filename>.
 The library list will be added to command lines
 through the automatically-generated
 &cv-_LIBFLAGS; &consvar;
