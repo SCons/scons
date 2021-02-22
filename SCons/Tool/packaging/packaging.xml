@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="packaging">
 <summary>
 <para>
-Sets construction variables for the &b-Package; Builder.
+Sets construction variables for the &b-link-Package; Builder.
 If this tool is enabled, the <option>--package-type</option>
 command-line option is also enabled.
 </para>
@@ -131,7 +131,7 @@ env.Package(
     SUMMARY="balalalalal",
     DESCRIPTION="this should be really really long",
     X_RPM_GROUP="Application/fu",
-    SOURCE_URL="http://foo.org/foo-1.2.3.tar.gz",
+    SOURCE_URL="https://foo.org/foo-1.2.3.tar.gz",
 )
 </example_commands>
 
@@ -142,7 +142,7 @@ since it is not under the project top directory.
 However, since no <parameter>source</parameter>
 is specified to the &b-Package; builder,
 it is selected for packaging by the default sources rule.
-Since packaging is done using &cv-PACKAGEROOT;, no write is
+Since packaging is done using &cv-link-PACKAGEROOT;, no write is
 actually done to the system's <filename>/bin</filename> directory,
 and the target <emphasis>will</emphasis> be selected since
 after rebasing to underneath &cv-PACKAGEROOT; it is now under
@@ -167,6 +167,7 @@ and the <literal>BuildArch:</literal> field
 in the RPM <filename>.spec</filename> file,
 as well as forming part of the name of a generated RPM package file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -180,6 +181,7 @@ the <filename>.wxs</filename> for MSI).
 If set, the function will be called
 after the SCons template for the file has been written.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -193,6 +195,7 @@ This is included as the
 section of the RPM
 <filename>.spec</filename> file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -203,6 +206,7 @@ A long description of the project being packaged.
 This is included in the relevant section
 of the file that controls the packaging build.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -216,6 +220,7 @@ This is used to populate a
 section of an RPM
 <filename>.spec</filename> file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -224,9 +229,12 @@ section of an RPM
 <para>
 The abbreviated name, preferably the SPDX code, of the license under which
 this project is released (GPL-3.0, LGPL-2.1, BSD-2-Clause etc.).
-See http://www.opensource.org/licenses/alphabetical
+See
+<ulink url="http://www.opensource.org/licenses/alphabetical">
+http://www.opensource.org/licenses/alphabetical</ulink>
 for a list of license names and SPDX codes.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -235,6 +243,7 @@ for a list of license names and SPDX codes.
 <para>
 Specfies the name of the project to package.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -242,8 +251,9 @@ Specfies the name of the project to package.
 <summary>
 <para>
 Specifies the directory where all files in resulting archive will be
-placed if applicable.  The default value is "$NAME-$VERSION".
+placed if applicable.  The default value is <quote>&cv-NAME;-&cv-VERSION;</quote>.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -259,6 +269,7 @@ for the builder for the currently supported types.
 &cv-PACKAGETYPE; may be overridden with the <option>--package-type</option>
 command line option.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -270,6 +281,7 @@ This is currently only used by the rpm packager
 and should reflect changes in the packaging,
 not the underlying project code itself.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -283,6 +295,7 @@ This is used to fill in the
 <literal>Source:</literal>
 field in the controlling information for Ipkg and RPM packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -297,6 +310,7 @@ and as the
 <literal>Description:</literal>
 field in MSI packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -311,6 +325,7 @@ and the
 <literal>Manufacturer:</literal>
 field in the controlling information for MSI packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -319,6 +334,7 @@ field in the controlling information for MSI packages.
 <para>
 The version of the project, specified as a string.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -330,6 +346,7 @@ This is used to fill in the
 <literal>Depends:</literal>
 field in the controlling information for Ipkg packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -340,7 +357,7 @@ This is used to fill in the
 <literal>Description:</literal>
 field in the controlling information for Ipkg packages.
 The default value is
-<literal>$SUMMARY\n$DESCRIPTION</literal>
+<quote>&cv-SUMMARY;\n&cv-DESCRIPTION;</quote>
 </para>
 </summary>
 </cvar>
@@ -375,8 +392,6 @@ field in the controlling information for Ipkg packages.
 </summary>
 </cvar>
 
-
-
 <cvar name="X_MSI_LANGUAGE">
 <summary>
 <para>
@@ -384,6 +399,7 @@ This is used to fill in the
 <literal>Language:</literal>
 attribute in the controlling information for MSI packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -394,6 +410,7 @@ The text of the software license in RTF format.
 Carriage return characters will be
 replaced with the RTF equivalent \\par.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -414,6 +431,7 @@ This is used to fill in the
 field in the RPM
 <filename>.spec</filename> file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </summary>
 </cvar>
 
@@ -470,7 +488,7 @@ field in the RPM
 This value is used as the default attributes
 for the files in the RPM package.
 The default value is
-<literal>(-,root,root)</literal>.
+<quote>(-,root,root)</quote>.
 </para>
 </summary>
 </cvar>
