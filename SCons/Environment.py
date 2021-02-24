@@ -886,9 +886,12 @@ def default_decide_target(dependency, target, prev_ni, repo_node=None):
     return f(dependency, target, prev_ni, repo_node)
 
 
-def default_copy_from_cache(src, dst):
-    f = SCons.Defaults.DefaultEnvironment().copy_from_cache
-    return f(src, dst)
+def default_copy_from_cache(env, src, dst):
+    return SCons.CacheDir.CacheDir.copy_from_cache(env, src, dst)
+
+
+def default_copy_to_cache(env, src, dst):
+    return SCons.CacheDir.CacheDir.copy_to_cache(env, src, dst)
 
 
 class Base(SubstitutionEnvironment):
@@ -954,6 +957,8 @@ class Base(SubstitutionEnvironment):
         self.decide_source = default_decide_source
 
         self.copy_from_cache = default_copy_from_cache
+        self.copy_to_cache = default_copy_to_cache
+        self.cache_timestamp_newer = False
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
@@ -1038,7 +1043,12 @@ class Base(SubstitutionEnvironment):
                 return self._last_CacheDir
         except AttributeError:
             pass
-        cd = SCons.CacheDir.CacheDir(path)
+
+        cachedir_class = self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir)
+        if not issubclass(cachedir_class, SCons.CacheDir.CacheDir):
+            raise UserError("Custom CACHEDIR_CLASS %s not derived from CacheDir" % str(cachedir_class))
+
+        cd = cachedir_class(path)
         self._last_CacheDir_path = path
         self._last_CacheDir = cd
         return cd
@@ -1485,14 +1495,8 @@ class Base(SubstitutionEnvironment):
     def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None):
         return dependency.changed_timestamp_match(target, prev_ni, repo_node)
 
-    def _copy_from_cache(self, src, dst):
-        return self.fs.copy(src, dst)
-
-    def _copy2_from_cache(self, src, dst):
-        return self.fs.copy2(src, dst)
-
     def Decider(self, function):
-        copy_function = self._copy2_from_cache
+        self.cache_timestamp_newer = False
         if function in ('MD5', 'content'):
             # TODO: Handle if user requests MD5 and not content with deprecation notice
             function = self._changed_content
@@ -1500,7 +1504,7 @@ class Base(SubstitutionEnvironment):
             function = self._changed_timestamp_then_content
         elif function in ('timestamp-newer', 'make'):
             function = self._changed_timestamp_newer
-            copy_function = self._copy_from_cache
+            self.cache_timestamp_newer = True
         elif function == 'timestamp-match':
             function = self._changed_timestamp_match
         elif not callable(function):
@@ -1511,7 +1515,6 @@ class Base(SubstitutionEnvironment):
         # method, which would add self as an initial, fourth argument.
         self.decide_target = function
         self.decide_source = function
-        self.copy_from_cache = copy_function
 
 
     def Detect(self, progs):

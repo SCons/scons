@@ -27,6 +27,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
       This fixes cases for shared cache where two systems write to the same
       cache tmpfile at the same time because the happened to get the same pid.
+    - Added support for passing custom CacheDir derived classes to SCons to
+      to support MongoDB's use of a compressed CacheDir tool.
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
