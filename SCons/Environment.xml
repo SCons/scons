@@ -244,6 +244,16 @@ that are part of this construction environment.
 </summary>
 </cvar>
 
+<cvar name="CACHEDIR_CLASS">
+    <summary>
+        <para>
+The class type that SCons should use when instantiating a
+new &f-link-CacheDir; for the given environment. It must be
+a subclass of the SCons.CacheDir.CacheDir class.
+        </para>
+    </summary>
+</cvar>
+
 <!-- Functions /  Construction environment methods -->
 
 <scons_function name="Action">

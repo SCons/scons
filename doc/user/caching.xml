@@ -511,6 +511,48 @@ Program('prog',
 
   </section>
 
+  <section>
+    <title>Using a Custom CacheDir class</title>
+
+    <para>
+
+    SCons built-in &f-link-CacheDir; class can be extended to support customization
+    around the details of caching behaviors, for example using compressed cache files,
+    encrypted cache files, gathering statistics or many other aspects.
+
+    </para>
+
+    <para>
+
+    To create a custom &f-link-CacheDir; class, your custom class must be a subclass of SCons.CacheDir.CacheDir class.
+    You can then pass your custom &f-link-CacheDir; class to the environment &cv-link-CACHEDIR_CLASS; before configuring the cache
+    in that environment. SCons will internally invoke and use your custom class when performing
+    cache operations. The below example shows a simple use case of overriding the copy_from_cache
+    method to record the total number of bytes pulled from the cache.
+
+    </para>
+
+    <scons_example name="custom_caching">
+      <file name="SConstruct" printme="1">
+        import SCons
+        class CustomCacheDir(SCons.CacheDir.CacheDir):
+            total_retrieved = 0
+
+            @classmethod
+            def copy_from_cache(cls, env, src, dst):
+                # record total bytes pulled from cache
+                cls.total_retrieved += os.stat(src).st_size
+                super().copy_from_cache(env, src, dst)
+
+        env = Environment()
+        env['CACHEDIR_CLASS'] = CustomCacheDir
+        env.CacheDir('scons-cache')
+        ...
+      </file>
+    </scons_example>
+
+  </section>
+
   <!--
 
   <section>
