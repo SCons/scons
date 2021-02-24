@@ -756,7 +756,7 @@ until after the Builder object is actually called.
 
 <scons_function name="CacheDir">
 <arguments>
-(cache_dir)
+(cache_dir, custom_class=<constant>None</constant>)
 </arguments>
 <summary>
 <para>
@@ -772,6 +772,10 @@ Specifying a
 of
 <constant>None</constant>
 disables derived file caching.
+A custom class which is a subclass of
+<classname>SCons.CacheDir.CacheDir<classname>
+can be passed as the optional second parameter
+allowing customization of the caching behaviors.
 </para>
 
 <para>

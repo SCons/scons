@@ -1989,10 +1989,13 @@ class Base(SubstitutionEnvironment):
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
 
-    def CacheDir(self, path):
+    def CacheDir(self, path, custom_class=None):
         if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path
+
+        if custom_class:
+            self['CACHEDIR_CLASS'] = custom_class
 
         if SCons.Action.execute_actions:
             # Only initialize the CacheDir if  -n/-no_exec was NOT specified.

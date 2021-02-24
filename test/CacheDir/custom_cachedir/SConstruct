@@ -1,0 +1,5 @@
+from CustomCacheDirModule import CustomCacheDir
+
+env = Environment(tools=[])
+env.CacheDir('cache', CustomCacheDir)
+env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))

@@ -30,22 +30,16 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write(['SConstruct'], """\
-import SCons
+test.dir_fixture('custom_cachedir')
+
+test.write(['CustomCacheDirModule.py'], """\
 class CustomCacheDir:
     pass
-
-env = Environment(tools=[])
-env['CACHEDIR_CLASS'] = CustomCacheDir
-env.CacheDir('cache')
-env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 """)
-
-test.write('file.in', "file.in\n")
 
 test.run(status = 2, stderr = None)
 
-test.must_contain_all_lines(test.stderr(), ["Custom CACHEDIR_CLASS <class 'SCons.Script.CustomCacheDir'> not derived from CacheDir"])
+test.must_contain_all_lines(test.stderr(), ["Custom CACHEDIR_CLASS <class 'CustomCacheDirModule.CustomCacheDir'> not derived from CacheDir"])
 
 test.pass_test()
 
