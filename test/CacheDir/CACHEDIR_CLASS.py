@@ -30,9 +30,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('custom_cachedir')
-
-test.write(['CustomCacheDirModule.py'], """\
+test.write(['SConstruct'], """\
 import SCons
 class CustomCacheDir(SCons.CacheDir.CacheDir):
 
@@ -40,7 +38,14 @@ class CustomCacheDir(SCons.CacheDir.CacheDir):
     def copy_to_cache(cls, env, src, dst):
         print("MY_CUSTOM_CACHEDIR_CLASS")
         super().copy_to_cache(env, src, dst)
+
+env = Environment(tools=[])
+env['CACHEDIR_CLASS'] = CustomCacheDir
+env.CacheDir('cache')
+env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 """)
+
+test.write('file.in', "file.in\n")
 
 test.run()
 

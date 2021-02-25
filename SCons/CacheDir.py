@@ -216,13 +216,10 @@ class CacheDir:
 
     @classmethod
     def copy_from_cache(cls, env, src, dst):
-        try:
-            if env.cache_timestamp_newer:
-                return env.fs.copy(src, dst)
-            else:
-                return env.fs.copy2(src, dst)
-        except AttributeError as ex:
-            raise EnvironmentError from ex
+        if env.cache_timestamp_newer:
+            return env.fs.copy(src, dst)
+        else:
+            return env.fs.copy2(src, dst)
 
     @classmethod
     def copy_to_cache(cls, env, src, dst):
