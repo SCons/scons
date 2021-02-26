@@ -488,7 +488,7 @@ Multiple targets can be passed in to a single call to
 <para>
 Intelligently append values to &consvars; in the &consenv;
 named by <varname>env</varname>.
-The &consvars; and values to add to them are passed as 
+The &consvars; and values to add to them are passed as
 <parameter>key=val</parameter> pairs (Python keyword arguments).
 &f-env-Append; is designed to allow adding values
 without normally having to know the data type of an existing &consvar;.
@@ -524,15 +524,16 @@ but there are a few special cases to be aware of.
 When two strings are combined,
 the result is normally a new string,
 with the caller responsible for supplying any needed separation.
-The exception to this is the &consvar; &cv-link-CPPDEFINES;
-in which each entry will be postprocessed, 
+The exception to this is the &consvar; &cv-link-CPPDEFINES;,
+in which each item will be postprocessed by adding a prefix
+and/or suffix,
 so the contents are treated as a list of strings, that is,
 adding a string will result in a separate string entry,
 not a combined string. For &cv-CPPDEFINES; as well as
 for &cv-link-LIBS;, and the various <varname>*PATH</varname>
 variables, &SCons; will supply the compiler-specific
-syntax (e.g. adding <literal>-D</literal> or <literal>/D</literal>
-for &cv-CPPDEFINES;), so this syntax should be omitted when
+syntax (e.g. adding a <literal>-D</literal> or <literal>/D</literal>
+prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
 adding values to these variables.
 Example (gcc syntax shown in the expansion of &CPPDEFINES;):
 </para>
@@ -562,7 +563,7 @@ Preprocessor macros can be valued, or un-valued, as in
 <computeroutput>-DBAR=1</computeroutput> or
 <computeroutput>-DFOO</computeroutput>.
 The macro can be be supplied as a complete string including the value,
-or as a tuple/list of macro/value, or as a dictionary.
+or as a tuple (or list) of macro, value, or as a dictionary.
 Example (again gcc syntax in the expanded defines):
 </para>
 
