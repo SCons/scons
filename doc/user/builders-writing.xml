@@ -864,12 +864,13 @@ cat
     <scons_example name="builders_adding_emitter">
 
       <file name="SConstruct" printme="1">
+env = Environment()
+map_filename = "${TARGET.name}.map"
+
 def map_emitter(target, source, env):
     target.append(map_filename)
     return target, source
 
-env = Environment()
-map_filename = "${TARGET.name}" + ".map"
 env.Append(LINKFLAGS="-Wl,-Map={},--cref".format(map_filename))
 env.Append(PROGEMITTER=map_emitter)
 env.Program('hello.c')
