@@ -1010,8 +1010,8 @@ DefaultEnvironment(CC='/usr/local/bin/gcc')
       </para>
 
       <sconstruct>
-env = DefaultEnvironment()
-env['CC'] = '/usr/local/bin/gcc'
+def_env = DefaultEnvironment()
+def_env['CC'] = '/usr/local/bin/gcc'
       </sconstruct>
 
       <para>
@@ -1037,8 +1037,7 @@ env['CC'] = '/usr/local/bin/gcc'
       </para>
 
       <sconstruct>
-env = DefaultEnvironment(tools=['gcc', 'gnulink'],
-                         CC='/usr/local/bin/gcc')
+def_env = DefaultEnvironment(tools=['gcc', 'gnulink'], CC='/usr/local/bin/gcc')
       </sconstruct>
 
       <para>

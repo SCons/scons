@@ -546,10 +546,10 @@ Example:
 </para>
 
 <example_commands>
-print 'before:',env['ENV']['INCLUDE']
+print('before:', env['ENV']['INCLUDE'])
 include_path = '/foo/bar:/foo'
 env.AppendENVPath('INCLUDE', include_path)
-print 'after:',env['ENV']['INCLUDE']
+print('after:', env['ENV']['INCLUDE'])
 
 yields:
 before: /foo:/biz
@@ -2501,10 +2501,10 @@ Example:
 </para>
 
 <example_commands>
-print 'before:',env['ENV']['INCLUDE']
+print('before:', env['ENV']['INCLUDE'])
 include_path = '/foo/bar:/foo'
 env.PrependENVPath('INCLUDE', include_path)
-print 'after:',env['ENV']['INCLUDE']
+print('after:', env['ENV']['INCLUDE'])
 </example_commands>
 
 <para>

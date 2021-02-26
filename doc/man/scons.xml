@@ -1522,7 +1522,7 @@ any out-of-date target files, but do not execute the commands.</para>
   <term><option>--no-site-dir</option></term>
   <listitem>
 <para>Prevents the automatic addition of the standard
-<emphasis>site_scons</emphasis>
+<filename>site_scons</filename>
 dirs to
 <varname>sys.path</varname>.
 Also prevents loading the
@@ -1656,7 +1656,7 @@ Also suppresses SCons status messages.</para>
   <listitem>
 <para>Uses the named <replaceable>dir</replaceable> as the site directory
 rather than the default
-<emphasis>site_scons</emphasis>
+<filename>site_scons</filename>
 directories.  This directory will be prepended to
 <varname>sys.path</varname>,
 the module
@@ -1666,7 +1666,7 @@ will be loaded if it exists, and
 will be added to the default toolpath.</para>
 
 <para>The default set of
-<emphasis>site_scons</emphasis>
+<filename>site_scons</filename>
 directories used when
 <option>--site-dir</option>
 is not specified depends on the system platform, as follows.
