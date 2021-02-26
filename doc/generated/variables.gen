@@ -1615,7 +1615,7 @@ Note that, by default,
 &scons;
 does
 <emphasis>not</emphasis>
-propagate the environment in force when you
+propagate the environment in effect when you
 execute
 &scons;
 to the commands used to build target files.

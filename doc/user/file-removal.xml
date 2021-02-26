@@ -202,10 +202,10 @@ int f3() { }
 t = Command('foo.out', 'foo.in', 'build -o $TARGET $SOURCE')
 Clean(t, 'foo.log')
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "build" command to work -->
       <file name="SConstruct">
-env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="foo.in">

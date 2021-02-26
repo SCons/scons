@@ -147,17 +147,20 @@ Command("file.out", [], Copy("$TARGET", "file.in"))
 
     <scons_example name="factories_Copy3">
       <file name="S" printme="1">
-Command("file.out", "file.in",
-        [
-          Copy("tempfile", "$SOURCE"),
-          "modify tempfile",
-          Copy("$TARGET", "tempfile"),
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Copy("tempfile", "$SOURCE"),
+        "modify tempfile",
+        Copy("$TARGET", "tempfile"),
+    ],
+)
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "modify" command to work -->
       <file name="SConstruct">
-env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -216,18 +219,21 @@ Command("LinkIn", "FileOrDirectoryOut", Copy("$TARGET", "$SOURCE", False))
 
     <scons_example name="factories_Delete1">
       <file name="S" printme="1">
-Command("file.out", "file.in",
-        [
-          Delete("tempfile"),
-          Copy("tempfile", "$SOURCE"),
-          "modify tempfile",
-          Copy("$TARGET", "tempfile"),
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Delete("tempfile"),
+        Copy("tempfile", "$SOURCE"),
+        "modify tempfile",
+        Copy("$TARGET", "tempfile"),
+    ],
+)
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "modify" command to work -->
       <file name="SConstruct">
-env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -257,11 +263,14 @@ touch $*
 
     <scons_example name="factories_Delete2">
       <file name="SConstruct" printme="1">
-Command("file.out", "file.in",
-        [
-          Delete("$TARGET"),
-          Copy("$TARGET", "$SOURCE")
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Delete("$TARGET"),
+        Copy("$TARGET", "$SOURCE"),
+    ],
+)
       </file>
       <file name="file.in">file.in</file>
     </scons_example>
@@ -311,17 +320,20 @@ Command("file.out", "file.in",
 
     <scons_example name="factories_Move">
       <file name="S" printme="1">
-Command("file.out", "file.in",
-        [
-          Copy("tempfile", "$SOURCE"),
-          "modify tempfile",
-          Move("$TARGET", "tempfile"),
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Copy("tempfile", "$SOURCE"),
+        "modify tempfile",
+        Move("$TARGET", "tempfile"),
+    ],
+)
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "modify" command to work -->
       <file name="SConstruct">
-env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -355,16 +367,16 @@ touch $*
 
     <scons_example name="factories_Touch">
       <file name="S" printme="1">
-Command("file.out", "file.in",
-        [
-          Copy("$TARGET", "$SOURCE"),
-          Touch("$TARGET"),
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Copy("$TARGET", "$SOURCE"),
+        Touch("$TARGET"),
+    ]
+)
       </file>
       <file name="SConstruct">
-env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -399,20 +411,23 @@ SConscript('S')
 
     <scons_example name="factories_Mkdir">
       <file name="S" printme="1">
-Command("file.out", "file.in",
-        [
-          Delete("tempdir"),
-          Mkdir("tempdir"),
-          Copy("tempdir/${SOURCE.file}", "$SOURCE"),
-          "process tempdir",
-          Move("$TARGET", "tempdir/output_file"),
-          Delete("tempdir"),
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Delete("tempdir"),
+        Mkdir("tempdir"),
+        Copy("tempdir/${SOURCE.file}", "$SOURCE"),
+        "process tempdir",
+        Move("$TARGET", "tempdir/output_file"),
+        Delete("tempdir"),
+    ],
+)
       </file>
+      <!-- this is a non-displayed script that fiddles PATH to allow dummy "process" command to work -->
       <file name="SConstruct">
-env = DefaultEnvironment()
-import os
-env['ENV']['PATH'] = env['ENV']['PATH'] + os.pathsep + os.getcwd()
+def_env = DefaultEnvironment()
+def_env.AppendENVPath('PATH', Dir('.'))
 SConscript('S')
       </file>
       <file name="file.in">file.in</file>
@@ -449,11 +464,14 @@ touch $*
 
     <scons_example name="factories_Chmod">
       <file name="SConstruct" printme="1">
-Command("file.out", "file.in",
-        [
-          Copy("$TARGET", "$SOURCE"),
-          Chmod("$TARGET", 0o755),
-        ])
+Command(
+    "file.out",
+    "file.in",
+    action=[
+        Copy("$TARGET", "$SOURCE"),
+        Chmod("$TARGET", 0o755),
+    ]
+)
       </file>
       <file name="file.in">file.in</file>
     </scons_example>

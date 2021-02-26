@@ -17,6 +17,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Initial support in tests for Python 3.10 - expected bytecode and
       one changed expected exception message. Change some more regexes
       to be specified as rawstrings in response to DeprecationWarnings.
+    - Add an example of adding an emitter to User Guide (concept
+      from Jeremy Elson)
     - Add timing information for sconsign database dump when --debug=time
       is selected. Also switch to generally using time.perf_counter,
       which is the Python recommended way for timing short durations.
