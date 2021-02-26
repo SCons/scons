@@ -196,7 +196,7 @@ to each directory in &cv-link-CPPPATH;.
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
 directories for include files. 
-Do not put include directory directives
+In general it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
@@ -527,7 +527,7 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 <para>
 A list of one or more libraries
 that will be added to the link line
-for linking with any executable program
+for linking with any executable program, shared library, or loadable module 
 created by the &consenv; or override.
 </para>
 
