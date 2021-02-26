@@ -498,8 +498,11 @@ for example, different Python syntax is needed to combine
 a list of values with a single string value, or vice versa.
 Some pre-defined &consvars; do have type expectations
 based on how &SCons; will use them,
-for example &cv-link-CPPDEFINES; is normally a string
-or list of strings, while &cv-link-LIBEMITTER;
+for example &cv-link-CPPDEFINES; is normally a string or a list of strings,
+but can be a string,
+a list of strings,
+a list of tuples,
+or a dictionary, while &cv-link-LIBEMITTER;
 would expect a callable or list of callables,
 and &cv-link-BUILDERS; would expect a mapping type.
 Consult the documentation for the various &consvars; for more details.
@@ -628,7 +631,7 @@ See also &f-link-env-AppendUnique;,
 
 <scons_function name="AppendENVPath">
 <arguments signature="env">
-(name, newpath, [envname, sep, delete_existing=True])
+(name, newpath, [envname, sep, delete_existing=False])
 </arguments>
 <summary>
 <para>
