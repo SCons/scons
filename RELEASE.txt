@@ -19,8 +19,10 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+    - Improve Subst()'s logic to check for proper callable function or class's argument list.
+      It will now allow callables with expected args, and any extra args as long as they
+      have default arguments. Additionally functions with no defaults for extra arguments
+      as long as they are set using functools.partial to create a new callable which set them.
 
 FIXES
 -----
