@@ -425,8 +425,8 @@ class StringSubber:
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
             # this should also allow functools.partial's to work.
-            if isinstance(s, SCons.Util.Null) or set([k for k, v in signature(s).parameters.items() if k in _callable_args_set or
-                                                      v.default == Parameter.empty]) == _callable_args_set:
+            if isinstance(s, SCons.Util.Null) or {k for k, v in signature(s).parameters.items() if
+                                                  k in _callable_args_set or v.default == Parameter.empty} == _callable_args_set:
 
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
@@ -602,9 +602,8 @@ class ListSubber(collections.UserList):
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
             # this should also allow functools.partial's to work.
-            if isinstance(s, SCons.Util.Null) or set(
-                    [k for k, v in signature(s).parameters.items() if k in _callable_args_set or
-                                                                      v.default == Parameter.empty]) == _callable_args_set:
+            if isinstance(s, SCons.Util.Null) or {k for k, v in signature(s).parameters.items() if
+                                                  k in _callable_args_set or v.default == Parameter.empty} == _callable_args_set:
 
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
