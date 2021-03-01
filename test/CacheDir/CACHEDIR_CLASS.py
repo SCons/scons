@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -23,29 +25,14 @@
 #
 
 """
-Test that a custom cache dir can be passed to scons.
+Test testing the CACHEDIR_CLASS construction variable.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write(['SConstruct'], """\
-import SCons
-class CustomCacheDir(SCons.CacheDir.CacheDir):
-
-    @classmethod
-    def copy_to_cache(cls, env, src, dst):
-        print("MY_CUSTOM_CACHEDIR_CLASS")
-        super().copy_to_cache(env, src, dst)
-
-env = Environment(tools=[])
-env['CACHEDIR_CLASS'] = CustomCacheDir
-env.CacheDir('cache')
-env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
-""")
-
-test.write('file.in', "file.in\n")
+test.dir_fixture('CACHEDIR_CLASS_fixture')
 
 test.run()
 

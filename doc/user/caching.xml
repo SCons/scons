@@ -516,7 +516,7 @@ Program('prog',
 
     <para>
 
-    SCon's internal <classname>CacheDir</classname> class can be extended to support customization
+    SCons' internal <classname>CacheDir</classname> class can be extended to support customization
     around the details of caching behaviors, for example using compressed cache files,
     encrypted cache files, gathering statistics and data, or many other aspects.
 

@@ -1,4 +1,5 @@
-from CustomCacheDirModule import CustomCacheDir
+class CustomCacheDir:
+    pass
 
 env = Environment(tools=[])
 env.CacheDir('cache', CustomCacheDir)

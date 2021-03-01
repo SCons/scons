@@ -28,7 +28,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       This fixes cases for shared cache where two systems write to the same
       cache tmpfile at the same time because the happened to get the same pid.
     - Added support for passing custom CacheDir derived classes to SCons to
-      to support MongoDB's use of a compressed CacheDir tool.
+      to support MongoDB's use of a compressed CacheDir tool. Moved copy_from_cache
+      attribute from the Environment class to CacheDir class.
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and

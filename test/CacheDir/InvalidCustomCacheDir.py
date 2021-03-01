@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -23,23 +25,18 @@
 #
 
 """
-Test that a custom cache dir can be passed to scons.
+Test to make sure invalid custom cachedir cause error.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('custom_cachedir')
-
-test.write(['CustomCacheDirModule.py'], """\
-class CustomCacheDir:
-    pass
-""")
+test.dir_fixture('invalid_custom_cachedir_fixture')
 
 test.run(status = 2, stderr = None)
 
-test.must_contain_all_lines(test.stderr(), ["Custom CACHEDIR_CLASS <class 'CustomCacheDirModule.CustomCacheDir'> not derived from CacheDir"])
+test.must_contain_all_lines(test.stderr(), ["Custom CACHEDIR_CLASS <class 'SCons.Script.CustomCacheDir'> not derived from CacheDir"])
 
 test.pass_test()
 

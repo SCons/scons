@@ -39,6 +39,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
       WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
       All have been replaced by other names since at least 1.0.
 
+- Moved copy_from_cache attribute from the Environment class to CacheDir class.
+
 FIXES
 -----
 

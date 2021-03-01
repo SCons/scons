@@ -956,8 +956,6 @@ class Base(SubstitutionEnvironment):
         self.decide_target = default_decide_target
         self.decide_source = default_decide_source
 
-        self.copy_from_cache = default_copy_from_cache
-        self.copy_to_cache = default_copy_to_cache
         self.cache_timestamp_newer = False
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
@@ -1039,7 +1037,8 @@ class Base(SubstitutionEnvironment):
         except AttributeError:
             path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
         try:
-            if path == self._last_CacheDir_path:
+            if (path == self._last_CacheDir_path
+                and self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir) == type(self._last_CacheDir)):
                 return self._last_CacheDir
         except AttributeError:
             pass

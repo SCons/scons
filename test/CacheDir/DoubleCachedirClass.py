@@ -32,11 +32,11 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.dir_fixture('custom_cachedir_fixture')
+test.dir_fixture('double_cachedir_fixture')
 
 test.run()
 
-test.must_contain_all_lines(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS"])
+test.must_contain_all_lines(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS2"])
 
 test.pass_test()
 
