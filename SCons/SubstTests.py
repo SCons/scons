@@ -25,6 +25,7 @@ import SCons.compat
 
 import os
 import unittest
+from functools import partial
 
 
 import SCons.Errors
@@ -91,6 +92,23 @@ class CmdGen2:
         assert str(source) == 's', source
         assert for_signature == self.expect_for_signature, for_signature
         return [ self.mystr, env.Dictionary('BAR') ]
+
+
+def CallableWithDefault(target, source, env, for_signature, other_value="default"):
+    assert str(target) == 't', target
+    assert str(source) == 's', source
+    return "CallableWithDefault: %s"%other_value
+
+PartialCallable = partial(CallableWithDefault, other_value="partial")
+
+def CallableWithNoDefault(target, source, env, for_signature, other_value):
+    assert str(target) == 't', target
+    assert str(source) == 's', source
+    return "CallableWithNoDefault: %s"%other_value
+
+PartialCallableNoDefault = partial(CallableWithNoDefault, other_value="partialNoDefault")
+
+
 
 if os.sep == '/':
     def cvt(str):
@@ -190,6 +208,10 @@ class SubstTestCase(unittest.TestCase):
         'CMDGEN1'   : CmdGen1,
         'CMDGEN2'   : CmdGen2,
 
+        'CallableWithDefault': CallableWithDefault,
+        'PartialCallable' : PartialCallable,
+        'PartialCallableNoDefault' : PartialCallableNoDefault,
+
         'LITERALS'  : [ Literal('foo\nwith\nnewlines'),
                         Literal('bar\nwith\nnewlines') ],
 
@@ -238,6 +260,7 @@ class SubstTestCase(unittest.TestCase):
                   'gvars' : env.Dictionary()}
 
         failed = 0
+        case_count = 0
         while cases:
             input, expect = cases[:2]
             expect = convert(expect)
@@ -250,11 +273,13 @@ class SubstTestCase(unittest.TestCase):
             else:
                 if result != expect:
                     if failed == 0: print()
-                    print("    input %s => \n%s did not match \n%s" % (repr(input), repr(result), repr(expect)))
+                    print("[%4d]    input %s => \n%s did not match \n%s" % (case_count, repr(input), repr(result), repr(expect)))
                     failed = failed + 1
             del cases[:2]
+            case_count += 1
         fmt = "%d %s() cases failed"
         assert failed == 0, fmt % (failed, function.__name__)
+
 
 class scons_subst_TestCase(SubstTestCase):
 
@@ -517,6 +542,35 @@ class scons_subst_TestCase(SubstTestCase):
                              target=self.MyNode('t'), source=self.MyNode('s'),
                              gvars=gvars)
         assert newcom == "test foo bar with spaces.out s t", newcom
+
+    def test_subst_callable_with_default_expansion(self):
+        """Test scons_subst():  expanding a callable with a default value arg"""
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
+        newcom = scons_subst("test $CallableWithDefault $SOURCES $TARGETS", env,
+                             target=self.MyNode('t'), source=self.MyNode('s'),
+                             gvars=gvars)
+        assert newcom == "test CallableWithDefault: default s t", newcom
+
+    def test_subst_partial_callable_with_default_expansion(self):
+        """Test scons_subst():  expanding a functools.partial callable which sets
+           the default value in the callable"""
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
+        newcom = scons_subst("test $PartialCallable $SOURCES $TARGETS", env,
+                             target=self.MyNode('t'), source=self.MyNode('s'),
+                             gvars=gvars)
+        assert newcom == "test CallableWithDefault: partial s t", newcom
+
+    def test_subst_partial_callable_with_no_default_expansion(self):
+        """Test scons_subst():  expanding a functools.partial callable which sets
+           the value for extraneous function argument"""
+        env = DummyEnv(self.loc)
+        gvars = env.Dictionary()
+        newcom = scons_subst("test $PartialCallableNoDefault $SOURCES $TARGETS", env,
+                             target=self.MyNode('t'), source=self.MyNode('s'),
+                             gvars=gvars)
+        assert newcom == "test CallableWithNoDefault: partialNoDefault s t", newcom
 
     def test_subst_attribute_errors(self):
         """Test scons_subst():  handling attribute errors"""

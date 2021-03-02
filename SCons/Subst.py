@@ -25,9 +25,9 @@
 
 import collections
 import re
-from inspect import signature
-import SCons.Errors
+from inspect import signature, Parameter
 
+import SCons.Errors
 from SCons.Util import is_String, is_Sequence
 
 # Indexed by the SUBST_* constants below.
@@ -328,6 +328,8 @@ def subst_dict(target, source):
     return dict
 
 
+_callable_args_set = {'target', 'source', 'env', 'for_signature'}
+
 class StringSubber:
     """A class to construct the results of a scons_subst() call.
 
@@ -335,6 +337,8 @@ class StringSubber:
     source with two methods (substitute() and expand()) that handle
     the expansion.
     """
+
+
     def __init__(self, env, mode, conv, gvars):
         self.env = env
         self.mode = mode
@@ -419,8 +423,11 @@ class StringSubber:
             # SCons has the unusual Null class where any __getattr__ call returns it's self, 
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
-            if (isinstance(s, SCons.Util.Null) or
-                set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
+            # Also allow callables where the only non default valued args match the expected defaults
+            # this should also allow functools.partial's to work.
+            if isinstance(s, SCons.Util.Null) or {k for k, v in signature(s).parameters.items() if
+                                                  k in _callable_args_set or v.default == Parameter.empty} == _callable_args_set:
+
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
@@ -593,8 +600,11 @@ class ListSubber(collections.UserList):
             # SCons has the unusual Null class where any __getattr__ call returns it's self, 
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
-            if (isinstance(s, SCons.Util.Null) or
-                set(signature(s).parameters.keys()) == set(['target', 'source', 'env', 'for_signature'])):
+            # Also allow callables where the only non default valued args match the expected defaults
+            # this should also allow functools.partial's to work.
+            if isinstance(s, SCons.Util.Null) or {k for k, v in signature(s).parameters.items() if
+                                                  k in _callable_args_set or v.default == Parameter.empty} == _callable_args_set:
+
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
