@@ -31,11 +31,17 @@
 
   NEW FUNCTIONALITY
 
-    - List new features (presumably why a checkpoint is being released)
+    - SCons now supports the command-line parameter `--hash-format` to override the default
+      hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
+      values are: `md5`, `sha1`, and `sha256`. For all hash formats other than
+      the default of `md5`, the SConsign database will include the name of the hash format.
+      For example, `--hash-format=sha256` will create a SConsign with name
+      `.sconsign_sha256.dblite.`.
 
   DEPRECATED FUNCTIONALITY
 
-    - List anything that's been deprecated since the last release
+    - The command-line parameter `--md5-chunksize` is now deprecated. Use `--hash-chunksize`
+      instead.
 
   CHANGED/ENHANCED EXISTING FUNCTIONALITY
 

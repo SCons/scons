@@ -1128,6 +1128,10 @@ or &f-link-CacheDir; keys.</para>
 <para>The supported list of values are: md5, sha1, and sha256.
 However, the Python interpreter used to run SCons must have the corresponding
 support available in hashlib to use the specified algorithm.</para>
+
+<para>Specifying this value changes the name of the SConsign database.
+For example, <option>--hash-format=sha256</option> will create a SConsign
+database with name .sconsign_sha256.dblite.<para>
   </listitem>
   </varlistentry>
 
