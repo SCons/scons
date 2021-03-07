@@ -1136,23 +1136,27 @@ the help message not to be displayed.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
-  <term><option>--hash-format=<replaceable>ALGORITHM</replaceable></option></term>
+<varlistentry>
+  <term>
+    <option>--hash-format=<replaceable>ALGORITHM</replaceable>
+    </option>
+  </term>
   <listitem>
-<para>Set the hashing algorithm used by SCons to
-<replaceable>ALGORITHM</replaceable>.
+    <para>Set the hashing algorithm used by SCons to
+      <replaceable>ALGORITHM</replaceable>.
 This value determines the hashing algorithm used in generating content signatures
 or &f-link-CacheDir; keys.</para>
 
-<para>The supported list of values are: md5, sha1, and sha256.
+    <para>The supported list of values are: md5, sha1, and sha256.
 However, the Python interpreter used to run SCons must have the corresponding
 support available in hashlib to use the specified algorithm.</para>
 
-<para>Specifying this value changes the name of the SConsign database.
+    <para>Specifying this value changes the name of the SConsign database.
 For example, <option>--hash-format=sha256</option> will create a SConsign
-database with name .sconsign_sha256.dblite.<para>
+database with name .sconsign_sha256.dblite.
+    </para>
   </listitem>
-  </varlistentry>
+</varlistentry>
 
   <varlistentry>
   <term>
