@@ -54,30 +54,55 @@ for the calling syntax and details.
     <term><function>CompilationDatabase</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>CompilationDatabase</methodname>()</term>
     <listitem><para>
-                The &b-CompilationDatabase; builder writes a JSON formatted compilation
-                    database according to the
-                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification
-                </ulink> which is consumed by a number of clang tools, editors, and other tools.
+                &b-CompilationDatabase; is a special builder which
+                adds a target to create a JSON formatted
+                compilation database compatible with
+                <systemitem>clang</systemitem> tooling
+                (see the
+                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification</ulink>).
+                This database is suitable for consumption by various
+                tools and editors who can use it to obtain build and
+                dependency information which otherwise would be
+                internal to &SCons;.
+                The builder does not require any source files to be specified,
+                rather it arranges to emit information about all
+                of the C, C++ and assembler source/output pairs
+                identified in the build that are not excluded by the
+                optional filter &cv-link-COMPILATIONDB_PATH_FILTER;.
+                The target is subject to the usual &SCons; target
+                selection rules.
             </para>
             <para>
-                If you don't specify any files, the builder will default to <filename>compile_commands.json</filename>.
+                If called with no arguments,
+                the builder will default to a target name of
+                <filename>compile_commands.json</filename>.
             </para>
             <para>
-                If you specify a single file as below
-                <programlisting language="python">
-env.CompilationDatabase('my_output.json')
-                </programlisting>
-                SCons will automatically use that as the target file.
-                If you specify more than one source, the source list will be ignored.
+                If called with a single positional argument,
+                &scons; will "deduce" the target name from that source
+                argument, giving it the same name, and then
+                ignore the source.
+                This is the usual way to call the builder if a
+                non-default target name is wanted.
             </para>
             <para>
-                You should not specify source files. The &b-CompilationDatabase; builder instruments SCons to collect them from all
-                the C, C++, assembly source/target pairs.
+                If called with either the <parameter>target=</parameter>
+                or <parameter>source=</parameter> keyword arguments,
+                the value of the argument is taken as the target name.
+                If called with both, the <parameter>target=</parameter>
+                value is used and <parameter>source=</parameter> is ignored.
+                If called with multiple sources,
+                the source list will be ignored,
+                since there is no way to deduce what the intent was;
+                in this case the default target name will be used.
             </para>
-            <para>
-                NOTE: You must load the &t-compilation_db; tool prior to specifying any part of your build or some source/target
-                files will not show up in your output file.
-            </para>
+            <note>
+              <para>
+                You must load the &t-compilation_db; tool prior to specifying
+                any part of your build or some source/output
+                files will not show up in the compilation database.
+              </para>
+            </note>
             <para>
                 <emphasis>Available since &scons; 4.0.</emphasis>
             </para>
@@ -1206,58 +1231,83 @@ builder method.
     <term><function>Package</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Package</methodname>()</term>
     <listitem><para>
-Builds a Binary Package of the given source files.
+Builds software distribution packages.
+A <firstterm>Package</firstterm> is a container format which
+includes files to install along with metadata.
+Packaging is optional, and must be enabled by specifying
+the &t-link-packaging; tool. For example:
 </para>
 
 <example_commands>
-env.Package(source = FindInstalledFiles())
+env = Environment(tools=['default', 'packaging'])
 </example_commands>
+
 <para>
-Builds software distribution packages.
-Packages consist of files to install and packaging information.
-The former may be specified with the &source; parameter and may be left out,
-in which case the &FindInstalledFiles; function will collect
-all files that have an &b-Install; or &b-InstallAs; Builder attached.
-If the &target; is not specified
-it will be deduced from additional information given to this Builder.
+&SCons; can build packages in a number of well known packaging formats.
+The target package type may be selected with the
+the &cv-link-PACKAGETYPE; construction variable
+or the <option>--package-type</option> command line option.
+The package type may be a list, in which case &SCons; will attempt
+to build packages for each type in the list. Example:
+</para>
+
+<example_commands>
+env.Package(PACKAGETYPE=['src_zip', 'src_targz'], <replaceable>...other args...</replaceable>)
+</example_commands>
+
+<para>
+The currently supported packagers are:
+</para>
+
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="2">
+<tbody>
+<row><entry><literal>msi</literal></entry><entry>Microsoft Installer package</entry></row>
+<row><entry><literal>rpm</literal></entry><entry>RPM Package Manger package</entry></row>
+<row><entry><literal>ipkg</literal></entry><entry>Itsy Package Management package</entry></row>
+<row><entry><literal>tarbz2</literal></entry><entry>bzip2-compressed tar file</entry></row>
+<row><entry><literal>targz</literal></entry><entry>gzip-compressed tar file</entry></row>
+<row><entry><literal>tarxz</literal></entry><entry>xz-compressed tar file</entry></row>
+<row><entry><literal>zip</literal></entry><entry>zip file</entry></row>
+<row><entry><literal>src_tarbz2</literal></entry><entry>bzip2-compressed tar file suitable as source to another packager</entry></row>
+<row><entry><literal>src_targz</literal></entry><entry>gzip-compressed tar file suitable as source to another packager</entry></row>
+<row><entry><literal>src_tarxz</literal></entry><entry>xz-compressed tar file suitable as source to another packager</entry></row>
+<row><entry><literal>src_zip</literal></entry><entry>zip file suitable as source to another packager</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>
+The file list to include in the package may be specified with
+the &source; keyword argument. If omitted,
+the &f-link-FindInstalledFiles; function is called behind the scenes
+to select all files that have an &b-link-Install;, &b-link-InstallAs;
+or &b-link-InstallVersionedLib; Builder attached.
+If the &target; keyword argument is omitted, the target name(s)
+will be deduced from the package type(s).
 </para>
 
 <para>
-The packaging information is specified
-with the help of construction variables documented below.
-This information is called a tag to stress that
-some of them can also be attached to files with the &Tag; function.
-The mandatory ones will complain if they were not specified.
-They vary depending on chosen target packager.
+The metadata comes partly from attributes of the files to be packaged,
+and partly from packaging <firstterm>tags</firstterm>.
+Tags can be passed as keyword arguments
+to the &b-Package; builder call,
+and may also be attached to files
+(or more accurately, Nodes representing files)
+with the &f-link-Tag; function.
+Some package-level tags are mandatory, and will lead to errors if omitted.
+The mandatory tags vary depending on the package type.
+<!-- TODO: should document which tags are mandatory for which packager -->
 </para>
 
 <para>
-The target packager may be selected with the "PACKAGETYPE" command line
-option or with the &cv-PACKAGETYPE; construction variable. Currently
-the following packagers available:
+While packaging, the builder uses a temporary location named
+by the value of the &cv-link-PACKAGEROOT; variable -
+the package sources are copied there before packaging.
 </para>
 
-<blockquote>
-<simplelist type="vert" columns="1">
-<member><literal>msi</literal> - Microsoft Installer</member>
-<member><literal>rpm</literal> - RPM Package Manger</member>
-<member><literal>ipkg</literal> - Itsy Package Management System</member>
-<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
-<member><literal>targz</literal> - gzip compressed tar</member>
-<member><literal>tarxz</literal> - xz compressed tar</member>
-<member><literal>zip</literal> - zip file</member>
-<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
-<member><literal>src_targz</literal> - gzip compressed tar source</member>
-<member><literal>src_tarxz</literal> - xz compressed tar source</member>
-<member><literal>src_zip</literal> - zip file source</member>
-</simplelist>
-</blockquote>
-
 <para>
-An updated list is always available under the
-<replaceable>package_type</replaceable> option when
-running <command>scons --help</command>
-on a project that has packaging activated.
+Packaging example:
 </para>
 
 <example_commands>
@@ -1275,6 +1325,21 @@ env.Package(
     SOURCE_URL="http://foo.org/foo-1.2.3.tar.gz",
 )
 </example_commands>
+
+<para>
+In this example, the target <filename>/bin/my_program</filename>
+created by the &b-Install; call would not be built by default
+since it is not under the project top directory.
+However, since no <parameter>source</parameter>
+is specified to the &b-Package; builder,
+it is selected for packaging by the default sources rule.
+Since packaging is done using &cv-PACKAGEROOT;, no write is
+actually done to the system's <filename>/bin</filename> directory,
+and the target <emphasis>will</emphasis> be selected since
+after rebasing to underneath &cv-PACKAGEROOT; it is now under
+the top directory of the project.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="b-PCH">

@@ -29,6 +29,7 @@ import json
 import os
 import stat
 import sys
+import uuid
 
 import SCons.Action
 import SCons.Errors
@@ -39,6 +40,7 @@ cache_debug = False
 cache_force = False
 cache_show = False
 cache_readonly = False
+cache_tmp_uuid = uuid.uuid4().hex
 
 def CacheRetrieveFunc(target, source, env):
     t = target[0]
@@ -100,7 +102,7 @@ def CachePushFunc(target, source, env):
 
     cd.CacheDebug('CachePush(%s):  pushing to %s\n', t, cachefile)
 
-    tempfile = cachefile+'.tmp'+str(os.getpid())
+    tempfile = "%s.tmp%s"%(cachefile,cache_tmp_uuid)
     errfmt = "Unable to copy %s to cache. Cache file is %s"
 
     if not fs.isdir(cachedir):
@@ -193,7 +195,6 @@ class CacheDir:
             except ValueError:
                 msg = "Failed to read cache configuration for " + path
                 raise SCons.Errors.SConsEnvironmentError(msg)
-
 
     def CacheDebug(self, fmt, target, cachefile):
         if cache_debug != self.current_cache_debug:

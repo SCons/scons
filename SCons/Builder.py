@@ -430,11 +430,8 @@ class BuilderBase:
             src_builder = [ src_builder ]
         self.src_builder = src_builder
 
-    def __nonzero__(self):
-        raise InternalError("Do not test for the Node.builder attribute directly; use Node.has_builder() instead")
-
     def __bool__(self):
-        return self.__nonzero__()
+        raise InternalError("Do not test for the Node.builder attribute directly; use Node.has_builder() instead")
 
     def get_name(self, env):
         """Attempts to get the name of the Builder.
@@ -503,6 +500,7 @@ class BuilderBase:
                 splitext = lambda S: self.splitext(S,env)
                 tlist = [ t_from_s(pre, suf, splitext) ]
         else:
+            # orig_target = target
             target = self._adjustixes(target, pre, suf, self.ensure_suffix)
             tlist = env.arg2nodes(target, target_factory, target=target, source=source)
 

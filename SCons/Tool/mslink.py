@@ -9,8 +9,6 @@ selection method.
 """
 
 #
-# __COPYRIGHT__
-#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -30,7 +28,6 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import os.path
@@ -254,7 +251,7 @@ compositeLinkAction = exeLinkAction + embedManifestExeCheckAction
 
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
-    SCons.Tool.createSharedLibBuilder(env)
+    SCons.Tool.createSharedLibBuilder(env, shlib_suffix='$SHLIBSUFFIX')
     SCons.Tool.createProgBuilder(env)
 
     env['SHLINK']      = '$LINK'
@@ -316,7 +313,7 @@ def generate(env):
     # are subject to different build parameters (LDMODULE* variables).
     # Therefore LDMODULE* variables correspond as much as possible to
     # SHLINK*/SHLIB* ones.
-    SCons.Tool.createLoadableModuleBuilder(env)
+    SCons.Tool.createLoadableModuleBuilder(env, loadable_module_suffix='$LDMODULESUFFIX')
     env['LDMODULE'] = '$SHLINK'
     env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'

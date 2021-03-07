@@ -757,12 +757,11 @@ class Base(SCons.Node.Node):
 
     if hasattr(os, 'symlink'):
         def islink(self):
-            try: st = self.fs.lstat(self.get_abspath())
-            except os.error: return 0
-            return stat.S_ISLNK(st[stat.ST_MODE])
+            st = self.lstat()
+            return st is not None and stat.S_ISLNK(st[stat.ST_MODE])
     else:
         def islink(self):
-            return 0                    # no symlinks
+            return False                    # no symlinks
 
     def is_under(self, dir):
         if self is dir:

@@ -2169,15 +2169,15 @@ class sleep_TestCase(TestCmdTestCase):
         """Test sleep()"""
         test = TestCmd.TestCmd()
 
-        start = time.time()
+        start = time.perf_counter()
         test.sleep()
-        end = time.time()
+        end = time.perf_counter()
         diff = end - start
         assert diff > 0.9, "only slept %f seconds (start %f, end %f), not default" % (diff, start, end)
 
-        start = time.time()
+        start = time.perf_counter()
         test.sleep(3)
-        end = time.time()
+        end = time.perf_counter()
         diff = end - start
         assert diff > 2.9, "only slept %f seconds (start %f, end %f), not 3" % (diff, start, end)
 

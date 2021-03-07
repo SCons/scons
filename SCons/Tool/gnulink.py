@@ -1,15 +1,7 @@
-"""SCons.Tool.gnulink
-
-Tool-specific initialization for the gnu linker.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,12 +22,19 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+"""SCons.Tool.gnulink
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+Tool-specific initialization for the gnu linker.
 
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
+
+import SCons.Tool.linkCommon
 import SCons.Util
 import SCons.Tool
-import sys
 
 from . import link
 
@@ -52,14 +51,6 @@ def generate(env):
     env['RPATHPREFIX'] = '-Wl,-rpath='
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
-
-    # OpenBSD doesn't usually use SONAME for libraries
-    use_soname = not sys.platform.startswith('openbsd')
-    link._setup_versioned_lib_variables(env, tool='gnulink', use_soname=use_soname)
-    env['LINKCALLBACKS'] = link._versioned_lib_callbacks()
-
-    # # For backward-compatibility with older SCons versions
-    # env['SHLIBVERSIONFLAGS'] = SCons.Util.CLVar('')
 
 
 def exists(env):

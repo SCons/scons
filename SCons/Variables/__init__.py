@@ -111,7 +111,7 @@ class Variables:
         return [o.key for o in self.options]
 
     def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
-        """Add an option.
+        r"""Add an option.
 
         Args:
           key: the name of the variable, or a list or tuple of arguments

@@ -27,11 +27,12 @@ import SCons.compat
 
 import os
 import pickle
+import time
 
 import SCons.dblite
 import SCons.Warnings
-
 from SCons.compat import PICKLE_PROTOCOL
+from SCons.Util import print_time
 
 
 def corrupt_dblite_warning(filename):
@@ -108,6 +109,10 @@ normcase = os.path.normcase
 
 def write():
     global sig_files
+
+    if print_time():
+        start_time = time.perf_counter()
+
     for sig_file in sig_files:
         sig_file.write(sync=0)
     for db in DB_sync_list:
@@ -123,6 +128,10 @@ def write():
             pass # Not all dbm modules have close() methods.
         else:
             closemethod()
+
+    if print_time():
+        elapsed = time.perf_counter() - start_time
+        print('Total SConsign sync time: %f seconds' % elapsed)
 
 
 class SConsignEntry:

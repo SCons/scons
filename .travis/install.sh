@@ -45,16 +45,32 @@ else
     sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
     sudo apt-get update && sudo apt-get install dmd-compiler dub
 
+
+    if [[ "$BUILD_LXML_FROM_GIT" == "1" ]]; then
+        pip uninstall -y lxml
+        pip cache purge
+
+        # for ubuntu 20.04 needed this as well
+        sudo apt install libxslt1-dev
+
+        # then use git versions of cython and lxml (lxml's cython build uses xslt1-config which is why the above was needed)
+        pip install git+https://github.com/cython/cython.git@0.29.x
+        pip install git+https://github.com/lxml/lxml.git
+    fi
+
+
 #    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
 #    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
 #    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin
 
     # dependencies for ldc tests
-    export SCONS_LDC_VERSION=1.21.0
-    wget https://github.com/ldc-developers/ldc/releases/download/v${SCONS_LDC_VERSION}/ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
-#    wget https://github.com/ldc-developers/ldc/releases/download/v1.15.0/ldc2-1.15.0-linux-x86_64.tar.xz
-    tar xf ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
-    sudo cp -rf ldc2-${SCONS_LDC_VERSION}-linux-x86_64/* /
+    # this install method basically worked until 20.04, though a little messy.
+    # rather than further tweaking, replace it with the recommended snap install
+    #export SCONS_LDC_VERSION=1.21.0
+    #wget https://github.com/ldc-developers/ldc/releases/download/v${SCONS_LDC_VERSION}/ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
+    #tar xf ldc2-${SCONS_LDC_VERSION}-linux-x86_64.tar.xz
+    #sudo cp -rf ldc2-${SCONS_LDC_VERSION}-linux-x86_64/* /
+    sudo snap install ldc2 --classic
 
     # Failing.. ?
 #    ls -l /usr/lib*/*python*{so,a}*

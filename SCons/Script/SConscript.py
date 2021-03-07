@@ -34,7 +34,6 @@ import SCons.Node.Alias
 import SCons.Node.FS
 import SCons.Platform
 import SCons.SConf
-import SCons.Script.Main
 import SCons.Tool
 from SCons.Util import is_List, is_String, is_Dict, flatten
 from SCons.Node import SConscriptNodes
@@ -273,7 +272,7 @@ def _SConscript(fs, *files, **kw):
                     try:
                         try:
                             if Main.print_time:
-                                time1 = time.time()
+                                start_time = time.perf_counter()
                             scriptdata = _file_.read()
                             scriptname = _file_.name
                             _file_.close()
@@ -282,11 +281,12 @@ def _SConscript(fs, *files, **kw):
                             pass
                     finally:
                         if Main.print_time:
-                            time2 = time.time()
-                            print('SConscript:%s  took %0.3f ms' % (f.get_abspath(), (time2 - time1) * 1000.0))
+                            elapsed = time.perf_counter() - start_time
+                            print('SConscript:%s  took %0.3f ms' % (f.get_abspath(), elapsed * 1000.0))
 
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
+                            
                 else:
                     handle_missing_SConscript(f, kw.get('must_exist', None))
 

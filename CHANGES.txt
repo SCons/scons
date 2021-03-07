@@ -8,6 +8,30 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Deegan:
+    - Improve Subst()'s logic to check for proper callable function or class's argument list.
+      It will now allow callables with expected args, and any extra args as long as they
+      have default arguments. Additionally functions with no defaults for extra arguments
+      as long as they are set using functools.partial to create a new callable which set them.
+
+  From Daniel Moody:
+    - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
+      This fixes cases for shared cache where two systems write to the same
+      cache tmpfile at the same time because the happened to get the same pid.
+
+  From Mats Wichmann:
+    - Initial support in tests for Python 3.10 - expected bytecode and
+      one changed expected exception message. Change some more regexes
+      to be specified as rawstrings in response to DeprecationWarnings.
+    - Add an example of adding an emitter to User Guide (concept
+      from Jeremy Elson)
+    - Add timing information for sconsign database dump when --debug=time
+      is selected. Also switch to generally using time.perf_counter,
+      which is the Python recommended way for timing short durations.
+
+
+RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
+
   From James Benton:
     - Add COMPILATIONDB_PATH_FILTER env option for CompilationDatabase() builder which allows
       filtering of entries based on the output file paths using glob style file matching (issue #3742).
@@ -29,6 +53,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
        - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
     - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
     - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
+    - Completely rewrote versioned shared libraries logic. Added support for SOVERSION via dmoody's initial PR #3733
+    - No longer automatically disable setting SONAME on shared libraries on OpenBSD.
+    - Fix race condition bug when initializing a scons cache directory at the
+      same time from multiple threads or processes. Problem described in PR #3114.
+      This is a simpler fix which should avoid some problems identified with the initial PR.
+      (Credit to Fredrik Medley for reporting the issue, the initial PR, and discussing and testing
+       this solution)
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
@@ -46,6 +77,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       `.sconsign_sha256.dblite.`.
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
+    - Change Environment.SideEffect() to not add duplicate side effects.
+      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
+
+  From David H:
+    - Add ZIP_OVERRIDE_TIMESTAMP env option to Zip builder which allows for overriding of the file
+      modification times in the archive.
+    - Fix Zip builder not rebuilding when ZIPROOT env option was changed.
 
   From Jason Kenny
     - Fix python3 crash when Value node get_text_content when child content does not have decode()
@@ -78,10 +116,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       looks like an abbreviation of one one added by AddOption. (#3653)
     - Tool module not found will now raise a UserError to more clearly indicate this is
       probably an SConscript problem, and to make the traceback more relevant.
-    - Fix three issues with MergeFlags: 
-      - Signature/return did not match documentation or existing usage - the implementation 
+    - Fix three issues with MergeFlags:
+      - Signature/return did not match documentation or existing usage - the implementation
         now no longer returns the passed env
-      - merging --param arguments did not work (issue #3107); 
+      - merging --param arguments did not work (issue #3107);
       - passing a dict to merge where the values are strings failed (issue #2961).
     - Include previously-excluded SideEffect section in User Guide.
     - Clean up unneeded imports (autoflake tool).
@@ -110,8 +148,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix cut-n-paste error in msvc debug printout and make some debug output
       in msvs and msvsTests.py be off until needed (uncomment to use)
     - Fix Issue #3014 - Empty file and missing file have same csig
-
-
+    - Refactor env.Append/Prepend to remove Py 1.5 era need to nest
+      try blocks, can now "continue" at the appropriate places.
+    - Add /snap/bin to env['PATH'] on POSIX, although this is only
+      really useful for a subset of POSIX systems that use snaps.
+      Was needed for CI builds, which run on Ubuntu LTS images.
+    - Eliminate Py2-ism __nonzero__ (now __bool__). Work around issue #3860
+      where a check for BuilderBase raising exc. on __bool__ was optimized out.
+      This issue was found due to a bug in Python 3.10.0a4. See issue #3860 for details.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700

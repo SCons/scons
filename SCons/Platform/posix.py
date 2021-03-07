@@ -84,7 +84,7 @@ def generate(env):
 
     if 'ENV' not in env:
         env['ENV']        = {}
-    env['ENV']['PATH']    = '/usr/local/bin:/opt/bin:/bin:/usr/bin'
+    env['ENV']['PATH']    = '/usr/local/bin:/opt/bin:/bin:/usr/bin:/snap/bin'
     env['OBJPREFIX']      = ''
     env['OBJSUFFIX']      = '.o'
     env['SHOBJPREFIX']    = '$OBJPREFIX'

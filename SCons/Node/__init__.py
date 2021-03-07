@@ -890,7 +890,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         than simply examining the builder attribute directly ("if
         node.builder: ..."). When the builder attribute is examined
         directly, it ends up calling __getattr__ for both the __len__
-        and __nonzero__ attributes on instances of our Builder Proxy
+        and __bool__ attributes on instances of our Builder Proxy
         class(es), generating a bazillion extra calls and slowing
         things down immensely.
         """

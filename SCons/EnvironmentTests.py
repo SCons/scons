@@ -31,7 +31,6 @@ import unittest
 from collections import UserDict as UD, UserList as UL
 
 import TestCmd
-import TestUnit
 
 from SCons.Environment import (
     Environment,
@@ -41,6 +40,7 @@ from SCons.Environment import (
     is_valid_construction_var,
 )
 import SCons.Warnings
+
 
 def diff_env(env1, env2):
     s1 = "env1 = {\n"
@@ -2797,13 +2797,33 @@ def generate(env):
 
     def test_CacheDir(self):
         """Test the CacheDir() method"""
-        env = self.TestEnvironment(CD = 'CacheDir')
 
-        env.CacheDir('foo')
-        assert env._CacheDir_path == 'foo', env._CacheDir_path
+        test = TestCmd.TestCmd(workdir = '')
+
+        test_cachedir = os.path.join(test.workpath(),'CacheDir')
+        test_cachedir_config = os.path.join(test_cachedir, 'config')
+        test_foo = os.path.join(test.workpath(), 'foo-cachedir')
+        test_foo_config = os.path.join(test_foo,'config')
+        test_foo1 = os.path.join(test.workpath(), 'foo1-cachedir')
+        test_foo1_config = os.path.join(test_foo1, 'config')
+
+        env = self.TestEnvironment(CD = test_cachedir)
+
+        env.CacheDir(test_foo)
+        assert env._CacheDir_path == test_foo, env._CacheDir_path
+        assert os.path.isfile(test_foo_config), "No file %s"%test_foo_config
 
         env.CacheDir('$CD')
-        assert env._CacheDir_path == 'CacheDir', env._CacheDir_path
+        assert env._CacheDir_path == test_cachedir, env._CacheDir_path
+        assert os.path.isfile(test_cachedir_config), "No file %s"%test_cachedir_config
+
+        # Now verify that -n/-no_exec wil prevent the CacheDir/config from being created
+        import SCons.Action
+        SCons.Action.execute_actions = False
+        env.CacheDir(test_foo1)
+        assert env._CacheDir_path == test_foo1, env._CacheDir_path
+        assert not os.path.isfile(test_foo1_config), "No file %s"%test_foo1_config
+
 
     def test_Clean(self):
         """Test the Clean() method"""
@@ -3301,7 +3321,9 @@ def generate(env):
 
         foo = env.Object('foo.obj', 'foo.cpp')[0]
         bar = env.Object('bar.obj', 'bar.cpp')[0]
-        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])[0]
+        s = env.SideEffect('mylib.pdb', ['foo.obj', 'bar.obj'])
+        assert len(s) == 1, len(s)
+        s = s[0]
         assert s.__class__.__name__ == 'Entry', s.__class__.__name__
         assert s.get_internal_path() == 'mylib.pdb'
         assert s.side_effect
@@ -3310,7 +3332,9 @@ def generate(env):
 
         fff = env.Object('fff.obj', 'fff.cpp')[0]
         bbb = env.Object('bbb.obj', 'bbb.cpp')[0]
-        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])[0]
+        s = env.SideEffect('my${LIB}.pdb', ['${FOO}.obj', '${BAR}.obj'])
+        assert len(s) == 1, len(s)
+        s = s[0]
         assert s.__class__.__name__ == 'File', s.__class__.__name__
         assert s.get_internal_path() == 'mylll.pdb'
         assert s.side_effect
@@ -3319,12 +3343,20 @@ def generate(env):
 
         ggg = env.Object('ggg.obj', 'ggg.cpp')[0]
         ccc = env.Object('ccc.obj', 'ccc.cpp')[0]
-        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])[0]
+        s = env.SideEffect('mymmm.pdb', ['ggg.obj', 'ccc.obj'])
+        assert len(s) == 1, len(s)
+        s = s[0]
         assert s.__class__.__name__ == 'Dir', s.__class__.__name__
         assert s.get_internal_path() == 'mymmm.pdb'
         assert s.side_effect
         assert ggg.side_effects == [s], ggg.side_effects
         assert ccc.side_effects == [s], ccc.side_effects
+
+        # Verify that duplicate side effects are not allowed.
+        before = len(ggg.side_effects)
+        s = env.SideEffect('mymmm.pdb', ggg)
+        assert len(s) == 0, len(s)
+        assert len(ggg.side_effects) == before, len(ggg.side_effects)
 
     def test_Split(self):
         """Test the Split() method"""

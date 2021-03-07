@@ -40,6 +40,7 @@ if sys.platform.find('irix') > -1:
     os.environ['LD_LIBRARYN32_PATH'] = '.'
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 foo = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
 bar = Environment(SHCCFLAGS = '%s', WINDOWS_INSERT_DEF=1)
 

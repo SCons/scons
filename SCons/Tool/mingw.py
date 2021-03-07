@@ -1,15 +1,6 @@
-"""SCons.Tool.gcc
-
-Tool-specific initialization for MinGW (http://www.mingw.org/)
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,16 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.gcc
+
+Tool-specific initialization for MinGW (http://www.mingw.org/)
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
 
 import os
 import os.path
@@ -50,6 +48,7 @@ mingw_paths = [
     r'C:\msys64\mingw64\bin',
     r'C:\cygwin\bin',
     r'C:\msys',
+    r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
 ]
 
 
@@ -143,6 +142,11 @@ def generate(env):
     mingw = SCons.Tool.find_program_path(env, key_program, default_paths=mingw_paths)
     if mingw:
         mingw_bin_dir = os.path.dirname(mingw)
+
+        # Adjust path if we found it in a chocolatey install
+        if mingw_bin_dir == r'C:\ProgramData\chocolatey\bin':
+            mingw_bin_dir = r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
+
         env.AppendENVPath('PATH', mingw_bin_dir)
 
     # Most of mingw is the same as gcc and friends...
@@ -163,6 +167,7 @@ def generate(env):
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
     env['SHLINKCOM'] = shlib_action
+    env['SHLINKCOMSTR'] = shlib_generator
     env['LDMODULECOM'] = ldmodule_action
     env.Append(SHLIBEMITTER=[shlib_emitter])
     env.Append(LDMODULEEMITTER=[shlib_emitter])
@@ -188,6 +193,11 @@ def generate(env):
     env['LIBPREFIX'] = 'lib'
     env['LIBSUFFIX'] = '.a'
     env['PROGSUFFIX'] = '.exe'
+
+    # Handle new versioned shared library logic
+    env['_SHLIBSUFFIX'] = '$SHLIBSUFFIX'
+    env["SHLIBPREFIX"] = ""
+
 
 
 def exists(env):

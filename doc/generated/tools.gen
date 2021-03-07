@@ -103,7 +103,7 @@ Set construction variables for the Clang C++ compiler.
     <listitem><para>
                 Sets up &b-link-CompilationDatabase; builder which generates a clang tooling compatible compilation database.
             </para>
-        <para>Sets: &cv-link-COMPILATIONDB_COMSTR;, &cv-link-COMPILATIONDB_USE_ABSPATH;.</para></listitem>
+        <para>Sets: &cv-link-COMPILATIONDB_COMSTR;, &cv-link-COMPILATIONDB_PATH_FILTER;, &cv-link-COMPILATIONDB_USE_ABSPATH;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-cvf">
     <term>cvf</term>
@@ -221,7 +221,7 @@ source code (see
     <listitem><para>
 Sets construction variables for D language compiler DMD.
 </para>
-<para>Sets: &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DShLibSonameGenerator;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSION;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
+<para>Sets: &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-docbook">
     <term>docbook</term>
@@ -447,7 +447,7 @@ Set construction variables for the &gcc; C compiler.
     <listitem><para>
 Sets construction variables for the D language compiler GDC.
 </para>
-<para>Sets: &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DShLibSonameGenerator;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSION;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
+<para>Sets: &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gettext">
     <term>gettext</term>
@@ -646,7 +646,7 @@ Sets construction variables for the &latex; utility.
     <listitem><para>
 Sets construction variables for the D language compiler LDC2.
 </para>
-<para>Sets: &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DShLibSonameGenerator;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSION;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
+<para>Sets: &cv-link-DC;, &cv-link-DCOM;, &cv-link-DDEBUG;, &cv-link-DDEBUGPREFIX;, &cv-link-DDEBUGSUFFIX;, &cv-link-DFILESUFFIX;, &cv-link-DFLAGPREFIX;, &cv-link-DFLAGS;, &cv-link-DFLAGSUFFIX;, &cv-link-DINCPREFIX;, &cv-link-DINCSUFFIX;, &cv-link-DLIB;, &cv-link-DLIBCOM;, &cv-link-DLIBDIRPREFIX;, &cv-link-DLIBDIRSUFFIX;, &cv-link-DLIBFLAGPREFIX;, &cv-link-DLIBFLAGSUFFIX;, &cv-link-DLIBLINKPREFIX;, &cv-link-DLIBLINKSUFFIX;, &cv-link-DLINK;, &cv-link-DLINKCOM;, &cv-link-DLINKFLAGPREFIX;, &cv-link-DLINKFLAGS;, &cv-link-DLINKFLAGSUFFIX;, &cv-link-DPATH;, &cv-link-DRPATHPREFIX;, &cv-link-DRPATHSUFFIX;, &cv-link-DVERPREFIX;, &cv-link-DVERSIONS;, &cv-link-DVERSUFFIX;, &cv-link-SHDC;, &cv-link-SHDCOM;, &cv-link-SHDLIBVERSIONFLAGS;, &cv-link-SHDLINK;, &cv-link-SHDLINKCOM;, &cv-link-SHDLINKFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-lex">
     <term>lex</term>
@@ -799,14 +799,9 @@ Sets construction variables for the
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem><para>
-A framework for building binary and source packages.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="t-Packaging">
-    <term>Packaging</term>
-    <listitem><para>
 Sets construction variables for the &b-Package; Builder.
+If this tool is enabled, the <option>--package-type</option>
+command-line option is also enabled.
 </para>
 </listitem>
   </varlistentry>

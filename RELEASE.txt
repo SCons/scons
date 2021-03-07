@@ -1,35 +1,23 @@
-  A new SCons checkpoint release, 2.0.0ayyyymmdd, is now available
-  on the SCons download page:
+A new SCons release, 4.1.0, is now available
+on the SCons download page:
 
-          https://scons.org/pages/download.html
+      https://scons.org/pages/download.html
 
-  XXX The primary purpose of this release ... XXX
 
-  A SCons "checkpoint release" is intended to provide early access to
-  new features so they can be tested in the field before being released
-  for adoption by other software distributions.
+Here is a summary of the changes since 4.1.0:
 
-  Note that a checkpoint release is developed using the same test-driven
-  development methodology as all SCons releases.  Existing SCons
-  functionality should all work as it does in previous releases (except
-  for any changes identified in the release notes) and early adopters
-  should be able to use a checkpoint release safely for production work
-  with existing SConscript files.  If not, it represents not only a bug
-  in SCons but also a hole in the regression test suite, and we want to
-  hear about it.
+NEW FUNCTIONALITY
+-----------------
 
-  New features may be more lightly tested than in past releases,
-  especially as concerns their interaction with all of the other
-  functionality in SCons.  We are especially interested in hearing bug
-  reports about new functionality.
+- List new features (presumably why a checkpoint is being released)
 
-  We do not recommend that downstream distributions (Debian, Fedora,
-  etc.) package a checkpoint release, mainly to avoid confusing the
-  "public" release numbering with the long checkpoint release names.
+DEPRECATED FUNCTIONALITY
+------------------------
 
-  Here is a summary of the changes since 1.3.0:
+- List anything that's been deprecated since the last release
 
-  NEW FUNCTIONALITY
+CHANGED/ENHANCED EXISTING FUNCTIONALITY
+---------------------------------------
 
     - SCons now supports the command-line parameter `--hash-format` to override the default
       hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
@@ -37,43 +25,44 @@
       the default of `md5`, the SConsign database will include the name of the hash format.
       For example, `--hash-format=sha256` will create a SConsign with name
       `.sconsign_sha256.dblite.`.
+    - Improve Subst()'s logic to check for proper callable function or class's argument list.
+      It will now allow callables with expected args, and any extra args as long as they
+      have default arguments. Additionally functions with no defaults for extra arguments
+      as long as they are set using functools.partial to create a new callable which set them.
 
-  DEPRECATED FUNCTIONALITY
+FIXES
+-----
 
     - The command-line parameter `--md5-chunksize` is now deprecated. Use `--hash-chunksize`
       instead.
 
-  CHANGED/ENHANCED EXISTING FUNCTIONALITY
 
-    - List modifications to existing features, where the previous behavior
-      wouldn't actually be considered a bug
+IMPROVEMENTS
+------------
 
-  FIXES
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
-    - List fixes of outright bugs
+PACKAGING
+---------
 
-  IMPROVEMENTS
+- List changes in the way SCons is packaged and/or released
 
-    - List improvements that wouldn't be visible to the user in the
-      documentation:  performance improvements (describe the circumstances
-      under which they would be observed), or major code cleanups
+DOCUMENTATION
+-------------
 
-  PACKAGING
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
-    - List changes in the way SCons is packaged and/or released
+DEVELOPMENT
+-----------
 
-  DOCUMENTATION
+- List visible changes in the way SCons is developed
 
-    - List any significant changes to the documentation (not individual
-      typo fixes, even if they're mentioned in src/CHANGES.txt to give
-      the contributor credit)
+Thanks to the following contributors listed below for their contributions to this release.
+==========================================================================================
+.. code-block:: text
 
-  DEVELOPMENT
-
-    - List visible changes in the way SCons is developed
-
-  Thanks to CURLY, LARRY, and MOE for their contributions to this release.
-  Contributors are listed alphabetically by their last name.
-
-__COPYRIGHT__
-__FILE__ __REVISION__ __DATE__ __DEVELOPER__
+    git shortlog --no-merges -ns 4.0.1..HEAD

@@ -72,14 +72,13 @@ file.
 <cvar name="_CPPDEFFLAGS">
 <summary>
 <para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the C preprocessor command-line options
 to define values.
 The value of &cv-_CPPDEFFLAGS; is created
 by respectively prepending and appending
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-to the beginning and end
-of each definition in &cv-CPPDEFINES;.
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX;
+to each definition in &cv-link-CPPDEFINES;.
 </para>
 </summary>
 </cvar>
@@ -87,10 +86,10 @@ of each definition in &cv-CPPDEFINES;.
 <cvar name="CPPDEFINES">
 <summary>
 <para>
-A platform independent specification of C preprocessor definitions.
+A platform independent specification of C preprocessor macro definitions.
 The definitions will be added to command lines
 through the automatically-generated
-&cv-_CPPDEFFLAGS; construction variable (see above),
+&cv-link-_CPPDEFFLAGS; &consvar; (see above),
 which is constructed according to
 the type of value of &cv-CPPDEFINES;:
 </para>
@@ -98,10 +97,9 @@ the type of value of &cv-CPPDEFINES;:
 <para>
 If &cv-CPPDEFINES; is a string,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-construction variables
-will be respectively prepended and appended to the beginning and end
-of each definition in &cv-CPPDEFINES;.
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to 
+each definition in &cv-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -113,10 +111,9 @@ env = Environment(CPPDEFINES='xyz')
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-construction variables
-will be respectively prepended and appended to the beginning and end
-of each element in the list.
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to 
+each element in the list.
 If any element is a list or tuple,
 then the first item is the name being
 defined and the second item is its value:
@@ -131,10 +128,9 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-construction variables
-will be respectively prepended and appended to the beginning and end
-of each item from the dictionary.
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to
+each item from the dictionary.
 The key of each dictionary item
 is a name being defined
 to the dictionary item's corresponding value;
@@ -159,11 +155,11 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 <cvar name="CPPDEFPREFIX">
 <summary>
 <para>
-The prefix used to specify preprocessor definitions
+The prefix used to specify preprocessor macro definitions
 on the C compiler command line.
-This will be prepended to the beginning of each definition
-in the &cv-CPPDEFINES; construction variable
-when the &cv-_CPPDEFFLAGS; variable is automatically generated.
+This will be prepended to each definition
+in the &cv-link-CPPDEFINES; &consvar;
+when the &cv-link-_CPPDEFFLAGS; variable is automatically generated.
 </para>
 </summary>
 </cvar>
@@ -171,11 +167,11 @@ when the &cv-_CPPDEFFLAGS; variable is automatically generated.
 <cvar name="CPPDEFSUFFIX">
 <summary>
 <para>
-The suffix used to specify preprocessor definitions
+The suffix used to specify preprocessor macro definitions
 on the C compiler command line.
-This will be appended to the end of each definition
-in the &cv-CPPDEFINES; construction variable
-when the &cv-_CPPDEFFLAGS; variable is automatically generated.
+This will be appended to each definition
+in the &cv-link-CPPDEFINES; &consvar;
+when the &cv-link-_CPPDEFFLAGS; variable is automatically generated.
 </para>
 </summary>
 </cvar>
@@ -183,13 +179,13 @@ when the &cv-_CPPDEFFLAGS; variable is automatically generated.
 <cvar name="_CPPINCFLAGS">
 <summary>
 <para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the C preprocessor command-line options
 for specifying directories to be searched for include files.
 The value of &cv-_CPPINCFLAGS; is created
-by respectively prepending and appending &cv-INCPREFIX; and &cv-INCSUFFIX;
-to the beginning and end
-of each directory in &cv-CPPPATH;.
+by respectively prepending and appending
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+to each directory in &cv-link-CPPPATH;.
 </para>
 </summary>
 </cvar>
@@ -199,13 +195,24 @@ of each directory in &cv-CPPPATH;.
 <para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files. Don't explicitly put include directory
-arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
-and the directories will not be searched by the dependency scanner. Note:
-directory names in CPPPATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force
-&scons;
-to look-up a directory relative to the root of the source tree use #:
+directories for include files. 
+In general it's not advised to put include directory directives
+directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
+as the result will be non-portable
+and the directories will not be searched by the dependency scanner.
+&cv-CPPPATH; should be a list of path strings,
+or a single string, not a pathname list joined by
+Python's <systemitem>os.sep</systemitem>.
+</para>
+
+<para>
+Note:
+directory names in &cv-link-CPPPATH;
+will be looked-up relative to the directory of the SConscript file
+when they are used in a command. 
+To force &scons;
+to look-up a directory relative to the root of the source tree use 
+the <literal>#</literal> prefix:
 </para>
 
 <example_commands>
@@ -214,7 +221,7 @@ env = Environment(CPPPATH='#/include')
 
 <para>
 The directory look-up can also be forced using the
-&Dir;()
+&f-link-Dir;
 function:
 </para>
 
@@ -226,17 +233,14 @@ env = Environment(CPPPATH=include)
 <para>
 The directory list will be added to command lines
 through the automatically-generated
-&cv-_CPPINCFLAGS;
-construction variable,
+&cv-link-_CPPINCFLAGS; &consvar;,
 which is constructed by
-respectively prepending and appending the value of the
-&cv-INCPREFIX; and &cv-INCSUFFIX;
-construction variables
-to the beginning and end
-of each directory in &cv-CPPPATH;.
+respectively prepending and appending the values of the
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX; &consvars;
+to each directory in &cv-link-CPPPATH;.
 Any command lines you define that need
-the CPPPATH directory list should
-include &cv-_CPPINCFLAGS;:
+the &cv-CPPPATH; directory list should
+include &cv-link-_CPPINCFLAGS;:
 </para>
 
 <example_commands>
@@ -302,9 +306,9 @@ The default list is:
 <para>
 The prefix used to specify an include directory on the C compiler command
 line.
-This will be prepended to the beginning of each directory
-in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
-when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
+This will be prepended to each directory
+in the &cv-link-CPPPATH; and &cv-link-FORTRANPATH; &consvars;
+when the &cv-link-_CPPINCFLAGS; and &cv-link-_FORTRANINCFLAGS;
 variables are automatically generated.
 </para>
 </summary>
@@ -315,9 +319,9 @@ variables are automatically generated.
 <para>
 The suffix used to specify an include directory on the C compiler command
 line.
-This will be appended to the end of each directory
-in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
-when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
+This will be appended to each directory
+in the &cv-link-CPPPATH; and &cv-link-FORTRANPATH; &consvars;
+when the &cv-link-_CPPINCFLAGS; and &cv-link-_FORTRANINCFLAGS;
 variables are automatically generated.
 </para>
 </summary>
@@ -386,9 +390,9 @@ An automatically-generated construction variable
 containing the linker command-line options
 for specifying directories to be searched for library.
 The value of &cv-_LIBDIRFLAGS; is created
-by respectively prepending and appending &cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
-to the beginning and end
-of each directory in &cv-LIBPATH;.
+by respectively prepending and appending &cv-link-LIBDIRPREFIX;
+and &cv-link-LIBDIRSUFFIX;
+to each directory in &cv-link-LIBPATH;.
 </para>
 </summary>
 </cvar>
@@ -397,9 +401,9 @@ of each directory in &cv-LIBPATH;.
 <summary>
 <para>
 The prefix used to specify a library directory on the linker command line.
-This will be prepended to the beginning of each directory
-in the &cv-LIBPATH; construction variable
-when the &cv-_LIBDIRFLAGS; variable is automatically generated.
+This will be prepended to each directory
+in the &cv-link-LIBPATH; construction variable
+when the &cv-link-_LIBDIRFLAGS; variable is automatically generated.
 </para>
 </summary>
 </cvar>
@@ -408,9 +412,9 @@ when the &cv-_LIBDIRFLAGS; variable is automatically generated.
 <summary>
 <para>
 The suffix used to specify a library directory on the linker command line.
-This will be appended to the end of each directory
-in the &cv-LIBPATH; construction variable
-when the &cv-_LIBDIRFLAGS; variable is automatically generated.
+This will be appended to each directory
+in the &cv-link-LIBPATH; construction variable
+when the &cv-link-_LIBDIRFLAGS; variable is automatically generated.
 </para>
 </summary>
 </cvar>
@@ -421,10 +425,10 @@ when the &cv-_LIBDIRFLAGS; variable is automatically generated.
 An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
-The value of &cv-_LIBFLAGS; is created
-by respectively prepending and appending &cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
-to the beginning and end
-of each filename in &cv-LIBS;.
+The value of &cv-link-_LIBFLAGS; is created
+by respectively prepending and appending &cv-link-LIBLINKPREFIX;
+and &cv-link-LIBLINKSUFFIX;
+to each filename in &cv-link-LIBS;.
 </para>
 </summary>
 </cvar>
@@ -433,9 +437,9 @@ of each filename in &cv-LIBS;.
 <summary>
 <para>
 The prefix used to specify a library to link on the linker command line.
-This will be prepended to the beginning of each library
-in the &cv-LIBS; construction variable
-when the &cv-_LIBFLAGS; variable is automatically generated.
+This will be prepended to each library
+in the &cv-link-LIBS; construction variable
+when the &cv-link-_LIBFLAGS; variable is automatically generated.
 </para>
 </summary>
 </cvar>
@@ -444,9 +448,9 @@ when the &cv-_LIBFLAGS; variable is automatically generated.
 <summary>
 <para>
 The suffix used to specify a library to link on the linker command line.
-This will be appended to the end of each library
-in the &cv-LIBS; construction variable
-when the &cv-_LIBFLAGS; variable is automatically generated.
+This will be appended to each library
+in the &cv-link-LIBS; construction variable
+when the &cv-link-_LIBFLAGS; variable is automatically generated.
 </para>
 </summary>
 </cvar>
@@ -454,16 +458,33 @@ when the &cv-_LIBFLAGS; variable is automatically generated.
 <cvar name="LIBPATH">
 <summary>
 <para>
-The list of directories that will be searched for libraries.
+The list of directories that will be searched for libraries
+specified by the &cv-link-LIBS; &consvar;.
+&cv-LIBPATH; should be a list of path strings,
+or a single string, not a pathname list joined by
+Python's <systemitem>os.sep</systemitem>.
+<!-- XXX OLD
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
-arguments in &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
+arguments into &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
 because the result will be non-portable
-and the directories will not be searched by the dependency scanner. Note:
-directory names in LIBPATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force
-&scons;
-to look-up a directory relative to the root of the source tree use #:
+and the directories will not be searched by the dependency scanner.
+-->
+<!-- XXX NEW -->
+Do not put library search directives directly
+into &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
+as the result will be non-portable.
+<!-- end NEW -->
+</para>
+
+<para>
+Note:
+directory names in &cv-LIBPATH; will be looked-up relative to the
+directory of the SConscript file
+when they are used in a command. 
+To force &scons;
+to look-up a directory relative to the root of the source tree use 
+the <literal>#</literal> prefix:
 </para>
 
 <example_commands>
@@ -472,8 +493,7 @@ env = Environment(LIBPATH='#/libs')
 
 <para>
 The directory look-up can also be forced using the
-&Dir;()
-function:
+&f-link-Dir; function:
 </para>
 
 <example_commands>
@@ -484,16 +504,15 @@ env = Environment(LIBPATH=libs)
 <para>
 The directory list will be added to command lines
 through the automatically-generated
-&cv-_LIBDIRFLAGS;
+&cv-link-_LIBDIRFLAGS;
 construction variable,
 which is constructed by
 respectively prepending and appending the values of the
-&cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
+&cv-link-LIBDIRPREFIX; and &cv-link-LIBDIRSUFFIX;
 construction variables
-to the beginning and end
-of each directory in &cv-LIBPATH;.
+to each directory in &cv-LIBPATH;.
 Any command lines you define that need
-the LIBPATH directory list should
+the &cv-LIBPATH; directory list should
 include &cv-_LIBDIRFLAGS;:
 </para>
 
@@ -507,24 +526,32 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 <summary>
 <para>
 A list of one or more libraries
-that will be linked with
-any executable programs
-created by this environment.
+that will be added to the link line
+for linking with any executable program, shared library, or loadable module 
+created by the &consenv; or override.
 </para>
 
 <para>
+String-valued library names should include
+only the library base names,
+without prefixes such as <filename>lib</filename>
+or suffixes such as <filename>.so</filename> or <filename>.dll</filename>.
 The library list will be added to command lines
 through the automatically-generated
-&cv-_LIBFLAGS;
-construction variable,
+&cv-_LIBFLAGS; &consvar;
 which is constructed by
 respectively prepending and appending the values of the
-&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
-construction variables
-to the beginning and end
-of each filename in &cv-LIBS;.
+&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX; &consvars;
+to each library name in &cv-LIBS;.
+Library name strings should not include a
+path component, instead the compiler will be
+directed to look for libraries in the paths
+specified by &cv-link-LIBPATH;.
+</para>
+
+<para>
 Any command lines you define that need
-the LIBS library list should
+the &cv-LIBS; library list should
 include &cv-_LIBFLAGS;:
 </para>
 
@@ -534,12 +561,12 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 
 <para>
 If you add a
-File
+<classname>File</classname>
 object to the
 &cv-LIBS;
 list, the name of that file will be added to
 &cv-_LIBFLAGS;,
-and thus the link line, as is, without
+and thus to the link line, as-is, without
 &cv-LIBLINKPREFIX;
 or
 &cv-LIBLINKSUFFIX;.
