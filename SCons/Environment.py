@@ -68,7 +68,6 @@ from SCons.Util import (
     is_Sequence,
     is_String,
     is_Tuple,
-    md5,
     semi_deepcopy,
     semi_deepcopy_dict,
     to_String_for_subst,
@@ -1501,10 +1500,9 @@ class Base(SubstitutionEnvironment):
     def Decider(self, function):
         copy_function = self._copy2_from_cache
         if function in ('MD5', 'content'):
-            if not md5:
-                raise UserError("MD5 signatures are not available in this version of Python.")
+            # TODO: Handle if user requests MD5 and not content with deprecation notice
             function = self._changed_content
-        elif function == 'MD5-timestamp':
+        elif function in ('MD5-timestamp', 'content-timestamp'):
             function = self._changed_timestamp_then_content
         elif function in ('timestamp-newer', 'make'):
             function = self._changed_timestamp_newer

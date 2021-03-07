@@ -1469,66 +1469,180 @@ def AddMethod(obj, function, name=None):
     setattr(obj, name, method)
 
 
-if hasattr(hashlib, 'md5'):
-    md5 = True
-
-    def MD5signature(s):
-        """
-        Generate md5 signature of a string
-
-        :param s: either string or bytes. Normally should be bytes
-        :return: String of hex digits representing the signature
-        """
-        m = hashlib.md5()
-
-        try:
-            m.update(to_bytes(s))
-        except TypeError as e:
-            m.update(to_bytes(str(s)))
-
-        return m.hexdigest()
-
-    def MD5filesignature(fname, chunksize=65536):
-        """
-        Generate the md5 signature of a file
-
-        :param fname: file to hash
-        :param chunksize: chunk size to read
-        :return: String of Hex digits representing the signature
-        """
-        m = hashlib.md5()
-        with open(fname, "rb") as f:
-            while True:
-                blck = f.read(chunksize)
-                if not blck:
-                    break
-                m.update(to_bytes(blck))
-        return m.hexdigest()
-else:
-    # if md5 algorithm not available, just return data unmodified
-    # could add alternative signature scheme here
-    md5 = False
-
-    def MD5signature(s):
-        return str(s)
-
-    def MD5filesignature(fname, chunksize=65536):
-        with open(fname, "rb") as f:
-            result = f.read()
-        return result
+# Default hash function and format. SCons-internal.
+_hash_function = None
+_hash_format = None
 
 
-def MD5collect(signatures):
+def get_hash_format():
+    """
+    Retrieves the hash format or None if not overridden. A return value of None
+    does not guarantee that MD5 is being used; instead, it means that the
+    default precedence order documented in SCons.Util.set_hash_format is
+    respected.
+    """
+    return _hash_format
+
+
+def set_hash_format(hash_format):
+    """
+    Sets the default hash format used by SCons. If hash_format is None or
+    an empty string, the default is determined by this function.
+
+    Currently the default behavior is to use the first available format of
+    the following options: MD5, SHA1, SHA256.
+    """
+    global _hash_format, _hash_function
+
+    _hash_format = hash_format
+    if hash_format:
+        hash_format_lower = hash_format.lower()
+        allowed_hash_formats = ['md5', 'sha1', 'sha256']
+        if hash_format_lower not in allowed_hash_formats:
+            from SCons.Errors import UserError
+            raise UserError('Hash format "%s" is not supported by SCons. Only '
+                            'the following hash formats are supported: %s' %
+                            (hash_format_lower,
+                             ', '.join(allowed_hash_formats)))
+
+        _hash_function = getattr(hashlib, hash_format_lower, None)
+        if _hash_function is None:
+            from SCons.Errors import UserError
+            raise UserError(
+                'Hash format "%s" is not available in your Python '
+                'interpreter.' % hash_format_lower)
+    else:
+        # Set the default hash format based on what is available, defaulting
+        # to md5 for backwards compatibility.
+        choices = ['md5', 'sha1', 'sha256']
+        for choice in choices:
+            _hash_function = getattr(hashlib, choice, None)
+            if _hash_function is not None:
+                break
+        else:
+            # This is not expected to happen in practice.
+            from SCons.Errors import UserError
+            raise UserError(
+                'Your Python interpreter does not have MD5, SHA1, or SHA256. '
+                'SCons requires at least one.')
+
+# Ensure that this is initialized in case either:
+#    1. This code is running in a unit test.
+#    2. This code is running in a consumer that does hash operations while
+#       SConscript files are being loaded.
+set_hash_format(None)
+
+
+def _get_hash_object(hash_format):
+    """
+    Allocates a hash object using the requested hash format.
+
+    :param hash_format: Hash format to use.
+    :return: hashlib object.
+    """
+    if hash_format is None:
+        if _hash_function is None:
+            from SCons.Errors import UserError
+            raise UserError('There is no default hash function. Did you call '
+                            'a hashing function before SCons was initialized?')
+        return _hash_function()
+    elif not hasattr(hashlib, hash_format):
+        from SCons.Errors import UserError
+        raise UserError(
+            'Hash format "%s" is not available in your Python interpreter.' %
+            hash_format)
+    else:
+        return getattr(hashlib, hash_format)()
+
+
+def hash_signature(s, hash_format=None):
+    """
+    Generate hash signature of a string
+
+    :param s: either string or bytes. Normally should be bytes
+    :param hash_format: Specify to override default hash format
+    :return: String of hex digits representing the signature
+    """
+    m = _get_hash_object(hash_format)
+    try:
+        m.update(to_bytes(s))
+    except TypeError:
+        m.update(to_bytes(str(s)))
+
+    return m.hexdigest()
+
+
+def hash_file_signature(fname, chunksize=65536, hash_format=None):
+    """
+    Generate the md5 signature of a file
+
+    :param fname: file to hash
+    :param chunksize: chunk size to read
+    :param hash_format: Specify to override default hash format
+    :return: String of Hex digits representing the signature
+    """
+    m = _get_hash_object(hash_format)
+    with open(fname, "rb") as f:
+        while True:
+            blck = f.read(chunksize)
+            if not blck:
+                break
+            m.update(to_bytes(blck))
+    return m.hexdigest()
+
+
+def hash_collect(signatures, hash_format=None):
     """
     Collects a list of signatures into an aggregate signature.
 
-    signatures - a list of signatures
-    returns - the aggregate signature
+    :param signatures: a list of signatures
+    :param hash_format: Specify to override default hash format
+    :return: - the aggregate signature
     """
     if len(signatures) == 1:
         return signatures[0]
     else:
-        return MD5signature(', '.join(signatures))
+        return hash_signature(', '.join(signatures), hash_format)
+
+
+_md5_warning_shown = False
+
+def _show_md5_warning(function_name):
+    """
+    Shows a deprecation warning for various MD5 functions.
+    """
+    global _md5_warning_shown
+
+    if not _md5_warning_shown:
+        import SCons.Warnings
+
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                            "Function %s is deprecated" % function_name)
+        _md5_warning_shown = True
+
+
+def MD5signature(s):
+    """
+    Deprecated. Use hash_signature instead.
+    """
+    _show_md5_warning("MD5signature")
+    return hash_signature(s)
+
+
+def MD5filesignature(fname, chunksize=65536):
+    """
+    Deprecated. Use hash_file_signature instead.
+    """
+    _show_md5_warning("MD5filesignature")
+    return hash_file_signature(fname, chunksize)
+
+
+def MD5collect(signatures):
+    """
+    Deprecated. Use hash_collect instead.
+    """
+    _show_md5_warning("MD5collect")
+    return hash_collect(signatures)
 
 
 def silent_intern(x):

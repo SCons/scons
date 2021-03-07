@@ -19,6 +19,12 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
+    - SCons now supports the command-line parameter `--hash-format` to override the default
+      hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
+      values are: `md5`, `sha1`, and `sha256`. For all hash formats other than
+      the default of `md5`, the SConsign database will include the name of the hash format.
+      For example, `--hash-format=sha256` will create a SConsign with name
+      `.sconsign_sha256.dblite.`.
     - Improve Subst()'s logic to check for proper callable function or class's argument list.
       It will now allow callables with expected args, and any extra args as long as they
       have default arguments. Additionally functions with no defaults for extra arguments
@@ -27,7 +33,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+    - The command-line parameter `--md5-chunksize` is now deprecated. Use `--hash-chunksize`
+      instead.
+
 
 IMPROVEMENTS
 ------------

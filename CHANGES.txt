@@ -69,6 +69,12 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       User-facing behavior does not change with this fix (GH Issue #3726).
     - Fix occasional test failures caused by not being able to find a file or directory fixture
       when running multiple tests with multiple jobs.
+    - Added support for a new command-line parameter `--hash-format` to override the default
+      hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
+      values are: `md5`, `sha1`, and `sha256`. For all hash formats other than
+      the default of `md5`, the SConsign database will include the name of the hash format.
+      For example, `--hash-format=sha256` will create a SConsign with name
+      `.sconsign_sha256.dblite.`.
     - Fix incorrect cache hits and/or misses when running in interactive mode by having
       SCons.Node.Node.clear() clear out all caching-related state.
     - Change Environment.SideEffect() to not add duplicate side effects.

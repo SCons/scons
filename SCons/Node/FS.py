@@ -50,7 +50,7 @@ import SCons.Node
 import SCons.Node.Alias
 import SCons.Subst
 import SCons.Util
-from SCons.Util import MD5signature, MD5filesignature, MD5collect
+from SCons.Util import hash_signature, hash_file_signature, hash_collect
 import SCons.Warnings
 
 print_duplicate = 0
@@ -1864,7 +1864,7 @@ class Dir(Base):
         node is called which has a child directory, the child
         directory should return the hash of its contents."""
         contents = self.get_contents()
-        return MD5signature(contents)
+        return hash_signature(contents)
 
     def do_duplicate(self, src):
         pass
@@ -2629,7 +2629,7 @@ class File(Base):
     BuildInfo = FileBuildInfo
 
     # Although the command-line argument is in kilobytes, this is in bytes.
-    md5_chunksize = 65536
+    hash_chunksize = 65536
 
     def diskcheck_match(self):
         diskcheck_match(self, self.isdir,
@@ -2724,14 +2724,15 @@ class File(Base):
             except UnicodeDecodeError as e:
                 return contents.decode('utf-8', errors='backslashreplace')
 
-
     def get_content_hash(self) -> str:
-        """Compute and return the hash of the file contents."""
+        """
+        Compute and return the hash for this file.
+        """
         if not self.rexists():
-            return MD5signature(SCons.Util.NOFILE)
+            return hash_signature(SCons.Util.NOFILE)
         fname = self.rfile().get_abspath()
         try:
-            cs = MD5filesignature(fname, chunksize=File.md5_chunksize)
+            cs = hash_file_signature(fname, chunksize=File.hash_chunksize)
         except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
@@ -3210,7 +3211,7 @@ class File(Base):
                 size = self.get_size()
                 if size == -1:
                     contents = SCons.Util.NOFILE
-                elif size < File.md5_chunksize:
+                elif size < File.hash_chunksize:
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()
@@ -3222,7 +3223,7 @@ class File(Base):
                 csig = ''
             else:
                 if not csig:
-                    csig = SCons.Util.MD5signature(contents)
+                    csig = SCons.Util.hash_signature(contents)
 
         ninfo.csig = csig
 
@@ -3611,7 +3612,7 @@ class File(Base):
 
         cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize)
+            self.cachedir_csig = hash_file_signature(cachefile, File.hash_chunksize)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
@@ -3631,7 +3632,7 @@ class File(Base):
 
         executor = self.get_executor()
 
-        result = self.contentsig = MD5signature(executor.get_contents())
+        result = self.contentsig = hash_signature(executor.get_contents())
         return result
 
     def get_cachedir_bsig(self):
@@ -3662,7 +3663,7 @@ class File(Base):
         sigs.append(self.get_internal_path())
 
         # Merge this all into a single signature
-        result = self.cachesig = MD5collect(sigs)
+        result = self.cachesig = hash_collect(sigs)
         return result
 
 default_fs = None
