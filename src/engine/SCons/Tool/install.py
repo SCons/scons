@@ -332,7 +332,7 @@ def install_command_generator(env, target, source, for_signature=False):
 #
 # stringFunc
 install_action = SCons.Action.Action(
-    install_command_generator, "$INSTALLSTR", generator=True
+    install_command_generator, "$INSTALLSTR", generator=True,
 )
 installas_action = SCons.Action.Action(
     install_command_generator, "$INSTALLSTR", generator=True
@@ -489,6 +489,15 @@ def set_win32_env_vars(env):
         ],
     )
 
+    # env["INSTALLFILECOPY"] = env.get("INSTALLFILECOPY", "mklink")
+    # env["INSTALLFILECOPYFLAGS"] = env.get(
+    #     "INSTALLFILECOPYFLAGS",
+    #     [
+    #         "/H",  #  Suppresses prompting to confirm you want to overwrite an existing destination file.
+    #     ],
+    # )
+
+
     if not env.get("INSTALLDIRCOPYFLAGS", False):
         env["INSTALLDIRCOPYFLAGS"] = env["INSTALLFILECOPYFLAGS"][:]
 
@@ -570,6 +579,7 @@ def generate(env):
         env["INSTALLSTR"]
     except KeyError:
         env["INSTALLSTR"] = 'Install ${SOURCE.type}: "$SOURCES" as "$TARGETS"'
+    env["INSTALLSTR"] = None
 
     env["INSTALLFUNC"] = legacy_install_function
 
