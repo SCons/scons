@@ -198,6 +198,11 @@ def generate(env):
     env['_SHLIBSUFFIX'] = '$SHLIBSUFFIX'
     env["SHLIBPREFIX"] = ""
 
+    # Disable creating symlinks for versioned shared library.
+    env['SHLIBNOVERSIONSYMLINKS'] = True
+    env['LDMODULENOVERSIONSYMLINKS'] = True
+    env['IMPLIBNOVERSIONSYMLINKS'] = True
+
 
 
 def exists(env):

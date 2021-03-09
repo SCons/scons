@@ -28,7 +28,7 @@ from . import lib_emitter, EmitLibSymlinks, StringizeLibSymlinks
 
 
 def shlib_symlink_emitter(target, source, env, **kw):
-    verbose = False
+    verbose = True
 
     if "variable_prefix" in kw:
         var_prefix = kw["variable_prefix"]
