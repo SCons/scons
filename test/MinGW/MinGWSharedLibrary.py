@@ -58,7 +58,13 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env = Environment(tools=['mingw','link','g++'])
 #env.Tool('mingw')
-env.SharedLibrary('foobar', 'foobar.cc')
+foobar_obj = env.SharedObject('foobar.cc')
+env.SharedLibrary('foobar', foobar_obj)
+
+# Now verify versioned shared library doesn't fail
+env.SharedLibrary('foobar_ver', foobar_obj, SHLIBVERSION='2.4')
+
+
 """ % locals())
 
 test.run(arguments = ".")
