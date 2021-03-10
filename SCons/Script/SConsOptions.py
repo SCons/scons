@@ -227,7 +227,10 @@ class SConsOption(optparse.Option):
             fmt = "option %s: nargs='?' is incompatible with short options"
             raise SCons.Errors.UserError(fmt % self._short_opts[0])
 
-    CHECK_METHODS = optparse.Option.CHECK_METHODS + [_check_nargs_optional]
+    CHECK_METHODS = optparse.Option.CHECK_METHODS
+    if CHECK_METHODS is None:
+        CHECK_METHODS = []
+    CHECK_METHODS += [_check_nargs_optional]
     CONST_ACTIONS = optparse.Option.CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
 
 class SConsOptionGroup(optparse.OptionGroup):

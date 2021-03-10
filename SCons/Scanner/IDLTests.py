@@ -207,7 +207,7 @@ class DummyEnvironment:
             path = [path]
         return list(map(self.subst, path))
 
-    def has_key(self, key):
+    def __contains__(self, key):
         return key in self.Dictionary()
 
     def __getitem__(self,key):

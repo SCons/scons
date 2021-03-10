@@ -49,7 +49,7 @@ class DummyEnvironment:
         self.fs = SCons.Node.FS.FS(test.workpath(''))
         self.dictionary = {}
 
-    def has_key(self, key):
+    def __contains__(self, key):
         return key in self.dictionary
 
     def __getitem__(self, key):

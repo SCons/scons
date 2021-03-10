@@ -32,6 +32,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add timing information for sconsign database dump when --debug=time
       is selected. Also switch to generally using time.perf_counter,
       which is the Python recommended way for timing short durations.
+    - Drop remaining definitions of dict-like has_key methods, since
+      Python 3 doesn't have a dictionary has_key (maintenance)
 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
