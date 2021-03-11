@@ -2411,7 +2411,7 @@ class OverrideEnvironment(Base):
             return self.__dict__['__subject'].get(key, default)
 
     def __contains__(self, key):
-        if key in self.__dict__['overrides']
+        if key in self.__dict__['overrides']:
             return True
         return key in self.__dict__['__subject']
 
