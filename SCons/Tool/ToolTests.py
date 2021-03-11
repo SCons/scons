@@ -47,8 +47,6 @@ class DummyEnvironment:
         self.dict[key] = val
     def __contains__(self, key):
         return key in self.dict
-    def __contains__(self, key):
-        return key in self.dict
     def subst(self, string, *args, **kwargs):
         return string
 

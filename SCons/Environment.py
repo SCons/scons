@@ -413,7 +413,7 @@ class SubstitutionEnvironment:
         return self._dict.get(key, default)
 
     def __contains__(self, key):
-        return self._dict.__contains__(key)
+        return key in self._dict
 
     def keys(self):
         """Emulates the keys() method of dictionaries."""
@@ -2411,9 +2411,9 @@ class OverrideEnvironment(Base):
             return self.__dict__['__subject'].get(key, default)
 
     def __contains__(self, key):
-        if self.__dict__['overrides'].__contains__(key):
+        if key in self.__dict__['overrides']
             return True
-        return self.__dict__['__subject'].__contains__(key)
+        return key in self.__dict__['__subject']
 
     def Dictionary(self, *args):
         d = self.__dict__['__subject'].Dictionary().copy()

@@ -1216,7 +1216,7 @@ def uniquer(seq, idfun=None):
         idfun = default_idfun
     seen = {}
     result = []
-    result_append = result.append
+    result_append = result.append  # perf: avoid repeated method lookups
     for item in seq:
         marker = idfun(item)
         if marker in seen:
@@ -1232,7 +1232,7 @@ def uniquer(seq, idfun=None):
 def uniquer_hashables(seq):
     seen = {}
     result = []
-    result_append = result.append
+    result_append = result.append  # perf: avoid repeated method lookups
     for item in seq:
         if item not in seen:
             seen[item] = 1
