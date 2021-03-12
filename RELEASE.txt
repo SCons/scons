@@ -29,8 +29,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
       It will now allow callables with expected args, and any extra args as long as they
       have default arguments. Additionally functions with no defaults for extra arguments
       as long as they are set using functools.partial to create a new callable which set them.
-    - Internal has_key methods removed from SCons' dictionary-like objects,
-      to match Python 3 which no longer has dict.has_key.
+    - Internal has_key methods removed from SCons' dictionary-like objects
+      SubstitutionEnvironment and OverrideEnvironment - in other words,
+      an env - to match Python 3 which no longer has dict.has_key.
 
 FIXES
 -----
