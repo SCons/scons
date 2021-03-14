@@ -714,6 +714,10 @@ class UtilTestCase(unittest.TestCase):
         assert r == 'pre-file.xxx', r
         r = adjustixes('dir/file', 'pre-', '-suf')
         assert r == os.path.join('dir', 'pre-file-suf'), r
+        r = adjustixes('PREFIX', 'PREFIX', 'SUFFIX')
+        assert r == 'PREFIXPREFIXSUFFIX', "Failed handling when filename = PREFIX [r='%s']"%r
+        r = adjustixes('SUFFIX', 'PREFIX', 'SUFFIX')
+        assert r == 'PREFIXSUFFIXSUFFIX', "Failed handling when filename = SUFFIX [r='%s']"%r
 
     def test_containsAny(self):
         """Test the containsAny() function"""
