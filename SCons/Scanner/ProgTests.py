@@ -57,7 +57,7 @@ class DummyEnvironment:
         else:
             return [self._dict[x] for x in args]
 
-    def has_key(self, key):
+    def __contains__(self, key):
         return key in self.Dictionary()
 
     def __getitem__(self,key):

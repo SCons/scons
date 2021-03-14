@@ -197,9 +197,6 @@ class dblite:
     def keys(self):
         return list(self._dict.keys())
 
-    def has_key(self, key):
-        return key in self._dict
-
     def __contains__(self, key):
         return key in self._dict
 

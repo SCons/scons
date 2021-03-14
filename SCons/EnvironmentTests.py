@@ -219,12 +219,6 @@ class SubstitutionTestCase(unittest.TestCase):
         assert env.get('XXX') == 'x', env.get('XXX')
         assert env.get('YYY') is None, env.get('YYY')
 
-    def test_has_key(self):
-        """Test the SubstitutionEnvironment has_key() method."""
-        env = SubstitutionEnvironment(XXX = 'x')
-        assert 'XXX' in env
-        assert 'YYY' not in env
-
     def test_contains(self):
         """Test the SubstitutionEnvironment __contains__() method."""
         env = SubstitutionEnvironment(XXX = 'x')
@@ -3632,8 +3626,8 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert env2.get('ZZZ') is None, env2.get('ZZZ')
         assert env3.get('ZZZ') == 'z3', env3.get('ZZZ')
 
-    def test_has_key(self):
-        """Test the OverrideEnvironment has_key() method"""
+    def test_contains(self):
+        """Test the OverrideEnvironment __contains__() method"""
         env, env2, env3 = self.envs
         assert 'XXX' in env, 'XXX' in env
         assert 'XXX' in env2, 'XXX' in env2
@@ -3644,19 +3638,6 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert 'ZZZ' not in env, 'ZZZ' in env
         assert 'ZZZ' not in env2, 'ZZZ' in env2
         assert 'ZZZ' in env3, 'ZZZ' in env3
-
-    def test_contains(self):
-        """Test the OverrideEnvironment __contains__() method"""
-        env, env2, env3 = self.envs
-        assert 'XXX' in env
-        assert 'XXX' in env2
-        assert 'XXX' in env3
-        assert 'YYY' in env
-        assert 'YYY' in env2
-        assert 'YYY' in env3
-        assert 'ZZZ' not in env
-        assert 'ZZZ' not in env2
-        assert 'ZZZ' in env3
 
     def test_Dictionary(self):
         """Test the OverrideEnvironment Dictionary() method"""

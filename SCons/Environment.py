@@ -369,8 +369,7 @@ class SubstitutionEnvironment:
         self._special_set['SCANNERS'] = _set_SCANNERS
 
         # Freeze the keys of self._special_set in a list for use by
-        # methods that need to check.  (Empirically, list scanning has
-        # gotten better than dict.has_key() in Python 2.5.)
+        # methods that need to check.
         self._special_set_keys = list(self._special_set.keys())
 
     def __eq__(self, other):
@@ -392,10 +391,9 @@ class SubstitutionEnvironment:
         #
         # The "key in self._special_set_keys" test here seems to perform
         # pretty well for the number of keys we have.  A hard-coded
-        # list works a little better in Python 2.5, but that has the
+        # list worked a little better in Python 2.5, but that has the
         # disadvantage of maybe getting out of sync if we ever add more
-        # variable names.  Using self._special_set.has_key() works a
-        # little better in Python 2.4, but is worse than this test.
+        # variable names.
         # So right now it seems like a good trade-off, but feel free to
         # revisit this with bench/env.__setitem__.py as needed (and
         # as newer versions of Python come out).
@@ -414,12 +412,8 @@ class SubstitutionEnvironment:
         """Emulates the get() method of dictionaries."""
         return self._dict.get(key, default)
 
-    def has_key(self, key):
-        """Emulates the has_key() method of dictionaries."""
-        return key in self._dict
-
     def __contains__(self, key):
-        return self._dict.__contains__(key)
+        return key in self._dict
 
     def keys(self):
         """Emulates the keys() method of dictionaries."""
@@ -2416,18 +2410,10 @@ class OverrideEnvironment(Base):
         except KeyError:
             return self.__dict__['__subject'].get(key, default)
 
-    def has_key(self, key):
-        """Emulates the has_key() method of dictionaries."""
-        try:
-            self.__dict__['overrides'][key]
-            return 1
-        except KeyError:
-            return key in self.__dict__['__subject']
-
     def __contains__(self, key):
-        if self.__dict__['overrides'].__contains__(key):
-            return 1
-        return self.__dict__['__subject'].__contains__(key)
+        if key in self.__dict__['overrides']:
+            return True
+        return key in self.__dict__['__subject']
 
     def Dictionary(self, *args):
         d = self.__dict__['__subject'].Dictionary().copy()

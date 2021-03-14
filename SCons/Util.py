@@ -1216,14 +1216,13 @@ def uniquer(seq, idfun=None):
         idfun = default_idfun
     seen = {}
     result = []
+    result_append = result.append  # perf: avoid repeated method lookups
     for item in seq:
         marker = idfun(item)
-        # in old Python versions:
-        # if seen.has_key(marker)
-        # but in new ones:
-        if marker in seen: continue
+        if marker in seen:
+            continue
         seen[marker] = 1
-        result.append(item)
+        result_append(item)
     return result
 
 # A more efficient implementation of Alex's uniquer(), this avoids the
@@ -1233,11 +1232,11 @@ def uniquer(seq, idfun=None):
 def uniquer_hashables(seq):
     seen = {}
     result = []
+    result_append = result.append  # perf: avoid repeated method lookups
     for item in seq:
-        #if not item in seen:
         if item not in seen:
             seen[item] = 1
-            result.append(item)
+            result_append(item)
     return result
 
 

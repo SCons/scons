@@ -157,8 +157,8 @@ class Environment:
     def __setitem__(self, item, value):
         self.d[item] = value
 
-    def has_key(self, item):
-        return item in self.d
+    def __contains__(self, key):
+        return key in self.d
 
     def get(self, key, value=None):
         return self.d.get(key, value)

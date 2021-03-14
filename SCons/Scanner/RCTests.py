@@ -89,8 +89,8 @@ class DummyEnvironment(collections.UserDict):
             path = [path]
         return list(map(self.subst, path))
 
-    def has_key(self, key):
-        return key in self.Dictionary()
+    def __contains__(self, key):
+        return key in self.data
 
     def get_calculator(self):
         return None

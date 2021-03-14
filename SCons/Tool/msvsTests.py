@@ -412,9 +412,6 @@ class DummyEnv:
     def __contains__(self, key):
         return key in self.dict
 
-    def has_key(self, name):
-        return name in self.dict
-
     def get(self, name, value=None):
         if name in self.dict:
             return self.dict[name]

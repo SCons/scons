@@ -41,11 +41,7 @@ class Environment:
     def __getitem__(self, key):
         return self.dict[key]
     def __contains__(self, key):
-        return self.dict.__contains__(key)
-    def has_key(self, key):
         return key in self.dict
-
-
 
 
 def check(key, value, env):
