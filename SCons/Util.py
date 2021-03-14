@@ -23,12 +23,12 @@
 
 """Various SCons utility functions."""
 
-import os
-import sys
 import copy
-import re
-import pprint
 import hashlib
+import os
+import pprint
+import re
+import sys
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
 from types import MethodType, FunctionType
@@ -1114,8 +1114,10 @@ else:
 
 
 def adjustixes(fname, pre, suf, ensure_suffix=False):
-    if pre:
+    if pre or suf:
         path, fn = os.path.split(os.path.normpath(fname))
+
+    if pre:
         # Handle the odd case where the filename = the prefix.
         # In that case, we still want to add the prefix to the file
         if fn[:len(pre)] != pre or fn == pre:
@@ -1126,8 +1128,8 @@ def adjustixes(fname, pre, suf, ensure_suffix=False):
     # Also handle the odd case where the filename = the suffix.
     # in that case we still want to append the suffix
     if suf and (fname[-len(suf):] != suf or fn == suf) and \
-       (ensure_suffix or not splitext(fname)[1]):
-            fname = fname + suf
+            (ensure_suffix or not splitext(fname)[1]):
+        fname = fname + suf
     return fname
 
 
