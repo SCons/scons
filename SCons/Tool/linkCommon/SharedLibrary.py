@@ -28,7 +28,7 @@ from . import lib_emitter, EmitLibSymlinks, StringizeLibSymlinks
 
 
 def shlib_symlink_emitter(target, source, env, **kw):
-    verbose = True
+    verbose = False
 
     if "variable_prefix" in kw:
         var_prefix = kw["variable_prefix"]
@@ -138,13 +138,15 @@ def _get_shlib_stem(target, source, env, for_signature: bool) -> str:
             % (target_name, shlibprefix, shlibsuffix)
         )
 
-    if shlibprefix and target_name.startswith(shlibprefix):
-        # skip pathlogical case were target _is_ the prefix
-        if target_name != shlibprefix:
-            target_name = target_name[len(shlibprefix) :]
 
     if shlibsuffix and target_name.endswith(shlibsuffix):
         target_name = target_name[: -len(shlibsuffix)]
+
+    if shlibprefix and target_name.startswith(shlibprefix):
+        # skip pathological case were target _is_ the prefix
+        if target_name != shlibprefix:
+            target_name = target_name[len(shlibprefix) :]
+
 
     if verbose and not for_signature:
         print("_get_shlib_stem: target_name:%s AFTER" % (target_name,))

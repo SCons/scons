@@ -1115,7 +1115,7 @@ else:
 def adjustixes(fname, pre, suf, ensure_suffix=False):
     if pre:
         path, fn = os.path.split(os.path.normpath(fname))
-        if fn[:len(pre)] != pre:
+        if fn[:len(pre)] != pre or fn == pre:
             fname = os.path.join(path, pre + fn)
     # Only append a suffix if the suffix we're going to add isn't already
     # there, and if either we've been asked to ensure the specific suffix
