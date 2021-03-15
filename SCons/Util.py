@@ -1114,10 +1114,14 @@ else:
 
 
 def adjustixes(fname, pre, suf, ensure_suffix=False):
-    if pre or suf:
+    """
+    Add prefix to file if specified.
+    Add suffix to file if specified and if ensure_suffix = True
+
+    """
+    if pre:
         path, fn = os.path.split(os.path.normpath(fname))
 
-    if pre:
         # Handle the odd case where the filename = the prefix.
         # In that case, we still want to add the prefix to the file
         if fn[:len(pre)] != pre or fn == pre:
@@ -1127,7 +1131,7 @@ def adjustixes(fname, pre, suf, ensure_suffix=False):
     # is present or there's no suffix on it at all.
     # Also handle the odd case where the filename = the suffix.
     # in that case we still want to append the suffix
-    if suf and (fname[-len(suf):] != suf or fn == suf) and \
+    if suf and fname[-len(suf):] != suf and \
             (ensure_suffix or not splitext(fname)[1]):
         fname = fname + suf
     return fname
