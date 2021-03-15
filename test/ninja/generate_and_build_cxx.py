@@ -45,14 +45,15 @@ ninja_bin = os.path.abspath(os.path.join(
 
 test.dir_fixture('ninja-fixture')
 
-test.write('SConstruct', """
-env = Environment()
-env.Tool('ninja')
-env.Program(target = 'test2', source = 'test2.cpp')
-""")
+# test.write('SConstruct', """
+# env = Environment()
+# env.Tool('ninja')
+# env.Program(target = 'test2', source = 'test2.cpp')
+# """)
+test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build_cxx.py','SConstruct')
 
 # generate simple build
-test.run(stdout=None)
+test.run()
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
