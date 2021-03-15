@@ -23,12 +23,12 @@
 
 """Various SCons utility functions."""
 
-import os
-import sys
 import copy
-import re
-import pprint
 import hashlib
+import os
+import pprint
+import re
+import sys
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
 from types import MethodType, FunctionType
@@ -1112,17 +1112,28 @@ else:
     def case_sensitive_suffixes(s1, s2):
         return (os.path.normcase(s1) != os.path.normcase(s2))
 
+
 def adjustixes(fname, pre, suf, ensure_suffix=False):
+    """
+    Add prefix to file if specified.
+    Add suffix to file if specified and if ensure_suffix = True
+
+    """
     if pre:
         path, fn = os.path.split(os.path.normpath(fname))
+
+        # Handle the odd case where the filename = the prefix.
+        # In that case, we still want to add the prefix to the file
         if fn[:len(pre)] != pre or fn == pre:
             fname = os.path.join(path, pre + fn)
     # Only append a suffix if the suffix we're going to add isn't already
     # there, and if either we've been asked to ensure the specific suffix
     # is present or there's no suffix on it at all.
+    # Also handle the odd case where the filename = the suffix.
+    # in that case we still want to append the suffix
     if suf and fname[-len(suf):] != suf and \
-       (ensure_suffix or not splitext(fname)[1]):
-            fname = fname + suf
+            (ensure_suffix or not splitext(fname)[1]):
+        fname = fname + suf
     return fname
 
 

@@ -715,6 +715,11 @@ class UtilTestCase(unittest.TestCase):
         r = adjustixes('dir/file', 'pre-', '-suf')
         assert r == os.path.join('dir', 'pre-file-suf'), r
 
+        # Verify that the odd case when library name is specified as 'lib'
+        # doesn't yield lib.so, but yields the expected liblib.so
+        r = adjustixes('PREFIX', 'PREFIX', 'SUFFIX')
+        assert r == 'PREFIXPREFIXSUFFIX', "Failed handling when filename = PREFIX [r='%s']"%r
+
     def test_containsAny(self):
         """Test the containsAny() function"""
         assert containsAny('*.py', '*?[]')
