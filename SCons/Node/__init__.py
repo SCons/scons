@@ -951,6 +951,11 @@ class Node(object, metaclass=NoSlotsPyPy):
             return False
         return True
 
+    def check_attributes(self, name):
+        """ Simple API to check if the node.attributes for name has been set"""
+        return getattr(getattr(self,"attributes", None), name, None)
+
+
     def alter_targets(self):
         """Return a list of alternate targets for this Node.
         """
