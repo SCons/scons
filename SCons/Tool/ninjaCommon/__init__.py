@@ -24,24 +24,30 @@
 
 """Generate build.ninja files from SCons aliases."""
 
-import sys
-import os
 import importlib
 import io
-import shutil
+import os
 import shlex
+import shutil
 import subprocess
+import sys
 import textwrap
-
 from glob import glob
 from os.path import join as joinpath
 from os.path import splitext
 
 import SCons
 from SCons.Action import _string_from_cmd_list, get_default_ENV
-from SCons.Util import is_List, flatten_sequence
-from SCons.Script import COMMAND_LINE_TARGETS
 from SCons.Node import SConscriptNodes
+from SCons.Script import AddOption, GetOption
+from SCons.Script import COMMAND_LINE_TARGETS
+
+from .Util import ninja_add_command_line_options, is_valid_dependent_node, alias_to_ninja_build, \
+    filter_ninja_nodes, get_input_nodes, invalid_ninja_nodes, get_order_only, get_dependencies, get_inputs, get_outputs, \
+    get_targets_sources, get_path
+from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
+
+from SCons.Util import is_List, flatten_sequence
 
 NINJA_STATE = None
 NINJA_RULES = "__NINJA_CUSTOM_RULES"
@@ -59,105 +65,8 @@ COMMAND_TYPES = (
     SCons.Action.CommandGeneratorAction,
 )
 
+ninja_builder_initialized = False
 
-def is_valid_dependent_node(node):
-    """
-    Return True if node is not an alias or is an alias that has children
-
-    This prevents us from making phony targets that depend on other
-    phony targets that will never have an associated ninja build
-    target.
-
-    We also have to specify that it's an alias when doing the builder
-    check because some nodes (like src files) won't have builders but
-    are valid implicit dependencies.
-    """
-    if isinstance(node, SCons.Node.Alias.Alias):
-        return node.children()
-
-    if not node.env:
-        return True
-
-    return not node.env.get("NINJA_SKIP")
-
-
-def alias_to_ninja_build(node):
-    """Convert an Alias node into a Ninja phony target"""
-    return {
-        "outputs": get_outputs(node),
-        "rule": "phony",
-        "implicit": [
-            get_path(src_file(n)) for n in node.children() if is_valid_dependent_node(n)
-        ],
-    }
-
-
-def check_invalid_ninja_node(node):
-    return not isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias))
-
-
-def filter_ninja_nodes(node_list):
-    ninja_nodes = []
-    for node in node_list:
-        if isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias)):
-            ninja_nodes.append(node)
-        else:
-            continue
-    return ninja_nodes
-
-def get_input_nodes(node):
-    if node.get_executor() is not None:
-        inputs = node.get_executor().get_all_sources()
-    else:
-        inputs = node.sources
-    return inputs
-
-
-def invalid_ninja_nodes(node, targets):
-    result = False
-    for node_list in [node.prerequisites, get_input_nodes(node), node.children(), targets]:
-        if node_list:
-            result = result or any([check_invalid_ninja_node(node) for node in node_list])
-    return result
-
-
-def get_order_only(node):
-    """Return a list of order only dependencies for node."""
-    if node.prerequisites is None:
-        return []
-    return [get_path(src_file(prereq)) for prereq in filter_ninja_nodes(node.prerequisites)]
-
-
-def get_dependencies(node, skip_sources=False):
-    """Return a list of dependencies for node."""
-    if skip_sources:
-        return [
-            get_path(src_file(child))
-            for child in filter_ninja_nodes(node.children())
-            if child not in node.sources
-        ]
-    return [get_path(src_file(child)) for child in filter_ninja_nodes(node.children())]
-
-
-def get_inputs(node):
-    """Collect the Ninja inputs for node."""
-    return [get_path(src_file(o)) for o in filter_ninja_nodes(get_input_nodes(node))]
-
-
-def get_outputs(node):
-    """Collect the Ninja outputs for node."""
-    executor = node.get_executor()
-    if executor is not None:
-        outputs = executor.get_all_targets()
-    else:
-        if hasattr(node, "target_peers"):
-            outputs = node.target_peers
-        else:
-            outputs = [node]
-
-    outputs = [get_path(o) for o in filter_ninja_nodes(outputs)]
-
-    return outputs
 
 def generate_depfile(env, node, dependencies):
     """
@@ -195,86 +104,7 @@ def generate_depfile(env, node, dependencies):
             f.write(depfile_contents)
 
 
-def get_targets_sources(node):
-    executor = node.get_executor()
-    if executor is not None:
-        tlist = executor.get_all_targets()
-        slist = executor.get_all_sources()
-    else:
-        if hasattr(node, "target_peers"):
-            tlist = node.target_peers
-        else:
-            tlist = [node]
-        slist = node.sources
 
-    # Retrieve the repository file for all sources
-    slist = [rfile(s) for s in slist]
-    return tlist, slist
-
-
-def get_rule(node, rule):
-    tlist, slist = get_targets_sources(node)
-    if invalid_ninja_nodes(node, tlist):
-        return "TEMPLATE"
-    else:
-        return rule
-
-
-def _install_action_function(_env, node):
-    """Install files using the install or copy commands"""
-    return {
-        "outputs": get_outputs(node),
-        "rule": get_rule(node, "INSTALL"),
-        "inputs": get_inputs(node),
-        "implicit": get_dependencies(node),
-    }
-
-
-def _mkdir_action_function(env, node):
-    return {
-        "outputs": get_outputs(node),
-        "rule": get_rule(node, "CMD"),
-        # implicit explicitly omitted, we translate these so they can be
-        # used by anything that depends on these but commonly this is
-        # hit with a node that will depend on all of the fake
-        # srcnode's that SCons will never give us a rule for leading
-        # to an invalid ninja file.
-        "variables": {
-            # On Windows mkdir "-p" is always on
-            "cmd": "{mkdir}".format(
-                mkdir="mkdir $out & exit 0" if env["PLATFORM"] == "win32" else "mkdir -p $out",
-            ),
-        },
-    }
-
-
-def _copy_action_function(env, node):
-    return {
-        "outputs": get_outputs(node),
-        "inputs": get_inputs(node),
-        "rule": get_rule(node, "CMD"),
-        "variables": {
-            "cmd": "$COPY $in $out",
-        },
-    }
-
-
-def _lib_symlink_action_function(_env, node):
-    """Create shared object symlinks if any need to be created"""
-    symlinks = getattr(getattr(node, "attributes", None), "shliblinks", None)
-
-    if not symlinks or symlinks is None:
-        return None
-
-    outputs = [link.get_dir().rel_path(linktgt) for link, linktgt in symlinks]
-    inputs = [link.get_path() for link, _ in symlinks]
-
-    return {
-        "outputs": outputs,
-        "inputs": inputs,
-        "rule": get_rule(node, "SYMLINK"),
-        "implicit": get_dependencies(node),
-    }
 
 
 class SConsToNinjaTranslator:
@@ -342,8 +172,8 @@ class SConsToNinjaTranslator:
             build["order_only"] = get_order_only(node)
 
         #TODO: WPD Is this testing the filename to verify it's a configure context generated file?
-        if 'conftest' not in str(node):
-            node_callback = getattr(node.attributes, "ninja_build_callback", None)
+        if not node.is_conftest():
+            node_callback = node.check_attr("ninja_build_callback")
             if callable(node_callback):
                 node_callback(env, node, build)
 
@@ -930,33 +760,7 @@ class NinjaState:
         self.__generated = True
 
 
-def get_path(node):
-    """
-    Return a fake path if necessary.
 
-    As an example Aliases use this as their target name in Ninja.
-    """
-    if hasattr(node, "get_path"):
-        return node.get_path()
-    return str(node)
-
-
-def rfile(node):
-    """
-    Return the repository file for node if it has one. Otherwise return node
-    """
-    if hasattr(node, "rfile"):
-        return node.rfile()
-    return node
-
-
-def src_file(node):
-    """Returns the src code file if it exists."""
-    if hasattr(node, "srcnode"):
-        src = node.srcnode()
-        if src.stat() is not None:
-            return src
-    return get_path(node)
 
 
 def get_comstr(env, action, targets, sources):
@@ -1118,6 +922,7 @@ def get_generic_shell_command(env, node, action, targets, sources, executor=None
     return (
         "CMD",
         {
+            # TODO: Why is executor passed in and then ignored below? (bdbaddog)
             "cmd": generate_command(env, node, action, targets, sources, executor=None),
             "env": get_command_env(env),
         },
@@ -1337,9 +1142,11 @@ def register_custom_pool(env, pool, size):
     """Allows the creation of custom Ninja pools"""
     env[NINJA_POOLS][pool] = size
 
+
 def set_build_node_callback(env, node, callback):
-    if 'conftest' not in str(node):
-        setattr(node.attributes, "ninja_build_callback", callback)
+    if not node.is_conftest():
+        node.attributes.ninja_build_callback = callback
+
 
 def ninja_csig(original):
     """Return a dummy csig"""
@@ -1361,6 +1168,7 @@ def ninja_contents(original):
         return bytes("dummy_ninja_contents", encoding="utf-8")
 
     return wrapper
+
 
 def CheckNinjaCompdbExpand(env, context):
     """ Configure check testing if ninja's compdb can expand response files"""
@@ -1500,30 +1308,34 @@ def exists(env):
         return False
 
 
-ninja_builder_initialized = False
+def ninja_emitter(target, source, env):
+    """ fix up the source/targets """
+
+    ninja_file = env.File(env.subst("$NINJA_FILE_NAME"))
+    ninja_file.attributes.ninja_file = True
+
+    # Someone called env.Ninja('my_targetname.ninja')
+    if not target and len(source) == 1:
+        target = source
+
+    # Default target name is $NINJA_PREFIX.$NINJA.SUFFIX
+    if not target:
+        target = [ninja_file, ]
+
+    # No source should have been passed. Drop it.
+    if source:
+        source = []
+
+    return target, source
 
 
 def generate(env):
     """Generate the NINJA builders."""
-    from SCons.Script import AddOption, GetOption
     global ninja_builder_initialized
     if not ninja_builder_initialized:
-        ninja_builder_initialized = 1
+        ninja_builder_initialized = True
 
-        AddOption('--disable-execute-ninja',
-            dest='disable_execute_ninja',
-            metavar='BOOL',
-            action="store_true",
-            default=False,
-            help='Disable ninja automatically building after scons')
-
-        AddOption('--disable-ninja',
-            dest='disable_ninja',
-            metavar='BOOL',
-            action="store_true",
-            default=False,
-            help='Disable ninja automatically building after scons')
-
+        ninja_add_command_line_options()
 
     try:
         import ninja
@@ -1535,29 +1347,28 @@ def generate(env):
 
     global NINJA_STATE
 
+    env["NINJA_FILE_NAME"] = env.get("NINJA_FILE_NAME", "build.ninja")
+
     # Add the Ninja builder.
     always_exec_ninja_action = AlwaysExecAction(ninja_builder, {})
-    ninja_builder_obj = SCons.Builder.Builder(action=always_exec_ninja_action)
+    ninja_builder_obj = SCons.Builder.Builder(action=always_exec_ninja_action,
+                                              emitter=ninja_emitter)
     env.Append(BUILDERS={"Ninja": ninja_builder_obj})
 
-    # TODO: Can't we simplify this to just be NINJA_FILENAME ? (bdbaddog)
-    env["NINJA_PREFIX"] = env.get("NINJA_PREFIX", "build")
-    env["NINJA_SUFFIX"] = env.get("NINJA_SUFFIX", "ninja")
 
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_BUILDDIR'] = env.get("NINJA_BUILDDIR", env.Dir(".ninja").path)
-    ninja_file_name = env.subst("${NINJA_PREFIX}.${NINJA_SUFFIX}")
+
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
     if NINJA_STATE is None:
-        ninja_file = env.Ninja(target=ninja_file_name, source=[])
+        ninja_file = env.Ninja()
         env.AlwaysBuild(ninja_file)
         env.Alias("$NINJA_ALIAS_NAME", ninja_file)
     else:
         if str(NINJA_STATE.ninja_file) != ninja_file_name:
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
         ninja_file = [NINJA_STATE.ninja_file]
-
 
     # TODO: API for getting the SConscripts programmatically
     # exists upstream: https://github.com/SCons/scons/issues/3625
@@ -1781,7 +1592,7 @@ def generate(env):
             target = [target]
 
         for target in targets:
-            if str(target) != ninja_file_name and "conftest" not in str(target):
+            if target.check_attributes('ninja_file') is None and not target.is_conftest():
                 env.Depends(ninja_file, targets)
         return targets
     SCons.Builder.BuilderBase._execute = NinjaBuilderExecute
@@ -1801,7 +1612,7 @@ def generate(env):
 
         target = self.targets[0]
         target_name = str(target)
-        if target_name != ninja_file_name and "conftest" not in target_name:
+        if target.check_attributes('ninja_file') is None and not target.is_conftest:
             NINJA_STATE.add_build(target)
         else:
             target.build()
