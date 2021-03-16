@@ -38,7 +38,7 @@ class SharedLibraryTestCase(unittest.TestCase):
         """Test shlib_symlink_emitter() """
         env = Environment(tools=['gnulink'])
 
-        target = env.SharedLibrary('lib', 'lib.c', SHLIBSUFFIX=".so")
+        target = env.SharedLibrary('lib', 'lib.c', SHLIBPREFIX='lib', SHLIBSUFFIX=".so")
 
         target_name = str(target[0])
         self.assertEqual(str(target_name), 'liblib.so', "Expected target 'liblib.so' != '%s'" % target_name)
