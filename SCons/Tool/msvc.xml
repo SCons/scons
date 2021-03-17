@@ -292,7 +292,7 @@ If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
 <cvar name="RCFLAGS">
 <summary>
 <para>
-The flags passed to the resource compiler by the &b-link-RES& builder.
+The flags passed to the resource compiler by the &b-link-RES; builder.
 </para>
 </summary>
 </cvar>
