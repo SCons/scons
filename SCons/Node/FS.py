@@ -1928,7 +1928,7 @@ class Dir(Base):
     def get_labspath(self):
         """Get the absolute path of the file."""
         return self._labspath
-        
+
     def get_internal_path(self):
         return self._path
 
@@ -1943,7 +1943,7 @@ class Dir(Base):
 
     def entry_labspath(self, name):
         return self._labspath + '/' + name
-        
+
     def entry_path(self, name):
         return self._path + OS_SEP + name
 
