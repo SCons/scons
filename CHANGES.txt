@@ -35,6 +35,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Drop remaining definitions of dict-like has_key methods, since
       Python 3 doesn't have a dictionary has_key (maintenance)
 
+  From Dillan Mills:
+    - Add support for the TARGET.relpath property 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
 
