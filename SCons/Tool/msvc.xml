@@ -80,13 +80,13 @@ Sets construction variables for the Microsoft Visual C/C++ compiler.
 <summary>
 <para>
 Builds a Microsoft Visual C++ precompiled header.
-Calling this builder method
+Calling this builder
 returns a list of two targets: the PCH as the first element, and the object
 file as the second element. Normally the object file is ignored.
-This builder method is only
+This builder is only
 provided when Microsoft Visual C++ is being used as the compiler.
-The PCH builder method is generally used in
-conjunction with the PCH construction variable to force object files to use
+The &b-PCH; builder is generally used in
+conjunction with the &cv-link-PCH; construction variable to force object files to use
 the precompiled header:
 </para>
 
@@ -292,7 +292,7 @@ If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
 <cvar name="RCFLAGS">
 <summary>
 <para>
-The flags passed to the resource compiler by the RES builder.
+The flags passed to the resource compiler by the &b-link-RES; builder.
 </para>
 </summary>
 </cvar>
