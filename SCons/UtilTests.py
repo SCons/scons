@@ -21,12 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import UserDict, UserList, UserString
 import functools
 import io
 import os
 import sys
 import unittest
+from collections import UserDict, UserList, UserString
 
 import TestCmd
 
@@ -714,6 +714,11 @@ class UtilTestCase(unittest.TestCase):
         assert r == 'pre-file.xxx', r
         r = adjustixes('dir/file', 'pre-', '-suf')
         assert r == os.path.join('dir', 'pre-file-suf'), r
+
+        # Verify that the odd case when library name is specified as 'lib'
+        # doesn't yield lib.so, but yields the expected liblib.so
+        r = adjustixes('PREFIX', 'PREFIX', 'SUFFIX')
+        assert r == 'PREFIXPREFIXSUFFIX', "Failed handling when filename = PREFIX [r='%s']" % r
 
     def test_containsAny(self):
         """Test the containsAny() function"""
