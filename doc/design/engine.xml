@@ -484,6 +484,17 @@
     </listitem>
    </varlistentry>
 
+   <varlistentry>
+    <term><literal>.relpath</literal></term>
+    <listitem>
+     <para>
+
+      The path to the file relative to the root SConstruct file's directory.
+
+     </para>
+    </listitem>
+   </varlistentry>
+
   </variablelist>
 
  </section>
