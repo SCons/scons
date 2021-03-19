@@ -36,11 +36,13 @@ test = TestSCons.TestSCons()
 
 test.subdir('src', ['src', 'dir'])
 
-test.file_fixture('fixture/SConstruct-relpath', 'SConstruct')
-
-test.run('-Q', status=0, stdout="""\
+test.dir_fixture('fixture/relpath')
+test.run('-Q', chdir='base', status=0, stdout="""\
 ../foo/dir build/file1
 %s %s
-src
+src/file
 %s
-""" % (os.path.abspath('../foo/dir'), os.path.abspath('build/file1'), os.path.abspath('src')))
+src/file
+%s
+""" % (os.path.abspath('base/../foo/dir'), os.path.abspath('base/build/file1'), os.path.abspath('base/src/file'),
+       os.path.abspath('base/src/file')))
