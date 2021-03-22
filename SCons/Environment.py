@@ -2007,11 +2007,11 @@ class Base(SubstitutionEnvironment):
         files_strings = [(t, self.subst(t)) for t in flatten(files) if is_String(t) and ('$' in t or t == '')]
         if any([s == '' for t, s in targets_strings]):
             raise UserError(
-                "Targets specified to Clean() include on which evaluates to an empty string: [%s]" % ",".join(
+                "Targets specified to Clean() include one which evaluates to an empty string: [%s]" % ",".join(
                     ["%s='%s'" % (str(t), s) for (t, s) in targets_strings]))
         if any([s == '' for t, s in files_strings]):
             raise UserError(
-                "Targets specified to Clean() include on which evaluates to an empty string: [%s]" % ",".join(
+                "Targets specified to Clean() include one which evaluates to an empty string: [%s]" % ",".join(
                     ["%s='%s'" % (str(t), s) for (t, s) in files_strings]))
 
         tlist = self.arg2nodes(targets, self.fs.Entry)
