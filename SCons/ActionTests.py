@@ -1371,6 +1371,43 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=t, source=s, env=env)
         assert c == b"s4 s5", c
 
+    def test_get_implicit_deps(self):
+        """Test getting the implicit dependencies of a command Action."""
+        class SpecialEnvironment(Environment):
+            def WhereIs(self, prog):
+                return prog
+            
+            class fs:
+                def File(name):
+                    return name
+
+        env = SpecialEnvironment()
+        a = SCons.Action.CommandAction([_python_, exit_py])
+        self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_])
+
+        for false_like_value in [False, 0, None, "None", "False", "0", "NONE", "FALSE", "off", "OFF", "NO", "no"]:
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES=false_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [])
+
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES="$SUBST_VALUE", SUBST_VALUE=false_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [])
+
+        for true_like_value in [True, 1, "True", "TRUE", "1"]:
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES=true_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_])
+
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES="$SUBST_VALUE", SUBST_VALUE=true_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_])
+
+        for all_like_Value in ["all", "ALL", 2, "2"]:
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES=all_like_Value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_, exit_py])
+
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
