@@ -7750,8 +7750,14 @@ release, it may be necessary to specify
   <varlistentry id="v-SCONSFLAGS">
     <term><envar>SCONSFLAGS</envar></term>
     <listitem>
-<para>A string of options that will be used by &scons;
-in addition to those passed on the command line.</para>
+<para>A string containing options that will be used by &scons;
+in addition to those passed on the command line.
+Can be used to reduce frequent retyping of common options.
+The contents of <envar>SCONSFLAGS</envar> are considered
+before any passed command line options,
+so the command line can be used to override
+<envar>SCONSFLAGS</envar> options if necessary.
+</para>
     </listitem>
   </varlistentry>
 
@@ -7760,8 +7766,8 @@ in addition to those passed on the command line.</para>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables
 generated when setting up the Microsoft Visual C++ compiler
-(and/or Build Tools) to a file to give these settings,
-which are expensive to generate, persistence
+(and/or Build Tools) to a cache file, to give these settings,
+which are relatively expensive to generate, persistence
 across &scons; invocations.
 Use of this option is primarily intended to aid performance
 in tightly controlled Continuous Integration setups.</para>

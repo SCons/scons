@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,15 +22,15 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that --site-dir=otherdir loads the site_init.py script
-from the other dir;
+Verify that --site-dir=otherdir loads the site_init.py script from otherdir;
 the usual site_scons/site_init.py should NOT be loaded.
+Check that a later --no-site-dir turns off site-dir processing
+even if a --site-dir option was seen earlier.
 """
+
+import os
 
 import TestSCons
 
@@ -36,36 +38,62 @@ test = TestSCons.TestSCons()
 
 test.subdir('site_scons', ['site_scons', 'site_tools'])
 
-test.write(['site_scons', 'site_init.py'], """
+test.write(
+    ['site_scons', 'site_init.py'],
+    """
 from SCons.Script import *
 print("Hi there, I am in site_scons/site_init.py!")
-""")
+""",
+)
 
-test.write(['site_scons', 'site_tools', 'mytool.py'], """
+test.write(
+    ['site_scons', 'site_tools', 'mytool.py'],
+    """
 import SCons.Tool
 def generate(env):
     env['MYTOOL']='mytool'
 def exists(env):
     return 1
-""")
-
-
+""",
+)
 
 test.subdir('alt_site', ['alt_site', 'site_tools'])
 
-test.write(['alt_site', 'site_init.py'], """
+test.write(
+    ['alt_site', 'site_init.py'],
+    """
 from SCons.Script import *
 print("Hi there, I am in alt_site/site_init.py!")
-""")
+""",
+)
 
-test.write('SConstruct', """
+test.write(
+    'SConstruct',
+    """
 e=Environment()
-""")
+""",
+)
 
-test.run(arguments = '-Q --site-dir=alt_site .',
-         stdout = """Hi there, I am in alt_site/site_init.py!
-scons: `.' is up to date.\n""")
+test.run(
+    arguments='-Q --site-dir=alt_site .',
+    stdout="""Hi there, I am in alt_site/site_init.py!
+scons: `.' is up to date.\n""",
+)
 
+
+# --site-dir followed by --no-site-dir turns processing off:
+test.run(
+    arguments="-Q --site-dir=alt_site --no-site-dir .",
+    stdout="""scons: `.' is up to date.\n""",
+)
+
+
+# same test, but using SCONSFLAGS
+os.environ["SCONSFLAGS"] = "-Q --site-dir=alt_site"
+test.run(
+    arguments="--no-site-dir .",
+    stdout="""scons: `.' is up to date.\n""",
+)
 
 
 test.pass_test()
