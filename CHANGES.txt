@@ -18,6 +18,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       creating the symlinks (and adding version string to ) dlls.  It sets SHLIBNOVERSIONSYMLINKS,
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
 
+  From David H:
+    - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` is not disabled when 'false-like values' are supplied.
+
   From Daniel Moody:
     - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
       This fixes cases for shared cache where two systems write to the same

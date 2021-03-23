@@ -968,7 +968,7 @@ class CommandAction(_ActionAction):
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
 
-        if not icd or str(icd).lower in ('0', 'none', 'false', 'no', 'off'):
+        if not icd or str(icd).lower() in ('0', 'none', 'false', 'no', 'off'):
             return []
 
         try:
@@ -976,7 +976,7 @@ class CommandAction(_ActionAction):
         except ValueError:
             icd_int = None
 
-        if (icd_int and icd_int > 1) or icd == 'all':
+        if (icd_int and icd_int > 1) or str(icd).lower() == 'all':
             # An integer value greater than 1 specifies the number of entries
             # to scan. "all" means to scan all.
             return self._get_implicit_deps_heavyweight(target, source, env, executor, icd_int)
