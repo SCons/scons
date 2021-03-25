@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test use of the COMMAND_LINE_TARGETS and DEFAULT_TARGETS variables.
@@ -134,6 +133,21 @@ scons: Nothing to be done for `command_line_target'.
 scons: Nothing to be done for `sconscript_target'.
 """)
 test.run(arguments = 'command_line_target', stdout = expect)
+
+
+
+# blanks in cmdline should not be treated as targets (issue 2986)
+test.write(
+    file='SConstruct',
+    content="""\
+tgt_foo = Textfile(target="foo", source="foostuff")
+tgt_bar = Textfile(target="bar", source="bartuff")
+Default(tgt_foo)
+""",
+)
+test.run(arguments=["-Q", "-n", "''"], stdout="Creating 'foo.txt'\n")
+test.run(arguments=["-Q", "-n", ""], stdout="Creating 'foo.txt'\n")
+test.run(arguments=["-Q", "-n", '""'], stdout="Creating 'foo.txt'\n")
 
 
 
