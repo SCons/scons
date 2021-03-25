@@ -41,6 +41,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python 3 doesn't have a dictionary has_key (maintenance)
     - Do not treat --site-dir=DIR and --no-site-dir as distinct options.
       Allows a later instance to override an earlier one.
+    - Ignore empty cmdline arguments when computing targets (issue 2986)
 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
