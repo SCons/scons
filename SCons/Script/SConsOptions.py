@@ -801,8 +801,8 @@ def Parser(version):
                   help="Don't build; just print commands.")
 
     op.add_option('--no-site-dir',
-                  dest='no_site_dir', default=False,
-                  action="store_true",
+                  dest='site_dir',
+                  action="store_false",
                   help="Don't search or use the usual site_scons dir.")
 
     op.add_option('--profile',

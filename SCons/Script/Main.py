@@ -775,7 +775,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
         raise
 
 
-def _load_all_site_scons_dirs(topdir, verbose=None):
+def _load_all_site_scons_dirs(topdir, verbose=False):
     """Load all of the predefined site_scons dir.
     Order is significant; we load them in order from most generic
     (machine-wide) to most specific (topdir).
@@ -968,10 +968,12 @@ def _main(parser):
     if options.no_progress or options.silent:
         progress_display.set_mode(0)
 
-    if options.site_dir:
-        _load_site_scons_dir(d.get_internal_path(), options.site_dir)
-    elif not options.no_site_dir:
+    # if site_dir unchanged from default None, neither --site-dir
+    # nor --no-site-dir was seen, use SCons default
+    if options.site_dir is None:
         _load_all_site_scons_dirs(d.get_internal_path())
+    elif options.site_dir:  # if a dir was set, use it
+        _load_site_scons_dir(d.get_internal_path(), options.site_dir)
 
     if options.include_dir:
         sys.path = options.include_dir + sys.path
