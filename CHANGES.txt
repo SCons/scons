@@ -36,7 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python 3 doesn't have a dictionary has_key (maintenance)
 
   From Dillan Mills:
-    - Add support for the TARGET.relpath property 
+    - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
+      This will provide a path relative to the top of the build tree (where the SConstruct is located)
+      Fixes #396
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
 

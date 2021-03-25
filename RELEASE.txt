@@ -9,7 +9,9 @@ Here is a summary of the changes since 4.1.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+    - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
+      This will provide a path relative to the top of the build tree (where the SConstruct is located)
+      Fixes #396
 
 DEPRECATED FUNCTIONALITY
 ------------------------
