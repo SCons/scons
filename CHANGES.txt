@@ -39,6 +39,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       which is the Python recommended way for timing short durations.
     - Drop remaining definitions of dict-like has_key methods, since
       Python 3 doesn't have a dictionary has_key (maintenance)
+    - Do not treat --site-dir=DIR and --no-site-dir as distinct options.
+      Allows a later instance to override an earlier one.
 
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
