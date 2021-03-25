@@ -984,13 +984,17 @@ def _main(parser):
     if options.interactive:
         SCons.Node.interactive = True
 
-    # That should cover (most of) the options.  Next, set up the variables
-    # that hold command-line arguments, so the SConscript files that we
-    # read and execute have access to them.
+    # That should cover (most of) the options.
+    # Next, set up the variables that hold command-line arguments,
+    # so the SConscript files that we read and execute have access to them.
+    # TODO: for options defined via AddOption which take space-separated
+    # option-args, the option-args will collect into targets here,
+    # because we don't yet know to do any different.
     targets = []
     xmit_args = []
     for a in parser.largs:
-        if a[:1] == '-':
+        # Skip so-far unrecognized options, and empty string args
+        if a.startswith('-') or a in ('', '""', "''"):
             continue
         if '=' in a:
             xmit_args.append(a)
