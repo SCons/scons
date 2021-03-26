@@ -40,7 +40,7 @@ test.subdir("src", ["src", "dir"])
 test.dir_fixture("fixture/relpath")
 
 expected = [
-       # expanding variable, expected string
+    # expanding variable, expected string
     ("${TARGETS.relpath}", "../foo/dir build/file1"),
     (
         "${TARGETS.abspath}",
@@ -53,10 +53,10 @@ expected = [
     ("${SOURCE.abspath}", os.path.abspath("base/src/file")),
 ]
 
-expected_stdout="\n".join(["%s=%s"%(s,o) for s,o in expected])
-expected_stdout+="\nscons: `.' is up to date."
+expected_stdout = "\n".join(["%s=%s" % (s, o) for s, o in expected])
+expected_stdout += "\nscons: `.' is up to date."
 
 if IS_WINDOWS:
-       expected_stdout = expected_stdout.replace('/', os.sep)
+    expected_stdout = expected_stdout.replace("/", os.sep)
 
-test.run('-Q', chdir='base', status=0, stdout=expected_stdout+"\n")
+test.run("-Q", chdir="base", status=0, stdout=expected_stdout + "\n")
