@@ -254,54 +254,55 @@ def generate(env):
     SCons.Tool.createSharedLibBuilder(env, shlib_suffix='$SHLIBSUFFIX')
     SCons.Tool.createProgBuilder(env)
 
-    env['SHLINK']      = '$LINK'
+    env['SHLINK'] = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS /dll')
     env['_SHLINK_TARGETS'] = windowsShlinkTargets
     env['_SHLINK_SOURCES'] = windowsShlinkSources
-    env['SHLINKCOM']   =  compositeShLinkAction
-    env.Append(SHLIBEMITTER = [windowsLibEmitter])
-    env.Append(LDMODULEEMITTER = [windowsLibEmitter])
-    env['LINK']        = 'link'
-    env['LINKFLAGS']   = SCons.Util.CLVar('/nologo')
+    env['SHLINKCOM'] = compositeShLinkAction
+    env.Append(SHLIBEMITTER=[windowsLibEmitter])
+    env.Append(LDMODULEEMITTER=[windowsLibEmitter])
+    env['LINK'] = 'link'
+    env['LINKFLAGS'] = SCons.Util.CLVar('/nologo')
     env['_PDB'] = pdbGenerator
     env['LINKCOM'] = compositeLinkAction
-    env.Append(PROGEMITTER = [prog_emitter])
-    env['LIBDIRPREFIX']='/LIBPATH:'
-    env['LIBDIRSUFFIX']=''
-    env['LIBLINKPREFIX']=''
-    env['LIBLINKSUFFIX']='$LIBSUFFIX'
+    env.Append(PROGEMITTER=[prog_emitter])
+    env['LIBDIRPREFIX'] = '/LIBPATH:'
+    env['LIBDIRSUFFIX'] = ''
+    env['LIBLINKPREFIX'] = ''
+    env['LIBLINKSUFFIX'] = '$LIBSUFFIX'
 
-    env['WINDOWSDEFPREFIX']      = ''
-    env['WINDOWSDEFSUFFIX']      = '.def'
-    env['WINDOWSEXPPREFIX']      = ''
-    env['WINDOWSEXPSUFFIX']      = '.exp'
-    env['WINDOWS_INSERT_DEF']    = 0
+    env['WINDOWSDEFPREFIX'] = ''
+    env['WINDOWSDEFSUFFIX'] = '.def'
+    env['WINDOWSEXPPREFIX'] = ''
+    env['WINDOWSEXPSUFFIX'] = '.exp'
+    env['WINDOWS_INSERT_DEF'] = 0
 
     env['WINDOWSSHLIBMANIFESTPREFIX'] = ''
     env['WINDOWSSHLIBMANIFESTSUFFIX'] = '${SHLIBSUFFIX}.manifest'
-    env['WINDOWSPROGMANIFESTPREFIX']  = ''
-    env['WINDOWSPROGMANIFESTSUFFIX']  = '${PROGSUFFIX}.manifest'
+    env['WINDOWSPROGMANIFESTPREFIX'] = ''
+    env['WINDOWSPROGMANIFESTSUFFIX'] = '${PROGSUFFIX}.manifest'
 
     env['REGSVRACTION'] = regServerCheck
-    env['REGSVR'] = os.path.join(SCons.Platform.win32.get_system_root(),'System32','regsvr32')
+    env['REGSVR'] = os.path.join(
+        SCons.Platform.win32.get_system_root(), 'System32', 'regsvr32'
+    )
     env['REGSVRFLAGS'] = '/s '
     env['REGSVRCOM'] = '$REGSVR $REGSVRFLAGS ${TARGET.windows}'
 
     env['WINDOWS_EMBED_MANIFEST'] = 0
     env['MT'] = 'mt'
-    #env['MTFLAGS'] = ['-hashupdate']
+    # env['MTFLAGS'] = ['-hashupdate']
     env['MTFLAGS'] = SCons.Util.CLVar('/nologo')
     # Note: use - here to prevent build failure if no manifest produced.
     # This seems much simpler than a fancy system using a function action to see
     # if the manifest actually exists before trying to run mt with it.
-    env['MTEXECOM']   = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
+    env['MTEXECOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;1'
     env['MTSHLIBCOM'] = '-$MT $MTFLAGS -manifest ${TARGET}.manifest $_MANIFEST_SOURCES -outputresource:$TARGET;2'
     # TODO Future work garyo 27-Feb-11
-    env['_MANIFEST_SOURCES'] = None # _windowsManifestSources
+    env['_MANIFEST_SOURCES'] = None  # _windowsManifestSources
 
     # Set-up ms tools paths
     msvc_setup_env_once(env)
-
 
     # Loadable modules are on Windows the same as shared libraries, but they
     # are subject to different build parameters (LDMODULE* variables).
