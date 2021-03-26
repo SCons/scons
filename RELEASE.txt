@@ -34,6 +34,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
     - Internal has_key methods removed from SCons' dictionary-like objects
       SubstitutionEnvironment and OverrideEnvironment - in other words,
       an env - to match Python 3 which no longer has dict.has_key.
+    - Removed long-deprecated construction variables PDFCOM, WIN32_INSERT_DEF,
+      WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
+      All have been replaced by other names since at least 1.0.
 
 FIXES
 -----

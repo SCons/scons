@@ -212,46 +212,6 @@ and requiring user attention.
 </summary>
 </cvar>
 
-<cvar name="WIN32_INSERT_DEF">
-<summary>
-<para>
-A deprecated synonym for &cv-link-WINDOWS_INSERT_DEF;.
-</para>
-</summary>
-</cvar>
-
-<cvar name="WIN32DEFPREFIX">
-<summary>
-<para>
-A deprecated synonym for &cv-link-WINDOWSDEFPREFIX;.
-</para>
-</summary>
-</cvar>
-
-<cvar name="WIN32DEFSUFFIX">
-<summary>
-<para>
-A deprecated synonym for &cv-link-WINDOWSDEFSUFFIX;.
-</para>
-</summary>
-</cvar>
-
-<cvar name="WIN32EXPPREFIX">
-<summary>
-<para>
-A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
-</para>
-</summary>
-</cvar>
-
-<cvar name="WIN32EXPSUFFIX">
-<summary>
-<para>
-A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
-</para>
-</summary>
-</cvar>
-
 <cvar name="WINDOWS_INSERT_DEF">
 <summary>
 <para>

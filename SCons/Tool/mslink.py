@@ -271,15 +271,8 @@ def generate(env):
     env['LIBLINKPREFIX']=''
     env['LIBLINKSUFFIX']='$LIBSUFFIX'
 
-    env['WIN32DEFPREFIX']        = ''
-    env['WIN32DEFSUFFIX']        = '.def'
-    env['WIN32_INSERT_DEF']      = 0
     env['WINDOWSDEFPREFIX']      = '${WIN32DEFPREFIX}'
     env['WINDOWSDEFSUFFIX']      = '${WIN32DEFSUFFIX}'
-    env['WINDOWS_INSERT_DEF']    = '${WIN32_INSERT_DEF}'
-
-    env['WIN32EXPPREFIX']        = ''
-    env['WIN32EXPSUFFIX']        = '.exp'
     env['WINDOWSEXPPREFIX']      = '${WIN32EXPPREFIX}'
     env['WINDOWSEXPSUFFIX']      = '${WIN32EXPSUFFIX}'
 
