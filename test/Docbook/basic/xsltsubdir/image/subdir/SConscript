@@ -1,0 +1,8 @@
+Import('env')
+env = env.Clone(tools=['docbook'])
+
+#
+# Create document
+#
+env.DocbookXslt('out.xml', 'in.xml', 
+                xsl='to_docbook.xslt')

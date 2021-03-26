@@ -1,0 +1,77 @@
+<book xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+  <bookinfo>
+    <title>SCons 2.3.5</title>
+    <subtitle>User Guide</subtitle>
+
+    <author>
+      <firstname>Steven</firstname>
+      <surname>Knight</surname>
+    </author>
+
+    <corpauthor>Steven Knight and the SCons Development Team</corpauthor>
+
+    <pubdate>2004 - 2020</pubdate>
+
+    <copyright>
+      <year>2004 - 2020</year>
+      <holder>The SCons Foundation</holder>
+    </copyright>
+
+    <legalnotice xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+    <blockquote>
+        <para>
+            SCons User's Guide Copyright (c) 2004-2019 Steven Knight
+        </para>
+    </blockquote>
+
+
+</legalnotice>
+
+    <releaseinfo>version 2.3.5</releaseinfo>
+
+  </bookinfo>
+
+
+<chapter xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Builders</title>
+
+<para>...</para>
+
+<section>
+<title>Test</title>
+
+<para>...</para>
+</section>
+
+</chapter>
+
+<appendix xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+<title>Construction Variables</title>
+
+<para>
+In this appendix...
+</para>
+
+<variablelist xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+  <varlistentry id="cv-ASCOMSTR">
+    <term>
+      <envar>ASCOMSTR</envar>
+    </term>
+    <listitem><para>
+The string displayed when an object file
+is generated from an assembly-language source file.
+If this is not set, then $ASCOM (the command line) is displayed.
+</para>
+
+<example_commands>
+env = Environment(ASCOMSTR = "Assembling $TARGET")
+</example_commands>
+</listitem>
+  </varlistentry>
+</variablelist>
+
+</appendix>
+
+</book>
+
