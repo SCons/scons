@@ -31,7 +31,7 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 try:
-    import lxml
+    import lxml # noqa: F401
 except Exception:
     test.skip_test('Cannot find installed Python binding for lxml, skipping test.\n')
 
