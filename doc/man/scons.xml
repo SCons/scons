@@ -4926,6 +4926,13 @@ is not being used.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><replaceable>n</replaceable>.<varname>relpath</varname></term>
+  <listitem>
+<para>The build path of the given file or directory relative to the root SConstruct file's directory.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><replaceable>n</replaceable>.<function>srcnode</function>()</term>
   <listitem>
 <para>The
@@ -4946,6 +4953,8 @@ File or Directory Node.
 Dir('.').path
 # Current dir's absolute path
 Dir('.').abspath
+# Current dir's path relative to the root SConstruct file's directory
+Dir('.').relpath
 # Next line is always '.', because it is the top dir's path relative to itself.
 Dir('#.').path
 File('foo.c').srcnode().path   # source path of the given source file.
@@ -6458,6 +6467,7 @@ These are known as <firstterm>special attributes</firstterm>.
   <member><parameter>filebase</parameter> - Like <parameter>file</parameter> but minus its suffix.</member>
   <member><parameter>suffix</parameter> - Just the file suffix.</member>
   <member><parameter>abspath</parameter> - The absolute path name of the file.</member>
+  <member><parameter>relpath</parameter> - The path name of the file relative to the root SConstruct file's directory.</member>
   <member><parameter>posix</parameter> -
     The path with directories separated by forward slashes
     (<emphasis role="bold">/</emphasis>).
@@ -6511,6 +6521,11 @@ ${TARGET.file}       =&gt; file.x
 ${TARGET.filebase}   =&gt; file
 ${TARGET.suffix}     =&gt; .x
 ${TARGET.abspath}    =&gt; /top/dir/sub/dir/file.x
+${TARGET.relpath}    =&gt; sub/dir/file.x
+
+$TARGET              =&gt; ../dir2/file.x
+${TARGET.abspath}    =&gt; /top/dir2/file.x
+${TARGET.relpath}    =&gt; ../dir2/file.x
 
 SConscript('src/SConscript', variant_dir='sub/dir')
 $SOURCE              =&gt; sub/dir/file.x

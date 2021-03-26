@@ -442,6 +442,11 @@ class EntryProxy(SCons.Util.Proxy):
         return SCons.Subst.SpecialAttrWrapper(entry.get_abspath(),
                                              entry.name + "_abspath")
 
+    def __get_relpath(self):
+        entry = self.get()
+        return SCons.Subst.SpecialAttrWrapper(entry.get_relpath(),
+                                             entry.name + "_relpath")
+
     def __get_filebase(self):
         name = self.get().name
         return SCons.Subst.SpecialAttrWrapper(SCons.Util.splitext(name)[0],
@@ -510,6 +515,7 @@ class EntryProxy(SCons.Util.Proxy):
                          "srcdir"   : __get_srcdir,
                          "dir"      : __get_dir,
                          "abspath"  : __get_abspath,
+                         "relpath"  : __get_relpath,
                          "filebase" : __get_filebase,
                          "suffix"   : __get_suffix,
                          "file"     : __get_file,
@@ -830,6 +836,10 @@ class Base(SCons.Node.Node):
         """Get the absolute path of the file."""
         return self.dir.entry_labspath(self.name)
 
+    def get_relpath(self):
+        """Get the path of the file relative to the root SConstruct file's directory."""
+        return os.path.relpath(self.dir.entry_abspath(self.name), self.fs.SConstruct_dir.get_abspath())
+
     def get_internal_path(self):
         if self.dir._path == '.':
             return self.name
@@ -937,10 +947,11 @@ class Base(SCons.Node.Node):
 
 # Dict that provides a simple backward compatibility
 # layer for the Node attributes 'abspath', 'labspath',
-# 'path', 'tpath' and 'path_elements'.
+# 'relpath', 'path', 'tpath' and 'path_elements'.
 # @see Base.__getattr__ above
 node_bwcomp = {'abspath' : Base.get_abspath,
                'labspath' : Base.get_labspath,
+               'relpath' : Base.get_relpath,
                'path' : Base.get_internal_path,
                'tpath' : Base.get_tpath,
                'path_elements' : Base.get_path_elements,

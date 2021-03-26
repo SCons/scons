@@ -1,9 +1,9 @@
 __version__="4.1.1a"
 __copyright__="Copyright (c) 2001 - 2021 The SCons Foundation"
-__developer__="bdbaddog"
-__date__="2021-02-26 22:38:25"
-__buildsys__="ProDog2020"
-__revision__="3fa309f8fc5472fa067d7c04481fd0a5d3e86352"
-__build__="3fa309f8fc5472fa067d7c04481fd0a5d3e86352"
+__developer__="millsd"
+__date__="2021-03-18 01:11:29"
+__buildsys__="chn-cad-vnc31"
+__revision__="fc3946a217f29407c65291c5358262a7b3cc78cd"
+__build__="fc3946a217f29407c65291c5358262a7b3cc78cd"
 # make sure compatibility is always in place
 import SCons.compat # noqa

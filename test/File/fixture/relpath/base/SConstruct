@@ -1,0 +1,22 @@
+# Testcase to check that .relpath works on SOURCES,TARGETS, and the singular SOURCE
+# This is the SConstruct for test/File/File-relpath.py
+#
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+
+input_list = [
+        "${TARGETS.relpath}",
+        "${TARGETS.abspath}",
+        "${SOURCES.relpath}",
+        "${SOURCES.abspath}",
+        "${SOURCE.relpath}",
+        "${SOURCE.abspath}",
+    ]
+outputs = env.subst(
+        input_list,
+    target=[File("../foo/dir"), File("build/file1")],
+    source=[File("src/file")],
+)
+
+for i,s in zip(input_list,outputs):
+        print("%s=%s"%(i,s))
