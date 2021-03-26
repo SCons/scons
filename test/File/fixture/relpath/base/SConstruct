@@ -2,14 +2,21 @@
 # This is the SConstruct for test/File/File-relpath.py
 #
 DefaultEnvironment(tools=[])
-Echo = Builder(action=['@echo ${TARGETS.relpath}',
-                       '@echo ${TARGETS.abspath}',
-                       '@echo ${SOURCES.relpath}',
-                       '@echo ${SOURCES.abspath}',
-                       '@echo ${SOURCE.relpath}',
-                       '@echo ${SOURCE.abspath}'
-                       ],
-               )
+env = Environment(tools=[])
 
-env = Environment(tools=[], BUILDERS={'Echo': Echo})
-env.Echo(['../foo/dir', 'build/file1'], ['src/file'])
+input_list = [
+        "${TARGETS.relpath}",
+        "${TARGETS.abspath}",
+        "${SOURCES.relpath}",
+        "${SOURCES.abspath}",
+        "${SOURCE.relpath}",
+        "${SOURCE.abspath}",
+    ]
+outputs = env.subst(
+        input_list,
+    target=[File("../foo/dir"), File("build/file1")],
+    source=[File("src/file")],
+)
+
+for i,s in zip(input_list,outputs):
+        print("%s=%s"%(i,s))
