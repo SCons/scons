@@ -40,13 +40,9 @@ Sets construction variables for the Microsoft linker.
 <item>LIBDIRSUFFIX</item>
 <item>LIBLINKPREFIX</item>
 <item>LIBLINKSUFFIX</item>
-<item>WIN32DEFPREFIX</item>
-<item>WIN32DEFSUFFIX</item>
 <item>WINDOWSDEFPREFIX</item>
 <item>WINDOWSDEFSUFFIX</item>
 <item>WINDOWS_INSERT_DEF</item>
-<item>WIN32EXPPREFIX</item>
-<item>WIN32EXPSUFFIX</item>
 <item>WINDOWSEXPPREFIX</item>
 <item>WINDOWSEXPSUFFIX</item>
 <item>WINDOWSSHLIBMANIFESTPREFIX</item>

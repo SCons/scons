@@ -1,0 +1,19 @@
+Add a function which validates required args:
+
+def validate(required, **kwargs):
+    """check that all the tags in required are present in kwargs."""
+    diff = required - set(kwargs.keys())
+    if diff:
+        # set should be empty if all required in kwargs
+        # do some sort of error handling: bail?
+        return False
+    return True
+
+
+Intended to simplify function sigs which currently look like this:
+
+def package(env, target, source, PACKAGEROOT, NAME, VERSION,
+            PACKAGEVERSION, DESCRIPTION, SUMMARY, X_RPM_GROUP, LICENSE,
+            **kw):
+
+
