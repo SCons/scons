@@ -35,8 +35,13 @@ from shutil import copy2, copymode, copystat
 
 import SCons.Action
 import SCons.Tool
-from SCons.Tool.linkCommon import StringizeLibSymlinks, CreateLibSymlinks, EmitLibSymlinks
 import SCons.Util
+from SCons.Subst import SUBST_RAW
+from SCons.Tool.linkCommon import (
+    StringizeLibSymlinks,
+    CreateLibSymlinks,
+    EmitLibSymlinks,
+)
 
 #
 # We keep track of *all* installed files.
@@ -257,7 +262,7 @@ def installFuncVersionedLib(target, source, env):
 def stringFunc(target, source, env):
     installstr = env.get('INSTALLSTR')
     if installstr:
-        return env.subst_target_source(installstr, 0, target, source)
+        return env.subst_target_source(installstr, SUBST_RAW, target, source)
     target = str(target[0])
     source = str(source[0])
     if os.path.isdir(source):
