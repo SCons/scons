@@ -44,7 +44,7 @@ from SCons.Script import COMMAND_LINE_TARGETS
 
 from .Util import ninja_add_command_line_options, is_valid_dependent_node, alias_to_ninja_build, \
     filter_ninja_nodes, get_input_nodes, invalid_ninja_nodes, get_order_only, get_dependencies, get_inputs, get_outputs, \
-    get_targets_sources, get_path
+    get_targets_sources, get_path, get_rule
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
 
 from SCons.Util import is_List, flatten_sequence
@@ -173,7 +173,7 @@ class SConsToNinjaTranslator:
 
         #TODO: WPD Is this testing the filename to verify it's a configure context generated file?
         if not node.is_conftest():
-            node_callback = node.check_attr("ninja_build_callback")
+            node_callback = node.check_attributes("ninja_build_callback")
             if callable(node_callback):
                 node_callback(env, node, build)
 
@@ -1612,7 +1612,8 @@ def generate(env):
 
         target = self.targets[0]
         target_name = str(target)
-        if target.check_attributes('ninja_file') is None and not target.is_conftest:
+        # print("File:%s -> %s"%(str(target), target.check_attributes('ninja_file')))
+        if target.check_attributes('ninja_file') is None or not target.is_conftest:
             NINJA_STATE.add_build(target)
         else:
             target.build()
