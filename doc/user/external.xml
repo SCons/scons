@@ -290,6 +290,12 @@ env2.CompilationDatabase('compile_commands-linux64.json')
         <title>Ninja Build Generator</title>
 
         <para>
+            This is an experimental new feature.
+        </para>
+        <para>
+            Using the
+        </para>
+        <para>
             <ulink url="https://ninja-build.org/"><citetitle>Ninja Build System</citetitle></ulink>
         </para>
 

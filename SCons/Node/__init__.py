@@ -948,7 +948,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
     def check_attributes(self, name):
         """ Simple API to check if the node.attributes for name has been set"""
-        return getattr(getattr(self,"attributes", None), name, None)
+        return getattr(getattr(self, "attributes", None), name, None)
 
 
     def alter_targets(self):
