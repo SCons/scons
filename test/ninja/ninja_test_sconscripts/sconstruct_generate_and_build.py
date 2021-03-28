@@ -1,3 +1,4 @@
+# noqa: f821
 DefaultEnvironment(tools=[])
 
 env = Environment()

@@ -38,16 +38,14 @@ from os.path import splitext
 
 import SCons
 from SCons.Action import _string_from_cmd_list, get_default_ENV
-from SCons.Node import SConscriptNodes
-from SCons.Script import AddOption, GetOption
+# from SCons.Node import SConscriptNodes
+from SCons.Script import GetOption
 from SCons.Script import COMMAND_LINE_TARGETS
-
-from .Util import ninja_add_command_line_options, is_valid_dependent_node, alias_to_ninja_build, \
-    filter_ninja_nodes, get_input_nodes, invalid_ninja_nodes, get_order_only, get_dependencies, get_inputs, get_outputs, \
-    get_targets_sources, get_path, get_rule
-from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
-
 from SCons.Util import is_List, flatten_sequence
+from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
+from .Util import ninja_add_command_line_options, alias_to_ninja_build, \
+    get_order_only, get_dependencies, get_inputs, get_outputs, \
+    get_targets_sources, get_path, get_rule
 
 NINJA_STATE = None
 NINJA_RULES = "__NINJA_CUSTOM_RULES"
@@ -886,7 +884,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
 
             for key, value in custom_env.items():
                 variables["env"] += env.subst(
-                    "export %s=%s;"%(key, value), target=targets, source=sources, executor=executor
+                    "export %s=%s;" % (key, value), target=targets, source=sources, executor=executor
                 ) + " "
         return rule, variables, [tool_command]
 
@@ -930,8 +928,8 @@ def get_generic_shell_command(env, node, action, targets, sources, executor=None
         # and usually this would be the path to a tool, such as a compiler, used for this rule.
         # However this function is to generic to be able to reliably extract such deps
         # from the command, so we return a placeholder empty list. It should be noted that
-        # generally this function will not be used soley and is more like a template to generate
-        # the basics for a custom provider which may have more specific options for a provier
+        # generally this function will not be used solely and is more like a template to generate
+        # the basics for a custom provider which may have more specific options for a provider
         # function for a custom NinjaRuleMapping.
         []
     )
@@ -997,7 +995,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
         # Possibly these could be ignore and the build would still work, however it may not always
         # rebuild correctly, so we hard stop, and force the user to fix the issue with the provided
         # ninja rule.
-        raise Exception("Could not resolve path for %s dependency on node '%s'"%(provider_dep, node))
+        raise Exception("Could not resolve path for %s dependency on node '%s'" % (provider_dep, node))
 
     ninja_build = {
         "order_only": get_order_only(node),
@@ -1068,11 +1066,11 @@ def ninja_builder(env, target, source):
         def execute_ninja():
 
             proc = subprocess.Popen(cmd,
-                stderr=sys.stderr,
-                stdout=subprocess.PIPE,
-                universal_newlines=True,
-                env=os.environ if env["PLATFORM"] == "win32" else env['ENV']
-            )
+                                    stderr=sys.stderr,
+                                    stdout=subprocess.PIPE,
+                                    universal_newlines=True,
+                                    env=os.environ if env["PLATFORM"] == "win32" else env['ENV']
+                                    )
             for stdout_line in iter(proc.stdout.readline, ""):
                 yield stdout_line
             proc.stdout.close()
@@ -1084,7 +1082,7 @@ def ninja_builder(env, target, source):
         for output in execute_ninja():
             output = output.strip()
             if erase_previous:
-                sys.stdout.write('\x1b[2K') # erase previous line
+                sys.stdout.write('\x1b[2K')  # erase previous line
                 sys.stdout.write("\r")
             else:
                 sys.stdout.write(os.linesep)
@@ -1366,7 +1364,7 @@ def generate(env):
         env.AlwaysBuild(ninja_file)
         env.Alias("$NINJA_ALIAS_NAME", ninja_file)
     else:
-        if str(NINJA_STATE.ninja_file) != ninja_file_name:
+        if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
         ninja_file = [NINJA_STATE.ninja_file]
 
@@ -1582,6 +1580,7 @@ def generate(env):
     # We will subvert the normal builder execute to make sure all the ninja file is dependent
     # on all targets generated from any builders
     SCons_Builder_BuilderBase__execute = SCons.Builder.BuilderBase._execute
+
     def NinjaBuilderExecute(self, env, target, source, overwarn={}, executor_kw={}):
         # this ensures all environments in which a builder executes from will
         # not create list actions for linking on windows
@@ -1611,8 +1610,6 @@ def generate(env):
         global NINJA_STATE
 
         target = self.targets[0]
-        target_name = str(target)
-        # print("File:%s -> %s"%(str(target), target.check_attributes('ninja_file')))
         if target.check_attributes('ninja_file') is None or not target.is_conftest:
             NINJA_STATE.add_build(target)
         else:

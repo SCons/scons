@@ -1,3 +1,5 @@
+# noqa: f821
+
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
