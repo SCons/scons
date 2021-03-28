@@ -1048,22 +1048,38 @@ def Split(arg):
     else:
         return [arg]
 
+
 class CLVar(UserList):
     """A class for command-line construction variables.
 
-    This is a list that uses Split() to split an initial string along
-    white-space arguments, and similarly to split any strings that get
-    added.  This allows us to Do the Right Thing with Append() and
+    Forces the use of a list of strings, matching individual arguments
+    that will be issued on the command line.  Like UserList,
+    but the argument passed to __init__ will be processed by the
+    Split function, which includes special handling for string types -
+    they will be split into a list of words, not coereced directly
+    to a list.  The same happens if adding a string,
+    which allows us to Do the Right Thing with Append() and
     Prepend() (as well as straight Python foo = env['VAR'] + 'arg1
     arg2') regardless of whether a user adds a list or a string to a
     command-line construction variable.
+
+    Side effect: spaces will be stripped from individual string
+    arguments. If you need spaces preserved, pass strings containing
+    spaces inside a list argument.
     """
-    def __init__(self, seq = []):
-        UserList.__init__(self, Split(seq))
+
+    def __init__(self, seq=[]):
+        super().__init__(Split(seq))
+
     def __add__(self, other):
-        return UserList.__add__(self, CLVar(other))
+        return super().__add__(CLVar(other))
+
     def __radd__(self, other):
-        return UserList.__radd__(self, CLVar(other))
+        return super().__radd__(CLVar(other))
+
+    def __iadd__(self, other):
+        return super().__iadd__(CLVar(other))
+
     def __str__(self):
         return ' '.join(self.data)
 

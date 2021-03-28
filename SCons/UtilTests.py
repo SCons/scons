@@ -550,101 +550,120 @@ class UtilTestCase(unittest.TestCase):
 
     def test_CLVar(self):
         """Test the command-line construction variable class"""
-        f = SCons.Util.CLVar('a b')
 
-        r = f + 'c d'
+        # input to CLVar is a string - should be split
+        f = SCons.Util.CLVar('aa bb')
+
+        r = f + 'cc dd'
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + ' c d'
+        r = f + ' cc dd'
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + ['c d']
+        r = f + ['cc dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c d'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + [' c d']
+        r = f + [' cc dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', ' c d'], r.data
-        assert str(r) == 'a b  c d', str(r)
+        assert r.data == ['aa', 'bb', ' cc dd'], r.data
+        assert str(r) == 'aa bb  cc dd', str(r)
 
-        r = f + ['c', 'd']
+        r = f + ['cc', 'dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + [' c', 'd']
+        r = f + [' cc', 'dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', ' c', 'd'], r.data
-        assert str(r) == 'a b  c d', str(r)
+        assert r.data == ['aa', 'bb', ' cc', 'dd'], r.data
+        assert str(r) == 'aa bb  cc dd', str(r)
 
-        f = SCons.Util.CLVar(['a b'])
+        # input to CLVar is a list of one string, should not be split
+        f = SCons.Util.CLVar(['aa bb'])
 
-        r = f + 'c d'
+        r = f + 'cc dd'
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + ' c d'
+        r = f + ' cc dd'
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + ['c d']
+        r = f + ['cc dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a b', 'c d'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa bb', 'cc dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + [' c d']
+        r = f + [' cc dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a b', ' c d'], r.data
-        assert str(r) == 'a b  c d', str(r)
+        assert r.data == ['aa bb', ' cc dd'], r.data
+        assert str(r) == 'aa bb  cc dd', str(r)
 
-        r = f + ['c', 'd']
+        r = f + ['cc', 'dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + [' c', 'd']
+        r = f + [' cc', 'dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a b', ' c', 'd'], r.data
-        assert str(r) == 'a b  c d', str(r)
+        assert r.data == ['aa bb', ' cc', 'dd'], r.data
+        assert str(r) == 'aa bb  cc dd', str(r)
 
-        f = SCons.Util.CLVar(['a', 'b'])
+        # input to CLVar is a list of strings
+        f = SCons.Util.CLVar(['aa', 'bb'])
 
-        r = f + 'c d'
+        r = f + 'cc dd'
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + ' c d'
+        r = f + ' cc dd'
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + ['c d']
+        r = f + ['cc dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c d'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + [' c d']
+        r = f + [' cc dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', ' c d'], r.data
-        assert str(r) == 'a b  c d', str(r)
+        assert r.data == ['aa', 'bb', ' cc dd'], r.data
+        assert str(r) == 'aa bb  cc dd', str(r)
 
-        r = f + ['c', 'd']
+        r = f + ['cc', 'dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', 'c', 'd'], r.data
-        assert str(r) == 'a b c d', str(r)
+        assert r.data == ['aa', 'bb', 'cc', 'dd'], r.data
+        assert str(r) == 'aa bb cc dd', str(r)
 
-        r = f + [' c', 'd']
+        r = f + [' cc', 'dd']
         assert isinstance(r, SCons.Util.CLVar), type(r)
-        assert r.data == ['a', 'b', ' c', 'd'], r.data
-        assert str(r) == 'a b  c d', str(r)
+        assert r.data == ['aa', 'bb', ' cc', 'dd'], r.data
+        assert str(r) == 'aa bb  cc dd', str(r)
+
+        # make sure inplace adding a string works as well (issue 2399)
+        # UserList would convert the string to a list of chars
+        f = SCons.Util.CLVar(['aa', 'bb'])
+        f += 'cc dd'
+        assert isinstance(f, SCons.Util.CLVar), type(f)
+        assert f.data == ['aa', 'bb', 'cc', 'dd'], f.data
+        assert str(f) == 'aa bb cc dd', str(f)
+
+        f = SCons.Util.CLVar(['aa', 'bb'])
+        f += ' cc dd'
+        assert isinstance(f, SCons.Util.CLVar), type(f)
+        assert f.data == ['aa', 'bb', 'cc', 'dd'], f.data
+        assert str(f) == 'aa bb cc dd', str(f)
+
 
     def test_Selector(self):
         """Test the Selector class"""
