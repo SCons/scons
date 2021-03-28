@@ -22,5 +22,5 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-
+# noqa: F401
 from .ninjaCommon import generate, exists
