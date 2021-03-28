@@ -32,6 +32,7 @@ from collections import UserDict as UD, UserList as UL
 
 import TestCmd
 
+import SCons.Warnings
 from SCons.Environment import (
     Environment,
     NoSubstitutionProxy,
@@ -39,7 +40,7 @@ from SCons.Environment import (
     SubstitutionEnvironment,
     is_valid_construction_var,
 )
-import SCons.Warnings
+from SCons.Util import CLVar
 
 
 def diff_env(env1, env2):
@@ -130,17 +131,6 @@ class Scanner:
     def __str__(self):
         return self.name
 
-
-
-class CLVar(UL):
-    def __init__(self, seq):
-        if isinstance(seq, str):
-            seq = seq.split()
-        UL.__init__(self, seq)
-    def __add__(self, other):
-        return UL.__add__(self, CLVar(other))
-    def __radd__(self, other):
-        return UL.__radd__(self, CLVar(other))
 
 class DummyNode:
     def __init__(self, name):

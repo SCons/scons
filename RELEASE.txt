@@ -15,6 +15,7 @@ NEW FUNCTIONALITY
 
 DEPRECATED FUNCTIONALITY
 ------------------------
+    - Deprecate Python 3.5 as a supported version.
 
 - List anything that's been deprecated since the last release
 

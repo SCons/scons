@@ -36,16 +36,18 @@ test = TestSCons.TestSCons()
 
 test.subdir('install')
 
+# Check that spaces aren't stripped in INSTALLSTR  by using
+# extra whitespace in the string (issue 2018)
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=[], INSTALLSTR = 'INSTALL $SOURCE => $TARGET!')
+env = Environment(tools=[], INSTALLSTR='INSTALL  $SOURCE => $TARGET!')
 env.Install('install', 'file')
 """)
 
 test.write('file', "file\n")
 
 test.run(stdout=test.wrap_stdout("""\
-INSTALL file => %s!
+INSTALL  file => %s!
 """) % os.path.join('install', 'file'))
 
 test.must_match(['install', 'file'], "file\n")
