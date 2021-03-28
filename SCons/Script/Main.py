@@ -33,7 +33,7 @@ it goes here.
 
 # these define the range of versions SCons supports
 unsupported_python_version = (3, 4, 0)
-deprecated_python_version = (3, 4, 0)
+deprecated_python_version = (3, 5, 0)
 
 import SCons.compat
 

@@ -48,6 +48,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove local copy of CLVar in EnvironmentTests unittest file -
       should be testing against the production version, and they
       didn't really differ.
+    - Don't strip spaces in INSTALLSTR by using raw subst (issue 2018)
+    - Deprecate Python 3.5 as a supported version.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
