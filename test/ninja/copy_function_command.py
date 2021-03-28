@@ -23,6 +23,7 @@
 #
 
 import os
+
 import TestSCons
 from TestCmd import IS_WINDOWS
 
@@ -34,7 +35,7 @@ except ImportError:
     test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
+_exe = TestSCons._exe
 
 ninja_bin = os.path.abspath(os.path.join(
     ninja.__file__,
@@ -56,8 +57,8 @@ env.Program(target = 'foo', source = 'foo2.c')
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
-test.run(program = test.workpath('foo'), stdout="foo.c")
+test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
+test.run(program=test.workpath('foo'), stdout="foo.c")
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
@@ -74,8 +75,8 @@ test.must_not_exist(test.workpath('foo'))
 
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program = program, stdout=None)
-test.run(program = test.workpath('foo'), stdout="foo.c")
+test.run(program=program, stdout=None)
+test.run(program=test.workpath('foo'), stdout="foo.c")
 
 test.pass_test()
 

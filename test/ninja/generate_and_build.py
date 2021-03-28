@@ -46,7 +46,7 @@ ninja_bin = os.path.abspath(os.path.join(
 
 test.dir_fixture('ninja-fixture')
 
-test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build.py', 'SConstruct')
+test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build', 'SConstruct')
 
 # generate simple build
 test.run(stdout=None)
