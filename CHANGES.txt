@@ -45,6 +45,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove long-deprecated construction variables PDFCOM, WIN32_INSERT_DEF,
       WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
       All have been replaced by other names since at least 1.0.
+    - Remove local copy of CLVar in EnvironmentTests unittest file -
+      should be testing against the production version, and they
+      didn't really differ.
     - Don't strip spaces in INSTALLSTR by using raw subst (issue 2018)
     - Deprecate Python 3.5 as a supported version.
 
