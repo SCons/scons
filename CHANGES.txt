@@ -45,6 +45,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove long-deprecated construction variables PDFCOM, WIN32_INSERT_DEF,
       WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
       All have been replaced by other names since at least 1.0.
+    - Deprecate Python 3.5 as a supported version.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.

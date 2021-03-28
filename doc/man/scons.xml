@@ -536,6 +536,12 @@ by appropriate setting of &consvars;.</para>
 requires Python 3.5 or higher.
 There should be no other dependencies or requirements to run &scons;.
 </para>
+<para><emphasis>
+Support for Python 3.5 is deprecated since
+&SCons; 4.2 and will be dropped in a future release.
+The CPython project has retired 3.5:
+<ulink url="https://www.python.org/dev/peps/pep-0478"/>.
+</emphasis></para>
 
 </refsect1>
 
