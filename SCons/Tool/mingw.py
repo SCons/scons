@@ -173,10 +173,8 @@ def generate(env):
     env.Append(LDMODULEEMITTER=[shlib_emitter])
     env['AS'] = 'as'
 
-    env['WIN32DEFPREFIX'] = ''
-    env['WIN32DEFSUFFIX'] = '.def'
-    env['WINDOWSDEFPREFIX'] = '${WIN32DEFPREFIX}'
-    env['WINDOWSDEFSUFFIX'] = '${WIN32DEFSUFFIX}'
+    env['WINDOWSDEFPREFIX'] = ''
+    env['WINDOWSDEFSUFFIX'] = '.def'
 
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1

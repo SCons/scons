@@ -73,12 +73,4 @@ If this is not set, then &cv-link-DVIPDFCOM; (the command line) is displayed.
 </summary>
 </cvar>
 
-<cvar name="PDFCOM">
-<summary>
-<para>
-A deprecated synonym for &cv-link-DVIPDFCOM;.
-</para>
-</summary>
-</cvar>
-
 </sconsdoc>

@@ -42,6 +42,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Do not treat --site-dir=DIR and --no-site-dir as distinct options.
       Allows a later instance to override an earlier one.
     - Ignore empty cmdline arguments when computing targets (issue 2986)
+    - Remove long-deprecated construction variables PDFCOM, WIN32_INSERT_DEF,
+      WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
+      All have been replaced by other names since at least 1.0.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
