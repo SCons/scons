@@ -23,8 +23,9 @@
 #
 
 import os
-import time
 import random
+import time
+
 import TestSCons
 from TestCmd import IS_WINDOWS
 
@@ -36,7 +37,7 @@ except ImportError:
     test.skip_test("Could not find module in python")
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
+_exe = TestSCons._exe
 
 ninja_bin = os.path.abspath(os.path.join(
     ninja.__file__,
@@ -68,6 +69,7 @@ int
 print_function0();
 """)
 
+
 def get_num_cpus():
     """
     Function to get the number of CPUs the system has.
@@ -88,6 +90,7 @@ def get_num_cpus():
         return ncpus
     # Default
     return 1
+
 
 def generate_source(parent_source, current_source):
     test.write('source_{}.c'.format(current_source), """
@@ -111,8 +114,9 @@ def generate_source(parent_source, current_source):
         print_function%(current_source)s();
         """ % locals())
 
+
 def mod_source_return(test_num):
-    parent_source = test_num-1
+    parent_source = test_num - 1
     test.write('source_{}.c'.format(test_num), """
         #include <stdio.h>
         #include <stdlib.h>
@@ -128,8 +132,9 @@ def mod_source_return(test_num):
         }
         """ % locals())
 
+
 def mod_source_orig(test_num):
-    parent_source = test_num-1
+    parent_source = test_num - 1
     test.write('source_{}.c'.format(test_num), """
         #include <stdio.h>
         #include <stdlib.h>
@@ -143,9 +148,10 @@ def mod_source_orig(test_num):
         }
         """ % locals())
 
+
 num_source = 200
-for i in range(1, num_source+1):
-    generate_source(i-1, i)
+for i in range(1, num_source + 1):
+    generate_source(i - 1, i)
 
 test.write('main.c', """
 #include <stdio.h>
@@ -183,15 +189,15 @@ ninja_program = [test.workpath('run_ninja_env.bat'), jobs] if IS_WINDOWS else [n
 
 start = time.perf_counter()
 test.run(arguments='--disable-execute-ninja', stdout=None)
-test.run(program = ninja_program, stdout=None)
+test.run(program=ninja_program, stdout=None)
 stop = time.perf_counter()
 ninja_times += [stop - start]
-test.run(program = test.workpath('print_bin'), stdout="main print")
+test.run(program=test.workpath('print_bin'), stdout="main print")
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)
     start = time.perf_counter()
-    test.run(program = ninja_program, stdout=None)
+    test.run(program=ninja_program, stdout=None)
     stop = time.perf_counter()
     ninja_times += [stop - start]
 
@@ -204,15 +210,15 @@ test.must_contain_all_lines(test.stdout(), [
     'Removed build.ninja'])
 
 start = time.perf_counter()
-test.run(arguments = ["-f", "SConstruct_no_ninja", jobs], stdout=None)
+test.run(arguments=["-f", "SConstruct_no_ninja", jobs], stdout=None)
 stop = time.perf_counter()
 scons_times += [stop - start]
-test.run(program = test.workpath('print_bin'), stdout="main print")
+test.run(program=test.workpath('print_bin'), stdout="main print")
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)
     start = time.perf_counter()
-    test.run(arguments = ["-f", "SConstruct_no_ninja", jobs], stdout=None)
+    test.run(arguments=["-f", "SConstruct_no_ninja", jobs], stdout=None)
     stop = time.perf_counter()
     scons_times += [stop - start]
 

@@ -23,6 +23,7 @@
 #
 
 import os
+
 import TestSCons
 from TestCmd import IS_WINDOWS
 
@@ -50,7 +51,7 @@ test.dir_fixture('ninja-fixture')
 # env.Tool('ninja')
 # env.Program(target = 'test2', source = 'test2.cpp')
 # """)
-test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build_cxx.py','SConstruct')
+test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build_cxx', 'SConstruct')
 
 # generate simple build
 test.run()

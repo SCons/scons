@@ -24,6 +24,7 @@
 
 
 import os
+
 import TestSCons
 from TestCmd import IS_WINDOWS, IS_MACOS
 
@@ -34,14 +35,12 @@ try:
 except ImportError:
     test.skip_test("Could not find ninja module in python")
 
-
 ninja_binary = test.where_is('ninja')
 if not ninja_binary:
     test.skip_test("Could not find ninja. Skipping test.")
 
-
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
+_exe = TestSCons._exe
 
 ninja_bin = os.path.abspath(os.path.join(
     ninja.__file__,
@@ -83,9 +82,9 @@ env.Program(target = 'test_static', source = static_obj, LIBS=[static_lib], LIBP
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' %locals())
-test.run(program = test.workpath('test'), stdout="library_function")
-test.run(program = test.workpath('test_static'), stdout="library_function")
+test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
+test.run(program=test.workpath('test'), stdout="library_function")
+test.run(program=test.workpath('test_static'), stdout="library_function")
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
@@ -104,9 +103,9 @@ test.must_not_exist(test.workpath('test_static'))
 
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program = program, stdout=None)
-test.run(program = test.workpath('test'), stdout="library_function")
-test.run(program = test.workpath('test_static'), stdout="library_function")
+test.run(program=program, stdout=None)
+test.run(program=test.workpath('test'), stdout="library_function")
+test.run(program=test.workpath('test_static'), stdout="library_function")
 
 test.pass_test()
 
