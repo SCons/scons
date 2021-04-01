@@ -34,6 +34,7 @@ import uuid
 import SCons.Action
 import SCons.Errors
 import SCons.Warnings
+import SCons
 
 cache_enabled = True
 cache_debug = False
@@ -245,7 +246,7 @@ class CacheDir:
     def get_cachedir_csig(self, node):
         cachedir, cachefile = self.cachepath(node)
         if cachefile and os.path.exists(cachefile):
-            return SCons.Util.MD5filesignature(cachefile, SCons.Node.FS.File.md5_chunksize)
+            return SCons.Util.hash_file_signature(cachefile, SCons.Node.FS.File.hash_chunksize)
 
     def cachepath(self, node):
         """
