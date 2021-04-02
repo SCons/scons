@@ -869,7 +869,7 @@ sys.exit(0)
 
         # avoid SubstitutionEnvironment for these, has no .Append method,
         # which is needed for unique=False test
-        env = Environment(CCFLAGS=None)
+        env = Environment(CCFLAGS="")
         # merge with existing but empty flag
         env.MergeFlags('-X')
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
