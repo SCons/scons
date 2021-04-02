@@ -1038,7 +1038,7 @@ class Base(SubstitutionEnvironment):
             path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
         try:
             if (path == self._last_CacheDir_path
-                and self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir) == type(self._last_CacheDir)):
+                    and self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir) == type(self._last_CacheDir)):
                 return self._last_CacheDir
         except AttributeError:
             pass

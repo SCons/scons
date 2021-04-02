@@ -1452,6 +1452,7 @@ def exists(env):
 
     def test_default_copy_cache(self):
         copied = False
+
         def copy2(self, src, dst):
             nonlocal copied
             copied = True
