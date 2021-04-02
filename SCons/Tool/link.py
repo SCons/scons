@@ -21,7 +21,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
 """
 Tool-specific initialization for the generic Posix linker.
 
@@ -48,8 +48,10 @@ def generate(env):
     setup_loadable_module_logic(env)
 
     env['SMARTLINK'] = smart_link
-    env['LINK'] = "$SMARTLINK"
-    env['LINKFLAGS'] = SCons.Util.CLVar('')
+    if 'LINK' not in env:
+        env['LINK'] = "$SMARTLINK"
+    if 'LINKFLAGS' not in env:
+        env['LINKFLAGS'] = SCons.Util.CLVar('')
 
     # __RPATH is only set to something ($_RPATH typically) on platforms that support it.
     env['LINKCOM'] = '$LINK -o $TARGET $LINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
