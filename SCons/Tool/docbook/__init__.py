@@ -761,7 +761,7 @@ def DocbookXslt(env, target, source=None, *args, **kw):
     target, source = __extend_targets_sources(target, source)
 
     # Init XSL stylesheet
-    kw['DOCBOOK_XSL'] = kw.get('xsl', 'transform.xsl')
+    kw['DOCBOOK_XSL'] = env.File(kw.get('xsl', 'transform.xsl'))
 
     # Setup builder
     __builder = __select_builder(__lxml_builder, __xsltproc_builder)

@@ -8,6 +8,11 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Henrik Maier:
+   - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node, 
+     such that dependencies work correctly in hierarchical builds (eg when using 
+     DocbookXslt in SConscript('subdir/SConscript') context.
+
   From William Deegan:
     - Improve Subst()'s logic to check for proper callable function or class's argument list.
       It will now allow callables with expected args, and any extra args as long as they
