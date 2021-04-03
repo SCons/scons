@@ -1,5 +1,4 @@
 Import('env')
-env = env.Clone(tools=['docbook'])
 
 #
 # Create document
