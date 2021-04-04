@@ -109,6 +109,15 @@ and a database of information about previous builds so
 details do not have to be recalculated each run.
 </para>
 
+<para>&scons; requires Python 3.5 or later to run;
+there should be no other dependencies or requirements.
+<emphasis>
+Support for Python 3.5 is deprecated since
+&SCons; 4.2 and will be dropped in a future release.
+The CPython project has retired 3.5:
+<ulink url="https://www.python.org/dev/peps/pep-0478"/>.
+</emphasis></para>
+
 <para>You set up an &SCons;
 build system by writing a script
 that describes things to build (<firstterm>targets</firstterm>), and,
@@ -389,18 +398,6 @@ and the Intel compiler tools.
 These default values may be overridden
 by appropriate setting of &consvars;.</para>
 
-<para>&scons;
-requires Python 3.5 or higher.
-There should be no other dependencies or requirements to run &scons;.
-</para>
-
-<para><emphasis>
-Support for Python 3.5 is deprecated since
-&SCons; 4.2 and will be dropped in a future release.
-The CPython project has retired 3.5:
-<ulink url="https://www.python.org/dev/peps/pep-0478"/>.
-</emphasis></para>
-
 <refsect2 id='target_selection'>
 <title>Target Selection</title>
 
@@ -600,10 +597,10 @@ Will not remove any targets which are marked for
 preservation through calls to the &f-link-NoClean; function.
 </para>
 <para>
-Files created directly by Python code in SConscript files,
-as opposed to work scheduled to builder actions during the build phase,
-are not affected by clean mode.  If it is important to clean up
-some other work in clean mode, steps need to be added to handle that.
+While clean mode removes targets rather than building them,
+work which is done directly in Python code in SConscript files
+will still be carried out.  If it is important to avoid some
+such work from taking place in clean mode, it should be protected.
 An SConscript file can determine which mode
 is active by querying &f-link-GetOption;, as in the call
 <code>if GetOption("clean"):</code>
