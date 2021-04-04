@@ -27,7 +27,7 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 Sets construction variables for the &gas; assembler.
-Calls the &t-as; module.
+Calls the &t-link-as; tool.
 </para>
 </summary>
 <sets>

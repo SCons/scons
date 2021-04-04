@@ -3489,6 +3489,7 @@ but it can be indexed like one to access a
 
 <programlisting language="python">
 env["CC"] = "cc"
+flags = env.get("CPPDEFINES", [])
 </programlisting>
 
 <para>&Consvars; can also be retrieved and set
@@ -3528,13 +3529,15 @@ env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 </programlisting>
 
 <para>A number of useful &consvars; are automatically defined by
-scons for each supported platform, and additional &consvars;
-can be defined by the user. The following is a list of the possible
+scons for each supported platform, and you can modify these
+or define any additional &consvars; for your own use,
+taking care not to overwrite ones which &SCons; is using.
+The following is a list of the possible
 automatically defined &consvars;.
 </para>
 
 <para>Note the actual list available
-at execution time will not include all of these, as the ones
+at execution time will never include all of these, as the ones
 detected as not being useful (wrong platform, necessary
 external command or files not installed, etc.) will not be set up.
 Correct build setups should be resilient to the possible
@@ -3542,6 +3545,8 @@ absence of certain &consvars; before using them,
 for example by using a &Python; dictionary
 <function>get</function> method to retrieve the value and
 taking alternative action if the return indicates the variable is unset.
+The &f-link-env-Dump; method can be called to examine the
+&consvars; set in a particular environment.
 </para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->

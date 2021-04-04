@@ -26,9 +26,9 @@ See its __doc__ string for a discussion of the format.
 <tool name="hpcc">
 <summary>
 <para>
-Set construction variables for the
-<application>aCC</application> on HP/UX systems.
-Calls the &t-cXX; tool for additional variables.
+Set construction variables for
+<application>aCC</application> compilers on HP/UX systems.
+Calls the &t-link-cXX; tool for additional variables.
 </para>
 </summary>
 <sets>
