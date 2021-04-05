@@ -47,7 +47,7 @@ to the environment.
 <cvar name="GS">
 <summary>
 <para>
-The name of the Ghostscript program used, e.g. to convert PostScript to PDF files.
+The Ghostscript program used to, for example, convert PostScript to PDF files.
 </para>
 </summary>
 </cvar>
