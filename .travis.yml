@@ -37,6 +37,7 @@ jobs:
   allow_failures:
     - python: pypy3
     - python: 3.10-dev
+    - name: coverage
 
   include:
     - &test_job
