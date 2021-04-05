@@ -1031,21 +1031,30 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             return None
 
+    def validate_CacheDir_class(self, custom_class=None):
+        """Validate the passed custom CacheDir class, or if no args are passed,
+        validate the custom CacheDir class from the environment.
+        """
+
+        if custom_class is None:
+            custom_class = self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir)
+        if not issubclass(custom_class, SCons.CacheDir.CacheDir):
+            raise UserError("Custom CACHEDIR_CLASS %s not derived from CacheDir" % str(custom_class))
+        return custom_class
+
     def get_CacheDir(self):
         try:
             path = self._CacheDir_path
         except AttributeError:
             path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
+
+        cachedir_class = self.validate_CacheDir_class()
         try:
             if (path == self._last_CacheDir_path
-                    and self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir) == type(self._last_CacheDir)):
+                    and cachedir_class is type(self._last_CacheDir)):
                 return self._last_CacheDir
         except AttributeError:
             pass
-
-        cachedir_class = self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir)
-        if not issubclass(cachedir_class, SCons.CacheDir.CacheDir):
-            raise UserError("Custom CACHEDIR_CLASS %s not derived from CacheDir" % str(cachedir_class))
 
         cd = cachedir_class(path)
         self._last_CacheDir_path = path
@@ -1994,7 +2003,7 @@ class Base(SubstitutionEnvironment):
         self._CacheDir_path = path
 
         if custom_class:
-            self['CACHEDIR_CLASS'] = custom_class
+            self['CACHEDIR_CLASS'] = self.validate_CacheDir_class(custom_class)
 
         if SCons.Action.execute_actions:
             # Only initialize the CacheDir if  -n/-no_exec was NOT specified.

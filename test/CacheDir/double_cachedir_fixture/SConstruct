@@ -3,7 +3,7 @@ class CustomCacheDir1(SCons.CacheDir.CacheDir):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print("INSTANCIATED %s" % str(type(self)))
+        print("INSTANCIATED %s" % str(type(self).__name__))
 
     @classmethod
     def copy_to_cache(cls, env, src, dst):
@@ -14,7 +14,7 @@ class CustomCacheDir2(SCons.CacheDir.CacheDir):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print("INSTANCIATED %s" % str(type(self)))
+        print("INSTANCIATED %s" % str(type(self).__name__))
 
     @classmethod
     def copy_to_cache(cls, env, src, dst):
@@ -23,8 +23,10 @@ class CustomCacheDir2(SCons.CacheDir.CacheDir):
 
 env = Environment(tools=[])
 env.CacheDir('cache1', CustomCacheDir1)
-env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 env.CacheDir('cache2', CustomCacheDir2)
 
+cloned = env.Clone()
+cloned.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
 
+env.CacheDir('cache1', CustomCacheDir1)
 

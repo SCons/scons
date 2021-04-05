@@ -25,7 +25,7 @@
 #
 
 """
-Test that a custom cache dir can be passed to SCons.
+Test that a custom cache dir is not incorrectly duplicated.
 """
 
 import TestSCons
@@ -36,7 +36,9 @@ test.dir_fixture('double_cachedir_fixture')
 
 test.run()
 
-test.must_contain_all_lines(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS2"])
+test.must_contain_single_instance_of(test.stdout(), ["INSTANCIATED CustomCacheDir2"])
+test.must_contain_single_instance_of(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS2"])
+test.must_not_contain_any_line(test.stdout(), ["MY_CUSTOM_CACHEDIR_CLASS1"])
 
 test.pass_test()
 

@@ -57,7 +57,7 @@ provided by the TestCommon class:
     test.must_not_exist('file1', ['file2', ...])
 
     test.must_not_be_empty('file')
-    
+
     test.run(options = "options to be prepended to arguments",
              stdout = "expected standard output from the program",
              stderr = "expected error output from the program",
@@ -303,7 +303,7 @@ class TestCommon(TestCmd):
         Calling test exits FAILED if search result is false
         """
         if 'b' in mode:
-            # Python 3: reading a file in binary mode returns a 
+            # Python 3: reading a file in binary mode returns a
             # bytes object. We cannot find the index of a different
             # (str) type in that, so convert.
             required = to_bytes(required)
@@ -365,6 +365,34 @@ class TestCommon(TestCmd):
             sys.stdout.write("Missing expected lines from %s:\n" % title)
             for line in missing:
                 sys.stdout.write('    ' + repr(line) + '\n')
+            sys.stdout.write(self.banner(title + ' ') + '\n')
+            sys.stdout.write(output)
+            self.fail_test()
+
+    def must_contain_single_instance_of(self, output, lines, title=None):
+        """Ensures that the specified output string (first argument)
+        contains one instance of the specified lines (second argument).
+
+        An optional third argument can be used to describe the type
+        of output being searched, and only shows up in failure output.
+
+        """
+        missing = []
+        if is_List(output):
+            output = '\n'.join(output)
+
+        counts = {}
+        for line in lines:
+            count = output.count(line)
+            if count != 1:
+                counts[line] = count
+
+        if counts:
+            if title is None:
+                title = 'output'
+            sys.stdout.write("Unexpected number of lines from %s:\n" % title)
+            for line in counts:
+                sys.stdout.write('    ' + repr(line) + ": found " + str(counts[line]) + '\n')
             sys.stdout.write(self.banner(title + ' ') + '\n')
             sys.stdout.write(output)
             self.fail_test()
@@ -581,7 +609,7 @@ class TestCommon(TestCmd):
             fsize = os.path.getsize(file)
         except OSError:
             fsize = 0
-            
+
         if fsize == 0:
             print("File is empty: `%s'" % file)
             self.fail_test(file)
