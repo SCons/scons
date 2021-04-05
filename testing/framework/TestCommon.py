@@ -377,7 +377,6 @@ class TestCommon(TestCmd):
         of output being searched, and only shows up in failure output.
 
         """
-        missing = []
         if is_List(output):
             output = '\n'.join(output)
 

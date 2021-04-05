@@ -1051,7 +1051,8 @@ class Base(SubstitutionEnvironment):
         cachedir_class = self.validate_CacheDir_class()
         try:
             if (path == self._last_CacheDir_path
-                    and cachedir_class is type(self._last_CacheDir)):
+                    and issubclass(type(self._last_CacheDir), cachedir_class)
+                    and issubclass(cachedir_class, type(self._last_CacheDir))):
                 return self._last_CacheDir
         except AttributeError:
             pass
