@@ -28,9 +28,9 @@ See its __doc__ string for a discussion of the format.
 <para>
 Sets construction variables for the Intel C/C++ compiler
 (Linux and Windows, version 7 and later).
-Calls the &t-gcc; or &t-msvc;
+Calls the &t-link-gcc; or &t-link-msvc;
 (on Linux and Windows, respectively)
-to set underlying variables.
+tool to set underlying variables.
 </para>
 </summary>
 <sets>
@@ -48,7 +48,7 @@ to set underlying variables.
 <cvar name="INTEL_C_COMPILER_VERSION">
 <summary>
 <para>
-Set by the "intelc" Tool
+Set by the &t-link-intelc; Tool
 to the major version number of the Intel C compiler
 selected for use.
 </para>

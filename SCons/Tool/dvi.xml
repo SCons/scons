@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="dvi">
 <summary>
 <para>
-Attaches the &b-DVI; builder to the
+Attaches the &b-link-DVI; builder to the
 construction environment.
 </para>
 </summary>

@@ -59,8 +59,8 @@ so you're encouraged to see their individual documentation.
 <para>
 Each of the above tools provides its own builder(s) which may be used to
 perform particular activities related to software internationalization. You
-may be however interested in <emphasis>top-level</emphasis> builder
-&b-Translate; described few paragraphs later.
+may be however interested in <emphasis>top-level</emphasis> 
+&b-link-Translate; builder.
 </para>
 
 <para>

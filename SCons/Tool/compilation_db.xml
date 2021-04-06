@@ -103,7 +103,7 @@ See its __doc__ string for a discussion of the format.
     <cvar name="COMPILATIONDB_COMSTR">
         <summary>
             <para>
-                The string displayed when the &b-CompilationDatabase;
+                The string displayed when the &b-link-CompilationDatabase;
                 builder's action is run.
             </para>
         </summary>

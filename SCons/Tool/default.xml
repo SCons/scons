@@ -41,67 +41,79 @@ the platform and on the software installed on the platform.
 Some tools will not initialize if an underlying command is
 not found, and some tools are selected from a list of choices
 on a first-found basis. The finished tool list can be
-examined by inspecting the <envar>TOOLS</envar> &consvar;
+examined by inspecting the &cv-link-TOOLS; &consvar;
 in the &consenv;.
 </para>
 
 <para>
-On all platforms, all tools from the following list
-are selected whose respective conditions are met:
-filesystem, wix, lex, yacc, rpcgen, swig,
-jar, javac, javah, rmic, dvipdf, dvips, gs,
-tex, latex, pdflatex, pdftex, tar, zip, textfile.
+On all platforms, the tools from the following list
+are selected if their respective conditions are met:
+<!--TODO: &t-link-filesystem; --> filesystem;,
+<!--TODO &t-link-wix; --> wix,
+&t-link-lex;, &t-link-yacc;,
+&t-link-rpcgen;, &t-link-swig;,
+&t-link-jar;, &t-link-javac;, &t-link-javah;, &t-link-rmic;,
+&t-link-dvipdf;, &t-link-dvips;, &t-link-gs;,
+&t-link-tex;, &t-link-latex;, &t-link-pdflatex;, &t-link-pdftex;,
+&t-link-tar;, &t-link-zip;, &t-link-textfile;.
 </para>
 
 <para>
 On Linux systems, the default tools list selects
 (first-found): a C compiler from
-gcc, intelc, icc, cc;
+&t-link-gcc;, &t-link-intelc;, &t-link-icc;, &t-link-cc;;
 a C++ compiler from
-g++, intelc, icc, cxx;
+&t-link-gXX;, &t-link-intelc;, &t-link-icc;, &t-link-cXX;;
 an assembler from
-gas, nasm, masm;
+&t-link-gas;, &t-link-nasm;, &t-link-masm;;
 a linker from
-gnulink, ilink;
+&t-link-gnulink;, &t-link-ilink;;
 a Fortran compiler from
-gfortran, g77, ifort, ifl, f95, f90, f77;
-and a static archiver 'ar'.
+&t-link-gfortran;, &t-link-g77;, &t-link-ifort;, &t-link-ifl;,
+&t-link-f95;, &t-link-f90;, &t-link-f77;;
+and a static archiver &t-link-ar;.
 It also selects all found from the list
-m4, rpm.
+&t-link-m4;
+<!-- TODO &t-link-rpm; --> rpm.
 </para>
 
 <para>
 On Windows systems, the default tools list selects
 (first-found): a C compiler from
-msvc, mingw, gcc, intelc, icl, icc, cc, bcc32;
+&t-link-msvc;, &t-link-mingw;, &t-link-gcc;, &t-link-intelc;,
+&t-link-icl;, &t-link-icc;, &t-link-cc;, &t-link-bcc32;;
 a C++ compiler from
-msvc, intelc, icc, g++, cxx, bcc32;
+&t-link-msvc;, &t-link-intelc;, &t-link-icc;, &t-link-gXX;,
+&t-link-cXX;, &t-link-bcc32;;
 an assembler from
-masm, nasm, gas, 386asm;
+&t-link-masm;, &t-link-nasm;, &t-link-gas;, &t-link-386asm;;
 a linker from
-mslink, gnulink, ilink, linkloc, ilink32;
+&t-link-mslink;, &t-link-gnulink;, &t-link-ilink;,
+&t-link-linkloc;, &t-link-ilink32;;
 a Fortran compiler from
-gfortran, g77, ifl, cvf, f95, f90, fortran;
+&t-link-gfortran;, &t-link-g77;, &t-link-ifl;, &t-link-cvf;,
+&t-link-f95;, &t-link-f90;, &t-link-fortran;;
 and a static archiver from
-mslib, ar, tlib;
+&t-link-mslib;, &t-link-ar;, &t-link-tlib;;
 It also selects all found from the list
-msvs, midl.
+&t-link-msvs;, &t-link-midl;.
 </para>
 
 <para>
 On MacOS systems, the default tools list selects
 (first-found): a C compiler from
-gcc, cc;
+&t-link-gcc;, &t-link-cc;;
 a C++ compiler from
-g++, cxx;
-an assembler 'as';
+&t-link-gXX;, &t-link-cXX;;
+an assembler &t-link-as;;
 a linker from
-applelink, gnulink;
+&t-link-applelink;, &t-link-gnulink;;
 a Fortran compiler from
-gfortran, f95, f90, g77;
-and a static archiver ar.
+&t-link-gfortran;, &t-link-f95;, &t-link-f90;, &t-link-g77;;
+and a static archiver &t-link-ar;.
 It also selects all found from the list
-m4, rpm.
+&t-link-m4;,
+<!-- TODO &t-link-rpm; --> rpm.
 </para>
 
 <para>
