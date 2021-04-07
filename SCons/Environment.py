@@ -1051,8 +1051,11 @@ class Base(SubstitutionEnvironment):
         cachedir_class = self.validate_CacheDir_class()
         try:
             if (path == self._last_CacheDir_path
-                    and issubclass(type(self._last_CacheDir), cachedir_class)
-                    and issubclass(cachedir_class, type(self._last_CacheDir))):
+                    # this checks if the cachedir class type has changed from what the
+                    # instantiated cache dir type is. If the are exactly the same we
+                    # can just keep using the existing one, otherwise the user is requesting
+                    # something new, so we will re-instantiate below.
+                    and type(self._last_CacheDir) is cachedir_class):
                 return self._last_CacheDir
         except AttributeError:
             pass
