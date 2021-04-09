@@ -25,7 +25,24 @@
 #
 
 """
-Test that a custom cache dir is not incorrectly duplicated.
+Test that cache dir is reinitialized correctly when two cachedirs are in use
+and also that the cachedirs are isolated to their own environments.
+
+The core of the test is:
+-----------------------------------------
+env = Environment(tools=[])
+env.CacheDir('cache1', CustomCacheDir1)
+env.CacheDir('cache2', CustomCacheDir2)
+
+cloned = env.Clone()
+cloned.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
+
+env.CacheDir('cache1', CustomCacheDir1)
+-----------------------------------------
+
+Where each cachedir is printing its own name in an overridden copy_to_cache function, so
+since the only command putting something to cache is in the cloned environment, we should
+see only cachedir2 print since that was initialized for that env when the clone happened.
 """
 
 import TestSCons
