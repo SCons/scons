@@ -36,7 +36,7 @@ test.write('SConstruct', """
 env = Environment()
 """)
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
 test.pass_test()
 
