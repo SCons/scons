@@ -31,7 +31,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.file_fixture('fixture/SConstruct__experimental.py', 'SConstruct')
+test.file_fixture('fixture/SConstruct__experimental', 'SConstruct')
 
 tests = [
     ('.', [], 'False'),
