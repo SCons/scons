@@ -886,9 +886,12 @@ def default_decide_target(dependency, target, prev_ni, repo_node=None):
     return f(dependency, target, prev_ni, repo_node)
 
 
-def default_copy_from_cache(src, dst):
-    f = SCons.Defaults.DefaultEnvironment().copy_from_cache
-    return f(src, dst)
+def default_copy_from_cache(env, src, dst):
+    return SCons.CacheDir.CacheDir.copy_from_cache(env, src, dst)
+
+
+def default_copy_to_cache(env, src, dst):
+    return SCons.CacheDir.CacheDir.copy_to_cache(env, src, dst)
 
 
 class Base(SubstitutionEnvironment):
@@ -953,7 +956,7 @@ class Base(SubstitutionEnvironment):
         self.decide_target = default_decide_target
         self.decide_source = default_decide_source
 
-        self.copy_from_cache = default_copy_from_cache
+        self.cache_timestamp_newer = False
 
         self._dict['BUILDERS'] = BuilderDict(self._dict['BUILDERS'], self)
 
@@ -1028,17 +1031,36 @@ class Base(SubstitutionEnvironment):
         except KeyError:
             return None
 
+    def validate_CacheDir_class(self, custom_class=None):
+        """Validate the passed custom CacheDir class, or if no args are passed,
+        validate the custom CacheDir class from the environment.
+        """
+
+        if custom_class is None:
+            custom_class = self.get("CACHEDIR_CLASS", SCons.CacheDir.CacheDir)
+        if not issubclass(custom_class, SCons.CacheDir.CacheDir):
+            raise UserError("Custom CACHEDIR_CLASS %s not derived from CacheDir" % str(custom_class))
+        return custom_class
+
     def get_CacheDir(self):
         try:
             path = self._CacheDir_path
         except AttributeError:
             path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
+
+        cachedir_class = self.validate_CacheDir_class()
         try:
-            if path == self._last_CacheDir_path:
+            if (path == self._last_CacheDir_path
+                    # this checks if the cachedir class type has changed from what the
+                    # instantiated cache dir type is. If the are exactly the same we
+                    # can just keep using the existing one, otherwise the user is requesting
+                    # something new, so we will re-instantiate below.
+                    and type(self._last_CacheDir) is cachedir_class):
                 return self._last_CacheDir
         except AttributeError:
             pass
-        cd = SCons.CacheDir.CacheDir(path)
+
+        cd = cachedir_class(path)
         self._last_CacheDir_path = path
         self._last_CacheDir = cd
         return cd
@@ -1485,14 +1507,8 @@ class Base(SubstitutionEnvironment):
     def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None):
         return dependency.changed_timestamp_match(target, prev_ni, repo_node)
 
-    def _copy_from_cache(self, src, dst):
-        return self.fs.copy(src, dst)
-
-    def _copy2_from_cache(self, src, dst):
-        return self.fs.copy2(src, dst)
-
     def Decider(self, function):
-        copy_function = self._copy2_from_cache
+        self.cache_timestamp_newer = False
         if function in ('MD5', 'content'):
             # TODO: Handle if user requests MD5 and not content with deprecation notice
             function = self._changed_content
@@ -1500,7 +1516,7 @@ class Base(SubstitutionEnvironment):
             function = self._changed_timestamp_then_content
         elif function in ('timestamp-newer', 'make'):
             function = self._changed_timestamp_newer
-            copy_function = self._copy_from_cache
+            self.cache_timestamp_newer = True
         elif function == 'timestamp-match':
             function = self._changed_timestamp_match
         elif not callable(function):
@@ -1511,7 +1527,6 @@ class Base(SubstitutionEnvironment):
         # method, which would add self as an initial, fourth argument.
         self.decide_target = function
         self.decide_source = function
-        self.copy_from_cache = copy_function
 
 
     def Detect(self, progs):
@@ -1986,10 +2001,13 @@ class Base(SubstitutionEnvironment):
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
 
-    def CacheDir(self, path):
+    def CacheDir(self, path, custom_class=None):
         if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path
+
+        if custom_class:
+            self['CACHEDIR_CLASS'] = self.validate_CacheDir_class(custom_class)
 
         if SCons.Action.execute_actions:
             # Only initialize the CacheDir if  -n/-no_exec was NOT specified.

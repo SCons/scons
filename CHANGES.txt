@@ -13,7 +13,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       It will now allow callables with expected args, and any extra args as long as they
       have default arguments. Additionally functions with no defaults for extra arguments
       as long as they are set using functools.partial to create a new callable which set them.
-    - Fix Issue #3035 - mingw with SHLIBVERSION set fails with either not a dll error or 
+    - Fix Issue #3035 - mingw with SHLIBVERSION set fails with either not a dll error or
       "Multiple ways to build the same target were specified for:".  Now mingw will disable
       creating the symlinks (and adding version string to ) dlls.  It sets SHLIBNOVERSIONSYMLINKS,
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
@@ -32,6 +32,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
       This fixes cases for shared cache where two systems write to the same
       cache tmpfile at the same time because the happened to get the same pid.
+    - Added support for passing custom CacheDir derived classes to SCons. Moved
+      copy_from_cache attribute from the Environment class to CacheDir class.
+      Code contributed by MongoDB.
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and

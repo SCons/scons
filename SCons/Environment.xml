@@ -244,6 +244,16 @@ that are part of this construction environment.
 </summary>
 </cvar>
 
+<cvar name="CACHEDIR_CLASS">
+    <summary>
+        <para>
+The class type that SCons should use when instantiating a
+new &f-link-CacheDir; for the given environment. It must be
+a subclass of the SCons.CacheDir.CacheDir class.
+        </para>
+    </summary>
+</cvar>
+
 <!-- Functions /  Construction environment methods -->
 
 <scons_function name="Action">
@@ -746,7 +756,7 @@ until after the Builder object is actually called.
 
 <scons_function name="CacheDir">
 <arguments>
-(cache_dir)
+(cache_dir, custom_class=None)
 </arguments>
 <summary>
 <para>
@@ -762,6 +772,15 @@ Specifying a
 of
 <constant>None</constant>
 disables derived file caching.
+</para>
+
+<para>
+When specifying a
+<parameter>custom_class</parameter> which should be a class type which is a subclass of
+<classname>SCons.CacheDir.CacheDir</classname>, SCons will
+internally invoke this class to use for performing caching operations.
+This argument is optional and if left to default <constant>None</constant>, will use the
+default <classname>SCons.CacheDir.CacheDir</classname> class.
 </para>
 
 <para>

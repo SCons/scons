@@ -39,6 +39,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
       WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
       All have been replaced by other names since at least 1.0.
 
+    - Added CACHEDIR_CLASS construction variable and expanded CacheDir method args
+      to support SCons invoking CacheDir derived classes for CacheDir customization.
+      Moved copy_from_cache attribute from the Environment class to CacheDir class.
+      Code contributed by MongoDB.
+
 FIXES
 -----
 

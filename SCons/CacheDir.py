@@ -34,6 +34,7 @@ import uuid
 import SCons.Action
 import SCons.Errors
 import SCons.Warnings
+import SCons
 
 cache_enabled = True
 cache_debug = False
@@ -57,7 +58,7 @@ def CacheRetrieveFunc(target, source, env):
         if fs.islink(cachefile):
             fs.symlink(fs.readlink(cachefile), t.get_internal_path())
         else:
-            env.copy_from_cache(cachefile, t.get_internal_path())
+            cd.copy_from_cache(env, cachefile, t.get_internal_path())
             try:
                 os.utime(cachefile, None)
             except OSError:
@@ -119,7 +120,7 @@ def CachePushFunc(target, source, env):
         if fs.islink(t.get_internal_path()):
             fs.symlink(fs.readlink(t.get_internal_path()), tempfile)
         else:
-            fs.copy2(t.get_internal_path(), tempfile)
+            cd.copy_to_cache(env, t.get_internal_path(), tempfile)
         fs.rename(tempfile, cachefile)
         st = fs.stat(t.get_internal_path())
         fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
@@ -214,6 +215,20 @@ class CacheDir:
             self.debugFP.write("requests: %d, hits: %d, misses: %d, hit rate: %.2f%%\n" %
                                (self.requests, self.hits, self.misses, self.hit_ratio))
 
+    @classmethod
+    def copy_from_cache(cls, env, src, dst):
+        if env.cache_timestamp_newer:
+            return env.fs.copy(src, dst)
+        else:
+            return env.fs.copy2(src, dst)
+
+    @classmethod
+    def copy_to_cache(cls, env, src, dst):
+        try:
+            return env.fs.copy2(src, dst)
+        except AttributeError as ex:
+            raise EnvironmentError from ex
+
     @property
     def hit_ratio(self):
         return (100.0 * self.hits / self.requests if self.requests > 0 else 100)
@@ -227,6 +242,11 @@ class CacheDir:
 
     def is_readonly(self):
         return cache_readonly
+
+    def get_cachedir_csig(self, node):
+        cachedir, cachefile = self.cachepath(node)
+        if cachefile and os.path.exists(cachefile):
+            return SCons.Util.hash_file_signature(cachefile, SCons.Node.FS.File.hash_chunksize)
 
     def cachepath(self, node):
         """
