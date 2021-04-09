@@ -155,7 +155,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         assert cmd != defined_cmd, cmd
 
     def test_TEMPFILEARGJOINBYTE(self):
-        """ 
+        """
         Test argument join byte TEMPFILEARGJOINBYTE
         """
 
@@ -188,6 +188,36 @@ class TempFileMungeTestCase(unittest.TestCase):
         # ...and restoring its setting.
         SCons.Action.print_actions = old_actions
         assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
+
+    def test_TEMPFILEARGESCFUNC(self):
+        """
+        Test a custom TEMPFILEARGESCFUNC
+        """
+
+        def _tempfile_arg_esc_func(arg):
+            return str(arg).replace("line", "newarg")
+
+        defined_cmd = "a $VERY $OVERSIMPLIFIED line"
+        t = SCons.Platform.TempFileMunge(defined_cmd)
+        env = SCons.Environment.SubstitutionEnvironment(tools=[])
+        # Setting the line length high enough...
+        env['MAXLINELENGTH'] = 5
+        env['VERY'] = 'test'
+        env['OVERSIMPLIFIED'] = 'command'
+
+        # For tempfilemunge to operate.
+        old_actions = SCons.Action.print_actions
+        SCons.Action.print_actions = 0
+        env['TEMPFILEARGESCFUNC'] = _tempfile_arg_esc_func
+        cmd = t(None, None, env, 0)
+        # print("CMD is: %s"%cmd)
+
+        with open(cmd[-1], 'rb') as f:
+            file_content = f.read()
+        # print("Content is:[%s]"%file_content)
+        # # ...and restoring its setting.
+        SCons.Action.print_actions = old_actions
+        assert b"newarg" in file_content
 
     def test_tempfilecreation_once(self):
         """
