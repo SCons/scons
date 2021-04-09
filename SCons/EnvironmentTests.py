@@ -1450,6 +1450,31 @@ def exists(env):
         assert env['TOOL2'] == 222, env
         assert env['XYZ'] == 'ddd', env
 
+    def test_default_copy_cache(self):
+        copied = False
+
+        def copy2(self, src, dst):
+            nonlocal copied
+            copied = True
+
+        save_copy_from_cache = SCons.CacheDir.CacheDir.copy_from_cache
+        SCons.CacheDir.CacheDir.copy_from_cache = copy2
+
+        save_copy_to_cache = SCons.CacheDir.CacheDir.copy_to_cache
+        SCons.CacheDir.CacheDir.copy_to_cache = copy2
+
+        env = self.TestEnvironment()
+
+        SCons.Environment.default_copy_from_cache(env, 'test.in', 'test.out')
+        assert copied
+
+        copied = False
+        SCons.Environment.default_copy_to_cache(env, 'test.in', 'test.out')
+        assert copied
+
+        SCons.CacheDir.CacheDir.copy_from_cache = save_copy_from_cache
+        SCons.CacheDir.CacheDir.copy_to_cache = save_copy_to_cache
+
     def test_concat(self):
         """Test _concat()"""
         e1 = self.TestEnvironment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])

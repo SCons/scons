@@ -32,6 +32,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
       This fixes cases for shared cache where two systems write to the same
       cache tmpfile at the same time because the happened to get the same pid.
+    - Added support for passing custom CacheDir derived classes to SCons. Moved
+      copy_from_cache attribute from the Environment class to CacheDir class.
+      Code contributed by MongoDB.
     - Update BuildTask to pass all targets to the progress object fixing an issue
       where multi-target build nodes only got the first target passed to the progress
       object.

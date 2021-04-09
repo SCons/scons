@@ -1,0 +1,36 @@
+import SCons
+class CustomCacheDir1(SCons.CacheDir.CacheDir):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print("INSTANCIATED %s" % str(type(self).__name__))
+
+    @classmethod
+    def copy_to_cache(cls, env, src, dst):
+        print("MY_CUSTOM_CACHEDIR_CLASS1")
+        super().copy_to_cache(env, src, dst)
+
+class CustomCacheDir2(SCons.CacheDir.CacheDir):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print("INSTANCIATED %s" % str(type(self).__name__))
+
+    @classmethod
+    def copy_to_cache(cls, env, src, dst):
+        print("MY_CUSTOM_CACHEDIR_CLASS2")
+        super().copy_to_cache(env, src, dst)
+
+env = Environment(tools=[])
+env.CacheDir('cache1', CustomCacheDir1)
+env.CacheDir('cache2', CustomCacheDir2)
+
+# two cachedirs were initialized, but the second one was the most recent
+# and should remain in the cloned environment, even when we switch the
+# original environment back. The cachedir2 should be the only copy_to_cache
+# function we call.
+cloned = env.Clone()
+cloned.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))
+
+env.CacheDir('cache1', CustomCacheDir1)
+
