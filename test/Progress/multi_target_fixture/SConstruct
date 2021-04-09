@@ -1,7 +1,8 @@
+import SCons
 class ProgressTest:
 
     def __call__(self, node):
-        if node.get_state() == 2:
+        if node.get_state() == SCons.Node.executing:
             print(node)
 
 env = Environment(tools=[])

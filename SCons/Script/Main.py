@@ -173,8 +173,9 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
         display('scons: ' + message)
 
     def prepare(self):
-        for target in self.targets:
-            self.progress(target)
+        if not isinstance(self.progress, SCons.Util.Null):
+            for target in self.targets:
+                self.progress(target)
         return SCons.Taskmaster.OutOfDateTask.prepare(self)
 
     def needs_execute(self):
