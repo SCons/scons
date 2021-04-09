@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <cvar name ="_concat">
 <summary>
 <para>
-A function used to produce variables like &cv-_CPPINCFLAGS;. It takes
+A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
 four or five
 arguments: a prefix to concatenate onto each element, a list of
 elements, a suffix to concatenate onto each element, an environment
@@ -58,7 +58,7 @@ file.
 <cvar name="CONFIGURELOG">
 <summary>
 <para>
-The name of the Configure context log file.
+The name of the &Configure; context log file.
 The default is
 <filename>config.log</filename>
 in the top-level directory
@@ -75,7 +75,7 @@ file.
 An automatically-generated &consvar;
 containing the C preprocessor command-line options
 to define values.
-The value of &cv-_CPPDEFFLAGS; is created
+The value of &cv-link-_CPPDEFFLAGS; is created
 by respectively prepending and appending
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX;
 to each definition in &cv-link-CPPDEFINES;.
@@ -99,7 +99,7 @@ If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to 
-each definition in &cv-CPPDEFINES;.
+each definition in &cv-link-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -111,7 +111,7 @@ env = Environment(CPPDEFINES='xyz')
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
-&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to 
 each element in the list.
 If any element is a list or tuple,
@@ -128,7 +128,7 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
-&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to
 each item from the dictionary.
 The key of each dictionary item
@@ -207,7 +207,7 @@ Python's <systemitem>os.sep</systemitem>.
 
 <para>
 Note:
-directory names in &cv-link-CPPPATH;
+directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command. 
 To force &scons;

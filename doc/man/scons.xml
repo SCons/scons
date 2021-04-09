@@ -109,6 +109,15 @@ and a database of information about previous builds so
 details do not have to be recalculated each run.
 </para>
 
+<para>&scons; requires Python 3.5 or later to run;
+there should be no other dependencies or requirements.
+<emphasis>
+Support for Python 3.5 is deprecated since
+&SCons; 4.2 and will be dropped in a future release.
+The CPython project has retired 3.5:
+<ulink url="https://www.python.org/dev/peps/pep-0478"/>.
+</emphasis></para>
+
 <para>You set up an &SCons;
 build system by writing a script
 that describes things to build (<firstterm>targets</firstterm>), and,
@@ -162,8 +171,9 @@ looks for a directory named
 in various system directories and in the directory containing the
 &SConstruct; file
 or, if specified, the
-directory from the <option>--site-dir</option> option instead,
-and prepends the ones it
+directory from the
+<link linkend="opt-site-dir"><option>--site-dir</option></link>
+option instead, and prepends the ones it
 finds to the Python module search path (<varname>sys.path</varname>),
 thus allowing modules in such directories to be imported in
 the normal Python way in SConscript files.
@@ -174,9 +184,9 @@ and (2) if it contains a directory
 <filename>site_tools</filename> the path to that directory
 is prepended to the default toolpath.
 See the
-<option>--site-dir</option>
+<link linkend="opt-site-dir"><option>--site-dir</option></link>
 and
-<option>--no-site-dir</option>
+<link linkend="opt-no-site-dir"><option>--no-site-dir</option></link>
 options for details on default paths and
 controlling the site directories.
 </para>
@@ -219,7 +229,7 @@ $
 <para>The status messages
 (lines beginning with the <literal>scons:</literal> tag)
 may be suppressed using the
-<option>-Q</option>
+<link linkend="opt-Q"><option>-Q</option></link>
 option.</para>
 
 <para>&scons;
@@ -331,6 +341,66 @@ if necessary. Each &ARGLIST; entry is a tuple containing
 (<replaceable>argname</replaceable>, <replaceable>argvalue</replaceable>).
 </para>
 
+<para>&scons;
+can maintain a cache of target (derived) files that can
+be shared between multiple builds.  When derived-file caching is enabled in an
+SConscript file, any target files built by
+&scons;
+will be copied
+to the cache.  If an up-to-date target file is found in the cache, it
+will be retrieved from the cache instead of being rebuilt locally.
+Caching behavior may be disabled and controlled in other ways by the
+<link linkend="opt-cache-force"><option>--cache-force</option></link>,
+<link linkend="opt-cache-disable"><option>--cache-disable</option></link>,
+<link linkend="opt-cache-readonly"><option>--cache-readonly</option></link>,
+and
+<link linkend="opt-cache-show"><option>--cache-show</option></link>
+command-line options.  The
+<link linkend="opt-random"><option>--random</option></link>
+option is useful to prevent multiple builds
+from trying to update the cache simultaneously.</para>
+
+<!--  The following paragraph reflects the default tool search orders -->
+<!--  currently in SCons/Tool/__init__.py.  If any of those search orders -->
+<!--  change, this documentation should change, too. -->
+
+<para>By default,
+&scons;
+searches for known programming tools
+on various systems and initializes itself based on what is found.
+On Windows systems which identify as <emphasis>win32</emphasis>,
+&scons;
+searches in order for the
+Microsoft Visual C++ tools,
+the MinGW tool chain,
+the Intel compiler tools,
+and the PharLap ETS compiler.
+On Windows system which identify as <emphasis>cygwin</emphasis>
+(that is, if &scons; is invoked from a cygwin shell),
+the order changes to prefer the GCC toolchain over the MSVC tools.
+On OS/2 systems,
+&scons;
+searches in order for the
+OS/2 compiler,
+the GCC tool chain,
+and the Microsoft Visual C++ tools,
+On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
+&scons;
+searches for the native compiler tools
+(MIPSpro, Visual Age, aCC, and Forte tools respectively)
+and the GCC tool chain.
+On all other platforms,
+including POSIX (Linux and UNIX) platforms,
+&scons;
+searches in order
+for the GCC tool chain,
+and the Intel compiler tools.
+These default values may be overridden
+by appropriate setting of &consvars;.</para>
+
+<refsect2 id='target_selection'>
+<title>Target Selection</title>
+
 <para>&SCons; acts on the <firstterm>selected targets</firstterm>,
 whether the requested operation is build, no-exec or clean.
 Targets are selected as follows:
@@ -362,11 +432,15 @@ and are made available in the
 If there are no targets from the previous steps,
 &scons; selects the current directory for scanning,
 unless command-line options which affect the target
-scan are detected (<option>-C</option>,
-<option>-D</option>, <option>-u</option>, <option>-U</option>).
+scan are detected
+(<link linkend="opt-C"><option>-C</option></link>,
+<link linkend="opt-D"><option>-D</option></link>,
+<link linkend="opt-u"><option>-u</option></link>,
+<link linkend="opt-U"><option>-U</option></link>).
 Since targets thus selected were not the result of
 user instructions, this target list is not made available
-for direct inspection; use the <option>--debug=explain</option>
+for direct inspection; use the
+<link linkend="opt-debug"><option>--debug=explain</option></link>
 option if they need to be examined.
 </para>
 </listitem>
@@ -418,13 +492,17 @@ build:</para>
 </screen>
 
 <para>or by changing directory and invoking scons with the
-<option>-u</option>
+<link linkend="opt-u"><option>-u</option></link>
 option, which traverses up the directory
 hierarchy until it finds the
 &SConstruct;
 file, and then builds
 targets relatively to the current subdirectory (see
-also the related <option>-D</option> and <option>-U</option> options):</para>
+also the related
+<link linkend="opt-D"><option>-D</option></link>
+and
+<link linkend="opt-U"><option>-U</option></link>
+options):</para>
 
 <screen>
 <userinput>cd src/subdir</userinput>
@@ -438,7 +516,7 @@ sure any dependent files are built.</para>
 <para>Specifying "cleanup" targets in SConscript files is
 usually not necessary.
 The
-<option>-c</option>
+<link linkend="opt-clean"><option>-c</option></link>
 flag removes all selected targets:
 </para>
 
@@ -465,7 +543,7 @@ invocation can be retained by calling the
 
 <para>&scons;
 supports building multiple targets in parallel via a
-<option>-j</option>
+<link linkend="opt-j"><option>-j</option></link>
 option that takes, as its argument, the number
 of simultaneous tasks that may be spawned:</para>
 
@@ -475,74 +553,7 @@ of simultaneous tasks that may be spawned:</para>
 
 <para>builds four targets in parallel, for example.</para>
 
-<para>&scons;
-can maintain a cache of target (derived) files that can
-be shared between multiple builds.  When derived-file caching is enabled in an
-SConscript file, any target files built by
-&scons;
-will be copied
-to the cache.  If an up-to-date target file is found in the cache, it
-will be retrieved from the cache instead of being rebuilt locally.
-Caching behavior may be disabled and controlled in other ways by the
-<option>--cache-force</option>,
-<option>--cache-disable</option>,
-<option>--cache-readonly</option>,
-and
-<option>--cache-show</option>
-command-line options.  The
-<option>--random</option>
-option is useful to prevent multiple builds
-from trying to update the cache simultaneously.</para>
-
-<!--  The following paragraph reflects the default tool search orders -->
-<!--  currently in SCons/Tool/__init__.py.  If any of those search orders -->
-<!--  change, this documentation should change, too. -->
-
-<para>By default,
-&scons;
-searches for known programming tools
-on various systems and initializes itself based on what is found.
-On Windows systems which identify as <emphasis>win32</emphasis>,
-&scons;
-searches in order for the
-Microsoft Visual C++ tools,
-the MinGW tool chain,
-the Intel compiler tools,
-and the PharLap ETS compiler.
-On Windows system which identify as <emphasis>cygwin</emphasis>
-(that is, if &scons; is invoked from a cygwin shell),
-the order changes to prefer the GCC toolchain over the MSVC tools.
-On OS/2 systems,
-&scons;
-searches in order for the
-OS/2 compiler,
-the GCC tool chain,
-and the Microsoft Visual C++ tools,
-On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
-&scons;
-searches for the native compiler tools
-(MIPSpro, Visual Age, aCC, and Forte tools respectively)
-and the GCC tool chain.
-On all other platforms,
-including POSIX (Linux and UNIX) platforms,
-&scons;
-searches in order
-for the GCC tool chain,
-and the Intel compiler tools.
-These default values may be overridden
-by appropriate setting of &consvars;.</para>
-
-<para>&scons;
-requires Python 3.5 or higher.
-There should be no other dependencies or requirements to run &scons;.
-</para>
-<para><emphasis>
-Support for Python 3.5 is deprecated since
-&SCons; 4.2 and will be dropped in a future release.
-The CPython project has retired 3.5:
-<ulink url="https://www.python.org/dev/peps/pep-0478"/>.
-</emphasis></para>
-
+</refsect2>
 </refsect1>
 
 <refsect1 id='options'>
@@ -564,30 +575,40 @@ and many of those supported by <application>cons</application>.
 <!-- for future development directions. Do not remove. -->
 
 <variablelist>
-  <varlistentry>
+  <varlistentry id="opt-b">
   <term><option>-b</option></term>
   <listitem>
 <para>Ignored for compatibility with non-GNU versions of &Make;</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-clean">
   <term>
     <option>-c</option>,
     <option>--clean</option>,
     <option>--remove</option>
   </term>
   <listitem>
-<para>Clean up by removing the selected targets,
+<para>Set <firstterm>clean</firstterm> mode.
+Clean up by removing the selected targets,
 well as any files or directories associated
 with a selected target through calls to the &f-link-Clean; function.
 Will not remove any targets which are marked for
 preservation through calls to the &f-link-NoClean; function.
 </para>
+<para>
+While clean mode removes targets rather than building them,
+work which is done directly in Python code in SConscript files
+will still be carried out.  If it is important to avoid some
+such work from taking place in clean mode, it should be protected.
+An SConscript file can determine which mode
+is active by querying &f-link-GetOption;, as in the call
+<code>if GetOption("clean"):</code>
+</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-cache-debug">
   <term>-<option>-cache-debug=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Write debug information about
@@ -604,7 +625,7 @@ derived-file cache specified by &f-link-CacheDir;.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-cache-disable">
   <term>
     <option>--cache-disable</option>,
     <option>--no-cache</option>
@@ -620,7 +641,7 @@ modifying the build scripts.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-cache-force">
   <term>
     <option>--cache-force</option>,
     <option>--cache-populate</option>
@@ -639,7 +660,7 @@ option.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-cache-readonly">
   <term><option>--cache-readonly</option></term>
   <listitem>
 <para>Use the derived-file cache, if enabled, to retrieve files,
@@ -649,7 +670,7 @@ built during this invocation.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-show">
   <term><option>--cache-show</option></term>
   <listitem>
 <para>When using a derived-file cache
@@ -664,7 +685,7 @@ file was rebuilt or retrieved from the cache.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-config">
   <term><option>--config=<replaceable>mode</replaceable></option></term>
   <listitem>
 <para>Control how the &Configure;
@@ -719,7 +740,7 @@ have any results in the cache.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-C">
   <term>
     <option>-C <replaceable>directory</replaceable></option>,
     <option>--directory=<replaceable>directory</replaceable></option>
@@ -743,15 +764,15 @@ options are given, each subsequent non-absolute
 <option>-C</option> <replaceable>directory</replaceable>
 is interpreted relative to the preceding one.
 This option is similar to using
-<option>-f <replaceable>directory</replaceable>/SConstruct</option>,
+<link linkend="opt-f"><option>-f <replaceable>directory</replaceable>/SConstruct</option></link>,
 but <option>-f</option> does not search for any of the
 predefined &SConstruct; names
 in the specified directory.
 See also options
-<option>-u</option>,
-<option>-U</option>
+<link linkend="opt-u"><option>-u</option></link>,
+<link linkend="opt-U"><option>-U</option></link>
 and
-<option>-D</option>
+<link linkend="opt-D"><option>-D</option></link>
 to change the &SConstruct; search behavior when this option is used.
 </para>
   </listitem>
@@ -763,11 +784,11 @@ to change the &SConstruct; search behavior when this option is used.
 <!--  figuring out why a specific file is being rebuilt, as well as -->
 <!--  general debugging of the build process. -->
 
-  <varlistentry>
+  <varlistentry id="opt-D">
   <term><option>-D</option></term>
   <listitem>
 <para>Works exactly the same way as the
-<option>-u</option>
+<link linkend="opt-u"><option>-u</option></link>
 option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
 all default targets are built, whether or not they are below the current
@@ -775,7 +796,7 @@ directory.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-debug">
   <term><option>--debug=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
   <listitem>
 <para>Debug the build process.
@@ -993,7 +1014,7 @@ should take place in parallel.)
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-diskcheck">
   <term><option>--diskcheck=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
   <listitem>
 <para>Enable specific checks for
@@ -1066,7 +1087,7 @@ where the SCons configuration expects a directory).</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-duplicate">
   <term><option>--duplicate=<replaceable>ORDER</replaceable></option></term>
   <listitem>
 <para>There are three ways to duplicate files in a build tree: hard links,
@@ -1092,14 +1113,14 @@ the mechanisms in the specified order.</para>
 <!--  Variables from the execution environment override construction -->
 <!--  variables from the SConscript files. -->
 
-  <varlistentry>
+  <varlistentry id="opt-enable-virtualenv">
   <term><option>--enable-virtualenv</option></term>
   <listitem>
 <para>Import virtualenv-related variables to SCons.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-f">
   <term>
     <option>-f <replaceable>file</replaceable></option>,
     <option>--file=<replaceable>file</replaceable></option>,
@@ -1119,7 +1140,7 @@ will read all of the specified files.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-h">
   <term>
     <option>-h</option>,
     <option>--help</option>
@@ -1142,29 +1163,54 @@ the help message not to be displayed.
   </listitem>
   </varlistentry>
 
-<varlistentry>
+  <varlistentry id="opt-hash-chunksize">
   <term>
-    <option>--hash-format=<replaceable>ALGORITHM</replaceable>
-    </option>
+    <option>--hash-chunksize=<replaceable>KILOBYTES</replaceable></option>
   </term>
   <listitem>
-    <para>Set the hashing algorithm used by SCons to
-      <replaceable>ALGORITHM</replaceable>.
-This value determines the hashing algorithm used in generating content signatures
-or &f-link-CacheDir; keys.</para>
+<para>Set the block size used when computing content signatures to
+<replaceable>KILOBYTES</replaceable>.
+This value determines the size of the chunks which are read in at once when
+computing signature hashes.  Files below that size are fully stored in memory
+before performing the signature computation while bigger files are read in
+block-by-block. A huge block-size leads to high memory consumption while a very
+small block-size slows down the build considerably.</para>
 
-    <para>The supported list of values are: md5, sha1, and sha256.
+<para>The default value is to use a chunk size of 64 kilobytes, which should
+be appropriate for most uses.</para>
+
+<para><emphasis>Available since &scons; 4.2.</emphasis></para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry id="opt-hash-format">
+  <term>
+    <option>--hash-format=<replaceable>ALGORITHM</replaceable></option>
+  </term>
+  <listitem>
+<para>Set the hashing algorithm used by SCons to
+<replaceable>ALGORITHM</replaceable>.
+This value determines the hashing algorithm used in generating content
+signatures or &f-link-CacheDir; keys.</para>
+
+<para>The supported list of values are: md5, sha1, and sha256.
 However, the Python interpreter used to run SCons must have the corresponding
-support available in hashlib to use the specified algorithm.</para>
+support available in the <systemitem>hashlib</systemitem> module
+to use the specified algorithm.</para>
 
-    <para>Specifying this value changes the name of the SConsign database.
+<para>Specifying this value changes the name of the SConsign database.
 For example, <option>--hash-format=sha256</option> will create a SConsign
-database with name .sconsign_sha256.dblite.
-    </para>
+database with name <filename>.sconsign_sha256.dblite</filename>.</para>
+
+<para>If this option is not specified, a hash format of
+md5 is used, and the SConsign database is
+<filename>.sconsign.dblite</filename>.</para>
+
+<para><emphasis>Available since &scons; 4.2.</emphasis></para>
   </listitem>
 </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-H">
   <term>
     <option>-H</option>,
     <option>--help-options</option>
@@ -1175,7 +1221,7 @@ command-line options and exit.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-i">
   <term>
     <option>-i</option>,
     <option>--ignore-errors</option>
@@ -1186,7 +1232,7 @@ command-line options and exit.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-I">
   <term>
     <option>-I <replaceable>directory</replaceable></option>,
     <option>--include-dir=<replaceable>directory</replaceable></option>
@@ -1202,14 +1248,14 @@ are used, the directories are searched in the order specified.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-ignore-virtualenv">
   <term><option>--ignore-virtualenv</option></term>
   <listitem>
 <para>Suppress importing virtualenv-related variables to SCons.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-implicit-cache">
   <term><option>--implicit-cache</option></term>
   <listitem>
 <para>Cache implicit dependencies.
@@ -1238,7 +1284,7 @@ than a current implicit dependency with the same name.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-implicit-deps-changed">
   <term><option>--implicit-deps-changed</option></term>
   <listitem>
 <para>Forces SCons to ignore the cached implicit dependencies. This causes the
@@ -1247,7 +1293,7 @@ implicit dependencies to be rescanned and recached. This implies
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-implicit-deps-unchanged">
   <term><option>--implicit-deps-unchanged</option></term>
   <listitem>
 <para>Force SCons to ignore changes in the implicit dependencies.
@@ -1257,7 +1303,7 @@ This implies
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-install-sandbos">
   <term><option>--install-sandbox=<replaceable>sandbox_path</replaceable></option></term>
   <listitem>
 <para>
@@ -1271,7 +1317,7 @@ one of &b-link-Install;, &b-link-InstallAs; or
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-interactive">
   <term><option>--interactive</option></term>
   <listitem>
 <para>Starts SCons in interactive mode.
@@ -1428,7 +1474,7 @@ scons&gt;&gt;&gt; exit
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-j">
   <term>
     <option>-j <replaceable>N</replaceable></option>,
     <option>--jobs=<replaceable>N</replaceable></option>
@@ -1448,7 +1494,7 @@ option, the last one is effective.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-k">
   <term>
     <option>-k</option>,
     <option>--keep-going</option>
@@ -1489,14 +1535,14 @@ targets specified on the command line will still be processed.</para>
 <!--  [XXX This can probably go away with the right -->
 <!--  combination of other options.  Revisit this issue.] -->
 
-  <varlistentry>
+  <varlistentry id="opt-m">
   <term><option>-m</option></term>
   <listitem>
 <para>Ignored for compatibility with non-GNU versions of &Make;.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-max-drift">
   <term><option>--max-drift=<replaceable>SECONDS</replaceable></option></term>
   <listitem>
 <para>Set the maximum expected drift in the modification time of files to
@@ -1519,20 +1565,15 @@ no matter how old the file is.</para>
   <varlistentry>
   <term><option>--md5-chunksize=<replaceable>KILOBYTES</replaceable></option></term>
   <listitem>
-<para>Set the block size used to compute MD5 signatures to
-<replaceable>KILOBYTES</replaceable>.
-This value determines the size of the chunks which are read in at once when
-computing MD5 signatures.  Files below that size are fully stored in memory
-before performing the signature computation while bigger files are read in
-block-by-block. A huge block-size leads to high memory consumption while a very
-small block-size slows down the build considerably.</para>
+<para>A deprecated synonym for
+<link linkend="opt-hash-chunksize"><option>--hash-chunksize</option></link>.
+</para>
 
-<para>The default value is to use a chunk size of 64 kilobytes, which should
-be appropriate for most uses.</para>
+<para><emphasis>Deprecated since &scons; 4.2.</emphasis></para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-n">
   <term>
     <option>-n</option>,
     <option>--no-exec</option>,
@@ -1541,12 +1582,29 @@ be appropriate for most uses.</para>
     <option>--recon</option>
   </term>
   <listitem>
-<para>No execute.  Print the commands that would be executed to build
+<para>Set <firstterm>no execute</firstterm> mode.
+Print the commands that would be executed to build
 any out-of-date target files, but do not execute the commands.</para>
+
+<para>The output is a best effort, as &SCons; cannot always precisely
+determine what would be built.  For example, if a file is generated
+by a builder action that is later used in the build,
+that file is not available to scan for dependencies on an unbuilt tree,
+or may contain out of date information in a built tree.
+</para>
+<para>
+Work which is done directly in Python code in SConscript files,
+as opposed to work done by builder actions during the build phase,
+will still be carried out.  If it is important to avoid some
+such work from taking place in no execute mode, it should be protected.
+An SConscript file can determine which mode
+is active by querying &f-link-GetOption;, as in the call
+<code>if GetOption("no_exec"):</code>
+</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-no-site-dir">
   <term><option>--no-site-dir</option></term>
   <listitem>
 <para>Prevents the automatic addition of the standard
@@ -1592,7 +1650,7 @@ dirs to the toolpath.</para>
 <!--  scons \-p \-q -->
 <!--  .EE -->
 
-  <varlistentry>
+  <varlistentry id="opt-package-type">
   <term><option>--package-type=<replaceable>type</replaceable></option></term>
   <listitem>
 <para>The type or types
@@ -1606,7 +1664,7 @@ has been enabled.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-profile">
   <term><option>--profile=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Run SCons under the Python profiler
@@ -1617,7 +1675,7 @@ pstats module.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-q">
   <term>
     <option>-q</option>,
     <option>--question</option></term>
@@ -1628,7 +1686,7 @@ date, non-zero otherwise.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-Q">
   <term><option>-Q</option></term>
   <listitem>
 <para>Quiets SCons status messages about
@@ -1645,7 +1703,7 @@ to rebuild target files are still printed.</para>
 <!--  Clear the default construction variables.  Construction -->
 <!--  environments that are created will be completely empty. -->
 
-  <varlistentry>
+  <varlistentry id="opt-random">
   <term><option>--random</option></term>
   <listitem>
 <para>Build dependencies in a random order.  This is useful when
@@ -1655,7 +1713,7 @@ or retrieve the same target files.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-s">
   <term>
     <option>-s</option>,
     <option>--silent</option>,
@@ -1668,7 +1726,7 @@ Also suppresses SCons status messages.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-S">
   <term>
     <option>-S</option>,
     <option>--no-keep-going</option>,
@@ -1679,7 +1737,7 @@ Also suppresses SCons status messages.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-site-dir">
   <term><option>--site-dir=<replaceable>dir</replaceable></option></term>
   <listitem>
 <para>Uses the named <replaceable>dir</replaceable> as the site directory
@@ -1759,7 +1817,7 @@ $HOME/.scons/site_scons
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-stack-size">
   <term><option>--stack-size=<replaceable>KILOBYTES</replaceable></option></term>
   <listitem>
 <para>Set the size stack used to run threads to
@@ -1783,7 +1841,7 @@ unless you encounter stack overflow errors.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-t">
   <term>
     <option>-t</option>,
     <option>--touch</option>
@@ -1795,7 +1853,7 @@ appear up-to-date is unnecessary when using &scons;.)</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-taskmastertrace">
   <term><option>--taskmastertrace=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Prints trace information to the specified
@@ -1808,7 +1866,7 @@ may be used to specify the standard output.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-tree">
   <term><option>--tree=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
   <listitem>
 <para>Prints a tree of the dependencies
@@ -1888,7 +1946,7 @@ choices may be specified, separated by commas:</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-u">
   <term>
     <option>-u</option>,
     <option>--up</option>,
@@ -1906,7 +1964,7 @@ current directory will be built.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-U">
   <term><option>-U</option></term>
   <listitem>
 <para>Works exactly the same way as the
@@ -1919,7 +1977,7 @@ up in.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-v">
   <term>
     <option>-v</option>,
     <option>--version</option>
@@ -1933,7 +1991,7 @@ Then exit.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-print-directory">
   <term>
     <option>-w</option>,
     <option>--print-directory</option>
@@ -1944,14 +2002,14 @@ after other processing.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-no-print-directory">
   <term><option>--no-print-directory</option></term>
   <listitem>
 <para>Turn off -w, even if it was turned on implicitly.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="opt-warn">
   <term>
     <option>--warn=<replaceable>type</replaceable></option>,
     <option>--warn=no-<replaceable>type</replaceable></option>
@@ -2183,7 +2241,7 @@ These warnings are enabled by default.</para>
 <!--  .B \-n -->
 <!--  ... what? XXX -->
 
-  <varlistentry>
+  <varlistentry id="opt-Y">
   <term>
     <option>-Y <replaceable>repository</replaceable></option>,
     <option>--repository=<replaceable>repository</replaceable></option>,
@@ -3020,7 +3078,7 @@ print("The path to bar_obj is:", str(bar_obj_list[0]))
 </programlisting>
 
 <para>Note again that because the Builder call returns a list,
-we have to access the first element in the list
+you have to access the first element in the list
 (<literal>(bar_obj_list[0])</literal>)
 to get at the Node that actually represents
 the object file.</para>
@@ -3489,6 +3547,7 @@ but it can be indexed like one to access a
 
 <programlisting language="python">
 env["CC"] = "cc"
+flags = env.get("CPPDEFINES", [])
 </programlisting>
 
 <para>&Consvars; can also be retrieved and set
@@ -3528,13 +3587,15 @@ env.Program('hello', 'hello.c', LIBS=['gl', 'glut'])
 </programlisting>
 
 <para>A number of useful &consvars; are automatically defined by
-scons for each supported platform, and additional &consvars;
-can be defined by the user. The following is a list of the possible
+scons for each supported platform, and you can modify these
+or define any additional &consvars; for your own use,
+taking care not to overwrite ones which &SCons; is using.
+The following is a list of the possible
 automatically defined &consvars;.
 </para>
 
 <para>Note the actual list available
-at execution time will not include all of these, as the ones
+at execution time will never include all of these, as the ones
 detected as not being useful (wrong platform, necessary
 external command or files not installed, etc.) will not be set up.
 Correct build setups should be resilient to the possible
@@ -3542,6 +3603,8 @@ absence of certain &consvars; before using them,
 for example by using a &Python; dictionary
 <function>get</function> method to retrieve the value and
 taking alternative action if the return indicates the variable is unset.
+The &f-link-env-Dump; method can be called to examine the
+&consvars; set in a particular environment.
 </para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->

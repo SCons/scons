@@ -41,7 +41,7 @@ command-line option is also enabled.
 <summary>
 <para>
 Builds software distribution packages.
-A <firstterm>Package</firstterm> is a container format which
+A <firstterm>package</firstterm> is a container format which
 includes files to install along with metadata.
 Packaging is optional, and must be enabled by specifying
 the &t-link-packaging; tool. For example:
