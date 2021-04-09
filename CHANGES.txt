@@ -13,7 +13,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       It will now allow callables with expected args, and any extra args as long as they
       have default arguments. Additionally functions with no defaults for extra arguments
       as long as they are set using functools.partial to create a new callable which set them.
-    - Fix Issue #3035 - mingw with SHLIBVERSION set fails with either not a dll error or 
+    - Fix Issue #3035 - mingw with SHLIBVERSION set fails with either not a dll error or
       "Multiple ways to build the same target were specified for:".  Now mingw will disable
       creating the symlinks (and adding version string to ) dlls.  It sets SHLIBNOVERSIONSYMLINKS,
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
@@ -24,14 +24,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Also previously 'All' wouldn't have the desired affect.
 
   From Henrik Maier:
-   - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node, 
-     such that dependencies work correctly in hierarchical builds (eg when using 
+   - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node,
+     such that dependencies work correctly in hierarchical builds (eg when using
      DocbookXslt in SConscript('subdir/SConscript') context.
 
   From Daniel Moody:
     - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
       This fixes cases for shared cache where two systems write to the same
       cache tmpfile at the same time because the happened to get the same pid.
+    - Update BuildTask to pass all targets to the progress object fixing an issue
+      where multi-target build nodes only got the first target passed to the progress
+      object.
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
