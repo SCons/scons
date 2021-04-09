@@ -24,8 +24,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Also previously 'All' wouldn't have the desired affect.
 
   From Henrik Maier:
-   - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node, 
-     such that dependencies work correctly in hierarchical builds (eg when using 
+   - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node,
+     such that dependencies work correctly in hierarchical builds (eg when using
      DocbookXslt in SConscript('subdir/SConscript') context.
 
   From Daniel Moody:
@@ -35,6 +35,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added support for passing custom CacheDir derived classes to SCons. Moved
       copy_from_cache attribute from the Environment class to CacheDir class.
       Code contributed by MongoDB.
+    - Update BuildTask to pass all targets to the progress object fixing an issue
+      where multi-target build nodes only got the first target passed to the progress
+      object.
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and

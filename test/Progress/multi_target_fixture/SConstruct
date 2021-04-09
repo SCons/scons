@@ -1,0 +1,15 @@
+import SCons
+
+
+class ProgressTest:
+
+    def __call__(self, node):
+        if node.get_state() == SCons.Node.executing:
+            print(node)
+
+
+env = Environment(tools=[])
+env.Command(target=['out1.txt', 'out2.txt'], source=['in.txt'], action=Action(
+    'echo $SOURCE > ${TARGETS[0]};echo $SOURCE > ${TARGETS[1]}', None))
+Progress(ProgressTest())
+
