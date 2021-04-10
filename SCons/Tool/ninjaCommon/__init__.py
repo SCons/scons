@@ -35,16 +35,12 @@ from glob import glob
 
 import SCons
 import SCons.Tool.ninjaCommon.Globals
-from SCons.Action import _string_from_cmd_list
 from SCons.Script import GetOption
-from SCons.Util import is_List
-import SCons.Tool.ninjaCommon.Globals
 
-from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, __NINJA_RULE_MAPPING
+from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
 from .NinjaState import NinjaState
-from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
-from .Util import ninja_add_command_line_options, alias_to_ninja_build, \
-    get_targets_sources, get_path, ninja_noop, get_command, get_command_env, get_comstr, get_generic_shell_command, \
+from .Util import ninja_add_command_line_options, \
+    get_path, ninja_noop, get_command, get_command_env, get_comstr, get_generic_shell_command, \
     generate_command
 
 NINJA_STATE = None
@@ -405,7 +401,7 @@ def generate(env):
         ninja_add_command_line_options()
 
     try:
-        import ninja
+        import ninja # noqa: F401
     except ImportError:
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return
