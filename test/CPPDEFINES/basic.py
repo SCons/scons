@@ -38,12 +38,13 @@ test_list = [
     ['x', 'y', 'z'],
     ['x', ['y', 123], 'z', ('int', '$INTEGER')],
     { 'c' : 3, 'b': None, 'a' : 1 },
+    "${TESTDEFS}",
 ]
 for i in test_list:
-    env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0)
+    env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0, TESTDEFS=["FOO", "BAR=1"])
     print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS'))
 for i in test_list:
-    env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1)
+    env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1, TESTDEFS=["FOO", "BAR=1"])
     print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS'))
 """)
 
@@ -53,10 +54,12 @@ expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
 -Dx -Dy -Dz
 -Dx -Dy=123 -Dz -Dint=0
 -Da=1 -Db -Dc=3
+-DFOO -DBAR=1
 |xyz|
 |x| |y| |z|
 |x| |y=123| |z| |int=1|
 |a=1| |b| |c=3|
+|FOO| |BAR=1|
 """)
 
 test.run(arguments = '.', stdout=expect)

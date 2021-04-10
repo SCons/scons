@@ -358,26 +358,26 @@ Touch = ActionFactory(touch_func,
 # Internal utility functions
 
 
-def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
+def _concat(prefix, iter, suffix, env, f=lambda x: x, target=None, source=None):
     """
-    Creates a new list from 'list' by first interpolating each element
+    Creates a new list from 'iter' by first interpolating each element
     in the list using the 'env' dictionary and then calling f on the
     list, and finally calling _concat_ixes to concatenate 'prefix' and
     'suffix' onto each element of the list.
     """
-    if not list:
-        return list
+    if not iter:
+        return iter
 
-    l = f(SCons.PathList.PathList(list).subst_path(env, target, source))
+    l = f(SCons.PathList.PathList(iter).subst_path(env, target, source))
     if l is not None:
-        list = l
+        iter = l
 
-    return _concat_ixes(prefix, list, suffix, env)
+    return _concat_ixes(prefix, iter, suffix, env)
 
 
-def _concat_ixes(prefix, list, suffix, env):
+def _concat_ixes(prefix, iter, suffix, env):
     """
-    Creates a new list from 'list' by concatenating the 'prefix' and
+    Creates a new list from 'iter' by concatenating the 'prefix' and
     'suffix' arguments onto each element of the list.  A trailing space
     on 'prefix' or leading space on 'suffix' will cause them to be put
     into separate list elements rather than being concatenated.
@@ -389,7 +389,7 @@ def _concat_ixes(prefix, list, suffix, env):
     prefix = str(env.subst(prefix, SCons.Subst.SUBST_RAW))
     suffix = str(env.subst(suffix, SCons.Subst.SUBST_RAW))
 
-    for x in list:
+    for x in SCons.Util.flatten(iter):
         if isinstance(x, SCons.Node.FS.File):
             result.append(x)
             continue
@@ -513,7 +513,7 @@ def _defines(prefix, defs, suffix, env, c=_concat_ixes):
     into a list of C preprocessor command-line definitions.
     """
 
-    return c(prefix, env.subst_path(processDefines(defs)), suffix, env)
+    return c(prefix, env.subst_list(processDefines(defs)), suffix, env)
 
 
 class NullCmdGenerator:
