@@ -141,7 +141,7 @@ class SConsValues(optparse.Values):
         'warn',
         'silent',
         'no_progress',
-        'experimental'
+        'experimental',
     ]
 
     def set_option(self, name, value):
