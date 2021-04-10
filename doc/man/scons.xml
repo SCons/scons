@@ -1136,16 +1136,13 @@ the mechanisms in the specified order.</para>
     <term>
       <option>-f
         <replaceable>file</replaceable>
-      </option>
-      ,
+      </option>,
       <option>--file=
         <replaceable>file</replaceable>
-      </option>
-      ,
+      </option>,
       <option>--makefile=
         <replaceable>file</replaceable>
-      </option>
-      ,
+      </option>,
       <option>--sconstruct=
         <replaceable>file</replaceable>
       </option>

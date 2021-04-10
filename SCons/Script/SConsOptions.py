@@ -21,11 +21,11 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import gettext
 import optparse
 import re
 import sys
 import textwrap
-import gettext
 
 import SCons.Node.FS
 import SCons.Platform.virtualenv
@@ -34,12 +34,12 @@ from . import Main
 
 no_hyphen_re = re.compile(r'(\s+|(?<=[\w!\"\'&.,?])-{2,}(?=\w))')
 _ = gettext.gettext
-OptionValueError=optparse.OptionValueError
-SUPPRESS_HELP=optparse.SUPPRESS_HELP
+OptionValueError = optparse.OptionValueError
+SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_options = ['all','none']
+experimental_options = ['all', 'none']
 
 
 def diskcheck_convert(value):
