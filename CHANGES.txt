@@ -52,7 +52,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       didn't really differ.
     - Don't strip spaces in INSTALLSTR by using raw subst (issue 2018)
     - Deprecate Python 3.5 as a supported version.
-    - Do not overwrite user-set LINK and LINKFLAGS in linker tool (issue 2357)
+    - Do not overwrite user-set LINKFLAGS in POSIX linker tool (issue 2357)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.

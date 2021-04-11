@@ -23,7 +23,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Tool-specific initialization for the generic Posix linker.
+Tool-specific initialization for the generic POSIX linker.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -48,8 +48,7 @@ def generate(env):
     setup_loadable_module_logic(env)
 
     env['SMARTLINK'] = smart_link
-    if 'LINK' not in env:
-        env['LINK'] = "$SMARTLINK"
+    env['LINK'] = "$SMARTLINK"
     if 'LINKFLAGS' not in env:
         env['LINKFLAGS'] = SCons.Util.CLVar('')
 
