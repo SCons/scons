@@ -17,6 +17,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       "Multiple ways to build the same target were specified for:".  Now mingw will disable
       creating the symlinks (and adding version string to ) dlls.  It sets SHLIBNOVERSIONSYMLINKS,
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
+    - Fix Issue #2801 - Handle calling Clean('$XYZ','$ABC') when either env['XYZ'] or env['ABC']
+      is undefined as that would yield either argument as '.'. This will lead to cleaning the wrong
+      (or all) files potentially when you request the wrong (or any target).
+
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when

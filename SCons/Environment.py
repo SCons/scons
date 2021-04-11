@@ -32,17 +32,15 @@ are construction variables used to initialize the Environment.
 
 import copy
 import os
-import sys
 import re
 import shlex
+import sys
 from collections import UserDict
 
 import SCons.Action
 import SCons.Builder
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
 import SCons.Defaults
-from SCons.Errors import UserError, BuildError
 import SCons.Memoize
 import SCons.Node
 import SCons.Node.Alias
@@ -54,6 +52,8 @@ import SCons.SConsign
 import SCons.Subst
 import SCons.Tool
 import SCons.Warnings
+from SCons.Debug import logInstanceCreation
+from SCons.Errors import UserError, BuildError
 from SCons.Util import (
     AppendPath,
     CLVar,
@@ -73,6 +73,7 @@ from SCons.Util import (
     to_String_for_subst,
     uniquer_hashables,
 )
+
 
 class _Null:
     pass
@@ -2018,6 +2019,19 @@ class Base(SubstitutionEnvironment):
 
     def Clean(self, targets, files):
         global CleanTargets
+
+        # Check for anything which evaluates to empty string, which would yield cleaning '.'
+        targets_strings = [(t, self.subst(t)) for t in flatten(targets) if is_String(t) and ('$' in t or t == '')]
+        files_strings = [(t, self.subst(t)) for t in flatten(files) if is_String(t) and ('$' in t or t == '')]
+        if any([s == '' for t, s in targets_strings]):
+            raise UserError(
+                "Targets specified to Clean() include one which evaluates to an empty string: [%s]" % ",".join(
+                    ["%s='%s'" % (str(t), s) for (t, s) in targets_strings]))
+        if any([s == '' for t, s in files_strings]):
+            raise UserError(
+                "Targets specified to Clean() include one which evaluates to an empty string: [%s]" % ",".join(
+                    ["%s='%s'" % (str(t), s) for (t, s) in files_strings]))
+
         tlist = self.arg2nodes(targets, self.fs.Entry)
         flist = self.arg2nodes(files, self.fs.Entry)
         for t in tlist:
