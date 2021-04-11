@@ -37,6 +37,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-MOFiles "<function xmlns='http://www.scons.org/dbxsd/v1.0'>MOFiles</function>">
 <!ENTITY b-MSVSProject "<function xmlns='http://www.scons.org/dbxsd/v1.0'>MSVSProject</function>">
 <!ENTITY b-MSVSSolution "<function xmlns='http://www.scons.org/dbxsd/v1.0'>MSVSSolution</function>">
+<!ENTITY b-Ninja "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Ninja</function>">
 <!ENTITY b-Object "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Object</function>">
 <!ENTITY b-Package "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Package</function>">
 <!ENTITY b-PCH "<function xmlns='http://www.scons.org/dbxsd/v1.0'>PCH</function>">
@@ -94,6 +95,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-env-MOFiles "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.MOFiles</function>">
 <!ENTITY b-env-MSVSProject "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.MSVSProject</function>">
 <!ENTITY b-env-MSVSSolution "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.MSVSSolution</function>">
+<!ENTITY b-env-Ninja "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Ninja</function>">
 <!ENTITY b-env-Object "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Object</function>">
 <!ENTITY b-env-Package "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Package</function>">
 <!ENTITY b-env-PCH "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.PCH</function>">
@@ -157,6 +159,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-MOFiles "<link linkend='b-MOFiles' xmlns='http://www.scons.org/dbxsd/v1.0'><function>MOFiles</function></link>">
 <!ENTITY b-link-MSVSProject "<link linkend='b-MSVSProject' xmlns='http://www.scons.org/dbxsd/v1.0'><function>MSVSProject</function></link>">
 <!ENTITY b-link-MSVSSolution "<link linkend='b-MSVSSolution' xmlns='http://www.scons.org/dbxsd/v1.0'><function>MSVSSolution</function></link>">
+<!ENTITY b-link-Ninja "<link linkend='b-Ninja' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Ninja</function></link>">
 <!ENTITY b-link-Object "<link linkend='b-Object' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Object</function></link>">
 <!ENTITY b-link-Package "<link linkend='b-Package' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Package</function></link>">
 <!ENTITY b-link-PCH "<link linkend='b-PCH' xmlns='http://www.scons.org/dbxsd/v1.0'><function>PCH</function></link>">
@@ -214,6 +217,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY b-link-env-MOFiles "<link linkend='b-MOFiles' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.MOFiles</function></link>">
 <!ENTITY b-link-env-MSVSProject "<link linkend='b-MSVSProject' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.MSVSProject</function></link>">
 <!ENTITY b-link-env-MSVSSolution "<link linkend='b-MSVSSolution' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.MSVSSolution</function></link>">
+<!ENTITY b-link-env-Ninja "<link linkend='b-Ninja' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Ninja</function></link>">
 <!ENTITY b-link-env-Object "<link linkend='b-Object' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Object</function></link>">
 <!ENTITY b-link-env-Package "<link linkend='b-Package' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Package</function></link>">
 <!ENTITY b-link-env-PCH "<link linkend='b-PCH' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.PCH</function></link>">

@@ -548,8 +548,8 @@ do not make sense and a Python exception will be raised.
 </para>
 
 <para>
-When using &f-env-Append; to modify &consvars; 
-which are path specifications (normally, 
+When using &f-env-Append; to modify &consvars;
+which are path specifications (normally,
 those names which end in <varname>PATH</varname>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.

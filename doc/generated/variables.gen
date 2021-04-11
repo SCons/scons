@@ -22,6 +22,16 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-__NINJA_NO">
+    <term>
+      <envar>__NINJA_NO</envar>
+    </term>
+    <listitem><para>
+                Internal flag. Used to tell SCons whether or not to try to import pypi's ninja python package.
+                This is set to True when being called by Ninja?
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="cv-__SHLIBVERSIONFLAGS">
     <term>
       <envar>__SHLIBVERSIONFLAGS</envar>
@@ -703,8 +713,8 @@ the type of value of &cv-CPPDEFINES;:
 If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
-each definition in &cv-link-CPPDEFINES;.
+will be respectively prepended and appended to
+each definition in &cv-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -716,8 +726,8 @@ env = Environment(CPPDEFINES='xyz')
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to
 each element in the list.
 If any element is a list or tuple,
 then the first item is the name being
@@ -733,7 +743,7 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to
 each item from the dictionary.
 The key of each dictionary item
@@ -835,7 +845,7 @@ to each directory in &cv-link-CPPPATH;.
     <listitem><para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files. 
+directories for include files.
 In general it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
@@ -847,11 +857,11 @@ Python's <systemitem>os.sep</systemitem>.
 
 <para>
 Note:
-directory names in &cv-CPPPATH;
+directory names in &cv-link-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -1161,6 +1171,17 @@ A function that converts a list of strings
 into a list of Dir instances relative to the target being built.
 </para>
 </listitem>
+  </varlistentry>
+  <varlistentry id="cv-DISABLE_AUTO_NINJA">
+    <term>
+      <envar>DISABLE_AUTO_NINJA</envar>
+    </term>
+    <listitem><para>
+                Boolean (True|False). Default: False
+                When True, SCons will not run ninja automatically after creating the ninja.build file.
+
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-DLIB">
     <term>
@@ -3137,7 +3158,7 @@ The default list is:
       <envar>IMPLIBNOVERSIONSYMLINKS</envar>
     </term>
     <listitem><para>
-Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when 
+Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when
 creating versioned import library for a shared library/loadable module. If not defined,
 then &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; is used to determine
 whether to disable symlink generation or not.
@@ -4053,9 +4074,9 @@ as the result will be non-portable.
 Note:
 directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -4127,7 +4148,7 @@ and suffixes from the &cv-link-LIBSUFFIXES; list.
     <listitem><para>
 A list of one or more libraries
 that will be added to the link line
-for linking with any executable program, shared library, or loadable module 
+for linking with any executable program, shared library, or loadable module
 created by the &consenv; or override.
 </para>
 
@@ -4493,7 +4514,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
       <envar>MSGFMTCOMSTR</envar>
     </term>
     <listitem><para>
-String to display when <command>msgfmt(1)</command> is invoked 
+String to display when <command>msgfmt(1)</command> is invoked
 (default: <literal>''</literal>, which means ``print &cv-link-MSGFMTCOM;'').
 See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>
@@ -4535,7 +4556,7 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
       <envar>MSGINITCOMSTR</envar>
     </term>
     <listitem><para>
-String to display when <command>msginit(1)</command> is invoked 
+String to display when <command>msginit(1)</command> is invoked
 (default: <literal>''</literal>, which means ``print &cv-link-MSGINITCOM;'').
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
@@ -4631,7 +4652,7 @@ Supported versions include
 <literal>6.0A</literal>,
 <literal>6.0</literal>,
 <literal>2003R2</literal>
-and 
+and
 <literal>2003R1</literal>.
 </para>
 </listitem>
@@ -5155,6 +5176,138 @@ Specfies the name of the project to package.
 </para>
 <para>See the &b-link-Package; builder.</para>
 </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_ALIAS_NAME">
+    <term>
+      <envar>NINJA_ALIAS_NAME</envar>
+    </term>
+    <listitem><para>
+                Name of the Alias() which is will cause SCons to create the <filename>ninja.build</filename> file, and
+                then (optionally) run ninja.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_BUILDDIR">
+    <term>
+      <envar>NINJA_BUILDDIR</envar>
+    </term>
+    <listitem><para>
+                This propagates directly into the generated Ninja.build file.
+                From Ninja's docs:
+                <blockquote>
+                    <para>
+                    builddir
+                    A directory for some Ninja output files. ... (You can also store other build output in this
+                    directory.)
+                    </para>
+                </blockquote>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_COMPDB_EXPAND">
+    <term>
+      <envar>NINJA_COMPDB_EXPAND</envar>
+    </term>
+    <listitem><para>
+                Boolean value (True|False) to instruct ninja to expand the command line arguments normally put into
+                response files.
+                This prevents lines in the compilation database like <quote>gcc @rsp_file</quote> and instead yields
+                <quote>gcc -c -o myfile.o myfile.c -Ia -DXYZ</quote>
+            </para>
+            <para>
+                Ninja's compdb tool added the <quote>-x</quote> flag in Ninja V1.9.0
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_ENV_VAR_CACHE">
+    <term>
+      <envar>NINJA_ENV_VAR_CACHE</envar>
+    </term>
+    <listitem><para>
+                A string that sets the environment for any environment variables that
+                differ between the OS environment and the SCons command ENV.
+
+                It will be compatible with the default shell of the operating system.
+
+                If not explicitly specified, SCons will generate this dynamically from the Environment()'s 'ENV'
+                <quote>env['ENV']</quote>
+                where those values differ from the existing shell..
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_FILE_NAME">
+    <term>
+      <envar>NINJA_FILE_NAME</envar>
+    </term>
+    <listitem><para>
+                The filename for the generated Ninja build file defaults to <filename>ninja.build</filename>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_GENERATED_SOURCE_SUFFIXES">
+    <term>
+      <envar>NINJA_GENERATED_SOURCE_SUFFIXES</envar>
+    </term>
+    <listitem><para>
+                The list of source file suffixes which are generated by SCons build steps.
+                All source files which match these suffixes will be added to the _generated_sources alias in the output
+                ninja.build file.
+                Then all other source files will be made to depend on this in the Ninja.build file, forcing the
+                generated sources to be built first.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_MSVC_DEPS_PREFIX">
+    <term>
+      <envar>NINJA_MSVC_DEPS_PREFIX</envar>
+    </term>
+    <listitem><para>
+                This propagates directly into the generated Ninja.build file.
+                From Ninja's docs
+                <quote>defines the string which should be stripped from msvc’s /showIncludes output</quote>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_POOL">
+    <term>
+      <envar>NINJA_POOL</envar>
+    </term>
+    <listitem><para>
+                Set the <quote>ninja_pool</quote> for this or all targets in scope for this env var.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_REGENERATE_DEPS">
+    <term>
+      <envar>NINJA_REGENERATE_DEPS</envar>
+    </term>
+    <listitem><para>
+                A generator function used to create a ninja depsfile which includes all the files which would require
+                SCons to be invoked if they change.
+                Or a list of said files.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-_NINJA_REGENERATE_DEPS_FUNC">
+    <term>
+      <envar>_NINJA_REGENERATE_DEPS_FUNC</envar>
+    </term>
+    <listitem><para>
+                Internal value used to specify the function to call with argument env to generate the list of files
+                which if changed would require the ninja file to be regenerated.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_SYNTAX">
+    <term>
+      <envar>NINJA_SYNTAX</envar>
+    </term>
+    <listitem><para>
+                Theres also NINJA_SYNTAX which is the path to a custom ninja_syntax.py file which is used in generation.
+                The tool currently assumes you have ninja installed through pip, and grabs the syntax file from that
+                installation if none specified.
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="cv-no_import_lib">
     <term>
@@ -7357,7 +7510,7 @@ for more information).
       <envar>SOVERSION</envar>
     </term>
     <listitem><para>
-This will construct the <varname>SONAME</varname> using on the base library name 
+This will construct the <varname>SONAME</varname> using on the base library name
 (<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
 to create <varname>SONAME</varname>.
 <example_commands>
@@ -7366,7 +7519,7 @@ env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
 The variable is used, for example, by &t-link-gnulink; linker tool.
 </para>
 <para>
-In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename>
 which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
 </para>
 </listitem>

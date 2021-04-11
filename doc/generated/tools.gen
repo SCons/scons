@@ -811,6 +811,13 @@ Sets construction variables for the
 </para>
 <para>Sets: &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses: &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
+  <varlistentry id="t-ninja">
+    <term>ninja</term>
+    <listitem><para>
+                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs ninja.
+            </para>
+        <para>Sets: &cv-link-DISABLE_AUTO_NINJA;, &cv-link-NINJA_ALIAS_NAME;, &cv-link-NINJA_BUILDDIR;, &cv-link-NINJA_COMPDB_EXPAND;, &cv-link-NINJA_ENV_VAR_CACHE;, &cv-link-NINJA_FILE_NAME;, &cv-link-NINJA_GENERATED_SOURCE_SUFFIXES;, &cv-link-NINJA_MSVC_DEPS_PREFIX;, &cv-link-NINJA_POOL;, &cv-link-NINJA_REGENERATE_DEPS;, &cv-link-NINJA_SYNTAX;, &cv-link-_NINJA_REGENERATE_DEPS_FUNC;, &cv-link-__NINJA_NO;.</para><para>Uses: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-ESCAPE;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-PLATFORM;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-SHCXXCOM;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;.</para></listitem>
+  </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem><para>
