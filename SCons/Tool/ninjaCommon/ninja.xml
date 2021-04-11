@@ -176,9 +176,11 @@ See its __doc__ string for a discussion of the format.
                 This propagates directly into the generated Ninja.build file.
                 From Ninja's docs:
                 <blockquote>
+                    <para>
                     builddir
                     A directory for some Ninja output files. ... (You can also store other build output in this
                     directory.)
+                    </para>
                 </blockquote>
             </para>
         </summary>
