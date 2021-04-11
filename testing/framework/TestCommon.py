@@ -103,6 +103,7 @@ import glob
 import os
 import stat
 import sys
+import sysconfig
 
 from collections import UserList
 
@@ -122,9 +123,13 @@ __all__.extend([ 'TestCommon',
 
 # Variables that describe the prefixes and suffixes on this system.
 if sys.platform == 'win32':
+    if sysconfig.get_platform() == "mingw":
+        obj_suffix   = '.o'
+        shobj_suffix = '.o'
+    else:
+        obj_suffix   = '.obj'
+        shobj_suffix = '.obj'
     exe_suffix   = '.exe'
-    obj_suffix   = '.obj'
-    shobj_suffix = '.obj'
     shobj_prefix = ''
     lib_prefix   = ''
     lib_suffix   = '.lib'
@@ -744,11 +749,11 @@ class TestCommon(TestCmd):
             sys.stdout.flush()
         pass_skips = os.environ.get('TESTCOMMON_PASS_SKIPS')
         if pass_skips in [None, 0, '0']:
-            # skip=1 means skip this function when showing where this
+            # skip=True means skip this function when showing where this
             # result came from.  They only care about the line where the
             # script called test.skip_test(), not the line number where
             # we call test.no_result().
-            self.no_result(skip=1)
+            self.no_result(skip=True)
         else:
             # We're under the development directory for this change,
             # so this is an Aegis invocation; pass the test (exit 0).

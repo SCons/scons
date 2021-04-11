@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -110,16 +112,18 @@ sub2_inc2_h     = 'sub2/inc2.h'
 
 test.write(['SConstruct'], """
 SConsignFile(None)
-env1 = Environment(PROGSUFFIX = '.exe',
-                   OBJSUFFIX = '.obj',
-                   # Specify the command lines with lists-of-lists so
-                   # finding the implicit dependencies works even with
-                   # spaces in the fake_*_py path names.
-                   CCCOM = [[r'%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
-                   LINKCOM = [[r'%(fake_link_py)s', '$TARGET', '$SOURCE']])
+env1 = Environment(
+    PROGSUFFIX='.exe',
+    OBJSUFFIX='.obj',
+    # Specify the command lines with lists-of-lists so
+    # finding the implicit dependencies works even with
+    # spaces in the fake_*_py path names.
+    CCCOM=[['%(_python_)s', '%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
+    LINKCOM=[['%(_python_)s', '%(fake_link_py)s', '$TARGET', '$SOURCE']],
+)
 env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')
-env2 = env1.Clone(CPPPATH = ['sub2'])
+env2 = env1.Clone(CPPPATH=['sub2'])
 env2.Program('sub2/hello.c')
 """ % locals())
 

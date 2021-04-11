@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 #
+# MIT License
+#
 # Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -20,7 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 Verify that use of long command lines correctly excludes arguments
@@ -36,18 +37,22 @@ test = TestSCons.TestSCons()
 
 build_py = test.workpath('build.py')
 
+# create a dummy command which understands a tempfile syntax
+# so it doesn't have to be that platform/compiler's specific syntax.
 test.write(build_py, """\
 #!%(_python_)s
 import sys
-if sys.argv[1][0] == '@':
-    with open(sys.argv[1][1:], 'r') as f:
-        args = f.read().split()
+if sys.argv[1].startswith('@'):
+    tempfile = sys.argv[1][1:]
+    with open(tempfile, 'r') as tmp:
+        args = tmp.read().split()
 else:
     args = sys.argv[1:]
-with open(args[0], 'w') as fp, open(args[1], 'r') as ifp:
-    fp.write(ifp.read())
-    fp.write('FILEFLAG=%%s\\n' %% args[2])
-    fp.write('TIMESTAMP=%%s\\n' %% args[3])
+
+with open(args[0], 'w') as ofp, open(args[1], 'r') as ifp:
+    ofp.write(ifp.read())
+    ofp.write('FILEFLAG=%%s\\n' %% args[2])
+    ofp.write('TIMESTAMP=%%s\\n' %% args[3])
 """ % locals())
 
 os.chmod(build_py, 0o755)
@@ -56,21 +61,29 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 arg = 'a_long_ignored_argument'
 extra_arguments = arg
-while len(extra_arguments) <= 1024:
+MAXLINE=1024
+while len(extra_arguments) <= MAXLINE:
     extra_arguments = extra_arguments + ' ' + arg
-env = Environment(tools=[],
-                  FILECOM=[r'%(build_py)s',
-                           '$TARGET', '$SOURCE',
-                           '$FILEFLAG',
-                           '$(', '$TIMESTAMP', '$)',
-                           '$EXTRA_ARGUMENTS'],
-                  FILEFLAG=ARGUMENTS.get('FILEFLAG'),
-                  TIMESTAMP=ARGUMENTS.get('TIMESTAMP'),
-                  EXTRA_ARGUMENTS=extra_arguments,
-                  MAXLINELENGTH=1024)
+env = Environment(
+    tools=[],
+    FILECOM=[
+        '%(build_py)s',
+        '$TARGET',
+        '$SOURCE',
+        '$FILEFLAG',
+        '$(',
+        '$TIMESTAMP',
+        '$)',
+        '$EXTRA_ARGUMENTS',
+    ],
+    FILEFLAG=ARGUMENTS.get('FILEFLAG'),
+    TIMESTAMP=ARGUMENTS.get('TIMESTAMP'),
+    EXTRA_ARGUMENTS=extra_arguments,
+    MAXLINELENGTH=MAXLINE,
+    TEMPFILEPREFIX='@',
+)
 env.PrependENVPath('PATHEXT', '.PY')
-env.Command('file.out', 'file.in',
-            '${TEMPFILE(FILECOM)}')
+env.Command('file.out', 'file.in', '%(_python_)s ${TEMPFILE(FILECOM)}')
 """ % locals())
 
 test.write('file.in', "file.in\n", mode='w')

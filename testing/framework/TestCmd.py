@@ -415,7 +415,7 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     sys.exit(1)
 
 
-def no_result(self=None, condition=True, function=None, skip=0):
+def no_result(self=None, condition=True, function=None, skip=False):
     """Causes a test to exit with no valid result.
 
     By default, the no_result() method reports NO RESULT for the test
@@ -1226,7 +1226,7 @@ class TestCmd:
 
     match_re_dotall = staticmethod(match_re_dotall)
 
-    def no_result(self, condition=True, function=None, skip=0):
+    def no_result(self, condition=True, function=None, skip=False):
         """Report that the test could not be run."""
         if not condition:
             return
