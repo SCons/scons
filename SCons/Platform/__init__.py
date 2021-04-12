@@ -261,12 +261,12 @@ class TempFileMunge:
         if not prefix:
             prefix = '@'
 
-        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces
+        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
         args = [
             tempfile_esc_func(arg)
             for arg in cmd[1:]
         ]
-        join_char = env.get('TEMPFILEARGJOIN',' ')
+        join_char = env.get('TEMPFILEARGJOIN', ' ')
         os.write(fd, bytearray(join_char.join(args) + "\n", 'utf-8'))
         os.close(fd)
 
