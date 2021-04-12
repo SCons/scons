@@ -39,7 +39,7 @@ SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_options = ['all', 'none']
+experimental_features = {'warp_speed', 'transporter'}
 
 
 def diskcheck_convert(value):
@@ -708,11 +708,36 @@ def Parser(version):
                      action="store_true",
                      help="Import certain virtualenv variables to SCons")
 
+    def experimental_callback(option, opt, value, parser):
+        experimental = getattr(parser.values, option.dest)
+
+        if ',' in value:
+            value = value.split(',')
+        else:
+            value = [value, ]
+
+        for v in value:
+            if v == 'none':
+                experimental = set()
+            elif v == 'all':
+                experimental = experimental_features
+            elif v not in experimental_features:
+                raise OptionValueError("option --experimental: invalid choice: '%s' (choose from 'all','none',%s)" % (
+                v, ','.join(["'%s'" % e for e in sorted(experimental_features)])))
+            else:
+                experimental |= {v}
+
+        setattr(parser.values, option.dest, experimental)
+
+
+
     op.add_option('--experimental',
                   dest='experimental',
-                  action='append',
-                  default=[],
-                  choices=experimental_options,
+                  action='callback',
+                  default={}, # empty set
+                  type='str',
+                  # choices=experimental_options+experimental_features,
+                  callback =experimental_callback,
                   help='Enable experimental features')
 
     op.add_option('-f', '--file', '--makefile', '--sconstruct',

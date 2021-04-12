@@ -34,22 +34,22 @@ test = TestSCons.TestSCons()
 test.file_fixture('fixture/SConstruct__experimental', 'SConstruct')
 
 tests = [
-    ('.', [], 'False'),
-    ('--experimental=all', ['all'], 'True'),
-    ('--experimental=none', ['none'], 'False'),
+    ('.', []),
+    ('--experimental=all', ['transporter', 'warp_speed']),
+    ('--experimental=none', []),
 ]
 
-for args, exper, all_str in tests:
-    read_string = """Experimental=%s
-All=%s
-""" % (exper, all_str)
+for args, exper in tests:
+    read_string = """All Features=transporter,warp_speed
+Experimental=%s
+""" % (exper)
     test.run(arguments=args,
              stdout=test.wrap_stdout(read_str=read_string, build_str="scons: `.' is up to date.\n"))
 
 test.run(arguments='--experimental=warp_drive',
          stderr="""usage: scons [OPTION] [TARGET] ...
 
-SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all', 'none')
+SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','transporter','warp_speed')
 """,
          status=2)
 
