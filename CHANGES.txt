@@ -73,6 +73,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       didn't really differ.
     - Don't strip spaces in INSTALLSTR by using raw subst (issue 2018)
     - Deprecate Python 3.5 as a supported version.
+    - CPPDEFINES now expands construction variable references (issue 2363)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
