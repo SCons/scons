@@ -261,8 +261,9 @@ class TempFileMunge:
         if not prefix:
             prefix = '@'
 
+        tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces
         args = [
-            env['TEMPFILEARGESCFUNC'](arg)
+            tempfile_esc_func(arg)
             for arg in cmd[1:]
         ]
         join_char = env.get('TEMPFILEARGJOIN',' ')
