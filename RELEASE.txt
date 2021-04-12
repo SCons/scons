@@ -17,7 +17,6 @@ DEPRECATED FUNCTIONALITY
 ------------------------
     - Deprecate Python 3.5 as a supported version.
 
-- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -58,8 +57,6 @@ FIXES
     - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node, 
       such that dependencies work correctly in hierarchical builds (eg when using 
       DocbookXslt in SConscript('subdir/SConscript') context.
-
-
 
 
 IMPROVEMENTS
