@@ -1120,24 +1120,45 @@ the mechanisms in the specified order.</para>
   </listitem>
   </varlistentry>
 
+  <varlistentry id="opt--experimental">
+    <term>
+      <option>--experimental=<replaceable>all</replaceable></option>,
+      <option>--experimental=<replaceable>none</replaceable></option>
+    </term>
+    <listitem>
+      <para>Enable experimental features and/or tools. <emphasis role="strong">No Support offered for any features or tools enabled by this flag</emphasis></para>
+      <para>The default setting is none.</para>
+    </listitem>
+  </varlistentry>
+
+
   <varlistentry id="opt-f">
-  <term>
-    <option>-f <replaceable>file</replaceable></option>,
-    <option>--file=<replaceable>file</replaceable></option>,
-    <option>--makefile=<replaceable>file</replaceable></option>,
-    <option>--sconstruct=<replaceable>file</replaceable></option>
-  </term>
-  <listitem>
-<para>Use
-<replaceable>file</replaceable>
-as the initial SConscript file.
-Multiple
-<option>-f</option>
-options may be specified,
-in which case
-&scons;
-will read all of the specified files.</para>
-  </listitem>
+    <term>
+      <option>-f
+        <replaceable>file</replaceable>
+      </option>,
+      <option>--file=
+        <replaceable>file</replaceable>
+      </option>,
+      <option>--makefile=
+        <replaceable>file</replaceable>
+      </option>,
+      <option>--sconstruct=
+        <replaceable>file</replaceable>
+      </option>
+    </term>
+    <listitem>
+      <para>Use
+        <replaceable>file</replaceable>
+        as the initial SConscript file.
+        Multiple
+        <option>-f</option>
+        options may be specified,
+        in which case
+        &scons;
+        will read all of the specified files.
+      </para>
+    </listitem>
   </varlistentry>
 
   <varlistentry id="opt-h">

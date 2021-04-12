@@ -12,6 +12,8 @@ NEW FUNCTIONALITY
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
       This will provide a path relative to the top of the build tree (where the SConstruct is located)
       Fixes #396
+    - Added --experimental flag, to enable various experimental features/tools.  You can specify
+      'all', 'none', or any combination of available experimental features.
 
 DEPRECATED FUNCTIONALITY
 ------------------------

@@ -21,25 +21,26 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import gettext
 import optparse
 import re
 import sys
 import textwrap
-
-no_hyphen_re = re.compile(r'(\s+|(?<=[\w!\"\'&.,?])-{2,}(?=\w))')
-
-import gettext
-_ = gettext.gettext
 
 import SCons.Node.FS
 import SCons.Platform.virtualenv
 import SCons.Warnings
 from . import Main
 
-OptionValueError        = optparse.OptionValueError
-SUPPRESS_HELP           = optparse.SUPPRESS_HELP
+no_hyphen_re = re.compile(r'(\s+|(?<=[\w!\"\'&.,?])-{2,}(?=\w))')
+_ = gettext.gettext
+OptionValueError = optparse.OptionValueError
+SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
+
+experimental_features = {'warp_speed', 'transporter'}
+
 
 def diskcheck_convert(value):
     if value is None:
@@ -94,8 +95,9 @@ class SConsValues(optparse.Values):
     """
 
     def __init__(self, defaults):
-        self.__dict__['__defaults__'] = defaults
-        self.__dict__['__SConscript_settings__'] = {}
+        self.__defaults__ = defaults
+        self.__SConscript_settings__ = {}
+
 
     def __getattr__(self, attr):
         """
@@ -138,7 +140,8 @@ class SConsValues(optparse.Values):
         'stack_size',
         'warn',
         'silent',
-        'no_progress'
+        'no_progress',
+        'experimental',
     ]
 
     def set_option(self, name, value):
@@ -197,6 +200,11 @@ class SConsValues(optparse.Values):
             SCons.Warnings.process_warn_strings(value)
         elif name == 'no_progress':
             SCons.Script.Main.progress_display.set_mode(False)
+        elif name == 'experimental':
+            if SCons.Util.is_String(value):
+                value = [value]
+            value = self.__SConscript_settings__.get(name, []) + value
+
 
 
         self.__SConscript_settings__[name] = value
@@ -501,6 +509,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
             result.append("\n")
         return "".join(result)
 
+
 def Parser(version):
     """
     Returns an options parser object initialized with the standard
@@ -598,7 +607,7 @@ def Parser(version):
         errmsg  = "`%s' is not a valid %s option type " % (value, group)
         return errmsg + msg
 
-    config_options = ["auto", "force" ,"cache"]
+    config_options = ["auto", "force", "cache"]
 
     opt_config_help = "Controls Configure subsystem: %s." \
                       % ", ".join(config_options)
@@ -606,7 +615,7 @@ def Parser(version):
     op.add_option('--config',
                   nargs=1, choices=config_options,
                   dest="config", default="auto",
-                  help = opt_config_help,
+                  help=opt_config_help,
                   metavar="MODE")
 
     op.add_option('-D',
@@ -698,6 +707,38 @@ def Parser(version):
                      dest="enable_virtualenv",
                      action="store_true",
                      help="Import certain virtualenv variables to SCons")
+
+    def experimental_callback(option, opt, value, parser):
+        experimental = getattr(parser.values, option.dest)
+
+        if ',' in value:
+            value = value.split(',')
+        else:
+            value = [value, ]
+
+        for v in value:
+            if v == 'none':
+                experimental = set()
+            elif v == 'all':
+                experimental = experimental_features
+            elif v not in experimental_features:
+                raise OptionValueError("option --experimental: invalid choice: '%s' (choose from 'all','none',%s)" % (
+                                       v, ','.join(["'%s'" % e for e in sorted(experimental_features)])))
+            else:
+                experimental |= {v}
+
+        setattr(parser.values, option.dest, experimental)
+
+
+
+    op.add_option('--experimental',
+                  dest='experimental',
+                  action='callback',
+                  default={}, # empty set
+                  type='str',
+                  # choices=experimental_options+experimental_features,
+                  callback =experimental_callback,
+                  help='Enable experimental features')
 
     op.add_option('-f', '--file', '--makefile', '--sconstruct',
                   nargs=1, type="string",

@@ -18,6 +18,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       "Multiple ways to build the same target were specified for:".  Now mingw will disable
       creating the symlinks (and adding version string to ) dlls.  It sets SHLIBNOVERSIONSYMLINKS,
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
+    - Added --experimental flag, to enable various experimental features/tools.  You can specify
+      'all', 'none', or any combination of available experimental features.
+
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when

@@ -24,19 +24,34 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Template for end-to-end test file.
-Replace this with a description of the test.
+Test the --experimental option.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-env = Environment()
-""")
+test.file_fixture('fixture/SConstruct__experimental', 'SConstruct')
 
-test.run(arguments='.')
+tests = [
+    ('.', []),
+    ('--experimental=all', ['transporter', 'warp_speed']),
+    ('--experimental=none', []),
+]
+
+for args, exper in tests:
+    read_string = """All Features=transporter,warp_speed
+Experimental=%s
+""" % (exper)
+    test.run(arguments=args,
+             stdout=test.wrap_stdout(read_str=read_string, build_str="scons: `.' is up to date.\n"))
+
+test.run(arguments='--experimental=warp_drive',
+         stderr="""usage: scons [OPTION] [TARGET] ...
+
+SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','transporter','warp_speed')
+""",
+         status=2)
 
 test.pass_test()
 
