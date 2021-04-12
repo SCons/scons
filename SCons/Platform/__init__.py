@@ -262,11 +262,11 @@ class TempFileMunge:
             prefix = '@'
 
         args = [
-            env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)(arg)
+            env['TEMPFILEARGESCFUNC'](arg)
             for arg in cmd[1:]
         ]
         join_char = env.get('TEMPFILEARGJOIN',' ')
-        os.write(fd, bytearray(join_char.join(args) + "\n",'utf-8'))
+        os.write(fd, bytearray(join_char.join(args) + "\n", 'utf-8'))
         os.close(fd)
 
         # XXX Using the SCons.Action.print_actions value directly
