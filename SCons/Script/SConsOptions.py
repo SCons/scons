@@ -723,7 +723,7 @@ def Parser(version):
                 experimental = experimental_features
             elif v not in experimental_features:
                 raise OptionValueError("option --experimental: invalid choice: '%s' (choose from 'all','none',%s)" % (
-                v, ','.join(["'%s'" % e for e in sorted(experimental_features)])))
+                                       v, ','.join(["'%s'" % e for e in sorted(experimental_features)])))
             else:
                 experimental |= {v}
 
