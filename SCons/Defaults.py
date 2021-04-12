@@ -628,6 +628,7 @@ ConstructionEnvironment = {
 
     'TEMPFILE': NullCmdGenerator,
     'TEMPFILEARGJOIN': ' ',
+    'TEMPFILEARGESCFUNC': SCons.Subst.quote_spaces,
     'Dir': Variable_Method_Caller('TARGET', 'Dir'),
     'Dirs': Variable_Method_Caller('TARGET', 'Dirs'),
     'File': Variable_Method_Caller('TARGET', 'File'),

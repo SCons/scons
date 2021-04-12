@@ -24,6 +24,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       set to any string value (For example ['none','false','no','off'])
       Also previously 'All' wouldn't have the desired affect.
 
+  From Ivan Kravets:
+    - Provide a custom argument escape function for `TempFileMunge` using a new
+      `TEMPFILEARGESCFUNC` variable. Useful if you need to apply extra operations on
+      a command argument before writing to a temporary file (fix Windows slashes,
+      normalize paths, etc.)
+
   From Henrik Maier:
    - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node,
      such that dependencies work correctly in hierarchical builds (eg when using
