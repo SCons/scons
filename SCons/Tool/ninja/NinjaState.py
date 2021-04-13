@@ -5,6 +5,7 @@
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
+# "Software"), to deal in the Software without restriction, including
 # without limitation the rights to use, copy, modify, merge, publish,
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
@@ -30,7 +31,7 @@ import ninja
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
 from SCons.Util import is_List
-import SCons.Tool.ninjaCommon.Globals
+import SCons.Tool.ninja.Globals
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
@@ -562,7 +563,7 @@ class SConsToNinjaTranslator:
         # Ninja builders out of being sources of ninja builders but I
         # can't fix every DAG problem so we just skip ninja_builders
         # if we find one
-        if SCons.Tool.ninjaCommon.NINJA_STATE.ninja_file == str(node):
+        if SCons.Tool.ninja.NINJA_STATE.ninja_file == str(node):
             build = None
         elif isinstance(action, SCons.Action.FunctionAction):
             build = self.handle_func_action(node, action)

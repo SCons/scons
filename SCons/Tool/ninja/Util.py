@@ -26,7 +26,7 @@ from os.path import join as joinpath
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
-from SCons.Tool.ninjaCommon.Globals import __NINJA_RULE_MAPPING
+from SCons.Tool.ninja.Globals import __NINJA_RULE_MAPPING
 from SCons.Util import is_List, flatten_sequence
 
 
