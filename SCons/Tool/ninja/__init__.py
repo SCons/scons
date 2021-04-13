@@ -405,7 +405,7 @@ def generate(env):
     """Generate the NINJA builders."""
     global NINJA_STATE
 
-    if not 'ninja' in GetOption('experimental'):
+    if 'ninja' not in GetOption('experimental'):
         return
 
     if not SCons.Tool.ninja.Globals.ninja_builder_initialized:
