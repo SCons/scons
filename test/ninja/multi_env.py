@@ -49,6 +49,9 @@ test = TestSCons.TestSCons()
 test.dir_fixture('ninja-fixture')
 
 test.write('SConstruct', """
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
 env = Environment()
 env.Tool('ninja')
 env.Program(target = 'foo', source = 'foo.c')

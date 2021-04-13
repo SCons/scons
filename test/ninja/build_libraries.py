@@ -66,6 +66,8 @@ if IS_MACOS:
     lib_suffix = '.dylib'
 
 test.write('SConstruct', """
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
 env['NINJA'] = "%(ninja_bin)s"

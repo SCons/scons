@@ -47,6 +47,8 @@ ninja_bin = os.path.abspath(os.path.join(
 test.dir_fixture('ninja-fixture')
 
 test.write('SConstruct', """
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
 env.Command('foo2.c', ['foo.c'], Copy('$TARGET','$SOURCE'))
