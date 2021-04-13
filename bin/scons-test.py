@@ -1,19 +1,46 @@
 #!/usr/bin/env python
+
+# MIT License
 #
-# A script that takes an scons-src-{version}.zip file, unwraps it in
-# a temporary location, and calls runtest.py to execute one or more of
-# its tests.
+# Copyright The SCons Foundation
 #
-# The default is to download the latest scons-src archive from the SCons
-# web site, and to execute all of the tests.
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
 #
-# With a little more work, this will become the basis of an automated
-# testing and reporting system that anyone will be able to use to
-# participate in testing SCons on their system and regularly reporting
-# back the results.  A --xml option is a stab at gathering a lot of
-# relevant information about the system, the Python version, etc.,
-# so that problems on different platforms can be identified sooner.
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
 #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+"""
+scons-test.py - test a particular SCons version.
+
+Takes an scons-src-{version}.zip file, unwraps it in a temporary location,
+and calls runtest.py to execute one or more of its tests.
+
+The default is to download the latest scons-src archive from the SCons
+web site, and to execute all of the tests.
+
+With a little more work, this will become the basis of an automated
+testing and reporting system that anyone will be able to use to
+participate in testing SCons on their system and regularly reporting
+back the results.  A --xml option is a stab at gathering a lot of
+relevant information about the system, the Python version, etc.,
+so that problems on different platforms can be identified sooner.
+"""
+
 import atexit
 import getopt
 import os
@@ -22,16 +49,7 @@ import sys
 import tempfile
 import time
 import zipfile
-
-try:
-    # try Python 3.x style
-    from urllib.request import urlretrieve
-except ImportError:
-    # nope, must be 2.x; this hack is equivalent
-    import imp
-    # protect import from fixer
-    urlretrieve = imp.load_module('urllib',
-                                  *imp.find_module('urllib')).urlretrieve
+from urllib.request import urlretrieve
 
 helpstr = """\
 Usage: scons-test.py [-f zipfile] [-o outdir] [-v] [--xml] [runtest arguments]
