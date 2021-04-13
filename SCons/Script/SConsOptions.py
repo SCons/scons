@@ -39,7 +39,7 @@ SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_features = {'warp_speed', 'transporter'}
+experimental_features = {'warp_speed', 'transporter', 'ninja'}
 
 
 def diskcheck_convert(value):
@@ -749,7 +749,7 @@ def Parser(version):
     op.add_option('--experimental',
                   dest='experimental',
                   action='callback',
-                  default={}, # empty set
+                  default=set(), # empty set
                   type='str',
                   # choices=experimental_options+experimental_features,
                   callback =experimental_callback,
