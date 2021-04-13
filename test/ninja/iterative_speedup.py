@@ -225,7 +225,7 @@ for test_mod in tests_mods:
 full_build_print = True
 for ninja_time, scons_time in zip(ninja_times, scons_times):
     if ninja_time > scons_time:
-        test.fail_test()
+        test.fail_test(message="Ninja was slower than SCons: SCons: {:.3f}s Ninja: {:.3f}s".format(scons_time, ninja_time))
     if full_build_print:
         full_build_print = False
         print("Clean build {} files - SCons: {:.3f}s Ninja: {:.3f}s".format(num_source, scons_time, ninja_time))
