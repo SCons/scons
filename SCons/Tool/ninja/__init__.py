@@ -443,10 +443,14 @@ def generate(env):
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
         ninja_file = [NINJA_STATE.ninja_file]
 
-    # TODO: API for getting the SConscripts programmatically
-    # exists upstream: https://github.com/SCons/scons/issues/3625
     def ninja_generate_deps(env):
-        return sorted([env.File("#SConstruct").path] + glob("**/SConscript", recursive=True))
+        """Return a list of SConscripts
+        TODO: Should we also include files loaded from site_scons/***
+          or even all loaded modules? https://stackoverflow.com/questions/4858100/how-to-list-imported-modules
+        TODO: Do we want this to be Nodes?
+        """
+        return sorted([str(s) for s in SCons.Node.SConscriptNodes])
+
     env['_NINJA_REGENERATE_DEPS_FUNC'] = ninja_generate_deps
 
     env['NINJA_REGENERATE_DEPS'] = env.get('NINJA_REGENERATE_DEPS', '${_NINJA_REGENERATE_DEPS_FUNC(__env__)}')
