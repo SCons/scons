@@ -1,17 +1,3 @@
-"""
-TestSCons.py:  a testing framework for the SCons software construction
-tool.
-
-A TestSCons environment object is created via the usual invocation:
-
-    test = TestSCons()
-
-TestScons is a subclass of TestCommon, which in turn is a subclass
-of TestCmd), and hence has available all of the methods and attributes
-from those classes, as well as any overridden or additional methods or
-attributes defined in this subclass.
-"""
-
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -35,6 +21,19 @@ attributes defined in this subclass.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+A testing framework for the SCons software construction tool.
+
+A TestSCons environment object is created via the usual invocation:
+
+    test = TestSCons()
+
+TestScons is a subclass of TestCommon, which in turn is a subclass
+of TestCmd), and hence has available all of the methods and attributes
+from those classes, as well as any overridden or additional methods or
+attributes defined in this subclass.
+"""
+
 import os
 import re
 import shutil
@@ -57,8 +56,10 @@ from TestCmd import PIPE
 
 default_version = '4.1.1ayyyymmdd'
 
-python_version_unsupported = (3, 4, 0)
-python_version_deprecated = (3, 5, 0)
+# TODO: these need to be hand-edited when there are changes
+python_version_unsupported = (3, 4, 0)  # highest unsupported version
+python_version_deprecated = (3, 5, 0)   # deprecated version
+python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
 
 # In the checked-in source, the value of SConsVersion in the following
 # line must remain "__ VERSION __" (without the spaces) so the built
@@ -177,11 +178,13 @@ def deprecated_python_version(version=sys.version_info):
 
 if deprecated_python_version():
     msg = r"""
-scons: warning: Support for pre-2.7.0 Python version (%s) is deprecated.
+scons: warning: Support for pre-%s Python version (%s) is deprecated.
     If this will cause hardship, contact scons-dev@scons.org
 """
-
-    deprecated_python_expr = re_escape(msg % python_version_string()) + file_expr
+    deprecated_python_expr = (
+        re_escape(msg % (python_version_supported_str, python_version_string()))
+        + file_expr
+    )
     del msg
 else:
     deprecated_python_expr = ""
@@ -718,28 +721,31 @@ class TestSCons(TestCommon):
         return result
 
     def unlink_sconsignfile(self, name='.sconsign.dblite'):
-        """
-        Delete sconsign file.
-        Note on python it seems to append .p3 to the file name so we take care of that
-        Parameters
-        ----------
-        name - expected name of sconsign file
+        """Delete the sconsign file.
 
-        Returns
-        -------
-        None
+        Note on python it seems to append .p3 to the file name so we take
+        care of that.
+
+        TODO the above seems to not be an issue any more.
+
+        Args:
+            name: expected name of sconsign file
         """
         if sys.version_info[0] == 3:
             name += '.p3'
         self.unlink(name)
 
     def java_ENV(self, version=None):
-        """
+        """ Initialize JAVA SDK environment.
+
         Initialize with a default external environment that uses a local
         Java SDK in preference to whatever's found in the default PATH.
 
-        :param version: if set, match only that version
-        :return: the new env.
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            the new env.
         """
         if not self.external:
             try:
@@ -784,11 +790,13 @@ class TestSCons(TestCommon):
         return None
 
     def java_where_includes(self, version=None):
-        """
-        Find include path needed for compiling java jni code.
+        """ Find include path needed for compiling java jni code.
 
-        :param version: if set, match only that version
-        :return: path to java headers
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            path to java headers or None
         """
         import sys
 
@@ -822,13 +830,15 @@ class TestSCons(TestCommon):
         return result
 
     def java_where_java_home(self, version=None):
-        """
-        Find path to what would be JAVA_HOME.
+        """ Find path to what would be JAVA_HOME.
 
         SCons does not read JAVA_HOME from the environment, so deduce it.
 
-        :param version: if set, match only that version
-        :return: path where JDK components live
+        Args:
+            version: if set, match only that version
+
+        Returns: 
+            path where JDK components live
         """
         if sys.platform[:6] == 'darwin':
             # osx 10.11, 10.12
@@ -873,14 +883,16 @@ class TestSCons(TestCommon):
         stdout, stderr = sp.communicate()
         sp.wait()
         if "No Java runtime" in str(stderr):
-            self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n")
+            self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n", from_fw=True)
 
     def java_where_jar(self, version=None):
-        """
-        Find java archiver jar.
+        """ Find java archiver jar.
 
-        :param version: if set, match only that version
-        :return: path to jar
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            path to jar
         """
         ENV = self.java_ENV(version)
         if self.detect_tool('jar', ENV=ENV):
@@ -888,35 +900,39 @@ class TestSCons(TestCommon):
         else:
             where_jar = self.where_is('jar', ENV['PATH'])
         if not where_jar:
-            self.skip_test("Could not find Java jar, skipping test(s).\n")
+            self.skip_test("Could not find Java jar, skipping test(s).\n", from_fw=True)
         elif sys.platform == "darwin":
             self.java_mac_check(where_jar, 'jar')
 
         return where_jar
 
     def java_where_java(self, version=None):
-        """
-        Find java executable.
+        """ Find java executable.
 
-        :param version: if set, match only that version
-        :return: path to the java rutime
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            path to the java rutime
         """
         ENV = self.java_ENV(version)
         where_java = self.where_is('java', ENV['PATH'])
 
         if not where_java:
-            self.skip_test("Could not find Java java, skipping test(s).\n")
+            self.skip_test("Could not find Java java, skipping test(s).\n", from_fw=True)
         elif sys.platform == "darwin":
             self.java_mac_check(where_java, 'java')
 
         return where_java
 
     def java_where_javac(self, version=None):
-        """
-        Find java compiler.
+        """ Find java compiler.
 
-        :param version: if set, match only that version
-        :return: path to javac
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            path to javac
         """
         ENV = self.java_ENV(version)
         if self.detect_tool('javac'):
@@ -924,7 +940,7 @@ class TestSCons(TestCommon):
         else:
             where_javac = self.where_is('javac', ENV['PATH'])
         if not where_javac:
-            self.skip_test("Could not find Java javac, skipping test(s).\n")
+            self.skip_test("Could not find Java javac, skipping test(s).\n", from_fw=True)
         elif sys.platform == "darwin":
             self.java_mac_check(where_javac, 'javac')
 
@@ -937,7 +953,7 @@ class TestSCons(TestCommon):
             verf = 'javac %s' % version
             if self.stderr().find(verf) == -1 and self.stdout().find(verf) == -1:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
-                self.skip_test(fmt % version)
+                self.skip_test(fmt % version, from_fw=True)
         else:
             version_re = r'javac (\d*\.*\d)'
             m = re.search(version_re, self.stderr())
@@ -956,15 +972,17 @@ class TestSCons(TestCommon):
         return where_javac, version
 
     def java_where_javah(self, version=None):
-        """
-        Find java header generation tool.
+        """ Find java header generation tool.
 
         TODO issue #3347 since JDK10, there is no separate javah command,
         'javac -h' is used. We should not return a javah from a different
         installed JDK - how to detect and what to return in this case?
 
-        :param version: if set, match only that version
-        :return: path to javah
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            path to javah
         """
         ENV = self.java_ENV(version)
         if self.detect_tool('javah'):
@@ -972,15 +990,17 @@ class TestSCons(TestCommon):
         else:
             where_javah = self.where_is('javah', ENV['PATH'])
         if not where_javah:
-            self.skip_test("Could not find Java javah, skipping test(s).\n")
+            self.skip_test("Could not find Java javah, skipping test(s).\n", from_fw=True)
         return where_javah
 
     def java_where_rmic(self, version=None):
-        """
-        Find java rmic tool.
+        """ Find java rmic tool.
 
-        :param version: if set, match only that version
-        :return: path to rmic
+        Args:
+            version: if set, match only that version
+
+        Returns:
+            path to rmic
         """
         ENV = self.java_ENV(version)
         if self.detect_tool('rmic'):
@@ -988,7 +1008,7 @@ class TestSCons(TestCommon):
         else:
             where_rmic = self.where_is('rmic', ENV['PATH'])
         if not where_rmic:
-            self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n")
+            self.skip_test("Could not find Java rmic, skipping non-simulated test(s).\n", from_fw=True)
         return where_rmic
 
     def java_get_class_files(self, dir):
@@ -1085,8 +1105,8 @@ void my_qt_symbol(const char *arg) {
 """)
 
         self.write([dir, 'lib', 'SConstruct'], r"""
-env = Environment()
 import sys
+env = Environment()
 if sys.platform == 'win32':
     env.StaticLibrary('myqt', 'my_qobject.cpp')
 else:
@@ -1108,20 +1128,20 @@ else:
         if isinstance(place, list):
             place = test.workpath(*place)
         self.write(place, """\
-if ARGUMENTS.get('noqtdir', 0): QTDIR=None
-else: QTDIR=r'%s'
-env = Environment(QTDIR = QTDIR,
-                  QT_LIB = r'%s',
-                  QT_MOC = r'%s',
-                  QT_UIC = r'%s',
-                  tools=['default','qt'])
+if ARGUMENTS.get('noqtdir', 0):
+    QTDIR = None
+else:
+    QTDIR = r'%s'
+env = Environment(
+    QTDIR=QTDIR, QT_LIB=r'%s', QT_MOC=r'%s', QT_UIC=r'%s', tools=['default', 'qt']
+)
 dup = 1
 if ARGUMENTS.get('variant_dir', 0):
     if ARGUMENTS.get('chdir', 0):
         SConscriptChdir(1)
     else:
         SConscriptChdir(0)
-    dup=int(ARGUMENTS.get('dup', 1))
+    dup = int(ARGUMENTS.get('dup', 1))
     if dup == 0:
         builddir = 'build_dup0'
         env['QT_DEBUG'] = 1
@@ -1155,26 +1175,27 @@ SConscript(sconscript)
         return 'COVERAGE_PROCESS_START' in os.environ or 'COVERAGE_FILE' in os.environ
 
     def skip_if_not_msvc(self, check_platform=True):
-        """ Check whether we are on a Windows platform and skip the
-            test if not. This check can be omitted by setting
-            check_platform to False.
-            Then, for a win32 platform, additionally check
-            whether we have a MSVC toolchain installed
-            in the system, and skip the test if none can be
-            found (=MinGW is the only compiler available).
+        """ Skip test if MSVC is not available.
+
+        Check whether we are on a Windows platform and skip the test if
+        not. This check can be omitted by setting check_platform to False.
+
+        Then, for a win32 platform, additionally check whether we have
+        an MSVC toolchain installed in the system, and skip the test if
+        none can be found (e.g. MinGW is the only compiler available).
         """
         if check_platform:
             if sys.platform != 'win32':
                 msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
-                self.skip_test(msg)
+                self.skip_test(msg, from_fw=True)
                 return
 
         try:
             import SCons.Tool.MSCommon as msc
             if not msc.msvc_exists():
                 msg = "No MSVC toolchain found...skipping test\n"
-                self.skip_test(msg)
-        except:
+                self.skip_test(msg, from_fw=True)
+        except Exception:
             pass
 
     def checkConfigureLogAndStdout(self, checks,
@@ -1182,28 +1203,23 @@ SConscript(sconscript)
                                    sconf_dir='.sconf_temp',
                                    sconstruct="SConstruct",
                                    doCheckLog=True, doCheckStdout=True):
-        """
+        """ Verify expected output from Configure.
+
         Used to verify the expected output from using Configure()
         via the contents of one or both of stdout or config.log file.
-        The checks, results, cached parameters all are zipped together
-        for use in comparing results.
+        If the algorithm does not succeed, the test is marked a fail
+        and this function does not return.
 
         TODO: Perhaps a better API makes sense?
 
-        Parameters
-        ----------
-        checks : list of ConfigCheckInfo tuples which specify
-        logfile : Name of the config log
-        sconf_dir : Name of the sconf dir
-        sconstruct : SConstruct file name
-        doCheckLog : check specified log file, defaults to true
-        doCheckStdout : Check stdout, defaults to true
-
-        Returns
-        -------
-
+        Args:
+            checks: list of ConfigCheckInfo tuples which specify
+            logfile: Name of the config log
+            sconf_dir: Name of the sconf dir
+            sconstruct: SConstruct file name
+            doCheckLog: check specified log file, defaults to true
+            doCheckStdout: Check stdout, defaults to true
         """
-
 
         try:
             ls = '\n'
@@ -1319,35 +1335,25 @@ SConscript(sconscript)
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,
                           doCheckLog=True, doCheckStdout=True):
-        """
+        """ Verify expected output from Configure.
+
         Used to verify the expected output from using Configure()
         via the contents of one or both of stdout or config.log file.
         The checks, results, cached parameters all are zipped together
-        for use in comparing results.
+        for use in comparing results. If the algorithm does not
+        succeed, the test is marked a fail and this function does not return.
 
         TODO: Perhaps a better API makes sense?
 
-        Parameters
-        ----------
-        checks : The Configure checks being run
-
-        results : The expected results for each check
-
-        cached  : If the corresponding check is expected to be cached
-
-        logfile : Name of the config log
-
-        sconf_dir : Name of the sconf dir
-
-        sconstruct : SConstruct file name
-
-        doCheckLog : check specified log file, defaults to true
-
-        doCheckStdout : Check stdout, defaults to true
-
-        Returns
-        -------
-
+        Args:
+            checks: The Configure checks being run
+            results: The expected results for each check
+            cached: If the corresponding check is expected to be cached
+            logfile: Name of the config log
+            sconf_dir: Name of the sconf dir
+            sconstruct: SConstruct file name
+            doCheckLog: check specified log file, defaults to true
+            doCheckStdout: Check stdout, defaults to true
         """
         try:
 
@@ -1480,16 +1486,18 @@ SConscript(sconscript)
                 print("-----------------------------------------------------")
                 self.fail_test()
 
-    def get_python_version(self):
-        """
-        Returns the Python version (just so everyone doesn't have to
-        hand-code slicing the right number of characters).
+    def get_python_version(self) -> str:
+        """ Returns the Python version.
+
+        Convenience function so everyone doesn't have to
+        hand-code slicing the right number of characters
         """
         # see also sys.prefix documentation
         return python_minor_version_string()
 
     def get_platform_python_info(self, python_h_required=False):
-        """
+        """Return information about Python.
+
         Returns a path to a Python executable suitable for testing on
         this platform and its associated include path, library path and
         library name.
@@ -1497,12 +1505,12 @@ SConscript(sconscript)
         If the Python executable or Python header (if required)
         is not found, the test is skipped.
 
-        Returns a tuple:
-            (path to python, include path, library path, library name)
+        Returns:
+            tuple: path to python, include path, library path, library name
         """
         python = os.environ.get('python_executable', self.where_is('python'))
         if not python:
-            self.skip_test('Can not find installed "python", skipping test.\n')
+            self.skip_test('Can not find installed "python", skipping test.\n', from_fw=True)
 
         # construct a program to run in the intended environment
         # in order to fetch the characteristics of that Python.
@@ -1559,7 +1567,7 @@ else:
 """)
         incpath, libpath, libname, python_h = self.stdout().strip().split('\n')
         if python_h == "False" and python_h_required:
-            self.skip_test('Can not find required "Python.h", skipping test.\n')
+            self.skip_test('Can not find required "Python.h", skipping test.\n', from_fw=True)
 
         return (python, incpath, libpath, libname)
 
@@ -1606,7 +1614,8 @@ else:
             waited = waited + 1.0
 
     def get_alt_cpp_suffix(self):
-        """
+        """Return alternate C++ file suffix.
+
         Many CXX tests have this same logic.
         They all needed to determine if the current os supports
         files with .C and .c as different files or not

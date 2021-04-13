@@ -1,5 +1,5 @@
 """
-TestCmd.py:  a testing framework for commands and scripts.
+A testing framework for commands and scripts.
 
 The TestCmd module provides a framework for portable automated testing
 of executable commands and scripts (in any language, not just Python),
@@ -384,11 +384,19 @@ def _caller(tblist, skip):
 
 
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
-    """Cause the test to fail.
+    """Causes a test to exit with a fail.
 
-    By default, the fail_test() method reports that the test FAILED
-    and exits with a status of 1.  If a condition argument is supplied,
-    the test fails only if the condition is true.
+    Reports that the test FAILED and exits with a status of 1, unless
+    a condition argument is supplied; if so the completion processing
+    takes place only if the condition is true.
+
+    Args:
+        self: a test class instance. Must be passed in explicitly
+            by the caller since this is an unbound method.
+        condition (optional): if false, return to let test continue.
+        function (optional): function to call before completion processing.
+        skip (optional): how many lines at the top of the traceback to skip.
+        message (optional): additional text to include in the fail message.
     """
     if not condition:
         return
@@ -416,11 +424,24 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
 
 
 def no_result(self=None, condition=True, function=None, skip=0):
-    """Causes a test to exit with no valid result.
+    """Causes a test to exit with a no result.
 
-    By default, the no_result() method reports NO RESULT for the test
-    and exits with a status of 2.  If a condition argument is supplied,
-    the test fails only if the condition is true.
+    In testing parlance NO RESULT means the test could not be completed
+    for reasons that imply neither success nor failure - for example a
+    component needed to run the test could be found. However, at this
+    point we still have an "outcome", so record the information and exit
+    with a status code of 2, unless a condition argument is supplied;
+    if so the completion processing takes place only if the condition is true.
+
+    The different exit code and message allows other logic to distinguish
+    from a fail and decide how to treat NO RESULT tests.
+
+    Args:
+        self: a test class instance. Must be passed in explicitly
+            by the caller since this is an unbound method.
+        condition (optional): if false, return to let test continue.
+        function (optional): function to call before completion processing.
+        skip (optional): how many lines at the top of the traceback to skip.
     """
     if not condition:
         return
@@ -444,11 +465,19 @@ def no_result(self=None, condition=True, function=None, skip=0):
 
 
 def pass_test(self=None, condition=True, function=None):
-    """Causes a test to pass.
+    """Causes a test to exit with a pass.
 
-    By default, the pass_test() method reports PASSED for the test
-    and exits with a status of 0.  If a condition argument is supplied,
+    Reports that the test PASSED and exits with a status of 0, unless
+    a condition argument is supplied; if so the completion processing
+    takes place only if the condition is true.
+
     the test passes only if the condition is true.
+
+    Args:
+        self: a test class instance. Must be passed in explicitly
+            by the caller since this is an unbound method.
+        condition (optional): if false, return to let test continue.
+        function (optional): function to call before completion processing.
     """
     if not condition:
         return
@@ -466,7 +495,7 @@ def match_exact(lines=None, matches=None, newline=os.sep):
     :param matches: expected lines to match
     :type matches: str or list[str]
     :param newline: line separator
-    :returns: an object (1) on match, else None, like re.match
+    :returns: None on failure, 1 on success.
 
     """
     if isinstance(lines, bytes):
@@ -495,8 +524,7 @@ def match_caseinsensitive(lines=None, matches=None):
     :type lines: str or list[str]
     :param matches: expected lines to match
     :type matches: str or list[str]
-    :returns: True or False
-    :returns: an object (1) on match, else None, like re.match
+    :returns: None on failure, 1 on success.
 
     """
     if not is_List(lines):
@@ -518,7 +546,7 @@ def match_re(lines=None, res=None):
     :type lines: str or list[str]
     :param res: regular expression(s) for matching
     :type res: str or list[str]
-    :returns: an object (1) on match, else None, like re.match
+    :returns: None on failure, 1 on success.
 
     """
     if not is_List(lines):
@@ -553,7 +581,7 @@ def match_re_dotall(lines=None, res=None):
     :type lines: str or list[str]
     :param res: regular expression(s) for matching
     :type res: str or list[str]
-    :returns: a match object, or None as for re.match
+    :returns: a match object on match, else None, like re.match
 
     """
     if not isinstance(lines, str):
@@ -574,14 +602,12 @@ def simple_diff(a, b, fromfile='', tofile='',
     r"""Compare two sequences of lines; generate the delta as a simple diff.
 
     Similar to difflib.context_diff and difflib.unified_diff but
-    output is like from the 'diff" command without arguments. The function
+    output is like from the "diff" command without arguments. The function
     keeps the same signature as the difflib ones so they will be
     interchangeable,  but except for lineterm, the arguments beyond the
     two sequences are ignored in this version. By default, the
     diff is not created with trailing newlines, set the lineterm
     argument to '\n' to do so.
-
-    :raises re.error: if a regex fails to compile
 
     Example:
 
@@ -623,13 +649,16 @@ def simple_diff(a, b, fromfile='', tofile='',
 
 def diff_re(a, b, fromfile='', tofile='',
             fromfiledate='', tofiledate='', n=3, lineterm='\n'):
-    """Compare a and b (lists of strings) where a are regexes.
+    """Compare a and b (lists of strings) where a are regular expressions.
 
     A simple "diff" of two sets of lines when the expected lines
     are regular expressions.  This is a really dumb thing that
     just compares each line in turn, so it doesn't look for
     chunks of matching lines and the like--but at least it lets
     you know exactly which line first didn't compare correctl...
+
+    Raises:
+        re.error: if a regex fails to compile
     """
     result = []
     diff = len(a) - len(b)
@@ -1207,8 +1236,7 @@ class TestCmd:
         return match_stderr_function(lines, matches)
 
     def match_stdout(self, lines, matches):
-        """Compare actual and expected file contents.
-        """
+        """Compare actual and expected file contents."""
         try:
             match_stdout_function = getattr(self, self._match_stdout_function)
         except TypeError:
@@ -1237,8 +1265,7 @@ class TestCmd:
                   skip=skip)
 
     def pass_test(self, condition=True, function=None):
-        """Cause the test to pass.
-        """
+        """Cause the test to pass."""
         if not condition:
             return
         self.condition = 'pass_test'

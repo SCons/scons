@@ -1,15 +1,8 @@
 #!/usr/bin/env python
-#
-# scons-time - run SCons timings and collect statistics
-#
-# A script for running a configuration through SCons with a standard
-# set of invocations to collect timing and memory statistics and to
-# capture the results in a consistent set of output files for display
-# and analysis.
-#
 
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,7 +23,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+scons-time - run SCons timings and collect statistics
+
+A script for running a configuration through SCons with a standard set
+of invocations to collect timing and memory statistics and to capture
+the results in a consistent set of output files for display and analysis.
+"""
 
 import getopt
 import glob
