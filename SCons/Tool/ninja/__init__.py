@@ -361,6 +361,9 @@ class NinjaNoResponseFiles(SCons.Platform.TempFileMunge):
 def exists(env):
     """Enable if called."""
 
+    if 'ninja' not in GetOption('experimental'):
+        return False
+
     # This variable disables the tool when storing the SCons command in the
     # generated ninja file to ensure that the ninja tool is not loaded when
     # SCons should do actual work as a subprocess of a ninja build. The ninja
@@ -401,6 +404,9 @@ def ninja_emitter(target, source, env):
 def generate(env):
     """Generate the NINJA builders."""
     global NINJA_STATE
+
+    if not 'ninja' in GetOption('experimental'):
+        return
 
     if not SCons.Tool.ninja.Globals.ninja_builder_initialized:
         SCons.Tool.ninja.Globals.ninja_builder_initialized = True
