@@ -34,7 +34,7 @@ import textwrap
 from glob import glob
 
 import SCons
-import SCons.Tool.ninjaCommon.Globals
+import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
 
 from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
@@ -186,7 +186,7 @@ def register_custom_handler(env, name, handler):
 
 def register_custom_rule_mapping(env, pre_subst_string, rule):
     """Register a function to call for a given rule."""
-    SCons.Tool.ninjaCommon.Globals.__NINJA_RULE_MAPPING[pre_subst_string] = rule
+    SCons.Tool.ninja.Globals.__NINJA_RULE_MAPPING[pre_subst_string] = rule
 
 
 def register_custom_rule(env, rule, command, description="", deps=None, pool=None, use_depfile=False, use_response_file=False, response_file_content="$rspc"):
@@ -279,14 +279,14 @@ def ninja_stat(_self, path):
     """
 
     try:
-        return SCons.Tool.ninjaCommon.Globals.NINJA_STAT_MEMO[path]
+        return SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path]
     except KeyError:
         try:
             result = os.stat(path)
         except os.error:
             result = None
 
-        SCons.Tool.ninjaCommon.Globals.NINJA_STAT_MEMO[path] = result
+        SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path] = result
         return result
 
 
@@ -296,7 +296,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
     # Optimize for success, this gets called significantly more often
     # when the value is already memoized than when it's not.
     try:
-        return SCons.Tool.ninjaCommon.Globals.NINJA_WHEREIS_MEMO[thing]
+        return SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing]
     except KeyError:
         # We do not honor any env['ENV'] or env[*] variables in the
         # generated ninja file. Ninja passes your raw shell environment
@@ -308,7 +308,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
         # with shell quoting is nigh impossible. So I've decided to
         # cross that bridge when it's absolutely required.
         path = shutil.which(thing)
-        SCons.Tool.ninjaCommon.Globals.NINJA_WHEREIS_MEMO[thing] = path
+        SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing] = path
         return path
 
 
@@ -395,8 +395,8 @@ def generate(env):
     """Generate the NINJA builders."""
     global NINJA_STATE
 
-    if not SCons.Tool.ninjaCommon.Globals.ninja_builder_initialized:
-        SCons.Tool.ninjaCommon.Globals.ninja_builder_initialized = True
+    if not SCons.Tool.ninja.Globals.ninja_builder_initialized:
+        SCons.Tool.ninja.Globals.ninja_builder_initialized = True
 
         ninja_add_command_line_options()
 
