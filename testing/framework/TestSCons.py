@@ -1175,7 +1175,7 @@ SConscript(sconscript)
         return 'COVERAGE_PROCESS_START' in os.environ or 'COVERAGE_FILE' in os.environ
 
     def skip_if_not_msvc(self, check_platform=True):
-        """ Check whether MSVC is avaliable.
+        """ Skip test if MSVC is not available.
 
         Check whether we are on a Windows platform and skip the test if
         not. This check can be omitted by setting check_platform to False.
