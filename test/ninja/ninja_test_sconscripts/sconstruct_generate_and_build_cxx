@@ -1,3 +1,4 @@
+SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')

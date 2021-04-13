@@ -166,6 +166,9 @@ main()
 """ % locals())
 
 test.write('SConstruct', """
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
 env = Environment()
 env.Tool('ninja')
 sources = ['main.c'] + env.Glob('source*.c')

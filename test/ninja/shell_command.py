@@ -49,6 +49,9 @@ test.dir_fixture('ninja-fixture')
 shell = '' if IS_WINDOWS else './'
 
 test.write('SConstruct', """
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
 env = Environment()
 env.Tool('ninja')
 prog = env.Program(target = 'foo', source = 'foo.c')
