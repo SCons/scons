@@ -118,8 +118,8 @@ env1 = Environment(
     # Specify the command lines with lists-of-lists so
     # finding the implicit dependencies works even with
     # spaces in the fake_*_py path names.
-    CCCOM=[['%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
-    LINKCOM=[['%(fake_link_py)s', '$TARGET', '$SOURCE']],
+    CCCOM=[[r'%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
+    LINKCOM=[[r'%(fake_link_py)s', '$TARGET', '$SOURCE']],
 )
 env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')

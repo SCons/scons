@@ -67,7 +67,7 @@ while len(extra_arguments) <= MAXLINE:
 env = Environment(
     tools=[],
     FILECOM=[
-        '%(build_py)s',
+        r'%(build_py)s',
         '$TARGET',
         '$SOURCE',
         '$FILEFLAG',
