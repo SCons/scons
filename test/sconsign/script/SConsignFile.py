@@ -111,8 +111,8 @@ env2.Program('sub2/hello.c')
 """ % locals())
 # TODO in the above, we would normally want to run a python program
 # using "our python" as in:
-#    CCCOM=[['%(_python_)s', '%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
-#    LINKCOM=[['%(_python_)s', '%(fake_link_py)s', '$TARGET', '$SOURCE']],
+#    CCCOM=[[r'%(_python_)s', r'%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
+#    LINKCOM=[[r'%(_python_)s', r'%(fake_link_py)s', '$TARGET', '$SOURCE']],
 # however we're looking at dependencies with sconsign, so that breaks things
 
 test.write(['sub1', 'hello.c'], r"""

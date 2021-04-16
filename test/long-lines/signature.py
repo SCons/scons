@@ -83,7 +83,7 @@ env = Environment(
     TEMPFILEPREFIX='@',
 )
 env.PrependENVPath('PATHEXT', '.PY')
-env.Command('file.out', 'file.in', '%(_python_)s ${TEMPFILE(FILECOM)}')
+env.Command('file.out', 'file.in', r'%(_python_)s ${TEMPFILE(FILECOM)}')
 """ % locals())
 
 test.write('file.in', "file.in\n", mode='w')
