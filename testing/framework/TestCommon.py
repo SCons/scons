@@ -785,10 +785,6 @@ class TestCommon(TestCmd):
             sys.stdout.flush()
         pass_skips = os.environ.get('TESTCOMMON_PASS_SKIPS')
         if pass_skips in [None, 0, '0']:
-            # skip=1 means skip this function when showing where this
-            # result came from.  They only care about the line where the
-            # script called test.skip_test(), not the line number where
-            # we call test.no_result().
             if from_fw:
                 self.no_result(skip=2)
             else:

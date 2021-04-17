@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Make sure that WINDOWS_INSERT_DEF isn't ignored when using MinGW.
@@ -39,11 +38,11 @@ from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
 test = TestSCons.TestSCons()
 
-if sys.platform not in ('cygwin', 'win32'):
-    test.skip_test(
-        "Skipping mingw test on non-Windows platform: %s" % sys.platform)
+if sys.platform not in ('cygwin', 'win32',):
+    test.skip_test("Skipping mingw test on non-Windows platform %s\n" % sys.platform)
 
-gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+dp = MINGW_DEFAULT_PATHS
+gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=dp)
 if not gcc:
     test.skip_test("Skipping mingw test, no MinGW found.\n")
 
@@ -53,9 +52,9 @@ int hello_world(void) { return printf("Orbis, te saluto!\n"); }
 """)
 
 test.write('SConstruct', """
-env = Environment(TOOLS = ['mingw'])
-hello_dll = env.SharedLibrary(WINDOWS_INSERT_DEF = 0,
-    target = 'hello', source = 'hello.c')
+DefaultEnvironment(tools=[])
+env = Environment(TOOLS=['mingw'])
+hello_dll = env.SharedLibrary(WINDOWS_INSERT_DEF=0, target='hello', source='hello.c')
 """ % locals())
 
 test.run(arguments = ".")
