@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -23,41 +21,20 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Test the --experimental option.
-"""
+import SCons.Action
 
-import TestSCons
+NINJA_RULES = "__NINJA_CUSTOM_RULES"
+NINJA_POOLS = "__NINJA_CUSTOM_POOLS"
+NINJA_CUSTOM_HANDLERS = "__NINJA_CUSTOM_HANDLERS"
+NINJA_BUILD = "NINJA_BUILD"
+NINJA_WHEREIS_MEMO = {}
+NINJA_STAT_MEMO = {}
+__NINJA_RULE_MAPPING = {}
 
-test = TestSCons.TestSCons()
 
-test.file_fixture('fixture/SConstruct__experimental', 'SConstruct')
-
-tests = [
-    ('.', []),
-    ('--experimental=ninja', ['ninja']),
-    ('--experimental=all', ['ninja', 'transporter', 'warp_speed']),
-    ('--experimental=none', []),
-]
-
-for args, exper in tests:
-    read_string = """All Features=ninja,transporter,warp_speed
-Experimental=%s
-""" % (exper)
-    test.run(arguments=args,
-             stdout=test.wrap_stdout(read_str=read_string, build_str="scons: `.' is up to date.\n"))
-
-test.run(arguments='--experimental=warp_drive',
-         stderr="""usage: scons [OPTION] [TARGET] ...
-
-SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','ninja','transporter','warp_speed')
-""",
-         status=2)
-
-test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+# These are the types that get_command can do something with
+COMMAND_TYPES = (
+    SCons.Action.CommandAction,
+    SCons.Action.CommandGeneratorAction,
+)
+ninja_builder_initialized = False

@@ -744,7 +744,7 @@ library archiver.
     <listitem><para>
 Sets construction variables for the Microsoft linker.
 </para>
-<para>Sets: &cv-link-LDMODULE;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-REGSVR;, &cv-link-REGSVRCOM;, &cv-link-REGSVRFLAGS;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-WIN32DEFPREFIX;, &cv-link-WIN32DEFSUFFIX;, &cv-link-WIN32EXPPREFIX;, &cv-link-WIN32EXPSUFFIX;, &cv-link-WINDOWSDEFPREFIX;, &cv-link-WINDOWSDEFSUFFIX;, &cv-link-WINDOWSEXPPREFIX;, &cv-link-WINDOWSEXPSUFFIX;, &cv-link-WINDOWSPROGMANIFESTPREFIX;, &cv-link-WINDOWSPROGMANIFESTSUFFIX;, &cv-link-WINDOWSSHLIBMANIFESTPREFIX;, &cv-link-WINDOWSSHLIBMANIFESTSUFFIX;, &cv-link-WINDOWS_INSERT_DEF;.</para><para>Uses: &cv-link-LDMODULECOMSTR;, &cv-link-LINKCOMSTR;, &cv-link-REGSVRCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-LDMODULE;, &cv-link-LDMODULECOM;, &cv-link-LDMODULEFLAGS;, &cv-link-LDMODULEPREFIX;, &cv-link-LDMODULESUFFIX;, &cv-link-LIBDIRPREFIX;, &cv-link-LIBDIRSUFFIX;, &cv-link-LIBLINKPREFIX;, &cv-link-LIBLINKSUFFIX;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-LINKFLAGS;, &cv-link-REGSVR;, &cv-link-REGSVRCOM;, &cv-link-REGSVRFLAGS;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;, &cv-link-SHLINKFLAGS;, &cv-link-WINDOWSDEFPREFIX;, &cv-link-WINDOWSDEFSUFFIX;, &cv-link-WINDOWSEXPPREFIX;, &cv-link-WINDOWSEXPSUFFIX;, &cv-link-WINDOWSPROGMANIFESTPREFIX;, &cv-link-WINDOWSPROGMANIFESTSUFFIX;, &cv-link-WINDOWSSHLIBMANIFESTPREFIX;, &cv-link-WINDOWSSHLIBMANIFESTSUFFIX;, &cv-link-WINDOWS_INSERT_DEF;.</para><para>Uses: &cv-link-LDMODULECOMSTR;, &cv-link-LINKCOMSTR;, &cv-link-REGSVRCOMSTR;, &cv-link-SHLINKCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-mssdk">
     <term>mssdk</term>
@@ -796,10 +796,17 @@ Sets construction variables for the
 </para>
 <para>Sets: &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses: &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
+  <varlistentry id="t-ninja">
+    <term>ninja</term>
+    <listitem><para>
+                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs ninja.
+            </para>
+        <para>Sets: &cv-link-DISABLE_AUTO_NINJA;, &cv-link-NINJA_ALIAS_NAME;, &cv-link-NINJA_BUILDDIR;, &cv-link-NINJA_COMPDB_EXPAND;, &cv-link-NINJA_ENV_VAR_CACHE;, &cv-link-NINJA_FILE_NAME;, &cv-link-NINJA_GENERATED_SOURCE_SUFFIXES;, &cv-link-NINJA_MSVC_DEPS_PREFIX;, &cv-link-NINJA_POOL;, &cv-link-NINJA_REGENERATE_DEPS;, &cv-link-NINJA_SYNTAX;, &cv-link-_NINJA_REGENERATE_DEPS_FUNC;, &cv-link-__NINJA_NO;.</para><para>Uses: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-ESCAPE;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-PLATFORM;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-SHCXXCOM;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;.</para></listitem>
+  </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem><para>
-Sets construction variables for the &b-Package; Builder.
+Sets construction variables for the &b-link-Package; Builder.
 If this tool is enabled, the <option>--package-type</option>
 command-line option is also enabled.
 </para>
