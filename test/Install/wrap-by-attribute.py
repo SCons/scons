@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT Licenxe
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 
@@ -45,6 +44,7 @@ test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 import os.path
 
+
 def cat(env, source, target):
     target = str(target[0])
     with open(target, 'wb') as ofp:
@@ -52,18 +52,23 @@ def cat(env, source, target):
             with open(str(src), 'rb') as ifp:
                 ofp.write(ifp.read())
 
+
 env = Environment(tools=[], DESTDIR='dest')
-env.Append(BUILDERS={'Cat':Builder(action=cat)})
+env.Append(BUILDERS={'Cat': Builder(action=cat)})
 
 env.SconsInternalInstallFunc = env.Install
 env.SconsInternalInstallAsFunc = env.InstallAs
 
+
 def InstallWithDestDir(dir, source):
     abspath = os.path.splitdrive(env.Dir(dir).get_abspath())[1]
-    return env.SconsInternalInstallFunc('$DESTDIR'+abspath, source)
+    return env.SconsInternalInstallFunc('$DESTDIR' + abspath, source)
+
+
 def InstallAsWithDestDir(target, source):
     abspath = os.path.splitdrive(env.File(target).get_abspath())[1]
-    return env.SconsInternalInstallAsFunc('$DESTDIR'+abspath, source)
+    return env.SconsInternalInstallAsFunc('$DESTDIR' + abspath, source)
+
 
 # Add the wrappers directly as attributes.
 env.Install = InstallWithDestDir
@@ -82,7 +87,6 @@ t = e2.Cat(target='f3.out', source='f3.in')
 e2.Install('export', source=t)
 t = e2.Cat(target='f4.out', source='f4.in')
 e2.InstallAs('export/f4-new.out', source=t)
-
 """)
 
 test.write('f1.in', "f1.in\n")
@@ -90,7 +94,7 @@ test.write('f2.in', "f2.in\n")
 test.write('f3.in', "f3.in\n")
 test.write('f4.in', "f4.in\n")
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
 export = os.path.splitdrive(test.workpath('export'))[1]
 
@@ -104,7 +108,7 @@ test.must_match(f2_new_out,     "f2.in\n")
 test.must_match(f3_out,         "f3.in\n")
 test.must_match(f4_new_out,     "f4.in\n")
 
-test.up_to_date(arguments = '.')
+test.up_to_date(arguments='.')
 
 test.pass_test()
 

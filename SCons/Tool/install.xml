@@ -46,9 +46,7 @@ which must be a directory.
 The names of the specified source files or directories
 remain the same within the destination directory. The
 sources may be given as a string or as a node returned by
-a builder. Basic metadata from the source files is
-preserved, except that the target files will be marked
-as writable.
+a builder.
 </para>
 
 <example_commands>
@@ -120,8 +118,6 @@ See the note under &Install;.
 <para>
 Installs a versioned shared library. The symlinks appropriate to the
 architecture will be generated based on symlinks of the source library.
-Basic metadata from the source library is preserved,
-except that the target file will be marked as writable.
 </para>
 
 <example_commands>
