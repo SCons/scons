@@ -1,5 +1,5 @@
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q COLORS=all foo.o</userinput>
-cc -o foo.o -c -DCOLORS="red green blue" foo.c
+cc -o foo.o -c -DCOLORS="red -Dgreen -Dblue" foo.c
 % <userinput>scons -Q COLORS=none foo.o</userinput>
 cc -o foo.o -c -DCOLORS="" foo.c
 </screen>
