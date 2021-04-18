@@ -27,9 +27,6 @@
 Test that SCons allows Install on top of an existing read-only file.
 """
 
-import sys
-import os
-import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()
