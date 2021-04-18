@@ -24,29 +24,16 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify that we can still call Install() and InstallAs() even when
-no Tool modules have been loaded.
+Test that SCons allows Install on top of an existing read-only file.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.subdir('iii')
-
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-env = Environment(tools=[])
-env.Install('iii', 'foo.in')
-env.InstallAs('foo.out', 'foo.in')
-""")
-
-test.write('foo.in', "foo.in\n")
-
-test.run(arguments='.')
-
-test.must_match(['iii', 'foo.in'], "foo.in\n")
-test.must_match('foo.out', "foo.in\n")
+test.file_fixture('fixture/SConstruct-multi', 'SConstruct')
+test.run(arguments=["-Q"])
+test.run(arguments=["-Q"])
 
 test.pass_test()
 
@@ -54,4 +41,3 @@ test.pass_test()
 # tab-width:4
 # indent-tabs-mode:nil
 # End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -1,0 +1,24 @@
+# first run creates a src file, makes it read-only, and installs.
+# second run updates src, Install should successfully replace
+# the previous install (read-only attr on Windows might fail it)
+
+import os
+import pathlib
+import stat
+
+destdir = pathlib.Path("bin")
+destdir.mkdir(exist_ok=True)
+
+srcfile = pathlib.Path("hello")
+try:
+    srcfile.chmod(stat.S_IREAD | stat.S_IWRITE)
+except OSError:
+    pass
+
+with srcfile.open(mode="w") as f:
+    print("Hello from ", os.getpid(), file=f)
+srcfile.chmod(stat.S_IREAD)
+
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+env.Install('bin', 'hello')
