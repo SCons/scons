@@ -78,6 +78,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Deprecate Python 3.5 as a supported version.
     - CPPDEFINES now expands construction variable references (issue 2363)
     - Restore behavior that Install()'d files are writable (issue 3927)
+    - Simplified Mkdir(), the internal mkdir_func no longer needs to handle
+      existing directories, it can now pass exist_ok=True to os.makedirs().
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
