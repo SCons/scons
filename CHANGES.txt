@@ -9,6 +9,10 @@ NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
+      when constructing the installed visual studios list.
+
   From William Deegan:
     - Improve Subst()'s logic to check for proper callable function or class's argument list.
       It will now allow callables with expected args, and any extra args as long as they
@@ -20,7 +24,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
     - Added --experimental flag, to enable various experimental features/tools.  You can specify
       'all', 'none', or any combination of available experimental features.
-
 
   From Adam Gross:
     - Fix an issue causing scanners to receive incorrect paths when the
@@ -100,8 +103,6 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       is not exposed externally and update external references accordingly.
     - Modify the MSCommon internal-use only debug logging records to contain the correct relative
       file path when the debug function is called from outside the MSCommon module.
-    - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
-      when constructing the installed visual studios list.
 
   From William Deegan:
     - Fix yacc tool, not respecting YACC set at time of tool initialization.
