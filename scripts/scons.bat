@@ -4,7 +4,7 @@ set SCONS_ERRORLEVEL=
 if "%OS%" == "Windows_NT" goto WinNT
 
 @REM for 9x/Me you better not have more than 9 args
-python -c "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'scons')] + sys.path; import SCons.Script; SCons.Script.main()" %1 %2 %3 %4 %5 %6 %7 %8 %9
+python -c "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-__VERSION__'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons-__VERSION__'), join(sys.prefix, 'scons')] + sys.path; import SCons.Script; SCons.Script.main()" %*
 @REM no way to set exit status of this script for 9x/Me
 goto endscons
 

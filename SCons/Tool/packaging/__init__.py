@@ -35,7 +35,7 @@ import SCons.Environment
 from SCons.Errors import UserError, SConsEnvironmentError
 from SCons.Script import AddOption, GetOption
 from SCons.Util import is_List, make_path_relative
-from SCons.Variables import *
+from SCons.Variables import EnumVariable
 from SCons.Warnings import warn, SConsWarning
 
 

@@ -27,7 +27,7 @@ import io
 import os
 import re
 import sys
-from types import *
+from types import ModuleType
 import unittest
 
 import TestCmd

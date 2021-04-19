@@ -23,27 +23,27 @@
 
 """Various SCons utility functions."""
 
-import os
-import sys
 import copy
-import re
-import types
-import pprint
 import hashlib
+import os
+import pprint
+import re
+import sys
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
+from types import MethodType, FunctionType
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
-# Below not used?
-# InstanceType    = types.InstanceType
+# this string will be hashed if a Node refers to a file that doesn't exist
+# in order to distinguish from a file that exists but is empty.
+NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
 
-MethodType      = types.MethodType
-FunctionType    = types.FunctionType
-
-def dictify(keys, values, result={}):
-    for k, v in zip(keys, values):
-        result[k] = v
+# unused?
+def dictify(keys, values, result=None):
+    if result is None:
+        result = {}
+    result.update(dict(zip(keys, values)))
     return result
 
 _altsep = os.altsep
@@ -125,11 +125,8 @@ class NodeList(UserList):
 #                 self.data = [ initlist,]
 
 
-    def __nonzero__(self):
-        return len(self.data) != 0
-
     def __bool__(self):
-        return self.__nonzero__()
+        return len(self.data) != 0
 
     def __str__(self):
         return ' '.join(map(str, self.data))
@@ -633,6 +630,41 @@ class Delegate:
         else:
             return self
 
+
+class MethodWrapper:
+    """A generic Wrapper class that associates a method with an object.
+
+    As part of creating this MethodWrapper object an attribute with the
+    specified name (by default, the name of the supplied method) is added
+    to the underlying object.  When that new "method" is called, our
+    __call__() method adds the object as the first argument, simulating
+    the Python behavior of supplying "self" on method calls.
+
+    We hang on to the name by which the method was added to the underlying
+    base class so that we can provide a method to "clone" ourselves onto
+    a new underlying object being copied (without which we wouldn't need
+    to save that info).
+    """
+    def __init__(self, object, method, name=None):
+        if name is None:
+            name = method.__name__
+        self.object = object
+        self.method = method
+        self.name = name
+        setattr(self.object, name, self)
+
+    def __call__(self, *args, **kwargs):
+        nargs = (self.object,) + args
+        return self.method(*nargs, **kwargs)
+
+    def clone(self, new_object):
+        """
+        Returns an object that re-binds the underlying "method" to
+        the specified new object.
+        """
+        return self.__class__(new_object, self.method, self.name)
+
+
 # attempt to load the windows registry module:
 can_read_reg = 0
 try:
@@ -648,22 +680,9 @@ try:
     RegError        = winreg.error
 
 except ImportError:
-    try:
-        import win32api
-        import win32con
-        can_read_reg = 1
-        hkey_mod = win32con
-
-        RegOpenKeyEx    = win32api.RegOpenKeyEx
-        RegEnumKey      = win32api.RegEnumKey
-        RegEnumValue    = win32api.RegEnumValue
-        RegQueryValueEx = win32api.RegQueryValueEx
-        RegError        = win32api.error
-
-    except ImportError:
-        class _NoError(Exception):
-            pass
-        RegError = _NoError
+    class _NoError(Exception):
+        pass
+    RegError = _NoError
 
 
 # Make sure we have a definition of WindowsError so we can
@@ -1029,22 +1048,38 @@ def Split(arg):
     else:
         return [arg]
 
+
 class CLVar(UserList):
     """A class for command-line construction variables.
 
-    This is a list that uses Split() to split an initial string along
-    white-space arguments, and similarly to split any strings that get
-    added.  This allows us to Do the Right Thing with Append() and
+    Forces the use of a list of strings, matching individual arguments
+    that will be issued on the command line.  Like UserList,
+    but the argument passed to __init__ will be processed by the
+    Split function, which includes special handling for string types -
+    they will be split into a list of words, not coereced directly
+    to a list.  The same happens if adding a string,
+    which allows us to Do the Right Thing with Append() and
     Prepend() (as well as straight Python foo = env['VAR'] + 'arg1
     arg2') regardless of whether a user adds a list or a string to a
     command-line construction variable.
+
+    Side effect: spaces will be stripped from individual string
+    arguments. If you need spaces preserved, pass strings containing
+    spaces inside a list argument.
     """
-    def __init__(self, seq = []):
-        UserList.__init__(self, Split(seq))
+
+    def __init__(self, seq=[]):
+        super().__init__(Split(seq))
+
     def __add__(self, other):
-        return UserList.__add__(self, CLVar(other))
+        return super().__add__(CLVar(other))
+
     def __radd__(self, other):
-        return UserList.__radd__(self, CLVar(other))
+        return super().__radd__(CLVar(other))
+
+    def __iadd__(self, other):
+        return super().__iadd__(CLVar(other))
+
     def __str__(self):
         return ' '.join(self.data)
 
@@ -1093,23 +1128,34 @@ else:
     def case_sensitive_suffixes(s1, s2):
         return (os.path.normcase(s1) != os.path.normcase(s2))
 
+
 def adjustixes(fname, pre, suf, ensure_suffix=False):
+    """
+    Add prefix to file if specified.
+    Add suffix to file if specified and if ensure_suffix = True
+
+    """
     if pre:
         path, fn = os.path.split(os.path.normpath(fname))
-        if fn[:len(pre)] != pre:
+
+        # Handle the odd case where the filename = the prefix.
+        # In that case, we still want to add the prefix to the file
+        if fn[:len(pre)] != pre or fn == pre:
             fname = os.path.join(path, pre + fn)
     # Only append a suffix if the suffix we're going to add isn't already
     # there, and if either we've been asked to ensure the specific suffix
     # is present or there's no suffix on it at all.
+    # Also handle the odd case where the filename = the suffix.
+    # in that case we still want to append the suffix
     if suf and fname[-len(suf):] != suf and \
-       (ensure_suffix or not splitext(fname)[1]):
-            fname = fname + suf
+            (ensure_suffix or not splitext(fname)[1]):
+        fname = fname + suf
     return fname
 
 
 
 # From Tim Peters,
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+# https://code.activestate.com/recipes/52560
 # ASPN: Python Cookbook: Remove duplicates from a sequence
 # (Also in the printed Python Cookbook.)
 
@@ -1183,9 +1229,8 @@ def unique(s):
     return u
 
 
-
 # From Alex Martelli,
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+# https://code.activestate.com/recipes/52560
 # ASPN: Python Cookbook: Remove duplicates from a sequence
 # First comment, dated 2001/10/13.
 # (Also in the printed Python Cookbook.)
@@ -1198,14 +1243,13 @@ def uniquer(seq, idfun=None):
         idfun = default_idfun
     seen = {}
     result = []
+    result_append = result.append  # perf: avoid repeated method lookups
     for item in seq:
         marker = idfun(item)
-        # in old Python versions:
-        # if seen.has_key(marker)
-        # but in new ones:
-        if marker in seen: continue
+        if marker in seen:
+            continue
         seen[marker] = 1
-        result.append(item)
+        result_append(item)
     return result
 
 # A more efficient implementation of Alex's uniquer(), this avoids the
@@ -1215,11 +1259,11 @@ def uniquer(seq, idfun=None):
 def uniquer_hashables(seq):
     seen = {}
     result = []
+    result_append = result.append  # perf: avoid repeated method lookups
     for item in seq:
-        #if not item in seen:
         if item not in seen:
             seen[item] = 1
-            result.append(item)
+            result_append(item)
     return result
 
 
@@ -1388,42 +1432,41 @@ def make_path_relative(path):
     return path
 
 
-
-# The original idea for AddMethod() and RenameFunction() come from the
+# The original idea for AddMethod() came from the
 # following post to the ActiveState Python Cookbook:
 #
-#   ASPN: Python Cookbook : Install bound methods in an instance
-#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/223613
+# ASPN: Python Cookbook : Install bound methods in an instance
+# https://code.activestate.com/recipes/223613
 #
-# That code was a little fragile, though, so the following changes
-# have been wrung on it:
-#
+# Changed as follows:
 # * Switched the installmethod() "object" and "function" arguments,
 #   so the order reflects that the left-hand side is the thing being
 #   "assigned to" and the right-hand side is the value being assigned.
-#
-# * Changed explicit type-checking to the "try: klass = object.__class__"
-#   block in installmethod() below so that it still works with the
-#   old-style classes that SCons uses.
-#
-# * Replaced the by-hand creation of methods and functions with use of
-#   the "new" module, as alluded to in Alex Martelli's response to the
-#   following Cookbook post:
-#
-#   ASPN: Python Cookbook : Dynamically added methods to a class
-#   http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81732
+# * The instance/class detection is changed a bit, as it's all
+#   new-style classes now with Py3.
+# * The by-hand construction of the function object from renamefunction()
+#   is not needed, the remaining bit is now used inline in AddMethod.
 
 def AddMethod(obj, function, name=None):
-    """
-    Adds either a bound method to an instance or the function itself (or an unbound method in Python 2) to a class.
-    If name is ommited the name of the specified function
-    is used by default.
+    """Adds a method to an object.
+
+    Adds `function` to `obj` if `obj` is a class object.
+    Adds `function` as a bound method if `obj` is an instance object.
+    If `obj` looks like an environment instance, use `MethodWrapper`
+    to add it.  If `name` is supplied it is used as the name of `function`.
+
+    Although this works for any class object, the intent as a public
+    API is to be used on Environment, to be able to add a method to all
+    construction environments; it is preferred to use env.AddMethod
+    to add to an individual environment.
 
     Example::
 
+        class A:
+            ...
         a = A()
         def f(self, x, y):
-        self.z = x + y
+            self.z = x + y
         AddMethod(f, A, "add")
         a.add(2, 4)
         print(a.z)
@@ -1433,93 +1476,199 @@ def AddMethod(obj, function, name=None):
     if name is None:
         name = function.__name__
     else:
-        function = RenameFunction(function, name)
+        # "rename"
+        function = FunctionType(
+            function.__code__, function.__globals__, name, function.__defaults__
+        )
 
-    # Note the Python version checks - WLB
-    # Python 3.3 dropped the 3rd parameter from types.MethodType
     if hasattr(obj, '__class__') and obj.__class__ is not type:
-        # "obj" is an instance, so it gets a bound method.
-        if sys.version_info[:2] > (3, 2):
-            method = MethodType(function, obj)
+        # obj is an instance, so it gets a bound method.
+        if hasattr(obj, "added_methods"):
+            method = MethodWrapper(obj, function, name)
+            obj.added_methods.append(method)
         else:
-            method = MethodType(function, obj, obj.__class__)
+            method = MethodType(function, obj)
     else:
-        # Handle classes
+        # obj is a class
         method = function
 
     setattr(obj, name, method)
 
-def RenameFunction(function, name):
+
+# Default hash function and format. SCons-internal.
+_hash_function = None
+_hash_format = None
+
+
+def get_hash_format():
     """
-    Returns a function identical to the specified function, but with
-    the specified name.
+    Retrieves the hash format or None if not overridden. A return value of None
+    does not guarantee that MD5 is being used; instead, it means that the
+    default precedence order documented in SCons.Util.set_hash_format is
+    respected.
     """
-    return FunctionType(function.__code__,
-                        function.__globals__,
-                        name,
-                        function.__defaults__)
+    return _hash_format
 
 
-if hasattr(hashlib, 'md5'):
-    md5 = True
+def set_hash_format(hash_format):
+    """
+    Sets the default hash format used by SCons. If hash_format is None or
+    an empty string, the default is determined by this function.
 
-    def MD5signature(s):
-        """
-        Generate md5 signature of a string
+    Currently the default behavior is to use the first available format of
+    the following options: MD5, SHA1, SHA256.
+    """
+    global _hash_format, _hash_function
 
-        :param s: either string or bytes. Normally should be bytes
-        :return: String of hex digits representing the signature
-        """
-        m = hashlib.md5()
+    _hash_format = hash_format
+    if hash_format:
+        hash_format_lower = hash_format.lower()
+        allowed_hash_formats = ['md5', 'sha1', 'sha256']
+        if hash_format_lower not in allowed_hash_formats:
+            from SCons.Errors import UserError
+            raise UserError('Hash format "%s" is not supported by SCons. Only '
+                            'the following hash formats are supported: %s' %
+                            (hash_format_lower,
+                             ', '.join(allowed_hash_formats)))
 
-        try:
-            m.update(to_bytes(s))
-        except TypeError as e:
-            m.update(to_bytes(str(s)))
+        _hash_function = getattr(hashlib, hash_format_lower, None)
+        if _hash_function is None:
+            from SCons.Errors import UserError
+            raise UserError(
+                'Hash format "%s" is not available in your Python '
+                'interpreter.' % hash_format_lower)
+    else:
+        # Set the default hash format based on what is available, defaulting
+        # to md5 for backwards compatibility.
+        choices = ['md5', 'sha1', 'sha256']
+        for choice in choices:
+            _hash_function = getattr(hashlib, choice, None)
+            if _hash_function is not None:
+                break
+        else:
+            # This is not expected to happen in practice.
+            from SCons.Errors import UserError
+            raise UserError(
+                'Your Python interpreter does not have MD5, SHA1, or SHA256. '
+                'SCons requires at least one.')
 
-        return m.hexdigest()
-
-    def MD5filesignature(fname, chunksize=65536):
-        """
-        Generate the md5 signature of a file
-
-        :param fname: file to hash
-        :param chunksize: chunk size to read
-        :return: String of Hex digits representing the signature
-        """
-        m = hashlib.md5()
-        with open(fname, "rb") as f:
-            while True:
-                blck = f.read(chunksize)
-                if not blck:
-                    break
-                m.update(to_bytes(blck))
-        return m.hexdigest()
-else:
-    # if md5 algorithm not available, just return data unmodified
-    # could add alternative signature scheme here
-    md5 = False
-
-    def MD5signature(s):
-        return str(s)
-
-    def MD5filesignature(fname, chunksize=65536):
-        with open(fname, "rb") as f:
-            result = f.read()
-        return result
+# Ensure that this is initialized in case either:
+#    1. This code is running in a unit test.
+#    2. This code is running in a consumer that does hash operations while
+#       SConscript files are being loaded.
+set_hash_format(None)
 
 
-def MD5collect(signatures):
+def _get_hash_object(hash_format):
+    """
+    Allocates a hash object using the requested hash format.
+
+    :param hash_format: Hash format to use.
+    :return: hashlib object.
+    """
+    if hash_format is None:
+        if _hash_function is None:
+            from SCons.Errors import UserError
+            raise UserError('There is no default hash function. Did you call '
+                            'a hashing function before SCons was initialized?')
+        return _hash_function()
+    elif not hasattr(hashlib, hash_format):
+        from SCons.Errors import UserError
+        raise UserError(
+            'Hash format "%s" is not available in your Python interpreter.' %
+            hash_format)
+    else:
+        return getattr(hashlib, hash_format)()
+
+
+def hash_signature(s, hash_format=None):
+    """
+    Generate hash signature of a string
+
+    :param s: either string or bytes. Normally should be bytes
+    :param hash_format: Specify to override default hash format
+    :return: String of hex digits representing the signature
+    """
+    m = _get_hash_object(hash_format)
+    try:
+        m.update(to_bytes(s))
+    except TypeError:
+        m.update(to_bytes(str(s)))
+
+    return m.hexdigest()
+
+
+def hash_file_signature(fname, chunksize=65536, hash_format=None):
+    """
+    Generate the md5 signature of a file
+
+    :param fname: file to hash
+    :param chunksize: chunk size to read
+    :param hash_format: Specify to override default hash format
+    :return: String of Hex digits representing the signature
+    """
+    m = _get_hash_object(hash_format)
+    with open(fname, "rb") as f:
+        while True:
+            blck = f.read(chunksize)
+            if not blck:
+                break
+            m.update(to_bytes(blck))
+    return m.hexdigest()
+
+
+def hash_collect(signatures, hash_format=None):
     """
     Collects a list of signatures into an aggregate signature.
 
-    signatures - a list of signatures
-    returns - the aggregate signature
+    :param signatures: a list of signatures
+    :param hash_format: Specify to override default hash format
+    :return: - the aggregate signature
     """
     if len(signatures) == 1:
         return signatures[0]
     else:
-        return MD5signature(', '.join(signatures))
+        return hash_signature(', '.join(signatures), hash_format)
+
+
+_md5_warning_shown = False
+
+def _show_md5_warning(function_name):
+    """
+    Shows a deprecation warning for various MD5 functions.
+    """
+    global _md5_warning_shown
+
+    if not _md5_warning_shown:
+        import SCons.Warnings
+
+        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
+                            "Function %s is deprecated" % function_name)
+        _md5_warning_shown = True
+
+
+def MD5signature(s):
+    """
+    Deprecated. Use hash_signature instead.
+    """
+    _show_md5_warning("MD5signature")
+    return hash_signature(s)
+
+
+def MD5filesignature(fname, chunksize=65536):
+    """
+    Deprecated. Use hash_file_signature instead.
+    """
+    _show_md5_warning("MD5filesignature")
+    return hash_file_signature(fname, chunksize)
+
+
+def MD5collect(signatures):
+    """
+    Deprecated. Use hash_collect instead.
+    """
+    _show_md5_warning("MD5collect")
+    return hash_collect(signatures)
 
 
 def silent_intern(x):
@@ -1536,8 +1685,7 @@ def silent_intern(x):
 
 # From Dinu C. Gherman,
 # Python Cookbook, second edition, recipe 6.17, p. 277.
-# Also:
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
+# Also: https://code.activestate.com/recipes/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
 
 class Null:
@@ -1552,8 +1700,6 @@ class Null:
         return self
     def __repr__(self):
         return "Null(0x%08X)" % id(self)
-    def __nonzero__(self):
-        return False
     def __bool__(self):
         return False
     def __getattr__(self, name):
@@ -1641,6 +1787,11 @@ def get_os_env_bool(name, default=False):
     Conversion is the same as for :func:`get_env_bool`.
     """
     return get_env_bool(os.environ, name, default)
+
+def print_time():
+    """Hack to return a value from Main if can't import Main."""
+    from SCons.Script.Main import print_time
+    return print_time
 
 # Local Variables:
 # tab-width:4

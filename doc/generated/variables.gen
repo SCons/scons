@@ -152,6 +152,7 @@ and the <literal>BuildArch:</literal> field
 in the RPM <filename>.spec</filename> file,
 as well as forming part of the name of a generated RPM package file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-ARCOM">
@@ -324,28 +325,38 @@ and typesetter and the LaTeX structured formatter and typesetter.
     </term>
     <listitem><para>
 A dictionary mapping the names of the builders
-available through this environment
-to underlying Builder objects.
-Builders named
-Alias, CFile, CXXFile, DVI, Library, Object, PDF, PostScript, and Program
-are available by default.
-If you initialize this variable when an
-Environment is created:
+available through the &consenv; to underlying Builder objects.
+Custom builders need to be added to this to make them available.
+</para>
+
+<para>
+A platform-dependent default list of builders such as
+&b-link-Program;, &b-link-Library; etc. is used to
+populate this &consvar; when the &consenv; is initialized
+via the presence/absence of the tools those builders depend on.
+&cv-BUILDERS; can be examined to learn which builders will
+actually be available at run-time.
+</para>
+
+<para>
+Note that if you initialize this &consvar; through
+assignment when the &consenv; is created,
+that value for &cv-BUILDERS; will override any defaults:
 </para>
 
 <example_commands>
-env = Environment(BUILDERS = {'NewBuilder' : foo})
+bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
+env = Environment(BUILDERS={'NewBuilder': bld})
 </example_commands>
 
 <para>
-the default Builders will no longer be available.
-To use a new Builder object in addition to the default Builders,
+To instead use a new Builder object in addition to the default Builders,
 add your new Builder object like this:
 </para>
 
 <example_commands>
 env = Environment()
-env.Append(BUILDERS = {'NewBuilder' : foo})
+env.Append(BUILDERS={'NewBuilder': bld})
 </example_commands>
 
 <para>
@@ -354,9 +365,20 @@ or this:
 
 <example_commands>
 env = Environment()
-env['BUILDERS']['NewBuilder'] = foo
+env['BUILDERS']['NewBuilder'] = bld
 </example_commands>
 </listitem>
+  </varlistentry>
+  <varlistentry id="cv-CACHEDIR_CLASS">
+    <term>
+      <envar>CACHEDIR_CLASS</envar>
+    </term>
+    <listitem><para>
+The class type that SCons should use when instantiating a
+new &f-link-CacheDir; for the given environment. It must be
+a subclass of the SCons.CacheDir.CacheDir class.
+        </para>
+    </listitem>
   </varlistentry>
   <varlistentry id="cv-CC">
     <term>
@@ -517,6 +539,7 @@ the <filename>.wxs</filename> for MSI).
 If set, the function will be called
 after the SCons template for the file has been written.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CHANGED_SOURCES">
@@ -555,6 +578,7 @@ This is included as the
 section of the RPM
 <filename>.spec</filename> file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-COMPILATIONDB_COMSTR">
@@ -562,7 +586,24 @@ section of the RPM
       <envar>COMPILATIONDB_COMSTR</envar>
     </term>
     <listitem><para>
-                The string displayed when CompilationDatabase builder's action is run.
+                The string displayed when the &b-link-CompilationDatabase;
+                builder's action is run.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-COMPILATIONDB_PATH_FILTER">
+    <term>
+      <envar>COMPILATIONDB_PATH_FILTER</envar>
+    </term>
+    <listitem><para>
+                A string which instructs &b-link-CompilationDatabase; to
+                only include entries where the <literal>output</literal> member
+                matches the pattern in the filter string using fnmatch, which
+                uses glob style wildcards.
+
+            </para>
+            <para>
+                The default value is an empty string '', which disables filtering.
             </para>
         </listitem>
   </varlistentry>
@@ -571,9 +612,10 @@ section of the RPM
       <envar>COMPILATIONDB_USE_ABSPATH</envar>
     </term>
     <listitem><para>
-                This is a boolean flag to instruct &b-link-CompilationDatabase; to
-                write the <literal>file</literal> and <literal>target</literal> members
-                in the compilation database with absolute or relative paths.
+                A boolean flag to instruct &b-link-CompilationDatabase;
+                whether to write the <literal>file</literal> and
+                <literal>output</literal> members
+                in the compilation database using absolute or relative paths.
             </para>
             <para>
                 The default value is False (use relative paths)
@@ -585,7 +627,7 @@ section of the RPM
       <envar>_concat</envar>
     </term>
     <listitem><para>
-A function used to produce variables like &cv-_CPPINCFLAGS;. It takes
+A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
 four or five
 arguments: a prefix to concatenate onto each element, a list of
 elements, a suffix to concatenate onto each element, an environment
@@ -619,7 +661,7 @@ file.
       <envar>CONFIGURELOG</envar>
     </term>
     <listitem><para>
-The name of the Configure context log file.
+The name of the &Configure; context log file.
 The default is
 <filename>config.log</filename>
 in the top-level directory
@@ -634,14 +676,13 @@ file.
       <envar>_CPPDEFFLAGS</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the C preprocessor command-line options
 to define values.
-The value of &cv-_CPPDEFFLAGS; is created
+The value of &cv-link-_CPPDEFFLAGS; is created
 by respectively prepending and appending
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-to the beginning and end
-of each definition in &cv-CPPDEFINES;.
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX;
+to each definition in &cv-link-CPPDEFINES;.
 </para>
 </listitem>
   </varlistentry>
@@ -650,10 +691,10 @@ of each definition in &cv-CPPDEFINES;.
       <envar>CPPDEFINES</envar>
     </term>
     <listitem><para>
-A platform independent specification of C preprocessor definitions.
+A platform independent specification of C preprocessor macro definitions.
 The definitions will be added to command lines
 through the automatically-generated
-&cv-_CPPDEFFLAGS; construction variable (see above),
+&cv-link-_CPPDEFFLAGS; &consvar; (see above),
 which is constructed according to
 the type of value of &cv-CPPDEFINES;:
 </para>
@@ -661,10 +702,9 @@ the type of value of &cv-CPPDEFINES;:
 <para>
 If &cv-CPPDEFINES; is a string,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-construction variables
-will be respectively prepended and appended to the beginning and end
-of each definition in &cv-CPPDEFINES;.
+&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to 
+each definition in &cv-link-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -676,10 +716,9 @@ env = Environment(CPPDEFINES='xyz')
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-construction variables
-will be respectively prepended and appended to the beginning and end
-of each element in the list.
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to 
+each element in the list.
 If any element is a list or tuple,
 then the first item is the name being
 defined and the second item is its value:
@@ -694,10 +733,9 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
-&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX;
-construction variables
-will be respectively prepended and appended to the beginning and end
-of each item from the dictionary.
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to
+each item from the dictionary.
 The key of each dictionary item
 is a name being defined
 to the dictionary item's corresponding value;
@@ -723,11 +761,11 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
       <envar>CPPDEFPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used to specify preprocessor definitions
+The prefix used to specify preprocessor macro definitions
 on the C compiler command line.
-This will be prepended to the beginning of each definition
-in the &cv-CPPDEFINES; construction variable
-when the &cv-_CPPDEFFLAGS; variable is automatically generated.
+This will be prepended to each definition
+in the &cv-link-CPPDEFINES; &consvar;
+when the &cv-link-_CPPDEFFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
@@ -736,11 +774,11 @@ when the &cv-_CPPDEFFLAGS; variable is automatically generated.
       <envar>CPPDEFSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used to specify preprocessor definitions
+The suffix used to specify preprocessor macro definitions
 on the C compiler command line.
-This will be appended to the end of each definition
-in the &cv-CPPDEFINES; construction variable
-when the &cv-_CPPDEFFLAGS; variable is automatically generated.
+This will be appended to each definition
+in the &cv-link-CPPDEFINES; &consvar;
+when the &cv-link-_CPPDEFFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
@@ -780,13 +818,13 @@ for the variable that expands to those options.
       <envar>_CPPINCFLAGS</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the C preprocessor command-line options
 for specifying directories to be searched for include files.
 The value of &cv-_CPPINCFLAGS; is created
-by respectively prepending and appending &cv-INCPREFIX; and &cv-INCSUFFIX;
-to the beginning and end
-of each directory in &cv-CPPPATH;.
+by respectively prepending and appending
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
+to each directory in &cv-link-CPPPATH;.
 </para>
 </listitem>
   </varlistentry>
@@ -797,13 +835,24 @@ of each directory in &cv-CPPPATH;.
     <listitem><para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files. Don't explicitly put include directory
-arguments in CCFLAGS or CXXFLAGS because the result will be non-portable
-and the directories will not be searched by the dependency scanner. Note:
-directory names in CPPPATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force
-&scons;
-to look-up a directory relative to the root of the source tree use #:
+directories for include files. 
+In general it's not advised to put include directory directives
+directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
+as the result will be non-portable
+and the directories will not be searched by the dependency scanner.
+&cv-CPPPATH; should be a list of path strings,
+or a single string, not a pathname list joined by
+Python's <systemitem>os.sep</systemitem>.
+</para>
+
+<para>
+Note:
+directory names in &cv-CPPPATH;
+will be looked-up relative to the directory of the SConscript file
+when they are used in a command. 
+To force &scons;
+to look-up a directory relative to the root of the source tree use 
+the <literal>#</literal> prefix:
 </para>
 
 <example_commands>
@@ -812,7 +861,7 @@ env = Environment(CPPPATH='#/include')
 
 <para>
 The directory look-up can also be forced using the
-&Dir;()
+&f-link-Dir;
 function:
 </para>
 
@@ -824,17 +873,14 @@ env = Environment(CPPPATH=include)
 <para>
 The directory list will be added to command lines
 through the automatically-generated
-&cv-_CPPINCFLAGS;
-construction variable,
+&cv-link-_CPPINCFLAGS; &consvar;,
 which is constructed by
-respectively prepending and appending the value of the
-&cv-INCPREFIX; and &cv-INCSUFFIX;
-construction variables
-to the beginning and end
-of each directory in &cv-CPPPATH;.
+respectively prepending and appending the values of the
+&cv-link-INCPREFIX; and &cv-link-INCSUFFIX; &consvars;
+to each directory in &cv-link-CPPPATH;.
 Any command lines you define that need
-the CPPPATH directory list should
-include &cv-_CPPINCFLAGS;:
+the &cv-CPPPATH; directory list should
+include &cv-link-_CPPINCFLAGS;:
 </para>
 
 <example_commands>
@@ -1024,6 +1070,7 @@ A long description of the project being packaged.
 This is included in the relevant section
 of the file that controls the packaging build.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-DESCRIPTION_lang">
@@ -1038,6 +1085,7 @@ This is used to populate a
 section of an RPM
 <filename>.spec</filename> file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-DFILESUFFIX">
@@ -1415,7 +1463,7 @@ no lxml Python binding can be imported in the current system.
     </term>
     <listitem><para>
 The full command-line for the external executable
-<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
 </listitem>
@@ -1436,7 +1484,7 @@ an XML file via a given XSLT stylesheet.
     </term>
     <listitem><para>
 Additonal command-line flags for the external executable
-<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
 </listitem>
@@ -1476,15 +1524,6 @@ DRPATHPREFIX.
     </term>
     <listitem><para>
 DRPATHSUFFIX.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-DShLibSonameGenerator">
-    <term>
-      <envar>DShLibSonameGenerator</envar>
-    </term>
-    <listitem><para>
-DShLibSonameGenerator.
 </para>
 </listitem>
   </varlistentry>
@@ -1596,7 +1635,7 @@ Note that, by default,
 &scons;
 does
 <emphasis>not</emphasis>
-propagate the environment in force when you
+propagate the environment in effect when you
 execute
 &scons;
 to the commands used to build target files.
@@ -1617,7 +1656,7 @@ you must do so explicitly:
 
 <example_commands>
 import os
-env = Environment(ENV = os.environ)
+env = Environment(ENV=os.environ.copy())
 </example_commands>
 
 <para>
@@ -1635,7 +1674,7 @@ as the invoking shell (or other process):
 
 <example_commands>
 import os
-env = Environment(ENV = {'PATH' : os.environ['PATH']})
+env = Environment(ENV={'PATH': os.environ['PATH']})
 </example_commands>
 </listitem>
   </varlistentry>
@@ -1696,7 +1735,7 @@ If not set, then &cv-link-F03COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F03 dialect will be used. By
-default, this is ['.f03']
+default, this is <literal>['.f03']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -1834,7 +1873,7 @@ If not set, then &cv-link-F03PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F03 dialect will be used. By default, this is empty
+F03 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -1884,7 +1923,7 @@ If not set, then &cv-link-F08COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F08 dialect will be used. By
-default, this is ['.f08']
+default, this is <literal>['.f08']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2022,7 +2061,7 @@ If not set, then &cv-link-F08PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F08 dialect will be used. By default, this is empty
+F08 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2072,7 +2111,7 @@ If not set, then &cv-link-F77COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F77 dialect will be used. By
-default, this is ['.f77']
+default, this is <literal>['.f77']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2210,7 +2249,7 @@ If not set, then &cv-link-F77PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F77 dialect will be used. By default, this is empty
+F77 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2260,7 +2299,7 @@ If not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F90 dialect will be used. By
-default, this is ['.f90']
+default, this is <literal>['.f90']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2397,7 +2436,7 @@ If not set, then &cv-link-F90PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F90 dialect will be used. By default, this is empty
+F90 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2447,7 +2486,7 @@ If not set, then &cv-link-F95COM; or &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the F95 dialect will be used. By
-default, this is ['.f95']
+default, this is <literal>['.f95']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2585,7 +2624,7 @@ If not set, then &cv-link-F95PPCOM; or &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-F95 dialect will be used. By default, this is empty
+F95 dialect will be used. By default, this is empty.
 </para>
 </listitem>
   </varlistentry>
@@ -2643,7 +2682,7 @@ If not set, then &cv-link-FORTRANCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the FORTRAN dialect will be used. By
-default, this is ['.f', '.for', '.ftn']
+default, this is <literal>['.f', '.for', '.ftn']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2859,7 +2898,7 @@ If not set, then &cv-link-FORTRANPPCOM;
     </term>
     <listitem><para>
 The list of file extensions for which the compilation + preprocessor pass for
-FORTRAN dialect will be used. By default, this is ['.fpp', '.FPP']
+FORTRAN dialect will be used. By default, this is <literal>['.fpp', '.FPP']</literal>
 </para>
 </listitem>
   </varlistentry>
@@ -2997,7 +3036,7 @@ env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
       <envar>GS</envar>
     </term>
     <listitem><para>
-The Ghostscript program used, e.g. to convert PostScript to PDF files.
+The Ghostscript program used to, for example, convert PostScript to PDF files.
 </para>
 </listitem>
   </varlistentry>
@@ -3046,7 +3085,7 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
         Currently only set for Win32.
 </para>
     <para>
-Sets the host architecture for Visual Studio compiler. If not set,
+Sets the host architecture for the Visual C++ compiler. If not set,
 default to the detected host architecture: note that this may depend
 on the python you are using.
 This variable must be passed as an argument to the Environment()
@@ -3249,9 +3288,9 @@ env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=False)
     <listitem><para>
 The prefix used to specify an include directory on the C compiler command
 line.
-This will be prepended to the beginning of each directory
-in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
-when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
+This will be prepended to each directory
+in the &cv-link-CPPPATH; and &cv-link-FORTRANPATH; &consvars;
+when the &cv-link-_CPPINCFLAGS; and &cv-link-_FORTRANINCFLAGS;
 variables are automatically generated.
 </para>
 </listitem>
@@ -3263,9 +3302,9 @@ variables are automatically generated.
     <listitem><para>
 The suffix used to specify an include directory on the C compiler command
 line.
-This will be appended to the end of each directory
-in the &cv-CPPPATH; and &cv-FORTRANPATH; construction variables
-when the &cv-_CPPINCFLAGS; and &cv-_FORTRANINCFLAGS;
+This will be appended to each directory
+in the &cv-link-CPPPATH; and &cv-link-FORTRANPATH; &consvars;
+when the &cv-link-_CPPINCFLAGS; and &cv-link-_FORTRANINCFLAGS;
 variables are automatically generated.
 </para>
 </listitem>
@@ -3318,7 +3357,7 @@ Install file: "$SOURCE" as "$TARGET"
       <envar>INTEL_C_COMPILER_VERSION</envar>
     </term>
     <listitem><para>
-Set by the "intelc" Tool
+Set by the &t-link-intelc; Tool
 to the major version number of the Intel C compiler
 selected for use.
 </para>
@@ -3905,9 +3944,9 @@ An automatically-generated construction variable
 containing the linker command-line options
 for specifying directories to be searched for library.
 The value of &cv-_LIBDIRFLAGS; is created
-by respectively prepending and appending &cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
-to the beginning and end
-of each directory in &cv-LIBPATH;.
+by respectively prepending and appending &cv-link-LIBDIRPREFIX;
+and &cv-link-LIBDIRSUFFIX;
+to each directory in &cv-link-LIBPATH;.
 </para>
 </listitem>
   </varlistentry>
@@ -3917,9 +3956,9 @@ of each directory in &cv-LIBPATH;.
     </term>
     <listitem><para>
 The prefix used to specify a library directory on the linker command line.
-This will be prepended to the beginning of each directory
-in the &cv-LIBPATH; construction variable
-when the &cv-_LIBDIRFLAGS; variable is automatically generated.
+This will be prepended to each directory
+in the &cv-link-LIBPATH; construction variable
+when the &cv-link-_LIBDIRFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
@@ -3929,9 +3968,9 @@ when the &cv-_LIBDIRFLAGS; variable is automatically generated.
     </term>
     <listitem><para>
 The suffix used to specify a library directory on the linker command line.
-This will be appended to the end of each directory
-in the &cv-LIBPATH; construction variable
-when the &cv-_LIBDIRFLAGS; variable is automatically generated.
+This will be appended to each directory
+in the &cv-link-LIBPATH; construction variable
+when the &cv-link-_LIBDIRFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
@@ -3955,10 +3994,10 @@ general information on specifying emitters.
 An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
-The value of &cv-_LIBFLAGS; is created
-by respectively prepending and appending &cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
-to the beginning and end
-of each filename in &cv-LIBS;.
+The value of &cv-link-_LIBFLAGS; is created
+by respectively prepending and appending &cv-link-LIBLINKPREFIX;
+and &cv-link-LIBLINKSUFFIX;
+to each filename in &cv-link-LIBS;.
 </para>
 </listitem>
   </varlistentry>
@@ -3968,9 +4007,9 @@ of each filename in &cv-LIBS;.
     </term>
     <listitem><para>
 The prefix used to specify a library to link on the linker command line.
-This will be prepended to the beginning of each library
-in the &cv-LIBS; construction variable
-when the &cv-_LIBFLAGS; variable is automatically generated.
+This will be prepended to each library
+in the &cv-link-LIBS; construction variable
+when the &cv-link-_LIBFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
@@ -3980,9 +4019,9 @@ when the &cv-_LIBFLAGS; variable is automatically generated.
     </term>
     <listitem><para>
 The suffix used to specify a library to link on the linker command line.
-This will be appended to the end of each library
-in the &cv-LIBS; construction variable
-when the &cv-_LIBFLAGS; variable is automatically generated.
+This will be appended to each library
+in the &cv-link-LIBS; construction variable
+when the &cv-link-_LIBFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
@@ -3991,16 +4030,33 @@ when the &cv-_LIBFLAGS; variable is automatically generated.
       <envar>LIBPATH</envar>
     </term>
     <listitem><para>
-The list of directories that will be searched for libraries.
+The list of directories that will be searched for libraries
+specified by the &cv-link-LIBS; &consvar;.
+&cv-LIBPATH; should be a list of path strings,
+or a single string, not a pathname list joined by
+Python's <systemitem>os.sep</systemitem>.
+<!-- XXX OLD
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
-arguments in &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
+arguments into &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
 because the result will be non-portable
-and the directories will not be searched by the dependency scanner. Note:
-directory names in LIBPATH will be looked-up relative to the SConscript
-directory when they are used in a command. To force
-&scons;
-to look-up a directory relative to the root of the source tree use #:
+and the directories will not be searched by the dependency scanner.
+-->
+<!-- XXX NEW -->
+Do not put library search directives directly
+into &cv-LINKFLAGS; or &cv-SHLINKFLAGS;
+as the result will be non-portable.
+<!-- end NEW -->
+</para>
+
+<para>
+Note:
+directory names in &cv-LIBPATH; will be looked-up relative to the
+directory of the SConscript file
+when they are used in a command. 
+To force &scons;
+to look-up a directory relative to the root of the source tree use 
+the <literal>#</literal> prefix:
 </para>
 
 <example_commands>
@@ -4009,8 +4065,7 @@ env = Environment(LIBPATH='#/libs')
 
 <para>
 The directory look-up can also be forced using the
-&Dir;()
-function:
+&f-link-Dir; function:
 </para>
 
 <example_commands>
@@ -4021,16 +4076,15 @@ env = Environment(LIBPATH=libs)
 <para>
 The directory list will be added to command lines
 through the automatically-generated
-&cv-_LIBDIRFLAGS;
+&cv-link-_LIBDIRFLAGS;
 construction variable,
 which is constructed by
 respectively prepending and appending the values of the
-&cv-LIBDIRPREFIX; and &cv-LIBDIRSUFFIX;
+&cv-link-LIBDIRPREFIX; and &cv-link-LIBDIRSUFFIX;
 construction variables
-to the beginning and end
-of each directory in &cv-LIBPATH;.
+to each directory in &cv-LIBPATH;.
 Any command lines you define that need
-the LIBPATH directory list should
+the &cv-LIBPATH; directory list should
 include &cv-_LIBDIRFLAGS;:
 </para>
 
@@ -4062,7 +4116,7 @@ A list of all legal prefixes for library file names.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
-and suffixes in the &cv-LIBSUFFIXES; list.
+and suffixes from the &cv-link-LIBSUFFIXES; list.
 </para>
 </listitem>
   </varlistentry>
@@ -4072,24 +4126,32 @@ and suffixes in the &cv-LIBSUFFIXES; list.
     </term>
     <listitem><para>
 A list of one or more libraries
-that will be linked with
-any executable programs
-created by this environment.
+that will be added to the link line
+for linking with any executable program, shared library, or loadable module 
+created by the &consenv; or override.
 </para>
 
 <para>
+String-valued library names should include
+only the library base names,
+without prefixes such as <filename>lib</filename>
+or suffixes such as <filename>.so</filename> or <filename>.dll</filename>.
 The library list will be added to command lines
 through the automatically-generated
-&cv-_LIBFLAGS;
-construction variable,
+&cv-_LIBFLAGS; &consvar;
 which is constructed by
 respectively prepending and appending the values of the
-&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX;
-construction variables
-to the beginning and end
-of each filename in &cv-LIBS;.
+&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX; &consvars;
+to each library name in &cv-LIBS;.
+Library name strings should not include a
+path component, instead the compiler will be
+directed to look for libraries in the paths
+specified by &cv-link-LIBPATH;.
+</para>
+
+<para>
 Any command lines you define that need
-the LIBS library list should
+the &cv-LIBS; library list should
 include &cv-_LIBFLAGS;:
 </para>
 
@@ -4099,12 +4161,12 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 
 <para>
 If you add a
-File
+<classname>File</classname>
 object to the
 &cv-LIBS;
 list, the name of that file will be added to
 &cv-_LIBFLAGS;,
-and thus the link line, as is, without
+and thus to the link line, as-is, without
 &cv-LIBLINKPREFIX;
 or
 &cv-LIBLINKSUFFIX;.
@@ -4142,7 +4204,7 @@ to reflect the names of the libraries they create.
     <listitem><para>
 A list of all legal suffixes for library file names.
 When searching for library dependencies,
-SCons will look for files with prefixes, in the &cv-LIBPREFIXES; list,
+SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
 and these suffixes.
 </para>
@@ -4155,9 +4217,12 @@ and these suffixes.
     <listitem><para>
 The abbreviated name, preferably the SPDX code, of the license under which
 this project is released (GPL-3.0, LGPL-2.1, BSD-2-Clause etc.).
-See http://www.opensource.org/licenses/alphabetical
+See
+<ulink url="http://www.opensource.org/licenses/alphabetical">
+http://www.opensource.org/licenses/alphabetical</ulink>
 for a list of license names and SPDX codes.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-LINESEPARATOR">
@@ -4195,6 +4260,16 @@ default file named
     <listitem><para>
 The linker.
 See also &cv-link-SHLINK; for linking shared objects.
+</para>
+<para>
+On POSIX systems (those using the &t-link-link; tool),
+you should normally not change this value as it defaults
+to a "smart" linker tool which selects a compiler
+driver matching the type of source files in use.
+So for example, if you set &cv-link-CXX; to a specific
+compiler name, and are compiling C++ sources,
+the smartlink function will automatically select the same compiler
+for linking.
 </para>
 </listitem>
   </varlistentry>
@@ -4589,7 +4664,7 @@ will be compiled separately.
       <envar>MSVC_USE_SCRIPT</envar>
     </term>
     <listitem><para>
-Use a batch script to set up Microsoft Visual Studio compiler.
+Use a batch script to set up the Microsoft Visual C++ compiler.
 </para>
 
 <para>
@@ -4608,7 +4683,7 @@ This can be useful to force the use of a compiler version that
 Setting
 &cv-MSVC_USE_SCRIPT; to <constant>None</constant> bypasses the
 Visual Studio autodetection entirely;
-use this if you are running SCons in a Visual Studio cmd
+use this if you are running SCons in a Visual Studio <command>cmd</command>
 window and importing the shell's environment variables - that
 is, if you are sure everything is set correctly already and
 you don't want &SCons; to change anything.
@@ -4627,8 +4702,8 @@ Build libraries for a Universal Windows Platform (UWP) Application.
 </para>
 
 <para>
-If &cv-MSVC_UWP_APP; is set, the Visual Studio environment will be set up to point
-to the Windows Store compatible libraries and Visual Studio runtimes. In doing so,
+If &cv-MSVC_UWP_APP; is set, the Visual C++ environment will be set up to point
+to the Windows Store compatible libraries and Visual C++ runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
 This flag will only have an effect with Visual Studio 2015 or later.
@@ -4654,7 +4729,7 @@ Sets the preferred  version of Microsoft Visual C/C++ to use.
 If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
 latest version of Visual C/C++ installed on your system.  If the
 specified version isn't installed, tool initialization will fail.
-This variable must be passed as an argument to the Environment()
+This variable must be passed as an argument to the &f-link-Environment;
 constructor; setting it later has no effect.
 </para>
 
@@ -5078,6 +5153,7 @@ on this system.
     <listitem><para>
 Specfies the name of the project to package.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-no_import_lib">
@@ -5120,8 +5196,9 @@ The suffix used for (static) object file names.
     </term>
     <listitem><para>
 Specifies the directory where all files in resulting archive will be
-placed if applicable.  The default value is "$NAME-$VERSION".
+placed if applicable.  The default value is <quote>&cv-NAME;-&cv-VERSION;</quote>.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-PACKAGETYPE">
@@ -5129,29 +5206,16 @@ placed if applicable.  The default value is "$NAME-$VERSION".
       <envar>PACKAGETYPE</envar>
     </term>
     <listitem><para>
-Selects the package type to build.  Currently these are available:
+Selects the package type to build when using the &b-link-Package;
+builder. May be a string or list of strings. See the docuentation
+for the builder for the currently supported types.
 </para>
-
-<blockquote>
-<simplelist type="vert" columns="1">
-<member><literal>msi</literal> - Microsoft Installer</member>
-<member><literal>rpm</literal> - RPM Package Manger</member>
-<member><literal>ipkg</literal> - Itsy Package Management System</member>
-<member><literal>tarbz2</literal> - bzip2 compressed tar</member>
-<member><literal>targz</literal> - gzip compressed tar</member>
-<member><literal>tarxz</literal> - xz compressed tar</member>
-<member><literal>zip</literal> - zip file</member>
-<member><literal>src_tarbz2</literal> - bzip2 compressed tar source</member>
-<member><literal>src_targz</literal> - gzip compressed tar source</member>
-<member><literal>src_tarxz</literal> - xz compressed tar source</member>
-<member><literal>src_zip</literal> - zip file source</member>
-</simplelist>
-</blockquote>
 
 <para>
-This may be overridden with the <option>package_type</option>
+&cv-PACKAGETYPE; may be overridden with the <option>--package-type</option>
 command line option.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-PACKAGEVERSION">
@@ -5164,6 +5228,7 @@ This is currently only used by the rpm packager
 and should reflect changes in the packaging,
 not the underlying project code itself.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-PCH">
@@ -5191,7 +5256,7 @@ env['PCH'] = 'StdAfx.pch'
     </term>
     <listitem><para>
 The command line used by the
-&b-PCH;
+&b-link-PCH;
 builder to generated a precompiled header.
 </para>
 </listitem>
@@ -5212,8 +5277,8 @@ If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
     </term>
     <listitem><para>
 A construction variable that, when expanded,
-adds the <literal>/yD</literal> flag to the command line
-only if the &cv-PDB; construction variable is set.
+adds the <option>/yD</option> flag to the command line
+only if the &cv-link-PDB; construction variable is set.
 </para>
 </listitem>
   </varlistentry>
@@ -5268,15 +5333,6 @@ although parallel builds will no longer work.
 You can generate PDB files with the <option>/Zi</option>
 switch by overriding the default &cv-link-CCPDBFLAGS; variable;
 see the entry for that variable for specific examples.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-PDFCOM">
-    <term>
-      <envar>PDFCOM</envar>
-    </term>
-    <listitem><para>
-A deprecated synonym for &cv-link-DVIPDFCOM;.
 </para>
 </listitem>
   </varlistentry>
@@ -6041,7 +6097,7 @@ If this is not set, then &cv-link-RCCOM; (the command line) is displayed.
       <envar>RCFLAGS</envar>
     </term>
     <listitem><para>
-The flags passed to the resource compiler by the RES builder.
+The flags passed to the resource compiler by the &b-link-RES; builder.
 </para>
 </listitem>
   </varlistentry>
@@ -6056,9 +6112,9 @@ for specifying directories to be searched
 by the resource compiler.
 The value of &cv-RCINCFLAGS; is created
 by respectively prepending and appending
-&cv-RCINCPREFIX; and &cv-RCINCSUFFIX;
+&cv-link-RCINCPREFIX; and &cv-link-RCINCSUFFIX;
 to the beginning and end
-of each directory in &cv-CPPPATH;.
+of each directory in &cv-link-CPPPATH;.
 </para>
 </listitem>
   </varlistentry>
@@ -6070,8 +6126,8 @@ of each directory in &cv-CPPPATH;.
 The prefix (flag) used to specify an include directory
 on the resource compiler command line.
 This will be prepended to the beginning of each directory
-in the &cv-CPPPATH; construction variable
-when the &cv-RCINCFLAGS; variable is expanded.
+in the &cv-link-CPPPATH; construction variable
+when the &cv-link-RCINCFLAGS; variable is expanded.
 </para>
 </listitem>
   </varlistentry>
@@ -6083,8 +6139,8 @@ when the &cv-RCINCFLAGS; variable is expanded.
 The suffix used to specify an include directory
 on the resource compiler command line.
 This will be appended to the end of each directory
-in the &cv-CPPPATH; construction variable
-when the &cv-RCINCFLAGS; variable is expanded.
+in the &cv-link-CPPPATH; construction variable
+when the &cv-link-RCINCFLAGS; variable is expanded.
 </para>
 </listitem>
   </varlistentry>
@@ -6498,21 +6554,14 @@ See also &cv-link-DCOMSTR; for compiling to static objects.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-SHDLIBVERSION">
-    <term>
-      <envar>SHDLIBVERSION</envar>
-    </term>
-    <listitem><para>
-SHDLIBVERSION.
-</para>
-</listitem>
-  </varlistentry>
   <varlistentry id="cv-SHDLIBVERSIONFLAGS">
     <term>
       <envar>SHDLIBVERSIONFLAGS</envar>
     </term>
     <listitem><para>
-SHDLIBVERSIONFLAGS.
+Extra flags added to &cv-link-SHDLINKCOM; when building versioned
+&b-link-SharedLibrary;. These flags are only used when &cv-link-SHLIBVERSION; is
+set.
 </para>
 </listitem>
   </varlistentry>
@@ -7169,6 +7218,16 @@ set.
 The linker for programs that use shared libraries.
 See also &cv-link-LINK; for linking static objects.
 </para>
+<para>
+On POSIX systems (those using the &t-link-link; tool),
+you should normally not change this value as it defaults
+to a "smart" linker tool which selects a compiler
+driver matching the type of source files in use.
+So for example, if you set &cv-link-SHCXX; to a specific
+compiler name, and are compiling C++ sources,
+the smartlink function will automatically select the same compiler
+for linking.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-SHLINKCOM">
@@ -7278,6 +7337,7 @@ This is used to fill in the
 <literal>Source:</literal>
 field in the controlling information for Ipkg and RPM packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-SOURCES">
@@ -7289,6 +7349,25 @@ A reserved variable name
 that may not be set or used in a construction environment.
 (See the manpage section "Variable Substitution"
 for more information).
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-SOVERSION">
+    <term>
+      <envar>SOVERSION</envar>
+    </term>
+    <listitem><para>
+This will construct the <varname>SONAME</varname> using on the base library name 
+(<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
+to create <varname>SONAME</varname>.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+</example_commands>
+The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+<para>
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
+which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
 </para>
 </listitem>
   </varlistentry>
@@ -7376,6 +7455,7 @@ and as the
 <literal>Description:</literal>
 field in MSI packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-SWIG">
@@ -7672,7 +7752,7 @@ for more information).
         Currently only set for Win32.
 </para>
     <para>
-Sets the target architecture for Visual Studio compiler (i.e. the arch
+Sets the target architecture for the Visual C++ compiler (i.e. the arch
 of the binaries generated by the compiler). If not set, default to
 &cv-link-HOST_ARCH;, or, if that is unset, to the architecture of the
 running machine's OS (note that the python build or architecture has no
@@ -7699,8 +7779,8 @@ for 32-bit targets and
 and <literal>ia64</literal> (Itanium)
 for 64-bit targets.
 Note that not all target architectures are
-supported for all Visual Studio / MSVC versions
-check the relevant Microsoft documentation.
+supported for all Visual Studio / MSVC versions.
+Check the relevant Microsoft documentation.
 </para>
 
 <para>
@@ -7740,6 +7820,35 @@ for more information).
     <listitem><para>
 The suffix used for tar file names.
 </para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILEARGESCFUNC">
+    <term>
+      <envar>TEMPFILEARGESCFUNC</envar>
+    </term>
+    <listitem><para>
+A default argument escape function is ``SCons.Subst.quote_spaces``.
+If you need to apply extra operations on a command argument before
+writing to a temporary file(fix Windows slashes, normalize paths, etc.),
+please set `TEMPFILEARGESCFUNC` variable to a custom function. Example::
+</para>
+
+<example_commands>
+import sys
+import re
+from SCons.Subst import quote_spaces
+
+WINPATHSEP_RE = re.compile(r"\\([^\"'\\]|$)")
+
+def tempfile_arg_esc_func(arg):
+    arg = quote_spaces(arg)
+    if sys.platform != "win32":
+        return arg
+    # GCC requires double Windows slashes, let's use UNIX separator
+    return WINPATHSEP_RE.sub(r"/\1", arg)
+
+env["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
+</example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-TEMPFILEARGJOIN">
@@ -7914,6 +8023,7 @@ and the
 <literal>Manufacturer:</literal>
 field in the controlling information for MSI packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-VERSION">
@@ -7923,6 +8033,7 @@ field in the controlling information for MSI packages.
     <listitem><para>
 The version of the project, specified as a string.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-VSWHERE">
@@ -7973,51 +8084,6 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
     </programlisting>
 </para>
 
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-WIN32_INSERT_DEF">
-    <term>
-      <envar>WIN32_INSERT_DEF</envar>
-    </term>
-    <listitem><para>
-A deprecated synonym for &cv-link-WINDOWS_INSERT_DEF;.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-WIN32DEFPREFIX">
-    <term>
-      <envar>WIN32DEFPREFIX</envar>
-    </term>
-    <listitem><para>
-A deprecated synonym for &cv-link-WINDOWSDEFPREFIX;.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-WIN32DEFSUFFIX">
-    <term>
-      <envar>WIN32DEFSUFFIX</envar>
-    </term>
-    <listitem><para>
-A deprecated synonym for &cv-link-WINDOWSDEFSUFFIX;.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-WIN32EXPPREFIX">
-    <term>
-      <envar>WIN32EXPPREFIX</envar>
-    </term>
-    <listitem><para>
-A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
-</para>
-</listitem>
-  </varlistentry>
-  <varlistentry id="cv-WIN32EXPSUFFIX">
-    <term>
-      <envar>WIN32EXPSUFFIX</envar>
-    </term>
-    <listitem><para>
-A deprecated synonym for &cv-link-WINDOWSEXPSUFFIX;.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-WINDOWS_EMBED_MANIFEST">
@@ -8147,6 +8213,7 @@ This is used to fill in the
 <literal>Depends:</literal>
 field in the controlling information for Ipkg packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-X_IPK_DESCRIPTION">
@@ -8158,7 +8225,7 @@ This is used to fill in the
 <literal>Description:</literal>
 field in the controlling information for Ipkg packages.
 The default value is
-<literal>$SUMMARY\n$DESCRIPTION</literal>
+<quote>&cv-SUMMARY;\n&cv-DESCRIPTION;</quote>
 </para>
 </listitem>
   </varlistentry>
@@ -8204,6 +8271,7 @@ This is used to fill in the
 <literal>Language:</literal>
 attribute in the controlling information for MSI packages.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-X_MSI_LICENSE_TEXT">
@@ -8215,6 +8283,7 @@ The text of the software license in RTF format.
 Carriage return characters will be
 replaced with the RTF equivalent \\par.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-X_MSI_UPGRADE_CODE">
@@ -8236,6 +8305,7 @@ This is used to fill in the
 field in the RPM
 <filename>.spec</filename> file.
 </para>
+<para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-X_RPM_BUILD">
@@ -8298,7 +8368,7 @@ field in the RPM
 This value is used as the default attributes
 for the files in the RPM package.
 The default value is
-<literal>(-,root,root)</literal>.
+<quote>(-,root,root)</quote>.
 </para>
 </listitem>
   </varlistentry>
@@ -8823,6 +8893,23 @@ The default value is
     </term>
     <listitem><para>
 The zip compression and file packaging utility.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-ZIP_OVERRIDE_TIMESTAMP">
+    <term>
+      <envar>ZIP_OVERRIDE_TIMESTAMP</envar>
+    </term>
+    <listitem><para>
+An optional timestamp which overrides the last modification time of
+the file when stored inside the Zip archive. This is a tuple of six values:
+
+Year (&gt;= 1980)
+Month (one-based)
+Day of month (one-based)
+Hours (zero-based)
+Minutes (zero-based)
+Seconds (zero-based)
 </para>
 </listitem>
   </varlistentry>

@@ -111,9 +111,6 @@ def generate(env):
     env['DVIPDFFLAGS'] = SCons.Util.CLVar('')
     env['DVIPDFCOM']   = 'cd ${TARGET.dir} && $DVIPDF $DVIPDFFLAGS ${SOURCE.file} ${TARGET.file}'
 
-    # Deprecated synonym.
-    env['PDFCOM']      = ['$DVIPDFCOM']
-
 def exists(env):
     SCons.Tool.tex.generate_darwin(env)
     return env.Detect('dvipdf')

@@ -89,7 +89,7 @@ If not set, then &cv-link-F90COM; or &cv-link-FORTRANCOM;
 <summary>
 <para>
 The list of file extensions for which the F90 dialect will be used. By
-default, this is ['.f90']
+default, this is <literal>['.f90']</literal>
 </para>
 </summary>
 </cvar>
@@ -98,7 +98,7 @@ default, this is ['.f90']
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F90 dialect will be used. By default, this is empty
+F90 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>

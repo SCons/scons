@@ -90,7 +90,6 @@ def dumpLoggedInstances(classes, file=sys.stdout):
                     file.write('        %20s : %s\n' % (key, value))
 
 
-
 if sys.platform[:5] == "linux":
     # Linux doesn't actually support memory usage stats from getrusage().
     def memory():
@@ -102,28 +101,23 @@ elif sys.platform[:6] == 'darwin':
     #TODO really get memory stats for OS X
     def memory():
         return 0
+elif sys.platform == 'win32':
+    from SCons.compat.win32 import get_peak_memory_usage
+    memory = get_peak_memory_usage
 else:
     try:
         import resource
     except ImportError:
-        try:
-            import win32process
-            import win32api
-        except ImportError:
-            def memory():
-                return 0
-        else:
-            def memory():
-                process_handle = win32api.GetCurrentProcess()
-                memory_info = win32process.GetProcessMemoryInfo( process_handle )
-                return memory_info['PeakWorkingSetSize']
+        def memory():
+            return 0
     else:
         def memory():
             res = resource.getrusage(resource.RUSAGE_SELF)
             return res[4]
 
-# returns caller's stack
+
 def caller_stack():
+    """return caller's stack"""
     import traceback
     tb = traceback.extract_stack()
     # strip itself and the caller from the output
@@ -199,20 +193,20 @@ if sys.platform == 'win32':
 else:
     TraceDefault = '/dev/tty'
 TimeStampDefault = False
-StartTime = time.time()
+StartTime = time.perf_counter()
 PreviousTime = StartTime
 
-def Trace(msg, filename=None, mode='w', tstamp=False):
+def Trace(msg, tracefile=None, mode='w', tstamp=False):
     """Write a trace message.
 
     Write messages when debugging which do not interfere with stdout.
     Useful in tests, which monitor stdout and would break with
     unexpected output. Trace messages can go to the console (which is
-    opened as a file), or to a disk file; the file argument persists
+    opened as a file), or to a disk file; the tracefile argument persists
     across calls unless overridden.
 
     Args:
-        filename: file to write trace message to. If omitted,
+        tracefile: file to write trace message to. If omitted,
           write to the previous trace file (default: console).
         mode: file open mode (default: 'w')
         tstamp: write relative timestamps with trace. Outputs time since
@@ -226,25 +220,25 @@ def Trace(msg, filename=None, mode='w', tstamp=False):
     def trace_cleanup(traceFP):
         traceFP.close()
 
-    if file is None:
-        file = TraceDefault
+    if tracefile is None:
+        tracefile = TraceDefault
     else:
-        TraceDefault = file
+        TraceDefault = tracefile
     if not tstamp:
         tstamp = TimeStampDefault
     else:
         TimeStampDefault = tstamp
     try:
-        fp = TraceFP[file]
+        fp = TraceFP[tracefile]
     except KeyError:
         try:
-            fp = TraceFP[file] = open(file, mode)
+            fp = TraceFP[tracefile] = open(tracefile, mode)
             atexit.register(trace_cleanup, fp)
         except TypeError:
             # Assume we were passed an open file pointer.
-            fp = file
+            fp = tracefile
     if tstamp:
-        now = time.time()
+        now = time.perf_counter()
         fp.write('%8.4f %8.4f:  ' % (now - StartTime, now - PreviousTime))
         PreviousTime = now
     fp.write(msg)

@@ -25,6 +25,10 @@ SCons - a software construction tool
    :target: https://codecov.io/gh/SCons/scons
    :alt: CodeCov Coverage Status
 
+.. image:: https://github.com/SCons/scons/workflows/SCons%20Build/badge.svg
+   :target: https://github.com/SCons/scons/actions?query=workflow%3A%22SCons+Build%22
+   :alt: Github Actions
+
 
 Welcome to the SCons development tree.  The real purpose of this tree is to
 package SCons for production distribution in a variety of formats, not just to
@@ -73,8 +77,7 @@ Execution Requirements
 ======================
 
 Running SCons requires Python 3.5 or higher. There should be no other
-dependencies or requirements to run scons, although the pywin32 Python
-package is strongly recommended if running on Windows systems.
+dependencies or requirements to run scons
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named 'cc', a C++

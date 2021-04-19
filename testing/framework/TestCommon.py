@@ -1,6 +1,5 @@
 """
-TestCommon.py:  a testing framework for commands and scripts
-                with commonly useful error handling
+A testing framework for commands and scripts with commonly useful error handling
 
 The TestCommon module provides a simple, high-level interface for writing
 tests of executable commands and scripts, especially commands and scripts
@@ -57,12 +56,14 @@ provided by the TestCommon class:
     test.must_not_exist('file1', ['file2', ...])
 
     test.must_not_be_empty('file')
-    
-    test.run(options = "options to be prepended to arguments",
-             stdout = "expected standard output from the program",
-             stderr = "expected error output from the program",
-             status = expected_status,
-             match = match_function)
+
+    test.run(
+        options="options to be prepended to arguments",
+        stdout="expected standard output from the program",
+        stderr="expected error output from the program",
+        status=expected_status,
+        match=match_function,
+    )
 
 The TestCommon module also provides the following variables
 
@@ -103,30 +104,39 @@ import glob
 import os
 import stat
 import sys
+import sysconfig
 
 from collections import UserList
 
 from TestCmd import *
 from TestCmd import __all__
 
-__all__.extend([ 'TestCommon',
-                 'exe_suffix',
-                 'obj_suffix',
-                 'shobj_prefix',
-                 'shobj_suffix',
-                 'lib_prefix',
-                 'lib_suffix',
-                 'dll_prefix',
-                 'dll_suffix',
-               ])
+__all__.extend(
+    [
+        'TestCommon',
+        'exe_suffix',
+        'obj_suffix',
+        'shobj_prefix',
+        'shobj_suffix',
+        'lib_prefix',
+        'lib_suffix',
+        'dll_prefix',
+        'dll_suffix',
+    ]
+)
 
 # Variables that describe the prefixes and suffixes on this system.
 if sys.platform == 'win32':
+    if sysconfig.get_platform() == "mingw":
+        obj_suffix = '.o'
+        shobj_suffix = '.o'
+    else:
+        obj_suffix = '.obj'
+        shobj_suffix = '.obj'
     exe_suffix   = '.exe'
-    obj_suffix   = '.obj'
-    shobj_suffix = '.obj'
     shobj_prefix = ''
     lib_prefix   = ''
+    # TODO: for mingw, is this .lib or .a?
     lib_suffix   = '.lib'
     dll_prefix   = ''
     dll_suffix   = '.dll'
@@ -303,9 +313,8 @@ class TestCommon(TestCmd):
         Calling test exits FAILED if search result is false
         """
         if 'b' in mode:
-            # Python 3: reading a file in binary mode returns a 
-            # bytes object. We cannot find the index of a different
-            # (str) type in that, so convert.
+            # Reading a file in binary mode returns a bytes object.
+            # We cannot search for a string in a bytes obj so convert.
             required = to_bytes(required)
         file_contents = self.read(file, mode)
 
@@ -351,20 +360,43 @@ class TestCommon(TestCmd):
         function, of the form "find(output, line)", to use when searching
         for lines in the output.
         """
-        missing = []
         if is_List(output):
             output = '\n'.join(output)
 
-        for line in lines:
-            if not contains(output, line, find):
-                missing.append(line)
-
+        missing = [line for line in lines if not contains(output, line, find)]
         if missing:
             if title is None:
                 title = 'output'
             sys.stdout.write("Missing expected lines from %s:\n" % title)
             for line in missing:
                 sys.stdout.write('    ' + repr(line) + '\n')
+            sys.stdout.write(self.banner(title + ' ') + '\n')
+            sys.stdout.write(output)
+            self.fail_test()
+
+    def must_contain_single_instance_of(self, output, lines, title=None):
+        """Ensures that the specified output string (first argument)
+        contains one instance of the specified lines (second argument).
+
+        An optional third argument can be used to describe the type
+        of output being searched, and only shows up in failure output.
+
+        """
+        if is_List(output):
+            output = '\n'.join(output)
+
+        counts = {}
+        for line in lines:
+            count = output.count(line)
+            if count != 1:
+                counts[line] = count
+
+        if counts:
+            if title is None:
+                title = 'output'
+            sys.stdout.write("Unexpected number of lines from %s:\n" % title)
+            for line in counts:
+                sys.stdout.write('    ' + repr(line) + ": found " + str(counts[line]) + '\n')
             sys.stdout.write(self.banner(title + ' ') + '\n')
             sys.stdout.write(output)
             self.fail_test()
@@ -581,7 +613,7 @@ class TestCommon(TestCmd):
             fsize = os.path.getsize(file)
         except OSError:
             fsize = 0
-            
+
         if fsize == 0:
             print("File is empty: `%s'" % file)
             self.fail_test(file)
@@ -722,7 +754,7 @@ class TestCommon(TestCmd):
         self._complete(self.stdout(), stdout,
                        self.stderr(), stderr, status, match)
 
-    def skip_test(self, message="Skipping test.\n"):
+    def skip_test(self, message="Skipping test.\n", from_fw=False):
         """Skips a test.
 
         Proper test-skipping behavior is dependent on the external
@@ -731,24 +763,32 @@ class TestCommon(TestCmd):
         In either case, we print the specified message as an indication
         that the substance of the test was skipped.
 
-        (This was originally added to support development under Aegis.
-        Technically, skipping a test is a NO RESULT, but Aegis would
-        treat that as a test failure and prevent the change from going to
-        the next step.  Since we ddn't want to force anyone using Aegis
-        to have to install absolutely every tool used by the tests, we
-        would actually report to Aegis that a skipped test has PASSED
-        so that the workflow isn't held up.)
+        The use case for treating the skip as a PASS was an old system
+        that the SCons project has not used for a long time, and that
+        code path could eventually be dropped.
+
+        When reporting a NO RESULT, we normally skip the top line of the
+        traceback, as from no_result()'s point of view, that is this
+        function, and the user is likely to only be interested in the
+        test that called us. If from_fw is True, the skip was initiated
+        indirectly, coming from some function in the framework
+        (test_for_tool, skip_if_msvc, etc.), in this case we want to
+        skip an additional line to eliminate that function as well.
+
+        Args:
+            message: text to include in the skip message. Callers
+                should normally provide a reason, to improve on the default.
+            from_fw: if true, skip an extra line of traceback.
         """
         if message:
             sys.stdout.write(message)
             sys.stdout.flush()
         pass_skips = os.environ.get('TESTCOMMON_PASS_SKIPS')
         if pass_skips in [None, 0, '0']:
-            # skip=1 means skip this function when showing where this
-            # result came from.  They only care about the line where the
-            # script called test.skip_test(), not the line number where
-            # we call test.no_result().
-            self.no_result(skip=1)
+            if from_fw:
+                self.no_result(skip=2)
+            else:
+                self.no_result(skip=1)
         else:
             # We're under the development directory for this change,
             # so this is an Aegis invocation; pass the test (exit 0).

@@ -74,8 +74,8 @@ build_script:
   # setup coverage by creating the coverage config file, and adding coverage
   # to the sitecustomize so that all python processes start with coverage
   - ps: .\.appveyor\coverage_setup.ps1
-    
-  # NOTE: running powershell from cmd is intended because 
+
+  # NOTE: running powershell from cmd is intended because
   # it formats the output correctly
   - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 -t --exclude-list exclude_list.txt -a } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -a }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
@@ -85,4 +85,4 @@ on_finish:
   # running codecov in powershell causes an error so running in platform
   # shells
   - cmd: if %COVERAGE% equ 1 codecov -X gcov --file coverage_xml.xml
-    
+

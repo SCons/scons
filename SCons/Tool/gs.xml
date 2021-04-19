@@ -27,11 +27,11 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 This Tool sets the required construction variables for working with
-the Ghostscript command. It also registers an appropriate Action
-with the PDF Builder (&b-link-PDF;), such that the conversion from
+the Ghostscript software. It also registers an appropriate Action
+with the &b-link-PDF; Builder, such that the conversion from
 PS/EPS to PDF happens automatically for the TeX/LaTeX toolchain.
-Finally, it adds an explicit Ghostscript Builder (&b-link-Gs;) to the
-environment.
+Finally, it adds an explicit &b-link-Gs; Builder for Ghostscript
+to the environment.
 </para>
 </summary>
 <sets>
@@ -47,7 +47,7 @@ environment.
 <cvar name="GS">
 <summary>
 <para>
-The Ghostscript program used, e.g. to convert PostScript to PDF files.
+The Ghostscript program used to, for example, convert PostScript to PDF files.
 </para>
 </summary>
 </cvar>
@@ -84,15 +84,18 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
 <builder name="Gs">
 <summary>
 <para>
-A Builder for explicitly calling the <literal>gs</literal> executable.
-Depending on the underlying OS, the different names <literal>gs</literal>,
-<literal>gsos2</literal> and <literal>gswin32c</literal>
+A Builder for explicitly calling the <application>gs</application> executable.
+Depending on the underlying OS, the different names <application>gs</application>,
+<application>gsos2</application> and <application>gswin32c</application>
 are tried.
 </para>
-<example_commands>env = Environment(tools=['gs'])
-env.Gs('cover.jpg','scons-scons.pdf',
-       GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
-       )
+<example_commands>
+env = Environment(tools=['gs'])
+env.Gs(
+    'cover.jpg',
+    'scons-scons.pdf',
+    GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q',
+)
 </example_commands>
 </summary>
 </builder>

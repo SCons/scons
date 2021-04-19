@@ -4,7 +4,8 @@
 # Can be used with twinecheck
 # See: https://github.com/pypa/readme_renderer
 readme-renderer
-sphinx
+# 3.5.0 is bad. Hold at 3.4.3 for now until 3.5.1 is available
+sphinx<3.5.0
 sphinx_rtd_theme
-lxml==4.5.0
+lxml==4.6.3
 rst2pdf

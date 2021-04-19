@@ -5,18 +5,122 @@
                             Change Log
 
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
+NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From William Deegan:
+    - Improve Subst()'s logic to check for proper callable function or class's argument list.
+      It will now allow callables with expected args, and any extra args as long as they
+      have default arguments. Additionally functions with no defaults for extra arguments
+      as long as they are set using functools.partial to create a new callable which set them.
+    - Fix Issue #3035 - mingw with SHLIBVERSION set fails with either not a dll error or
+      "Multiple ways to build the same target were specified for:".  Now mingw will disable
+      creating the symlinks (and adding version string to ) dlls.  It sets SHLIBNOVERSIONSYMLINKS,
+      IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
+    - Added --experimental flag, to enable various experimental features/tools.  You can specify
+      'all', 'none', or any combination of available experimental features.
+
+
+  From Adam Gross:
+    - Fix an issue causing scanners to receive incorrect paths when the
+      environment contains a Directory node that is a subdirectory of the
+      source root directory, the environment variable used by the scanner
+      (e.g. env['LIBPATH']) references a subdirectory of that directory node,
+      and a SConscript file is being run that is not in the source root
+      directory.
+
+  From David H:
+    - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
+      set to any string value (For example ['none','false','no','off'])
+      Also previously 'All' wouldn't have the desired affect.
+
+  From Ivan Kravets:
+    - Provide a custom argument escape function for `TempFileMunge` using a new
+      `TEMPFILEARGESCFUNC` variable. Useful if you need to apply extra operations on
+      a command argument before writing to a temporary file (fix Windows slashes,
+      normalize paths, etc.)
+
+  From Henrik Maier:
+   - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node,
+     such that dependencies work correctly in hierarchical builds (eg when using
+     DocbookXslt in SConscript('subdir/SConscript') context.
+
+  From Daniel Moody:
+    - Update CacheDir to use uuid for tmpfile uniqueness instead of pid.
+      This fixes cases for shared cache where two systems write to the same
+      cache tmpfile at the same time because the happened to get the same pid.
+    - Added support for passing custom CacheDir derived classes to SCons. Moved
+      copy_from_cache attribute from the Environment class to CacheDir class.
+      Code contributed by MongoDB.
+    - Update BuildTask to pass all targets to the progress object fixing an issue
+      where multi-target build nodes only got the first target passed to the progress
+      object.
+
+  From Mats Wichmann:
+    - Initial support in tests for Python 3.10 - expected bytecode and
+      one changed expected exception message. Change some more regexes
+      to be specified as rawstrings in response to DeprecationWarnings.
+    - Add an example of adding an emitter to User Guide (concept
+      from Jeremy Elson)
+    - Add timing information for sconsign database dump when --debug=time
+      is selected. Also switch to generally using time.perf_counter,
+      which is the Python recommended way for timing short durations.
+    - Drop remaining definitions of dict-like has_key methods, since
+      Python 3 doesn't have a dictionary has_key (maintenance)
+    - Do not treat --site-dir=DIR and --no-site-dir as distinct options.
+      Allows a later instance to override an earlier one.
+    - Ignore empty cmdline arguments when computing targets (issue 2986)
+    - Remove long-deprecated construction variables PDFCOM, WIN32_INSERT_DEF,
+      WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
+      All have been replaced by other names since at least 1.0.
+    - Add a __iadd__ method to the CLVar class so that inplace adds
+      (+=) also work as expected (issue 2399)
+    - Remove local copy of CLVar in EnvironmentTests unittest file -
+      should be testing against the production version, and they
+      didn't really differ.
+    - Don't strip spaces in INSTALLSTR by using raw subst (issue 2018)
+    - Deprecate Python 3.5 as a supported version.
+    - CPPDEFINES now expands construction variable references (issue 2363)
+    - Restore behavior that Install()'d files are writable (issue 3927)
+
+  From Dillan Mills:
+    - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
+      This will provide a path relative to the top of the build tree (where the SConstruct is located)
+      Fixes #396
+
+RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
+
+  From James Benton:
+    - Add COMPILATIONDB_PATH_FILTER env option for CompilationDatabase() builder which allows
+      filtering of entries based on the output file paths using glob style file matching (issue #3742).
 
   From Joseph Brill:
     - Internal MSVC and test updates: Rework the msvc installed versions cache so that it
       is not exposed externally and update external references accordingly.
     - Modify the MSCommon internal-use only debug logging records to contain the correct relative
       file path when the debug function is called from outside the MSCommon module.
+    - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
+      when constructing the installed visual studios list.
 
   From William Deegan:
     - Fix yacc tool, not respecting YACC set at time of tool initialization.
     - Refactor SCons.Tool to move all common shared and loadable module linking logic to SCons.Tool.linkCommon
+    - Remove pywin32 imports from SCons.Script.Main. No longer needed.
+    - Switch to use ctypes instead of pywin32 (requiring an extra pip install) - Fixes Github Issue #2291
+       - pywin32 no longer necessary for SCons install. (pip install SCons will no longer also require pywin32 on win32)
+       - Remove pywin32 usage from SCons.Util where it was used for accessing the registry. Python native winreg
+         library already includes this functionality.
+       - Remove using pywin32 to retrieve peak memory usage on Win32 for `--debug=memory`
+    - Fix Issue #3759 - include scons.1, sconsign.1, scons-time.1 manpages in sdist and wheel packages.
+    - Change SCons's build so the generated `SCons/__init__.py` is no longer removed by `scons -c`
+    - Completely rewrote versioned shared libraries logic. Added support for SOVERSION via dmoody's initial PR #3733
+    - No longer automatically disable setting SONAME on shared libraries on OpenBSD.
+    - Fix race condition bug when initializing a scons cache directory at the
+      same time from multiple threads or processes. Problem described in PR #3114.
+      This is a simpler fix which should avoid some problems identified with the initial PR.
+      (Credit to Fredrik Medley for reporting the issue, the initial PR, and discussing and testing
+       this solution)
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
@@ -24,12 +128,30 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Adam Gross:
     - Fix minor bug affecting SCons.Node.FS.File.get_csig()'s usage of the MD5 chunksize.
       User-facing behavior does not change with this fix (GH Issue #3726).
-    - Fix an issue causing scanners to receive incorrect paths when the
-      environment contains a Directory node that is a subdirectory of the
-      source root directory, the environment variable used by the scanner
-      (e.g. env['LIBPATH']) references a subdirectory of that directory node,
-      and a SConscript file is being run that is not in the source root
-      directory.
+    - Fix occasional test failures caused by not being able to find a file or directory fixture
+      when running multiple tests with multiple jobs.
+    - Added support for a new command-line parameter `--hash-format` to override the default
+      hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
+      values are: `md5`, `sha1`, and `sha256`. For all hash formats other than
+      the default of `md5`, the SConsign database will include the name of the hash format.
+      For example, `--hash-format=sha256` will create a SConsign with name
+      `.sconsign_sha256.dblite.`.
+    - Fix incorrect cache hits and/or misses when running in interactive mode by having
+      SCons.Node.Node.clear() clear out all caching-related state.
+    - Change Environment.SideEffect() to not add duplicate side effects.
+      NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
+    - Add support to the Python scanner for finding dynamically generated dependencies.
+      Previously the scanner only found imports if they existed on disk at scanning time.
+
+  From David H:
+    - Add ZIP_OVERRIDE_TIMESTAMP env option to Zip builder which allows for overriding of the file
+      modification times in the archive.
+    - Fix Zip builder not rebuilding when ZIPROOT env option was changed.
+
+  From Jason Kenny
+    - Fix python3 crash when Value node get_text_content when child content does not have decode()
+      NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's
+      children. This may break your code. It now concatenates the csig() of all children.
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
@@ -43,24 +165,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Daniel Moody:
     - Fix issue where java parsed a class incorrectly from lambdas used after a new.
 
-  From Mats Wichmann:
-    - Complete tests for Dictionary, env.keys() and env.values() for
-      OverrideEnvironment. Enable env.setdefault() method, add tests.
-    - Raise an error if an option (not otherwise consumed) is used which
-      looks like an abbreviation of one one added by AddOption. (#3653)
-    - Tool module not found will now raise a UserError to more clearly indicate this is
-      probably an SConscript problem, and to make the traceback more relevant.
-    - Fix three issues with MergeFlags: 
-      - Signature/return did not match documentation or existing usage - the implementation 
-        now no longer returns the passed env
-      - merging --param arguments did not work (issue #3107); 
-      - passing a dict to merge where the values are strings failed (issue #2961).
-    - Include previously-excluded SideEffect section in User Guide.
-    - Clean up unneeded imports (autoflake tool).
-    - Make sure cProfile is used if profiling - SCons was expecting
-      the Util module to monkeypatch in cProfile as profile if available,
-      but this is no longer being done.
-
   From Simon Tegelid
     - Fix using TEMPFILE in multiple actions in an action list. Previously a builder, or command
       with an action list like this:
@@ -68,8 +172,53 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Could yield a single tempfile with the first TEMPFILE's contents, used by both steps
       in the action list.
 
-
-
+  From Mats Wichmann:
+    - Complete tests for Dictionary, env.keys() and env.values() for
+      OverrideEnvironment. Enable env.setdefault() method, add tests.
+    - Raise an error if an option (not otherwise consumed) is used which
+      looks like an abbreviation of one one added by AddOption. (#3653)
+    - Tool module not found will now raise a UserError to more clearly indicate this is
+      probably an SConscript problem, and to make the traceback more relevant.
+    - Fix three issues with MergeFlags:
+      - Signature/return did not match documentation or existing usage - the implementation
+        now no longer returns the passed env
+      - merging --param arguments did not work (issue #3107);
+      - passing a dict to merge where the values are strings failed (issue #2961).
+    - Include previously-excluded SideEffect section in User Guide.
+    - Clean up unneeded imports (autoflake tool).
+    - Make sure cProfile is used if profiling - SCons was expecting
+      the Util module to monkeypatch in cProfile as profile if available,
+      but this is no longer being done.
+    - Cleanup in SCons.Util.AddMethod. If called with an environment instance
+      as the object to modify, the method would not be correctly set up in
+      any Clone of that instance.  Now tries to detect this and calls
+      MethodWrapper to set up the method the same way env.AddMethod does.
+      MethodWrapper moved to Util to avoid a circular import. Fixes #3028.
+    - Some Python 2 compatibility code dropped
+    - Rework runtest.py to use argparse for arg handling (was a mix
+      of hand-coded and optparse, with a stated intent to "gradually port").
+    - Add options to runtest to generate/not generate a log of failed tests,
+      and to rerun such tests. Useful when an error cascades through several
+      tests, can quickly try if a change improves all the fails. Dropped
+      runtest test for fallback from qmtest, not needed; added new tests.
+    - Eliminate tex tool usage of "for foo in range(len(iterable))"
+    - Restore internal Trace function to functional state.
+    - Only try to initialize the wix tool by default (or when tool `default` is explicitly installed)
+      on Windows based systems.
+    - Pick a better "Topic" Trove classifier for SCons: SW Dev / Build Tools
+    - Use os.replace instead of os.rename in dblite so don't need to
+      special-case Windows here. dblite is the default storage engine for the SConsign file(s).
+    - Fix cut-n-paste error in msvc debug printout and make some debug output
+      in msvs and msvsTests.py be off until needed (uncomment to use)
+    - Fix Issue #3014 - Empty file and missing file have same csig
+    - Refactor env.Append/Prepend to remove Py 1.5 era need to nest
+      try blocks, can now "continue" at the appropriate places.
+    - Add /snap/bin to env['PATH'] on POSIX, although this is only
+      really useful for a subset of POSIX systems that use snaps.
+      Was needed for CI builds, which run on Ubuntu LTS images.
+    - Eliminate Py2-ism __nonzero__ (now __bool__). Work around issue #3860
+      where a check for BuilderBase raising exc. on __bool__ was optimized out.
+      This issue was found due to a bug in Python 3.10.0a4. See issue #3860 for details.
 
 
 RELEASE 4.0.1 - Mon, 16 Jul 2020 16:06:40 -0700
@@ -100,6 +249,7 @@ RELEASE 4.0.0 - Sat, 04 Jul 2020 12:00:27 +0000
     - Updated documentation toolchain to work properly under Python3, also
       removed libxslt support from the Docbook Tool. (issue #3580)
     - Added Docker images for building and testing SCons. (issue #3585)
+
 
   From James Benton:
     - Improve Visual Studio solution/project generation code to add support

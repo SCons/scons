@@ -1,10 +1,8 @@
-"""
-This tests the MinGW  with MSVC tool.
-"""
-
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,9 +22,10 @@ This tests the MinGW  with MSVC tool.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+This tests the MinGW  with MSVC tool.
+"""
 
 import sys
 
@@ -43,21 +42,22 @@ test.skip_if_not_msvc()
 
 # control test: check for nologo and cl in env
 test.write('SConstruct',"""
-env=Environment(tools=['default'])
+DefaultEnvironment(tools=[])
+env = Environment(tools=['default'])
 print('CCFLAGS=' + str(env['CCFLAGS']).strip())
 print('CC=' + str(env['CC']).strip())
 """)
 test.run(arguments='-Q -s')
-if('CCFLAGS=/nologo' not in test.stdout()
-    or 'CC=cl' not in test.stdout()):
+if 'CCFLAGS=/nologo' not in test.stdout() or 'CC=cl' not in test.stdout():
     test.fail_test()
 
 # make sure windows msvc doesnt add bad mingw flags 
 # and that gcc is selected
 test.write('SConstruct',"""
-env=Environment(tools=['default', 'mingw'])
-print('CCFLAGS="' +  str(env['CCFLAGS']).strip() + '"')
-print('CC=' +  str(env['CC']).strip())
+DefaultEnvironment(tools=[])
+env = Environment(tools=['default', 'mingw'])
+print('CCFLAGS="' + str(env['CCFLAGS']).strip() + '"')
+print('CC=' + str(env['CC']).strip())
 """)
 test.run(arguments='-Q -s')
 if('CCFLAGS=""' not in test.stdout()
@@ -66,18 +66,19 @@ if('CCFLAGS=""' not in test.stdout()
 
 # msvc should overwrite the flags and use cl
 test.write('SConstruct',"""
-env=Environment(tools=['mingw', 'default'])
+DefaultEnvironment(tools=[])
+env = Environment(tools=['mingw', 'default'])
 print('CCFLAGS=' + str(env['CCFLAGS']).strip())
 print('CC=' + str(env['CC']).strip())
 """)
 test.run(arguments='-Q -s')
-if('CCFLAGS=/nologo' not in test.stdout()
-    or 'CC=cl' not in test.stdout()):
+if 'CCFLAGS=/nologo' not in test.stdout() or 'CC=cl' not in test.stdout():
     test.fail_test()
 
 # test that CCFLAGS are preserved
 test.write('SConstruct',"""
-env=Environment(tools=['mingw'], CCFLAGS='-myflag')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['mingw'], CCFLAGS='-myflag')
 print(env['CCFLAGS'])
 """)
 test.run(arguments='-Q -s')
@@ -86,7 +87,8 @@ if '-myflag' not in test.stdout():
 
 # test that it handles a list
 test.write('SConstruct',"""
-env=Environment(tools=['mingw'], CCFLAGS=['-myflag', '-myflag2'])
+DefaultEnvironment(tools=[])
+env = Environment(tools=['mingw'], CCFLAGS=['-myflag', '-myflag2'])
 print(str(env['CCFLAGS']))
 """)
 test.run(arguments='-Q -s')

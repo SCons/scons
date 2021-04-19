@@ -65,8 +65,6 @@ Sets construction variables for the D language compiler LDC2.
 <item>DLINKFLAGSUFFIX</item>
 <item>DRPATHPREFIX</item>
 <item>DRPATHSUFFIX</item>
-<item>DShLibSonameGenerator</item>
-<item>SHDLIBVERSION</item>
 <item>SHDLIBVERSIONFLAGS</item>
 </sets>
 <uses>

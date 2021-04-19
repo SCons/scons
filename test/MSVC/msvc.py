@@ -170,13 +170,13 @@ test.must_not_exist(test.workpath('test.pdb'))
 test.must_exist(test.workpath('test.obj'))
 
 
-start = time.time()
+start = time.perf_counter()
 test.run(arguments='fast.obj', stderr=None)
-fast = time.time() - start
+fast = time.perf_counter() - start
 
-start = time.time()
+start = time.perf_counter()
 test.run(arguments='slow.obj', stderr=None)
-slow = time.time() - start
+slow = time.perf_counter() - start
 
 
 # TODO: Reevaluate if having this part of the test makes sense any longer

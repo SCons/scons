@@ -63,7 +63,7 @@ NODE_UP_TO_DATE = SCons.Node.up_to_date
 NODE_EXECUTED = SCons.Node.executed
 NODE_FAILED = SCons.Node.failed
 
-print_prepare = 0               # set by option --debug=prepare
+print_prepare = False               # set by option --debug=prepare
 
 # A subsystem for recording stats about how different Nodes are handled by
 # the main Taskmaster loop.  There's no external control here (no need for

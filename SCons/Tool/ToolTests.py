@@ -46,8 +46,6 @@ class DummyEnvironment:
     def __setitem__(self, key, val):
         self.dict[key] = val
     def __contains__(self, key):
-        return self.dict.__contains__(key)
-    def has_key(self, key):
         return key in self.dict
     def subst(self, string, *args, **kwargs):
         return string

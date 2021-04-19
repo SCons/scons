@@ -33,20 +33,20 @@ import time
 
 from SCons.compat import PICKLE_PROTOCOL
 
-keep_all_files = 00000
-ignore_corrupt_dbfiles = 0
+KEEP_ALL_FILES = False
+IGNORE_CORRUPT_DBFILES = False
 
 
 def corruption_warning(filename):
+    """Local warning for corrupt db.
+
+    Used for self-tests. SCons overwrites this with a
+    different warning function in SConsign.py.
+    """
     print("Warning: Discarding corrupt database:", filename)
 
-
-dblite_suffix = '.dblite'
-
-# TODO: Does commenting this out break switching from py2/3?
-# if bytes is not str:
-#     dblite_suffix += '.p3'
-tmp_suffix = '.tmp'
+DBLITE_SUFFIX = '.dblite'
+TMP_SUFFIX = '.tmp'
 
 
 class dblite:
@@ -66,15 +66,13 @@ class dblite:
     _open = open
     _pickle_dump = staticmethod(pickle.dump)
     _pickle_protocol = PICKLE_PROTOCOL
-    _os_chmod = os.chmod
 
     try:
         _os_chown = os.chown
     except AttributeError:
         _os_chown = None
-
-    _os_rename = os.rename
-    _os_unlink = os.unlink
+    _os_replace = os.replace
+    _os_chmod = os.chmod
     _shutil_copyfile = shutil.copyfile
     _time_time = time.time
 
@@ -84,18 +82,18 @@ class dblite:
             flag = "r"
 
         base, ext = os.path.splitext(file_base_name)
-        if ext == dblite_suffix:
+        if ext == DBLITE_SUFFIX:
             # There's already a suffix on the file name, don't add one.
             self._file_name = file_base_name
-            self._tmp_name = base + tmp_suffix
+            self._tmp_name = base + TMP_SUFFIX
         else:
-            self._file_name = file_base_name + dblite_suffix
-            self._tmp_name = file_base_name + tmp_suffix
+            self._file_name = file_base_name + DBLITE_SUFFIX
+            self._tmp_name = file_base_name + TMP_SUFFIX
 
         self._flag = flag
         self._mode = mode
         self._dict = {}
-        self._needs_sync = 00000
+        self._needs_sync = False
 
         if self._os_chown is not None and (os.geteuid() == 0 or os.getuid() == 0):
             # running as root; chown back to current owner/group when done
@@ -103,7 +101,7 @@ class dblite:
                 statinfo = os.stat(self._file_name)
                 self._chown_to = statinfo.st_uid
                 self._chgrp_to = statinfo.st_gid
-            except OSError as e:
+            except OSError:
                 # db file doesn't exist yet.
                 # Check os.environ for SUDO_UID, use if set
                 self._chown_to = int(os.environ.get('SUDO_UID', -1))
@@ -128,15 +126,12 @@ class dblite:
                 f.close()
                 if len(p) > 0:
                     try:
-                        if bytes is not str:
-                            self._dict = pickle.loads(p, encoding='bytes')
-                        else:
-                            self._dict = pickle.loads(p)
+                        self._dict = pickle.loads(p, encoding='bytes')
                     except (pickle.UnpicklingError, EOFError, KeyError):
                         # Note how we catch KeyErrors too here, which might happen
                         # when we don't have cPickle available (default pickle
                         # throws it).
-                        if ignore_corrupt_dbfiles:
+                        if IGNORE_CORRUPT_DBFILES:
                             corruption_warning(self._file_name)
                         else:
                             raise
@@ -150,32 +145,35 @@ class dblite:
 
     def sync(self):
         self._check_writable()
-        f = self._open(self._tmp_name, "wb", self._mode)
-        self._pickle_dump(self._dict, f, self._pickle_protocol)
-        f.close()
+        with self._open(self._tmp_name, "wb", self._mode) as f:
+            self._pickle_dump(self._dict, f, self._pickle_protocol)
 
-        # Windows doesn't allow renaming if the file exists, so unlink
-        # it first, chmod'ing it to make sure we can do so.  On UNIX, we
-        # may not be able to chmod the file if it's owned by someone else
-        # (e.g. from a previous run as root).  We should still be able to
-        # unlink() the file if the directory's writable, though, so ignore
-        # any OSError exception  thrown by the chmod() call.
         try:
-            self._os_chmod(self._file_name, 0o777)
-        except OSError:
-            pass
-        self._os_unlink(self._file_name)
-        self._os_rename(self._tmp_name, self._file_name)
+            self._os_replace(self._tmp_name, self._file_name)
+        except PermissionError:
+            # If we couldn't replace due to perms, try to change and retry.
+            # This is mainly for Windows - on POSIX the file permissions
+            # don't matter, the os.replace would have worked anyway.
+            # We're giving up if the retry fails, just let the Python
+            # exception abort us.
+            try:
+                self._os_chmod(self._file_name, 0o777)
+            except PermissionError:
+                pass
+            self._os_replace(self._tmp_name, self._file_name)
+
         if self._os_chown is not None and self._chown_to > 0:  # don't chown to root or -1
             try:
                 self._os_chown(self._file_name, self._chown_to, self._chgrp_to)
             except OSError:
                 pass
-        self._needs_sync = 00000
-        if keep_all_files:
+
+        self._needs_sync = False
+        if KEEP_ALL_FILES:
             self._shutil_copyfile(
                 self._file_name,
-                self._file_name + "_" + str(int(self._time_time())))
+                self._file_name + "_" + str(int(self._time_time()))
+            )
 
     def _check_writable(self):
         if self._flag == "r":
@@ -194,22 +192,16 @@ class dblite:
             raise TypeError("value `%s' must be a bytes but is %s" % (value, type(value)))
 
         self._dict[key] = value
-        self._needs_sync = 0o001
+        self._needs_sync = True
 
     def keys(self):
         return list(self._dict.keys())
 
-    def has_key(self, key):
-        return key in self._dict
-
     def __contains__(self, key):
         return key in self._dict
 
-    def iterkeys(self):
-        # Wrapping name in () prevents fixer from "fixing" this
-        return (self._dict.iterkeys)()
-
-    __iter__ = iterkeys
+    def __iter__(self):
+        return iter(self._dict)
 
     def __len__(self):
         return len(self._dict)
@@ -278,8 +270,8 @@ def _exercise():
     else:
         raise RuntimeError("pickle exception expected.")
 
-    global ignore_corrupt_dbfiles
-    ignore_corrupt_dbfiles = 2
+    global IGNORE_CORRUPT_DBFILES
+    IGNORE_CORRUPT_DBFILES = True
     db = open("tmp", "r")
     assert len(db) == 0, len(db)
     os.unlink("tmp.dblite")

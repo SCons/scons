@@ -2055,15 +2055,15 @@ class DirTestCase(_tempdirTestCase):
         assert g.get_csig() + " g" == files[2], files
         assert s.get_csig() + " sub" == files[3], files
 
-    def test_md5_chunksize(self):
+    def test_hash_chunksize(self):
         """
-        Test verifying that File.get_csig() correctly uses md5_chunksize. This
-        variable is documented as the md5 chunksize in kilobytes. This test
-        verifies that if the file size is less than the md5 chunksize,
+        Test verifying that File.get_csig() correctly uses hash_chunksize. This
+        variable is documented as the hash chunksize in kilobytes. This test
+        verifies that if the file size is less than the hash chunksize,
         get_contents() is called; otherwise, it verifies that get_contents()
         is not called.
         """
-        chunksize_bytes = SCons.Node.FS.File.md5_chunksize
+        chunksize_bytes = SCons.Node.FS.File.hash_chunksize
         test = self.test
 
         test.subdir('chunksize_dir')
@@ -2686,8 +2686,11 @@ class FileTestCase(_tempdirTestCase):
             print("%15s -> csig:%s" % (i3.name, i3.ninfo.csig))
             print("%15s -> csig:%s" % (i4.name, i4.ninfo.csig))
 
-        self.assertEqual(i2.name, i2.ninfo.csig,
-                         "gamma.h's fake csig should equal gamma.h but equals:%s" % i2.ninfo.csig)
+        self.assertEqual(
+            i2.name,
+            i2.ninfo.csig,
+            "gamma.h's fake csig should equal gamma.h but equals:%s" % i2.ninfo.csig,
+        )
 
 
 class GlobTestCase(_tempdirTestCase):
@@ -3673,7 +3676,8 @@ class CacheDirTestCase(unittest.TestCase):
 
         f9 = fs.File('f9')
         r = f9.get_cachedir_csig()
-        assert r == 'd41d8cd98f00b204e9800998ecf8427e', r
+        exsig = SCons.Util.MD5signature(SCons.Util.NOFILE)
+        assert r == exsig, r
 
 
 class clearTestCase(unittest.TestCase):
@@ -3722,6 +3726,13 @@ class clearTestCase(unittest.TestCase):
         assert not f.exists()
         assert not f.rexists()
         assert str(f) == test.workpath('f'), str(f)
+        # Now verify clear() resets optional File-specific attributes
+        optional_attrs = ['cachedir_csig', 'cachesig', 'contentsig']
+        for attr in optional_attrs:
+            setattr(f, attr, 'xyz')
+        f.clear()
+        for attr in optional_attrs:
+            assert not hasattr(f, attr), attr
 
 
 class disambiguateTestCase(unittest.TestCase):

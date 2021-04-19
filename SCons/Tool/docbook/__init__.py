@@ -62,8 +62,8 @@ except Exception:
 prefer_xsltproc = False
 
 # Regexs for parsing Docbook XML sources of MAN pages
-re_manvolnum = re.compile("<manvolnum>([^<]*)</manvolnum>")
-re_refname = re.compile("<refname>([^<]*)</refname>")
+re_manvolnum = re.compile(r"<manvolnum>([^<]*)</manvolnum>")
+re_refname = re.compile(r"<refname>([^<]*)</refname>")
 
 #
 # Helper functions
@@ -203,8 +203,8 @@ def _detect(env):
 #
 # Scanners
 #
-include_re = re.compile('fileref\\s*=\\s*["|\']([^\\n]*)["|\']')
-sentity_re = re.compile('<!ENTITY\\s+%*\\s*[^\\s]+\\s+SYSTEM\\s+["|\']([^\\n]*)["|\']>')
+include_re = re.compile(r'fileref\\s*=\\s*["|\']([^\\n]*)["|\']')
+sentity_re = re.compile(r'<!ENTITY\\s+%*\\s*[^\\s]+\\s+SYSTEM\\s+["|\']([^\\n]*)["|\']>')
 
 def __xml_scan(node, env, path, arg):
     """ Simple XML file scanner, detecting local images and XIncludes as implicit dependencies. """
@@ -761,7 +761,7 @@ def DocbookXslt(env, target, source=None, *args, **kw):
     target, source = __extend_targets_sources(target, source)
 
     # Init XSL stylesheet
-    kw['DOCBOOK_XSL'] = kw.get('xsl', 'transform.xsl')
+    kw['DOCBOOK_XSL'] = env.File(kw.get('xsl', 'transform.xsl'))
 
     # Setup builder
     __builder = __select_builder(__lxml_builder, __xsltproc_builder)

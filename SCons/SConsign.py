@@ -27,18 +27,21 @@ import SCons.compat
 
 import os
 import pickle
+import time
 
 import SCons.dblite
 import SCons.Warnings
-
 from SCons.compat import PICKLE_PROTOCOL
+from SCons.Util import print_time
 
 
 def corrupt_dblite_warning(filename):
-    SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                        "Ignoring corrupt .sconsign file: %s"%filename)
+    SCons.Warnings.warn(
+        SCons.Warnings.CorruptSConsignWarning,
+        "Ignoring corrupt .sconsign file: %s" % filename,
+    )
 
-SCons.dblite.ignore_corrupt_dbfiles = 1
+SCons.dblite.IGNORE_CORRUPT_DBFILES = True
 SCons.dblite.corruption_warning = corrupt_dblite_warning
 
 # XXX Get rid of the global array so this becomes re-entrant.
@@ -52,12 +55,20 @@ sig_files = []
 # extension the underlying DB module will add).
 DataBase = {}
 DB_Module = SCons.dblite
-DB_Name = ".sconsign"
+DB_Name = None
 DB_sync_list = []
 
 
 def Get_DataBase(dir):
     global DataBase, DB_Module, DB_Name
+
+    if DB_Name is None:
+        hash_format = SCons.Util.get_hash_format()
+        if hash_format is None:
+            DB_Name = ".sconsign"
+        else:
+            DB_Name = ".sconsign_%s" % hash_format
+
     top = dir.fs.Top
     if not os.path.isabs(DB_Name) and top.repositories:
         mode = "c"
@@ -98,6 +109,10 @@ normcase = os.path.normcase
 
 def write():
     global sig_files
+
+    if print_time():
+        start_time = time.perf_counter()
+
     for sig_file in sig_files:
         sig_file.write(sync=0)
     for db in DB_sync_list:
@@ -113,6 +128,10 @@ def write():
             pass # Not all dbm modules have close() methods.
         else:
             closemethod()
+
+    if print_time():
+        elapsed = time.perf_counter() - start_time
+        print('Total SConsign sync time: %f seconds' % elapsed)
 
 
 class SConsignEntry:
@@ -141,7 +160,7 @@ class SConsignEntry:
     def __getstate__(self):
         state = getattr(self, '__dict__', {}).copy()
         for obj in type(self).mro():
-            for name in getattr(obj,'__slots__',()):
+            for name in getattr(obj, '__slots__', ()):
                 if hasattr(self, name):
                     state[name] = getattr(self, name)
 
@@ -154,7 +173,7 @@ class SConsignEntry:
 
     def __setstate__(self, state):
         for key, value in state.items():
-            if key not in ('_version_id','__weakref__'):
+            if key not in ('_version_id', '__weakref__'):
                 setattr(self, key, value)
 
 

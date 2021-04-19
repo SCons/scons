@@ -20,6 +20,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
 
 """Builders and other things for the local site.
 
@@ -30,12 +31,12 @@ The code that reads the registry to find MSVC components was borrowed
 from distutils.msvccompiler.
 """
 
-import os
 import errno
+import os
 import shutil
 import stat
-import time
 import sys
+import time
 
 import SCons.Action
 import SCons.Builder
@@ -44,6 +45,7 @@ import SCons.Environment
 import SCons.PathList
 import SCons.Subst
 import SCons.Tool
+import SCons.Scanner.Dir
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -51,12 +53,14 @@ import SCons.Tool
 # interface.
 _default_env = None
 
+
 # Lazily instantiate the default environment so the overhead of creating
 # it doesn't apply when it's not needed.
 def _fetch_DefaultEnvironment(*args, **kw):
     """Returns the already-created default construction environment."""
     global _default_env
     return _default_env
+
 
 def DefaultEnvironment(*args, **kw):
     """
@@ -78,14 +82,12 @@ def DefaultEnvironment(*args, **kw):
     if not _default_env:
         import SCons.Util
         _default_env = SCons.Environment.Environment(*args, **kw)
-        if SCons.Util.md5:
-            _default_env.Decider('MD5')
-        else:
-            _default_env.Decider('timestamp-match')
+        _default_env.Decider('content')
         global DefaultEnvironment
         DefaultEnvironment = _fetch_DefaultEnvironment
         _default_env._CacheDir_path = None
     return _default_env
+
 
 # Emitters for setting the shared attribute on object files,
 # and an action for checking that all of the source files
@@ -95,10 +97,12 @@ def StaticObjectEmitter(target, source, env):
         tgt.attributes.shared = None
     return (target, source)
 
+
 def SharedObjectEmitter(target, source, env):
     for tgt in target:
         tgt.attributes.shared = 1
     return (target, source)
+
 
 def SharedFlagChecker(source, target, env):
     same = env.subst('$STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME')
@@ -109,7 +113,9 @@ def SharedFlagChecker(source, target, env):
             except AttributeError:
                 shared = None
             if not shared:
-                raise SCons.Errors.UserError("Source file: %s is static and is not compatible with shared target: %s" % (src, target[0]))
+                raise SCons.Errors.UserError(
+                    "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0]))
+
 
 SharedCheck = SCons.Action.Action(SharedFlagChecker, None)
 
@@ -126,7 +132,7 @@ ProgScan = SCons.Tool.ProgramScanner
 # These aren't really tool scanners, so they don't quite belong with
 # the rest of those in Tool/__init__.py, but I'm not sure where else
 # they should go.  Leave them here for now.
-import SCons.Scanner.Dir
+
 DirScanner = SCons.Scanner.Dir.DirScanner()
 DirEntryScanner = SCons.Scanner.Dir.DirEntryScanner()
 
@@ -151,6 +157,7 @@ LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
 # ways by creating ActionFactory instances.
 ActionFactory = SCons.Action.ActionFactory
 
+
 def get_paths_str(dest):
     # If dest is a list, we need to manually call str() on each element
     if SCons.Util.is_List(dest):
@@ -161,23 +168,25 @@ def get_paths_str(dest):
     else:
         return '"' + str(dest) + '"'
 
+
 permission_dic = {
-    'u':{
-        'r':stat.S_IRUSR,
-        'w':stat.S_IWUSR,
-        'x':stat.S_IXUSR
+    'u': {
+        'r': stat.S_IRUSR,
+        'w': stat.S_IWUSR,
+        'x': stat.S_IXUSR
     },
-    'g':{
-        'r':stat.S_IRGRP,
-        'w':stat.S_IWGRP,
-        'x':stat.S_IXGRP
+    'g': {
+        'r': stat.S_IRGRP,
+        'w': stat.S_IWGRP,
+        'x': stat.S_IXGRP
     },
-    'o':{
-        'r':stat.S_IROTH,
-        'w':stat.S_IWOTH,
-        'x':stat.S_IXOTH
+    'o': {
+        'r': stat.S_IROTH,
+        'w': stat.S_IWOTH,
+        'x': stat.S_IXOTH
     }
 }
+
 
 def chmod_func(dest, mode):
     import SCons.Util
@@ -222,6 +231,7 @@ def chmod_func(dest, mode):
                 elif operator == "-":
                     os.chmod(str(element), curr_perm & ~new_perm)
 
+
 def chmod_strfunc(dest, mode):
     import SCons.Util
     if not SCons.Util.is_String(mode):
@@ -229,7 +239,9 @@ def chmod_strfunc(dest, mode):
     else:
         return 'Chmod(%s, "%s")' % (get_paths_str(dest), str(mode))
 
+
 Chmod = ActionFactory(chmod_func, chmod_strfunc)
+
 
 def copy_func(dest, src, symlinks=True):
     """
@@ -261,10 +273,12 @@ def copy_func(dest, src, symlinks=True):
         # A error is raised in both cases, so we can just return 0 for success
         return 0
 
+
 Copy = ActionFactory(
     copy_func,
     lambda dest, src, symlinks=True: 'Copy("%s", "%s")' % (dest, src)
 )
+
 
 def delete_func(dest, must_exist=0):
     SCons.Node.FS.invalidate_node_memos(dest)
@@ -282,10 +296,13 @@ def delete_func(dest, must_exist=0):
             continue
         os.unlink(entry)
 
+
 def delete_strfunc(dest, must_exist=0):
     return 'Delete(%s)' % get_paths_str(dest)
 
+
 Delete = ActionFactory(delete_func, delete_strfunc)
+
 
 def mkdir_func(dest):
     SCons.Node.FS.invalidate_node_memos(dest)
@@ -297,23 +314,27 @@ def mkdir_func(dest):
         except os.error as e:
             p = str(entry)
             if (e.args[0] == errno.EEXIST or
-                    (sys.platform=='win32' and e.args[0]==183)) \
+                (sys.platform == 'win32' and e.args[0] == 183)) \
                     and os.path.isdir(str(entry)):
-                pass            # not an error if already exists
+                pass  # not an error if already exists
             else:
                 raise
 
+
 Mkdir = ActionFactory(mkdir_func,
                       lambda dir: 'Mkdir(%s)' % get_paths_str(dir))
+
 
 def move_func(dest, src):
     SCons.Node.FS.invalidate_node_memos(dest)
     SCons.Node.FS.invalidate_node_memos(src)
     shutil.move(src, dest)
 
+
 Move = ActionFactory(move_func,
                      lambda dest, src: 'Move("%s", "%s")' % (dest, src),
                      convert=str)
+
 
 def touch_func(dest):
     SCons.Node.FS.invalidate_node_memos(dest)
@@ -329,32 +350,34 @@ def touch_func(dest):
                 atime = mtime
         os.utime(file, (atime, mtime))
 
+
 Touch = ActionFactory(touch_func,
                       lambda file: 'Touch(%s)' % get_paths_str(file))
+
 
 # Internal utility functions
 
 
-def _concat(prefix, list, suffix, env, f=lambda x: x, target=None, source=None):
+def _concat(prefix, iter, suffix, env, f=lambda x: x, target=None, source=None):
     """
-    Creates a new list from 'list' by first interpolating each element
+    Creates a new list from 'iter' by first interpolating each element
     in the list using the 'env' dictionary and then calling f on the
     list, and finally calling _concat_ixes to concatenate 'prefix' and
     'suffix' onto each element of the list.
     """
-    if not list:
-        return list
+    if not iter:
+        return iter
 
-    l = f(SCons.PathList.PathList(list).subst_path(env, target, source))
+    l = f(SCons.PathList.PathList(iter).subst_path(env, target, source))
     if l is not None:
-        list = l
+        iter = l
 
-    return _concat_ixes(prefix, list, suffix, env)
+    return _concat_ixes(prefix, iter, suffix, env)
 
 
-def _concat_ixes(prefix, list, suffix, env):
+def _concat_ixes(prefix, iter, suffix, env):
     """
-    Creates a new list from 'list' by concatenating the 'prefix' and
+    Creates a new list from 'iter' by concatenating the 'prefix' and
     'suffix' arguments onto each element of the list.  A trailing space
     on 'prefix' or leading space on 'suffix' will cause them to be put
     into separate list elements rather than being concatenated.
@@ -366,7 +389,7 @@ def _concat_ixes(prefix, list, suffix, env):
     prefix = str(env.subst(prefix, SCons.Subst.SUBST_RAW))
     suffix = str(env.subst(suffix, SCons.Subst.SUBST_RAW))
 
-    for x in list:
+    for x in SCons.Util.flatten(iter):
         if isinstance(x, SCons.Node.FS.File):
             result.append(x)
             continue
@@ -385,7 +408,7 @@ def _concat_ixes(prefix, list, suffix, env):
                 if suffix[0] == ' ':
                     result.append(suffix[1:])
                 elif x[-len(suffix):] != suffix:
-                    result[-1] = result[-1]+suffix
+                    result[-1] = result[-1] + suffix
 
     return result
 
@@ -442,6 +465,7 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
 
     return c(prefix, stripped, suffix, env)
 
+
 def processDefines(defs):
     """process defines, resolving strings, lists, dictionaries, into a list of
     strings
@@ -457,7 +481,7 @@ def processDefines(defs):
                 else:
                     l.append(str(d[0]))
             elif SCons.Util.is_Dict(d):
-                for macro,value in d.items():
+                for macro, value in d.items():
                     if value is not None:
                         l.append(str(macro) + '=' + str(value))
                     else:
@@ -465,7 +489,7 @@ def processDefines(defs):
             elif SCons.Util.is_String(d):
                 l.append(str(d))
             else:
-                raise SCons.Errors.UserError("DEFINE %s is not a list, dict, string or None."%repr(d))
+                raise SCons.Errors.UserError("DEFINE %s is not a list, dict, string or None." % repr(d))
     elif SCons.Util.is_Dict(defs):
         # The items in a dictionary are stored in random order, but
         # if the order of the command-line options changes from
@@ -474,7 +498,7 @@ def processDefines(defs):
         # Consequently, we have to sort the keys to ensure a
         # consistent order...
         l = []
-        for k,v in sorted(defs.items()):
+        for k, v in sorted(defs.items()):
             if v is None:
                 l.append(str(k))
             else:
@@ -489,7 +513,7 @@ def _defines(prefix, defs, suffix, env, c=_concat_ixes):
     into a list of C preprocessor command-line definitions.
     """
 
-    return c(prefix, env.subst_path(processDefines(defs)), suffix, env)
+    return c(prefix, env.subst_list(processDefines(defs)), suffix, env)
 
 
 class NullCmdGenerator:
@@ -523,11 +547,14 @@ class Variable_Method_Caller:
     the way of Memoizing construction environments, because we had to
     create new environment objects to hold the variables.)
     """
+
     def __init__(self, variable, method):
         self.variable = variable
         self.method = method
+
     def __call__(self, *args, **kw):
-        try: 1//0
+        try:
+            1 // 0
         except ZeroDivisionError:
             # Don't start iterating with the current stack-frame to
             # prevent creating reference cycles (f_back is safe).
@@ -542,43 +569,70 @@ class Variable_Method_Caller:
             frame = frame.f_back
         return None
 
-# if $version_var is not empty, returns env[flags_var], otherwise returns None
+
 def __libversionflags(env, version_var, flags_var):
+    """
+    if version_var is not empty, returns env[flags_var], otherwise returns None
+    :param env:
+    :param version_var:
+    :param flags_var:
+    :return:
+    """
     try:
-        if env.subst('$'+version_var):
+        if env.subst('$' + version_var):
             return env[flags_var]
     except KeyError:
         pass
     return None
 
+
+def __lib_either_version_flag(env, version_var1, version_var2, flags_var):
+    """
+    if $version_var1 or $version_var2 is not empty, returns env[flags_var], otherwise returns None
+    :param env:
+    :param version_var1:
+    :param version_var2:
+    :param flags_var:
+    :return:
+    """
+    try:
+        if env.subst('$' + version_var1) or env.subst('$' + version_var2):
+            return env[flags_var]
+    except KeyError:
+        pass
+    return None
+
+
 ConstructionEnvironment = {
-    'BUILDERS'      : {},
-    'SCANNERS'      : [ SCons.Tool.SourceFileScanner ],
-    'CONFIGUREDIR'  : '#/.sconf_temp',
-    'CONFIGURELOG'  : '#/config.log',
-    'CPPSUFFIXES'   : SCons.Tool.CSuffixes,
-    'DSUFFIXES'     : SCons.Tool.DSuffixes,
-    'ENV'           : {},
-    'IDLSUFFIXES'   : SCons.Tool.IDLSuffixes,
-    '_concat'       : _concat,
-    '_defines'      : _defines,
-    '_stripixes'    : _stripixes,
-    '_LIBFLAGS'     : '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-    '_LIBDIRFLAGS'  : '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-    '_CPPINCFLAGS'  : '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-    '_CPPDEFFLAGS'  : '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+    'BUILDERS': {},
+    'SCANNERS': [SCons.Tool.SourceFileScanner],
+    'CONFIGUREDIR': '#/.sconf_temp',
+    'CONFIGURELOG': '#/config.log',
+    'CPPSUFFIXES': SCons.Tool.CSuffixes,
+    'DSUFFIXES': SCons.Tool.DSuffixes,
+    'ENV': {},
+    'IDLSUFFIXES': SCons.Tool.IDLSuffixes,
+    '_concat': _concat,
+    '_defines': _defines,
+    '_stripixes': _stripixes,
+    '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
+    '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+    '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+    '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
 
-    '__libversionflags'      : __libversionflags,
-    '__SHLIBVERSIONFLAGS'    : '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}',
-    '__LDMODULEVERSIONFLAGS' : '${__libversionflags(__env__,"LDMODULEVERSION","_LDMODULEVERSIONFLAGS")}',
-    '__DSHLIBVERSIONFLAGS'   : '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
+    '__libversionflags': __libversionflags,
+    '__SHLIBVERSIONFLAGS': '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}',
+    '__LDMODULEVERSIONFLAGS': '${__libversionflags(__env__,"LDMODULEVERSION","_LDMODULEVERSIONFLAGS")}',
+    '__DSHLIBVERSIONFLAGS': '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',
+    '__lib_either_version_flag': __lib_either_version_flag,
 
-    'TEMPFILE'      : NullCmdGenerator,
+    'TEMPFILE': NullCmdGenerator,
     'TEMPFILEARGJOIN': ' ',
-    'Dir'           : Variable_Method_Caller('TARGET', 'Dir'),
-    'Dirs'          : Variable_Method_Caller('TARGET', 'Dirs'),
-    'File'          : Variable_Method_Caller('TARGET', 'File'),
-    'RDirs'         : Variable_Method_Caller('TARGET', 'RDirs'),
+    'TEMPFILEARGESCFUNC': SCons.Subst.quote_spaces,
+    'Dir': Variable_Method_Caller('TARGET', 'Dir'),
+    'Dirs': Variable_Method_Caller('TARGET', 'Dirs'),
+    'File': Variable_Method_Caller('TARGET', 'File'),
+    'RDirs': Variable_Method_Caller('TARGET', 'RDirs'),
 }
 
 # Local Variables:

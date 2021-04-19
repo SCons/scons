@@ -53,7 +53,7 @@ A list of all legal prefixes for library file names.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
-and suffixes in the &cv-LIBSUFFIXES; list.
+and suffixes from the &cv-link-LIBSUFFIXES; list.
 </para>
 </summary>
 </cvar>
@@ -76,7 +76,7 @@ to reflect the names of the libraries they create.
 <para>
 A list of all legal suffixes for library file names.
 When searching for library dependencies,
-SCons will look for files with prefixes, in the &cv-LIBPREFIXES; list,
+SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
 and these suffixes.
 </para>
@@ -274,4 +274,33 @@ The directory to create the tempfile in.
 </para>
 </summary>
 </cvar>
+
+<cvar name="TEMPFILEARGESCFUNC">
+<summary>
+<para>
+A default argument escape function is ``SCons.Subst.quote_spaces``.
+If you need to apply extra operations on a command argument before
+writing to a temporary file(fix Windows slashes, normalize paths, etc.),
+please set `TEMPFILEARGESCFUNC` variable to a custom function. Example::
+</para>
+
+<example_commands>
+import sys
+import re
+from SCons.Subst import quote_spaces
+
+WINPATHSEP_RE = re.compile(r"\\([^\"'\\]|$)")
+
+def tempfile_arg_esc_func(arg):
+    arg = quote_spaces(arg)
+    if sys.platform != "win32":
+        return arg
+    # GCC requires double Windows slashes, let's use UNIX separator
+    return WINPATHSEP_RE.sub(r"/\1", arg)
+
+env["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
+</example_commands>
+</summary>
+</cvar>
+
 </sconsdoc>

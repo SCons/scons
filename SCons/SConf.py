@@ -598,7 +598,7 @@ class SConfBase:
         f = "conftest"
 
         if text is not None:
-            textSig = SCons.Util.MD5signature(sourcetext)
+            textSig = SCons.Util.hash_signature(sourcetext)
             textSigCounter = str(_ac_build_counter[textSig])
             _ac_build_counter[textSig] += 1
 
@@ -617,7 +617,7 @@ class SConfBase:
             target = None
 
         action = builder.builder.action.get_contents(target=target, source=[source], env=self.env)
-        actionsig = SCons.Util.MD5signature(action)
+        actionsig = SCons.Util.hash_signature(action)
         f = "_".join([f, actionsig])
 
         pref = self.env.subst( builder.builder.prefix )

@@ -42,23 +42,19 @@ be able to depend on any other type of "thing."
 
 import collections
 import copy
-from itertools import chain
-
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
+from itertools import chain, zip_longest
 
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
 import SCons.Executor
 import SCons.Memoize
 import SCons.Util
-from SCons.Util import MD5signature
+from SCons.Util import hash_signature
 
 from SCons.Debug import Trace
 
 from SCons.compat import NoSlotsPyPy
+from SCons.Debug import logInstanceCreation, Trace
+from SCons.Util import MD5signature
 
 print_duplicate = 0
 
@@ -869,10 +865,12 @@ class Node(object, metaclass=NoSlotsPyPy):
         self.clear_memoized_values()
         self.ninfo = self.new_ninfo()
         self.executor_cleanup()
-        try:
-            delattr(self, '_calculated_sig')
-        except AttributeError:
-            pass
+        for attr in ['cachedir_csig', 'cachesig', 'contentsig']:
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                pass
+        self.cached = 0
         self.includes = None
 
     def clear_memoized_values(self):
@@ -892,7 +890,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         than simply examining the builder attribute directly ("if
         node.builder: ..."). When the builder attribute is examined
         directly, it ends up calling __getattr__ for both the __len__
-        and __nonzero__ attributes on instances of our Builder Proxy
+        and __bool__ attributes on instances of our Builder Proxy
         class(es), generating a bazillion extra calls and slowing
         things down immensely.
         """
@@ -1173,7 +1171,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         if self.has_builder():
             binfo.bact = str(executor)
-            binfo.bactsig = MD5signature(executor.get_contents())
+            binfo.bactsig = hash_signature(executor.get_contents())
 
         if self._specific_sources:
             sources = [s for s in self.sources if s not in ignore_set]
@@ -1211,7 +1209,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             return self.ninfo.csig
         except AttributeError:
             ninfo = self.get_ninfo()
-            ninfo.csig = MD5signature(self.get_contents())
+            ninfo.csig = hash_signature(self.get_contents())
             return self.ninfo.csig
 
     def get_cachedir_csig(self):
@@ -1502,7 +1500,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         if self.has_builder():
             contents = self.get_executor().get_contents()
-            newsig = MD5signature(contents)
+            newsig = hash_signature(contents)
             if bi.bactsig != newsig:
                 if t: Trace(': bactsig %s != newsig %s' % (bi.bactsig, newsig))
                 result = True

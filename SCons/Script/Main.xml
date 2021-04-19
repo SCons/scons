@@ -802,11 +802,24 @@ The settable variables with their associated command-line options are:
 </entry><entry>
 <option>--diskcheck</option>
 </entry></row>
-<row><entry>
+
+    <row><entry>
 <varname>duplicate</varname>
 </entry><entry>
 <option>--duplicate</option>
 </entry></row>
+
+
+    <row>
+        <entry>
+            <varname>experimental</varname>
+        </entry>
+        <entry>
+            <option>--experimental</option>
+        </entry>
+    </row>
+
+
 <row><entry>
 <varname>help</varname>
 </entry><entry>

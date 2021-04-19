@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 
 import TestSCons
@@ -33,23 +32,6 @@ test = TestSCons.TestSCons()
 
 import zipfile
 
-def zipfile_contains(zipfilename, names):
-    """Returns True if zipfilename contains all the names, False otherwise."""
-    zf=zipfile.ZipFile(zipfilename, 'r')
-    if type(names)==type(''):
-        names=[names]
-    for name in names:
-        try:
-            info=zf.getinfo(name)
-        except KeyError as e:     # name not found
-            zf.close()
-            return False
-    return True
-
-def zipfile_files(fname):
-    """Returns all the filenames in zip file fname."""
-    zf = zipfile.ZipFile(fname, 'r')
-    return [x.filename for x in zf.infolist()]
 
 test.subdir('sub1')
 test.subdir(['sub1', 'sub2'])
@@ -69,13 +51,12 @@ test.run(arguments = 'aaa.zip', stderr = None)
 test.must_exist('aaa.zip')
 
 # TEST: Zip file should contain 'file1', not 'sub1/file1', because of ZIPROOT.
-zf=zipfile.ZipFile('aaa.zip', 'r')
-test.fail_test(zf.testzip() is not None)
-zf.close()
+with zipfile.ZipFile('aaa.zip', 'r') as zf:
+    test.fail_test(zf.testzip() is not None)
 
-files=zipfile_files('aaa.zip')
-test.fail_test(zipfile_files('aaa.zip') != ['file1'],
-               message='Zip file aaa.zip has wrong files: %s'%repr(files))
+files = test.zipfile_files('aaa.zip')
+test.fail_test(test.zipfile_files('aaa.zip') != ['file1'],
+               message='Zip file aaa.zip has wrong files: %s' % repr(files))
 
 ###
 
@@ -84,13 +65,12 @@ test.run(arguments = 'bbb.zip', stderr = None)
 test.must_exist('bbb.zip')
 
 # TEST: Zip file should contain 'sub2/file2', not 'sub1/sub2/file2', because of ZIPROOT.
-zf=zipfile.ZipFile('bbb.zip', 'r')
-test.fail_test(zf.testzip() is not None)
-zf.close()
+with zipfile.ZipFile('bbb.zip', 'r') as zf:
+    test.fail_test(zf.testzip() is not None)
 
-files=zipfile_files('bbb.zip')
-test.fail_test(zipfile_files('bbb.zip') != ['file2', 'sub2/file2'],
-               message='Zip file bbb.zip has wrong files: %s'%repr(files))
+files = test.zipfile_files('bbb.zip')
+test.fail_test(test.zipfile_files('bbb.zip') != ['file2', 'sub2/file2'],
+               message='Zip file bbb.zip has wrong files: %s' % repr(files))
 
 
 test.pass_test()

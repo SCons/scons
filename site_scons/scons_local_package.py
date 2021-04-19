@@ -1,4 +1,6 @@
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -59,6 +61,12 @@ def install_local_package_files(env):
     for bf in basedir_files:
         fn = os.path.basename(bf)
         all_local_installed.append(env.SCons_revision('#/build/scons-local/%s'%fn, bf))
+
+    # Now copy manpages into scons-local package
+    built_manpage_files =  env.Glob('build/doc/man/*.1')
+    for bmp in built_manpage_files:
+        fn = os.path.basename(str(bmp))
+        all_local_installed.append(env.SCons_revision('#/build/scons-local/%s'%fn, bmp))
 
     rename_files = [('scons-${VERSION}.bat', 'scripts/scons.bat'),
                     ('scons-README', 'README-local'),

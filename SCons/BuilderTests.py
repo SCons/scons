@@ -118,10 +118,8 @@ class Environment:
         self.d[item] = var
     def __getitem__(self, item):
         return self.d[item]
-    def __contains__(self, item):
-        return self.d.__contains__(item)
-    def has_key(self, item):
-        return item in self.d
+    def __contains__(self, key):
+        return key in self.d
     def keys(self):
         return list(self.d.keys())
     def get(self, key, value=None):
@@ -207,13 +205,14 @@ class BuilderTestCase(unittest.TestCase):
         x = builder.overrides['OVERRIDE']
         assert x == 'x', x
 
-    def test__nonzero__(self):
-        """Test a builder raising an exception when __nonzero__ is called
-        """
+    def test__bool__(self):
+        """Test a builder raising an exception when __bool__ is called. """
+
+        # basic test: explicitly call it
         builder = SCons.Builder.Builder(action="foo")
         exc_caught = None
         try:
-            builder.__nonzero__()
+            builder.__bool__()
         except SCons.Errors.InternalError:
             exc_caught = 1
         assert exc_caught, "did not catch expected InternalError exception"
@@ -221,12 +220,18 @@ class BuilderTestCase(unittest.TestCase):
         class Node:
              pass
 
+        # the interesting test: checking the attribute this way
+        # should call back to Builder.__bool__ - so we can tell
+        # people not to check that way (for performance).
+        # TODO: workaround #3860: with just a "pass" in the check body,
+        # py3.10a optimizes out the whole thing, so add a "real" stmt
         n = Node()
         n.builder = builder
         exc_caught = None
         try:
             if n.builder:
-                pass
+                #pass
+                _ = True
         except SCons.Errors.InternalError:
             exc_caught = 1
         assert exc_caught, "did not catch expected InternalError exception"

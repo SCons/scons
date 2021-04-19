@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT Licenxe
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that the $INSTALLSTR variable is displayed when we install a file.
@@ -36,16 +35,18 @@ test = TestSCons.TestSCons()
 
 test.subdir('install')
 
+# Check that spaces aren't stripped in INSTALLSTR  by using
+# extra whitespace in the string (issue 2018)
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-env = Environment(tools=[], INSTALLSTR = 'INSTALL $SOURCE => $TARGET!')
+env = Environment(tools=[], INSTALLSTR='INSTALL  $SOURCE => $TARGET!')
 env.Install('install', 'file')
 """)
 
 test.write('file', "file\n")
 
 test.run(stdout=test.wrap_stdout("""\
-INSTALL file => %s!
+INSTALL  file => %s!
 """) % os.path.join('install', 'file'))
 
 test.must_match(['install', 'file'], "file\n")

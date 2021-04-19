@@ -1,17 +1,8 @@
 # -*- coding: utf-8; -*-
-
-"""SCons.Tool.clang
-
-Tool-specific initialization for clang.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,8 +23,16 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+"""SCons.Tool.clang
 
-# __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+Tool-specific initialization for clang.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
+
 
 # Based on SCons/Tool/gcc.py by Paweł Tomulik 2014 as a separate tool.
 # Brought into the SCons mainline by Russel Winder 2017.
@@ -84,8 +83,7 @@ def generate(env):
         # clang -dumpversion is of no use
         with pipe.stdout:
             line = pipe.stdout.readline()
-        if sys.version_info[0] > 2:
-            line = line.decode()
+        line = line.decode()
         match = re.search(r'clang +version +([0-9]+(?:\.[0-9]+)+)', line)
         if match:
             env['CCVERSION'] = match.group(1)

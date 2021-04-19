@@ -412,9 +412,6 @@ class DummyEnv:
     def __contains__(self, key):
         return key in self.dict
 
-    def has_key(self, name):
-        return name in self.dict
-
     def get(self, name, value=None):
         if name in self.dict:
             return self.dict[name]
@@ -564,17 +561,20 @@ def DummyEnumKey(key, index):
         rv = key.keyarray[index]
     except IndexError:
         raise SCons.Util.RegError
-#    print "Enum Key",key.name,"[",index,"] =>",rv
+    # DEBUG
+    # print "Enum Key",key.name,"[",index,"] =>",rv
     return rv
 
 def DummyEnumValue(key, index):
     rv = key.valindex(index)
-#    print "Enum Value",key.name,"[",index,"] =>",rv
+    # DEBUG
+    # print "Enum Value",key.name,"[",index,"] =>",rv
     return rv
 
 def DummyQueryValue(key, value):
     rv = key.value(value)
-#    print "Query Value",key.name+"\\"+value,"=>",rv
+    # DEBUG
+    # print "Query Value",key.name+"\\"+value,"=>",rv
     return rv
 
 def DummyExists(path):
@@ -726,8 +726,18 @@ class msvsTestCase(unittest.TestCase):
             for param_cppdefines, expected_cppdefines in tests_cppdefines:
                 for param_cpppaths, expected_cpppaths in tests_cpppaths:
                     for param_cppflags, expected_cppflags in tests_cppflags:
-                        print('Testing %s. with :\n  variant = %s \n  cmdargs = "%s" \n  cppdefines = "%s" \n  cpppaths = "%s" \n  cppflags = "%s"' % \
-                              (str_function_test, list_variant, param_cmdargs, param_cppdefines, param_cpppaths, param_cppflags))
+                        # DEBUG:
+                        # print(
+                        #     'Testing %s. with :\n  variant = %s \n  cmdargs = "%s" \n  cppdefines = "%s" \n  cpppaths = "%s" \n  cppflags = "%s"'
+                        #     % (
+                        #         str_function_test,
+                        #         list_variant,
+                        #         param_cmdargs,
+                        #         param_cppdefines,
+                        #         param_cpppaths,
+                        #         param_cppflags,
+                        #     )
+                        # )
                         param_configs = []
                         expected_configs = {}
                         for platform in ['Win32', 'x64']:
@@ -959,7 +969,8 @@ if __name__ == "__main__":
     ]
 
     for test_class in test_classes:
-        print("TEST: ", test_class.__doc__)
+        # DEBUG
+        # print("TEST: ", test_class.__doc__)
         back_osenv = copy.deepcopy(os.environ)
         try:
             # XXX: overriding the os.environ is bad, but doing it

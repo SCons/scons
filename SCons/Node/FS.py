@@ -50,7 +50,7 @@ import SCons.Node
 import SCons.Node.Alias
 import SCons.Subst
 import SCons.Util
-from SCons.Util import MD5signature, MD5filesignature, MD5collect
+from SCons.Util import hash_signature, hash_file_signature, hash_collect
 import SCons.Warnings
 
 print_duplicate = 0
@@ -434,13 +434,18 @@ class EntryProxy(SCons.Util.Proxy):
 
     # In PY3 if a class defines __eq__, then it must explicitly provide
     # __hash__.  Since SCons.Util.Proxy provides __eq__ we need the following
-    # see: https://docs.python.org/3.1/reference/datamodel.html#object.__hash__
+    # see: https://docs.python.org/3/reference/datamodel.html#object.__hash__
     __hash__ = SCons.Util.Delegate('__hash__')
 
     def __get_abspath(self):
         entry = self.get()
         return SCons.Subst.SpecialAttrWrapper(entry.get_abspath(),
                                              entry.name + "_abspath")
+
+    def __get_relpath(self):
+        entry = self.get()
+        return SCons.Subst.SpecialAttrWrapper(entry.get_relpath(),
+                                             entry.name + "_relpath")
 
     def __get_filebase(self):
         name = self.get().name
@@ -510,6 +515,7 @@ class EntryProxy(SCons.Util.Proxy):
                          "srcdir"   : __get_srcdir,
                          "dir"      : __get_dir,
                          "abspath"  : __get_abspath,
+                         "relpath"  : __get_relpath,
                          "filebase" : __get_filebase,
                          "suffix"   : __get_suffix,
                          "file"     : __get_file,
@@ -757,12 +763,11 @@ class Base(SCons.Node.Node):
 
     if hasattr(os, 'symlink'):
         def islink(self):
-            try: st = self.fs.lstat(self.get_abspath())
-            except os.error: return 0
-            return stat.S_ISLNK(st[stat.ST_MODE])
+            st = self.lstat()
+            return st is not None and stat.S_ISLNK(st[stat.ST_MODE])
     else:
         def islink(self):
-            return 0                    # no symlinks
+            return False                    # no symlinks
 
     def is_under(self, dir):
         if self is dir:
@@ -830,6 +835,10 @@ class Base(SCons.Node.Node):
     def get_labspath(self):
         """Get the absolute path of the file."""
         return self.dir.entry_labspath(self.name)
+
+    def get_relpath(self):
+        """Get the path of the file relative to the root SConstruct file's directory."""
+        return os.path.relpath(self.dir.entry_abspath(self.name), self.fs.SConstruct_dir.get_abspath())
 
     def get_internal_path(self):
         if self.dir._path == '.':
@@ -938,10 +947,11 @@ class Base(SCons.Node.Node):
 
 # Dict that provides a simple backward compatibility
 # layer for the Node attributes 'abspath', 'labspath',
-# 'path', 'tpath' and 'path_elements'.
+# 'relpath', 'path', 'tpath' and 'path_elements'.
 # @see Base.__getattr__ above
 node_bwcomp = {'abspath' : Base.get_abspath,
                'labspath' : Base.get_labspath,
+               'relpath' : Base.get_relpath,
                'path' : Base.get_internal_path,
                'tpath' : Base.get_tpath,
                'path_elements' : Base.get_path_elements,
@@ -980,7 +990,7 @@ class Entry(Base):
 
     def disambiguate(self, must_exist=None):
         """
-        """ 
+        """
         if self.isfile():
             self.__class__ = File
             self._morph()
@@ -1865,7 +1875,7 @@ class Dir(Base):
         node is called which has a child directory, the child
         directory should return the hash of its contents."""
         contents = self.get_contents()
-        return MD5signature(contents)
+        return hash_signature(contents)
 
     def do_duplicate(self, src):
         pass
@@ -2630,7 +2640,7 @@ class File(Base):
     BuildInfo = FileBuildInfo
 
     # Although the command-line argument is in kilobytes, this is in bytes.
-    md5_chunksize = 65536
+    hash_chunksize = 65536
 
     def diskcheck_match(self):
         diskcheck_match(self, self.isdir,
@@ -2693,11 +2703,13 @@ class File(Base):
     def scanner_key(self):
         return self.get_suffix()
 
-    def get_contents(self):
+    def get_contents(self) -> bytes:
+        """Return the contents of the file as bytes."""
         return SCons.Node._get_contents_map[self._func_get_contents](self)
 
-    def get_text_contents(self):
-        """
+    def get_text_contents(self) -> str:
+        """Return the contents of the file in text form.
+
         This attempts to figure out what the encoding of the text is
         based upon the BOM bytes, and then decodes the contents so that
         it's a valid python string.
@@ -2721,18 +2733,17 @@ class File(Base):
             try:
                 return contents.decode('latin-1')
             except UnicodeDecodeError as e:
-                return contents.decode('utf-8', error='backslashreplace')
+                return contents.decode('utf-8', errors='backslashreplace')
 
-
-    def get_content_hash(self):
+    def get_content_hash(self) -> str:
         """
-        Compute and return the MD5 hash for this file.
+        Compute and return the hash for this file.
         """
         if not self.rexists():
-            return MD5signature('')
+            return hash_signature(SCons.Util.NOFILE)
         fname = self.rfile().get_abspath()
         try:
-            cs = MD5filesignature(fname, chunksize=File.md5_chunksize)
+            cs = hash_file_signature(fname, chunksize=File.hash_chunksize)
         except EnvironmentError as e:
             if not e.filename:
                 e.filename = fname
@@ -2740,7 +2751,7 @@ class File(Base):
         return cs
 
     @SCons.Memoize.CountMethodCall
-    def get_size(self):
+    def get_size(self) -> int:
         try:
             return self._memo['get_size']
         except KeyError:
@@ -2749,14 +2760,14 @@ class File(Base):
         if self.rexists():
             size = self.rfile().getsize()
         else:
-            size = 0
+            # sentinel value for doesn't exist, even in repository
+            size = -1
 
         self._memo['get_size'] = size
-
         return size
 
     @SCons.Memoize.CountMethodCall
-    def get_timestamp(self):
+    def get_timestamp(self) -> int:
         try:
             return self._memo['get_timestamp']
         except KeyError:
@@ -2768,7 +2779,6 @@ class File(Base):
             timestamp = 0
 
         self._memo['get_timestamp'] = timestamp
-
         return timestamp
 
     convert_copy_attrs = [
@@ -2779,7 +2789,6 @@ class File(Base):
         'bactsig',
         'ninfo',
     ]
-
 
     convert_sig_attrs = [
         'bsourcesigs',
@@ -3173,7 +3182,7 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
-    def get_max_drift_csig(self):
+    def get_max_drift_csig(self) -> str:
         """
         Returns the content signature currently stored for this node
         if it's been unmodified longer than the max_drift value, or the
@@ -3199,15 +3208,8 @@ class File(Base):
 
         return None
 
-    def get_csig(self):
-        """
-        Generate a node's content signature, the digested signature
-        of its content.
-
-        node - the node
-        cache - alternate node to use for the signature cache
-        returns - the content signature
-        """
+    def get_csig(self) -> str:
+        """Generate a node's content signature."""
         ninfo = self.get_ninfo()
         try:
             return ninfo.csig
@@ -3216,9 +3218,11 @@ class File(Base):
 
         csig = self.get_max_drift_csig()
         if csig is None:
-
             try:
-                if self.get_size() < File.md5_chunksize:
+                size = self.get_size()
+                if size == -1:
+                    contents = SCons.Util.NOFILE
+                elif size < File.hash_chunksize:
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()
@@ -3230,7 +3234,7 @@ class File(Base):
                 csig = ''
             else:
                 if not csig:
-                    csig = SCons.Util.MD5signature(contents)
+                    csig = SCons.Util.hash_signature(contents)
 
         ninfo.csig = csig
 
@@ -3617,9 +3621,10 @@ class File(Base):
         except AttributeError:
             pass
 
-        cachedir, cachefile = self.get_build_env().get_CacheDir().cachepath(self)
+        cache = self.get_build_env().get_CacheDir()
+        cachedir, cachefile = cache.cachepath(self)
         if not self.exists() and cachefile and os.path.exists(cachefile):
-            self.cachedir_csig = MD5filesignature(cachefile, File.md5_chunksize)
+            self.cachedir_csig = cache.get_cachedir_csig(self)
         else:
             self.cachedir_csig = self.get_csig()
         return self.cachedir_csig
@@ -3639,7 +3644,7 @@ class File(Base):
 
         executor = self.get_executor()
 
-        result = self.contentsig = MD5signature(executor.get_contents())
+        result = self.contentsig = hash_signature(executor.get_contents())
         return result
 
     def get_cachedir_bsig(self):
@@ -3670,7 +3675,7 @@ class File(Base):
         sigs.append(self.get_internal_path())
 
         # Merge this all into a single signature
-        result = self.cachesig = MD5collect(sigs)
+        result = self.cachesig = hash_collect(sigs)
         return result
 
 default_fs = None
@@ -3724,7 +3729,10 @@ class FileFinder:
         return None
 
     def _find_file_key(self, filename, paths, verbose=None):
-        return (filename, paths)
+        # Note: paths could be a list, which is not hashable. If it is, convert
+        # it to a tuple, which is hashable.
+        paths_entry = tuple(paths) if isinstance(paths, list) else paths
+        return (filename, paths_entry)
 
     @SCons.Memoize.CountDictCall(_find_file_key)
     def find_file(self, filename, paths, verbose=None):

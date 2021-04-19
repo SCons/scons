@@ -1,0 +1,12 @@
+import SCons
+class CustomCacheDir(SCons.CacheDir.CacheDir):
+
+    @classmethod
+    def copy_to_cache(cls, env, src, dst):
+        print("MY_CUSTOM_CACHEDIR_CLASS")
+        super().copy_to_cache(env, src, dst)
+
+env = Environment(tools=[])
+env['CACHEDIR_CLASS'] = CustomCacheDir
+env.CacheDir('cache')
+env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))

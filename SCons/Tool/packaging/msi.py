@@ -32,7 +32,7 @@ import SCons
 from SCons.Action import Action
 from SCons.Builder import Builder
 
-from xml.dom.minidom import *
+from xml.dom.minidom import Document
 from xml.sax.saxutils import escape
 
 from SCons.Tool.packaging import stripinstallbuilder

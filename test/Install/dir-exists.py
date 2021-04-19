@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT Licenxe
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test using Install() on directories that exist.
@@ -49,7 +48,7 @@ Mkdir("b")
 echo hi > a%sf
 Install directory: "a" as "b%sa"
 """%(os.sep, os.sep)
-test.run(arguments = ["-Q"], stdout = expect)
+test.run(arguments=["-Q"], stdout=expect)
 
 test.must_exist(test.workpath('a', 'f'))
 test.must_exist(test.workpath('b', 'a', 'f'))

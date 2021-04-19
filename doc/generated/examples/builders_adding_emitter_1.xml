@@ -1,0 +1,13 @@
+<screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q --tree=prune</userinput>
+cc -o hello.o -c hello.c
+cc -o hello -Wl,-Map=hello.map,--cref hello.o
++-.
+  +-SConstruct
+  +-hello
+  | +-hello.o
+  |   +-hello.c
+  +-hello.c
+  +-hello.map
+  | +-[hello.o]
+  +-[hello.o]
+</screen>

@@ -34,7 +34,7 @@ if test.coverage_run():
     test.skip_test("This test replaces the exit function which is needed by coverage to write test data; skipping test.")
 
 sconstruct = """
-from SCons.exitfuncs import *
+from SCons.exitfuncs import register
 
 def x1():
     print("running x1")

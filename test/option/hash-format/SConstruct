@@ -1,0 +1,27 @@
+import atexit
+import sys
+
+hash_format = GetOption('hash_format')
+if not hash_format:
+    # Override to SHA-256 to validate that override is effective
+    hash_format = 'sha256'
+    SetOption('hash_format', hash_format)
+
+DefaultEnvironment(tools=[])
+B = Builder(action = r'$PYTHON build.py $TARGETS $SOURCES')
+env = Environment(tools=[], BUILDERS = { 'B' : B })
+env['PYTHON'] = sys.executable
+f1 = env.B(target = 'f1.out', source = 'f1.in')
+
+def VerifyCsig():
+    csig = f1[0].get_csig()
+    if hash_format == 'md5':
+        assert csig == 'fe06ae4170d4fead2c958439c738859e', csig
+    elif hash_format == 'sha1':
+        assert csig == 'efe5c6daa743540e9561934e3e18628b336013f7', csig
+    elif hash_format == 'sha256':
+        assert csig == 'a28bb79aa5ca8a5eb2dc5910a103d1a6312e79d73ed8054787cee78cc532a6aa', csig
+    elif hash_format != 'testfailure':
+        raise Exception('Hash format %s is not supported in '
+                        'test/option/hash-format/SConstruct' % hash_format)
+atexit.register(VerifyCsig)

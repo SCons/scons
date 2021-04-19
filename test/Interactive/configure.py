@@ -53,9 +53,9 @@ import re
 
 # The order of this list is related to the order of the counts below
 expected_patterns = [
-    re.compile("^scons>>> .*foo\.cpp.*$"),
-    re.compile("^scons>>> scons: `foo.obj' is up to date\.$"),
-    re.compile("^scons>>>\s*$"),
+    re.compile(r"^scons>>> .*foo\.cpp.*$"),
+    re.compile(r"^scons>>> scons: `foo.obj' is up to date\.$"),
+    re.compile(r"^scons>>>\s*$"),
 ]
 
 # The order of this list is related to the order of the regular expressions above

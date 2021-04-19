@@ -36,7 +36,8 @@ jobs:
   # allow coverage to fail, so we can still do testing for all platforms
   allow_failures:
     - python: pypy3
-    
+    - python: 3.10-dev
+
   include:
     - &test_job
       script: python runtest.py -a -t -j 2 || if [[ $? == 2 ]]; then true; else false; fi
@@ -49,18 +50,25 @@ jobs:
 
     - <<: *test_job
       python: 3.6
-      
-    - <<: *test_job
-      python: 3.7
-      dist: xenial  # required for Python >= 3.7
+      dist: xenial
+
+    # to keep number of runs down, skip this since tested in 'coverage'
+    #- <<: *test_job
+    #  python: 3.7
+    #  dist: xenial  # required for Python >= 3.7
 
     - <<: *test_job
       python: 3.8
-      dist: bionic  # required for Python >= 3.8
+      dist: bionic
 
     - <<: *test_job
-      python: 3.9-dev
-      dist: bionic  # required for Python >= 3.8
+      python: 3.9
+      dist: focal
+
+    - <<: *test_job
+      python: 3.10-dev
+      dist: focal
+      env: BUILD_LXML_FROM_GIT=1
 
     - &coverage_jobs
       dist: bionic
@@ -77,18 +85,3 @@ jobs:
         - coverage report
         - coverage xml -i -o coverage_xml.xml
         - codecov -X gcov --file coverage_xml.xml
-
-    - &scons_build_job
-      name: SCons Build
-      python: 3.7
-      install:
-        - sudo apt-get -y install docbook-xml docbook-xsl xsltproc libxml2-dev libxslt-dev fop docbook-xsl-doc-pdf
-        - sudo apt-get -y --no-install-recommends install texlive texlive-latex3 biber texmaker ghostscript texlive-bibtex-extra texlive-latex-extra texlive-font-utils latexmk
-        - pip install -r requirements.txt
-      script:
-        - python bin/docs-update-generated.py
-        - python bin/docs-validate.py
-        - python bin/docs-create-example-outputs.py
-        - python scripts/scons.py
-        - ls -l build/dist
-        - python build/scons-local/scons.py --version

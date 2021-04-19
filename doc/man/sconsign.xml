@@ -49,67 +49,58 @@
 
 
 <refsect1 id='description'><title>DESCRIPTION</title>
-<para>The
-<command>sconsign</command>
-command
-displays the contents of one or more signature database
-(<firstterm>sconsign</firstterm>)
-files used by the <command>scons</command> build tool.
+<para>
+Displays the contents of one or more
+<firstterm>sconsign files</firstterm>,
+the signature database files
+used by the <application>SCons</application> build tool.
 </para>
 
 <para>By default,
 <command>sconsign</command>
 dumps the entire contents of the
 sconsign file(s).
-Without the verbose option,
-each entry is printed in the following format:</para>
+Without options,
+individual dependency entries are printed in the following format:</para>
 
-<literallayout class="monospaced">
-file: signature timestamp length
-        implicit_dependency_1: signature timestamp length
-        implicit_dependency_2: signature timestamp length
+<screen>
+depfile: signature timestamp length
+        implicit_dependency_1: content_signature timestamp length
+        implicit_dependency_2: content_signature timestamp length
         ...
         action_signature [action string]
-</literallayout>
+</screen>
 
 <para><emphasis role="bold">None</emphasis>
-is printed
-in place of any missing timestamp, <firstterm>build signature</firstterm>
-(<emphasis role="bold">bsig</emphasis>),
-or <firstterm>content signature</firstterm>
+is printed in place of any missing timestamp,
+ <firstterm>content signature</firstterm>
 (<emphasis role="bold">csig</emphasis>)
-values for
-any entry
+or
+<firstterm>build action signature</firstterm>
+values for any entry
 or any of its dependencies.
 If the entry has no implicit dependencies,
 or no build action,
-the lines are simply omitted.</para>
-
-<para>
-The verbose option expands the display into a more human
-readable format.
-</para>
+those lines are omitted.</para>
 
 <para>By default,
 <command>sconsign</command>
 assumes that any
 <replaceable>file</replaceable>
 arguments that end with a
-<filename>.dbm</filename>
+<filename>.dblite</filename>
 suffix contains
 signature entries for
 more than one directory
 (that is,
 was specified by the
-<emphasis role="bold">SConsignFile</emphasis>
+<function>SConsignFile</function>
 function).
 Any
 <replaceable>file</replaceable>
-argument that ends in
-<filename>.dblite</filename>
-is assumed to be a traditional
-sconsign
-file containing the signature entries
+argument that has no suffix
+is assumed to be an old-style
+sconsign file containing the signature entries
 for a single directory.
 If neither of those is true,
 <command>sconsign</command>
@@ -127,7 +118,7 @@ If there are no
 <replaceable>file</replaceable>
 arguments, the name
 <filename>.sconsign.dblite</filename>
-is assumed.
+is assumed by default.
 </para>
 
 </refsect1>
@@ -145,7 +136,7 @@ and the format:</para>
     <option>--action</option>
   </term>
   <listitem>
-<para>Prints the build action information
+<para>Prints only the build action information
 for all entries or the specified entries.</para>
 
   </listitem>
@@ -156,7 +147,7 @@ for all entries or the specified entries.</para>
     <option>--csig</option>
   </term>
   <listitem>
-<para>Prints the content signature (csig) information
+<para>Prints only the content signature (csig) information
 for all entries or the specified entries.</para>
 
   </listitem>
@@ -169,11 +160,11 @@ for all entries or the specified entries.</para>
   <listitem>
 <para>When the signatures are being
 read from a
-<filename>.dbm</filename>
+<filename>.dblite</filename>
 file, or the
-<option>-f dbm</option>
+<option>-f dblite</option>
 or
-<option>--format=dbm</option>
+<option>--format=dblite</option>
 options are used,
 prints information about
 only the signatures
@@ -208,15 +199,15 @@ options are specified on the command line.</para>
 are in the specified
 <replaceable>FORMAT</replaceable>.
 Legal values are
-<emphasis role="bold">dbm</emphasis>
-(the DBM format used
-when the
-<emphasis role="bold">SConsignFile</emphasis>
-function is used)
-or
-<command>sconsign</command>
-(the default format
-used for an individual
+<emphasis role="bold">dblite</emphasis>
+(the SCons.dblite format used by default,
+as well as when the
+<function>SConsignFile</function>
+function is called, except when a filename argument
+of <constant>None</constant> is given)
+and
+<emphasis role="bold">sconsign</emphasis>
+(the format used for an individual
 <filename>.sconsign</filename>
 file in each directory).</para>
 

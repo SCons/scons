@@ -54,7 +54,7 @@ other modules:
 
     get_contents()
         Fetches the "contents" of an Action for signature calculation
-        plus the varlist.  This is what gets MD5 checksummed to decide
+        plus the varlist.  This is what gets checksummed to decide
         if a target needs to be rebuilt because its action changed.
 
     genstring()
@@ -122,9 +122,9 @@ from SCons.Util import is_String, is_List
 class _null:
     pass
 
-print_actions = 1
-execute_actions = 1
-print_actions_presub = 0
+print_actions = True
+execute_actions = True
+print_actions_presub = False
 
 # Use pickle protocol 1 when pickling functions for signature
 # otherwise python3 and python2 will yield different pickles
@@ -145,7 +145,7 @@ def rfile(n):
 def default_exitstatfunc(s):
     return s
 
-strip_quotes = re.compile('^[\'"](.*)[\'"]$')
+strip_quotes = re.compile(r'^[\'"](.*)[\'"]$')
 
 
 def _callable_contents(obj):
@@ -968,7 +968,7 @@ class CommandAction(_ActionAction):
         if is_String(icd) and icd[:1] == '$':
             icd = env.subst(icd)
 
-        if not icd or str(icd).lower in ('0', 'none', 'false', 'no', 'off'):
+        if not icd or str(icd).lower() in ('0', 'none', 'false', 'no', 'off'):
             return []
 
         try:
@@ -976,7 +976,7 @@ class CommandAction(_ActionAction):
         except ValueError:
             icd_int = None
 
-        if (icd_int and icd_int > 1) or icd == 'all':
+        if (icd_int and icd_int > 1) or str(icd).lower() == 'all':
             # An integer value greater than 1 specifies the number of entries
             # to scan. "all" means to scan all.
             return self._get_implicit_deps_heavyweight(target, source, env, executor, icd_int)

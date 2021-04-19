@@ -43,22 +43,6 @@ CHOCO_DEFAULT_PATH = [
     r'C:\ProgramData\chocolatey\bin'
 ]
 
-try:
-    import msvcrt
-    import win32api
-    import win32con
-except ImportError:
-    parallel_msg = \
-        "you do not seem to have the pywin32 extensions installed;\n" + \
-        "\tparallel (-j) builds may not work reliably with open Python files."
-except AttributeError:
-    parallel_msg = \
-        "your pywin32 extensions do not support file handle operations;\n" + \
-        "\tparallel (-j) builds may not work reliably with open Python files."
-else:
-    parallel_msg = None
-
-
 if False:
     # Now swap out shutil.filecopy and filecopy2 for win32 api native CopyFile
     try:

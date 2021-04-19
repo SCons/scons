@@ -1,6 +1,6 @@
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons</userinput>
 scons: Reading SConscript files ...
-{'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin'}
+{'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin:/snap/bin'}
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: `.' is up to date.

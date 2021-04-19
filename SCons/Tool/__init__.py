@@ -1,20 +1,6 @@
-"""SCons.Tool
-
-SCons tool selection.
-
-This looks for modules that define a callable object that can modify
-a construction environment as appropriate for a given tool (or tool
-chain).
-
-Note that because this subsystem just *selects* a callable that can
-modify a construction environment, it's possible for people to define
-their own "tool specification" in an arbitrary callable function.  No
-one needs to use or tie in to this subsystem in order to roll their own
-tool specifications.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -35,7 +21,22 @@ tool specifications.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool
+
+SCons tool selection.
+
+This looks for modules that define a callable object that can modify
+a construction environment as appropriate for a given tool (or tool
+chain).
+
+Note that because this subsystem just *selects* a callable that can
+modify a construction environment, it's possible for people to define
+their own "tool specification" in an arbitrary callable function.  No
+one needs to use or tie in to this subsystem in order to roll their own
+tool specifications.
+"""
+
+
 
 import sys
 import os
@@ -50,8 +51,7 @@ import SCons.Scanner.D
 import SCons.Scanner.LaTeX
 import SCons.Scanner.Prog
 import SCons.Scanner.SWIG
-from SCons.Tool.linkCommon import ShLibPrefixGenerator, LdModPrefixGenerator, ShLibSuffixGenerator, \
-    LdModSuffixGenerator, LibSymlinksActionFunction, LibSymlinksStrFun
+from SCons.Tool.linkCommon import LibSymlinksActionFunction, LibSymlinksStrFun
 
 DefaultToolpath = []
 
@@ -332,11 +332,15 @@ def createStaticLibBuilder(env):
     return static_lib
 
 
-def createSharedLibBuilder(env):
+def createSharedLibBuilder(env, shlib_suffix='$_SHLIBSUFFIX'):
     """This is a utility function that creates the SharedLibrary
     Builder in an Environment if it is not there already.
 
     If it is already there, we return the existing one.
+
+    Args:
+        shlib_suffix: The suffix specified for the shared library builder
+
     """
 
     try:
@@ -348,8 +352,8 @@ def createSharedLibBuilder(env):
                        LibSymlinksAction]
         shared_lib = SCons.Builder.Builder(action=action_list,
                                            emitter="$SHLIBEMITTER",
-                                           prefix=ShLibPrefixGenerator,
-                                           suffix=ShLibSuffixGenerator,
+                                           prefix="$SHLIBPREFIX",
+                                           suffix=shlib_suffix,
                                            target_scanner=ProgramScanner,
                                            src_suffix='$SHOBJSUFFIX',
                                            src_builder='SharedObject')
@@ -358,11 +362,15 @@ def createSharedLibBuilder(env):
     return shared_lib
 
 
-def createLoadableModuleBuilder(env):
+def createLoadableModuleBuilder(env, loadable_module_suffix='$_LDMODULESUFFIX'):
     """This is a utility function that creates the LoadableModule
     Builder in an Environment if it is not there already.
 
     If it is already there, we return the existing one.
+
+    Args:
+        loadable_module_suffix: The suffix specified for the loadable module builder
+
     """
 
     try:
@@ -374,8 +382,8 @@ def createLoadableModuleBuilder(env):
                        LibSymlinksAction]
         ld_module = SCons.Builder.Builder(action=action_list,
                                           emitter="$LDMODULEEMITTER",
-                                          prefix=LdModPrefixGenerator,
-                                          suffix=LdModSuffixGenerator,
+                                          prefix="$LDMODULEPREFIX",
+                                          suffix=loadable_module_suffix,
                                           target_scanner=ProgramScanner,
                                           src_suffix='$SHOBJSUFFIX',
                                           src_builder='SharedObject')
@@ -694,7 +702,7 @@ def tool_list(platform, env):
         assemblers = ['masm', 'nasm', 'gas', '386asm']
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
-        other_plat_tools = ['msvs', 'midl']
+        other_plat_tools = ['msvs', 'midl', 'wix']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]  # 'mslink']
@@ -794,7 +802,6 @@ def tool_list(platform, env):
         # TODO: merge 'install' into 'filesystem' and
         # make 'filesystem' the default
         'filesystem',
-        'wix',  # 'midl', 'msvs',
         # Parser generators
         'lex', 'yacc',
         # Foreign function interface

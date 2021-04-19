@@ -1,10 +1,8 @@
-"""
-This tests the MinGW C/C++ compiler support.
-"""
-
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,9 +22,11 @@ This tests the MinGW C/C++ compiler support.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+This tests the MinGW C/C++ compiler support.
+This test requires MinGW to be installed.
+"""
 
 import os
 import sys
@@ -41,10 +41,11 @@ if sys.platform != 'win32':
     msg = "Skipping mingw test on non-Windows platform '%s'\n" % sys.platform
     test.skip_test(msg)
 
-# This test requires MinGW to be installed:
 test.write('SConstruct',"""
-from SCons.Tool.mingw import exists
 import sys
+from SCons.Tool.mingw import exists
+
+DefaultEnvironment(tools=[])
 env = Environment()
 if exists(env):
     print('mingw exists')
@@ -59,12 +60,18 @@ test.subdir('header')
 
 # Do the actual testing:
 test.write('SConstruct',"""
-env=Environment(tools=['mingw'])
+DefaultEnvironment(tools=[])
+env = Environment(tools=['mingw'])
 assert env['CC'] == 'gcc'
 env.StaticLibrary('static', 'static.cpp')
 env.SharedLibrary('shared', 'shared.cpp')
 env.SharedLibrary('cshared', ['cshared.c', 'cshared.def'], WINDOWS_INSERT_DEF=1)
-env.Program('test', ['test.cpp', env.RES('resource.rc', CPPPATH=['header'])], LIBS=['static', 'shared', 'cshared'], LIBPATH=['.'])
+env.Program(
+    'test',
+    ['test.cpp', env.RES('resource.rc', CPPPATH=['header'])],
+    LIBS=['static', 'shared', 'cshared'],
+    LIBPATH=['.'],
+)
 """)
 
 test.write('test.cpp', '''

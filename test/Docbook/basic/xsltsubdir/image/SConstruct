@@ -1,0 +1,3 @@
+env = Environment(tools=['docbook'])
+
+SConscript('subdir/SConscript', 'env')

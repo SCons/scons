@@ -89,7 +89,7 @@ If not set, then &cv-link-F95COM; or &cv-link-FORTRANCOM;
 <summary>
 <para>
 The list of file extensions for which the F95 dialect will be used. By
-default, this is ['.f95']
+default, this is <literal>['.f95']</literal>
 </para>
 </summary>
 </cvar>
@@ -98,7 +98,7 @@ default, this is ['.f95']
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F95 dialect will be used. By default, this is empty
+F95 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>

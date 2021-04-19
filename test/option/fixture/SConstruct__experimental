@@ -1,0 +1,9 @@
+from SCons.Script.SConsOptions import experimental_features
+
+print("All Features=%s" % ','.join(sorted(experimental_features)))
+
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+
+exp = GetOption('experimental')
+print("Experimental=%s" % sorted(exp))

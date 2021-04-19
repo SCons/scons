@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,12 +24,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 
 import TestSCons
-import SCons.Platform
+
 import SCons.Defaults
+import SCons.Platform
 
 foo_c_src = "void foo() {}\n"
 
@@ -38,43 +39,62 @@ tool_list = SCons.Platform.DefaultToolList(platform, env)
 test = TestSCons.TestSCons()
 if 'gnulink' in tool_list:
     versionflags = r".+ -Wl,-soname=libfoo.so.1( .+)+"
-    soname='libfoo.so.4'
-    sonameVersionFlags=r".+ -Wl,-soname=%s( .+)+" % soname
+    soname = 'libfoo.so.4'
+    sonameVersionFlags = r".+ -Wl,-soname=%s( .+)+" % soname
 
 elif 'sunlink' in tool_list:
     versionflags = r".+ -h libfoo.so.1( .+)+"
-    soname='libfoo.so.4'
-    sonameVersionFlags=r".+ -h %s( .+)+" % soname
+    soname = 'libfoo.so.4'
+    sonameVersionFlags = r".+ -h %s( .+)+" % soname
 elif 'applelink' in tool_list:
-    versionflags = r".+ 'libfoo.1.dylib'->'libfoo.1.2.3.dylib'(.+)+"
-    soname='libfoo.4.dylib'
-    sonameVersionFlags=r".+ '%s'->'libfoo.1.2.3.dylib'(.+)+" % soname
+    versionflags = r"    'libfoo.1.dylib'->'libfoo.1.2.3.dylib'"
+    soname = 'libfoo.4.dylib'
+    sonameVersionFlags = r"    '%s'->'libfoo.1.2.3.dylib'(.+)+" % soname
 else:
     test.skip_test('No testable linkers found, skipping the test\n')
-
 
 # stdout must not contain SHLIBVERSIONFLAGS if there is no SHLIBVERSION provided
 test.write('foo.c', foo_c_src)
 test.write('SConstruct', "SharedLibrary('foo','foo.c')\n")
 test.run()
 test.fail_test(test.match_re_dotall(test.stdout(), versionflags))
-test.run(arguments = ['-c'])
+test.run(arguments=['-c'])
 
 # stdout must contain SHLIBVERSIONFLAGS if there is SHLIBVERSION provided
 test = TestSCons.TestSCons()
 test.write('foo.c', foo_c_src)
 test.write('SConstruct', "SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3')\n")
-test.run(stdout = versionflags, match = TestSCons.match_re_dotall)
-test.run(arguments = ['-c'])
+test.run(stdout=versionflags, match=TestSCons.match_re_dotall)
+test.run(arguments=['-c'])
 
-# stdout must contain SHLIBVERSIONFLAGS if there is SHLIBVERSION provided
+# stdout must contain SONAME if there is SONAME provided
 test = TestSCons.TestSCons()
 test.write('foo.c', foo_c_src)
 test.write('SConstruct', """
 SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SONAME='%s')
 """ % soname)
-test.run(stdout = sonameVersionFlags, match = TestSCons.match_re_dotall)
-test.run(arguments = ['-c'])
+test.run(stdout=sonameVersionFlags, match=TestSCons.match_re_dotall)
+test.must_exist(test.workpath(soname))
+test.run(arguments=['-c'])
+
+# stdout must contain SOVERSION if there is SOVERSION provided
+test = TestSCons.TestSCons()
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', """
+SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SOVERSION='4')
+""")
+test.run(stdout=sonameVersionFlags, match=TestSCons.match_re_dotall)
+test.must_exist(test.workpath(soname))
+test.run(arguments=['-c'])
+
+# test if both SONAME and SOVERSION are used
+test = TestSCons.TestSCons()
+test.write('foo.c', foo_c_src)
+test.write('SConstruct', """
+SharedLibrary('foo','foo.c',SHLIBVERSION='1.2.3',SONAME='%s',SOVERSION='4')
+""" % soname)
+test.run(status=2, stderr=None)
+test.must_contain_all_lines(test.stderr(), ['Ambiguous library .so naming'])
 
 test.pass_test()
 

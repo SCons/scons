@@ -157,8 +157,8 @@ class Environment:
     def __setitem__(self, item, value):
         self.d[item] = value
 
-    def has_key(self, item):
-        return item in self.d
+    def __contains__(self, key):
+        return key in self.d
 
     def get(self, key, value=None):
         return self.d.get(key, value)
@@ -1371,6 +1371,43 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=t, source=s, env=env)
         assert c == b"s4 s5", c
 
+    def test_get_implicit_deps(self):
+        """Test getting the implicit dependencies of a command Action."""
+        class SpecialEnvironment(Environment):
+            def WhereIs(self, prog):
+                return prog
+            
+            class fs:
+                def File(name):
+                    return name
+
+        env = SpecialEnvironment()
+        a = SCons.Action.CommandAction([_python_, exit_py])
+        self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_])
+
+        for false_like_value in [False, 0, None, "None", "False", "0", "NONE", "FALSE", "off", "OFF", "NO", "no"]:
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES=false_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [])
+
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES="$SUBST_VALUE", SUBST_VALUE=false_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [])
+
+        for true_like_value in [True, 1, "True", "TRUE", "1"]:
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES=true_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_])
+
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES="$SUBST_VALUE", SUBST_VALUE=true_like_value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_])
+
+        for all_like_Value in ["all", "ALL", 2, "2"]:
+            env = SpecialEnvironment(IMPLICIT_COMMAND_DEPENDENCIES=all_like_Value)
+            a = SCons.Action.CommandAction([_python_, exit_py])
+            self.assertEqual(a.get_implicit_deps(target=[], source=[], env=env), [_python_, exit_py])
+
 
 class CommandGeneratorActionTestCase(unittest.TestCase):
 
@@ -1516,6 +1553,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -1695,6 +1733,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
 
         }
 
@@ -1704,6 +1743,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 7): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 10): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1949,6 +1989,7 @@ class LazyActionTestCase(unittest.TestCase):
             (3, 7): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 8): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
+            (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -2008,6 +2049,7 @@ class ActionCallerTestCase(unittest.TestCase):
             (3, 7): b'd\x00S\x00',
             (3, 8): b'd\x00S\x00',
             (3, 9): b'd\x00S\x00',
+            (3, 10): b'd\x00S\x00',
 
         }
 
@@ -2209,6 +2251,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 7): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             (3, 8): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             (3, 9): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
+            (3, 10): bytearray(b'3, 3, 0, 0,(N.),(),(|\x00S\x00),(),()'),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2236,6 +2279,8 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
             (3, 9): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
+            (3, 10): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(
@@ -2254,6 +2299,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 7): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
             (3, 8): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
             (3, 9): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
+            (3, 10): bytearray(b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'),
         }
 
         assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(expected[

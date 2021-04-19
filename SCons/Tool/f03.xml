@@ -89,7 +89,7 @@ If not set, then &cv-link-F03COM; or &cv-link-FORTRANCOM;
 <summary>
 <para>
 The list of file extensions for which the F03 dialect will be used. By
-default, this is ['.f03']
+default, this is <literal>['.f03']</literal>
 </para>
 </summary>
 </cvar>
@@ -98,7 +98,7 @@ default, this is ['.f03']
 <summary>
 <para>
 The list of file extensions for which the compilation + preprocessor pass for
-F03 dialect will be used. By default, this is empty
+F03 dialect will be used. By default, this is empty.
 </para>
 </summary>
 </cvar>

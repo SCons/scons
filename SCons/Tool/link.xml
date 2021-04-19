@@ -245,6 +245,16 @@ set.
 The linker.
 See also &cv-link-SHLINK; for linking shared objects.
 </para>
+<para>
+On POSIX systems (those using the &t-link-link; tool),
+you should normally not change this value as it defaults
+to a "smart" linker tool which selects a compiler
+driver matching the type of source files in use.
+So for example, if you set &cv-link-CXX; to a specific
+compiler name, and are compiling C++ sources,
+the smartlink function will automatically select the same compiler
+for linking.
+</para>
 </summary>
 </cvar>
 
@@ -323,6 +333,16 @@ set.
 The linker for programs that use shared libraries.
 See also &cv-link-LINK; for linking static objects.
 </para>
+<para>
+On POSIX systems (those using the &t-link-link; tool),
+you should normally not change this value as it defaults
+to a "smart" linker tool which selects a compiler
+driver matching the type of source files in use.
+So for example, if you set &cv-link-SHCXX; to a specific
+compiler name, and are compiling C++ sources,
+the smartlink function will automatically select the same compiler
+for linking.
+</para>
 </summary>
 </cvar>
 
@@ -383,6 +403,24 @@ Variable used to hard-code SONAME for versioned shared library/loadable module.
 env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SONAME='libtest.so.2')
 </example_commands>
 The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+</summary>
+</cvar>
+
+<cvar name="SOVERSION">
+<summary>
+<para>
+This will construct the <varname>SONAME</varname> using on the base library name 
+(<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
+to create <varname>SONAME</varname>.
+<example_commands>
+env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
+</example_commands>
+The variable is used, for example, by &t-link-gnulink; linker tool.
+</para>
+<para>
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
+which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
 </para>
 </summary>
 </cvar>

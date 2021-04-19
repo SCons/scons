@@ -40,29 +40,29 @@ stylesheet <filename>utils/xmldepend.xsl</filename> by Paul DuBois is used for t
 <para>Note, that there is no support for XML catalog resolving offered! This tool calls
 the XSLT processors and PDF renderers with the stylesheets you specified, that's it.
 The rest lies in your hands and you still have to know what you're doing when
-resolving names via a catalog. 
+resolving names via a catalog.
 </para>
 <para>For activating the tool "docbook", you have to add its name to the Environment constructor,
 like this
 </para>
 <screen>env = Environment(tools=['docbook'])
 </screen>
-<para>On its startup, the Docbook tool tries to find a required <literal>xsltproc</literal> processor, and
-a PDF renderer, e.g. <literal>fop</literal>. So make sure that these are added to your system's environment
-<literal>PATH</literal> and can be called directly, without specifying their full path.
+<para>On its startup, the &t-docbook; tool tries to find a required <literal>xsltproc</literal> processor, and
+a PDF renderer, e.g. <application>fop</application>. So make sure that these are added to your system's environment
+<envar>PATH</envar> and can be called directly without specifying their full path.
 </para>
 <para>For the most basic processing of Docbook to HTML, you need to have installed
 </para>
-<itemizedlist><listitem><para>the Python <literal>lxml</literal> binding to <literal>libxml2</literal>, or
-</para>
+<itemizedlist><listitem><para>the Python <systemitem>lxml</systemitem>
+binding to <systemitem>libxml2</systemitem>, or</para>
 </listitem>
-<listitem><para>a standalone XSLT processor, currently detected are <literal>xsltproc</literal>, <literal>saxon</literal>, <literal>saxon-xslt</literal>
-and <literal>xalan</literal>.
+<listitem><para>a standalone XSLT processor, currently detected are <application>xsltproc</application>, <application>saxon</application>, <application>saxon-xslt</application>
+and <application>xalan</application>.
 </para>
 </listitem>
 </itemizedlist>
 <para>Rendering to PDF requires you to have one of the applications
-<literal>fop</literal> or <literal>xep</literal> installed.
+<application>fop</application> or <application>xep</application> installed.
 </para>
 
 <para>Creating a HTML or PDF document is very simple and straightforward. Say
@@ -93,14 +93,14 @@ Tool uses the given names as file stems, and adds the suffixes for target and so
 accordingly.
 </para>
 </important>
-<para>The rules given above are valid for the Builders &b-link-DocbookHtml;, 
-&b-link-DocbookPdf;, &b-link-DocbookEpub;, &b-link-DocbookSlidesPdf; and &b-link-DocbookXInclude;. For the 
+<para>The rules given above are valid for the Builders &b-link-DocbookHtml;,
+&b-link-DocbookPdf;, &b-link-DocbookEpub;, &b-link-DocbookSlidesPdf; and &b-link-DocbookXInclude;. For the
 &b-link-DocbookMan; transformation you
 can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
 </para>
 
-<para>The Builders &b-link-DocbookHtmlChunked;, &b-link-DocbookHtmlhelp; and 
+<para>The Builders &b-link-DocbookHtmlChunked;, &b-link-DocbookHtmlhelp; and
 &b-link-DocbookSlidesHtml; are special, in that:
 </para>
 <orderedlist><listitem><para>they create a large set of files, where the exact names and their number depend
@@ -112,7 +112,7 @@ XSL transformation is not picked up by the stylesheets.
 </para>
 </listitem>
 </orderedlist>
-<para>As a result, there is simply no use in specifying a target HTML name. 
+<para>As a result, there is simply no use in specifying a target HTML name.
 So the basic syntax for these builders is always:
 </para>
 <screen>env = Environment(tools=['docbook'])
@@ -120,7 +120,7 @@ env.DocbookHtmlhelp('manual')
 </screen>
 
 <para>If you want to use a specific XSL file, you can set the
-additional <literal>xsl</literal> parameter to your
+additional <parameter>xsl</parameter> parameter to your
 Builder call as follows:
 </para>
 <screen>env.DocbookHtml('other.html', 'manual.xml', xsl='html.xsl')
@@ -129,21 +129,24 @@ Builder call as follows:
 e.g. <filename>html.xsl</filename> for HTML and <filename>pdf.xsl</filename> for PDF output, a set of
 variables for setting the default XSL name is provided. These are:
 </para>
-<screen>DOCBOOK_DEFAULT_XSL_HTML        
-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED        
-DOCBOOK_DEFAULT_XSL_HTMLHELP        
-DOCBOOK_DEFAULT_XSL_PDF        
-DOCBOOK_DEFAULT_XSL_EPUB        
-DOCBOOK_DEFAULT_XSL_MAN        
-DOCBOOK_DEFAULT_XSL_SLIDESPDF        
-DOCBOOK_DEFAULT_XSL_SLIDESHTML        
+<screen>DOCBOOK_DEFAULT_XSL_HTML
+DOCBOOK_DEFAULT_XSL_HTMLCHUNKED
+DOCBOOK_DEFAULT_XSL_HTMLHELP
+DOCBOOK_DEFAULT_XSL_PDF
+DOCBOOK_DEFAULT_XSL_EPUB
+DOCBOOK_DEFAULT_XSL_MAN
+DOCBOOK_DEFAULT_XSL_SLIDESPDF
+DOCBOOK_DEFAULT_XSL_SLIDESHTML
 </screen>
 <para>and you can set them when constructing your environment:
 </para>
-<screen>env = Environment(tools=['docbook'],
-                  DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
-                  DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl')
-env.DocbookHtml('manual') # now uses html.xsl
+<screen>
+env = Environment(
+    tools=['docbook'],
+    DOCBOOK_DEFAULT_XSL_HTML='html.xsl',
+    DOCBOOK_DEFAULT_XSL_PDF='pdf.xsl',
+)
+env.DocbookHtml('manual')  # now uses html.xsl
 </screen>
 </summary>
 <sets>
@@ -283,7 +286,7 @@ if one of them is installed (<literal>fop</literal> gets checked first).
 <summary>
 <para>
 Additonal command-line flags for the external executable
-<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
 </summary>
@@ -321,7 +324,7 @@ for <literal>saxon</literal> and <literal>saxon-xslt</literal>, respectively.
 <summary>
 <para>
 The full command-line for the external executable
-<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
 </summary>
@@ -392,8 +395,8 @@ env.DocbookHtml('manual')
 <builder name="DocbookHtmlChunked">
 <summary>
 <para>
-A pseudo-Builder, providing a Docbook toolchain for chunked HTML output.
-It supports the <literal>base.dir</literal> parameter. The 
+A pseudo-Builder providing a Docbook toolchain for chunked HTML output.
+It supports the <parameter>base.dir</parameter> parameter. The
 <filename>chunkfast.xsl</filename> file (requires &quot;EXSLT&quot;) is used as the
 default stylesheet. Basic syntax:
 </para>
@@ -404,22 +407,23 @@ env.DocbookHtmlChunked('manual')
 <para>
 where <filename>manual.xml</filename> is the input file.
 </para>
-<para>If you use the <literal>root.filename</literal> 
+<para>If you use the <parameter>root.filename</parameter>
 parameter in your own stylesheets you have to specify the new target name.
 This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('mymanual.html', 'manual', xsl='htmlchunk.xsl')
 </screen>
-<para>Some basic support for the <literal>base.dir</literal> is provided. You
-can add the <literal>base_dir</literal> keyword to your Builder
-call, and the given prefix gets prepended to all the created filenames:
+<para>Some basic support for the <parameter>base.dir</parameter> parameter
+is provided.  You can add the <parameter>base_dir</parameter> keyword to
+your Builder call, and the given prefix gets prepended to all the
+created filenames:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('manual', xsl='htmlchunk.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 </summary>
 </builder>
@@ -438,15 +442,15 @@ env.DocbookHtmlhelp('manual')
 where <filename>manual.xml</filename> is the input file.
 </para>
 
-<para>If you use the <literal>root.filename</literal> 
+<para>If you use the <parameter>root.filename</parameter>
 parameter in your own stylesheets you have to specify the new target name.
-This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
+This ensures that the dependencies get correct, especially for the cleanup via <quote><userinput>scons -c</userinput></quote>:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('mymanual.html', 'manual', xsl='htmlhelp.xsl')
 </screen>
-<para>Some basic support for the <literal>base.dir</literal> parameter
-is provided. You can add the <literal>base_dir</literal> keyword to
+<para>Some basic support for the <parameter>base.dir</parameter> parameter
+is provided. You can add the <parameter>base_dir</parameter> keyword to
 your Builder call, and the given prefix gets prepended to all the
 created filenames:
 </para>
@@ -454,7 +458,7 @@ created filenames:
 env.DocbookHtmlhelp('manual', xsl='htmlhelp.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 
 </summary>
@@ -513,7 +517,7 @@ Its basic syntax is:
 env.DocbookMan('manual')
 </example_commands>
 <para>
-where <filename>manual.xml</filename> is the input file. Note, that 
+where <filename>manual.xml</filename> is the input file. Note, that
 you can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
 </para>
@@ -550,25 +554,25 @@ A pseudo-Builder, providing a Docbook toolchain for HTML slides output.
 env.DocbookSlidesHtml('manual')
 </example_commands>
 
-<para>If you use the <literal>titlefoil.html</literal> parameter in
+<para>If you use the <parameter>titlefoil.html</parameter> parameter in
 your own stylesheets you have to give the new target name. This ensures
-that the dependencies get correct, especially for the cleanup via 
-<quote><literal>scons -c</literal></quote>:
+that the dependencies get correct, especially for the cleanup via
+<quote><userinput>scons -c</userinput></quote>:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('mymanual.html','manual', xsl='slideshtml.xsl')
 </screen>
 
-<para>Some basic support for the <literal>base.dir</literal> parameter 
+<para>Some basic support for the <parameter>base.dir</parameter> parameter
 is provided. You
-can add the <literal>base_dir</literal> keyword to your Builder
+can add the <parameter>base_dir</parameter> keyword to your Builder
 call, and the given prefix gets prepended to all the created filenames:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('manual', xsl='slideshtml.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 
 </summary>
@@ -596,7 +600,7 @@ A pseudo-Builder, applying a given XSL transformation to the input file.
 env.DocbookXslt('manual_transformed.xml', 'manual.xml', xsl='transform.xslt')
 </example_commands>
 
-<para>Note, that this builder requires the <literal>xsl</literal> parameter
+<para>Note, that this builder requires the <parameter>xsl</parameter> parameter
 to be set.
 </para>
 </summary>

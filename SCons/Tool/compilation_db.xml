@@ -31,43 +31,69 @@ See its __doc__ string for a discussion of the format.
         </summary>
         <sets>
             <item>COMPILATIONDB_COMSTR</item>
-<!--            
+<!--
             <item>__COMPILATIONDB_UACTION</item>
             <item>__COMPILATIONDB_UOUTPUT</item>
             <item>__COMPILATIONDB_USOURCE</item>
             <item>__COMPILATIONDB_ENV</item>
--->            
+-->
             <item>COMPILATIONDB_USE_ABSPATH</item>
+            <item>COMPILATIONDB_PATH_FILTER</item>
         </sets>
     </tool>
 
     <builder name="CompilationDatabase">
         <summary>
             <para>
-                The &b-CompilationDatabase; builder writes a JSON formatted compilation
-                    database according to the
-                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification
-                </ulink> which is consumed by a number of clang tools, editors, and other tools.
+                &b-CompilationDatabase; is a special builder which
+                adds a target to create a JSON formatted
+                compilation database compatible with
+                <systemitem>clang</systemitem> tooling
+                (see the
+                <ulink url="https://clang.llvm.org/docs/JSONCompilationDatabase.html">LLVM specification</ulink>).
+                This database is suitable for consumption by various
+                tools and editors who can use it to obtain build and
+                dependency information which otherwise would be
+                internal to &SCons;.
+                The builder does not require any source files to be specified,
+                rather it arranges to emit information about all
+                of the C, C++ and assembler source/output pairs
+                identified in the build that are not excluded by the
+                optional filter &cv-link-COMPILATIONDB_PATH_FILTER;.
+                The target is subject to the usual &SCons; target
+                selection rules.
             </para>
             <para>
-                If you don't specify any files, the builder will default to <filename>compile_commands.json</filename>.
+                If called with no arguments,
+                the builder will default to a target name of
+                <filename>compile_commands.json</filename>.
             </para>
             <para>
-                If you specify a single file as below
-                <programlisting language="python">
-env.CompilationDatabase('my_output.json')
-                </programlisting>
-                SCons will automatically use that as the target file.
-                If you specify more than one source, the source list will be ignored.
+                If called with a single positional argument,
+                &scons; will "deduce" the target name from that source
+                argument, giving it the same name, and then
+                ignore the source.
+                This is the usual way to call the builder if a
+                non-default target name is wanted.
             </para>
             <para>
-                You should not specify source files. The &b-CompilationDatabase; builder instruments SCons to collect them from all
-                the C, C++, assembly source/target pairs.
+                If called with either the <parameter>target=</parameter>
+                or <parameter>source=</parameter> keyword arguments,
+                the value of the argument is taken as the target name.
+                If called with both, the <parameter>target=</parameter>
+                value is used and <parameter>source=</parameter> is ignored.
+                If called with multiple sources,
+                the source list will be ignored,
+                since there is no way to deduce what the intent was;
+                in this case the default target name will be used.
             </para>
-            <para>
-                NOTE: You must load the &t-compilation_db; tool prior to specifying any part of your build or some source/target
-                files will not show up in your output file.
-            </para>
+            <note>
+              <para>
+                You must load the &t-compilation_db; tool prior to specifying
+                any part of your build or some source/output
+                files will not show up in the compilation database.
+              </para>
+            </note>
             <para>
                 <emphasis>Available since &scons; 4.0.</emphasis>
             </para>
@@ -77,7 +103,8 @@ env.CompilationDatabase('my_output.json')
     <cvar name="COMPILATIONDB_COMSTR">
         <summary>
             <para>
-                The string displayed when CompilationDatabase builder's action is run.
+                The string displayed when the &b-link-CompilationDatabase;
+                builder's action is run.
             </para>
         </summary>
     </cvar>
@@ -85,12 +112,28 @@ env.CompilationDatabase('my_output.json')
     <cvar name="COMPILATIONDB_USE_ABSPATH">
         <summary>
             <para>
-                This is a boolean flag to instruct &b-link-CompilationDatabase; to
-                write the <literal>file</literal> and <literal>target</literal> members
-                in the compilation database with absolute or relative paths.
+                A boolean flag to instruct &b-link-CompilationDatabase;
+                whether to write the <literal>file</literal> and
+                <literal>output</literal> members
+                in the compilation database using absolute or relative paths.
             </para>
             <para>
                 The default value is False (use relative paths)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="COMPILATIONDB_PATH_FILTER">
+        <summary>
+            <para>
+                A string which instructs &b-link-CompilationDatabase; to
+                only include entries where the <literal>output</literal> member
+                matches the pattern in the filter string using fnmatch, which
+                uses glob style wildcards.
+
+            </para>
+            <para>
+                The default value is an empty string '', which disables filtering.
             </para>
         </summary>
     </cvar>

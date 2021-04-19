@@ -26,33 +26,47 @@ See its __doc__ string for a discussion of the format.
 
 <scons_function name="Default">
 <arguments>
-(targets...)
+(target[, ...])
 </arguments>
 <summary>
 <para>
-This specifies a list of default targets,
-which will be built by
-&scons;
-if no explicit targets are given on the command line.
-Multiple calls to
+Specify default targets to the &SCons; target selection mechanism.
+Any call to &f-Default; will cause &SCons; to use the
+defined default target list instead of
+its built-in algorithm for determining default targets
+(see the manpage section "Target Selection").
+</para>
+
+<para>
+<parameter>target</parameter> may be one or more strings,
+a list of strings,
+a <classname>NodeList</classname> as returned by a Builder,
+or <constant>None</constant>.
+A string <parameter>target</parameter> may be the name of
+a file or directory, or a target previously defined by a call to
+&f-link-Alias; (defining the alias later will still create
+the alias, but it will not be recognized as a default).
+Calls to &f-Default; are additive.
+A <parameter>target</parameter> of
+<literal>None</literal>
+will clear any existing default target list;
+subsequent calls to
 &f-Default;
-are legal,
-and add to the list of default targets.
-As noted above, both forms of this call affect the
+will add to the (now empty) default target list
+like normal.
+</para>
+
+<para>
+Both forms of this call affect the
 same global list of default targets; the
 construction environment method applies
 construction variable expansion to the targets.
 </para>
 
 <para>
-Multiple targets should be specified as
-separate arguments to the
-&f-Default;
-method, or as a list.
-&f-Default;
-will also accept the Node returned by any
-of a construction environment's
-builder methods.
+The current list of targets added using
+&f-Default; is available in the
+&DEFAULT_TARGETS; list (see below).
 </para>
 
 <para>
@@ -66,26 +80,6 @@ hello = env.Program('hello', 'hello.c')
 env.Default(hello)
 </example_commands>
 
-<para>
-An argument to
-&f-Default;
-of
-<literal>None</literal>
-will clear all default targets.
-Later calls to
-&f-Default;
-will add to the (now empty) default-target list
-like normal.
-</para>
-
-<para>
-The current list of targets added using the
-&f-Default;
-function or method is available in the
-<literal>DEFAULT_TARGETS</literal>
-list;
-see below.
-</para>
 </summary>
 </scons_function>
 

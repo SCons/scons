@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import stat
@@ -32,30 +31,6 @@ import TestSCons
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
-
-try:
-    import zipfile
-except ImportError:
-    x = "Python version has no 'ziplib' module; skipping tests.\n"
-    test.skip_test(x)
-
-def zipfile_contains(zipfilename, names):
-    """Returns True if zipfilename contains all the names, False otherwise."""
-    zf=zipfile.ZipFile(zipfilename, 'r')
-    if type(names)==type(''):
-        names=[names]
-    for name in names:
-        try:
-            info=zf.getinfo(name)
-        except KeyError as e:     # name not found
-            zf.close()
-            return False
-    return True
-
-def zipfile_files(fname):
-    """Returns all the filenames in zip file fname."""
-    zf = zipfile.ZipFile(fname, 'r')
-    return [x.filename for x in zf.infolist()]
 
 test.subdir('sub1')
 
@@ -78,12 +53,12 @@ test.write(['sub1', 'file6'], "sub1/file6\n")
 test.run(arguments = 'aaa.zip', stderr = None)
 
 test.must_exist('aaa.zip')
-test.fail_test(not zipfile_contains('aaa.zip', ['file1', 'file2', 'file3']))
+test.fail_test(not test.zipfile_contains('aaa.zip', ['file1', 'file2', 'file3']))
 
 test.run(arguments = 'bbb.zip', stderr = None)
 
 test.must_exist('bbb.zip')
-test.fail_test(not zipfile_contains('bbb.zip', ['sub1/file5', 'sub1/file6', 'file4']))
+test.fail_test(not test.zipfile_contains('bbb.zip', ['sub1/file5', 'sub1/file6', 'file4']))
 
 ######
 
@@ -136,11 +111,11 @@ test.run(arguments = '.', stderr = None)
 test.must_not_exist(test.workpath('f3.zip'))
 test.must_exist(test.workpath('f3.xyzzy'))
 
-test.fail_test(zipfile_files("f1.zip") != ['file10', 'file11', 'file12'])
+test.fail_test(test.zipfile_files("f1.zip") != ['file10', 'file11', 'file12'])
 
-test.fail_test(zipfile_files("f2.zip") != ['file13', 'file14', 'file15'])
+test.fail_test(test.zipfile_files("f2.zip") != ['file13', 'file14', 'file15'])
 
-test.fail_test(zipfile_files("f3.xyzzy") != ['file16', 'file17', 'file18'])
+test.fail_test(test.zipfile_files("f3.xyzzy") != ['file16', 'file17', 'file18'])
 
 f4_size = os.stat('f4.zip')[stat.ST_SIZE]
 f4stored_size = os.stat('f4stored.zip')[stat.ST_SIZE]
