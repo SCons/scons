@@ -21,6 +21,21 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Unit tests for the Python scanner. These tests validate proper working of the
+Python scanner by confirming that the results of the scan match expectations.
+
+The absolute path tests have strongly-defined behavior in that there is no real
+ambiguity to what they should result in. For example, if you import package x,
+you expect to get x/__init__.py as a dependency.
+
+The relative path tests that reach into ancestor directories do have some
+ambiguity in whether to depend upon __init__.py in those referenced ancestor
+directories. Python only allows these kinds of relative imports if the file is
+part of a package, in which case those ancestor directories' __init__.py files
+have already been imported.
+"""
+
 import SCons.compat
 
 import collections
@@ -226,9 +241,6 @@ class PythonScannerTestImportsGrandparentModule(unittest.TestCase):
             'nested1/nested2/nested3/imports_grandparent_module.py')
         path = s.path(env, source=[node])
         deps = s(node, env, path)
-        # Note: there is some ambiguity here in what the scanner should return.
-        # Relative imports require that the referenced packages have already
-        # been imported.
         files = ['nested1/module.py']
         deps_match(self, deps, files)
 
@@ -253,7 +265,59 @@ class PythonScannerTestImportsParentThenSubmodule(unittest.TestCase):
             'nested1/nested2/nested3/imports_parent_then_submodule.py')
         path = s.path(env, source=[node])
         deps = s(node, env, path)
-        files = ['nested1/nested2a/module.py']
+        files = ['nested1/nested2a/__init__.py', 'nested1/nested2a/module.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestImportsModuleWithFunc(unittest.TestCase):
+    def runTest(self):
+        """
+        This test case tests the following import statement:
+        `from simple_package.module1 import somefunc` with somefunc.py existing
+        in the same folder as module1.py. It validates that the scanner doesn't
+        accidentally take a dependency somefunc.py.
+        """
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        env['ENV']['PYTHONPATH'] = test.workpath('')
+        deps = s(env.File('from_import_simple_package_module1_func.py'), env,
+                 lambda : s.path(env))
+        files = ['simple_package/__init__.py', 'simple_package/module1.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestFromNested1ImportNested2(unittest.TestCase):
+    def runTest(self):
+        """
+        This test case tests the following import statement:
+        `from nested1 import module, nested2`. In this test, module is a Python
+        module and nested2 is a package. Validates that the scanner can handle
+        such mixed imports.
+        """
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        env['ENV']['PYTHONPATH'] = test.workpath('')
+        deps = s(env.File('from_nested1_import_multiple.py'), env,
+                 lambda : s.path(env))
+        files = ['nested1/__init__.py', 'nested1/module.py',
+                 'nested1/nested2/__init__.py']
+        deps_match(self, deps, files)
+
+
+class PythonScannerTestImportUnknownFiles(unittest.TestCase):
+    def runTest(self):
+        """
+        This test case tests importing files that are not found. If Python
+        really can't find those files, it will fail. But this is intended to
+        test the various failure paths in the scanner to make sure that they
+        don't raise exceptions.
+        """
+        env = DummyEnvironment()
+        s = SCons.Scanner.Python.PythonScanner
+        env['ENV']['PYTHONPATH'] = test.workpath('')
+        deps = s(env.File('imports_unknown_files.py'), env,
+                 lambda : s.path(env))
+        files = []
         deps_match(self, deps, files)
 
 

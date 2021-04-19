@@ -3729,7 +3729,10 @@ class FileFinder:
         return None
 
     def _find_file_key(self, filename, paths, verbose=None):
-        return (filename, paths)
+        # Note: paths could be a list, which is not hashable. If it is, convert
+        # it to a tuple, which is hashable.
+        paths_entry = tuple(paths) if isinstance(paths, list) else paths
+        return (filename, paths_entry)
 
     @SCons.Memoize.CountDictCall(_find_file_key)
     def find_file(self, filename, paths, verbose=None):
