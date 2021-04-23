@@ -75,6 +75,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Deprecate Python 3.5 as a supported version.
     - CPPDEFINES now expands construction variable references (issue 2363)
     - Restore behavior that Install()'d files are writable (issue 3927)
+    - Avoid WhereIs exception if user set a tool name to empty (from issue 1742)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
