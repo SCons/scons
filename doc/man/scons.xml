@@ -5189,21 +5189,27 @@ to a &consenv;.
 <emphasis>In general</emphasis>,
 you should only need to add a new Builder object
 when you want to build a new type of file or other external target.
-If you just want to invoke a different compiler or other tool
-to build &Program;, &Object;, &Library;, or any other
-type of output file for which
-&scons;
-already has an existing Builder,
-it is generally much easier to
-use those existing Builders
-in a &consenv;
-that sets the appropriate &consvars;
-(<envar>CC</envar>, <envar>LINK</envar>, etc.).</para>
+For output file types &scons; already knows about,
+you can usually modify the behavior of premade Builders
+such as &b-link-Program;, &b-link-Object; or &b-link-Library;
+by changing the &consvars; they use
+(&cv-link-CC;, &cv-link-LINK;, etc.).
+In this manner you can, for example, change the compiler to use,
+which is simpler and less error-prone than writing a new builder.
+The documentation for each Builder lists which
+&consvars; it uses.
+</para>
 
 <para>Builder objects are created
 using the
 &f-link-Builder;
 factory function.
+Once created, a builder is added to an environment
+by entering it in the &cv-link-BUILDERS; dictionary
+in that environment (some of the examples
+in this section illustrate that). </para>
+
+<para>
 The
 &f-Builder;
 function accepts the following keyword arguments:</para>
@@ -5212,33 +5218,33 @@ function accepts the following keyword arguments:</para>
   <varlistentry>
   <term><parameter>action</parameter></term>
   <listitem>
-<para>The command line string used to build the target from the source.
+<para>The command used to build the target from the source.
 <parameter>action</parameter>
-can also be:
+may be a string representing a template command line to execute,
 a list of strings representing the command
-to be executed and its arguments
+to execute with its arguments
 (suitable for enclosing white space in an argument),
 a dictionary
 mapping source file name suffixes to
 any combination of command line strings
 (if the builder should accept multiple source file extensions),
-a Python function;
+a Python function,
 an Action object
-(see the next section);
+(see <xref linkend="action_objects"/>)
 or a list of any of the above.</para>
 
-<para>An action function takes three arguments:</para>
+<para>An action function must accept three arguments:
+<parameter>source</parameter>,
+<parameter>target</parameter> and
+<parameter>env</parameter>.
+<parameter>source</parameter> is a list of source nodes;
+<parameter>target</parameter> is a list of target nodes;
+<parameter>env</parameter> is the &consenv; to use for context.
+</para>
 
-  <simplelist type="vert">
-  <member><parameter>source</parameter> - a list of source nodes;.</member>
-  <member><parameter>target</parameter> - a list of target nodes;.</member>
-  <member><parameter>env</parameter> - the &consenv;.</member>
-  </simplelist>
-
-<para>The
-<parameter>action</parameter>
-and
-<parameter>generator</parameter>
+<para>
+The <parameter>action</parameter>
+and <parameter>generator</parameter>
 arguments must not both be used for the same Builder.</para>
   </listitem>
   </varlistentry>
@@ -5247,36 +5253,30 @@ arguments must not both be used for the same Builder.</para>
   <term><parameter>prefix</parameter></term>
   <listitem>
 <para>The prefix to prepend to the target file name.
-<parameter>prefix</parameter> may be:</para>
-
-  <itemizedlist>
-  <listitem><para>a string</para></listitem>
-  <listitem><para>a callable object -
-a function or other callable that takes
+<parameter>prefix</parameter> may be
+a string, a function (or other callable) that takes
 two arguments (a &consenv; and a list of sources)
-and returns a prefix</para></listitem>
-  <listitem><para>a dictionary -
-specifies a mapping from a specific source suffix (of the first
-source specified) to a corresponding target prefix.  Both the source
-suffix and target prefix specifications may use environment variable
-substitution, and the target prefix (the 'value' entries in the
-dictionary) may also be a callable object.  The default target prefix
-may be indicated by a dictionary entry with a key value of <constant>None</constant>.</para>
-  </listitem>
-  </itemizedlist>
+and returns a prefix string,
+or a dictionary specifying a mapping from a specific source suffix
+(of the first source specified)
+to a corresponding target prefix string.  For the dictionary form, both the source
+suffix (key) and target prefix (value) specifications may use environment variable
+substitution, and the target prefix
+may also be a callable object.  The default target prefix
+may be indicated by a dictionary entry with a key of <constant>None</constant>.</para>
 
 <programlisting language="python">
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            prefix = "file-")
+            prefix="file-")
 
 def gen_prefix(env, sources):
     return "file-" + env['PLATFORM'] + '-'
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            prefix = gen_prefix)
 
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            suffix = { None: "file-",
-                       "$SRC_SFX_A": gen_prefix })
+            prefix=gen_prefix)
+
+b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
+            suffix={None: "file-", "$SRC_SFX_A": gen_prefix})
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5285,26 +5285,26 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
   <term><parameter>suffix</parameter></term>
   <listitem>
 <para>The suffix to append to the target file name.
-This may be specified in the same manner as the prefix above.
+Specified in the same manner as for <parameter>prefix</parameter> above.
 If the suffix is a string, then
 &scons;
-prepends a '.' to the suffix if it's not already there.
-The string returned by the callable object (or obtained from the
-dictionary) is untouched and you need to manually prepend a '.'
-if one is desired.</para>
+prepends a <literal>'.'</literal> to the suffix if it's not already there.
+The string returned by the callable object or obtained from the
+dictionary is untouched and you need to manually prepend a <literal>'.'</literal>
+if one is required.</para>
 
 <programlisting language="python">
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET"
-            suffix = "-file")
+            suffix="-file")
 
 def gen_suffix(env, sources):
     return "." + env['PLATFORM'] + "-file"
-b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            suffix = gen_suffix)
 
 b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
-            suffix = { None: ".sfx1",
-                       "$SRC_SFX_A": gen_suffix })
+            suffix=gen_suffix)
+
+b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
+            suffix={None: ".sfx1", "$SRC_SFX_A": gen_suffix})
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5312,21 +5312,21 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
   <varlistentry>
   <term><parameter>ensure_suffix</parameter></term>
   <listitem>
-<para>When set to any true value, causes
-&scons;
-to add the target suffix specified by the
-<parameter>suffix</parameter>
-keyword to any target strings
-that have a different suffix.
-(The default behavior is to leave untouched
-any target file name that looks like it already has any suffix.)</para>
+<para>If set to a true value,
+ensures that targets will end in 
+<parameter>suffix</parameter>.
+Thus, the suffix will also be added to any target strings
+that have a suffix that is not already <parameter>suffix</parameter>.
+The default behavior (also indicated by a false value)
+is to leave unchanged
+any target string that looks like it already has a suffix.</para>
 
 <programlisting language="python">
 b1 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
              suffix = ".out")
 b2 = Builder("build_it &lt; $SOURCE &gt; $TARGET"
              suffix = ".out",
-             ensure_suffix)
+             ensure_suffix=True)
 env = Environment()
 env['BUILDERS']['B1'] = b1
 env['BUILDERS']['B2'] = b2
@@ -5344,8 +5344,9 @@ env.B2('bar.txt', 'bar.in')
   <varlistentry>
   <term><parameter>src_suffix</parameter></term>
   <listitem>
-<para>The expected source file name suffix.  This may be a string or a list
-of strings.</para>
+<para>The expected source file name suffix.
+<parameter>src_suffix</parameter>
+may be a string or a list of strings.</para>
   </listitem>
   </varlistentry>
 
@@ -5472,13 +5473,15 @@ to emitter functions.
 is used to select the actual emitter function
 from an emitter dictionary.)</para>
 
-<para>An emitter function takes three arguments:</para>
-
-  <simplelist type="vert">
-  <member><parameter>source</parameter> - a list of source nodes.</member>
-  <member><parameter>target</parameter> - a list of target nodes.</member>
-  <member><parameter>env</parameter> - the &consenv;.</member>
-  </simplelist>
+<para>A function passed as <parameter>emitter</parameter>
+must accept three arguments:
+<parameter>source</parameter>,
+<parameter>target</parameter> and
+<parameter>env</parameter>.
+<parameter>source</parameter> is a list of source nodes,
+<parameter>target</parameter> is a list of target nodes,
+<parameter>env</parameter> is the &consenv; to use for context.
+</para>
 
 <para>An emitter must return a tuple containing two lists,
 the list of targets to be built by this builder,
@@ -5528,7 +5531,7 @@ b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
   <term><parameter>multi</parameter></term>
   <listitem>
 <para>Specifies whether this builder is allowed to be called multiple times for
-the same target file(s). The default is <constant>0</constant>,
+the same target file(s). The default is <constant>False</constant>,
 which means the builder
 can not be called multiple times for the same target file(s). Calling a
 builder multiple times for the same target simply adds additional source
@@ -5562,18 +5565,21 @@ an Action object, or anything that
 can be converted into an Action object
 (see the next section).</para>
 
-<para>The generator function takes four arguments:</para>
-
-  <simplelist type="vert">
-  <member><parameter>source</parameter> - A list of source nodes;.</member>
-  <member><parameter>target</parameter> - A list of target nodes;.</member>
-  <member><parameter>env</parameter> - the &consenv;.</member>
-  <member><parameter>for_signature</parameter> -
-    A Boolean value that specifies
-    whether the generator is being called
-    for generating a build signature
-    (as opposed to actually executing the command).</member>
-  </simplelist>
+<para>A function passed as <parameter>generator</parameter>
+must accept four arguments:
+<parameter>source</parameter>,
+<parameter>target</parameter>,
+<parameter>env</parameter> and
+<parameter>for_signature</parameter>.
+<parameter>source</parameter> is a list of source nodes,
+<parameter>target</parameter> is a list of target nodes,
+<parameter>env</parameter> is the &consenv; to use for context,
+<parameter>for_signature</parameter> is
+a Boolean value that specifies
+whether the generator is being called
+for generating a build signature
+(as opposed to actually executing the command).
+</para>
 
 <para>Example:</para>
 
@@ -5627,12 +5633,9 @@ called with a list of source files with different extensions,
 this check can be suppressed by setting
 <parameter>source_ext_match</parameter>
 to
-<parameter>None</parameter>
+<constant>False</constant>
 or some other non-true value.
-When
-<parameter>source_ext_match</parameter>
-is disable,
-&scons;
+In this case, &scons;
 will use the suffix of the first specified
 source file to select the appropriate action from the
 <parameter>action</parameter>
@@ -5651,7 +5654,7 @@ and
 
 <programlisting language="python">
 b = Builder(action={'.in' : 'build $SOURCES &gt; $TARGET'},
-            source_ext_match = None)
+            source_ext_match=False)
 
 env = Environment(BUILDERS={'MyBuild':b})
 env.MyBuild('foo.out', ['foo.in', 'foo.extra'])
@@ -5779,7 +5782,7 @@ and emitter functions.</para>
 
 <para>The
 &f-link-Builder;
-function will turn its
+factory function will turn its
 <parameter>action</parameter>
 keyword argument into an appropriate
 internal Action object, as will
@@ -5853,15 +5856,12 @@ Action([['cc', '-c', '-DWHITE SPACE', '-o', '$TARGET', '$SOURCES']])
   </listitem>
 
   <listitem>
-<para>If <parameter>action</parameter> is a Python callable
+<para>If <parameter>action</parameter> is a callable object,
 a Function Action is returned.
 The callable must accept three keyword arguments:
 <parameter>target</parameter>,
 <parameter>source</parameter> and
 <parameter>env</parameter>.
-</para>
-
-<para>
 <parameter>target</parameter>
 is a Node object representing the target file,
 <parameter>source</parameter>
@@ -5970,8 +5970,8 @@ Instead of using a positional argument,
 the <parameter>cmdstr</parameter>
 keyword argument may be used to specify the output string,
 or the <parameter>strfunction</parameter> keyword argument
-may be used to specify a function to return the output string,
-Use <literal>cmdstr=None</literal> to suppress output.
+may be used to specify a function to return the output string.
+<literal>cmdstr=None</literal> suppresses output entirely.
 </para>
 
 <para>Examples:</para>
