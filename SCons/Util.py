@@ -745,7 +745,7 @@ else:
 
 if sys.platform == 'win32':
 
-    def WhereIs(file, path=None, pathext=None, reject=[]):
+    def WhereIs(file, path=None, pathext=None, reject=None):
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -764,6 +764,8 @@ if sys.platform == 'win32':
             if ext.lower() == file[-len(ext):].lower():
                 pathext = ['']
                 break
+        if reject is None:
+            reject = []
         if not is_List(reject) and not is_Tuple(reject):
             reject = [reject]
         for dir in path:
@@ -780,7 +782,7 @@ if sys.platform == 'win32':
 
 elif os.name == 'os2':
 
-    def WhereIs(file, path=None, pathext=None, reject=[]):
+    def WhereIs(file, path=None, pathext=None, reject=None):
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -794,6 +796,8 @@ elif os.name == 'os2':
             if ext.lower() == file[-len(ext):].lower():
                 pathext = ['']
                 break
+        if reject is None:
+            reject = []
         if not is_List(reject) and not is_Tuple(reject):
             reject = [reject]
         for dir in path:
@@ -810,7 +814,7 @@ elif os.name == 'os2':
 
 else:
 
-    def WhereIs(file, path=None, pathext=None, reject=[]):
+    def WhereIs(file, path=None, pathext=None, reject=None):
         import stat
         if path is None:
             try:
@@ -819,6 +823,8 @@ else:
                 return None
         if is_String(path):
             path = path.split(os.pathsep)
+        if reject is None:
+            reject = []
         if not is_List(reject) and not is_Tuple(reject):
             reject = [reject]
         for d in path:

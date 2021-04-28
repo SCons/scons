@@ -1877,9 +1877,10 @@ class Base(SubstitutionEnvironment):
             tool = SCons.Tool.Tool(tool, toolpath, **kw)
         tool(self)
 
-    def WhereIs(self, prog, path=None, pathext=None, reject=[]):
-        """Find prog in the path.
-        """
+    def WhereIs(self, prog, path=None, pathext=None, reject=None):
+        """Find prog in the path. """
+        if not prog:  # nothing to search for, just give up
+            return None
         if path is None:
             try:
                 path = self['ENV']['PATH']
@@ -1894,9 +1895,10 @@ class Base(SubstitutionEnvironment):
                 pass
         elif is_String(pathext):
             pathext = self.subst(pathext)
-        prog = CLVar(self.subst(prog)) # support "program --with-args"
+        prog = CLVar(self.subst(prog))  # support "program --with-args"
         path = WhereIs(prog[0], path, pathext, reject)
-        if path: return path
+        if path:
+            return path
         return None
 
     #######################################################################
