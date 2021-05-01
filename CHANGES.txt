@@ -80,6 +80,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Restore behavior that Install()'d files are writable (issue 3927)
     - Simplified Mkdir(), the internal mkdir_func no longer needs to handle
       existing directories, it can now pass exist_ok=True to os.makedirs().
+    - Avoid WhereIs exception if user set a tool name to empty (from issue 1742)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
@@ -147,7 +148,6 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
     - Fix python3 crash when Value node get_text_content when child content does not have decode()
       NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's
       children. This may break your code. It now concatenates the csig() of all children.
->>>>>>> master
 
   From Joachim Kuebart:
     - Suppress missing SConscript deprecation warning if `must_exist=False`
