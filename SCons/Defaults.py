@@ -309,16 +309,7 @@ def mkdir_func(dest):
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for entry in dest:
-        try:
-            os.makedirs(str(entry))
-        except os.error as e:
-            p = str(entry)
-            if (e.args[0] == errno.EEXIST or
-                (sys.platform == 'win32' and e.args[0] == 183)) \
-                    and os.path.isdir(str(entry)):
-                pass  # not an error if already exists
-            else:
-                raise
+        os.makedirs(str(entry), exist_ok=True)
 
 
 Mkdir = ActionFactory(mkdir_func,

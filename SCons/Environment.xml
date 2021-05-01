@@ -258,7 +258,7 @@ a subclass of the SCons.CacheDir.CacheDir class.
 
 <scons_function name="Action">
 <arguments>
-(action, [cmd/str/fun, [var, ...]] [option=value, ...])
+(action, [output, [var, ...]] [key=value, ...])
 </arguments>
 <summary>
 <para>
