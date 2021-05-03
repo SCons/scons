@@ -1140,10 +1140,12 @@ class LocalFS:
         return os.lstat(path)
     def listdir(self, path):
         return os.listdir(path)
-    def makedirs(self, path):
-        return os.makedirs(path)
-    def mkdir(self, path):
-        return os.mkdir(path)
+    def scandir(self, path):
+        return os.scandir(path)
+    def makedirs(self, path, mode=0o777, exist_ok=False):
+        return os.makedirs(path, mode=mode, exist_ok=exist_ok)
+    def mkdir(self, path, mode=0o777):
+        return os.mkdir(path, mode=mode)
     def rename(self, old, new):
         return os.rename(old, new)
     def stat(self, path):

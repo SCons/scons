@@ -81,6 +81,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Simplified Mkdir(), the internal mkdir_func no longer needs to handle
       existing directories, it can now pass exist_ok=True to os.makedirs().
     - Avoid WhereIs exception if user set a tool name to empty (from issue 1742)
+    - Maintenance: remove obsolete __getslice__ definitions (Py3 never calls);
+      add Node.fs.scandir to call new (Py3.5) os.scandir; Node.fs.makedirs
+      now passes the exist_ok flag; Cachedir creation now uses this flag.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
