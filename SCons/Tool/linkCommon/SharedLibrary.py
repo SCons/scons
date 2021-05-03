@@ -166,8 +166,12 @@ def _get_shlib_dir(target, source, env, for_signature: bool) -> str:
     Returns:
         the directory the library will be in (empty string if '.')
     """
+    verbose = False
+
     if target.dir and str(target.dir) != ".":
-        print("target.dir:%s" % target.dir)
+        if verbose:
+            print("_get_shlib_dir: target.dir:%s" % target.dir)
+
         return "%s/" % str(target.dir)
     else:
         return ""

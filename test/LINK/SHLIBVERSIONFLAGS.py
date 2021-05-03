@@ -47,9 +47,9 @@ elif 'sunlink' in tool_list:
     soname = 'libfoo.so.4'
     sonameVersionFlags = r".+ -h %s( .+)+" % soname
 elif 'applelink' in tool_list:
-    versionflags = r"    'libfoo.1.dylib'->'libfoo.1.2.3.dylib'"
+    versionflags = r".+ -Wl,-current_version,1.2.3( .+)+"
     soname = 'libfoo.4.dylib'
-    sonameVersionFlags = r"    '%s'->'libfoo.1.2.3.dylib'(.+)+" % soname
+    sonameVersionFlags = r".+ -Wl,-compatibility_version,1.2.0(.+)+"
 else:
     test.skip_test('No testable linkers found, skipping the test\n')
 

@@ -36,7 +36,7 @@ selection method.
 # Even though the Mac is based on the GNU toolchain, it doesn't understand
 # the -rpath option, so we use the "link" tool instead of "gnulink".
 from SCons.Util import CLVar
-
+from SCons.Errors import UserError
 from . import link
 
 # User programmatically describes how SHLIBVERSION maps to values for compat/current.
@@ -141,6 +141,24 @@ def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
 
     return "-Wl,-compatibility_version,%s" % version_string
 
+def _applelib_soname(target, source, env, for_signature):
+    """
+    Override default _soname() function from SCons.Tools.linkCommon.SharedLibrary.
+    Apple's file naming for versioned shared libraries puts the version string before
+    the shared library suffix (.dylib), instead of after.
+    """
+    if "SONAME" in env:
+        # Now verify that SOVERSION is not also set as that is not allowed
+        if "SOVERSION" in env:
+            raise UserError(
+                "Ambiguous library .so naming, both SONAME: %s and SOVERSION: %s are defined. "
+                "Only one can be defined for a target library."
+                % (env["SONAME"], env["SOVERSION"])
+            )
+        return "$SONAME"
+    else:
+        return "$SHLIBPREFIX$_get_shlib_stem$_SHLIBSOVERSION${SHLIBSUFFIX}"
+
 
 def generate(env):
     """Add Builders and construction variables for applelink to an
@@ -177,6 +195,8 @@ def generate(env):
                                  '"SHLIBVERSION","_APPLELINK_CURRENT_VERSION", "_SHLIBVERSIONFLAGS")}'
     env['__LDMODULEVERSIONFLAGS'] = '${__lib_either_version_flag(__env__,' \
                                     '"LDMODULEVERSION","_APPLELINK_CURRENT_VERSION", "_LDMODULEVERSIONFLAGS")}'
+
+    env["_SHLIBSONAME"] = _applelib_soname
 
 
 def exists(env):
