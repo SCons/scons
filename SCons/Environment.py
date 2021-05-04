@@ -100,22 +100,23 @@ AliasBuilder = SCons.Builder.Builder(
 
 def apply_tools(env, tools, toolpath):
     # Store the toolpath in the Environment.
+    # This is expected to work even if no tools are given, so do this first.
     if toolpath is not None:
         env['toolpath'] = toolpath
-
     if not tools:
         return
+
     # Filter out null tools from the list.
     for tool in [_f for _f in tools if _f]:
-        if is_List(tool) or isinstance(tool, tuple):
+        if is_List(tool) or is_Tuple(tool):
             toolname = tool[0]
-            toolargs = tool[1] # should be a dict of kw args
-            tool = env.Tool(toolname, **toolargs)
+            toolargs = tool[1]  # should be a dict of kw args
+            env.Tool(toolname, **toolargs)
         else:
             env.Tool(tool)
 
 # These names are (or will be) controlled by SCons; users should never
-# set or override them.  This warning can optionally be turned off,
+# set or override them.  The warning can optionally be turned off,
 # but scons will still ignore the illegal variable names even if it's off.
 reserved_construction_var_names = [
     'CHANGED_SOURCES',
@@ -132,7 +133,7 @@ future_reserved_construction_var_names = [
     #'HOST_OS',
     #'HOST_ARCH',
     #'HOST_CPU',
-    ]
+]
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
