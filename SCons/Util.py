@@ -1345,12 +1345,6 @@ class UniqueList(UserList):
     def __setitem__(self, i, item):
         UserList.__setitem__(self, i, item)
         self.unique = False
-    def __getslice__(self, i, j):
-        self.__make_unique()
-        return UserList.__getslice__(self, i, j)
-    def __setslice__(self, i, j, other):
-        UserList.__setslice__(self, i, j, other)
-        self.unique = False
     def __add__(self, other):
         result = UserList.__add__(self, other)
         result.unique = False

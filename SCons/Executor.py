@@ -63,10 +63,6 @@ class TSList(collections.UserList):
     def __getitem__(self, i):
         nl = self.func()
         return nl[i]
-    def __getslice__(self, i, j):
-        nl = self.func()
-        i, j = max(i, 0), max(j, 0)
-        return nl[i:j]
     def __str__(self):
         nl = self.func()
         return str(nl)
