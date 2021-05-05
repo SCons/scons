@@ -23,10 +23,24 @@
 
 """Tool specific initialization of msginit tool."""
 
+import sys
+import os
+
 import SCons.Action
+import SCons.Tool
 import SCons.Util
 import SCons.Warnings
 from SCons.Environment import _null
+from SCons.Errors import StopError
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Tool.GettextCommon import (
+    _detect_msginit,
+    _init_po_files,
+    _msginit_exists,
+    # MsginitToolWarning,
+    _POFileBuilder,
+)
 
 
 def _optional_no_translator_flag(env):
@@ -44,7 +58,6 @@ def _optional_no_translator_flag(env):
 
 def _POInitBuilder(env, **kw):
     """ Create builder object for `POInit` builder. """
-    from SCons.Tool.GettextCommon import _init_po_files, _POFileBuilder
 
     action = SCons.Action.Action(_init_po_files, None)
     return _POFileBuilder(env, action=action, target_alias='$POCREATE_ALIAS')
@@ -68,13 +81,6 @@ def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
 
 def generate(env, **kw):
     """ Generate the `msginit` tool """
-    import sys
-    import os
-    import SCons.Tool
-    import SCons.Warnings
-    from SCons.Tool.GettextCommon import _detect_msginit, MsginitNotFound
-    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
     if sys.platform == 'win32':
         msginit = SCons.Tool.find_program_path(
@@ -85,13 +91,14 @@ def generate(env, **kw):
             env.AppendENVPath('PATH', msginit_bin_dir)
         else:
             SCons.Warnings.warn(
+                # MsginitToolWarning,  # using this breaks test, so keep:
                 SCons.Warnings.SConsWarning,
                 'msginit tool requested, but binary not found in ENV PATH',
             )
 
     try:
         env['MSGINIT'] = _detect_msginit(env)
-    except MsginitNotFound:
+    except StopError:
         env['MSGINIT'] = 'msginit'
     msginitcom = (
         '$MSGINIT ${_MSGNoTranslator(__env__)} -l ${_MSGINITLOCALE}'
@@ -117,11 +124,10 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
-    from SCons.Tool.GettextCommon import _msginit_exists, MsginitNotFound
 
     try:
         return _msginit_exists(env)
-    except MsginitNotFound:
+    except StopError:
         return False
 
 # Local Variables:

@@ -23,10 +23,25 @@
 
 """Tool specific initialization for `msgmerge` tool."""
 
+import sys
+import os
+
+import SCons.Action
+import SCons.Tool
+import SCons.Warnings
+from SCons.Errors import StopError
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Tool.GettextCommon import (
+    _detect_msgmerge,
+    _init_po_files,
+    _msgmerge_exists,
+    # MsgmergeToolWarning,
+    _POFileBuilder,
+)
+
 def _update_or_init_po_files(target, source, env):
     """ Action function for `POUpdate` builder """
-    import SCons.Action
-    from SCons.Tool.GettextCommon import _init_po_files
 
     for tgt in target:
         if tgt.rexists():
@@ -41,8 +56,6 @@ def _update_or_init_po_files(target, source, env):
 
 def _POUpdateBuilder(env, **kw):
     """ Create an object of `POUpdate` builder """
-    import SCons.Action
-    from SCons.Tool.GettextCommon import _POFileBuilder
 
     action = SCons.Action.Action(_update_or_init_po_files, None)
     return _POFileBuilder(env, action=action, target_alias='$POUPDATE_ALIAS')
@@ -66,13 +79,6 @@ def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
 
 def generate(env, **kw):
     """ Generate the `msgmerge` tool """
-    import sys
-    import os
-    import SCons.Tool
-    import SCons.Warnings
-    from SCons.Tool.GettextCommon import _detect_msgmerge, MsgmergeNotFound
-    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
     if sys.platform == 'win32':
         msgmerge = SCons.Tool.find_program_path(
@@ -83,12 +89,13 @@ def generate(env, **kw):
             env.AppendENVPath('PATH', msgmerge_bin_dir)
         else:
             SCons.Warnings.warn(
+                # MsgmergeToolWarning,  # using this breaks test, so keep:
                 SCons.Warnings.SConsWarning,
                 'msgmerge tool requested, but binary not found in ENV PATH',
             )
     try:
         env['MSGMERGE'] = _detect_msgmerge(env)
-    except MsgmergeNotFound:
+    except StopError:
         env['MSGMERGE'] = 'msgmerge'
     env.SetDefault(
         POTSUFFIX=['.pot'],
@@ -105,11 +112,10 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
-    from SCons.Tool.GettextCommon import _msgmerge_exists, MsgmergeNotFound
 
     try:
         return _msgmerge_exists(env)
-    except MsgmergeNotFound:
+    except StopError:
         return False
 
 # Local Variables:

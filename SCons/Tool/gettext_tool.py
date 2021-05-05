@@ -23,16 +23,24 @@
 
 """gettext tool"""
 
+import sys
+import os
+
+import SCons.Tool
+import SCons.Warnings
+from SCons.Errors import StopError
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+from SCons.Tool.GettextCommon import (
+    _msgfmt_exists,
+    _msginit_exists,
+    _msgmerge_exists,
+    tool_list,
+    _translate,
+    _xgettext_exists,
+)
+
 def generate(env, **kw):
-    import sys
-    import os
-    import SCons.Tool
-    import SCons.Warnings
-    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
-
-    from SCons.Tool.GettextCommon import _translate, tool_list
-
     for t in tool_list(env['PLATFORM'], env):
         if sys.platform == 'win32':
             tool = SCons.Tool.find_program_path(
@@ -50,14 +58,6 @@ def generate(env, **kw):
     env.AddMethod(_translate, 'Translate')
 
 def exists(env):
-    from SCons.Tool.GettextCommon import (
-        _xgettext_exists,
-        _msginit_exists,
-        _msgmerge_exists,
-        _msgfmt_exists,
-    )
-    from SCons.Tool.GettextCommon import XgettextNotFound
-
     try:
         return (
             _xgettext_exists(env)
@@ -65,5 +65,5 @@ def exists(env):
             and _msgmerge_exists(env)
             and _msgfmt_exists(env)
         )
-    except XgettextNotFound:
+    except StopError:
         return False

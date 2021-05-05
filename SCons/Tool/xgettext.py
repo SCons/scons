@@ -37,9 +37,13 @@ from SCons.Builder import BuilderBase
 from SCons.Environment import _null
 from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-from SCons.Tool.GettextCommon import _POTargetFactory
-from SCons.Tool.GettextCommon import RPaths, _detect_xgettext
-from SCons.Tool.GettextCommon import _xgettext_exists
+from SCons.Tool.GettextCommon import (
+    _detect_xgettext,
+    _POTargetFactory,
+    RPaths,
+    _xgettext_exists,
+    # XgettextToolWarning,
+)
 
 
 class _CmdRunner:
@@ -263,6 +267,7 @@ def generate(env, **kw):
             env.AppendENVPath('PATH', xgettext_bin_dir)
         else:
             SCons.Warnings.warn(
+                # XgettextToolWarning,  # using this breaks test, so keep:
                 SCons.Warnings.SConsWarning,
                 'xgettext tool requested, but binary not found in ENV PATH'
             )

@@ -23,7 +23,23 @@
 
 """ msgfmt tool """
 
+import sys
+import os
+
+import SCons.Action
+import SCons.Tool
+import SCons.Util
+import SCons.Warnings
 from SCons.Builder import BuilderBase
+from SCons.Errors import StopError
+from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+from SCons.Tool.GettextCommon import (
+    _detect_msgfmt,
+    _msgfmt_exists,
+    # MsgfmtToolWarning,
+    _read_linguas_from_files,
+)
 
 class _MOFileBuilder(BuilderBase):
     """The builder class for `MO` files.
@@ -38,8 +54,6 @@ class _MOFileBuilder(BuilderBase):
         # Here we add support for 'LINGUAS_FILE' keyword. Emitter is not suitable
         # in this case, as it is called too late (after multiple sources
         # are handled single_source builder.
-        import SCons.Util
-        from SCons.Tool.GettextCommon import _read_linguas_from_files
 
         linguas_files = None
         if 'LINGUAS_FILE' in env and env['LINGUAS_FILE'] is not None:
@@ -62,7 +76,6 @@ class _MOFileBuilder(BuilderBase):
 
 def _create_mo_file_builder(env, **kw):
     """ Create builder object for `MOFiles` builder """
-    import SCons.Action
 
     # FIXME: What factory use for source? Ours or their?
     kw['action'] = SCons.Action.Action('$MSGFMTCOM', '$MSGFMTCOMSTR')
@@ -75,14 +88,6 @@ def _create_mo_file_builder(env, **kw):
 
 def generate(env, **kw):
     """ Generate `msgfmt` tool """
-    import sys
-    import os
-    import SCons.Tool
-    import SCons.Util
-    import SCons.Warnings
-    from SCons.Tool.GettextCommon import _detect_msgfmt, MsgfmtNotFound
-    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
     if sys.platform == 'win32':
         msgfmt = SCons.Tool.find_program_path(
@@ -93,13 +98,14 @@ def generate(env, **kw):
             env.AppendENVPath('PATH', msgfmt_bin_dir)
         else:
             SCons.Warnings.warn(
+                # MsgfmtToolWarning,  # using this breaks test, so keep:
                 SCons.Warnings.SConsWarning,
                 'msgfmt tool requested, but binary not found in ENV PATH',
             )
 
     try:
         env['MSGFMT'] = _detect_msgfmt(env)
-    except MsgfmtNotFound:
+    except StopError:
         env['MSGFMT'] = 'msgfmt'
     env.SetDefault(
         MSGFMTFLAGS=[SCons.Util.CLVar('-c')],
@@ -113,11 +119,10 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
-    from SCons.Tool.GettextCommon import _msgfmt_exists, MsgfmtNotFound
 
     try:
         return _msgfmt_exists(env)
-    except MsgfmtNotFound:
+    except StopError:
         return False
 
 # Local Variables:
