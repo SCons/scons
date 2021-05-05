@@ -56,7 +56,7 @@ def exists(env):
         _msgmerge_exists,
         _msgfmt_exists,
     )
-    import SCons.Errors
+    from SCons.Tool.GettextCommon import XgettextNotFound
 
     try:
         return (
@@ -65,5 +65,5 @@ def exists(env):
             and _msgmerge_exists(env)
             and _msgfmt_exists(env)
         )
-    except SCons.Errors.XgettextNotFound:
+    except XgettextNotFound:
         return False
