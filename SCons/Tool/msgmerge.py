@@ -24,86 +24,93 @@
 """Tool specific initialization for `msgmerge` tool."""
 
 def _update_or_init_po_files(target, source, env):
-  """ Action function for `POUpdate` builder """
-  import SCons.Action
-  from SCons.Tool.GettextCommon import _init_po_files
-  for tgt in target:
-    if tgt.rexists():
-      action = SCons.Action.Action('$MSGMERGECOM', '$MSGMERGECOMSTR')
-    else:
-      action = _init_po_files
-    status = action([tgt], source, env)
-    if status : return status
-  return 0
+    """ Action function for `POUpdate` builder """
+    import SCons.Action
+    from SCons.Tool.GettextCommon import _init_po_files
+
+    for tgt in target:
+        if tgt.rexists():
+            action = SCons.Action.Action('$MSGMERGECOM', '$MSGMERGECOMSTR')
+        else:
+            action = _init_po_files
+        status = action([tgt], source, env)
+        if status:
+            return status
+    return 0
 
 
 def _POUpdateBuilder(env, **kw):
-  """ Create an object of `POUpdate` builder """
-  import SCons.Action
-  from SCons.Tool.GettextCommon import _POFileBuilder
-  action = SCons.Action.Action(_update_or_init_po_files, None)
-  return _POFileBuilder(env, action=action, target_alias='$POUPDATE_ALIAS')
+    """ Create an object of `POUpdate` builder """
+    import SCons.Action
+    from SCons.Tool.GettextCommon import _POFileBuilder
+
+    action = SCons.Action.Action(_update_or_init_po_files, None)
+    return _POFileBuilder(env, action=action, target_alias='$POUPDATE_ALIAS')
 
 
 from SCons.Environment import _null
 
+
 def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
-  """ Wrapper for `POUpdate` builder - make user's life easier """
-  if source is _null:
-    if 'POTDOMAIN' in kw:
-      domain = kw['POTDOMAIN']
-    elif 'POTDOMAIN' in env and env['POTDOMAIN']:
-      domain = env['POTDOMAIN']
-    else:
-      domain = 'messages'
-    source = [ domain ]  # NOTE: Suffix shall be appended automatically
-  return env._POUpdateBuilder(target, source, **kw)
+    """ Wrapper for `POUpdate` builder - make user's life easier """
+    if source is _null:
+        if 'POTDOMAIN' in kw:
+            domain = kw['POTDOMAIN']
+        elif 'POTDOMAIN' in env and env['POTDOMAIN']:
+            domain = env['POTDOMAIN']
+        else:
+            domain = 'messages'
+        source = [domain]  # NOTE: Suffix shall be appended automatically
+    return env._POUpdateBuilder(target, source, **kw)
 
 
-def generate(env,**kw):
-  """ Generate the `msgmerge` tool """
-  import sys
-  import os
-  import SCons.Tool
-  import SCons.Warnings
-  from SCons.Tool.GettextCommon import _detect_msgmerge
-  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+def generate(env, **kw):
+    """ Generate the `msgmerge` tool """
+    import sys
+    import os
+    import SCons.Tool
+    import SCons.Warnings
+    from SCons.Tool.GettextCommon import _detect_msgmerge
+    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
-  if sys.platform == 'win32':
-      msgmerge = SCons.Tool.find_program_path(env, 'msgmerge', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
-      if msgmerge:
-          msgmerge_bin_dir = os.path.dirname(msgmerge)
-          env.AppendENVPath('PATH', msgmerge_bin_dir)
-      else:
-          SCons.Warnings.warn(
-              SCons.Warnings.SConsWarning,
-              'msgmerge tool requested, but binary not found in ENV PATH'
-          )
-  try:
-    env['MSGMERGE'] = _detect_msgmerge(env)
-  except:
-    env['MSGMERGE'] = 'msgmerge'
-  env.SetDefault(
-    POTSUFFIX = ['.pot'],
-    POSUFFIX = ['.po'],
-    MSGMERGECOM = '$MSGMERGE  $MSGMERGEFLAGS --update $TARGET $SOURCE',
-    MSGMERGECOMSTR = '',
-    MSGMERGEFLAGS = [ ],
-    POUPDATE_ALIAS = 'po-update'
-  )
-  env.Append(BUILDERS = { '_POUpdateBuilder':_POUpdateBuilder(env) })
-  env.AddMethod(_POUpdateBuilderWrapper, 'POUpdate')
-  env.AlwaysBuild(env.Alias('$POUPDATE_ALIAS'))
+    if sys.platform == 'win32':
+        msgmerge = SCons.Tool.find_program_path(
+            env, 'msgmerge', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS
+        )
+        if msgmerge:
+            msgmerge_bin_dir = os.path.dirname(msgmerge)
+            env.AppendENVPath('PATH', msgmerge_bin_dir)
+        else:
+            SCons.Warnings.warn(
+                SCons.Warnings.SConsWarning,
+                'msgmerge tool requested, but binary not found in ENV PATH',
+            )
+    try:
+        env['MSGMERGE'] = _detect_msgmerge(env)
+    except:
+        env['MSGMERGE'] = 'msgmerge'
+    env.SetDefault(
+        POTSUFFIX=['.pot'],
+        POSUFFIX=['.po'],
+        MSGMERGECOM='$MSGMERGE  $MSGMERGEFLAGS --update $TARGET $SOURCE',
+        MSGMERGECOMSTR='',
+        MSGMERGEFLAGS=[],
+        POUPDATE_ALIAS='po-update',
+    )
+    env.Append(BUILDERS={'_POUpdateBuilder': _POUpdateBuilder(env)})
+    env.AddMethod(_POUpdateBuilderWrapper, 'POUpdate')
+    env.AlwaysBuild(env.Alias('$POUPDATE_ALIAS'))
 
 
 def exists(env):
-  """ Check if the tool exists """
-  from SCons.Tool.GettextCommon import _msgmerge_exists
-  try:
-    return  _msgmerge_exists(env)
-  except:
-    return False
+    """ Check if the tool exists """
+    from SCons.Tool.GettextCommon import _msgmerge_exists
+
+    try:
+        return _msgmerge_exists(env)
+    except:
+        return False
 
 # Local Variables:
 # tab-width:4

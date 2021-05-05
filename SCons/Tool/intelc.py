@@ -447,15 +447,17 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         except (SCons.Util.RegError, IntelCError):
             topdir = None
 
+if not topdir:
     if not topdir:
         # Normally this is an error, but it might not be if the compiler is
         # on $PATH and the user is importing their env.
         class ICLTopDirWarning(SCons.Warnings.SConsWarning):
             pass
 
-        if (is_mac or is_linux) and not env.Detect('icc') \
-            or is_windows and not env.Detect('icl'):
-
+        if (
+            ((is_mac or is_linux) and not env.Detect('icc'))
+            (or is_windows and not env.Detect('icl'))
+        ):
             SCons.Warnings.enableWarningClass(ICLTopDirWarning)
             SCons.Warnings.warn(
                 ICLTopDirWarning,

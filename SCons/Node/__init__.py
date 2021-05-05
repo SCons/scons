@@ -44,10 +44,11 @@ import collections
 import copy
 from itertools import chain, zip_longest
 
+import SCons.Debug
 import SCons.Executor
 import SCons.Memoize
 from SCons.compat import NoSlotsPyPy
-from SCons.Debug import track_instances, logInstanceCreation, Trace
+from SCons.Debug import logInstanceCreation, Trace
 from SCons.Util import hash_signature, is_List, UniqueList, render_tree
 
 print_duplicate = 0

@@ -28,95 +28,101 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Environment import _null
 
+
 def _optional_no_translator_flag(env):
-  """ Return '--no-translator' flag if we run *msginit(1)*  in non-interactive
-      mode."""
-  if 'POAUTOINIT' in env:
-    autoinit = env['POAUTOINIT']
-  else:
-    autoinit = False
-  if autoinit:
-    return [SCons.Util.CLVar('--no-translator')]
-  else:
-    return [SCons.Util.CLVar('')]
+    """Return '--no-translator' flag if we run *msginit(1)*  in non-interactive
+    mode."""
+    if 'POAUTOINIT' in env:
+        autoinit = env['POAUTOINIT']
+    else:
+        autoinit = False
+    if autoinit:
+        return [SCons.Util.CLVar('--no-translator')]
+    else:
+        return [SCons.Util.CLVar('')]
 
 
 def _POInitBuilder(env, **kw):
-  """ Create builder object for `POInit` builder. """
-  from SCons.Tool.GettextCommon import _init_po_files, _POFileBuilder
-  action = SCons.Action.Action(_init_po_files, None)
-  return _POFileBuilder(env, action=action, target_alias='$POCREATE_ALIAS')
+    """ Create builder object for `POInit` builder. """
+    from SCons.Tool.GettextCommon import _init_po_files, _POFileBuilder
+
+    action = SCons.Action.Action(_init_po_files, None)
+    return _POFileBuilder(env, action=action, target_alias='$POCREATE_ALIAS')
 
 
 def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
-  """ Wrapper for _POFileBuilder. We use it to make user's life easier.
+    """Wrapper for _POFileBuilder. We use it to make user's life easier.
 
-  This wrapper checks for `$POTDOMAIN` construction variable (or override in
-  `**kw`) and treats it appropriatelly.
-  """
-  if source is _null:
-    if 'POTDOMAIN' in kw:
-      domain = kw['POTDOMAIN']
-    elif 'POTDOMAIN' in env:
-      domain = env['POTDOMAIN']
-    else:
-      domain = 'messages'
-    source = [ domain ]  # NOTE: Suffix shall be appended automatically
-  return env._POInitBuilder(target, source, **kw)
+    This wrapper checks for `$POTDOMAIN` construction variable (or override in
+    `**kw`) and treats it appropriatelly.
+    """
+    if source is _null:
+        if 'POTDOMAIN' in kw:
+            domain = kw['POTDOMAIN']
+        elif 'POTDOMAIN' in env:
+            domain = env['POTDOMAIN']
+        else:
+            domain = 'messages'
+        source = [domain]  # NOTE: Suffix shall be appended automatically
+    return env._POInitBuilder(target, source, **kw)
 
+def generate(env, **kw):
+    """ Generate the `msginit` tool """
+    import sys
+    import os
+    import SCons.Tool
+    import SCons.Warnings
+    from SCons.Tool.GettextCommon import _detect_msginit
+    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
-def generate(env,**kw):
-  """ Generate the `msginit` tool """
-  import sys
-  import os
-  import SCons.Tool
-  import SCons.Warnings
-  from SCons.Tool.GettextCommon import _detect_msginit
-  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+    if sys.platform == 'win32':
+        msginit = SCons.Tool.find_program_path(
+            env, 'msginit', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS
+        )
+        if msginit:
+            msginit_bin_dir = os.path.dirname(msginit)
+            env.AppendENVPath('PATH', msginit_bin_dir)
+        else:
+            SCons.Warnings.warn(
+                SCons.Warnings.SConsWarning,
+                'msginit tool requested, but binary not found in ENV PATH',
+            )
 
-  if sys.platform == 'win32':
-      msginit = SCons.Tool.find_program_path(env, 'msginit', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
-      if msginit:
-          msginit_bin_dir = os.path.dirname(msginit)
-          env.AppendENVPath('PATH', msginit_bin_dir)
-      else:
-          SCons.Warnings.warn(
-              SCons.Warnings.SConsWarning,
-              'msginit tool requested, but binary not found in ENV PATH'
-          )
-
-  try:
-    env['MSGINIT'] = _detect_msginit(env)
-  except:
-    env['MSGINIT'] = 'msginit'
-  msginitcom = '$MSGINIT ${_MSGNoTranslator(__env__)} -l ${_MSGINITLOCALE}' \
-             + ' $MSGINITFLAGS -i $SOURCE -o $TARGET'
-  # NOTE: We set POTSUFFIX here, in case the 'xgettext' is not loaded
-  #       (sometimes we really don't need it)
-  env.SetDefault(
-    POSUFFIX = ['.po'],
-    POTSUFFIX = ['.pot'],
-    _MSGINITLOCALE = '${TARGET.filebase}',
-    _MSGNoTranslator = _optional_no_translator_flag,
-    MSGINITCOM = msginitcom,
-    MSGINITCOMSTR = '',
-    MSGINITFLAGS = [ ],
-    POAUTOINIT = False,
-    POCREATE_ALIAS = 'po-create'
-  )
-  env.Append( BUILDERS = { '_POInitBuilder' : _POInitBuilder(env) } )
-  env.AddMethod(_POInitBuilderWrapper, 'POInit')
-  env.AlwaysBuild(env.Alias('$POCREATE_ALIAS'))
+    try:
+        env['MSGINIT'] = _detect_msginit(env)
+    except:
+        env['MSGINIT'] = 'msginit'
+    msginitcom = (
+        '$MSGINIT ${_MSGNoTranslator(__env__)} -l ${_MSGINITLOCALE}'
+        + ' $MSGINITFLAGS -i $SOURCE -o $TARGET'
+    )
+    # NOTE: We set POTSUFFIX here, in case the 'xgettext' is not loaded
+    #       (sometimes we really don't need it)
+    env.SetDefault(
+        POSUFFIX=['.po'],
+        POTSUFFIX=['.pot'],
+        _MSGINITLOCALE='${TARGET.filebase}',
+        _MSGNoTranslator=_optional_no_translator_flag,
+        MSGINITCOM=msginitcom,
+        MSGINITCOMSTR='',
+        MSGINITFLAGS=[],
+        POAUTOINIT=False,
+        POCREATE_ALIAS='po-create',
+    )
+    env.Append(BUILDERS={'_POInitBuilder': _POInitBuilder(env)})
+    env.AddMethod(_POInitBuilderWrapper, 'POInit')
+    env.AlwaysBuild(env.Alias('$POCREATE_ALIAS'))
 
 
 def exists(env):
-  """ Check if the tool exists """
-  from SCons.Tool.GettextCommon import _msginit_exists
-  try:
-    return  _msginit_exists(env)
-  except:
-    return False
+    """ Check if the tool exists """
+    from SCons.Tool.GettextCommon import _msginit_exists
+
+    try:
+        return _msginit_exists(env)
+    except:
+        return False
 
 # Local Variables:
 # tab-width:4

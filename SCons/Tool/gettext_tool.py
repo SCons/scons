@@ -23,29 +23,31 @@
 
 """gettext tool"""
 
-def generate(env,**kw):
-  import sys
-  import os
-  import SCons.Tool
-  import SCons.Warnings
-  from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-  from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
+def generate(env, **kw):
+    import sys
+    import os
+    import SCons.Tool
+    import SCons.Warnings
+    from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
+    from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
-  from SCons.Tool.GettextCommon \
-    import  _translate, tool_list
-  for t in tool_list(env['PLATFORM'], env):
-    if sys.platform == 'win32':
-        tool = SCons.Tool.find_program_path(env, t, default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
-        if tool:
-            tool_bin_dir = os.path.dirname(tool)
-            env.AppendENVPath('PATH', tool_bin_dir)
-        else:
-            SCons.Warnings.warn(
-                SCons.Warnings.SConsWarning,
-                t + ' tool requested, but binary not found in ENV PATH'
+    from SCons.Tool.GettextCommon import _translate, tool_list
+
+    for t in tool_list(env['PLATFORM'], env):
+        if sys.platform == 'win32':
+            tool = SCons.Tool.find_program_path(
+                env, t, default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS
             )
-    env.Tool(t)
-  env.AddMethod(_translate, 'Translate')
+            if tool:
+                tool_bin_dir = os.path.dirname(tool)
+                env.AppendENVPath('PATH', tool_bin_dir)
+            else:
+                SCons.Warnings.warn(
+                    SCons.Warnings.SConsWarning,
+                    t + ' tool requested, but binary not found in ENV PATH',
+                )
+        env.Tool(t)
+    env.AddMethod(_translate, 'Translate')
 
 def exists(env):
     from SCons.Tool.GettextCommon import (
@@ -62,5 +64,5 @@ def exists(env):
             and _msgmerge_exists(env)
             and _msgfmt_exists(env)
         )
-    except:
+    except SCons.Errors.XgettextNotFound:
         return False
