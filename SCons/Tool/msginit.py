@@ -70,10 +70,9 @@ def generate(env, **kw):
     """ Generate the `msginit` tool """
     import sys
     import os
-    import SCons.Errors
     import SCons.Tool
     import SCons.Warnings
-    from SCons.Tool.GettextCommon import _detect_msginit
+    from SCons.Tool.GettextCommon import _detect_msginit, MsginitNotFound
     from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
     from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
@@ -118,8 +117,7 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
-    import SCons.Errors
-    from SCons.Tool.GettextCommon import _msginit_exists
+    from SCons.Tool.GettextCommon import _msginit_exists, MsginitNotFound
 
     try:
         return _msginit_exists(env)

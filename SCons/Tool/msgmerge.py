@@ -68,10 +68,9 @@ def generate(env, **kw):
     """ Generate the `msgmerge` tool """
     import sys
     import os
-    import SCons.Errors
     import SCons.Tool
     import SCons.Warnings
-    from SCons.Tool.GettextCommon import _detect_msgmerge
+    from SCons.Tool.GettextCommon import _detect_msgmerge, MsgmergeNotFound
     from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
     from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
@@ -106,8 +105,7 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
-    import SCons.Errors
-    from SCons.Tool.GettextCommon import _msgmerge_exists
+    from SCons.Tool.GettextCommon import _msgmerge_exists, MsgmergeNotFound
 
     try:
         return _msgmerge_exists(env)

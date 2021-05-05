@@ -447,7 +447,6 @@ def generate(env, version=None, abi=None, topdir=None, verbose=0):
         except (SCons.Util.RegError, IntelCError):
             topdir = None
 
-if not topdir:
     if not topdir:
         # Normally this is an error, but it might not be if the compiler is
         # on $PATH and the user is importing their env.

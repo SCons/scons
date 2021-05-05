@@ -77,11 +77,10 @@ def generate(env, **kw):
     """ Generate `msgfmt` tool """
     import sys
     import os
-    import SCons.Errors
     import SCons.Tool
     import SCons.Util
     import SCons.Warnings
-    from SCons.Tool.GettextCommon import _detect_msgfmt
+    from SCons.Tool.GettextCommon import _detect_msgfmt, MsgfmtNotFound
     from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
     from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
@@ -114,8 +113,7 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
-    import SCons.Errors
-    from SCons.Tool.GettextCommon import _msgfmt_exists
+    from SCons.Tool.GettextCommon import _msgfmt_exists, MsgfmtNotFound
 
     try:
         return _msgfmt_exists(env)
