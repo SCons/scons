@@ -1,10 +1,7 @@
-""" msginit tool 
-
-Tool specific initialization of msginit tool.
-"""
-
-# __COPYRIGHT__
-# 
+# MIT License
+#
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -12,10 +9,10 @@ Tool specific initialization of msginit tool.
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -24,16 +21,16 @@ Tool specific initialization of msginit tool.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool specific initialization of msginit tool."""
 
+import SCons.Action
+import SCons.Util
 import SCons.Warnings
-import SCons.Builder
+from SCons.Environment import _null
 
-#############################################################################
 def _optional_no_translator_flag(env):
   """ Return '--no-translator' flag if we run *msginit(1)*  in non-interactive
       mode."""
-  import SCons.Util
   if 'POAUTOINIT' in env:
     autoinit = env['POAUTOINIT']
   else:
@@ -42,25 +39,20 @@ def _optional_no_translator_flag(env):
     return [SCons.Util.CLVar('--no-translator')]
   else:
     return [SCons.Util.CLVar('')]
-#############################################################################
 
-#############################################################################
+
 def _POInitBuilder(env, **kw):
   """ Create builder object for `POInit` builder. """
-  import SCons.Action
   from SCons.Tool.GettextCommon import _init_po_files, _POFileBuilder
   action = SCons.Action.Action(_init_po_files, None)
   return _POFileBuilder(env, action=action, target_alias='$POCREATE_ALIAS')
-#############################################################################
-  
-#############################################################################
-from SCons.Environment import _null
-#############################################################################
+
+
 def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
   """ Wrapper for _POFileBuilder. We use it to make user's life easier.
-  
+
   This wrapper checks for `$POTDOMAIN` construction variable (or override in
-  `**kw`) and treats it appropriatelly. 
+  `**kw`) and treats it appropriatelly.
   """
   if source is _null:
     if 'POTDOMAIN' in kw:
@@ -69,17 +61,16 @@ def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
       domain = env['POTDOMAIN']
     else:
       domain = 'messages'
-    source = [ domain ] # NOTE: Suffix shall be appended automatically
+    source = [ domain ]  # NOTE: Suffix shall be appended automatically
   return env._POInitBuilder(target, source, **kw)
-#############################################################################
 
-#############################################################################
+
 def generate(env,**kw):
   """ Generate the `msginit` tool """
   import sys
   import os
-  import SCons.Util
   import SCons.Tool
+  import SCons.Warnings
   from SCons.Tool.GettextCommon import _detect_msginit
   from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
   from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
@@ -90,7 +81,10 @@ def generate(env,**kw):
           msginit_bin_dir = os.path.dirname(msginit)
           env.AppendENVPath('PATH', msginit_bin_dir)
       else:
-          SCons.Warnings.SConsWarning('msginit tool requested, but binary not found in ENV PATH')
+          SCons.Warnings.warn(
+              SCons.Warnings.SConsWarning,
+              'msginit tool requested, but binary not found in ENV PATH'
+          )
 
   try:
     env['MSGINIT'] = _detect_msginit(env)
@@ -114,9 +108,8 @@ def generate(env,**kw):
   env.Append( BUILDERS = { '_POInitBuilder' : _POInitBuilder(env) } )
   env.AddMethod(_POInitBuilderWrapper, 'POInit')
   env.AlwaysBuild(env.Alias('$POCREATE_ALIAS'))
-#############################################################################
 
-#############################################################################
+
 def exists(env):
   """ Check if the tool exists """
   from SCons.Tool.GettextCommon import _msginit_exists
@@ -124,7 +117,6 @@ def exists(env):
     return  _msginit_exists(env)
   except:
     return False
-#############################################################################
 
 # Local Variables:
 # tab-width:4

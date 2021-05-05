@@ -1,9 +1,6 @@
-"""SCons.Tool.GettextCommon module
-
-Used by several tools of `gettext` toolset.
-"""
-
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,38 +21,49 @@ Used by several tools of `gettext` toolset.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Common routines for gettext tools
 
-import SCons.Warnings
+Used by several tools of `gettext` toolset.
+"""
+
+import os
 import re
 
+import SCons.Util
+import SCons.Warnings
 
-#############################################################################
-class XgettextToolWarning(SCons.Warnings.SConsWarning): pass
-
-
-class XgettextNotFound(XgettextToolWarning): pass
-
-
-class MsginitToolWarning(SCons.Warnings.SConsWarning): pass
+class XgettextToolWarning(SCons.Warnings.SConsWarning):
+    pass
 
 
-class MsginitNotFound(MsginitToolWarning): pass
+class XgettextNotFound(XgettextToolWarning):
+    pass
 
 
-class MsgmergeToolWarning(SCons.Warnings.SConsWarning): pass
+class MsginitToolWarning(SCons.Warnings.SConsWarning):
+    pass
 
 
-class MsgmergeNotFound(MsgmergeToolWarning): pass
+class MsginitNotFound(MsginitToolWarning):
+    pass
 
 
-class MsgfmtToolWarning(SCons.Warnings.SConsWarning): pass
+class MsgmergeToolWarning(SCons.Warnings.SConsWarning):
+    pass
 
 
-class MsgfmtNotFound(MsgfmtToolWarning): pass
+class MsgmergeNotFound(MsgmergeToolWarning):
+    pass
 
 
-#############################################################################
+class MsgfmtToolWarning(SCons.Warnings.SConsWarning):
+    pass
+
+
+class MsgfmtNotFound(MsgfmtToolWarning):
+    pass
+
+
 SCons.Warnings.enableWarningClass(XgettextToolWarning)
 SCons.Warnings.enableWarningClass(XgettextNotFound)
 SCons.Warnings.enableWarningClass(MsginitToolWarning)
@@ -66,9 +74,6 @@ SCons.Warnings.enableWarningClass(MsgfmtToolWarning)
 SCons.Warnings.enableWarningClass(MsgfmtNotFound)
 
 
-#############################################################################
-
-#############################################################################
 class _POTargetFactory:
     """ A factory of `PO` target files.
 
@@ -101,7 +106,6 @@ class _POTargetFactory:
 
     def _create_node(self, name, factory, directory=None, create=1):
         """ Create node, and set it up to factory settings. """
-        import SCons.Util
         node = factory(name, directory, create)
         node.set_noclean(self.noclean)
         node.set_precious(self.precious)
@@ -120,18 +124,12 @@ class _POTargetFactory:
         return self._create_node(name, self.env.fs.File, directory, create)
 
 
-#############################################################################
-
-#############################################################################
 _re_comment = re.compile(r'(#[^\n\r]+)$', re.M)
 _re_lang = re.compile(r'([a-zA-Z0-9_]+)', re.M)
 
 
-#############################################################################
 def _read_linguas_from_files(env, linguas_files=None):
     """ Parse `LINGUAS` file and return list of extracted languages """
-    import SCons.Util
-    import SCons.Environment
     global _re_comment
     global _re_lang
     if not SCons.Util.is_List(linguas_files) \
@@ -151,13 +149,9 @@ def _read_linguas_from_files(env, linguas_files=None):
     return linguas
 
 
-#############################################################################
-
-#############################################################################
 from SCons.Builder import BuilderBase
 
 
-#############################################################################
 class _POFileBuilder(BuilderBase):
     """ `PO` file builder.
 
@@ -222,7 +216,6 @@ class _POFileBuilder(BuilderBase):
         The arguments and return value are same as for
         `SCons.Builder.BuilderBase._execute()`.
         """
-        import SCons.Util
         import SCons.Node
         linguas_files = None
         if 'LINGUAS_FILE' in env and env['LINGUAS_FILE']:
@@ -252,12 +245,6 @@ class _POFileBuilder(BuilderBase):
         return SCons.Node.NodeList(result)
 
 
-#############################################################################
-
-import SCons.Environment
-
-
-#############################################################################
 def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
     """ Function for `Translate()` pseudo-builder """
     if target is None: target = []
@@ -266,9 +253,6 @@ def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):
     return po
 
 
-#############################################################################
-
-#############################################################################
 class RPaths:
     """ Callable object, which returns pathnames relative to SCons current
     working directory.
@@ -342,7 +326,6 @@ class RPaths:
            - Tuple of strings, which represent paths relative to current working
              directory (for given environment).
         """
-        import os
         import SCons.Node.FS
         rpaths = ()
         cwd = self.env.fs.getcwd().get_abspath()
@@ -356,9 +339,6 @@ class RPaths:
         return rpaths
 
 
-#############################################################################
-
-#############################################################################
 def _init_po_files(target, source, env):
     """ Action function for `POInit` builder. """
     nop = lambda target, source, env: 0
@@ -383,9 +363,6 @@ def _init_po_files(target, source, env):
     return 0
 
 
-#############################################################################
-
-#############################################################################
 def _detect_xgettext(env):
     """ Detects *xgettext(1)* binary """
     if 'XGETTEXT' in env:
@@ -397,14 +374,10 @@ def _detect_xgettext(env):
     return None
 
 
-#############################################################################
 def _xgettext_exists(env):
     return _detect_xgettext(env)
 
 
-#############################################################################
-
-#############################################################################
 def _detect_msginit(env):
     """ Detects *msginit(1)* program. """
     if 'MSGINIT' in env:
@@ -416,14 +389,10 @@ def _detect_msginit(env):
     return None
 
 
-#############################################################################
 def _msginit_exists(env):
     return _detect_msginit(env)
 
 
-#############################################################################
-
-#############################################################################
 def _detect_msgmerge(env):
     """ Detects *msgmerge(1)* program. """
     if 'MSGMERGE' in env:
@@ -435,14 +404,10 @@ def _detect_msgmerge(env):
     return None
 
 
-#############################################################################
 def _msgmerge_exists(env):
     return _detect_msgmerge(env)
 
 
-#############################################################################
-
-#############################################################################
 def _detect_msgfmt(env):
     """ Detects *msgmfmt(1)* program. """
     if 'MSGFMT' in env:
@@ -454,16 +419,11 @@ def _detect_msgfmt(env):
     return None
 
 
-#############################################################################
 def _msgfmt_exists(env):
     return _detect_msgfmt(env)
 
 
-#############################################################################
-
-#############################################################################
 def tool_list(platform, env):
     """ List tools that shall be generated by top-level `gettext` tool """
     return ['xgettext', 'msginit', 'msgmerge', 'msgfmt']
 
-#############################################################################

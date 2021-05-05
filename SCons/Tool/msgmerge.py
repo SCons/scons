@@ -1,10 +1,7 @@
-""" msgmerget tool 
-
-Tool specific initialization for `msgmerge` tool.
-"""
-
-# __COPYRIGHT__
-# 
+# MIT License
+#
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -12,10 +9,10 @@ Tool specific initialization for `msgmerge` tool.
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -24,9 +21,8 @@ Tool specific initialization for `msgmerge` tool.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool specific initialization for `msgmerge` tool."""
 
-#############################################################################
 def _update_or_init_po_files(target, source, env):
   """ Action function for `POUpdate` builder """
   import SCons.Action
@@ -39,20 +35,18 @@ def _update_or_init_po_files(target, source, env):
     status = action([tgt], source, env)
     if status : return status
   return 0
-#############################################################################
 
-#############################################################################
+
 def _POUpdateBuilder(env, **kw):
   """ Create an object of `POUpdate` builder """
   import SCons.Action
   from SCons.Tool.GettextCommon import _POFileBuilder
   action = SCons.Action.Action(_update_or_init_po_files, None)
   return _POFileBuilder(env, action=action, target_alias='$POUPDATE_ALIAS')
-#############################################################################
 
-#############################################################################
+
 from SCons.Environment import _null
-#############################################################################
+
 def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
   """ Wrapper for `POUpdate` builder - make user's life easier """
   if source is _null:
@@ -62,16 +56,16 @@ def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
       domain = env['POTDOMAIN']
     else:
       domain = 'messages'
-    source = [ domain ] # NOTE: Suffix shall be appended automatically
+    source = [ domain ]  # NOTE: Suffix shall be appended automatically
   return env._POUpdateBuilder(target, source, **kw)
-#############################################################################
 
-#############################################################################
+
 def generate(env,**kw):
   """ Generate the `msgmerge` tool """
   import sys
   import os
   import SCons.Tool
+  import SCons.Warnings
   from SCons.Tool.GettextCommon import _detect_msgmerge
   from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
   from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
@@ -82,7 +76,10 @@ def generate(env,**kw):
           msgmerge_bin_dir = os.path.dirname(msgmerge)
           env.AppendENVPath('PATH', msgmerge_bin_dir)
       else:
-          SCons.Warnings.SConsWarning('msgmerge tool requested, but binary not found in ENV PATH')
+          SCons.Warnings.warn(
+              SCons.Warnings.SConsWarning,
+              'msgmerge tool requested, but binary not found in ENV PATH'
+          )
   try:
     env['MSGMERGE'] = _detect_msgmerge(env)
   except:
@@ -98,9 +95,8 @@ def generate(env,**kw):
   env.Append(BUILDERS = { '_POUpdateBuilder':_POUpdateBuilder(env) })
   env.AddMethod(_POUpdateBuilderWrapper, 'POUpdate')
   env.AlwaysBuild(env.Alias('$POUPDATE_ALIAS'))
-#############################################################################
 
-#############################################################################
+
 def exists(env):
   """ Check if the tool exists """
   from SCons.Tool.GettextCommon import _msgmerge_exists
@@ -108,7 +104,6 @@ def exists(env):
     return  _msgmerge_exists(env)
   except:
     return False
-#############################################################################
 
 # Local Variables:
 # tab-width:4

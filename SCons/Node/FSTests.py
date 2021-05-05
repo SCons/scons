@@ -31,7 +31,6 @@ import shutil
 import stat
 
 from TestCmd import TestCmd, IS_WINDOWS
-import TestUnit
 
 import SCons.Errors
 import SCons.Node.FS

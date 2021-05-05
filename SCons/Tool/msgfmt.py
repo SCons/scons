@@ -1,7 +1,7 @@
-""" msgfmt tool """
-
-# __COPYRIGHT__
-# 
+# MIT License
+#
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -9,10 +9,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included
 # in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -21,14 +21,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+""" msgfmt tool """
 
 from SCons.Builder import BuilderBase
-#############################################################################
+
 class _MOFileBuilder(BuilderBase):
   """ The builder class for `MO` files.
-  
-  The reason for this builder to exists and its purpose is quite simillar 
+
+  The reason for this builder to exists and its purpose is quite simillar
   as for `_POFileBuilder`. This time, we extend list of sources, not targets,
   and call `BuilderBase._execute()` only once (as we assume single-target
   here).
@@ -43,7 +43,7 @@ class _MOFileBuilder(BuilderBase):
     linguas_files = None
     if 'LINGUAS_FILE' in env and env['LINGUAS_FILE'] is not None:
       linguas_files = env['LINGUAS_FILE']
-      # This should prevent from endless recursion. 
+      # This should prevent from endless recursion.
       env['LINGUAS_FILE'] = None
       # We read only languages. Suffixes shall be added automatically.
       linguas = _read_linguas_from_files(env, linguas_files)
@@ -57,9 +57,8 @@ class _MOFileBuilder(BuilderBase):
     if linguas_files is not None:
       env['LINGUAS_FILE'] = linguas_files
     return result
-#############################################################################
 
-#############################################################################
+
 def _create_mo_file_builder(env, **kw):
   """ Create builder object for `MOFiles` builder """
   import SCons.Action
@@ -68,17 +67,17 @@ def _create_mo_file_builder(env, **kw):
   kw['suffix'] = '$MOSUFFIX'
   kw['src_suffix'] = '$POSUFFIX'
   kw['src_builder'] = '_POUpdateBuilder'
-  kw['single_source'] = True 
+  kw['single_source'] = True
   return _MOFileBuilder(**kw)
-#############################################################################
 
-#############################################################################
+
 def generate(env,**kw):
   """ Generate `msgfmt` tool """
   import sys
   import os
-  import SCons.Util
   import SCons.Tool
+  import SCons.Util
+  import SCons.Warnings
   from SCons.Tool.GettextCommon import _detect_msgfmt
   from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
   from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
@@ -89,7 +88,10 @@ def generate(env,**kw):
           msgfmt_bin_dir = os.path.dirname(msgfmt)
           env.AppendENVPath('PATH', msgfmt_bin_dir)
       else:
-          SCons.Warnings.SConsWarning('msgfmt tool requested, but binary not found in ENV PATH')
+          SCons.Warnings.warn(
+              SCons.Warnings.SConsWarning,
+              'msgfmt tool requested, but binary not found in ENV PATH'
+          )
 
   try:
     env['MSGFMT'] = _detect_msgfmt(env)
@@ -103,9 +105,8 @@ def generate(env,**kw):
     POSUFFIX = ['.po']
   )
   env.Append( BUILDERS = { 'MOFiles'  : _create_mo_file_builder(env) } )
-#############################################################################
 
-#############################################################################
+
 def exists(env):
   """ Check if the tool exists """
   from SCons.Tool.GettextCommon import _msgfmt_exists
@@ -113,7 +114,6 @@ def exists(env):
     return _msgfmt_exists(env)
   except:
     return False
-#############################################################################
 
 # Local Variables:
 # tab-width:4

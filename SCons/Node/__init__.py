@@ -44,17 +44,11 @@ import collections
 import copy
 from itertools import chain, zip_longest
 
-import SCons.Debug
 import SCons.Executor
 import SCons.Memoize
-import SCons.Util
-from SCons.Util import hash_signature
-
-from SCons.Debug import Trace
-
 from SCons.compat import NoSlotsPyPy
-from SCons.Debug import logInstanceCreation, Trace
-from SCons.Util import MD5signature
+from SCons.Debug import track_instances, logInstanceCreation, Trace
+from SCons.Util import hash_signature, is_List, UniqueList, render_tree
 
 print_duplicate = 0
 
@@ -1278,7 +1272,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             self._add_child(self.depends, self.depends_set, depend)
         except TypeError as e:
             e = e.args[0]
-            if SCons.Util.is_List(e):
+            if is_List(e):
                 s = list(map(str, e))
             else:
                 s = str(e)
@@ -1287,7 +1281,7 @@ class Node(object, metaclass=NoSlotsPyPy):
     def add_prerequisite(self, prerequisite):
         """Adds prerequisites"""
         if self.prerequisites is None:
-            self.prerequisites = SCons.Util.UniqueList()
+            self.prerequisites = UniqueList()
         self.prerequisites.extend(prerequisite)
         self._children_reset()
 
@@ -1297,7 +1291,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             self._add_child(self.ignore, self.ignore_set, depend)
         except TypeError as e:
             e = e.args[0]
-            if SCons.Util.is_List(e):
+            if is_List(e):
                 s = list(map(str, e))
             else:
                 s = str(e)
@@ -1311,7 +1305,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             self._add_child(self.sources, self.sources_set, source)
         except TypeError as e:
             e = e.args[0]
-            if SCons.Util.is_List(e):
+            if is_List(e):
                 s = list(map(str, e))
             else:
                 s = str(e)
@@ -1555,7 +1549,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                         path = None
                     def f(node, env=env, scanner=scanner, path=path):
                         return node.get_found_includes(env, scanner, path)
-                    return SCons.Util.render_tree(s, f, 1)
+                    return render_tree(s, f, 1)
         else:
             return None
 
