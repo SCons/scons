@@ -456,7 +456,7 @@ if not topdir:
 
         if (
             ((is_mac or is_linux) and not env.Detect('icc'))
-            (or is_windows and not env.Detect('icl'))
+            or (is_windows and not env.Detect('icl'))
         ):
             SCons.Warnings.enableWarningClass(ICLTopDirWarning)
             SCons.Warnings.warn(

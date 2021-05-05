@@ -77,6 +77,7 @@ def generate(env, **kw):
     """ Generate `msgfmt` tool """
     import sys
     import os
+    import SCons.Errors
     import SCons.Tool
     import SCons.Util
     import SCons.Warnings
@@ -99,7 +100,7 @@ def generate(env, **kw):
 
     try:
         env['MSGFMT'] = _detect_msgfmt(env)
-    except:
+    except MsgfmtNotFound:
         env['MSGFMT'] = 'msgfmt'
     env.SetDefault(
         MSGFMTFLAGS=[SCons.Util.CLVar('-c')],
@@ -113,11 +114,12 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
+    import SCons.Errors
     from SCons.Tool.GettextCommon import _msgfmt_exists
 
     try:
         return _msgfmt_exists(env)
-    except:
+    except MsgfmtNotFound:
         return False
 
 # Local Variables:

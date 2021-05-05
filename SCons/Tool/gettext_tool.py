@@ -56,6 +56,7 @@ def exists(env):
         _msgmerge_exists,
         _msgfmt_exists,
     )
+    import SCons.Errors
 
     try:
         return (

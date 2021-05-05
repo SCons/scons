@@ -68,6 +68,7 @@ def generate(env, **kw):
     """ Generate the `msgmerge` tool """
     import sys
     import os
+    import SCons.Errors
     import SCons.Tool
     import SCons.Warnings
     from SCons.Tool.GettextCommon import _detect_msgmerge
@@ -88,7 +89,7 @@ def generate(env, **kw):
             )
     try:
         env['MSGMERGE'] = _detect_msgmerge(env)
-    except:
+    except MsgmergeNotFound:
         env['MSGMERGE'] = 'msgmerge'
     env.SetDefault(
         POTSUFFIX=['.pot'],
@@ -105,11 +106,12 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
+    import SCons.Errors
     from SCons.Tool.GettextCommon import _msgmerge_exists
 
     try:
         return _msgmerge_exists(env)
-    except:
+    except MsgmergeNotFound:
         return False
 
 # Local Variables:

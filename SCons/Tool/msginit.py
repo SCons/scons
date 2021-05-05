@@ -70,6 +70,7 @@ def generate(env, **kw):
     """ Generate the `msginit` tool """
     import sys
     import os
+    import SCons.Errors
     import SCons.Tool
     import SCons.Warnings
     from SCons.Tool.GettextCommon import _detect_msginit
@@ -91,7 +92,7 @@ def generate(env, **kw):
 
     try:
         env['MSGINIT'] = _detect_msginit(env)
-    except:
+    except MsginitNotFound:
         env['MSGINIT'] = 'msginit'
     msginitcom = (
         '$MSGINIT ${_MSGNoTranslator(__env__)} -l ${_MSGINITLOCALE}'
@@ -117,11 +118,12 @@ def generate(env, **kw):
 
 def exists(env):
     """ Check if the tool exists """
+    import SCons.Errors
     from SCons.Tool.GettextCommon import _msginit_exists
 
     try:
         return _msginit_exists(env)
-    except:
+    except MsginitNotFound:
         return False
 
 # Local Variables:
