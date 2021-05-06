@@ -31,7 +31,6 @@ The code that reads the registry to find MSVC components was borrowed
 from distutils.msvccompiler.
 """
 
-import errno
 import os
 import shutil
 import stat

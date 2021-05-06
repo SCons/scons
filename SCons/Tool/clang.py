@@ -1,5 +1,3 @@
-# -*- coding: utf-8; -*-
-#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -22,17 +20,13 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-"""SCons.Tool.clang
 
-Tool-specific initialization for clang.
+"""Tool-specific initialization for clang.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
-
 
 # Based on SCons/Tool/gcc.py by Paweł Tomulik 2014 as a separate tool.
 # Brought into the SCons mainline by Russel Winder 2017.
@@ -40,7 +34,6 @@ selection method.
 import os
 import re
 import subprocess
-import sys
 
 import SCons.Util
 import SCons.Tool.cc

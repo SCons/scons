@@ -1,15 +1,6 @@
-"""SCons.Tool.jar
-
-Tool-specific initialization for jar.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,13 +20,19 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool-specific initialization for jar.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
+
 import os
 
 import SCons.Subst
 import SCons.Util
+import SCons.Warnings
 from SCons.Node.FS import _my_normcase
 from SCons.Tool.JavaCommon import get_java_install_dirs
 
@@ -101,8 +98,10 @@ def Jar(env, target = None, source = [], *args, **kw):
     # no target and want implicit target to be made and the arg
     # was actaully the list of sources
     if SCons.Util.is_List(target) and source == []:
-        SCons.Warnings.SConsWarning("Making implicit target jar file, " +
-                              "and treating the list as sources")
+        SCons.Warnings.warn(
+            SCons.Warnings.SConsWarning,
+            "Making implicit target jar file, and treating the list as sources"
+        )
         source = target
         target = None
 
@@ -123,7 +122,10 @@ def Jar(env, target = None, source = [], *args, **kw):
             target = os.path.splitext(str(source[0]))[0] + env.subst('$JARSUFFIX')
         except:
             # something strange is happening but attempt anyways
-            SCons.Warnings.SConsWarning("Could not make implicit target from sources, using directory")
+            SCons.Warnings.warn(
+                SCons.Warnings.SConsWarning,
+                "Could not make implicit target from sources, using directory"
+            )
             target = os.path.basename(str(env.Dir('.'))) + env.subst('$JARSUFFIX')
 
     # make lists out of our target and sources
@@ -192,7 +194,11 @@ def Jar(env, target = None, source = [], *args, **kw):
             except:
                 pass
 
-            SCons.Warnings.SConsWarning("File: " + str(s) + " could not be identified as File or Directory, skipping.")
+            SCons.Warnings.warn(
+                SCons.Warnings.SConsWarning,
+                ("File: " + str(s)
+                + " could not be identified as File or Directory, skipping.")
+            )
 
     # at this point all our sources have been converted to classes or directories of class
     # so pass it to the Jar builder

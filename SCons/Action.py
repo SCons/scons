@@ -106,7 +106,6 @@ import re
 import sys
 import subprocess
 from subprocess import DEVNULL
-import itertools
 import inspect
 from collections import OrderedDict
 

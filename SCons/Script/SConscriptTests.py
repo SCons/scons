@@ -21,8 +21,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import SCons.Script.SConscript
-
 # all of the SConscript.py tests are in test/SConscript.py 
 
 # Local Variables:

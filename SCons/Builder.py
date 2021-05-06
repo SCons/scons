@@ -103,12 +103,12 @@ from collections import UserDict, UserList
 
 import SCons.Action
 import SCons.Debug
-from SCons.Debug import logInstanceCreation
-from SCons.Errors import InternalError, UserError
 import SCons.Executor
 import SCons.Memoize
 import SCons.Util
 import SCons.Warnings
+from SCons.Debug import logInstanceCreation
+from SCons.Errors import InternalError, UserError
 
 class _Null:
     pass

@@ -199,11 +199,8 @@ if args.short_progress:
     suppress_output = catch_output = True
 
 if args.debug:
-    for d in sys.path:
-        pdb = os.path.join(d, 'pdb.py')
-        if os.path.exists(pdb):
-            debug = pdb
-        break
+    # TODO: add a way to pass a specific debugger
+    debug = "pdb"
 
 if args.exec:
     scons = args.exec
@@ -710,7 +707,7 @@ def run_test(t, io_lock=None, run_async=True):
     t.headline = ""
     command_args = []
     if debug:
-        command_args.append(debug)
+        command_args.extend(['-m', debug])
     if args.devmode and sys.version_info >= (3, 7, 0):
         command_args.append('-X dev')
     command_args.append(t.path)

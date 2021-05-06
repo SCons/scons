@@ -23,8 +23,6 @@
 
 import unittest
 
-import TestUnit
-
 import SCons.PathList
 
 

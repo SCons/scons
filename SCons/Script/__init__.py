@@ -255,7 +255,7 @@ def HelpFunction(text, append=False):
     if help_text is None:
         if append:
             s = StringIO()
-            PrintHelp(s)  
+            PrintHelp(s)
             help_text = s.getvalue()
             s.close()
         else:
