@@ -1004,9 +1004,9 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         e1.Replace(BUILDERS = {'b' : b1})
         bw = e1.b
 
-        assert bw.env is e1
+        assert bw.env == e1
         bw.env = e2
-        assert bw.env is e2
+        assert bw.env == e2
 
         assert bw.builder is b1
         bw.builder = b2
@@ -1790,9 +1790,10 @@ def exists(env):
         assert result == ['bar'], result
 
     def test_Clone(self):
-        """Test construction environment copying
+        """Test construction environment cloning.
 
-        Update the copy independently afterwards and check that
+        The clone should compare equal if there are no overrides.
+        Update the clone independently afterwards and check that
         the original remains intact (that is, no dangling
         references point to objects in the copied environment).
         Clone the original with some construction variable
@@ -1802,27 +1803,26 @@ def exists(env):
         env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
         env2 = env1.Clone()
         env1copy = env1.Clone()
-        assert env1copy == env1copy
-        assert env2 == env2
+        assert env1copy == env1
+        assert env2 == env1
         env2.Replace(YYY = 'yyy')
-        assert env2 == env2
         assert env1 != env2
         assert env1 == env1copy
 
         env3 = env1.Clone(XXX = 'x3', ZZZ = 'z3')
-        assert env3 == env3
+        assert env3 != env1
         assert env3.Dictionary('XXX') == 'x3'
+        assert env1.Dictionary('XXX') == 'x'
         assert env3.Dictionary('YYY') == 'y'
         assert env3.Dictionary('ZZZ') == 'z3'
         assert env1 == env1copy
 
-        # Ensure that lists and dictionaries are
-        # deep copied, but not instances.
+        # Ensure that lists and dictionaries are deep copied, but not instances
         class TestA:
             pass
-        env1 = self.TestEnvironment(XXX=TestA(), YYY = [ 1, 2, 3 ],
-                           ZZZ = { 1:2, 3:4 })
-        env2=env1.Clone()
+
+        env1 = self.TestEnvironment(XXX=TestA(), YYY=[1, 2, 3], ZZZ={1: 2, 3: 4})
+        env2 = env1.Clone()
         env2.Dictionary('YYY').append(4)
         env2.Dictionary('ZZZ')[5] = 6
         assert env1.Dictionary('XXX') is env2.Dictionary('XXX')
@@ -1836,16 +1836,14 @@ def exists(env):
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
         assert env1.b1.object == env1, "b1.object doesn't point to env1"
         env2 = env1.Clone(BUILDERS = {'b2' : Builder()})
-        assert env2 is env2
-        assert env2 == env2
+        assert env2 != env1
         assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
         assert env1.b1.object == env1, "b1.object was changed"
         assert not hasattr(env2, 'b1'), "b1 was not cleared from env2"
         assert hasattr(env2, 'b2'), "env2.b2 was not set"
         assert env2.b2.object == env2, "b2.object doesn't point to env2"
 
-        # Ensure that specifying new tools in a copied environment
-        # works.
+        # Ensure that specifying new tools in a copied environment works.
         def foo(env): env['FOO'] = 1
         def bar(env): env['BAR'] = 2
         def baz(env): env['BAZ'] = 3
@@ -2880,10 +2878,14 @@ def generate(env):
 
         def testFunc(env, target, source):
             assert str(target[0]) == 'foo.out'
-            assert 'foo1.in' in list(map(str, source)) and 'foo2.in' in list(map(str, source)), list(map(str, source))
+            srcs = list(map(str, source))
+            assert 'foo1.in' in srcs and 'foo2.in' in srcs, srcs
             return 0
+
+        # avoid spurious output from action
+        act = env.Action(testFunc, cmdstr=None)
         t = env.Command(target='foo.out', source=['foo1.in','foo2.in'],
-                        action=testFunc)[0]
+                        action=act)[0]
         assert t.builder is not None
         assert t.builder.action.__class__.__name__ == 'FunctionAction'
         t.build()
