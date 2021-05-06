@@ -92,6 +92,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Maintenance: remove unneeded imports and reorganize some.  Fix uses
       of warnings in some tools which instantiated the class but did nothing
       with them, need to instead call SCons.Warnings.warn with the warn class.
+    - Drop overridden changed_since_last_build method in Value class.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
