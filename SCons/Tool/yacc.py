@@ -1,15 +1,6 @@
-"""SCons.Tool.yacc
-
-Tool-specific initialization for yacc.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool-specific initialization for yacc.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os.path
 import sys
@@ -39,6 +34,7 @@ import sys
 import SCons.Defaults
 import SCons.Tool
 import SCons.Util
+import SCons.Warnings
 from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
 from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 from SCons.Platform.win32 import CHOCO_DEFAULT_PATH
@@ -125,7 +121,10 @@ def get_yacc_path(env, append_paths=False):
             if append_paths:
                 env.AppendENVPath('PATH', os.path.dirname(bin_path))
             return bin_path
-    SCons.Warnings.SConsWarning('yacc tool requested, but yacc or bison binary not found in ENV PATH')
+    SCons.Warnings.warn(
+        SCons.Warnings.SConsWarning,
+        'yacc tool requested, but yacc or bison binary not found in ENV PATH'
+    )
 
 
 def generate(env):

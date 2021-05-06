@@ -1,14 +1,6 @@
-"""SCons.Tool.install
-
-Tool-specific initialization for the install tool.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -28,11 +20,17 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+""" Tool-specific initialization for the install tool.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os
 import stat
-from shutil import copy2, copymode, copystat
+from shutil import copy2, copystat
 
 import SCons.Action
 import SCons.Tool
@@ -44,7 +42,6 @@ from SCons.Tool.linkCommon import (
     EmitLibSymlinks,
 )
 
-#
 # We keep track of *all* installed files.
 _INSTALLED_FILES = []
 _UNIQUE_INSTALLED_FILES = None

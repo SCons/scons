@@ -21,14 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import SCons.compat
-
 import os
 import unittest
 
 import TestCmd
-
-import SCons.Errors
 
 from SCons.Defaults import mkdir_func
 
