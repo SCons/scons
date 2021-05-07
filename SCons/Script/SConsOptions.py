@@ -129,28 +129,31 @@ class SConsValues(optparse.Values):
         'clean',
         'diskcheck',
         'duplicate',
+        'experimental',
+        'hash_chunksize',
         'hash_format',
         'help',
         'implicit_cache',
         'max_drift',
         'md5_chunksize',
         'no_exec',
+        'no_progress',
         'num_jobs',
         'random',
+        'silent',
         'stack_size',
         'warn',
-        'silent',
-        'no_progress',
-        'experimental',
     ]
 
     def set_option(self, name, value):
-        """
-        Sets an option from an SConscript file.
-        """
-        if name not in self.settable:
-            raise SCons.Errors.UserError("This option is not settable from a SConscript file: %s"%name)
+        """Sets an option from an SConscript file."""
 
+        if name not in self.settable:
+            raise SCons.Errors.UserError(
+                "This option is not settable from a SConscript file: %s" % name
+            )
+
+        # the following are for options that need some extra processing
         if name == 'num_jobs':
             try:
                 value = int(value)
@@ -188,7 +191,7 @@ class SConsValues(optparse.Values):
                 value = int(value)
             except ValueError:
                 raise SCons.Errors.UserError("An integer is required: %s"%repr(value))
-        elif name == 'md5_chunksize':
+        elif name in ('md5_chunksize', 'hash_chunksize'):
             try:
                 value = int(value)
             except ValueError:
@@ -204,8 +207,6 @@ class SConsValues(optparse.Values):
             if SCons.Util.is_String(value):
                 value = [value]
             value = self.__SConscript_settings__.get(name, []) + value
-
-
 
         self.__SConscript_settings__[name] = value
 
