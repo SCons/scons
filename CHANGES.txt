@@ -156,6 +156,10 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       modification times in the archive.
     - Fix Zip builder not rebuilding when ZIPROOT env option was changed.
 
+  From David Hart:
+    - Add JavaScanner to include JAVACLASSPATH as a dependency when using the Java tool.
+    - Fix incorrect Java classpath generation when a NodeList is used as part of any JAVA*PATH variables.
+
   From Jason Kenny
     - Fix python3 crash when Value node get_text_content when child content does not have decode()
       NOTE: If you depend on Value node's get_text_content returning concatenated contents of it's
