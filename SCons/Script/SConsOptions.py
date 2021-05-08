@@ -134,6 +134,8 @@ class SConsValues(optparse.Values):
         'hash_format',
         'help',
         'implicit_cache',
+        'implicit_deps_changed',
+        'implicit_deps_unchanged',
         'max_drift',
         'md5_chunksize',
         'no_exec',
@@ -146,7 +148,11 @@ class SConsValues(optparse.Values):
     ]
 
     def set_option(self, name, value):
-        """Sets an option from an SConscript file."""
+        """Sets an option from an SConscript file.
+
+        Raises:
+            UserError: invalid or malformed option ("error in your script")
+        """
 
         if name not in self.settable:
             raise SCons.Errors.UserError(
@@ -160,19 +166,23 @@ class SConsValues(optparse.Values):
                 if value < 1:
                     raise ValueError
             except ValueError:
-                raise SCons.Errors.UserError("A positive integer is required: %s"%repr(value))
+                raise SCons.Errors.UserError(
+                    "A positive integer is required: %s" % repr(value)
+                )
         elif name == 'max_drift':
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s"%repr(value))
+                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
         elif name == 'duplicate':
             try:
                 value = str(value)
             except ValueError:
-                raise SCons.Errors.UserError("A string is required: %s"%repr(value))
+                raise SCons.Errors.UserError("A string is required: %s" % repr(value))
             if value not in SCons.Node.FS.Valid_Duplicates:
-                raise SCons.Errors.UserError("Not a valid duplication style: %s" % value)
+                raise SCons.Errors.UserError(
+                    "Not a valid duplication style: %s" % value
+                )
             # Set the duplicate style right away so it can affect linking
             # of SConscript files.
             SCons.Node.FS.set_duplicate(value)
@@ -180,7 +190,7 @@ class SConsValues(optparse.Values):
             try:
                 value = diskcheck_convert(value)
             except ValueError as v:
-                raise SCons.Errors.UserError("Not a valid diskcheck value: %s"%v)
+                raise SCons.Errors.UserError("Not a valid diskcheck value: %s" % v)
             if 'diskcheck' not in self.__dict__:
                 # No --diskcheck= option was specified on the command line.
                 # Set this right away so it can affect the rest of the
@@ -190,12 +200,13 @@ class SConsValues(optparse.Values):
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s"%repr(value))
+                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
         elif name in ('md5_chunksize', 'hash_chunksize'):
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s"%repr(value))
+                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+            name = 'md5_chunksize'  # for now, the old name is used
         elif name == 'warn':
             if SCons.Util.is_String(value):
                 value = [value]
@@ -207,6 +218,9 @@ class SConsValues(optparse.Values):
             if SCons.Util.is_String(value):
                 value = [value]
             value = self.__SConscript_settings__.get(name, []) + value
+        elif name in ('implicit_deps_changed', 'implicit_deps_unchanged'):
+            if value:
+                self.__SConscript_settings__['implicit_cache'] = True
 
         self.__SConscript_settings__[name] = value
 
