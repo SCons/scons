@@ -93,6 +93,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       of warnings in some tools which instantiated the class but did nothing
       with them, need to instead call SCons.Warnings.warn with the warn class.
     - Drop overridden changed_since_last_build method in Value class.
+    - Resync the SetOption implementation and the manpage, making sure new
+      options are available and adding a notes column for misc information.
+      SetOption equivalents to --hash-chunksize, --implicit-deps-unchanged
+      and --implicit-deps-changed are enabled.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
