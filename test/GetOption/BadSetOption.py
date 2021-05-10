@@ -28,7 +28,6 @@ Test that invalid SetOption calls generate expected errors.
 """
 
 import TestSCons
-from TestSCons import file_expr
 
 test = TestSCons.TestSCons()
 
