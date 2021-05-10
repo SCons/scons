@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,35 +22,39 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test getting and setting options through global functions
+Test that invalid SetOption calls generate expected errors.
 """
 
 import TestSCons
+from TestSCons import file_expr
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-env = Environment()
-option_list = ['clean', 'implicit_cache', 'max_drift', 'num_jobs']
-val = 1
-for option in option_list:
-    SetOption(option, val)
-    o = env.GetOption(option)
-    assert o == val, "%s %s != %s" % (option, o, val)
-    val = val + 1
-for option in option_list:
-    env.SetOption(option, val)
-    o = GetOption(option)
-    assert o == val, "%s %s != %s" % (option, o, val)
-    val = val + 1
-""")
+badopts = (
+    ("no_such_var", True, "This option is not settable from a SConscript file: no_such_var"),
+    ("num_jobs", -22, "A positive integer is required: -22"),
+    ("max_drift", "'Foo'", "An integer is required: 'Foo'"),
+    ("duplicate", "'cookie'", "Not a valid duplication style: cookie"),
+    ("diskcheck", "'off'", "Not a valid diskcheck value: off"),
+    ("md5_chunksize", "'big'", "An integer is required: 'big'"),
+    ("hash_chunksize", "'small'", "An integer is required: 'small'"),
+)
 
-test.run(arguments = '.')
+for opt, value, expect in badopts:
+    SConstruct = "SC-" + opt
+    test.write(
+        SConstruct,
+        """\
+DefaultEnvironment(tools=[])
+SetOption("%(opt)s", %(value)s)
+"""
+        % locals(),
+    )
+    expect = r"scons: *** %s" % expect
+    test.run(arguments='-Q -f %s .' % SConstruct, stderr=None, status=2)
+    test.must_contain_all(test.stderr(), expect)
 
 test.pass_test()
 

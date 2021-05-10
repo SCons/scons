@@ -24,30 +24,30 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test use of GetOption('help') to short-circuit work.
+Test getting and setting options through global functions
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
-DefaultEnvironment(tools=[])
-if GetOption('help'):
-   print("GetOption('help') set")
-else:
-    print("no help for you")
+test.write('SConstruct', """
+env = Environment()
+option_list = ['clean', 'implicit_cache', 'max_drift', 'num_jobs']
+val = 1
+for option in option_list:
+    SetOption(option, val)
+    o = env.GetOption(option)
+    assert o == val, "%s %s != %s" % (option, o, val)
+    val = val + 1
+for option in option_list:
+    env.SetOption(option, val)
+    o = GetOption(option)
+    assert o == val, "%s %s != %s" % (option, o, val)
+    val = val + 1
 """)
 
-test.run(arguments = '-q -Q', stdout = "no help for you\n")
-
-expect = "GetOption('help') set"
-
-test.run(arguments = '-q -Q -h')
-test.fail_test(test.stdout().split('\n')[0] != expect)
-
-test.run(arguments = '-q -Q --help')
-test.fail_test(test.stdout().split('\n')[0] != expect)
+test.run(arguments = '.')
 
 test.pass_test()
 
