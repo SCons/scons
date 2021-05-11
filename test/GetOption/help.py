@@ -39,14 +39,14 @@ else:
     print("no help for you")
 """)
 
-test.run(arguments = '-q -Q', stdout = "no help for you\n")
+test.run(arguments='-q -Q', stdout="no help for you\n")
 
 expect = "GetOption('help') set"
 
-test.run(arguments = '-q -Q -h')
+test.run(arguments='-q -Q -h')
 test.fail_test(test.stdout().split('\n')[0] != expect)
 
-test.run(arguments = '-q -Q --help')
+test.run(arguments='-q -Q --help')
 test.fail_test(test.stdout().split('\n')[0] != expect)
 
 test.pass_test()

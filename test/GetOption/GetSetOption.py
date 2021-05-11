@@ -32,7 +32,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
-env = Environment()
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
 option_list = ['clean', 'implicit_cache', 'max_drift', 'num_jobs']
 val = 1
 for option in option_list:
