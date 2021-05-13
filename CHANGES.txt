@@ -99,6 +99,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       This will provide a path relative to the top of the build tree (where the SConstruct is located)
       Fixes #396
 
+  From Andrew Morrow:
+    - Fix issue #3790: Generators in CPPDEFINES now have access to populated source
+      and target lists
+
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
 
   From James Benton:

@@ -62,6 +62,8 @@ FIXES
     - The Install builder will now set the writable mode on the file(s) it
       copies. This restores the (previously undocumented) SCons behavior
       that regressed as of 4.0.0.
+    - Fix issue #3790: Generators in CPPDEFINES now have access to populated source
+      and target lists
 
 
 IMPROVEMENTS
