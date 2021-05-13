@@ -39,13 +39,24 @@ test_list = [
     ['x', ['y', 123], 'z', ('int', '$INTEGER')],
     { 'c' : 3, 'b': None, 'a' : 1 },
     "${TESTDEFS}",
+    "${GEN}",
 ]
+
+def generator(target, source, env, for_signature):
+    if target and source:
+        return '_'.join([str(target[0]), 'GENERATED', str(source[0])])
+    return 'TARGET_AND_SOURCE_ARE_MISSING'
+
 for i in test_list:
-    env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0, TESTDEFS=["FOO", "BAR=1"])
-    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS'))
+    env = Environment(CPPDEFPREFIX='-D', CPPDEFSUFFIX='', INTEGER=0, TESTDEFS=["FOO", "BAR=1"], GEN=generator)
+    ttt = env.Entry('#ttt')
+    sss = env.Entry('#sss')
+    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS', target=[ttt], source=[sss]))
 for i in test_list:
-    env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1, TESTDEFS=["FOO", "BAR=1"])
-    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS'))
+    env = Environment(CPPDEFPREFIX='|', CPPDEFSUFFIX='|', INTEGER=1, TESTDEFS=["FOO", "BAR=1"], GEN=generator)
+    ttt = env.Entry('#ttt')
+    sss = env.Entry('#sss')
+    print(env.Clone(CPPDEFINES=i).subst('$_CPPDEFFLAGS', target=[ttt], source=[sss]))
 """)
 
 expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
@@ -55,11 +66,13 @@ expect = test.wrap_stdout(build_str="scons: `.' is up to date.\n",
 -Dx -Dy=123 -Dz -Dint=0
 -Da=1 -Db -Dc=3
 -DFOO -DBAR=1
+-Dttt_GENERATED_sss
 |xyz|
 |x| |y| |z|
 |x| |y=123| |z| |int=1|
 |a=1| |b| |c=3|
 |FOO| |BAR=1|
+|ttt_GENERATED_sss|
 """)
 
 test.run(arguments = '.', stdout=expect)
