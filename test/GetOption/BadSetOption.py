@@ -24,30 +24,36 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test use of GetOption('help') to short-circuit work.
+Test that invalid SetOption calls generate expected errors.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """\
+badopts = (
+    ("no_such_var", True, "This option is not settable from a SConscript file: no_such_var"),
+    ("num_jobs", -22, "A positive integer is required: -22"),
+    ("max_drift", "'Foo'", "An integer is required: 'Foo'"),
+    ("duplicate", "'cookie'", "Not a valid duplication style: cookie"),
+    ("diskcheck", "'off'", "Not a valid diskcheck value: off"),
+    ("md5_chunksize", "'big'", "An integer is required: 'big'"),
+    ("hash_chunksize", "'small'", "An integer is required: 'small'"),
+)
+
+for opt, value, expect in badopts:
+    SConstruct = "SC-" + opt
+    test.write(
+        SConstruct,
+        """\
 DefaultEnvironment(tools=[])
-if GetOption('help'):
-   print("GetOption('help') set")
-else:
-    print("no help for you")
-""")
-
-test.run(arguments='-q -Q', stdout="no help for you\n")
-
-expect = "GetOption('help') set"
-
-test.run(arguments='-q -Q -h')
-test.fail_test(test.stdout().split('\n')[0] != expect)
-
-test.run(arguments='-q -Q --help')
-test.fail_test(test.stdout().split('\n')[0] != expect)
+SetOption("%(opt)s", %(value)s)
+"""
+        % locals(),
+    )
+    expect = r"scons: *** %s" % expect
+    test.run(arguments='-Q -f %s .' % SConstruct, stderr=None, status=2)
+    test.must_contain_all(test.stderr(), expect)
 
 test.pass_test()
 

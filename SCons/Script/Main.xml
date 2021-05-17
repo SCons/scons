@@ -317,260 +317,241 @@ atexit.register(print_build_failures)
 <summary>
 <para>
 This function provides a way to query the value of
-SCons options set on scons command line
-(or set using the
-&f-link-SetOption;
-function).
-The options supported are:
+options which can be set via the command line or using the
+&f-link-SetOption; function.
+</para>
+<para>
+<parameter>name</parameter> can be an entry from the following table,
+which shows the corresponding command line arguments
+that could affect the value.
+<parameter>name</parameter> can be also be the destination
+variable name from a project-specific option added using the
+&f-link-AddOption; function, as long as the addition
+happens prior to the &f-GetOption; call in the SConscript files.
 </para>
 
-<para>
-<variablelist>
-<varlistentry>
-<term><literal>cache_debug</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-debug</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>cache_disable</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-disable</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>cache_force</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-force</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>cache_show</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-show</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>clean</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-c</option>, <option>--clean</option>
-and <option>--remove</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>config</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--config</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>directory</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-C</option> and <option>--directory</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>diskcheck</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--diskcheck</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>duplicate</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--duplicate</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>file</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-f</option>, <option>--file</option>, <option>--makefile</option> and <option>--sconstruct</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>help</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-h</option> and <option>--help</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>ignore_errors</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--ignore-errors</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_cache</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-cache</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_deps_changed</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-deps-changed</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_deps_unchanged</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-deps-unchanged</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>interactive</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--interact</option> and <option>--interactive</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>keep_going</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-k</option> and <option>--keep-going</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>max_drift</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--max-drift</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_exec</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-n</option>,
-<option>--no-exec</option>, <option>--just-print</option>,
-<option>--dry-run</option> and <option>--recon</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_site_dir</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--no-site-dir</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>num_jobs</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-j</option> and <option>--jobs</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>profile_file</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--profile</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>question</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-q</option> and <option>--question</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>random</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--random</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>repository</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-Y</option>, <option>--repository</option> and <option>--srcdir</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>silent</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-s</option>, <option>--silent</option> and <option>--quiet</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>site_dir</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--site-dir</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>stack_size</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--stack-size</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>taskmastertrace_file</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--taskmastertrace</option>; and
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>warn</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--warn</option> and <option>--warning</option>.
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
-</para>
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="3">
+<thead>
+<row>
+  <entry align="left">Query name</entry>
+  <entry align="left">Command-line options</entry>
+  <entry align="left">Notes</entry>
+</row>
+</thead>
+
+<tbody>
+<row>
+  <entry><varname>cache_debug</varname></entry>
+  <entry><option>--cache-debug</option></entry>
+</row>
+<row>
+  <entry><varname>cache_disable</varname></entry>
+  <entry>
+      <option>--cache-disable</option>,
+      <option>--no-cache</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>cache_force</varname></entry>
+  <entry>
+      <option>--cache-force</option>,
+      <option>--cache-populate</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>cache_readonly</varname></entry>
+  <entry><option>--cache-readonly</option></entry>
+</row>
+<row>
+  <entry><varname>cache_show</varname></entry>
+  <entry><option>--cache-show</option></entry>
+</row>
+<row>
+  <entry><varname>clean</varname></entry>
+  <entry>
+      <option>-c</option>,
+      <option>--clean</option>,
+      <option>--remove</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>climb_up</varname></entry>
+  <entry>
+      <option>-D</option>
+      <option>-U</option>
+      <option>-u</option>
+      <option>--up</option>
+      <option>--search_up</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>config</varname></entry>
+  <entry><option>--config</option></entry>
+</row>
+<row>
+  <entry><varname>debug</varname></entry>
+  <entry><option>--debug</option></entry>
+</row>
+<row>
+  <entry><varname>directory</varname></entry>
+  <entry><option>-C</option>, <option>--directory</option></entry>
+</row>
+<row>
+  <entry><varname>diskcheck</varname></entry>
+  <entry><option>--diskcheck</option></entry>
+</row>
+<row>
+  <entry><varname>duplicate</varname></entry>
+  <entry><option>--duplicate</option></entry>
+</row>
+<row>
+  <entry><varname>enable_virtualenv</varname></entry>
+  <entry><option>--enable-virtualenv</option></entry>
+</row>
+<row>
+  <entry><varname>experimental</varname></entry>
+  <entry><option>--experimental</option></entry>
+  <entry><emphasis>since 4.2</emphasis></entry>
+</row>
+<row>
+  <entry><varname>file</varname></entry>
+  <entry>
+      <option>-f</option>,
+      <option>--file</option>,
+      <option>--makefile</option>,
+      <option>--sconstruct</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>hash_format</varname></entry>
+  <entry><option>--hash-format</option></entry>
+  <entry><emphasis>since 4.2</emphasis></entry>
+</row>
+<row>
+  <entry><varname>help</varname></entry>
+  <entry><option>-h</option>, <option>--help</option></entry>
+</row>
+<row>
+  <entry><varname>ignore_errors</varname></entry>
+  <entry><option>-i</option>, <option>--ignore-errors</option></entry>
+</row>
+<row>
+  <entry><varname>ignore_virtualenv</varname></entry>
+  <entry><option>--ignore-virtualenv</option></entry>
+</row>
+<row>
+  <entry><varname>implicit_cache</varname></entry>
+  <entry><option>--implicit-cache</option></entry>
+</row>
+<row>
+  <entry><varname>implicit_deps_changed</varname></entry>
+  <entry><option>--implicit-deps-changed</option></entry>
+</row>
+<row>
+  <entry><varname>implicit_deps_unchanged</varname></entry>
+  <entry><option>--implicit-deps-unchanged</option></entry>
+</row>
+<row>
+  <entry><varname>include_dir</varname></entry>
+  <entry><option>-I</option>, <option>--include-dir</option></entry>
+</row>
+<row>
+  <entry><varname>install_sandbox</varname></entry>
+  <entry><option>--install-sandbox</option></entry>
+  <entry>Available only if the &t-link-install; tool has been called</entry>
+</row>
+<row>
+  <entry><varname>keep_going</varname></entry>
+  <entry><option>-k</option>, <option>--keep-going</option></entry>
+</row>
+<row>
+  <entry><varname>max_drift</varname></entry>
+  <entry><option>--max-drift</option></entry>
+</row>
+<row>
+  <entry><varname>md5_chunksize</varname></entry>
+  <entry>
+      <option>--hash-chunksize</option>,
+      <option>--md5-chunksize</option>
+  </entry>
+  <entry><emphasis><option>--hash-chunksize</option> since 4.2</emphasis></entry>
+</row>
+<row>
+  <entry><varname>no_exec</varname></entry>
+  <entry>
+      <option>-n</option>,
+      <option>--no-exec</option>,
+      <option>--just-print</option>,
+      <option>--dry-run</option>,
+      <option>--recon</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>no_progress</varname></entry>
+  <entry><option>-Q</option></entry>
+</row>
+<row>
+  <entry><varname>num_jobs</varname></entry>
+  <entry><option>-j</option>, <option>--jobs</option></entry>
+</row>
+<row>
+  <entry><varname>package_type</varname></entry>
+  <entry><option>--package-type</option></entry>
+  <entry>Available only if the &t-link-packaging; tool has been called</entry>
+</row>
+<row>
+  <entry><varname>profile_file</varname></entry>
+  <entry><option>--profile</option></entry>
+</row>
+<row>
+  <entry><varname>question</varname></entry>
+  <entry><option>-q</option>, <option>--question</option></entry>
+</row>
+<row>
+  <entry><varname>random</varname></entry>
+  <entry><option>--random</option></entry>
+</row>
+<row>
+  <entry><varname>repository</varname></entry>
+  <entry>
+      <option>-Y</option>,
+      <option>--repository</option>,
+      <option>--srcdir</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>silent</varname></entry>
+  <entry>
+      <option>-s</option>,
+      <option>--silent</option>,
+      <option>--quiet</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>site_dir</varname></entry>
+  <entry><option>--site-dir</option>, <option>--no-site-dir</option></entry>
+</row>
+<row>
+  <entry><varname>stack_size</varname></entry>
+  <entry><option>--stack-size</option></entry>
+</row>
+<row>
+  <entry><varname>taskmastertrace_file</varname></entry>
+  <entry><option>--taskmastertrace</option></entry>
+</row>
+<row>
+  <entry><varname>tree_printers</varname></entry>
+  <entry><option>--tree</option></entry>
+</row>
+<row>
+  <entry><varname>warn</varname></entry>
+  <entry><option>--warn</option>, <option>--warning</option></entry>
+</row>
+
+</tbody>
+</tgroup>
+</informaltable>
 
 <para>
 See the documentation for the
@@ -775,10 +756,22 @@ A value set via command-line option will take
 precedence over one set with &f-SetOption;, which
 allows setting a project default in the scripts and
 temporarily overriding it via command line.
-Project-wide
 &f-SetOption; calls can also be placed in the
 <filename>site_init.py</filename> file.
 </para>
+
+<para>
+See the documentation in the manpage for the
+corresponding command line option for information about each specific option.
+The <parameter>value</parameter> parameter is mandatory,
+for option values which are boolean in nature
+(that is, the command line option does not take an argument)
+use a <parameter>value</parameter>
+which evaluates to true (e.g. <constant>True</constant>,
+<constant>1</constant>) or false (e.g. <constant>False</constant>,
+<constant>0</constant>).
+</para>
+
 <para>
 Options which affect the reading and processing of SConscript files
 are not settable using &f-SetOption; since those files must
@@ -796,9 +789,9 @@ The settable variables with their associated command-line options are:
 <tgroup cols="3">
 <thead>
 <row>
-  <entry>Variable</entry>
-  <entry>Command-line options</entry>
-  <entry>Notes</entry>
+  <entry align="left">Settable name</entry>
+  <entry align="left">Command-line options</entry>
+  <entry align="left">Notes</entry>
 </row>
 </thead>
 
@@ -831,7 +824,10 @@ The settable variables with their associated command-line options are:
 <row>
   <entry><varname>hash_chunksize</varname></entry>
   <entry><option>--hash-chunksize</option></entry>
-  <entry><emphasis>since 4.2</emphasis></entry>
+  <entry>
+    Actually sets <varname>md5_chunksize</varname>.
+    <emphasis>since 4.2</emphasis>
+  </entry>
 </row>
 
 <row>
@@ -848,21 +844,24 @@ The settable variables with their associated command-line options are:
 <row>
   <entry><varname>implicit_cache</varname></entry>
   <entry><option>--implicit-cache</option></entry>
-  <entry><emphasis> since 4.2</emphasis></entry>
 </row>
 
 <row>
   <entry><varname>implicit_deps_changed</varname></entry>
   <entry><option>--implicit-deps-changed</option></entry>
-  <entry>Also sets <varname>implicit_cache</varname>
-  <emphasis>(since 4.2)</emphasis></entry>
+  <entry>
+    Also sets <varname>implicit_cache</varname>.
+    <emphasis>(settable since 4.2)</emphasis>
+  </entry>
 </row>
 
 <row>
   <entry><varname>implicit_deps_unchanged</varname></entry>
   <entry><option>--implicit-deps-unchanged</option></entry>
-  <entry>Also sets <varname>implicit_cache</varname>
-  <emphasis>(since 4.2)</emphasis></entry>
+  <entry>
+    Also sets <varname>implicit_cache</varname>.
+    <emphasis>(settable since 4.2)</emphasis>
+  </entry>
 </row>
 
 <row>
@@ -889,6 +888,18 @@ The settable variables with their associated command-line options are:
 <row>
   <entry><varname>no_progress</varname></entry>
   <entry><option>-Q</option></entry>
+  <entry>See
+    <footnote>
+      <para>If <varname>no_progress</varname> is set via &f-SetOption;
+      in an SConscript file
+      (but not if set in a <filename>site_init.py</filename> file)
+      there will still be an initial status message about
+      reading SConscript files since &SCons; has
+      to start reading them before it can see the
+      &f-SetOption;.
+      </para>
+    </footnote>
+  </entry>
 </row>
 
 <row>
@@ -903,7 +914,11 @@ The settable variables with their associated command-line options are:
 
 <row>
   <entry><varname>silent</varname></entry>
-  <entry><option>--silent</option></entry>
+  <entry>
+    <option>-s</option>,
+    <option>--silent</option>,
+    <option>--quiet</option>
+  </entry>
 </row>
 
 <row>
@@ -919,29 +934,6 @@ The settable variables with their associated command-line options are:
 </tbody>
 </tgroup>
 </informaltable>
-
-<para>
-See the documentation in the manpage for the
-corresponding command line option for information about each specific option.
-The <parameter>value</parameter> parameter is mandatory,
-for option values which are boolean in nature
-(that is, the command line option does not take an argument)
-use a <parameter>value</parameter>
-which evaluates to true (e.g. <constant>True</constant>,
-<constant>1</constant>) or false (e.g. <constant>False</constant>,
-<constant>0</constant>).
-</para>
-
-<note>
-<para>
-If <varname>no_progress</varname> is set via &f-SetOption;
-in an SConscript file,
-there will still be initial progress output as &SCons; has
-to start reading SConscript files before it can see the
-&f-SetOption; in an SConscript file:
-<computeroutput>scons: Reading SConscript files ...</computeroutput>
-</para>
-</note>
 
 <para>
 Example:
