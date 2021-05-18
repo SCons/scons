@@ -414,7 +414,7 @@ def generate(env):
         ninja_add_command_line_options()
 
     try:
-        import ninja # noqa: F401
+        import ninja  # noqa: F401
     except ImportError:
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return
