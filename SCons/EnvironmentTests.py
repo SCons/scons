@@ -2500,9 +2500,11 @@ f5: \
 
         exc_caught = None
         try:
-            env.Tool('does_not_exist')
+            tool = env.Tool('does_not_exist')
         except SCons.Errors.UserError:
             exc_caught = 1
+        else:
+            assert isinstance(tool, SCons.Tool.Tool)
         assert exc_caught, "did not catch expected UserError"
 
         exc_caught = None
