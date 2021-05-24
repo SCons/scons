@@ -9,6 +9,10 @@ NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
+      when constructing the installed visual studios list.
+
   From William Deegan:
     - Improve Subst()'s logic to check for proper callable function or class's argument list.
       It will now allow callables with expected args, and any extra args as long as they
@@ -20,7 +24,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       IMPLIBNOVERSIONSYMLINKS and LDMODULENOVERSIONSYMLINKS to True.
     - Added --experimental flag, to enable various experimental features/tools.  You can specify
       'all', 'none', or any combination of available experimental features.
-
+    - Fix Issue #3933 - Remove unguarded print of debug information in SharedLibrary logic when
+      SHLIBVERSION is specified.
+    - Fix versioned shared library naming for MacOS platform. (Previously was libxyz.dylib.1.2.3,
+      has been fixed to libxyz.1.2.3.dylib. Additionally the sonamed symlink had the same issue,
+      that is now resolved as well)
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
@@ -74,11 +82,31 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Don't strip spaces in INSTALLSTR by using raw subst (issue 2018)
     - Deprecate Python 3.5 as a supported version.
     - CPPDEFINES now expands construction variable references (issue 2363)
+    - Restore behavior that Install()'d files are writable (issue 3927)
+    - Simplified Mkdir(), the internal mkdir_func no longer needs to handle
+      existing directories, it can now pass exist_ok=True to os.makedirs().
+    - Avoid WhereIs exception if user set a tool name to empty (from issue 1742)
+    - Maintenance: remove obsolete __getslice__ definitions (Py3 never calls);
+      add Node.fs.scandir to call new (Py3.5) os.scandir; Node.fs.makedirs
+      now passes the exist_ok flag; Cachedir creation now uses this flag.
+    - Maintenance: remove unneeded imports and reorganize some.  Fix uses
+      of warnings in some tools which instantiated the class but did nothing
+      with them, need to instead call SCons.Warnings.warn with the warn class.
+    - Drop overridden changed_since_last_build method in Value class.
+    - Resync the SetOption implementation and the manpage, making sure new
+      options are available and adding a notes column for misc information.
+      SetOption equivalents to --hash-chunksize, --implicit-deps-unchanged
+      and --implicit-deps-changed are enabled.
+    - Add tests for SetOption failing on disallowed options and value types.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
       This will provide a path relative to the top of the build tree (where the SConstruct is located)
       Fixes #396
+
+  From Andrew Morrow:
+    - Fix issue #3790: Generators in CPPDEFINES now have access to populated source
+      and target lists
 
 RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
 
@@ -129,6 +157,8 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       SCons.Node.Node.clear() clear out all caching-related state.
     - Change Environment.SideEffect() to not add duplicate side effects.
       NOTE: The list of returned side effect Nodes will not include any duplicate side effect Nodes.
+    - Add support to the Python scanner for finding dynamically generated dependencies.
+      Previously the scanner only found imports if they existed on disk at scanning time.
 
   From David H:
     - Add ZIP_OVERRIDE_TIMESTAMP env option to Zip builder which allows for overriding of the file

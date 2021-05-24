@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,12 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""SCons.Tool.Packaging
-
-SCons Packaging Tool.
-"""
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons Packaging Tool."""
 
 import importlib
 from inspect import getfullargspec
@@ -306,8 +302,11 @@ def stripinstallbuilder(target, source, env):
                     and file.builder.name in ["InstallBuilder", "InstallAsBuilder"])
 
     if len([src for src in source if has_no_install_location(src)]):
-        warn(SConsWarning, "there are files to package which have no\
-        InstallBuilder attached, this might lead to irreproducible packages")
+        warn(
+            SConsWarning,
+            "there are files to package which have no InstallBuilder "
+            "attached, this might lead to irreproducible packages"
+        )
 
     n_source = []
     for s in source:

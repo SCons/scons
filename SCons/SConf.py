@@ -234,8 +234,10 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         bi.
         """
         if not isinstance(bi, SConfBuildInfo):
-            SCons.Warnings.warn(SConfWarning,
-              "The stored build information has an unexpected class: %s" % bi.__class__)
+            SCons.Warnings.warn(
+                SConfWarning,
+                "The stored build information has an unexpected class: %s" % bi.__class__
+            )
         else:
             self.display("The original builder output was:\n" +
                          ("  |" + str(bi.string)).replace("\n", "\n  |"))

@@ -1,0 +1,16 @@
+import sys
+
+env = Environment(tools=['python'])
+
+# Copy each file individually instead of copying the dir. This has the benefit
+# of establishing nodes in-memory for each of the resulting files, which helps
+# the scanner work correctly.
+srcDir = env.Dir('to_be_copied')
+for srcNode in srcDir.glob('*'):
+    for destDir in [env.Dir('package1'), env.Dir('package2')]:
+        env.Command(destDir.File(srcNode.name), srcNode,
+                    Copy('$TARGET', '$SOURCE'))
+
+# Don't set a dependency on the copy actions on purpose. Scanner should find
+# the dependencies automatically.
+env.Command('a.out', 'script.py', '$PYTHON $SOURCE $TARGET', PYTHON=sys.executable)

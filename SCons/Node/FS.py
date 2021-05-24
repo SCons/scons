@@ -1116,56 +1116,81 @@ class LocalFS:
     needs to use os.chdir() directly to avoid recursion.  Will we
     really need this one?
     """
-    #def chdir(self, path):
-    #    return os.chdir(path)
+
     def chmod(self, path, mode):
         return os.chmod(path, mode)
+
     def copy(self, src, dst):
         return shutil.copy(src, dst)
+
     def copy2(self, src, dst):
         return shutil.copy2(src, dst)
+
     def exists(self, path):
         return os.path.exists(path)
+
     def getmtime(self, path):
         return os.path.getmtime(path)
+
     def getsize(self, path):
         return os.path.getsize(path)
+
     def isdir(self, path):
         return os.path.isdir(path)
+
     def isfile(self, path):
         return os.path.isfile(path)
+
     def link(self, src, dst):
         return os.link(src, dst)
+
     def lstat(self, path):
         return os.lstat(path)
+
     def listdir(self, path):
         return os.listdir(path)
-    def makedirs(self, path):
-        return os.makedirs(path)
-    def mkdir(self, path):
-        return os.mkdir(path)
+
+    def scandir(self, path):
+        return os.scandir(path)
+
+    def makedirs(self, path, mode=0o777, exist_ok=False):
+        return os.makedirs(path, mode=mode, exist_ok=exist_ok)
+
+    def mkdir(self, path, mode=0o777):
+        return os.mkdir(path, mode=mode)
+
     def rename(self, old, new):
         return os.rename(old, new)
+
     def stat(self, path):
         return os.stat(path)
+
     def symlink(self, src, dst):
         return os.symlink(src, dst)
+
     def open(self, path):
         return open(path)
+
     def unlink(self, path):
         return os.unlink(path)
 
     if hasattr(os, 'symlink'):
+
         def islink(self, path):
             return os.path.islink(path)
+
     else:
+
         def islink(self, path):
-            return 0                    # no symlinks
+            return False  # no symlinks
 
     if hasattr(os, 'readlink'):
+
         def readlink(self, file):
             return os.readlink(file)
+
     else:
+
         def readlink(self, file):
             return ''
 
@@ -3729,7 +3754,10 @@ class FileFinder:
         return None
 
     def _find_file_key(self, filename, paths, verbose=None):
-        return (filename, paths)
+        # Note: paths could be a list, which is not hashable. If it is, convert
+        # it to a tuple, which is hashable.
+        paths_entry = tuple(paths) if isinstance(paths, list) else paths
+        return (filename, paths_entry)
 
     @SCons.Memoize.CountDictCall(_find_file_key)
     def find_file(self, filename, paths, verbose=None):

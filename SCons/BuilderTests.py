@@ -38,7 +38,6 @@ import sys
 import unittest
 
 import TestCmd
-import TestUnit
 
 import SCons.Action
 import SCons.Builder

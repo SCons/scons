@@ -34,6 +34,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-BIBTEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$BIBTEXCOMSTR</envar>">
 <!ENTITY cv-BIBTEXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$BIBTEXFLAGS</envar>">
 <!ENTITY cv-BUILDERS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$BUILDERS</envar>">
+<!ENTITY cv-CACHEDIR_CLASS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CACHEDIR_CLASS</envar>">
 <!ENTITY cv-CC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CC</envar>">
 <!ENTITY cv-CCCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CCCOM</envar>">
 <!ENTITY cv-CCCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$CCCOMSTR</envar>">
@@ -561,6 +562,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-TARGET_OS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGET_OS</envar>">
 <!ENTITY cv-TARGETS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGETS</envar>">
 <!ENTITY cv-TARSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARSUFFIX</envar>">
+<!ENTITY cv-TEMPFILEARGESCFUNC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGESCFUNC</envar>">
 <!ENTITY cv-TEMPFILEARGJOIN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGJOIN</envar>">
 <!ENTITY cv-TEMPFILEDIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEDIR</envar>">
 <!ENTITY cv-TEMPFILEPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEPREFIX</envar>">
@@ -685,6 +687,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-BIBTEXCOMSTR "<link linkend='cv-BIBTEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$BIBTEXCOMSTR</envar></link>">
 <!ENTITY cv-link-BIBTEXFLAGS "<link linkend='cv-BIBTEXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$BIBTEXFLAGS</envar></link>">
 <!ENTITY cv-link-BUILDERS "<link linkend='cv-BUILDERS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$BUILDERS</envar></link>">
+<!ENTITY cv-link-CACHEDIR_CLASS "<link linkend='cv-CACHEDIR_CLASS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CACHEDIR_CLASS</envar></link>">
 <!ENTITY cv-link-CC "<link linkend='cv-CC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CC</envar></link>">
 <!ENTITY cv-link-CCCOM "<link linkend='cv-CCCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CCCOM</envar></link>">
 <!ENTITY cv-link-CCCOMSTR "<link linkend='cv-CCCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$CCCOMSTR</envar></link>">
@@ -1212,6 +1215,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-TARGET_OS "<link linkend='cv-TARGET_OS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGET_OS</envar></link>">
 <!ENTITY cv-link-TARGETS "<link linkend='cv-TARGETS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGETS</envar></link>">
 <!ENTITY cv-link-TARSUFFIX "<link linkend='cv-TARSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARSUFFIX</envar></link>">
+<!ENTITY cv-link-TEMPFILEARGESCFUNC "<link linkend='cv-TEMPFILEARGESCFUNC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGESCFUNC</envar></link>">
 <!ENTITY cv-link-TEMPFILEARGJOIN "<link linkend='cv-TEMPFILEARGJOIN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGJOIN</envar></link>">
 <!ENTITY cv-link-TEMPFILEDIR "<link linkend='cv-TEMPFILEDIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEDIR</envar></link>">
 <!ENTITY cv-link-TEMPFILEPREFIX "<link linkend='cv-TEMPFILEPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEPREFIX</envar></link>">

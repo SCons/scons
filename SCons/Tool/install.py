@@ -1,14 +1,6 @@
-"""SCons.Tool.install
-
-Tool-specific initialization for the install tool.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -28,10 +20,17 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+""" Tool-specific initialization for the install tool.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os
-from shutil import copy2, copymode, copystat
+import stat
+from shutil import copy2, copystat
 
 import SCons.Action
 import SCons.Tool
@@ -43,7 +42,6 @@ from SCons.Tool.linkCommon import (
     EmitLibSymlinks,
 )
 
-#
 # We keep track of *all* installed files.
 _INSTALLED_FILES = []
 _UNIQUE_INSTALLED_FILES = None
@@ -152,11 +150,14 @@ def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
 #
 # Functions doing the actual work of the Install Builder.
 #
-def copyFunc(dest, source, env):
-    """Install a source file or directory into a destination by copying,
+def copyFunc(dest, source, env) -> int:
+    """Install a source file or directory into a destination by copying.
 
-    Mode/permissions bits will be copied as well.
+    Mode/permissions bits will be copied as well, except that the target
+    will be made writable.
 
+    Returns:
+        POSIX-style error code - 0 for success, non-zero for fail
     """
     if os.path.isdir(source):
         if os.path.exists(dest):
@@ -169,19 +170,24 @@ def copyFunc(dest, source, env):
         scons_copytree(source, dest, dirs_exist_ok=True)
     else:
         copy2(source, dest)
-        copymode(source, dest)
+        st = os.stat(source)
+        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
 
     return 0
 
 #
 # Functions doing the actual work of the InstallVersionedLib Builder.
 #
-def copyFuncVersionedLib(dest, source, env):
-    """Install a versioned library into a destination by copying,
+def copyFuncVersionedLib(dest, source, env) -> int:
+    """Install a versioned library into a destination by copying.
 
-    Mode/permissions bits will be copied as well.
     Any required symbolic links for other library names are created.
 
+    Mode/permissions bits will be copied as well, except that the target
+    will be made writable.
+
+    Returns:
+        POSIX-style error code - 0 for success, non-zero for fail
     """
     if os.path.isdir(source):
         raise SCons.Errors.UserError("cannot install directory `%s' as a version library" % str(source) )
@@ -192,7 +198,8 @@ def copyFuncVersionedLib(dest, source, env):
         except:
             pass
         copy2(source, dest)
-        copymode(source, dest)
+        st = os.stat(source)
+        os.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
         installShlibLinks(dest, source, env)
 
     return 0
@@ -223,38 +230,58 @@ def installShlibLinks(dest, source, env):
         CreateLibSymlinks(env, symlinks)
     return
 
-def installFunc(target, source, env):
-    """Install a source file into a target using the function specified
-    as the INSTALL construction variable."""
+def installFunc(target, source, env) -> int:
+    """Install a source file into a target.
+
+    Uses the function specified in the INSTALL construction variable.
+
+    Returns:
+        POSIX-style error code - 0 for success, non-zero for fail
+    """
+
     try:
         install = env['INSTALL']
     except KeyError:
         raise SCons.Errors.UserError('Missing INSTALL construction variable.')
 
-    assert len(target)==len(source), \
-           "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
-    for t,s in zip(target,source):
-        if install(t.get_path(),s.get_path(),env):
+    assert len(target) == len(source), (
+        "Installing source %s into target %s: "
+        "target and source lists must have same length."
+        % (list(map(str, source)), list(map(str, target)))
+    )
+    for t, s in zip(target, source):
+        if install(t.get_path(), s.get_path(), env):
             return 1
 
     return 0
 
-def installFuncVersionedLib(target, source, env):
-    """Install a versioned library into a target using the function specified
-    as the INSTALLVERSIONEDLIB construction variable."""
+def installFuncVersionedLib(target, source, env) -> int:
+    """Install a versioned library into a target.
+
+    Uses the function specified in the INSTALL construction variable.
+
+    Returns:
+        POSIX-style error code - 0 for success, non-zero for fail
+    """
+
     try:
         install = env['INSTALLVERSIONEDLIB']
     except KeyError:
-        raise SCons.Errors.UserError('Missing INSTALLVERSIONEDLIB construction variable.')
+        raise SCons.Errors.UserError(
+            'Missing INSTALLVERSIONEDLIB construction variable.'
+        )
 
-    assert len(target)==len(source), \
-           "Installing source %s into target %s: target and source lists must have same length."%(list(map(str, source)), list(map(str, target)))
-    for t,s in zip(target,source):
+    assert len(target) == len(source), (
+        "Installing source %s into target %s: "
+        "target and source lists must have same length."
+        % (list(map(str, source)), list(map(str, target)))
+    )
+    for t, s in zip(target, source):
         if hasattr(t.attributes, 'shlibname'):
             tpath = os.path.join(t.get_dir(), t.attributes.shlibname)
         else:
             tpath = t.get_path()
-        if install(tpath,s.get_path(),env):
+        if install(tpath, s.get_path(), env):
             return 1
 
     return 0
@@ -461,12 +488,12 @@ def generate(env):
     try:
         env['INSTALL']
     except KeyError:
-        env['INSTALL']    = copyFunc
+        env['INSTALL'] = copyFunc
 
     try:
         env['INSTALLVERSIONEDLIB']
     except KeyError:
-        env['INSTALLVERSIONEDLIB']    = copyFuncVersionedLib
+        env['INSTALLVERSIONEDLIB'] = copyFuncVersionedLib
 
 def exists(env):
     return 1

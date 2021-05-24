@@ -1,16 +1,6 @@
-"""SCons.Tool.tex
-
-Tool-specific initialization for TeX.
-Generates .dvi files from .tex files
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,8 +20,15 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+""" Tool-specific initialization for TeX.
+
+Generates .dvi files from .tex files
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os.path
 import re
@@ -867,7 +864,7 @@ def generate_darwin(env):
     if platform.system() == 'Darwin':
         try:
             ospath = env['ENV']['PATHOSX']
-        except:
+        except KeyError:
             ospath = None
         if ospath:
             env.AppendENVPath('PATH', ospath)

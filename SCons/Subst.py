@@ -217,10 +217,6 @@ class Targets_or_Sources(collections.UserList):
     def __getitem__(self, i):
         nl = self.nl._create_nodelist()
         return nl[i]
-    def __getslice__(self, i, j):
-        nl = self.nl._create_nodelist()
-        i = max(i, 0); j = max(j, 0)
-        return nl[i:j]
     def __str__(self):
         nl = self.nl._create_nodelist()
         return str(nl)
