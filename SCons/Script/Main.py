@@ -44,7 +44,6 @@ import re
 import sys
 import time
 import traceback
-import sysconfig
 import platform
 import threading
 

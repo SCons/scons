@@ -31,7 +31,6 @@ The code that reads the registry to find MSVC components was borrowed
 from distutils.msvccompiler.
 """
 
-import errno
 import os
 import shutil
 import stat
@@ -309,16 +308,7 @@ def mkdir_func(dest):
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for entry in dest:
-        try:
-            os.makedirs(str(entry))
-        except os.error as e:
-            p = str(entry)
-            if (e.args[0] == errno.EEXIST or
-                (sys.platform == 'win32' and e.args[0] == 183)) \
-                    and os.path.isdir(str(entry)):
-                pass  # not an error if already exists
-            else:
-                raise
+        os.makedirs(str(entry), exist_ok=True)
 
 
 Mkdir = ActionFactory(mkdir_func,
@@ -508,12 +498,12 @@ def processDefines(defs):
     return l
 
 
-def _defines(prefix, defs, suffix, env, c=_concat_ixes):
+def _defines(prefix, defs, suffix, env, target, source, c=_concat_ixes):
     """A wrapper around _concat_ixes that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
 
-    return c(prefix, env.subst_list(processDefines(defs)), suffix, env)
+    return c(prefix, env.subst_list(processDefines(defs), target=target, source=source), suffix, env)
 
 
 class NullCmdGenerator:
@@ -618,7 +608,7 @@ ConstructionEnvironment = {
     '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
     '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
     '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-    '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__)}',
+    '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__, TARGET, SOURCE)}',
 
     '__libversionflags': __libversionflags,
     '__SHLIBVERSIONFLAGS': '${__libversionflags(__env__,"SHLIBVERSION","_SHLIBVERSIONFLAGS")}',

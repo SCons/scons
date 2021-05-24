@@ -146,13 +146,6 @@ class Value(SCons.Node.Node):
         """Get contents for signature calculations."""
         return self.get_text_contents().encode()
 
-    def changed_since_last_build(self, target, prev_ni):
-        cur_csig = self.get_csig()
-        try:
-            return cur_csig != prev_ni.csig
-        except AttributeError:
-            return True
-
     def get_csig(self, calc=None):
         """Because we're a Python value node and don't have a real
         timestamp, we get to ignore the calculator and just use the

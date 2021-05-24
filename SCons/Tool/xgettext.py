@@ -1,9 +1,6 @@
-""" xgettext tool
-
-Tool specific initialization of `xgettext` tool.
-"""
-
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,7 +21,7 @@ Tool specific initialization of `xgettext` tool.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Tool specific initialization of `xgettext` tool."""
 
 import os
 import re
@@ -35,16 +32,20 @@ import SCons.Action
 import SCons.Node.FS
 import SCons.Tool
 import SCons.Util
+import SCons.Warnings
 from SCons.Builder import BuilderBase
 from SCons.Environment import _null
 from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-from SCons.Tool.GettextCommon import _POTargetFactory
-from SCons.Tool.GettextCommon import RPaths, _detect_xgettext
-from SCons.Tool.GettextCommon import _xgettext_exists
+from SCons.Tool.GettextCommon import (
+    _detect_xgettext,
+    _POTargetFactory,
+    RPaths,
+    _xgettext_exists,
+    # XgettextToolWarning,
+)
 
 
-#############################################################################
 class _CmdRunner:
     """ Callable object, which runs shell command storing its stdout and stderr to
     variables. It also provides `strfunction()` method, which shall be used by
@@ -81,9 +82,6 @@ class _CmdRunner:
         return s
 
 
-#############################################################################
-
-#############################################################################
 def _update_pot_file(target, source, env):
     """ Action function for `POTUpdate` builder """
     nop = lambda target, source, env: 0
@@ -160,9 +158,6 @@ def _update_pot_file(target, source, env):
         return 0
 
 
-#############################################################################
-
-#############################################################################
 class _POTBuilder(BuilderBase):
     def _execute(self, env, target, source, *args):
         if not target:
@@ -174,9 +169,6 @@ class _POTBuilder(BuilderBase):
         return BuilderBase._execute(self, env, target, source, *args)
 
 
-#############################################################################
-
-#############################################################################
 def _scan_xgettext_from_files(target, source, env, files=None, path=None):
     """ Parses `POTFILES.in`-like file and returns list of extracted file names.
     """
@@ -226,9 +218,6 @@ def _scan_xgettext_from_files(target, source, env, files=None, path=None):
     return 0
 
 
-#############################################################################
-
-#############################################################################
 def _pot_update_emitter(target, source, env):
     """ Emitter function for `POTUpdate` builder """
     if 'XGETTEXTFROM' in env:
@@ -255,16 +244,10 @@ def _pot_update_emitter(target, source, env):
     return target, source
 
 
-#############################################################################
-
-#############################################################################
 def _POTUpdateBuilderWrapper(env, target=None, source=_null, **kw):
     return env._POTUpdateBuilder(target, source, **kw)
 
 
-#############################################################################
-
-#############################################################################
 def _POTUpdateBuilder(env, **kw):
     """ Creates `POTUpdate` builder object """
     kw['action'] = SCons.Action.Action(_update_pot_file, None)
@@ -274,9 +257,6 @@ def _POTUpdateBuilder(env, **kw):
     return _POTBuilder(**kw)
 
 
-#############################################################################
-
-#############################################################################
 def generate(env, **kw):
     """ Generate `xgettext` tool """
 
@@ -286,7 +266,11 @@ def generate(env, **kw):
             xgettext_bin_dir = os.path.dirname(xgettext)
             env.AppendENVPath('PATH', xgettext_bin_dir)
         else:
-            SCons.Warnings.SConsWarning('xgettext tool requested, but binary not found in ENV PATH')
+            SCons.Warnings.warn(
+                # XgettextToolWarning,  # using this breaks test, so keep:
+                SCons.Warnings.SConsWarning,
+                'xgettext tool requested, but binary not found in ENV PATH'
+            )
     try:
         env['XGETTEXT'] = _detect_xgettext(env)
     except:
@@ -338,9 +322,6 @@ def generate(env, **kw):
     env.AlwaysBuild(env.Alias('$POTUPDATE_ALIAS'))
 
 
-#############################################################################
-
-#############################################################################
 def exists(env):
     """ Check, whether the tool exists """
     try:
@@ -348,7 +329,6 @@ def exists(env):
     except:
         return False
 
-#############################################################################
 
 # Local Variables:
 # tab-width:4

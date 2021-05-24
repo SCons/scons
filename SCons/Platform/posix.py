@@ -28,11 +28,8 @@ will usually be imported through the generic SCons.Platform.Platform()
 selection method.
 """
 
-import errno
 import subprocess
-import select
 
-import SCons.Util
 from SCons.Platform import TempFileMunge
 from SCons.Platform.virtualenv import ImportVirtualenv
 from SCons.Platform.virtualenv import ignore_virtualenv, enable_virtualenv

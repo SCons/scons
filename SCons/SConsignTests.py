@@ -25,10 +25,8 @@ import os
 import unittest
 
 import TestCmd
-import TestUnit
 
 import SCons.dblite
-
 import SCons.SConsign
 
 class BuildInfo:

@@ -23,18 +23,14 @@
 
 """SCons C Pre-Processor module"""
 
-import SCons.compat
-
 import os
 import re
 
-#
 # First "subsystem" of regular expressions that we set up:
 #
 # Stuff to turn the C preprocessor directives in a file's contents into
 # a list of tuples that we can process easily.
 #
-
 # A table of regular expressions that fetch the arguments from the rest of
 # a C preprocessor line.  Different directives have different arguments
 # that we want to fetch, using the regular expressions to which the lists

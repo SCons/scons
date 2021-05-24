@@ -172,8 +172,8 @@ env.DocbookHtml('manual')
     <term><function>DocbookHtmlChunked</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>DocbookHtmlChunked</methodname>()</term>
     <listitem><para>
-A pseudo-Builder, providing a Docbook toolchain for chunked HTML output.
-It supports the <literal>base.dir</literal> parameter. The 
+A pseudo-Builder providing a Docbook toolchain for chunked HTML output.
+It supports the <parameter>base.dir</parameter> parameter. The
 <filename>chunkfast.xsl</filename> file (requires "EXSLT") is used as the
 default stylesheet. Basic syntax:
 </para>
@@ -184,22 +184,23 @@ env.DocbookHtmlChunked('manual')
 <para>
 where <filename>manual.xml</filename> is the input file.
 </para>
-<para>If you use the <literal>root.filename</literal> 
+<para>If you use the <parameter>root.filename</parameter>
 parameter in your own stylesheets you have to specify the new target name.
 This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('mymanual.html', 'manual', xsl='htmlchunk.xsl')
 </screen>
-<para>Some basic support for the <literal>base.dir</literal> is provided. You
-can add the <literal>base_dir</literal> keyword to your Builder
-call, and the given prefix gets prepended to all the created filenames:
+<para>Some basic support for the <parameter>base.dir</parameter> parameter
+is provided.  You can add the <parameter>base_dir</parameter> keyword to
+your Builder call, and the given prefix gets prepended to all the
+created filenames:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlChunked('manual', xsl='htmlchunk.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 </listitem>
   </varlistentry>
@@ -218,15 +219,15 @@ env.DocbookHtmlhelp('manual')
 where <filename>manual.xml</filename> is the input file.
 </para>
 
-<para>If you use the <literal>root.filename</literal> 
+<para>If you use the <parameter>root.filename</parameter>
 parameter in your own stylesheets you have to specify the new target name.
-This ensures that the dependencies get correct, especially for the cleanup via <quote><literal>scons -c</literal></quote>:
+This ensures that the dependencies get correct, especially for the cleanup via <quote><userinput>scons -c</userinput></quote>:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('mymanual.html', 'manual', xsl='htmlhelp.xsl')
 </screen>
-<para>Some basic support for the <literal>base.dir</literal> parameter
-is provided. You can add the <literal>base_dir</literal> keyword to
+<para>Some basic support for the <parameter>base.dir</parameter> parameter
+is provided. You can add the <parameter>base_dir</parameter> keyword to
 your Builder call, and the given prefix gets prepended to all the
 created filenames:
 </para>
@@ -234,7 +235,7 @@ created filenames:
 env.DocbookHtmlhelp('manual', xsl='htmlhelp.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 
 </listitem>
@@ -251,7 +252,7 @@ Its basic syntax is:
 env.DocbookMan('manual')
 </example_commands>
 <para>
-where <filename>manual.xml</filename> is the input file. Note, that 
+where <filename>manual.xml</filename> is the input file. Note, that
 you can specify a target name, but the actual output names are automatically
 set from the <literal>refname</literal> entries in your XML source.
 </para>
@@ -289,25 +290,25 @@ A pseudo-Builder, providing a Docbook toolchain for HTML slides output.
 env.DocbookSlidesHtml('manual')
 </example_commands>
 
-<para>If you use the <literal>titlefoil.html</literal> parameter in
+<para>If you use the <parameter>titlefoil.html</parameter> parameter in
 your own stylesheets you have to give the new target name. This ensures
-that the dependencies get correct, especially for the cleanup via 
-<quote><literal>scons -c</literal></quote>:
+that the dependencies get correct, especially for the cleanup via
+<quote><userinput>scons -c</userinput></quote>:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('mymanual.html','manual', xsl='slideshtml.xsl')
 </screen>
 
-<para>Some basic support for the <literal>base.dir</literal> parameter 
+<para>Some basic support for the <parameter>base.dir</parameter> parameter
 is provided. You
-can add the <literal>base_dir</literal> keyword to your Builder
+can add the <parameter>base_dir</parameter> keyword to your Builder
 call, and the given prefix gets prepended to all the created filenames:
 </para>
 <screen>env = Environment(tools=['docbook'])
 env.DocbookSlidesHtml('manual', xsl='slideshtml.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 
 </listitem>
@@ -355,7 +356,7 @@ A pseudo-Builder, applying a given XSL transformation to the input file.
 env.DocbookXslt('manual_transformed.xml', 'manual.xml', xsl='transform.xslt')
 </example_commands>
 
-<para>Note, that this builder requires the <literal>xsl</literal> parameter
+<para>Note, that this builder requires the <parameter>xsl</parameter> parameter
 to be set.
 </para>
 </listitem>
@@ -418,15 +419,18 @@ env.DVI(target = 'ccc.dvi', source = 'ccc.latex')
     <term><function>Gs</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Gs</methodname>()</term>
     <listitem><para>
-A Builder for explicitly calling the <literal>gs</literal> executable.
-Depending on the underlying OS, the different names <literal>gs</literal>,
-<literal>gsos2</literal> and <literal>gswin32c</literal>
+A Builder for explicitly calling the <application>gs</application> executable.
+Depending on the underlying OS, the different names <application>gs</application>,
+<application>gsos2</application> and <application>gswin32c</application>
 are tried.
 </para>
-<example_commands>env = Environment(tools=['gs'])
-env.Gs('cover.jpg','scons-scons.pdf',
-       GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q') 
-       )
+<example_commands>
+env = Environment(tools=['gs'])
+env.Gs(
+    'cover.jpg',
+    'scons-scons.pdf',
+    GSFLAGS='-dNOPAUSE -dBATCH -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -q',
+)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -1285,7 +1289,7 @@ builder method.
     <term><replaceable>env</replaceable>.<methodname>Package</methodname>()</term>
     <listitem><para>
 Builds software distribution packages.
-A <firstterm>Package</firstterm> is a container format which
+A <firstterm>package</firstterm> is a container format which
 includes files to install along with metadata.
 Packaging is optional, and must be enabled by specifying
 the &t-link-packaging; tool. For example:

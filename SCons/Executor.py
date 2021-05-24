@@ -25,12 +25,12 @@
 
 import collections
 
-import SCons.Debug
-from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Memoize
 import SCons.Util
 from SCons.compat import NoSlotsPyPy
+import SCons.Debug
+from SCons.Debug import logInstanceCreation
 
 class Batch:
     """Remembers exact association between targets
@@ -63,10 +63,6 @@ class TSList(collections.UserList):
     def __getitem__(self, i):
         nl = self.func()
         return nl[i]
-    def __getslice__(self, i, j):
-        nl = self.func()
-        i, j = max(i, 0), max(j, 0)
-        return nl[i:j]
     def __str__(self):
         nl = self.func()
         return str(nl)
@@ -274,10 +270,8 @@ class Executor(object, metaclass=NoSlotsPyPy):
         return self.get_lvars()[targets_string]
 
     def set_action_list(self, action):
-        import SCons.Util
         if not SCons.Util.is_List(action):
             if not action:
-                import SCons.Errors
                 raise SCons.Errors.UserError("Executor must have an action.")
             action = [action]
         self.action_list = action

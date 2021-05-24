@@ -1,7 +1,8 @@
 # This tests for a bug where installing a sequence dirs and subdirs
 # outside the source tree can cause SCons to fail to create the dest
 # dir.
-import os, os.path, shutil
+import os
+
 DefaultEnvironment(tools=[])
 env=Environment(tools=[])
 dst='../build'

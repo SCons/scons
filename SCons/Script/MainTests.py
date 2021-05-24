@@ -23,9 +23,6 @@
 
 import unittest
 
-import SCons.Errors
-import SCons.Script.Main
-
 # Unit tests of various classes within SCons.Script.Main.py.
 #
 # Most of the tests of this functionality are actually end-to-end scripts

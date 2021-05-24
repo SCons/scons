@@ -106,16 +106,11 @@ def CachePushFunc(target, source, env):
     tempfile = "%s.tmp%s"%(cachefile,cache_tmp_uuid)
     errfmt = "Unable to copy %s to cache. Cache file is %s"
 
-    if not fs.isdir(cachedir):
-        try:
-            fs.makedirs(cachedir)
-        except EnvironmentError:
-            # We may have received an exception because another process
-            # has beaten us creating the directory.
-            if not fs.isdir(cachedir):
-                msg = errfmt % (str(target), cachefile)
-                raise SCons.Errors.SConsEnvironmentError(msg)
-
+    try:
+        fs.makedirs(cachedir, exist_ok=True)
+    except OSError:
+        msg = errfmt % (str(target), cachefile)
+        raise SCons.Errors.SConsEnvironmentError(msg)
     try:
         if fs.islink(t.get_internal_path()):
             fs.symlink(fs.readlink(t.get_internal_path()), tempfile)

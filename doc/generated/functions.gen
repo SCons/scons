@@ -507,58 +507,6 @@ Preprocessor macros can be valued, or un-valued, as in
 The macro can be be supplied as a complete string including the value,
 or as a tuple (or list) of macro, value, or as a dictionary.
 Example (again gcc syntax in the expanded defines):
-</para>
-
-<example_commands>
-env = Environment(CPPDEFINES="FOO")
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-env.Append(CPPDEFINES="BAR=1")
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-env.Append(CPPDEFINES=("OTHER", 2))
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-env.Append(CPPDEFINES={"EXTRA": "arg"})
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
-</example_commands>
-
-<screen>
-$ scons -Q
-CPPDEFINES=FOO
-CPPDEFINES=['FOO', 'BAR=1']
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2)]
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
-CPPDEFINES will expand to -DFOO -DBAR=1 -DOTHER=2 -DEXTRA=arg
-scons: `.' is up to date.
-</screen>
-
-<para>
-Adding a string <parameter>val</parameter>
-to a dictonary &consvar; will enter
-<parameter>val</parameter> as the key in the dict,
-and <literal>None</literal> as its value.
-Using a tuple type to supply a key + value only works
-for the special case of &cv-link-CPPDEFINES;
-described above.
-</para>
-
-<para>
-Although most combinations of types work without
-needing to know the details, some combinations
-do not make sense and a Python exception will be raised.
-</para>
-
-<para>
-When using &f-env-Append; to modify &consvars; 
-which are path specifications (normally, 
-those names which end in <varname>PATH</varname>),
-it is recommended to add the values as a list of strings,
-even if there is only a single string to add.
-The same goes for adding library names to &cv-LIBS;.
-</para>
-
-<example_commands>
-env.Append(CPPPATH=["#/include"])
-</example_commands>
 
 <para>
 See also &f-link-env-AppendUnique;,
@@ -672,8 +620,8 @@ until after the Builder object is actually called.
 </listitem>
   </varlistentry>
   <varlistentry id="f-CacheDir">
-    <term><function>CacheDir</function>(<parameter>cache_dir</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>CacheDir</methodname>(<parameter>cache_dir</parameter>)</term>
+    <term><function>CacheDir</function>(<parameter>cache_dir, custom_class=None</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>CacheDir</methodname>(<parameter>cache_dir, custom_class=None</parameter>)</term>
     <listitem><para>
 Direct
 &scons;
@@ -687,6 +635,15 @@ Specifying a
 of
 <constant>None</constant>
 disables derived file caching.
+</para>
+
+<para>
+When specifying a
+<parameter>custom_class</parameter> which should be a class type which is a subclass of
+<classname>SCons.CacheDir.CacheDir</classname>, SCons will
+internally invoke this class to use for performing caching operations.
+This argument is optional and if left to default <constant>None</constant>, will use the
+default <classname>SCons.CacheDir.CacheDir</classname> class.
 </para>
 
 <para>
@@ -1247,32 +1204,46 @@ env.Decider(my_decider)
 </listitem>
   </varlistentry>
   <varlistentry id="f-Default">
-    <term><function>Default</function>(<parameter>targets...</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Default</methodname>(<parameter>targets...</parameter>)</term>
+    <term><function>Default</function>(<parameter>target[, ...]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Default</methodname>(<parameter>target[, ...]</parameter>)</term>
     <listitem><para>
-This specifies a list of default targets,
-which will be built by
-&scons;
-if no explicit targets are given on the command line.
-Multiple calls to
+Specify default targets to the &SCons; target selection mechanism.
+Any call to &f-Default; will cause &SCons; to use the
+defined default target list instead of
+its built-in algorithm for determining default targets
+(see the manpage section "Target Selection").
+</para>
+
+<para>
+<parameter>target</parameter> may be one or more strings,
+a list of strings,
+a <classname>NodeList</classname> as returned by a Builder,
+or <constant>None</constant>.
+A string <parameter>target</parameter> may be the name of
+a file or directory, or a target previously defined by a call to
+&f-link-Alias; (defining the alias later will still create
+the alias, but it will not be recognized as a default).
+Calls to &f-Default; are additive.
+A <parameter>target</parameter> of
+<literal>None</literal>
+will clear any existing default target list;
+subsequent calls to
 &f-Default;
-are legal,
-and add to the list of default targets.
-As noted above, both forms of this call affect the
+will add to the (now empty) default target list
+like normal.
+</para>
+
+<para>
+Both forms of this call affect the
 same global list of default targets; the
 construction environment method applies
 construction variable expansion to the targets.
 </para>
 
 <para>
-Multiple targets should be specified as
-separate arguments to the
-&f-Default;
-method, or as a list.
-&f-Default;
-will also accept the Node returned by any
-of a construction environment's
-builder methods.
+The current list of targets added using
+&f-Default; is available in the
+&DEFAULT_TARGETS; list (see below).
 </para>
 
 <para>
@@ -1286,26 +1257,6 @@ hello = env.Program('hello', 'hello.c')
 env.Default(hello)
 </example_commands>
 
-<para>
-An argument to
-&f-Default;
-of
-<literal>None</literal>
-will clear all default targets.
-Later calls to
-&f-Default;
-will add to the (now empty) default-target list
-like normal.
-</para>
-
-<para>
-The current list of targets added using the
-&f-Default;
-function or method is available in the
-<literal>DEFAULT_TARGETS</literal>
-list;
-see below.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-DefaultEnvironment">
@@ -3907,11 +3858,24 @@ The settable variables with their associated command-line options are:
 </entry><entry>
 <option>--diskcheck</option>
 </entry></row>
-<row><entry>
+
+    <row><entry>
 <varname>duplicate</varname>
 </entry><entry>
 <option>--duplicate</option>
 </entry></row>
+
+
+    <row>
+        <entry>
+            <varname>experimental</varname>
+        </entry>
+        <entry>
+            <option>--experimental</option>
+        </entry>
+    </row>
+
+
 <row><entry>
 <varname>help</varname>
 </entry><entry>

@@ -41,30 +41,28 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-if sys.platform not in ('cygwin','win32',):
-    test.skip_test("Skipping mingw test on non-Windows %s platform."%sys.platform)
+if sys.platform not in ('cygwin', 'win32',):
+    test.skip_test("Skipping mingw test on non-Windows platform %s." % sys.platform)
 
-gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS )
+dp = MINGW_DEFAULT_PATHS
+gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=dp)
 if not gcc:
     test.skip_test("Skipping mingw test, no MinGW found.\n")
 
 test.write('foobar.cc', """
 int abc(int a) {
   return (a+1);
-  }
-  """)
+}
+""")
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-env = Environment(tools=['mingw','link','g++'])
-#env.Tool('mingw')
+env = Environment(tools=['mingw', 'link', 'g++'])
 foobar_obj = env.SharedObject('foobar.cc')
 env.SharedLibrary('foobar', foobar_obj)
 
 # Now verify versioned shared library doesn't fail
 env.SharedLibrary('foobar_ver', foobar_obj, SHLIBVERSION='2.4')
-
-
 """ % locals())
 
 test.run(arguments = ".")

@@ -59,6 +59,11 @@ FIXES
     - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node, 
       such that dependencies work correctly in hierarchical builds (eg when using 
       DocbookXslt in SConscript('subdir/SConscript') context.
+    - The Install builder will now set the writable mode on the file(s) it
+      copies. This restores the (previously undocumented) SCons behavior
+      that regressed as of 4.0.0.
+    - Fix issue #3790: Generators in CPPDEFINES now have access to populated source
+      and target lists
 
 
 IMPROVEMENTS

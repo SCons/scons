@@ -1,6 +1,9 @@
 %{
 #include<stdio.h>
 
+int yyerror(char *s);
+int yylex();
+
 int regs[26];
 int base;
 
@@ -25,11 +28,13 @@ digit: DIGIT;
 
 
 %%
+int
 main()
 {
  return(yyparse());
 }
 
+int
 yyerror(s)
 char *s;
 {
@@ -37,6 +42,7 @@ char *s;
   return(0);
 }
 
+int
 yywrap()
 {
   return(1);

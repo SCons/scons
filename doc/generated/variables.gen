@@ -379,6 +379,17 @@ env['BUILDERS']['NewBuilder'] = bld
 </example_commands>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-CACHEDIR_CLASS">
+    <term>
+      <envar>CACHEDIR_CLASS</envar>
+    </term>
+    <listitem><para>
+The class type that SCons should use when instantiating a
+new &f-link-CacheDir; for the given environment. It must be
+a subclass of the SCons.CacheDir.CacheDir class.
+        </para>
+    </listitem>
+  </varlistentry>
   <varlistentry id="cv-CC">
     <term>
       <envar>CC</envar>
@@ -585,7 +596,7 @@ section of the RPM
       <envar>COMPILATIONDB_COMSTR</envar>
     </term>
     <listitem><para>
-                The string displayed when the &b-CompilationDatabase;
+                The string displayed when the &b-link-CompilationDatabase;
                 builder's action is run.
             </para>
         </listitem>
@@ -626,7 +637,7 @@ section of the RPM
       <envar>_concat</envar>
     </term>
     <listitem><para>
-A function used to produce variables like &cv-_CPPINCFLAGS;. It takes
+A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
 four or five
 arguments: a prefix to concatenate onto each element, a list of
 elements, a suffix to concatenate onto each element, an environment
@@ -660,7 +671,7 @@ file.
       <envar>CONFIGURELOG</envar>
     </term>
     <listitem><para>
-The name of the Configure context log file.
+The name of the &Configure; context log file.
 The default is
 <filename>config.log</filename>
 in the top-level directory
@@ -678,7 +689,7 @@ file.
 An automatically-generated &consvar;
 containing the C preprocessor command-line options
 to define values.
-The value of &cv-_CPPDEFFLAGS; is created
+The value of &cv-link-_CPPDEFFLAGS; is created
 by respectively prepending and appending
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX;
 to each definition in &cv-link-CPPDEFINES;.
@@ -703,7 +714,7 @@ If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to 
-each definition in &cv-CPPDEFINES;.
+each definition in &cv-link-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -715,7 +726,7 @@ env = Environment(CPPDEFINES='xyz')
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
-&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to 
 each element in the list.
 If any element is a list or tuple,
@@ -732,7 +743,7 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
-&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to
 each item from the dictionary.
 The key of each dictionary item
@@ -846,7 +857,7 @@ Python's <systemitem>os.sep</systemitem>.
 
 <para>
 Note:
-directory names in &cv-link-CPPPATH;
+directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
 when they are used in a command. 
 To force &scons;
@@ -1473,7 +1484,7 @@ no lxml Python binding can be imported in the current system.
     </term>
     <listitem><para>
 The full command-line for the external executable
-<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
 </listitem>
@@ -1494,7 +1505,7 @@ an XML file via a given XSLT stylesheet.
     </term>
     <listitem><para>
 Additonal command-line flags for the external executable
-<literal>xsltproc</literal> (or <literal>saxon</literal>, 
+<literal>xsltproc</literal> (or <literal>saxon</literal>,
 <literal>xalan</literal>).
 </para>
 </listitem>
@@ -3046,7 +3057,7 @@ env.AppendUnique(FRAMEWORKS=Split('System Cocoa SystemConfiguration'))
       <envar>GS</envar>
     </term>
     <listitem><para>
-The Ghostscript program used, e.g. to convert PostScript to PDF files.
+The Ghostscript program used to, for example, convert PostScript to PDF files.
 </para>
 </listitem>
   </varlistentry>
@@ -3367,7 +3378,7 @@ Install file: "$SOURCE" as "$TARGET"
       <envar>INTEL_C_COMPILER_VERSION</envar>
     </term>
     <listitem><para>
-Set by the "intelc" Tool
+Set by the &t-link-intelc; Tool
 to the major version number of the Intel C compiler
 selected for use.
 </para>
@@ -4270,6 +4281,16 @@ default file named
     <listitem><para>
 The linker.
 See also &cv-link-SHLINK; for linking shared objects.
+</para>
+<para>
+On POSIX systems (those using the &t-link-link; tool),
+you should normally not change this value as it defaults
+to a "smart" linker tool which selects a compiler
+driver matching the type of source files in use.
+So for example, if you set &cv-link-CXX; to a specific
+compiler name, and are compiling C++ sources,
+the smartlink function will automatically select the same compiler
+for linking.
 </para>
 </listitem>
   </varlistentry>
@@ -7350,6 +7371,16 @@ set.
 The linker for programs that use shared libraries.
 See also &cv-link-LINK; for linking static objects.
 </para>
+<para>
+On POSIX systems (those using the &t-link-link; tool),
+you should normally not change this value as it defaults
+to a "smart" linker tool which selects a compiler
+driver matching the type of source files in use.
+So for example, if you set &cv-link-SHCXX; to a specific
+compiler name, and are compiling C++ sources,
+the smartlink function will automatically select the same compiler
+for linking.
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-SHLINKCOM">
@@ -7942,6 +7973,35 @@ for more information).
     <listitem><para>
 The suffix used for tar file names.
 </para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-TEMPFILEARGESCFUNC">
+    <term>
+      <envar>TEMPFILEARGESCFUNC</envar>
+    </term>
+    <listitem><para>
+A default argument escape function is ``SCons.Subst.quote_spaces``.
+If you need to apply extra operations on a command argument before
+writing to a temporary file(fix Windows slashes, normalize paths, etc.),
+please set `TEMPFILEARGESCFUNC` variable to a custom function. Example::
+</para>
+
+<example_commands>
+import sys
+import re
+from SCons.Subst import quote_spaces
+
+WINPATHSEP_RE = re.compile(r"\\([^\"'\\]|$)")
+
+def tempfile_arg_esc_func(arg):
+    arg = quote_spaces(arg)
+    if sys.platform != "win32":
+        return arg
+    # GCC requires double Windows slashes, let's use UNIX separator
+    return WINPATHSEP_RE.sub(r"/\1", arg)
+
+env["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
+</example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-TEMPFILEARGJOIN">

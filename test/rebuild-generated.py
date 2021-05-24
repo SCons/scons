@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test case for the bug report:
@@ -52,13 +51,16 @@ This may be a duplicate to bug 1019683.
 
 import os
 import sys
+import sysconfig
+
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 _obj = TestSCons._obj
 
-if sys.platform == 'win32':
+if sys.platform == 'win32' and not sysconfig.get_platform() in ("mingw",):
+
     generator_name = 'generator.bat'
     test.write(generator_name, '@echo #include "header.hh"')
     kernel_action = "$SOURCES  > $TARGET"
@@ -67,28 +69,23 @@ else:
     test.write(generator_name, 'echo \'#include "header.hh"\'')
     kernel_action = "sh $SOURCES  > $TARGET"
 
-test.write('SConstruct', """\
+if sysconfig.get_platform() in ("mingw",):
+    # mingw Python uses a sep of '/', when Command fires, that will not work.
+    # use its altsep instead, that is the standard Windows separator.
+    sep = os.altsep
+else:
+    sep = os.sep
 
+
+test.write('SConstruct', """\
 env = Environment()
 
-kernelDefines = env.Command("header.hh",
-                            "header.hh.in",
-                            Copy('$TARGET', '$SOURCE'))
-
-kernelImporterSource = env.Command(
-  "generated.cc", ["%s"],
-  "%s")
-
-kernelImporter = env.Program(
-  kernelImporterSource + ["main.cc"])
-
-kernelImports = env.Command(
-  "KernelImport.hh", kernelImporter,
-  ".%s$SOURCE > $TARGET")
-                                        
-osLinuxModule = env.StaticObject(
-  ["target.cc"])
-""" % (generator_name, kernel_action, os.sep))
+kernelDefines = env.Command("header.hh", "header.hh.in", Copy('$TARGET', '$SOURCE'))
+kernelImporterSource = env.Command("generated.cc", ["%s"], "%s")
+kernelImporter = env.Program(kernelImporterSource + ["main.cc"])
+kernelImports = env.Command("KernelImport.hh", kernelImporter, ".%s$SOURCE > $TARGET")
+osLinuxModule = env.StaticObject(["target.cc"])
+""" % (generator_name, kernel_action, sep))
 
 test.write('main.cc', """\
 int
