@@ -21,12 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
+import shutil
 from os.path import join as joinpath
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
-from SCons.Tool.ninja.Globals import __NINJA_RULE_MAPPING
 from SCons.Util import is_List, flatten_sequence
 
 
@@ -249,99 +249,6 @@ def ninja_noop(*_args, **_kwargs):
     return None
 
 
-def get_command(env, node, action):  # pylint: disable=too-many-branches
-    """Get the command to execute for node."""
-    if node.env:
-        sub_env = node.env
-    else:
-        sub_env = env
-    executor = node.get_executor()
-    tlist, slist = get_targets_sources(node)
-
-    # Generate a real CommandAction
-    if isinstance(action, SCons.Action.CommandGeneratorAction):
-        # pylint: disable=protected-access
-        action = action._generate(tlist, slist, sub_env, 1, executor=executor)
-
-    variables = {}
-
-    comstr = get_comstr(sub_env, action, tlist, slist)
-    if not comstr:
-        return None
-
-    provider = __NINJA_RULE_MAPPING.get(comstr, get_generic_shell_command)
-    rule, variables, provider_deps = provider(sub_env, node, action, tlist, slist, executor=executor)
-
-    # Get the dependencies for all targets
-    implicit = list({dep for tgt in tlist for dep in get_dependencies(tgt)})
-
-    # Now add in the other dependencies related to the command,
-    # e.g. the compiler binary. The ninja rule can be user provided so
-    # we must do some validation to resolve the dependency path for ninja.
-    for provider_dep in provider_deps:
-
-        provider_dep = sub_env.subst(provider_dep)
-        if not provider_dep:
-            continue
-
-        # If the tool is a node, then SCons will resolve the path later, if its not
-        # a node then we assume it generated from build and make sure it is existing.
-        if isinstance(provider_dep, SCons.Node.Node) or os.path.exists(provider_dep):
-            implicit.append(provider_dep)
-            continue
-
-        # in some case the tool could be in the local directory and be suppled without the ext
-        # such as in windows, so append the executable suffix and check.
-        prog_suffix = sub_env.get('PROGSUFFIX', '')
-        provider_dep_ext = provider_dep if provider_dep.endswith(prog_suffix) else provider_dep + prog_suffix
-        if os.path.exists(provider_dep_ext):
-            implicit.append(provider_dep_ext)
-            continue
-
-        # Many commands will assume the binary is in the path, so
-        # we accept this as a possible input from a given command.
-
-        provider_dep_abspath = sub_env.WhereIs(provider_dep) or sub_env.WhereIs(provider_dep, path=os.environ["PATH"])
-        if provider_dep_abspath:
-            implicit.append(provider_dep_abspath)
-            continue
-
-        # Possibly these could be ignore and the build would still work, however it may not always
-        # rebuild correctly, so we hard stop, and force the user to fix the issue with the provided
-        # ninja rule.
-        raise Exception("Could not resolve path for %s dependency on node '%s'" % (provider_dep, node))
-
-    ninja_build = {
-        "order_only": get_order_only(node),
-        "outputs": get_outputs(node),
-        "inputs": get_inputs(node),
-        "implicit": implicit,
-        "rule": get_rule(node, rule),
-        "variables": variables,
-    }
-
-    # Don't use sub_env here because we require that NINJA_POOL be set
-    # on a per-builder call basis to prevent accidental strange
-    # behavior like env['NINJA_POOL'] = 'console' and sub_env can be
-    # the global Environment object if node.env is None.
-    # Example:
-    #
-    # Allowed:
-    #
-    #     env.Command("ls", NINJA_POOL="ls_pool")
-    #
-    # Not allowed and ignored:
-    #
-    #     env["NINJA_POOL"] = "ls_pool"
-    #     env.Command("ls")
-    #
-    # TODO: Why not alloe env['NINJA_POOL'] ? (bdbaddog)
-    if node.env and node.env.get("NINJA_POOL", None) is not None:
-        ninja_build["pool"] = node.env["NINJA_POOL"]
-
-    return ninja_build
-
-
 def get_command_env(env):
     """
     Return a string that sets the environment for any environment variables that
@@ -413,25 +320,6 @@ def get_comstr(env, action, targets, sources):
     return action.genstring(targets, sources, env)
 
 
-def get_generic_shell_command(env, node, action, targets, sources, executor=None):
-    return (
-        "CMD",
-        {
-            # TODO: Why is executor passed in and then ignored below? (bdbaddog)
-            "cmd": generate_command(env, node, action, targets, sources, executor=None),
-            "env": get_command_env(env),
-        },
-        # Since this function is a rule mapping provider, it must return a list of dependencies,
-        # and usually this would be the path to a tool, such as a compiler, used for this rule.
-        # However this function is to generic to be able to reliably extract such deps
-        # from the command, so we return a placeholder empty list. It should be noted that
-        # generally this function will not be used solely and is more like a template to generate
-        # the basics for a custom provider which may have more specific options for a provider
-        # function for a custom NinjaRuleMapping.
-        []
-    )
-
-
 def generate_command(env, node, action, targets, sources, executor=None):
     # Actions like CommandAction have a method called process that is
     # used by SCons to generate the cmd_line they need to run. So
@@ -455,3 +343,78 @@ def generate_command(env, node, action, targets, sources, executor=None):
 
     # Escape dollars as necessary
     return cmd.replace("$", "$$")
+
+
+def ninja_csig(original):
+    """Return a dummy csig"""
+
+    def wrapper(self):
+        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
+            return original(self)
+        return "dummy_ninja_csig"
+
+    return wrapper
+
+
+def ninja_contents(original):
+    """Return a dummy content without doing IO"""
+
+    def wrapper(self):
+        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
+            return original(self)
+        return bytes("dummy_ninja_contents", encoding="utf-8")
+
+    return wrapper
+
+
+def ninja_stat(_self, path):
+    """
+    Eternally memoized stat call.
+
+    SCons is very aggressive about clearing out cached values. For our
+    purposes everything should only ever call stat once since we're
+    running in a no_exec build the file system state should not
+    change. For these reasons we patch SCons.Node.FS.LocalFS.stat to
+    use our eternal memoized dictionary.
+    """
+
+    try:
+        return SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path]
+    except KeyError:
+        try:
+            result = os.stat(path)
+        except os.error:
+            result = None
+
+        SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path] = result
+        return result
+
+
+def ninja_whereis(thing, *_args, **_kwargs):
+    """Replace env.WhereIs with a much faster version"""
+
+    # Optimize for success, this gets called significantly more often
+    # when the value is already memoized than when it's not.
+    try:
+        return SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing]
+    except KeyError:
+        # TODO: Fix this to respect env['ENV']['PATH']... WPD
+        # We do not honor any env['ENV'] or env[*] variables in the
+        # generated ninja file. Ninja passes your raw shell environment
+        # down to it's subprocess so the only sane option is to do the
+        # same during generation. At some point, if and when we try to
+        # upstream this, I'm sure a sticking point will be respecting
+        # env['ENV'] variables and such but it's actually quite
+        # complicated. I have a naive version but making it always work
+        # with shell quoting is nigh impossible. So I've decided to
+        # cross that bridge when it's absolutely required.
+        path = shutil.which(thing)
+        SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing] = path
+        return path
+
+
+def ninja_print_conf_log(s, target, source, env):
+    """Command line print only for conftest to generate a correct conf log."""
+    if target and target[0].is_conftest():
+        action = SCons.Action._ActionAction()
+        action.print_cmd_line(s, target, source, env)

@@ -35,9 +35,9 @@ import SCons.Tool.ninja.Globals
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
-from .Util import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_command, get_order_only, \
+from .Utils import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
     get_outputs, get_inputs, get_dependencies, get_rule, get_command_env
-
+from . import get_command
 
 
 # pylint: disable=too-many-instance-attributes
