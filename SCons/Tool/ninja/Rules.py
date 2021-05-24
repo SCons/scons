@@ -21,7 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .Util import get_outputs, get_rule, get_inputs, get_dependencies
+from .Utils import get_outputs, get_rule, get_inputs, get_dependencies
 
 
 def _install_action_function(_env, node):

@@ -26,83 +26,23 @@
 
 import importlib
 import os
-import shlex
-import shutil
 import subprocess
 import sys
-import textwrap
-from glob import glob
 
 import SCons
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
 
 from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
+from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
+    set_build_node_callback, get_generic_shell_command, CheckNinjaCompdbExpand, get_command, \
+    gen_get_response_file_command
 from .NinjaState import NinjaState
-from .Util import ninja_add_command_line_options, \
-    get_path, ninja_noop, get_command, get_command_env, get_comstr, get_generic_shell_command, \
-    generate_command
+from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFiles, ninja_always_serial, AlwaysExecAction
+from .Utils import ninja_add_command_line_options, \
+    get_path, ninja_noop, ninja_print_conf_log, get_command_env, get_comstr, generate_command, ninja_csig, ninja_contents, ninja_stat, ninja_whereis, ninja_csig, ninja_contents
 
 NINJA_STATE = None
-
-
-def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom_env={}):
-    """Generate a response file command provider for rule name."""
-
-    # If win32 using the environment with a response file command will cause
-    # ninja to fail to create the response file. Additionally since these rules
-    # generally are not piping through cmd.exe /c any environment variables will
-    # make CreateProcess fail to start.
-    #
-    # On POSIX we can still set environment variables even for compile
-    # commands so we do so.
-    use_command_env = not env["PLATFORM"] == "win32"
-    if "$" in tool:
-        tool_is_dynamic = True
-
-    def get_response_file_command(env, node, action, targets, sources, executor=None):
-        if hasattr(action, "process"):
-            cmd_list, _, _ = action.process(targets, sources, env, executor=executor)
-            cmd_list = [str(c).replace("$", "$$") for c in cmd_list[0]]
-        else:
-            command = generate_command(
-                env, node, action, targets, sources, executor=executor
-            )
-            cmd_list = shlex.split(command)
-
-        if tool_is_dynamic:
-            tool_command = env.subst(
-                tool, target=targets, source=sources, executor=executor
-            )
-        else:
-            tool_command = tool
-
-        try:
-            # Add 1 so we always keep the actual tool inside of cmd
-            tool_idx = cmd_list.index(tool_command) + 1
-        except ValueError:
-            raise Exception(
-                "Could not find tool {} in {} generated from {}".format(
-                    tool, cmd_list, get_comstr(env, action, targets, sources)
-                )
-            )
-
-        cmd, rsp_content = cmd_list[:tool_idx], cmd_list[tool_idx:]
-        rsp_content = ['"' + rsp_content_item + '"' for rsp_content_item in rsp_content]
-        rsp_content = " ".join(rsp_content)
-
-        variables = {"rspc": rsp_content}
-        variables[rule] = cmd
-        if use_command_env:
-            variables["env"] = get_command_env(env)
-
-            for key, value in custom_env.items():
-                variables["env"] += env.subst(
-                    "export %s=%s;" % (key, value), target=targets, source=sources, executor=executor
-                ) + " "
-        return rule, variables, [tool_command]
-
-    return get_response_file_command
 
 
 def ninja_builder(env, target, source):
@@ -120,6 +60,7 @@ def ninja_builder(env, target, source):
     NINJA_STATE.generate()
 
     if env["PLATFORM"] == "win32":
+        # TODO: Is this necessary as you set env variable in the ninja build file per target?
         # this is not great, its doesn't consider specific
         # node environments, which means on linux the build could
         # behave differently, because on linux you can set the environment
@@ -169,193 +110,6 @@ def ninja_builder(env, target, source):
             # leaving warnings and other output, seems a bit
             # prone to failure with such a simple check
             erase_previous = output.startswith('[')
-
-# pylint: disable=too-few-public-methods
-class AlwaysExecAction(SCons.Action.FunctionAction):
-    """Override FunctionAction.__call__ to always execute."""
-
-    def __call__(self, *args, **kwargs):
-        kwargs["execute"] = 1
-        return super().__call__(*args, **kwargs)
-
-
-def register_custom_handler(env, name, handler):
-    """Register a custom handler for SCons function actions."""
-    env[NINJA_CUSTOM_HANDLERS][name] = handler
-
-
-def register_custom_rule_mapping(env, pre_subst_string, rule):
-    """Register a function to call for a given rule."""
-    SCons.Tool.ninja.Globals.__NINJA_RULE_MAPPING[pre_subst_string] = rule
-
-
-def register_custom_rule(env, rule, command, description="", deps=None, pool=None, use_depfile=False, use_response_file=False, response_file_content="$rspc"):
-    """Allows specification of Ninja rules from inside SCons files."""
-    rule_obj = {
-        "command": command,
-        "description": description if description else "{} $out".format(rule),
-    }
-
-    if use_depfile:
-        rule_obj["depfile"] = os.path.join(get_path(env['NINJA_BUILDDIR']), '$out.depfile')
-
-    if deps is not None:
-        rule_obj["deps"] = deps
-
-    if pool is not None:
-        rule_obj["pool"] = pool
-
-    if use_response_file:
-        rule_obj["rspfile"] = "$out.rsp"
-        rule_obj["rspfile_content"] = response_file_content
-
-    env[NINJA_RULES][rule] = rule_obj
-
-
-def register_custom_pool(env, pool, size):
-    """Allows the creation of custom Ninja pools"""
-    env[NINJA_POOLS][pool] = size
-
-
-def set_build_node_callback(env, node, callback):
-    if not node.is_conftest():
-        node.attributes.ninja_build_callback = callback
-
-
-def ninja_csig(original):
-    """Return a dummy csig"""
-
-    def wrapper(self):
-        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
-            return original(self)
-        return "dummy_ninja_csig"
-
-    return wrapper
-
-
-def ninja_contents(original):
-    """Return a dummy content without doing IO"""
-
-    def wrapper(self):
-        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
-            return original(self)
-        return bytes("dummy_ninja_contents", encoding="utf-8")
-
-    return wrapper
-
-
-def CheckNinjaCompdbExpand(env, context):
-    """ Configure check testing if ninja's compdb can expand response files"""
-
-    context.Message('Checking if ninja compdb can expand response files... ')
-    ret, output = context.TryAction(
-        action='ninja -f $SOURCE -t compdb -x CMD_RSP > $TARGET',
-        extension='.ninja',
-        text=textwrap.dedent("""
-            rule CMD_RSP
-              command = $cmd @$out.rsp > fake_output.txt
-              description = Building $out
-              rspfile = $out.rsp
-              rspfile_content = $rspc
-            build fake_output.txt: CMD_RSP fake_input.txt
-              cmd = echo
-              pool = console
-              rspc = "test"
-            """))
-    result = '@fake_output.txt.rsp' not in output
-    context.Result(result)
-    return result
-
-
-def ninja_stat(_self, path):
-    """
-    Eternally memoized stat call.
-
-    SCons is very aggressive about clearing out cached values. For our
-    purposes everything should only ever call stat once since we're
-    running in a no_exec build the file system state should not
-    change. For these reasons we patch SCons.Node.FS.LocalFS.stat to
-    use our eternal memoized dictionary.
-    """
-
-    try:
-        return SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path]
-    except KeyError:
-        try:
-            result = os.stat(path)
-        except os.error:
-            result = None
-
-        SCons.Tool.ninja.Globals.NINJA_STAT_MEMO[path] = result
-        return result
-
-
-def ninja_whereis(thing, *_args, **_kwargs):
-    """Replace env.WhereIs with a much faster version"""
-
-    # Optimize for success, this gets called significantly more often
-    # when the value is already memoized than when it's not.
-    try:
-        return SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing]
-    except KeyError:
-        # We do not honor any env['ENV'] or env[*] variables in the
-        # generated ninja file. Ninja passes your raw shell environment
-        # down to it's subprocess so the only sane option is to do the
-        # same during generation. At some point, if and when we try to
-        # upstream this, I'm sure a sticking point will be respecting
-        # env['ENV'] variables and such but it's actually quite
-        # complicated. I have a naive version but making it always work
-        # with shell quoting is nigh impossible. So I've decided to
-        # cross that bridge when it's absolutely required.
-        path = shutil.which(thing)
-        SCons.Tool.ninja.Globals.NINJA_WHEREIS_MEMO[thing] = path
-        return path
-
-
-def ninja_always_serial(self, num, taskmaster):
-    """Replacement for SCons.Job.Jobs constructor which always uses the Serial Job class."""
-    # We still set self.num_jobs to num even though it's a lie. The
-    # only consumer of this attribute is the Parallel Job class AND
-    # the Main.py function which instantiates a Jobs class. It checks
-    # if Jobs.num_jobs is equal to options.num_jobs, so if the user
-    # provides -j12 but we set self.num_jobs = 1 they get an incorrect
-    # warning about this version of Python not supporting parallel
-    # builds. So here we lie so the Main.py will not give a false
-    # warning to users.
-    self.num_jobs = num
-    self.job = SCons.Job.Serial(taskmaster)
-
-def ninja_hack_linkcom(env):
-    # TODO: change LINKCOM and SHLINKCOM to handle embedding manifest exe checks
-    # without relying on the SCons hacks that SCons uses by default.
-    if env["PLATFORM"] == "win32":
-        from SCons.Tool.mslink import compositeLinkAction
-
-        if env.get("LINKCOM", None) == compositeLinkAction:
-            env[
-                "LINKCOM"
-            ] = '${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}'
-            env[
-                "SHLINKCOM"
-            ] = '${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES", "$SHLINKCOMSTR")}'
-
-
-def ninja_print_conf_log(s, target, source, env):
-    """Command line print only for conftest to generate a correct conf log."""
-    if target and target[0].is_conftest():
-        action = SCons.Action._ActionAction()
-        action.print_cmd_line(s, target, source, env)
-
-
-class NinjaNoResponseFiles(SCons.Platform.TempFileMunge):
-    """Overwrite the __call__ method of SCons' TempFileMunge to not delete."""
-
-    def __call__(self, target, source, env, for_signature):
-        return self.cmd
-
-    def _print_cmd_str(*_args, **_kwargs):
-        """Disable this method"""
-        pass
 
 
 def exists(env):
@@ -529,20 +283,8 @@ def generate(env):
     # TODO: switch to using SCons to help determine this (Github Issue #3624)
     env["NINJA_GENERATED_SOURCE_SUFFIXES"] = [".h", ".hpp"]
 
-    if env["PLATFORM"] != "win32" and env.get("RANLIBCOM"):
-        # There is no way to translate the ranlib list action into
-        # Ninja so add the s flag and disable ranlib.
-        #
-        # This is equivalent to Meson.
-        # https://github.com/mesonbuild/meson/blob/master/mesonbuild/linkers.py#L143
-        old_arflags = str(env["ARFLAGS"])
-        if "s" not in old_arflags:
-            old_arflags += "s"
-
-        env["ARFLAGS"] = SCons.Util.CLVar([old_arflags])
-
-        # Disable running ranlib, since we added 's' above
-        env["RANLIBCOM"] = ""
+    # Force ARCOM so use 's' flag on ar instead of separately running ranlib
+    ninja_hack_arcom(env)
 
     if GetOption('disable_ninja'):
         return env
