@@ -40,7 +40,7 @@ from .Methods import register_custom_handler, register_custom_rule_mapping, regi
 from .NinjaState import NinjaState
 from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFiles, ninja_always_serial, AlwaysExecAction
 from .Utils import ninja_add_command_line_options, \
-    get_path, ninja_noop, ninja_print_conf_log, get_command_env, get_comstr, generate_command, ninja_csig, ninja_contents, ninja_stat, ninja_whereis, ninja_csig, ninja_contents
+    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis
 
 NINJA_STATE = None
 

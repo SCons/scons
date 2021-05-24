@@ -21,7 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-This module is to hold logic which overrides default SCons behavoirs to enable
+This module is to hold logic which overrides default SCons behaviors to enable
 ninja file generation
 """
 import SCons
