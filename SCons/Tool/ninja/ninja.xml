@@ -74,6 +74,7 @@ See its __doc__ string for a discussion of the format.
             <item>CCCOM</item>
             <item>CXXCOM</item>
             <item>SHCXXCOM</item>
+            <item>SHCCCOM</item>
             <item>CC</item>
             <item>CXX</item>
 
@@ -130,9 +131,7 @@ See its __doc__ string for a discussion of the format.
             </para>
             <note>
                 <para>
-                    You must load the &t-ninja; tool prior to specifying
-                    any part of your build or some source/output
-                    files will not show up in the compilation database.
+                    You must specify <command>scons --experimental=ninja</command> to enable this tool.
                 </para>
                 <para>
                     To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja

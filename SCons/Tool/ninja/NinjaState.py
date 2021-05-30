@@ -31,13 +31,13 @@ import ninja
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
 from SCons.Util import is_List
-import SCons.Tool.ninja.Globals
+from SCons.Errors import  InternalError
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
 from .Utils import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
     get_outputs, get_inputs, get_dependencies, get_rule, get_command_env
-from . import get_command
+from .Methods import get_command
 
 
 # pylint: disable=too-many-instance-attributes
@@ -259,7 +259,7 @@ class NinjaState:
 
         node_string = str(node)
         if node_string in self.builds:
-            raise Exception("Node {} added to ninja build state more than once".format(node_string))
+            raise InternalError("Node {} added to ninja build state more than once".format(node_string))
         self.builds[node_string] = build
         self.built.update(build["outputs"])
         return True
