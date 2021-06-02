@@ -64,10 +64,9 @@ def is_valid_dependent_node(node):
     if isinstance(node, SCons.Node.Alias.Alias):
         return node.children()
 
-    if not node.env:
-        return True
+    return not node.get_env().get("NINJA_SKIP")
 
-    return not node.env.get("NINJA_SKIP")
+
 
 
 def alias_to_ninja_build(node):
@@ -88,7 +87,7 @@ def check_invalid_ninja_node(node):
 def filter_ninja_nodes(node_list):
     ninja_nodes = []
     for node in node_list:
-        if isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias)):
+        if isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias)) and not node.get_env().get('NINJA_SKIP'):
             ninja_nodes.append(node)
         else:
             continue

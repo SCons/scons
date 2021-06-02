@@ -95,7 +95,7 @@ class NinjaState:
                     [escape(arg) for arg in sys.argv if arg not in COMMAND_LINE_TARGETS]
                 ),
             ),
-            "SCONS_INVOCATION_W_TARGETS": "{} {} --disable-ninja".format(
+            "SCONS_INVOCATION_W_TARGETS": "{} {}".format(
                 python_bin, " ".join([escape(arg) for arg in sys.argv])
             ),
             # This must be set to a global default per:

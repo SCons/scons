@@ -77,10 +77,9 @@ def set_build_node_callback(env, node, callback):
 
 def get_generic_shell_command(env, node, action, targets, sources, executor=None):
     return (
-        "CMD",
+        "GENERATED_CMD",
         {
-            # TODO: Why is executor passed in and then ignored below? (bdbaddog)
-            "cmd": generate_command(env, node, action, targets, sources, executor=None),
+            "cmd": generate_command(env, node, action, targets, sources, executor=executor),
             "env": get_command_env(env),
         },
         # Since this function is a rule mapping provider, it must return a list of dependencies,

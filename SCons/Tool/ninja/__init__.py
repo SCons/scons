@@ -417,6 +417,8 @@ def generate(env):
     def ninja_execute(self):
 
         target = self.targets[0]
+        if target.get_env().get('NINJA_SKIP'):
+            return
         if target.check_attributes('ninja_file') is None or not target.is_conftest:
             NINJA_STATE.add_build(target)
         else:
