@@ -175,9 +175,7 @@ def get_intel_registry_value(valuename, version=None, abi=None):
             except SCons.Util.RegError:
                 raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
 
-        except SCons.Util.RegError:
-            raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
-        except SCons.Util.WinError:
+        except (SCons.Util.RegError, OSError):
             raise MissingRegistryError("%s was not found in the registry, for Intel compiler version %s, abi='%s'"%(K, version,abi))
 
     # Get the value:
@@ -201,7 +199,7 @@ def get_all_compiler_versions():
         try:
             k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                         keyname)
-        except SCons.Util.WinError:
+        except OSError:
             # For version 13 or later, check for default instance UUID
             if is_win64:
                 keyname = 'Software\\WoW6432Node\\Intel\\Suites'
@@ -210,7 +208,7 @@ def get_all_compiler_versions():
             try:
                 k = SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE,
                                             keyname)
-            except SCons.Util.WinError:
+            except OSError:
                 return []
         i = 0
         versions = []

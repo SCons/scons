@@ -98,6 +98,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       SetOption equivalents to --hash-chunksize, --implicit-deps-unchanged
       and --implicit-deps-changed are enabled.
     - Add tests for SetOption failing on disallowed options and value types.
+    - Maintenance: eliminate lots of checker complaints about Util.py.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.

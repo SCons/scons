@@ -82,7 +82,7 @@ class VisualStudio:
             key = root + key
             try:
                 comps = read_reg(key)
-            except SCons.Util.WinError as e:
+            except OSError:
                 debug('no VS registry key {}'.format(repr(key)))
             else:
                 debug('found VS in registry: {}'.format(comps))

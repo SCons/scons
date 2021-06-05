@@ -78,7 +78,7 @@ class SDKDefinition:
 
         try:
             sdk_dir = read_reg(hkey)
-        except SCons.Util.WinError as e:
+        except OSError:
             debug('find_sdk_dir(): no SDK registry key {}'.format(repr(hkey)))
             return None
 
