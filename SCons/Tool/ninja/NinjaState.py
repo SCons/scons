@@ -31,7 +31,7 @@ import ninja
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
 from SCons.Util import is_List
-from SCons.Errors import  InternalError
+from SCons.Errors import InternalError
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
