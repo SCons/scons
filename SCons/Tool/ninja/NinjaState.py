@@ -95,7 +95,7 @@ class NinjaState:
                     [escape(arg) for arg in sys.argv if arg not in COMMAND_LINE_TARGETS]
                 ),
             ),
-            "SCONS_INVOCATION_W_TARGETS": "{} {} --disable-ninja".format(
+            "SCONS_INVOCATION_W_TARGETS": "{} {}".format(
                 python_bin, " ".join([escape(arg) for arg in sys.argv])
             ),
             # This must be set to a global default per:
@@ -231,9 +231,10 @@ class NinjaState:
                 "pool": "local_pool",
             }
 
+        num_jobs = self.env.get('NINJA_MAX_JOBS', self.env.GetOption("num_jobs"))
         self.pools = {
-            "local_pool": self.env.GetOption("num_jobs"),
-            "install_pool": self.env.GetOption("num_jobs") / 2,
+            "local_pool": num_jobs,
+            "install_pool": num_jobs / 2,
             "scons_pool": 1,
         }
 
@@ -301,12 +302,14 @@ class NinjaState:
         ninja.variable("builddir", get_path(self.env['NINJA_BUILDDIR']))
 
         for pool_name, size in self.pools.items():
-            ninja.pool(pool_name, size)
+            ninja.pool(pool_name, min(self.env.get('NINJA_MAX_JOBS', size), size))
 
         for var, val in self.variables.items():
             ninja.variable(var, val)
 
         for rule, kwargs in self.rules.items():
+            if self.env.get('NINJA_MAX_JOBS') is not None and 'pool' not in kwargs:
+                kwargs['pool'] = 'local_pool'
             ninja.rule(rule, **kwargs)
 
         generated_source_files = sorted({
