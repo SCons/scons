@@ -994,19 +994,18 @@ class BaseTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert called_it['source'] is None, called_it
 
     def test_BuilderWrapper_attributes(self):
-        """Test getting and setting of BuilderWrapper attributes
-        """
+        """Test getting and setting of BuilderWrapper attributes."""
         b1 = Builder()
         b2 = Builder()
         e1 = Environment()
         e2 = Environment()
 
-        e1.Replace(BUILDERS = {'b' : b1})
+        e1.Replace(BUILDERS={'b': b1})
         bw = e1.b
 
-        assert bw.env == e1
+        assert bw.env is e1
         bw.env = e2
-        assert bw.env == e2
+        assert bw.env is e2
 
         assert bw.builder is b1
         bw.builder = b2
@@ -1800,7 +1799,7 @@ def exists(env):
         updates and check that the original remains intact
         and the copy has the updated values.
         """
-        env1 = self.TestEnvironment(XXX = 'x', YYY = 'y')
+        env1 = self.TestEnvironment(XXX='x', YYY='y')
         env2 = env1.Clone()
         env1copy = env1.Clone()
         assert env1copy == env1
@@ -1809,7 +1808,7 @@ def exists(env):
         assert env1 != env2
         assert env1 == env1copy
 
-        env3 = env1.Clone(XXX = 'x3', ZZZ = 'z3')
+        env3 = env1.Clone(XXX='x3', ZZZ='z3')
         assert env3 != env1
         assert env3.Dictionary('XXX') == 'x3'
         assert env1.Dictionary('XXX') == 'x'
@@ -1832,7 +1831,7 @@ def exists(env):
         assert 5 not in env1.Dictionary('ZZZ')
 
         #
-        env1 = self.TestEnvironment(BUILDERS = {'b1' : Builder()})
+        env1 = self.TestEnvironment(BUILDERS={'b1': Builder()})
         assert hasattr(env1, 'b1'), "env1.b1 was not set"
         assert env1.b1.object == env1, "b1.object doesn't point to env1"
         env2 = env1.Clone(BUILDERS = {'b2' : Builder()})
