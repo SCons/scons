@@ -3222,22 +3222,32 @@ source_nodes = env.subst('$EXPAND_TO_NODELIST', conv=lambda x: x)
 <summary>
 
 <para>
-Runs the tool identified by
-<parameter>name</parameter>, which is
-searched for in standard locations and any
-paths specified by the optional
-<parameter>toolpath</parameter>,
-to update a &consenv; with &consvars;
-needed to use the mechanisms that tool describes.
+Locates the tool specification module <parameter>name</parameter>
+and returns a callable tool object for that tool.
+The tool module is searched for in standard locations
+and in any paths specified by the optional
+<parameter>toolpath</parameter> parameter.
+The standard locations are &SCons;' own internal
+path for tools plus the toolpath, if any (see the
+<emphasis role="bold">Tools</emphasis> section in the manual page
+for more details).
 Any additional keyword arguments
 <parameter>kwargs</parameter> are passed
-on to the tool module's <function>generate</function> function.
+to the tool module's <function>generate</function> function
+during tool object construction.
 </para>
 
 <para>
-When called as a &consenv; method,
-the tool module is called to update the
-&consenv; and the name of the tool is
+When called, the tool object
+updates a &consenv; with &consvars; and arranges
+any other initialization
+needed to use the mechanisms that tool describes.
+</para>
+
+<para>
+When the &f-env-Tool; form is used,
+the tool object is automatically called to update <varname>env</varname>
+and the value of <parameter>tool</parameter> is
 appended to the &cv-link-TOOLS;
 &consvar; in that environment.
 </para>
@@ -3252,15 +3262,16 @@ env.Tool('opengl', toolpath=['build/tools'])
 </example_commands>
 
 <para>
-When called as a global function,
-returns a callable tool object;
-the tool is not called at this time,
+When the global function &f-Tool; form is used,
+the tool object is constructed but not called,
 as it lacks the context of an environment to update.
-This tool object can be passed to an
+The tool object can be passed to an
 &f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
+in which case the tool is applied to the environment being constructed,
 or it can be called directly,
-passing a &consenv; to update as the argument.
+in which case a &consenv; to update must be
+passed as the argument.
 Either approach will also update the
 &cv-TOOLS; &consvar;.
 </para>
@@ -3273,11 +3284,17 @@ Examples:
 env = Environment(tools=[Tool('msvc')])
 
 env = Environment()
-t = Tool('msvc')
-t(env)  # adds 'msvc' to the TOOLS variable
-u = Tool('opengl', toolpath = ['tools'])
-u(env)  # adds 'opengl' to the TOOLS variable
+msvctool = Tool('msvc')
+msvctool(env)  # adds 'msvc' to the TOOLS variable
+gltool = Tool('opengl', toolpath = ['tools'])
+gltool(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
+
+<para>
+<emphasis>Changed in &SCons; 4.2: &f-env-Tool; now returns
+the tool object, previously it did not return
+(i.e. returned <constant>None</constant>).</emphasis>
+</para>
 </summary>
 </scons_function>
 
