@@ -29,8 +29,9 @@ import TestSCons
 
 from SCons.Environment import Base
 
+import re
+import subprocess
 from os.path import abspath, dirname
-from subprocess import check_output
 
 import sys
 sys.path.insert(1, abspath(dirname(__file__) + '/../../Support'))
@@ -45,9 +46,17 @@ def testForTool(tool):
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
     if tool == 'gdc':
-        result = check_output(('gdc', '--version'))
-        version = result.decode().splitlines()[0].split()[3]
-        major, minor, debug = [int(x) for x in version.split('.')]
+        cp = subprocess.run(('gdc', '--version'), stdout=subprocess.PIPE)
+        # different version strings possible, i.e.:
+        # gdc (GCC) 11.1.1 20210531 (Red Hat 11.1.1-3)\nCopyright (C)...
+        # gdc (Ubuntu 10.2.0-5ubuntu1~20.04) 10.20.0\nCopyright (C)...
+        vstr = cp.stdout.decode().splitlines()[0]
+        match = re.search(r'[0-9]+(\.[0-9]+)+', vstr)
+        if match:
+            version = match.group(0)
+            major, minor, debug = [int(x) for x in version.split('.')]
+        else:
+            major = 0
         if (major < 6) or (major == 6 and minor < 3):
             test.skip_test('gdc prior to version 6.0.0 does not support shared libraries.\n')
 
