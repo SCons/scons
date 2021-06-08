@@ -126,7 +126,7 @@ class NodeList(UserList):
     """
 
     def __bool__(self):
-        return len(self.data) != 0
+        return bool(self.data)
 
     def __str__(self):
         return ' '.join(map(str, self.data))
@@ -252,7 +252,12 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 
     return retval
 
-IDX = lambda N: bool(N)
+def IDX(n):
+    """Generate in index into strings from the tree legends.
+
+    These are always a choice between two, so bool works fine.
+    """
+    return bool(n)
 
 # unicode line drawing chars:
 BOX_HORIZ = chr(0x2500)  # '─'
@@ -745,11 +750,11 @@ class MethodWrapper:
 
 
 # attempt to load the windows registry module:
-can_read_reg = 0
+can_read_reg = False
 try:
     import winreg
 
-    can_read_reg = 1
+    can_read_reg = True
     hkey_mod = winreg
 
 except ImportError:
@@ -758,16 +763,16 @@ except ImportError:
     RegError = _NoError
 
 if can_read_reg:
-    HKEY_CLASSES_ROOT  = hkey_mod.HKEY_CLASSES_ROOT
+    HKEY_CLASSES_ROOT = hkey_mod.HKEY_CLASSES_ROOT
     HKEY_LOCAL_MACHINE = hkey_mod.HKEY_LOCAL_MACHINE
-    HKEY_CURRENT_USER  = hkey_mod.HKEY_CURRENT_USER
-    HKEY_USERS         = hkey_mod.HKEY_USERS
+    HKEY_CURRENT_USER = hkey_mod.HKEY_CURRENT_USER
+    HKEY_USERS = hkey_mod.HKEY_USERS
 
-    RegOpenKeyEx    = winreg.OpenKeyEx
-    RegEnumKey      = winreg.EnumKey
-    RegEnumValue    = winreg.EnumValue
+    RegOpenKeyEx = winreg.OpenKeyEx
+    RegEnumKey = winreg.EnumKey
+    RegEnumValue = winreg.EnumValue
     RegQueryValueEx = winreg.QueryValueEx
-    RegError        = winreg.error
+    RegError = winreg.error
 
     def RegGetValue(root, key):
         """Returns a registry value without having to open the key first.
@@ -791,10 +796,12 @@ if can_read_reg:
         # I would use os.path.split here, but it's not a filesystem
         # path...
         p = key.rfind('\\') + 1
-        keyp = key[:p-1]          # -1 to omit trailing slash
+        keyp = key[: p - 1]  # -1 to omit trailing slash
         val = key[p:]
         k = RegOpenKeyEx(root, keyp)
-        return RegQueryValueEx(k,val)
+        return RegQueryValueEx(k, val)
+
+
 else:
     HKEY_CLASSES_ROOT = None
     HKEY_LOCAL_MACHINE = None
@@ -1230,14 +1237,14 @@ def adjustixes(fname, pre, suf, ensure_suffix=False):
 
         # Handle the odd case where the filename = the prefix.
         # In that case, we still want to add the prefix to the file
-        if fn[:len(pre)] != pre or fn == pre:
+        if not fn.startswith(pre) or fn == pre:
             fname = os.path.join(path, pre + fn)
     # Only append a suffix if the suffix we're going to add isn't already
     # there, and if either we've been asked to ensure the specific suffix
     # is present or there's no suffix on it at all.
     # Also handle the odd case where the filename = the suffix.
     # in that case we still want to append the suffix
-    if suf and fname[-len(suf):] != suf and \
+    if suf and not fname.endswith(suf) and \
             (ensure_suffix or not splitext(fname)[1]):
         fname = fname + suf
     return fname
@@ -1497,7 +1504,8 @@ class UniqueList(UserList):
         self.__make_unique()
         super().reverse()
 
-    def sort(self, /, *args, **kwds):
+    # TODO: Py3.8: def sort(self, /, *args, **kwds):
+    def sort(self, *args, **kwds):
         self.__make_unique()
         return super().sort(*args, **kwds)
 
