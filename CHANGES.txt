@@ -99,6 +99,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and --implicit-deps-changed are enabled.
     - Add tests for SetOption failing on disallowed options and value types.
     - Maintenance: eliminate lots of checker complaints about Util.py.
+    - Maintenance: fix checker-spotted issues in Environment (apply_tools)
+      and EnvironmentTests (asserts comparing with self).
+      For consistency, env.Tool() now returns a tool object the same way
+      Tool() has done.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
