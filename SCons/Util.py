@@ -49,7 +49,7 @@ PYPY = hasattr(sys, 'pypy_translation_info')
 NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
 
 # unused?
-def dictify(keys, values, result=None) -> list:
+def dictify(keys, values, result=None) -> dict:
     if result is None:
         result = {}
     result.update(dict(zip(keys, values)))
