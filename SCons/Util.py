@@ -36,9 +36,10 @@ from types import MethodType, FunctionType
 
 # Note: Util module cannot import other bits of SCons globally without getting
 # into import loops. Both the below modules import SCons.Util early on.
+# --> SCons.Warnings
+# --> SCons.Errors
 # Thus the local imports, which are annotated for pylint to show we mean it.
-# import SCons.Warnings
-# from SCons.Errors import UserError
+
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
@@ -87,6 +88,8 @@ def containsOnly(s, pat) -> bool:
             return False
     return True
 
+
+# TODO: Verify this method is STILL faster than os.path.splitext
 def splitext(path) -> tuple:
     """Split `path` into a (root, ext) pair.
 
@@ -515,7 +518,7 @@ def flatten_sequence(
     StringTypes=StringTypes,
     SequenceTypes=SequenceTypes,
     do_flatten=do_flatten,
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> list:  # pylint: disable=redefined-outer-name,redefined-builtin
     """Flatten a sequence to a non-nested list.
 
     Same as :func:`flatten`, but it does not handle the single scalar case.
@@ -665,7 +668,8 @@ class Proxy:
 
     Inherit from this class to create a Proxy.
 
-    Note that, with new-style classes, this does *not* work transparently
+    
+    With Python 3.5+ this does *not* work transparently
     for :class:`Proxy` subclasses that use special .__*__() method names,
     because those names are now bound to the class, not the individual
     instances.  You now need to know in advance which special method names you
