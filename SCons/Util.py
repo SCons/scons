@@ -33,6 +33,7 @@ from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
 from contextlib import suppress
 from types import MethodType, FunctionType
+from typing import Optional, Union
 
 # Note: Util module cannot import other bits of SCons globally without getting
 # into import loops. Both the below modules import SCons.Util early on.
@@ -48,7 +49,7 @@ PYPY = hasattr(sys, 'pypy_translation_info')
 NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
 
 # unused?
-def dictify(keys, values, result=None):
+def dictify(keys, values, result=None) -> list:
     if result is None:
         result = {}
     result.update(dict(zip(keys, values)))
@@ -166,13 +167,13 @@ class NodeList(UserList):
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
-def get_environment_var(varstr):
+def get_environment_var(varstr) -> Optional[str]:
     """Return undecorated construction variable string.
 
-    Given a string, first determine if it looks like a reference
-    to a single environment variable, like "$FOO" or "${FOO}".
-    If so, return that variable with no decorations ("FOO").
-    If not, return None.
+    Determine if `varstr` looks like a reference
+    to a single environment variable, like `"$FOO"` or `"${FOO}"`.
+    If so, return that variable with no decorations, like `"FOO"`.
+    If not, return `None`.
     """
 
     mo = _get_env_var.match(to_String(varstr))
@@ -213,6 +214,7 @@ class DisplayEngine:
         self.print_it = mode
 
 
+# TODO: W0102: Dangerous default value [] as argument (dangerous-default-value)
 def render_tree(root, child_func, prune=0, margin=[0], visited=None):
     """Render a tree of nodes into an ASCII tree view.
 
@@ -255,7 +257,7 @@ def render_tree(root, child_func, prune=0, margin=[0], visited=None):
 
     return retval
 
-def IDX(n):
+def IDX(n) -> bool:
     """Generate in index into strings from the tree legends.
 
     These are always a choice between two, so bool works fine.
@@ -273,6 +275,7 @@ BOX_VERT_RIGHT = chr(0x251c)  # '├'
 BOX_HORIZ_DOWN = chr(0x252c)  # '┬'
 
 
+# TODO: W0102: Dangerous default value [] as argument (dangerous-default-value)
 def print_tree(
     root,
     child_func,
@@ -431,39 +434,39 @@ StringTypes = (str, UserString)
 # Empirically, it is faster to check explicitly for str than for basestring.
 BaseStringTypes = str
 
-def is_Dict(
+def is_Dict(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, DictTypes=DictTypes
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> bool:
     return isinstance(obj, DictTypes)
 
 
-def is_List(
+def is_List(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, ListTypes=ListTypes
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> bool:
     return isinstance(obj, ListTypes)
 
 
-def is_Sequence(
+def is_Sequence(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, SequenceTypes=SequenceTypes
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> bool:
     return isinstance(obj, SequenceTypes)
 
 
-def is_Tuple(
+def is_Tuple(  # pylint: disable=redefined-builtin
     obj, isinstance=isinstance, tuple=tuple
-):  # pylint: disable=redefined-builtin
+) -> bool:
     return isinstance(obj, tuple)
 
 
-def is_String(
+def is_String(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, StringTypes=StringTypes
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> bool:
     return isinstance(obj, StringTypes)
 
 
-def is_Scalar(
+def is_Scalar(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> bool:
 
     # Profiling shows that there is an impressive speed-up of 2x
     # when explicitly checking for strings instead of just not
@@ -488,13 +491,13 @@ def do_flatten(
             do_flatten(item, result)
 
 
-def flatten(
+def flatten(  # pylint: disable=redefined-outer-name,redefined-builtin
     obj,
     isinstance=isinstance,
     StringTypes=StringTypes,
     SequenceTypes=SequenceTypes,
     do_flatten=do_flatten,
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> list:
     """Flatten a sequence to a non-nested list.
 
     Converts either a single scalar or a nested sequence to a non-nested list.
@@ -512,13 +515,13 @@ def flatten(
     return result
 
 
-def flatten_sequence(
+def flatten_sequence(  # pylint: disable=redefined-outer-name,redefined-builtin
     sequence,
     isinstance=isinstance,
     StringTypes=StringTypes,
     SequenceTypes=SequenceTypes,
     do_flatten=do_flatten,
-) -> list:  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> list:
     """Flatten a sequence to a non-nested list.
 
     Same as :func:`flatten`, but it does not handle the single scalar case.
@@ -668,7 +671,6 @@ class Proxy:
 
     Inherit from this class to create a Proxy.
 
-    
     With Python 3.5+ this does *not* work transparently
     for :class:`Proxy` subclasses that use special .__*__() method names,
     because those names are now bound to the class, not the individual
@@ -779,7 +781,7 @@ if can_read_reg:
     RegError = winreg.error
 
     def RegGetValue(root, key):
-        """Returns a registry value without having to open the key first.
+        r"""Returns a registry value without having to open the key first.
 
         Only available on Windows platforms with a version of Python that
         can read the registry.
@@ -818,9 +820,10 @@ else:
     def RegOpenKeyEx(root, key):
         raise OSError
 
+
 if sys.platform == 'win32':
 
-    def WhereIs(file, path=None, pathext=None, reject=None):
+    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -857,7 +860,7 @@ if sys.platform == 'win32':
 
 elif os.name == 'os2':
 
-    def WhereIs(file, path=None, pathext=None, reject=None):
+    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -889,8 +892,9 @@ elif os.name == 'os2':
 
 else:
 
-    def WhereIs(file, path=None, pathext=None, reject=None):  # pylint: disable=unused-argument
-        import stat
+    def WhereIs(file, path=None, pathext=None, reject=None) -> Optional[str]:
+        import stat  # pylint: disable=import-outside-toplevel
+
         if path is None:
             try:
                 path = os.environ['PATH']
@@ -921,9 +925,23 @@ else:
                     continue
         return None
 
+WhereIs.__doc__ = """\
+Return the path to an executable that matches `file`.
+
+Searches the given `path` for `file`, respecting any filename
+extensions `pathext` (on the Windows platform only), and
+returns the full path to the matching command.  If no
+command is found, return ``None``.
+
+If `path` is not specified, :attr:`os.environ[PATH]` is used.
+If `pathext` is not specified, :attr:`os.environ[PATHEXT]`
+is used. Will not select any path name or names in the optional
+`reject` list.
+"""
+
 def PrependPath(
     oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
-):
+) -> Union[list, str]:
     """Prepends `newpath` path elements to `oldpath`.
 
     Will only add any particular path once (leaving the first one it
@@ -1009,7 +1027,7 @@ def PrependPath(
 
 def AppendPath(
     oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
-):
+) -> Union[list, str]:
     """Appends `newpath` path elements to `oldpath`.
 
     Will only add any particular path once (leaving the last one it
@@ -1123,21 +1141,39 @@ def AddPathIfNotExists(env_dict, key, path, sep=os.pathsep):
         env_dict[key] = path
 
 if sys.platform == 'cygwin':
-    def get_native_path(path):
-        """Transforms an absolute path into a native path for the system.  In
-        Cygwin, this converts from a Cygwin path to a Windows one."""
-        with os.popen('cygpath -w ' + path) as p:
-            npath = p.read().replace('\n', '')
-        return npath
+    import subprocess  # pylint: disable=import-outside-toplevel
+
+    def get_native_path(path) -> str:
+        cp = subprocess.run(('cygpath', '-w', path), check=False, stdout=subprocess.PIPE)
+        return cp.stdout.decode().replace('\n', '')
 else:
-    def get_native_path(path):
-        """Transforms an absolute path into a native path for the system.
-        Non-Cygwin version, just leave the path alone."""
+    def get_native_path(path) -> str:
         return path
+
+get_native_path.__doc__ = """\
+Transform an absolute path into a native path for the system.
+
+In Cygwin, this converts from a Cygwin path to a Windows path,
+without regard to whether `path` refers to an existing file
+system object.  For other platforms, `path` is unchanged.
+"""
+
 
 display = DisplayEngine()
 
-def Split(arg):
+def Split(arg) -> list:
+    """Returns a list of file names or other objects.
+
+    If `arg` is a string, it will be split on strings of white-space
+    characters within the string.  If `arg` is already a list, the list
+    will be returned untouched. If `arg` is any other type of object,
+    it will be returned as a list containing just the object.
+
+    >>> print(Split(" this  is  a  string  "))
+    ['this', 'is', 'a', 'string']
+    >>> print(Split(["stringlist", " preserving ", " spaces "]))
+    ['stringlist', ' preserving ', ' spaces ']
+    """
     if is_List(arg) or is_Tuple(arg):
         return arg
 
@@ -1148,22 +1184,32 @@ def Split(arg):
 
 
 class CLVar(UserList):
-    """A class for command-line construction variables.
+    """A container for command-line construction variables.
 
-    Forces the use of a list of strings, matching individual arguments
-    that will be issued on the command line.  Like :class:`UserList`,
-    but the argument passed to :meth:`__init__` will be processed by the
-    :func:`Split` function, which includes special handling for string types -
-    they will be split into a list of words, not coereced directly
-    to a list.  The same happens if adding a string,
-    which allows us to Do the Right Thing with :func:`Append` and
-    :func:`Prepend`, as well as with pure Python `foo = env['VAR'] + 'arg1
-    arg2'` regardless of whether a user adds a list or a string to a
-    command-line construction variable.
+    Forces the use of a list of strings intended as command-line
+    arguments.  Like :class:`collections.UserList`, but the argument
+    passed to the initializter will be processed by the :func:`Split`
+    function, which includes special handling for string types: they
+    will be split into a list of words, not coereced directly to a list.
+    The same happens if a string is added to a :class:`CLVar`,
+    which allows doing the right thing with both
+    :func:`Append`/:func:`Prepend` methods,
+    as well as with pure Python addition, regardless of whether adding
+    a list or a string to a construction variable.
 
     Side effect: spaces will be stripped from individual string
     arguments. If you need spaces preserved, pass strings containing
     spaces inside a list argument.
+
+    >>> u = UserList("--some --opts and args")
+    >>> print(len(u), repr(u))
+    22 ['-', '-', 's', 'o', 'm', 'e', ' ', '-', '-', 'o', 'p', 't', 's', ' ', 'a', 'n', 'd', ' ', 'a', 'r', 'g', 's']
+    >>> c = CLVar("--some --opts and args")
+    >>> print(len(c), repr(c))
+    4 ['--some', '--opts', 'and', 'args']
+    >>> c += "    strips spaces    "
+    >>> print(len(c), repr(c))
+    6 ['--some', '--opts', 'and', 'args', 'strips', 'spaces']
     """
 
     def __init__(self, initlist=None):
@@ -1221,15 +1267,15 @@ class Selector(OrderedDict):
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
     # fact that the underlying Windows OS is case-insensitive.
-    def case_sensitive_suffixes(s1, s2):  # pylint: disable=unused-argument
+    def case_sensitive_suffixes(s1, s2) -> bool:  # pylint: disable=unused-argument
         return False
 
 else:
-    def case_sensitive_suffixes(s1, s2):
+    def case_sensitive_suffixes(s1, s2) -> bool:
         return os.path.normcase(s1) != os.path.normcase(s2)
 
 
-def adjustixes(fname, pre, suf, ensure_suffix=False):
+def adjustixes(fname, pre, suf, ensure_suffix=False) -> str:
     """Adjust filename prefixes and suffixes as needed.
 
     Add `prefix` to `fname` if specified.
@@ -1387,8 +1433,7 @@ def logical_lines(physical_lines, joiner=''.join):
 class LogicalLines:
     """ Wrapper class for the logical_lines method.
 
-        Allows us to read all "logical" lines at once from a
-        given file object.
+    Allows us to read all "logical" lines at once from a given file object.
     """
 
     def __init__(self, fileobj):
@@ -1402,8 +1447,8 @@ class UniqueList(UserList):
     """A list which maintains uniqueness.
 
     Uniquing is lazy: rather than being assured on list changes, it is fixed
-    up on access by those methods which need to act on a uniqe list to
-    be correct. That means things like "in" don't have to eat the time.
+    up on access by those methods which need to act on a uniqe list to be
+    correct. That means things like "in" don't have to eat the uniquing time.
     """
     def __init__(self, initlist=None):
         super().__init__(initlist)
@@ -1546,7 +1591,7 @@ class Unbuffered:
     def __getattr__(self, attr):
         return getattr(self.file, attr)
 
-def make_path_relative(path):
+def make_path_relative(path) -> str:
     """Converts an absolute path name to a relative pathname."""
 
     if os.path.isabs(path):
