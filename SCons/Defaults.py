@@ -348,21 +348,31 @@ Touch = ActionFactory(touch_func,
 # Internal utility functions
 
 
-def _concat(prefix, iter, suffix, env, f=lambda x: x, target=None, source=None):
+def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=None, affect_signature=True):
     """
     Creates a new list from 'iter' by first interpolating each element
     in the list using the 'env' dictionary and then calling f on the
     list, and finally calling _concat_ixes to concatenate 'prefix' and
     'suffix' onto each element of the list.
     """
-    if not iter:
-        return iter
 
-    l = f(SCons.PathList.PathList(iter).subst_path(env, target, source))
+    if not items_iter:
+        return items_iter
+
+    l = f(SCons.PathList.PathList(items_iter).subst_path(env, target, source))
     if l is not None:
         iter = l
 
-    return _concat_ixes(prefix, iter, suffix, env)
+    if not affect_signature:
+        value = ['$(']
+    else:
+        value = []
+    value += _concat_ixes(prefix, iter, suffix, env)
+
+    if not affect_signature:
+        value += ["$)"]
+
+    return value
 
 
 def _concat_ixes(prefix, iter, suffix, env):
@@ -606,8 +616,10 @@ ConstructionEnvironment = {
     '_defines': _defines,
     '_stripixes': _stripixes,
     '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
-    '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
-    '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)',
+
+    '_LIBDIRFLAGS': '${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}',
+    '_CPPINCFLAGS': '${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}',
+
     '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__, TARGET, SOURCE)}',
 
     '__libversionflags': __libversionflags,
