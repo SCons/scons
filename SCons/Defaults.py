@@ -361,13 +361,13 @@ def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=
 
     l = f(SCons.PathList.PathList(items_iter).subst_path(env, target, source))
     if l is not None:
-        iter = l
+        items_iter = l
 
     if not affect_signature:
         value = ['$(']
     else:
         value = []
-    value += _concat_ixes(prefix, iter, suffix, env)
+    value += _concat_ixes(prefix, items_iter, suffix, env)
 
     if not affect_signature:
         value += ["$)"]
