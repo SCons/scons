@@ -14,6 +14,9 @@ NEW FUNCTIONALITY
       Fixes #396
     - Added --experimental flag, to enable various experimental features/tools.  You can specify
       'all', 'none', or any combination of available experimental features.
+    - Added affect_signature flag to  _concat function.  If set to False, it will prepend and append $( and $).
+      That way the various Environment variables can use that rather than "$( _concat(...) $)".
+
 
 DEPRECATED FUNCTIONALITY
 ------------------------
