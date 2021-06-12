@@ -94,13 +94,13 @@ def DefaultEnvironment(*args, **kw):
 def StaticObjectEmitter(target, source, env):
     for tgt in target:
         tgt.attributes.shared = None
-    return (target, source)
+    return target, source
 
 
 def SharedObjectEmitter(target, source, env):
     for tgt in target:
         tgt.attributes.shared = 1
-    return (target, source)
+    return target, source
 
 
 def SharedFlagChecker(source, target, env):
@@ -291,7 +291,7 @@ def delete_func(dest, must_exist=0):
             continue
         # os.path.isdir returns True when entry is a link to a dir
         if os.path.isdir(entry) and not os.path.islink(entry):
-            shutil.rmtree(entry, 1)
+            shutil.rmtree(entry, True)
             continue
         os.unlink(entry)
 
@@ -312,7 +312,7 @@ def mkdir_func(dest):
 
 
 Mkdir = ActionFactory(mkdir_func,
-                      lambda dir: 'Mkdir(%s)' % get_paths_str(dir))
+                      lambda _dir: 'Mkdir(%s)' % get_paths_str(_dir))
 
 
 def move_func(dest, src):
@@ -347,10 +347,10 @@ Touch = ActionFactory(touch_func,
 
 # Internal utility functions
 
-
+# pylint: disable-msg=too-many-arguments
 def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=None, affect_signature=True):
     """
-    Creates a new list from 'iter' by first interpolating each element
+    Creates a new list from 'items_iter' by first interpolating each element
     in the list using the 'env' dictionary and then calling f on the
     list, and finally calling _concat_ixes to concatenate 'prefix' and
     'suffix' onto each element of the list.
@@ -373,11 +373,12 @@ def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=
         value += ["$)"]
 
     return value
+# pylint: enable-msg=too-many-arguments
 
 
-def _concat_ixes(prefix, iter, suffix, env):
+def _concat_ixes(prefix, items_iter, suffix, env):
     """
-    Creates a new list from 'iter' by concatenating the 'prefix' and
+    Creates a new list from 'items_iter' by concatenating the 'prefix' and
     'suffix' arguments onto each element of the list.  A trailing space
     on 'prefix' or leading space on 'suffix' will cause them to be put
     into separate list elements rather than being concatenated.
@@ -389,7 +390,7 @@ def _concat_ixes(prefix, iter, suffix, env):
     prefix = str(env.subst(prefix, SCons.Subst.SUBST_RAW))
     suffix = str(env.subst(suffix, SCons.Subst.SUBST_RAW))
 
-    for x in SCons.Util.flatten(iter):
+    for x in SCons.Util.flatten(items_iter):
         if isinstance(x, SCons.Node.FS.File):
             result.append(x)
             continue
