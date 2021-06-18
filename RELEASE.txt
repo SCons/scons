@@ -46,6 +46,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
     - Update BuildTask to pass all targets to the progress object fixing an issue
       where multi-target build nodes only got the first target passed to the progress
       object.
+    - Change SConscript() missing SConscript behavior - if must_exist=False,
+      the warning is suppressed.
 
 
 FIXES

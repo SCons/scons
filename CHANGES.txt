@@ -103,6 +103,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and EnvironmentTests (asserts comparing with self).
       For consistency, env.Tool() now returns a tool object the same way
       Tool() has done.
+    - Change SConscript() missing SConscript behavior - if must_exist=False,
+      the warning is suppressed.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.

@@ -148,31 +148,37 @@ stack_bottom = '% Stack boTTom %' # hard to define a variable w/this name :)
 def handle_missing_SConscript(f, must_exist=None):
     """Take appropriate action on missing file in SConscript() call.
 
-    Print a warning or raise an exception on missing file.
+    Print a warning or raise an exception on missing file, unless
+    missing is explicitly allowed by the *must_exist* value.
     On first warning, print a deprecation message.
 
     Args:
         f (str): path of missing configuration file
-        must_exist (bool): raise exception if file does not exist
+        must_exist (bool): if true, fail.  If false, but not ``None``,
+          allow the file to be missing.  The default is ``None``,
+          which means issue the warning.  The default is deprecated.
 
     Raises:
-        UserError if 'must_exist' is True or if global
-          SCons.Script._no_missing_sconscript is True.
+        UserError: if *must_exist* is true or if global
+          :data:`SCons.Script._no_missing_sconscript` is true.
     """
 
     if must_exist or (SCons.Script._no_missing_sconscript and must_exist is not False):
         msg = "Fatal: missing SConscript '%s'" % f.get_internal_path()
         raise SCons.Errors.UserError(msg)
 
-    if SCons.Script._warn_missing_sconscript_deprecated and must_exist is None:
-        msg = "Calling missing SConscript without error is deprecated.\n" + \
-              "Transition by adding must_exist=0 to SConscript calls.\n" + \
-              "Missing SConscript '%s'" % f.get_internal_path()
-        SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
-        SCons.Script._warn_missing_sconscript_deprecated = False
-    else:
-        msg = "Ignoring missing SConscript '%s'" % f.get_internal_path()
-        SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
+    if must_exist is None:
+        if SCons.Script._warn_missing_sconscript_deprecated:
+            msg = (
+                "Calling missing SConscript without error is deprecated.\n"
+                "Transition by adding must_exist=False to SConscript calls.\n"
+                "Missing SConscript '%s'" % f.get_internal_path()
+            )
+            SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
+            SCons.Script._warn_missing_sconscript_deprecated = False
+        else:
+            msg = "Ignoring missing SConscript '%s'" % f.get_internal_path()
+            SCons.Warnings.warn(SCons.Warnings.MissingSConscriptWarning, msg)
 
 def _SConscript(fs, *files, **kw):
     top = fs.Top
