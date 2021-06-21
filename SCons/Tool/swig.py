@@ -204,8 +204,8 @@ def generate(env):
     env['SWIGPATH'] = []
     env['SWIGINCPREFIX'] = '-I'
     env['SWIGINCSUFFIX'] = ''
-    env[
-        '_SWIGINCFLAGS'] = '${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
+    env['_SWIGINCFLAGS'] = '${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX,' \
+                            '__env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
     env['SWIGCOM'] = '$SWIG -o $TARGET ${_SWIGOUTDIR} ${_SWIGINCFLAGS} $SWIGFLAGS $SOURCES'
 
 def exists(env):

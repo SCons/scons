@@ -208,11 +208,11 @@ def setup_shared_lib_logic(env):
     env["SHLIBEMITTER"] = [lib_emitter, shlib_symlink_emitter]
 
     # If it's already set, then don't overwrite.
-    env["SHLIBPREFIX"] = env.get('SHLIBPREFIX',"lib")
+    env["SHLIBPREFIX"] = env.get('SHLIBPREFIX', "lib")
     env["_SHLIBSUFFIX"] = "${SHLIBSUFFIX}${_SHLIBVERSION}"
 
     env["SHLINKFLAGS"] = CLVar("$LINKFLAGS -shared")
 
     env["SHLINKCOM"] = "$SHLINK -o $TARGET $SHLINKFLAGS $__SHLIBVERSIONFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS"
-    env["SHLINKCOMSTR"] = "$SHLINKCOM"
+
     env["SHLINK"] = "$LINK"
