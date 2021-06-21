@@ -143,7 +143,7 @@ class DummyNode:
         return self
 
 def test_tool( env ):
-    env['_F77INCFLAGS'] = '$( ${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env['_F77INCFLAGS'] = '${_concat(INCPREFIX, F77PATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
 
 class TestEnvironmentFixture:
     def TestEnvironment(self, *args, **kw):
@@ -1488,6 +1488,9 @@ def exists(env):
         assert x == 'prea bsuf', x
         x = s("${_concat(PRE, LIST, SUF, __env__)}")
         assert x == 'preasuf prebsuf', x
+        x = s("${_concat(PRE, LIST, SUF, __env__,affect_signature=False)}", raw=True)
+        assert x == '$( preasuf prebsuf $)', x
+
 
     def test_concat_nested(self):
         """Test _concat() on a nested substitution strings."""

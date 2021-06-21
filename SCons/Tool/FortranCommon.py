@@ -1,9 +1,3 @@
-"""SCons.Tool.FortranCommon
-
-Stuff for processing Fortran, common to all fortran dialects.
-
-"""
-
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -25,7 +19,12 @@ Stuff for processing Fortran, common to all fortran dialects.
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""SCons.Tool.FortranCommon
+
+Stuff for processing Fortran, common to all fortran dialects.
+
+"""
 
 import re
 import os.path
@@ -34,6 +33,7 @@ import SCons.Action
 import SCons.Scanner.Fortran
 import SCons.Tool
 import SCons.Util
+
 
 def isfortran(env, source):
     """Return 1 if any of code in source has fortran files in it, 0
@@ -147,7 +147,7 @@ def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_module = 0):
     if 'INC%sSUFFIX' % dialect not in env:
         env['INC%sSUFFIX' % dialect] = '$INCSUFFIX'
 
-    env['_%sINCFLAGS' % dialect] = '$( ${_concat(INC%sPREFIX, %sPATH, INC%sSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)' % (dialect, dialect, dialect)
+    env['_%sINCFLAGS' % dialect] = '${_concat(INC%sPREFIX, %sPATH, INC%sSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}' % (dialect, dialect, dialect)
 
     if support_module == 1:
         env['%sCOM' % dialect]     = '$%s -o $TARGET -c $%sFLAGS $_%sINCFLAGS $_FORTRANMODFLAG $SOURCES' % (dialect, dialect, dialect)

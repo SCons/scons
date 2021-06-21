@@ -180,7 +180,7 @@ def generate(env):
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
     env['RC'] = 'windres'
     env['RCFLAGS'] = SCons.Util.CLVar('')
-    env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env['RCINCFLAGS'] = '${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
     env['RCCOM'] = '$RC $_CPPDEFFLAGS $RCINCFLAGS ${RCINCPREFIX} ${SOURCE.dir} $RCFLAGS -i $SOURCE -o $TARGET'
