@@ -35,7 +35,7 @@ See its __doc__ string for a discussion of the format.
         5) an optional function that will be called to transform the list before concatenation,
         6) an optionally specified target (Can use TARGET),
         7) an optionally specified source (Can use SOURCE),
-        8) optional affect_signature flag which will wrap non-empty returned value with $( and $) to indicate the contents
+        8) optional <parameter>affect_signature</parameter> flag which will wrap non-empty returned value with $( and $) to indicate the contents
         should not affect the signature of the generated command line.
     </para>
 
