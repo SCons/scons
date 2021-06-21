@@ -19,7 +19,7 @@ coverage:
   notify:
     irc:
       default:
-        server: "chat.freenode.net#scons"
+        server: "irc.libera.chat#scons"
         branches: master
         threshold: null
         message: "Coverage {{changed}} for {{owner}}/{{repo}}"  # customize the message
