@@ -52,45 +52,60 @@ See its __doc__ string for a discussion of the format.
             </para>
         </summary>
         <sets>
-            <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
-            <item>NINJA_MSVC_DEPS_PREFIX</item>
-            <item>NINJA_BUILDDIR</item>
-            <item>NINJA_REGENERATE_DEPS</item>
+            <item>DISABLE_AUTO_NINJA</item>
+            <item>NINJA_ALIAS_NAME</item>
+<!--            <item>NINJA_BUILDDIR</item>-->
             <item>NINJA_COMPDB_EXPAND</item>
             <item>NINJA_ENV_VAR_CACHE</item>
-            <item>NINJA_POOL</item>
-            <item>DISABLE_AUTO_NINJA</item>
-            <item>__NINJA_NO</item>
-
             <item>NINJA_FILE_NAME</item>
-
-            <item>NINJA_ALIAS_NAME</item>
+            <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
+            <item>NINJA_MSVC_DEPS_PREFIX</item>
+            <item>NINJA_POOL</item>
+            <item>NINJA_REGENERATE_DEPS</item>
             <item>NINJA_SYNTAX</item>
-
             <item>_NINJA_REGENERATE_DEPS_FUNC</item>
+            <item>__NINJA_NO</item>
+            <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
+
+
+            <!-- TODO: Document these -->
+            <item>NINJA_RULES</item>
+            <item>NINJA_POOLS</item>
+            <item>NINJA</item>
+            <item>GENERATING_NINJA</item>
+            <item>NINJA_DIR</item>
+
         </sets>
 
         <uses>
-            <item>CCCOM</item>
-            <item>CXXCOM</item>
-            <item>SHCXXCOM</item>
-            <item>SHCCCOM</item>
-            <item>CC</item>
-            <item>CXX</item>
-
-            <item>LINKCOM</item>
-            <item>LINK</item>
-
-            <item>SHLINKCOM</item>
-            <item>SHLINK</item>
-
-            <item>ARCOM</item>
             <item>AR</item>
-            <item>RANLIB</item>
+            <item>ARCOM</item>
             <item>ARFLAGS</item>
-            <item>RANLIBCOM</item>
-            <item>PLATFORM</item>
+            <item>CC</item>
+            <item>CCCOM</item>
+            <item>CCFLAGS</item>
+            <item>CXX</item>
+            <item>CXXCOM</item>
             <item>ESCAPE</item>
+            <item>LINK</item>
+            <item>LINKCOM</item>
+            <item>PLATFORM</item>
+            <item>RANLIB</item>
+            <item>RANLIBCOM</item>
+            <item>SHCCCOM</item>
+            <item>SHCXXCOM</item>
+            <item>SHLINK</item>
+            <item>SHLINKCOM</item>
+            <item>PROGSUFFIX</item>
+            <item>PRINT_CMD_LINE_FUNC</item>
+            <item>TEMPFILE</item>
+
+            <!-- TODO: Document these -->
+            <item>NINJA_MAX_JOBS</item>
+            <item>NINJA_SKIP</item>
+            <item>NINJA_CUSTOM_HANDLERS</item>
+            <item>BUILD_DIR</item>
+
 
         </uses>
     </tool>
@@ -169,7 +184,7 @@ See its __doc__ string for a discussion of the format.
         </summary>
     </cvar>
 
-    <cvar name="NINJA_BUILDDIR">
+    <cvar name="NINJA_DIR">
         <summary>
             <para>
                 This propagates directly into the generated Ninja.build file.

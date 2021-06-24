@@ -50,7 +50,7 @@ def register_custom_rule(env, rule, command, description="", deps=None, pool=Non
     }
 
     if use_depfile:
-        rule_obj["depfile"] = os.path.join(get_path(env['NINJA_BUILDDIR']), '$out.depfile')
+        rule_obj["depfile"] = os.path.join(get_path(env['NINJA_DIR']), '$out.depfile')
 
     if deps is not None:
         rule_obj["deps"] = deps
@@ -158,7 +158,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
             implicit.append(provider_dep)
             continue
 
-        # in some case the tool could be in the local directory and be suppled without the ext
+        # in some case the tool could be in the local directory and be supplied without the ext
         # such as in windows, so append the executable suffix and check.
         prog_suffix = sub_env.get('PROGSUFFIX', '')
         provider_dep_ext = provider_dep if provider_dep.endswith(prog_suffix) else provider_dep + prog_suffix

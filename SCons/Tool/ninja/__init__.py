@@ -184,7 +184,7 @@ def generate(env):
     env.Append(BUILDERS={"Ninja": ninja_builder_obj})
 
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
-    env['NINJA_BUILDDIR'] = env.get("NINJA_BUILDDIR", env.Dir(".ninja").path)
+    env['NINJA_DIR'] = env.get("NINJA_DIR", env.Dir(".ninja").path)
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
@@ -437,7 +437,7 @@ def generate(env):
     # Set all three environment variables that Python's
     # tempfile.mkstemp looks at as it behaves differently on different
     # platforms and versions of Python.
-    build_dir = env.subst("$BUILD_DIR")
+    build_dir = env.subst("$NINJA_DIR")
     if build_dir == "":
         build_dir = "."
     os.environ["TMPDIR"] = env.Dir("{}/.response_files".format(build_dir)).get_abspath()

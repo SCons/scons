@@ -209,7 +209,7 @@ def generate_depfile(env, node, dependencies):
     dependencies arg can be a list or a subst generator which returns a list.
     """
 
-    depfile = os.path.join(get_path(env['NINJA_BUILDDIR']), str(node) + '.depfile')
+    depfile = os.path.join(get_path(env['NINJA_DIR']), str(node) + '.depfile')
 
     # subst_list will take in either a raw list or a subst callable which generates
     # a list, and return a list of CmdStringHolders which can be converted into raw strings.
