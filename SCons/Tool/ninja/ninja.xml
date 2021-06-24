@@ -52,9 +52,9 @@ See its __doc__ string for a discussion of the format.
             </para>
         </summary>
         <sets>
-            <item>DISABLE_AUTO_NINJA</item>
+            <item>NINJA_DISABLE_AUTO_RUN</item>
             <item>NINJA_ALIAS_NAME</item>
-<!--            <item>NINJA_BUILDDIR</item>-->
+            <item>NINJA_DIR</item>
             <item>NINJA_COMPDB_EXPAND</item>
             <item>NINJA_ENV_VAR_CACHE</item>
             <item>NINJA_FILE_NAME</item>
@@ -104,7 +104,6 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_MAX_JOBS</item>
             <item>NINJA_SKIP</item>
             <item>NINJA_CUSTOM_HANDLERS</item>
-            <item>BUILD_DIR</item>
 
 
         </uses>
@@ -247,7 +246,7 @@ See its __doc__ string for a discussion of the format.
         </summary>
     </cvar>
 
-    <cvar name="DISABLE_AUTO_NINJA">
+    <cvar name="NINJA_DISABLE_AUTO_RUN">
         <summary>
             <para>
                 Boolean (True|False). Default: False

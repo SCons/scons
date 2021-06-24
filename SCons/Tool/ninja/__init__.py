@@ -76,7 +76,7 @@ def ninja_builder(env, target, source):
     else:
         cmd = [NINJA_STATE.ninja_bin_path, '-f', generated_build_ninja]
 
-    if not env.get("DISABLE_AUTO_NINJA"):
+    if not env.get("NINJA_DISABLE_AUTO_RUN"):
         print("Executing:", str(' '.join(cmd)))
 
         # execute the ninja build at the end of SCons, trying to
@@ -173,7 +173,7 @@ def generate(env):
         SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
         return
 
-    env["DISABLE_AUTO_NINJA"] = GetOption('disable_execute_ninja')
+    env["NINJA_DISABLE_AUTO_RUN"] = GetOption('disable_execute_ninja')
 
     env["NINJA_FILE_NAME"] = env.get("NINJA_FILE_NAME", "build.ninja")
 
