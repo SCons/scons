@@ -564,7 +564,7 @@ def find_e2e_tests(directory):
         if 'sconstest.skip' in filenames:
             continue
 
-        p = Path(dirpath).joinpath( ".exclude_tests")
+        p = Path(dirpath).joinpath(".exclude_tests")
         try:
             if sys.version_info.major == 3 and sys.version_info.minor < 6:
                 excludefile = p.resolve()
