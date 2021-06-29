@@ -563,11 +563,19 @@ def find_e2e_tests(directory):
         # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
             continue
+
+        p = Path(dirpath).joinpath( ".exclude_tests")
         try:
-            with open(os.path.join(dirpath, ".exclude_tests")) as f:
-                excludes = scanlist(f)
-        except EnvironmentError:
+            if sys.version_info.major == 3 and sys.version_info.minor < 6:
+                excludefile = p.resolve()
+            else:
+                excludefile = p.resolve(strict=True)
+        except FileNotFoundError:
             excludes = []
+        else:
+            with excludefile.open() as f:
+                excludes = scanlist(f)
+
         for fname in filenames:
             if fname.endswith(".py") and fname not in excludes:
                 result.append(os.path.join(dirpath, fname))
