@@ -157,6 +157,7 @@ if args.testlistfile:
     # args.testlistfile changes from a string to a pathlib Path object
     try:
         p = Path(args.testlistfile)
+        # TODO simplify when Py3.5 dropped
         if sys.version_info.major == 3 and sys.version_info.minor < 6:
             args.testlistfile = p.resolve()
         else:
@@ -172,6 +173,7 @@ if args.excludelistfile:
     # args.excludelistfile changes from a string to a pathlib Path object
     try:
         p = Path(args.excludelistfile)
+        # TODO simplify when Py3.5 dropped
         if sys.version_info.major == 3 and sys.version_info.minor < 6:
             args.excludelistfile = p.resolve()
         else:
@@ -564,21 +566,22 @@ def find_e2e_tests(directory):
         if 'sconstest.skip' in filenames:
             continue
 
-        p = Path(dirpath).joinpath(".exclude_tests")
-        try:
+        # Slurp in any tests in exclude lists
+        excludes = []
+        if ".exclude_tests" in filenames:
+            p = Path(dirpath).joinpath(".exclude_tests")
+            # TODO simplify when Py3.5 dropped
             if sys.version_info.major == 3 and sys.version_info.minor < 6:
                 excludefile = p.resolve()
             else:
                 excludefile = p.resolve(strict=True)
-        except FileNotFoundError:
-            excludes = []
-        else:
             with excludefile.open() as f:
                 excludes = scanlist(f)
 
         for fname in filenames:
             if fname.endswith(".py") and fname not in excludes:
                 result.append(os.path.join(dirpath, fname))
+
     return sorted(result)
 
 
