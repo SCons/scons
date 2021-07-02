@@ -2168,12 +2168,12 @@ env.MergeShellPaths({'INCLUDE': ['c:/inc1', 'c:/inc2']}, prepend=0)
 </arguments>
 <summary>
 <para>
-Merges the specified
+Merges values from
 <parameter>arg</parameter>
-values to the construction environment's construction variables.
-If the
+into &consvars; in the current &consenv;.
+If 
 <parameter>arg</parameter>
-argument is not a dictionary,
+is not a dictionary,
 it is converted to one by calling
 &f-link-env-ParseFlags;
 on the argument
@@ -2191,15 +2191,15 @@ not as separate arguments to
 By default,
 duplicate values are eliminated;
 you can, however, specify
-<literal>unique=0</literal>
+<literal>unique=False</literal>
 to allow duplicate
 values to be added.
 When eliminating duplicate values,
-any construction variables that end with
+any &consvars; that end with
 the string
 <literal>PATH</literal>
 keep the left-most unique value.
-All other construction variables keep
+All other &consvars; keep
 the right-most unique value.
 </para>
 
@@ -2330,38 +2330,55 @@ NoClean(env.Program('hello', 'hello.c'))
 </arguments>
 <summary>
 <para>
-Calls the specified
-<parameter>function</parameter>
-to modify the environment as specified by the output of
-<parameter>command</parameter>.
-The default
-<parameter>function</parameter>
-is
-&f-link-env-MergeFlags;,
-which expects the output of a typical
-<application>*-config</application>
-command
-(for example,
-<application>gtk-config</application>)
-and adds the options
-to the appropriate construction variables.
+Updates the current &consenv; with the values extracted
+from the output from running external <parameter>command</parameter>,
+by calling a helper function <parameter>function</parameter>
+which understands
+the output of <parameter>command</parameter>.
+<parameter>command</parameter> may be a string
+or a list of strings representing the command and
+its arguments.
+If <parameter>function</parameter>
+is not given,
+&f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
 added to any construction variables;
 you can specify
-<literal>unique=0</literal>
-to allow duplicate
-values to be added.
+<parameter>unique=False</parameter>
+to allow duplicate values to be added.
 </para>
 
 <para>
+If &f-env-MergeFlags; is used,
+it expects a response in the style of a
+<command>*-config</command>
+command typical of the POSIX programming environment
+(for example,
+<application>gtk-config</application>)
+and adds the options
+to the appropriate construction variables.
 Interpreted options
 and the construction variables they affect
 are as specified for the
 &f-link-env-ParseFlags;
-method (which this method calls).
+method (which 
+&f-env-MergeFlags; calls).
 See that method's description
-for a table of options and construction variables.
+for a table of options and corresponding construction variables.
+</para>
+
+<para>
+If &f-env-MergeFlags; cannot interpret the results of
+<parameter>command</parameter>, 
+you can suppply a custom
+<parameter>function</parameter> to do so.
+<parameter>function</parameter> 
+must accept three arguments:
+the &consenv; to modify, the string returned
+by running <parameter>command</parameter>, 
+and the optional
+<parameter>unique</parameter> flag.
 </para>
 </summary>
 </scons_function>
@@ -2452,7 +2469,7 @@ before merging them into the construction environment.
 &f-env-MergeFlags;
 will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
-&f-link-env-ParseFlags;
+&f-env-ParseFlags;
 directly unless you want to manipulate the values.)
 </para>
 
