@@ -50,6 +50,10 @@ See its __doc__ string for a discussion of the format.
             <para>
                 Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs ninja.
             </para>
+            <para>NOTE: This is an experimental feature. You'll need to pass scons --experimental=ninja to enable.
+            </para>
+            <para>NOTE: This functionality is subject to change and/or removal without deprecation cycle.</para>
+
         </summary>
         <sets>
             <item>NINJA_DISABLE_AUTO_RUN</item>
@@ -115,8 +119,29 @@ See its __doc__ string for a discussion of the format.
                 &b-Ninja; is a special builder which
                 adds a target to create a ninja build file.
                 The builder does not require any source files to be specified,
-
             </para>
+            <note>
+                <para>This is an experimental feature. You'll need to pass scons --experimental=ninja to enable.
+                </para>
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+
+                <example_commands>
+                    # On the command line
+                    --experimental=ninja
+
+                    # Or in your SConstruct
+                    SetOption('experimental', 'ninja')
+                </example_commands>
+
+                <para>
+                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
+                    package</ulink>.
+                    This can be done via
+                    <command>pip install ninja</command>
+                </para>
+
+            </note>
+
             <para>
                 If called with no arguments,
                 the builder will default to a target name of
@@ -143,17 +168,6 @@ See its __doc__ string for a discussion of the format.
                 since there is no way to deduce what the intent was;
                 in this case the default target name will be used.
             </para>
-            <note>
-                <para>
-                    You must specify <command>scons --experimental=ninja</command> to enable this tool.
-                </para>
-                <para>
-                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
-                    package</ulink>.
-                    This can be done via
-                    <command>pip install ninja</command>
-                </para>
-            </note>
             <para>
                 <emphasis>Available since &scons; 4.2.</emphasis>
             </para>
@@ -190,9 +204,9 @@ See its __doc__ string for a discussion of the format.
                 From Ninja's docs:
                 <blockquote>
                     <para>
-                    builddir
-                    A directory for some Ninja output files. ... (You can also store other build output in this
-                    directory.)
+                        builddir
+                        A directory for some Ninja output files. ... (You can also store other build output in this
+                        directory.)
                     </para>
                 </blockquote>
             </para>
@@ -269,7 +283,8 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_FILE_NAME">
         <summary>
             <para>
-                The filename for the generated Ninja build file defaults to <filename>ninja.build</filename>
+                The filename for the generated Ninja build file defaults to
+                <filename>ninja.build</filename>
             </para>
         </summary>
     </cvar>
