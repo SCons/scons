@@ -9,6 +9,12 @@ NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Byron Platt:
+    - Fix Install() issue when copytree recursion gives bad arguments that can
+      lead to install side-effects including keeping dangling symlinks and
+      silently failing to copy directorys (and their subdirectories) when the
+      directory already exists in the target.
+
   From Joseph Brill:
     - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
       when constructing the installed visual studios list.
