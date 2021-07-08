@@ -548,8 +548,8 @@ do not make sense and a Python exception will be raised.
 </para>
 
 <para>
-When using &f-env-Append; to modify &consvars;
-which are path specifications (normally,
+When using &f-env-Append; to modify &consvars; 
+which are path specifications (normally, 
 those names which end in <varname>PATH</varname>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
@@ -3861,7 +3861,7 @@ Sets &scons; option variable <parameter>name</parameter>
 to <parameter>value</parameter>.
 These options are all also settable via
 command-line options but the variable name
-may differ from the command-line option name -
+may differ from the command-line option name - 
 see the table for correspondences.
 A value set via command-line option will take
 precedence over one set with &f-SetOption;, which

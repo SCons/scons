@@ -50,9 +50,11 @@ See its __doc__ string for a discussion of the format.
             <para>
                 Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs ninja.
             </para>
-            <para>NOTE: This is an experimental feature. You'll need to pass scons --experimental=ninja to enable.
-            </para>
-            <para>NOTE: This functionality is subject to change and/or removal without deprecation cycle.</para>
+            <note>
+                <para>This is an experimental feature.
+                </para>
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+            </note>
 
         </summary>
         <sets>
@@ -73,11 +75,11 @@ See its __doc__ string for a discussion of the format.
 
 
             <!-- TODO: Document these -->
-            <item>NINJA_RULES</item>
-            <item>NINJA_POOLS</item>
-            <item>NINJA</item>
-            <item>GENERATING_NINJA</item>
-            <item>NINJA_DIR</item>
+            <!--            <item>NINJA_RULES</item>-->
+            <!--            <item>NINJA_POOLS</item>-->
+            <!--            <item>NINJA</item>-->
+            <!--            <item>GENERATING_NINJA</item>-->
+            <!--            <item>NINJA_DIR</item>-->
 
         </sets>
 
@@ -102,13 +104,13 @@ See its __doc__ string for a discussion of the format.
             <item>SHLINKCOM</item>
             <item>PROGSUFFIX</item>
             <item>PRINT_CMD_LINE_FUNC</item>
-            <item>TEMPFILE</item>
+            <!--            <item>TEMPFILE</item>-->
 
-            <!-- TODO: Document these -->
+            <!-- TODO: Document these
             <item>NINJA_MAX_JOBS</item>
             <item>NINJA_SKIP</item>
             <item>NINJA_CUSTOM_HANDLERS</item>
-
+-->
 
         </uses>
     </tool>
@@ -121,9 +123,8 @@ See its __doc__ string for a discussion of the format.
                 The builder does not require any source files to be specified,
             </para>
             <note>
-                <para>This is an experimental feature. You'll need to pass scons --experimental=ninja to enable.
+                <para>This is an experimental feature. To enable it you must use one of the following methods
                 </para>
-                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
 
                 <example_commands>
                     # On the command line
@@ -132,6 +133,9 @@ See its __doc__ string for a discussion of the format.
                     # Or in your SConstruct
                     SetOption('experimental', 'ninja')
                 </example_commands>
+
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+
 
                 <para>
                     To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja

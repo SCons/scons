@@ -437,13 +437,14 @@ def generate(env):
     # Set all three environment variables that Python's
     # tempfile.mkstemp looks at as it behaves differently on different
     # platforms and versions of Python.
-    build_dir = env.subst("$NINJA_DIR")
-    if build_dir == "":
-        build_dir = "."
-    os.environ["TMPDIR"] = env.Dir("{}/.response_files".format(build_dir)).get_abspath()
-    os.environ["TEMP"] = os.environ["TMPDIR"]
-    os.environ["TMP"] = os.environ["TMPDIR"]
-    if not os.path.isdir(os.environ["TMPDIR"]):
-        env.Execute(SCons.Defaults.Mkdir(os.environ["TMPDIR"]))
+    # build_dir = env.subst("$NINJA_DIR")
+    # if build_dir == "":
+    #     build_dir = "."
+    # os.environ["TMPDIR"] = env.Dir("{}/.response_files".format(build_dir)).get_abspath()
+    # os.environ["TEMP"] = os.environ["TMPDIR"]
+    # os.environ["TMP"] = os.environ["TMPDIR"]
+    # if not os.path.isdir(os.environ["TMPDIR"]):
+    #     env.Execute(SCons.Defaults.Mkdir(os.environ["TMPDIR"]))
 
+    env['TEMPFILEDIR'] = "$NINJA_DIR/.response_files"
     env["TEMPFILE"] = NinjaNoResponseFiles

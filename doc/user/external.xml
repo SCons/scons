@@ -304,19 +304,28 @@
     <section>
         <title>Ninja Build Generator</title>
 
-        <para>
-            NOTE: This is an experimental new feature. It is subject to change and/or removal without depreciation cycle
-        </para>
-        <para>
-            To enable this feature you'll need to use one of the following
-        </para>
-        <example_commands>
-            # On the command line
-            --experimental=ninja
+        <note>
+            <para>
+                This is an experimental new feature. It is subject to change and/or removal without depreciation cycle
+            </para>
+            <para>
+                To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
+                package</ulink>.
+                This can be done via
+                <command>pip install ninja</command>
+            </para>
+            <para>
+                To enable this feature you'll need to use one of the following
+            </para>
+            <example_commands>
+                # On the command line
+                --experimental=ninja
 
-            # Or in your SConstruct
-            SetOption('experimental', 'ninja')
-        </example_commands>
+                # Or in your SConstruct
+                SetOption('experimental', 'ninja')
+            </example_commands>
+
+        </note>
 
         <para>
             This tool will enabled creating a ninja build file from your SCons based build system. It can then invoke

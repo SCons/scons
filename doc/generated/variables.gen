@@ -713,8 +713,8 @@ the type of value of &cv-CPPDEFINES;:
 If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to
-each definition in &cv-CPPDEFINES;.
+will be respectively prepended and appended to 
+each definition in &cv-link-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -726,8 +726,8 @@ env = Environment(CPPDEFINES='xyz')
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
-&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
+will be respectively prepended and appended to 
 each element in the list.
 If any element is a list or tuple,
 then the first item is the name being
@@ -743,7 +743,7 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
-&cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
+&cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to
 each item from the dictionary.
 The key of each dictionary item
@@ -845,7 +845,7 @@ to each directory in &cv-link-CPPPATH;.
     <listitem><para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files.
+directories for include files. 
 In general it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
@@ -857,11 +857,11 @@ Python's <systemitem>os.sep</systemitem>.
 
 <para>
 Note:
-directory names in &cv-link-CPPPATH;
+directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
-when they are used in a command.
+when they are used in a command. 
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to look-up a directory relative to the root of the source tree use 
 the <literal>#</literal> prefix:
 </para>
 
@@ -1171,17 +1171,6 @@ A function that converts a list of strings
 into a list of Dir instances relative to the target being built.
 </para>
 </listitem>
-  </varlistentry>
-  <varlistentry id="cv-DISABLE_AUTO_NINJA">
-    <term>
-      <envar>DISABLE_AUTO_NINJA</envar>
-    </term>
-    <listitem><para>
-                Boolean (True|False). Default: False
-                When True, SCons will not run ninja automatically after creating the ninja.build file.
-
-            </para>
-        </listitem>
   </varlistentry>
   <varlistentry id="cv-DLIB">
     <term>
@@ -3158,7 +3147,7 @@ The default list is:
       <envar>IMPLIBNOVERSIONSYMLINKS</envar>
     </term>
     <listitem><para>
-Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when
+Used to override &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; when 
 creating versioned import library for a shared library/loadable module. If not defined,
 then &cv-link-SHLIBNOVERSIONSYMLINKS;/&cv-link-LDMODULENOVERSIONSYMLINKS; is used to determine
 whether to disable symlink generation or not.
@@ -4074,9 +4063,9 @@ as the result will be non-portable.
 Note:
 directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
-when they are used in a command.
+when they are used in a command. 
 To force &scons;
-to look-up a directory relative to the root of the source tree use
+to look-up a directory relative to the root of the source tree use 
 the <literal>#</literal> prefix:
 </para>
 
@@ -4148,7 +4137,7 @@ and suffixes from the &cv-link-LIBSUFFIXES; list.
     <listitem><para>
 A list of one or more libraries
 that will be added to the link line
-for linking with any executable program, shared library, or loadable module
+for linking with any executable program, shared library, or loadable module 
 created by the &consenv; or override.
 </para>
 
@@ -4514,7 +4503,7 @@ See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
       <envar>MSGFMTCOMSTR</envar>
     </term>
     <listitem><para>
-String to display when <command>msgfmt(1)</command> is invoked
+String to display when <command>msgfmt(1)</command> is invoked 
 (default: <literal>''</literal>, which means ``print &cv-link-MSGFMTCOM;'').
 See &t-link-msgfmt; tool and &b-link-MOFiles; builder.
 </para>
@@ -4556,7 +4545,7 @@ See &t-link-msginit; tool and &b-link-POInit; builder.
       <envar>MSGINITCOMSTR</envar>
     </term>
     <listitem><para>
-String to display when <command>msginit(1)</command> is invoked
+String to display when <command>msginit(1)</command> is invoked 
 (default: <literal>''</literal>, which means ``print &cv-link-MSGINITCOM;'').
 See &t-link-msginit; tool and &b-link-POInit; builder.
 </para>
@@ -4652,7 +4641,7 @@ Supported versions include
 <literal>6.0A</literal>,
 <literal>6.0</literal>,
 <literal>2003R2</literal>
-and
+and 
 <literal>2003R1</literal>.
 </para>
 </listitem>
@@ -5187,23 +5176,6 @@ Specfies the name of the project to package.
             </para>
         </listitem>
   </varlistentry>
-  <varlistentry id="cv-NINJA_BUILDDIR">
-    <term>
-      <envar>NINJA_BUILDDIR</envar>
-    </term>
-    <listitem><para>
-                This propagates directly into the generated Ninja.build file.
-                From Ninja's docs:
-                <blockquote>
-                    <para>
-                    builddir
-                    A directory for some Ninja output files. ... (You can also store other build output in this
-                    directory.)
-                    </para>
-                </blockquote>
-            </para>
-        </listitem>
-  </varlistentry>
   <varlistentry id="cv-NINJA_COMPDB_EXPAND">
     <term>
       <envar>NINJA_COMPDB_EXPAND</envar>
@@ -5216,6 +5188,34 @@ Specfies the name of the project to package.
             </para>
             <para>
                 Ninja's compdb tool added the <quote>-x</quote> flag in Ninja V1.9.0
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_DIR">
+    <term>
+      <envar>NINJA_DIR</envar>
+    </term>
+    <listitem><para>
+                This propagates directly into the generated Ninja.build file.
+                From Ninja's docs:
+                <blockquote>
+                    <para>
+                        builddir
+                        A directory for some Ninja output files. ... (You can also store other build output in this
+                        directory.)
+                    </para>
+                </blockquote>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_DISABLE_AUTO_RUN">
+    <term>
+      <envar>NINJA_DISABLE_AUTO_RUN</envar>
+    </term>
+    <listitem><para>
+                Boolean (True|False). Default: False
+                When True, SCons will not run ninja automatically after creating the ninja.build file.
+
             </para>
         </listitem>
   </varlistentry>
@@ -5240,7 +5240,8 @@ Specfies the name of the project to package.
       <envar>NINJA_FILE_NAME</envar>
     </term>
     <listitem><para>
-                The filename for the generated Ninja build file defaults to <filename>ninja.build</filename>
+                The filename for the generated Ninja build file defaults to
+                <filename>ninja.build</filename>
             </para>
         </listitem>
   </varlistentry>
@@ -7510,7 +7511,7 @@ for more information).
       <envar>SOVERSION</envar>
     </term>
     <listitem><para>
-This will construct the <varname>SONAME</varname> using on the base library name
+This will construct the <varname>SONAME</varname> using on the base library name 
 (<parameter>test</parameter> in the example below) and use specified <varname>SOVERSION</varname>
 to create <varname>SONAME</varname>.
 <example_commands>
@@ -7519,7 +7520,7 @@ env.SharedLibrary('test', 'test.c', SHLIBVERSION='0.1.2', SOVERSION='2')
 The variable is used, for example, by &t-link-gnulink; linker tool.
 </para>
 <para>
-In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename>
+In the example above <varname>SONAME</varname> would be <filename>libtest.so.2</filename> 
 which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
 </para>
 </listitem>

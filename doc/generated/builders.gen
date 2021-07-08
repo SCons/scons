@@ -1228,8 +1228,31 @@ env.MSVSSolution(
                 &b-Ninja; is a special builder which
                 adds a target to create a ninja build file.
                 The builder does not require any source files to be specified,
-
             </para>
+            <note>
+                <para>This is an experimental feature. To enable it you must use one of the following methods
+                </para>
+
+                <example_commands>
+                    # On the command line
+                    --experimental=ninja
+
+                    # Or in your SConstruct
+                    SetOption('experimental', 'ninja')
+                </example_commands>
+
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+
+
+                <para>
+                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
+                    package</ulink>.
+                    This can be done via
+                    <command>pip install ninja</command>
+                </para>
+
+            </note>
+
             <para>
                 If called with no arguments,
                 the builder will default to a target name of
@@ -1256,17 +1279,6 @@ env.MSVSSolution(
                 since there is no way to deduce what the intent was;
                 in this case the default target name will be used.
             </para>
-            <note>
-                <para>
-                    You must specify <command>scons --experimental=ninja</command> to enable this tool.
-                </para>
-                <para>
-                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
-                    package</ulink>.
-                    This can be done via
-                    <command>pip install ninja</command>
-                </para>
-            </note>
             <para>
                 <emphasis>Available since &scons; 4.2.</emphasis>
             </para>
