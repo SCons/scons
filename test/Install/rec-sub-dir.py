@@ -47,7 +47,7 @@ Mkdir("a/b/c")
 Mkdir("b/c/d")
 Install directory: "a" as "z%sa"
 Install directory: "b" as "z%sa%sb"
-"""%(os.sep,os.sep,os.sep)
+""" % (os.sep, os.sep, os.sep)
 test.run(arguments=["-Q"], stdout=expect)
 
 test.must_exist(test.workpath('a', 'b', 'c'))
