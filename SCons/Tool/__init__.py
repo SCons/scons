@@ -107,7 +107,7 @@ TOOL_ALIASES = {
 
 
 class Tool:
-    def __init__(self, name, toolpath=None, **kw):
+    def __init__(self, name, toolpath=None, **kwargs):
         if toolpath is None:
             toolpath = []
 
@@ -115,7 +115,7 @@ class Tool:
         self.name = TOOL_ALIASES.get(name, name)
         self.toolpath = toolpath + DefaultToolpath
         # remember these so we can merge them into the call
-        self.init_kw = kw
+        self.init_kw = kwargs
 
         module = self._tool_module()
         self.generate = module.generate

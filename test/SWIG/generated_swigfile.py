@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +21,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that SCons realizes the -noproxy option means no .py file will
@@ -38,14 +36,8 @@ import TestSCons
 if sys.platform == 'win32':
     _dll = '.dll'
 else:
-    _dll   = '.so'
+    _dll = '.so'
 
-# swig-python expects specific filenames.
-# the platform specific suffix won't necessarily work.
-if sys.platform == 'win32':
-    _dll = '.dll'
-else:
-    _dll   = '.so'
 
 test = TestSCons.TestSCons()
 
@@ -54,11 +46,10 @@ if not swig:
     test.skip_test('Can not find installed "swig", skipping test.\n')
 
 python, python_include, python_libpath, python_lib = \
-             test.get_platform_python_info(python_h_required=True)
+    test.get_platform_python_info(python_h_required=True)
 
 # handle testing on other platforms:
 ldmodule_prefix = '_'
-
 
 test.write('SConstruct', """
 foo = Environment(CPPPATH=[r'%(python_include)s'],
@@ -69,7 +60,6 @@ python_interface = foo.Command( 'test_py_swig.i', Value(1), 'echo %%module test_
 python_c_file    = foo.CFile( target='python_swig_test',source=python_interface, SWIGFLAGS = '-python -c++' )
 java_interface  = foo.Command( 'test_java_swig.i', Value(1),'echo %%module test_java_swig > test_java_swig.i' )
 java_c_file     = foo.CFile( target='java_swig_test'  ,source=java_interface, SWIGFLAGS = '-java -c++' )
-
 """ % locals())
 
 expected_stdout = """\
@@ -78,12 +68,11 @@ echo %%module test_java_swig > test_java_swig.i
 echo %%module test_py_swig > test_py_swig.i
 %(swig)s -o python_swig_test_wrap.cc -python -c++ test_py_swig.i
 """ % locals()
-test.run(arguments = '.',stdout=test.wrap_stdout(expected_stdout))
-
+test.run(arguments='.', stdout=test.wrap_stdout(expected_stdout))
 
 # If we mistakenly depend on the .py file that SWIG didn't create
 # (suppressed by the -noproxy option) then the build won't be up-to-date.
-test.up_to_date(arguments = '.')
+test.up_to_date(arguments='.')
 
 test.pass_test()
 

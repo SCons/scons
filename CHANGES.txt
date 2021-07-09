@@ -9,6 +9,12 @@ NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Byron Platt:
+    - Fix Install() issue when copytree recursion gives bad arguments that can
+      lead to install side-effects including keeping dangling symlinks and
+      silently failing to copy directories (and their subdirectories) when the
+      directory already exists in the target.
+
   From Joseph Brill:
     - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
       when constructing the installed visual studios list.
@@ -30,6 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       has been fixed to libxyz.1.2.3.dylib. Additionally the sonamed symlink had the same issue,
       that is now resolved as well)
     - Add experimental ninja builder. (Contributed by MongoDB, Daniel Moody and many others).
+    - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
+      _concat function.  If set to False, it will prepend and append $( and $). That way the various
+      Environment variables can use that rather than "$( _concat(...) $)".
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
@@ -99,6 +108,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       SetOption equivalents to --hash-chunksize, --implicit-deps-unchanged
       and --implicit-deps-changed are enabled.
     - Add tests for SetOption failing on disallowed options and value types.
+    - Maintenance: eliminate lots of checker complaints about Util.py.
+    - Maintenance: fix checker-spotted issues in Environment (apply_tools)
+      and EnvironmentTests (asserts comparing with self).
+      For consistency, env.Tool() now returns a tool object the same way
+      Tool() has done.
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.

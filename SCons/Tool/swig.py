@@ -29,15 +29,15 @@ selection method.
 """
 
 import os.path
-import sys
 import re
 import subprocess
+import sys
 
 import SCons.Action
 import SCons.Defaults
+import SCons.Node
 import SCons.Tool
 import SCons.Util
-import SCons.Node
 import SCons.Warnings
 
 verbose = False
@@ -194,17 +194,19 @@ def generate(env):
 
     if 'SWIG' not in env:
         env['SWIG'] = env.Detect(swigs) or swigs[0]
-    env['SWIGVERSION']       = _get_swig_version(env, env['SWIG'])
-    env['SWIGFLAGS']         = SCons.Util.CLVar('')
+
+    env['SWIGVERSION'] = _get_swig_version(env, env['SWIG'])
+    env['SWIGFLAGS'] = SCons.Util.CLVar('')
     env['SWIGDIRECTORSUFFIX'] = '_wrap.h'
-    env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
+    env['SWIGCFILESUFFIX'] = '_wrap$CFILESUFFIX'
     env['SWIGCXXFILESUFFIX'] = '_wrap$CXXFILESUFFIX'
-    env['_SWIGOUTDIR']       = r'${"-outdir \"%s\"" % SWIGOUTDIR}'
-    env['SWIGPATH']          = []
-    env['SWIGINCPREFIX']     = '-I'
-    env['SWIGINCSUFFIX']     = ''
-    env['_SWIGINCFLAGS']     = '$( ${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
-    env['SWIGCOM']           = '$SWIG -o $TARGET ${_SWIGOUTDIR} ${_SWIGINCFLAGS} $SWIGFLAGS $SOURCES'
+    env['_SWIGOUTDIR'] = r'${"-outdir \"%s\"" % SWIGOUTDIR}'
+    env['SWIGPATH'] = []
+    env['SWIGINCPREFIX'] = '-I'
+    env['SWIGINCSUFFIX'] = ''
+    env['_SWIGINCFLAGS'] = '${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX,' \
+                            '__env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
+    env['SWIGCOM'] = '$SWIG -o $TARGET ${_SWIGOUTDIR} ${_SWIGINCFLAGS} $SWIGFLAGS $SOURCES'
 
 def exists(env):
     swig = env.get('SWIG') or env.Detect(['swig'])

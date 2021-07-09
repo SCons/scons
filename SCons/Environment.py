@@ -100,22 +100,23 @@ AliasBuilder = SCons.Builder.Builder(
 
 def apply_tools(env, tools, toolpath):
     # Store the toolpath in the Environment.
+    # This is expected to work even if no tools are given, so do this first.
     if toolpath is not None:
         env['toolpath'] = toolpath
-
     if not tools:
         return
+
     # Filter out null tools from the list.
     for tool in [_f for _f in tools if _f]:
-        if is_List(tool) or isinstance(tool, tuple):
-            toolname = tool[0]
-            toolargs = tool[1] # should be a dict of kw args
-            tool = env.Tool(toolname, **toolargs)
+        if is_List(tool) or is_Tuple(tool):
+            # toolargs should be a dict of kw args
+            toolname, toolargs, *rest = tool
+            _ = env.Tool(toolname, **toolargs)
         else:
-            env.Tool(tool)
+            _ = env.Tool(tool)
 
 # These names are (or will be) controlled by SCons; users should never
-# set or override them.  This warning can optionally be turned off,
+# set or override them.  The warning can optionally be turned off,
 # but scons will still ignore the illegal variable names even if it's off.
 reserved_construction_var_names = [
     'CHANGED_SOURCES',
@@ -132,7 +133,7 @@ future_reserved_construction_var_names = [
     #'HOST_OS',
     #'HOST_ARCH',
     #'HOST_CPU',
-    ]
+]
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
@@ -1868,14 +1869,15 @@ class Base(SubstitutionEnvironment):
     def _find_toolpath_dir(self, tp):
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
-    def Tool(self, tool, toolpath=None, **kw):
+    def Tool(self, tool, toolpath=None, **kwargs) -> SCons.Tool.Tool:
         if is_String(tool):
             tool = self.subst(tool)
             if toolpath is None:
                 toolpath = self.get('toolpath', [])
             toolpath = list(map(self._find_toolpath_dir, toolpath))
-            tool = SCons.Tool.Tool(tool, toolpath, **kw)
+            tool = SCons.Tool.Tool(tool, toolpath, **kwargs)
         tool(self)
+        return tool
 
     def WhereIs(self, prog, path=None, pathext=None, reject=None):
         """Find prog in the path. """

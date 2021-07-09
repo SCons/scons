@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# MIT License
+#
+# MIT Licenxe
 #
 # Copyright The SCons Foundation
 #
@@ -23,32 +24,38 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test that we can expand $_CPPINCFLAGS correctly regardless of whether
-the target is an entry, a directory, or a file.  (Internally, this tests
-that RDirs() is available to be called for each Node.FS type.)
+Test using Install() on directory that contains existing subdirectories
+causing copytree recursion where the directory already exists.
 """
+
+import os.path
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env=Environment(CPPPATH=['tmp'], INCPREFIX='-I')
-d=Entry('foo.d')
-e=Entry('foo.e')
-f=File('foo.f')
-print(env.subst('$_CPPINCFLAGS', target=e, source=f))
-print(env.subst('$_CPPINCFLAGS', target=d, source=f))
-print(env.subst('$_CPPINCFLAGS', target=f, source=d))
+DefaultEnvironment(tools=[])
+Execute(Mkdir('a/b/c'))
+Execute(Mkdir('b/c/d'))
+Install('z', 'a')
+Install('z/a', 'b')
 """)
 
-expect = """\
--Itmp
--Itmp
--Itmp
-"""
+expect="""\
+Mkdir("a/b/c")
+Mkdir("b/c/d")
+Install directory: "a" as "z%sa"
+Install directory: "b" as "z%sa%sb"
+""" % (os.sep, os.sep, os.sep)
+test.run(arguments=["-Q"], stdout=expect)
 
-test.run(arguments = '-Q -q', stdout = expect)
+test.must_exist(test.workpath('a', 'b', 'c'))
+test.must_exist(test.workpath('b', 'c', 'd'))
+test.must_exist(test.workpath('z', 'a', 'b', 'c', 'd'))
+
+# this run used to fail on Windows with an OS error before the copytree fix
+test.run(arguments=["-Q"])
 
 test.pass_test()
 

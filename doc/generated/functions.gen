@@ -4282,24 +4282,31 @@ Tag('file2.txt', DOC)
     <term><function>Tool</function>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Tool</methodname>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
     <listitem><para>
-Runs the tool identified by
+Locates and possibly runs the tool identified by
 <parameter>name</parameter>, which is
 searched for in standard locations and any
 paths specified by the optional
-<parameter>toolpath</parameter>,
-to update a &consenv; with &consvars;
+<parameter>toolpath</parameter>.
+When run, the tool
+updates a &consenv; with &consvars; and arranges
+any other initialization
 needed to use the mechanisms that tool describes.
 Any additional keyword arguments
 <parameter>kwargs</parameter> are passed
 on to the tool module's <function>generate</function> function.
+Returns a callable tool object.
 </para>
 
 <para>
-When called as a &consenv; method,
-the tool module is called to update the
-&consenv; and the name of the tool is
+When called as &f-env-Tool;,
+the tool module is called to update <varname>env</varname>
+and the <parameter>tool</parameter> is
 appended to the &cv-link-TOOLS;
 &consvar; in that environment.
+In this form, there is usually no need to save
+the returned tool object, since it is of no further use.
+<emphasis>Prior to &SCons; 4.2, &f-env-Tool; returned
+<constant>None</constant></emphasis>
 </para>
 
 <para>
@@ -4312,11 +4319,10 @@ env.Tool('opengl', toolpath=['build/tools'])
 </example_commands>
 
 <para>
-When called as a global function,
-returns a callable tool object;
-the tool is not called at this time,
+When called as a global function &f-Tool;,
+the tool object is constructed but not called,
 as it lacks the context of an environment to update.
-This tool object can be passed to an
+The tool object can be passed to an
 &f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
 or it can be called directly,
@@ -4333,10 +4339,10 @@ Examples:
 env = Environment(tools=[Tool('msvc')])
 
 env = Environment()
-t = Tool('msvc')
-t(env)  # adds 'msvc' to the TOOLS variable
-u = Tool('opengl', toolpath = ['tools'])
-u(env)  # adds 'opengl' to the TOOLS variable
+msvctool = Tool('msvc')
+msvctool(env)  # adds 'msvc' to the TOOLS variable
+gltool = Tool('opengl', toolpath = ['tools'])
+gltool(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
 </listitem>
   </varlistentry>

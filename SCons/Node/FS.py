@@ -30,28 +30,29 @@ This holds a "default_fs" variable that should be initialized with an FS
 that can be used by scripts or modules looking for the canonical default.
 """
 
+import codecs
 import fnmatch
+import importlib.util
 import os
 import re
 import shutil
 import stat
 import sys
 import time
-import codecs
 from itertools import chain
-import importlib.util
+from typing import Optional
 
 import SCons.Action
 import SCons.Debug
-from SCons.Debug import logInstanceCreation, Trace
 import SCons.Errors
 import SCons.Memoize
 import SCons.Node
 import SCons.Node.Alias
 import SCons.Subst
 import SCons.Util
-from SCons.Util import hash_signature, hash_file_signature, hash_collect
 import SCons.Warnings
+from SCons.Debug import logInstanceCreation, Trace
+from SCons.Util import hash_signature, hash_file_signature, hash_collect
 
 print_duplicate = 0
 
@@ -3207,7 +3208,7 @@ class File(Base):
     # SIGNATURE SUBSYSTEM
     #
 
-    def get_max_drift_csig(self) -> str:
+    def get_max_drift_csig(self) -> Optional[str]:
         """
         Returns the content signature currently stored for this node
         if it's been unmodified longer than the max_drift value, or the
