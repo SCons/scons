@@ -368,8 +368,8 @@ class TreeFactory:
             print("ERROR: %s fails to validate:" % fpath)
             print(e)
             print(e.error_log.last_error.message)
-            print("In file: [%s]"%e.error_log.last_error.filename)
-            print("Line   : %d"%e.error_log.last_error.line)
+            print("In file: [%s]" % e.error_log.last_error.filename)
+            print("Line   : %d" % e.error_log.last_error.line)
             return False
 
         except Exception as e:
