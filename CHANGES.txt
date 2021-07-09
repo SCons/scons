@@ -35,6 +35,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix versioned shared library naming for MacOS platform. (Previously was libxyz.dylib.1.2.3,
       has been fixed to libxyz.1.2.3.dylib. Additionally the sonamed symlink had the same issue,
       that is now resolved as well)
+    - Add experimental ninja builder. (Contributed by MongoDB, Daniel Moody and many others).
     - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
       _concat function.  If set to False, it will prepend and append $( and $). That way the various
       Environment variables can use that rather than "$( _concat(...) $)".

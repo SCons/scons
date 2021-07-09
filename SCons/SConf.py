@@ -606,7 +606,7 @@ class SConfBase:
 
             f = "_".join([f, textSig, textSigCounter])
             textFile = self.confdir.File(f + extension)
-            self._set_conftest_node(sourcetext)
+            self._set_conftest_node(textFile)
             textFileNode = self.env.SConfSourceBuilder(target=textFile,
                                                        source=sourcetext)
             nodesToBeBuilt.extend(textFileNode)
@@ -625,6 +625,7 @@ class SConfBase:
         pref = self.env.subst( builder.builder.prefix )
         suff = self.env.subst( builder.builder.suffix )
         target = self.confdir.File(pref + f + suff)
+        self._set_conftest_node(target)
 
         try:
             # Slide our wrapper into the construction environment as
