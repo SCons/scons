@@ -1227,7 +1227,7 @@ env.MSVSSolution(
     <listitem><para>
                 &b-Ninja; is a special builder which
                 adds a target to create a ninja build file.
-                The builder does not require any source files to be specified,
+                The builder does not require any source files to be specified.
             </para>
             <note>
                 <para>This is an experimental feature. To enable it you must use one of the following methods

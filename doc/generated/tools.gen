@@ -814,7 +814,7 @@ Sets construction variables for the
   <varlistentry id="t-ninja">
     <term>ninja</term>
     <listitem><para>
-                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs ninja.
+                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs &ninja;.
             </para>
             <note>
                 <para>This is an experimental feature.
