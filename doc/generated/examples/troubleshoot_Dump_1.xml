@@ -64,10 +64,10 @@ scons: Reading SConscript files ...
   'TOOLS': ['install', 'install'],
   '_CPPDEFFLAGS': '${_defines(CPPDEFPREFIX, CPPDEFINES, CPPDEFSUFFIX, __env__, '
                   'TARGET, SOURCE)}',
-  '_CPPINCFLAGS': '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, '
-                  'TARGET, SOURCE)} $)',
-  '_LIBDIRFLAGS': '$( ${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, '
-                  'RDirs, TARGET, SOURCE)} $)',
+  '_CPPINCFLAGS': '${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, '
+                  'TARGET, SOURCE, affect_signature=False)}',
+  '_LIBDIRFLAGS': '${_concat(LIBDIRPREFIX, LIBPATH, LIBDIRSUFFIX, __env__, '
+                  'RDirs, TARGET, SOURCE, affect_signature=False)}',
   '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',
   '__DRPATH': '$_DRPATH',
   '__DSHLIBVERSIONFLAGS': '${__libversionflags(__env__,"DSHLIBVERSION","_DSHLIBVERSIONFLAGS")}',

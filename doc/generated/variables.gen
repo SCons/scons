@@ -637,17 +637,22 @@ section of the RPM
       <envar>_concat</envar>
     </term>
     <listitem><para>
-A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
-four or five
-arguments: a prefix to concatenate onto each element, a list of
-elements, a suffix to concatenate onto each element, an environment
-for variable interpolation, and an optional function that will be
-called to transform the list before concatenation.
-</para>
+        A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
+        four mandatory arguments, and up to 4 additional optional arguments:
+        1) a prefix to concatenate onto each element,
+        2) a list of elements,
+        3) a suffix to concatenate onto each element,
+        4) an environment for variable interpolation,
+        5) an optional function that will be called to transform the list before concatenation,
+        6) an optionally specified target (Can use TARGET),
+        7) an optionally specified source (Can use SOURCE),
+        8) optional <parameter>affect_signature</parameter> flag which will wrap non-empty returned value with $( and $) to indicate the contents
+        should not affect the signature of the generated command line.
+    </para>
 
-<example_commands>
-env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
-</example_commands>
+    <example_commands>
+        env['_CPPINCFLAGS'] = '${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
+    </example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CONFIGUREDIR">

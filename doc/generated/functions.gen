@@ -2620,12 +2620,12 @@ Returns a list of the target Node or Nodes.
   <varlistentry id="f-MergeFlags">
     <term><replaceable>env</replaceable>.<methodname>MergeFlags</methodname>(<parameter>arg, [unique]</parameter>)</term>
     <listitem><para>
-Merges the specified
+Merges values from
 <parameter>arg</parameter>
-values to the construction environment's construction variables.
-If the
+into &consvars; in the current &consenv;.
+If 
 <parameter>arg</parameter>
-argument is not a dictionary,
+is not a dictionary,
 it is converted to one by calling
 &f-link-env-ParseFlags;
 on the argument
@@ -2643,15 +2643,15 @@ not as separate arguments to
 By default,
 duplicate values are eliminated;
 you can, however, specify
-<literal>unique=0</literal>
+<literal>unique=False</literal>
 to allow duplicate
 values to be added.
 When eliminating duplicate values,
-any construction variables that end with
+any &consvars; that end with
 the string
 <literal>PATH</literal>
 keep the left-most unique value.
-All other construction variables keep
+All other &consvars; keep
 the right-most unique value.
 </para>
 
@@ -2772,38 +2772,55 @@ NoClean(env.Program('hello', 'hello.c'))
   <varlistentry id="f-ParseConfig">
     <term><replaceable>env</replaceable>.<methodname>ParseConfig</methodname>(<parameter>command, [function, unique]</parameter>)</term>
     <listitem><para>
-Calls the specified
-<parameter>function</parameter>
-to modify the environment as specified by the output of
-<parameter>command</parameter>.
-The default
-<parameter>function</parameter>
-is
-&f-link-env-MergeFlags;,
-which expects the output of a typical
-<application>*-config</application>
-command
-(for example,
-<application>gtk-config</application>)
-and adds the options
-to the appropriate construction variables.
+Updates the current &consenv; with the values extracted
+from the output from running external <parameter>command</parameter>,
+by calling a helper function <parameter>function</parameter>
+which understands
+the output of <parameter>command</parameter>.
+<parameter>command</parameter> may be a string
+or a list of strings representing the command and
+its arguments.
+If <parameter>function</parameter>
+is not given,
+&f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
 added to any construction variables;
 you can specify
-<literal>unique=0</literal>
-to allow duplicate
-values to be added.
+<parameter>unique=False</parameter>
+to allow duplicate values to be added.
 </para>
 
 <para>
+If &f-env-MergeFlags; is used,
+it expects a response in the style of a
+<command>*-config</command>
+command typical of the POSIX programming environment
+(for example,
+<application>gtk-config</application>)
+and adds the options
+to the appropriate construction variables.
 Interpreted options
 and the construction variables they affect
 are as specified for the
 &f-link-env-ParseFlags;
-method (which this method calls).
+method (which 
+&f-env-MergeFlags; calls).
 See that method's description
-for a table of options and construction variables.
+for a table of options and corresponding construction variables.
+</para>
+
+<para>
+If &f-env-MergeFlags; cannot interpret the results of
+<parameter>command</parameter>, 
+you can suppply a custom
+<parameter>function</parameter> to do so.
+<parameter>function</parameter> 
+must accept three arguments:
+the &consenv; to modify, the string returned
+by running <parameter>command</parameter>, 
+and the optional
+<parameter>unique</parameter> flag.
 </para>
 </listitem>
   </varlistentry>
@@ -2887,7 +2904,7 @@ before merging them into the construction environment.
 &f-env-MergeFlags;
 will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
-&f-link-env-ParseFlags;
+&f-env-ParseFlags;
 directly unless you want to manipulate the values.)
 </para>
 
@@ -4282,31 +4299,34 @@ Tag('file2.txt', DOC)
     <term><function>Tool</function>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Tool</methodname>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
     <listitem><para>
-Locates and possibly runs the tool identified by
-<parameter>name</parameter>, which is
-searched for in standard locations and any
-paths specified by the optional
-<parameter>toolpath</parameter>.
-When run, the tool
-updates a &consenv; with &consvars; and arranges
-any other initialization
-needed to use the mechanisms that tool describes.
+Locates the tool specification module <parameter>name</parameter>
+and returns a callable tool object for that tool.
+The tool module is searched for in standard locations
+and in any paths specified by the optional
+<parameter>toolpath</parameter> parameter.
+The standard locations are &SCons;' own internal
+path for tools plus the toolpath, if any (see the
+<emphasis role="bold">Tools</emphasis> section in the manual page
+for more details).
 Any additional keyword arguments
 <parameter>kwargs</parameter> are passed
-on to the tool module's <function>generate</function> function.
-Returns a callable tool object.
+to the tool module's <function>generate</function> function
+during tool object construction.
 </para>
 
 <para>
-When called as &f-env-Tool;,
-the tool module is called to update <varname>env</varname>
-and the <parameter>tool</parameter> is
+When called, the tool object
+updates a &consenv; with &consvars; and arranges
+any other initialization
+needed to use the mechanisms that tool describes.
+</para>
+
+<para>
+When the &f-env-Tool; form is used,
+the tool object is automatically called to update <varname>env</varname>
+and the value of <parameter>tool</parameter> is
 appended to the &cv-link-TOOLS;
 &consvar; in that environment.
-In this form, there is usually no need to save
-the returned tool object, since it is of no further use.
-<emphasis>Prior to &SCons; 4.2, &f-env-Tool; returned
-<constant>None</constant></emphasis>
 </para>
 
 <para>
@@ -4319,14 +4339,16 @@ env.Tool('opengl', toolpath=['build/tools'])
 </example_commands>
 
 <para>
-When called as a global function &f-Tool;,
+When the global function &f-Tool; form is used,
 the tool object is constructed but not called,
 as it lacks the context of an environment to update.
 The tool object can be passed to an
 &f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
+in which case the tool is applied to the environment being constructed,
 or it can be called directly,
-passing a &consenv; to update as the argument.
+in which case a &consenv; to update must be
+passed as the argument.
 Either approach will also update the
 &cv-TOOLS; &consvar;.
 </para>
@@ -4344,6 +4366,12 @@ msvctool(env)  # adds 'msvc' to the TOOLS variable
 gltool = Tool('opengl', toolpath = ['tools'])
 gltool(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
+
+<para>
+<emphasis>Changed in &SCons; 4.2: &f-env-Tool; now returns
+the tool object, previously it did not return
+(i.e. returned <constant>None</constant>).</emphasis>
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Value">
