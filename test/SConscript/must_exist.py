@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-'''
+"""
 Test handling of must_exist flag and global setting requiring the
 file to exist in an SConscript call
-'''
+"""
 
 import os
 import TestSCons
@@ -43,32 +42,32 @@ from SCons.Warnings import _warningOut
 import sys
 
 DefaultEnvironment(tools=[])
-# 1. call should succeed with deprecation warning
+# 1. 1st default call should succeed with deprecation warning
 try:
     SConscript('missing/SConscript')
 except SCons.Errors.UserError as e:
     if _warningOut:
         _warningOut(e)
-# 2. call should succeed with warning
+# 2. 2nd default call should succeed with warning (no depr)
 try:
     SConscript('missing/SConscript')
 except SCons.Errors.UserError as e:
     if _warningOut:
         _warningOut(e)
-# 3. call should raise exception
+# 3. must_exist True call should raise exception
 try:
     SConscript('missing/SConscript', must_exist=True)
 except SCons.Errors.UserError as e:
     if _warningOut:
         _warningOut(e)
-# 4. call should succeed with warning
+# 4. must_exist False call should succeed silently
 try:
     SConscript('missing/SConscript', must_exist=False)
 except SCons.Errors.UserError as e:
     if _warningOut:
         _warningOut(e)
-SCons.Script.set_missing_sconscript_error()
 # 5. with system setting changed, should raise exception
+SCons.Script.set_missing_sconscript_error()
 try:
     SConscript('missing/SConscript')
 except SCons.Errors.UserError as e:
@@ -88,7 +87,7 @@ except SCons.Errors.UserError as e:
 missing = os.path.normpath('missing/SConscript')
 warn1 = """
 scons: warning: Calling missing SConscript without error is deprecated.
-Transition by adding must_exist=0 to SConscript calls.
+Transition by adding must_exist=False to SConscript calls.
 Missing SConscript '{}'
 """.format(missing) + test.python_file_line(SConstruct_path, 8)
 
@@ -100,19 +99,13 @@ err1 = """
 scons: warning: Fatal: missing SConscript '{}'
 """.format(missing) + test.python_file_line(SConstruct_path, 23)
 
-warn3 = """
-scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 26)
-
 err2 = """
 scons: warning: Fatal: missing SConscript '{}'
 """.format(missing) + test.python_file_line(SConstruct_path, 36)
 
-warn4 = """
-scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 39)
+nowarn = ""
 
-expect_stderr = warn1 + warn2 + err1 + warn3 + err2 + warn4
+expect_stderr = warn1 + warn2 + err1 + nowarn + err2 + nowarn
 test.run(arguments = ".", stderr = expect_stderr)
 test.pass_test()
 
