@@ -40,17 +40,14 @@ test.file_fixture("fixture/SConstruct")
 # we should see two warnings, the second being the deprecation message.
 # need to build the path in the expected msg in an OS-agnostic way
 missing = os.path.normpath('missing/SConscript')
-warn1 = """
-scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 8)
-warn2 = """
+warnmsg = """
 scons: warning: Calling missing SConscript without error is deprecated.
 Transition by adding must_exist=False to SConscript calls.
 Missing SConscript '{}'
 """.format(missing) + test.python_file_line(SConstruct_path, 14)
 
-expect_stderr = warn2
-test.run(arguments = ".", stderr = expect_stderr)
+expect_stderr = warnmsg
+test.run(arguments=".", stderr=expect_stderr)
 test.pass_test()
 
 # Local Variables:
