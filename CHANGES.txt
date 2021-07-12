@@ -66,6 +66,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update BuildTask to pass all targets to the progress object fixing an issue
       where multi-target build nodes only got the first target passed to the progress
       object.
+    - Fix a potential race condition in shared cache environments where the permissions are
+      not writeable for a moment after the file has been renamed and other builds (users) will copy
+      it out of the cacheSmall reorganization of logic to copy files from cachedir. Moved CacheDir 
+      writeable permission code for copy to cache behind the atomic rename operation.
+
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
