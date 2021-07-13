@@ -729,7 +729,7 @@ def Parser(version):
         if ',' in value:
             value = value.split(',')
         else:
-            value = [value, ]
+            value = [value]
 
         for v in value:
             if v == 'none':
@@ -737,13 +737,15 @@ def Parser(version):
             elif v == 'all':
                 experimental = experimental_features
             elif v not in experimental_features:
-                raise OptionValueError("option --experimental: invalid choice: '%s' (choose from 'all','none',%s)" % (
-                                       v, ','.join(["'%s'" % e for e in sorted(experimental_features)])))
+                raise OptionValueError(
+                    "option --experimental: invalid choice: '%s' "
+                    "(choose from 'all','none',%s)"
+                    % (v, ','.join(["'%s'" % e for e in sorted(experimental_features)]))
+                )
             else:
                 experimental |= {v}
 
         setattr(parser.values, option.dest, experimental)
-
 
 
     op.add_option('--experimental',
