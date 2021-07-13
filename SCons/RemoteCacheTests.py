@@ -27,14 +27,10 @@ import json
 import os
 import queue
 import stat
-import sys
 import unittest
-from time import sleep
 from unittest import mock
 
-from TestCmd import TestCmd
 import TestSCons
-import TestUnit
 
 import SCons.RemoteCache
 
@@ -138,7 +134,7 @@ def CreateRemoteCache(mock_urllib3, worker_count, server_address,
     cache = SCons.RemoteCache.RemoteCache(
         worker_count, server_address, fetch_enabled, push_enabled, None)
     mock_urllib3.util.parse_url.assert_called_with(server_address)
-    assert cache != None, cache
+    assert cache is not None, cache
     q = queue.Queue(0)
     cache.set_fetch_response_queue(q)
 
@@ -317,7 +313,7 @@ class FetchMetadataFailureTestCase(TestCaseBase):
         assert task == task2
         assert not t.cached
         assert not hit
-        assert target_infos == None
+        assert target_infos is None
         assert not cache.connection_pool.pending_responses, \
             cache.connection_pool.pending_responses
 
@@ -343,7 +339,7 @@ class FetchNodeContentsFailureTestCase(TestCaseBase):
         assert task == task2
         assert not t.cached
         assert not hit
-        assert target_infos == None
+        assert target_infos is None
         assert not cache.connection_pool.pending_responses, \
             cache.connection_pool.pending_responses
 

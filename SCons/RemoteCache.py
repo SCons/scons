@@ -71,7 +71,6 @@ import SCons.Util
 
 from concurrent.futures import ThreadPoolExecutor
 
-import atexit
 import datetime
 import json
 import os
@@ -580,8 +579,6 @@ class RemoteCache(object):
         This function can be called multiple times from different threads
         in the ThreadPoolExecutor, so it must be thread-safe.
         """
-        fetched_all_nodes = False
-
         try:
             url = self._get_task_cache_url(task)
 

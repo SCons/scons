@@ -30,7 +30,6 @@ stop, and wait on jobs.
 import SCons.compat
 import SCons.Node
 
-from collections import deque
 import os
 import signal
 
