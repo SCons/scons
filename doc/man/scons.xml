@@ -1126,16 +1126,21 @@ the mechanisms in the specified order.</para>
 
   <varlistentry id="opt-experimental">
     <term>
-      <option>--experimental=<replaceable>all</replaceable></option>,
-      <option>--experimental=<replaceable>none</replaceable></option>
+      <option>--experimental=<replaceable>feature</replaceable></option>
     </term>
     <listitem>
-      <para>Enable experimental features and/or tools. <emphasis role="strong">No Support offered for any features or tools enabled by this flag</emphasis></para>
-      <para>The default setting is none.</para>
+      <para>Enable experimental features and/or tools.
+        <replaceable>feature</replaceable> can be an available feature name or
+        the special tokens <literal>all</literal> or <literal>none</literal>.
+        A comma-separated string can be used to select multiple features.
+        The default setting is <literal>none</literal>.</para>
+      <para>Current available features are: <literal>ninja</literal>.</para>
+      <caution><para>
+        No Support offered for any features or tools enabled by this flag.
+      </para></caution>
       <para><emphasis>Available since &scons; 4.2.</emphasis></para>
     </listitem>
   </varlistentry>
-
 
   <varlistentry id="opt-f">
     <term>
