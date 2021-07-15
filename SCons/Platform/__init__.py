@@ -257,8 +257,9 @@ class TempFileMunge:
             # Windows path names.
             rm = 'del'
 
-        prefix = env.subst('$TEMPFILEPREFIX')
-        if not prefix:
+        if 'TEMPFILEPREFIX' in env:
+            prefix = env.subst('$TEMPFILEPREFIX')
+        else:
             prefix = '@'
 
         tempfile_esc_func = env.get('TEMPFILEARGESCFUNC', SCons.Subst.quote_spaces)
@@ -294,7 +295,7 @@ class TempFileMunge:
                     str(cmd[0]) + " " + " ".join(args))
                 self._print_cmd_str(target, source, env, cmdstr)
 
-        cmdlist = [ cmd[0], prefix + native_tmp + '\n' + rm, native_tmp ]
+        cmdlist = [cmd[0], prefix + native_tmp + '\n' + rm, native_tmp]
 
         # Store the temporary file command list into the target Node.attributes
         # to avoid creating two temporary files one for print and one for execute.
@@ -304,7 +305,7 @@ class TempFileMunge:
                 # $TEMPFILE{} fixes issue raised in PR #3140 and #3553
                 node.attributes.tempfile_cmdlist[cmdlist_key] = cmdlist
             except AttributeError:
-                node.attributes.tempfile_cmdlist = {cmdlist_key:cmdlist}
+                node.attributes.tempfile_cmdlist = {cmdlist_key: cmdlist}
 
         return cmdlist
 
