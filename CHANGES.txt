@@ -120,6 +120,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Tool() has done.
     - Change SConscript() missing SConscript behavior - if must_exist=False,
       the warning is suppressed.
+    - Make sure TEMPFILEPREFIX can be set to an empty string (issue 3964)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.

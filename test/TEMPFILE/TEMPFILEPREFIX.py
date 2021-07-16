@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 #
+# MIT License
+#
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -25,17 +29,17 @@ it to appear at the front of name of the generated tempfile
 used for long command lines.
 """
 
-
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons(match=TestSCons.match_re)
 
 test.write('SConstruct', """
 import os
+
 env = Environment(
-    BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
-    MAXLINELENGTH = 16,
-    TEMPFILEPREFIX = '-via',
+    BUILDCOM='${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH=16,
+    TEMPFILEPREFIX='-via',
 )
 env.AppendENVPath('PATH', os.curdir)
 env.Command('foo.out', 'foo.in', '$BUILDCOM')
@@ -43,8 +47,9 @@ env.Command('foo.out', 'foo.in', '$BUILDCOM')
 
 test.write('foo.in', "foo.in\n")
 
-test.run(arguments = '-n -Q .',
-         stdout = """\
+test.run(
+    arguments='-n -Q .',
+    stdout="""\
 Using tempfile \\S+ for command line:
 xxx.py foo.out foo.in
 xxx.py -via\\S+
@@ -66,37 +71,65 @@ env.AppendENVPath('PATH', os.curdir)
 env.Command('foo.out', 'foo.in', '$BUILDCOM')
 """)
 
-test.run(arguments = '-n -Q .',
-         stdout = """""")
+test.run(arguments='-n -Q .', stdout="")
 
 test.write('SConstruct', """
 import os
 from SCons.Platform import TempFileMunge
 
 class TestTempFileMunge(TempFileMunge):
-
-    def __init__(self, cmd, cmdstr = None):
-        super(TestTempFileMunge, self).__init__(cmd, cmdstr)
+    def __init__(self, cmd, cmdstr=None):
+        super().__init__(cmd, cmdstr)
 
     def _print_cmd_str(self, target, source, env, cmdstr):
-        super(TestTempFileMunge, self)._print_cmd_str(target, source, None, cmdstr)
+        super()._print_cmd_str(target, source, None, cmdstr)
 
 env = Environment(
-    TEMPFILE = TestTempFileMunge,
-    BUILDCOM = '${TEMPFILE("xxx.py $TARGET $SOURCES")}',
-    MAXLINELENGTH = 16,
-    TEMPFILEPREFIX = '-via',
-
+    TEMPFILE=TestTempFileMunge,
+    BUILDCOM='${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH=16,
+    TEMPFILEPREFIX='-via',
 )
 env.AppendENVPath('PATH', os.curdir)
 env.Command('foo.out', 'foo.in', '$BUILDCOM')
 """)
 
-test.run(arguments = '-n -Q .',
-         stdout = """\
+test.run(
+    arguments='-n -Q .',
+    stdout="""\
 Using tempfile \\S+ for command line:
 xxx.py foo.out foo.in
 xxx.py -via\\S+
+""")
+
+# make sure an empty prefix works too
+test.write('SConstruct', """
+import os
+from SCons.Platform import TempFileMunge
+
+class TestTempFileMunge(TempFileMunge):
+    def __init__(self, cmd, cmdstr=None):
+        super().__init__(cmd, cmdstr)
+
+    def _print_cmd_str(self, target, source, env, cmdstr):
+        super()._print_cmd_str(target, source, None, cmdstr)
+
+env = Environment(
+    TEMPFILE=TestTempFileMunge,
+    BUILDCOM='${TEMPFILE("xxx.py $TARGET $SOURCES")}',
+    MAXLINELENGTH=16,
+    TEMPFILEPREFIX='',
+)
+env.AppendENVPath('PATH', os.curdir)
+env.Command('foo.out', 'foo.in', '$BUILDCOM')
+""")
+
+test.run(
+    arguments='-n -Q .',
+    stdout="""\
+Using tempfile \\S+ for command line:
+xxx.py foo.out foo.in
+xxx.py [^@]\\S+
 """)
 
 test.pass_test()
