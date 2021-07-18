@@ -47,22 +47,22 @@
     <title>SCons &buildversion;</title>
     <subtitle>MAN page</subtitle>
 
-    <author>
-      <firstname>SCons</firstname>
-      <surname>Development Team</surname>
-    </author>
+<!--    <author>-->
+<!--      <firstname>SCons</firstname>-->
+<!--      <surname>Development Team</surname>-->
+<!--    </author>-->
 
     <corpauthor>The SCons Development Team</corpauthor>
 
     <!-- adding pubdate seems superfluous when copyright year is the same
          and html rendering puts both of them at the top of the page -->
-    <pubdate>2004 - 2021</pubdate>
+    <pubdate>Released &builddate;</pubdate>
     <copyright>
       <year>2004 - 2021</year>
       <holder>The SCons Foundation</holder>
     </copyright>
 
-    <releaseinfo>version &buildversion;</releaseinfo>
+    <releaseinfo>Version &buildversion;</releaseinfo>
 
     <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
 

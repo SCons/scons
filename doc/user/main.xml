@@ -50,23 +50,13 @@
     <title>SCons &buildversion;</title>
     <subtitle>User Guide</subtitle>
 
-    <author>
-      <firstname>SCons</firstname>
-      <surname>Development Team</surname>
-    </author>
-
     <corpauthor>The SCons Development Team</corpauthor>
 
-    <pubdate>2004 - 2021</pubdate>
-
-    <copyright>
-      <year>2004 - 2021</year>
-      <holder>The SCons Foundation</holder>
-    </copyright>
+    <pubdate>Released &builddate;</pubdate>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="copyright.xml"/>
 
-    <releaseinfo>version &buildversion;</releaseinfo>
+    <releaseinfo>Version &buildversion;</releaseinfo>
 
     <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
   </bookinfo>
