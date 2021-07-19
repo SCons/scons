@@ -144,6 +144,7 @@ env = Environment(
     BUILD=command_line.build_id,
     BUILDDIR=command_line.build_dir,
     BUILDSYS=command_line.build_system,
+    COPYRIGHT_YEARS=copyright_years,
     COPYRIGHT=copyright,
     DATE=command_line.date,
     DEB_DATE=deb_date,
