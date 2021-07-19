@@ -39,6 +39,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
       _concat function.  If set to False, it will prepend and append $( and $). That way the various
       Environment variables can use that rather than "$( _concat(...) $)".
+    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't 
+      installed but --experimental=ninja was specified.
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
