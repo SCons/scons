@@ -161,6 +161,7 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       This is a simpler fix which should avoid some problems identified with the initial PR.
       (Credit to Fredrik Medley for reporting the issue, the initial PR, and discussing and testing
        this solution)
+    - Minor edits to User Guide and manpage's header with copyright, released date changed.
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.

@@ -13,7 +13,6 @@ build-install.xml
 caching.xml
 command-line.xml
 cons.pl
-copyright.xml
 depends.xml
 environments.xml
 errors.xml
