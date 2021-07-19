@@ -33,16 +33,23 @@ import SCons
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
 
-from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
+from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_BINARY
 from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
     set_build_node_callback, get_generic_shell_command, CheckNinjaCompdbExpand, get_command, \
     gen_get_response_file_command
-from .NinjaState import NinjaState
 from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFiles, ninja_always_serial, AlwaysExecAction
 from .Utils import ninja_add_command_line_options, \
     ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis
 
 NINJA_STATE = None
+
+try:
+    import ninja
+    NINJA_BINARY =  ninja.__file__
+except ImportError:
+    NINJA_BINARY = False
+else:
+    from .NinjaState import NinjaState
 
 
 def ninja_builder(env, target, source):
@@ -126,12 +133,12 @@ def exists(env):
     if env.get("__NINJA_NO", "0") == "1":
         return False
 
-    try:
-        import ninja
-        return ninja.__file__
-    except ImportError:
-        SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
-        return False
+
+    # pypi ninja module detection done at top of file during import ninja.
+    if NINJA_BINARY:
+        return NINJA_BINARY
+    else:
+        raise SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
 
 
 def ninja_emitter(target, source, env):
@@ -167,11 +174,8 @@ def generate(env):
 
         ninja_add_command_line_options()
 
-    try:
-        import ninja  # noqa: F401
-    except ImportError:
-        SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
-        return
+    if not NINJA_BINARY:
+        raise SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
 
     env["NINJA_DISABLE_AUTO_RUN"] = GetOption('disable_execute_ninja')
 
