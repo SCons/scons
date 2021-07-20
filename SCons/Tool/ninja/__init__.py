@@ -41,11 +41,9 @@ from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFile
 from .Utils import ninja_add_command_line_options, \
     ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis
 
-NINJA_STATE = None
-
 try:
     import ninja
-    NINJA_BINARY =  ninja.__file__
+    NINJA_BINARY = ninja.__file__
 except ImportError:
     NINJA_BINARY = False
 else:
