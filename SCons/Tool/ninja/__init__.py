@@ -49,9 +49,8 @@ except ImportError:
 else:
     from .NinjaState import NinjaState
 
-Globals.NINJA_BINARY = NINJA_BINARY
-
 NINJA_STATE = None
+
 
 def ninja_builder(env, target, source):
     """Generate a build.ninja for source."""
