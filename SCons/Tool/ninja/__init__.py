@@ -43,9 +43,9 @@ from .Utils import ninja_add_command_line_options, \
 
 try:
     import ninja
-    NINJA_BINARY = ninja.__file__
+    SCons.Tool.ninja.Globals.NINJA_BINARYNINJA_BINARY = ninja.__file__
 except ImportError:
-    NINJA_BINARY = False
+    SCons.Tool.ninja.Globals.NINJA_BINARY = False
 else:
     from .NinjaState import NinjaState
 
@@ -130,7 +130,6 @@ def exists(env):
     # enabled when SCons needs to build a target.
     if env.get("__NINJA_NO", "0") == "1":
         return False
-
 
     # pypi ninja module detection done at top of file during import ninja.
     if NINJA_BINARY:
@@ -384,7 +383,6 @@ def generate(env):
 
     if NINJA_STATE is None:
         NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax.Writer)
-
 
     # TODO: this is hacking into scons, preferable if there were a less intrusive way
     # We will subvert the normal builder execute to make sure all the ninja file is dependent

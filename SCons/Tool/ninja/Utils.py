@@ -67,8 +67,6 @@ def is_valid_dependent_node(node):
     return not node.get_env().get("NINJA_SKIP")
 
 
-
-
 def alias_to_ninja_build(node):
     """Convert an Alias node into a Ninja phony target"""
     return {
@@ -165,6 +163,7 @@ def get_targets_sources(node):
     slist = [rfile(s) for s in slist]
     return tlist, slist
 
+
 def get_path(node):
     """
     Return a fake path if necessary.
@@ -192,6 +191,7 @@ def src_file(node):
         if src.stat() is not None:
             return src
     return get_path(node)
+
 
 def get_rule(node, rule):
     tlist, slist = get_targets_sources(node)
