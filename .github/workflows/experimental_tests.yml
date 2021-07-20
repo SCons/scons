@@ -25,16 +25,16 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies including ninja
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        python -m pip install ninja
-        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # sudo apt-get update
-    - name: Test experimental packages
-      run: |
-        python runtest.py test/import.py test/ninja
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies including ninja
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install ninja
+          # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # sudo apt-get update
+      - name: Test experimental packages
+        run: |
+          python runtest.py test/import.py test/ninja
