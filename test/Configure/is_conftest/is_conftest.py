@@ -37,7 +37,7 @@ test.file_fixture('./fixture/SConstruct')
 test.run('-Q --silent')
 
 if "FAIL" in test.stdout():
-  test.fail_test()
+    test.fail_test()
 
 test.pass_test()
 
