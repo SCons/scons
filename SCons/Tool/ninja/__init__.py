@@ -33,7 +33,7 @@ import SCons
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
 
-from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_BINARY
+from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
 from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
     set_build_node_callback, get_generic_shell_command, CheckNinjaCompdbExpand, get_command, \
     gen_get_response_file_command
@@ -43,12 +43,15 @@ from .Utils import ninja_add_command_line_options, \
 
 try:
     import ninja
-    SCons.Tool.ninja.Globals.NINJA_BINARYNINJA_BINARY = ninja.__file__
+    NINJA_BINARY = ninja.__file__
 except ImportError:
-    SCons.Tool.ninja.Globals.NINJA_BINARY = False
+    NINJA_BINARY = False
 else:
     from .NinjaState import NinjaState
 
+Globals.NINJA_BINARY = NINJA_BINARY
+
+NINJA_STATE = None
 
 def ninja_builder(env, target, source):
     """Generate a build.ninja for source."""
