@@ -613,6 +613,10 @@ class BuilderBase:
             t.set_executor(executor)
             t.set_explicit(self.is_explicit)
 
+        if env.get("SCONF_NODE"):
+            for node in tlist + slist:
+                node.attributes.conftest_node = 1
+
         return SCons.Node.NodeList(tlist)
 
     def __call__(self, env, target=None, source=None, chdir=_null, **kw):
