@@ -70,7 +70,7 @@ SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
-env['NINJA'] = "%(ninja_bin)s"
+env['NINJA'] = r"%(ninja_bin)s"
 
 shared_lib = env.SharedLibrary(target = 'test_impl', source = 'test_impl.c', CPPDEFINES=['LIBRARY_BUILD'%(win32)s])
 env.Program(target = 'test', source = 'test1.c', LIBS=['test_impl'], LIBPATH=['.'], RPATH='.')
