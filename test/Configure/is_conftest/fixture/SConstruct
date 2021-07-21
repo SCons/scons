@@ -1,0 +1,24 @@
+"""
+Test the nodes are created as conftest nodes in configure tests.
+"""
+import sys
+DefaultEnvironment(tools=[])
+
+env = Environment()
+
+conf = Configure(env)
+if sys.platform == "win32":
+    conf.env.Append(
+        CCFLAGS="/DEBUG /Z7 /INCREMENTAL:NO",
+        LINKFLAGS="/DEBUG /INCREMENTAL:NO",
+        PDB='${TARGET.base}.pdb')
+if not conf.TryRun("int main( int argc, char* argv[] ){return 0;}", '.c'):
+    print("FAIL")
+
+env = conf.Finish()
+
+for node in env.Glob(conf.confdir.path + '/*'):
+    if not node.is_conftest():
+        print("FAIL")
+
+

@@ -76,6 +76,8 @@ FIXES
       not writeable for a moment after the file has been renamed and other builds (users) will copy
       it out of the cacheSmall reorganization of logic to copy files from cachedir. Moved CacheDir 
       writeable permission code for copy to cache behind the atomic rename operation.
+    - Fixed intermediate and and multi target nodes generated from SConf tests not being marked
+      as is_conftest().
 
 
 IMPROVEMENTS

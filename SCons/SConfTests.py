@@ -168,7 +168,7 @@ class SConfTestCase(unittest.TestCase):
                 # need action because temporary file name uses hash of actions get_contents()
                 self.action = MyAction()
 
-            def __call__(self, env, target, source):
+            def __call__(self, env, target, source, *args, **kw):
                 class MyNode:
                     def __init__(self, name):
                         self.name = name
