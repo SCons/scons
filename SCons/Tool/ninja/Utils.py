@@ -39,7 +39,7 @@ def ninja_add_command_line_options():
               metavar='BOOL',
               action="store_true",
               default=False,
-              help='Disable ninja automatically building after scons')
+              help='Disable automatically running ninja after scons')
 
     AddOption('--disable-ninja',
               dest='disable_ninja',

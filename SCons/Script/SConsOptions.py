@@ -98,7 +98,6 @@ class SConsValues(optparse.Values):
         self.__defaults__ = defaults
         self.__SConscript_settings__ = {}
 
-
     def __getattr__(self, attr):
         """
         Fetches an options value, checking first for explicit settings
@@ -145,6 +144,13 @@ class SConsValues(optparse.Values):
         'silent',
         'stack_size',
         'warn',
+
+        # TODO: Remove these once we update the AddOption() API to allow setting
+        #       added flag as setable.
+        # Requested setable flag in : https://github.com/SCons/scons/issues/3983
+        # From experimental ninja
+        'disable_execute_ninja',
+        'disable_ninja'
     ]
 
     def set_option(self, name, value):
@@ -166,19 +172,19 @@ class SConsValues(optparse.Values):
                 if value < 1:
                     raise ValueError
             except ValueError:
-                raise SCons.Errors.UserError(
-                    "A positive integer is required: %s" % repr(value)
-                )
+                raise SCons.Errors.UserError("A positive integer is required: %s" % repr(value))
         elif name == 'max_drift':
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "An integer is required: %s" % repr(value))
         elif name == 'duplicate':
             try:
                 value = str(value)
             except ValueError:
-                raise SCons.Errors.UserError("A string is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "A string is required: %s" % repr(value))
             if value not in SCons.Node.FS.Valid_Duplicates:
                 raise SCons.Errors.UserError(
                     "Not a valid duplication style: %s" % value
@@ -190,7 +196,8 @@ class SConsValues(optparse.Values):
             try:
                 value = diskcheck_convert(value)
             except ValueError as v:
-                raise SCons.Errors.UserError("Not a valid diskcheck value: %s" % v)
+                raise SCons.Errors.UserError(
+                    "Not a valid diskcheck value: %s" % v)
             if 'diskcheck' not in self.__dict__:
                 # No --diskcheck= option was specified on the command line.
                 # Set this right away so it can affect the rest of the
@@ -200,12 +207,14 @@ class SConsValues(optparse.Values):
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "An integer is required: %s" % repr(value))
         elif name in ('md5_chunksize', 'hash_chunksize'):
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "An integer is required: %s" % repr(value))
             name = 'md5_chunksize'  # for now, the old name is used
         elif name == 'warn':
             if SCons.Util.is_String(value):
@@ -256,6 +265,7 @@ class SConsOption(optparse.Option):
     CHECK_METHODS = CHECK_METHODS + [_check_nargs_optional]
     CONST_ACTIONS = optparse.Option.CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
 
+
 class SConsOptionGroup(optparse.OptionGroup):
     """
     A subclass for SCons-specific option groups.
@@ -264,6 +274,7 @@ class SConsOptionGroup(optparse.OptionGroup):
     the group's help text flush left, underneath their own title but
     lined up with the normal "SCons Options".
     """
+
     def format_help(self, formatter):
         """
         Format an option group's help text, outdenting the title so it's
@@ -274,6 +285,7 @@ class SConsOptionGroup(optparse.OptionGroup):
         formatter.indent()
         result = result + optparse.OptionContainer.format_help(self, formatter)
         return result
+
 
 class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
@@ -336,7 +348,7 @@ class SConsOptionParser(optparse.OptionParser):
                     if not option.choices:
                         self.error(_("%s option requires an argument") % opt)
                     else:
-                        msg  = _("%s option requires an argument " % opt)
+                        msg = _("%s option requires an argument " % opt)
                         msg += _("(choose from %s)"
                                  % ', '.join(option.choices))
                         self.error(msg)
@@ -451,6 +463,7 @@ class SConsOptionParser(optparse.OptionParser):
 
         return result
 
+
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
         return "usage: %s\n" % usage
@@ -499,8 +512,8 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
             wrapper = textwrap.TextWrapper(width=self.width,
-                                           initial_indent = '  ',
-                                           subsequent_indent = '  ')
+                                           initial_indent='  ',
+                                           subsequent_indent='  ')
             wrapper.wordsep_re = no_hyphen_re
             opts = wrapper.fill(opts) + '\n'
             indent_first = self.help_position
@@ -514,7 +527,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
 
             # SCons:  indent every line of the help text but the first.
             wrapper = textwrap.TextWrapper(width=self.help_width,
-                                           subsequent_indent = '  ')
+                                           subsequent_indent='  ')
             wrapper.wordsep_re = no_hyphen_re
             help_lines = wrapper.wrap(help_text)
             result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
@@ -614,12 +627,12 @@ def Parser(version):
 
     def opt_invalid(group, value, options):
         """report an invalid option from a group"""
-        errmsg  = "`%s' is not a valid %s option type, try:\n" % (value, group)
+        errmsg = "`%s' is not a valid %s option type, try:\n" % (value, group)
         return errmsg + "    %s" % ", ".join(options)
 
     def opt_invalid_rm(group, value, msg):
         """report an invalid option from a group: recognized but removed"""
-        errmsg  = "`%s' is not a valid %s option type " % (value, group)
+        errmsg = "`%s' is not a valid %s option type " % (value, group)
         return errmsg + msg
 
     config_options = ["auto", "force", "cache"]
@@ -642,10 +655,10 @@ def Parser(version):
     deprecated_debug_options = {}
 
     removed_debug_options = {
-        "dtree"         : '; please use --tree=derived instead',
-        "nomemoizer"    : '; there is no replacement',
-        "stree"         : '; please use --tree=all,status instead',
-        "tree"          : '; please use --tree=all instead',
+        "dtree": '; please use --tree=derived instead',
+        "nomemoizer": '; there is no replacement',
+        "stree": '; please use --tree=all,status instead',
+        "tree": '; please use --tree=all instead',
     }
 
     debug_options = ["count", "duplicate", "explain", "findlibs",
@@ -674,7 +687,8 @@ def Parser(version):
                 msg = removed_debug_options[value]
                 raise OptionValueError(opt_invalid_rm('debug', value, msg))
             else:
-                raise OptionValueError(opt_invalid('debug', value, debug_options))
+                raise OptionValueError(opt_invalid(
+                    'debug', value, debug_options))
 
     opt_debug_help = "Print various types of debugging information: %s." \
                      % ", ".join(debug_options)
@@ -702,7 +716,7 @@ def Parser(version):
     def opt_duplicate(option, opt, value, parser):
         if value not in SCons.Node.FS.Valid_Duplicates:
             raise OptionValueError(opt_invalid('duplication', value,
-                                              SCons.Node.FS.Valid_Duplicates))
+                                               SCons.Node.FS.Valid_Duplicates))
         setattr(parser.values, option.dest, value)
         # Set the duplicate style right away so it can affect linking
         # of SConscript files.
@@ -719,9 +733,9 @@ def Parser(version):
 
     if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
         op.add_option('--enable-virtualenv',
-                     dest="enable_virtualenv",
-                     action="store_true",
-                     help="Import certain virtualenv variables to SCons")
+                      dest="enable_virtualenv",
+                      action="store_true",
+                      help="Import certain virtualenv variables to SCons")
 
     def experimental_callback(option, opt, value, parser):
         experimental = getattr(parser.values, option.dest)
@@ -747,14 +761,13 @@ def Parser(version):
 
         setattr(parser.values, option.dest, experimental)
 
-
     op.add_option('--experimental',
                   dest='experimental',
                   action='callback',
-                  default=set(), # empty set
+                  default=set(),  # empty set
                   type='str',
                   # choices=experimental_options+experimental_features,
-                  callback =experimental_callback,
+                  callback=experimental_callback,
                   help='Enable experimental features')
 
     op.add_option('-f', '--file', '--makefile', '--sconstruct',
@@ -806,9 +819,9 @@ def Parser(version):
                   metavar="DIR")
 
     op.add_option('--ignore-virtualenv',
-                 dest="ignore_virtualenv",
-                 action="store_true",
-                 help="Do not import virtualenv variables to SCons")
+                  dest="ignore_virtualenv",
+                  action="store_true",
+                  help="Do not import virtualenv variables to SCons")
 
     op.add_option('--implicit-cache',
                   dest='implicit_cache', default=False,
@@ -976,7 +989,6 @@ def Parser(version):
                   dest="repository", default=[],
                   action="append",
                   help="Search REPOSITORY for source and target files.")
-
 
     # Options from Make and Cons classic that we do not yet support,
     # but which we may support someday and whose (potential) meanings
