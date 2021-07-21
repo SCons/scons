@@ -20,27 +20,23 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
 
 import os
 
 import TestSCons
 from TestCmd import IS_WINDOWS, IS_MACOS
+from TestSCons import _python_, _exe, _lib, lib_, _dll, dll_
 
 test = TestSCons.TestSCons()
 
 try:
     import ninja
 except ImportError:
-    test.skip_test("Could not find ninja module in python")
+    test.skip_test("Could not find ninja module. Skipping test.\n")
 
 ninja_binary = test.where_is('ninja')
 if not ninja_binary:
-    test.skip_test("Could not find ninja. Skipping test.")
-
-_python_ = TestSCons._python_
-_exe = TestSCons._exe
+    test.skip_test("Could not find ninja executable. Skipping test.\n")
 
 ninja_bin = os.path.abspath(os.path.join(
     ninja.__file__,
@@ -51,35 +47,23 @@ ninja_bin = os.path.abspath(os.path.join(
 
 test.dir_fixture('ninja-fixture')
 
-if IS_WINDOWS:
-    lib_suffix = '.lib'
-    staticlib_suffix = '.lib'
-    lib_prefix = ''
-    win32 = ", 'WIN32'"
-else:
-    lib_suffix = '.so'
-    staticlib_suffix = '.a'
-    lib_prefix = 'lib'
-    win32 = ''
-
-if IS_MACOS:
-    lib_suffix = '.dylib'
+win32 = ", 'WIN32'" if IS_WINDOWS else ""
 
 test.write('SConstruct', """
-SetOption('experimental','ninja')
+SetOption('experimental', 'ninja')
 DefaultEnvironment(tools=[])
 env = Environment()
 env.Tool('ninja')
 env['NINJA'] = r"%(ninja_bin)s"
 
-shared_lib = env.SharedLibrary(target = 'test_impl', source = 'test_impl.c', CPPDEFINES=['LIBRARY_BUILD'%(win32)s])
-env.Program(target = 'test', source = 'test1.c', LIBS=['test_impl'], LIBPATH=['.'], RPATH='.')
-
-static_obj = env.Object(target = 'test_impl_static', source = 'test_impl.c')
-static_lib = env.StaticLibrary(target = 'test_impl_static', source = static_obj)
-static_obj = env.Object(target = 'test_static', source = 'test1.c')
-env.Program(target = 'test_static', source = static_obj, LIBS=[static_lib], LIBPATH=['.'])
+shared_lib = env.SharedLibrary(target='test_impl', source='test_impl.c', CPPDEFINES=['LIBRARY_BUILD'%(win32)s])
+env.Program(target='test', source='test1.c', LIBS=['test_impl'], LIBPATH=['.'], RPATH='.')
+static_obj = env.Object(target='test_impl_static', source='test_impl.c')
+static_lib = env.StaticLibrary(target='test_impl_static', source=static_obj)
+static_obj = env.Object(target='test_static', source='test1.c')
+env.Program(target='test_static', source=static_obj, LIBS=[static_lib], LIBPATH=['.'])
 """ % locals())
+
 # generate simple build
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
@@ -90,12 +74,16 @@ test.run(program=test.workpath('test_static'), stdout="library_function")
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)
-test.must_contain_all_lines(test.stdout(), [
-    ('Removed %stest_impl' % lib_prefix) + lib_suffix,
-    'Removed test' + _exe,
-    ('Removed %stest_impl_static' % lib_prefix) + staticlib_suffix,
-    'Removed test_static' + _exe,
-    'Removed build.ninja'])
+test.must_contain_all_lines(
+    test.stdout(),
+    [
+        ('Removed %stest_impl' % dll_) + _dll,
+        'Removed test' + _exe,
+        ('Removed %stest_impl_static' % lib_) + _lib,
+        'Removed test_static' + _exe,
+        'Removed build.ninja',
+    ],
+)
 
 # only generate the ninja file
 test.run(arguments='--disable-execute-ninja', stdout=None)
