@@ -17,7 +17,7 @@ if not conf.TryRun("int main( int argc, char* argv[] ){return 0;}", '.c'):
 
 env = conf.Finish()
 
-for node in env.Glob('.sconf_temp/*'):
+for node in env.Glob(conf.confdir.path + '/*'):
     if not node.is_conftest():
         print("FAIL")
 

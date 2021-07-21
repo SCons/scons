@@ -614,7 +614,7 @@ class BuilderBase:
             t.set_explicit(self.is_explicit)
 
         if env.get("SCONF_NODE"):
-            for node in tlist + slist:
+            for node in tlist:
                 node.attributes.conftest_node = 1
 
         return SCons.Node.NodeList(tlist)
