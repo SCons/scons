@@ -1,0 +1,21 @@
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+import sys 
+
+env = Environment()
+
+conf = Configure(env)
+env.Tool('ninja')
+
+# create a conf test that will fail. A failing conftest
+# should not affect ninja generation and build from taking place.
+if sys.platform == "win32":
+    conf.env.Append(
+        CCFLAGS="/DEBUG /Z7 /INCREMENTAL:NO",
+        LINKFLAGS="/DEBUG /INCREMENTAL:NO",
+        PDB='${TARGET.base}.pdb')
+conf.TryRun("int main( int argc, char* argv[] ){return fail;}", '.c')
+env = conf.Finish()
+
+env.Program(target='foo', source='foo.c')

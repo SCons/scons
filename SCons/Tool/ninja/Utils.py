@@ -39,14 +39,15 @@ def ninja_add_command_line_options():
               metavar='BOOL',
               action="store_true",
               default=False,
-              help='Disable ninja automatically building after scons')
+              help='Disable automatically running ninja after scons')
 
     AddOption('--disable-ninja',
               dest='disable_ninja',
               metavar='BOOL',
               action="store_true",
               default=False,
-              help='Disable ninja automatically building after scons')
+              help='Disable ninja generation and build with scons even if tool is loaded. '+
+                   'Also used by ninja to build targets which only scons can build.')
 
 
 def is_valid_dependent_node(node):
