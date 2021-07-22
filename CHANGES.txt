@@ -41,6 +41,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Environment variables can use that rather than "$( _concat(...) $)".
     - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't 
       installed but --experimental=ninja was specified.
+    - As part of experimental ninja tool, allow SetOption() to set both disable_execute_ninja and
+      disable_ninja.
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
@@ -74,6 +76,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       writeable permission code for copy to cache behind the atomic rename operation.
     - Added marking of intermediate and and multi target nodes generated from SConf tests so that 
       is_conftest() is more accurate.
+    - Added test for configure check failing to ensure it didn't break generating and running ninja.
 
 
   From Mats Wichmann:
