@@ -32,6 +32,8 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+test.skip_if_not_msvc()
+
 test.dir_fixture('../pch_fixture')
 
 test.file_fixture('fixture/SConstruct',

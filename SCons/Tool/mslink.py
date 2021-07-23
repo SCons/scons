@@ -131,7 +131,7 @@ def _dllEmitter(target, source, env, paramtp):
         if pch_subst:
             # MSVC 11 and above need the PCH object file to be added to the link line,
             # otherwise you get link error LNK2011.
-            pchobj = SCons.Util.splitext(pch_subst)[0] + '.obj'
+            pchobj = SCons.Util.splitext(pch_subst)[0] + env['OBJSUFFIX']
             # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
             if pchobj not in extrasources:
                 extrasources.append(pchobj)
@@ -191,7 +191,7 @@ def prog_emitter(target, source, env):
         if pch_subst:
             # MSVC 11 and above need the PCH object file to be added to the link line,
             # otherwise you get link error LNK2011.
-            pchobj = SCons.Util.splitext(pch_subst)[0] + '.obj'
+            pchobj = SCons.Util.splitext(pch_subst)[0] + env['OBJSUFFIX']
             # print("prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj))
             if pchobj not in extrasources:
                 extrasources.append(pchobj)

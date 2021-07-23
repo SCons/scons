@@ -76,7 +76,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is_conftest() is more accurate.
     - Added support for the PCH environment variable to support subst generators. 
 
-
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
       one changed expected exception message. Change some more regexes
