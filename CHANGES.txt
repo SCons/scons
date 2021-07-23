@@ -74,6 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       writeable permission code for copy to cache behind the atomic rename operation.
     - Added marking of intermediate and and multi target nodes generated from SConf tests so that 
       is_conftest() is more accurate.
+    - Added support for the PCH environment variable to support subst generators. 
 
 
   From Mats Wichmann:

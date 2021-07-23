@@ -112,10 +112,11 @@ def object_emitter(target, source, env, parent_emitter):
     # See issue #2505 for a discussion of what to do if it turns
     # out this assumption causes trouble in the wild:
     # https://github.com/SCons/scons/issues/2505
-    if 'PCH' in env:
-        pch = env['PCH']
-        if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
-            env.Depends(target, pch)
+    if env.get("PCH"):
+        pch_subst = env.subst("$PCH", target=target, source=source)
+        if pch_subst:
+            if str(target[0]) != SCons.Util.splitext(str(pch_subst))[0] + '.obj':
+                env.Depends(target, pch_subst)
 
     return (target, source)
 
@@ -212,6 +213,25 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
                                   batch_key=msvc_batch_key,
                                   targets='$CHANGED_TARGETS')
 
+def CCPCHFLAGS_gen(target, source, env, for_signature):
+    pch =  env.get("PCH")
+    pch_subst = env.subst("$PCH", target=target, source=source)
+
+    # we want to know if PCH was set, but we also want to know
+    # if the user supplied a generator, if the subst returned something
+    # otherwise we assume the user doesn't want PCH for this invokation
+    if pch and pch_subst:
+        
+        # if the current value odes not resolve to anything, we assume
+        # the file should be resolved to the current sconscript dir, so
+        # we subst again converting it to a local File.
+        if not env.File(pch_subst).exists():
+            pch_subst = env.subst("${File(PCH)}", target=target, source=source)
+        
+        return '/Yu%s "/Fp%s"' % ( 
+            env.subst('$PCHSTOP', target=target, source=source) or "",
+            pch_subst
+        )
 
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
@@ -236,7 +256,7 @@ def generate(env):
         shared_obj.add_emitter(suffix, shared_object_emitter)
 
     env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
-    env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s \\\"/Fp%s\\\""%(PCHSTOP or "",File(PCH))) or ""}'])
+    env['CCPCHFLAGS'] = CCPCHFLAGS_gen
     env['_MSVC_OUTPUT_FLAG'] = msvc_output_flag
     env['_CCCOMCOM']  = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'

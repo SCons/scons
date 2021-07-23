@@ -212,6 +212,18 @@ Example:
 <example_commands>
 env['PCH'] = 'StdAfx.pch'
 </example_commands>
+
+<para>
+This variable can also support generators, e.g excluding PCH from SConf tests:
+</para>
+
+<example_commands>
+def pch_gen(env, target, source, for_signature):
+    if target[0].is_conftest():
+        return 'StdAfx.pch'
+env['PCH'] = pch_gen
+</example_commands>
+
 </summary>
 </cvar>
 

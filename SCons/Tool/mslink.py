@@ -127,12 +127,14 @@ def _dllEmitter(target, source, env, paramtp):
         target[0].attributes.pdb = pdb
 
     if version_num >= 11.0 and env.get('PCH', 0):
-        # MSVC 11 and above need the PCH object file to be added to the link line,
-        # otherwise you get link error LNK2011.
-        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
-        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
-        if pchobj not in extrasources:
-            extrasources.append(pchobj)
+        pch_subst = env.subst("$PCH", target=target, source=source)
+        if pch_subst:
+            # MSVC 11 and above need the PCH object file to be added to the link line,
+            # otherwise you get link error LNK2011.
+            pchobj = SCons.Util.splitext(pch_subst)[0] + '.obj'
+            # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
+            if pchobj not in extrasources:
+                extrasources.append(pchobj)
 
     if not no_import_lib and \
        not env.FindIxes(target, "LIBPREFIX", "LIBSUFFIX"):
@@ -185,12 +187,14 @@ def prog_emitter(target, source, env):
         target[0].attributes.pdb = pdb
 
     if version_num >= 11.0 and env.get('PCH', 0):
-        # MSVC 11 and above need the PCH object file to be added to the link line,
-        # otherwise you get link error LNK2011.
-        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
-        # print("prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj))
-        if pchobj not in extrasources:
-            extrasources.append(pchobj)
+        pch_subst = env.subst("$PCH", target=target, source=source)
+        if pch_subst:
+            # MSVC 11 and above need the PCH object file to be added to the link line,
+            # otherwise you get link error LNK2011.
+            pchobj = SCons.Util.splitext(pch_subst)[0] + '.obj'
+            # print("prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj))
+            if pchobj not in extrasources:
+                extrasources.append(pchobj)
 
     return (target+extratargets,source+extrasources)
 
