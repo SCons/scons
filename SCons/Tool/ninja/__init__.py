@@ -176,8 +176,7 @@ def generate(env):
     if not NINJA_BINARY:
         raise SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
 
-    env["NINJA_DISABLE_AUTO_RUN"] = GetOption('disable_execute_ninja')
-
+    env["NINJA_DISABLE_AUTO_RUN"] = env.get("NINJA_DISABLE_AUTO_RUN", GetOption('disable_execute_ninja'))
     env["NINJA_FILE_NAME"] = env.get("NINJA_FILE_NAME", "build.ninja")
 
     # Add the Ninja builder.
@@ -421,9 +420,9 @@ def generate(env):
         target = self.targets[0]
         if target.get_env().get('NINJA_SKIP'):
             return
-        if target.check_attributes('ninja_file') is None or not target.is_conftest:
+        if target.check_attributes('ninja_file') is None:
             NINJA_STATE.add_build(target)
-        else:
+        else: 
             target.build()
 
     SCons.Taskmaster.Task.execute = ninja_execute
