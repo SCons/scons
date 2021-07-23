@@ -36,6 +36,8 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.skip_if_not_msvc()
 
+test.dir_fixture('pch_fixture')
+
 #####
 # Test the basics
 
@@ -56,50 +58,6 @@ env.Program('test', ['test.cpp', env.RES('test.rc')], LIBS=['user32'])
 env.Object('fast', 'foo.cpp')
 env.Object('slow', 'foo.cpp', PCH=0)
 """)
-
-test.write('test.cpp', '''
-#include "StdAfx.h"
-#include "resource.h"
-
-int main(void) 
-{ 
-    char test[1024];
-    LoadString(GetModuleHandle(NULL), IDS_TEST, test, sizeof(test));
-    printf("%d %s\\n", IDS_TEST, test);
-    return 0;
-}
-''')
-
-test.write('test.rc', '''
-#include "resource.h"
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_TEST "test 1"
-END
-''')
-
-test.write('resource.h', '''
-#define IDS_TEST 2001
-''')
-
-
-test.write('foo.cpp', '''
-#include "StdAfx.h"
-''')
-
-test.write('StdAfx.h', '''
-#include <windows.h>
-#include <stdio.h>
-#include "resource.h"
-''')
-
-test.write('StdAfx.cpp', '''
-#include "StdAfx.h"
-#ifndef PCHDEF
-this line generates an error if PCHDEF is not defined!
-#endif
-''')
 
 #  Visual Studio 8 has deprecated the /Yd option and prints warnings
 #  about it, so ignore stderr when running SCons.
