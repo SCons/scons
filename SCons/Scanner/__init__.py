@@ -221,16 +221,13 @@ class Base:
         else:
             node_list = self.function(node, env, path)
 
-        if self.node_class:
-            kw = {}
-            if hasattr(node, 'dir'):
-                kw['directory'] = node.dir
-            conv = env.get_factory(self.node_factory)
-            cls = self.node_class
-            nl = [n if isinstance(n, cls) else conv(n, **kw) for n in node_list]
-            return nl
-
-        return node_list
+        kw = {}
+        if hasattr(node, 'dir'):
+            kw['directory'] = node.dir
+        conv = env.get_factory(self.node_factory)
+        cls = self.node_class
+        nl = [conv(n, **kw) if cls and not isinstance(n, cls) else n for n in node_list]
+        return nl
 
     def __eq__(self, other):
         try:
@@ -337,7 +334,6 @@ class Classic(Current):
     """
 
     def __init__(self, name, suffixes, path_variable, regex, *args, **kwargs):
-
         self.cre = re.compile(regex, re.M)
 
         def _scan(node, _, path=(), self=self):
@@ -372,7 +368,6 @@ class Classic(Current):
         return self.cre.findall(node.get_text_contents())
 
     def scan(self, node, path=()):
-
         # cache the includes list in node so we only scan it once:
         if node.includes is not None:
             includes = node.includes
