@@ -5221,6 +5221,8 @@ Specfies the name of the project to package.
                 Boolean (True|False). Default: False
                 When True, SCons will not run ninja automatically after creating the <filename>ninja.build</filename> file.
 
+                If not set, this will be set to True if <quote>--disable_execute_ninja</quote> or
+                <code>SetOption('disable_execute_ninja', True)</code>
             </para>
         </listitem>
   </varlistentry>
