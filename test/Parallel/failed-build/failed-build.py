@@ -26,8 +26,6 @@
 Verify that a failed build action with -j works as expected.
 """
 
-import os
-
 import TestSCons
 
 python = TestSCons.python
@@ -35,7 +33,7 @@ test = TestSCons.TestSCons()
 
 try:
     import psutil
-except ImportError as e:
+except ImportError:
     test.skip_test("Failed to import psutil required for test, skipping.")
 
 test.dir_fixture('fixture')

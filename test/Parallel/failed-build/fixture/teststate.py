@@ -18,9 +18,7 @@ class Response(Enum):
 
 def server_thread(PORT):
 
-    Handler = http.server.SimpleHTTPRequestHandler
-
-    class S( http.server.BaseHTTPRequestHandler):
+    class S(http.server.BaseHTTPRequestHandler):
 
         current_state = TestState.start_state
         mutex = Lock()
