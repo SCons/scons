@@ -32,7 +32,7 @@ python = TestSCons.python
 test = TestSCons.TestSCons()
 
 try:
-    import psutil
+    import psutil # noqa: F401
 except ImportError:
     test.skip_test("Failed to import psutil required for test, skipping.")
 
