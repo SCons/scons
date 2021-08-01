@@ -1,4 +1,4 @@
-A new SCons release, 4.2.0, is now available
+A new SCons release, 4.1.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
@@ -6,98 +6,53 @@ on the SCons download page:
 
 Here is a summary of the changes since 4.1.0:
 
-NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 support will be dropped in the next major release.
-
-
 NEW FUNCTIONALITY
 -----------------
 
-    - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
-      This will provide a path relative to the top of the build tree (where the SConstruct is located)
-      Fixes #396
-    - Added --experimental flag, to enable various experimental features/tools.  You can specify
-      'all', 'none', or any combination of available experimental features.
-    - Added affect_signature flag to  _concat function.  If set to False, it will prepend and append $( and $).
-      That way the various Environment variables can use that rather than "$( _concat(...) $)".
-
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
-    - Deprecate Python 3.5 as a supported version.
 
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-    - SCons now supports the command-line parameter `--hash-format` to override the default
-      hash format that SCons uses. It can also be set via `SetOption('hash_format')`. Supported
-      values are: `md5`, `sha1`, and `sha256`. For all hash formats other than
-      the default of `md5`, the SConsign database will include the name of the hash format.
-      For example, `--hash-format=sha256` will create a SConsign with name
-      `.sconsign_sha256.dblite.`.
-    - Improve Subst()'s logic to check for proper callable function or class's argument list.
-      It will now allow callables with expected args, and any extra args as long as they
-      have default arguments. Additionally functions with no defaults for extra arguments
-      as long as they are set using functools.partial to create a new callable which set them.
-    - Internal has_key methods removed from SCons' dictionary-like objects
-      SubstitutionEnvironment and OverrideEnvironment - in other words,
-      an env - to match Python 3 which no longer has dict.has_key.
-    - Removed long-deprecated construction variables PDFCOM, WIN32_INSERT_DEF,
-      WIN32DEFPREFIX, WIN32DEFSUFFIX, WIN32EXPPREFIX, WIN32EXPSUFFIX.
-      All have been replaced by other names since at least 1.0.
-    - Added CACHEDIR_CLASS construction variable and expanded CacheDir method args
-      to support SCons invoking CacheDir derived classes for CacheDir customization.
-      Moved copy_from_cache attribute from the Environment class to CacheDir class.
-      Code contributed by MongoDB.
-    - Update BuildTask to pass all targets to the progress object fixing an issue
-      where multi-target build nodes only got the first target passed to the progress
-      object.
-    - Change SConscript() missing SConscript behavior - if must_exist=False,
-      the warning is suppressed.
-
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-    - The command-line parameter `--md5-chunksize` is now deprecated. Use `--hash-chunksize`
-      instead.
-    - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
-      set to any string value (For example ['none','false','no','off'])
-      Also previously 'All' wouldn't have the desired affect.
-    - DocbookXslt tool: The XSLT stylesheet file is now initialized to an env.File() Node, 
-      such that dependencies work correctly in hierarchical builds (eg when using 
-      DocbookXslt in SConscript('subdir/SConscript') context.
-    - The Install builder will now set the writable mode on the file(s) it
-      copies. This restores the (previously undocumented) SCons behavior
-      that regressed as of 4.0.0.
-    - Fix issue #3790: Generators in CPPDEFINES now have access to populated source
-      and target lists
-    - Fix a potential race condition in shared cache environments where the permissions are
-      not writeable for a moment after the file has been renamed and other builds (users) will copy
-      it out of the cacheSmall reorganization of logic to copy files from cachedir. Moved CacheDir 
-      writeable permission code for copy to cache behind the atomic rename operation.
-    - Fixed intermediate and and multi target nodes generated from SConf tests not being marked
-      as is_conftest().
+- List fixes of outright bugs
 
+IMPROVEMENTS
+------------
 
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
+
+PACKAGING
+---------
+
+- List changes in the way SCons is packaged and/or released
+
+DOCUMENTATION
+-------------
+
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
+
+DEVELOPMENT
+-----------
+
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.1.0..HEAD
-       177  William Deegan
-       101  Daniel Moody
-        95  Mats Wichmann
-        25  Adam Gross
-         4  greenbender
-         4  Daniel
-         4  Henrik Maier
-         4  Mathew Robinson
-         3  Andrew Morrow
-         3  Ivan Kravets
-         3  Dillan Mills
-         1  WholesomeIsland
-         1  dependabot[bot]
-         1  djh
-         1  Joseph Brill
+    git shortlog --no-merges -ns 4.0.1..HEAD
