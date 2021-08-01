@@ -86,9 +86,9 @@ Thanks to the following contributors listed below for their contributions to thi
 .. code-block:: text
 
     git shortlog --no-merges -ns 4.1.0..HEAD
-       156  William Deegan
-        95  Daniel Moody
-        94  Mats Wichmann
+       177  William Deegan
+       101  Daniel Moody
+        95  Mats Wichmann
         25  Adam Gross
          4  greenbender
          4  Daniel

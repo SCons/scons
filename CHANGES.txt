@@ -7,7 +7,7 @@
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 support will be dropped in the next major release.
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE  4.2.0 
 
   From Byron Platt:
     - Fix Install() issue when copytree recursion gives bad arguments that can
