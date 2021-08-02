@@ -9,9 +9,16 @@ NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 s
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From John Doe:
 
-        - Whatever John Doe did.
+    - Whatever John Doe did.
+
+  From Mats Wichmann
+    - Maintenance and doc: modernize some usage in Scanner package,
+      calling super(), switching some imitialization to comprehensions,
+      and code formatting.  Docstring for scanner Base moved from
+      init-method to class-level so it's picked up by Sphinx.
+      Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
@@ -135,11 +142,6 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - Change SConscript() missing SConscript behavior - if must_exist=False,
       the warning is suppressed.
     - Make sure TEMPFILEPREFIX can be set to an empty string (issue 3964)
-    - Maintenance and doc: modernize some usage in Scanner package,
-      calling super(), switching some imitialization to comprehensions,
-      and code formatting.  Docstring for scanner Base moved from
-      init-method to class-level so it's picked up by Sphinx.
-      Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
