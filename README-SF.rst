@@ -393,12 +393,12 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-    SCons-4.0.0-py3-none-any.whl
-    SCons-4.1.0.devyyyymmdd.tar.gz
-    SCons-4.1.0.devyyyymmdd.zip
-    scons-doc-4.1.0.devyyyymmdd.tar.gz
-    scons-local-4.1.0.devyyyymmdd.tar.gz
-    scons-local-4.1.0.devyyyymmdd.zip
+    SCons-4.2.0-py3-none-any.whl
+    SCons-4.3.0ayyyymmdd.tar.gz
+    SCons-4.3.0ayyyymmdd.zip
+    scons-doc-4.3.0ayyyymmdd.tar.gz
+    scons-local-4.3.0ayyyymmdd.tar.gz
+    scons-local-4.3.0ayyyymmdd.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.

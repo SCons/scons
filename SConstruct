@@ -38,7 +38,7 @@ month_year = strftime('%B %Y')
 
 
 project = 'scons'
-default_version = '4.2.0a0'
+default_version = '4.2.0'
 copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
 
 #
@@ -196,7 +196,7 @@ Export('command_line', 'env', 'whereis', 'revaction')
 SConscript('doc/SConscript')
 
 
-# Copy manpage's into base dir for inclusign in pypi packages
+# Copy manpage's into base dir for inclusion in pypi packages
 man_pages = env.Install("#/", Glob("#/build/doc/man/*.1"))
 
 # Build packages for pypi
@@ -210,7 +210,11 @@ tgz_file = env.Command('$DISTDIR/SCons-${VERSION}.tar.gz', ['setup.cfg', 'setup.
 
 # Now set depends so the above run in a particular order
 env.Depends(tgz_file, [zip_file, wheel])
-env.AddPostAction(tgz_file, Delete(man_pages))
+
+# NOTE: Commenting this out as the manpages are expected to be in the base directory when manually
+# running setup.py from the base of the repo.
+# NOTE: This used by distro package maintainers.
+# env.AddPostAction(tgz_file, Delete(man_pages))
 
 # TODO add auto copyright date to README.rst, LICENSE
 # TODO build API DOCS
