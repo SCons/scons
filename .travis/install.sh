@@ -57,7 +57,6 @@ else
         pip install git+https://github.com/cython/cython.git@0.29.x
         pip install git+https://github.com/lxml/lxml.git
     fi
-    pip install psutil
 
 #    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
 #    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
