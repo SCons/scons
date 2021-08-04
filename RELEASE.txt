@@ -25,7 +25,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+    - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
 
 IMPROVEMENTS
 ------------
