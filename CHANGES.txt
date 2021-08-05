@@ -13,6 +13,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
 
+  From Mats Wichmann:
+    - Two small Python 3.10 fixes: one more docstring turned into raw
+      because it contained an escape; updated "helpful" syntax error message
+      from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
+
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 
