@@ -34,6 +34,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
       issue affected CommandGeneratorAction function actions specifically.
     - Added support for the PCH environment variable to support subst generators. 
+    - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
+      the ninja file scons regenerate and callback invocations will lose the $ characters used in
+      the scons command line which ninja uses itself for escaping. For Example:
+          scons BUILD=xyz OTHERVAR=$BUILD
+      Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
+      single dollar sign being used as a ninja escape character in the ninja file.
+
 
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw

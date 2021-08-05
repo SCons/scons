@@ -38,6 +38,12 @@ FIXES
 - Fix PCH not being evaluated by subst() where necessary.
 - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
   but instead it should yield '$('.
+- Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
+  the ninja file scons regenerate and callback invocations will lose the $ characters used in
+  the scons command line which ninja uses itself for escaping. For Example:
+      scons BUILD=xyz OTHERVAR=$BUILD
+  Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
+  single dollar sign being used as a ninja escape character in the ninja file.
 
 IMPROVEMENTS
 ------------
