@@ -146,14 +146,19 @@ class NodeList(UserList):
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
 
-    # obs: previous versions had a custom __getitem__ method for Py3 with the
-    # following comment in the docstring, which seems to no longer be true.
-    # If it needs to be retrieved, rel_4.2.0 in git has the last version.
-    #
-    #    This comes for free on py2,
-    #    but py3 slices of NodeList are returning a list
-    #    breaking slicing nodelist and refering to
-    #    properties and methods on contained object
+    if sys.version_info < (3, 7):
+        # For PY3 before 3.7, slices of UserList/derivatives did not return
+        # the implementation class. See https://bugs.python.org/issue27639/.
+        # The solution there is simpler, but does not work for this class.
+        def __getitem__(self, index):
+            if isinstance(index, slice):
+                # Expand the slice object using range()
+                # limited by number of items in self.data
+                indices = index.indices(len(self.data))
+                return self.__class__([self[x] for x in range(*indices)])
+
+            # Return one item of the tart
+            return self.data[index]
 
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
@@ -1217,6 +1222,14 @@ class CLVar(UserList):
 
     def __str__(self):
         return ' '.join(self.data)
+
+    if sys.version_info < (3, 7):
+        # For PY3 before 3.7, slices of UserList/derivatives did not return
+        # the implementation class. See https://bugs.python.org/issue27639/.
+        def __getitem__(self, i):
+            if isinstance(i, slice):
+                return self.__class__(self.data[i])
+            return self.data[i]
 
 
 class Selector(OrderedDict):

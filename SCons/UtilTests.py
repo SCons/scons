@@ -698,6 +698,12 @@ class UtilTestCase(unittest.TestCase):
         assert f.data == ['aa', 'bb', 'cc', 'dd'], f.data
         assert str(f) == 'aa bb cc dd', str(f)
 
+        # test slicing: Py3 < 3.7 had a bug
+        f = CLVar(['aa', 'bb', 'cc', 'dd'])
+        s = f[1:-1]
+        assert isinstance(s, CLVar), type(s)
+        assert s.data == ['bb', 'cc'], s.data
+
 
     def test_Selector(self):
         """Test the Selector class"""
@@ -871,8 +877,9 @@ class NodeListTestCase(unittest.TestCase):
 
         nl = NodeList([t1, t2, t3])
         assert nl.bar == ['t1', 't2', 't3'], nl.bar
-        assert nl[0:2].child.bar == ['t1child', 't2child'], \
-            nl[0:2].child.bar
+        sl = nl[0:2]
+        assert isinstance(sl, NodeList), type(sl)
+        assert sl.child.bar == ['t1child', 't2child'], sl.child.bar
 
     def test_callable_attributes(self):
         """Test callable attributes of a NodeList class"""

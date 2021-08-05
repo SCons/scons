@@ -219,17 +219,22 @@ class Node:
             class Executor:
                 def prepare(self):
                     pass
+
                 def get_action_targets(self):
                     return self.targets
+
                 def get_all_targets(self):
                     return self.targets
+
                 def get_all_children(self) -> UniqueList:
                     result = UniqueList()
                     for node in self.targets:
                         result.extend(node.children())
                     return result
+
                 def get_all_prerequisites(self) -> UniqueList:
                     return UniqueList()
+
                 def get_action_side_effects(self) -> UniqueList:
                     return UniqueList()
 
@@ -678,6 +683,7 @@ class TaskmasterTestCase(unittest.TestCase):
         class StopNode(Node):
             def children(self):
                 raise SCons.Errors.StopError("stop!")
+
         class ExitNode(Node):
             def children(self):
                 sys.exit(77)
@@ -899,15 +905,19 @@ class TaskmasterTestCase(unittest.TestCase):
         class ExceptionExecutor:
             def prepare(self):
                 raise Exception("Executor.prepare() exception")
+
             def get_all_targets(self):
                 return self.nodes
+
             def get_all_children(self) -> UniqueList:
                 result = UniqueList()
                 for node in self.nodes:
                     result.extend(node.children())
                 return result
+
             def get_all_prerequisites(self) -> UniqueList:
                 return UniqueList()
+
             def get_action_side_effects(self) -> UniqueList:
                 return UniqueList()
 

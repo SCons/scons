@@ -3350,7 +3350,7 @@ class File(Base):
 
         # For an "empty" binfo properties like bsources
         # do not exist: check this to avoid exception.
-        if not any ((binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs)):
+        if not any((binfo.bsourcesigs, binfo.bdependsigs, binfo.bimplicitsigs)):
             return {}
 
         binfo.dependency_map = {
