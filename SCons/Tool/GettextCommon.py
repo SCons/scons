@@ -231,17 +231,18 @@ class _POFileBuilder(BuilderBase):
                 target = linguas
         if not target:
             # Let the SCons.BuilderBase to handle this patologic situation
-            return BuilderBase._execute(self, env, target, source, *args, **kw)
+            return super()._execute(env, target, source, *args, **kw)
+
         # The rest is ours
         if not SCons.Util.is_List(target):
             target = [target]
-        result = []
+        result = NodeList()
         for tgt in target:
-            r = BuilderBase._execute(self, env, [tgt], source, *args, **kw)
+            r = super()._execute(env, [tgt], source, *args, **kw)
             result.extend(r)
         if linguas_files is not None:
             env['LINGUAS_FILE'] = linguas_files
-        return NodeList(result)
+        return result
 
 
 def _translate(env, target=None, source=SCons.Environment._null, *args, **kw):

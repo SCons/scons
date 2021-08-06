@@ -28,7 +28,6 @@ import os
 
 import SCons.Action
 import SCons.Tool
-import SCons.Util
 import SCons.Warnings
 from SCons.Builder import BuilderBase
 from SCons.Errors import StopError
@@ -40,6 +39,7 @@ from SCons.Tool.GettextCommon import (
     # MsgfmtToolWarning,
     _read_linguas_from_files,
 )
+from SCons.Util import CLVar, NodeList
 
 class _MOFileBuilder(BuilderBase):
     """The builder class for `MO` files.
@@ -50,7 +50,7 @@ class _MOFileBuilder(BuilderBase):
     here).
     """
 
-    def _execute(self, env, target, source, *args, **kw):
+    def _execute(self, env, target, source, *args, **kw) -> NodeList:
         # Here we add support for 'LINGUAS_FILE' keyword. Emitter is not suitable
         # in this case, as it is called too late (after multiple sources
         # are handled single_source builder.
@@ -68,9 +68,10 @@ class _MOFileBuilder(BuilderBase):
                 source = [source] + linguas
             else:
                 source = linguas
-        result = BuilderBase._execute(self, env, target, source, *args, **kw)
+        result = super()._execute(env, target, source, *args, **kw)
         if linguas_files is not None:
             env['LINGUAS_FILE'] = linguas_files
+
         return result
 
 
@@ -108,7 +109,7 @@ def generate(env, **kw):
     except StopError:
         env['MSGFMT'] = 'msgfmt'
     env.SetDefault(
-        MSGFMTFLAGS=[SCons.Util.CLVar('-c')],
+        MSGFMTFLAGS=[CLVar('-c')],
         MSGFMTCOM='$MSGFMT $MSGFMTFLAGS -o $TARGET $SOURCE',
         MSGFMTCOMSTR='',
         MOSUFFIX=['.mo'],

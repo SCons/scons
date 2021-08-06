@@ -14,15 +14,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix version tests to work with updated scons --version output. (Date format changed)
     
   From Mats Wichmann:
+    - Two small Python 3.10 fixes: one more docstring turned into raw
+      because it contained an escape; updated "helpful" syntax error message
+      from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - Unify the NodeList definitions - there were two, and didn't need to be.
       Two unit tests had to be updated to make sure they're expecting the
       right string representation. Alias now returns a NodeList like other
       builders. Added some return type annotions.
-
-  From Mats Wichmann:
-    - Two small Python 3.10 fixes: one more docstring turned into raw
-      because it contained an escape; updated "helpful" syntax error message
-      from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700

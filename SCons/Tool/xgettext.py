@@ -159,14 +159,15 @@ def _update_pot_file(target, source, env):
 
 
 class _POTBuilder(BuilderBase):
-    def _execute(self, env, target, source, *args):
+    def _execute(self, env, target, source, *args) -> SCons.Util.NodeList:
         if not target:
             if 'POTDOMAIN' in env and env['POTDOMAIN']:
                 domain = env['POTDOMAIN']
             else:
                 domain = 'messages'
             target = [domain]
-        return BuilderBase._execute(self, env, target, source, *args)
+
+        return super()._execute(env, target, source, *args)
 
 
 def _scan_xgettext_from_files(target, source, env, files=None, path=None):
