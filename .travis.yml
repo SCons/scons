@@ -35,7 +35,6 @@ jobs:
   # pypy is not passing atm, but still report build success for now
   # allow coverage to fail, so we can still do testing for all platforms
   allow_failures:
-    - python: pypy3
     - python: 3.10-dev
 
   include:
@@ -43,23 +42,7 @@ jobs:
       script: python runtest.py -a -t -j 2 || if [[ $? == 2 ]]; then true; else false; fi
       before_script: skip
       after_success: skip
-      python: pypy3
-
-    - <<: *test_job
       python: 3.5
-
-#    - <<: *test_job
-#      python: 3.6
-#      dist: xenial
-
-    # to keep number of runs down, skip this since tested in 'coverage'
-    #- <<: *test_job
-    #  python: 3.7
-    #  dist: xenial  # required for Python >= 3.7
-
-#    - <<: *test_job
-#      python: 3.8
-#      dist: bionic
 
     - <<: *test_job
       python: 3.9
