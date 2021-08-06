@@ -19,8 +19,7 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- Expanded ninja Mkdir to also support Mkdir actions.
 
 FIXES
 -----

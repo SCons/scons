@@ -37,7 +37,7 @@ def _install_action_function(_env, node):
 def _mkdir_action_function(env, node):
     return {
         "outputs": get_outputs(node),
-        "rule": get_rule(node, "CMD"),
+        "rule": get_rule(node, "GENERATED_CMD"),
         # implicit explicitly omitted, we translate these so they can be
         # used by anything that depends on these but commonly this is
         # hit with a node that will depend on all of the fake
@@ -45,8 +45,8 @@ def _mkdir_action_function(env, node):
         # to an invalid ninja file.
         "variables": {
             # On Windows mkdir "-p" is always on
-            "cmd": "{mkdir}".format(
-                mkdir="mkdir $out & exit 0" if env["PLATFORM"] == "win32" else "mkdir -p $out",
+            "cmd": "mkdir {args}".format(
+                args = ' '.join(get_outputs(node)) + " & exit /b 0" if env["PLATFORM"] == "win32" else "-p " + ' '.join(get_outputs(node)),
             ),
         },
     }
@@ -58,7 +58,7 @@ def _copy_action_function(env, node):
         "inputs": get_inputs(node),
         "rule": get_rule(node, "CMD"),
         "variables": {
-            "cmd": "$COPY $in $out",
+            "cmd": "$COPY",
         },
     }
 

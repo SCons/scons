@@ -536,6 +536,7 @@ class SConsToNinjaTranslator:
             # TODO: use command action #3573
             "installFunc": _install_action_function,
             "MkdirFunc": _mkdir_action_function,
+            "Mkdir": _mkdir_action_function,
             "LibSymlinksActionFunction": _lib_symlink_action_function,
             "Copy": _copy_action_function
         }
