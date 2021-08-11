@@ -428,24 +428,40 @@ file into an object file.
 <summary>
 <para>
 Creates one or more phony targets that
-expand to one or more other targets.
+expand to one or more other <parameter>targets</parameter>.
 An optional
 <parameter>action</parameter>
 (command)
 or list of actions
 can be specified that will be executed
-whenever the any of the alias targets are out-of-date.
-Returns the Node object representing the alias,
-which exists outside of any file system.
-This Node object, or the alias name,
+whenever the any of the alias <parameter>targets</parameter> are out-of-date.
+</para>
+<para>
+Since it creates target Nodes, even though those nodes
+do not represent file system objects,
+&Alias; is actually a Builder, and like other builders,
+returns a list of Nodes (more precisely,
+a <classname>NodeList</classname> object).
+Either the alias name or the
+returned <classname>NodeList</classname> object
 may be used as a dependency of any other target,
 including another alias.
-&f-Alias;
+</para>
+<para>
+&Alias;
 can be called multiple times for the same
-alias to add additional targets to the alias,
-or additional actions to the list for this alias.
+alias to add additional <parameter>targets</parameter> to the alias,
+or additional <parameter>action</parameter> descriptions
+to the list for this alias.
 Aliases are global even if set through
 the construction environment method.
+</para>
+<para>
+When nesting aliases, order matters: the subjects
+(<parameter>targets</parameter>) of the &Alias;
+call need to have already
+been declared to &SCons; or the relationship will
+not be as expected.
 </para>
 
 <para>

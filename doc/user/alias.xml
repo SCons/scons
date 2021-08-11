@@ -47,8 +47,8 @@
 
   <para>
 
-  We've already seen how you can use the &Alias;
-  function to create a target named <literal>install</literal>:
+  We've already seen how you can use &f-Alias;
+  to create a target named <literal>install</literal>:
 
   </para>
 
@@ -77,10 +77,10 @@ int main() { printf("Hello, world!\n"); }
 
   <para>
 
-  Like other &Builder; methods, though,
-  the &Alias; method returns an object
+  Like other &Builder; methods
+  &Alias; returns an object
   representing the alias being built.
-  You can then use this object as input to anothother &Builder;.
+  You can use this object as input to another &Builder;.
   This is especially useful if you use such an object
   as input to another call to the &Alias; &Builder;,
   allowing you to create a hierarchy

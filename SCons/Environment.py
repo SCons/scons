@@ -36,6 +36,7 @@ import sys
 import re
 import shlex
 from collections import UserDict
+from typing import Optional
 
 import SCons.Action
 import SCons.Builder
@@ -1880,7 +1881,7 @@ class Base(SubstitutionEnvironment):
         tool(self)
         return tool
 
-    def WhereIs(self, prog, path=None, pathext=None, reject=None):
+    def WhereIs(self, prog, path=None, pathext=None, reject=None) -> Optional[str]:
         """Find prog in the path. """
         if not prog:  # nothing to search for, just give up
             return None
@@ -2006,7 +2007,7 @@ class Base(SubstitutionEnvironment):
         nkw = self.subst_kw(kw)
         return SCons.Builder.Builder(**nkw)
 
-    def CacheDir(self, path, custom_class=None):
+    def CacheDir(self, path, custom_class=None) -> None:
         if path is not None:
             path = self.subst(path)
         self._CacheDir_path = path
@@ -2021,7 +2022,7 @@ class Base(SubstitutionEnvironment):
             # multiple threads, but initializing it before the task walk starts
             self.get_CacheDir()
 
-    def Clean(self, targets, files):
+    def Clean(self, targets, files) -> None:
         global CleanTargets
         tlist = self.arg2nodes(targets, self.fs.Entry)
         flist = self.arg2nodes(files, self.fs.Entry)
@@ -2043,7 +2044,7 @@ class Base(SubstitutionEnvironment):
             pass
         return SCons.SConf.SConf(*nargs, **nkw)
 
-    def Command(self, target, source, action, **kw):
+    def Command(self, target, source, action, **kw) -> NodeList:
         """Builds the supplied target files from the supplied
         source files using the supplied action.  Action may
         be any type that the Builder constructor will accept

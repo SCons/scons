@@ -21,6 +21,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Two unit tests had to be updated to make sure they're expecting the
       right string representation. Alias now returns a NodeList like other
       builders. Added some return type annotions.
+      The following public methods now explcitly return a NodeList,
+      where previously some did and some returned plain Python lists:
+      AddPreAction, AddPostAction, Alias, AlwaysBuild, Command, Depends,
+      NoClean, NoCache, Ignore, Precious, Pseudo, Requires, SideEffect.
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
