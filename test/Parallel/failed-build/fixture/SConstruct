@@ -1,0 +1,24 @@
+import sys
+import os
+import threading
+
+import random
+PORT = random.randint(10000, 60000)
+
+sys.path.append(os.getcwd())
+from teststate import server_thread
+
+# this thread will setup a sever for the different tasks to talk to
+# and act as a manager of IPC and the different tasks progressing
+# the test through different states
+x = threading.Thread(target=server_thread, args=(PORT,))
+x.daemon = True
+x.start()
+
+MyCopy = Builder(action=[[sys.executable, 'mycopy.py', '$TARGET', '$SOURCE', str(PORT)]])
+Fail = Builder(action=[[sys.executable, 'myfail.py', '$TARGETS', '$SOURCE', str(PORT)]])
+env = Environment(BUILDERS={'MyCopy' : MyCopy, 'Fail' : Fail})
+env.Fail(target='f3', source='f3.in')
+env.MyCopy(target='f4', source='f4.in')
+env.MyCopy(target='f5', source='f5.in')
+env.MyCopy(target='f6', source='f6.in')
