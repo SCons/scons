@@ -2,8 +2,9 @@
 # SConscript file for building SCons documentation.
 #
 
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,7 +23,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
 import os.path
 import re
@@ -80,7 +81,7 @@ env = orig_env.Clone(SCONS_PY=File('#/scripts/scons.py').rfile())
 #
 # --- Helpers ---
 #
-def writeVersionXml(verfile, date, ver, rev):
+def writeVersionXml(verfile, date, ver, rev, copyright_years):
     """ Helper function: Write a version.xml file. """
     try:
         os.unlink(verfile)
@@ -98,7 +99,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY builddate "%s">
 <!ENTITY buildversion "%s">
 <!ENTITY buildrevision "%s">
-""" % (date, ver, rev))
+<!ENTITY copyright_years "%s">
+""" % (date, ver, rev, copyright_years))
 
 
 # The names of the target files for the MAN pages
@@ -155,9 +157,9 @@ else:
     # for this run.  Ignore it for dependency purposes so we don't
     # rebuild all the docs every time just because the date changes.
     #
-    date, ver, rev = env.Dictionary('DATE', 'VERSION', 'REVISION')
+    date, ver, rev, copyright_years = env.Dictionary('DATE', 'VERSION', 'REVISION', 'COPYRIGHT_YEARS')
     version_xml = File(os.path.join(build, "version.xml"))
-    writeVersionXml(str(version_xml), date, ver, rev)
+    writeVersionXml(str(version_xml), date, ver, rev, copyright_years)
 
     import shutil
     import SCons.Builder

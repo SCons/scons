@@ -47,22 +47,17 @@
     <title>SCons &buildversion;</title>
     <subtitle>MAN page</subtitle>
 
-    <author>
-      <firstname>SCons</firstname>
-      <surname>Development Team</surname>
-    </author>
-
     <corpauthor>The SCons Development Team</corpauthor>
 
     <!-- adding pubdate seems superfluous when copyright year is the same
          and html rendering puts both of them at the top of the page -->
-    <pubdate>2004 - 2021</pubdate>
-    <copyright>
-      <year>2004 - 2021</year>
+    <pubdate>Released &builddate;</pubdate>
+        <copyright>
+      <year>&copyright_years;</year>
       <holder>The SCons Foundation</holder>
     </copyright>
 
-    <releaseinfo>version &buildversion;</releaseinfo>
+    <releaseinfo>Version &buildversion;</releaseinfo>
 
     <mediaobject role="cover"><imageobject><imagedata fileref="cover.jpg" format="JPG"/></imageobject></mediaobject>
 
@@ -70,7 +65,6 @@
 
   <title>SCons &buildversion;</title>
   <subtitle>MAN page</subtitle>
-
 
 <refentry id='scons1'>
 <refmeta>
@@ -677,12 +671,13 @@ built during this invocation.
   <varlistentry id="opt-show">
   <term><option>--cache-show</option></term>
   <listitem>
-<para>When using a derived-file cache
-and retrieving a file from it,
-show the command
-that would have been executed to build the file.
-Without this option, &scons; reports
-<computeroutput>"Retrieved `file' from cache."</computeroutput>.
+<para>When using a derived-file cache show the command
+that would have been executed to build the file
+(or the corresponding <literal>*COMSTR</literal>
+contents if set)
+even if the file is retrieved from cache.
+Without this option, &scons; shows a cache retrieval message
+if the file is fetched from cache.
 This allows producing consistent output for build logs,
 regardless of whether a target
 file was rebuilt or retrieved from the cache.</para>
@@ -692,17 +687,17 @@ file was rebuilt or retrieved from the cache.</para>
   <varlistentry id="opt-config">
   <term><option>--config=<replaceable>mode</replaceable></option></term>
   <listitem>
-<para>Control how the &Configure;
+<para>Control how the &f-link-Configure;
 call should use or generate the
 results of configuration tests.
-<replaceable>mode</replaceable>should be specified from
-among the following choices:</para>
+<replaceable>mode</replaceable> should be one of
+the following choices:</para>
 
   <variablelist> <!-- nested list -->
   <varlistentry>
   <term><emphasis role="bold">auto</emphasis></term>
   <listitem>
-<para>scons will use its normal dependency mechanisms
+<para>&SCons; will use its normal dependency mechanisms
 to decide if a test must be rebuilt or not.
 This saves time by not running the same configuration tests
 every time you invoke scons,
@@ -716,7 +711,7 @@ This is the default behavior.</para>
   <varlistentry>
   <term><emphasis role="bold">force</emphasis></term>
   <listitem>
-<para>If this option is specified,
+<para>If this mode is specified,
 all configuration tests will be re-run
 regardless of whether the
 cached results are out of date.
@@ -730,7 +725,7 @@ in a system header file or compiler.</para>
   <varlistentry>
   <term><emphasis role="bold">cache</emphasis></term>
   <listitem>
-<para>If this option is specified,
+<para>If this mode is specified,
 no configuration tests will be rerun
 and all results will be taken from cache.
 &scons; will report an error
@@ -807,7 +802,7 @@ directory.</para>
 <replaceable>type</replaceable>
 specifies the kind of debugging info to emit.
 Multiple types may be specified, separated by commas.
-The following entries show the recognized types:</para>
+The following types are recognized:</para>
 
   <variablelist> <!-- nested list -->
   <varlistentry>
@@ -1019,34 +1014,22 @@ should take place in parallel.)
   </varlistentry>
 
   <varlistentry id="opt-diskcheck">
-  <term><option>--diskcheck=<replaceable>type</replaceable>[<replaceable>,type</replaceable>...]</option></term>
+  <term><option>--diskcheck=<replaceable>type</replaceable></option></term>
   <listitem>
 <para>Enable specific checks for
 whether or not there is a file on disk
 where the SCons configuration expects a directory
-(or vice versa),
-and whether or not RCS or SCCS sources exist
+(or vice versa)
 when searching for source and include files.
-The
 <replaceable>type</replaceable>
-argument can be set to:
+can be an available diskcheck type or
+the special tokens <literal>all</literal> or <literal>none</literal>.
+A comma-separated string can be used to select multiple checks.
+The default setting is <literal>all</literal>.
 </para>
 
+<para>Current available checks are:</para>
   <variablelist> <!-- nested list -->
-  <varlistentry>
-  <term><emphasis role="bold">all</emphasis></term>
-  <listitem>
-<para>Enable all checks explicitly (the default behavior).</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><emphasis role="bold">none</emphasis></term>
-  <listitem>
-<para>Disable all such checks.</para>
-  </listitem>
-  </varlistentry>
-
   <varlistentry>
   <term><emphasis role="bold">match</emphasis></term>
   <listitem>
@@ -1054,40 +1037,17 @@ argument can be set to:
 match SCons' expected configuration.</para>
   </listitem>
   </varlistentry>
-
-  <varlistentry>
-  <term><emphasis role="bold">rcs</emphasis></term>
-  <listitem>
-<para>Check for the existence of an RCS source
-for any missing source or include files.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><emphasis role="bold">sccs</emphasis></term>
-  <listitem>
-<para>Check for the existence of an SCCS source
-for any missing source or include files.</para>
-  </listitem>
-  </varlistentry>
   </variablelist> <!-- end nested list -->
 
 <para>
-Multiple checks can be specified separated by commas.
-for example,
-<option>--diskcheck=sccs,rcs</option>
-would still check for SCCS and RCS sources,
-but disable the check for on-disk matches of files and directories.
 Disabling some or all of these checks
 can provide a performance boost for large configurations,
 or when the configuration will check for files and/or directories
 across networked or shared file systems,
 at the slight increased risk of an incorrect build
-or of not handling errors gracefully
-(if include files really should be
-found in SCCS or RCS, for example,
-or if a file really does exist
-where the SCons configuration expects a directory).</para>
+or of not handling errors gracefully.
+</para>
+
   </listitem>
   </varlistentry>
 
@@ -1095,9 +1055,9 @@ where the SCons configuration expects a directory).</para>
   <term><option>--duplicate=<replaceable>ORDER</replaceable></option></term>
   <listitem>
 <para>There are three ways to duplicate files in a build tree: hard links,
-soft (symbolic) links and copies. The default behaviour of SCons is to
-prefer hard links to soft links to copies. You can specify different
-behaviours with this option.
+soft (symbolic) links and copies. The default policy is to
+prefer hard links to soft links to copies. You can specify a
+different policy with this option.
 <replaceable>ORDER</replaceable>
 must be one of
 <emphasis>hard-soft-copy</emphasis>
@@ -1107,7 +1067,7 @@ must be one of
 <emphasis>soft-copy</emphasis>
 or
 <emphasis>copy</emphasis>.
-SCons will attempt to duplicate files using
+&SCons; will attempt to duplicate files using
 the mechanisms in the specified order.</para>
   </listitem>
   </varlistentry>
@@ -1126,31 +1086,28 @@ the mechanisms in the specified order.</para>
 
   <varlistentry id="opt-experimental">
     <term>
-      <option>--experimental=<replaceable>all</replaceable></option>,
-      <option>--experimental=<replaceable>none</replaceable></option>
+      <option>--experimental=<replaceable>feature</replaceable></option>
     </term>
     <listitem>
-      <para>Enable experimental features and/or tools. <emphasis role="strong">No Support offered for any features or tools enabled by this flag</emphasis></para>
-      <para>The default setting is none.</para>
+      <para>Enable experimental features and/or tools.
+        <replaceable>feature</replaceable> can be an available feature name or
+        the special tokens <literal>all</literal> or <literal>none</literal>.
+        A comma-separated string can be used to select multiple features.
+        The default setting is <literal>none</literal>.</para>
+      <para>Current available features are: <literal>ninja</literal>.</para>
+      <caution><para>
+        No Support offered for any features or tools enabled by this flag.
+      </para></caution>
       <para><emphasis>Available since &scons; 4.2.</emphasis></para>
     </listitem>
   </varlistentry>
 
-
   <varlistentry id="opt-f">
     <term>
-      <option>-f
-        <replaceable>file</replaceable>
-      </option>,
-      <option>--file=
-        <replaceable>file</replaceable>
-      </option>,
-      <option>--makefile=
-        <replaceable>file</replaceable>
-      </option>,
-      <option>--sconstruct=
-        <replaceable>file</replaceable>
-      </option>
+      <option>-f <replaceable>file</replaceable></option>,
+      <option>--file=<replaceable>file</replaceable></option>,
+      <option>--makefile=<replaceable>file</replaceable></option>,
+      <option>--sconstruct=<replaceable>file</replaceable></option>
     </term>
     <listitem>
       <para>Use

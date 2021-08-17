@@ -10,3 +10,6 @@ sphinx_rtd_theme
 lxml==4.6.3
 rst2pdf
 ninja
+
+# Needed for test/Parallel/failed-build/failed-build.py
+psutil

@@ -54,11 +54,11 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '4.1.1ayyyymmdd'
+default_version = '4.3.0ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
-python_version_unsupported = (3, 4, 0)  # highest unsupported version
-python_version_deprecated = (3, 5, 0)   # deprecated version
+python_version_unsupported = (3, 4, 0)
+python_version_deprecated = (3, 6, 0)
 python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
 
 # In the checked-in source, the value of SConsVersion in the following

@@ -282,8 +282,8 @@ Note that the source files will be scanned
 according to the suffix mappings in the
 <classname>SourceFileScanner</classname>
 object.
-See the section "Scanner Objects,"
-below, for more information.
+See the manpage section "Scanner Objects"
+for more information.
 </para>
 </summary>
 </builder>
@@ -387,8 +387,8 @@ Note that the source files will be scanned
 according to the suffix mappings in the
 <classname>SourceFileScanner</classname>
 object.
-See the section "Scanner Objects,"
-below, for more information.
+See the manpage section "Scanner Objects"
+for more information.
 </para>
 </summary>
 </builder>

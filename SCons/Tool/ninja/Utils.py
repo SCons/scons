@@ -39,14 +39,15 @@ def ninja_add_command_line_options():
               metavar='BOOL',
               action="store_true",
               default=False,
-              help='Disable ninja automatically building after scons')
+              help='Disable automatically running ninja after scons')
 
     AddOption('--disable-ninja',
               dest='disable_ninja',
               metavar='BOOL',
               action="store_true",
               default=False,
-              help='Disable ninja automatically building after scons')
+              help='Disable ninja generation and build with scons even if tool is loaded. '+
+                   'Also used by ninja to build targets which only scons can build.')
 
 
 def is_valid_dependent_node(node):
@@ -65,8 +66,6 @@ def is_valid_dependent_node(node):
         return node.children()
 
     return not node.get_env().get("NINJA_SKIP")
-
-
 
 
 def alias_to_ninja_build(node):
@@ -165,6 +164,7 @@ def get_targets_sources(node):
     slist = [rfile(s) for s in slist]
     return tlist, slist
 
+
 def get_path(node):
     """
     Return a fake path if necessary.
@@ -192,6 +192,7 @@ def src_file(node):
         if src.stat() is not None:
             return src
     return get_path(node)
+
 
 def get_rule(node, rule):
     tlist, slist = get_targets_sources(node)

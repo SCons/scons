@@ -5,9 +5,21 @@
                             Change Log
 
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
-NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
+NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 support will be dropped in the next major release.
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From William Deegan:
+    - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
+    - Fix version tests to work with updated scons --version output. (Date format changed)
+
+  From Mats Wichmann:
+    - Two small Python 3.10 fixes: one more docstring turned into raw
+      because it contained an escape; updated "helpful" syntax error message
+      from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
+
+
+RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 
   From Byron Platt:
     - Fix Install() issue when copytree recursion gives bad arguments that can
@@ -39,6 +51,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
       _concat function.  If set to False, it will prepend and append $( and $). That way the various
       Environment variables can use that rather than "$( _concat(...) $)".
+    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't 
+      installed but --experimental=ninja was specified.
+    - As part of experimental ninja tool, allow SetOption() to set both disable_execute_ninja and
+      disable_ninja.
 
   From Adam Gross:
     - Added support for remote caching. This feature allows for fetch and push of build outputs
@@ -80,6 +96,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update BuildTask to pass all targets to the progress object fixing an issue
       where multi-target build nodes only got the first target passed to the progress
       object.
+    - Fix a potential race condition in shared cache environments where the permissions are
+      not writeable for a moment after the file has been renamed and other builds (users) will copy
+      it out of the cache. Small reorganization of logic to copy files from cachedir. Moved CacheDir 
+      writeable permission code for copy to cache behind the atomic rename operation.
+    - Added marking of intermediate and and multi target nodes generated from SConf tests so that 
+      is_conftest() is more accurate.
+    - Added test for configure check failing to ensure it didn't break generating and running ninja.
+
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
@@ -127,6 +151,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and EnvironmentTests (asserts comparing with self).
       For consistency, env.Tool() now returns a tool object the same way
       Tool() has done.
+    - Change SConscript() missing SConscript behavior - if must_exist=False,
+      the warning is suppressed.
+    - Make sure TEMPFILEPREFIX can be set to an empty string (issue 3964)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
@@ -167,6 +194,7 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       This is a simpler fix which should avoid some problems identified with the initial PR.
       (Credit to Fredrik Medley for reporting the issue, the initial PR, and discussing and testing
        this solution)
+    - Minor edits to User Guide and manpage's header with copyright, released date changed.
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.

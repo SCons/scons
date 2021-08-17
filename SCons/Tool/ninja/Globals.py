@@ -31,7 +31,6 @@ NINJA_WHEREIS_MEMO = {}
 NINJA_STAT_MEMO = {}
 __NINJA_RULE_MAPPING = {}
 
-
 # These are the types that get_command can do something with
 COMMAND_TYPES = (
     SCons.Action.CommandAction,
