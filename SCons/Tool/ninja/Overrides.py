@@ -73,7 +73,8 @@ class NinjaNoResponseFiles(SCons.Platform.TempFileMunge):
         pass
 
 
-def ninja_always_serial(self, num, taskmaster):
+def ninja_always_serial(self, num, taskmaster, remote_cache=None,
+                        use_scheduler_v2=False):
     """Replacement for SCons.Job.Jobs constructor which always uses the Serial Job class."""
     # We still set self.num_jobs to num even though it's a lie. The
     # only consumer of this attribute is the Parallel Job class AND
