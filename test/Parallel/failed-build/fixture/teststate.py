@@ -30,7 +30,7 @@ def server_thread(PORT):
             # the two tasks will communicate with the server with basic get
             # requests, either updating or getting the state of the test to
             # know if they continue. The server is regluating the state and making
-            # the right criteria is in place from both tasks before moving the 
+            # the right criteria is in place from both tasks before moving the
             # test state forward.
 
             if gets.get('set_mycopy_started'):
@@ -41,7 +41,7 @@ def server_thread(PORT):
                 else:
                     response = Response.WAIT
                 S.mutex.release()
-                
+
             elif gets.get('get_mycopy_started'):
                 S.mutex.acquire()
                 if S.current_state == TestState.mycopy_started:
@@ -86,5 +86,5 @@ def server_thread(PORT):
         def log_message(self, format, *args):
             return
 
-    httpd = socketserver.TCPServer(("", PORT), S)
+    httpd = socketserver.TCPServer(("127.0.0.1", PORT), S)
     httpd.serve_forever()
