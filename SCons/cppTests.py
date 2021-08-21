@@ -878,10 +878,9 @@ if __name__ == '__main__':
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         try:
-            names = list(set(names))
+            names = sorted(set(names))
         except NameError:
             pass
-        names.sort()
         suite.addTests(list(map(tclass, names)))
     TestUnit.run(suite)
 

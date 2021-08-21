@@ -97,6 +97,7 @@ test.write('foo5.c', foo_contents)
 
 test.write('sl.c', """\
 #include <stdio.h>
+
 void
 sl(void)
 {
@@ -105,7 +106,11 @@ sl(void)
 """)
 
 test.write('slprog.c', """\
+#include <stdlib.h>
 #include <stdio.h>
+
+void sl(void);
+
 int
 main(int argc, char *argv[])
 {
