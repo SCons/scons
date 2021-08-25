@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,29 +22,23 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+This test is used to verify that the Buildability of a set of nodes
+is unaffected by various querying operations on those nodes:
 
-# This test is used to verify that the Buildability of a set of nodes
-# is unaffected by various querying operations on those nodes:
-#
-# 1) Calling exists() on a Node (e.g. from find_file) in a VariantDir
-#    will cause that node to be duplicated into the builddir.
-#    However, this should *not* occur during a dryrun (-n).  When not
-#    performed during a dryrun, this should not affect buildability.
-# 2) Calling is_derived() should not affect buildability.
+1) Calling exists() on a Node (e.g. from find_file) in a VariantDir
+   will cause that node to be duplicated into the builddir.
+   However, this should *not* occur during a dryrun (-n).  When not
+   performed during a dryrun, this should not affect buildability.
+2) Calling is_derived() should not affect buildability.
+"""
 
 import sys
-import TestSCons
 import os
 
-_exe = TestSCons._exe
-lib_ = TestSCons.lib_
-_lib = TestSCons._lib
-_obj = TestSCons._obj
-dll_ = TestSCons.dll_
-_dll = TestSCons._dll
+import TestSCons
+from TestSCons import _exe, lib_, _lib, _obj, dll_, _dll
 
 if os.name == 'posix':
     os.environ['LD_LIBRARY_PATH'] = '.'
