@@ -353,12 +353,20 @@ class EmitterProxy:
 
         return (target, source)
 
-
     def __eq__(self, other):
         return self.var == other.var
 
     def __lt__(self, other):
         return self.var < other.var
+
+    def __le__(self, other):
+        return self.var <= other.var
+
+    def __gt__(self, other):
+        return self.var > other.var
+
+    def __ge__(self, other):
+        return self.var >= other.var
 
 class BuilderBase:
     """Base class for Builders, objects that create output
