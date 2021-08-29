@@ -38,6 +38,7 @@ def generate(env):
     env['PKGINFO'] = 'pkginfo'
     env['PKGCHK'] = '/usr/sbin/pkgchk'
     env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'
+    env['HOST_OS'] = 'sunos'
 
 # Local Variables:
 # tab-width:4

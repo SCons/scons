@@ -3097,7 +3097,6 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
         that Platform's logic will handle setting this value.
         This value is immutable, and should not be changed by the user after
         the Environment is initialized.
-        Currently only set for Win32.
 </para>
     <para>
 Sets the host architecture for the Visual C++ compiler. If not set,
@@ -3127,7 +3126,6 @@ used on other OSes as well.
         that Platform's logic will handle setting this value.
         This value is immutable, and should not be changed by the user after
         the Environment is initialized.
-        Currently only set for Win32.
 </para>
     </listitem>
   </varlistentry>

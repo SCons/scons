@@ -36,6 +36,7 @@ def generate(env):
     env['MAXLINELENGTH']  = 2045000
 
     env['SHLIBSUFFIX'] = '.sl'
+    env['HOST_OS'] = 'hpux'
 
 # Local Variables:
 # tab-width:4

@@ -126,7 +126,6 @@ else:
         that Platform's logic will handle setting this value.
         This value is immutable, and should not be changed by the user after
         the Environment is initialized.
-        Currently only set for Win32.
 </para>
     </summary>
 </cvar>
@@ -139,7 +138,6 @@ else:
         that Platform's logic will handle setting this value.
         This value is immutable, and should not be changed by the user after
         the Environment is initialized.
-        Currently only set for Win32.
 </para>
     </summary>
 </cvar>
