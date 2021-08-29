@@ -50,6 +50,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'cygwin', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('os2')
         assert str(p) == 'os2', p
@@ -57,6 +59,8 @@ class PlatformTestCase(unittest.TestCase):
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
+        assert env['HOST_OS'] == 'os2', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('posix')
         assert str(p) == 'posix', p
@@ -65,6 +69,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'posix', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('irix')
         assert str(p) == 'irix', p
@@ -73,6 +79,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'irix', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('aix')
         assert str(p) == 'aix', p
@@ -81,6 +89,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'aix', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('sunos')
         assert str(p) == 'sunos', p
@@ -89,6 +99,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'sunos', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('hpux')
         assert str(p) == 'hpux', p
@@ -97,6 +109,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'hpux', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
@@ -104,6 +118,8 @@ class PlatformTestCase(unittest.TestCase):
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
+        assert env['HOST_OS'] == 'win32', env
+        assert env['HOST_ARCH'] != '', env
 
         exc_caught = None
         try:

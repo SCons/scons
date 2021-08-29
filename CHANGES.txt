@@ -18,6 +18,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       because it contained an escape; updated "helpful" syntax error message
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
 
+  From Aaron Franke:
+    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
+      Before this change, these were only defined for Win32 and OS/2.
+
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 

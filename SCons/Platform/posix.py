@@ -28,6 +28,7 @@ will usually be imported through the generic SCons.Platform.Platform()
 selection method.
 """
 
+import platform
 import subprocess
 
 from SCons.Platform import TempFileMunge
@@ -94,6 +95,8 @@ def generate(env):
     env['SHLIBSUFFIX']    = '.so'
     env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
     env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['HOST_OS']        = 'posix'
+    env['HOST_ARCH']      = platform.machine()
     env['PSPAWN']         = pspawn
     env['SPAWN']          = spawn
     env['SHELL']          = 'sh'
