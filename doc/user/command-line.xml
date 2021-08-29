@@ -1403,7 +1403,7 @@ foo.c
 
         <para>
 
-        You can now explicity set the &COLOR; build variable
+        You can now explicitly set the &COLOR; build variable
         to any of the specified allowed values:
 
         </para>
