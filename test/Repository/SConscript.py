@@ -28,7 +28,7 @@ Test how we handle SConscript calls when using a Repository.
 """
 
 import sys
-from TestSCons import TestSCons, _exe
+from TestSCons import TestSCons
 
 test = TestSCons()
 
