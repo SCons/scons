@@ -512,7 +512,6 @@
 
 <!-- Mailing lists -->
 
-<!ENTITY scons-announce "<email xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</email>">
 <!ENTITY scons-devel "<email xmlns='http://www.scons.org/dbxsd/v1.0'>scons-dev@scons.org</email>">
 <!ENTITY scons-users "<email xmlns='http://www.scons.org/dbxsd/v1.0'>scons-users@scons.org</email>">
 
