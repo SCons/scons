@@ -43,6 +43,13 @@ test.file_fixture('fixture/SConstruct',
 
 test.run(arguments='.')
 
+test.must_exist(test.workpath('test.exe'))
+test.must_exist(test.workpath('test.res'))
+test.must_exist(test.workpath('test.pdb'))
+test.must_exist(test.workpath('StdAfx-1.pch'))
+test.must_exist(test.workpath('StdAfx-1.obj'))
+
+
 test.pass_test()
 
 # Local Variables:

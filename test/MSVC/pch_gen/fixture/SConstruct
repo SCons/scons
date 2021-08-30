@@ -9,9 +9,9 @@ env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
 
 def pch_gen(env, target, source, for_signature):
-    return 'StdAfx.pch'
+    return 'StdAfx-1.pch'
 env['PCH'] = pch_gen
-env.PCH('StdAfx.cpp')[0]
+env.PCH('StdAfx-1.pch', 'StdAfx.cpp')[0]
 env.Program('test', ['test.cpp', env.RES('test.rc')], LIBS=['user32'])
 
 env.Object('fast', 'foo.cpp')
