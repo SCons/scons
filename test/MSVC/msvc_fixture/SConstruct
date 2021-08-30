@@ -1,11 +1,10 @@
-import os
+# msvc_fixture's SConstruct
+
 DefaultEnvironment(tools=[])
 # TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
 # and ideally we shouldn't need to specify the tools= list anyway.
 env = Environment(tools=['mssdk', 'msvc', 'mslink'])
-env.Append(CPPPATH=os.environ.get('INCLUDE', ''),
-           LIBPATH=os.environ.get('LIB', ''),
-           CCFLAGS='/DPCHDEF')
+env.Append(CCFLAGS='/DPCHDEF')
 env['PDB'] = File('test.pdb')
 env['PCHSTOP'] = 'StdAfx.h'
 env['PCH'] = env.PCH('StdAfx.cpp')[0]

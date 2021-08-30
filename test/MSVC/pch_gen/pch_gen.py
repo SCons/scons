@@ -34,8 +34,10 @@ test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
 
+# include all of msvc_fixture's files
 test.dir_fixture('../msvc_fixture')
 
+# Then we'll replace the SConstruct with one specific to this test.
 test.file_fixture('fixture/SConstruct',
                   'SConstruct')
 
