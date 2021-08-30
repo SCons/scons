@@ -110,7 +110,7 @@ def object_emitter(target, source, env, parent_emitter):
     # See issue #2505 for a discussion of what to do if it turns
     # out this assumption causes trouble in the wild:
     # https://github.com/SCons/scons/issues/2505
-    pch=env.subst("$PCH", target=target, source=source)
+    pch=env.get('PCH', False) and env.subst("$PCH", target=target, source=source)
     if pch:
         if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
             env.Depends(target, pch)
@@ -234,7 +234,7 @@ def generate(env):
         shared_obj.add_emitter(suffix, shared_object_emitter)
 
     env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
-    env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s \\\"/Fp%s\\\""%(PCHSTOP or "",File(PCH(env,target,source, for_signature)))) or ""}'])
+    env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s \\\"/Fp%s\\\""%(PCHSTOP or "",File(callable(PCH) and PCH(env,target,source,for_signature) or PCH))) or ""}'])
     env['_MSVC_OUTPUT_FLAG'] = msvc_output_flag
     env['_CCCOMCOM']  = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'

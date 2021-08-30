@@ -128,7 +128,7 @@ def _dllEmitter(target, source, env, paramtp):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    if version_num >= 11.0:
+    if version_num >= 11.0 and env.get('PCH', False):
         pch_subst = env.subst('$PCH',target=target, source=source)
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
@@ -187,7 +187,7 @@ def prog_emitter(target, source, env):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    if version_num >= 11.0:
+    if version_num >= 11.0 and env.get('PCH', False):
         pch_subst = env.subst('$PCH',target=target, source=source)
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
