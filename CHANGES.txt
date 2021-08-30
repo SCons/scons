@@ -13,9 +13,19 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
 
+  From Ryan Egesdahl:
+    - Small fix to ensure CLVar default value is an empty list.
+      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+      Code contributed by MongoDB.
+
+  From Aaron Franke:
+    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
+      Before this change, these were only defined for Win32 and OS/2.
+
   From Daniel Moody:
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
       issue affected CommandGeneratorAction function actions specifically.
+    - Added support for the PCH environment variable to support subst generators. 
 
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
@@ -23,15 +33,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - EmitterProxy rich comparison set is completed (checker warning).
       Added __le__, __gt__, __ge__.
-
-  From Aaron Franke:
-    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
-      Before this change, these were only defined for Win32 and OS/2.
-
-  From Ryan Egesdahl:
-    - Small fix to ensure CLVar default value is an empty list.
-      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
-      Code contributed by MongoDB.
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 

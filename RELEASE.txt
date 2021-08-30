@@ -31,6 +31,8 @@ FIXES
   Code contributed by MongoDB.
 - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
   issue affected CommandGeneratorAction function actions specifically.
+- Fix PCH not being evaluated by subst() where necessary.
+
 
 IMPROVEMENTS
 ------------
