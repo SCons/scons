@@ -1213,7 +1213,7 @@ class CLVar(UserList):
     """
 
     def __init__(self, initlist=None):
-        super().__init__(Split(initlist))
+        super().__init__(Split(initlist if initlist is not None else []))
 
     def __add__(self, other):
         return super().__add__(CLVar(other))

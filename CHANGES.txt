@@ -24,6 +24,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Define HOST_OS and HOST_ARCH in the environment for all platforms.
       Before this change, these were only defined for Win32 and OS/2.
 
+  From Ryan Egesdahl:
+    - Small fix to ensure CLVar default value is an empty list.
+      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+      Code contributed by MongoDB.
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 
