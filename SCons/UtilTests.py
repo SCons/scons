@@ -41,6 +41,7 @@ from SCons.Util import (
     PrependPath,
     Proxy,
     Selector,
+    Split,
     WhereIs,
     adjustixes,
     containsAll,
@@ -581,6 +582,48 @@ class UtilTestCase(unittest.TestCase):
         assert env_dict['BLAT'] == [os.path.normpath('/baz/foo'),
                                     os.path.normpath('/foo/bar'),
                                     os.path.normpath('/baz/blat')], env_dict['BLAT']
+
+
+    def test_Split(self):
+        """Test the Split() function."""
+        
+        # None or no arguments should raise a TypeError
+        with self.assertRaises(TypeError):
+            Split()
+        with self.assertRaises(TypeError):
+            Split(None)
+
+        # Single objects should be returned as a single-item list
+        f = 'abc'
+        assert is_List(Split(f)), type(Split(f))
+        assert Split(f) == ['abc'], Split(f)
+
+        f = 123
+        assert is_List(Split(f)), type(Split(f))
+        assert Split(f) == [123], Split(f)
+
+        # Any other non-string object should be returned as-is
+        f = []
+        assert is_List(Split(f)), type(Split(f))
+        assert Split(f) == [], Split(f)
+
+        f = ()
+        assert is_Tuple(Split(f)), type(Split(f))
+        assert Split(f) == (), Split(f)
+
+        f = ['abc', 123]
+        assert is_List(Split(f)), type(Split(f))
+        assert Split(f) == ['abc', 123], Split(f)
+
+        f = ('abc', 123)
+        assert is_Tuple(Split(f)), type(Split(f))
+        assert Split(f) == ('abc', 123), Split(f)
+
+        # Strings should be split on spaces
+        f = ' this is a string    '
+        assert is_List(Split(f)), type(Split(f))
+        assert Split(f) == ['this', 'is', 'a', 'string'], Split(f)
+
 
     def test_CLVar(self):
         """Test the command-line construction variable class"""

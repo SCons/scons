@@ -29,6 +29,10 @@ FIXES
     - Small fix to ensure CLVar default value is an empty list.
       See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
       Code contributed by MongoDB.
+    - Change Split() so it raises a TypeError when passed no arguments
+      or `None`. This reinforces the intended purpose of the function
+      and makes it easier to catch errors.
+      Code contributed by MongoDB.
 
 IMPROVEMENTS
 ------------

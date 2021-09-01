@@ -1162,18 +1162,25 @@ system object.  For other platforms, `path` is unchanged.
 display = DisplayEngine()
 
 def Split(arg) -> list:
-    """Returns a list of file names or other objects.
+    """Return a list of file names or other objects.
 
     If `arg` is a string, it will be split on strings of white-space
     characters within the string.  If `arg` is already a list, the list
     will be returned untouched. If `arg` is any other type of object,
-    it will be returned as a list containing just the object.
+    except for None, it will be returned as a list containing just the
+    object.
+
+    Raises:
+        TypeError: if `arg` is None.
 
     >>> print(Split(" this  is  a  string  "))
     ['this', 'is', 'a', 'string']
     >>> print(Split(["stringlist", " preserving ", " spaces "]))
     ['stringlist', ' preserving ', ' spaces ']
     """
+    if arg is None:
+        raise TypeError("Split() needs an argument")
+
     if is_List(arg) or is_Tuple(arg):
         return arg
 
