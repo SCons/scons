@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -219,13 +219,15 @@
     This guide intends to coach you how to use &SCons; effectively
     and efficiently, by providing a range of examples and usage scenarios.
     As such it is not exactly a tutorial (as usually those build
-    a single example topic from start to finish), but for beginners
-    to &SCons; it <emphasis>is</emphasis> recommended to step through
-    the first 10 chapters in sequence as this will give a solid
-    grounding in the principles on which &SCons; is built.
-    If following this trail, you can feel free to initially skip
-    sections on extending &SCons;, such as Writing your own Decider
-    function, and come back to those if the need arises.
+    a single example topic from start to finish), but if you are
+    just starting with &SCons; it <emphasis>is</emphasis> recommended
+    you step through the first 10 chapters
+    in sequence as this will give a solid
+    grounding in the principles of working with &SCons;.
+    If you follow that trail, you can feel free to initially skip
+    sections on extending &SCons;, such as
+    <emphasis>Writing your own Decider Function</emphasis>,
+    and come back to those if the need arises.
 
     </para>
 
@@ -239,12 +241,13 @@
 
     <para>
 
-    It is often worth having the &SCons; man page open in a separate
+    It is often useful to keep &SCons; man page open in a separate
     browser tab or window to refer to as a complement to this Guide,
     as the User Guide does not attempt to provide every detail.
-    Note in this Guide, Appendices A-D duplicate information that appears
-    in the man page - this is to allow intra-document links to
-    definitions of key features to work.
+    While this Guide's Appendices A-D do duplicate information that appears
+    in the man page (this is to allow intra-document links to
+    definitions of &convars;, builders, tools and environment methods
+    to work), the rest of the man page is unique content.
 
     </para>
 
@@ -267,7 +270,7 @@
 
   <para>
 
-  Although this User's Guide isn't as complete as it could be,
+  Although this User's Guide may not be as complete as it could be,
   the development process does emphasize
   making sure that the &SCons; man page is kept up-to-date
   with new features.
