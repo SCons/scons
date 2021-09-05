@@ -22,7 +22,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -481,7 +483,7 @@ cc -o hello hello.o
     </section>
 
     <section>
-    <title>Writing Your Own Custom &Decider; Function</title>
+    <title>Extending &SCons;: Writing Your Own Custom &Decider; Function</title>
 
       <para>
 
