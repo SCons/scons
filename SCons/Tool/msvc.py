@@ -211,6 +211,20 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
                                   targets='$CHANGED_TARGETS')
 
 
+def gen_ccpchflags(env, target, source, for_signature):
+    """
+    Generator for CCPCHFLAGS
+    if PCH is not defined or evaluates to a false value, then return empty string.
+    """
+    pch_subst = env.get('PCH', False) and env.subst('$PCH',target=target, source=source)
+
+    if not pch_subst:
+        return ""
+
+    pch_file = env.File(pch_subst)
+
+    return SCons.Util.CLVar(["/Yu$PCHSTOP","\"/Fp%s\""%str(pch_file)])
+
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -234,7 +248,7 @@ def generate(env):
         shared_obj.add_emitter(suffix, shared_object_emitter)
 
     env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
-    env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s \\\"/Fp%s\\\""%(PCHSTOP or "",File(callable(PCH) and PCH(env,target,source,for_signature) or PCH))) or ""}'])
+    env['CCPCHFLAGS'] = gen_ccpchflags
     env['_MSVC_OUTPUT_FLAG'] = msvc_output_flag
     env['_CCCOMCOM']  = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'

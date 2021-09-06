@@ -49,6 +49,13 @@ test.must_exist(test.workpath('test.pdb'))
 test.must_exist(test.workpath('StdAfx-1.pch'))
 test.must_exist(test.workpath('StdAfx-1.obj'))
 
+test.run(arguments="-c .")
+test.run(arguments="DISABLE_PCH=1 .")
+
+test.must_exist(test.workpath('test.exe'))
+test.must_exist(test.workpath('test.res'))
+test.must_exist(test.workpath('test.pdb'))
+test.fail_test(condition = ('/YuStdAfx.h' in test.stdout()), message="Shouldn't have /YuStdAfx.h in compile line when PCH is disabled")
 
 test.pass_test()
 
