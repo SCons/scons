@@ -19,6 +19,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - EmitterProxy rich comparison set is completed (checker warning).
       Added __le__, __gt__, __ge__.
+    - gcc tool when reading throwaway input does not need to call to_str.
+      gcc responds with version line normal, but the "This is free software"
+      message is translated, blew up on some locales.
 
   From Aaron Franke:
     - Define HOST_OS and HOST_ARCH in the environment for all platforms.
