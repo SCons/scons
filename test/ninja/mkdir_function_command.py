@@ -60,6 +60,7 @@ env.Command('test6/test7', ['test1/test2', 'test0'], Mkdir('$TARGET'))
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
+test.must_contain_single_instance_of(test.stdout(), ["scons: Building targets ..."])
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
 test.must_exist([
     test.workpath('test0'),
@@ -73,12 +74,12 @@ test.must_exist([
 test.run(arguments='-c', stdout=None)
 test.must_contain_all_lines(test.stdout(), [
     'Removed build.ninja'])
-os.rmdir('test0') 
+os.rmdir('test0')
 os.rmdir('test1/test2')
 os.rmdir('test1')
 os.rmdir('test3/test4')
 os.rmdir('test3')
-os.rmdir('test5') 
+os.rmdir('test5')
 os.rmdir('test6/test7')
 os.rmdir('test6')
 
@@ -104,6 +105,7 @@ test.must_not_exist([
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
 test.run(program=program, stdout=None)
+test.must_not_contain_any_line(test.stdout(), ["scons: Building targets ..."])
 test.must_exist([
     test.workpath('test0'),
     test.workpath('test1/test2'),
