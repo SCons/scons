@@ -246,7 +246,7 @@
     as the User Guide does not attempt to provide every detail.
     While this Guide's Appendices A-D do duplicate information that appears
     in the man page (this is to allow intra-document links to
-    definitions of &convars;, builders, tools and environment methods
+    definitions of &consvars;, builders, tools and environment methods
     to work), the rest of the man page is unique content.
 
     </para>
