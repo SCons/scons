@@ -13,6 +13,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
 
+  From Daniel Moody:
+    - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
+      issue affected CommandGeneratorAction function actions specifically.
+
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
       because it contained an escape; updated "helpful" syntax error message
@@ -61,7 +65,7 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
       _concat function.  If set to False, it will prepend and append $( and $). That way the various
       Environment variables can use that rather than "$( _concat(...) $)".
-    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't 
+    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't
       installed but --experimental=ninja was specified.
     - As part of experimental ninja tool, allow SetOption() to set both disable_execute_ninja and
       disable_ninja.
@@ -94,9 +98,9 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
       object.
     - Fix a potential race condition in shared cache environments where the permissions are
       not writeable for a moment after the file has been renamed and other builds (users) will copy
-      it out of the cache. Small reorganization of logic to copy files from cachedir. Moved CacheDir 
+      it out of the cache. Small reorganization of logic to copy files from cachedir. Moved CacheDir
       writeable permission code for copy to cache behind the atomic rename operation.
-    - Added marking of intermediate and and multi target nodes generated from SConf tests so that 
+    - Added marking of intermediate and and multi target nodes generated from SConf tests so that
       is_conftest() is more accurate.
     - Added test for configure check failing to ensure it didn't break generating and running ninja.
 

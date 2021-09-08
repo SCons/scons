@@ -25,10 +25,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-    - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
-    - Small fix to ensure CLVar default value is an empty list.
-      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
-      Code contributed by MongoDB.
+- Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
+- Small fix to ensure CLVar default value is an empty list.
+  See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+  Code contributed by MongoDB.
+- Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
+  issue affected CommandGeneratorAction function actions specifically.
 
 IMPROVEMENTS
 ------------
