@@ -3,7 +3,7 @@ import SCons
 SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])
 
-env = Environment()
+env = Environment(tools=[])
 env.Tool('ninja')
 
 

@@ -26,6 +26,7 @@ import shlex
 import textwrap
 
 import SCons
+from SCons.Subst import SUBST_CMD
 from SCons.Tool.ninja import NINJA_CUSTOM_HANDLERS, NINJA_RULES, NINJA_POOLS
 from SCons.Tool.ninja.Globals import __NINJA_RULE_MAPPING
 from SCons.Tool.ninja.Utils import get_targets_sources, get_dependencies, get_order_only, get_outputs, get_inputs, \
@@ -129,7 +130,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
     # Generate a real CommandAction
     if isinstance(action, SCons.Action.CommandGeneratorAction):
         # pylint: disable=protected-access
-        action = action._generate(tlist, slist, sub_env, 0, executor=executor)
+        action = action._generate(tlist, slist, sub_env, SUBST_CMD, executor=executor)
 
     variables = {}
 
