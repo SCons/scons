@@ -121,23 +121,18 @@ else:
 <cvar name="HOST_OS">
     <summary>
 <para>
-        The name of the host operating system used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
+        The name of the host operating system.
+        Can be set when creating a &consenv; by passing as a keyword
+        argument in the &f-link-Environment; call; should not be
+        changed otherwise.
+        If not specified in the &f-Environment; call, will be set to
+        the defaults for the particular platform, which is in turn
+        auto-detected unless the <parameter>platform</parameter>
+        argument to &f-Environment; is given.
 </para>
-    </summary>
-</cvar>
-
-<cvar name="HOST_ARCH">
-    <summary>
 <para>
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
+        This &consvar; is informational and does not currently
+        affect construction activities.
 </para>
     </summary>
 </cvar>
@@ -145,10 +140,48 @@ else:
 <cvar name="TARGET_OS">
     <summary>
 <para>
-        The name of the target operating system for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_OS, and the user can override it.
-        Currently only set for Win32.
+        The name of the operating system compiled objects
+        created by this &consenv; should target.
+        Can be set when creating a &consenv; by passing as a keyword
+        argument in the &f-link-Environment; call; should not be
+        changed otherwise.
+        If not specified in the &f-Environment; call, will be set to
+        the defaults for the particular platform, which is in turn
+        auto-detected unless the <parameter>platform</parameter>
+        argument to &f-Environment; is given.
+        Defaults to the same value as &cv-HOST_OS;.
+</para>
+<para>
+        This &consvar; is informational and does not currently
+        affect construction activities.
+</para>
+    </summary>
+</cvar>
+
+<cvar name="HOST_ARCH">
+    <summary>
+<para>
+        The name of the host hardware architecture.
+        Can be set when creating a &consenv; by passing as a keyword
+        argument in the &f-link-Environment; call; should not be
+        changed otherwise.
+        If not specified in the &f-Environment; call, will be set to
+        the defaults for the particular platform, which is in turn
+        auto-detected unless the <parameter>platform</parameter>
+        argument to &f-Environment; is given.
+        Note the detected value of the architecture may not be identical to
+        that from the &Python; <systemitem>platform.machine</systemitem> method.
+</para>
+<para>
+        On the Windows platform, if the Microsoft Visual C++ compiler
+        is available, &t-link-msvc; tool setup is done using
+        &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;. Changing the values at
+        any later time will not cause the tool to be reinitialized.
+        Valid values for this usage are the same as for &cv-link-TARGET_ARCH;.
+</para>
+<para>
+        On other platforms, this &consvar; is informational and does
+        not currently affect construction activities.
 </para>
     </summary>
 </cvar>
@@ -156,14 +189,54 @@ else:
 <cvar name="TARGET_ARCH">
     <summary>
 <para>
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
+        The name of the hardware architecture compiled objects
+        created by this &consenv; should target.
+        Can be set when creating a &consenv; by passing as a keyword
+        argument in the &f-link-Environment; call; should not be
+        changed otherwise.
+        If not specified in the &f-Environment; call, will be set to
+        the defaults for the particular platform, which is in turn
+        auto-detected unless the <parameter>platform</parameter>
+        argument to &f-Environment; is given.
+        Defaults to the same value as &cv-link-HOST_ARCH;.
 </para>
-    </summary>
+<para>
+        On the Windows platform, if the Microsoft Visual C++ compiler
+        is available, &t-link-msvc; tool setup is done using
+        &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;. Changing the values at
+        any later time will not cause the tool to be reinitialized.
+        Compiled objects will be in the target architecture if
+        the compilation system supports generating for that target.
+        The latest compiler which can fulfill the requirement will
+        be selected, unless a different version is directed by the
+        value of the &cv-link-MSVC_VERSION; &consvar;.
+</para>
+<para>
+        On the Windows/msvc combination, valid target values are
+        <literal>x86</literal>,
+        <literal>arm</literal>,
+        <literal>i386</literal>
+        for 32-bit targets and
+        <literal>amd64</literal>,
+        <literal>arm64</literal>,
+        <literal>em64t</literal>,
+        <literal>x86_64</literal>
+        and <literal>ia64</literal> (Itanium)
+        for 64-bit targets.
+        Note that not all target architectures are
+        supported for all Visual Studio / MSVC versions.
+        Check the relevant Microsoft documentation.
+</para>
+<para>
+        For example, if you want to compile 64-bit binaries, you would set
+        <literal>TARGET_ARCH='x86_64'</literal> when creating the &consenv;.
+</para>
+<para>
+        On other platforms, this &consvar; is informational and does
+        not currently affect construction activities.
+</para>
+</summary>
 </cvar>
-
 
 <cvar name="PROGPREFIX">
 <summary>
@@ -226,19 +299,40 @@ The suffix used for shared object file names.
 </summary>
 </cvar>
 
+<cvar name="TEMPFILE">
+<summary>
+<para>
+A callable object used to handle overly long command line strings,
+since operations which call out to a shell will fail
+if the line is longer than the shell can accept.
+This tends to particularly impact linking.
+The tempfile object stores the command line in a temporary
+file in the appropriate format, and returns
+an alternate command line so the invoked tool will make
+use of the contents of the temporary file.
+If you need to replace the default tempfile object,
+the callable should take into account the settings of
+&cv-link-MAXLINELENGTH;, 
+&cv-link-TEMPFILEPREFIX;,
+&cv-link-TEMPFILESUFFIX;,
+&cv-link-TEMPFILEARGJOIN;,
+&cv-link-TEMPFILEDIR;
+and
+&cv-link-TEMPFILEARGESCFUNC;.
+</para>
+</summary>
+</cvar>
+
 <cvar name="TEMPFILEPREFIX">
 <summary>
 <para>
-The prefix for a temporary file used
-to store lines lines longer than $MAXLINELENGTH
-as operations which call out to a shell will fail
-if the line is too long, which particularly
-impacts linking.
-The default is '@', which works for the Microsoft
+The prefix for the name of the temporary file used
+to store command lines exceeding &cv-link-MAXLINELENGTH;.
+The default prefix is <literal>'@'</literal>, which works for the Microsoft
 and GNU toolchains on Windows.
 Set this appropriately for other toolchains,
-for example '-@' for the diab compiler
-or '-via' for ARM toolchain.
+for example <literal>'-@'</literal> for the diab compiler
+or <literal>'-via'</literal> for ARM toolchain.
 </para>
 </summary>
 </cvar>
@@ -246,11 +340,11 @@ or '-via' for ARM toolchain.
 <cvar name="TEMPFILESUFFIX">
 <summary>
 <para>
-The suffix used for the temporary file name
-used for long command lines. The name should
-include the dot ('.') if one is wanted as
+The suffix for the name of the temporary file used
+to store command lines exceeding &cv-link-MAXLINELENGTH;.
+The suffix shouldinclude the dot ('.') if one is wanted as
 it will not be added automatically.
-The default is '.lnk'.
+The default is <filename>.lnk</filename>.
 </para>
 </summary>
 </cvar>
@@ -258,8 +352,12 @@ The default is '.lnk'.
 <cvar name="TEMPFILEARGJOIN">
 <summary>
 <para>
-The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by &cv-MAXLINELENGTH;.
-The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
+The string to use to join the arguments passed to
+&cv-link-TEMPFILE; when the command line exceeds the limit set by
+&cv-link-MAXLINELENGTH;.
+The default value is a space.
+However for MSVC, MSLINK the default is a line separator
+as defined by <systemitem>os.linesep</systemitem>.
 Note this value is used literally and not expanded by the subst logic.
 </para>
 </summary>
@@ -268,7 +366,7 @@ Note this value is used literally and not expanded by the subst logic.
 <cvar name="TEMPFILEDIR">
 <summary>
 <para>
-The directory to create the tempfile in.
+The directory to create the long-lines temporary file in.
 </para>
 </summary>
 </cvar>
@@ -276,10 +374,15 @@ The directory to create the tempfile in.
 <cvar name="TEMPFILEARGESCFUNC">
 <summary>
 <para>
-A default argument escape function is ``SCons.Subst.quote_spaces``.
-If you need to apply extra operations on a command argument before
-writing to a temporary file(fix Windows slashes, normalize paths, etc.),
-please set `TEMPFILEARGESCFUNC` variable to a custom function. Example::
+The default argument escape function is 
+<function>SCons.Subst.quote_spaces</function>.
+If you need to apply extra operations on a command argument
+(to fix Windows slashes, normalize paths, etc.)
+before writing to the temporary file,
+you can set the &cv-TEMPFILEARGESCFUNC; variable to a custom function.
+Such a function takes a single string argument and returns
+a new string with any modifications applied.
+Example:
 </para>
 
 <example_commands>

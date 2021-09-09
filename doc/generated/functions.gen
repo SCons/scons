@@ -428,12 +428,12 @@ Multiple targets can be passed in to a single call to
 Intelligently append values to &consvars; in the &consenv;
 named by <varname>env</varname>.
 The &consvars; and values to add to them are passed as
-<parameter>key=val</parameter> pairs (Python keyword arguments).
+<parameter>key=val</parameter> pairs (&Python; keyword arguments).
 &f-env-Append; is designed to allow adding values
 without normally having to know the data type of an existing &consvar;.
-Regular Python syntax can also be used to manipulate the &consvar;,
+Regular &Python; syntax can also be used to manipulate the &consvar;,
 but for that you must know the type of the &consvar;:
-for example, different Python syntax is needed to combine
+for example, different &Python; syntax is needed to combine
 a list of values with a single string value, or vice versa.
 Some pre-defined &consvars; do have type expectations
 based on how &SCons; will use them,
@@ -544,7 +544,7 @@ described above.
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a Python exception will be raised.
+do not make sense and a &Python; exception will be raised.
 </para>
 
 <para>
@@ -944,7 +944,7 @@ same-named existing construction variables.
 <para>
 An action can be an external command,
 specified as a string,
-or a callable Python object;
+or a callable &Python; object;
 see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
@@ -1149,7 +1149,7 @@ env.Decider('content')
 <para>
 In addition to the above already-available functions, the
 <parameter>function</parameter>
-argument may be a Python function you supply.
+argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
@@ -1609,7 +1609,7 @@ may be an Action object
 for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
-or executable Python function,
+or executable &Python; function,
 each of which will be converted
 into an Action object
 and then executed.
@@ -1618,7 +1618,7 @@ Any additional arguments to &f-Execute;
 are passed on to the &f-link-Action; factory function
 which actually creates the Action object.
 The exit value of the command
-or return value of the Python function
+or return value of the &Python; function
 will be returned.
 </para>
 
@@ -1924,7 +1924,7 @@ will also be returned by this function.
     <term><function>Flatten</function>(<parameter>sequence</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Flatten</methodname>(<parameter>sequence</parameter>)</term>
     <listitem><para>
-Takes a sequence (that is, a Python list or tuple)
+Takes a sequence (that is, a &Python; list or tuple)
 that may contain nested sequences
 and returns a flattened list containing
 all of the individual elements in any sequence.
@@ -1932,7 +1932,7 @@ This can be helpful for collecting
 the lists returned by calls to Builders;
 other Builders will automatically
 flatten lists specified as input,
-but direct Python manipulation of
+but direct &Python; manipulation of
 these lists does not.
 </para>
 
@@ -1952,7 +1952,7 @@ objects = ['f1.o', foo, 'f2.o', bar, 'f3.o']
 # the Builder will flatten the list automatically:
 Program(source = objects)
 
-# If you need to manipulate the list directly using Python, you need to
+# If you need to manipulate the list directly using &Python;, you need to
 # call Flatten() yourself, or otherwise handle nested lists:
 for object in Flatten(objects):
     print(str(object))
@@ -3780,7 +3780,7 @@ by the chosen
 <para>
 The optional <parameter>dbm_module</parameter>
 argument specifies which
-Python database module to use
+&Python; database module to use
 for reading/writing the file.
 The module must be imported first;
 then the imported module name
@@ -3788,9 +3788,9 @@ is passed as the argument.
 The default is a custom
 <systemitem>SCons.dblite</systemitem>
 module that uses pickled
-Python data structures,
-which works on all Python versions.
-See documentation of the Python
+&Python; data structures,
+which works on all &Python; versions.
+See documentation of the &Python;
 <systemitem>dbm</systemitem> module
 for other available types.
 </para>
@@ -4139,16 +4139,22 @@ they are not added and included in the returned list.
     <term><function>Split</function>(<parameter>arg</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Split</methodname>(<parameter>arg</parameter>)</term>
     <listitem><para>
-Returns a list of file names or other objects.
 If <parameter>arg</parameter> is a string,
-it will be split on strings of white-space characters
-within the string,
-making it easier to write long lists of file names.
-If <parameter>arg</parameter> is already a list,
-the list will be returned untouched.
+splits on whitespace and returns a list of
+strings without whitespace.
+This mode is the most common case,
+and can be used to split a list of filenames
+(for example) rather than having to type them as a
+list of individually quoted words.
+If <parameter>arg</parameter> is a list or tuple
+returns <parameter>arg</parameter> unchanged.
+Use this form to specify strings where whitespace
+should be preserved
+(it is not necessary to call &f-Split; at all in this case,
+but as a convenience it just works as a pass-through
+so you don't have to check whether to call &f-Split; or not).
 If <parameter>arg</parameter> is any other type of object,
-it will be returned as a list
-containing just the object.
+returns a list containing just the object.
 </para>
 
 <para>
@@ -4232,7 +4238,7 @@ to be available for expansion.
 This is usually necessary if you are
 calling
 &f-env-subst;
-from within a Python function used
+from within a &Python; function used
 as an SCons action.
 </para>
 
@@ -4245,12 +4251,11 @@ argument
 may specify a conversion function
 that will be used in place of
 the default.
-For example, if you want Python objects
+For example, if you want &Python; objects
 (including SCons Nodes)
-to be returned as Python objects,
-you can use the Python
-&lambda;
-idiom to pass in an unnamed function
+to be returned as &Python; objects,
+you can use a &Python;
+lambda expression to pass in an unnamed function
 that simply returns its unconverted argument.
 </para>
 
@@ -4378,7 +4383,7 @@ the tool object, previously it did not return
     <term><function>Value</function>(<parameter>value, [built_value], [name]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Value</methodname>(<parameter>value, [built_value], [name]</parameter>)</term>
     <listitem><para>
-Returns a Node object representing the specified Python value.  Value
+Returns a Node object representing the specified &Python; value.  Value
 Nodes can be used as dependencies of targets.  If the result of
 calling
 <function>str</function>(<parameter>value</parameter>)
