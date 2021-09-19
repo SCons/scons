@@ -32,7 +32,7 @@ FIXES
 - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
   issue affected CommandGeneratorAction function actions specifically.
 - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
-  but instead it should yield '$(' instead.
+  but instead it should yield '$('.
 
 IMPROVEMENTS
 ------------
