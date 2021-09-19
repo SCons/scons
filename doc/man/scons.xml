@@ -2302,9 +2302,9 @@ that can be used in SConscript files.  Quick links:
 <refsect2 id='construction_environments'>
 <title>Construction Environments</title>
 
-<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which SConscript
-files communicate build information to
-&scons;.
+<para>A <firstterm>&ConsEnv;</firstterm> is the basic means by which
+you communicate build information to
+&SCons;.
 A new &consenv; is created using the
 &f-link-Environment;
 function:</para>
@@ -2327,9 +2327,9 @@ env['FOO'] = 'foo'
 <!--TODO: how can the user tell which settings are init-only? -->
 <para>Note that certain settings which affect tool detection are
 referenced only during initialization, and so need to
-be supplied as part of the call to &f-Environment;.
-For example, setting &cv-link-MSVC_VERSION; selects the
-version of Microsoft Visual C++ you wish to use,
+be supplied as part of the call to &f-link-Environment;.
+For example, setting &cv-link-MSVC_VERSION; in the &f-Environment;
+call selects the version of Microsoft Visual C++ you wish to use,
 but setting it after the &consenv; is constructed has no effect.
 </para>
 
@@ -2363,8 +2363,8 @@ and 'm' to
 <para>
 An existing &consenv; can be duplicated by calling the &f-link-env-Clone;
 method. Without arguments, it will be a copy with the same
-settings. Otherwise, &f-env-Clone; takes the same arguments as &f-Environment;,
-and uses the arguments to create a modified copy.
+settings. Otherwise, &f-env-Clone; takes the same arguments as
+&f-link-Environment;, and uses the arguments to create a modified copy.
 </para>
 
 <para>
@@ -2385,9 +2385,6 @@ be initialized for a different platform:</para>
 
 <programlisting language="python">
 env = Environment(platform='cygwin')
-env = Environment(platform='os2')
-env = Environment(platform='posix')
-env = Environment(platform='win32')
 </programlisting>
 
 <para>Specifying a platform initializes the appropriate
@@ -2396,23 +2393,35 @@ to use and generate file names with prefixes
 and suffixes appropriate for that platform.</para>
 
 <para>Note that the
-<emphasis role="bold">win32</emphasis>
+<literal>win32</literal>
 platform adds the
-<envar>SystemDrive</envar>
+<varname>SystemDrive</varname>
 and
-<envar>SystemRoot</envar>
+<varname>SystemRoot</varname>
 variables from the user's external environment
 to the &consenv;'s
-<envar>ENV</envar>
+<varname>ENV</varname>
 dictionary.
 This is so that any executed commands
 that use sockets to connect with other systems
-(such as fetching source files from
-external CVS repository specifications like
-<literal>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</literal>)
 will work on Windows systems.</para>
 
-<para>The <parameter>platform</parameter> argument may be a function or callable object,
+<para>The <parameter>platform</parameter> argument may be
+a string value representing
+one of the pre-defined platforms
+(<literal>aix</literal>,
+<literal>cygwin</literal>,
+<literal>darwin</literal>,
+<literal>hpux</literal>,
+<literal>irix</literal>,
+<literal>os2</literal>,
+<literal>posix</literal>,
+<literal>sunos</literal> or
+<literal>win32</literal>),
+or it may be be a callable platform object
+returned by a call to &f-link-Platform;
+selecting a pre-defined platform,
+or it may be a user-supplied callable,
 in which case the &Environment; method
 will call it to update
 the new &consenv;:</para>
@@ -2423,6 +2432,18 @@ def my_platform(env):
 
 env = Environment(platform=my_platform)
 </programlisting>
+
+<para>
+Note that supplying a non-default platform or custom
+fuction for initialization
+may bypass settings that should happen for the host system
+and should be used with care.
+It is most useful in the case where the platform is an alternative for
+the one that would be auto-detected,
+such as <literal>cygwin</literal>
+on a system which would otherwise
+identify as <literal>win32</literal>.
+</para>
 
 <para>
 The optional <parameter>tools</parameter> and <parameter>toolpath</parameter>
@@ -2446,13 +2467,13 @@ See <xref linkend="commandline_construction_variables"/> for details.
 &SCons; has a large number of predefined tools
 (more properly, <firstterm>tool specifications</firstterm>)
 which are used to help initialize the &consenv;.
-An &scons; tool is only responsible for setup.
-For example, if the SConscript file declares
+An &SCons; tool is only responsible for setup.
+For example, if the &SConscript; file declares
 the need to construct an object file from
 a C-language source file by calling the
 &b-link-Object; builder, then a tool representing
 an available C compiler needs to have run first,
-to set up the builder and all the &consvars;
+to set up that builder and all the &consvars;
 it needs in the associated &consenv;; the tool itself
 is not called in the process of the build. Normally this
 happens invisibly: &scons; has per-platform
@@ -5275,7 +5296,7 @@ b = Builder("build_it &lt; $SOURCE &gt; $TARGET",
   <term><parameter>ensure_suffix</parameter></term>
   <listitem>
 <para>If set to a true value,
-ensures that targets will end in 
+ensures that targets will end in
 <parameter>suffix</parameter>.
 Thus, the suffix will also be added to any target strings
 that have a suffix that is not already <parameter>suffix</parameter>.
