@@ -224,7 +224,7 @@ def gen_ccpchflags(env, target, source, for_signature):
     if SCons.Util.is_String(pch_subst):
         pch_subst = target.dir.File(pch_subst)
 
-    return SCons.Util.CLVar(["/Yu$PCHSTOP","/Fp%s"%pch_subst])
+    return SCons.Util.CLVar(["/Yu$PCHSTOP", "/Fp%s" % pch_subst])
 
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
