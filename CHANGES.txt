@@ -12,6 +12,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
+    - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+      but instead it should yield '$(' instead.
 
   From Daniel Moody:
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
