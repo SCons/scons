@@ -1,10 +1,10 @@
-A new SCons release, 4.1.0, is now available
+A new SCons release, 4.2.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.1.0:
+Here is a summary of the changes since 4.2.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -31,6 +31,8 @@ FIXES
   Code contributed by MongoDB.
 - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
   issue affected CommandGeneratorAction function actions specifically.
+- Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+  but instead it should yield '$('.
 
 IMPROVEMENTS
 ------------

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +21,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -30,7 +28,7 @@ import os
 
 test = TestSCons.TestSCons()
 
-foo1 = test.workpath('foo1.txt')
+# foo1 = test.workpath('foo1.txt')
 # foo2  = test.workpath('foo2.txt')
 # foo1a = test.workpath('foo1a.txt')
 # foo2a = test.workpath('foo2a.txt')
@@ -50,6 +48,8 @@ foo1Text = linesep.join(textparts)
 foo2Text = '|*'.join(textparts)
 foo1aText = foo1Text + linesep
 foo2aText = foo2Text + '|*'
+
+issue_4021_text = r'<HintPath>..\..\..\NETCore\bin\$(Platform)\$(Configuration)\Datalogics.PDFL.dll</HintPath>'
 
 test.up_to_date(arguments='.')
 
@@ -81,6 +81,7 @@ test.must_match('foo1a.txt', foo1aText, mode=match_mode)
 test.must_match('bar1a.txt', foo1aText, mode=match_mode)
 test.must_match('foo2a.txt', foo2aText, mode=match_mode)
 test.must_match('bar2a.txt', foo2aText, mode=match_mode)
+test.must_match('issue-4021.txt', issue_4021_text, mode=match_mode)
 check_times()
 
 # write the contents and make sure the files
