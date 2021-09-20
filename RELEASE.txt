@@ -19,8 +19,10 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+  environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+  This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+  introduced by Aaron Franke (listed below) were merged.
 
 FIXES
 -----
