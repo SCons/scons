@@ -14,6 +14,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix version tests to work with updated scons --version output. (Date format changed)
     - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
       but instead it should yield '$('.
+    - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+      environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+      This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+      introduced by Aaron Franke (listed below) were merged.
 
   From Daniel Moody:
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
