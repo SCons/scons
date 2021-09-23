@@ -228,18 +228,42 @@ def get_host_target(env):
 
     return (host, target, req_target_platform)
 
+# Enable prerelease version(s) via vswhere query argument.
+# When enabled, an installed prerelease version will likely be the default msvc version.
+_MSVC_CHECK_PRERELEASE = os.environ.get('MSVC_CHECK_PRERELEASE')
+_prerelease = ['-prerelease'] if _MSVC_CHECK_PRERELEASE in ('1', 'true', 'True') else []
+
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
-_VCVER = ["14.2", "14.1", "14.1Exp", "14.0", "14.0Exp", "12.0", "12.0Exp", "11.0", "11.0Exp", "10.0", "10.0Exp", "9.0", "9.0Exp","8.0", "8.0Exp","7.1", "7.0", "6.0"]
+_VCVER = [
+    "14.3",
+    "14.2",
+    "14.1", "14.1Exp",
+    "14.0", "14.0Exp",
+    "12.0", "12.0Exp",
+    "11.0", "11.0Exp",
+    "10.0", "10.0Exp",
+    "9.0", "9.0Exp",
+    "8.0", "8.0Exp",
+    "7.1",
+    "7.0",
+    "6.0"]
 
 # if using vswhere, configure command line arguments to probe for installed VC editions
 _VCVER_TO_VSWHERE_VER = {
+    '14.3': [
+        ["-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"] , # BuildTools
+        # TODO: remove _prerelease when VS 2022 is released
+        _prerelease + ["-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
+        _prerelease + ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"] , # BuildTools
+        ],
     '14.2': [
-        ["-version", "[16.0, 17.0)", ], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[16.0, 17.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
         ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
         ],
     '14.1':    [
-        ["-version", "[15.0, 16.0)", ], # default: Enterprise, Professional, Community (order unpredictable?)
+        ["-version", "[15.0, 16.0)"], # default: Enterprise, Professional, Community (order unpredictable?)
         ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
         ],
     '14.1Exp': [
@@ -248,6 +272,8 @@ _VCVER_TO_VSWHERE_VER = {
 }
 
 _VCVER_TO_PRODUCT_DIR = {
+    '14.3': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
     '14.2': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
     '14.1': [

@@ -238,7 +238,8 @@ def get_output(vcbat, args=None, env=None):
     # or synced with the the common_tools_var # settings in vs.py.
     vs_vc_vars = [
         'COMSPEC',  # path to "shell"
-        'VS160COMNTOOLS',  # path to common tools for given version
+        'VS170COMNTOOLS',  # path to common tools for given version
+        'VS160COMNTOOLS',
         'VS150COMNTOOLS',
         'VS140COMNTOOLS',
         'VS120COMNTOOLS',

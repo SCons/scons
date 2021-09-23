@@ -379,7 +379,10 @@ class _GenerateV10User(_UserGenerator):
 
     def __init__(self, dspfile, source, env):
         version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
-        if version_num >= 14.2:
+        if version_num >= 14.3:
+            # Visual Studio 2022 is considered to be version 17.
+            self.versionstr = '17.0'
+        elif version_num >= 14.2:
             # Visual Studio 2019 is considered to be version 16.
             self.versionstr = '16.0'
         elif version_num >= 14.1:
@@ -1599,7 +1602,10 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr)
-        if self.version_num >= 14.2:
+        if self.version_num >= 14.3:
+            # Visual Studio 2022 is considered to be version 17.
+            self.file.write('# Visual Studio 17\n')
+        elif self.version_num >= 14.2:
             # Visual Studio 2019 is considered to be version 16.
             self.file.write('# Visual Studio 16\n')
         elif self.version_num > 14.0:
