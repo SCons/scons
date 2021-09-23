@@ -230,8 +230,7 @@ def get_host_target(env):
 
 # Enable prerelease version(s) via vswhere query argument.
 # When enabled, an installed prerelease version will likely be the default msvc version.
-_MSVC_CHECK_PRERELEASE = os.environ.get('MSVC_CHECK_PRERELEASE')
-_prerelease = ['-prerelease'] if _MSVC_CHECK_PRERELEASE in ('1', 'true', 'True') else []
+_MSVC_CHECK_PRERELEASE = os.environ.get('MSVC_CHECK_PRERELEASE') in ('1', 'true', 'True')
 
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
@@ -253,11 +252,12 @@ _VCVER = [
 _VCVER_TO_VSWHERE_VER = {
     '14.3': [
         ["-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
-        ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"] , # BuildTools
-        # TODO: remove _prerelease when VS 2022 is released
-        _prerelease + ["-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
-        _prerelease + ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"] , # BuildTools
-        ],
+        ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ] + [
+        # TODO: remove after VS 2022 is released
+        ["-prerelease", "-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-prerelease", "-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ] if _MSVC_CHECK_PRERELEASE else [],
     '14.2': [
         ["-version", "[16.0, 17.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
         ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
