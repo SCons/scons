@@ -210,7 +210,7 @@ Example:
 </para>
 
 <example_commands>
-env['PCH'] = 'StdAfx.pch'
+env['PCH'] = File('StdAfx.pch')
 </example_commands>
 </summary>
 </cvar>
