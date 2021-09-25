@@ -44,6 +44,7 @@ import SCons.Tool.msvs
 import SCons.Util
 
 from .MSCommon import msvc_setup_env_once, msvc_exists
+from .MSCommon.common import get_pch_node
 
 def pdbGenerator(env, target, source, for_signature):
     try:
@@ -128,11 +129,11 @@ def _dllEmitter(target, source, env, paramtp):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    pch_subst = env.get('PCH', False) and env.subst('$PCH',target=target, source=source)
-    if version_num >= 11.0 and pch_subst:
+    pch_node = get_pch_node(env, target, source)
+    if version_num >= 11.0 and pch_node:
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
-        pchobj = SCons.Util.splitext(pch_subst)[0] + '.obj'
+        pchobj = SCons.Util.splitext(str(pch_node))[0] + '.obj'
         # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
         if pchobj not in extrasources:
             extrasources.append(pchobj)
@@ -187,11 +188,11 @@ def prog_emitter(target, source, env):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    pch_subst = env.get('PCH', False) and env.subst('$PCH',target=target, source=source)
-    if version_num >= 11.0 and pch_subst:
+    pch_node = get_pch_node(env, target, source)
+    if version_num >= 11.0 and pch_node:
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
-        pchobj = SCons.Util.splitext(pch_subst)[0] + '.obj'
+        pchobj = SCons.Util.splitext(str(pch_node))[0] + '.obj'
         # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
         if pchobj not in extrasources:
             extrasources.append(pchobj)
