@@ -12,6 +12,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
+    - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+      Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
 
   From Ryan Egesdahl:
     - Small fix to ensure CLVar default value is an empty list.
