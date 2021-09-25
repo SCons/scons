@@ -12,6 +12,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
+    - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+      but instead it should yield '$('.
+    - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+      environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+      This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+      introduced by Aaron Franke (listed below) were merged.
     - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
       Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
 
