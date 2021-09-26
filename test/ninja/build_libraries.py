@@ -25,7 +25,7 @@ import os
 
 import TestSCons
 from TestCmd import IS_WINDOWS, IS_MACOS
-from TestSCons import _python_, _exe, _lib, lib_, _dll, dll_
+from TestSCons import _exe, _lib, lib_, _dll, dll_
 
 test = TestSCons.TestSCons()
 

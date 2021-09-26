@@ -24,64 +24,38 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify use of Visual Studio with a hierarchical build.
+Template for end-to-end test file.
+Replace this with a description of the test.
 """
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
+test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
 
-test.subdir('src', 'build', 'out')
+# include all of msvc_fixture's files
+test.dir_fixture('../msvc_fixture','src')
 
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-VariantDir('build', 'src', duplicate=0)
-SConscript('build/SConscript')
-""")
+# Then we'll replace the SConstruct with one specific to this test.
+test.file_fixture('fixture/SConstruct',
+                  'SConstruct')
 
-test.write('src/SConscript',"""
-# TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
-# and ideally we shouldn't need to specify the tools= list anyway.
-env = Environment(tools=['mssdk', 'msvc', 'mslink'])
-env['PCH'] = File('StdAfx.pch')
-env['PDB'] = '#out/test.pdb'
-env['PCHSTOP'] = 'StdAfx.h'
-env.PCH('StdAfx.cpp')
-env.Program('#out/test.exe', 'test.cpp')
-""")
+test.run(arguments='.')
 
-test.write('src/test.cpp', '''
-#include "StdAfx.h"
+test.must_exist(test.workpath('output1/test.exe'))
+test.must_exist(test.workpath('output1/test.res'))
+test.must_exist(test.workpath('output1/test.pdb'))
+test.must_exist(test.workpath('output1/StdAfx-1.pch'))
+test.must_exist(test.workpath('output1/StdAfx-1.obj'))
 
-int main(void) 
-{ 
-    return 1;
-}
-''')
+test.run(arguments="-c .")
+test.run(arguments="DISABLE_PCH=1 .")
 
-test.write('src/StdAfx.h', '''
-#include <windows.h>
-''')
-
-test.write('src/StdAfx.cpp', '''
-#include "StdAfx.h"
-''')
-
-test.run(arguments='out', stderr=None)
-
-test.must_exist(test.workpath('out/test.pdb'))
-test.must_exist(test.workpath('build/StdAfx.pch'))
-test.must_exist(test.workpath('build/StdAfx.obj'))
-
-test.run(arguments='-c out')
-
-test.must_not_exist(test.workpath('out/test.pdb'))
-test.must_not_exist(test.workpath('build/StdAfx.pch'))
-test.must_not_exist(test.workpath('build/StdAfx.obj'))
-
-
+test.must_exist(test.workpath('output1/test.exe'))
+test.must_exist(test.workpath('output1/test.res'))
+test.must_exist(test.workpath('output1/test.pdb'))
+test.fail_test(condition = ('/Yuoutput1/StdAfx.h' in test.stdout()), message="Shouldn't have output1/YuStdAfx.h in compile line when PCH is disabled")
 
 test.pass_test()
 
