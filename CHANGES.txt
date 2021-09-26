@@ -41,7 +41,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
       single dollar sign being used as a ninja escape character in the ninja file.
 
-
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
       because it contained an escape; updated "helpful" syntax error message
