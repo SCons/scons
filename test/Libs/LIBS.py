@@ -26,7 +26,11 @@
 import sys
 
 import TestSCons
-from TestSCons import _exe, lib_, _lib
+
+# Leave below to resolve sider complaints
+_exe = TestSCons._exe
+lib_ = TestSCons.lib_
+_lib = TestSCons._lib
 
 if sys.platform == 'win32':
     import SCons.Tool.MSCommon as msc

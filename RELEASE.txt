@@ -1,10 +1,10 @@
-A new SCons release, 4.1.0, is now available
+A new SCons release, 4.2.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.1.0:
+Here is a summary of the changes since 4.2.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -20,6 +20,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
 - Expanded ninja Mkdir to also support Mkdir actions.
+- Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+  Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
+- Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+  environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+  This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+  introduced by Aaron Franke (listed below) were merged.
 
 FIXES
 -----
@@ -30,6 +36,9 @@ FIXES
   Code contributed by MongoDB.
 - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
   issue affected CommandGeneratorAction function actions specifically.
+- Fix PCH not being evaluated by subst() where necessary.
+- Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+  but instead it should yield '$('.
 
 IMPROVEMENTS
 ------------

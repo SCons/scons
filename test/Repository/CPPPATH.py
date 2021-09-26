@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-from TestSCons import TestSCons, _exe
+from TestSCons import TestSCons
 
 test = TestSCons()
 

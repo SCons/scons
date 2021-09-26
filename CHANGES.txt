@@ -12,11 +12,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
+    - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+      but instead it should yield '$('.
+    - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+      environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+      This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+      introduced by Aaron Franke (listed below) were merged.
+    - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+      Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
+
+  From Ryan Egesdahl:
+    - Small fix to ensure CLVar default value is an empty list.
+      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+      Code contributed by MongoDB.
+
+  From Aaron Franke:
+    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
+      Before this change, these were only defined for Win32 and OS/2.
 
   From Daniel Moody:
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
       issue affected CommandGeneratorAction function actions specifically.
     - Expanded ninja Mkdir to also support Mkdir actions.
+    - Added support for the PCH environment variable to support subst generators. 
 
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
@@ -24,15 +42,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - EmitterProxy rich comparison set is completed (checker warning).
       Added __le__, __gt__, __ge__.
-
-  From Aaron Franke:
-    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
-      Before this change, these were only defined for Win32 and OS/2.
-
-  From Ryan Egesdahl:
-    - Small fix to ensure CLVar default value is an empty list.
-      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
-      Code contributed by MongoDB.
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 

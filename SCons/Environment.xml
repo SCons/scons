@@ -619,9 +619,9 @@ do not make sense and a Python exception will be raised.
 </para>
 
 <para>
-When using &f-env-Append; to modify &consvars; 
-which are path specifications (normally, 
-those names which end in <varname>PATH</varname>),
+When using &f-env-Append; to modify &consvars;
+which are path specifications (conventionally,
+the names of such end in <varname>PATH</varname>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
 The same goes for adding library names to &cv-LIBS;.
@@ -2171,7 +2171,7 @@ env.MergeShellPaths({'INCLUDE': ['c:/inc1', 'c:/inc2']}, prepend=0)
 Merges values from
 <parameter>arg</parameter>
 into &consvars; in the current &consenv;.
-If 
+If
 <parameter>arg</parameter>
 is not a dictionary,
 it is converted to one by calling
@@ -2362,7 +2362,7 @@ Interpreted options
 and the construction variables they affect
 are as specified for the
 &f-link-env-ParseFlags;
-method (which 
+method (which
 &f-env-MergeFlags; calls).
 See that method's description
 for a table of options and corresponding construction variables.
@@ -2370,13 +2370,13 @@ for a table of options and corresponding construction variables.
 
 <para>
 If &f-env-MergeFlags; cannot interpret the results of
-<parameter>command</parameter>, 
+<parameter>command</parameter>,
 you can suppply a custom
 <parameter>function</parameter> to do so.
-<parameter>function</parameter> 
+<parameter>function</parameter>
 must accept three arguments:
 the &consenv; to modify, the string returned
-by running <parameter>command</parameter>, 
+by running <parameter>command</parameter>,
 and the optional
 <parameter>unique</parameter> flag.
 </para>
@@ -2541,18 +2541,22 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
 
 <scons_function name="Platform">
 <arguments signature="global">
-(string)
+(plat)
+</arguments>
+<arguments signature="env">
+(plat)
 </arguments>
 <summary>
 <para>
-The
-&f-Platform;
-form returns a callable object
+When called as a global function,
+returns a callable platform object
+selected by <parameter>plat</parameter>
+(defaults to the detected platform for the
+current system)
 that can be used to initialize
-a construction environment using the
-platform keyword of the
-&f-Environment;
-function.
+a construction environment by passing it as the
+<parameter>platform</parameter> keyword argument to the
+&f-link-Environment; function.
 </para>
 
 <para>
@@ -2564,11 +2568,10 @@ env = Environment(platform=Platform('win32'))
 </example_commands>
 
 <para>
-The
-&f-env-Platform;
-form applies the callable object for the specified platform
-<parameter>string</parameter>
-to the environment through which the method was called.
+When called as a method of an environment,
+calls the platform object indicated by
+<parameter>plat</parameter>
+to update that environment.
 </para>
 
 <example_commands>
@@ -2576,22 +2579,7 @@ env.Platform('posix')
 </example_commands>
 
 <para>
-Note that the
-<literal>win32</literal>
-platform adds the
-<literal>SystemDrive</literal>
-and
-<literal>SystemRoot</literal>
-variables from the user's external environment
-to the construction environment's
-&cv-link-ENV;
-dictionary.
-This is so that any executed commands
-that use sockets to connect with other systems
-(such as fetching source files from
-external CVS repository specifications like
-<literal>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</literal>)
-will work on Windows systems.
+See the manpage section "Construction Environments" for more details.
 </para>
 </summary>
 </scons_function>

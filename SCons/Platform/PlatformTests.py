@@ -132,6 +132,36 @@ class PlatformTestCase(unittest.TestCase):
         SCons.Platform.Platform()(env)
         assert env != {}, env
 
+    def test_win32_no_arch_shell_variables(self):
+        """
+        Test that a usable HOST_ARCH is available when
+        neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE
+        is set for SCons.Platform.win32.get_architecture()
+        """
+
+        # Save values if defined
+        PA_6432 = os.environ.get('PROCESSOR_ARCHITEW6432')
+        PA = os.environ.get('PROCESSOR_ARCHITECTURE')
+        if PA_6432:
+            del(os.environ['PROCESSOR_ARCHITEW6432'])
+        if PA:
+            del(os.environ['PROCESSOR_ARCHITECTURE'])
+
+        p = SCons.Platform.win32.get_architecture()
+
+        # restore values
+        if PA_6432:
+            os.environ['PROCESSOR_ARCHITEW6432']=PA_6432
+        if PA:
+            os.environ['PROCESSOR_ARCHITECTURE']=PA
+
+        assert p.arch != '', 'SCons.Platform.win32.get_architecture() not setting arch'
+        assert p.synonyms != '', 'SCons.Platform.win32.get_architecture() not setting synonyms'
+
+
+
+
+
 
 class TempFileMungeTestCase(unittest.TestCase):
     def test_MAXLINELENGTH(self):
