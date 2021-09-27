@@ -3090,14 +3090,12 @@ and can be used to split a list of filenames
 (for example) rather than having to type them as a
 list of individually quoted words.
 If <parameter>arg</parameter> is a list or tuple
-returns <parameter>arg</parameter> unchanged.
-Use this form to specify strings where whitespace
-should be preserved
-(it is not necessary to call &f-Split; at all in this case,
-but as a convenience it just works as a pass-through
-so you don't have to check whether to call &f-Split; or not).
+returns the list or tuple unchanged.
 If <parameter>arg</parameter> is any other type of object,
 returns a list containing just the object.
+These non-string cases do not actually do any spliting,
+but allow an argument variable to be passed to
+&f-Split; without having to first check its type.
 </para>
 
 <para>
@@ -3108,9 +3106,9 @@ Example:
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-       f7.c
-       f8.c
-       f9.c
+    f7.c
+    f8.c
+    f9.c
 """)
 </example_commands>
 </summary>
@@ -3123,14 +3121,14 @@ files = Split("""
 <summary>
 <para>
 Performs construction variable interpolation
-on the specified string or sequence argument
-<parameter>input</parameter>.
+on <parameter>input</parameter>,
+which can be a string or a sequence.
 </para>
 
 <para>
 By default,
 leading or trailing white space will
-be removed from the result.
+be removed from the result,
 and all sequences of white space
 will be compressed to a single space character.
 Additionally, any
@@ -3149,9 +3147,8 @@ The
 <parameter>raw</parameter>
 argument may be set to
 <literal>2</literal>
-if you want to strip
-all characters between
-any
+if you want to additionally discard
+all characters between any
 <literal>$(</literal>
 and
 <literal>$)</literal>

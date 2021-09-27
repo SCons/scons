@@ -100,142 +100,135 @@ The suffix used for (static) object file names.
 </cvar>
 
 <cvar name="PLATFORM">
-<summary>
-<para>
-The name of the platform used to create the Environment.  If no platform is
-specified when the Environment is created,
-&scons;
-autodetects the platform.
-</para>
+  <summary>
+    <para>
+      The name of the platform used to create this &consenv;.
+      &SCons; sets this when initializing the platform,
+      which by default is auto-detected
+      (see the <parameter>platform</parameter>
+      argument to &f-link-Environment;).
+    </para>
 
-<example_commands>
-env = Environment(tools = [])
+    <example_commands>
+env = Environment(tools=[])
 if env['PLATFORM'] == 'cygwin':
     Tool('mingw')(env)
 else:
     Tool('msvc')(env)
-</example_commands>
-</summary>
+    </example_commands>
+  </summary>
 </cvar>
 
 <cvar name="HOST_OS">
-    <summary>
-<para>
-        The name of the host operating system.
-        Can be set when creating a &consenv; by passing as a keyword
-        argument in the &f-link-Environment; call; should not be
-        changed otherwise.
-        If not specified in the &f-Environment; call, will be set to
-        the defaults for the particular platform, which is in turn
-        auto-detected unless the <parameter>platform</parameter>
-        argument to &f-Environment; is given.
-</para>
-<para>
-        This &consvar; is informational and does not currently
-        affect construction activities.
-</para>
-    </summary>
+  <summary>
+    <para>
+      The name of the host operating system for the platform
+      used to create this &consenv;.
+      The platform code sets this when initializing
+      (see &cv-link-PLATFORM; and the
+      <parameter>platform</parameter> argument to &f-link-Environment;).
+    </para>
+    <para>
+      Should be considered immutable. 
+      &cv-HOST_OS; is not currently used by &SCons;,
+      but the option is reserved to do so in future
+    </para>
+  </summary>
 </cvar>
 
 <cvar name="TARGET_OS">
-    <summary>
-<para>
-        The name of the operating system compiled objects
-        created by this &consenv; should target.
-        Can be set when creating a &consenv; by passing as a keyword
-        argument in the &f-link-Environment; call; should not be
-        changed otherwise.
-        If not specified in the &f-Environment; call, will be set to
-        the defaults for the particular platform, which is in turn
-        auto-detected unless the <parameter>platform</parameter>
-        argument to &f-Environment; is given.
-        Defaults to the same value as &cv-HOST_OS;.
-</para>
-<para>
-        This &consvar; is informational and does not currently
-        affect construction activities.
-</para>
-    </summary>
+  <summary>
+    <para>
+      The name of the operating system that objects
+      created using this &consenv; should target.
+      Can be set when creating a &consenv; by passing as a keyword
+      argument in the &f-link-Environment; call;.
+    </para>
+    <para>
+      &cv-TARGET_OS; is not currently used by &SCons;
+      but the option is reserved to do so in future
+    </para>
+  </summary>
 </cvar>
 
 <cvar name="HOST_ARCH">
-    <summary>
-<para>
-        The name of the host hardware architecture.
-        Can be set when creating a &consenv; by passing as a keyword
-        argument in the &f-link-Environment; call; should not be
-        changed otherwise.
-        If not specified in the &f-Environment; call, will be set to
-        the defaults for the particular platform, which is in turn
-        auto-detected unless the <parameter>platform</parameter>
-        argument to &f-Environment; is given.
-        Note the detected value of the architecture may not be identical to
-        that from the &Python; <systemitem>platform.machine</systemitem> method.
-</para>
-<para>
-        On the Windows platform, if the Microsoft Visual C++ compiler
-        is available, &t-link-msvc; tool setup is done using
-        &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;. Changing the values at
-        any later time will not cause the tool to be reinitialized.
-        Valid values for this usage are the same as for &cv-link-TARGET_ARCH;.
-</para>
-<para>
-        On other platforms, this &consvar; is informational and does
-        not currently affect construction activities.
-</para>
-    </summary>
+  <summary>
+    <para>
+      The name of the host hardware architecture
+      used to create this &consenv;.
+      The platform code sets this when initializing
+      (see &cv-link-PLATFORM; and the
+      <parameter>platform</parameter> argument to &f-link-Environment;).
+      Note the detected name of the architecture may not be identical to
+      that returned by the &Python;
+      <systemitem>platform.machine</systemitem> method.
+    </para>
+    <para>
+      On the <literal>win32</literal> platform,
+      if the Microsoft Visual C++ compiler is available,
+      &t-link-msvc; tool setup is done using
+      &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;.
+      Changing the values at any later time will not cause
+      the tool to be reinitialized.
+      Valid host arch values are
+      <literal>x86</literal> and <literal>arm</literal>
+      for 32-bit hosts and
+      <literal>amd64</literal> and <literal>x86_64</literal>
+      for 64-bit hosts.
+    </para>
+    <para>
+      Should be considered immutable. 
+      &cv-HOST_ARCH; is not currently used by other platforms,
+      but the option is reserved to do so in future
+    </para>
+  </summary>
 </cvar>
 
 <cvar name="TARGET_ARCH">
-    <summary>
-<para>
-        The name of the hardware architecture compiled objects
-        created by this &consenv; should target.
-        Can be set when creating a &consenv; by passing as a keyword
-        argument in the &f-link-Environment; call; should not be
-        changed otherwise.
-        If not specified in the &f-Environment; call, will be set to
-        the defaults for the particular platform, which is in turn
-        auto-detected unless the <parameter>platform</parameter>
-        argument to &f-Environment; is given.
-        Defaults to the same value as &cv-link-HOST_ARCH;.
-</para>
-<para>
-        On the Windows platform, if the Microsoft Visual C++ compiler
-        is available, &t-link-msvc; tool setup is done using
-        &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;. Changing the values at
-        any later time will not cause the tool to be reinitialized.
-        Compiled objects will be in the target architecture if
-        the compilation system supports generating for that target.
-        The latest compiler which can fulfill the requirement will
-        be selected, unless a different version is directed by the
-        value of the &cv-link-MSVC_VERSION; &consvar;.
-</para>
-<para>
-        On the Windows/msvc combination, valid target values are
-        <literal>x86</literal>,
-        <literal>arm</literal>,
-        <literal>i386</literal>
-        for 32-bit targets and
-        <literal>amd64</literal>,
-        <literal>arm64</literal>,
-        <literal>em64t</literal>,
-        <literal>x86_64</literal>
-        and <literal>ia64</literal> (Itanium)
-        for 64-bit targets.
-        Note that not all target architectures are
-        supported for all Visual Studio / MSVC versions.
-        Check the relevant Microsoft documentation.
-</para>
-<para>
-        For example, if you want to compile 64-bit binaries, you would set
-        <literal>TARGET_ARCH='x86_64'</literal> when creating the &consenv;.
-</para>
-<para>
-        On other platforms, this &consvar; is informational and does
-        not currently affect construction activities.
-</para>
-</summary>
+  <summary>
+    <para>
+      The name of the hardware architecture that objects
+      created using this &consenv; should target.
+      Can be set when creating a &consenv; by passing as a keyword
+      argument in the &f-link-Environment; call.
+    </para>
+    <para>
+      On the <literal>win32</literal> platform,
+      if the Microsoft Visual C++ compiler is available,
+      &t-link-msvc; tool setup is done using
+      &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;.
+      If a value is not specified,
+      will be set to the same value as &cv-link-HOST_ARCH;.
+      Changing the value after the environment is initialized
+      will not cause the tool to be reinitialized.
+      Compiled objects will be in the target architecture if
+      the compilation system supports generating for that target.
+      The latest compiler which can fulfill the requirement will
+      be selected, unless a different version is directed by the
+      value of the &cv-link-MSVC_VERSION; &consvar;.
+    </para>
+    <para>
+      On the win32/msvc combination, valid target arch values are
+      <literal>x86</literal>,
+      <literal>arm</literal>,
+      <literal>i386</literal>
+      for 32-bit targets and
+      <literal>amd64</literal>,
+      <literal>arm64</literal>,
+      <literal>x86_64</literal>
+      and <literal>ia64</literal> (Itanium)
+      for 64-bit targets.
+      For example, if you want to compile 64-bit binaries, you would set
+      <literal>TARGET_ARCH='x86_64'</literal> when creating the &consenv;.
+      Note that not all target architectures are
+      supported for all Visual Studio / MSVC versions.
+      Check the relevant Microsoft documentation.
+    </para>
+    <para>
+      &cv-TARGET_ARCH; is not currently used by other compilation tools,
+      but the option is reserved to do so in future
+    </para>
+  </summary>
 </cvar>
 
 <cvar name="PROGPREFIX">
@@ -342,7 +335,7 @@ or <literal>'-via'</literal> for ARM toolchain.
 <para>
 The suffix for the name of the temporary file used
 to store command lines exceeding &cv-link-MAXLINELENGTH;.
-The suffix shouldinclude the dot ('.') if one is wanted as
+The suffix should include the dot ('.') if one is wanted as
 it will not be added automatically.
 The default is <filename>.lnk</filename>.
 </para>
