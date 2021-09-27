@@ -2316,8 +2316,8 @@ env = Environment()
 <para>&Consenv; attributes called
 <firstterm>&ConsVars;</firstterm> may be set
 either by specifying them as keyword arguments when the object is created
-or by assigning them a value after the object is created. These two are
-nominally equivalent:</para>
+or by assigning them a value after the object is created.
+These two are nominally equivalent:</para>
 
 <programlisting language="python">
 env = Environment(FOO='foo')
@@ -2326,12 +2326,25 @@ env['FOO'] = 'foo'
 
 <!--TODO: how can the user tell which settings are init-only? -->
 <para>Note that certain settings which affect tool detection are
-referenced only during initialization, and so need to
-be supplied as part of the call to &f-link-Environment;.
-For example, setting &cv-link-MSVC_VERSION; in the &f-Environment;
-call selects the version of Microsoft Visual C++ you wish to use,
-but setting it after the &consenv; is constructed has no effect.
+referenced only when the tools are initializided,
+so you either need either to supply them as part of the call to
+&f-link-Environment;, or defer tool initialization.
+For example, initializing the Microsoft Visual C++ version you wish to use:
 </para>
+
+<programlisting language="python">
+# initializes msvc to v14.1
+env = Environment(MSVC_VERSION="14.1")
+
+env = Environment()
+# msvc tool was initialized to default, does not reinitialize
+env['MSVC_VERSION'] = "14.1"
+
+env = Environment(tools=[])
+env['MSVC_VERSION'] = "14.1"
+# msvc tool initialization was deferred, so will pick up new value
+env.Tool('default')
+</programlisting>
 
 <para>As a convenience,
 &consvars; may also be set or modified by the
@@ -2440,7 +2453,7 @@ may bypass settings that should happen for the host system
 and should be used with care.
 It is most useful in the case where the platform is an alternative for
 the one that would be auto-detected,
-such as <literal>cygwin</literal>
+such as <literal>platform="cygwin"</literal>
 on a system which would otherwise
 identify as <literal>win32</literal>.
 </para>

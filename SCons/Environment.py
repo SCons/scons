@@ -970,13 +970,13 @@ class Base(SubstitutionEnvironment):
         self._dict['PLATFORM'] = str(platform)
         platform(self)
 
-        self._dict['HOST_OS']      = self._dict.get('HOST_OS',None)
-        self._dict['HOST_ARCH']    = self._dict.get('HOST_ARCH',None)
+        # these should be set by the platform, backstop just in case
+        self._dict['HOST_OS'] = self._dict.get('HOST_OS', None)
+        self._dict['HOST_ARCH'] = self._dict.get('HOST_ARCH', None)
 
-        # Now set defaults for TARGET_{OS|ARCH}
-        self._dict['TARGET_OS']      = self._dict.get('TARGET_OS',None)
-        self._dict['TARGET_ARCH']    = self._dict.get('TARGET_ARCH',None)
-
+        # these are not currently set by the platform, give them a default
+        self._dict['TARGET_OS'] = self._dict.get('TARGET_OS', None)
+        self._dict['TARGET_ARCH'] = self._dict.get('TARGET_ARCH', None)
 
         # Apply the passed-in and customizable variables to the
         # environment before calling the tools, because they may use
