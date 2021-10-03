@@ -41,6 +41,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - EmitterProxy rich comparison set is completed (checker warning).
       Added __le__, __gt__, __ge__.
+    - Fix gcc/g++ tool failing if "gcc --version" returns text which fails
+      to_String conversion (i.e., not UTF-8) - failure happens when tool
+      initialization checks version. For gcc, the initial version string is
+      not translated, for the rest, don't convert, just consume raw and discard.
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 

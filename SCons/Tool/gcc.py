@@ -88,7 +88,8 @@ def detect_version(env, cc):
         line = SCons.Util.to_str(pipe.stdout.readline())
         # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
         # So continue with reading to let the child process actually terminate.
-        while SCons.Util.to_str(pipe.stdout.readline()):
+        # We don't need to know the rest of the data, so don't bother decoding.
+        while pipe.stdout.readline():
             pass
 
 
