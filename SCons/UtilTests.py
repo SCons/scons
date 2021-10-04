@@ -585,6 +585,12 @@ class UtilTestCase(unittest.TestCase):
     def test_CLVar(self):
         """Test the command-line construction variable class"""
 
+        # the default value should be an empty list
+        d = CLVar()
+        assert isinstance(d, CLVar), type(d)
+        assert d.data == [], d.data
+        assert str(d) == '', str(d)
+
         # input to CLVar is a string - should be split
         f = CLVar('aa bb')
 

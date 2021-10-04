@@ -52,6 +52,7 @@ def generate(env):
     env['TEMPFILE']    = TempFileMunge
     env['TEMPFILEPREFIX'] = '@'
     env['MAXLINELENGTH']  = 2048
+    env['HOST_OS'] = 'cygwin'
 
 # Local Variables:
 # tab-width:4

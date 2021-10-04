@@ -1,15 +1,6 @@
-"""SCons.Tool.msvc
-
-Tool-specific initialization for Microsoft Visual C/C++.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,16 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.msvc
+
+Tool-specific initialization for Microsoft Visual C/C++.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
 
 import os.path
 import os
@@ -47,6 +45,7 @@ import SCons.Warnings
 import SCons.Scanner.RC
 
 from .MSCommon import msvc_exists, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
+from .MSCommon.common import get_pch_node
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -95,6 +94,7 @@ def pch_emitter(target, source, env):
 
     return (target, source)
 
+
 def object_emitter(target, source, env, parent_emitter):
     """Sets up the PCH dependencies for an object file."""
 
@@ -112,8 +112,8 @@ def object_emitter(target, source, env, parent_emitter):
     # See issue #2505 for a discussion of what to do if it turns
     # out this assumption causes trouble in the wild:
     # https://github.com/SCons/scons/issues/2505
-    if 'PCH' in env:
-        pch = env['PCH']
+    pch=get_pch_node(env, target, source)
+    if pch:
         if str(target[0]) != SCons.Util.splitext(str(pch))[0] + '.obj':
             env.Depends(target, pch)
 
@@ -126,6 +126,18 @@ def static_object_emitter(target, source, env):
 def shared_object_emitter(target, source, env):
     return object_emitter(target, source, env,
                           SCons.Defaults.SharedObjectEmitter)
+
+
+def gen_ccpchflags(env, target, source, for_signature):
+    """
+    Generator for CCPCHFLAGS
+    if PCH is not defined or evaluates to a false value, then return empty string.
+    """
+    pch_node = get_pch_node(env, target, source)
+    if not pch_node:
+        return ''
+        
+    return SCons.Util.CLVar(["/Yu$PCHSTOP", "/Fp%s" % pch_node])
 
 pch_action = SCons.Action.Action('$PCHCOM', '$PCHCOMSTR')
 pch_builder = SCons.Builder.Builder(action=pch_action, suffix='.pch',
@@ -213,6 +225,8 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
                                   targets='$CHANGED_TARGETS')
 
 
+
+
 def generate(env):
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -236,7 +250,7 @@ def generate(env):
         shared_obj.add_emitter(suffix, shared_object_emitter)
 
     env['CCPDBFLAGS'] = SCons.Util.CLVar(['${(PDB and "/Z7") or ""}'])
-    env['CCPCHFLAGS'] = SCons.Util.CLVar(['${(PCH and "/Yu%s \\\"/Fp%s\\\""%(PCHSTOP or "",File(PCH))) or ""}'])
+    env['CCPCHFLAGS'] = gen_ccpchflags
     env['_MSVC_OUTPUT_FLAG'] = msvc_output_flag
     env['_CCCOMCOM']  = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $CCPCHFLAGS $CCPDBFLAGS'
     env['CC']         = 'cl'

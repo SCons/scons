@@ -77,7 +77,7 @@ class BuildCommandLine:
         min = (time.daylight and time.altzone or time.timezone) // 60
         hr = min // 60
         min = -(min % 60 + hr * 100)
-        self.date = (time.strftime('%a, %d %b %Y %X', time.localtime())
+        self.date = (time.strftime('%a, %d %b %Y %X', time.localtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
                      + ' %+.4d' % min)
 
     def process_command_line_vars(self):

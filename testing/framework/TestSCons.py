@@ -39,7 +39,7 @@ import re
 import shutil
 import sys
 import time
-import subprocess
+import subprocess as sp
 import zipfile
 from collections import namedtuple
 
@@ -829,7 +829,7 @@ class TestSCons(TestCommon):
             result.append(os.path.join(d, 'linux'))
         return result
 
-    def java_where_java_home(self, version=None):
+    def java_where_java_home(self, version=None) -> str:
         """ Find path to what would be JAVA_HOME.
 
         SCons does not read JAVA_HOME from the environment, so deduce it.
@@ -839,53 +839,71 @@ class TestSCons(TestCommon):
 
         Returns: 
             path where JDK components live
+            Bails out of the entire test (skip) if not found.
         """
         if sys.platform[:6] == 'darwin':
-            # osx 10.11, 10.12
+            # osx 10.11+
             home_tool = '/usr/libexec/java_home'
-            java_home = False
+            java_home = ''
             if os.path.exists(home_tool):
-                java_home = subprocess.check_output(home_tool).strip()
-                java_home = java_home.decode()
+                cp = sp.run(home_tool, stdout=sp.PIPE, stderr=sp.STDOUT)
+                if cp.returncode == 0:
+                    java_home = cp.stdout.decode().strip()
 
             if version is None:
                 if java_home:
                     return java_home
-                else:
-                    homes = ['/System/Library/Frameworks/JavaVM.framework/Home',
-                             # osx 10.10
-                             '/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home']
-                    for home in homes:
-                        if os.path.exists(home):
-                            return home
-
+                for home in [
+                    '/System/Library/Frameworks/JavaVM.framework/Home',
+                    # osx 10.10
+                    '/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home'
+                ]:
+                    if os.path.exists(home):
+                        return home
             else:
                 if java_home.find('jdk%s' % version) != -1:
                     return java_home
-                else:
-                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
-                    if not os.path.exists(home):
-                        # This works on OSX 10.10
-                        home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
+                for home in [
+                    '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version,
+                    # osx 10.10
+                    '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
+                ]:
+                    if os.path.exists(home):
+                        return home
+            # if we fell through, make sure flagged as not found
+            home = ''
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..' % jar)
-        if os.path.isdir(home):
+
+        if home and os.path.isdir(home):
             return home
-        print("Could not determine JAVA_HOME: %s is not a directory" % home)
-        self.fail_test()
 
-    def java_mac_check(self, where_java_bin, java_bin_name):
-        # on Mac there is a place holder java installed to start the java install process
-        # so we need to check the output in this case, more info here:
-        # http://anas.pk/2015/09/02/solution-no-java-runtime-present-mac-yosemite/
-        sp = subprocess.Popen([where_java_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = sp.communicate()
-        sp.wait()
-        if "No Java runtime" in str(stderr):
-            self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n", from_fw=True)
+        self.skip_test(
+            "Could not run Java: unable to detect valid JAVA_HOME, skipping test.\n",
+            from_fw=True,
+        )
 
-    def java_where_jar(self, version=None):
+    def java_mac_check(self, where_java_bin, java_bin_name) -> None:
+        """Extra check for Java on MacOS.
+
+        MacOS has a place holder java/javac, which fails with a detectable
+        error if Java is not actually installed, and works normally if it is.
+        Note msg has changed over time.
+
+        Bails out of the entire test (skip) if not found.
+        """
+        cp = sp.run([where_java_bin, "-version"], stdout=sp.PIPE, stderr=sp.STDOUT)
+        if (
+            b"No Java runtime" in cp.stdout
+            or b"Unable to locate a Java Runtime" in cp.stdout
+        ):
+            self.skip_test(
+                "Could not find Java " + java_bin_name + ", skipping test.\n",
+                from_fw=True,
+            )
+
+    def java_where_jar(self, version=None) -> str:
         """ Find java archiver jar.
 
         Args:
@@ -906,7 +924,7 @@ class TestSCons(TestCommon):
 
         return where_jar
 
-    def java_where_java(self, version=None):
+    def java_where_java(self, version=None) -> str:
         """ Find java executable.
 
         Args:
@@ -925,7 +943,7 @@ class TestSCons(TestCommon):
 
         return where_java
 
-    def java_where_javac(self, version=None):
+    def java_where_javac(self, version=None) -> str:
         """ Find java compiler.
 
         Args:
@@ -971,7 +989,7 @@ class TestSCons(TestCommon):
                 self.javac_is_gcj = False
         return where_javac, version
 
-    def java_where_javah(self, version=None):
+    def java_where_javah(self, version=None) -> str:
         """ Find java header generation tool.
 
         TODO issue #3347 since JDK10, there is no separate javah command,
@@ -993,7 +1011,7 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java javah, skipping test(s).\n", from_fw=True)
         return where_javah
 
-    def java_where_rmic(self, version=None):
+    def java_where_rmic(self, version=None) -> str:
         """ Find java rmic tool.
 
         Args:

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,22 +22,22 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-import TestSCons
 import sys
 
+import TestSCons
+
+# Leave below to resolve sider complaints
+_exe = TestSCons._exe
+lib_ = TestSCons.lib_
+_lib = TestSCons._lib
+
 if sys.platform == 'win32':
-    _exe = '.exe'
-    bar_lib = 'bar.lib'
     import SCons.Tool.MSCommon as msc
     if not msc.msvc_exists():
-        bar_lib = 'libbar.a'
-else:
-    _exe = ''
-    bar_lib = 'libbar.a'
+        _lib = '.a'
+        lib_ = 'lib'
+bar_lib = lib_ + 'bar' + _lib
 
 test = TestSCons.TestSCons()
 
@@ -97,6 +99,7 @@ test.write('foo5.c', foo_contents)
 
 test.write('sl.c', """\
 #include <stdio.h>
+
 void
 sl(void)
 {
@@ -105,7 +108,11 @@ sl(void)
 """)
 
 test.write('slprog.c', """\
+#include <stdlib.h>
 #include <stdio.h>
+
+void sl(void);
+
 int
 main(int argc, char *argv[])
 {

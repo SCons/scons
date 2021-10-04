@@ -1,16 +1,39 @@
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be included
+  in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
   An SCons-specific DTD module, for use with SCons DocBook
   documentation, that contains names, phrases, acronyms, etc. used
-  throughout the SCons documentation.
+  throughout the SCons documentation. These are not just abbreviations -
+  defining these entities means there's a single place to control the
+  markup for those entities, rather than having to change something
+  many places in multiple documentation files.
 
 -->
 
-<!--
-
-  Us, and our command names
+<!-- Us, and our command names
 
   Convention: use &SCons; to refer to the project as a concept,
   use &scons; to refer to a command as you would invoke it.
@@ -23,12 +46,7 @@
 <!ENTITY sconsign       "<command xmlns='http://www.scons.org/dbxsd/v1.0'>sconsign</command>">
 
 
-
-<!--
-
-  Other applications that we reference.
-
--->
+<!-- Other applications that we reference.  -->
 
 <!ENTITY Aegis          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Aegis</application>">
 <!ENTITY Ant            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Ant</application>">
@@ -73,11 +91,7 @@
 <!ENTITY zip            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>zip</application>">
 
 
-<!--
-
-  Classes.
-
--->
+<!-- Classes.  -->
 
 <!ENTITY Action "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Action</classname>">
 <!ENTITY ActionBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ActionBase</classname>">
@@ -104,12 +118,7 @@
 <!ENTITY Wrapper "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Wrapper</classname>">
 
 
-
-<!--
-
-  Options, command-line.
-
--->
+<!-- Options, command-line.  -->
 
 <!ENTITY config "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--config</option>">
 <!ENTITY debug-duplicate "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--debug=duplicate</option>">
@@ -127,23 +136,15 @@
 <!ENTITY tree "<option xmlns='http://www.scons.org/dbxsd/v1.0'>--tree</option>">
 <!ENTITY Q "<option xmlns='http://www.scons.org/dbxsd/v1.0'>-Q</option>">
 
-<!--
 
-  Options, SConscript-settable.
-
--->
+<!-- Options, SConscript-settable.  -->
 
 <!ENTITY implicit_cache "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>implicit_cache</literal>">
 <!ENTITY implicit_deps_changed "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>implicit_deps_changed</literal>">
 <!ENTITY implicit_deps_unchanged "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>implicit_deps_unchanged</literal>">
 
 
-
-<!--
-
-  File and directory names.
-
--->
+<!-- File and directory names.  -->
 
 <!ENTITY build "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>build</filename>">
 <!ENTITY Makefile "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>Makefile</filename>">
@@ -159,10 +160,9 @@
 <!ENTITY src "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>src</filename>">
 
 
+<!-- Methods and functions.
 
-<!--
-
-  Methods and functions.  This includes functions from both
+  This includes functions from both
   the Build Engine and the Native Python Interface.
 
 -->
@@ -283,10 +283,14 @@
 <!ENTITY UnknownOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownOptions</function>">
 <!ENTITY UnknownVariables "<function xmlns='http://www.scons.org/dbxsd/v1.0'>UnknownVariables</function>">
 
+
 <!-- Environment methods -->
+
 <!ENTITY subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>subst</function>">
 
+
 <!-- Configure context functions -->
+
 <!ENTITY Message "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Message</function>">
 <!ENTITY Result "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Result</function>">
 <!ENTITY CheckCHeader "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CheckCHeader</function>">
@@ -306,21 +310,18 @@
 
 
 <!-- Python functions and classes -->
+
 <!ENTITY IndexError "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>IndexError</classname>">
 <!ENTITY NameError "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>NameError</classname>">
 <!ENTITY str "<function xmlns='http://www.scons.org/dbxsd/v1.0'>str</function>">
 <!ENTITY zipfile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>zipfile</function>">
 
 <!-- Obsolete, but referenced in old documents.  -->
+
 <!ENTITY Cache "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Cache</function>">
 
 
-
-<!--
-
-  Global variables.
-
--->
+<!-- Global variables.  -->
 
 <!ENTITY ARGLIST "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>ARGLIST</varname>">
 <!ENTITY ARGUMENTS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>ARGUMENTS</varname>">
@@ -329,12 +330,7 @@
 <!ENTITY DEFAULT_TARGETS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>DEFAULT_TARGETS</varname>">
 
 
-
-<!--
-
-  Construction variables.
-
--->
+<!-- Construction variables.  -->
 
 <!ENTITY BUILDERMAP "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>BUILDERMAP</varname>">
 <!ENTITY COLOR "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>COLOR</varname>">
@@ -348,24 +344,14 @@
 <!ENTITY TARSUFFIX "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>TARSUFFIX</varname>">
 
 
+<!-- Environment variables.  -->
 
-<!--
-
-  Environment variables.
-
--->
-
-<!ENTITY PATH "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>PATH</varname>">
-<!ENTITY PYTHONPATH "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>PYTHONPATH</varname>">
-<!ENTITY SCONSFLAGS "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>SCONSFLAGS</varname>">
+<!ENTITY PATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>PATH</envar>">
+<!ENTITY PYTHONPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>PYTHONPATH</envar>">
+<!ENTITY SCONSFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>SCONSFLAGS</envar>">
 
 
-
-<!--
-
-  Function and method arguments.
-
--->
+<!-- Function and method arguments.  -->
 
 <!ENTITY allowed_values "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>allowed_values</varname>">
 <!ENTITY build_dir "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>build_dir</varname>">
@@ -379,23 +365,13 @@
 <!ENTITY variant_dir "<varname xmlns='http://www.scons.org/dbxsd/v1.0'>variant_dir</varname>">
 
 
-
-<!--
-
-  Values of function and method arguments.
-
--->
+<!-- Values of function and method arguments.  -->
 
 <!ENTITY all "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>all</literal>">
 <!ENTITY none "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>none</literal>">
 
 
-
-<!--
-
-  Builder and Scanner objects.
-
--->
+<!-- Builder and Scanner objects.  -->
 
 <!ENTITY BuildDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>BuildDir</function>">
 <!ENTITY CFile "<function xmlns='http://www.scons.org/dbxsd/v1.0'>CFile</function>">
@@ -422,14 +398,15 @@
 <!ENTITY VariantDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>VariantDir</function>">
 <!ENTITY Zip "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Zip</function>">
 
-<!-- Obsolete, but referenced in old documents.  -->
+
+<!-- Obsolete, but referenced in the old design document.  -->
+
 <!ENTITY MakeBuilder "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Make</function>">
 
 
+<!-- Terms.
 
-<!--
-
-  Terms.  Define both singular and plural forms in various
+  Define both singular and plural forms in various
   case-sensitive combinations for use in titles, in-line, etc.
 
 -->
@@ -480,11 +457,8 @@
 
 <!ENTITY typedef "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>typedef</literal>">
 
-<!--
 
-  Python keyword arguments
-
--->
+<!-- Python keyword arguments -->
 
 <!ENTITY action "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>action=</literal>">
 <!ENTITY batch_key "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>batch_key=</literal>">
@@ -493,11 +467,8 @@
 <!ENTITY strfunction "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>strfunction=</literal>">
 <!ENTITY varlist "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>varlist=</literal>">
 
-<!--
 
-  File and program names used in examples.
-
--->
+<!-- File and program names used in examples.  -->
 
 <!ENTITY bar "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>bar</filename>">
 <!ENTITY common1_c "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>common1.c</filename>">
@@ -532,30 +503,20 @@
 <!ENTITY prog_exe "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>prog.exe</filename>">
 <!ENTITY stdio_h "<filename xmlns='http://www.scons.org/dbxsd/v1.0'>stdio.h</filename>">
 
-<!--
 
-  Punctuation.
-
--->
+<!-- Punctuation.  -->
 
 <!ENTITY plus "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>+</literal>">
 <!ENTITY hash "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>#</literal>">
 
-<!--
 
-  Mailing lists
+<!-- Mailing lists -->
 
--->
-
-<!ENTITY scons-announce "<email xmlns='http://www.scons.org/dbxsd/v1.0'>announce@scons.tigris.org</email>">
 <!ENTITY scons-devel "<email xmlns='http://www.scons.org/dbxsd/v1.0'>scons-dev@scons.org</email>">
 <!ENTITY scons-users "<email xmlns='http://www.scons.org/dbxsd/v1.0'>scons-users@scons.org</email>">
 
-<!--
 
-  Character entities
-
--->
+<!-- Character entities -->
 
 <!ENTITY lambda "&#923;">
 <!ENTITY mdash "&#8212;">

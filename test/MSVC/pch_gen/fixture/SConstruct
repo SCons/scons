@@ -1,0 +1,53 @@
+# pch_gen fixture's SConstruct
+
+DefaultEnvironment(tools=[])
+# TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
+# and ideally we shouldn't need to specify the tools= list anyway.
+
+
+VariantDir('output1','src')
+VariantDir('output2','src')
+
+
+# Add flag to cause pch_gen to return empty string
+# This will enable testing that PCH if subst'd yields empty string will stop
+# PCH from being enabled.
+vars = Variables(None, ARGUMENTS)
+vars.AddVariables(BoolVariable("DISABLE_PCH", help="Disable PCH functionality", default=False))
+
+
+env = Environment(variables=vars, tools=["mssdk", "msvc", "mslink"])
+env.Append(CCFLAGS="/DPCHDEF")
+env["PDB"] = File("output1/test.pdb")
+env["PCHSTOP"] = "StdAfx.h"
+
+
+def pch_gen(env, target, source, for_signature):
+    if env['DISABLE_PCH']:
+        return ""
+    else:
+        return "StdAfx-1.pch"
+
+
+env["PCH"] = pch_gen
+env.PCH("output1/StdAfx-1.pch", "output1/StdAfx.cpp")
+env.Program("output1/test", ["output1/test.cpp", env.RES("output1/test.rc")], LIBS=["user32"])
+
+env.Object("output1/fast", "output1/foo.cpp")
+env.Object("output1/slow", "output1/foo.cpp", PCH=0)
+
+
+
+env2 = env.Clone()
+
+def pch_gen2(env, target, source, for_signature):
+    if env['DISABLE_PCH']:
+        return ""
+    else:
+        return env.get('PCH_NODE')
+env2["PDB"] = File("output2/test.pdb")
+env2["PCHSTOP"] = "StdAfx.h"
+env2["PCH"] = pch_gen2
+env2['PCH_NODE'] = env2.PCH("output2/StdAfx-1.pch", "output2/StdAfx.cpp")[0]
+env2.Program("output2/test", ["output2/test.cpp", env.RES("output2/test.rc")], LIBS=["user32"])
+

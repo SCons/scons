@@ -9,11 +9,43 @@ NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 s
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From John Doe:
+      
+  From William Deegan:
+    - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
+    - Fix version tests to work with updated scons --version output. (Date format changed)
+    - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+      but instead it should yield '$('.
+    - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+      environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+      This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+      introduced by Aaron Franke (listed below) were merged.
+    - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+      Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
 
-    - Whatever John Doe did.
+  From Ryan Egesdahl:
+    - Small fix to ensure CLVar default value is an empty list.
+      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+      Code contributed by MongoDB.
 
-  From Mats Wichmann
+  From Aaron Franke:
+    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
+      Before this change, these were only defined for Win32 and OS/2.
+
+  From Daniel Moody:
+    - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
+      issue affected CommandGeneratorAction function actions specifically.
+    - Added support for the PCH environment variable to support subst generators. 
+
+  From Mats Wichmann:
+    - Two small Python 3.10 fixes: one more docstring turned into raw
+      because it contained an escape; updated "helpful" syntax error message
+      from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
+    - EmitterProxy rich comparison set is completed (checker warning).
+      Added __le__, __gt__, __ge__.
+    - Fix gcc/g++ tool failing if "gcc --version" returns text which fails
+      to_String conversion (i.e., not UTF-8) - failure happens when tool
+      initialization checks version. For gcc, the initial version string is
+      not translated, for the rest, don't convert, just consume raw and discard.
     - Maintenance and doc: modernize some usage in Scanner package,
       calling super(), switching some imitialization to comprehensions,
       and code formatting.  Docstring for scanner Base moved from
@@ -53,7 +85,7 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
       _concat function.  If set to False, it will prepend and append $( and $). That way the various
       Environment variables can use that rather than "$( _concat(...) $)".
-    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't 
+    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't
       installed but --experimental=ninja was specified.
     - As part of experimental ninja tool, allow SetOption() to set both disable_execute_ninja and
       disable_ninja.
@@ -86,9 +118,9 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
       object.
     - Fix a potential race condition in shared cache environments where the permissions are
       not writeable for a moment after the file has been renamed and other builds (users) will copy
-      it out of the cache. Small reorganization of logic to copy files from cachedir. Moved CacheDir 
+      it out of the cache. Small reorganization of logic to copy files from cachedir. Moved CacheDir
       writeable permission code for copy to cache behind the atomic rename operation.
-    - Added marking of intermediate and and multi target nodes generated from SConf tests so that 
+    - Added marking of intermediate and and multi target nodes generated from SConf tests so that
       is_conftest() is more accurate.
     - Added test for configure check failing to ensure it didn't break generating and running ninja.
 
