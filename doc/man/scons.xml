@@ -4429,11 +4429,11 @@ from various sources, often from the command line:</para>
 call the &Variables; function:</para>
 
 <variablelist>
-  <varlistentry>
+  <varlistentry id="v-Variables">
   <term><function>Variables</function>([<parameter>files, [args]]</parameter>)</term>
   <listitem>
 <para>If <parameter>files</parameter> is a file or
-list of files, those are executed as Python scripts,
+list of files, they are executed as Python scripts,
 and the values of (global) Python variables set in
 those files are added as &consvars; in the &DefEnv;.
 If no files are specified,
@@ -4460,10 +4460,14 @@ CC = 'my_cc'
 is specified, it is a dictionary of
 values that will override anything read from
 <parameter>files</parameter>.
-This is primarily intended to pass the
+The primary use is to pass the
 &ARGUMENTS; dictionary that holds variables
-specified on the command line.
-Example:</para>
+specified on the command line,
+allowing you to indicate that if a setting appears
+on both the command line and in the file(s),
+the command line setting takes precedence.
+However, any dictionary can be passed.
+Examples:</para>
 
 <programlisting language="python">
 vars = Variables('custom.py')
@@ -4492,36 +4496,59 @@ pre-defined &consvars; that your project will make use of
 <para>Variables objects have the following methods:</para>
 
   <variablelist>
-  <varlistentry>
+  <varlistentry id="v-Add">
   <term><replaceable>vars</replaceable>.<function>Add</function>(<parameter>key, [help, default, validator, converter]</parameter>)</term>
   <listitem>
 <para>Add a customizable &consvar; to the Variables object.
 <parameter>key</parameter>
-is the name of the variable.
+is either the name of the variable,
+or a tuple (or list), in which case
+the first item in the tuple is taken as the variable name,
+and any remaining values are considered aliases for the variable.
 <parameter>help</parameter>
-is the help text for the variable.
+is the help text for the variable
+(default empty string).
 <parameter>default</parameter>
-is the default value of the variable;
-if the default value is
+is the default value of the variable
+(default <constant>None</constant>).
+If <parameter>default</parameter> is
 <constant>None</constant>
-and there is no explicit value specified,
+and a value is not specified,
 the &consvar; will not
 be added to the &consenv;.
-If set, <parameter>validator</parameter>
-is called to validate the value of the variable.
-A function supplied as a validator shall accept
-arguments: <parameter>key</parameter>,
-<parameter>value</parameter>, and <parameter>env</parameter>.
-The recommended way to handle an invalid value is
-to raise an exception (see example below).
-If set, <parameter>converter</parameter>
-is called to convert the value before putting it in the environment, and
-should take either a value, or the value and environment, as parameters.
+</para>
+<para>
+As a special case, if <parameter>key</parameter>
+is a tuple (or list) and is the <emphasis>only</emphasis>
+argument, the tuple is unpacked into the five parameters
+listed above left to right, with any missing members filled with
+the respecitive default values. This form allows <function>Add</function>
+to consume a tuple emitted by the convenience functions
+<link linkend='v-BoolVariable'><function>BoolVariable</function></link>,
+<link linkend='v-EnumVariable'><function>EnumVariable</function></link>,
+<link linkend='v-ListVariable'><function>ListVariable</function></link>,
+<link linkend='v-PackageVariable'><function>PackageVariable</function></link>
+and
+<link linkend='v-PathVariable'><function>PathVariable</function></link>.
+</para>
+<para>
+If the optional <parameter>validator</parameter> is supplied,
+it is called to validate the value of the variable.
+A function supplied as a validator must accept
+three arguments: <parameter>key</parameter>,
+<parameter>value</parameter> and <parameter>env</parameter>,
+and should raise an exception with a helpful error message
+if <parameter>value</parameter> is invalid.
+No return value is expected from the validator.
+</para>
+<para>
+If the optional <parameter>converter</parameter> is supplied,
+it is called to convert the value before putting it in the environment,
+and should take either a value
+or a value and environment as parameters.
 The converter function must return a value,
-which will be converted into a string
-before being validated by the
-<parameter>validator</parameter>
-(if any)
+which will be converted into a string and be passed to the
+<parameter>validator</parameter> (if any)
 and then added to the &consenv;.</para>
 
 <para>Examples:</para>
@@ -4538,11 +4565,11 @@ vars.Add('COLOR', validator=valid_color)
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-AddVariables">
   <term><replaceable>vars</replaceable>.<function>AddVariables</function>(<parameter>args</parameter>)</term>
   <listitem>
 <para>A convenience method that adds
-multiple customizable &consvars;
+one or more customizable &consvars;
 to a Variables object in one call;
 equivalent to calling &Add; multiple times.
 The <parameter>args</parameter>
@@ -4551,10 +4578,10 @@ that contain the arguments
 for an individual call to the &Add; method.
 Since tuples are not Python mappings,
 the arguments cannot use the keyword form,
-but rather are positional arguments as documented
-for &Add;: a required name, the rest optional
-but must be in the specified in order if used.
-
+but rather are positional arguments as documented for
+<link linkend='v-Add'><function>Add</function></link>:
+a required name, the other four optional,
+but must be in the specified order if used.
 </para>
 
 <programlisting language="python">
@@ -4568,18 +4595,18 @@ opt.AddVariables(
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-Update">
   <term><replaceable>vars</replaceable>.<function>Update</function>(<parameter>env, [args]</parameter>)</term>
   <listitem>
 <para>Update a &consenv;
 <parameter>env</parameter>
-with the customized &consvars; .
+with the customized &consvars;.
 Any specified variables that are not
 configured for the Variables object
 will be saved and may be
 retrieved using the
-&UnknownVariables;
-method, below.</para>
+<link linkend='v-UnknownVariables'>&UnknownVariables;</link>
+method.</para>
 
 <para>Normally this method is not called directly,
 but rather invoked indirectly by passing the Variables object to
@@ -4592,7 +4619,7 @@ env = Environment(variables=vars)
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-UnknownVariables">
   <term><replaceable>vars</replaceable>.<function>UnknownVariables</function>()</term>
   <listitem>
 <para>Returns a dictionary containing any
@@ -4611,14 +4638,17 @@ for key, value in vars.UnknownVariables():
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-Save">
   <term><replaceable>vars</replaceable>.<function>Save</function>(<parameter>filename, env</parameter>)</term>
   <listitem>
 <para>Save the currently set variables into a script file named
-by <parameter>filename</parameter>
-that can be used on the next invocation to automatically load the current
-settings.  This method combined with the Variables method can be used to
-support caching of variables between runs.</para>
+by <parameter>filename</parameter>. Only variables that are
+set to non-default values are saved.
+You can load these saved settings on a subsequent run
+by passing <parameter>filename</parameter> to the
+<link linkend='v-Variables'>&Variables;</link> function,
+providing a way to cache particular settings for reuse.
+</para>
 
 <programlisting language="python">
 env = Environment()
@@ -4631,7 +4661,7 @@ vars.Save('variables.cache', env)
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-GenerateHelpText">
   <term><replaceable>vars</replaceable>.<function>GenerateHelpText</function>(<parameter>env, [sort]</parameter>)</term>
   <listitem>
 <para>Generate help text documenting the customizable construction
@@ -4663,7 +4693,7 @@ Help(vars.GenerateHelpText(env, sort=cmp))
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-FormatVariableHelpText">
   <term><replaceable>vars</replaceable>.<function>FormatVariableHelpText</function>(<parameter>env, opt, help, default, actual</parameter>)</term>
   <listitem>
 <para>Returns a formatted string
@@ -4685,6 +4715,7 @@ string if you want the entries separated.</para>
 def my_format(env, opt, help, default, actual):
     fmt = "\n%s: default=%s actual=%s (%s)\n"
     return fmt % (opt, default, actual, help)
+
 vars.FormatVariableHelpText = my_format
 </programlisting>
   </listitem>
@@ -4701,7 +4732,7 @@ Each of these return a tuple ready to be passed to
 the &Add; or &AddVariables; method:</para>
 
   <variablelist>
-  <varlistentry>
+  <varlistentry id="v-BoolVariable">
   <term><function>BoolVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
 <para>Returns a tuple of arguments
@@ -4736,7 +4767,7 @@ as false.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-EnumVariable">
   <term><function>EnumVariable</function>(<parameter>key, help, default, allowed_values, [map, ignorecase]</parameter>)</term>
   <listitem>
 <para>Returns a tuple of arguments
@@ -4785,7 +4816,7 @@ converted to lower case.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-ListVariable">
   <term><function>ListVariable</function>(<parameter>key, help, default, names, [map]</parameter>)</term>
   <listitem>
 <para>Returns a tuple of arguments
@@ -4824,7 +4855,7 @@ reflected in the generated help message).  </para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-PackageVariable">
   <term><function>PackageVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
 <para>Returns a tuple of arguments
@@ -4864,7 +4895,7 @@ to disable use of the specified option.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="v-PathVariable">
   <term><function>PathVariable</function>(<parameter>key, help, default, [validator]</parameter>)</term>
   <listitem>
 <para>Returns a tuple of arguments

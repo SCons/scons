@@ -53,6 +53,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
     - Change SCons.Scanner.Base to ScannerBase. Old name kept as an alias
       but is now unused in SCons itself.
+    - Call Variables option converter consistently - the converter should
+      have access to the env if it needs to (issue #2064).
+    - Fixed the variables Add() method to accept a tuple for the variable
+      name the same way AddVariables() does (issue #3869).
+    - The premade validator PathIsDirCreate for for PathVariable now catches
+      the case where the directory could not be created due to permission
+      problems, allowing a more helpful error to be emitted (issue #2828)
+
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
