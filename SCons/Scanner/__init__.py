@@ -43,7 +43,7 @@ def Scanner(function, *args, **kwargs):
     Creates the appropriate Scanner based on the type of "function".
 
     TODO:  Deprecate this some day.  We've moved the functionality
-    inside the Base class and really don't need this factory function
+    inside the ScannerBase class and really don't need this factory function
     any more.  It was, however, used by some of our Tool modules, so
     the call probably ended up in various people's custom modules
     patterned on SCons code.
@@ -52,7 +52,7 @@ def Scanner(function, *args, **kwargs):
     if SCons.Util.is_Dict(function):
         return Selector(function, *args, **kwargs)
 
-    return Base(function, *args, **kwargs)
+    return ScannerBase(function, *args, **kwargs)
 
 
 class FindPathDirs:
@@ -73,8 +73,7 @@ class FindPathDirs:
         return tuple(dir.Rfindalldirs(path))
 
 
-
-class Base:
+class ScannerBase:
     """Base class for dependency scanners.
 
     Implements straightforward, single-pass scanning of a single file.
@@ -276,13 +275,18 @@ class Base:
         self.add_skey(skey)
 
 
-class Selector(Base):
+# keep the old name for a while in case external users are using.
+# there are no more internal uses of this class by the name "Base"
+Base = ScannerBase
+
+
+class Selector(ScannerBase):
     """
     A class for selecting a more specific scanner based on the
     :func:`scanner_key` (suffix) for a specific Node.
 
     TODO:  This functionality has been moved into the inner workings of
-    the Base class, and this class will be deprecated at some point.
+    the ScannerBase class, and this class will be deprecated at some point.
     (It was never exposed directly as part of the public interface,
     although it is used by the :func:`Scanner` factory function that was
     used by various Tool modules and therefore was likely a template
@@ -307,7 +311,7 @@ class Selector(Base):
         self.add_skey(skey)
 
 
-class Current(Base):
+class Current(ScannerBase):
     """
     A class for scanning files that are source files (have no builder)
     or are derived files and are current (which implies that they exist,

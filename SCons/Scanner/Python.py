@@ -38,7 +38,7 @@ import re
 
 import SCons.Node.FS
 import SCons.Util
-from . import Base
+from . import ScannerBase
 
 # Capture python "from a import b" and "import a" statements.
 from_cre = re.compile(r'^\s*from\s+([^\s]+)\s+import\s+(.*)', re.M)
@@ -201,7 +201,7 @@ def scan(node, env, path=()):
 
 
 PythonSuffixes = ['.py']
-PythonScanner = Base(
+PythonScanner = ScannerBase(
     scan,
     name='PythonScanner',
     skeys=PythonSuffixes,

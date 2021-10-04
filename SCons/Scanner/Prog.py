@@ -26,7 +26,7 @@
 import SCons.Node
 import SCons.Node.FS
 import SCons.Util
-from . import Base, FindPathDirs
+from . import ScannerBase, FindPathDirs
 
 # global, set by --debug=findlibs
 print_find_libs = None
@@ -35,7 +35,7 @@ def ProgramScanner(**kwargs):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
     kwargs['path_function'] = FindPathDirs('LIBPATH')
-    ps = Base(scan, "ProgramScanner", **kwargs)
+    ps = ScannerBase(scan, "ProgramScanner", **kwargs)
     return ps
 
 def _subst_libs(env, libs):

@@ -2250,7 +2250,7 @@ class Base(SubstitutionEnvironment):
                 arg = self.subst(arg)
             nargs.append(arg)
         nkw = self.subst_kw(kw)
-        return SCons.Scanner.Base(*nargs, **nkw)
+        return SCons.Scanner.ScannerBase(*nargs, **nkw)
 
     def SConsignFile(self, name=".sconsign", dbm_module=None):
         if name is not None:

@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import SCons.Node.FS
-from . import Base
+from . import ScannerBase
 
 def only_dirs(nodes):
     is_Dir = lambda n: isinstance(n.disambiguate(), SCons.Node.FS.Dir)
@@ -33,14 +33,14 @@ def DirScanner(**kwargs):
     directories for on-disk files"""
     kwargs['node_factory'] = SCons.Node.FS.Entry
     kwargs['recursive'] = only_dirs
-    return Base(scan_on_disk, "DirScanner", **kwargs)
+    return ScannerBase(scan_on_disk, "DirScanner", **kwargs)
 
 def DirEntryScanner(**kwargs):
     """Return a prototype Scanner instance for "scanning"
     directory Nodes for their in-memory entries"""
     kwargs['node_factory'] = SCons.Node.FS.Entry
     kwargs['recursive'] = None
-    return Base(scan_in_memory, "DirEntryScanner", **kwargs)
+    return ScannerBase(scan_in_memory, "DirEntryScanner", **kwargs)
 
 skip_entry = {}
 

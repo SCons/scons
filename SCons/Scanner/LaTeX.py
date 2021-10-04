@@ -29,7 +29,7 @@ import re
 import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
-from . import Base, FindPathDirs
+from . import ScannerBase, FindPathDirs
 
 # list of graphics file extensions for TeX and LaTeX
 TexGraphics   = ['.eps', '.ps']
@@ -119,7 +119,7 @@ def PDFLaTeXScanner():
     return ds
 
 
-class LaTeX(Base):
+class LaTeX(ScannerBase):
     """Class for scanning LaTeX files for included files.
 
     Unlike most scanners, which use regular expressions that just
