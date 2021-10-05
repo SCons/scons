@@ -69,6 +69,7 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_POOL</item>
             <item>NINJA_REGENERATE_DEPS</item>
             <item>NINJA_SYNTAX</item>
+            <item>NINJA_FORCE_SCONS_BUILD</item>
             <item>_NINJA_REGENERATE_DEPS_FUNC</item>
             <item>__NINJA_NO</item>
             <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
@@ -311,6 +312,16 @@ See its __doc__ string for a discussion of the format.
                 Theres also NINJA_SYNTAX which is the path to a custom ninja_syntax.py file which is used in generation.
                 The tool currently assumes you have ninja installed through pip, and grabs the syntax file from that
                 installation if none specified.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_FORCE_SCONS_BUILD">
+        <summary>
+            <para>
+                When NINJA_FORCE_SCONS_BUILD is True, this will cause the build nodes to callback to scons instead of using
+                ninja to build them. This is intended to be passed to the environment on the builder invocation.
+                It is useful if you have a build node which does something which is not easily translated into ninja.
             </para>
         </summary>
     </cvar>
