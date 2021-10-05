@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -21,34 +23,40 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Dependency scanner for RC (Interface Definition Language) files."""
+"""
+Test that if gcc returns non-UTF8 text, the version check doesn't fall over.
+"""
 
+import sys
 
-import SCons.Node.FS
-from . import ClassicCPP
+import TestSCons
 
+_python_ = TestSCons._python_
+_exe = TestSCons._exe
 
-def no_tlb(nodes):
-    """Filter out .tlb files as they are binary and shouldn't be scanned."""
+test = TestSCons.TestSCons()
 
-    # print("Nodes:%s"%[str(n) for n in nodes])
-    return [n for n in nodes if str(n)[-4:] != '.tlb']
+test.dir_fixture('gcc-non-utf8-fixture')
 
+test.write(
+    'SConstruct',
+    """
+import sys
 
-def RCScan():
-    """Return a prototype Scanner instance for scanning RC source files"""
+DefaultEnvironment(tools=[])
+env = Environment(tools=[], CC="%(_python_)s gcc-non-utf8.py")
+try:
+    env.Tool('gcc')
+except UnicodeDecodeError:
+    print("Failed decoding gcc version message.", file=sys.stderr)
+    Exit(1)
+"""
+    % locals(),
+)
 
-    res_re = (
-        r'^(?:\s*#\s*(?:include)|'
-        r'.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)'
-        r'\s*.*?)'
-        r'\s*(<|"| )([^>"\s]+)(?:[>"\s])*$'
-    )
-    resScanner = ClassicCPP(
-        "ResourceScanner", "$RCSUFFIXES", "CPPPATH", res_re, recursive=no_tlb
-    )
+test.run(arguments='.')
 
-    return resScanner
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

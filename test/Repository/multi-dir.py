@@ -25,7 +25,7 @@
 
 import sys
 
-from TestSCons import TestSCons, _exe
+from TestSCons import TestSCons
 
 test = TestSCons()
 

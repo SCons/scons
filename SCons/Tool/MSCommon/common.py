@@ -347,6 +347,21 @@ def parse_output(output, keep=KEEPLIST):
 
     return dkeep
 
+def get_pch_node(env, target, source):
+    """
+    Get the actual PCH file node
+    """
+    pch_subst = env.get('PCH', False) and env.subst('$PCH',target=target, source=source, conv=lambda x:x)
+
+    if not pch_subst:
+        return ""
+
+    if SCons.Util.is_String(pch_subst):
+        pch_subst = target[0].dir.File(pch_subst)
+
+    return pch_subst
+
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

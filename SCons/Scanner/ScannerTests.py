@@ -28,15 +28,16 @@ import TestUnit
 
 import SCons.compat
 import SCons.Scanner
+from SCons.Scanner import ScannerBase, Selector, Classic, ClassicCPP, Current, FindPathDirs
 
 class DummyFS:
     def File(self, name):
         return DummyNode(name)
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, dict=None, **kw):
-        collections.UserDict.__init__(self, dict)
-        self.data.update(kw)
+    def __init__(self, mapping=None, **kwargs):
+        super().__init__(mapping)
+        self.data.update(kwargs)
         self.fs = DummyFS()
     def subst(self, strSubst, target=None, source=None, conv=None):
         if strSubst[0] == '$':
@@ -57,12 +58,25 @@ class DummyNode:
     def __init__(self, name, search_result=()):
         self.name = name
         self.search_result = tuple(search_result)
+
     def rexists(self):
-        return 1
+        return True
+
     def __str__(self):
         return self.name
+
     def Rfindalldirs(self, pathlist):
         return self.search_result + pathlist
+    def __repr__(self):
+        return self.name
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __repr__(self):
+        return self.name
+
+    def __eq__(self, other):
+        return self.name == other.name
 
 class FindPathDirsTestCase(unittest.TestCase):
     def test_FindPathDirs(self):
@@ -73,7 +87,7 @@ class FindPathDirsTestCase(unittest.TestCase):
         env.fs._cwd = DummyNode('cwd')
 
         dir = DummyNode('dir', ['xxx'])
-        fpd = SCons.Scanner.FindPathDirs('LIBPATH')
+        fpd = FindPathDirs('LIBPATH')
         result = fpd(env)
         assert str(result) == "('foo',)", result
         result = fpd(env, dir)
@@ -85,25 +99,25 @@ class ScannerTestCase(unittest.TestCase):
         """Test creation of Scanner objects"""
         def func(self):
             pass
-        s = SCons.Scanner.Base(func)
-        assert isinstance(s, SCons.Scanner.Base), s
-        s = SCons.Scanner.Base({})
-        assert isinstance(s, SCons.Scanner.Base), s
+        s = ScannerBase(func)
+        assert isinstance(s, ScannerBase), s
+        s = ScannerBase({})
+        assert isinstance(s, ScannerBase), s
 
-        s = SCons.Scanner.Base(func, name='fooscan')
+        s = ScannerBase(func, name='fooscan')
         assert str(s) == 'fooscan', str(s)
-        s = SCons.Scanner.Base({}, name='barscan')
+        s = ScannerBase({}, name='barscan')
         assert str(s) == 'barscan', str(s)
 
-        s = SCons.Scanner.Base(func, name='fooscan', argument=9)
+        s = ScannerBase(func, name='fooscan', argument=9)
         assert str(s) == 'fooscan', str(s)
         assert s.argument == 9, s.argument
-        s = SCons.Scanner.Base({}, name='fooscan', argument=888)
+        s = ScannerBase({}, name='fooscan', argument=888)
         assert str(s) == 'fooscan', str(s)
         assert s.argument == 888, s.argument
 
 
-class BaseTestCase(unittest.TestCase):
+class ScannerBaseTestCase(unittest.TestCase):
 
     class skey_node:
         def __init__(self, key):
@@ -141,7 +155,7 @@ class BaseTestCase(unittest.TestCase):
             self.assertFalse(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
 
     def test___call__dict(self):
-        """Test calling Scanner.Base objects with a dictionary"""
+        """Test calling ScannerBase objects with a dictionary"""
         called = []
         def s1func(node, env, path, called=called):
             called.append('s1func')
@@ -151,9 +165,9 @@ class BaseTestCase(unittest.TestCase):
             called.append('s2func')
             called.append(node)
             return []
-        s1 = SCons.Scanner.Base(s1func)
-        s2 = SCons.Scanner.Base(s2func)
-        selector = SCons.Scanner.Base({'.x' : s1, '.y' : s2})
+        s1 = ScannerBase(s1func)
+        s2 = ScannerBase(s2func)
+        selector = ScannerBase({'.x' : s1, '.y' : s2})
         nx = self.skey_node('.x')
         env = DummyEnvironment()
         selector(nx, env, [])
@@ -164,7 +178,7 @@ class BaseTestCase(unittest.TestCase):
         assert called == ['s2func', ny], called
 
     def test_path(self):
-        """Test the Scanner.Base path() method"""
+        """Test the ScannerBase path() method"""
         def pf(env, cwd, target, source, argument=None):
             return "pf: %s %s %s %s %s" % \
                         (env.VARIABLE, cwd, target[0], source[0], argument)
@@ -174,17 +188,17 @@ class BaseTestCase(unittest.TestCase):
         target = DummyNode('target')
         source = DummyNode('source')
 
-        s = SCons.Scanner.Base(self.func, path_function=pf)
+        s = ScannerBase(self.func, path_function=pf)
         p = s.path(env, 'here', [target], [source])
         assert p == "pf: v1 here target source None", p
 
-        s = SCons.Scanner.Base(self.func, path_function=pf, argument="xyz")
+        s = ScannerBase(self.func, path_function=pf, argument="xyz")
         p = s.path(env, 'here', [target], [source])
         assert p == "pf: v1 here target source xyz", p
 
     def test_positional(self):
-        """Test the Scanner.Base class using positional arguments"""
-        s = SCons.Scanner.Base(self.func, "Pos")
+        """Test the ScannerBase class using positional arguments"""
+        s = ScannerBase(self.func, "Pos")
         env = DummyEnvironment()
         env.VARIABLE = "var1"
         self.test(s, env, DummyNode('f1.cpp'), ['f1.h', 'f1.hpp'])
@@ -194,8 +208,8 @@ class BaseTestCase(unittest.TestCase):
         self.test(s, env, DummyNode('i1.cpp'), ['i1.h', 'i1.hpp'])
 
     def test_keywords(self):
-        """Test the Scanner.Base class using keyword arguments"""
-        s = SCons.Scanner.Base(function = self.func, name = "Key")
+        """Test the ScannerBase class using keyword arguments"""
+        s = ScannerBase(function = self.func, name = "Key")
         env = DummyEnvironment()
         env.VARIABLE = "var2"
         self.test(s, env, DummyNode('f2.cpp'), ['f2.h', 'f2.hpp'])
@@ -206,9 +220,9 @@ class BaseTestCase(unittest.TestCase):
         self.test(s, env, DummyNode('i2.cpp'), ['i2.h', 'i2.hpp'])
 
     def test_pos_opt(self):
-        """Test the Scanner.Base class using both position and optional arguments"""
+        """Test the ScannerBase class using both position and optional arguments"""
         arg = "this is the argument"
-        s = SCons.Scanner.Base(self.func, "PosArg", arg)
+        s = ScannerBase(self.func, "PosArg", arg)
         env = DummyEnvironment()
         env.VARIABLE = "var3"
         self.test(s, env, DummyNode('f3.cpp'), ['f3.h', 'f3.hpp'], arg)
@@ -218,10 +232,9 @@ class BaseTestCase(unittest.TestCase):
         self.test(s, env, DummyNode('i3.cpp'), ['i3.h', 'i3.hpp'], arg)
 
     def test_key_opt(self):
-        """Test the Scanner.Base class using both keyword and optional arguments"""
+        """Test the ScannerBase class using both keyword and optional arguments"""
         arg = "this is another argument"
-        s = SCons.Scanner.Base(function = self.func, name = "KeyArg",
-                               argument = arg)
+        s = ScannerBase(function = self.func, name = "KeyArg", argument = arg)
         env = DummyEnvironment()
         env.VARIABLE = "var4"
         self.test(s, env, DummyNode('f4.cpp'), ['f4.h', 'f4.hpp'], arg)
@@ -231,29 +244,29 @@ class BaseTestCase(unittest.TestCase):
         self.test(s, env, DummyNode('i4.cpp'), ['i4.h', 'i4.hpp'], arg)
 
     def test___cmp__(self):
-        """Test the Scanner.Base class __cmp__() method"""
-        s = SCons.Scanner.Base(self.func, "Cmp")
+        """Test the ScannerBase class __cmp__() method"""
+        s = ScannerBase(self.func, "Cmp")
         assert s is not None
 
     def test_hash(self):
-        """Test the Scanner.Base class __hash__() method"""
-        s = SCons.Scanner.Base(self.func, "Hash")
-        dict = {}
-        dict[s] = 777
+        """Test the ScannerBase class __hash__() method"""
+        s = ScannerBase(self.func, "Hash")
+        mapping = {}
+        mapping[s] = 777
         i = hash(id(s))
-        h = hash(list(dict.keys())[0])
+        h = hash(list(mapping)[0])
         self.assertTrue(h == i,
                         "hash Scanner base class expected %s, got %s" % (i, h))
 
     def test_scan_check(self):
-        """Test the Scanner.Base class scan_check() method"""
+        """Test the ScannerBase class scan_check() method"""
         def my_scan(filename, env, target, *args):
             return []
         def check(node, env, s=self):
             s.checked[str(node)] = 1
             return 1
         env = DummyEnvironment()
-        s = SCons.Scanner.Base(my_scan, "Check", scan_check = check)
+        s = ScannerBase(my_scan, "Check", scan_check = check)
         self.checked = {}
         path = s.path(env)
         scanned = s(DummyNode('x'), env, path)
@@ -261,56 +274,49 @@ class BaseTestCase(unittest.TestCase):
                         "did not call check function")
 
     def test_recursive(self):
-        """Test the Scanner.Base class recursive flag"""
+        """Test the ScannerBase class recursive flag"""
         nodes = [1, 2, 3, 4]
 
-        s = SCons.Scanner.Base(function = self.func)
+        s = ScannerBase(function = self.func)
         n = s.recurse_nodes(nodes)
-        self.assertTrue(n == [],
-                        "default behavior returned nodes: %s" % n)
+        self.assertTrue(n == [], "default behavior returned nodes: %s" % n)
 
-        s = SCons.Scanner.Base(function = self.func, recursive = None)
+        s = ScannerBase(function = self.func, recursive = None)
         n = s.recurse_nodes(nodes)
-        self.assertTrue(n == [],
-                        "recursive = None returned nodes: %s" % n)
+        self.assertTrue(n == [], "recursive = None returned nodes: %s" % n)
 
-        s = SCons.Scanner.Base(function = self.func, recursive = 1)
+        s = ScannerBase(function = self.func, recursive = 1)
         n = s.recurse_nodes(nodes)
-        self.assertTrue(n == n,
-                        "recursive = 1 didn't return all nodes: %s" % n)
+        self.assertTrue(n == n, "recursive = 1 didn't return all nodes: %s" % n)
 
         def odd_only(nodes):
             return [n for n in nodes if n % 2]
-        s = SCons.Scanner.Base(function = self.func, recursive = odd_only)
+        s = ScannerBase(function = self.func, recursive = odd_only)
         n = s.recurse_nodes(nodes)
-        self.assertTrue(n == [1, 3],
-                        "recursive = 1 didn't return all nodes: %s" % n)
+        self.assertTrue(n == [1, 3], "recursive = 1 didn't return all nodes: %s" % n)
 
     def test_get_skeys(self):
-        """Test the Scanner.Base get_skeys() method"""
-        s = SCons.Scanner.Base(function = self.func)
+        """Test the ScannerBase get_skeys() method"""
+        s = ScannerBase(function = self.func)
         sk = s.get_skeys()
-        self.assertTrue(sk == [],
-                        "did not initialize to expected []")
+        self.assertTrue(sk == [], "did not initialize to expected []")
 
-        s = SCons.Scanner.Base(function = self.func, skeys = ['.1', '.2'])
+        s = ScannerBase(function = self.func, skeys = ['.1', '.2'])
         sk = s.get_skeys()
-        self.assertTrue(sk == ['.1', '.2'],
-                        "sk was %s, not ['.1', '.2']")
+        self.assertTrue(sk == ['.1', '.2'], "sk was %s, not ['.1', '.2']")
 
-        s = SCons.Scanner.Base(function = self.func, skeys = '$LIST')
+        s = ScannerBase(function = self.func, skeys = '$LIST')
         env = DummyEnvironment(LIST = ['.3', '.4'])
         sk = s.get_skeys(env)
-        self.assertTrue(sk == ['.3', '.4'],
-                        "sk was %s, not ['.3', '.4']")
+        self.assertTrue(sk == ['.3', '.4'], "sk was %s, not ['.3', '.4']")
 
     def test_select(self):
-        """Test the Scanner.Base select() method"""
-        scanner = SCons.Scanner.Base(function = self.func)
+        """Test the ScannerBase select() method"""
+        scanner = ScannerBase(function = self.func)
         s = scanner.select('.x')
         assert s is scanner, s
 
-        selector = SCons.Scanner.Base({'.x' : 1, '.y' : 2})
+        selector = ScannerBase({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.x'))
         assert s == 1, s
         s = selector.select(self.skey_node('.y'))
@@ -319,8 +325,8 @@ class BaseTestCase(unittest.TestCase):
         assert s is None, s
 
     def test_add_scanner(self):
-        """Test the Scanner.Base add_scanner() method"""
-        selector = SCons.Scanner.Base({'.x' : 1, '.y' : 2})
+        """Test the ScannerBase add_scanner() method"""
+        selector = ScannerBase({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.z'))
         assert s is None, s
         selector.add_scanner('.z', 3)
@@ -328,11 +334,11 @@ class BaseTestCase(unittest.TestCase):
         assert s == 3, s
 
     def test___str__(self):
-        """Test the Scanner.Base __str__() method"""
-        scanner = SCons.Scanner.Base(function = self.func)
+        """Test the ScannerBase __str__() method"""
+        scanner = ScannerBase(function = self.func)
         s = str(scanner)
         assert s == 'NONE', s
-        scanner = SCons.Scanner.Base(function = self.func, name = 'xyzzy')
+        scanner = ScannerBase(function = self.func, name = 'xyzzy')
         s = str(scanner)
         assert s == 'xyzzy', s
 
@@ -347,9 +353,9 @@ class SelectorTestCase(unittest.TestCase):
 
     def test___init__(self):
         """Test creation of Scanner.Selector object"""
-        s = SCons.Scanner.Selector({})
-        assert isinstance(s, SCons.Scanner.Selector), s
-        assert s.dict == {}, s.dict
+        s = Selector({})
+        assert isinstance(s, Selector), s
+        assert s.mapping == {}, s.mapping
 
     def test___call__(self):
         """Test calling Scanner.Selector objects"""
@@ -362,9 +368,9 @@ class SelectorTestCase(unittest.TestCase):
             called.append('s2func')
             called.append(node)
             return []
-        s1 = SCons.Scanner.Base(s1func)
-        s2 = SCons.Scanner.Base(s2func)
-        selector = SCons.Scanner.Selector({'.x' : s1, '.y' : s2})
+        s1 = ScannerBase(s1func)
+        s2 = ScannerBase(s2func)
+        selector = Selector({'.x' : s1, '.y' : s2})
         nx = self.skey_node('.x')
         env = DummyEnvironment()
         selector(nx, env, [])
@@ -376,7 +382,7 @@ class SelectorTestCase(unittest.TestCase):
 
     def test_select(self):
         """Test the Scanner.Selector select() method"""
-        selector = SCons.Scanner.Selector({'.x' : 1, '.y' : 2})
+        selector = Selector({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.x'))
         assert s == 1, s
         s = selector.select(self.skey_node('.y'))
@@ -386,7 +392,7 @@ class SelectorTestCase(unittest.TestCase):
 
     def test_add_scanner(self):
         """Test the Scanner.Selector add_scanner() method"""
-        selector = SCons.Scanner.Selector({'.x' : 1, '.y' : 2})
+        selector = Selector({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.z'))
         assert s is None, s
         selector.add_scanner('.z', 3)
@@ -425,7 +431,7 @@ class CurrentTestCase(unittest.TestCase):
             node.func_called = 1
             return []
         env = DummyEnvironment()
-        s = SCons.Scanner.Current(func)
+        s = Current(func)
         path = s.path(env)
         hnb = HasNoBuilder()
         s(hnb, env, path)
@@ -458,7 +464,7 @@ class ClassicTestCase(unittest.TestCase):
     def test_find_include(self):
         """Test the Scanner.Classic find_include() method"""
         env = DummyEnvironment()
-        s = SCons.Scanner.Classic("t", ['.suf'], 'MYPATH', r'^my_inc (\S+)')
+        s = Classic("t", ['.suf'], 'MYPATH', r'^my_inc (\S+)')
 
         def _find_file(filename, paths):
             return paths[0]+'/'+filename
@@ -476,7 +482,7 @@ class ClassicTestCase(unittest.TestCase):
 
     def test_name(self):
         """Test setting the Scanner.Classic name"""
-        s = SCons.Scanner.Classic("my_name", ['.s'], 'MYPATH', r'^my_inc (\S+)')
+        s = Classic("my_name", ['.s'], 'MYPATH', r'^my_inc (\S+)')
         assert s.name == "my_name", s.name
 
     def test_scan(self):
@@ -497,7 +503,7 @@ class ClassicTestCase(unittest.TestCase):
             def get_dir(self):
                 return self._dir
 
-        class MyScanner(SCons.Scanner.Classic):
+        class MyScanner(Classic):
             def find_include(self, include, source_dir, path):
                 return include, include
 
@@ -561,7 +567,7 @@ class ClassicTestCase(unittest.TestCase):
         nodes = [1, 2, 3, 4]
 
 
-        s = SCons.Scanner.Classic("Test", [], None, "", function=self.func, recursive=1)
+        s = Classic("Test", [], None, "", function=self.func, recursive=1)
         n = s.recurse_nodes(nodes)
         self.assertTrue(n == n,
                         "recursive = 1 didn't return all nodes: %s" % n)
@@ -569,7 +575,7 @@ class ClassicTestCase(unittest.TestCase):
         def odd_only(nodes):
             return [n for n in nodes if n % 2]
 
-        s = SCons.Scanner.Classic("Test", [], None, "", function=self.func, recursive=odd_only)
+        s = Classic("Test", [], None, "", function=self.func, recursive=odd_only)
         n = s.recurse_nodes(nodes)
         self.assertTrue(n == [1, 3],
                         "recursive = 1 didn't return all nodes: %s" % n)
@@ -579,7 +585,7 @@ class ClassicCPPTestCase(unittest.TestCase):
     def test_find_include(self):
         """Test the Scanner.ClassicCPP find_include() method"""
         env = DummyEnvironment()
-        s = SCons.Scanner.ClassicCPP("Test", [], None, "")
+        s = ClassicCPP("Test", [], None, "")
 
         def _find_file(filename, paths):
             return paths[0]+'/'+filename
@@ -608,7 +614,7 @@ def suite():
     tclasses = [
                  FindPathDirsTestCase,
                  ScannerTestCase,
-                 BaseTestCase,
+                 ScannerBaseTestCase,
                  SelectorTestCase,
                  CurrentTestCase,
                  ClassicTestCase,

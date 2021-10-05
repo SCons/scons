@@ -62,6 +62,7 @@ SConscript('SConscript', variant_dir='Release Output', duplicate=0)
 """)
 
 test.write('SConscript', """\
+DefaultEnvironment(tools=[])
 env = Environment()
 
 env['PCHSTOP'] = 'Precompiled.h'

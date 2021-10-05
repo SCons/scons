@@ -499,12 +499,12 @@ Multiple targets can be passed in to a single call to
 Intelligently append values to &consvars; in the &consenv;
 named by <varname>env</varname>.
 The &consvars; and values to add to them are passed as
-<parameter>key=val</parameter> pairs (Python keyword arguments).
+<parameter>key=val</parameter> pairs (&Python; keyword arguments).
 &f-env-Append; is designed to allow adding values
 without normally having to know the data type of an existing &consvar;.
-Regular Python syntax can also be used to manipulate the &consvar;,
+Regular &Python; syntax can also be used to manipulate the &consvar;,
 but for that you must know the type of the &consvar;:
-for example, different Python syntax is needed to combine
+for example, different &Python; syntax is needed to combine
 a list of values with a single string value, or vice versa.
 Some pre-defined &consvars; do have type expectations
 based on how &SCons; will use them,
@@ -615,7 +615,7 @@ described above.
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a Python exception will be raised.
+do not make sense and a &Python; exception will be raised.
 </para>
 
 <para>
@@ -1056,7 +1056,7 @@ same-named existing construction variables.
 <para>
 An action can be an external command,
 specified as a string,
-or a callable Python object;
+or a callable &Python; object;
 see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
@@ -1270,7 +1270,7 @@ env.Decider('content')
 <para>
 In addition to the above already-available functions, the
 <parameter>function</parameter>
-argument may be a Python function you supply.
+argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
@@ -1626,7 +1626,7 @@ may be an Action object
 for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
-or executable Python function,
+or executable &Python; function,
 each of which will be converted
 into an Action object
 and then executed.
@@ -1635,7 +1635,7 @@ Any additional arguments to &f-Execute;
 are passed on to the &f-link-Action; factory function
 which actually creates the Action object.
 The exit value of the command
-or return value of the Python function
+or return value of the &Python; function
 will be returned.
 </para>
 
@@ -1824,7 +1824,7 @@ will also be returned by this function.
 </arguments>
 <summary>
 <para>
-Takes a sequence (that is, a Python list or tuple)
+Takes a sequence (that is, a &Python; list or tuple)
 that may contain nested sequences
 and returns a flattened list containing
 all of the individual elements in any sequence.
@@ -1832,7 +1832,7 @@ This can be helpful for collecting
 the lists returned by calls to Builders;
 other Builders will automatically
 flatten lists specified as input,
-but direct Python manipulation of
+but direct &Python; manipulation of
 these lists does not.
 </para>
 
@@ -1852,7 +1852,7 @@ objects = ['f1.o', foo, 'f2.o', bar, 'f3.o']
 # the Builder will flatten the list automatically:
 Program(source = objects)
 
-# If you need to manipulate the list directly using Python, you need to
+# If you need to manipulate the list directly using &Python;, you need to
 # call Flatten() yourself, or otherwise handle nested lists:
 for object in Flatten(objects):
     print(str(object))
@@ -2914,7 +2914,7 @@ by the chosen
 <para>
 The optional <parameter>dbm_module</parameter>
 argument specifies which
-Python database module to use
+&Python; database module to use
 for reading/writing the file.
 The module must be imported first;
 then the imported module name
@@ -2922,9 +2922,9 @@ is passed as the argument.
 The default is a custom
 <systemitem>SCons.dblite</systemitem>
 module that uses pickled
-Python data structures,
-which works on all Python versions.
-See documentation of the Python
+&Python; data structures,
+which works on all &Python; versions.
+See documentation of the &Python;
 <systemitem>dbm</systemitem> module
 for other available types.
 </para>
@@ -3082,16 +3082,20 @@ they are not added and included in the returned list.
 <arguments>(arg)</arguments>
 <summary>
 <para>
-Returns a list of file names or other objects.
 If <parameter>arg</parameter> is a string,
-it will be split on strings of white-space characters
-within the string,
-making it easier to write long lists of file names.
-If <parameter>arg</parameter> is already a list,
-the list will be returned untouched.
+splits on whitespace and returns a list of
+strings without whitespace.
+This mode is the most common case,
+and can be used to split a list of filenames
+(for example) rather than having to type them as a
+list of individually quoted words.
+If <parameter>arg</parameter> is a list or tuple
+returns the list or tuple unchanged.
 If <parameter>arg</parameter> is any other type of object,
-it will be returned as a list
-containing just the object.
+returns a list containing just the object.
+These non-string cases do not actually do any spliting,
+but allow an argument variable to be passed to
+&f-Split; without having to first check its type.
 </para>
 
 <para>
@@ -3102,9 +3106,9 @@ Example:
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-       f7.c
-       f8.c
-       f9.c
+    f7.c
+    f8.c
+    f9.c
 """)
 </example_commands>
 </summary>
@@ -3117,14 +3121,14 @@ files = Split("""
 <summary>
 <para>
 Performs construction variable interpolation
-on the specified string or sequence argument
-<parameter>input</parameter>.
+on <parameter>input</parameter>,
+which can be a string or a sequence.
 </para>
 
 <para>
 By default,
 leading or trailing white space will
-be removed from the result.
+be removed from the result,
 and all sequences of white space
 will be compressed to a single space character.
 Additionally, any
@@ -3143,9 +3147,8 @@ The
 <parameter>raw</parameter>
 argument may be set to
 <literal>2</literal>
-if you want to strip
-all characters between
-any
+if you want to additionally discard
+all characters between any
 <literal>$(</literal>
 and
 <literal>$)</literal>
@@ -3179,7 +3182,7 @@ to be available for expansion.
 This is usually necessary if you are
 calling
 &f-env-subst;
-from within a Python function used
+from within a &Python; function used
 as an SCons action.
 </para>
 
@@ -3192,12 +3195,11 @@ argument
 may specify a conversion function
 that will be used in place of
 the default.
-For example, if you want Python objects
+For example, if you want &Python; objects
 (including SCons Nodes)
-to be returned as Python objects,
-you can use the Python
-&lambda;
-idiom to pass in an unnamed function
+to be returned as &Python; objects,
+you can use a &Python;
+lambda expression to pass in an unnamed function
 that simply returns its unconverted argument.
 </para>
 
@@ -3309,7 +3311,7 @@ the tool object, previously it did not return
 </arguments>
 <summary>
 <para>
-Returns a Node object representing the specified Python value.  Value
+Returns a Node object representing the specified &Python; value.  Value
 Nodes can be used as dependencies of targets.  If the result of
 calling
 <function>str</function>(<parameter>value</parameter>)

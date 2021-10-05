@@ -19,6 +19,8 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
+- Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+  Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
 - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
   environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
   This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
@@ -33,6 +35,7 @@ FIXES
   Code contributed by MongoDB.
 - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
   issue affected CommandGeneratorAction function actions specifically.
+- Fix PCH not being evaluated by subst() where necessary.
 - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
   but instead it should yield '$('.
 

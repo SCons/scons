@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -21,34 +23,41 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Dependency scanner for RC (Interface Definition Language) files."""
+"""
+Template for end-to-end test file.
+Replace this with a description of the test.
+"""
 
+import TestSCons
 
-import SCons.Node.FS
-from . import ClassicCPP
+test = TestSCons.TestSCons()
 
+test.skip_if_not_msvc()
 
-def no_tlb(nodes):
-    """Filter out .tlb files as they are binary and shouldn't be scanned."""
+# include all of msvc_fixture's files
+test.dir_fixture('../msvc_fixture','src')
 
-    # print("Nodes:%s"%[str(n) for n in nodes])
-    return [n for n in nodes if str(n)[-4:] != '.tlb']
+# Then we'll replace the SConstruct with one specific to this test.
+test.file_fixture('fixture/SConstruct',
+                  'SConstruct')
 
+test.run(arguments='.')
 
-def RCScan():
-    """Return a prototype Scanner instance for scanning RC source files"""
+test.must_exist(test.workpath('output1/test.exe'))
+test.must_exist(test.workpath('output1/test.res'))
+test.must_exist(test.workpath('output1/test.pdb'))
+test.must_exist(test.workpath('output1/StdAfx-1.pch'))
+test.must_exist(test.workpath('output1/StdAfx-1.obj'))
 
-    res_re = (
-        r'^(?:\s*#\s*(?:include)|'
-        r'.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)'
-        r'\s*.*?)'
-        r'\s*(<|"| )([^>"\s]+)(?:[>"\s])*$'
-    )
-    resScanner = ClassicCPP(
-        "ResourceScanner", "$RCSUFFIXES", "CPPPATH", res_re, recursive=no_tlb
-    )
+test.run(arguments="-c .")
+test.run(arguments="DISABLE_PCH=1 .")
 
-    return resScanner
+test.must_exist(test.workpath('output1/test.exe'))
+test.must_exist(test.workpath('output1/test.res'))
+test.must_exist(test.workpath('output1/test.pdb'))
+test.fail_test(condition = ('/Yuoutput1/StdAfx.h' in test.stdout()), message="Shouldn't have output1/YuStdAfx.h in compile line when PCH is disabled")
+
+test.pass_test()
 
 # Local Variables:
 # tab-width:4

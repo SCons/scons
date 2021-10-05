@@ -11,7 +11,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
     - Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
-    - Add support for Visual Studio 2022.
+    - Add support for Visual Studio 2022 (release and prerelease).
 
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
@@ -22,10 +22,22 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
       This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
       introduced by Aaron Franke (listed below) were merged.
+    - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+      Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
+
+  From Ryan Egesdahl:
+    - Small fix to ensure CLVar default value is an empty list.
+      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+      Code contributed by MongoDB.
+
+  From Aaron Franke:
+    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
+      Before this change, these were only defined for Win32 and OS/2.
 
   From Daniel Moody:
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
       issue affected CommandGeneratorAction function actions specifically.
+    - Added support for the PCH environment variable to support subst generators. 
 
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
@@ -33,15 +45,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - EmitterProxy rich comparison set is completed (checker warning).
       Added __le__, __gt__, __ge__.
+    - Fix gcc/g++ tool failing if "gcc --version" returns text which fails
+      to_String conversion (i.e., not UTF-8) - failure happens when tool
+      initialization checks version. For gcc, the initial version string is
+      not translated, for the rest, don't convert, just consume raw and discard.
+    - Maintenance and doc: modernize some usage in Scanner package,
+      calling super(), switching some imitialization to comprehensions,
+      and code formatting.  Docstring for scanner Base moved from
+      init-method to class-level so it's picked up by Sphinx.
+      Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
+    - Change SCons.Scanner.Base to ScannerBase. Old name kept as an alias
+      but is now unused in SCons itself.
 
-  From Aaron Franke:
-    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
-      Before this change, these were only defined for Win32 and OS/2.
-
-  From Ryan Egesdahl:
-    - Small fix to ensure CLVar default value is an empty list.
-      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
-      Code contributed by MongoDB.
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 

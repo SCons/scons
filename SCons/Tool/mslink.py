@@ -1,13 +1,6 @@
-"""SCons.Tool.mslink
-
-Tool-specific initialization for the Microsoft linker.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +20,16 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""SCons.Tool.mslink
+
+Tool-specific initialization for the Microsoft linker.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
 
 import os
 import os.path
@@ -42,6 +44,7 @@ import SCons.Tool.msvs
 import SCons.Util
 
 from .MSCommon import msvc_setup_env_once, msvc_exists
+from .MSCommon.common import get_pch_node
 
 def pdbGenerator(env, target, source, for_signature):
     try:
@@ -126,10 +129,11 @@ def _dllEmitter(target, source, env, paramtp):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    if version_num >= 11.0 and env.get('PCH', 0):
+    pch_node = get_pch_node(env, target, source)
+    if version_num >= 11.0 and pch_node:
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
-        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
+        pchobj = SCons.Util.splitext(str(pch_node))[0] + '.obj'
         # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
         if pchobj not in extrasources:
             extrasources.append(pchobj)
@@ -184,11 +188,12 @@ def prog_emitter(target, source, env):
         extratargets.append(pdb)
         target[0].attributes.pdb = pdb
 
-    if version_num >= 11.0 and env.get('PCH', 0):
+    pch_node = get_pch_node(env, target, source)
+    if version_num >= 11.0 and pch_node:
         # MSVC 11 and above need the PCH object file to be added to the link line,
         # otherwise you get link error LNK2011.
-        pchobj = SCons.Util.splitext(str(env['PCH']))[0] + '.obj'
-        # print("prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj))
+        pchobj = SCons.Util.splitext(str(pch_node))[0] + '.obj'
+        # print "prog_emitter, version %s, appending pchobj %s"%(version_num, pchobj)
         if pchobj not in extrasources:
             extrasources.append(pchobj)
 
