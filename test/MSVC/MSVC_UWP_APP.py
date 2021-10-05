@@ -129,7 +129,7 @@ print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
     test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
                 message='VC Store LIBPATHs present when MSVC_UWP_APP not set (msvc_version=%s)' % msvc_version)
 
-if msvc_141 or msvc_142 or msvs_143:
+if msvc_141 or msvc_142 or msvc_143:
     if msvc_143:
         test.write('SConstruct', """\
 if ARGUMENTS.get('MSVC_UWP_APP'):

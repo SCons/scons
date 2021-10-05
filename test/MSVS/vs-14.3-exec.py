@@ -43,7 +43,7 @@ if sys.platform != 'win32':
 
 msvs_version = '14.3'
 
-if not msvs_version in test.msvs_versions():
+if msvs_version not in test.msvs_versions():
     msg = "Visual Studio %s not installed; skipping test.\n" % msvs_version
     test.skip_test(msg)
 
@@ -95,7 +95,7 @@ test.run(chdir='sub dir', arguments='.')
 test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcxproj'))
 
 import SCons.Platform.win32
-system_dll_path = os.path.join( SCons.Platform.win32.get_system_root(), 'System32' )
+system_dll_path = os.path.join(SCons.Platform.win32.get_system_root(), 'System32')
 os.environ['PATH'] = os.environ['PATH'] + os.pathsep + system_dll_path
 
 test.run(chdir='sub dir',
