@@ -9,7 +9,8 @@ Here is a summary of the changes since 4.2.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- Add support for Visual Studio 2022.
+- Add support for pre-release versions of Visual Studio 2022 via an environment variable.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -38,6 +39,7 @@ FIXES
 - Fix PCH not being evaluated by subst() where necessary.
 - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
   but instead it should yield '$('.
+- Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
 
 IMPROVEMENTS
 ------------
