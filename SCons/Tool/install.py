@@ -453,9 +453,9 @@ def generate(env):
                               action         = install_action,
                               target_factory = target_factory.Entry,
                               source_factory = env.fs.Entry,
-                              multi          = 1,
+                              multi          = True,
                               emitter        = [ add_targets_to_INSTALLED_FILES, ],
-                              source_scanner = SCons.Scanner.Base( {}, name = 'Install', recursive = False ),
+                              source_scanner = SCons.Scanner.ScannerBase({}, name='Install', recursive=False),
                               name           = 'InstallBuilder')
 
     global BaseVersionedInstallBuilder
@@ -470,7 +470,7 @@ def generate(env):
                                        action         = installVerLib_action,
                                        target_factory = target_factory.Entry,
                                        source_factory = env.fs.Entry,
-                                       multi          = 1,
+                                       multi          = True,
                                        emitter        = [ add_versioned_targets_to_INSTALLED_FILES, ],
                                        name           = 'InstallVersionedBuilder')
 

@@ -1,0 +1,8 @@
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=[])
+env.Tool('ninja')
+
+env.Command('out.txt', 'foo.c', 'echo $SOURCE> $TARGET', NINJA_FORCE_SCONS_BUILD=True)
+env.Command('out2.txt', 'test2.cpp', 'echo $SOURCE> $TARGET')

@@ -9,7 +9,7 @@ Here is a summary of the changes since 4.2.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
 
 DEPRECATED FUNCTIONALITY
 ------------------------

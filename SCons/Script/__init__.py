@@ -142,7 +142,7 @@ FindPathDirs            = SCons.Scanner.FindPathDirs
 Platform                = SCons.Platform.Platform
 Virtualenv              = SCons.Platform.virtualenv.Virtualenv
 Return                  = _SConscript.Return
-Scanner                 = SCons.Scanner.Base
+Scanner                 = SCons.Scanner.ScannerBase
 Tool                    = SCons.Tool.Tool
 WhereIs                 = SCons.Util.WhereIs
 

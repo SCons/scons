@@ -258,7 +258,7 @@ def uicScannerFunc(node, env, path):
             result.append(dep)
     return result
 
-uicScanner = SCons.Scanner.Base(uicScannerFunc,
+uicScanner = SCons.Scanner.ScannerBase(uicScannerFunc,
                                 name = "UicScanner",
                                 node_class = SCons.Node.FS.File,
                                 node_factory = SCons.Node.FS.File,

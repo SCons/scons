@@ -9,6 +9,7 @@ NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 s
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+      
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
@@ -36,12 +37,27 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Expanded ninja Mkdir to also support Mkdir actions.
     - Added support for the PCH environment variable to support subst generators. 
 
+  From Daniel Moody:
+    - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
+
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
       because it contained an escape; updated "helpful" syntax error message
       from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
     - EmitterProxy rich comparison set is completed (checker warning).
       Added __le__, __gt__, __ge__.
+    - Fix gcc/g++ tool failing if "gcc --version" returns text which fails
+      to_String conversion (i.e., not UTF-8) - failure happens when tool
+      initialization checks version. For gcc, the initial version string is
+      not translated, for the rest, don't convert, just consume raw and discard.
+    - Maintenance and doc: modernize some usage in Scanner package,
+      calling super(), switching some imitialization to comprehensions,
+      and code formatting.  Docstring for scanner Base moved from
+      init-method to class-level so it's picked up by Sphinx.
+      Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
+    - Change SCons.Scanner.Base to ScannerBase. Old name kept as an alias
+      but is now unused in SCons itself.
+
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 

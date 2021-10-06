@@ -57,11 +57,9 @@ def sillyScanner(node, env, dirs):
     print('This is never called (unless we build file.out)')
     return []
 
-SillyScanner = SCons.Scanner.Base(function = sillyScanner, skeys = ['.res'])
+SillyScanner = SCons.Scanner.ScannerBase(function=sillyScanner, skeys=['.res'])
 
-env = Environment(tools=[],
-                  SCANNERS = [SillyScanner],
-                  BUILDERS = {})
+env = Environment(tools=[], SCANNERS=[SillyScanner], BUILDERS={})
 
 r = env.Command('file.res', 'file.ma', docopy)
 
