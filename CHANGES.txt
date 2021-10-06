@@ -36,6 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       issue affected CommandGeneratorAction function actions specifically.
     - Added support for the PCH environment variable to support subst generators. 
 
+  From Daniel Moody:
+    - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
+
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
       because it contained an escape; updated "helpful" syntax error message
