@@ -95,6 +95,20 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - As part of experimental ninja tool, allow SetOption() to set both disable_execute_ninja and
       disable_ninja.
 
+  From Adam Gross:
+    - Added support for remote caching. This feature allows for fetch and push of build outputs
+      to a Bazel remote cache server or any other similar server that supports /ac/ and /cas/
+      GET and PUT requests using SHA-256 file names. See https://github.com/buchgr/bazel-remote
+      for more details on the server. New parameters introduced:
+         --remote-cache-fetch-enabled: Enables fetch of build output from the server
+         --remote-cache-push-enabled: Enables push of build output to the server
+         --remote-cache-url: Required if fetch or push is enabled
+         --remote-cache-connections: Connection count (defaults to 100)
+    - Added support for a new parameter --use-scheduler-v2 that opts into a newer, more aggressive
+      parallel scanner. This scanner avoids waiting on jobs if the job queue is full and instead
+      scans for tasks. This scanner is expected to improve the performance of your build as long
+      as you don't have very large actions that cause poor scanning performance.
+
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
       set to any string value (For example ['none','false','no','off'])
