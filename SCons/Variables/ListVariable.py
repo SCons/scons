@@ -21,9 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Option type for list Variables.
-
-This file defines the option type for SCons implementing 'lists'.
+"""Variable type for list Variables.
 
 A 'list' option may either be 'all', 'none' or a list of names
 separated by comma. After the option has been processed, the option
@@ -38,8 +36,8 @@ Usage example::
     opts.Add(
         ListVariable(
             'shared',
-            'libraries to build as shared libraries',
-            'all',
+            help='libraries to build as shared libraries',
+            default='all',
             elems=list_of_libs,
         )
     )
@@ -54,44 +52,55 @@ Usage example::
 # Known Bug: This should behave like a Set-Type, but does not really,
 # since elements can occur twice.
 
-__all__ = ['ListVariable',]
-
 import collections
+from typing import Tuple, Callable
 
 import SCons.Util
 
+__all__ = ['ListVariable',]
+
 
 class _ListVariable(collections.UserList):
-    def __init__(self, initlist=[], allowedElems=[]):
-        collections.UserList.__init__(self, [_f for _f in initlist if _f])
+    def __init__(self, initlist=None, allowedElems=None):
+        if initlist is None:
+            initlist = []
+        if allowedElems is None:
+            allowedElems = []
+        super().__init__([_f for _f in initlist if _f])
         self.allowedElems = sorted(allowedElems)
 
     def __cmp__(self, other):
         raise NotImplementedError
+
     def __eq__(self, other):
         raise NotImplementedError
+
     def __ge__(self, other):
         raise NotImplementedError
+
     def __gt__(self, other):
         raise NotImplementedError
+
     def __le__(self, other):
         raise NotImplementedError
+
     def __lt__(self, other):
         raise NotImplementedError
+
     def __str__(self):
-        if len(self) == 0:
+        if not len(self):
             return 'none'
         self.data.sort()
         if self.data == self.allowedElems:
             return 'all'
         else:
             return ','.join(self)
+
     def prepare_to_store(self):
         return self.__str__()
 
-def _converter(val, allowedElems, mapdict):
-    """
-    """
+def _converter(val, allowedElems, mapdict) -> _ListVariable:
+    """ """
     if val == 'none':
         val = []
     elif val == 'all':
@@ -101,35 +110,40 @@ def _converter(val, allowedElems, mapdict):
         val = [mapdict.get(v, v) for v in val]
         notAllowed = [v for v in val if v not in allowedElems]
         if notAllowed:
-            raise ValueError("Invalid value(s) for option: %s" %
-                             ','.join(notAllowed))
+            raise ValueError(
+                "Invalid value(s) for option: %s" % ','.join(notAllowed)
+            )
     return _ListVariable(val, allowedElems)
 
 
-## def _validator(key, val, env):
-##     """
-##     """
-##     # todo: write validator for pgk list
-##     return 1
+# def _validator(key, val, env) -> None:
+#     """ """
+#     # TODO: write validator for pgk list
+#     pass
 
 
-def ListVariable(key, help, default, names, map={}):
-    """
-    The input parameters describe a 'package list' option, thus they
-    are returned with the correct converter and validator appended. The
-    result is usable for input to opts.Add() .
+def ListVariable(key, help, default, names, map={}) -> Tuple[str, str, str, None, Callable]:
+    """Return a tuple describing a list SCons Variable.
 
-    A 'package list' option may either be 'all', 'none' or a list of
-    package names (separated by space).
+    The input parameters describe a 'list' option. Returns
+    a tuple including the correct converter and validator.
+    The result is usable for input to :meth:`Add`.
+
+    *help* will have text appended indicating the legal values
+    (not including any extra names from *map*).
+
+    *map* can be used to map alternative names to the ones in *names* -
+    that is, a form of alias.
+
+    A 'list' option may either be 'all', 'none' or a list of
+    names (separated by commas).
     """
     names_str = 'allowed names: %s' % ' '.join(names)
     if SCons.Util.is_List(default):
         default = ','.join(default)
     help = '\n    '.join(
         (help, '(all|none|comma-separated list of names)', names_str))
-    return (key, help, default,
-            None, #_validator,
-            lambda val: _converter(val, names, map))
+    return (key, help, default, None, lambda val: _converter(val, names, map))
 
 # Local Variables:
 # tab-width:4
