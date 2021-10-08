@@ -56,6 +56,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
     - Change SCons.Scanner.Base to ScannerBase. Old name kept as an alias
       but is now unused in SCons itself.
+    - Maintenance: Python thread.setDaemon is deprecated in favor of
+      directly updating daemon attribute - update SCons to do this.
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
