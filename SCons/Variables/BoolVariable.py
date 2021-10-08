@@ -38,7 +38,7 @@ import SCons.Errors
 
 __all__ = ['BoolVariable',]
 
-TRUE_STRINGS  = ('y', 'yes', 'true', 't', '1', 'on' , 'all' )
+TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on' , 'all')
 FALSE_STRINGS = ('n', 'no', 'false', 'f', '0', 'off', 'none')
 
 

@@ -56,14 +56,16 @@ import SCons.Errors
 
 __all__ = ['PackageVariable',]
 
-__enable_strings  = ('1', 'yes', 'true',  'on', 'enable', 'search')
-__disable_strings = ('0', 'no',  'false', 'off', 'disable')
+ENABLE_STRINGS = ('1', 'yes', 'true',  'on', 'enable', 'search')
+DISABLE_STRINGS = ('0', 'no',  'false', 'off', 'disable')
 
-def _converter(val) -> bool:
+def _converter(val):
     """ """
     lval = val.lower()
-    if lval in __enable_strings: return True
-    if lval in __disable_strings: return False
+    if lval in ENABLE_STRINGS:
+        return True
+    if lval in DISABLE_STRINGS:
+        return False
     return val
 
 

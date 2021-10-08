@@ -28,7 +28,7 @@ To be used whenever a user-specified path override setting should be allowed.
 Arguments to PathVariable are:
   * *key* - name of this option on the command line (e.g. "prefix")
   * *help* - help string for option
-  * *dflt* - default value for this option
+  * *default* - default value for this option
   * *validator* - [optional] validator for option value.  Predefined are:
 
     * *PathAccept* - accepts any path setting; no validation
