@@ -36,6 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       issue affected CommandGeneratorAction function actions specifically.
     - Added support for the PCH environment variable to support subst generators. 
 
+  From Daniel Moody:
+    - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
+
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
       because it contained an escape; updated "helpful" syntax error message
@@ -60,7 +63,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - The premade validator PathIsDirCreate for for PathVariable now catches
       the case where the directory could not be created due to permission
       problems, allowing a more helpful error to be emitted (issue #2828)
-
+    - Maintenance: Python thread.setDaemon is deprecated in favor of
+      directly updating daemon attribute - update SCons to do this.
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
