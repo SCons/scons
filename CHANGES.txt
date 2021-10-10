@@ -36,6 +36,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       issue affected CommandGeneratorAction function actions specifically.
     - Expanded ninja Mkdir to also support Mkdir actions.
     - Added support for the PCH environment variable to support subst generators. 
+    - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
+      the ninja file scons regenerate and callback invocations will lose the $ characters used in
+      the scons command line which ninja uses itself for escaping. For Example:
+          scons BUILD=xyz OTHERVAR=$BUILD
+      Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
+      single dollar sign being used as a ninja escape character in the ninja file.
 
   From Daniel Moody:
     - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
