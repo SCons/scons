@@ -19,6 +19,7 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
+- Expanded ninja Mkdir to also support Mkdir actions.
 - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
   Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
 - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
