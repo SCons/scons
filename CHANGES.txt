@@ -26,6 +26,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Small fix to ensure CLVar default value is an empty list.
       See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
       Code contributed by MongoDB.
+    - Fix ninja tool to ensure `build.ninja` is always in a clean state.
+      Before this change, Ninja handled `build.ninja` as a generated file, and it would remove
+      the file before executing the REGENERATE target. If the user terminates Ninja or there
+      is some sort of failure, you would need to generate `build.ninja` from scratch. Now
+      SCons always generates `build.ninja` itself so this can't happen.
+      Code contributed by MongoDB.
 
   From Aaron Franke:
     - Define HOST_OS and HOST_ARCH in the environment for all platforms.

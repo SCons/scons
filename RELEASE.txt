@@ -45,6 +45,13 @@ FIXES
       scons BUILD=xyz OTHERVAR=$BUILD
   Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
   single dollar sign being used as a ninja escape character in the ninja file.
+- Fix ninja tool to ensure `build.ninja` is always in a clean state.
+  Before this change, Ninja handled `build.ninja` as a generated file, and it would remove
+  the file before executing the REGENERATE target. If the user terminates Ninja or there
+  is some sort of failure, you would need to generate `build.ninja` from scratch. Now
+  SCons always generates `build.ninja` itself so this can't happen.
+  Code contributed by MongoDB.
+
 
 IMPROVEMENTS
 ------------
