@@ -140,6 +140,8 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
 
     provider = __NINJA_RULE_MAPPING.get(comstr, get_generic_shell_command)
     rule, variables, provider_deps = provider(sub_env, node, action, tlist, slist, executor=executor)
+    if node.get_env().get('NINJA_FORCE_SCONS_BUILD'):
+        rule = 'TEMPLATE'
 
     # Get the dependencies for all targets
     implicit = list({dep for tgt in tlist for dep in get_dependencies(tgt)})
@@ -264,6 +266,12 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
                 variables["env"] += env.subst(
                     "export %s=%s;" % (key, value), target=targets, source=sources, executor=executor
                 ) + " "
-        return rule, variables, [tool_command]
+                
+        if node.get_env().get('NINJA_FORCE_SCONS_BUILD'):
+            ret_rule = 'TEMPLATE'
+        else:
+            ret_rule = rule
+
+        return ret_rule, variables, [tool_command]
 
     return get_response_file_command

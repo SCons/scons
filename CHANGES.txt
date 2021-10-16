@@ -37,7 +37,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Daniel Moody:
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
       issue affected CommandGeneratorAction function actions specifically.
+    - Expanded ninja Mkdir to also support Mkdir actions.
     - Added support for the PCH environment variable to support subst generators. 
+    - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
+      the ninja file scons regenerate and callback invocations will lose the $ characters used in
+      the scons command line which ninja uses itself for escaping. For Example:
+          scons BUILD=xyz OTHERVAR=$BUILD
+      Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
+      single dollar sign being used as a ninja escape character in the ninja file.
+
+  From Daniel Moody:
+    - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
 
   From Mats Wichmann:
     - Two small Python 3.10 fixes: one more docstring turned into raw
@@ -56,6 +66,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
     - Change SCons.Scanner.Base to ScannerBase. Old name kept as an alias
       but is now unused in SCons itself.
+    - Call Variables option converter consistently - the converter should
+      have access to the env if it needs to (issue #2064).
+    - Fixed the variables Add() method to accept a tuple for the variable
+      name the same way AddVariables() does (issue #3869).
+    - The premade validator PathIsDirCreate for for PathVariable now catches
+      the case where the directory could not be created due to permission
+      problems, allowing a more helpful error to be emitted (issue #2828)
+    - Maintenance: Python thread.setDaemon is deprecated in favor of
+      directly updating daemon attribute - update SCons to do this.
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700

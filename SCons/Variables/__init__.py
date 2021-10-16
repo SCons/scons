@@ -44,7 +44,7 @@ class Variables:
     Holds all the options, updates the environment with the variables,
     and renders the help text.
 
-    If is_global is True, this is a singleton, create only once.
+    If *is_global* is true, this is a singleton, create only once.
 
     Args:
       files (optional): List of option configuration files to load
@@ -64,7 +64,7 @@ class Variables:
         self.args = args
         if not SCons.Util.is_List(files):
             if files:
-                files = [ files ]
+                files = [files,]
             else:
                 files = []
         self.files = files
@@ -77,20 +77,23 @@ class Variables:
             if not Variables.instance:
                 Variables.instance=self
 
-    def _do_add(self, key, help="", default=None, validator=None, converter=None):
+    def _do_add(self, key, help="", default=None, validator=None, converter=None, **kwargs) -> None:
         class Variable:
             pass
 
         option = Variable()
 
-        # if we get a list or a tuple, we take the first element as the
+        # If we get a list or a tuple, we take the first element as the
         # option key and store the remaining in aliases.
         if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
-            option.key     = key[0]
-            option.aliases = key[1:]
+            option.key = key[0]
+            option.aliases = list(key[1:])
         else:
-            option.key     = key
-            option.aliases = [ key ]
+            option.key = key
+            # TODO: normalize to not include key in aliases. Currently breaks tests.
+            option.aliases = [key,]
+        if not SCons.Environment.is_valid_construction_var(option.key):
+            raise SCons.Errors.UserError("Illegal Variables key `%s'" % str(option.key))
         option.help = help
         option.default = default
         option.validator = validator
@@ -100,43 +103,42 @@ class Variables:
 
         # options might be added after the 'unknown' dict has been set up,
         # so we remove the key and all its aliases from that dict
-        for alias in list(option.aliases) + [ option.key ]:
+        for alias in option.aliases + [option.key,]:
             if alias in self.unknown:
                 del self.unknown[alias]
 
-    def keys(self):
-        """
-        Returns the keywords for the options
-        """
+    def keys(self) -> list:
+        """Returns the keywords for the options."""
         return [o.key for o in self.options]
 
-    def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
-        r"""Add an option.
+    def Add(self, key, *args, **kwargs) -> None:
+        r""" Add an option.
 
         Args:
-          key: the name of the variable, or a list or tuple of arguments
-          help: optional help text for the options (Default value = "")
-          default: optional default value for option (Default value = None)
-          validator: optional function called to validate the option's value
-            (Default value = None)
-          converter: optional function to be called to convert the option's
-            value before putting it in the environment. (Default value = None)
-          \*\*kw: keyword args, unused.
+          key: the name of the variable, or a 5-tuple (or list).
+            If a tuple, and there are no additional arguments,
+            the tuple is unpacked into help, default, validator, converter.
+            If there are additional arguments, the first word of the tuple
+            is taken as the key, and the remainder as aliases.
+          \*args: optional positional arguments
+            help: optional help text for the options (Default value = "")
+            default: optional default value for option (Default value = None)
+            validator: optional function called to validate the option's value
+              (Default value = None)
+            converter: optional function to be called to convert the option's
+              value before putting it in the environment. (Default value = None)
+          \*\*kwargs: keyword args, can be the arguments from \*args or
+            arbitrary kwargs used by a variable itself
 
         """
-        if SCons.Util.is_List(key) or isinstance(key, tuple):
-            self._do_add(*key)
-            return
+        if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
+            if not (len(args) or len(kwargs)):
+                return self._do_add(*key)
 
-        if not SCons.Util.is_String(key) or \
-            not SCons.Environment.is_valid_construction_var(key):
-                raise SCons.Errors.UserError("Illegal Variables.Add() key `%s'" % str(key))
+        return self._do_add(key, *args, **kwargs)
 
-        self._do_add(key, help, default, validator, converter)
-
-    def AddVariables(self, *optlist):
-        """
-        Add a list of options.
+    def AddVariables(self, *optlist) -> None:
+        """ Add a list of options.
 
         Each list element is a tuple/list of arguments to be passed on
         to the underlying method for adding options.
@@ -154,12 +156,13 @@ class Variables:
         for o in optlist:
             self._do_add(*o)
 
+    def Update(self, env, args=None) -> None:
+        """ Update an environment with the option variables.
 
-    def Update(self, env, args=None):
-        """
-        Update an environment with the option variables.
-
-        env - the environment to update.
+        Args:
+            env: the environment to update.
+            args: [optional] a dictionary of keys and values to update
+                in *env*. If omitted, uses the variables from the commandline.
         """
 
         values = {}
@@ -192,7 +195,7 @@ class Variables:
         for arg, value in args.items():
             added = False
             for option in self.options:
-                if arg in list(option.aliases) + [ option.key ]:
+                if arg in option.aliases + [option.key,]:
                     values[option.key] = value
                     added = True
             if not added:
@@ -206,7 +209,7 @@ class Variables:
             except KeyError:
                 pass
 
-        # Call the convert functions:
+        # apply converters
         for option in self.options:
             if option.converter and option.key in values:
                 value = env.subst('${%s}'%option.key)
@@ -219,36 +222,39 @@ class Variables:
                     raise SCons.Errors.UserError('Error converting option: %s\n%s'%(option.key, x))
 
 
-        # Finally validate the values:
+        # apply validators
         for option in self.options:
             if option.validator and option.key in values:
                 option.validator(option.key, env.subst('${%s}'%option.key), env)
 
-    def UnknownVariables(self):
-        """
-        Returns any options in the specified arguments lists that
-        were not known, declared options in this object.
+    def UnknownVariables(self) -> dict:
+        """ Returns unknown variables.
+
+        Identifies options that were not known, declared options in this object.
         """
         return self.unknown
 
-    def Save(self, filename, env):
-        """
-        Saves all the options in the given file.  This file can
-        then be used to load the options next run.  This can be used
-        to create an option cache file.
+    def Save(self, filename, env) -> None:
+        """ Save the options to a file.
 
-        filename - Name of the file to save into
-        env - the environment get the option values from
+        Saves all the options which have non-default settings
+        to the given file as Python expressions.  This file can
+        then be used to load the options for a subsequent run.
+        This can be used to create an option cache file.
+
+        Args:
+            filename: Name of the file to save into
+            env: the environment get the option values from
         """
 
         # Create the file and write out the header
         try:
-            fh = open(filename, 'w')
-
-            try:
+            with open(filename, 'w') as fh:
                 # Make an assignment in the file for each option
                 # within the environment that was assigned a value
-                # other than the default.
+                # other than the default. We don't want to save the
+                # ones set to default: in case the SConscript settings
+                # change you would then pick up old defaults.
                 for option in self.options:
                     try:
                         value = env[option.key]
@@ -268,55 +274,58 @@ class Variables:
 
                         defaultVal = env.subst(SCons.Util.to_String(option.default))
                         if option.converter:
-                            defaultVal = option.converter(defaultVal)
+                            try:
+                                defaultVal = option.converter(defaultVal)
+                            except TypeError:
+                                defaultVal = option.converter(defaultVal, env)
 
                         if str(env.subst('${%s}' % option.key)) != str(defaultVal):
                             fh.write('%s = %s\n' % (option.key, repr(value)))
                     except KeyError:
                         pass
-            finally:
-                fh.close()
-
         except IOError as x:
             raise SCons.Errors.UserError('Error writing options to file: %s\n%s' % (filename, x))
 
-    def GenerateHelpText(self, env, sort=None):
-        """
-        Generate the help text for the options.
+    def GenerateHelpText(self, env, sort=None) -> str:
+        """ Generate the help text for the options.
 
-        env - an environment that is used to get the current values
-              of the options.
-        cmp - Either a function as follows: The specific sort function should take two arguments and return -1, 0 or 1
-              or a boolean to indicate if it should be sorted.
+        Args:
+            env: an environment that is used to get the current values
+                of the options.
+            cmp: Either a comparison function used for sorting
+                (must take two arguments and return -1, 0 or 1)
+                or a boolean to indicate if it should be sorted.
         """
 
         if callable(sort):
-            options = sorted(self.options, key=cmp_to_key(lambda x,y: sort(x.key,y.key)))
+            options = sorted(self.options, key=cmp_to_key(lambda x, y: sort(x.key, y.key)))
         elif sort is True:
             options = sorted(self.options, key=lambda x: x.key)
         else:
             options = self.options
 
-        def format(opt, self=self, env=env):
+        def format_opt(opt, self=self, env=env) -> str:
             if opt.key in env:
                 actual = env.subst('${%s}' % opt.key)
             else:
                 actual = None
             return self.FormatVariableHelpText(env, opt.key, opt.help, opt.default, actual, opt.aliases)
-        lines = [_f for _f in map(format, options) if _f]
 
+        lines = [_f for _f in map(format_opt, options) if _f]
         return ''.join(lines)
 
-    format  = '\n%s: %s\n    default: %s\n    actual: %s\n'
-    format_ = '\n%s: %s\n    default: %s\n    actual: %s\n    aliases: %s\n'
+    fmt = '\n%s: %s\n    default: %s\n    actual: %s\n'
+    aliasfmt = '\n%s: %s\n    default: %s\n    actual: %s\n    aliases: %s\n'
 
-    def FormatVariableHelpText(self, env, key, help, default, actual, aliases=[]):
+    def FormatVariableHelpText(self, env, key, help, default, actual, aliases=None) -> str:
+        if aliases is None:
+            aliases = []
         # Don't display the key name itself as an alias.
         aliases = [a for a in aliases if a != key]
-        if len(aliases)==0:
-            return self.format % (key, help, default, actual)
+        if aliases:
+            return self.aliasfmt % (key, help, default, actual, aliases)
         else:
-            return self.format_ % (key, help, default, actual, aliases)
+            return self.fmt % (key, help, default, actual)
 
 # Local Variables:
 # tab-width:4

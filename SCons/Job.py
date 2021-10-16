@@ -33,6 +33,7 @@ import os
 import signal
 
 import SCons.Errors
+import SCons.Warnings
 
 # The default stack size (in kilobytes) of the threads used to execute
 # jobs in parallel.
@@ -139,7 +140,7 @@ class Jobs:
                 self.job.taskmaster.stop()
                 self.job.interrupted.set()
             else:
-                os._exit(2)
+                os._exit(2)  # pylint: disable=protected-access
 
         self.old_sigint  = signal.signal(signal.SIGINT, handler)
         self.old_sigterm = signal.signal(signal.SIGTERM, handler)
@@ -231,7 +232,7 @@ else:
 
         def __init__(self, requestQueue, resultsQueue, interrupted):
             threading.Thread.__init__(self)
-            self.setDaemon(1)
+            self.daemon = True
             self.requestQueue = requestQueue
             self.resultsQueue = resultsQueue
             self.interrupted = interrupted
@@ -389,7 +390,7 @@ else:
                         if task.needs_execute():
                             # dispatch task
                             self.tp.put(task)
-                            jobs = jobs + 1
+                            jobs += 1
                         else:
                             task.executed()
                             task.postprocess()
@@ -400,7 +401,7 @@ else:
                 # back and put the next batch of tasks on the queue.
                 while True:
                     task, ok = self.tp.get()
-                    jobs = jobs - 1
+                    jobs -= 1
 
                     if ok:
                         task.executed()

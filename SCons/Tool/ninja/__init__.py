@@ -186,7 +186,7 @@ def generate(env):
     env.Append(BUILDERS={"Ninja": ninja_builder_obj})
 
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
-    env['NINJA_DIR'] = env.get("NINJA_DIR", env.Dir(".ninja").path)
+    env['NINJA_DIR'] = env.get("NINJA_DIR", env.Dir('#/.ninja').path)
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
@@ -383,7 +383,7 @@ def generate(env):
     ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
 
     if NINJA_STATE is None:
-        NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax.Writer)
+        NINJA_STATE = NinjaState(env, ninja_file[0], ninja_syntax)
 
     # TODO: this is hacking into scons, preferable if there were a less intrusive way
     # We will subvert the normal builder execute to make sure all the ninja file is dependent
