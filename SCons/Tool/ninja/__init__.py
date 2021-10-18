@@ -186,12 +186,13 @@ def generate(env):
     env.Append(BUILDERS={"Ninja": ninja_builder_obj})
 
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
-    env['NINJA_DIR'] = env.get("NINJA_DIR", env.Dir('#/.ninja').path)
+    env['NINJA_DIR'] = env.Dir(env.get("NINJA_DIR", '#/.ninja'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
     if NINJA_STATE is None:
         ninja_file = env.Ninja()
+        env['NINJA_FILE'] = ninja_file[0]
         env.AlwaysBuild(ninja_file)
         env.Alias("$NINJA_ALIAS_NAME", ninja_file)
     else:
