@@ -485,7 +485,13 @@ class NinjaState:
         # list of build generation about. However, because the generate rule
         # is hardcoded here, we need to do this generate_depfile call manually.
         ninja_file_path = self.env.File(self.ninja_file).path
+<<<<<<< HEAD
         ninja_in_file_path = os.path.join(get_path(self.env['NINJA_BUILDDIR']), os.path.basename(self.ninja_file)) + ".in"
+=======
+        ninja_in_file_path = os.path.join(
+            get_path(self.env.Dir(self.env['NINJA_DIR']).path),
+            os.path.basename(self.ninja_file)) + ".in"
+>>>>>>> cd2185b32dea29ec270c9838bd057feafff160da
         generate_depfile(
             self.env,
             ninja_in_file_path,
