@@ -147,15 +147,23 @@ class Jobs:
             self.old_sighup = signal.signal(signal.SIGHUP, handler)
         except AttributeError:
             pass
+        if (self.old_sigint is None) or (self.old_sigterm is None) or \
+            (hasattr(self, "old_sighup") and self.old_sighup is None):
+            msg = "Overwritting previous signal handler which was not installed from Python. " + \
+                "Will not be able to reinstate and so will return to default handler."
+            SCons.Warnings.warn(SCons.Warnings.SConsWarning, msg)
 
     def _reset_sig_handler(self):
         """Restore the signal handlers to their previous state (before the
          call to _setup_sig_handler()."""
 
-        signal.signal(signal.SIGINT, self.old_sigint)
-        signal.signal(signal.SIGTERM, self.old_sigterm)
+        signal.signal(signal.SIGINT, self.old_sigint if self.old_sigint is not None \
+            else signal.SIG_DFL)
+        signal.signal(signal.SIGTERM, self.old_sigterm if self.old_sigterm is not None \
+            else signal.SIG_DFL)
         try:
-            signal.signal(signal.SIGHUP, self.old_sighup)
+            signal.signal(signal.SIGHUP, self.old_sighup if self.old_sighup is not None \
+                else signal.SIG_DFL)
         except AttributeError:
             pass
 
