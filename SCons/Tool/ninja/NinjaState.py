@@ -486,7 +486,7 @@ class NinjaState:
         # is hardcoded here, we need to do this generate_depfile call manually.
         ninja_file_path = self.env.File(self.ninja_file).path
         ninja_in_file_path = os.path.join(
-            get_path(self.env['NINJA_DIR']),
+            str(get_path(self.env['NINJA_DIR'])),
             os.path.basename(self.ninja_file)) + ".in"
         generate_depfile(
             self.env,
