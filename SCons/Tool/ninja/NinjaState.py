@@ -91,7 +91,6 @@ class NinjaState:
             python_bin = ninja_syntax.escape(scons_escape(sys.executable))
         self.variables = {
             "COPY": "cmd.exe /c 1>NUL copy" if sys.platform == "win32" else "cp",
-            "NOOP": "cmd.exe /c 1>NUL echo 0" if sys.platform == "win32" else "echo 0 >/dev/null",
             "SCONS_INVOCATION": '{} {} --disable-ninja __NINJA_NO=1 $out'.format(
                 python_bin,
                 " ".join(
@@ -166,11 +165,6 @@ class NinjaState:
                     else "ln -s $in $out"
                 ),
                 "description": "Symlink $in -> $out",
-            },
-            "NOOP": {
-                "command": "$NOOP",
-                "description": "Checking $out",
-                "pool": "local_pool",
             },
             "INSTALL": {
                 "command": "$COPY $in $out",
@@ -485,31 +479,19 @@ class NinjaState:
         # list of build generation about. However, because the generate rule
         # is hardcoded here, we need to do this generate_depfile call manually.
         ninja_file_path = self.env.File(self.ninja_file).path
-        ninja_in_file_path = os.path.join(
-            str(get_path(self.env['NINJA_DIR'])),
-            os.path.basename(self.ninja_file)) + ".in"
+        ninja_timestamp_file = ninja_file_path + '.timestamp'
         generate_depfile(
             self.env,
-            ninja_in_file_path,
+            ninja_timestamp_file,
             self.env['NINJA_REGENERATE_DEPS']
         )
 
         ninja.build(
-            ninja_in_file_path,
+            ninja_timestamp_file,
             rule="REGENERATE",
             variables={
                 "self": ninja_file_path,
             }
-        )
-
-        # This sets up a dependency edge between build.ninja.in and build.ninja
-        # without actually taking any action to transform one into the other
-        # because we write both files ourselves later.
-        ninja.build(
-            ninja_file_path,
-            rule="NOOP",
-            inputs=[ninja_in_file_path],
-            implicit=[__file__]
         )
 
         # If we ever change the name/s of the rules that include
@@ -553,7 +535,9 @@ class NinjaState:
         with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
             temp_ninja_file.write(content.getvalue())
         shutil.move(temp_ninja_file.name, self.ninja_file)
-        shutil.copy2(self.ninja_file, str(ninja_in_file_path))
+
+        with open(ninja_timestamp_file, 'a'):
+            os.utime(ninja_timestamp_file, None)
 
         self.__generated = True
 
