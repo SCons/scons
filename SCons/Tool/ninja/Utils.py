@@ -202,6 +202,27 @@ def get_rule(node, rule):
         return rule
 
 
+def to_escaped_list(env, lst):
+    """
+    Ninja tool function for returning an escaped list of strings from a subst
+    generator.
+
+    env_var arg can be a list or a subst generator which returns a list.
+    """
+
+    # subst_list will take in either a raw list or a subst callable which generates
+    # a list, and return a list of CmdStringHolders which can be converted into raw strings.
+    # If a raw list was passed in, then scons_list will make a list of lists from the original
+    # values and even subst items in the list if they are substitutable. Flatten will flatten
+    # the list in that case, to ensure for either input we have a list of CmdStringHolders.
+    deps_list = env.Flatten(env.subst_list(lst))
+
+    # Now that we have the deps in a list as CmdStringHolders, we can convert them into raw strings
+    # and make sure to escape the strings to handle spaces in paths. We also will sort the result
+    # keep the order of the list consistent.
+    return sorted([dep.escape(env.get("ESCAPE", lambda x: x)) for dep in deps_list])
+
+
 def generate_depfile(env, node, dependencies):
     """
     Ninja tool function for writing a depfile. The depfile should include
@@ -212,18 +233,7 @@ def generate_depfile(env, node, dependencies):
 
     depfile = os.path.join(get_path(env['NINJA_DIR']), str(node) + '.depfile')
 
-    # subst_list will take in either a raw list or a subst callable which generates
-    # a list, and return a list of CmdStringHolders which can be converted into raw strings.
-    # If a raw list was passed in, then scons_list will make a list of lists from the original
-    # values and even subst items in the list if they are substitutable. Flatten will flatten
-    # the list in that case, to ensure for either input we have a list of CmdStringHolders.
-    deps_list = env.Flatten(env.subst_list(dependencies))
-
-    # Now that we have the deps in a list as CmdStringHolders, we can convert them into raw strings
-    # and make sure to escape the strings to handle spaces in paths. We also will sort the result
-    # keep the order of the list consistent.
-    escaped_depends = sorted([dep.escape(env.get("ESCAPE", lambda x: x)) for dep in deps_list])
-    depfile_contents = str(node) + ": " + ' '.join(escaped_depends)
+    depfile_contents = str(node) + ": " + ' '.join(to_escaped_list(env, dependencies))
 
     need_rewrite = False
     try:
