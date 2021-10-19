@@ -97,8 +97,11 @@ class NinjaState:
                     [ninja_syntax.escape(scons_escape(arg)) for arg in sys.argv if arg not in COMMAND_LINE_TARGETS]
                 ),
             ),
-            "SCONS_INVOCATION_W_TARGETS": "{} {}".format(
-                python_bin, " ".join([ninja_syntax.escape(scons_escape(arg)) for arg in sys.argv])
+            "SCONS_INVOCATION_W_TARGETS": "{} {} NINJA_DISABLE_AUTO_RUN=1".format(
+                python_bin, " ".join([
+                    ninja_syntax.escape(scons_escape(arg))
+                    for arg in sys.argv
+                    if arg != 'NINJA_DISABLE_AUTO_RUN=1'])
             ),
             # This must be set to a global default per:
             # https://ninja-build.org/manual.html#_deps
