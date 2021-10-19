@@ -91,7 +91,6 @@ class NinjaState:
             python_bin = ninja_syntax.escape(scons_escape(sys.executable))
         self.variables = {
             "COPY": "cmd.exe /c 1>NUL copy" if sys.platform == "win32" else "cp",
-            "NOOP": "cmd.exe /c 1>NUL echo 0" if sys.platform == "win32" else "echo 0 >/dev/null",
             "SCONS_INVOCATION": '{} {} --disable-ninja __NINJA_NO=1 $out'.format(
                 python_bin,
                 " ".join(
@@ -170,11 +169,6 @@ class NinjaState:
                 ),
                 "description": "Symlink $in -> $out",
             },
-            "NOOP": {
-                "command": "$NOOP",
-                "description": "Checking $out",
-                "pool": "local_pool",
-            },
             "INSTALL": {
                 "command": "$COPY $in $out",
                 "description": "Install $out",
@@ -219,13 +213,13 @@ class NinjaState:
             },
             "REGENERATE": {
                 "command": "$SCONS_INVOCATION_W_TARGETS",
-                "description": "Regenerating $self",
+                "description": "Regenerating $out",
                 "generator": 1,
                 "pool": "console",
             },
         }
 
-        if env['PLATFORM'] == 'darwin' and env['AR'] == 'ar':
+        if env['PLATFORM'] == 'darwin' and env.get('AR', "") == 'ar':
             self.rules["AR"] = {
                 "command": "rm -f $out && $env$AR $rspc",
                 "description": "Archiving $out",
@@ -471,7 +465,7 @@ class NinjaState:
         ninja_file_path = self.env.File(self.ninja_file).path
 
         ninja.build(
-            ninja_in_file_path,
+            ninja_file_path,
             rule="REGENERATE",
             implicit=to_escaped_list(self.env, self.env['NINJA_REGENERATE_DEPS'])
         )
