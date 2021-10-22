@@ -3089,9 +3089,9 @@ class File(Base):
             if not len(self.depends_set):
                 self.depends_set = None
             if not len(self.ignore):
-                self.ignore = None
+                self.ignore = []
             if not len(self.depends):
-                self.depends = None
+                self.depends = []
             # Mark this node as done, we only have to release
             # the memory once...
             self.released_target_info = True
