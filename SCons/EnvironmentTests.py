@@ -3887,6 +3887,17 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert env['CPPDEFINES'] == 'FOO', env['CPPDEFINES']
         assert env2['CPPDEFINES'] == ['FOO','BAR'], env2['CPPDEFINES']
 
+    def test_Clone_with_boolean_override(self):
+        """Test cloning an instance of OverrideEnvironment"""
+        env = Environment()
+        env._dict = {'BOOLEAN': None}
+        env2 = OverrideEnvironment(env, {'BOOLEAN': True})
+        env3 = OverrideEnvironment(env2, {'BOOLEAN': False})
+
+        clone_env2 = env2.Clone(BOOLEAN=False)
+        assert clone_env2['BOOLEAN'] == False, clone_env2['BOOLEAN']
+        clone_env3 = env3.Clone(BOOLEAN=True)
+        assert clone_env3['BOOLEAN'] == True, clone_env3['BOOLEAN']
 
 
 class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):
