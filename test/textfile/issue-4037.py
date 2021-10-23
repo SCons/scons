@@ -24,11 +24,13 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test for GH Issue 3550
+Test for GH Issue 4037
 
-You can't pass a Windows path in a value to be interpolated, 
-because SCons will try to pass it through re.sub which rejects
-certain character sequences.
+The fix for #4031 created a code path where the subst function
+used by textfile was called with SUBST_RAW, which, if the items to
+subst was a callable, caused it to be called with for_signature=True.
+This did not happen previously as the test was "!= SUBST_CMD",
+and the mode coming in was indeed SUBST_CMD.
 """
 
 import TestSCons
@@ -37,13 +39,14 @@ test = TestSCons.TestSCons()
 
 match_mode = 'r'
 
-test.file_fixture('fixture/SConstruct.issue-3550', 'SConstruct')
-test.file_fixture('fixture/substfile.in', 'substfile.in')
+test.file_fixture('fixture/SConstruct.issue-4037', 'SConstruct')
 
 test.run(arguments='.')
 
-test.must_match('substfile',
-                r'''foo_path: Z:\mongo\build\install\bin
-''', mode=match_mode)
+test.must_match(
+    'target.txt',
+    "val",
+    mode=match_mode,
+)
 
 test.pass_test()
