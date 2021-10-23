@@ -75,6 +75,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       problems, allowing a more helpful error to be emitted (issue #2828)
     - Maintenance: Python thread.setDaemon is deprecated in favor of
       directly updating daemon attribute - update SCons to do this.
+    - Make sure when subst'ing a callable, the callable is called with
+      the correct for_signature value, previously it would be true even
+      if doing SUBST_RAW (issue #4037)
+
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
