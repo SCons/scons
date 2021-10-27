@@ -80,6 +80,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if doing SUBST_RAW (issue #4037)
 
 
+  From Brian Quistorff:
+    - Fix crash when scons is run from a python environement where a signal
+      is set from outside Python.
+
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
 
