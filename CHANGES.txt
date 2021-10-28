@@ -78,6 +78,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Make sure when subst'ing a callable, the callable is called with
       the correct for_signature value, previously it would be true even
       if doing SUBST_RAW (issue #4037)
+    - Update Util/NodeList implementation to get rid of a workaround for
+      early Python 3 slicing issue that is no longer a problem.
 
 
 

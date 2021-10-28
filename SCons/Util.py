@@ -119,10 +119,14 @@ def updrive(path) -> str:
 class NodeList(UserList):
     """A list of Nodes with special attribute retrieval.
 
-    This class is almost exactly like a regular list of Nodes
-    (actually it can hold any object), with one important difference.
-    If you try to get an attribute from this list, it will return that
-    attribute from every item in the list.  For example:
+    Unlike an ordinary list, access to a member's attribute returns a
+    `NodeList` containing the same attribute for each member.  Although
+    this can hold any object, it is intended for use when processing
+    Nodes, where fetching an attribute of each member is very commone,
+    for example getting the content signature of each node.  The term
+    "attribute" here includes the string representation.
+
+    Example:
 
     >>> someList = NodeList(['  foo  ', '  bar  '])
     >>> someList.strip()
@@ -138,30 +142,20 @@ class NodeList(UserList):
     def __iter__(self):
         return iter(self.data)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> 'NodeList':
         result = [x(*args, **kwargs) for x in self.data]
         return self.__class__(result)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name) -> 'NodeList':
+        """Returns a NodeList of `name` from each member."""
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
 
     def __getitem__(self, index):
-        """
-        This comes for free on py2,
-        but py3 slices of NodeList are returning a list
-        breaking slicing nodelist and refering to
-        properties and methods on contained object
-        """
-#        return self.__class__(self.data[index])
-
+        """Returns one item, forces a `NodeList` if `index` is a slice."""
+        # TODO: annotate return how? Union[] - don't know type of single item
         if isinstance(index, slice):
-            # Expand the slice object using range()
-            # limited by number of items in self.data
-            indices = index.indices(len(self.data))
-            return self.__class__([self[x] for x in range(*indices)])
-
-        # Return one item of the tart
+            return self.__class__(self.data[index])
         return self.data[index]
 
 
