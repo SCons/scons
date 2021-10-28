@@ -213,9 +213,10 @@ class NinjaState:
             },
             "REGENERATE": {
                 "command": "$SCONS_INVOCATION_W_TARGETS",
-                "description": "Regenerating $out",
+                "description": "Regenerating $self",
                 "generator": 1,
                 "pool": "console",
+                "restat": 1,
             },
         }
 
@@ -463,11 +464,23 @@ class NinjaState:
         # generate this rule even though SCons should know we're
         # dependent on SCons files.
         ninja_file_path = self.env.File(self.ninja_file).path
+        regenerate_deps = to_escaped_list(self.env, self.env['NINJA_REGENERATE_DEPS'])
 
         ninja.build(
             ninja_file_path,
             rule="REGENERATE",
-            implicit=to_escaped_list(self.env, self.env['NINJA_REGENERATE_DEPS'])
+            implicit=regenerate_deps,
+            variables={
+                "self": ninja_file_path,
+            }
+        )
+
+        ninja.build(
+            regenerate_deps,
+            rule="phony",
+            variables={
+                "self": ninja_file_path,
+            }
         )
 
         # If we ever change the name/s of the rules that include

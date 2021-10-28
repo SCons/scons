@@ -64,7 +64,6 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_COMPDB_EXPAND</item>
             <item>NINJA_ENV_VAR_CACHE</item>
             <item>NINJA_FILE_NAME</item>
-            <item>NINJA_FILE</item>
             <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
             <item>NINJA_MSVC_DEPS_PREFIX</item>
             <item>NINJA_POOL</item>
@@ -294,15 +293,6 @@ See its __doc__ string for a discussion of the format.
             <para>
                 The filename for the generated Ninja build file defaults to
                 <filename>ninja.build</filename>
-            </para>
-        </summary>
-    </cvar>
-
-
-    <cvar name="NINJA_FILE">
-        <summary>
-            <para>
-                The File node for the generated Ninja build file.
             </para>
         </summary>
     </cvar>
