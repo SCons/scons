@@ -28,15 +28,14 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 Verify that file handles aren't leaked to child processes
 """
 
-import os
 import sys
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if os.name != 'posix' or sys.platform == 'darwin':
-    msg = "Skipping fork leak test on non-posix platform '%s'\n" % os.name
+if sys.platform != 'linux':
+    msg = "Skipping fork leak test on non-linux platforms\n"
     test.skip_test(msg)
 
 test.write('SConstruct', """
