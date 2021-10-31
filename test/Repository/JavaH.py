@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test building Java applications when using Repositories.
@@ -44,13 +43,23 @@ java = where_java
 javac = where_javac
 javah = where_javah
 
+# TODO: javah no longer exists for Java > 9.  Other tests fail
+# on certain systems because the java_where_* routines are very greedy
+# and may indicate it's found even if the working java is > 9 if there
+# was a 1.8 insallation present - and then at runtime it's not found.
+# In this case we actually pass the javac/javah that's found by those,
+# which means the test will seem to work. We still need to rework this.
+
 ###############################################################################
 
 #
-test.subdir('rep1', ['rep1', 'src'],
-            'work1',
-            'work2',
-            'work3')
+test.subdir(
+    'rep1',
+    ['rep1', 'src'],
+    'work1',
+    'work2',
+    'work3'
+)
 
 #
 rep1_classes = test.workpath('rep1', 'classes')
@@ -62,11 +71,9 @@ opts = '-Y ' + test.workpath('rep1')
 
 #
 test.write(['rep1', 'SConstruct'], """
-env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'"%s"',
-                  JAVAH = r'"%s"')
-classes = env.Java(target = 'classes', source = 'src')
-env.JavaH(target = 'outdir', source = classes)
+env = Environment(tools=['javac', 'javah'], JAVAC=r'"%s"', JAVAH=r'"%s"')
+classes = env.Java(target='classes', source='src')
+env.JavaH(target='outdir', source=classes)
 """ % (javac, javah))
 
 test.write(['rep1', 'src', 'Foo1.java'], """\
@@ -206,11 +213,9 @@ test.up_to_date(chdir = 'work2', options = opts, arguments = ".")
 
 #
 test.write(['work3', 'SConstruct'], """
-env = Environment(tools = ['javac', 'javah'],
-                  JAVAC = r'"%s"',
-                  JAVAH = r'"%s"')
-classes = env.Java(target = 'classes', source = 'src')
-hfiles = env.JavaH(target = 'outdir', source = classes)
+env = Environment(tools=['javac', 'javah'], JAVAC=r'"%s"', JAVAH=r'"%s"')
+classes = env.Java(target='classes', source='src')
+hfiles = env.JavaH(target='outdir', source=classes)
 Local(hfiles)
 """ % (javac, javah))
 

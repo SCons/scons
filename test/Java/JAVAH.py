@@ -31,70 +31,8 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('myjavah.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-d':
-        outdir = args[1]
-        args = args[1:]
-    elif a == '-o':
-        outfile = open(args[1], 'w')
-        args = args[1:]
-    elif a == '-classpath':
-        args = args[1:]
-    elif a == '-sourcepath':
-        args = args[1:]
-    else:
-        break
-    args = args[1:]
-for file in args:
-    infile = open(file, 'r')
-    for l in infile.readlines():
-        if l[:9] != '/*javah*/':
-            outfile.write(l)
-sys.exit(0)
-""")
-
-test.write('SConstruct', """
-env = Environment(tools = ['javah'],
-                  JAVAH = r'%(_python_)s myjavah.py')
-env.JavaH(target = File('test1.h'), source = 'test1.java')
-""" % locals())
-
-test.write('test1.java', """\
-test1.java
-/*javah*/
-line 3
-""")
-
-test.run(arguments='.', stderr=None)
-
-test.must_match('test1.h', "test1.java\nline 3\n", mode='r')
-
-if os.path.normcase('.java') == os.path.normcase('.JAVA'):
-
-    test.write('SConstruct', """\
-env = Environment(tools = ['javah'],
-                  JAVAH = r'%(_python_)s myjavah.py')
-env.JavaH(target = File('test2.h'), source = 'test2.JAVA')
-""" % locals())
-
-    test.write('test2.JAVA', """\
-test2.JAVA
-/*javah*/
-line 3
-""")
-
-    test.run(arguments='.', stderr=None)
-
-    test.must_match('test2.h', "test2.JAVA\nline 3\n", mode='r')
-
-
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
-
 if java_version:
     java_version = repr(java_version)
 
@@ -103,6 +41,13 @@ if java_version:
 # and so will always fail 
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
+
+# TODO rework for 'javac -h', for now skip
+# The logical test would be:
+# if float(java_version) > 9:
+# but java_where_javac() lies on a multi-java system
+if not test.Environment().WhereIs('javah'):
+    test.skip_test("No Java javah for version > 9, skipping test.\n")
 
 test.file_fixture('wrapper_with_args.py')
 

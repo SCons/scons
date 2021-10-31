@@ -80,7 +80,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if doing SUBST_RAW (issue #4037)
     - Update Util/NodeList implementation to get rid of a workaround for
       early Python 3 slicing issue that is no longer a problem.
-
+    - Rework some Java tests to skip rather than fail on CI systems, where
+      the working java is > v9, but a 1.8 or 9 was also found.
 
   From Brian Quistorff:
     - Fix crash when scons is run from a python environement where a signal
