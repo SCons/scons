@@ -149,7 +149,7 @@ test.sleep()
 
 test.run(arguments = '. --max-drift=1')
 
-sig_re = r'[0-9a-fA-F]{32}'
+sig_re = r'[0-9a-fA-F]{32,64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
 test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/.sconsign",

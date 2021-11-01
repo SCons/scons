@@ -141,7 +141,7 @@ test.write(['sub2', 'inc2.h'], r"""\
 
 test.run(arguments = '--implicit-cache .')
 
-sig_re = r'[0-9a-fA-F]{32}'
+sig_re = r'[0-9a-fA-F]{32,64}'
 
 test.run_sconsign(arguments = ".sconsign",
          stdout = r"""=== .:

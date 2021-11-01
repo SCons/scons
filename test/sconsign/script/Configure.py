@@ -66,7 +66,7 @@ env = conf.Finish()
 
 test.run(arguments = '.')
 
-sig_re = r'[0-9a-fA-F]{32}'
+sig_re = r'[0-9a-fA-F]{32,64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 _sconf_temp_conftest_0_c = '.sconf_temp/conftest_%(sig_re)s_0.c'%locals()
 

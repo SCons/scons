@@ -1415,10 +1415,10 @@ SConscript(sconscript)
                     for ext, flag in bld_desc:  # each file in TryBuild
                         if ext in ['.c', '.cpp']:
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}_\d+%s' % re.escape(ext)
+                                            r'_[a-z0-9]{32,64}_\d+%s' % re.escape(ext)
                         elif ext == '':
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}(_\d+_[a-z0-9]{32})?'
+                                            r'_[a-z0-9]{32,64}(_\d+_[a-z0-9]{32,64})?'
 
                         else:
                             # We allow the second hash group to be optional because
@@ -1430,7 +1430,7 @@ SConscript(sconscript)
                             # TODO: perhaps revisit and/or fix file naming for intermediate files in
                             #  Configure context logic
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}_\d+(_[a-z0-9]{32})?%s' % re.escape(ext)
+                                            r'_[a-z0-9]{32,64}_\d+(_[a-z0-9]{32,64})?%s' % re.escape(ext)
 
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild
