@@ -858,7 +858,6 @@ if args.output:
     if isinstance(sys.stderr, Tee):
         sys.stderr.file.close()
 
-import pdb; pdb.set_trace()
 if fail:
     sys.exit(1)
 elif no_result and args.dont_ignore_skips:
