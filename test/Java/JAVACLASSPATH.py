@@ -29,6 +29,8 @@ files in alternate locations by adding the -classpath option
 to the javac command line.
 """
 
+import pathlib
+
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -39,11 +41,17 @@ where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
 
 # TODO rework for 'javac -h', for now skip
-# The logical test would be:
-# if float(java_version) > 9:
-# but java_where_javac() lies on a multi-java system
+# The logical test would be:  if java_version > 9:
+# but java_where_javah() roots around and will find from an older version
 if not test.Environment().WhereIs('javah'):
     test.skip_test("No Java javah for version > 9, skipping test.\n")
+
+# On some systems, the alternatives system does not remove javah even if the
+# preferred Java doesn't have it, so try another check
+javacdir = pathlib.Path(where_javac).parent
+javahdir = pathlib.Path(where_javah).parent
+if javacdir != javahdir:
+    test.skip_test("Cannot find Java javah matching javac, skipping test.\n")
 
 test.write('SConstruct', """
 env = Environment(tools=['javac', 'javah'])

@@ -31,6 +31,7 @@ TODO: the whole Applet facility is deprecated, need a new test.
 """
 
 import os
+import pathlib
 
 import TestSCons
 
@@ -53,11 +54,17 @@ if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
 # TODO rework for 'javac -h', for now skip
-# The logical test would be:
-# if float(java_version) > 9:
-# but java_where_javac() lies on a multi-java system
+# The logical test would be:  if java_version > 9:
+# but java_where_javah() roots around and will find from an older version
 if not test.Environment().WhereIs('javah'):
     test.skip_test("No Java javah for version > 9, skipping test.\n")
+
+# On some systems, the alternatives system does not remove javah even if the
+# preferred Java doesn't have it, so try another check
+javacdir = pathlib.Path(where_javac).parent
+javahdir = pathlib.Path(where_javah).parent
+if javacdir != javahdir:
+    test.skip_test("Cannot find Java javah matching javac, skipping test.\n")
 
 test.subdir(
     ['src'],
