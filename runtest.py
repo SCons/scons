@@ -110,9 +110,9 @@ parser.add_argument('--no-faillog', dest='error_log',
                     default='failed_tests.log',
                     help="Do not log failed tests to a file")
 
-parser.add_argument('--no-ignore-skips', dest='ignore_skips',
-                    action='store_false',
-                    default=True,
+parser.add_argument('--no-ignore-skips', dest='dont_ignore_skips',
+                    action='store_true',
+                    default=False,
                     help="If any tests are skipped, exit status 2")
 
 outctl = parser.add_argument_group(description='Output control options:')
@@ -858,9 +858,10 @@ if args.output:
     if isinstance(sys.stderr, Tee):
         sys.stderr.file.close()
 
+import pdb; pdb.set_trace()
 if fail:
     sys.exit(1)
-elif no_result and args.ignore_skips:
+elif no_result and args.dont_ignore_skips:
     # if no fails, but skips were found
     sys.exit(2)
 else:
