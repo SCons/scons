@@ -1185,8 +1185,8 @@ to use the specified algorithm.</para>
 For example, <option>--hash-format=sha256</option> will create a SConsign
 database with name <filename>.sconsign_sha256.dblite</filename>.</para>
 
-<para>If this option is not specified, a hash format of
-md5 is used, and the SConsign database is
+<para>If this option is not specified, a the first supported hash format found
+is selected, and the SConsign database is
 <filename>.sconsign.dblite</filename>.</para>
 
 <para><emphasis>Available since &scons; 4.2.</emphasis></para>

@@ -1669,9 +1669,56 @@ def AddMethod(obj, function, name=None):
 
 
 # Default hash function and format. SCons-internal.
-ALLOWED_HASH_FORMATS = ['md5', 'sha1', 'sha256']
+_DEFAULT_HASH_FORMATS = ['md5', 'sha1', 'sha256']
+ALLOWED_HASH_FORMATS = []
 _HASH_FUNCTION = None
 _HASH_FORMAT = None
+
+
+def set_allowed_viable_default_hashes():
+    """Checks if SCons has ability to call the default algorithms normally supported.
+
+    This util class is sometimes called prior to setting the user-selected hash algorithm,
+    meaning that on FIPS-compliant systems the library would default-initialize MD5
+    and throw an exception in set_hash_format. A common case is using the SConf options,
+    which can run prior to main, and thus ignore the options.hash_format variable.
+
+    This function checks the _DEFAULT_HASH_FORMATS and sets the ALLOWED_HASH_FORMATS
+    to only the ones that can be called.
+
+    Throws if no allowed hash formats are detected.
+    """
+    global ALLOWED_HASH_FORMATS
+    _last_error = None
+    # note: if you call this method repeatedly, example using timeout, this is needed.
+    # otherwise it keeps appending valid formats to the string
+    ALLOWED_HASH_FORMATS = []
+    
+    for test_algorithm in _DEFAULT_HASH_FORMATS:
+        _test_hash = getattr(hashlib, test_algorithm, None)
+        # we know hashlib claims to support it... check to see if we can call it.
+        if _test_hash is not None:
+            # the hashing library will throw an exception on initialization in FIPS mode,
+            # meaning if we call the default algorithm returned with no parameters, it'll
+            # throw if it's a bad algorithm, otherwise it will append it to the known
+            # good formats.
+            try:
+                _test_hash()
+                ALLOWED_HASH_FORMATS.append(test_algorithm)
+            except ValueError as e:
+                _last_error = e
+                continue
+    
+    if len(ALLOWED_HASH_FORMATS) == 0:
+        from SCons.Errors import SConsEnvironmentError  # pylint: disable=import-outside-toplevel
+        # chain the exception thrown with the most recent error from hashlib.
+        raise SConsEnvironmentError(
+            'No usable hash algorithms found.'
+            'Most recent error from hashlib attached in trace.'
+        ) from _last_error
+    return
+
+set_allowed_viable_default_hashes()
 
 
 def get_hash_format():
@@ -1702,22 +1749,54 @@ def set_hash_format(hash_format):
         if hash_format_lower not in ALLOWED_HASH_FORMATS:
             from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
 
-            raise UserError('Hash format "%s" is not supported by SCons. Only '
+            # user can select something not supported by their OS but normally supported by
+            # SCons, example, selecting MD5 in an OS with FIPS-mode turned on. Therefore we first
+            # check if SCons supports it, and then if their local OS supports it.
+            if hash_format_lower in _DEFAULT_HASH_FORMATS:
+                raise UserError('While hash format "%s" is supported by SCons, the '
+                                'local system indicates only the following hash '
+                                'formats are supported by the hashlib library: %s' %
+                                (hash_format_lower,
+                                ', '.join(ALLOWED_HASH_FORMATS))
+                )
+            # the hash format isn't supported by SCons in any case. Warn the user, and
+            # if we detect that SCons supports more algorithms than their local system
+            # supports, warn the user about that too.
+            else:
+                if ALLOWED_HASH_FORMATS == _DEFAULT_HASH_FORMATS:
+                    raise UserError('Hash format "%s" is not supported by SCons. Only '
                             'the following hash formats are supported: %s' %
                             (hash_format_lower,
-                             ', '.join(ALLOWED_HASH_FORMATS)))
+                             ', '.join(ALLOWED_HASH_FORMATS))
+                    )
+                else:
+                    raise UserError('Hash format "%s" is not supported by SCons. '
+                            'SCons supports more hash formats than your local system '
+                            'is reporting; SCons supports: %s. Your local system only '
+                            'supports: %s' %
+                            (hash_format_lower,
+                             ', '.join(_DEFAULT_HASH_FORMATS), 
+                             ', '.join(ALLOWED_HASH_FORMATS))
+                    )
 
+        # this is not expected to fail. If this fails it means the set_allowed_viable_default_hashes
+        # function did not throw, or when it threw, the exception was caught and ignored, or
+        # the global ALLOWED_HASH_FORMATS was changed by an external user.
         _HASH_FUNCTION = getattr(hashlib, hash_format_lower, None)
         if _HASH_FUNCTION is None:
             from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
 
             raise UserError(
-                'Hash format "%s" is not available in your Python interpreter.'
+                'Hash format "%s" is not available in your Python interpreter. '
+                'Expected to be supported algorithm by set_allowed_viable_default_hashes, '
+                'Assertion error in SCons.'
                 % hash_format_lower
             )
     else:
         # Set the default hash format based on what is available, defaulting
-        # to md5 for backwards compatibility.
+        # to the first supported hash algorithm (usually md5) for backwards compatibility.
+        # in FIPS-compliant systems this usually defaults to SHA1, unless that too has been
+        # disabled.
         for choice in ALLOWED_HASH_FORMATS:
             _HASH_FUNCTION = getattr(hashlib, choice, None)
             if _HASH_FUNCTION is not None:
@@ -1728,7 +1807,9 @@ def set_hash_format(hash_format):
 
             raise UserError(
                 'Your Python interpreter does not have MD5, SHA1, or SHA256. '
-                'SCons requires at least one.')
+                'SCons requires at least one. Expected to support one or more '
+                'during set_allowed_viable_default_hashes.'
+            )
 
 # Ensure that this is initialized in case either:
 #    1. This code is running in a unit test.

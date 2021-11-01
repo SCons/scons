@@ -9,6 +9,12 @@ NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 s
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Jacob Cassagnol:
+    - Default hash algorithm check updated for Scons FIPS compliance. Now checks for hash viability
+      first and then walks the tree to use the first viable hash as the default one. This typically
+      selects SHA1 on FIPS-enabled systems as the new default instead of MD5, unless SHA1 has also
+      been disabled by security policy, at which point SCons selects SHA256 as the default.
+
   From Joseph Brill:
     - Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
     - Add support for Visual Studio 2022 (release and prerelease).
