@@ -71,7 +71,9 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- Added --no-ignore-skips to runtest.py. Changed default to ignore skips when setting
+  runtest.py's exit status. Previously would exit 2 if any tests were skipped.
+  Now will only exit 2 if user specifies --no-ignore-skips and some tests were skipped.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
