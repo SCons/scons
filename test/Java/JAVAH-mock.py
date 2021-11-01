@@ -24,8 +24,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the ability to configure the $JAVAHCOM construction variable.
+Test JavaH without calling the tool
+Split from rest of test to allow these to run if real javah skipped.
 """
+
+import os
 
 import TestSCons
 
@@ -33,27 +36,60 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.file_fixture('mycompile.py')
+test.write('myjavah.py', r"""
+import sys
+args = sys.argv[1:]
+while args:
+    a = args[0]
+    if a == '-d':
+        outdir = args[1]
+        args = args[1:]
+    elif a == '-o':
+        outfile = open(args[1], 'w')
+        args = args[1:]
+    elif a == '-classpath':
+        args = args[1:]
+    elif a == '-sourcepath':
+        args = args[1:]
+    else:
+        break
+    args = args[1:]
+for file in args:
+    infile = open(file, 'r')
+    for l in infile.readlines():
+        if l[:9] != '/*javah*/':
+            outfile.write(l)
+sys.exit(0)
+""")
 
 test.write('SConstruct', """
-env = Environment(
-    TOOLS=['default', 'javah'],
-    JAVAHCOM=r'%(_python_)s mycompile.py javah $TARGET $SOURCES',
-)
-env.JavaH(target='out', source='file1.class')
-env.JavaH(target='out', source='file2.class')
-env.JavaH(target='out', source='file3.class')
+env = Environment(tools=['javah'], JAVAH=r'%(_python_)s myjavah.py')
+env.JavaH(target=File('test1.h'), source='test1.java')
 """ % locals())
 
-test.write('file1.class', "file1.class\n/*javah*/\n")
-test.write('file2.class', "file2.class\n/*javah*/\n")
-test.write('file3.class', "file3.class\n/*javah*/\n")
+test.write('test1.java', """\
+test1.java
+/*javah*/
+line 3
+""")
 
-test.run()
+test.run(arguments='.', stderr=None)
+test.must_match('test1.h', "test1.java\nline 3\n", mode='r')
 
-test.must_match(['out', 'file1.h'], "file1.class\n")
-test.must_match(['out', 'file2.h'], "file2.class\n")
-test.must_match(['out', 'file3.h'], "file3.class\n")
+if os.path.normcase('.java') == os.path.normcase('.JAVA'):
+    test.write('SConstruct', """\
+env = Environment(tools=['javah'], JAVAH=r'%(_python_)s myjavah.py')
+env.JavaH(target=File('test2.h'), source='test2.JAVA')
+""" % locals())
+
+    test.write('test2.JAVA', """\
+test2.JAVA
+/*javah*/
+line 3
+""")
+
+    test.run(arguments='.', stderr=None)
+    test.must_match('test2.h', "test2.JAVA\nline 3\n", mode='r')
 
 test.pass_test()
 
