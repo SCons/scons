@@ -28,6 +28,7 @@ Test building Java applications when using Repositories.
 """
 
 import os
+import pathlib
 
 import TestSCons
 
@@ -38,6 +39,13 @@ test = TestSCons.TestSCons()
 where_javac, java_version = test.java_where_javac()
 where_java = test.java_where_java()
 where_javah = test.java_where_javah()
+
+# On some systems, the alternatives system does not remove javah even if the
+# preferred Java doesn't have it, check the paths just in case.
+javacdir = pathlib.Path(where_javac).parent
+javahdir = pathlib.Path(where_javah).parent
+if javacdir != javahdir:
+    test.skip_test("Cannot find Java javah matching javac, skipping test.\n")
 
 java = where_java
 javac = where_javac
@@ -58,7 +66,7 @@ test.subdir(
     ['rep1', 'src'],
     'work1',
     'work2',
-    'work3'
+    'work3',
 )
 
 #
