@@ -1738,7 +1738,7 @@ def _set_allowed_viable_default_hashes(hashlib_used):
             # throw if it's a bad algorithm, otherwise it will append it to the known
             # good formats.
             try:
-                _test_hash = _attempt_init_of_python_3_9_hash_object(_test_hash)
+                _attempt_init_of_python_3_9_hash_object(_test_hash)
                 ALLOWED_HASH_FORMATS.append(test_algorithm)
             except ValueError as e:
                 _last_error = e
@@ -1789,10 +1789,10 @@ def set_hash_format(hash_format, hashlib_used=hashlib):
             # check if SCons supports it, and then if their local OS supports it.
             if hash_format_lower in _DEFAULT_HASH_FORMATS:
                 raise UserError('While hash format "%s" is supported by SCons, the '
-                                'local system indicates only the following hash '
-                                'formats are supported by the hashlib library: %s' %
-                                (hash_format_lower,
-                                ', '.join(ALLOWED_HASH_FORMATS))
+                        'local system indicates only the following hash '
+                        'formats are supported by the hashlib library: %s' %
+                        (hash_format_lower,
+                        ', '.join(ALLOWED_HASH_FORMATS))
                 )
             else:
                 # the hash format isn't supported by SCons in any case. Warn the user, and
@@ -1821,7 +1821,7 @@ def set_hash_format(hash_format, hashlib_used=hashlib):
             _HASH_FUNCTION = None
             _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, hash_format_lower, None))
             _HASH_FUNCTION = hash_format_lower
-        except:
+        except ValueError:
             # if attempt_init_of_python_3_9 throws, this is typically due to FIPS being enabled
             # however, if we get to this point, the viable hash function check has either been
             # bypassed or otherwise failed to properly restrict the user to only the supported
@@ -1847,7 +1847,7 @@ def set_hash_format(hash_format, hashlib_used=hashlib):
                 _HASH_FUNCTION = None
                 _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, choice, None))
                 _HASH_FUNCTION = choice
-            except:
+            except ValueError:
                 continue
             
             if _HASH_FUNCTION is not None:
