@@ -29,6 +29,7 @@ import os
 import pprint
 import re
 import sys
+import inspect
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
 from contextlib import suppress
@@ -1674,8 +1675,41 @@ ALLOWED_HASH_FORMATS = []
 _HASH_FUNCTION = None
 _HASH_FORMAT = None
 
+def _attempt_init_of_python_3_9_hash_object(hash_function_object):
+    """Python 3.9 and onwards lets us initialize the hash function object with the
+    key "usedforsecurity"=false. This lets us continue to use algorithms that have
+    been deprecated either by FIPS or by Python itself, as the MD5 algorithm SCons
+    prefers is not being used for security purposes as much as a short, 32 char
+    hash that is resistant to accidental collisions.
 
-def set_allowed_viable_default_hashes():
+    In prior versions of python, hashlib returns a native function wrapper, which
+    errors out when it's queried for the optional parameter, so this function
+    wraps that call.
+
+    It can still throw a ValueError if the initialization fails due to FIPS
+    compliance issues, but that is assumed to be the responsibility of the caller.
+    """
+    if hash_function_object is None:
+        return None
+    
+    # it's surprisingly difficult to get the version of python used without an external library:
+    # https://stackoverflow.com/a/11887885 details how to check versions with the "packaging" library.
+    # instead of an explicit version check this does a check for the supported feature directly.
+    try:
+        _valid_arguments=inspect.getfullargspec(hash_function_object).kwonlyargs
+        # if this keyword exists, the hashlib is from python >= 3.9, and the hash is always supported.
+        if "usedforsecurity" in _valid_arguments:
+            return hash_function_object(usedforsecurity=False)
+    except TypeError:
+        # unfortunately inspec.getfullargspec throws a TypeError in previous versions of python
+        # as the algorithms were native functions rather than python functions. As such we swallow
+        # the original error here to distinguish from lack of initialization support of the algorithm,
+        # which is a ValueError.
+        # The following line may throw the ValueError if FIPS support is turned on, so this function
+        # should be wrapped inside a try-catch to properly deal with the error thrown.
+        return hash_function_object()
+
+def _set_allowed_viable_default_hashes(hashlib_used):
     """Checks if SCons has ability to call the default algorithms normally supported.
 
     This util class is sometimes called prior to setting the user-selected hash algorithm,
@@ -1684,7 +1718,8 @@ def set_allowed_viable_default_hashes():
     which can run prior to main, and thus ignore the options.hash_format variable.
 
     This function checks the _DEFAULT_HASH_FORMATS and sets the ALLOWED_HASH_FORMATS
-    to only the ones that can be called.
+    to only the ones that can be called. In Python >= 3.9 this will always default to
+    MD5 as in Python 3.9 there is an optional attribute "usedforsecurity" set for the method.
 
     Throws if no allowed hash formats are detected.
     """
@@ -1695,7 +1730,7 @@ def set_allowed_viable_default_hashes():
     ALLOWED_HASH_FORMATS = []
     
     for test_algorithm in _DEFAULT_HASH_FORMATS:
-        _test_hash = getattr(hashlib, test_algorithm, None)
+        _test_hash = getattr(hashlib_used, test_algorithm, None)
         # we know hashlib claims to support it... check to see if we can call it.
         if _test_hash is not None:
             # the hashing library will throw an exception on initialization in FIPS mode,
@@ -1703,7 +1738,7 @@ def set_allowed_viable_default_hashes():
             # throw if it's a bad algorithm, otherwise it will append it to the known
             # good formats.
             try:
-                _test_hash()
+                _test_hash = _attempt_init_of_python_3_9_hash_object(_test_hash)
                 ALLOWED_HASH_FORMATS.append(test_algorithm)
             except ValueError as e:
                 _last_error = e
@@ -1718,7 +1753,7 @@ def set_allowed_viable_default_hashes():
         ) from _last_error
     return
 
-set_allowed_viable_default_hashes()
+_set_allowed_viable_default_hashes(hashlib)
 
 
 def get_hash_format():
@@ -1732,7 +1767,7 @@ def get_hash_format():
     return _HASH_FORMAT
 
 
-def set_hash_format(hash_format):
+def set_hash_format(hash_format, hashlib_used=hashlib):
     """Sets the default hash format used by SCons.
 
     If `hash_format` is ``None`` or
@@ -1759,10 +1794,10 @@ def set_hash_format(hash_format):
                                 (hash_format_lower,
                                 ', '.join(ALLOWED_HASH_FORMATS))
                 )
-            # the hash format isn't supported by SCons in any case. Warn the user, and
-            # if we detect that SCons supports more algorithms than their local system
-            # supports, warn the user about that too.
             else:
+                # the hash format isn't supported by SCons in any case. Warn the user, and
+                # if we detect that SCons supports more algorithms than their local system
+                # supports, warn the user about that too.
                 if ALLOWED_HASH_FORMATS == _DEFAULT_HASH_FORMATS:
                     raise UserError('Hash format "%s" is not supported by SCons. Only '
                             'the following hash formats are supported: %s' %
@@ -1782,7 +1817,17 @@ def set_hash_format(hash_format):
         # this is not expected to fail. If this fails it means the set_allowed_viable_default_hashes
         # function did not throw, or when it threw, the exception was caught and ignored, or
         # the global ALLOWED_HASH_FORMATS was changed by an external user.
-        _HASH_FUNCTION = getattr(hashlib, hash_format_lower, None)
+        try:
+            _HASH_FUNCTION = None
+            _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, hash_format_lower, None))
+            _HASH_FUNCTION = hash_format_lower
+        except:
+            # if attempt_init_of_python_3_9 throws, this is typically due to FIPS being enabled
+            # however, if we get to this point, the viable hash function check has either been
+            # bypassed or otherwise failed to properly restrict the user to only the supported
+            # functions. As such throw the UserError as an internal assertion-like error.
+            pass
+        
         if _HASH_FUNCTION is None:
             from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
 
@@ -1798,7 +1843,13 @@ def set_hash_format(hash_format):
         # in FIPS-compliant systems this usually defaults to SHA1, unless that too has been
         # disabled.
         for choice in ALLOWED_HASH_FORMATS:
-            _HASH_FUNCTION = getattr(hashlib, choice, None)
+            try:
+                _HASH_FUNCTION = None
+                _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, choice, None))
+                _HASH_FUNCTION = choice
+            except:
+                continue
+            
             if _HASH_FUNCTION is not None:
                 break
         else:
@@ -1818,7 +1869,7 @@ def set_hash_format(hash_format):
 set_hash_format(None)
 
 
-def _get_hash_object(hash_format):
+def _get_hash_object(hash_format, hashlib_used=hashlib):
     """Allocates a hash object using the requested hash format.
 
     Args:
@@ -1833,7 +1884,7 @@ def _get_hash_object(hash_format):
 
             raise UserError('There is no default hash function. Did you call '
                             'a hashing function before SCons was initialized?')
-        return _HASH_FUNCTION()
+        return _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, _HASH_FUNCTION, None))
 
     if not hasattr(hashlib, hash_format):
         from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
@@ -1842,7 +1893,7 @@ def _get_hash_object(hash_format):
             'Hash format "%s" is not available in your Python interpreter.' %
             hash_format)
 
-    return getattr(hashlib, hash_format)()
+    return _attempt_init_of_python_3_9_hash_object(getattr(hashlib, hash_format))
 
 
 def hash_signature(s, hash_format=None):

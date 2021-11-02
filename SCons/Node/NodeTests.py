@@ -592,7 +592,7 @@ class NodeTestCase(unittest.TestCase):
             node = SCons.Node.Node()
             node._func_get_contents = 4
             result = node.get_csig()
-            assert result == '550a141f12de6341fba65b0ad0433500' or result == '9a3e61b6bcc8abec08f195526c3132d5a4a98cc0' or result == '3538a1ef2e113da64249eea7bd068b585ec7ce5df73b2d1e319d8c9bf47eb314', result
+            assert result in ('550a141f12de6341fba65b0ad0433500', '9a3e61b6bcc8abec08f195526c3132d5a4a98cc0', '3538a1ef2e113da64249eea7bd068b585ec7ce5df73b2d1e319d8c9bf47eb314'), result
         finally:
             SCons.Node.Node.NodeInfo = SCons.Node.NodeInfoBase
 
@@ -609,7 +609,7 @@ class NodeTestCase(unittest.TestCase):
             node = SCons.Node.Node()
             node._func_get_contents = 4
             result = node.get_cachedir_csig()
-            assert result == '15de21c670ae7c3f6f3f1f37029303c9' or result == 'cfa1150f1787186742a9a884b73a43d8cf219f9b' or result == '91a73fd806ab2c005c13b4dc19130a884e909dea3f72d46e30266fe1a1f588d8', result
+            assert result in ('15de21c670ae7c3f6f3f1f37029303c9', 'cfa1150f1787186742a9a884b73a43d8cf219f9b', '91a73fd806ab2c005c13b4dc19130a884e909dea3f72d46e30266fe1a1f588d8'), result
         finally:
             SCons.Node.Node.NodeInfo = SCons.Node.NodeInfoBase
 
