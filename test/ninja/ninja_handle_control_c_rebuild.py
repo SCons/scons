@@ -70,9 +70,8 @@ test.run(program=program, stdout=None, stderr=None, status=1)
 test.must_contain_all(
     test.stderr(), "ninja: error: rebuilding 'build.ninja': interrupted by user")
 
-test.must_exist(
-    'build.ninja', "Rebuilding build.ninja and sending control-c to ninja doesn't preserve build.ninja")
-
+# Verify that Rebuilding build.ninja and sending control-c to ninja doesn't remove build.ninja
+test.must_exist('build.ninja')
 test.pass_test()
 
 # Local Variables:
