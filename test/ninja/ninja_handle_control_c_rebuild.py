@@ -67,8 +67,11 @@ test.file_fixture(
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
 test.run(program=program, stdout=None, stderr=None, status=1)
-test.must_contain_all(
-    test.stderr(), "ninja: error: rebuilding 'build.ninja': interrupted by user")
+
+if not IS_WINDOWS:
+    error_msg = "ninja: error: rebuilding 'build.ninja': interrupted by user"
+    test.must_contain_all(
+        test.stderr(), error_msg )
 
 # Verify that Rebuilding build.ninja and sending control-c to ninja doesn't remove build.ninja
 test.must_exist('build.ninja')
