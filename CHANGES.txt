@@ -85,6 +85,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       early Python 3 slicing issue that is no longer a problem.
     - Rework some Java tests to skip rather than fail on CI systems, where
       the working java is > v9, but a 1.8 or 9 was also found.
+    - Java updates: on Windows, detect more possible JDK locations.
+      On all platforms, more Java versions (up to 17.0 now).  Add some
+      docu on version selection, and on JavaH tool in light of javah
+      command dropped since 10.0. Try to be better about preserving
+      user's passed-in JAVA* construction vars.
 
   From Brian Quistorff:
     - Fix crash when scons is run from a python environement where a signal

@@ -28,6 +28,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
   This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
   introduced by Aaron Franke (listed below) were merged.
+- The Java tool now accepts more versions (up to 17.0), and is better
+  able to detect the many builds of OpenJDK available since it became
+  designated the reference Java implementation.
 
 FIXES
 -----

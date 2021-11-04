@@ -90,6 +90,27 @@ env.JavaH(
     JAVACLASSDIR="classes",
 )
 </example_commands>
+
+<note>
+<para>
+Java versions starting with 10.0 no longer use the
+<command>javah</command> command for generating JNI
+headers/sources, and indeed have removed the command entirely
+(see Java Enhancement Proposal
+<ulink url="https:openjdk.java.net/jeps/313">JEP 313</ulink>),
+making this tool harder to use for that purpose.
+&SCons; may autodiscover a <command>javah</command>
+belonging to an older release if there are multiple Java
+versions on the system, which will lead to incorrect results.
+To use with a newer Java, override the default values of &cv-link-JAVAH;
+(to contain the path to the <command>javac</command>)
+and &cv-link-JAVAHFLAGS; (to contain at least a <option>-d</option>
+flag) and note that generating headers with
+<command>javac</command> requires supplying source
+<filename>.java</filename> files only,
+not <filename>.class</filename> files.
+</para>
+</note>
 </summary>
 </builder>
 

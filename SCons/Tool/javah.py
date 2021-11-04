@@ -128,12 +128,15 @@ def generate(env):
             javah_bin_dir = os.path.dirname(javah)
             env.AppendENVPath('PATH', javah_bin_dir)
 
-    env['_JAVAHOUTFLAG']    = JavaHOutFlagGenerator
-    env['JAVAH']            = 'javah'
-    env['JAVAHFLAGS']       = SCons.Util.CLVar('')
-    env['_JAVAHCLASSPATH']  = getJavaHClassPath
-    env['JAVAHCOM']         = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG $_JAVAHCLASSPATH ${SOURCES.attributes.java_classname}'
-    env['JAVACLASSSUFFIX']  = '.class'
+    env.SetDefault(
+        JAVAH='javah',
+        JAVAHFLAGS=SCons.Util.CLVar(''),
+        JAVACLASSSUFFIX='.class',
+        JAVASUFFIX='.java',
+    )
+    env['_JAVAHOUTFLAG'] = JavaHOutFlagGenerator
+    env['_JAVAHCLASSPATH'] = getJavaHClassPath
+    env['JAVAHCOM'] = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG $_JAVAHCLASSPATH ${SOURCES.attributes.java_classname}'
 
 def exists(env):
     return env.Detect('javah')
