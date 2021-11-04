@@ -10,6 +10,8 @@ NEW FUNCTIONALITY
 -----------------
 
 - Ninja - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
+- Add support for Visual Studio 2022.
+- Add support for pre-release versions of Visual Studio 2022 via an environment variable.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -40,6 +42,8 @@ FIXES
 - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
   but instead it should yield '$('.
 - Ninja - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
+- Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
+- Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
   the ninja file scons regenerate and callback invocations will lose the $ characters used in
   the scons command line which ninja uses itself for escaping. For Example:
       scons BUILD=xyz OTHERVAR=$BUILD
@@ -72,7 +76,9 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- Added --no-ignore-skips to runtest.py. Changed default to ignore skips when setting
+  runtest.py's exit status. Previously would exit 2 if any tests were skipped.
+  Now will only exit 2 if user specifies --no-ignore-skips and some tests were skipped.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

@@ -1,0 +1,18 @@
+env = Environment()
+
+def generator(source, target, env, for_signature):
+    if for_signature:
+        return "sig"
+    return "val"
+
+env['GENERATOR'] = generator
+
+env.Textfile(
+    target="target",
+    source=[
+        "@generated@",
+    ],
+    SUBST_DICT={
+        '@generated@' : '$GENERATOR',
+    },
+)

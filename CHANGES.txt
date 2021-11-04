@@ -9,7 +9,10 @@ NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 s
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      
+  From Joseph Brill:
+    - Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
+    - Add support for Visual Studio 2022 (release and prerelease).
+
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
     - Fix version tests to work with updated scons --version output. (Date format changed)
@@ -21,6 +24,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       introduced by Aaron Franke (listed below) were merged.
     - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
       Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
+    - Added --no-ignore-skips to runtest.py. Changed default to ignore skips when setting
+      runtest.py's exit status. Previously would exit 2 if any tests were skipped.
+      Now will only exit 2 if user specifies --no-ignore-skips and some tests were skipped.
 
   From Ryan Egesdahl:
     - Small fix to ensure CLVar default value is an empty list.
@@ -75,6 +81,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       problems, allowing a more helpful error to be emitted (issue #2828)
     - Maintenance: Python thread.setDaemon is deprecated in favor of
       directly updating daemon attribute - update SCons to do this.
+    - Make sure when subst'ing a callable, the callable is called with
+      the correct for_signature value, previously it would be true even
+      if doing SUBST_RAW (issue #4037)
+    - Update Util/NodeList implementation to get rid of a workaround for
+      early Python 3 slicing issue that is no longer a problem.
+    - Rework some Java tests to skip rather than fail on CI systems, where
+      the working java is > v9, but a 1.8 or 9 was also found.
+
+  From Brian Quistorff:
+    - Fix crash when scons is run from a python environement where a signal
+      is set from outside Python.
 
 
 RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700

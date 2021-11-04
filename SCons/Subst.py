@@ -416,6 +416,7 @@ class StringSubber:
                 return conv(substitute(l, lvars))
             return list(map(func, s))
         elif callable(s):
+
             # SCons has the unusual Null class where any __getattr__ call returns it's self, 
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
@@ -427,7 +428,7 @@ class StringSubber:
                 s = s(target=lvars['TARGETS'],
                      source=lvars['SOURCES'],
                      env=self.env,
-                     for_signature=(self.mode != SUBST_CMD))
+                     for_signature=(self.mode == SUBST_SIG))
             else:
                 # This probably indicates that it's a callable
                 # object that doesn't match our calling arguments

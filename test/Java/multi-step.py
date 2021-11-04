@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,11 +26,12 @@
 """
 Real-world test (courtesy Leanid Nazdrynau) of the multi-step
 capabilities of the various Java Builders.
+
+TODO: the whole Applet facility is deprecated, need a new test.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import os
+import pathlib
 
 import TestSCons
 
@@ -50,27 +53,42 @@ if not swig:
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
-test.subdir(['src'],
-            ['src', 'HelloApplet'],
-            ['src', 'HelloApplet', 'com'],
-            ['src', 'javah'],
-            ['src', 'jni'],
-            ['src', 'server'],
-            ['src', 'server', 'JavaSource'],
-            ['src', 'server', 'JavaSource', 'com'],
-            ['src', 'server', 'JavaSource', 'com', 'gnu'],
-            ['src', 'server', 'JavaSource', 'com', 'gnu', 'scons'],
-            ['src', 'server', 'JavaSource', 'com', 'gnu', 'scons', 'web'],
-            ['src', 'server', 'JavaSource', 'com', 'gnu', 'scons', 'web', 'tools'],
-            ['src', 'server', 'WebContent'],
-            ['src', 'server', 'WebContent', 'META-INF'],
-            ['src', 'server', 'WebContent', 'WEB-INF'],
-            ['src', 'server', 'WebContent', 'WEB-INF', 'conf'],
-            ['src', 'server', 'WebContent', 'WEB-INF', 'lib'],
-            ['src', 'server', 'WebContent', 'theme'])
+# TODO rework for 'javac -h', for now skip
+# The logical test would be:  if java_version > 9:
+# but java_where_javah() roots around and will find from an older version
+if not test.Environment().WhereIs('javah'):
+    test.skip_test("No Java javah for version > 9, skipping test.\n")
+
+# On some systems, the alternatives system does not remove javah even if the
+# preferred Java doesn't have it, so try another check
+javacdir = pathlib.Path(where_javac).parent
+javahdir = pathlib.Path(where_javah).parent
+if javacdir != javahdir:
+    test.skip_test("Cannot find Java javah matching javac, skipping test.\n")
+
+test.subdir(
+    ['src'],
+    ['src', 'HelloApplet'],
+    ['src', 'HelloApplet', 'com'],
+    ['src', 'javah'],
+    ['src', 'jni'],
+    ['src', 'server'],
+    ['src', 'server', 'JavaSource'],
+    ['src', 'server', 'JavaSource', 'com'],
+    ['src', 'server', 'JavaSource', 'com', 'gnu'],
+    ['src', 'server', 'JavaSource', 'com', 'gnu', 'scons'],
+    ['src', 'server', 'JavaSource', 'com', 'gnu', 'scons', 'web'],
+    ['src', 'server', 'JavaSource', 'com', 'gnu', 'scons', 'web', 'tools'],
+    ['src', 'server', 'WebContent'],
+    ['src', 'server', 'WebContent', 'META-INF'],
+    ['src', 'server', 'WebContent', 'WEB-INF'],
+    ['src', 'server', 'WebContent', 'WEB-INF', 'conf'],
+    ['src', 'server', 'WebContent', 'WEB-INF', 'lib'],
+    ['src', 'server', 'WebContent', 'theme'],
+)
 
 test.write(['SConstruct'], """\
-import os,sys
+import os, sys
 
 if sys.platform == 'win32':
     # Ensure tests don't pick up link from mingw or cygwin
@@ -78,31 +96,35 @@ if sys.platform == 'win32':
 else:
     tools = ['default', 'javac', 'javah', 'swig']
 
-env=Environment(tools = tools,
-                CPPPATH=["$JAVAINCLUDES"])
+env = Environment(tools=tools, CPPPATH=["$JAVAINCLUDES"])
 Export('env')
 # env.PrependENVPath('PATH',os.environ.get('PATH',[]))
-env['INCPREFIX']='-I'
-env.Append(SWIGFLAGS=['-c++','$_CPPINCFLAGS'])
+env['INCPREFIX'] = '-I'
+env.Append(SWIGFLAGS=['-c++', '$_CPPINCFLAGS'])
 
-#this is for JNI
-#env.Append(CCFLAGS=['/IN:/jdk/v1.3.1/include','/IN:/jdk/v1.3.1/include/win32'])
+# this is for JNI
+# env.Append(CCFLAGS=['/IN:/jdk/v1.3.1/include','/IN:/jdk/v1.3.1/include/win32'])
 
-#this for windows only C++ build
-#env.Append(CXXFLAGS='-GX')
+# this for windows only C++ build
+# env.Append(CXXFLAGS='-GX')
 
 env.Append(CPPPATH='.')
 
 env.VariantDir('buildout', 'src', duplicate=0)
 
-if sys.platform[:6]=='darwin':
-   env.Append(CPPPATH=['/System/Library/Frameworks/JavaVM.framework/Headers'])
+if sys.platform[:6] == 'darwin':
+    env.Append(CPPPATH=['/System/Library/Frameworks/JavaVM.framework/Headers'])
 
-#If you do not have swig on your system please remove 'buildout/jni/SConscript' line from next call
-env.SConscript(['buildout/server/JavaSource/SConscript',
-                'buildout/HelloApplet/SConscript',
-                'buildout/jni/SConscript',
-                'buildout/javah/SConscript'])
+# If you do not have swig on your system please remove
+# 'buildout/jni/SConscript' line from next call
+env.SConscript(
+    [
+        'buildout/server/JavaSource/SConscript',
+        'buildout/HelloApplet/SConscript',
+        'buildout/jni/SConscript',
+        'buildout/javah/SConscript',
+    ]
+)
 """ % locals())
 
 test.write(['src', 'HelloApplet', 'Hello.html'], """\
@@ -123,21 +145,20 @@ test.write(['src', 'HelloApplet', 'Hello.html'], """\
 
 test.write(['src', 'HelloApplet', 'SConscript'], """\
 import os
-Import ("env")
-denv=env.Clone()
-classes=denv.Java(target='classes',source=['com'])
-#set correct path for jar
-denv['JARCHDIR']=os.path.join(denv.Dir('.').get_abspath(),'classes')
-denv.Jar('HelloApplet',classes)
 
+Import("env")
+denv = env.Clone()
+classes = denv.Java(target='classes', source=['com'])
+# set correct path for jar
+denv['JARCHDIR'] = os.path.join(denv.Dir('.').get_abspath(), 'classes')
+denv.Jar('HelloApplet', classes)
 
-#To sign applet you have to create keystore before and made a calls like this
+# To sign applet you have to create keystore before and made a calls like this
 
-#keystore='/path/to/jarsignkey'
-#denv['JARSIGNFLAGS']='-keystore '+keystore+' -storepass pass -keypass passkey'
-#denv['JARSIGNALIAS']='ALIAS'
-#denv['JARCOM']=[denv['JARCOM'],'$JARSIGNCOM']
-
+# keystore='/path/to/jarsignkey'
+# denv['JARSIGNFLAGS']='-keystore '+keystore+' -storepass pass -keypass passkey'
+# denv['JARSIGNALIAS']='ALIAS'
+# denv['JARCOM']=[denv['JARCOM'],'$JARSIGNCOM']
 """)
 
 test.write(['src', 'HelloApplet', 'com', 'Hello.java'], """\
@@ -179,12 +200,11 @@ public class MyID
 
 test.write(['src', 'javah', 'SConscript'], """\
 Import('env')
-denv=env.Clone()
-denv['JARCHDIR']=denv.Dir('.').get_abspath()
-denv.Jar('myid','MyID.java')
-denv.JavaH(denv.Dir('.').get_abspath(),'MyID.java')
-denv.SharedLibrary('myid','MyID.cc')
-
+denv = env.Clone()
+denv['JARCHDIR'] = denv.Dir('.').get_abspath()
+denv.Jar('myid', 'MyID.java')
+denv.JavaH(denv.Dir('.').get_abspath(), 'MyID.java')
+denv.SharedLibrary('myid', 'MyID.cc')
 """)
 
 test.write(['src', 'jni', 'A.java'], """\
@@ -225,8 +245,6 @@ test.write(['src', 'jni', 'JniWrapper.cc'], """\
 
 #include "JniWrapper.h"
 
-
-
 JniWrapper::JniWrapper( JNIEnv *pEnv )
     : mpEnv( pEnv )
 {
@@ -239,7 +257,6 @@ JniWrapper::JniWrapper( const JniWrapper& rJniWrapper )
 
 JniWrapper::~JniWrapper()
 {
-
 }
 
 JniWrapper& JniWrapper::operator=( const JniWrapper& rJniWrapper )
@@ -373,13 +390,13 @@ private:
 """)
 
 test.write(['src', 'jni', 'SConscript'], """\
-Import ("env")
-denv=env.Clone()
+Import("env")
+denv = env.Clone()
 
 denv.Append(SWIGFLAGS=['-java'])
-denv.SharedLibrary('scons',['JniWrapper.cc','Sample.i'])
-denv['JARCHDIR']=denv.Dir('.').get_abspath()
-denv.Jar(['Sample.i','A.java'])
+denv.SharedLibrary('scons', ['JniWrapper.cc', 'Sample.i'])
+denv['JARCHDIR'] = denv.Dir('.').get_abspath()
+denv.Jar(['Sample.i', 'A.java'])
 """)
 
 test.write(['src', 'jni', 'Sample.h'], """\

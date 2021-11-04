@@ -655,7 +655,7 @@ def get_tested_proj_file_vc_versions():
     """
     Returns all MSVC versions that we want to test project file creation for.
     """
-    return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2']
+    return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2', '14.3']
 
 
 class TestSConsMSVS(TestSCons):
@@ -879,6 +879,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         elif vc_version == '14.2':
             # ToolsVersion='16'
             return '16.0'
+        elif vc_version == '14.3':
+            # ToolsVersion='17'
+            return '17.0'
         else:
             raise SCons.Errors.UserError('Received unexpected VC version %s' % vc_version)
 

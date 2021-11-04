@@ -24,41 +24,29 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the ability to configure the $JAVAHCOM construction variable.
+Test for GH Issue 4037
+
+The fix for #4031 created a code path where the subst function
+used by textfile was called with SUBST_RAW, which, if the items to
+subst was a callable, caused it to be called with for_signature=True.
+This did not happen previously as the test was "!= SUBST_CMD",
+and the mode coming in was indeed SUBST_CMD.
 """
 
 import TestSCons
 
-_python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
-test.file_fixture('mycompile.py')
+match_mode = 'r'
 
-test.write('SConstruct', """
-env = Environment(
-    TOOLS=['default', 'javah'],
-    JAVAHCOM=r'%(_python_)s mycompile.py javah $TARGET $SOURCES',
+test.file_fixture('fixture/SConstruct.issue-4037', 'SConstruct')
+
+test.run(arguments='.')
+
+test.must_match(
+    'target.txt',
+    "val",
+    mode=match_mode,
 )
-env.JavaH(target='out', source='file1.class')
-env.JavaH(target='out', source='file2.class')
-env.JavaH(target='out', source='file3.class')
-""" % locals())
-
-test.write('file1.class', "file1.class\n/*javah*/\n")
-test.write('file2.class', "file2.class\n/*javah*/\n")
-test.write('file3.class', "file3.class\n/*javah*/\n")
-
-test.run()
-
-test.must_match(['out', 'file1.h'], "file1.class\n")
-test.must_match(['out', 'file2.h'], "file2.class\n")
-test.must_match(['out', 'file3.h'], "file3.class\n")
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
