@@ -1692,22 +1692,17 @@ def _attempt_init_of_python_3_9_hash_object(hash_function_object):
     if hash_function_object is None:
         return None
     
-    # it's surprisingly difficult to get the version of python used without an external library:
     # https://stackoverflow.com/a/11887885 details how to check versions with the "packaging" library.
-    # instead of an explicit version check this does a check for the supported feature directly.
-    try:
-        _valid_arguments=inspect.getfullargspec(hash_function_object).kwonlyargs
-        # if this keyword exists, the hashlib is from python >= 3.9, and the hash is always supported.
-        if "usedforsecurity" in _valid_arguments:
-            return hash_function_object(usedforsecurity=False)
-    except TypeError:
-        # unfortunately inspec.getfullargspec throws a TypeError in previous versions of python
-        # as the algorithms were native functions rather than python functions. As such we swallow
-        # the original error here to distinguish from lack of initialization support of the algorithm,
-        # which is a ValueError.
-        # The following line may throw the ValueError if FIPS support is turned on, so this function
-        # should be wrapped inside a try-catch to properly deal with the error thrown.
-        return hash_function_object()
+    # however, for our purposes checking the version is greater than or equal to 3.9 is good enough, as
+    # the API is guaranteed to have support for the 'usedforsecurity' flag in 3.9. See 
+    # https://docs.python.org/3/library/hashlib.html#:~:text=usedforsecurity for the version support notes.
+    if (sys.version_info.major > 3) or (sys.version_info.major == 3 and sys.version_info.minor >= 9):
+        return hash_function_object(usedforsecurity=False)
+
+    # note that this can throw a ValueError in FIPS-enabled versions of Linux prior to 3.9
+    # the OpenSSL hashlib will throw on first init here, but that is assumed to be responsibility of
+    # the caller to diagnose the ValueError & potentially display the error to screen.
+    return hash_function_object()
 
 def _set_allowed_viable_default_hashes(hashlib_used):
     """Checks if SCons has ability to call the default algorithms normally supported.
