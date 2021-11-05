@@ -10,7 +10,6 @@ NEW FUNCTIONALITY
 -----------------
 
 - Add support for Visual Studio 2022.
-- Add support for pre-release versions of Visual Studio 2022 via an environment variable.
 - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
 
 DEPRECATED FUNCTIONALITY
