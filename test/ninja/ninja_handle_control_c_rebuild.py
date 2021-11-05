@@ -41,45 +41,45 @@ except ImportError:
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+ninja_bin = os.path.abspath(
+    os.path.join(ninja.__file__, os.pardir, "data", "bin", "ninja" + _exe)
+)
 
-test.dir_fixture('ninja-fixture')
+test.dir_fixture("ninja-fixture")
 
-test.file_fixture(
-    'ninja_test_sconscripts/sconstruct_generate_and_build', 'SConstruct')
+test.file_fixture("ninja_test_sconscripts/sconstruct_generate_and_build", "SConstruct")
 
 # generate simple build
 test.run(stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
-test.run(program=test.workpath('foo' + _exe), stdout="foo.c")
+test.must_contain_all_lines(test.stdout(), ["Generating: build.ninja"])
+test.must_contain_all(test.stdout(), "Executing:")
+test.must_contain_all(test.stdout(), "ninja%(_exe)s -f" % locals())
+test.run(program=test.workpath("foo" + _exe), stdout="foo.c")
 
 # Change the SConstruct
-test.file_fixture(
-    'ninja_test_sconscripts/sconstruct_control_c_ninja', 'SConstruct')
+test.file_fixture("ninja_test_sconscripts/sconstruct_control_c_ninja", "SConstruct")
 
 # run ninja independently
-program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
+program = test.workpath("run_ninja_env.bat") if IS_WINDOWS else ninja_bin
 if IS_WINDOWS:
-    test.fail_test(condition=(test.status in [1,2]), message="Expected exit status to be 1 or 2 was actually:%d"%test.status)
+    test.fail_test(
+        condition=(test.status in [1, 2]),
+        message="Expected exit status to be 1 or 2 was actually:%d" % test.status,
+    )
 else:
-    test.fail_test(condition=(test.status==1), message="Expected exit status to be 1 was actually:%d"%test.status)
+    test.fail_test(
+        condition=(test.status == 1),
+        message="Expected exit status to be 1 was actually:%d" % test.status,
+    )
 
 test.run(program=program, stdout=None, stderr=None, status=None)
 
 if not IS_WINDOWS:
     error_msg = "ninja: error: rebuilding 'build.ninja': interrupted by user"
-    test.must_contain_all(
-        test.stderr(), error_msg )
+    test.must_contain_all(test.stderr(), error_msg)
 
 # Verify that Rebuilding build.ninja and sending control-c to ninja doesn't remove build.ninja
-test.must_exist('build.ninja')
+test.must_exist("build.ninja")
 test.pass_test()
 
 # Local Variables:
