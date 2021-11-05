@@ -66,7 +66,12 @@ test.file_fixture(
 
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
-test.run(program=program, stdout=None, stderr=None, status=1)
+if IS_WINDOWS:
+    test.fail_test(condition=(test.status in [1,2]), message="Expected exit status to be 1 or 2 was actually:%d"%test.status)
+else:
+    test.fail_test(condition=(test.status==1), message="Expected exit status to be 1 was actually:%d"%test.status)
+
+test.run(program=program, stdout=None, stderr=None, status=None)
 
 if not IS_WINDOWS:
     error_msg = "ninja: error: rebuilding 'build.ninja': interrupted by user"
