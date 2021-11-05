@@ -741,6 +741,9 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
   From Lukas Schrangl:
     - Enable LaTeX scanner to find more than one include per line
 
+  From  Sergey Torokhov:
+    - Recognize jdk on Gentoo systems.
+
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid
       possible races on multi-job runs.

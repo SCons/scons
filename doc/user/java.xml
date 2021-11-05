@@ -270,7 +270,7 @@ Java('classes', 'src', JAVAVERSION='1.6')
     After building the class files,
     it's common to collect them into
     a Java archive (<filename>.jar</filename>) file,
-    which you do by calling the &b-link-Jar; Builder method.
+    which you do by calling the &b-link-Jar; Builder.
     If you want to just collect all of the
     class files within a subdirectory,
     you can just specify that subdirectory
@@ -488,8 +488,8 @@ public class Example3
 
     Although it's more convenient to use
     the list of class files returned by
-    the &b-Java; Builder
-    as the source of a call to the &b-JavaH; Builder,
+    the &b-link-Java; Builder
+    as the source of a call to the &b-link-JavaH; Builder,
     you <emphasis>can</emphasis>
     specify the list of class files
     by hand, if you prefer.
@@ -502,11 +502,13 @@ public class Example3
 
     <scons_example name="java_JAVACLASSDIR">
       <file name="SConstruct" printme="1">
-Java(target = 'classes', source = 'src/pkg/sub')
-class_file_list = ['classes/pkg/sub/Example1.class',
-                   'classes/pkg/sub/Example2.class',
-                   'classes/pkg/sub/Example3.class']
-JavaH(target = 'native', source = class_file_list, JAVACLASSDIR = 'classes')
+Java(target='classes', source='src/pkg/sub')
+class_file_list = [
+    'classes/pkg/sub/Example1.class',
+    'classes/pkg/sub/Example2.class',
+    'classes/pkg/sub/Example3.class',
+]
+JavaH(target='native', source=class_file_list, JAVACLASSDIR='classes')
       </file>
       <file name="src/pkg/sub/Example1.java">
 package pkg.sub;
@@ -560,8 +562,8 @@ public class Example3
 
     <scons_example name="java_javah_file">
       <file name="SConstruct" printme="1">
-classes = Java(target = 'classes', source = 'src/pkg/sub')
-JavaH(target = File('native.h'), source = classes)
+classes = Java(target='classes', source='src/pkg/sub')
+JavaH(target=File('native.h'), source=classes)
       </file>
       <file name="src/pkg/sub/Example1.java">
 package pkg.sub;
@@ -595,7 +597,7 @@ public class Example3
     <para>
 
     Because &SCons; assumes by default
-    that the target of the &b-JavaH; builder is a directory,
+    that the target of the &b-link-JavaH; builder is a directory,
     you need to use the &File; function
     to make sure that &SCons; doesn't
     create a directory named <filename>native.h</filename>.
@@ -608,6 +610,17 @@ public class Example3
     <scons_output example="java_javah_file" suffix="1">
       <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
+
+    <para>
+
+    Note that the the <command>javah</command> command was
+    removed from the JDK as of JDK 10, and the approved method
+    (available since JDK 8) is to use <command>javac</command>
+    to generate native headers at the same time as the Java source
+    code is compiled..  As such the &b-link-JavaH; builder
+    is of limited utility in later Java versions.
+
+    </para>
 
   </section>
 
