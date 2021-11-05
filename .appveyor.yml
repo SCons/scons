@@ -77,8 +77,7 @@ build_script:
 
   # NOTE: running powershell from cmd is intended because
   # it formats the output correctly
-  # - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 -t --exclude-list exclude_list.txt -a } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -a }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
-  - cmd: powershell -Command "C:\\%WINPYTHON%\\python.exe runtest.py test\ninja\ninja_handle_control_c_rebuild.py"
+  - cmd: powershell -Command "& { if($env:COVERAGE -eq 1) { coverage run -p --rcfile=$($env:COVERAGE_PROCESS_START) runtest.py -j 2 -t --exclude-list exclude_list.txt -a } else { C:\\%WINPYTHON%\\python.exe runtest.py -j 2 -t --exclude-list exclude_list.txt -a }; if($LastExitCode -eq 2 -Or $LastExitCode -eq 0) { $host.SetShouldExit(0 )} else {$host.SetShouldExit(1)}}"
 
 # run coverage even if there was a test failure
 on_finish:
