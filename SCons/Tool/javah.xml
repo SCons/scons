@@ -104,7 +104,7 @@ belonging to an older release if there are multiple Java
 versions on the system, which will lead to incorrect results.
 To use with a newer Java, override the default values of &cv-link-JAVAH;
 (to contain the path to the <command>javac</command>)
-and &cv-link-JAVAHFLAGS; (to contain at least a <option>-d</option>
+and &cv-link-JAVAHFLAGS; (to contain at least a <option>-h</option>
 flag) and note that generating headers with
 <command>javac</command> requires supplying source
 <filename>.java</filename> files only,
