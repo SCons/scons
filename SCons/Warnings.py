@@ -128,6 +128,8 @@ class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
 class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
     pass
 
+class ToolQtDeprecatedWarning(DeprecatedWarning):
+    pass
 
 # The below is a list of 2-tuples.  The first element is a class object.
 # The second element is true if that class is enabled, false if it is disabled.

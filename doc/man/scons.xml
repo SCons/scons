@@ -1998,7 +1998,8 @@ after other processing.</para>
     <option>--warn=no-<replaceable>type</replaceable></option>
   </term>
   <listitem>
-<para>Enable or disable (with the no- prefix) warnings.
+<para>Enable or disable (with the prefix "no-") warnings
+(<option>--warning</option> is a synonym).
 <replaceable>type</replaceable>
 specifies the type of warnings to be enabled or disabled:</para>
 
@@ -2120,6 +2121,14 @@ singular form, even though
 and
 <parameter>source</parameter>
 can themselves refer to lists of names or nodes.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">tool-qt-deprecated</emphasis></term>
+  <listitem>
+<para>Warnings about the &t-link-qt; tool being deprecated.
+These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
 

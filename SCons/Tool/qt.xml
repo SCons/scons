@@ -31,12 +31,11 @@ Sets &consvars; for building Qt3 applications.
 
 <note><para>
 This tool is only suitable for building targeted to Qt3,
-which is obsolete.
-There are contributed tools for Qt4 and Qt5,
-see
-<ulink url="https://github.com/SCons/scons/wiki/ToolsIndex">
-https://github.com/SCons/scons/wiki/ToolsIndex
-</ulink>.
+which is obsolete
+(<emphasis>the tool is deprecated since 4.3</emphasis>).
+There are contributed tools for Qt4 and Qt5, see
+<ulink url="https://github.com/SCons/scons-contrib">
+https://github.com/SCons/scons-contrib</ulink>.
 Qt4 has also passed end of life for standard support (in Dec 2015).
 </para></note>
 
@@ -45,8 +44,8 @@ Note paths for these &consvars; are assembled
 using the <function>os.path.join</function> method
 so they will have the appropriate separator at runtime,
 but are listed here in the various
-entries with the <literal>'/'</literal> separator
-for easier reading.
+entries only with the <literal>'/'</literal> separator
+for simplicity.
 </para>
 
 <para>
