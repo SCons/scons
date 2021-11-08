@@ -11,7 +11,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Joseph Brill:
     - Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
-    - Add support for Visual Studio 2022 (release and prerelease).
+    - Add support for Visual Studio 2022.
 
   From William Deegan:
     - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.

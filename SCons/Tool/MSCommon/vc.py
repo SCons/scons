@@ -228,10 +228,6 @@ def get_host_target(env):
 
     return (host, target, req_target_platform)
 
-# Enable prerelease version(s) via vswhere query argument.
-# When enabled, an installed prerelease version will likely be the default msvc version.
-_MSVC_CHECK_PRERELEASE = os.environ.get('MSVC_CHECK_PRERELEASE') in ('1', 'true', 'True')
-
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
 _VCVER = [
@@ -252,22 +248,18 @@ _VCVER = [
 _VCVER_TO_VSWHERE_VER = {
     '14.3': [
         ["-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
-        ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
-        ] + [
-        # TODO: remove after VS 2022 is released
-        ["-prerelease", "-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
-        ["-prerelease", "-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
-        ] if _MSVC_CHECK_PRERELEASE else [],
+        ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
+        ],
     '14.2': [
         ["-version", "[16.0, 17.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
-        ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
         ],
     '14.1':    [
         ["-version", "[15.0, 16.0)"], # default: Enterprise, Professional, Community (order unpredictable?)
-        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"], # BuildTools
+        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
         ],
     '14.1Exp': [
-        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.WDExpress"], # Express
+        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.WDExpress"],  # Express
         ],
 }
 
