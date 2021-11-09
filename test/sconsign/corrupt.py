@@ -30,14 +30,19 @@ Test that we get proper warnings when .sconsign* files are corrupt.
 
 import TestSCons
 import TestCmd
+import re
 
 test = TestSCons.TestSCons(match = TestCmd.match_re)
 
 test.subdir('work1', ['work1', 'sub'],
             'work2', ['work2', 'sub'])
 
-work1__sconsign_dblite = test.workpath('work1', '.sconsign.dblite')
-work2_sub__sconsign = test.workpath('work2', 'sub', '.sconsign')
+database_filename = test.get_sconsignname() + ".dblite"
+
+# for test1 we're using the default database filename
+work1__sconsign_dblite = test.workpath('work1', database_filename)
+# for test 2 we have an explicit hardcode to .sconsign
+work2_sub__sconsign = test.workpath('work2', 'sub', ".sconsign")
 
 SConstruct_contents = """\
 def build1(target, source, env):
@@ -57,9 +62,9 @@ test.write(['work1', 'SConstruct'], SConstruct_contents)
 test.write(['work1', 'foo.in'], "work1/foo.in\n")
 
 stderr = r'''
-scons: warning: Ignoring corrupt .sconsign file: \.sconsign\.dblite
+scons: warning: Ignoring corrupt .sconsign file: {}
 .*
-'''
+'''.format(re.escape(database_filename))
 
 stdout = test.wrap_stdout(r'build1\(\["sub.foo\.out"\], \["foo\.in"\]\)' + '\n')
 

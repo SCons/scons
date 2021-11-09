@@ -90,7 +90,9 @@ conftest_%(sig_re)s_0_%(sig_re)s%(_obj)s:
 %(CC_file)s: %(sig_re)s \d+ \d+
 """ % locals()
 
-test.run_sconsign(arguments = ".sconsign",
+# grab .sconsign or .sconsign_<hashname>
+database_name=test.get_sconsignname()
+test.run_sconsign(arguments = database_name,
                   stdout = expect)
 
 test.pass_test()

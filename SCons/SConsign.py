@@ -64,10 +64,17 @@ def Get_DataBase(dir):
 
     if DB_Name is None:
         hash_format = SCons.Util.get_hash_format()
-        if hash_format is None:
+        current_hash_algorithm = SCons.Util.get_current_hash_algorithm_used()
+        # if the user left the options defaulted AND the default algorithm set by
+        # SCons is md5, then set the database name to be the special default name
+        #
+        # otherwise, if it defaults to something like 'sha1' or the user explicitly
+        # set 'md5' as the hash format, set the database name to .sconsign_<algorithm>
+        # eg .sconsign_sha1, etc.
+        if hash_format is None and current_hash_algorithm == 'md5':
             DB_Name = ".sconsign"
         else:
-            DB_Name = ".sconsign_%s" % hash_format
+            DB_Name = ".sconsign_%s" % current_hash_algorithm
 
     top = dir.fs.Top
     if not os.path.isabs(DB_Name) and top.repositories:
