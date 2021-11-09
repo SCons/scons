@@ -44,7 +44,7 @@ test.write(
 import sys
 
 DefaultEnvironment(tools=[])
-env = Environment(tools=[], CC="%(_python_)s gcc-non-utf8.py")
+env = Environment(tools=[], CC=r"%(_python_)s gcc-non-utf8.py")
 try:
     env.Tool('gcc')
 except UnicodeDecodeError:
