@@ -114,7 +114,7 @@ test.run_sconsign(f'-d .sconf_temp -e {test_filename} --raw {database_name}')
 new_sconsign_dblite = test.stdout()
 
 if old_sconsign_dblite != new_sconsign_dblite:
-    print(f"{database_name} did not match:")
+    print("{} did not match:".format(database_name))
     print("FIRST RUN ==========")
     print(old_sconsign_dblite)
     print("SECOND RUN ==========")
