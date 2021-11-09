@@ -46,7 +46,7 @@ CF = test.CF  # cached build failure
 # as this test is somewhat complicated, skip it if the library doesn't support md5
 # as the default hashing algorithm.
 if get_current_hash_algorithm_used() != 'md5':
-  test.skip_test('Skipping test as could not continue without the hash algorithm set to md5!')
+    test.skip_test('Skipping test as could not continue without the hash algorithm set to md5!')
 
 SConstruct_path = test.workpath('SConstruct')
 

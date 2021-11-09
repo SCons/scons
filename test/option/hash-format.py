@@ -27,7 +27,6 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 import hashlib
 import os
 import TestSCons
-import warnings
 from SCons.Util import ALLOWED_HASH_FORMATS, DEFAULT_HASH_FORMATS
 
 # Test passing the hash format by command-line.
