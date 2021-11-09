@@ -247,75 +247,75 @@ _VCVER = [
 # if using vswhere, configure command line arguments to probe for installed VC editions
 _VCVER_TO_VSWHERE_VER = {
     '14.3': [
-        ["-version", "[17.0, 18.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[17.0, 18.0)"],  # default: Enterprise, Professional, Community  (order unpredictable?)
         ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
-        ],
+    ],
     '14.2': [
-        ["-version", "[16.0, 17.0)"], # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[16.0, 17.0)"],  # default: Enterprise, Professional, Community  (order unpredictable?)
         ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
-        ],
-    '14.1':    [
-        ["-version", "[15.0, 16.0)"], # default: Enterprise, Professional, Community (order unpredictable?)
+    ],
+    '14.1': [
+        ["-version", "[15.0, 16.0)"],  # default: Enterprise, Professional, Community (order unpredictable?)
         ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
-        ],
+    ],
     '14.1Exp': [
         ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.WDExpress"],  # Express
-        ],
+    ],
 }
 
 _VCVER_TO_PRODUCT_DIR = {
     '14.3': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'')],  # not set by this version
     '14.2': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'')],  # not set by this version
     '14.1': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'')],  # not set by this version
     '14.1Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'')], # not set by this version
-    '14.0' : [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'')],  # not set by this version
+    '14.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
-    '14.0Exp' : [
+    '14.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir')],
-    '12.0' : [
+    '12.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
-        ],
-    '12.0Exp' : [
+    ],
+    '12.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '11.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'),
-        ],
-    '11.0Exp' : [
+    ],
+    '11.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '10.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'),
-        ],
-    '10.0Exp' : [
+    ],
+    '10.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '9.0': [
         (SCons.Util.HKEY_CURRENT_USER, r'Microsoft\DevDiv\VCForPython\9.0\installdir',),
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir',),
-        ],
-    '9.0Exp' : [
+    ],
+    '9.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '8.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\8.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '8.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '7.1': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.1\Setup\VC\ProductDir'),
-        ],
+    ],
     '7.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.0\Setup\VC\ProductDir'),
-        ],
+    ],
     '6.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++\ProductDir'),
-        ]
+    ]
 }
 
 
