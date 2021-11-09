@@ -47,6 +47,7 @@ from SCons.Util import (
     Selector,
     WhereIs,
     _attempt_init_of_python_3_9_hash_object,
+    _attempt_get_hash_function,
     _get_hash_object,
     _set_allowed_viable_default_hashes,
     adjustixes,
@@ -940,6 +941,16 @@ class FIPSHashTestCase(unittest.TestCase):
         self.sys_v3_9 = unittest.mock.Mock(version_info=v3_9)
         self.sys_v4_8 = unittest.mock.Mock(version_info=v4_8)
         ###############################
+
+    def basic_failover_bad_hashlib_hash_init(self):
+        """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
+        the hash init function returns None"""
+        assert _attempt_init_of_python_3_9_hash_object(None) == None
+
+    def basic_failover_bad_hashlib_hash_get(self):
+        """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
+        the hash get function returns None"""
+        assert _attempt_get_hash_function("nonexist", self.no_algorithms) == None
 
     def test_usedforsecurity_flag_behavior(self):
         """Test usedforsecurity flag -> should be set to 'True' on older versions of python, and 'False' on Python >= 3.9"""
