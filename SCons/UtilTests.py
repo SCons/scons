@@ -921,12 +921,14 @@ class FIPSHashTestCase(unittest.TestCase):
         del no_algorithms.md5
         del no_algorithms.sha1
         del no_algorithms.sha256
+        del no_algorithms.nonexist
         self.no_algorithms=no_algorithms
         
         unsupported_algorithm = unittest.mock.Mock(unsupported=self.fake_sha256)
         del unsupported_algorithm.md5
         del unsupported_algorithm.sha1
         del unsupported_algorithm.sha256
+        del unsupported_algorithm.unsupported
         self.unsupported_algorithm=unsupported_algorithm
         ###############################
 
@@ -942,12 +944,12 @@ class FIPSHashTestCase(unittest.TestCase):
         self.sys_v4_8 = unittest.mock.Mock(version_info=v4_8)
         ###############################
 
-    def basic_failover_bad_hashlib_hash_init(self):
+    def test_basic_failover_bad_hashlib_hash_init(self):
         """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
         the hash init function returns None"""
         assert _attempt_init_of_python_3_9_hash_object(None) is None
 
-    def basic_failover_bad_hashlib_hash_get(self):
+    def test_basic_failover_bad_hashlib_hash_get(self):
         """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
         the hash get function returns None"""
         assert _attempt_get_hash_function("nonexist", self.no_algorithms) is None
