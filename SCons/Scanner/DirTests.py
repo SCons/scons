@@ -69,8 +69,8 @@ class DirScannerTestBase(unittest.TestCase):
         self.test.write(['dir', '{}.dblite'.format(sconsign)], "dir/{}.dblite\n".format(sconsign))
         self.test.write(['dir', '{}.dir'.format(sconsign)], "dir/{}.dir\n".format(sconsign))
         self.test.write(['dir', '{}.pag'.format(sconsign)], "dir/{}.pag\n".format(sconsign))
-        self.test.write(['dir', 'sub', 'f3'.format(sconsign)], "dir/sub/f3\n".format(sconsign))
-        self.test.write(['dir', 'sub', 'f4'.format(sconsign)], "dir/sub/f4\n".format(sconsign))
+        self.test.write(['dir', 'sub', 'f3'], "dir/sub/f3\n")
+        self.test.write(['dir', 'sub', 'f4'], "dir/sub/f4\n")
         self.test.write(['dir', 'sub', '{}'.format(sconsign)], "dir/{}\n".format(sconsign))
         self.test.write(['dir', 'sub', '{}.bak'.format(sconsign)], "dir/{}.bak\n".format(sconsign))
         self.test.write(['dir', 'sub', '{}.dat'.format(sconsign)], "dir/{}.dat\n".format(sconsign))
@@ -109,16 +109,16 @@ class DirEntryScannerTestCase(DirScannerTestBase):
 
         deps = s(env.Dir('dir'), env, ())
         sss = list(map(str, deps))
-        assert sss == [], "Found {}, expected {}".format(sss, expect)
+        assert sss == [], "Found {}, expected {}".format(sss, [])
 
         deps = s(env.Dir('dir/sub'), env, ())
         sss = list(map(str, deps))
-        assert sss == [], "Found {}, expected {}".format(sss, expect)
+        assert sss == [], "Found {}, expected {}".format(sss, [])
 
         # Make sure we don't blow up if handed a non-Dir node.
         deps = s(env.File('dir/f1'), env, ())
         sss = list(map(str, deps))
-        assert sss == [], "Found {}, expected {}".format(sss, expect)
+        assert sss == [], "Found {}, expected {}".format(sss, [])
 
 if __name__ == "__main__":
     unittest.main()
