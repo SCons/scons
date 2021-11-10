@@ -48,10 +48,11 @@ with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
 sys.exit(0)
 """)
 
+database_name = test.get_sconsignname()
 #
 test.write('SConstruct', """
 import %(use_dbm)s
-SConsignFile('.sconsign', %(use_dbm)s)
+SConsignFile('%(database_name)s', %(use_dbm)s)
 DefaultEnvironment(tools=[])
 B = Builder(action=r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS={'B': B}, tools=[])
@@ -68,14 +69,14 @@ test.write(['subdir', 'f4.in'], "subdir/f4.in\n")
 
 test.run()
 
-test.must_exist(test.workpath('.sconsign.dat'))
-test.must_exist(test.workpath('.sconsign.dir'))
-test.must_not_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dat'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dir'))
+test.must_exist(test.workpath('{}.dat'.format(database_name)))
+test.must_exist(test.workpath('{}.dir'.format(database_name)))
+test.must_not_exist(test.workpath('{}'.format(database_name)))
+test.must_not_exist(test.workpath('{}.dblite'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}.dblite'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}.dat'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}.dir'.format(database_name)))
   
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
@@ -84,14 +85,14 @@ test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
 test.up_to_date(arguments='.')
 
-test.must_exist(test.workpath('.sconsign.dat'))
-test.must_exist(test.workpath('.sconsign.dir'))
-test.must_not_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dat'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dir'))
+test.must_exist(test.workpath('{}.dat'.format(database_name)))
+test.must_exist(test.workpath('{}.dir'.format(database_name)))
+test.must_not_exist(test.workpath('{}'.format(database_name)))
+test.must_not_exist(test.workpath('{}.dblite'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}.dblite'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}.dat'.format(database_name)))
+test.must_not_exist(test.workpath('subdir', '{}.dir'.format(database_name)))
 
 test.pass_test()
 

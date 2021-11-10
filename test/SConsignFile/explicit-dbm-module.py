@@ -61,9 +61,12 @@ test.write(['subdir', 'f4.in'], "subdir/f4.in\n")
 
 test.run()
 
-test.must_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
+database_name = test.get_sconsignname()
+database_filename = database_name + ".dblite"
+
+test.must_exist(test.workpath(database_filename))
+test.must_not_exist(test.workpath(database_name))
+test.must_not_exist(test.workpath('subdir', database_name))
 
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
@@ -72,9 +75,9 @@ test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
 test.up_to_date(arguments='.')
 
-test.must_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
+test.must_exist(test.workpath(database_filename))
+test.must_not_exist(test.workpath(database_name))
+test.must_not_exist(test.workpath('subdir', database_name))
 
 test.pass_test()
 

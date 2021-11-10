@@ -143,7 +143,9 @@ test.run(arguments = '--implicit-cache .')
 
 sig_re = r'[0-9a-fA-F]{32,64}'
 
-test.run_sconsign(arguments = ".sconsign",
+database_name = test.get_sconsignname()
+
+test.run_sconsign(arguments = database_name,
          stdout = r"""=== .:
 SConstruct: None \d+ \d+
 fake_cc\.py: %(sig_re)s \d+ \d+
@@ -174,7 +176,7 @@ inc1.h: %(sig_re)s \d+ \d+
 inc2.h: %(sig_re)s \d+ \d+
 """ % locals())
 
-test.run_sconsign(arguments = "--raw .sconsign",
+test.run_sconsign(arguments = "--raw " + database_name,
          stdout = r"""=== .:
 SConstruct: {'csig': None, 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
 fake_cc\.py: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
@@ -302,9 +304,9 @@ inc2.h:
     size: \d+
 """ % locals()
 
-test.run_sconsign(arguments = "-v .sconsign", stdout=expect)
+test.run_sconsign(arguments = "-v " + database_name, stdout=expect)
 
-test.run_sconsign(arguments = "-c -v .sconsign",
+test.run_sconsign(arguments = "-c -v " + database_name,
          stdout = r"""=== .:
 SConstruct:
     csig: None
@@ -332,7 +334,7 @@ inc2.h:
     csig: %(sig_re)s
 """ % locals())
 
-test.run_sconsign(arguments = "-s -v .sconsign",
+test.run_sconsign(arguments = "-s -v " + database_name,
          stdout = r"""=== .:
 SConstruct:
     size: \d+
@@ -360,7 +362,7 @@ inc2.h:
     size: \d+
 """ % locals())
 
-test.run_sconsign(arguments = "-t -v .sconsign",
+test.run_sconsign(arguments = "-t -v " + database_name,
          stdout = r"""=== .:
 SConstruct:
     timestamp: \d+
@@ -388,7 +390,7 @@ inc2.h:
     timestamp: \d+
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.obj .sconsign",
+test.run_sconsign(arguments = "-e hello.obj " + database_name,
          stdout = r"""=== .:
 === sub1:
 hello.obj: %(sig_re)s \d+ \d+
@@ -406,7 +408,7 @@ hello.obj: %(sig_re)s \d+ \d+
          stderr = r"""sconsign: no entry `hello\.obj' in `\.'
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj .sconsign",
+test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj " + database_name,
          stdout = r"""=== .:
 === sub1:
 hello.obj: %(sig_re)s \d+ \d+
@@ -444,7 +446,7 @@ sconsign: no entry `hello\.exe' in `\.'
 sconsign: no entry `hello\.obj' in `\.'
 """ % locals())
 
-#test.run_sconsign(arguments = "-i -v .sconsign",
+#test.run_sconsign(arguments = "-i -v " + database_name,
 #         stdout = r"""=== sub1:
 #hello.exe:
 #    implicit:

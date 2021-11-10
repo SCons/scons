@@ -63,6 +63,25 @@ skip_entry_list = [
    '.sconsign_md5.dblite',
    '.sconsign_sha1.dblite',
    '.sconsign_sha256.dblite',
+   # and all the duplicate files for each sub-sconsfile type
+   '.sconsign_md5',
+   '.sconsign_md5.dir',
+   '.sconsign_md5.pag',
+   '.sconsign_md5.dat',
+   '.sconsign_md5.bak',
+   '.sconsign_md5.db',
+   '.sconsign_sha1',
+   '.sconsign_sha1.dir',
+   '.sconsign_sha1.pag',
+   '.sconsign_sha1.dat',
+   '.sconsign_sha1.bak',
+   '.sconsign_sha1.db',
+   '.sconsign_sha256',
+   '.sconsign_sha256.dir',
+   '.sconsign_sha256.pag',
+   '.sconsign_sha256.dat',
+   '.sconsign_sha256.bak',
+   '.sconsign_sha256.db',
 ]
 
 for skip in skip_entry_list:

@@ -49,10 +49,11 @@ with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
 sys.exit(0)
 """)
 
+database_name = test.get_sconsignname()
 #
 test.write('SConstruct', """
 import %(use_dbm)s
-SConsignFile('.sconsign', %(use_dbm)s)
+SConsignFile('%(database_name)s', %(use_dbm)s)
 DefaultEnvironment(tools=[])
 B = Builder(action=r'%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS={'B': B}, tools=[])
@@ -72,13 +73,15 @@ test.run()
 # We don't check for explicit .db or other file, because base "dbm"
 # can use different file extensions on different implementations.
 
+database_name = test.get_sconsignname()
+database_filename = database_name + '.dblite'
 test.fail_test(
-    os.path.exists('.sconsign') and 'dbm' not in dbm.whichdb('.sconsign'),
-    message=".sconsign existed and wasn't any type of dbm file",
+    os.path.exists(database_name) and 'dbm' not in dbm.whichdb(database_name),
+    message="{} existed and wasn't any type of dbm file".format(database_name),
 )
-test.must_not_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
+test.must_not_exist(test.workpath(database_filename))
+test.must_not_exist(test.workpath('subdir', database_name))
+test.must_not_exist(test.workpath('subdir', database_filename))
 
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
@@ -87,11 +90,11 @@ test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
 test.up_to_date(arguments='.')
 
-test.fail_test(os.path.exists('.sconsign') and 'dbm' not in dbm.whichdb('.sconsign'),
-               message=".sconsign existed and wasn't any type of dbm file")
-test.must_not_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
+test.fail_test(os.path.exists(database_name) and 'dbm' not in dbm.whichdb(database_name),
+               message="{} existed and wasn't any type of dbm file".format(database_name))
+test.must_not_exist(test.workpath(database_filename))
+test.must_not_exist(test.workpath('subdir', database_name))
+test.must_not_exist(test.workpath('subdir', database_filename))
 
 test.pass_test()
 

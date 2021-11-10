@@ -58,23 +58,25 @@ DB_Module = SCons.dblite
 DB_Name = None
 DB_sync_list = []
 
+def current_sconsign_filename():
+    hash_format = SCons.Util.get_hash_format()
+    current_hash_algorithm = SCons.Util.get_current_hash_algorithm_used()
+    # if the user left the options defaulted AND the default algorithm set by
+    # SCons is md5, then set the database name to be the special default name
+    #
+    # otherwise, if it defaults to something like 'sha1' or the user explicitly
+    # set 'md5' as the hash format, set the database name to .sconsign_<algorithm>
+    # eg .sconsign_sha1, etc.
+    if hash_format is None and current_hash_algorithm == 'md5':
+        return ".sconsign"
+    else:
+        return ".sconsign_" + current_hash_algorithm
 
 def Get_DataBase(dir):
     global DataBase, DB_Module, DB_Name
 
     if DB_Name is None:
-        hash_format = SCons.Util.get_hash_format()
-        current_hash_algorithm = SCons.Util.get_current_hash_algorithm_used()
-        # if the user left the options defaulted AND the default algorithm set by
-        # SCons is md5, then set the database name to be the special default name
-        #
-        # otherwise, if it defaults to something like 'sha1' or the user explicitly
-        # set 'md5' as the hash format, set the database name to .sconsign_<algorithm>
-        # eg .sconsign_sha1, etc.
-        if hash_format is None and current_hash_algorithm == 'md5':
-            DB_Name = ".sconsign"
-        else:
-            DB_Name = ".sconsign_%s" % current_hash_algorithm
+        DB_Name = current_sconsign_filename()
 
     top = dir.fs.Top
     if not os.path.isabs(DB_Name) and top.repositories:
@@ -342,7 +344,7 @@ class DirFile(Dir):
         """
 
         self.dir = dir
-        self.sconsign = os.path.join(dir.get_internal_path(), '.sconsign')
+        self.sconsign = os.path.join(dir.get_internal_path(), current_sconsign_filename())
 
         try:
             fp = open(self.sconsign, 'rb')

@@ -2252,7 +2252,7 @@ class Base(SubstitutionEnvironment):
         nkw = self.subst_kw(kw)
         return SCons.Scanner.ScannerBase(*nargs, **nkw)
 
-    def SConsignFile(self, name=".sconsign", dbm_module=None):
+    def SConsignFile(self, name=SCons.SConsign.current_sconsign_filename(), dbm_module=None):
         if name is not None:
             name = self.subst(name)
             if not os.path.isabs(name):

@@ -41,6 +41,7 @@ from SCons.Environment import (
     is_valid_construction_var,
 )
 from SCons.Util import CLVar
+from SCons.SConsign import current_sconsign_filename
 
 
 def diff_env(env1, env2):
@@ -3321,7 +3322,7 @@ def generate(env):
             assert dbms[-1] == 7, dbms
 
             env.SConsignFile()
-            assert fnames[-1] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
+            assert fnames[-1] == os.path.join(os.sep, 'dir', current_sconsign_filename()), fnames
             assert dbms[-1] is None, dbms
 
             env.SConsignFile(None)
