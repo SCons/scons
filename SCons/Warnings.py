@@ -128,7 +128,7 @@ class DeprecatedDebugOptionsWarning(MandatoryDeprecatedWarning):
 class DeprecatedMissingSConscriptWarning(DeprecatedWarning):
     pass
 
-class ToolQtDeprecatedWarning(DeprecatedWarning):
+class ToolQtDeprecatedWarning(FutureDeprecatedWarning):
     pass
 
 # The below is a list of 2-tuples.  The first element is a class object.
