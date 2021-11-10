@@ -945,12 +945,12 @@ class FIPSHashTestCase(unittest.TestCase):
     def basic_failover_bad_hashlib_hash_init(self):
         """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
         the hash init function returns None"""
-        assert _attempt_init_of_python_3_9_hash_object(None) == None
+        assert _attempt_init_of_python_3_9_hash_object(None) is None
 
     def basic_failover_bad_hashlib_hash_get(self):
         """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
         the hash get function returns None"""
-        assert _attempt_get_hash_function("nonexist", self.no_algorithms) == None
+        assert _attempt_get_hash_function("nonexist", self.no_algorithms) is None
 
     def test_usedforsecurity_flag_behavior(self):
         """Test usedforsecurity flag -> should be set to 'True' on older versions of python, and 'False' on Python >= 3.9"""
