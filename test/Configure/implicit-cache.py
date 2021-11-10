@@ -97,7 +97,7 @@ else:
 
 database_name=test.get_sconsignname() + ".dblite"
 
-test.run_sconsign(f'-d .sconf_temp -e {test_filename} --raw {database_name}')
+test.run_sconsign('-d .sconf_temp -e {} --raw {}'.format(test_filename, database_name))
 old_sconsign_dblite = test.stdout()
 
 # Second run:  Have the configure subsystem also look for foo.h, so
@@ -110,7 +110,7 @@ old_sconsign_dblite = test.stdout()
 
 test.run(arguments = '--implicit-cache USE_FOO=1 .')
 
-test.run_sconsign(f'-d .sconf_temp -e {test_filename} --raw {database_name}')
+test.run_sconsign('-d .sconf_temp -e {} --raw {}'.format(test_filename, database_name))
 new_sconsign_dblite = test.stdout()
 
 if old_sconsign_dblite != new_sconsign_dblite:
