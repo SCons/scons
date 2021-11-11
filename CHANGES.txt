@@ -93,8 +93,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       on version selection to docs.
       Update docs on JavaH tool in light of javah command dropped since 10.0. 
       Try to be better about preserving user's passed-in JAVA* construction vars.
-    - Depracate the qt tool, which refers to Qt3 (usupported since around
-      2006).
+    - Start the deprecation of the qt tool, which refers to Qt3 (usupported
+      since around 2006). There's a deprecation warning added, initially
+      defaulting to disabled.
 
   From Brian Quistorff:
     - Fix crash when scons is run from a python environement where a signal
