@@ -14,6 +14,11 @@ This script adds SCons/ and testing/ directories to PYTHONPATH,
 performs test discovery and processes tests according to options.
 """
 
+# TODO: normalize requested and testlist/exclude paths for easier comparison.
+# e.g.: "runtest foo/bar" on windows will produce paths like foo/bar\test.py
+# this is hard to match with excludelists, and makes those both os.sep-specific
+# and command-line-typing specific.
+
 import argparse
 import glob
 import os
@@ -190,9 +195,10 @@ if args.excludelistfile:
         )
         sys.exit(1)
 
-if args.jobs > 1:
-    # don't let tests write stdout/stderr directly if multi-job,
-    # else outputs will interleave and be hard to read
+if args.jobs > 1 or args.output:
+    # 1. don't let tests write stdout/stderr directly if multi-job,
+    # else outputs will interleave and be hard to read.
+    # 2. If we're going to write a logfile, we also need to catch the output.
     catch_output = True
 
 if not args.printcommand:
@@ -231,14 +237,23 @@ sys.stderr = Unbuffered(sys.stderr)
 # print = functools.partial(print, flush)
 
 if args.output:
-    logfile = open(args.output, 'w')
     class Tee:
         def __init__(self, openfile, stream):
             self.file = openfile
             self.stream = stream
+
         def write(self, data):
             self.file.write(data)
             self.stream.write(data)
+
+        def flush(self, data):
+            self.file.flush(data)
+            self.stream.flush(data)
+
+    logfile = open(args.output, 'w')
+    # this is not ideal: we monkeypatch stdout/stderr a second time
+    # (already did for Unbuffered), so here we can't easily detect what
+    # state we're in on closedown. Just hope it's okay...
     sys.stdout = Tee(logfile, sys.stdout)
     sys.stderr = Tee(logfile, sys.stderr)
 
@@ -831,12 +846,13 @@ if len(tests) != 1 and args.execute_tests:
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
 
 # save the fails to a file
-if fail and args.error_log:
-    paths = [x.path for x in fail]
-    #print(f"DEBUG: Writing fails to {args.error_log}")
+if args.error_log:
     with open(args.error_log, "w") as f:
-        for test in paths:
-            print(test, file=f)
+        if fail:
+            paths = [x.path for x in fail]
+            for test in paths:
+                print(test, file=f)
+        # if there are no fails, file will be cleared
 
 if args.xml:
     if args.output == '-':

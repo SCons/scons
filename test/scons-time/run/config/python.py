@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,15 +27,17 @@
 Verify specifying an alternate Python executable in a config file.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import os
 
 import TestSCons_time
+from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons_time._python_
 
 test = TestSCons_time.TestSCons_time()
+if IS_WINDOWS:
+    # tests expect Windows file assoc to run my_python, not in our control.
+    test.skip_test("Skipping test on win32 due to launch problems.")
 
 test.write_sample_project('foo.tar.gz')
 

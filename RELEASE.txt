@@ -11,7 +11,6 @@ NEW FUNCTIONALITY
 
 - Ninja - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
 - Add support for Visual Studio 2022.
-- Add support for pre-release versions of Visual Studio 2022 via an environment variable.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
