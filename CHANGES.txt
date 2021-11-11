@@ -88,6 +88,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       early Python 3 slicing issue that is no longer a problem.
     - Rework some Java tests to skip rather than fail on CI systems, where
       the working java is > v9, but a 1.8 or 9 was also found.
+    - Java updates: on Windows, detect more default JDK install locations.
+      On all platforms, more Java versions (up to 17.0 now).  Add more information
+      on version selection to docs.
+      Update docs on JavaH tool in light of javah command dropped since 10.0. 
+      Try to be better about preserving user's passed-in JAVA* construction vars.
 
   From Brian Quistorff:
     - Fix crash when scons is run from a python environement where a signal
@@ -738,6 +743,9 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
   From Lukas Schrangl:
     - Enable LaTeX scanner to find more than one include per line
+
+  From  Sergey Torokhov:
+    - Recognize jdk on Gentoo systems.
 
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid

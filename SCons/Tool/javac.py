@@ -220,23 +220,24 @@ def generate(env):
     else:
         javac = SCons.Tool.find_program_path(env, 'javac')
 
-    env['JAVAINCLUDES'] = get_java_include_paths(env, javac, version)
 
-
-    env['JAVAC']                    = 'javac'
-    env['JAVACFLAGS']               = SCons.Util.CLVar('')
-    env['JAVABOOTCLASSPATH']        = []
-    env['JAVACLASSPATH']            = []
-    env['JAVASOURCEPATH']           = []
-    env['_javapathopt']             = pathopt
-    env['_JAVABOOTCLASSPATH']       = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
-    env['_JAVACLASSPATH']           = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
-    env['_JAVASOURCEPATH']          = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
-    env['_JAVASOURCEPATHDEFAULT']   = '${TARGET.attributes.java_sourcedir}'
-    env['_JAVACCOM']                = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
-    env['JAVACCOM']                 = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
-    env['JAVACLASSSUFFIX']          = '.class'
-    env['JAVASUFFIX']               = '.java'
+    env.SetDefault(
+        JAVAC='javac',
+        JAVACFLAGS=SCons.Util.CLVar(''),
+        JAVAINCLUDES=get_java_include_paths(env, javac, version),
+        JAVACLASSSUFFIX='.class',
+        JAVASUFFIX='.java',
+        JAVABOOTCLASSPATH=[],
+        JAVACLASSPATH=[],
+        JAVASOURCEPATH=[],
+    )
+    env['_javapathopt'] = pathopt
+    env['_JAVABOOTCLASSPATH'] = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
+    env['_JAVACLASSPATH'] = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
+    env['_JAVASOURCEPATH'] = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
+    env['_JAVASOURCEPATHDEFAULT'] = '${TARGET.attributes.java_sourcedir}'
+    env['_JAVACCOM'] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
+    env['JAVACCOM'] = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
 
 def exists(env):
     return 1
