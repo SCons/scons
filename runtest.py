@@ -195,9 +195,10 @@ if args.excludelistfile:
         )
         sys.exit(1)
 
-if args.jobs > 1:
-    # don't let tests write stdout/stderr directly if multi-job,
-    # else outputs will interleave and be hard to read
+if args.jobs > 1 or args.output:
+    # 1. don't let tests write stdout/stderr directly if multi-job,
+    # else outputs will interleave and be hard to read.
+    # 2. If we're going to write a logfile, we also need to catch the output.
     catch_output = True
 
 if not args.printcommand:
@@ -236,7 +237,6 @@ sys.stderr = Unbuffered(sys.stderr)
 # print = functools.partial(print, flush)
 
 if args.output:
-    logfile = open(args.output, 'w')
     class Tee:
         def __init__(self, openfile, stream):
             self.file = openfile
