@@ -14,22 +14,17 @@ This script adds SCons/ and testing/ directories to PYTHONPATH,
 performs test discovery and processes tests according to options.
 """
 
-# TODO: normalize requested and testlist/exclude paths for easier comparison.
-# e.g.: "runtest foo/bar" on windows will produce paths like foo/bar\test.py
-# this is hard to match with excludelists, and makes those both os.sep-specific
-# and command-line-typing specific.
-
 import argparse
-import glob
+import itertools
 import os
-import stat
 import subprocess
 import sys
 import tempfile
 import threading
 import time
 from abc import ABC, abstractmethod
-from pathlib import Path
+from io import StringIO
+from pathlib import Path, PurePath, PureWindowsPath
 from queue import Queue
 
 cwd = os.getcwd()
@@ -39,7 +34,7 @@ scons = None
 catch_output = False
 suppress_output = False
 
-script = os.path.basename(sys.argv[0])
+script = PurePath(sys.argv[0]).name
 usagestr = """\
 %(script)s [OPTIONS] [TEST ...]
 """ % locals()
@@ -388,11 +383,13 @@ else:
 
 class RuntestBase(ABC):
     """ Base class for tests """
-    def __init__(self, path, num, spe=None):
-        self.path = path
-        self.num = num
+    _ids = itertools.count(1)  # to geenerate test # automatically
+
+    def __init__(self, path, spe=None):
+        self.path = str(path)
+        self.testno = next(self._ids)
         self.stdout = self.stderr = self.status = None
-        self.abspath = os.path.abspath(path)
+        self.abspath = path.absolute()
         self.command_args = []
         self.command_str = ""
         self.test_time = self.total_time = 0
@@ -404,7 +401,7 @@ class RuntestBase(ABC):
                     break
 
     @abstractmethod
-    def execute(self):
+    def execute(self, env):
         pass
 
 
@@ -547,7 +544,7 @@ if sys.platform == 'win32':
     # Windows doesn't support "shebang" lines directly (the Python launcher
     # and Windows Store version do, but you have to get them launched first)
     # so to directly launch a script we depend on an assoc for .py to work.
-    # Some systems may have none, and in some cases IDE programs take over 
+    # Some systems may have none, and in some cases IDE programs take over
     # the assoc.  Detect this so the small number of tests affected can skip.
     try:
         python_assoc = get_template_command('.py')
@@ -564,7 +561,7 @@ if '_JAVA_OPTIONS' in os.environ:
 
 
 # ---[ test discovery ]------------------------------------
-# This section figures which tests to run.
+# This section figures out which tests to run.
 #
 # The initial testlist is made by reading from the testlistfile,
 # if supplied, or by looking at the test arguments, if supplied,
@@ -587,10 +584,15 @@ if '_JAVA_OPTIONS' in os.environ:
 # Test exclusions, if specified, are then applied.
 
 
-def scanlist(testlist):
+def scanlist(testfile):
     """ Process a testlist file """
-    tests = [t.strip() for t in testlist if not t.startswith('#')]
-    return [t for t in tests if t]
+    data = StringIO(testfile.read_text())
+    tests = [t.strip() for t in data.readlines() if not t.startswith('#')]
+    # in order to allow scanned lists to work whether they use forward or
+    # backward slashes, first create the object as a PureWindowsPath which
+    # accepts either, then use that to make a Path object to use for
+    # comparisons like "file in scanned_list".
+    return [Path(PureWindowsPath(t)) for t in tests if t]
 
 
 def find_unit_tests(directory):
@@ -602,7 +604,8 @@ def find_unit_tests(directory):
             continue
         for fname in filenames:
             if fname.endswith("Tests.py"):
-                result.append(os.path.join(dirpath, fname))
+                result.append(Path(dirpath, fname))
+
     return sorted(result)
 
 
@@ -617,79 +620,74 @@ def find_e2e_tests(directory):
         # Slurp in any tests in exclude lists
         excludes = []
         if ".exclude_tests" in filenames:
-            p = Path(dirpath).joinpath(".exclude_tests")
-            # TODO simplify when Py3.5 dropped
-            if sys.version_info.major == 3 and sys.version_info.minor < 6:
-                excludefile = p.resolve()
-            else:
-                excludefile = p.resolve(strict=True)
-            with excludefile.open() as f:
-                excludes = scanlist(f)
+            excludefile = Path(dirpath, ".exclude_tests").resolve()
+            excludes = scanlist(excludefile)
 
         for fname in filenames:
-            if fname.endswith(".py") and fname not in excludes:
-                result.append(os.path.join(dirpath, fname))
+            if fname.endswith(".py") and Path(fname) not in excludes:
+                result.append(Path(dirpath, fname))
 
     return sorted(result)
 
 
 # initial selection:
+# if we have a testlist file read that, else hunt for tests.
 unittests = []
 endtests = []
 if args.testlistfile:
-    with args.testlistfile.open() as f:
-        tests = scanlist(f)
+    tests = scanlist(args.testlistfile)
 else:
     testpaths = []
-    if args.all:
-        testpaths = ['SCons', 'test']
-    elif args.testlist:
-        testpaths = args.testlist
+    if args.all:  # -a flag
+        testpaths = [Path('SCons'), Path('test')]
+    elif args.testlist:  # paths given on cmdline
+        testpaths = [Path(PureWindowsPath(t)) for t in args.testlist]
 
-    for tp in testpaths:
-        # Clean up path so it can match startswith's below
-        # remove leading ./ or .\
-        if tp.startswith('.') and tp[1] in (os.sep, os.altsep):
-            tp = tp[2:]
+    for path in testpaths:
+        # Clean up path removing leading ./ or .\
+        name = str(path)
+        if name.startswith('.') and name[1] in (os.sep, os.altsep):
+            path = path.with_name(tn[2:])
 
-        for path in glob.glob(tp):
-            if os.path.isdir(path):
-                if path.startswith(('SCons', 'testing')):
+        if path.exists():
+            if path.is_dir():
+                if path.parts[0] == "SCons" or path.parts[0] == "testing":
                     unittests.extend(find_unit_tests(path))
-                elif path.startswith('test'):
+                elif path.parts[0] == 'test':
                     endtests.extend(find_e2e_tests(path))
+                # else: TODO: what if user pointed to a dir outside scons tree?
             else:
-                if path.endswith("Tests.py"):
+                if path.match("*Tests.py"):
                     unittests.append(path)
-                elif path.endswith(".py"):
+                elif path.match("*.py"):
                     endtests.append(path)
-    tests = sorted(unittests + endtests)
 
+    tests = sorted(unittests + endtests)
 
 # Remove exclusions:
 if args.e2e_only:
-    tests = [t for t in tests if not t.endswith("Tests.py")]
+    tests = [t for t in tests if not t.match("*Tests.py")]
 if args.unit_only:
-    tests = [t for t in tests if t.endswith("Tests.py")]
+    tests = [t for t in tests if t.match("*Tests.py")]
 if args.excludelistfile:
-    with args.excludelistfile.open() as f:
-        excludetests = scanlist(f)
+    excludetests = scanlist(args.excludelistfile)
     tests = [t for t in tests if t not in excludetests]
 
+# did we end up with any tests?
 if not tests:
     sys.stderr.write(parser.format_usage() + """
-error: no tests were found.
-       Tests can be specified on the command line, read from a file with
-       the -f/--file option, or discovered with -a/--all to run all tests.
+error: no tests matching the specification were found.
+       See "Test selection options" in the help for details on
+       how to specify and/or exclude tests.
 """)
     sys.exit(1)
 
 # ---[ test processing ]-----------------------------------
-tests = [Test(t, n + 1) for n, t in enumerate(tests)]
+tests = [Test(t) for t in tests]
 
 if args.list_only:
     for t in tests:
-        sys.stdout.write(t.path + "\n")
+        print(t.path)
     sys.exit(0)
 
 if not args.python:
@@ -702,7 +700,7 @@ os.environ["python_executable"] = args.python
 if args.print_times:
 
     def print_time(fmt, tm):
-        sys.stdout.write(fmt % tm)
+        print(fmt % tm)
 
 else:
 
@@ -739,7 +737,7 @@ def log_result(t, io_lock=None):
                 print(t.stdout)
             if t.stderr:
                 print(t.stderr)
-        print_time("Test execution time: %.1f seconds\n", t.test_time)
+        print_time("Test execution time: %.1f seconds", t.test_time)
     finally:
         if io_lock:
             io_lock.release()
@@ -778,8 +776,8 @@ def run_test(t, io_lock=None, run_async=True):
     if args.printcommand:
         if args.print_progress:
             t.headline += "%d/%d (%.2f%s) %s\n" % (
-                t.num, total_num_tests,
-                float(t.num) * 100.0 / float(total_num_tests),
+                t.testno, total_num_tests,
+                float(t.testno) * 100.0 / float(total_num_tests),
                 "%",
                 t.command_str,
             )
@@ -843,7 +841,7 @@ else:
 # --- all tests are complete by the time we get here ---
 if tests:
     tests[0].total_time = time_func() - total_start_time
-    print_time("Total execution time for all tests: %.1f seconds\n", tests[0].total_time)
+    print_time("Total execution time for all tests: %.1f seconds", tests[0].total_time)
 
 passed = [t for t in tests if t.status == 0]
 fail = [t for t in tests if t.status == 1]
