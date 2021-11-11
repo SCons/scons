@@ -2128,7 +2128,11 @@ can themselves refer to lists of names or nodes.</para>
   <term><emphasis role="bold">tool-qt-deprecated</emphasis></term>
   <listitem>
 <para>Warnings about the &t-link-qt; tool being deprecated.
-These warnings are enabled by default.</para>
+These warnings are disabled by default for the first
+phase of deprecation. Enable to be reminded about use
+of this tool module.
+<emphasis>Available since &SCons; 4.3.</emphasis>
+</para>
   </listitem>
   </varlistentry>
 
