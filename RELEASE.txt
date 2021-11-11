@@ -9,8 +9,8 @@ Here is a summary of the changes since 4.2.0:
 NEW FUNCTIONALITY
 -----------------
 
+- Ninja - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
 - Add support for Visual Studio 2022.
-- Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -20,7 +20,7 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Expanded ninja Mkdir to also support Mkdir actions.
+- Ninja - Expanded ninja Mkdir to also support Mkdir actions.
 - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
   Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
 - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
@@ -35,11 +35,12 @@ FIXES
 - Small fix to ensure CLVar default value is an empty list.
   See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
   Code contributed by MongoDB.
-- Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
+- Ninja - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
   issue affected CommandGeneratorAction function actions specifically.
 - Fix PCH not being evaluated by subst() where necessary.
 - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
   but instead it should yield '$('.
+- Ninja - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
 - Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
 - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
   the ninja file scons regenerate and callback invocations will lose the $ characters used in
@@ -47,6 +48,10 @@ FIXES
       scons BUILD=xyz OTHERVAR=$BUILD
   Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
   single dollar sign being used as a ninja escape character in the ninja file.
+- Ninja - Fixed an issue where if you control-c and/or killed ninja while it was running scons to regenerate
+  build.ninja you would end up with no build.ninja file and have to rerun scons from scratch.
+  Code contributed by MongoDB.
+
 
 IMPROVEMENTS
 ------------

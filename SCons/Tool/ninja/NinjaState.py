@@ -24,8 +24,10 @@
 
 import io
 import os
+import shutil
 import sys
 from os.path import splitext
+from tempfile import NamedTemporaryFile
 import ninja
 
 import SCons
@@ -36,7 +38,7 @@ from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
 from .Utils import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
-    get_outputs, get_inputs, get_dependencies, get_rule, get_command_env
+    get_outputs, get_inputs, get_dependencies, get_rule, get_command_env, to_escaped_list
 from .Methods import get_command
 
 
@@ -95,8 +97,11 @@ class NinjaState:
                     [ninja_syntax.escape(scons_escape(arg)) for arg in sys.argv if arg not in COMMAND_LINE_TARGETS]
                 ),
             ),
-            "SCONS_INVOCATION_W_TARGETS": "{} {}".format(
-                python_bin, " ".join([ninja_syntax.escape(scons_escape(arg)) for arg in sys.argv])
+            "SCONS_INVOCATION_W_TARGETS": "{} {} NINJA_DISABLE_AUTO_RUN=1".format(
+                python_bin, " ".join([
+                    ninja_syntax.escape(scons_escape(arg))
+                    for arg in sys.argv
+                    if arg != 'NINJA_DISABLE_AUTO_RUN=1'])
             ),
             # This must be set to a global default per:
             # https://ninja-build.org/manual.html#_deps
@@ -208,23 +213,14 @@ class NinjaState:
             },
             "REGENERATE": {
                 "command": "$SCONS_INVOCATION_W_TARGETS",
-                "description": "Regenerating $out",
+                "description": "Regenerating $self",
                 "generator": 1,
-                "depfile": os.path.join(get_path(env['NINJA_DIR']), '$out.depfile'),
-                # Console pool restricts to 1 job running at a time,
-                # it additionally has some special handling about
-                # passing stdin, stdout, etc to process in this pool
-                # that we need for SCons to behave correctly when
-                # regenerating Ninja
                 "pool": "console",
-                # Again we restat in case Ninja thought the
-                # build.ninja should be regenerated but SCons knew
-                # better.
                 "restat": 1,
             },
         }
 
-        if env['PLATFORM'] == 'darwin' and env['AR'] == 'ar':
+        if env['PLATFORM'] == 'darwin' and env.get('AR', "") == 'ar':
             self.rules["AR"] = {
                 "command": "rm -f $out && $env$AR $rspc",
                 "description": "Archiving $out",
@@ -467,26 +463,24 @@ class NinjaState:
         # DAG walk so we can't rely on action_to_ninja_build to
         # generate this rule even though SCons should know we're
         # dependent on SCons files.
-        #
-        # The REGENERATE rule uses depfile, so we need to generate the depfile
-        # in case any of the SConscripts have changed. The depfile needs to be
-        # path with in the build and the passed ninja file is an abspath, so
-        # we will use SCons to give us the path within the build. Normally
-        # generate_depfile should not be called like this, but instead be called
-        # through the use of custom rules, and filtered out in the normal
-        # list of build generation about. However, because the generate rule
-        # is hardcoded here, we need to do this generate_depfile call manually.
         ninja_file_path = self.env.File(self.ninja_file).path
-        generate_depfile(
-            self.env,
-            ninja_file_path,
-            self.env['NINJA_REGENERATE_DEPS']
-        )
+        regenerate_deps = to_escaped_list(self.env, self.env['NINJA_REGENERATE_DEPS'])
 
         ninja.build(
             ninja_file_path,
             rule="REGENERATE",
-            implicit=[__file__],
+            implicit=regenerate_deps,
+            variables={
+                "self": ninja_file_path,
+            }
+        )
+
+        ninja.build(
+            regenerate_deps,
+            rule="phony",
+            variables={
+                "self": ninja_file_path,
+            }
         )
 
         # If we ever change the name/s of the rules that include
@@ -527,8 +521,9 @@ class NinjaState:
         if scons_default_targets:
             ninja.default(" ".join(scons_default_targets))
 
-        with open(str(self.ninja_file), "w") as build_ninja:
-            build_ninja.write(content.getvalue())
+        with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
+            temp_ninja_file.write(content.getvalue())
+        shutil.move(temp_ninja_file.name, ninja_file_path)
 
         self.__generated = True
 
