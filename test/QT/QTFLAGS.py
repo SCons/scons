@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Testing the configuration mechanisms of the 'qt' tool.
@@ -40,7 +39,7 @@ test.subdir('work1', 'work2')
 
 test.run(
     chdir=test.workpath('qt', 'lib'),
-    arguments='.',
+    arguments="--warn=no-tool-qt-deprecated .",
     stderr=TestSCons.noisy_ar,
     match=TestSCons.match_re_dotall,
 )
@@ -138,16 +137,18 @@ int main(void) {
 }
 """)
 
-test.run(chdir = 'work1', arguments = "mytest" + _exe)
+test.run(chdir='work1', arguments="--warn=no-tool-qt-deprecated mytest" + _exe)
 
-test.must_exist(['work1', 'mmmmocFromH.cxx'],
-                ['work1', 'mocmocFromCpp.inl'],
-                ['work1', 'an_ui_file.cxx'],
-                ['work1', 'uic-an_ui_file.hpp'],
-                ['work1', 'mmman_ui_file.cxx'],
-                ['work1', 'another_ui_file.cxx'],
-                ['work1', 'uic-another_ui_file.hpp'],
-                ['work1', 'mmmanother_ui_file.cxx'])
+test.must_exist(
+    ['work1', 'mmmmocFromH.cxx'],
+    ['work1', 'mocmocFromCpp.inl'],
+    ['work1', 'an_ui_file.cxx'],
+    ['work1', 'uic-an_ui_file.hpp'],
+    ['work1', 'mmman_ui_file.cxx'],
+    ['work1', 'another_ui_file.cxx'],
+    ['work1', 'uic-another_ui_file.hpp'],
+    ['work1', 'mmmanother_ui_file.cxx'],
+)
 
 def _flagTest(test,fileToContentsStart):
     for f,c in fileToContentsStart.items():
@@ -155,19 +156,29 @@ def _flagTest(test,fileToContentsStart):
             return 1
     return 0
 
-test.fail_test(_flagTest(test, {'mmmmocFromH.cxx':'/* mymoc.py -z */',
-                                'mocmocFromCpp.inl':'/* mymoc.py -w */',
-                                'an_ui_file.cxx':'/* myuic.py -x */',
-                                'uic-an_ui_file.hpp':'/* myuic.py -y */',
-                                'mmman_ui_file.cxx':'/* mymoc.py -z */'}))
+test.fail_test(
+    _flagTest(
+        test,
+        {
+            'mmmmocFromH.cxx': '/* mymoc.py -z */',
+            'mocmocFromCpp.inl': '/* mymoc.py -w */',
+            'an_ui_file.cxx': '/* myuic.py -x */',
+            'uic-an_ui_file.hpp': '/* myuic.py -y */',
+            'mmman_ui_file.cxx': '/* mymoc.py -z */',
+        },
+    )
+)
 
 test.write(['work2', 'SConstruct'], """
 import os.path
-env1 = Environment(tools=['qt'],
-                   QTDIR = r'%(QTDIR)s',
-                   QT_BINPATH='$QTDIR/bin64',
-                   QT_LIBPATH='$QTDIR/lib64',
-                   QT_CPPPATH='$QTDIR/h64')
+
+env1 = Environment(
+    tools=['qt'],
+    QTDIR=r'%(QTDIR)s',
+    QT_BINPATH='$QTDIR/bin64',
+    QT_LIBPATH='$QTDIR/lib64',
+    QT_CPPPATH='$QTDIR/h64',
+)
 
 cpppath = env1.subst('$CPPPATH')
 if os.path.normpath(cpppath) != os.path.join(r'%(QTDIR)s', 'h64'):
@@ -182,11 +193,9 @@ if os.path.normpath(qt_moc) != os.path.join(r'%(QTDIR)s', 'bin64', 'moc'):
     print(qt_moc)
     Exit(3)
 
-env2 = Environment(tools=['default', 'qt'],
-                   QTDIR = None,
-                   QT_LIB = None,
-                   QT_CPPPATH = None,
-                   QT_LIBPATH = None)
+env2 = Environment(
+    tools=['default', 'qt'], QTDIR=None, QT_LIB=None, QT_CPPPATH=None, QT_LIBPATH=None
+)
 
 env2.Program('main.cpp')
 """ % {'QTDIR':QT})
@@ -197,7 +206,7 @@ int main(void) { return 0; }
 
 # Ignore stderr, because if Qt is not installed,
 # there may be a warning about an empty QTDIR on stderr.
-test.run(chdir='work2', stderr=None)
+test.run(arguments="--warn=no-tool-qt-deprecated", chdir='work2', stderr=None)
 
 test.must_exist(['work2', 'main' + _exe])
 

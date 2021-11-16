@@ -38,6 +38,7 @@ import SCons.Scanner
 import SCons.Tool
 import SCons.Util
 import SCons.Tool.cxx
+import SCons.Warnings
 cplusplus = SCons.Tool.cxx
 
 class ToolQtWarning(SCons.Warnings.SConsWarning):
@@ -269,6 +270,10 @@ def generate(env):
     CLVar = SCons.Util.CLVar
     Action = SCons.Action.Action
     Builder = SCons.Builder.Builder
+
+    SCons.Warnings.warn(
+        SCons.Warnings.ToolQtDeprecatedWarning, "Tool module for Qt version 3 is deprecated"
+    )
 
     env.SetDefault(QTDIR  = _detect(env),
                    QT_BINPATH = os.path.join('$QTDIR', 'bin'),

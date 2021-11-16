@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Create a moc file from a cpp file.
@@ -64,11 +63,13 @@ void useit() {
 }
 """)
 
-test.run(arguments=lib_aaa,
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+test.run(
+    arguments="--warn=no-tool-qt-deprecated " + lib_aaa,
+    stderr=TestSCons.noisy_ar,
+    match=TestSCons.match_re_dotall,
+)
 
-test.up_to_date(options = '-n', arguments = lib_aaa)
+test.up_to_date(options='-n --warn=no-tool-qt-deprecated', arguments=lib_aaa)
 
 test.write('aaa.cpp', r"""
 #include "my_qobject.h"
@@ -77,22 +78,30 @@ void aaa(void) Q_OBJECT
 #include "%s"
 """ % moc)
 
-test.not_up_to_date(options = '-n', arguments = moc)
+test.not_up_to_date(options='-n --warn=no-tool-qt-deprecated', arguments=moc)
 
-test.run(options = '-c', arguments = lib_aaa)
+test.run(options="--warn=no-tool-qt-deprecated -c", arguments=lib_aaa)
 
-test.run(arguments = "variant_dir=1 " + test.workpath('build', lib_aaa),
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+test.run(
+    arguments="--warn=no-tool-qt-deprecated variant_dir=1 "
+    + test.workpath('build', lib_aaa),
+    stderr=TestSCons.noisy_ar,
+    match=TestSCons.match_re_dotall,
+)
 
-test.run(arguments = "variant_dir=1 chdir=1 " + test.workpath('build', lib_aaa))
+test.run(
+    arguments="--warn=no-tool-qt-deprecated variant_dir=1 chdir=1 "
+    + test.workpath('build', lib_aaa)
+)
 
 test.must_exist(test.workpath('build', moc))
 
-test.run(arguments = "variant_dir=1 dup=0 " +
-                     test.workpath('build_dup0', lib_aaa),
-         stderr=TestSCons.noisy_ar,
-         match=TestSCons.match_re_dotall)
+test.run(
+    arguments="--warn=no-tool-qt-deprecated variant_dir=1 dup=0 "
+    + test.workpath('build_dup0', lib_aaa),
+    stderr=TestSCons.noisy_ar,
+    match=TestSCons.match_re_dotall,
+)
 
 test.must_exist(test.workpath('build_dup0', moc))
 

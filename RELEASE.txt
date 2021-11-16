@@ -15,7 +15,8 @@ NEW FUNCTIONALITY
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- List anything that's been deprecated since the last release
+- The qt tool, which targets Qt version 3, is deprecated. Qt3 has been unsupported by
+  upstream for many years.  Qt4 and Qt5 tools are available from scons-contrib.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------

@@ -1998,7 +1998,8 @@ after other processing.</para>
     <option>--warn=no-<replaceable>type</replaceable></option>
   </term>
   <listitem>
-<para>Enable or disable (with the no- prefix) warnings.
+<para>Enable or disable (with the prefix "no-") warnings
+(<option>--warning</option> is a synonym).
 <replaceable>type</replaceable>
 specifies the type of warnings to be enabled or disabled:</para>
 
@@ -2120,6 +2121,18 @@ singular form, even though
 and
 <parameter>source</parameter>
 can themselves refer to lists of names or nodes.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">tool-qt-deprecated</emphasis></term>
+  <listitem>
+<para>Warnings about the &t-link-qt; tool being deprecated.
+These warnings are disabled by default for the first
+phase of deprecation. Enable to be reminded about use
+of this tool module.
+<emphasis>Available since &SCons; 4.3.</emphasis>
+</para>
   </listitem>
   </varlistentry>
 
@@ -7939,6 +7952,16 @@ Remove the cache file in case of problems with this.
 and will silently revert to non-cached behavior in such cases.</para>
 
 <para><emphasis>Available since &scons; 3.1 (experimental)</emphasis>.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term><envar>QTDIR</envar></term>
+    <listitem>
+<para>If using the &t-link-qt; tool, this is the path to
+the Qt installation to build against. &SCons; respects this
+setting because it is a long-standing convention in the Qt world,
+where multiple Qt installations are possible.</para>
     </listitem>
   </varlistentry>
 </variablelist>
