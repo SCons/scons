@@ -1,4 +1,4 @@
-A new SCons release, 4.2.0, is now available
+A new SCons release, 4.3.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
@@ -56,26 +56,6 @@ FIXES
   build.ninja you would end up with no build.ninja file and have to rerun scons from scratch.
   Code contributed by MongoDB.
 
-
-IMPROVEMENTS
-------------
-
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
-
-PACKAGING
----------
-
-- List changes in the way SCons is packaged and/or released
-
-DOCUMENTATION
--------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
-
 DEVELOPMENT
 -----------
 
@@ -87,4 +67,13 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.2.0..HEAD
+    47  Mats Wichmann
+    46  William Deegan
+    14  Jacob Cassagnol
+    11  Daniel Moody
+     8  Ryan Egesdahl
+     5  Joseph Brill
+     4  Omar Polo
+     2  Brian Quistorff
+     1  Aaron Franke
