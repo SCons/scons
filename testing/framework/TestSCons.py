@@ -45,6 +45,7 @@ from collections import namedtuple
 
 from TestCommon import *
 from TestCommon import __all__
+from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 
 from TestCmd import Popen
 from TestCmd import PIPE
@@ -719,6 +720,27 @@ class TestSCons(TestCommon):
         for p in patterns:
             result.extend(sorted(glob.glob(p)))
         return result
+    
+    def get_sconsignname(self):
+        """Get the scons database name used, and return both the prefix and full filename.
+        if the user left the options defaulted AND the default algorithm set by
+        SCons is md5, then set the database name to be the special default name
+        
+        otherwise, if it defaults to something like 'sha1' or the user explicitly
+        set 'md5' as the hash format, set the database name to .sconsign_<algorithm>
+        eg .sconsign_sha1, etc.
+
+        Returns:
+            a pair containing: the current dbname, the dbname.dblite filename
+        """
+        hash_format = get_hash_format()
+        current_hash_algorithm = get_current_hash_algorithm_used()
+        if hash_format is None and current_hash_algorithm == 'md5':
+            return ".sconsign"
+        else:
+            database_prefix=".sconsign_%s" % current_hash_algorithm
+            return database_prefix
+
 
     def unlink_sconsignfile(self, name='.sconsign.dblite'):
         """Delete the sconsign file.
@@ -1415,10 +1437,10 @@ SConscript(sconscript)
                     for ext, flag in bld_desc:  # each file in TryBuild
                         if ext in ['.c', '.cpp']:
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}_\d+%s' % re.escape(ext)
+                                            r'_[a-z0-9]{32,64}_\d+%s' % re.escape(ext)
                         elif ext == '':
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}(_\d+_[a-z0-9]{32})?'
+                                            r'_[a-z0-9]{32,64}(_\d+_[a-z0-9]{32,64})?'
 
                         else:
                             # We allow the second hash group to be optional because
@@ -1430,7 +1452,7 @@ SConscript(sconscript)
                             # TODO: perhaps revisit and/or fix file naming for intermediate files in
                             #  Configure context logic
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}_\d+(_[a-z0-9]{32})?%s' % re.escape(ext)
+                                            r'_[a-z0-9]{32,64}_\d+(_[a-z0-9]{32,64})?%s' % re.escape(ext)
 
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild

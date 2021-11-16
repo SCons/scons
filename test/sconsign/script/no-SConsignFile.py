@@ -40,6 +40,8 @@ test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
 
 test.subdir('sub1', 'sub2')
 
+database_name = test.get_sconsignname()
+
 # Because this test sets SConsignFile(None), we execute our fake
 # scripts directly, not by feeding them to the Python executable.
 # That is, we chmod 0o755 and use a "#!/usr/bin/env python" first
@@ -152,7 +154,7 @@ test.write(['sub2', 'inc2.h'], r"""\
 
 test.run(arguments = '--implicit-cache --tree=prune .')
 
-sig_re = r'[0-9a-fA-F]{32}'
+sig_re = r'[0-9a-fA-F]{32,64}'
 
 expect = r"""hello.c: %(sig_re)s \d+ \d+
 hello.exe: %(sig_re)s \d+ \d+
@@ -165,9 +167,9 @@ hello.obj: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals()
 
-test.run_sconsign(arguments = "sub1/.sconsign", stdout=expect)
+test.run_sconsign(arguments = "sub1/{}".format(database_name), stdout=expect)
 
-test.run_sconsign(arguments = "--raw sub1/.sconsign",
+test.run_sconsign(arguments = "--raw sub1/{}".format(database_name),
          stdout = r"""hello.c: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
 hello.exe: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
         %(sub1_hello_obj)s: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
@@ -179,7 +181,7 @@ hello.obj: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_i
         %(sig_re)s \[.*\]
 """ % locals())
 
-test.run_sconsign(arguments = "-v sub1/.sconsign",
+test.run_sconsign(arguments = "-v sub1/{}".format(database_name),
          stdout = r"""hello.c:
     csig: %(sig_re)s
     timestamp: \d+
@@ -214,7 +216,7 @@ hello.obj:
     action: %(sig_re)s \[.*\]
 """ % locals())
 
-test.run_sconsign(arguments = "-c -v sub1/.sconsign",
+test.run_sconsign(arguments = "-c -v sub1/{}".format(database_name),
          stdout = r"""hello.c:
     csig: %(sig_re)s
 hello.exe:
@@ -223,7 +225,7 @@ hello.obj:
     csig: %(sig_re)s
 """ % locals())
 
-test.run_sconsign(arguments = "-s -v sub1/.sconsign",
+test.run_sconsign(arguments = "-s -v sub1/{}".format(database_name),
          stdout = r"""hello.c:
     size: \d+
 hello.exe:
@@ -232,7 +234,7 @@ hello.obj:
     size: \d+
 """ % locals())
 
-test.run_sconsign(arguments = "-t -v sub1/.sconsign",
+test.run_sconsign(arguments = "-t -v sub1/{}".format(database_name),
          stdout = r"""hello.c:
     timestamp: \d+
 hello.exe:
@@ -241,14 +243,14 @@ hello.obj:
     timestamp: \d+
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.obj sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj sub1/{}".format(database_name),
          stdout = r"""hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
         fake_cc\.py: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj sub1/{}".format(database_name),
          stdout = r"""hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: %(sig_re)s \d+ \d+
         fake_cc\.py: %(sig_re)s \d+ \d+
@@ -263,7 +265,7 @@ hello.obj: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
-test.run_sconsign(arguments = "sub2/.sconsign",
+test.run_sconsign(arguments = "sub2/{}".format(database_name),
          stdout = r"""hello.c: %(sig_re)s \d+ \d+
 hello.exe: %(sig_re)s \d+ \d+
         %(sub2_hello_obj)s: %(sig_re)s \d+ \d+
@@ -279,7 +281,7 @@ inc1.h: %(sig_re)s \d+ \d+
 inc2.h: %(sig_re)s \d+ \d+
 """ % locals())
 
-#test.run_sconsign(arguments = "-i -v sub2/.sconsign",
+#test.run_sconsign(arguments = "-i -v sub2/{}".format(database_name),
 #         stdout = r"""hello.c: %(sig_re)s \d+ \d+
 #hello.exe: %(sig_re)s \d+ \d+
 #    implicit:
@@ -291,7 +293,7 @@ inc2.h: %(sig_re)s \d+ \d+
 #        inc2.h: %(sig_re)s \d+ \d+
 #""" % locals())
 
-test.run_sconsign(arguments = "-e hello.obj sub2/.sconsign sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.obj sub2/{} sub1/{}".format(database_name, database_name),
          stdout = r"""hello.obj: %(sig_re)s \d+ \d+
         %(sub2_hello_c)s: %(sig_re)s \d+ \d+
         %(sub2_inc1_h)s: %(sig_re)s \d+ \d+

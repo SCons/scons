@@ -149,10 +149,12 @@ test.sleep()
 
 test.run(arguments = '. --max-drift=1')
 
-sig_re = r'[0-9a-fA-F]{32}'
+sig_re = r'[0-9a-fA-F]{32,64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
 
-test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/.sconsign",
+database_name = test.get_sconsignname()
+
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj sub1/{}".format(database_name),
          stdout = r"""hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
         fake_link\.py: None \d+ \d+
@@ -163,7 +165,7 @@ hello.obj: %(sig_re)s \d+ \d+
         %(sig_re)s \[.*\]
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r sub1/.sconsign",
+test.run_sconsign(arguments = "-e hello.exe -e hello.obj -r sub1/{}".format(database_name),
          stdout = r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
         fake_link\.py: None '%(date_re)s' \d+

@@ -44,10 +44,11 @@ test.subdir('work1',
             ['work2', 'sub2'],
             ['work2', 'sub3'])
 
-work1__sconsign_dblite = test.workpath('work1', '.sconsign.dblite')
-work2_sub1__sconsign = test.workpath('work2', 'sub1', '.sconsign')
-work2_sub2__sconsign = test.workpath('work2', 'sub2', '.sconsign')
-work2_sub3__sconsign = test.workpath('work2', 'sub3', '.sconsign')
+database_name = test.get_sconsignname()
+work1__sconsign_dblite = test.workpath('work1', database_name + '.dblite')
+work2_sub1__sconsign = test.workpath('work2', 'sub1', database_name)
+work2_sub2__sconsign = test.workpath('work2', 'sub2', database_name)
+work2_sub3__sconsign = test.workpath('work2', 'sub3', database_name)
 
 SConstruct_contents = """\
 def build1(target, source, env):

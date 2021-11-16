@@ -26,13 +26,17 @@ import io
 import os
 import sys
 import unittest
-from collections import UserDict, UserList, UserString
+import unittest.mock
+import hashlib
+import warnings
+from collections import UserDict, UserList, UserString, namedtuple
 
 import TestCmd
 
 import SCons.Errors
 import SCons.compat
 from SCons.Util import (
+    ALLOWED_HASH_FORMATS,
     AddPathIfNotExists,
     AppendPath,
     CLVar,
@@ -42,6 +46,10 @@ from SCons.Util import (
     Proxy,
     Selector,
     WhereIs,
+    _attempt_init_of_python_3_9_hash_object,
+    _attempt_get_hash_function,
+    _get_hash_object,
+    _set_allowed_viable_default_hashes,
     adjustixes,
     containsAll,
     containsAny,
@@ -61,6 +69,7 @@ from SCons.Util import (
     is_Tuple,
     print_tree,
     render_tree,
+    set_hash_format,
     silent_intern,
     splitext,
     to_String,
@@ -838,12 +847,17 @@ class HashTestCase(unittest.TestCase):
                        '25235f0fcab8767b7b5ac6568786fbc4f7d5d83468f0626bf07c3dbeed391a7a',
                        'f8d3d0729bf2427e2e81007588356332e7e8c4133fae4bceb173b93f33411d17'),
         }.items():
-            hs = functools.partial(hash_signature, hash_format=algorithm)
-            s = list(map(hs, ('111', '222', '333')))
+            # if the current platform does not support the algorithm we're looking at,
+            # skip the test steps for that algorithm, but display a warning to the user
+            if algorithm not in ALLOWED_HASH_FORMATS:
+                warnings.warn("Missing hash algorithm {} on this platform, cannot test with it".format(algorithm), ResourceWarning)
+            else:
+                hs = functools.partial(hash_signature, hash_format=algorithm)
+                s = list(map(hs, ('111', '222', '333')))
 
-            assert expected[0] == hash_collect(s[0:1], hash_format=algorithm)
-            assert expected[1] == hash_collect(s[0:2], hash_format=algorithm)
-            assert expected[2] == hash_collect(s, hash_format=algorithm)
+                assert expected[0] == hash_collect(s[0:1], hash_format=algorithm)
+                assert expected[1] == hash_collect(s[0:2], hash_format=algorithm)
+                assert expected[2] == hash_collect(s, hash_format=algorithm)
 
     def test_MD5signature(self):
         """Test generating a signature"""
@@ -855,11 +869,162 @@ class HashTestCase(unittest.TestCase):
             'sha256': ('f6e0a1e2ac41945a9aa7ff8a8aaa0cebc12a3bcc981a929ad5cf810a090e11ae',
                        '9b871512327c09ce91dd649b3f96a63b7408ef267c8cc5710114e629730cb61f'),
         }.items():
-            s = hash_signature('111', hash_format=algorithm)
-            assert expected[0] == s, s
+            # if the current platform does not support the algorithm we're looking at,
+            # skip the test steps for that algorithm, but display a warning to the user
+            if algorithm not in ALLOWED_HASH_FORMATS:
+                warnings.warn("Missing hash algorithm {} on this platform, cannot test with it".format(algorithm), ResourceWarning)
+            else:
+                s = hash_signature('111', hash_format=algorithm)
+                assert expected[0] == s, s
 
-            s = hash_signature('222', hash_format=algorithm)
-            assert expected[1] == s, s
+                s = hash_signature('222', hash_format=algorithm)
+                assert expected[1] == s, s
+
+# this uses mocking out, which is platform specific, however, the FIPS
+# behavior this is testing is also platform-specific, and only would be
+# visible in hosts running Linux with the fips_mode kernel flag along
+# with using OpenSSL.
+
+class FIPSHashTestCase(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(FIPSHashTestCase, self).__init__(*args, **kwargs)
+
+        ###############################
+        # algorithm mocks, can check if we called with usedforsecurity=False for python >= 3.9
+        self.fake_md5=lambda usedforsecurity=True: (usedforsecurity, 'md5')
+        self.fake_sha1=lambda usedforsecurity=True: (usedforsecurity, 'sha1')
+        self.fake_sha256=lambda usedforsecurity=True: (usedforsecurity, 'sha256')
+        ###############################
+
+        ###############################
+        # hashlib mocks
+        md5Available = unittest.mock.Mock(md5=self.fake_md5)
+        del md5Available.sha1
+        del md5Available.sha256
+        self.md5Available=md5Available
+
+        md5Default = unittest.mock.Mock(md5=self.fake_md5, sha1=self.fake_sha1)
+        del md5Default.sha256
+        self.md5Default=md5Default
+
+        sha1Default = unittest.mock.Mock(sha1=self.fake_sha1, sha256=self.fake_sha256)
+        del sha1Default.md5
+        self.sha1Default=sha1Default
+
+        sha256Default = unittest.mock.Mock(sha256=self.fake_sha256, **{'md5.side_effect': ValueError, 'sha1.side_effect': ValueError})
+        self.sha256Default=sha256Default
+
+        all_throw = unittest.mock.Mock(**{'md5.side_effect': ValueError, 'sha1.side_effect': ValueError, 'sha256.side_effect': ValueError})
+        self.all_throw=all_throw
+        
+        no_algorithms = unittest.mock.Mock()
+        del no_algorithms.md5
+        del no_algorithms.sha1
+        del no_algorithms.sha256
+        del no_algorithms.nonexist
+        self.no_algorithms=no_algorithms
+        
+        unsupported_algorithm = unittest.mock.Mock(unsupported=self.fake_sha256)
+        del unsupported_algorithm.md5
+        del unsupported_algorithm.sha1
+        del unsupported_algorithm.sha256
+        del unsupported_algorithm.unsupported
+        self.unsupported_algorithm=unsupported_algorithm
+        ###############################
+
+        ###############################
+        # system version mocks
+        VersionInfo = namedtuple('VersionInfo', 'major minor micro releaselevel serial')
+        v3_8 = VersionInfo(3, 8, 199, 'super-beta', 1337)
+        v3_9 = VersionInfo(3, 9, 0, 'alpha', 0)
+        v4_8 = VersionInfo(4, 8, 0, 'final', 0)
+
+        self.sys_v3_8 = unittest.mock.Mock(version_info=v3_8)
+        self.sys_v3_9 = unittest.mock.Mock(version_info=v3_9)
+        self.sys_v4_8 = unittest.mock.Mock(version_info=v4_8)
+        ###############################
+
+    def test_basic_failover_bad_hashlib_hash_init(self):
+        """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
+        the hash init function returns None"""
+        assert _attempt_init_of_python_3_9_hash_object(None) is None
+
+    def test_basic_failover_bad_hashlib_hash_get(self):
+        """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
+        the hash get function returns None"""
+        assert _attempt_get_hash_function("nonexist", self.no_algorithms) is None
+
+    def test_usedforsecurity_flag_behavior(self):
+        """Test usedforsecurity flag -> should be set to 'True' on older versions of python, and 'False' on Python >= 3.9"""
+        for version, expected in {
+            self.sys_v3_8: (True, 'md5'),
+            self.sys_v3_9: (False, 'md5'),
+            self.sys_v4_8: (False, 'md5'),
+        }.items():
+            assert _attempt_init_of_python_3_9_hash_object(self.fake_md5, version) == expected
+    
+    def test_automatic_default_to_md5(self):
+        """Test automatic default to md5 even if sha1 available"""
+        for version, expected in {
+            self.sys_v3_8: (True, 'md5'),
+            self.sys_v3_9: (False, 'md5'),
+            self.sys_v4_8: (False, 'md5'),
+        }.items():
+            _set_allowed_viable_default_hashes(self.md5Default, version)
+            set_hash_format(None, self.md5Default, version)
+            assert _get_hash_object(None, self.md5Default, version) == expected
+
+    def test_automatic_default_to_sha256(self):
+        """Test automatic default to sha256 if other algorithms available but throw"""
+        for version, expected in {
+            self.sys_v3_8: (True, 'sha256'),
+            self.sys_v3_9: (False, 'sha256'),
+            self.sys_v4_8: (False, 'sha256'),
+        }.items():
+            _set_allowed_viable_default_hashes(self.sha256Default, version)
+            set_hash_format(None, self.sha256Default, version)
+            assert _get_hash_object(None, self.sha256Default, version) == expected
+
+    def test_automatic_default_to_sha1(self):
+        """Test automatic default to sha1 if md5 is missing from hashlib entirely"""
+        for version, expected in {
+            self.sys_v3_8: (True, 'sha1'),
+            self.sys_v3_9: (False, 'sha1'),
+            self.sys_v4_8: (False, 'sha1'),
+        }.items():
+            _set_allowed_viable_default_hashes(self.sha1Default, version)
+            set_hash_format(None, self.sha1Default, version)
+            assert _get_hash_object(None, self.sha1Default, version) == expected
+    
+    def test_no_available_algorithms(self):
+        """expect exceptions on no available algorithms or when all algorithms throw"""
+        self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.no_algorithms)
+        self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.all_throw)
+        self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.unsupported_algorithm)
+
+    def test_bad_algorithm_set_attempt(self):
+        """expect exceptions on user setting an unsupported algorithm selections, either by host or by SCons"""
+
+        # nonexistant hash algorithm, not supported by SCons
+        _set_allowed_viable_default_hashes(self.md5Available)
+        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'blah blah blah', hashlib_used=self.no_algorithms)
+        
+        # md5 is default-allowed, but in this case throws when we attempt to use it
+        _set_allowed_viable_default_hashes(self.md5Available)
+        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'md5', hashlib_used=self.all_throw)
+
+        # user attempts to use an algorithm that isn't supported by their current system but is supported by SCons
+        _set_allowed_viable_default_hashes(self.sha1Default)
+        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'md5', hashlib_used=self.all_throw)
+        
+        # user attempts to use an algorithm that is supported by their current system but isn't supported by SCons
+        _set_allowed_viable_default_hashes(self.sha1Default)
+        self.assertRaises(SCons.Errors.UserError, set_hash_format, 'unsupported', hashlib_used=self.unsupported_algorithm)
+
+    def tearDown(self):
+        """Return SCons back to the normal global state for the hashing functions."""
+        _set_allowed_viable_default_hashes(hashlib, sys)
+        set_hash_format(None)
 
 
 class NodeListTestCase(unittest.TestCase):

@@ -57,7 +57,8 @@ test.must_not_exist(['bar', 'foo.txt'])
 
 test.must_not_exist('sub')
 test.must_not_exist(['sub', 'dir'])
-test.must_not_exist(['sub', 'dir', '.sconsign.dblite'])
+database_name = test.get_sconsignname()
+test.must_not_exist(['sub', 'dir', database_name + '.dblite'])
 
 test.run(stdout=expect)
 

@@ -216,12 +216,14 @@ repository/src1/bbb.c:  REPOSITORY_FOO
 repository/src1/main.c:  REPOSITORY_FOO
 """)
 
+database_name=test.get_sconsignname()
+
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 test.run(program=repository_build2_foo_src2_xxx_xxx, stdout="""\
 repository/src2/include/my_string.h:  FOO
@@ -236,11 +238,11 @@ repository/src2/xxx/main.c:  BAR
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 # Make the entire repository non-writable, so we'll detect
 # if we try to write into it accidentally.
@@ -270,11 +272,11 @@ repository/src1/main.c:  REPOSITORY_BAR
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 test.up_to_date(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
@@ -301,11 +303,11 @@ repository/src1/main.c:  WORK_BAR
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 test.up_to_date(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
@@ -319,11 +321,11 @@ repository/src1/main.c:  WORK_FOO
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 test.up_to_date(chdir='work1', options=opts + " OS=foo", arguments='build1')
 
@@ -376,11 +378,11 @@ repository/src2/xxx/main.c:  BAR
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 # Ensure file time stamps will be newer.
 time.sleep(2)
@@ -411,11 +413,11 @@ repository/src2/xxx/main.c:  BAR
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 #
 test.unlink(['work2', 'src2', 'include', 'my_string.h'])
@@ -435,11 +437,11 @@ repository/src2/xxx/main.c:  BAR
 """)
 
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', '.sconsign')))
+    test.workpath('repository', 'src1', database_name)))
 test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work1', 'src1', '.sconsign')))
-test.fail_test(os.path.exists(test.workpath('work2', 'src2', '.sconsign')))
+    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
 #
 test.pass_test()

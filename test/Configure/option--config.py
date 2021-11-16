@@ -32,6 +32,7 @@ import os.path
 
 from TestSCons import TestSCons, ConfigCheckInfo, _obj
 from TestCmd import IS_WINDOWS
+from SCons.Util import get_current_hash_algorithm_used
 
 test = TestSCons()
 
@@ -41,6 +42,11 @@ NCR = test.NCR  # non-cached rebuild
 CR = test.CR  # cached rebuild (up to date)
 NCF = test.NCF  # non-cached build failure
 CF = test.CF  # cached build failure
+
+# as this test is somewhat complicated, skip it if the library doesn't support md5
+# as the default hashing algorithm.
+if get_current_hash_algorithm_used() != 'md5':
+    test.skip_test('Skipping test as could not continue without the hash algorithm set to md5!')
 
 SConstruct_path = test.workpath('SConstruct')
 
