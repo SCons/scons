@@ -1,81 +1,58 @@
-A new SCons release, 4.3.0, is now available
+A new SCons release, 4.1.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
 
 
-NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
-
-Here is a summary of the changes since 4.2.0:
+Here is a summary of the changes since 4.1.0:
 
 NEW FUNCTIONALITY
 -----------------
 
-- Ninja - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
-- Add support for Visual Studio 2022.
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- The qt tool, which targets Qt version 3, is deprecated. Qt3 has been unsupported by
-  upstream for many years.  Qt4 and Qt5 tools are available from scons-contrib.
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Ninja - Expanded ninja Mkdir to also support Mkdir actions.
-- Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
-  Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
-- Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
-  environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
-  This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
-  introduced by Aaron Franke (listed below) were merged.
-- The Java tool now accepts more versions (up to 17.0), and is better
-  able to detect the many builds of OpenJDK available since it became
-  designated the reference Java implementation.
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
-- Small fix to ensure CLVar default value is an empty list.
-  See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
-  Code contributed by MongoDB.
-- Ninja - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
-  issue affected CommandGeneratorAction function actions specifically.
-- Fix PCH not being evaluated by subst() where necessary.
-- Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
-  but instead it should yield '$('.
-- Ninja - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
-- Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
-- Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
-  the ninja file scons regenerate and callback invocations will lose the $ characters used in
-  the scons command line which ninja uses itself for escaping. For Example:
-      scons BUILD=xyz OTHERVAR=$BUILD
-  Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
-  single dollar sign being used as a ninja escape character in the ninja file.
-- Ninja - Fixed an issue where if you control-c and/or killed ninja while it was running scons to regenerate
-  build.ninja you would end up with no build.ninja file and have to rerun scons from scratch.
-  Code contributed by MongoDB.
+- List fixes of outright bugs
+
+IMPROVEMENTS
+------------
+
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
+
+PACKAGING
+---------
+
+- List changes in the way SCons is packaged and/or released
+
+DOCUMENTATION
+-------------
+
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- Added --no-ignore-skips to runtest.py. Changed default to ignore skips when setting
-  runtest.py's exit status. Previously would exit 2 if any tests were skipped.
-  Now will only exit 2 if user specifies --no-ignore-skips and some tests were skipped.
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.2.0..HEAD
-    47  Mats Wichmann
-    46  William Deegan
-    14  Jacob Cassagnol
-    11  Daniel Moody
-     8  Ryan Egesdahl
-     5  Joseph Brill
-     4  Omar Polo
-     2  Brian Quistorff
-     1  Aaron Franke
+    git shortlog --no-merges -ns 4.0.1..HEAD
