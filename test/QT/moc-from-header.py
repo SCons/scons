@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Create a moc file from a header file.
@@ -69,11 +68,8 @@ test.write('aaa.h', r"""
 void aaa(void) Q_OBJECT;
 """)
 
-test.run()
-
-test.up_to_date(options = '-n', arguments=aaa_exe)
-
-test.up_to_date(options = '-n', arguments = aaa_exe)
+test.run(arguments="--warn=no-tool-qt-deprecated")
+test.up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=aaa_exe)
 
 test.write('aaa.h', r"""
 /* a change */
@@ -81,18 +77,26 @@ test.write('aaa.h', r"""
 void aaa(void) Q_OBJECT;
 """)
 
-test.not_up_to_date(options='-n', arguments = moc)
+test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=moc)
 
-test.run(program = test.workpath(aaa_exe), stdout = 'aaa.h\n')
+test.run(
+    arguments="--warn=no-tool-qt-deprecated",
+    program=test.workpath(aaa_exe),
+    stdout='aaa.h\n',
+)
 
-test.run(arguments = "variant_dir=1 " + build_aaa_exe)
+test.run(arguments="--warn=no-tool-qt-deprecated variant_dir=1 " + build_aaa_exe)
 
-test.run(arguments = "variant_dir=1 chdir=1 " + build_aaa_exe)
+test.run(
+    arguments="--warn=no-tool-qt-deprecated variant_dir=1 chdir=1 " + build_aaa_exe
+)
 
 test.must_exist(test.workpath('build', moc))
 
-test.run(arguments = "variant_dir=1 chdir=1 dup=0 " +
-                     test.workpath('build_dup0', aaa_exe) )
+test.run(
+    arguments="--warn=no-tool-qt-deprecated variant_dir=1 chdir=1 dup=0 "
+    + test.workpath('build_dup0', aaa_exe)
+)
 
 test.must_exist(['build_dup0', moc])
 

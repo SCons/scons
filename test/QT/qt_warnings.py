@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,8 +26,6 @@
 """
 Test the Qt tool warnings.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import re
@@ -51,7 +51,7 @@ import os
 env.StaticLibrary('aaa.cpp')
 """)
 
-test.run(stderr=None)
+test.run(arguments="--warn=no-tool-qt-deprecated", stderr=None)
 
 match12 = r"""
 scons: warning: Generated moc file 'aaa.moc' is not included by 'aaa.cpp'
@@ -64,7 +64,7 @@ if not re.search(match12, test.stderr()):
 
 os.environ['QTDIR'] = test.QT
 
-test.run(arguments='-n noqtdir=1')
+test.run(arguments='--warn=no-tool-qt-deprecated -n noqtdir=1')
 
 # We'd like to eliminate $QTDIR from the environment as follows:
 #       del os.environ['QTDIR']
@@ -74,7 +74,7 @@ test.run(arguments='-n noqtdir=1')
 # environment, so it only gets removed from the Python dictionary.
 # Consequently, we need to just wipe out its value as follows>
 os.environ['QTDIR'] = ''
-test.run(stderr=None, arguments='-n noqtdir=1')
+test.run(stderr=None, arguments='--warn=no-tool-qt-deprecated -n noqtdir=1')
 
 moc = test.where_is('moc')
 if moc:

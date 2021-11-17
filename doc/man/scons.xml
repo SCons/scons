@@ -1185,9 +1185,15 @@ to use the specified algorithm.</para>
 For example, <option>--hash-format=sha256</option> will create a SConsign
 database with name <filename>.sconsign_sha256.dblite</filename>.</para>
 
-<para>If this option is not specified, a hash format of
-md5 is used, and the SConsign database is
-<filename>.sconsign.dblite</filename>.</para>
+<para>If this option is not specified, a the first supported hash format found
+is selected. Typically this is MD5, however, if you are on a FIPS-compliant system
+and using a version of Python less than 3.9, SHA1 or SHA256 will be chosen as the default.
+Python 3.9 and onwards clients will always default to MD5, even in FIPS mode, unless 
+otherwise specified with the <option>--hash-format</option> option.</para>
+
+<para>For MD5 databases (either explicitly specified with <option>--hash-format=md5</option> or 
+defaulted), the SConsign database is<filename>.sconsign.dblite</filename>. The newer SHA1 and 
+SHA256 selections meanwhile store their databases to <filename>.sconsign_algorithmname.dblite</filename></para>
 
 <para><emphasis>Available since &scons; 4.2.</emphasis></para>
   </listitem>
@@ -1998,7 +2004,8 @@ after other processing.</para>
     <option>--warn=no-<replaceable>type</replaceable></option>
   </term>
   <listitem>
-<para>Enable or disable (with the no- prefix) warnings.
+<para>Enable or disable (with the prefix "no-") warnings
+(<option>--warning</option> is a synonym).
 <replaceable>type</replaceable>
 specifies the type of warnings to be enabled or disabled:</para>
 
@@ -2120,6 +2127,18 @@ singular form, even though
 and
 <parameter>source</parameter>
 can themselves refer to lists of names or nodes.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><emphasis role="bold">tool-qt-deprecated</emphasis></term>
+  <listitem>
+<para>Warnings about the &t-link-qt; tool being deprecated.
+These warnings are disabled by default for the first
+phase of deprecation. Enable to be reminded about use
+of this tool module.
+<emphasis>Available since &SCons; 4.3.</emphasis>
+</para>
   </listitem>
   </varlistentry>
 
@@ -7939,6 +7958,16 @@ Remove the cache file in case of problems with this.
 and will silently revert to non-cached behavior in such cases.</para>
 
 <para><emphasis>Available since &scons; 3.1 (experimental)</emphasis>.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term><envar>QTDIR</envar></term>
+    <listitem>
+<para>If using the &t-link-qt; tool, this is the path to
+the Qt installation to build against. &SCons; respects this
+setting because it is a long-standing convention in the Qt world,
+where multiple Qt installations are possible.</para>
     </listitem>
   </varlistentry>
 </variablelist>

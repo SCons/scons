@@ -34,7 +34,7 @@ venv.bak/
 
 
 # SCons files
-.sconsign.*
+.sconsign*
 
 # Tool output
 .coverage

@@ -48,10 +48,12 @@ with open(sys.argv[1], 'wb') as ofp, open(sys.argv[2], 'rb') as ifp:
 sys.exit(0)
 """)
 
+database_name = test.get_sconsignname()
+database_filename = database_name + '.dblite'
 #
 test.write('SConstruct', """
 import %(use_dbm)s
-SConsignFile('.sconsign', %(use_dbm)s)
+SConsignFile('%(database_name)s', %(use_dbm)s)
 DefaultEnvironment(tools=[])
 B = Builder(action='%(_python_)s build.py $TARGETS $SOURCES')
 env = Environment(BUILDERS={'B': B}, tools=[])
@@ -68,10 +70,10 @@ test.write(['subdir', 'f4.in'], "subdir/f4.in\n")
 
 test.run()
 
-test.must_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
+test.must_exist(test.workpath(database_name))
+test.must_not_exist(test.workpath(database_filename))
+test.must_not_exist(test.workpath('subdir', database_name))
+test.must_not_exist(test.workpath('subdir', database_filename))
 
 test.must_match('f1.out', "f1.in\n")
 test.must_match('f2.out', "f2.in\n")
@@ -80,10 +82,10 @@ test.must_match(['subdir', 'f4.out'], "subdir/f4.in\n")
 
 test.up_to_date(arguments='.')
 
-test.must_exist(test.workpath('.sconsign'))
-test.must_not_exist(test.workpath('.sconsign.dblite'))
-test.must_not_exist(test.workpath('subdir', '.sconsign'))
-test.must_not_exist(test.workpath('subdir', '.sconsign.dblite'))
+test.must_exist(test.workpath(database_name))
+test.must_not_exist(test.workpath(database_filename))
+test.must_not_exist(test.workpath('subdir', database_name))
+test.must_not_exist(test.workpath('subdir', database_filename))
 
 test.pass_test()
 
