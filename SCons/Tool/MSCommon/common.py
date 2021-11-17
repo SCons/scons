@@ -30,6 +30,7 @@ import json
 import os
 import re
 import subprocess
+from subprocess import SubprocessError
 import sys
 
 import SCons.Util
@@ -256,19 +257,33 @@ def get_output(vcbat, args=None, env=None):
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
     if args:
-        debug("Calling '%s %s'" % (vcbat, args))
-        popen = SCons.Action._subproc(env,
-                                      '"%s" %s & set' % (vcbat, args),
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        call_str = '"{}" {}'.format(vcbat, args)
     else:
-        debug("Calling '%s'" % vcbat)
+        call_str = '"{}"'.format(vcbat)
+
+    debug("Calling '%s'" % call_str)
+
+    call_str += ' & set'
+
+    # subprocess documentation notes:
+    #    The most common exception raised is OSError.
+    #    A ValueError will be raised if Popen is called with invalid arguments.
+    #    Exceptions defined subprocess module all inherit from SubprocessError.
+    try:
         popen = SCons.Action._subproc(env,
-                                      '"%s" & set' % vcbat,
+                                      call_str,
                                       stdin='devnull',
                                       stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+                                      stderr=subprocess.PIPE,
+                                      error='raise')
+    except OSError as e:
+        raise OSError(str(e))
+    except ValueError as e:
+        raise ValueError(str(e))
+    except SubprocessError as e:
+        raise SubprocessError(str(e))
+    except Exception as e:
+        raise Exception(str(e))
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
