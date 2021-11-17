@@ -4,6 +4,8 @@ on the SCons download page:
       https://scons.org/pages/download.html
 
 
+NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
+
 Here is a summary of the changes since 4.2.0:
 
 NEW FUNCTIONALITY
