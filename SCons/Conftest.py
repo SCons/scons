@@ -83,7 +83,7 @@ context.vardict
 
 context.havedict
     Dictionary holding results from the tests that are to be used
-    inside a program.  Names often start with "HAVE_".  These are zero
+    inside a program.  Names often start with "HAVE\_".  These are zero
     (feature not present) or one (feature present).  Other variables
     may have any value, e.g., "PERLVERSION" can be a number and
     "SYSTEMNAME" a string.
