@@ -356,6 +356,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-NINJA_DISABLE_AUTO_RUN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_DISABLE_AUTO_RUN</envar>">
 <!ENTITY cv-NINJA_ENV_VAR_CACHE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_ENV_VAR_CACHE</envar>">
 <!ENTITY cv-NINJA_FILE_NAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_FILE_NAME</envar>">
+<!ENTITY cv-NINJA_FORCE_SCONS_BUILD "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_FORCE_SCONS_BUILD</envar>">
 <!ENTITY cv-NINJA_GENERATED_SOURCE_SUFFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_GENERATED_SOURCE_SUFFIXES</envar>">
 <!ENTITY cv-NINJA_MSVC_DEPS_PREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_MSVC_DEPS_PREFIX</envar>">
 <!ENTITY cv-NINJA_POOL "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_POOL</envar>">
@@ -1010,6 +1011,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-NINJA_DISABLE_AUTO_RUN "<link linkend='cv-NINJA_DISABLE_AUTO_RUN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_DISABLE_AUTO_RUN</envar></link>">
 <!ENTITY cv-link-NINJA_ENV_VAR_CACHE "<link linkend='cv-NINJA_ENV_VAR_CACHE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_ENV_VAR_CACHE</envar></link>">
 <!ENTITY cv-link-NINJA_FILE_NAME "<link linkend='cv-NINJA_FILE_NAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_FILE_NAME</envar></link>">
+<!ENTITY cv-link-NINJA_FORCE_SCONS_BUILD "<link linkend='cv-NINJA_FORCE_SCONS_BUILD' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_FORCE_SCONS_BUILD</envar></link>">
 <!ENTITY cv-link-NINJA_GENERATED_SOURCE_SUFFIXES "<link linkend='cv-NINJA_GENERATED_SOURCE_SUFFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_GENERATED_SOURCE_SUFFIXES</envar></link>">
 <!ENTITY cv-link-NINJA_MSVC_DEPS_PREFIX "<link linkend='cv-NINJA_MSVC_DEPS_PREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_MSVC_DEPS_PREFIX</envar></link>">
 <!ENTITY cv-link-NINJA_POOL "<link linkend='cv-NINJA_POOL' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_POOL</envar></link>">

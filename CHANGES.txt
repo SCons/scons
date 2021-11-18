@@ -5,9 +5,9 @@
                             Change Log
 
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
-NOTE: The 4.2.0 Release of SCons will deprecate Python 3.5 Support. Python 3.5 support will be dropped in the next major release.
+NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
   From Jacob Cassagnol:
     - Default hash algorithm check updated for SCons FIPS compliance. Now checks for hash viability
