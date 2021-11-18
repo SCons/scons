@@ -23,7 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Autoconf-like configuration support
+r"""Autoconf-like configuration support
 
 The purpose of this module is to define how a check is to be performed.
 
