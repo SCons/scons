@@ -7,6 +7,15 @@
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
+RELEASE VERSION/DATE TO BE FILLED IN LATER
+
+  From Joseph Brill:
+    - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
+      when the user specified msvc script does not exist.
+    - Explicitly request _subproc to raise exceptions rather than returning dummyPopen objects when
+      invoking msvc scripts.
+
+
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
   From Jacob Cassagnol:
