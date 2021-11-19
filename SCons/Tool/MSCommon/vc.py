@@ -1,4 +1,3 @@
-#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -21,8 +20,9 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-"""Module for Visual C/C++ detection and configuration.
+
+"""
+MS Compilers: Visual C/C++ detection and configuration.
 
 # TODO:
 #   * gather all the information from a single vswhere call instead
@@ -39,7 +39,6 @@
 """
 
 import SCons.compat
-import SCons.Util
 
 import subprocess
 import os
@@ -47,6 +46,7 @@ import platform
 from string import digits as string_digits
 from subprocess import PIPE
 
+import SCons.Util
 import SCons.Warnings
 from SCons.Tool import find_program_path
 
@@ -194,7 +194,7 @@ def get_msvc_version_numeric(msvc_version):
 
 def get_host_target(env):
     host_platform = env.get('HOST_ARCH')
-    debug("HOST_ARCH:" + str(host_platform))
+    debug("HOST_ARCH:%s", str(host_platform))
     if not host_platform:
         host_platform = platform.machine()
 
@@ -207,7 +207,7 @@ def get_host_target(env):
 
     # Retain user requested TARGET_ARCH
     req_target_platform = env.get('TARGET_ARCH')
-    debug("TARGET_ARCH:" + str(req_target_platform))
+    debug("TARGET_ARCH:%s", str(req_target_platform))
     if req_target_platform:
         # If user requested a specific platform then only try that one.
         target_platform = req_target_platform
@@ -218,7 +218,7 @@ def get_host_target(env):
         host = _ARCH_TO_CANONICAL[host_platform.lower()]
     except KeyError:
         msg = "Unrecognized host architecture %s"
-        raise MSVCUnsupportedHostArch(msg % repr(host_platform))
+        raise MSVCUnsupportedHostArch(msg % repr(host_platform)) from None
 
     try:
         target = _ARCH_TO_CANONICAL[target_platform.lower()]
@@ -227,7 +227,7 @@ def get_host_target(env):
         raise MSVCUnsupportedTargetArch(
             "Unrecognized target architecture %s\n\tValid architectures: %s"
             % (target_platform, all_archs)
-        )
+        ) from None
 
     return (host, target, req_target_platform)
 
@@ -333,7 +333,7 @@ def msvc_version_to_maj_min(msvc_version):
         min = int(t[1])
         return maj, min
     except ValueError as e:
-        raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric))
+        raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric)) from None
 
 
 def is_host_target_supported(host_target, msvc_version):
@@ -397,8 +397,8 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
     try:
         vswhere_version = _VCVER_TO_VSWHERE_VER[msvc_version]
     except KeyError:
-        debug("Unknown version of MSVC: %s" % msvc_version)
-        raise UnsupportedVersion("Unknown version %s" % msvc_version)
+        debug("Unknown version of MSVC: %s", msvc_version)
+        raise UnsupportedVersion("Unknown version %s" % msvc_version) from None
 
     if env is None or not env.get('VSWHERE'):
         vswhere_path = msvc_find_vswhere()
@@ -408,15 +408,15 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
     if vswhere_path is None:
         return None
 
-    debug('VSWHERE: %s' % vswhere_path)
+    debug('VSWHERE: %s', vswhere_path)
     for vswhere_version_args in vswhere_version:
 
         vswhere_cmd = [vswhere_path] + vswhere_version_args + ["-property", "installationPath"]
 
-        debug("running: %s" % vswhere_cmd)
+        debug("running: %s", vswhere_cmd)
 
-        #cp = subprocess.run(vswhere_cmd, capture_output=True)  # 3.7+ only
-        cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE)
+        #cp = subprocess.run(vswhere_cmd, capture_output=True, check=True)  # 3.7+ only
+        cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE, check=True)
 
         if cp.stdout:
             # vswhere could return multiple lines, e.g. if Build Tools
@@ -458,8 +458,8 @@ def find_vc_pdir(env, msvc_version):
     try:
         hkeys = _VCVER_TO_PRODUCT_DIR[msvc_version]
     except KeyError:
-        debug("Unknown version of MSVC: %s" % msvc_version)
-        raise UnsupportedVersion("Unknown version %s" % msvc_version)
+        debug("Unknown version of MSVC: %s", msvc_version)
+        raise UnsupportedVersion("Unknown version %s" % msvc_version) from None
 
     for hkroot, key in hkeys:
         try:
@@ -467,9 +467,9 @@ def find_vc_pdir(env, msvc_version):
             if not key:
                 comps = find_vc_pdir_vswhere(msvc_version, env)
                 if not comps:
-                    debug('no VC found for version {}'.format(repr(msvc_version)))
+                    debug('no VC found for version %s', repr(msvc_version))
                     raise OSError
-                debug('VC found: {}'.format(repr(msvc_version)))
+                debug('VC found: %s', repr(msvc_version))
                 return comps
             else:
                 if common.is_win64():
@@ -483,13 +483,13 @@ def find_vc_pdir(env, msvc_version):
                     # not Win64, or Microsoft Visual Studio for Python 2.7
                     comps = common.read_reg(root + key, hkroot)
         except OSError:
-            debug('no VC registry key {}'.format(repr(key)))
+            debug('no VC registry key %s', repr(key))
         else:
-            debug('found VC in registry: {}'.format(comps))
+            debug('found VC in registry: %s', comps)
             if os.path.exists(comps):
                 return comps
             else:
-                debug('reg says dir is {}, but it does not exist. (ignoring)'.format(comps))
+                debug('reg says dir is %s, but it does not exist. (ignoring)', comps)
                 raise MissingConfiguration("registry dir {} not found on the filesystem".format(comps))
     return None
 
@@ -506,7 +506,7 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     pdir = find_vc_pdir(env, msvc_version)
     if pdir is None:
         raise NoVersionFound("No version of Visual Studio found")
-    debug('looking in {}'.format(pdir))
+    debug('looking in %s', pdir)
 
     # filter out e.g. "Exp" from the version name
     msvc_ver_numeric = get_msvc_version_numeric(msvc_version)
@@ -527,18 +527,18 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
         use_arg = False
 
     if not os.path.exists(batfilename):
-        debug("Not found: %s" % batfilename)
+        debug("Not found: %s", batfilename)
         batfilename = None
 
     installed_sdks = get_installed_sdks()
     for _sdk in installed_sdks:
         sdk_bat_file = _sdk.get_sdk_vc_script(host_arch,target_arch)
         if not sdk_bat_file:
-            debug("batch file not found:%s" % _sdk)
+            debug("batch file not found:%s", _sdk)
         else:
             sdk_bat_file_path = os.path.join(pdir,sdk_bat_file)
             if os.path.exists(sdk_bat_file_path):
-                debug('sdk_bat_file_path:%s' % sdk_bat_file_path)
+                debug('sdk_bat_file_path:%s', sdk_bat_file_path)
                 return (batfilename, use_arg, sdk_bat_file_path)
     return (batfilename, use_arg, None)
 
@@ -582,7 +582,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     host_platform = _ARCH_TO_CANONICAL[host_platform]
     target_platform = _ARCH_TO_CANONICAL[target_platform]
 
-    debug('host platform %s, target platform %s for version %s' % (host_platform, target_platform, msvc_version))
+    debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
 
     ver_num = float(get_msvc_version_numeric(msvc_version))
 
@@ -597,21 +597,21 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             with open(default_toolset_file) as f:
                 vc_specific_version = f.readlines()[0].strip()
         except IOError:
-            debug('failed to read ' + default_toolset_file)
+            debug('failed to read %s', default_toolset_file)
             return False
         except IndexError:
-            debug('failed to find MSVC version in ' + default_toolset_file)
+            debug('failed to find MSVC version in %s', default_toolset_file)
             return False
 
         host_trgt_dir = _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
         if host_trgt_dir is None:
-            debug('unsupported host/target platform combo: (%s,%s)'%(host_platform, target_platform))
+            debug('unsupported host/target platform combo: (%s,%s)', host_platform, target_platform)
             return False
 
         cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
-        debug('checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
+        debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
         if os.path.exists(cl_path):
-            debug('found ' + _CL_EXE_NAME + '!')
+            debug('found %s!', _CL_EXE_NAME)
             return True
 
         elif host_platform == "amd64" and host_trgt_dir[0] == "Hostx64":
@@ -623,9 +623,9 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             # targets, but we don't see those in this function.
             host_trgt_dir = ("Hostx86", host_trgt_dir[1])
             cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
-            debug('checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
+            debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
             if os.path.exists(cl_path):
-                debug('found ' + _CL_EXE_NAME + '!')
+                debug('found %s!', _CL_EXE_NAME)
                 return True
 
     elif 14 >= ver_num >= 8:
@@ -637,7 +637,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             return False
 
         cl_path = os.path.join(vc_dir, 'bin',  host_trgt_dir, _CL_EXE_NAME)
-        debug('checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
+        debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
 
         cl_path_exists = os.path.exists(cl_path)
         if not cl_path_exists and host_platform == 'amd64':
@@ -652,11 +652,11 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
                 return False
 
             cl_path = os.path.join(vc_dir, 'bin', host_trgt_dir, _CL_EXE_NAME)
-            debug('checking for ' + _CL_EXE_NAME + ' at ' + cl_path)
+            debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
             cl_path_exists = os.path.exists(cl_path)
 
         if cl_path_exists:
-            debug('found ' + _CL_EXE_NAME + '!')
+            debug('found %s', _CL_EXE_NAME)
             return True
 
     elif 8 > ver_num >= 6:
@@ -665,19 +665,19 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         for cl_dir in ('bin', ''):
             cl_path = os.path.join(vc_dir, cl_dir, _CL_EXE_NAME)
             if os.path.exists(cl_path):
-                debug(_CL_EXE_NAME + ' found %s' % cl_path)
+                debug('%s found %s', _CL_EXE_NAME, cl_path)
                 return True
         # not in bin or root: must be in a subdirectory
         for cl_root, cl_dirs, _ in os.walk(vc_dir):
             for cl_dir in cl_dirs:
                 cl_path = os.path.join(cl_root, cl_dir, _CL_EXE_NAME)
                 if os.path.exists(cl_path):
-                    debug(_CL_EXE_NAME + ' found %s' % cl_path)
+                    debug('%s found %s', _CL_EXE_NAME, cl_path)
                     return True
         return False
     else:
         # version not support return false
-        debug('unsupported MSVC version: ' + str(ver_num))
+        debug('unsupported MSVC version: %s', str(ver_num))
 
     return False
 
@@ -690,23 +690,23 @@ def get_installed_vcs(env=None):
     installed_versions = []
 
     for ver in _VCVER:
-        debug('trying to find VC %s' % ver)
+        debug('trying to find VC %s', ver)
         try:
             VC_DIR = find_vc_pdir(env, ver)
             if VC_DIR:
-                debug('found VC %s' % ver)
+                debug('found VC %s', ver)
                 if _check_cl_exists_in_vc_dir(env, VC_DIR, ver):
                     installed_versions.append(ver)
                 else:
-                    debug('no compiler found %s' % ver)
+                    debug('no compiler found %s', ver)
             else:
-                debug('return None for ver %s' % ver)
+                debug('return None for ver %s', ver)
         except (MSVCUnsupportedTargetArch, MSVCUnsupportedHostArch):
             # Allow this exception to propagate further as it should cause
             # SCons to exit with an error code
             raise
         except VisualCException as e:
-            debug('did not find VC %s: caught exception %s' % (ver, str(e)))
+            debug('did not find VC %s: caught exception %s', ver, str(e))
 
     __INSTALLED_VCS_RUN = installed_versions
     return __INSTALLED_VCS_RUN
@@ -762,7 +762,7 @@ def script_env(script, args=None):
 def get_default_version(env):
     msvc_version = env.get('MSVC_VERSION')
     msvs_version = env.get('MSVS_VERSION')
-    debug('msvc_version:%s msvs_version:%s' % (msvc_version, msvs_version))
+    debug('msvc_version:%s msvs_version:%s', msvc_version, msvs_version)
 
     if msvs_version and not msvc_version:
         SCons.Warnings.warn(
@@ -781,17 +781,15 @@ def get_default_version(env):
 
     if not msvc_version:
         installed_vcs = get_installed_vcs(env)
-        debug('installed_vcs:%s' % installed_vcs)
+        debug('installed_vcs:%s', installed_vcs)
         if not installed_vcs:
-            #msg = 'No installed VCs'
-            #debug('msv %s' % repr(msg))
             #SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
             debug('No installed VCs')
             return None
         msvc_version = installed_vcs[0]
-        debug('using default installed MSVC version %s' % repr(msvc_version))
+        debug('using default installed MSVC version %s', repr(msvc_version))
     else:
-        debug('using specified MSVC version %s' % repr(msvc_version))
+        debug('using specified MSVC version %s', repr(msvc_version))
 
     return msvc_version
 
@@ -820,7 +818,7 @@ def msvc_find_valid_batch_script(env, version):
 
     # Find the host, target, and if present the requested target:
     platforms = get_host_target(env)
-    debug("host_platform %s, target_platform %s req_target_platform %s" % platforms)
+    debug("host_platform %s, target_platform %s req_target_platform %s", *platforms)
     host_platform, target_platform, req_target_platform = platforms
 
     # Most combinations of host + target are straightforward.
@@ -850,14 +848,14 @@ def msvc_find_valid_batch_script(env, version):
             # if there are no viable 64 bit tools installed
             try_target_archs.append('x86')
 
-    debug("host_platform: %s, try_target_archs: %s"%(host_platform, try_target_archs))
+    debug("host_platform: %s, try_target_archs: %s", host_platform, try_target_archs)
 
     d = None
     for tp in try_target_archs:
         # Set to current arch.
         env['TARGET_ARCH'] = tp
 
-        debug("trying target_platform:%s" % tp)
+        debug("trying target_platform:%s", tp)
         host_target = (host_platform, tp)
         if not is_host_target_supported(host_target, version):
             warn_msg = "host, target = %s not supported for MSVC version %s" % \
@@ -868,10 +866,10 @@ def msvc_find_valid_batch_script(env, version):
         # Try to locate a batch file for this host/target platform combo
         try:
             (vc_script, use_arg, sdk_script) = find_batch_file(env, version, host_platform, tp)
-            debug('vc_script:%s sdk_script:%s'%(vc_script,sdk_script))
+            debug('vc_script:%s sdk_script:%s', vc_script, sdk_script)
         except VisualCException as e:
             msg = str(e)
-            debug('Caught exception while looking for batch file (%s)' % msg)
+            debug('Caught exception while looking for batch file (%s)', msg)
             warn_msg = "VC version %s not installed.  " + \
                        "C/C++ compilers are most likely not set correctly.\n" + \
                        " Installed versions are: %s"
@@ -880,7 +878,7 @@ def msvc_find_valid_batch_script(env, version):
             continue
 
         # Try to use the located batch file for this host/target platform combo
-        debug('use_script 2 %s, args:%s' % (repr(vc_script), arg))
+        debug('use_script 2 %s, args:%s', repr(vc_script), arg)
         found = None
         if vc_script:
             if not use_arg:
@@ -897,22 +895,22 @@ def msvc_find_valid_batch_script(env, version):
                 d = script_env(vc_script, args=arg)
                 found = vc_script
             except BatchFileExecutionError as e:
-                debug('use_script 3: failed running VC script %s: %s: Error:%s'%(repr(vc_script),arg,e))
+                debug('use_script 3: failed running VC script %s: %s: Error:%s', repr(vc_script), arg, e)
                 vc_script=None
                 continue
         if not vc_script and sdk_script:
-            debug('use_script 4: trying sdk script: %s' % sdk_script)
+            debug('use_script 4: trying sdk script: %s', sdk_script)
             try:
                 d = script_env(sdk_script)
                 found = sdk_script
             except BatchFileExecutionError as e:
-                debug('use_script 5: failed running SDK script %s: Error:%s'%(repr(sdk_script), e))
+                debug('use_script 5: failed running SDK script %s: Error:%s', repr(sdk_script), e)
                 continue
         elif not vc_script and not sdk_script:
             debug('use_script 6: Neither VC script nor SDK script found')
             continue
 
-        debug("Found a working script/target: %s/%s"%(repr(found),arg))
+        debug("Found a working script/target: %s/%s", repr(found), arg)
         break # We've found a working target_platform, so stop looking
 
     # If we cannot find a viable installed compiler, reset the TARGET_ARCH
@@ -944,11 +942,11 @@ def msvc_setup_env(env):
         use_script = use_script.strip()
         if not os.path.exists(use_script):
             raise MSVCScriptNotFound('Script specified by MSVC_USE_SCRIPT not found: "{}"'.format(use_script))
-        debug('use_script 1 %s' % repr(use_script))
+        debug('use_script 1 %s', repr(use_script))
         d = script_env(use_script)
     elif use_script:
         d = msvc_find_valid_batch_script(env,version)
-        debug('use_script 2 %s' % d)
+        debug('use_script 2 %s', d)
         if not d:
             return d
     else:
@@ -960,11 +958,11 @@ def msvc_setup_env(env):
 
     for k, v in d.items():
         env.PrependENVPath(k, v, delete_existing=True)
-        debug("env['ENV']['%s'] = %s" % (k, env['ENV'][k]))
+        debug("env['ENV']['%s'] = %s", k, env['ENV'][k])
 
     # final check to issue a warning if the compiler is not present
     if not find_program_path(env, 'cl'):
-        debug("did not find " + _CL_EXE_NAME)
+        debug("did not find %s", _CL_EXE_NAME)
         if CONFIG_CACHE:
             propose = "SCONS_CACHE_MSVC_CONFIG caching enabled, remove cache file {} if out of date.".format(CONFIG_CACHE)
         else:

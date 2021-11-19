@@ -31,6 +31,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       we need to do this for internal reasons, those are skipped in that case.
       Bad association could mean some other tool took it over (Visual
       Studio Code is known to do this), or no association at all.
+    - logging code ("debug" call) in Tool/MSCommon now conforms to the
+      Python logging recommended "lazy interpolation" so instead of
+      debug("template %s" % text) it looks like debug("template %s", text)
+      so the logging system does the interpolation when/if needed.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700

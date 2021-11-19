@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__doc__ = """
+"""
+MS Compilers: .Net Framework support
 """
 
 import os
 import re
-import SCons.Util
 
 from .common import read_reg, debug
 
@@ -40,13 +39,13 @@ def find_framework_root():
     # XXX: find it from environment (FrameworkDir)
     try:
         froot = read_reg(_FRAMEWORKDIR_HKEY_ROOT)
-        debug("Found framework install root in registry: {}".format(froot))
+        debug("Found framework install root in registry: %s", froot)
     except OSError:
-        debug("Could not read reg key {}".format(_FRAMEWORKDIR_HKEY_ROOT))
+        debug("Could not read reg key %s", _FRAMEWORKDIR_HKEY_ROOT)
         return None
 
     if not os.path.exists(froot):
-        debug("{} not found on fs".format(froot))
+        debug("%s not found on fs", froot)
         return None
 
     return froot

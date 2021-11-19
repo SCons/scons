@@ -1,8 +1,6 @@
-"""
-Common helper functions for working with the Microsoft tool chain.
-"""
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,8 +20,10 @@ Common helper functions for working with the Microsoft tool chain.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""
+Common helper functions for working with the Microsoft tool chain.
+"""
 
 import copy
 import json
@@ -38,8 +38,12 @@ import SCons.Util
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE == '-':
-    def debug(message):
-        print(message)
+    def debug(message, *args):
+        if args:
+            print(message % args)
+        else:
+            print(message)
+
 elif LOGFILE:
     import logging
     modulelist = (
@@ -83,7 +87,8 @@ elif LOGFILE:
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
 else:
-    def debug(x): return None
+    def debug(x, *args):
+        return None
 
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
@@ -214,7 +219,7 @@ def normalize_env(env, keys, force=False):
     if sys32_ps_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
-    debug("PATH: %s" % normenv['PATH'])
+    debug("PATH: %s", normenv['PATH'])
     return normenv
 
 
@@ -256,14 +261,14 @@ def get_output(vcbat, args=None, env=None):
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
     if args:
-        debug("Calling '%s %s'" % (vcbat, args))
+        debug("Calling '%s %s'", vcbat, args)
         popen = SCons.Action._subproc(env,
                                       '"%s" %s & set' % (vcbat, args),
                                       stdin='devnull',
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
     else:
-        debug("Calling '%s'" % vcbat)
+        debug("Calling '%s'", vcbat)
         popen = SCons.Action._subproc(env,
                                       '"%s" & set' % vcbat,
                                       stdin='devnull',
@@ -279,8 +284,8 @@ def get_output(vcbat, args=None, env=None):
         stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
-    # debug('stdout:%s' % stdout)
-    # debug('stderr:%s' % stderr)
+    # debug('stdout:%s', stdout)
+    # debug('stderr:%s', stderr)
 
     # Ongoing problems getting non-corrupted text led to this
     # changing to "oem" from "mbcs" - the scripts run presumably
@@ -321,7 +326,7 @@ def parse_output(output, keep=KEEPLIST):
 
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and path_list the associated list of paths
-    dkeep = dict([(i, []) for i in keep])
+    dkeep = {i: [] for i in keep}
 
     # rdk will  keep the regex to match the .bat file output line starts
     rdk = {}
