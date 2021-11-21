@@ -5622,11 +5622,14 @@ must accept four arguments:
 <parameter>source</parameter> is a list of source nodes,
 <parameter>target</parameter> is a list of target nodes,
 <parameter>env</parameter> is the &consenv; to use for context,
-<parameter>for_signature</parameter> is
-a Boolean value that specifies
-whether the generator is being called
-for generating a build signature
+and <parameter>for_signature</parameter> is
+a Boolean value that tells the function
+if it is being called for the purpose of generating a build signature
 (as opposed to actually executing the command).
+Since the build signature is used for rebuild determination,
+the function should omit those elements
+that do not affect whether a rebuild should be triggered
+if <parameter>for_signature</parameter> is true.
 </para>
 
 <para>Example:</para>
@@ -6703,26 +6706,70 @@ to enclose a Python expression to be evaluated.
 See <xref linkend='python_code_substitution'/> below
 for a description.</para>
 
-<para>A variable name
-may also be a Python function
-associated with a
-&consvar; in the environment.
-The function should
-accept four arguments:
+<para>The special escape sequences
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+may be used to surround parts of a command line
+that may change
+<emphasis>without</emphasis>
+causing a rebuild--that is,
+which are not included in the signature
+of target files built with this command.
+All text between
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+will be removed from the command line
+before it is added to the action signature,
+and the
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+will be removed before the command is executed.
+For example, the command line:</para>
+
+<programlisting language="python">
+echo Last build occurred $( $TODAY $). &gt; $TARGET
+</programlisting>
+
+<para>would execute the command:</para>
+
+<screen>
+echo Last build occurred $TODAY. &gt; $TARGET
+</screen>
+
+<para>but the command signature added to any target files would be:</para>
+
+<screen>
+echo Last build occurred  . &gt; $TARGET
+</screen>
+
+<para>While &consvars; are normally directly substituted,
+if a variable refers to a &consvar;
+whose value is a &Python; function,
+that function is called during substitution.
+Such a function must accept four arguments:
+<parameter>target</parameter>,
+<parameter>source</parameter>,
+<parameter>env</parameter> and
+<parameter>for_signature</parameter>.
+<parameter>source</parameter> is a list of source nodes,
+<parameter>target</parameter> is a list of target nodes,
+<parameter>env</parameter> is the &consenv; to use for context,
+and <parameter>for_signature</parameter> is
+a Boolean value that tells the function
+if it is being called for the purpose of generating a build signature.
+Since the build signature is used for rebuild determination,
+the function should omit variable elements
+that do not affect whether a rebuild should be triggered
+(see <emphasis role="bold">$(</emphasis>
+and <emphasis role="bold">$)</emphasis>
+above) if <parameter>for_signature</parameter> is true.
 </para>
-<simplelist>
-  <member><parameter>target</parameter> - a list of target nodes</member>
-  <member><parameter>source</parameter> - a list of source nodes</member>
-  <member><parameter>env</parameter> - the &consenv;</member>
-  <member><parameter>for_signature</parameter> -
-    a Boolean value that specifies
-    whether the function is being called
-    for generating a build signature.
-  </member>
-</simplelist>
 
 <para>
-SCons will insert whatever
+&SCons; will insert whatever
 the called function returns
 into the expanded string:
 </para>
@@ -6732,10 +6779,10 @@ def foo(target, source, env, for_signature):
     return "bar"
 
 # Will expand $BAR to "bar baz"
-env=Environment(FOO=foo, BAR="$FOO baz")
+env = Environment(FOO=foo, BAR="$FOO baz")
 </programlisting>
 
-<para>As a reminder, this evaluation happens when
+<para>As a reminder, substitution happens when
 <literal>$BAR</literal> is actually used in a
 builder action.  The value of <literal>env['BAR']</literal>
 will be exactly as it was set: <literal>"$FOO baz"</literal>.
@@ -6765,47 +6812,6 @@ class foo:
 # Will expand $BAR to "my argument bar baz"
 env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
 </programlisting>
-
-
-<para>The special pseudo-variables
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-may be used to surround parts of a command line
-that may change
-<emphasis>without</emphasis>
-causing a rebuild--that is,
-which are not included in the signature
-of target files built with this command.
-All text between
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-will be removed from the command line
-before it is added to file signatures,
-and the
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-will be removed before the command is executed.
-For example, the command line:</para>
-
-<programlisting language="python">
-echo Last build occurred $( $TODAY $). &gt; $TARGET
-</programlisting>
-
-<para>would execute the command:</para>
-
-<screen>
-echo Last build occurred $TODAY. &gt; $TARGET
-</screen>
-
-<para>but the command signature added to any target files would be:</para>
-
-<screen>
-echo Last build occurred  . &gt; $TARGET
-</screen>
-
 </refsect2>
 
 <refsect2 id='python_code_substitution'>
