@@ -6706,7 +6706,7 @@ to enclose a Python expression to be evaluated.
 See <xref linkend='python_code_substitution'/> below
 for a description.</para>
 
-<para>The special pseudo-variables
+<para>The special escape sequences
 <emphasis role="bold">$(</emphasis>
 and
 <emphasis role="bold">$)</emphasis>
@@ -6721,7 +6721,7 @@ All text between
 and
 <emphasis role="bold">$)</emphasis>
 will be removed from the command line
-before it is added to file signatures,
+before it is added to the action signature,
 and the
 <emphasis role="bold">$(</emphasis>
 and
@@ -6745,9 +6745,10 @@ echo Last build occurred $TODAY. &gt; $TARGET
 echo Last build occurred  . &gt; $TARGET
 </screen>
 
-<para>A variable name may also be the name
-of a &consvar; which refers to a &Python; function
-called to perform the variable substitution.
+<para>While &consvars; are normally directly substituted,
+if a variable refers to a &consvar;
+whose value is a &Python; function,
+that function is called during substitution.
 Such a function must accept four arguments:
 <parameter>target</parameter>,
 <parameter>source</parameter>,
@@ -6768,7 +6769,7 @@ above) if <parameter>for_signature</parameter> is true.
 </para>
 
 <para>
-SCons will insert whatever
+&SCons; will insert whatever
 the called function returns
 into the expanded string:
 </para>
@@ -6781,7 +6782,7 @@ def foo(target, source, env, for_signature):
 env = Environment(FOO=foo, BAR="$FOO baz")
 </programlisting>
 
-<para>As a reminder, substitution evaluation happens when
+<para>As a reminder, substitution happens when
 <literal>$BAR</literal> is actually used in a
 builder action.  The value of <literal>env['BAR']</literal>
 will be exactly as it was set: <literal>"$FOO baz"</literal>.
