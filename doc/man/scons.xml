@@ -108,6 +108,7 @@ details do not have to be recalculated each run.
 
 <para>&scons; requires Python 3.6 or later to run;
 there should be no other dependencies or requirements.
+unless the experimental Ninja tool is used.
 <emphasis>
 Support for Python 3.5 is removed since
 &SCons; 4.3.0.
@@ -125,16 +126,37 @@ such as executable programs, object files and libraries,
 so that for many software projects,
 only the targets and input files (<firstterm>sources</firstterm>)
 need be specified in a call to a builder.
-&scons; thus can operate at a level of abstraction above that of pure files.
+&SCons; thus can operate at a level of abstraction above that of pure filenames.
 For example if you specify a library target named "foo",
-&scons; keeps track of the actual operating system dependent filename
+&SCons; keeps track of the actual operating system dependent filename
 (such as <filename>libfoo.so</filename> on a GNU/Linux system),
 and how to refer to that library in later construction steps
 that want to use it, so you don't have to specify that precise
 information yourself.
-&scons; can also scan automatically for dependency information,
-such as header files included by source code files,
-so this does not have to be specified manually.
+&SCons; can also scan automatically for dependency information,
+such as header files included by source code files
+(for example, <literal>#include</literal>
+preprocessor directives in C or C++ files),
+so these <firstterm>implicit dependencies</firstterm> do not
+have to be specified manually.
+&SCons; supports the ability to define new scanners
+to support additional input file types.
+</para>
+
+<para>Information about files involved in the build,
+including a cryptographic hash of the contents,
+is cached for later reuse, 
+By default content hashes are used to determine if a file
+has changed since the last build,
+but this can be controlled by selecting an appropriate
+<firstterm>&f-link-Decider;</firstterm> function.
+Implicit dependency files are also part of out-of-date computation.
+The scanned implicit dependency information can optionally be
+cached and used to speed up future builds.
+A hash of each executed build action is cached,
+so that changes to build instructions (changing flags, etc.)
+or to the build tools themselves (new version)
+can also trigger a rebuild.
 </para>
 
 <para>
@@ -287,16 +309,6 @@ controls how the environment is set up before invoking
 &scons;, as in many continuous
 integration setups.
 </para>
-
-<para>&scons;
-can scan known input file types automatically for dependency
-information (for example, <literal>#include</literal>
-preprocessor directives in C or C++ files)
-and will rebuild dependent files appropriately
-whenever any "included" input file changes.
-&scons;
-supports the
-ability to define new scanners to support additional input file types.</para>
 
 <para>&scons;
 is normally executed in a top-level directory containing an
@@ -1541,7 +1553,7 @@ targets specified on the command line will still be processed.</para>
 This value determines how long a file must be unmodified
 before its cached content signature
 will be used instead of
-calculating a new content signature (MD5 checksum)
+calculating a new content signature (hash)
 of the file's contents.
 The default value is 2 days, which means a file must have a
 modification time of at least two days ago in order to have its
@@ -6730,7 +6742,7 @@ All text between
 and
 <emphasis role="bold">$)</emphasis>
 will be removed from the command line
-before it is added to the action signature,
+before it is added to the build (action) signature,
 and the
 <emphasis role="bold">$(</emphasis>
 and
