@@ -9,9 +9,10 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
+  From William Deegan:
 
-        - Whatever John Doe did.
+    - Fix check for unsupported Python version. It was broken. Also now the error message
+      will include what is the minimum supported version of Python
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
