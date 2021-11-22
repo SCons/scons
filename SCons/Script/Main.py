@@ -32,7 +32,7 @@ it goes here.
 """
 
 # these define the range of versions SCons supports
-unsupported_python_version = (3, 6, 0)
+minimum_python_version = (3, 6, 0)
 deprecated_python_version = (3, 6, 0)
 
 import SCons.compat
@@ -63,6 +63,8 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+
+from SCons import __version__ as SConsVersion
 
 # Global variables
 first_command_start = None
@@ -451,7 +453,7 @@ def python_version_string():
     return sys.version.split()[0]
 
 def python_version_unsupported(version=sys.version_info):
-    return version < unsupported_python_version
+    return version < minimum_python_version
 
 def python_version_deprecated(version=sys.version_info):
     return version < deprecated_python_version
@@ -1375,7 +1377,8 @@ def main():
     # disable that warning.
     if python_version_unsupported():
         msg = "scons: *** SCons version %s does not run under Python version %s.\n"
-        sys.stderr.write(msg % (SCons.__version__, python_version_string()))
+        sys.stderr.write(msg % (SConsVersion, python_version_string()))
+        sys.stderr.write("scons: *** Minimum Python version is %d.%d.%d\n" %minimum_python_version)
         sys.exit(1)
 
     parts = ["SCons by Steven Knight et al.:\n"]
