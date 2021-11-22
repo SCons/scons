@@ -5622,11 +5622,14 @@ must accept four arguments:
 <parameter>source</parameter> is a list of source nodes,
 <parameter>target</parameter> is a list of target nodes,
 <parameter>env</parameter> is the &consenv; to use for context,
-<parameter>for_signature</parameter> is
-a Boolean value that specifies
-whether the generator is being called
-for generating a build signature
+and <parameter>for_signature</parameter> is
+a Boolean value that tells the function
+if it is being called for the purpose of generating a build signature
 (as opposed to actually executing the command).
+Since the build signature is used for rebuild determination,
+the function should omit those elements
+that do not affect whether a rebuild should be triggered
+if <parameter>for_signature</parameter> is true.
 </para>
 
 <para>Example:</para>
@@ -6703,26 +6706,70 @@ to enclose a Python expression to be evaluated.
 See <xref linkend='python_code_substitution'/> below
 for a description.</para>
 
-<para>A variable name
-may also be a Python function
-associated with a
-&consvar; in the environment.
-The function should
-accept four arguments:
+<para>The special escape sequences
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+may be used to surround parts of a command line
+that may change
+<emphasis>without</emphasis>
+causing a rebuild--that is,
+which are not included in the signature
+of target files built with this command.
+All text between
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+will be removed from the command line
+before it is added to the action signature,
+and the
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+will be removed before the command is executed.
+For example, the command line:</para>
+
+<programlisting language="python">
+echo Last build occurred $( $TODAY $). &gt; $TARGET
+</programlisting>
+
+<para>would execute the command:</para>
+
+<screen>
+echo Last build occurred $TODAY. &gt; $TARGET
+</screen>
+
+<para>but the command signature added to any target files would be:</para>
+
+<screen>
+echo Last build occurred  . &gt; $TARGET
+</screen>
+
+<para>While &consvars; are normally directly substituted,
+if a variable refers to a &consvar;
+whose value is a &Python; function,
+that function is called during substitution.
+Such a function must accept four arguments:
+<parameter>target</parameter>,
+<parameter>source</parameter>,
+<parameter>env</parameter> and
+<parameter>for_signature</parameter>.
+<parameter>source</parameter> is a list of source nodes,
+<parameter>target</parameter> is a list of target nodes,
+<parameter>env</parameter> is the &consenv; to use for context,
+and <parameter>for_signature</parameter> is
+a Boolean value that tells the function
+if it is being called for the purpose of generating a build signature.
+Since the build signature is used for rebuild determination,
+the function should omit variable elements
+that do not affect whether a rebuild should be triggered
+(see <emphasis role="bold">$(</emphasis>
+and <emphasis role="bold">$)</emphasis>
+above) if <parameter>for_signature</parameter> is true.
 </para>
-<simplelist>
-  <member><parameter>target</parameter> - a list of target nodes</member>
-  <member><parameter>source</parameter> - a list of source nodes</member>
-  <member><parameter>env</parameter> - the &consenv;</member>
-  <member><parameter>for_signature</parameter> -
-    a Boolean value that specifies
-    whether the function is being called
-    for generating a build signature.
-  </member>
-</simplelist>
 
 <para>
-SCons will insert whatever
+&SCons; will insert whatever
 the called function returns
 into the expanded string:
 </para>
@@ -6732,10 +6779,10 @@ def foo(target, source, env, for_signature):
     return "bar"
 
 # Will expand $BAR to "bar baz"
-env=Environment(FOO=foo, BAR="$FOO baz")
+env = Environment(FOO=foo, BAR="$FOO baz")
 </programlisting>
 
-<para>As a reminder, this evaluation happens when
+<para>As a reminder, substitution happens when
 <literal>$BAR</literal> is actually used in a
 builder action.  The value of <literal>env['BAR']</literal>
 will be exactly as it was set: <literal>"$FOO baz"</literal>.
@@ -6765,47 +6812,6 @@ class foo:
 # Will expand $BAR to "my argument bar baz"
 env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
 </programlisting>
-
-
-<para>The special pseudo-variables
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-may be used to surround parts of a command line
-that may change
-<emphasis>without</emphasis>
-causing a rebuild--that is,
-which are not included in the signature
-of target files built with this command.
-All text between
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-will be removed from the command line
-before it is added to file signatures,
-and the
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-will be removed before the command is executed.
-For example, the command line:</para>
-
-<programlisting language="python">
-echo Last build occurred $( $TODAY $). &gt; $TARGET
-</programlisting>
-
-<para>would execute the command:</para>
-
-<screen>
-echo Last build occurred $TODAY. &gt; $TARGET
-</screen>
-
-<para>but the command signature added to any target files would be:</para>
-
-<screen>
-echo Last build occurred  . &gt; $TARGET
-</screen>
-
 </refsect2>
 
 <refsect2 id='python_code_substitution'>
@@ -6935,12 +6941,13 @@ you should be aware of this issue when using the
 
 <para>
 Scanner objects are used
-to scan specific file types for implicit dependencies.
+to scan specific file types for implicit dependencies,
+for example embedded preprocessor/compiler directives
+that cause other files to be included during processing.
 &SCons; has a number of pre-built Scanner objects,
 so it is usually only necessary to set up Scanners for new file types.
-You do this by calling the &f-link-Scanner; function.
-The &f-Scanner;
-function accepts the following arguments,
+You do this by calling the &f-link-Scanner; factory function.
+&f-Scanner; accepts the following arguments,
 only <parameter>function</parameter> is required,
 the rest are optional:
 </para>
@@ -6950,11 +6957,11 @@ the rest are optional:
   <term><parameter>function</parameter></term>
   <listitem>
 <para>
-A Python function that will process
+A scanner function to call to process
 a given Node (usually a file)
 and return a list of Nodes
 representing the implicit
-dependencies (file names) found in the contents.
+dependencies (usually files) found in the contents.
 The function must accept three required arguments,
 <parameter>node</parameter>,
 <parameter>env</parameter> and
@@ -6966,25 +6973,59 @@ the internal &SCons; node representing the file to scan,
 <parameter>env</parameter> is the &consenv; to use during
 the scan, and <parameter>path</parameter> is a tuple
 of directories that can be searched for files,
-as generated by the optional <parameter>path_function</parameter> (see below).
+as generated by the optional scanner
+<parameter>path_function</parameter> (see below).
 If <parameter>argument</parameter> was supplied when the Scanner
 object was created, it is given as <parameter>arg</parameter>
-when the function is called; since <parameter>argument</parameter>
+when the scanner function is called; since <parameter>argument</parameter>
 is optional, the default is no <parameter>arg</parameter>.
 </para>
 <para>
 The function can use use
 <function>str</function>(<parameter>node</parameter>)
-to fetch the name of the file, and
+to fetch the name of the file, 
+<replaceable>node</replaceable>.<function>dir</function>
+to fetch the directory the file is in,
 <replaceable>node</replaceable>.<function>get_contents</function>()
 to fetch the contents of the file as bytes or
 <replaceable>node</replaceable>.<function>get_text_contents</function>()
-to fetch the file's contents as text.
-Note that the file is
+to fetch the contents of the file as text.
+</para>
+<para>
+The function must take into account the <parameter>path</parameter>
+directories when generating the dependency Nodes. To illustrate this,
+a C language source file may contain a line like
+<literal>#include "foo.h"</literal>.  However, there is no guarantee
+that <filename>foo.h</filename> exists in the current directory:
+the contents of &cv-CPPPATH; is passed to the C preprocessor which
+will look in those places for the header,
+so the scanner function needs to look in those places as well
+in order to build Nodes with correct paths.
+Using &f-link-FindPathDirs; with an argument of <literal>CPPPATH</literal>
+as the <parameter>path_function</parameter> in the &f-Scanner; call
+means the scanner function will be called with the paths extracted
+from &cv-CPPPATH; in the environment <parameter>env</parameter> 
+passed as the <parameter>paths</parameter> parameter.
+</para>
+<para>
+Note that the file to scan is
 <emphasis>not</emphasis>
-guaranteed to exist at the time the scanner is called
-(it could be a generated file, not generated yet),
+guaranteed to exist at the time the scanner is called -
+it could be a generated file which has not been generated yet -
 so the scanner function must be tolerant of that.
+</para>
+<para>
+Alternatively, you can supply a dictionary as the
+<parameter>function</parameter> parameter,
+to map keys (such as file suffixes) to other Scanner objects.
+A Scanner created this way serves as a dispatcher:
+the Scanner's <parameter>skeys</parameter> parameter is
+automatically populated with the dictionary's keys,
+indicating that the Scanner handles Nodes which would be
+selected by those keys; the mapping is then used to pass
+the file on to a different Scanner that would not have been
+selected to handle that Node based on its
+own <parameter>skeys</parameter>.
 </para>
   </listitem>
   </varlistentry>
@@ -7007,7 +7048,7 @@ will be passed to the scanner function
 and the path function
 <parameter>path_function</parameter>
 when called,
-as the additional argument each of those functions takes.
+as the optional parameter each of those functions takes.
 </para>
   </listitem>
   </varlistentry>
@@ -7039,7 +7080,7 @@ the first target was defined,
 a list of target nodes,
 a list of source nodes,
 and the value of <parameter>argument</parameter>
-if it was supplied when the scanner was created.
+if it was supplied when the Scanner was created.
 Must return a tuple of directories
 that can be searched for files to be returned
 by this Scanner object.

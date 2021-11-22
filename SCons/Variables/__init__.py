@@ -21,7 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Add user-friendly customizable variables to an SCons build. """
+"""Adds user-friendly customizable variables to an SCons build. """
 
 import os.path
 import sys
@@ -73,11 +73,11 @@ class Variables:
         # create the singleton instance
         if is_global:
             self = Variables.instance
-
             if not Variables.instance:
                 Variables.instance=self
 
     def _do_add(self, key, help="", default=None, validator=None, converter=None, **kwargs) -> None:
+
         class Variable:
             pass
 
@@ -112,23 +112,25 @@ class Variables:
         return [o.key for o in self.options]
 
     def Add(self, key, *args, **kwargs) -> None:
-        r""" Add an option.
+        r""" Adds an option.
 
-        Args:
+        Arguments:
           key: the name of the variable, or a 5-tuple (or list).
             If a tuple, and there are no additional arguments,
-            the tuple is unpacked into help, default, validator, converter.
-            If there are additional arguments, the first word of the tuple
-            is taken as the key, and the remainder as aliases.
-          \*args: optional positional arguments
-            help: optional help text for the options (Default value = "")
-            default: optional default value for option (Default value = None)
-            validator: optional function called to validate the option's value
-              (Default value = None)
-            converter: optional function to be called to convert the option's
-              value before putting it in the environment. (Default value = None)
-          \*\*kwargs: keyword args, can be the arguments from \*args or
-            arbitrary kwargs used by a variable itself
+            the tuple is unpacked into the four named kwargs from below.
+            If a tuple and there are additional arguments, the first word
+            of the tuple is taken as the key, and the remainder as aliases.
+          *args: optional positional arguments, corresponding to the four
+            named kwargs below.
+
+        Keyword Args:
+          help: help text for the options (Default value = "")
+          default: default value for option (Default value = None)
+          validator: function called to validate the option's value
+            (Default value = None)
+          converter: function to be called to convert the option's
+            value before putting it in the environment. (Default value = None)
+          **kwargs: arbitrary keyword arguments used by the variable itself.
 
         """
         if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
@@ -138,7 +140,7 @@ class Variables:
         return self._do_add(key, *args, **kwargs)
 
     def AddVariables(self, *optlist) -> None:
-        """ Add a list of options.
+        """ Adds a list of options.
 
         Each list element is a tuple/list of arguments to be passed on
         to the underlying method for adding options.
@@ -157,11 +159,11 @@ class Variables:
             self._do_add(*o)
 
     def Update(self, env, args=None) -> None:
-        """ Update an environment with the option variables.
+        """ Updates an environment with the option variables.
 
         Args:
             env: the environment to update.
-            args: [optional] a dictionary of keys and values to update
+            args (optional): a dictionary of keys and values to update
                 in *env*. If omitted, uses the variables from the commandline.
         """
 
@@ -287,12 +289,12 @@ class Variables:
             raise SCons.Errors.UserError('Error writing options to file: %s\n%s' % (filename, x))
 
     def GenerateHelpText(self, env, sort=None) -> str:
-        """ Generate the help text for the options.
+        """ Generates the help text for the options.
 
         Args:
             env: an environment that is used to get the current values
                 of the options.
-            cmp: Either a comparison function used for sorting
+            sort: Either a comparison function used for sorting
                 (must take two arguments and return -1, 0 or 1)
                 or a boolean to indicate if it should be sorted.
         """

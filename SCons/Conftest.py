@@ -23,7 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Autoconf-like configuration support
+r"""Autoconf-like configuration support
 
 The purpose of this module is to define how a check is to be performed.
 
@@ -83,7 +83,7 @@ context.vardict
 
 context.havedict
     Dictionary holding results from the tests that are to be used
-    inside a program.  Names often start with "HAVE_".  These are zero
+    inside a program.  Names often start with "HAVE\_".  These are zero
     (feature not present) or one (feature present).  Other variables
     may have any value, e.g., "PERLVERSION" can be a number and
     "SYSTEMNAME" a string.
