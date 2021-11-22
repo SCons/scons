@@ -35,7 +35,7 @@ IMPROVEMENTS
   under which they would be observed), or major code cleanups
 
 - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
-  exception when the user specified msvc script does not exist.
+  exception immediately when the user specified msvc script does not exist.
 
 PACKAGING
 ---------
