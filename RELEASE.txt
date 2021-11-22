@@ -1,10 +1,10 @@
-A new SCons release, 4.1.0, is now available
+A new SCons release, 4.3.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.1.0:
+Here is a summary of the changes since 4.3.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -33,6 +33,9 @@ IMPROVEMENTS
 - List improvements that wouldn't be visible to the user in the
   documentation:  performance improvements (describe the circumstances
   under which they would be observed), or major code cleanups
+
+- Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
+  exception when the user specified msvc script does not exist.
 
 PACKAGING
 ---------
