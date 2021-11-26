@@ -25,15 +25,14 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-    - Fix check for unsupported Python version. It was broken. Also now the error message
-      will include what is the minimum supported version of Python
+- Fix check for unsupported Python version. It was broken. Also now the error message
+  will include what is the minimum supported version of Python
 
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
+  exception immediately when the user specified msvc script does not exist.
 
 PACKAGING
 ---------

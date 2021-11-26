@@ -76,6 +76,9 @@ class NoVersionFound(VisualCException):
 class BatchFileExecutionError(VisualCException):
     pass
 
+class MSVCScriptNotFound(VisualCException):
+    pass
+
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
     "amd64"     : "amd64",
@@ -938,6 +941,9 @@ def msvc_setup_env(env):
 
     use_script = env.get('MSVC_USE_SCRIPT', True)
     if SCons.Util.is_String(use_script):
+        use_script = use_script.strip()
+        if not os.path.exists(use_script):
+            raise MSVCScriptNotFound('Script specified by MSVC_USE_SCRIPT not found: "{}"'.format(use_script))
         debug('use_script 1 %s' % repr(use_script))
         d = script_env(use_script)
     elif use_script:
