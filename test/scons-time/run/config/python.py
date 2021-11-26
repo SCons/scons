@@ -30,14 +30,14 @@ Verify specifying an alternate Python executable in a config file.
 import os
 
 import TestSCons_time
-from TestCmd import IS_WINDOWS
 
-_python_ = TestSCons_time._python_
+from TestCmd import NEED_HELPER
+from TestSCons_time import _python_
 
 test = TestSCons_time.TestSCons_time()
-if IS_WINDOWS:
-    # tests expect Windows file assoc to run my_python, not in our control.
-    test.skip_test("Skipping test on win32 due to launch problems.")
+
+if NEED_HELPER:
+    test.skip_test("Test host cannot directly execute scripts, skipping test\n")
 
 test.write_sample_project('foo.tar.gz')
 

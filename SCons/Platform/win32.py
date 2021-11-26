@@ -381,7 +381,7 @@ def generate(env):
     # for SystemDrive because it's related.
     #
     # Weigh the impact carefully before adding other variables to this list.
-    import_env = ['SystemDrive', 'SystemRoot', 'TEMP', 'TMP' ]
+    import_env = ['SystemDrive', 'SystemRoot', 'TEMP', 'TMP', 'USERPROFILE']
     for var in import_env:
         v = os.environ.get(var)
         if v:

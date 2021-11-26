@@ -258,31 +258,42 @@ if args.output:
     sys.stderr = Tee(logfile, sys.stderr)
 
 # --- define helpers ----
-if sys.platform in ('win32', 'cygwin'):
+if sys.platform == 'win32':
+    # thanks to Bret Cannon for this recipe
+    import ctypes
 
-    def whereis(file):
-        pathext = [''] + os.environ['PATHEXT'].split(os.pathsep)
-        for d in os.environ['PATH'].split(os.pathsep):
-            f = os.path.join(d, file)
-            for ext in pathext:
-                fext = f + ext
-                if os.path.isfile(fext):
-                    return fext
-        return None
+    shlwapi = ctypes.OleDLL('shlwapi')
+    shlwapi.AssocQueryStringW.argtypes = (
+        ctypes.c_ulong,  # flags
+        ctypes.c_ulong,  # str
+        ctypes.c_wchar_p,  # pszAssoc
+        ctypes.c_wchar_p,  # pszExtra
+        ctypes.c_wchar_p,  # pszOut
+        ctypes.POINTER(ctypes.c_ulong),  # pcchOut
+    )
 
-else:
+    ASSOCF_NOTRUNCATE = 0x00000020
+    ASSOCF_INIT_IGNOREUNKNOWN = 0x00000400
+    ASSOCSTR_COMMAND = 1
+    ASSOCSTR_EXECUTABLE = 2
+    E_POINTER = ctypes.c_long(0x80004003).value
 
-    def whereis(file):
-        for d in os.environ['PATH'].split(os.pathsep):
-            f = os.path.join(d, file)
-            if os.path.isfile(f):
-                try:
-                    st = os.stat(f)
-                except OSError:
-                    continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
-                    return f
-        return None
+    def get_template_command(filetype, verb=None):
+        flags = ASSOCF_INIT_IGNOREUNKNOWN | ASSOCF_NOTRUNCATE
+        assoc_str = ASSOCSTR_COMMAND
+        cch = ctypes.c_ulong(260)
+        while True:
+            buf = (ctypes.c_wchar * cch.value)()
+            try:
+                shlwapi.AssocQueryStringW(
+                    flags, assoc_str, filetype, verb, buf, ctypes.byref(cch)
+                )
+            except OSError as e:
+                if e.winerror != E_POINTER:
+                    raise
+                continue
+            break
+        return buf.value
 
 
 _ws = re.compile(r'\s')
@@ -527,6 +538,19 @@ testenv['PYTHONPATH'] = os.pathsep.join((scons_lib_dir, frameworkpath))
 pythonpath = os.environ.get('PYTHONPATH')
 if pythonpath:
     testenv['PYTHONPATH'] = testenv['PYTHONPATH'] + os.pathsep + pythonpath
+
+if sys.platform == 'win32':
+    # Windows doesn't support "shebang" lines directly (the Python launcher
+    # and Windows Store version do, but you have to get them launched first)
+    # so to directly launch a script we depend on an assoc for .py to work.
+    # Some systems may have none, and in some cases IDE programs take over 
+    # the assoc.  Detect this so the small number of tests affected can skip.
+    try:
+        python_assoc = get_template_command('.py')
+    except OSError:
+        python_assoc = None
+    if not python_assoc or "py" not in python_assoc:
+        testenv['SCONS_NO_DIRECT_SCRIPT'] = '1'
 
 os.environ.update(testenv)
 
