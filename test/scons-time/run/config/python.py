@@ -60,7 +60,7 @@ for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print('my_python.py: %%s' %% profile)
+print('my_python.py: %s' % profile)
 """,
 )
 

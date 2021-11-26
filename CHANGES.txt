@@ -18,7 +18,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       to conventions, drop a Py2 workaround, and pick as better "system" path
       (old one remains supported).
     - Fix testsuite to work on Windows systems where there is no usable
-      assocation for running .py files (there are five tests where we need
+      association for running .py files (there are five tests where we need
       to do this for internal reasons, these are skipped now).
 
 

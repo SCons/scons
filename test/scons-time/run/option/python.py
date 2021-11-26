@@ -53,7 +53,7 @@ for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-sys.stdout.write('my_python.py: %%s\\n' %% profile)
+sys.stdout.write('my_python.py: %s\\n' % profile)
 """,
 )
 
