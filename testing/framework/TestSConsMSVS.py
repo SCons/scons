@@ -763,8 +763,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         return result
 
     def get_vs_host_arch(self):
-        """ Get an MSVS, SDK , and/or MSVS acceptable platform arch
-        """
+        """ Returns an MSVS, SDK , and/or MSVS acceptable platform arch. """
 
         # Dict to 'canonalize' the arch
         _ARCH_TO_CANONICAL = {
@@ -778,11 +777,6 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         }
 
         host_platform = platform.machine()
-        # TODO(2.5):  the native Python platform.machine() function returns
-        # '' on all Python versions before 2.6, after which it also uses
-        # PROCESSOR_ARCHITECTURE.
-        if not host_platform:
-            host_platform = os.environ.get('PROCESSOR_ARCHITECTURE', '')
 
         try:
             host = _ARCH_TO_CANONICAL[host_platform]

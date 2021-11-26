@@ -790,13 +790,12 @@ def _load_all_site_scons_dirs(topdir, verbose=False):
         return os.path.expanduser('~/'+d)
 
     if platform == 'win32' or platform == 'cygwin':
-        # Note we use $ here instead of %...% because older
-        # pythons (prior to 2.6?) didn't expand %...% on Windows.
-        # This set of dirs should work on XP, Vista, 7 and later.
         sysdirs=[
-            os.path.expandvars('$ALLUSERSPROFILE\\Application Data\\scons'),
-            os.path.expandvars('$USERPROFILE\\Local Settings\\Application Data\\scons')]
-        appdatadir = os.path.expandvars('$APPDATA\\scons')
+            os.path.expandvars('%AllUsersProfile%\\scons'),
+            # TODO older path, kept for compat
+            os.path.expandvars('%AllUsersProfile%\\Application Data\\scons'),
+            os.path.expandvars('%LocalAppData%\\scons')]
+        appdatadir = os.path.expandvars('%AppData%\\scons')
         if appdatadir not in sysdirs:
             sysdirs.append(appdatadir)
         sysdirs.append(homedir('.scons'))

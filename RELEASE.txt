@@ -22,6 +22,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
+- On Windows, %AllUsersProfile%\scons\site_scons is now the default "system"
+  location for a site_scons. %AllUsersProfile%\Application Data\scons\site_scons
+  will continue to work. There does not seem to be any convention to use
+  an "Application Data" subdirectory here.
+
+
 FIXES
 -----
 

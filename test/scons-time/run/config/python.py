@@ -30,33 +30,39 @@ Verify specifying an alternate Python executable in a config file.
 import os
 
 import TestSCons_time
-from TestCmd import IS_WINDOWS
 
-_python_ = TestSCons_time._python_
+from TestCmd import NEED_HELPER
+from TestSCons_time import _python_
 
 test = TestSCons_time.TestSCons_time()
-if IS_WINDOWS:
-    # tests expect Windows file assoc to run my_python, not in our control.
-    test.skip_test("Skipping test on win32 due to launch problems.")
+
+if NEED_HELPER:
+    test.skip_test("Test host cannot directly execute scripts, skipping test\n")
 
 test.write_sample_project('foo.tar.gz')
 
 my_python_py = test.workpath('my_python.py')
 
-test.write('config', """\
-python = r'%(my_python_py)s'
-""" % locals())
+test.write(
+    'config',
+    f"""\
+python = f'{my_python_py}'
+""",
+)
 
-test.write(my_python_py, """\
-#!%(_python_)s
+test.write(
+    my_python_py,
+    f"""\
+#!{_python_}
 import sys
 profile = ''
 for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print('my_python.py: %%s' %% profile)
-""" % locals())
+print('my_python.py: %s' % profile)
+""",
+)
 
 os.chmod(my_python_py, 0o755)
 

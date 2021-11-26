@@ -1729,27 +1729,28 @@ Also suppresses SCons status messages.</para>
   </varlistentry>
 
   <varlistentry id="opt-site-dir">
-  <term><option>--site-dir=<replaceable>dir</replaceable></option></term>
+  <term><option>--site-dir=<replaceable>path</replaceable></option></term>
   <listitem>
-<para>Uses the named <replaceable>dir</replaceable> as the site directory
-rather than the default
-<filename>site_scons</filename>
-directories.  This directory will be prepended to
+<para>Use a specific <replaceable>path</replaceable> as the site directory
+rather than searching the list of default site directories.
+This directory will be prepended to
 <varname>sys.path</varname>,
 the module
-<filename><replaceable>dir</replaceable>/site_init.py</filename>
+<filename><replaceable>path</replaceable>/site_init.py</filename>
 will be loaded if it exists, and
-<filename><replaceable>dir</replaceable>/site_tools</filename>
+<filename><replaceable>path</replaceable>/site_tools</filename>
 will be added to the default toolpath.</para>
 
-<para>The default set of
-<filename>site_scons</filename>
-directories used when
+<para>The default set of site directories searched when
 <option>--site-dir</option>
 is not specified depends on the system platform, as follows.
+Users or system administrators can tune site-specific or
+project-specific &SCons; behavior by setting up a
+site directory in one or more of these locations.
 Directories are examined in the order given, from most
-generic to most specific, so the last-executed <filename>site_init.py</filename> file is
-the most specific one (which gives it the chance to override
+generic ("system" directories) to most specific (in the current project),
+so the last-executed <filename>site_init.py</filename> file is
+the most specific one, giving it the chance to override
 everything else), and the directories are prepended to the paths, again so
 the last directory examined comes first in the resulting path.</para>
 
@@ -1758,11 +1759,19 @@ the last directory examined comes first in the resulting path.</para>
       <term>Windows:</term>
       <listitem>
 <literallayout class="monospaced">
-%ALLUSERSPROFILE/Application Data/scons/site_scons
-%USERPROFILE%/Local Settings/Application Data/scons/site_scons
+%ALLUSERSPROFILE%/scons/site_scons
+%LOCALAPPDATA%/scons/site_scons
 %APPDATA%/scons/site_scons
-%HOME%/.scons/site_scons
+%USERPROFILE%/.scons/site_scons
 ./site_scons
+</literallayout>
+<para>
+Note earlier versions of the documentation listed a different
+path for the "system" site directory, this path is still checked
+but its use is discouraged:
+</para>
+<literallayout class="monospaced">
+%ALLUSERSPROFILE%/Application Data/scons/site_scons
 </literallayout>
       </listitem>
       </varlistentry>

@@ -312,16 +312,14 @@ import traceback
 from collections import UserList, UserString
 from subprocess import PIPE, STDOUT
 
-
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
 IS_64_BIT = sys.maxsize > 2**32
 IS_PYPY = hasattr(sys, 'pypy_translation_info')
-
+NEED_HELPER = os.environ.get('SCONS_NO_DIRECT_SCRIPT')
 
 # sentinel for cases where None won't do
 _Null = object()
-
 
 __all__ = [
     'diff_re',
