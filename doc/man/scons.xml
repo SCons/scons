@@ -106,11 +106,11 @@ and a database of information about previous builds so
 details do not have to be recalculated each run.
 </para>
 
-<para>&scons; requires Python 3.5 or later to run;
+<para>&scons; requires Python 3.6 or later to run;
 there should be no other dependencies or requirements.
 <emphasis>
-Support for Python 3.5 is deprecated since
-&SCons; 4.2 and will be dropped in a future release.
+Support for Python 3.5 is removed since
+&SCons; 4.3.0.
 The CPython project has retired 3.5:
 <ulink url="https://www.python.org/dev/peps/pep-0478"/>.
 </emphasis></para>
