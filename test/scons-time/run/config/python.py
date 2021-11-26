@@ -46,14 +46,13 @@ my_python_py = test.workpath('my_python.py')
 test.write(
     'config',
     f"""\
-python = f'{my_python_py}'
+python = r'{my_python_py}'
 """,
 )
 
 test.write(
     my_python_py,
-    f"""\
-#!{_python_}
+    fr"""#!{_python_}
 import sys
 profile = ''
 for arg in sys.argv[1:]:
@@ -66,7 +65,7 @@ print('my_python.py: %s' % profile)
 
 os.chmod(my_python_py, 0o755)
 
-test.run(arguments = 'run -f config foo.tar.gz')
+test.run(arguments='run -f config foo.tar.gz')
 
 prof0 = test.workpath('foo-000-0.prof')
 prof1 = test.workpath('foo-000-1.prof')
