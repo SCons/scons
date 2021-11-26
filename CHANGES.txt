@@ -13,6 +13,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
         - Whatever John Doe did.
 
+  From Mats Wichmann:
+    - Tweak definition of default site_scons paths on Windows to conform
+      to conventions, drop a Py2 workaround, and pick as better "system" path
+      (old one remains supported).
+    - Fix testsuite to work on Windows systems where there is no usable
+      assocation for running .py files (there are five tests where we need
+      to do this for internal reasons, these are skipped now).
+
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 

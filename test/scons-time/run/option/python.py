@@ -32,7 +32,6 @@ import os
 import TestSCons_time
 
 from TestCmd import NEED_HELPER
-from TestCmd import IS_WINDOWS
 from TestSCons_time import _python_
 
 test = TestSCons_time.TestSCons_time()
@@ -44,8 +43,10 @@ test.write_sample_project('foo.tar.gz')
 
 my_python_py = test.workpath('my_python.py')
 
-test.write(my_python_py, """\
-#!%(_python_)s
+test.write(
+    my_python_py,
+    f"""\
+#!{_python_}
 import sys
 profile = ''
 for arg in sys.argv[1:]:
@@ -53,7 +54,8 @@ for arg in sys.argv[1:]:
         profile = arg[10:]
         break
 sys.stdout.write('my_python.py: %%s\\n' %% profile)
-""" % locals())
+""",
+)
 
 os.chmod(my_python_py, 0o755)
 

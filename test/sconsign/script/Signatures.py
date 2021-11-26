@@ -62,7 +62,9 @@ test.subdir('sub1', 'sub2')
 fake_cc_py = test.workpath('fake_cc.py')
 fake_link_py = test.workpath('fake_link.py')
 
-test.write(fake_cc_py, fr"""#!{_python_}
+test.write(
+    fake_cc_py,
+    fr"""#!{_python_}
 import os
 import re
 import sys
@@ -93,10 +95,12 @@ with open(sys.argv[2], 'w') as outf, open(sys.argv[3], 'r') as ifp:
     process(ifp, outf)
 
 sys.exit(0)
-"""
+""",
 )
 
-test.write(fake_link_py, fr"""#!{_python_}
+test.write(
+    fake_link_py,
+    fr"""#!{_python_}
 import sys
 
 with open(sys.argv[1], 'w') as outf, open(sys.argv[2], 'r') as ifp:
@@ -104,13 +108,15 @@ with open(sys.argv[1], 'w') as outf, open(sys.argv[2], 'r') as ifp:
     outf.write(ifp.read())
 
 sys.exit(0)
-"""
+""",
 )
 
 test.chmod(fake_cc_py, 0o755)
 test.chmod(fake_link_py, 0o755)
 
-test.write('SConstruct', f"""
+test.write(
+    'SConstruct',
+    f"""
 SConsignFile(None)
 Decider('timestamp-newer')
 env1 = Environment(
@@ -126,7 +132,7 @@ env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH=['sub2'])
 env2.Program('sub2/hello.c')
-"""
+""",
 )
 # TODO in the above, we would normally want to run a python program
 # using "our python" like this:

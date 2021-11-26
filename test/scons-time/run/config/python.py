@@ -43,12 +43,17 @@ test.write_sample_project('foo.tar.gz')
 
 my_python_py = test.workpath('my_python.py')
 
-test.write('config', """\
+test.write(
+    'config',
+    """\
 python = r'%(my_python_py)s'
-""" % locals())
+""",
+)
 
-test.write(my_python_py, """\
-#!%(_python_)s
+test.write(
+    my_python_py,
+    f"""\
+#!{_python_}
 import sys
 profile = ''
 for arg in sys.argv[1:]:
@@ -56,7 +61,8 @@ for arg in sys.argv[1:]:
         profile = arg[10:]
         break
 print('my_python.py: %%s' %% profile)
-""" % locals())
+""",
+)
 
 os.chmod(my_python_py, 0o755)
 

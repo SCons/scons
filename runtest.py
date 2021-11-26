@@ -259,7 +259,7 @@ if args.output:
 
 # --- define helpers ----
 if sys.platform == 'win32':
-    # thanks to Bret Cannon for this recipe
+    # thanks to Brett Cannon for this recipe
     import ctypes
 
     shlwapi = ctypes.OleDLL('shlwapi')
