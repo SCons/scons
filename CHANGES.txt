@@ -14,12 +14,16 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         - Whatever John Doe did.
 
   From Mats Wichmann:
-    - Tweak definition of default site_scons paths on Windows to conform
-      to conventions, drop a Py2 workaround, and pick as better "system" path
-      (old one remains supported).
+    - Tweak the way default site_scons paths on Windows are expressed to
+      conform to conventions (what they actually resolve to is unchanged),
+      drop a Py2 workaround, and pick a better "system" path, old one
+      remains supported (%AllUsersProfile%\scons\site_scons vs old
+      %AllUsersProfile%\Application Data\scons\site_scons).
     - Fix testsuite to work on Windows systems where there is no usable
-      association for running .py files (there are five tests where we need
-      to do this for internal reasons, these are skipped now).
+      association for running .py files directly. There are a few tests where
+      we need to do this for internal reasons, those are skipped in that case.
+      Bad association could mean some other tool took it over (Visual
+      Studio Code is known to do this), or no association at all.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700

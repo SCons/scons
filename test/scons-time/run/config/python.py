@@ -45,8 +45,8 @@ my_python_py = test.workpath('my_python.py')
 
 test.write(
     'config',
-    """\
-python = r'%(my_python_py)s'
+    f"""\
+python = f'{my_python_py}'
 """,
 )
 
