@@ -68,38 +68,42 @@ Latest Version
 ==============
 
 Before going further, you can check that the package you have is the latest
-version at the SCons download page:
-
-        http://www.scons.org/pages/download.html
+version at the `SCons download page <https://www.scons.org/pages/download.html>`_.
 
 
 Execution Requirements
 ======================
 
-Running SCons requires Python 3.5 or higher. There should be no other
-dependencies or requirements to run scons
-
-As of SCons 4.2.0 support for Python 3.5 is deprecated and will be removed
-with the next major release.
-
+Running SCons requires Python 3.6 or higher. There should be no other
+dependencies or requirements to run scons. The last release to support
+Python 3.5 was 4.2.0.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
-compiler suite on Win32 systems, and assumes a C compiler named 'cc', a C++
-compiler named 'c++', and a Fortran compiler named 'gfortran' (such as found
-in the GNU C compiler suite) on any other type of system.  You may, of course,
-override these default values by appropriate configuration of Environment
-construction variables.
+compiler suite on Win32 systems, and assumes a C compiler named ``cc``, a C++
+compiler named ``c++``, and a Fortran compiler named ``gfortran`` (such as found
+in the GNU Compiler Collection) on any other type of system.  You may, of course,
+override these default values by appropriate configuration of variables
+in a Construction Environment, or in the case of Cygwin on a Win32 system,
+by selecting the 'cygwin' platform, which will set some of those Construction
+Variables for you.
 
 By default, SCons knows how to search for available programming tools on
-various systems--see the SCons man page for details.  You may, of course,
-override the default SCons choices made by appropriate configuration of
-Environment construction variables.
+various systems - see the
+`SCons man page <https://scons.org/doc/production/HTML/scons-man.html>`_
+for details.  You can override
+the default SCons choices made by appropriate configuration of
+construction variables.
 
 
 Installation Requirements
 =========================
 
-Nothing special.
+SCons has no installation dependencies beyond a compatible version
+of Python. The tools which will be used to to actually construct the
+project, such as compilers, documentation production tools, etc.
+should of course be installed by the appropriate means.  In order
+to develop SCons and run its test suite, there are some dependencies,
+listed in the ``requirements.txt`` file.
 
 
 Executing SCons Without Installing
@@ -111,11 +115,12 @@ You can execute the SCons directly from this repository. For Linux or UNIX::
 
 Or on Windows::
 
-    C:\scons>python scripts\scons.py [arguments]
+    C:\scons>py scripts\scons.py [arguments]
 
-If you run SCons this way, it will execute `SConstruct` file for this repo,
-which will build and pack SCons itself. Use the -C option to change directory
-to your project::
+If you run SCons this way, it will read the ``SConstruct`` file in this repo,
+which will build and pack SCons itself, which you probably don't want unless
+you are doing development on SCons. To point to to build in your project
+directory, use the ``-C`` option to change directory::
 
     $ python scripts/scons.py -C /some/other/location [arguments]
 
@@ -128,36 +133,58 @@ Installation
     Changes`_ and `Testing`_ below if you just want to submit a bug fix or
     some new functionality.
 
-Assuming your system satisfies the installation requirements in the previous
-section, install SCons from this package by first populating the build/scons/
-subdirectory.  (For an easier way to install SCons, without having to populate
-this directory, use the scons-{version}.tar.gz or scons-{version}.zip
-package.)
+The preferred way to install SCons is through the Python installer, ``pip``
+(or equivalent alternatives, such as the Anaconda installer, ``conda``).
+You can install either from a wheel package or from the source directory.
+To work on a project that builds using SCons, installation lets you
+just use ``scons`` as a command and not worry about things.  In this
+case, we usually suggest using a virtualenv, to isolate the Python
+environment to that project
+(some notes on that:
+`Python Packaging User Guide: Creating and using virtual environments
+<https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment>`_).
 
+Some installation examples::
 
-Install the built SCons files
------------------------------
+    # to do a system-level install:
+    $ python -m pip install --user scons
 
-Any of the above commands will populate the build/scons/ directory with the
-necessary files and directory structure to use the Python-standard setup
-script as follows on Linux or UNIX::
+    # Windows variant, assuming Python Laucher:
+    C:\Users\me> py -m pip install --user scons
 
-        # python setup.py install
+    # inside a virtualenv it's safe to use bare pip:
+    $ pip install scons
 
-Or on Windows::
+    # install in a virtualenv from a wheel file:
+    $ pip install SCons-4.3.0-py3-none-any.whl
 
-        C:\scons>python setup.py install
+    # install in a virtualenv from source directory:
+    $ pip install --editable .
 
-By default, the above commands will do the following:
+Note that on Windows, SCons installed via ``pip`` puts an executable
+``scons.exe`` in the script directory of the Python installation.
+There are lots of possibilities depending on how you install Python
+(e.g. python.org installer as a single-user install or all-users install;
+Microsoft Store app; bundled by a third party such as Chocolatey;
+as an installation option in Visual Studio), and then whether you
+do a plain install or a user install with `pip`.  You need to figure out
+this directory and make sure it's added to the enviroment variable PATH.
+Some possibilities::
 
-- Install scripts named "scons" and "sconsign" scripts in the default system
-  script directory (/usr/bin or C:\\Python\*\\Scripts, for example).
+    C:\Python39\Scripts\
+    C:\Users\me\AppData\Local\Program\Python\Python39\Scripts
+    # using pip --user:
+    C:\Users\me\AppData\Roaming\Python\Python39\Scripts
 
-- Install "scons-3.1.2.exe" and "scons.exe" executables in the Python
-  prefix directory on Windows (C:\\Python\*, for example).
+Fortunately, ``pip`` will warn you about this - pay attention to the
+message during installation::
 
-- Install the SCons build engine (a Python module) in the standard Python library directory
-  (/usr/lib/python\*/site-packages or C:\\Python*\\Lib\\site-packages).
+  WARNING: The scripts scons-configure-cache.exe, scons.exe and sconsign.exe
+  are installed in 'C:\Users\me\AppData\Roaming\Python\Python310\Scripts'
+  which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning,
+  use --no-warn-script-location.
+
 
 Making Changes
 ==============
@@ -166,12 +193,12 @@ Because SCons is implemented in a scripting language, you don't need to build
 it in order to make changes and test them.
 
 Virtually all of the SCons functionality exists in the "build engine," the
-SCons subdirectory hierarchy that contains all of the modules that
-make up SCons.  The scripts/scons.py wrapper script exists mainly to find
+``SCons`` subdirectory hierarchy that contains all of the modules that
+make up SCons.  The ``scripts/scons.py`` wrapper script exists mainly to find
 the appropriate build engine library and then execute it.
 
 In order to make your own changes locally and test them by hand, simply edit
-modules in the local SCons subdirectory tree and then running
+modules in the local ``SCons`` subdirectory tree and then run
 (see the section above about `Executing SCons Without Installing`_)::
 
     $ python scripts/scons.py [arguments]
@@ -183,7 +210,7 @@ like so::
     $ chmod 755 scripts/scons.py
     $ export PATH=$PATH:`pwd`/scripts
 
-You should then be able to run this version of SCons by just typing "scons.py"
+You should then be able to run this version of SCons by just typing ``scons.py``
 at your UNIX or Linux command line.
 
 Note that the regular SCons development process makes heavy use of automated
@@ -212,7 +239,11 @@ component)::
 
     (Pdb) b SCons/Tool/msvc.py:158
 
-The debugger also supports single stepping, stepping into functions, printing
+Since Python 3.7.0 you can also insert a call to the ``breakpoint()``
+function in your code, call ``scons.py`` normally, and it will drop into
+the debugger at that point.
+
+The debugger supports single stepping, stepping into functions, printing
 variables, etc.
 
 Trying to debug problems found by running the automated tests (see the
@@ -224,15 +255,15 @@ call within a test script.
 The most effective technique for debugging problems that occur during an
 automated test is to use the good old tried-and-true technique of adding
 statements to print tracing information.  But note that you can't just use
-the "print" function, or even "sys.stdout.write()" because those change the
+the ``print`` function, or even ``sys.stdout.write()`` because those change the
 SCons output, and the automated tests usually look for matches of specific
 output strings to decide if a given SCons invocation passes the test -
 so these additions may cause apparent failures different than the one you
 are trying to debug.
 
-To deal with this, SCons supports a Trace() function that (by default) will
-print messages to your console screen ("/dev/tty" on UNIX or Linux, "con" on
-Windows).  By adding Trace() calls to the SCons source code::
+To deal with this, SCons supports a ``Trace()`` function that (by default) will
+print messages to your console screen (``/dev/tty`` on UNIX or Linux, ``con`` on
+Windows).  By adding ``Trace()`` calls to the SCons source code::
 
     def sample_method(self, value):
         from SCons.Debug import Trace
@@ -242,7 +273,7 @@ You can then run automated tests that print any arbitrary information you wish
 about what's going on inside SCons, without interfering with the test
 automation.
 
-The Trace() function can also redirect its output to a file, rather than the
+The ``Trace()`` function can also redirect its output to a file, rather than the
 screen::
 
     def sample_method(self, value):
@@ -250,24 +281,24 @@ screen::
         Trace('called sample_method(%s, %s)\n' % (self, value),
               file='trace.out')
 
-Where the Trace() function sends its output is stateful: once you use the
-"file=" argument, all subsequent calls to Trace() send their output to the
-same file, until another call with a "file=" argument is reached.
+Where the ``Trace()`` function sends its output is stateful: once you use the
+``file=`` argument, all subsequent calls to ``Trace()`` send their output to the
+same file, until another call with a ``file=`` argument is reached.
 
 
 Testing
 =======
 
-Tests are run by the runtest.py script in this directory.
+Tests are run by the ``runtest.py`` script in the top directory.
 
 There are two types of tests in this package:
 
 1. Unit tests for individual SCons modules live underneath the SCons
-   subdirectory and have the same base name as the module with "Tests.py"
-   appended--for example, the unit test for the Builder.py module is the
-   BuilderTests.py script.
+   subdirectory and have the same base name as the module with ``Tests.py``
+   appended--for example, the unit test for the ``Builder`` module in
+   ``Builder.py`` is the ``BuilderTests.py`` script.
 
-2. End-to-end tests of SCons live in the test/ subdirectory.
+2. End-to-end tests of SCons live in the ``test/`` subdirectory.
 
 You may specifically list one or more tests to be run::
 
@@ -275,7 +306,7 @@ You may specifically list one or more tests to be run::
 
         $ python runtest.py test/option-j.py test/Program.py
 
-You also use the -f option to execute just the tests listed in a specified
+You also use the ``-f`` option to execute just the tests listed in a specified
 text file::
 
         $ cat testlist.txt
@@ -288,16 +319,24 @@ ignored (allowing you, for example, to comment out tests that are currently
 passing and then uncomment all of the tests in the file for a final validation
 run).
 
-The runtest.py script also takes a -a option that searches the tree for all of
+The runtest.py script also takes a ``-a`` option that searches the tree for all of
 the tests and runs them::
 
         $ python runtest.py -a
 
-If more than one test is run, the runtest.py script prints a summary of how
-many tests passed, failed, or yielded no result, and lists any unsuccessful
-tests.
+If a previous run had test failures, those are saved to logfile which
+can be used to run just the failed tests - this is useful for the common
+case of a change breaking a few things, and you want to first check that
+a fix fixes those, before rerunning the full suite::
 
-The above invocations all test directly the files underneath the SCons/
+        $ python runtest.py --retry
+
+If more than one test is run, the ``runtest.py`` script prints a summary of
+any tests that failed or yielded no result (usually these are skips due
+to run-time checks of conditions). ``runtest.py`` has options to change
+the output, just see the command's help message.
+
+The above invocations all test directly the files underneath the ``SCons/``
 subdirectory, and do not require that a build be performed first.
 
 Development Workflow
@@ -323,8 +362,8 @@ platform, Windows users can translate as appropriate)):
 
 - Change to the top of your checked-out SCons tree.
 
-- Confirm that the bug still exists in this version of SCons by using the -C
-   option to run the broken build::
+- Confirm that the bug still exists in this version of SCons by using the ``-C``
+  option to run the broken build::
 
       $ python scripts/scons.py -C /home/me/broken_project .
 
@@ -340,38 +379,25 @@ platform, Windows users can translate as appropriate)):
 
       $ python runtest.py -a -o test.log
 
-  Be patient, there are more than 1100 test scripts in the whole suite.  If you
-  are on UNIX/Linux, you can use::
-
-      $ python runtest.py -a | tee test.log
-
-  instead so you can monitor progress from your terminal.
+  Be patient, there are more than 1100 test scripts in the whole suite!
 
   If any test scripts fail, they will be listed in a summary at the end of the
   log file.  Some test scripts may also report NO RESULT because (for example)
   your local system is the wrong type or doesn't have some installed utilities
   necessary to run the script.  In general, you can ignore the NO RESULT list,
   beyond having checked once that the tests that matter to your change are
-  actually being executed on your test system!
-
-- Cut-and-paste the list of failed tests into a file::
-
-      $ cat > failed.txt
-      test/failed-test-1.py
-      test/failed-test-2.py
-      test/failed-test-3.py
-      ^D
-      $
+  actually being executed on your test system!  These failed tests are
+  automatically saved to ``failed_tests.log``.
 
 - Now debug the test failures and fix them, either by changing SCons, or by
   making necessary changes to the tests (if, for example, you have a strong
   reason to change functionality, or if you find that the bug really is in the
-  test script itself).  After each change, use the runtest.py -f option to
-  examine the effects of the change on the subset of tests that originally
-  failed::
+  test script itself).  After each change, use the ``--retry``
+  option to examine the effects of the change on the subset of tests that
+  last failed::
 
       $ [edit]
-      $ python runtest.py -f failed.txt
+      $ python runtest.py --retry
 
   Repeat this until all of the tests that originally failed now pass.
 
@@ -382,14 +408,11 @@ platform, Windows users can translate as appropriate)):
       $ python scripts/scons.py -C /home/me/broken_project .
       $ python runtest.py -a -o test.log
 
-  If you find any newly-broken tests, add them to your "failed.txt" file and
-  go back to the previous step.
-
 Of course, the above is only one suggested workflow.  In practice, there is a
 lot of room for judgment and experience to make things go quicker.  For
 example, if you're making a change to just the Java support, you might start
-looking for regressions by just running the test/Java/\*.py tests instead of
-running all of "runtest.py -a".
+looking for regressions by just running the ``test/Java/\*.py`` tests instead of
+running all tests with ``runtest.py -a``.
 
 
 Building Packages
@@ -401,23 +424,23 @@ build everything by simply running it::
 
         $ scons
 
-If you don't have SCons already installed on your
-system, you can use the supplied bootstrap.py script (see the section above
-about `Executing SCons Without Installing`_)::
+If you don't have SCons already installed on your system,
+you can run it from source
+(see the section above about `Executing SCons Without Installing`_)::
 
         $ python scripts/scons.py build/scons
 
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-    SCons-4.0.0-py3-none-any.whl
+    SCons-4.3.0-py3-none-any.whl
     SCons-4.3.0ayyyymmdd.tar.gz
     SCons-4.3.0ayyyymmdd.zip
     scons-doc-4.3.0ayyyymmdd.tar.gz
     scons-local-4.3.0ayyyymmdd.tar.gz
     scons-local-4.3.0ayyyymmdd.zip
 
-The SConstruct file is supposed to be smart enough to avoid trying to build
+The ``SConstruct`` file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
 
 If you receive a build error, please report it to the scons-devel mailing list
@@ -463,10 +486,10 @@ bootstrap.py
 
 debian/
     Files needed to construct a Debian package. The contents of this directory
-    are dictated by the Debian Policy Manual
-    (http://www.debian.org/doc/debian-policy). The package will not be
-    accepted into the Debian distribution unless the contents of this
-    directory satisfy the relevant Debian policies.
+    are dictated by the
+    `Debian Policy Manual <https://www.debian.org/doc/debian-policy>`).
+    The package will not be accepted into the Debian distribution unless
+    the contents of this directory satisfy the relevant Debian policies.
 
 doc/
     SCons documentation.  A variety of things here, in various stages of
@@ -520,8 +543,8 @@ testing/
 Documentation
 =============
 
-See the RELEASE.txt file for notes about this specific release, including
-known problems.  See the CHANGES.txt file for a list of changes since the
+See the ``RELEASE.txt`` file for notes about this specific release, including
+known problems.  See the ``CHANGES.txt`` file for a list of changes since the
 previous release.
 
 The doc/man/scons.1 man page is included in this package, and contains a
@@ -529,7 +552,7 @@ section of small examples for getting started using SCons.
 
 Additional documentation for SCons is available at:
 
-        http://www.scons.org/documentation.html
+        https://www.scons.org/documentation.html
 
 Documentation toolchain
 =======================
@@ -551,7 +574,7 @@ The SCons project welcomes bug reports and feature requests.
 Please make sure you send email with the problem or feature request to
 the SCons users mailing list, which you can join via the link below:
 
-        http://two.pairlist.net/mailman/listinfo/scons-users
+        https://two.pairlist.net/mailman/listinfo/scons-users
 
 Once you have discussed your issue on the users mailing list and the
 community has confirmed that it is either a new bug or a duplicate of an
@@ -561,7 +584,7 @@ to file a new bug or to add yourself to the CC list for an existing bug
 You can explore the list of existing bugs, which may include workarounds
 for the problem you've run into on GitHub Issues:
 
-        https://github.com/SCons/scons/issues
+        httpss://github.com/SCons/scons/issues
 
 
 Mailing Lists
@@ -574,7 +597,7 @@ send questions or comments to the list at:
 
 You may subscribe to the developer's mailing list using form on this page:
 
-        http://two.pairlist.net/mailman/listinfo/scons-dev
+        https://two.pairlist.net/mailman/listinfo/scons-dev
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
@@ -592,7 +615,7 @@ If you find SCons helpful, please consider making a donation (of cash,
 software, or hardware) to support continued work on the project.  Information
 is available at:
 
-        http://www.scons.org/donate.html
+        https://www.scons.org/donate.html
 
 or
 
@@ -604,7 +627,7 @@ For More Information
 
 Check the SCons web site at:
 
-        http://www.scons.org/
+        https://www.scons.org/
 
 
 Author Info
