@@ -45,21 +45,20 @@ my_python_py = test.workpath('my_python.py')
 
 test.write(
     my_python_py,
-    f"""\
-#!{_python_}
+    fr"""#!{_python_}
 import sys
 profile = ''
 for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-sys.stdout.write('my_python.py: %s\\n' % profile)
+print('my_python.py: %s' % profile)
 """,
 )
 
 os.chmod(my_python_py, 0o755)
 
-test.run(arguments = 'run --python %s foo.tar.gz' % my_python_py)
+test.run(arguments='run --python %s foo.tar.gz' % my_python_py)
 
 prof0 = test.workpath('foo-000-0.prof')
 prof1 = test.workpath('foo-000-1.prof')
