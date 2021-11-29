@@ -153,13 +153,13 @@ Some installation examples::
     C:\Users\me> py -m pip install --user scons
 
     # inside a virtualenv it's safe to use bare pip:
-    $ pip install scons
+    (myvenv) $ pip install scons
 
     # install in a virtualenv from a wheel file:
-    $ pip install SCons-4.3.0-py3-none-any.whl
+    (myvenv) $ pip install SCons-4.3.0-py3-none-any.whl
 
     # install in a virtualenv from source directory:
-    $ pip install --editable .
+    (myvenv) $ pip install --editable .
 
 Note that on Windows, SCons installed via ``pip`` puts an executable
 ``scons.exe`` in the script directory of the Python installation.
@@ -168,7 +168,7 @@ There are lots of possibilities depending on how you install Python
 Microsoft Store app; bundled by a third party such as Chocolatey;
 as an installation option in Visual Studio), and then whether you
 do a plain install or a user install with `pip`.  You need to figure out
-this directory and make sure it's added to the enviroment variable PATH.
+this directory and make sure it's added to the environment variable PATH.
 Some possibilities::
 
     C:\Python39\Scripts\
