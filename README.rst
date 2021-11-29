@@ -419,19 +419,19 @@ Building Packages
 =================
 
 We use SCons (version 3.1.2 or later) to build its own packages.  If you
-already have an appropriate version of SCons installed on your system, you can
-build everything by simply running it::
+already have an appropriate version of SCons installed on your system,
+you can build everything by simply running it::
 
-        $ scons
+    $ scons
 
 If you don't have SCons already installed on your system,
-you can run it from source
+you can run the build directly from the source tree
 (see the section above about `Executing SCons Without Installing`_)::
 
-        $ python scripts/scons.py build/scons
+    $ python scripts/scons.py
 
-Depending on the utilities installed on your system, any or all of the
-following packages will be built::
+Those are full builds: depending on the utilities installed on your system,
+any or all of the following packages will be built::
 
     SCons-4.3.0-py3-none-any.whl
     SCons-4.3.0ayyyymmdd.tar.gz
@@ -474,7 +474,7 @@ bin/
     - a script that can profile and time a packaging build of SCons itself;
 
     - a copy of xml_export, which can retrieve project data from SourceForge;
-      and
+      (obsolete, as project now lives on GitHub and PyPi).
 
     - scripts and a Python module for translating the SCons home-brew XML
       documentation tags into DocBook and man page format
@@ -508,10 +508,15 @@ LICENSE-local
 README.rst
     What you're looking at right now.
 
-README-local
+README-local.rst
     A README file for inclusion in the scons-local-{version} packages.
     Similar to this file, but stripped down and modified for people looking at
     including SCons in their shipped software.
+
+README-SF.rst
+    A README file the SourceForge project page - although the project is
+    no longer developed on SourceForge, this still serves as a download
+    location.
 
 runtest.py
     Script for running SCons tests.  By default, this will run a test against
@@ -546,9 +551,6 @@ Documentation
 See the ``RELEASE.txt`` file for notes about this specific release, including
 known problems.  See the ``CHANGES.txt`` file for a list of changes since the
 previous release.
-
-The doc/man/scons.1 man page is included in this package, and contains a
-section of small examples for getting started using SCons.
 
 Additional documentation for SCons is available at:
 
