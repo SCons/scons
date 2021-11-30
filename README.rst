@@ -147,22 +147,12 @@ Some installation examples::
     (myvenv) $ pip install --editable .
 
 Note that on Windows, SCons installed via ``pip`` puts an executable
-``scons.exe`` in the script directory of the Python installation.
-There are lots of possibilities depending on how you install Python
-(e.g. python.org installer as a single-user install or all-users install;
-Microsoft Store app; bundled by a third party such as Chocolatey;
-as an installation option in Visual Studio), and then whether you
-do a plain install or a user install with `pip`.  You need to figure out
-this directory and make sure it's added to the environment variable PATH.
-Some possibilities::
+``scons.exe`` in the script directory of the Python installation,
+or in a shadow script directory if you did a User Install.
+To run ``scons`` as a command, you'll need this in your search path.
 
-    C:\Python39\Scripts\
-    C:\Users\me\AppData\Local\Program\Python\Python39\Scripts
-    # using pip --user:
-    C:\Users\me\AppData\Roaming\Python\Python39\Scripts
-
-Fortunately, ``pip`` will warn you about this - pay attention to the
-message during installation::
+Fortunately, ``pip`` will warn you about this - pay attention to any
+messages during installation like this::
 
   WARNING: The scripts scons-configure-cache.exe, scons.exe and sconsign.exe
   are installed in 'C:\Users\me\AppData\Roaming\Python\Python310\Scripts'
@@ -177,6 +167,14 @@ use the package manager (e.g. ``apt``, ``dnf``, ``yum``,
 of SCons.  Some distributions keep up to date with SCons releases
 very quickly, while others may delay, so the version of SCons
 you want to run may factor into your choice.
+
+
+Getting Started Using SCons
+===========================
+
+If you're new to SCons, the first couple of chapters of the
+`SCons User Guide <https://scons.org/doc/production/HTML/scons-user.html>`_
+provide an excellent starting spot.
 
 
 Contributing to SCons
