@@ -70,6 +70,13 @@ Features:
     * Written in Python.
 
 
+Documentation
+=============
+
+Documentation for SCons is available at
+http://www.scons.org/documentation.html.
+
+
 Latest Version
 ==============
 
@@ -87,7 +94,7 @@ The last release to support Python 3.5 was 4.2.0.
 
 Some experimental features may require additional Python packages
 to be installed - at the moment the Ninja feature requires the
-supporting ninja package.
+supporting `ninja package <https://pypi.org/project/ninja/>`_.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named ``cc``, a C++
@@ -197,7 +204,9 @@ The SCons project welcomes bug reports and feature requests.
 
 Please make sure you send email with the problem or feature request to
 the SCons users mailing list, which you can join at
-https://two.pairlist.net/mailman/listinfo/scons-users
+https://two.pairlist.net/mailman/listinfo/scons-users,
+or on the SCons Discord server in
+`#scons-help <https://discord.gg/bXVpWAy#scons-help>`_.
 
 Once you have discussed your issue on the users mailing list and the
 community has confirmed that it is either a new bug or a duplicate of an
@@ -205,16 +214,18 @@ existing bug, then please follow the instructions the community provides
 to file a new bug or to add yourself to the CC list for an existing bug
 
 You can explore the list of existing bugs, which may include workarounds
-for the problem you've run into on GitHub Issues: https://github.com/SCons/scons/issues.
+for the problem you've run into, on the
+`GitHub issue tracker <https://github.com/SCons/scons/issues>`_.
 
 
 Mailing Lists
 =============
 
 An active mailing list for developers of SCons is available.  You may
-send questions or comments to the list at scons-dev@scons.org
+send questions or comments to the list at scons-dev@scons.org.
 
-You may subscribe to the developer's mailing list using form at https://two.pairlist.net/mailman/listinfo/scons-dev
+You may subscribe to the developer's mailing list using the form at
+https://two.pairlist.net/mailman/listinfo/scons-dev.
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
