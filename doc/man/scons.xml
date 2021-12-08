@@ -3862,7 +3862,6 @@ or <quote>c++</quote>.
 
 <variablelist>
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckHeader</function>(<parameter>context, header, [include_quotes, language]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckHeader</methodname>(<parameter>header, [include_quotes, language]</parameter>)</term>
   <listitem>
 <para>Checks if
@@ -3895,7 +3894,6 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckCHeader</function>(<parameter>context, header, [include_quotes]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckCHeader</methodname>(<parameter>header, [include_quotes]</parameter>)</term>
   <listitem>
 <para>Checks if
@@ -3923,7 +3921,6 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckCXXHeader</function>(<parameter>context, header, [include_quotes]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckCXXHeader</methodname>(<parameter>header, [include_quotes]</parameter>)</term>
   <listitem>
 <para>Checks if
@@ -3951,7 +3948,6 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckFunc</function>(<parameter>context, function_name, [header, language]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language]</parameter>)</term>
   <listitem>
 <para>Checks if the specified
@@ -3989,7 +3985,6 @@ an error message on failure.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckLib</function>(<parameter>context, [library, symbol, header, language, autoadd=True]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True]</parameter>) </term>
   <listitem>
 <para>Checks if
@@ -4029,7 +4024,6 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckLibWithHeader</function>(<parameter>context, library, header, language, [call, autoadd=True]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, language, [call, autoadd=True]</parameter>)</term>
   <listitem>
 
@@ -4064,7 +4058,6 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckType</function>(<parameter>context, type_name, [includes, language]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckType</methodname>(<parameter>type_name, [includes, language]</parameter>)</term>
   <listitem>
 <para>Checks for the existence of a type defined by
@@ -4091,7 +4084,6 @@ an error message on failure.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckTypeSize</function>(<parameter>context, type_name, [header, language, expect]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckTypeSize</methodname>(<parameter>type_name, [header, language, expect]</parameter>)</term>
   <listitem>
 <para>Checks for the size of a type defined by
@@ -4129,7 +4121,6 @@ actually two bytes.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckCC</function>(<parameter>context</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckCC</methodname>()</term>
   <listitem>
 <para>Checks whether the C compiler
@@ -4150,7 +4141,6 @@ be accepted or rejected by the compiler.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckCXX</function>(<parameter>context</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckCXX</methodname>()</term>
   <listitem>
 <para>Checks whether the C++ compiler
@@ -4171,7 +4161,6 @@ be accepted or rejected by the compiler.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckSHCC</function>(<parameter>context</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckSHCC</methodname>()</term>
   <listitem>
 <para>Checks whether the shared-object C compiler (as defined by the
@@ -4194,7 +4183,6 @@ be created.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckSHCXX</function>(<parameter>context</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckSHCXX</methodname>()</term>
   <listitem>
 <para>Checks whether the shared-object C++ compiler (as defined by the
@@ -4217,7 +4205,6 @@ be created.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckProg</function>(<parameter>context, prog_name</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckProg</methodname>(<parameter>prog_name</parameter>)</term>
   <listitem>
 <para>Checks if 
@@ -4230,7 +4217,6 @@ or <constant>None</constant> on failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckDeclaration</function>(<parameter>context, symbol, [includes, language]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckDeclaration</methodname>(<parameter>symbol, [includes, language]</parameter>)</term>
   <listitem>
 <para>Checks if the specified
