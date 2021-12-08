@@ -3817,7 +3817,6 @@ to avoid unnecessary test execution.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>Finish</function>(<parameter>context</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>Finish</methodname>()</term>
   <listitem>
 <para>This method must be called after configuration is done.
@@ -3899,11 +3898,9 @@ Returns a boolean indicating success or failure.</para>
   <term><literal>SConf</literal>.<function>CheckCHeader</function>(<parameter>context, header, [include_quotes]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckCHeader</methodname>(<parameter>header, [include_quotes]</parameter>)</term>
   <listitem>
-<para>This is a wrapper around
-<function>SConf.CheckHeader</function>
-which checks if
+<para>Checks if
 <parameter>header</parameter>
-is usable in the C language.
+is usable when compiling a C language program.
 <parameter>header</parameter>
 may be a list,
 in which case the last item in the list
@@ -3919,6 +3916,8 @@ must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote.
 By default, both characters  are <markup>"</markup> (double quote).
+Note this is a wrapper around
+<function>CheckHeader</function>.
 Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
@@ -3927,11 +3926,9 @@ Returns a boolean indicating success or failure.</para>
   <term><literal>SConf</literal>.<function>CheckCXXHeader</function>(<parameter>context, header, [include_quotes]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckCXXHeader</methodname>(<parameter>header, [include_quotes]</parameter>)</term>
   <listitem>
-<para>This is a wrapper around
-<function>SConf.CheckHeader</function>
-which checks if
+<para>Checks if
 <parameter>header</parameter>
-is usable in the C++ language.
+is usable when compiling a C++ language program.
 <parameter>header</parameter>
 may be a list,
 in which case the last item in the list
@@ -3947,6 +3944,8 @@ must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote.
 By default, both characters  are <markup>"</markup> (double quote).
+Note this is a wrapper around
+<function>CheckHeader</function>.
 Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
@@ -3958,8 +3957,7 @@ Returns a boolean indicating success or failure.</para>
 <para>Checks if the specified
 C or C++ library function is available based on the
 context's local environment settings (that is, using
-the values of <varname>CFLAGS</varname>,
-<varname>CPPFLAGS</varname>, <varname>LIBS</varname>
+the values of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;, &cv-link-LIBS;
 or other relevant &consvars;).
 </para>
 
@@ -4017,7 +4015,7 @@ If
 is not set or is
 <constant>None</constant>,
 then
-<function>SConf.CheckLib</function>
+<function>CheckLib</function>
 just checks if
 you can link against the specified
 <parameter>library</parameter>.
@@ -4036,7 +4034,7 @@ Returns a boolean indicating success or failure.</para>
   <listitem>
 
 <para>Provides a more sophisticated way to check against libraries then the
-<function>SConf.CheckLib</function> call.
+<function>CheckLib</function> call.
 <parameter>library</parameter>
 specifies the library or a list of libraries to check.
 <parameter>header</parameter>
@@ -4093,77 +4091,6 @@ an error message on failure.
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckCC</function>(<parameter>context</parameter>)</term>
-  <term><replaceable>context</replaceable>.<methodname>CheckCC</methodname>()</term>
-  <listitem>
-<para>Checks whether the C compiler (as defined by the
-<varname>CC</varname> &consvar;) works
-by trying to compile a small source file.
-Returns a boolean indicating success or failure.</para>
-
-<para>By default, SCons only detects if there is a program with the correct name, not
-if it is a functioning compiler.</para>
-
-<para>This uses the exact same command as the one used by the object builder for C
-source files, so it can be used to detect if a particular compiler flag works or
-not.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckCXX</function>(<parameter>context</parameter>)</term>
-  <term><replaceable>context</replaceable>.<methodname>CheckCXX</methodname>()</term>
-  <listitem>
-<para>Checks whether the C++ compiler (as defined by the
-<varname>CXX</varname> &consvar;)
-works by trying to compile a small source file. By default,
-SCons only detects if there is a program with the correct name,
-not if it is a functioning compiler.
-Returns a boolean indicating success or failure.</para>
-
-<para>This uses the exact same command as the one used by the object builder for
-C++ source files, so it can be used to detect if a particular compiler flag
-works or not.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckSHCC</function>(<parameter>context</parameter>)</term>
-  <term><replaceable>context</replaceable>.<methodname>CheckSHCC</methodname>()</term>
-  <listitem>
-<para>Checks whether the shared-object C compiler (as defined by the
-<varname>SHCC</varname> &consvar;) works
-by trying to compile a small source file.  By default,
-SCons only detects if there is a program with the correct name,
-not if it is a functioning compiler.
-Returns a boolean indicating success or failure.</para>
-
-<para>This uses the exact same command as the one used by the object builder for C
-source file, so it can be used to detect if a particular compiler flag works or
-not. This does not check whether the object code can be used to build a shared
-library, only that the compilation (not link) succeeds.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><literal>SConf</literal>.<function>CheckSHCXX</function>(<parameter>context</parameter>)</term>
-  <term><replaceable>context</replaceable>.<methodname>CheckSHCXX</methodname>()</term>
-  <listitem>
-<para>Checks whether the shared-object C++ compiler (as defined by the
-<varname>SHCXX</varname> &consvar;)
-works by trying to compile a small source file. By default,
-SCons only detects if there is a program with the correct name,
-not if it is a functioning compiler.
-Returns a boolean indicating success or failure.</para>
-
-<para>This uses the exact same command as the one used by the object builder for
-C++ source files, so it can be used to detect if a particular compiler flag
-works or not. This does not check whether the object code can be used to build
-a shared library, only that the compilation (not link) succeeds.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
   <term><literal>SConf</literal>.<function>CheckTypeSize</function>(<parameter>context, type_name, [header, language, expect]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckTypeSize</methodname>(<parameter>type_name, [header, language, expect]</parameter>)</term>
   <listitem>
@@ -4202,6 +4129,107 @@ actually two bytes.</para>
   </varlistentry>
 
   <varlistentry>
+  <term><literal>SConf</literal>.<function>CheckCC</function>(<parameter>context</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckCC</methodname>()</term>
+  <listitem>
+<para>Checks whether the C compiler
+(as defined by the &cv-link-CC; &consvar;) works,
+by trying to compile a small source file.
+This provides a more rigorous check: 
+by default, &SCons; itself only detects if there is a program
+with the correct name, not if it is a functioning compiler.
+Returns a boolean indicating success or failure.</para>
+
+<para>The test program will be built with the
+same command line as the one used by the &b-link-Object; builder
+for C source files, so by setting relevant &consvars;
+it can be used to detect if particular compiler flags will
+be accepted or rejected by the compiler.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><literal>SConf</literal>.<function>CheckCXX</function>(<parameter>context</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckCXX</methodname>()</term>
+  <listitem>
+<para>Checks whether the C++ compiler
+(as defined by the &cv-link-CXX; &consvar;) works,
+by trying to compile a small source file.
+This provides a more rigorous check: 
+by default, &SCons; itself only detects if there is a program
+with the correct name, not if it is a functioning compiler.
+Returns a boolean indicating success or failure.</para>
+
+<para>The test program will be built with the
+same command line as the one used by the &b-link-Object; builder
+for C++ source files, so by setting relevant &consvars;
+it can be used to detect if particular compiler flags will
+be accepted or rejected by the compiler.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><literal>SConf</literal>.<function>CheckSHCC</function>(<parameter>context</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckSHCC</methodname>()</term>
+  <listitem>
+<para>Checks whether the shared-object C compiler (as defined by the
+&cv-link-SHCC; &consvar;) works
+by trying to compile a small source file.
+This provides a more rigorous check: 
+by default, &SCons; itself only detects if there is a program
+with the correct name, not if it is a functioning compiler.
+Returns a boolean indicating success or failure.</para>
+
+<para>The test program will be built with the
+same command line as the one used by the &b-link-SharedObject; builder
+for C source files, so by setting relevant &consvars;
+it can be used to detect if particular compiler flags will
+be accepted or rejected by the compiler.
+Note this does not check whether a shared library/dll can
+be created.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><literal>SConf</literal>.<function>CheckSHCXX</function>(<parameter>context</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckSHCXX</methodname>()</term>
+  <listitem>
+<para>Checks whether the shared-object C++ compiler (as defined by the
+&cv-link-SHCXX; &consvar;)
+works by trying to compile a small source file.
+This provides a more rigorous check: 
+by default, &SCons; itself only detects if there is a program
+with the correct name, not if it is a functioning compiler.
+Returns a boolean indicating success or failure.</para>
+
+<para>The test program will be built with the
+same command line as the one used by the &b-link-SharedObject; builder
+for C++ source files, so by setting relevant &consvars;
+it can be used to detect if particular compiler flags will
+be accepted or rejected by the compiler.
+Note this does not check whether a shared library/dll can
+be created.
+</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><literal>SConf</literal>.<function>CheckProg</function>(<parameter>context, prog_name</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckProg</methodname>(<parameter>prog_name</parameter>)</term>
+  <listitem>
+<para>Checks if 
+<parameter>prog_name</parameter>
+exists in the path &SCons; will use at build time.
+(<replaceable>context</replaceable>.<varname>env['ENV']['PATH']</varname>).
+Returns a string containing the path to the program,
+or <constant>None</constant> on failure.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
   <term><literal>SConf</literal>.<function>CheckDeclaration</function>(<parameter>context, symbol, [includes, language]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>CheckDeclaration</methodname>(<parameter>symbol, [includes, language]</parameter>)</term>
   <listitem>
@@ -4218,20 +4246,25 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><literal>SConf</literal>.<function>Define</function>(<parameter>context, symbol, [value, comment]</parameter>)</term>
   <term><replaceable>context</replaceable>.<methodname>Define</methodname>(<parameter>symbol, [value, comment]</parameter>)</term>
   <listitem>
-<para>This function does not check for anything, but defines a
-preprocessor symbol that will be added to the configuration header file.
-It is the equivalent of <constant>AC_DEFINE</constant>,
-and defines the symbol
-<parameter>name</parameter>
-with the optional
-<parameter>value</parameter>
-and the optional comment
-<parameter>comment</parameter>.</para>
+<para>This method does not check for anything, but rather forces
+the definition of a preprocessor macro that will be added
+to the configuration header file.
+<parameter>name</parameter> is the macro's identifier.
+If <parameter>value</parameter> is given,
+it will be be used as the macro replacement value.
+If <parameter>value</parameter> is a string and needs to
+display with quotes, the quotes need to be included,
+as in <literal>'"string"'</literal>
+If the optional 
+<parameter>comment</parameter> is given,
+it is inserted as a comment above the macro definition
+(suitable comment marks will be added automatically).
+This is analagous to using <constant>AC_DEFINE</constant> in &Autoconf;.
+</para>
 
-<para>Define Examples:</para>
+<para>Examples:</para>
 
 <programlisting language="python">
 env = Environment()
@@ -4247,7 +4280,7 @@ conf.Define("A_SYMBOL", 1)
 </programlisting>
 
 
-<para>Be careful about quoting string values, though:</para>
+<para>Examples of quoting string values:</para>
 
 <programlisting language="python">
 env = Environment()
@@ -4263,7 +4296,7 @@ conf.Define("A_SYMBOL", '"YA"')
 </programlisting>
 
 
-<para>For comment:</para>
+<para>Example including comment:</para>
 
 <programlisting language="python">
 env = Environment()
@@ -4280,127 +4313,122 @@ conf.Define("A_SYMBOL", 1, "Set to 1 if you have a symbol")
 </variablelist>
 
 <para>You can define your own custom checks
-in addition to the predefined checks.
-You pass a dictionary of these
-to the &Configure; function
-as the <parameter>custom_tests</parameter> argument.
-This dictionary maps the names of the checks
-to the user defined Python callables
-(either Python functions or class instances implementing a
-<methodname>__call__</methodname>
-method).
-Each custom check will be called with a first
-argument of a <emphasis>CheckContext</emphasis>,
-instance followed by the arguments,
+in addition to using the predefined checks.
+To enable custom checks,
+pass a dictionary to the &f-link-Configure; function
+as the <parameter>custom_tests</parameter> parameter.
+The dictionary maps the names of the checks
+to the custom check callables
+(either a Python function or an instance of a class implementing a
+<methodname>__call__</methodname> method).
+Each custom check will be called with a
+a <classname>CheckContext</classname>
+instance  as the first parameter followed by the remaining arguments,
 which must be supplied by the user of the check.
-A CheckContext instance defines the following methods:</para>
+A <classname>CheckContext</classname> is not the same as
+a configure context; rather it is an instance of a class
+which contains a configure context
+(available as <replaceable>chk_ctx</replaceable>.<varname>sconf</varname>).
+A <classname>CheckContext</classname>
+provides the following methods which custom checks
+can make use of::</para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>Message</methodname>(<parameter>text</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>Message</methodname>(<parameter>text</parameter>)</term>
   <listitem>
 
-<para>Displays a message, as an indicator of progess.
-<parameter>text</parameter>
-will be displayed, e.g.
-<computeroutput>Checking for library X...</computeroutput>.
+<para>Displays <parameter>text</parameter>
+as an indicator of progess.
+For example: <computeroutput>Checking for library X...</computeroutput>.
 Usually called before the check is started.
 </para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>Result</methodname>(<parameter>res</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>Result</methodname>(<parameter>res</parameter>)</term>
   <listitem>
 
-<para>Displays a <quote>result</quote> message, as an indicator of progress.
-
-<parameter>res</parameter>
-can be either an integer or a string. If an integer, displays
-<computeroutput>yes</computeroutput>
-(if <parameter>res</parameter> evaluates <constant>True</constant>)
-or <computeroutput>no</computeroutput>
-(if <parameter>res</parameter> evaluates <constant>False</constant>).
-If a string, it is displayed as-is.
+<para>Displays a result message as an indicator of progress.
+If <parameter>res</parameter> is an integer,
+displays <computeroutput>yes</computeroutput>
+if <parameter>res</parameter> evaluates true
+or <computeroutput>no</computeroutput> if false.
+If <parameter>res</parameter> is a string,
+it is displayed as-is.
 Usually called after the check has completed.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>TryCompile</methodname>(<parameter>text, extension=''</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>TryCompile</methodname>(<parameter>text, extension=''</parameter>)</term>
   <listitem>
-<para>Checks if a file with the specified
-<parameter>extension</parameter>
-(e.g. '.c') containing
-<parameter>text</parameter>
-can be compiled using the environment's
-&Object; builder.
+<para>Checks if a file containing <parameter>text</parameter>
+and given the specified <parameter>extension</parameter> (e.g.
+<literal>'.c'</literal>)
+can be compiled to an object file
+using the environment's &b-link-Object; builder.
 Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>TryLink</methodname>(<parameter>text, extension=''</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>TryLink</methodname>(<parameter>text, extension=''</parameter>)</term>
   <listitem>
-<para>Checks, if a file with the specified
-<parameter>extension</parameter>
-(e.g. '.c') containing
-<parameter>text</parameter>
-can be compiled using the environment's &Program; builder.
+<para>Checks if a file containing <parameter>text</parameter>
+and given the specified <parameter>extension</parameter> (e.g.
+<literal>'.c'</literal>)
+can be compiled to an executable program
+using the environment's &b-link-Program; builder.
 Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>TryRun</methodname>(<parameter>text, extension=''</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>TryRun</methodname>(<parameter>text, extension=''</parameter>)</term>
   <listitem>
-<para>Checks if a file with the specified
-<parameter>extension</parameter>
-(e.g. '.c') containing
-<parameter>text</parameter>
-can be compiled using the environment's
-&Program; builder. On success, the program is run. If the program
-executes successfully
-(that is, its return status is 0),
-a tuple
-<emphasis>(1, outputStr)</emphasis>
-is returned, where
-<varname>outputStr</varname>
-is the standard output of the
-program.
+<para>Checks if a file containing <parameter>text</parameter>
+and given the specified <parameter>extension</parameter> (e.g.
+<literal>'.c'</literal>)
+can be compiled to an excutable program
+using the environment's &b-link-Program; builder and subsequently executed.
+Execution is only attempted if the build succeeds.
+If the program executes successfully
+(that is, its return status is <literal>0</literal>),
+a tuple <literal>(True, outputStr)</literal>
+is returned, where <varname>outputStr</varname>
+is the standard output of the program.
 If the program fails execution
 (its return status is non-zero),
-then <emphasis>(0, '')</emphasis> is returned.</para>
+then <literal>(False, '')</literal> is returned.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>TryAction</methodname>(<parameter>action, [text, extension='']</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>TryAction</methodname>(<parameter>action, [text, extension='']</parameter>)</term>
   <listitem>
 <para>Checks if the specified
 <parameter>action</parameter>
-with an optional source file (contents
-<parameter>text</parameter>,
-extension
-<parameter>extension</parameter>)
+with an optional source file
+(contents <parameter>text</parameter>,
+given extension <parameter>extension</parameter>)
 can be executed.
 <parameter>action</parameter>
-may be anything which can be converted to a
-&scons;
-Action.
-On success,
-<emphasis>(1, outputStr)</emphasis>
-is returned, where
-<varname>outputStr</varname>
+may be anything which can be converted to an
+<link linkend="action_objects">Action Object</link>.
+On success, a tuple
+<literal>(True, outputStr)</literal>
+is returned, where <varname>outputStr</varname>
 is the content of the target file.
 On failure
-<emphasis>(0, '')</emphasis>
+<literal>(False, '')</literal>
 is returned.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>TryBuild</methodname>(<parameter>builder[, text, extension='']</parameter>)</term>
+  <term><replaceable>chk_ctx</replaceable>.<methodname>TryBuild</methodname>(<parameter>builder, [text, extension='']</parameter>)</term>
   <listitem>
 <para>Low level implementation for testing specific builds;
 the methods above are based on this method.
@@ -4412,7 +4440,7 @@ of a source file with optional
 <parameter>extension</parameter>,
 returns a boolean indicating success or failure.
 In addition,
-<varname>context.lastTarget</varname>
+<replaceable>chk_ctx</replaceable>.<varname>lastTarget</varname>
 is set to the build target node if the build was successful.</para>
   </listitem>
   </varlistentry>
@@ -4420,22 +4448,24 @@ is set to the build target node if the build was successful.</para>
 <para>Example of implementing and using custom tests:</para>
 
 <programlisting language="python">
-def CheckQt(context, qtdir):
-    context.Message( 'Checking for qt ...' )
-    lastLIBS = context.env['LIBS']
-    lastLIBPATH = context.env['LIBPATH']
-    lastCPPPATH= context.env['CPPPATH']
-    context.env.Append(LIBS='qt', LIBPATH=qtdir + '/lib', CPPPATH=qtdir + '/include')
-    ret = context.TryLink("""
+def CheckQt(chk_ctx, qtdir):
+    chk_ctx.Message('Checking for qt ...')
+    lastLIBS = chk_ctx.env['LIBS']
+    lastLIBPATH = chk_ctx.env['LIBPATH']
+    lastCPPPATH = chk_ctx.env['CPPPATH']
+    chk_ctx.env.Append(LIBS='qt', LIBPATH=qtdir + '/lib', CPPPATH=qtdir + '/include')
+    ret = chk_ctx.TryLink(
+        """\
 #include &lt;qapp.h&gt;
 int main(int argc, char **argv) {
   QApplication qapp(argc, argv);
   return 0;
 }
-""")
+"""
+    )
     if not ret:
-        context.env.Replace(LIBS=lastLIBS, LIBPATH=lastLIBPATH, CPPPATH=lastCPPPATH)
-    context.Result( ret )
+        chkctx.env.Replace(LIBS=lastLIBS, LIBPATH=lastLIBPATH, CPPPATH=lastCPPPATH)
+    chkctx.Result(ret)
     return ret
 
 env = Environment()
