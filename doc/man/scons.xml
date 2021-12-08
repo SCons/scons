@@ -4247,7 +4247,7 @@ If the optional
 <parameter>comment</parameter> is given,
 it is inserted as a comment above the macro definition
 (suitable comment marks will be added automatically).
-This is analagous to using <constant>AC_DEFINE</constant> in &Autoconf;.
+This is analogous to using <constant>AC_DEFINE</constant> in &Autoconf;.
 </para>
 
 <para>Examples:</para>
