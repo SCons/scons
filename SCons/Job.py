@@ -377,13 +377,22 @@ else:
             more tasks. If a task fails to execute (i.e. execute() raises
             an exception), then the job will stop."""
 
+            retired = 0
             jobs = 0
 
             while True:
 
-                # Process jobs until we find one that requires
-                # execution, and enqueue it.
-                while True:
+                # Try to enqueue one more job than we retired on the
+                # prior cycle so that we can increase parallelism over
+                # time if the DAG and the throughput allow it.
+                retired += 1
+
+                # Process tasks, adding execution jobs for tasks
+                # requiring execution until we either have hit the
+                # maximum number of jobs allowed, or have started one
+                # more than as many as we retired on the prior cycle,
+                # or become unable to find another task.
+                while jobs < self.maxjobs and retired > 0:
                     task = self.taskmaster.next_task()
                     if not task:
                         break
@@ -400,7 +409,9 @@ else:
                             # dispatch task
                             self.tp.put(task)
                             jobs += 1
-                            break
+                            retired -= 1
+                            if retired == 0:
+                                break
                         else:
                             task.executed()
                             task.postprocess()
@@ -421,10 +432,12 @@ else:
                 # re-entering the loop above.
                 block |= (jobs == self.maxjobs)
 
+                retired = 0
                 while jobs:
                     try:
                         task, ok = self.tp.get(block=block)
                         jobs -= 1
+                        retired += 1
                     except queue.Empty:
                         # We did a non-blocking wait, but there was
                         # nothing ready yet. See if we can find another
