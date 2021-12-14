@@ -7,7 +7,7 @@ readme-renderer
 # 3.5.0 is bad. Hold at 3.4.3 for now until 3.5.1 is available
 sphinx<3.5.0
 sphinx_rtd_theme
-lxml==4.6.3
+lxml==4.6.5
 rst2pdf
 ninja
 
