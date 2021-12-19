@@ -70,17 +70,11 @@ else:
 # (Yeah, yeah, YAGNI...)
 def containsAny(s, pat) -> bool:
     """Check whether string `s` contains ANY of the items in `pat`."""
-    for c in pat:
-        if c in s:
-            return True
-    return False
+    return any(c in s for c in pat)
 
 def containsAll(s, pat) -> bool:
     """Check whether string `s` contains ALL of the items in `pat`."""
-    for c in pat:
-        if c not in s:
-            return False
-    return True
+    return all(c in s for c in pat)
 
 def containsOnly(s, pat) -> bool:
     """Check whether string `s` contains ONLY items in `pat`."""
