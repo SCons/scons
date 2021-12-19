@@ -99,7 +99,7 @@ def splitext(path) -> tuple:
     sep = rightmost_separator(path, os.sep)
     dot = path.rfind('.')
     # An ext is only real if it has at least one non-digit char
-    if dot > sep and not path[dot + 1:].isDigit():
+    if dot > sep and not path[dot + 1:].isdigit():
         return path[:dot], path[dot:]
 
     return path, ""
