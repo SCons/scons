@@ -52,7 +52,7 @@ NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
 def dictify(keys, values, result=None) -> dict:
     if result is None:
         result = {}
-    result.update(dict(zip(keys, values)))
+    result.update(zip(keys, values))
     return result
 
 _ALTSEP = os.altsep
