@@ -17,6 +17,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix check for unsupported Python version. It was broken. Also now the error message
       will include what is the minimum supported version of Python
 
+  From Daniel Moody:
+    - Add cache-debug messages for push failures.
+
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
       conform to conventions (what they actually resolve to is unchanged),
@@ -63,7 +66,7 @@ RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
     - Small fix to ensure CLVar default value is an empty list.
       See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
       Code contributed by MongoDB.
-    - Ninja - Fixed an issue where if you control-c and/or killed ninja while it was running scons to 
+    - Ninja - Fixed an issue where if you control-c and/or killed ninja while it was running scons to
       regenerate build.ninja you would end up with no build.ninja file and have to rerun scons from scratch.
       Code contributed by MongoDB.
 
@@ -75,12 +78,12 @@ RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
     - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
       issue affected CommandGeneratorAction function actions specifically.
     - Expanded ninja Mkdir to also support Mkdir actions.
-    - Added support for the PCH environment variable to support subst generators. 
+    - Added support for the PCH environment variable to support subst generators.
     - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
       the ninja file scons regenerate and callback invocations will lose the $ characters used in
       the scons command line which ninja uses itself for escaping. For Example:
           scons BUILD=xyz OTHERVAR=$BUILD
-      Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the 
+      Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the
       single dollar sign being used as a ninja escape character in the ninja file.
 
   From Daniel Moody:
@@ -122,7 +125,7 @@ RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
     - Java updates: on Windows, detect more default JDK install locations.
       On all platforms, more Java versions (up to 17.0 now).  Add more information
       on version selection to docs.
-      Update docs on JavaH tool in light of javah command dropped since 10.0. 
+      Update docs on JavaH tool in light of javah command dropped since 10.0.
       Try to be better about preserving user's passed-in JAVA* construction vars.
     - Start the deprecation of the qt tool, which refers to Qt3 (usupported
       since around 2006). There's a deprecation warning added, initially

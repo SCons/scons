@@ -39,6 +39,7 @@ IMPROVEMENTS
 
 - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
   exception immediately when the user specified msvc script does not exist.
+- Add cache-debug messages for push failures.
 
 PACKAGING
 ---------
