@@ -31,7 +31,6 @@ import SCons.compat
 
 import os
 import signal
-import sys
 
 import SCons.Errors
 import SCons.Warnings
