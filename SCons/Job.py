@@ -366,7 +366,7 @@ else:
 
             self.taskmaster = taskmaster
             self.interrupted = InterruptState()
-            self.tp = ThreadPool(num, stack_size, self.interrupted)
+            self.thread_pool = ThreadPool(num, stack_size, self.interrupted)
 
             self.maxjobs = num
 
@@ -406,7 +406,7 @@ else:
                     else:
                         if task.needs_execute():
                             # dispatch task
-                            self.tp.put(task)
+                            self.thread_pool.put(task)
                             jobs += 1
                             retired -= 1
                             if retired == 0:
@@ -434,7 +434,7 @@ else:
                 retired = 0
                 while jobs:
                     try:
-                        task, ok = self.tp.get(block=block)
+                        task, ok = self.thread_pool.get(block=block)
                         jobs -= 1
                         retired += 1
                     except queue.Empty:
@@ -464,7 +464,7 @@ else:
 
                     task.postprocess()
 
-            self.tp.cleanup()
+            self.thread_pool.cleanup()
             self.taskmaster.cleanup()
 
 # Local Variables:
