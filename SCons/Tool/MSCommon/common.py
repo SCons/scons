@@ -73,13 +73,13 @@ elif LOGFILE:
             return True
     logging.basicConfig(
         # This looks like:
-        #   00109ms:MSCommon/vc.py:find_vc_pdir#447:
+        #   00109ms:MSCommon/vc.py:find_vc_pdir#447:VC found '14.3'
         format=(
             '%(relativeCreated)05dms'
             ':%(relfilename)s'
             ':%(funcName)s'
             '#%(lineno)s'
-            ':%(message)s: '
+            ':%(message)s'
         ),
         filename=LOGFILE,
         level=logging.DEBUG)
