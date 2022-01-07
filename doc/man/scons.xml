@@ -12,10 +12,10 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
-#
+
 The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
-#
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -145,7 +145,7 @@ to support additional input file types.
 
 <para>Information about files involved in the build,
 including a cryptographic hash of the contents,
-is cached for later reuse, 
+is cached for later reuse,
 By default content hashes are used to determine if a file
 has changed since the last build,
 but this can be controlled by selecting an appropriate
@@ -4126,7 +4126,7 @@ actually two bytes.</para>
 <para>Checks whether the C compiler
 (as defined by the &cv-link-CC; &consvar;) works,
 by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4146,7 +4146,7 @@ be accepted or rejected by the compiler.
 <para>Checks whether the C++ compiler
 (as defined by the &cv-link-CXX; &consvar;) works,
 by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4166,7 +4166,7 @@ be accepted or rejected by the compiler.
 <para>Checks whether the shared-object C compiler (as defined by the
 &cv-link-SHCC; &consvar;) works
 by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4188,7 +4188,7 @@ be created.
 <para>Checks whether the shared-object C++ compiler (as defined by the
 &cv-link-SHCXX; &consvar;)
 works by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4207,7 +4207,7 @@ be created.
   <varlistentry>
   <term><replaceable>context</replaceable>.<methodname>CheckProg</methodname>(<parameter>prog_name</parameter>)</term>
   <listitem>
-<para>Checks if 
+<para>Checks if
 <parameter>prog_name</parameter>
 exists in the path &SCons; will use at build time.
 (<replaceable>context</replaceable>.<varname>env['ENV']['PATH']</varname>).
@@ -4243,7 +4243,7 @@ it will be be used as the macro replacement value.
 If <parameter>value</parameter> is a string and needs to
 display with quotes, the quotes need to be included,
 as in <literal>'"string"'</literal>
-If the optional 
+If the optional
 <parameter>comment</parameter> is given,
 it is inserted as a comment above the macro definition
 (suitable comment marks will be added automatically).
@@ -5083,20 +5083,53 @@ vars.AddVariables(
 </refsect2>
 
 <refsect2 id='node_objects'>
+<title>Node Objects</title>
+
+<para>
+&SCons; represents objects that are the sources or targets of
+build operations as <firstterm>Nodes</firstterm>,
+which are internal data structures.
+There are a number of user-visible types of nodes:
+File Nodes, Directory Nodes, Value Nodes and Alias Nodes.
+Some of the node types have visible attributes and methods,
+described below. Each of the node types has a global function
+and a matching environment method to create instances:
+&f-link-File;, &f-link-Dir;, &f-link-Value; and &f-link-Alias;.
+</para>
+
+<refsect3 id='file_and_directory_nodes'>
 <title>File and Directory Nodes</title>
 
 <para>
 The &f-link-File; and &f-link-Dir;
 functions/methods return
 File and Directory Nodes, respectively.
-Such nodes are Python objects with
-several user-visible attributes
-and methods that are often useful to access
-in SConscript files:</para>
+File and Directory Nodes
+(collectively, filesystem Nodes)
+describe build participants that correspond to entries
+in the computer's filesystem, whether or not such an entry exists
+at the time the Node is created.
+It is usually not necessary to explicitly create filesystem Nodes yourself:
+when you supply a string as a target or source of a Builder,
+&SCons; will create the Nodes as needed,
+and Builders return the target Node(s) in the form of a list.
+However, since filesystem Nodes have some useful
+public attributes and methods
+you can use in SConscript files,
+it is sometimes appropriate to create them
+outside the regular context of a Builder call.
+</para>
+<para>
+There are also times when you may need to refer to an entry
+in a filesystem without knowing in advance whether it's a
+file or a directory. For those situations, &SCons; also supports
+an <function>Entry</function> function,
+which returns a Node that can represent either a file or a directory.
+</para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>path</varname></term>
+  <term><replaceable>node</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
 of the given
@@ -5110,21 +5143,21 @@ is not being used.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>abspath</varname></term>
+  <term><replaceable>node</replaceable>.<varname>abspath</varname></term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>relpath</varname></term>
+  <term><replaceable>node</replaceable>.<varname>relpath</varname></term>
   <listitem>
 <para>The build path of the given file or directory relative to the root SConstruct file's directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<function>srcnode</function>()</term>
+  <term><replaceable>node</replaceable>.<function>srcnode</function>()</term>
   <listitem>
 <para>The
 <function>srcnode</function>
@@ -5137,61 +5170,61 @@ File or Directory Node.
   </varlistentry>
 </variablelist>
 
-<para>For example:</para>
+<para>Examples:</para>
 
 <programlisting language="python">
 # Get the current build dir's path, relative to top.
 Dir('.').path
+
 # Current dir's absolute path
 Dir('.').abspath
+
 # Current dir's path relative to the root SConstruct file's directory
 Dir('.').relpath
+
 # Next line is always '.', because it is the top dir's path relative to itself.
 Dir('#.').path
 File('foo.c').srcnode().path   # source path of the given source file.
 
-# Builders also return File objects:
+# Builders return lists of File objects:
 foo = env.Program('foo.c')
-print("foo will be built in", foo.path)
+print("foo will be built in", foo[0].path)
 </programlisting>
 
 <para>
-File and Directory Node objects have methods to create
-File and Directory Nodes relative to the original Node.
-</para>
-
-<para>
+Filesystem Node objects have methods to create new
+filesystem Nodes relative to the original Node.
 If the object is a Directory Node,
-these methods will place the the new Node within the directory
-the Node represents:
+these methods will place the new Node within the directory
+the original Node represents:
 </para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a directory Node for a subdirectory of
-<replaceable>d</replaceable>
+<replaceable>node</replaceable>
 named
 <parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns a file Node for a file within
-<replaceable>d</replaceable>
+<replaceable>node</replaceable>
 named
 <parameter>name</parameter>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns an unresolved Node within
-<replaceable>d</replaceable>
+<replaceable>node</replaceable>
 named
 <parameter>name</parameter>.</para>
   </listitem>
@@ -5206,32 +5239,32 @@ directory as the one the Node represents:
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a directory named
+<para>Returns a Node for a directory named
 <parameter>name</parameter>
 within the parent directory of
-<replaceable>f</replaceable>.</para>
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a file named
+<para>Returns a Node for a file named
 <parameter>name</parameter>
 within the parent directory of
-<replaceable>f</replaceable>.</para>
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
 <para>Returns an unresolved Node named
 <parameter>name</parameter>
 within the parent directory of
-<replaceable>f</replaceable>.</para>
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -5257,6 +5290,54 @@ html = docs.Dir('html')
 index = html.File('index.html')
 css = index.File('app.css')
 </programlisting>
+</refsect3>
+
+<refsect3 id='value_and_alias_nodes'>
+<title>Value and Alias Nodes</title>
+
+<para>
+&SCons; provides two other Node types to describe
+items that will not have an equivalent filesystem entry.
+Such Nodes always need to be created explicitly.
+</para>
+
+<para>
+The &f-link-Alias; method returns an Alias Node.
+Aliases are virtual objects - they will not themselves result
+in physical objects being constructed, but are entered into
+the dependency graph related to their sources.
+An alias is checked for up to date by checking if
+its sources are up to date.
+An alias is built by making sure its sources have been built,
+and applying any optional actions that are part of the alias.
+</para>
+
+<para>
+An &f-link-Alias; call creates an entry in the alias namespace,
+which is used for disambiguation.
+If an alias source has a string valued name,
+it will be resolved to a filesystem entry Node,
+unless it is found in the alias namespace,
+in which case it it resolved to the matching alias Node.
+As a result, the order of &f-Alias; calls is signifcant.
+An alias can refer to another alias, but only if the
+other alias has already been created.
+</para>
+
+<para>
+The &f-link-Value; method returns a Value Node.
+Value nodes are often used for generated data that
+will not have any corresponding filesystem entry,
+but will be used to determine whether a build target is out of date,
+or to include as part of a build Action.
+Common examples are timestamp strings, git revision strings and
+other run-time generated strings.
+</para>
+
+<para>
+A Value Node can also be the target of a builder.
+</para>
+</refsect3>
 
 </refsect2>
 </refsect1>
@@ -7020,7 +7101,7 @@ is optional, the default is no <parameter>arg</parameter>.
 <para>
 The function can use use
 <function>str</function>(<parameter>node</parameter>)
-to fetch the name of the file, 
+to fetch the name of the file,
 <replaceable>node</replaceable>.<function>dir</function>
 to fetch the directory the file is in,
 <replaceable>node</replaceable>.<function>get_contents</function>()
@@ -7041,7 +7122,7 @@ in order to build Nodes with correct paths.
 Using &f-link-FindPathDirs; with an argument of <literal>CPPPATH</literal>
 as the <parameter>path_function</parameter> in the &f-Scanner; call
 means the scanner function will be called with the paths extracted
-from &cv-CPPPATH; in the environment <parameter>env</parameter> 
+from &cv-CPPPATH; in the environment <parameter>env</parameter>
 passed as the <parameter>paths</parameter> parameter.
 </para>
 <para>
@@ -7375,8 +7456,8 @@ arguments to itself, not to &scons;:</para>
 </screen>
 
 <para>Second, the Cygwin shell does not
-reognize typing <userinput>scons</userinput>
-at the command line prompt as referring to this weapper.
+recognize typing <userinput>scons</userinput>
+at the command line prompt as referring to this wrapper.
 You can work around this either by executing
 <userinput>scons.bat</userinput>
 (including the extension)
