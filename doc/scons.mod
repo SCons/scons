@@ -63,6 +63,7 @@
 <!ENTITY f77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f77</application>">
 <!ENTITY f90            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f90</application>">
 <!ENTITY f95            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f95</application>">
+<!ENTITY flex           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>flex</application>">
 <!ENTITY gas            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gas</application>">
 <!ENTITY gcc            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gcc</application>">
 <!ENTITY g77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>g77</application>">
