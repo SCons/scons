@@ -55,12 +55,12 @@
   and header files differ.  If you build "Controller A" first,
   then "Controller B", on the second build everything would
   have to be rebuilt, because &SCons; sees that the build
-  instructions differ, and thus the targets that depend on those
-  different instructions are not valid for the current build.
+  instructions are different to the ones used to build the
+  existing targets,  and thus the existing targets are invalid.
   Now when you go back and build for "Controller A",
   things have to be rebuilt from scratch again for the same reason.
-  However, if you can separate the places the output files
-  go, this problem can be avoided.
+  However, if you can separate the places the output files go,
+  this problem can be avoided.
   You can even set up to do both builds in one invocation of &SCons;.
 
   </para>
@@ -69,8 +69,8 @@
 
   You can enable this separation by creating one or more
   <firstterm>variant directory</firstterm> trees
-  that are used to hold the built objects files, libraries,
-  and executable programs, etc.
+  that are used to perform the build in, and thus provide a unique
+  home for object files, libraries, and executable programs, etc.
   for a specific flavor, or variant, of build.
   &SCons; provides two ways to do this,
   one through the &f-link-SConscript; function that we've already seen,
