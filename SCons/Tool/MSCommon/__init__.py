@@ -30,20 +30,23 @@ import SCons.Errors
 import SCons.Platform.win32
 import SCons.Util
 
-from SCons.Tool.MSCommon.sdk import mssdk_exists, \
-                                    mssdk_setup_env
+from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
 
-from SCons.Tool.MSCommon.vc import msvc_exists, \
-                                   msvc_setup_env, \
-                                   msvc_setup_env_once, \
-                                   msvc_version_to_maj_min, \
-                                   msvc_find_vswhere
+from SCons.Tool.MSCommon.vc import (
+    msvc_exists,
+    msvc_setup_env,
+    msvc_setup_env_once,
+    msvc_version_to_maj_min,
+    msvc_find_vswhere,
+)
 
-from SCons.Tool.MSCommon.vs import get_default_version, \
-                                   get_vs_by_version, \
-                                   merge_default_version, \
-                                   msvs_exists, \
-                                   query_versions
+from SCons.Tool.MSCommon.vs import (
+    get_default_version,
+    get_vs_by_version,
+    merge_default_version,
+    msvs_exists,
+    query_versions,
+)
 
 # Local Variables:
 # tab-width:4

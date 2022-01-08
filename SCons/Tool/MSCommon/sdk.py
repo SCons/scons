@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,10 +21,8 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__doc__ = """Module to detect the Platform/Windows SDK
+"""
+MS Compilers: detect the Platform/Windows SDK
 
 PSDK 2003 R1 is the earliest version detected.
 """
@@ -74,23 +73,23 @@ class SDKDefinition:
             return None
 
         hkey = self.HKEY_FMT % self.hkey_data
-        debug('find_sdk_dir(): checking registry:{}'.format(hkey))
+        debug('find_sdk_dir(): checking registry: %s', hkey)
 
         try:
             sdk_dir = read_reg(hkey)
         except OSError:
-            debug('find_sdk_dir(): no SDK registry key {}'.format(repr(hkey)))
+            debug('find_sdk_dir(): no SDK registry key %s', hkey)
             return None
 
-        debug('find_sdk_dir(): Trying SDK Dir: {}'.format(sdk_dir))
+        debug('find_sdk_dir(): Trying SDK Dir: %s', sdk_dir)
 
         if not os.path.exists(sdk_dir):
-            debug('find_sdk_dir():  {} not on file system'.format(sdk_dir))
+            debug('find_sdk_dir(): %s not on file system', sdk_dir)
             return None
 
         ftc = os.path.join(sdk_dir, self.sanity_check_file)
         if not os.path.exists(ftc):
-            debug("find_sdk_dir(): sanity check {} not found".format(ftc))
+            debug("find_sdk_dir(): sanity check %s not found", ftc)
             return None
 
         return sdk_dir
@@ -116,11 +115,14 @@ class SDKDefinition:
         if host_arch != target_arch:
             arch_string='%s_%s'%(host_arch,target_arch)
 
-        debug("get_sdk_vc_script():arch_string:%s host_arch:%s target_arch:%s"%(arch_string,
-                                                           host_arch,
-                                                           target_arch))
-        file=self.vc_setup_scripts.get(arch_string,None)
-        debug("get_sdk_vc_script():file:%s"%file)
+        debug(
+            "get_sdk_vc_script():arch_string:%s host_arch:%s target_arch:%s",
+            arch_string,
+            host_arch,
+            target_arch,
+        )
+        file = self.vc_setup_scripts.get(arch_string, None)
+        debug("get_sdk_vc_script():file:%s", file)
         return file
 
 class WindowsSDK(SDKDefinition):
@@ -289,9 +291,9 @@ def get_installed_sdks():
         InstalledSDKList = []
         InstalledSDKMap = {}
         for sdk in SupportedSDKList:
-            debug('trying to find SDK %s' % sdk.version)
+            debug('trying to find SDK %s', sdk.version)
             if sdk.get_sdk_dir():
-                debug('found SDK %s' % sdk.version)
+                debug('found SDK %s', sdk.version)
                 InstalledSDKList.append(sdk)
                 InstalledSDKMap[sdk.version] = sdk
     return InstalledSDKList
@@ -306,7 +308,7 @@ SDKEnvironmentUpdates = {}
 
 def set_sdk_by_directory(env, sdk_dir):
     global SDKEnvironmentUpdates
-    debug('set_sdk_by_directory: Using dir:%s'%sdk_dir)
+    debug('set_sdk_by_directory: Using dir:%s', sdk_dir)
     try:
         env_tuple_list = SDKEnvironmentUpdates[sdk_dir]
     except KeyError:
@@ -350,7 +352,7 @@ def mssdk_setup_env(env):
         if sdk_dir is None:
             return
         sdk_dir = env.subst(sdk_dir)
-        debug('mssdk_setup_env: Using MSSDK_DIR:{}'.format(sdk_dir))
+        debug('mssdk_setup_env: Using MSSDK_DIR:%s', sdk_dir)
     elif 'MSSDK_VERSION' in env:
         sdk_version = env['MSSDK_VERSION']
         if sdk_version is None:
@@ -362,22 +364,22 @@ def mssdk_setup_env(env):
             msg = "SDK version %s is not installed" % sdk_version
             raise SCons.Errors.UserError(msg)
         sdk_dir = mssdk.get_sdk_dir()
-        debug('mssdk_setup_env: Using MSSDK_VERSION:%s'%sdk_dir)
+        debug('mssdk_setup_env: Using MSSDK_VERSION:%s', sdk_dir)
     elif 'MSVS_VERSION' in env:
         msvs_version = env['MSVS_VERSION']
-        debug('mssdk_setup_env:Getting MSVS_VERSION from env:%s'%msvs_version)
+        debug('mssdk_setup_env:Getting MSVS_VERSION from env:%s', msvs_version)
         if msvs_version is None:
             debug('mssdk_setup_env thinks msvs_version is None')
             return
         msvs_version = env.subst(msvs_version)
         from . import vs
         msvs = vs.get_vs_by_version(msvs_version)
-        debug('mssdk_setup_env:msvs is :%s'%msvs)
+        debug('mssdk_setup_env:msvs is :%s', msvs)
         if not msvs:
-            debug('mssdk_setup_env: no VS version detected, bailingout:%s'%msvs)
+            debug('mssdk_setup_env: no VS version detected, bailingout:%s', msvs)
             return
         sdk_version = msvs.sdk_version
-        debug('msvs.sdk_version is %s'%sdk_version)
+        debug('msvs.sdk_version is %s', sdk_version)
         if not sdk_version:
             return
         mssdk = get_sdk_by_version(sdk_version)
@@ -386,13 +388,13 @@ def mssdk_setup_env(env):
             if not mssdk:
                 return
         sdk_dir = mssdk.get_sdk_dir()
-        debug('mssdk_setup_env: Using MSVS_VERSION:%s'%sdk_dir)
+        debug('mssdk_setup_env: Using MSVS_VERSION:%s', sdk_dir)
     else:
         mssdk = get_default_sdk()
         if not mssdk:
             return
         sdk_dir = mssdk.get_sdk_dir()
-        debug('mssdk_setup_env: not using any env values. sdk_dir:%s'%sdk_dir)
+        debug('mssdk_setup_env: not using any env values. sdk_dir:%s', sdk_dir)
 
     set_sdk_by_directory(env, sdk_dir)
 
