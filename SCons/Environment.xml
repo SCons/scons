@@ -1446,7 +1446,7 @@ Find an executable from one or more choices:
 <parameter>progs</parameter> may be a string or a list of strings.
 Returns the first value from <parameter>progs</parameter>
 that was found, or <constant>None</constant>.
-Executable is searched by checking the paths in the execution enviroment
+Executable is searched by checking the paths in the execution environment
 (<varname>env</varname><literal>['ENV']['PATH']</literal>).
 On Windows systems, additionally applies the filename suffixes found in
 the execution environment
