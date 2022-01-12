@@ -1696,23 +1696,32 @@ def exists(env):
 
     def test_AppendENVPath(self):
         """Test appending to an ENV path."""
-        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
-                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        env1 = self.TestEnvironment(
+            ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+            MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
+        )
         # have to include the pathsep here so that the test will work on UNIX too.
-        env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
-        env1.AppendENVPath('PATH',r'C:\dir\num\three', sep = ';')
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';', delete_existing=1)
-        # this should do nothing since delete_existing is 0
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
-        assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+        env1.AppendENVPath('PATH', r'C:\dir\num\two', sep=';')
+        env1.AppendENVPath('PATH', r'C:\dir\num\three', sep=';')
+        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        assert (
+            env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three'
+        ), env1['ENV']['PATH']
 
-        test = TestCmd.TestCmd(workdir = '')
+        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        env1.AppendENVPath(
+            'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=1
+        )
+        # this should do nothing since delete_existing is 0
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one'
+        ), env1['MYENV']['MYPATH']
+
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub1', 'sub2')
-        p=env1['ENV']['PATH']
-        env1.AppendENVPath('PATH','#sub1', sep = ';')
-        env1.AppendENVPath('PATH',env1.fs.Dir('sub2'), sep = ';')
+        p = env1['ENV']['PATH']
+        env1.AppendENVPath('PATH', '#sub1', sep=';')
+        env1.AppendENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == p + ';sub1;sub2', env1['ENV']['PATH']
 
     def test_AppendUnique(self):
@@ -2357,23 +2366,32 @@ f5: \
 
     def test_PrependENVPath(self):
         """Test prepending to an ENV path."""
-        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
-                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        env1 = self.TestEnvironment(
+            ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+            MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
+        )
         # have to include the pathsep here so that the test will work on UNIX too.
-        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
-        env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
-        # this should do nothing since delete_existing is 0
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';', delete_existing=0)
-        assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
-        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+        env1.PrependENVPath('PATH', r'C:\dir\num\two', sep=';')
+        env1.PrependENVPath('PATH', r'C:\dir\num\three', sep=';')
+        assert (
+            env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one'
+        ), env1['ENV']['PATH']
 
-        test = TestCmd.TestCmd(workdir = '')
+        env1.PrependENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        env1.PrependENVPath('MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';')
+        # this should do nothing since delete_existing is 0
+        env1.PrependENVPath(
+            'MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';', delete_existing=0
+        )
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two'
+        ), env1['MYENV']['MYPATH']
+
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub1', 'sub2')
-        p=env1['ENV']['PATH']
-        env1.PrependENVPath('PATH','#sub1', sep = ';')
-        env1.PrependENVPath('PATH',env1.fs.Dir('sub2'), sep = ';')
+        p = env1['ENV']['PATH']
+        env1.PrependENVPath('PATH', '#sub1', sep=';')
+        env1.PrependENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == 'sub2;sub1;' + p, env1['ENV']['PATH']
 
     def test_PrependUnique(self):
