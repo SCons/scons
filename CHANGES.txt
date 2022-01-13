@@ -31,7 +31,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
       read packaging/etc/README.txt if you are interested.
 
-
+  From Daniel Moody:
+    - Add error message for failure to delete partial cache retrieval files.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).

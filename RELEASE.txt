@@ -58,6 +58,8 @@ IMPROVEMENTS
 ------------
 
 - Changed the Taskmaster trace logic to use python's logging module.
+- Add cache-debug messages for push failures.
+- Add error message for failure to delete partial cache retrieval files.
 
 PACKAGING
 ---------

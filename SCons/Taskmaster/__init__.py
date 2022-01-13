@@ -65,6 +65,8 @@ NODE_UP_TO_DATE = SCons.Node.up_to_date
 NODE_EXECUTED = SCons.Node.executed
 NODE_FAILED = SCons.Node.failed
 
+display = SCons.Util.display
+
 print_prepare = False               # set by option --debug=prepare
 
 # A subsystem for recording stats about how different Nodes are handled by
@@ -241,8 +243,8 @@ class Task(ABC):
                 for t in cached_targets:
                     try:
                         t.fs.unlink(t.get_internal_path())
-                    except (IOError, OSError):
-                        pass
+                    except (IOError, OSError) as e:
+                        display("scons: failed to delete partial cache file %s: %s" % (t.get_internal_path(), e))
                 self.targets[0].build()
             else:
                 for t in cached_targets:
