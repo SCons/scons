@@ -6,9 +6,10 @@
 readme-renderer
 sphinx
 sphinx_rtd_theme
-# recent release causes problems, pin older:
-rst2pdf==0.98
-lxml==4.6.5
+rst2pdf
+# for now keep pinning "known working" lxml,
+# it's been a troublesome component in the past.
+lxml==4.7.1
 rst2pdf
 ninja
 
