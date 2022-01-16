@@ -1,6 +1,11 @@
 """
-Dummy linker for use by tests"
+Phony linker for testing SCons.
+
+Copies its source files to the target file, dropping lines that match
+a pattern, so we can recognize the tool has made a modification.
+Intended for use as the $LINK construction variable.
 """
+import fileinput
 import getopt
 import sys
 
@@ -10,13 +15,10 @@ def fake_link():
         if opt == '-o':
             out = arg
 
-    with open(out, 'w') as ofp:
-        for f in args:
-            with open(f, 'r') as ifp:
-                for line in ifp.readlines():
-                    if line[:5] != '#link':
-                        ofp.write(line)
-    sys.exit(0)
+    with open(out, 'wb') as ofp, fileinput.input(files=args, mode='rb') as ifp:
+        for line in ifp:
+            if not line.startswith(b'#link'):
+                ofp.write(line)
 
 def fake_win32_link():
     args = sys.argv[1:]
@@ -26,18 +28,19 @@ def fake_win32_link():
             out = args[1]
             args = args[2:]
             continue
-        if not a[0] in '/-':
+        if a[0] not in '/-':
             break
         args = args[1:]
-        if a[:5].lower() == '/out:': out = a[5:]
+        if a.lower().startswith('/out:'):
+            out = a[5:]
     with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
-        for line in ifp.readlines():
+        for line in ifp:
             if not line.startswith(b'#link'):
                 ofp.write(line)
-    sys.exit(0)
 
 if __name__ == '__main__':
     if sys.platform == 'win32':
         fake_win32_link()
     else:
         fake_link()
+    sys.exit(0)

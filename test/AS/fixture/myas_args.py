@@ -1,6 +1,7 @@
 import sys
 
-if sys.platform == 'win32':
+
+def my_win32_as():
     args = sys.argv[1:]
     inf = None
     optstring = ''
@@ -21,25 +22,38 @@ if sys.platform == 'win32':
             out = a[3:]
             continue
         optstring = optstring + ' ' + a
+
     with open(inf, 'rb') as ifp, open(out, 'wb') as ofp:
-        ofp.write(bytearray(optstring + "\n",'utf-8'))
-        for l in ifp.readlines():
-            if l[:3] != b'#as':
-                ofp.write(l)
-    sys.exit(0)
-else:
+        optstring = optstring + "\n"
+        ofp.write(optstring.encode('utf-8'))
+        for line in ifp:
+            if not line.startswith(b'#as'):
+                ofp.write(line)
+
+
+def my_as():
     import getopt
+
     opts, args = getopt.getopt(sys.argv[1:], 'co:x')
     optstring = ''
 
     for opt, arg in opts:
-        if opt == '-o': out = arg
-        else: optstring = optstring + ' ' + opt
+        if opt == '-o':
+            out = arg
+        else:
+            optstring = optstring + ' ' + opt
 
     with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
-        ofp.write(bytearray(optstring + "\n",'utf-8'))
-        for l in ifp.readlines():
-            if l[:3] != b'#as':
-                ofp.write(l)
+        optstring = optstring + "\n"
+        ofp.write(optstring.encode('utf-8'))
+        for line in ifp:
+            if not line.startswith(b'#as'):
+                ofp.write(line)
 
+
+if __name__ == "__main__":
+    if sys.platform == 'win32':
+        my_win32_as()
+    else:
+        my_as()
     sys.exit(0)

@@ -9,8 +9,8 @@ while args:
     if a[:5] == '/OUT:':
         out = a[5:]
 
-with open(out, 'w') as ofp, open(args[0], 'r') as ifp:
-    for line in ifp.readlines():
-        if line[:5] != '#link':
+with open(out, 'wb') as ofp, open(args[0], 'rb') as ifp:
+    for line in ifp:
+        if not line.startswith(b'#link'):
             ofp.write(line)
 sys.exit(0)
