@@ -6,6 +6,11 @@ on the SCons download page:
 
 Here is a summary of the changes since 4.3.1:
 
+NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
+      see unexpected rebuilds. This is due to Python internals changing which changed 
+      the signature of a Python Action Function.
+
+
 NEW FUNCTIONALITY
 -----------------
 
@@ -18,9 +23,6 @@ DEPRECATED FUNCTIONALITY
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
-
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
 
 - On Windows, %AllUsersProfile%\scons\site_scons is now the default "system"
   location for a site_scons. %AllUsersProfile%\Application Data\scons\site_scons
