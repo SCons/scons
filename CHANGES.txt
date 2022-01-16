@@ -16,6 +16,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
       will include what is the minimum supported version of Python
+    - Fix ActionTests to work with python 3.10.1 (and higher)
+    NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
+          see unexpected rebuilds. This is due to Python internals changing which changed 
+          the signature of a Python Action Function.
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
