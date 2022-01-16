@@ -53,25 +53,35 @@
   lot of code, so it makes sense to keep them in the same
   source tree, but certain build options in the source code
   and header files differ.  If you build "Controller A" first,
-  then "Controller B", on the second build everything would
-  have to be rebuilt, because &SCons; sees that the build
-  instructions differ, and thus the targets that depend on those
-  different instructions are not valid for the current build.
+  then "Controller B", on the "Controller B" build everything would
+  have to be rebuilt, because &SCons; recognizes that the build
+  instructions are different from those used in the "Controller A"
+  build for each target - the build instructions are part of
+  &SCons;'s out-of-date calculation.
   Now when you go back and build for "Controller A",
   things have to be rebuilt from scratch again for the same reason.
-  However, if you can separate the places the output files
-  go, this problem can be avoided.
+  However, if you can separate the locations of the output files,
+  this problem can be avoided.
   You can even set up to do both builds in one invocation of &SCons;.
 
   </para>
 
   <para>
 
-  You can enable this separation by creating one or more
+  You can enable this separation by establishing one or more
   <firstterm>variant directory</firstterm> trees
-  that are used to hold the built objects files, libraries,
-  and executable programs, etc.
-  for a specific flavor, or variant, of build.
+  that are used to perform the build in, and thus provide a unique
+  home for object files, libraries, and executable programs, etc.
+  for a specific flavor, or variant, of build. &SCons; tracks
+  targets by their path, so when the variant directory is included,
+  objects belonging to "Controller A" can have different
+  build instructions than those belonging to "Controller B" without
+  triggering ping-ponging rebuilds.
+
+  </para>
+
+  <para>
+
   &SCons; provides two ways to do this,
   one through the &f-link-SConscript; function that we've already seen,
   and the second through a more flexible &f-link-VariantDir; function.

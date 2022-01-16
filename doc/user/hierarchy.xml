@@ -303,8 +303,7 @@ SConscript(['display/SConscript',
 
     <scons_example name="hierarchy_ex1">
       <file name="SConstruct" printme="1">
-SConscript(['prog1/SConscript',
-            'prog2/SConscript'])
+SConscript(['prog1/SConscript', 'prog2/SConscript'])
       </file>
       <file name="prog1/SConscript">
 env = Environment()
@@ -384,7 +383,7 @@ x
   </section>
 
   <section>
-  <title>Top-Level Path Names in Subsidiary &SConscript; Files</title>
+  <title>Top-Relative Path Names in Subsidiary &SConscript; Files</title>
 
     <para>
 
@@ -397,8 +396,7 @@ x
     You can tell &SCons; to interpret a path name
     as relative to the top-level &SConstruct; directory,
     not the local directory of the &SConscript; file,
-    by appending a &hash; (hash mark)
-    to the beginning of the path name:
+    by prepending a &hash; (hash mark) in front of the path name:
 
     </para>
 
@@ -443,6 +441,52 @@ x
     See <xref linkend="chap-separate"></xref>, below,
     for information about
     how to build the object file in a different subdirectory.)
+
+    </para>
+
+    <para>
+
+    A couple of notes on top-relative paths:
+
+      <orderedlist>
+        <listitem><para>
+
+        &SCons; doesn't care whether you add a slash after the &hash;.
+        Some people consider <literal>'#/lib/foo1.c'</literal>
+        more readable than <literal>'#lib/foo1.c'</literal>,
+        but they're functionally equivalent.
+
+        </para></listitem>
+
+        <listitem><para>
+
+        The top-relative syntax is <emphasis>only</emphasis>
+        evaluated by &SCons;, the &Python; language itself does not
+        understand about it.  This becomes immediately obvious
+        if you like to use <function>print</function> for debugging,
+        or write a Python function that wants to evaluate a path.
+        You can force &SCons; to evaluate a top-relative path by
+        creating a Node object from it:
+
+        </para>
+
+        </listitem>
+      </orderedlist>
+
+      <scons_example name="hierarchy_hash">
+        <file name="SConstruct" printme="1">
+path = "#/include"
+
+print("path =", path)
+print("force-interpreted path =", Entry(path))
+        </file>
+      </scons_example>
+
+      Which shows:
+
+      <scons_output example="hierarchy_hash" suffix="1">
+         <scons_output_command>scons -Q</scons_output_command>
+      </scons_output>
 
     </para>
 
