@@ -1202,11 +1202,11 @@ database with name <filename>.sconsign_sha256.dblite</filename>.</para>
 <para>If this option is not specified, a the first supported hash format found
 is selected. Typically this is MD5, however, if you are on a FIPS-compliant system
 and using a version of Python less than 3.9, SHA1 or SHA256 will be chosen as the default.
-Python 3.9 and onwards clients will always default to MD5, even in FIPS mode, unless 
+Python 3.9 and onwards clients will always default to MD5, even in FIPS mode, unless
 otherwise specified with the <option>--hash-format</option> option.</para>
 
-<para>For MD5 databases (either explicitly specified with <option>--hash-format=md5</option> or 
-defaulted), the SConsign database is<filename>.sconsign.dblite</filename>. The newer SHA1 and 
+<para>For MD5 databases (either explicitly specified with <option>--hash-format=md5</option> or
+defaulted), the SConsign database is<filename>.sconsign.dblite</filename>. The newer SHA1 and
 SHA256 selections meanwhile store their databases to <filename>.sconsign_algorithmname.dblite</filename></para>
 
 <para><emphasis>Available since &scons; 4.2.</emphasis></para>
@@ -2519,11 +2519,11 @@ See <xref linkend="commandline_construction_variables"/> for details.
 <title>Tools</title>
 
 <para>
-&SCons; has a large number of predefined tools
-(more properly, <firstterm>tool specifications</firstterm>)
+&SCons; has a large number of predefined tool modules
+(more properly, <firstterm>tool specification modules</firstterm>)
 which are used to help initialize the &consenv;.
 An &SCons; tool is only responsible for setup.
-For example, if the &SConscript; file declares
+For example, if an SConscript file declares
 the need to construct an object file from
 a C-language source file by calling the
 &b-link-Object; builder, then a tool representing
@@ -2531,8 +2531,8 @@ an available C compiler needs to have run first,
 to set up that builder and all the &consvars;
 it needs in the associated &consenv;; the tool itself
 is not called in the process of the build. Normally this
-happens invisibly: &scons; has per-platform
-lists of default tools, and it runs through those tools,
+happens invisibly as &scons; has per-platform
+lists of default tools, and it steps through those tools,
 calling the ones which are actually applicable,
 skipping those where necessary programs are not
 installed on the build system, or other preconditions are not met.
@@ -2582,152 +2582,10 @@ Changing the <varname>PATH</varname>
 variable after the &consenv; is constructed will not cause the tools to
 be re-detected.</para>
 
-<para>
-Additional tools can be added to a project either by
-placing them in a <filename>site_tools</filename> subdirectory
-of a site directory, or in a custom location specified to
-&scons; by giving the
-<parameter>toolpath</parameter> keyword argument.
-<parameter>toolpath</parameter> also takes a list as its value:
+<para>Additional tools can be added, see the
+<link linkend='extending_scons'>Extending SCons</link> section
+and specifically <link linkend='tool_modules'>Tool Modules</link>.
 </para>
-
-<programlisting language="python">
-env = Environment(tools=['default', 'foo'], toolpath=['tools'])
-</programlisting>
-
-<para>
-This looks for a tool specification module <filename>foo.py</filename>
-in directory <filename>tools</filename> and in the standard locations,
-as well as using the ordinary default tools for the platform.
-</para>
-
-<para>
-Directories specified via <parameter>toolpath</parameter> are prepended
-to the existing tool path. The default tool path is any <filename>site_tools</filename>
-directories, so tools in a specified <parameter>toolpath</parameter>
-take priority,
-followed by tools in a <filename>site_tools</filename> directory,
-followed by built-in tools.  For example, adding
-a tool specification module <filename>gcc.py</filename> to the toolpath
-directory would override the built-in &t-link-gcc; tool.
-The tool path is
-stored in the environment and will be
-used by subsequent calls to the &f-link-Tool; method,
-as well as by &f-link-env-Clone;.
-</para>
-
-<programlisting language="python">
-base = Environment(toolpath=['custom_path'])
-derived = base.Clone(tools=['custom_tool'])
-derived.CustomBuilder()
-</programlisting>
-
-<para>
-A tool specification module must include two functions:
-</para>
-
-<variablelist>
-  <varlistentry>
-    <term><function>generate</function>(<parameter>env, **kwargs</parameter>)</term>
-    <listitem>
-<para>Modifies the environment referenced by <parameter>env</parameter>
-to set up variables so that the facilities represented by
-the tool can be executed.
-It may use any keyword arguments
-that the user supplies in <parameter>kwargs</parameter>
-to vary its initialization.</para>
-    </listitem>
-  </varlistentry>
-  <varlistentry>
-    <term><function>exists</function>(<parameter>env</parameter>)</term>
-    <listitem>
-<para>Return <constant>True</constant> if the tool can
-be called in the context of <parameter>env</parameter>.
-Usually this means looking up one or more
-known programs using the <envar>PATH</envar> from the
-supplied <parameter>env</parameter>, but the tool can
-make the "exists" decision in any way it chooses.
-</para>
-    </listitem>
-  </varlistentry>
-</variablelist>
-
-<note>
-<para>
-At the moment, user-added tools do not automatically have their
-<function>exists</function> function called.
-As a result, it is recommended that the <function>generate</function>
-function be defensively coded - that is, do not rely on any
-necessary existence checks already having been performed.
-This is expected to be a temporary limitation,
-and the <function>exists</function> function should still be provided.
-</para>
-</note>
-
-<para>The elements of the <parameter>tools</parameter> list may also
-be functions or callable objects,
-in which case the &Environment; method
-will call those objects
-to update the new &consenv; (see &f-link-Tool; for more details):</para>
-
-<programlisting language="python">
-def my_tool(env):
-    env['XYZZY'] = 'xyzzy'
-
-env = Environment(tools=[my_tool])
-</programlisting>
-
-<para>The individual elements of the <parameter>tools</parameter> list
-may also themselves be lists or tuples of the form
-(<varname>toolname</varname>, <varname>kw_dict</varname>).
-SCons searches for the
-<parameter>toolname</parameter>
-specification file as described above, and
-passes
-<parameter>kw_dict</parameter>,
-which must be a dictionary, as keyword arguments to the tool's
-<function>generate</function>
-function.
-The
-<function>generate</function>
-function can use the arguments to modify the tool's behavior
-by setting up the environment in different ways
-or otherwise changing its initialization.</para>
-
-<programlisting language="python">
-# in tools/my_tool.py:
-def generate(env, **kwargs):
-  # Sets MY_TOOL to the value of keyword 'arg1' '1' if not supplied
-  env['MY_TOOL'] = kwargs.get('arg1', '1')
-
-def exists(env):
-  return True
-
-# in SConstruct:
-env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
-                  toolpath=['tools'])
-</programlisting>
-
-<para>The tool specification (<function>my_tool</function> in the example)
-can use the
-<envar>PLATFORM</envar> variable from
-the &consenv; it is passed to customize the tool for different platforms.</para>
-
-<para>Tools can be "nested" - that is, they
-can be located within a subdirectory in the toolpath.
-A nested tool name uses a dot to represent a directory separator</para>
-
-<programlisting language="python">
-# namespaced builder
-env = Environment(ENV=os.environ.copy(), tools=['SubDir1.SubDir2.SomeTool'])
-env.SomeTool(targets, sources)
-
-# Search Paths
-# SCons\Tool\SubDir1\SubDir2\SomeTool.py
-# SCons\Tool\SubDir1\SubDir2\SomeTool\__init__.py
-# .\site_scons\site_tools\SubDir1\SubDir2\SomeTool.py
-# .\site_scons\site_tools\SubDir1\SubDir2\SomeTool\__init__.py
-</programlisting>
 
 <para>SCons supports the following tool specifications out of the box:</para>
 
@@ -5264,6 +5122,30 @@ css = index.File('app.css')
 <refsect1 id='extending_scons'>
 <title>EXTENDING SCONS</title>
 
+<para>
+&SCons; is designed to be extensible through provided facilities,
+so changing the code of &SCons; itself is only rarely needed
+to customize its behavior.
+A number of the main operations use callable objects
+which can be supplemented by writing your own.
+Builders, Scanners and Tools each use a kind of plugin system,
+allowing you to seamlessly drop in new ones.
+Information about creating
+<link linkend='builder_objects'>Builder Objects</link> and
+<link linkend='scanner_objects'>Scanner Objects</link>
+appear in the following sections.
+The instructions &SCons; actually uses to make things are called
+Actions, and it is easy to create Action Objects and hand them
+to the objects that need to know about those actions
+(besides Builders, see &f-link-AddPostAction;,
+&f-link-AddPreAction; and &f-link-Alias; for some examples
+of other places that take Actions).
+<link linkend='action_objects'>Action Objects</link>
+are also described below.
+Adding new Tool modules is described in
+<link linkend='tool_modules'>Tool Modules</link>
+</para>
+
 <refsect2 id='builder_objects'>
 <title>Builder Objects</title>
 
@@ -5292,7 +5174,10 @@ factory function.
 Once created, a builder is added to an environment
 by entering it in the &cv-link-BUILDERS; dictionary
 in that environment (some of the examples
-in this section illustrate that). </para>
+in this section illustrate this).
+Doing so automatically triggers &SCons; to add a method
+with the name of the builder to the environment.
+</para>
 
 <para>
 The
@@ -5315,7 +5200,7 @@ any combination of command line strings
 (if the builder should accept multiple source file extensions),
 a Python function,
 an Action object
-(see <xref linkend="action_objects"/>)
+(see <link linkend='action_objects'>Action Objects</link>)
 or a list of any of the above.</para>
 
 <para>An action function must accept three arguments:
@@ -5543,7 +5428,7 @@ env.Collect('archive', ['directory_name', 'file_name'])
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="emitter_function">
   <term><parameter>emitter</parameter></term>
   <listitem>
 <para>A function or list of functions to manipulate the target and source
@@ -5640,7 +5525,7 @@ used to call the Builder for the target file.)</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <varlistentry id="generator_function">
   <term><parameter>generator</parameter></term>
   <listitem>
 <para>A function that returns a list of actions that will be executed to build
@@ -5859,9 +5744,11 @@ result of the call).</para>
 
 <para>These extra keyword arguments are passed to the
 following functions:
-command generator functions,
-function Actions,
-and emitter functions.</para>
+<link linkend='generator_function'>command generator functions</link>,
+<link linkend='miscellaneous_action_functions'>function Actions</link>,
+and
+<link linkend='emitter_function'>emitter functions</link>.
+</para>
 
 </refsect2>
 
@@ -6048,7 +5935,7 @@ with the same interpretation as for a callable
   </listitem>
 
   <listitem>
-<para>If <parameter>output</parameter>is  <constant>None</constant>,
+<para>If <parameter>output</parameter>is <constant>None</constant>,
 output is suppressed entirely.</para>
   </listitem>
 </itemizedlist>
@@ -6288,9 +6175,8 @@ a = Action('build $CHANGED_SOURCES', batch_key=batch_key)
   </listitem>
   </varlistentry>
 </variablelist>
-</refsect2>
 
-<refsect2 id='miscellaneous_action_functions'>
+<refsect3 id='miscellaneous_action_functions'>
 <title>Miscellaneous Action Functions</title>
 
 <para>&SCons;
@@ -6519,9 +6405,9 @@ env.Command('marker', 'input_file', action=[MyBuildAction, Touch('$TARGET')])
   </listitem>
   </varlistentry>
 </variablelist>
-</refsect2>
+</refsect3>
 
-<refsect2 id='variable_substitution'>
+<refsect3 id='variable_substitution'>
 <title>Variable Substitution</title>
 
 <para>Before executing a command,
@@ -6758,7 +6644,7 @@ All text between
 and
 <emphasis role="bold">$)</emphasis>
 will be removed from the command line
-before it is added to the build (action) signature,
+before it is added to the build action signature,
 and the
 <emphasis role="bold">$(</emphasis>
 and
@@ -6849,9 +6735,9 @@ class foo:
 # Will expand $BAR to "my argument bar baz"
 env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
 </programlisting>
-</refsect2>
+</refsect3>
 
-<refsect2 id='python_code_substitution'>
+<refsect3 id='python_code_substitution'>
 <title>Python Code Substitution</title>
 
 <para>
@@ -6971,6 +6857,7 @@ Although &SCons; makes use of it in a somewhat restricted context,
 you should be aware of this issue when using the
 <literal>${python-expression-for-subst}</literal> form.
 </para></note>
+</refsect3>
 </refsect2>
 
 <refsect2 id='scanner_objects'>
@@ -6984,8 +6871,8 @@ that cause other files to be included during processing.
 &SCons; has a number of pre-built Scanner objects,
 so it is usually only necessary to set up Scanners for new file types.
 You do this by calling the &f-link-Scanner; factory function.
-&f-Scanner; accepts the following arguments,
-only <parameter>function</parameter> is required,
+&f-Scanner; accepts the following arguments.
+Only <parameter>function</parameter> is required;
 the rest are optional:
 </para>
 
@@ -7200,15 +7087,21 @@ Nodes for additional scanning.</para>
   </listitem>
   </varlistentry>
 </variablelist>
-<para>Note that
-&scons;
-has a global
+
+<para>
+Once created, a Scanner can added to an environment
+by setting it in the &cv-link-SCANNERS; list,
+which automatically triggers &SCons; to also add it
+to the environment as a method.
+However, usually a scanner is not truly standalone, but needs to
+be plugged in to the existing selection mechanism for
+deciding how to scan source files based on filename extensions.
+For this, &SCons; has a global
 <classname>SourceFileScanner</classname>
 object that is used by
 the &b-link-Object;, &b-link-SharedObject; and &b-link-StaticObject;
 builders to decide
-which scanner should be used
-for different file extensions.
+which scanner should be used.
 You can use the
 <methodname>SourceFileScanner.add_scanner()</methodname>
 method to add your own Scanner object
@@ -7229,6 +7122,169 @@ XYZScanner = Scanner(xyz_scan)
 SourceFileScanner.add_scanner('.xyz', XYZScanner)
 
 env.Program('my_prog', ['file1.c', 'file2.f', 'file3.xyz'])
+</programlisting>
+
+</refsect2>
+
+<refsect2 id='tool_modules'>
+<title>Tool Modules</title>
+
+<para>
+Additional tools can be added to a project either by
+placing them in a <filename>site_tools</filename> subdirectory
+of a site directory, or in a custom location specified to
+&scons; by giving the
+<parameter>toolpath</parameter> keyword argument to &f-link-Environment;.
+A tool module is a form of Python module, invoked internally
+using the Python import mechanism, so a tool can consist either
+of a single source file taking the name of the tool
+(e.g. <filename>mytool.py</filename>) or a directory taking
+the name of the tool (e.g. <filename>mytool/</filename>)
+which contains at least an <filename>__init__.py</filename> file.
+</para>
+
+<para>
+The <parameter>toolpath</parameter> parameter
+takes a list as its value:
+</para>
+
+<programlisting language="python">
+env = Environment(tools=['default', 'foo'], toolpath=['tools'])
+</programlisting>
+
+<para>
+This looks for a tool specification module (<filename>mytool.py</filename>,
+or directory <filename>mytool</filename>)
+in directory <filename>tools</filename> and in the standard locations,
+as well as using the ordinary default tools for the platform.
+</para>
+
+<para>
+Directories specified via <parameter>toolpath</parameter> are prepended
+to the existing tool path.
+The default tool path is any <filename>site_tools</filename> directories,
+so tools in a specified <parameter>toolpath</parameter> take priority,
+followed by tools in a <filename>site_tools</filename> directory,
+followed by built-in tools.  For example, adding
+a tool specification module <filename>gcc.py</filename> to the toolpath
+directory would override the built-in &t-link-gcc; tool.
+The tool path is stored in the environment and will be
+used by subsequent calls to the &f-link-Tool; method,
+as well as by &f-link-env-Clone;.
+</para>
+
+<programlisting language="python">
+base = Environment(toolpath=['custom_path'])
+derived = base.Clone(tools=['custom_tool'])
+derived.CustomBuilder()
+</programlisting>
+
+<para>
+A tool specification module must include two functions:
+</para>
+
+<variablelist>
+  <varlistentry>
+    <term><function>generate</function>(<parameter>env, **kwargs</parameter>)</term>
+    <listitem>
+<para>Modifies the &consenv; <parameter>env</parameter>
+to set up necessary &consvars; so that the facilities represented by
+the tool can be executed.
+It may use any keyword arguments
+that the user supplies in <parameter>kwargs</parameter>
+to vary its initialization.</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><function>exists</function>(<parameter>env</parameter>)</term>
+    <listitem>
+<para>Returns <constant>True</constant> if the tool can
+be called in the context of <parameter>env</parameter>.
+Usually this means looking up one or more
+known programs using the <envar>PATH</envar> from the
+supplied <parameter>env</parameter>, but the tool can
+make the "exists" decision in any way it chooses.
+</para>
+    </listitem>
+  </varlistentry>
+</variablelist>
+
+<note>
+<para>
+At the moment, user-added tools do not automatically have their
+<function>exists</function> function called.
+As a result, it is recommended that the <function>generate</function>
+function be defensively coded - that is, do not rely on any
+necessary existence checks already having been performed.
+This is expected to be a temporary limitation,
+and the <function>exists</function> function should still be provided.
+</para>
+</note>
+
+<para>The elements of the <parameter>tools</parameter> list may also
+be functions or callable objects,
+in which case the &Environment; method
+will call those objects
+to update the new &consenv; (see &f-link-Tool; for more details):</para>
+
+<programlisting language="python">
+def my_tool(env):
+    env['XYZZY'] = 'xyzzy'
+
+env = Environment(tools=[my_tool])
+</programlisting>
+
+<para>The individual elements of the <parameter>tools</parameter> list
+may also themselves be lists or tuples of the form
+<literal>(toolname, kw_dict)</literal>.
+SCons searches for the
+<parameter>toolname</parameter>
+specification file as described above, and
+passes
+<parameter>kw_dict</parameter>,
+which must be a dictionary, as keyword arguments to the tool's
+<function>generate</function>
+function.
+The
+<function>generate</function>
+function can use the arguments to modify the tool's behavior
+by setting up the environment in different ways
+or otherwise changing its initialization.</para>
+
+<programlisting language="python">
+# in tools/my_tool.py:
+def generate(env, **kwargs):
+  # Sets MY_TOOL to the value of keyword 'arg1' '1' if not supplied
+  env['MY_TOOL'] = kwargs.get('arg1', '1')
+
+def exists(env):
+  return True
+
+# in SConstruct:
+env = Environment(tools=['default', ('my_tool', {'arg1': 'abc'})],
+                  toolpath=['tools'])
+</programlisting>
+
+<para>The tool specification (<function>my_tool</function> in the example)
+can use the
+&cv-link-PLATFORM; variable from
+the &consenv; it is passed to customize the tool for different platforms.
+</para>
+
+<para>Tools can be "nested" - that is, they
+can be located within a subdirectory in the toolpath.
+A nested tool name uses a dot to represent a directory separator</para>
+
+<programlisting language="python">
+# namespaced builder
+env = Environment(ENV=os.environ.copy(), tools=['SubDir1.SubDir2.SomeTool'])
+env.SomeTool(targets, sources)
+
+# Search Paths
+# SCons\Tool\SubDir1\SubDir2\SomeTool.py
+# SCons\Tool\SubDir1\SubDir2\SomeTool\__init__.py
+# .\site_scons\site_tools\SubDir1\SubDir2\SomeTool.py
+# .\site_scons\site_tools\SubDir1\SubDir2\SomeTool\__init__.py
 </programlisting>
 
 </refsect2>
@@ -7332,7 +7388,7 @@ such as the python.org and ActiveState versions,
 do not have the Cygwin path name semantics.
 This means that using a native Windows version of Python
 to build compiled programs using Cygwin tools
-(such as &gcc;, &bison; and <application>flex</application>)
+(such as &gcc;, &bison; and &flex;)
 may yield unpredictable results.
 "Mixing and matching" in this way
 can be made to work,
