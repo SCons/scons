@@ -1279,15 +1279,15 @@ class Base(SubstitutionEnvironment):
             path = str(self.fs.Dir(path))
         return path
 
-    def AppendENVPath(self, name, newpath, envname = 'ENV',
-                      sep = os.pathsep, delete_existing=0):
-        """Append path elements to the path 'name' in the 'ENV'
+    def AppendENVPath(self, name, newpath, envname='ENV',
+                      sep=os.pathsep, delete_existing=False):
+        """Append path elements to the path *name* in the *envname*
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help
         assure this.  This can also handle the case where the env
         variable is a list instead of a string.
 
-        If delete_existing is 0, a newpath which is already in the path
+        If *delete_existing* is False, a *newpath* element already in the path
         will not be moved to the end (it will be left where it is).
         """
 
@@ -1302,10 +1302,10 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def AppendUnique(self, delete_existing=0, **kw):
+    def AppendUnique(self, delete_existing=False, **kw):
         """Append values to existing construction variables
         in an Environment, if they're not already there.
-        If delete_existing is 1, removes existing values first, so
+        If delete_existing is True, removes existing values first, so
         values move to end.
         """
         kw = copy_non_reserved_keywords(kw)
@@ -1756,15 +1756,15 @@ class Base(SubstitutionEnvironment):
 
         self.scanner_map_delete(kw)
 
-    def PrependENVPath(self, name, newpath, envname = 'ENV', sep = os.pathsep,
-                       delete_existing=1):
-        """Prepend path elements to the path 'name' in the 'ENV'
+    def PrependENVPath(self, name, newpath, envname='ENV',
+                       sep=os.pathsep, delete_existing=True):
+        """Prepend path elements to the path *name* in the *envname*
         dictionary for this environment.  Will only add any particular
         path once, and will normpath and normcase all paths to help
         assure this.  This can also handle the case where the env
         variable is a list instead of a string.
 
-        If delete_existing is 0, a newpath which is already in the path
+        If *delete_existing* is False, a *newpath* component already in the path
         will not be moved to the front (it will be left where it is).
         """
 
@@ -1780,10 +1780,10 @@ class Base(SubstitutionEnvironment):
 
         self._dict[envname][name] = nv
 
-    def PrependUnique(self, delete_existing=0, **kw):
+    def PrependUnique(self, delete_existing=False, **kw):
         """Prepend values to existing construction variables
         in an Environment, if they're not already there.
-        If delete_existing is 1, removes existing values first, so
+        If delete_existing is True, removes existing values first, so
         values move to front.
         """
         kw = copy_non_reserved_keywords(kw)

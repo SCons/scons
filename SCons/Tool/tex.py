@@ -472,7 +472,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
             shutil.move(resultfilename,str(target[0]))
 
     # Original comment (when TEXPICTS was not restored):
-    # The TEXPICTS enviroment variable is needed by a dvi -> pdf step
+    # The TEXPICTS environment variable is needed by a dvi -> pdf step
     # later on Mac OSX so leave it
     #
     # It is also used when searching for pictures (implicit dependencies).

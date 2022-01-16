@@ -534,10 +534,16 @@ class UtilTestCase(unittest.TestCase):
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
+        assert p1 == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one', p1
+
         p2 = PrependPath(p2, r'C:\mydir\num\three', sep=';')
         p2 = PrependPath(p2, r'C:\mydir\num\one', sep=';')
-        assert (p1 == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
-        assert (p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+        assert p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two', p2
+
+        # check (only) first one is kept if there are dupes in new
+        p3 = r'C:\dir\num\one'
+        p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
+        assert p3 == r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one', p3
 
     def test_AppendPath(self):
         """Test appending to a path."""
@@ -546,10 +552,16 @@ class UtilTestCase(unittest.TestCase):
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
+        assert p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three', p1
+
         p2 = AppendPath(p2, r'C:\mydir\num\three', sep=';')
         p2 = AppendPath(p2, r'C:\mydir\num\one', sep=';')
-        assert (p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-        assert (p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+        assert p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one', p2
+
+        # check (only) last one is kept if there are dupes in new
+        p3 = r'C:\dir\num\one'
+        p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
+        assert p3 == r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two', p3
 
     def test_PrependPathPreserveOld(self):
         """Test prepending to a path while preserving old paths"""
@@ -557,7 +569,7 @@ class UtilTestCase(unittest.TestCase):
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = PrependPath(p1, r'C:\dir\num\two', sep=';', delete_existing=0)
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
-        assert (p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two')
+        assert p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two', p1
 
     def test_AppendPathPreserveOld(self):
         """Test appending to a path while preserving old paths"""
@@ -565,7 +577,7 @@ class UtilTestCase(unittest.TestCase):
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=0)
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
-        assert (p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
+        assert p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three', p1
 
     def test_addPathIfNotExists(self):
         """Test the AddPathIfNotExists() function"""
