@@ -15,7 +15,6 @@ Invocation often looks like:
 """
 
 import fileinput
-import getopt
 import sys
 
 def fake_compile():
