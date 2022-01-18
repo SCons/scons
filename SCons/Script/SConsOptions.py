@@ -239,8 +239,7 @@ class SConsOption(optparse.Option):
         if value is not None:
             if self.nargs in (1, '?'):
                 return self.check_value(opt, value)
-            else:
-                return tuple([self.check_value(opt, v) for v in value])
+            return tuple([self.check_value(opt, v) for v in value])
 
     def process(self, opt, value, values, parser):
 
@@ -276,9 +275,10 @@ class SConsOptionGroup(optparse.OptionGroup):
     """
 
     def format_help(self, formatter):
-        """
-        Format an option group's help text, outdenting the title so it's
-        flush with the "SCons Options" title we print at the top.
+        """ Format an option group's help text.
+
+        The title is dedented so it's flush with the "SCons Options"
+        title we print at the top.
         """
         formatter.dedent()
         result = formatter.format_heading(self.title)
@@ -297,14 +297,14 @@ class SConsOptionParser(optparse.OptionParser):
         sys.exit(2)
 
     def _process_long_opt(self, rargs, values):
-        """
-        SCons-specific processing of long options.
+        """ SCons-specific processing of long options.
 
         This is copied directly from the normal
-        optparse._process_long_opt() method, except that, if configured
+        ``optparse._process_long_opt()`` method, except that, if configured
         to do so, we catch the exception thrown when an unknown option
         is encountered and just stick it back on the "leftover" arguments
-        for later (re-)processing.
+        for later (re-)processing. This is because we may see the option
+        definition later, while processing SConscript files.
         """
         arg = rargs.pop(0)
 
@@ -433,10 +433,9 @@ class SConsOptionParser(optparse.OptionParser):
         self.largs = self.largs + largs_restore
 
     def add_local_option(self, *args, **kw):
-        """
-        Adds a local option to the parser.
+        """ Adds a local option to the parser.
 
-        This is initiated by an AddOption() call to add a user-defined
+        This is initiated by an :func:`AddOption` call to add a user-defined
         command-line option.  We add the option to a separate option
         group for the local options, creating the group if necessary.
         """
@@ -466,54 +465,67 @@ class SConsOptionParser(optparse.OptionParser):
 
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
+        """ Formats the usage message. """
         return "usage: %s\n" % usage
 
     def format_heading(self, heading):
-        """
-        This translates any heading of "options" or "Options" into
-        "SCons Options."  Unfortunately, we have to do this here,
-        because those titles are hard-coded in the optparse calls.
+        """ Translates heading to "SCons Options"
+
+        Heading of "Options" changed to "SCons Options."
+        Unfortunately, we have to do this here, because those titles
+        are hard-coded in the optparse calls.
         """
         if heading == 'Options':
             heading = "SCons Options"
         return optparse.IndentedHelpFormatter.format_heading(self, heading)
 
     def format_option(self, option):
-        """
-        A copy of the normal optparse.IndentedHelpFormatter.format_option()
+        """ Customized option formatter.
+
+        A copy of the normal ``optparse.IndentedHelpFormatter.format_option()``
         method.  This has been snarfed so we can modify text wrapping to
-        out liking:
+        our liking:
 
-        --  add our own regular expression that doesn't break on hyphens
-            (so things like --no-print-directory don't get broken);
+        * add our own regular expression that doesn't break on hyphens
+          (so things like ``--no-print-directory`` don't get broken).
+        * wrap the list of options themselves when it's too long
+          (the ``wrapper.fill(opts)`` call below).
+        * if it would all fit on one line even if opts are long, don't break.
+        * set the :attr:`subsequent_indent` when wrapping the :attr:`help_text`.
 
-        --  wrap the list of options themselves when it's too long
-            (the wrapper.fill(opts) call below);
+        The help for each option consists of two parts:
 
-        --  set the subsequent_indent when wrapping the help_text.
+        * the opt strings and metavars e.g. ("-x", or
+          "-fFILENAME, --file=FILENAME")
+        * the user-supplied help string e.g.
+          ("turn on expert mode", "read data from FILENAME")
+
+        If possible, we write both of these on the same line::
+
+          -x      turn on expert mode
+
+        But if the opt string list is too long, we put the help
+        string on a second line, indented to the same column it would
+        start in if it fit on the first line::
+
+          -fFILENAME, --file=FILENAME
+                  read data from FILENAME
         """
-        # The help for each option consists of two parts:
-        #   * the opt strings and metavars
-        #     eg. ("-x", or "-fFILENAME, --file=FILENAME")
-        #   * the user-supplied help string
-        #     eg. ("turn on expert mode", "read data from FILENAME")
-        #
-        # If possible, we write both of these on the same line:
-        #   -x      turn on expert mode
-        #
-        # But if the opt string list is too long, we put the help
-        # string on a second line, indented to the same column it would
-        # start in if it fit on the first line.
-        #   -fFILENAME, --file=FILENAME
-        #           read data from FILENAME
         result = []
-
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
-        if len(opts) > opt_width:
-            wrapper = textwrap.TextWrapper(width=self.width,
-                                           initial_indent='  ',
-                                           subsequent_indent='  ')
+        # SCons: pre-compute if we could combine opts and text on one line,
+        # even if opts spills over opt_width. Saves some lines.
+        combine_anyway = False
+        if option.help:
+            help_text = self.expand_default(option)
+            if len(opts) > opt_width and len(opts) + len(help_text) + 2 <= self.width:
+                combine_anyway = True
+        if len(opts) > opt_width and not combine_anyway:
+            # SCons: wrap options if needed
+            wrapper = textwrap.TextWrapper(
+                width=self.width, initial_indent='  ', subsequent_indent='  '
+            )
             wrapper.wordsep_re = no_hyphen_re
             opts = wrapper.fill(opts) + '\n'
             indent_first = self.help_position
@@ -522,12 +534,12 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
             indent_first = 0
         result.append(opts)
         if option.help:
-
-            help_text = self.expand_default(option)
-
-            # SCons:  indent every line of the help text but the first.
-            wrapper = textwrap.TextWrapper(width=self.help_width,
-                                           subsequent_indent='  ')
+            # this is now done above in the pre-check.
+            # help_text = self.expand_default(option)
+            # SCons: indent every line of the help text but the first.
+            wrapper = textwrap.TextWrapper(
+                width=self.help_width, subsequent_indent='  '
+            )
             wrapper.wordsep_re = no_hyphen_re
             help_lines = wrapper.wrap(help_text)
             result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
@@ -539,43 +551,39 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
 
 
 def Parser(version):
-    """
-    Returns an options parser object initialized with the standard
-    SCons options.
-    """
+    """Returns a parser object initialized with the standard SCons options.
 
+    Add options in the order we want them to show up in the ``-H`` help
+    text, basically alphabetical.  Each ``op.add_option()`` call
+    should have a consistent format::
+
+      op.add_option("-L", "--long-option-name",
+                    nargs=1, type="string",
+                    dest="long_option_name", default='foo',
+                    action="callback", callback=opt_long_option,
+                    help="help text goes here",
+                    metavar="VAR")
+
+    Even though the :mod:`optparse` module constructs reasonable default
+    destination names from the long option names, we're going to be
+    explicit about each one for easier readability and so this code
+    will at least show up when grepping the source for option attribute
+    names, or otherwise browsing the source code.
+    """
     formatter = SConsIndentedHelpFormatter(max_help_position=30)
-
-    op = SConsOptionParser(option_class=SConsOption,
-                           add_help_option=False,
-                           formatter=formatter,
-                           usage="usage: scons [OPTION] [TARGET] ...",)
-
+    op = SConsOptionParser(
+        option_class=SConsOption,
+        add_help_option=False,
+        formatter=formatter,
+        usage="usage: scons [OPTIONS] [VARIABLES] [TARGETS]",
+    )
     op.preserve_unknown_options = True
     op.version = version
-
-    # Add the options to the parser we just created.
-    #
-    # These are in the order we want them to show up in the -H help
-    # text, basically alphabetical.  Each op.add_option() call below
-    # should have a consistent format:
-    #
-    #   op.add_option("-L", "--long-option-name",
-    #                 nargs=1, type="string",
-    #                 dest="long_option_name", default='foo',
-    #                 action="callback", callback=opt_long_option,
-    #                 help="help text goes here",
-    #                 metavar="VAR")
-    #
-    # Even though the optparse module constructs reasonable default
-    # destination names from the long option names, we're going to be
-    # explicit about each one for easier readability and so this code
-    # will at least show up when grepping the source for option attribute
-    # names, or otherwise browsing the source code.
 
     # options ignored for compatibility
     def opt_ignore(option, opt, value, parser):
         sys.stderr.write("Warning:  ignoring %s option\n" % opt)
+
     op.add_option("-b", "-d", "-e", "-m", "-S", "-t", "-w",
                   "--environment-overrides",
                   "--no-keep-going",
@@ -584,7 +592,7 @@ def Parser(version):
                   "--stop",
                   "--touch",
                   action="callback", callback=opt_ignore,
-                  help="Ignored for compatibility.")
+                  help=SUPPRESS_HELP)
 
     op.add_option('-c', '--clean', '--remove',
                   dest="clean", default=False,
@@ -968,6 +976,7 @@ def Parser(version):
     def opt_version(option, opt, value, parser):
         sys.stdout.write(parser.version + '\n')
         sys.exit(0)
+
     op.add_option("-v", "--version",
                   action="callback", callback=opt_version,
                   help="Print the SCons version number and exit.")
