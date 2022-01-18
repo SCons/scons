@@ -32,52 +32,7 @@ _exe   = TestSCons._exe
 test = TestSCons.TestSCons()
 
 test.file_fixture('mylink.py')
-
-# Note: mycxx.py differs from the general fixture file mycompile.py
-# in arg handling: that one is intended for use as a *COM consvar,
-# where no compiler consvars will be passed on, this one is intended
-# for use as $CXX, where arguments like -o come into play.
-if sys.platform == 'win32':
-    test.write('myc++.py', r"""
-import sys
-
-args = sys.argv[1:]
-inf = None
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    args = args[1:]
-    if not a[0] in '/-':
-        if not inf:
-            inf = a
-        continue
-    if a[:3] == '/Fo': out = a[3:]
-
-with open(inf, 'rb') as infile, open(out, 'wb') as outfile:
-    for line in infile:
-        if not line.startswith(b'/*c++*/'):
-            outfile.write(line)
-sys.exit(0)
-""")
-
-else:
-    test.write('myc++.py', r"""
-import getopt
-import sys
-
-opts, args = getopt.getopt(sys.argv[1:], 'co:')
-for opt, arg in opts:
-    if opt == '-o': out = arg
-
-with open(args[0], 'rb') as infile, open(out, 'wb') as outfile:
-    for line in infile:
-        if not line.startswith(b'/*c++*/'):
-            outfile.write(line)
-sys.exit(0)
-""")
+test.dir_fixture('CXX-fixture')
 
 test.write('SConstruct', """
 env = Environment(

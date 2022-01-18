@@ -35,54 +35,6 @@ test = TestSCons.TestSCons()
 test.dir_fixture('CC-fixture')
 test.file_fixture('mylink.py')
 
-# Note: mycc.py differs from the general fixture file mycompile.py
-# in arg handling: that one is intended for use as a *COM consvar,
-# where no compiler consvars will be passed on, this one is intended
-# for use as $CC, where arguments like -o come into play.
-if sys.platform == 'win32':
-    test.write('mycc.py', r"""
-import sys
-
-args = sys.argv[1:]
-inf = None
-while args:
-    a = args[0]
-    if a == '-o':
-        out = args[1]
-        args = args[2:]
-        continue
-    args = args[1:]
-    if a[0] not in '-/':
-        if not inf:
-            inf = a
-        continue
-    if a.startswith('/Fo'):
-        out = a[3:]
-
-with open(inf, 'rb') as infile, open(out, 'wb') as outfile:
-    for line in infile:
-        if not line.startswith(b'/*cc*/'):
-            outfile.write(line)
-sys.exit(0)
-""")
-
-else:
-    test.write('mycc.py', r"""
-import getopt
-import sys
-
-opts, args = getopt.getopt(sys.argv[1:], 'co:')
-for opt, arg in opts:
-    if opt == '-o':
-        out = arg
-
-with open(args[0], 'rb') as infile, open(out, 'wb') as outfile:
-    for line in infile:
-        if not line.startswith(b'/*cc*/'):
-            outfile.write(line)
-sys.exit(0)
-""")
-
 test.write('SConstruct', """
 cc = Environment().Dictionary('CC')
 env = Environment(
