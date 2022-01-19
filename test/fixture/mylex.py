@@ -9,7 +9,6 @@ Intended for use as $LEX
 
 import getopt
 import sys
-import os
 
 def fake_lex():
     if sys.platform == 'win32':
