@@ -17,18 +17,18 @@ def fake_win32_cxx():
     args = sys.argv[1:]
     inf = None
     while args:
-        a = args[0]
-        if a == '-o':
+        arg = args[0]
+        if arg == '-o':
             out = args[1]
             args = args[2:]
             continue
         args = args[1:]
-        if a[0] not in '/-':
+        if arg[0] not in '/-':
             if not inf:
-                inf = a
+                inf = arg
             continue
-        if a[:3] == '/Fo':
-            out = a[3:]
+        if arg.startswith('/Fo'):
+            out = arg[3:]
 
     with open(inf, 'rb') as infile, open(out, 'wb') as outfile:
         for line in infile:

@@ -23,16 +23,16 @@ def fake_link():
 def fake_win32_link():
     args = sys.argv[1:]
     while args:
-        a = args[0]
-        if a == '-o':
+        arg = args[0]
+        if arg == '-o':
             out = args[1]
             args = args[2:]
             continue
-        if a[0] not in '/-':
+        if arg[0] not in '/-':
             break
         args = args[1:]
-        if a.lower().startswith('/out:'):
-            out = a[5:]
+        if arg.lower().startswith('/out:'):
+            out = arg[5:]
     with open(args[0], 'rb') as ifp, open(out, 'wb') as ofp:
         for line in ifp:
             if not line.startswith(b'#link'):
