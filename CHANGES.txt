@@ -36,6 +36,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
+    - Added error message to handle the case when SCons attempts to retrieve all the targets
+      for a specified builder from the CacheDir, fails to do so, and then runs into an error
+      when deleting the files which were retrieved. Previously if this happened there was no
+      errors or warnings.
 
   From Flaviu Tamas:
     - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.

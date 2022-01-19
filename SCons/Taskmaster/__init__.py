@@ -244,7 +244,8 @@ class Task(ABC):
                     try:
                         t.fs.unlink(t.get_internal_path())
                     except (IOError, OSError) as e:
-                        display("scons: failed to delete partial cache file %s: %s" % (t.get_internal_path(), e))
+                        SCons.Warnings.warn(SCons.Warnings.CacheCleanupErrorWarning,
+                            "failed to delete partial cache file %s: %s" % (t.get_internal_path(), e))
                 self.targets[0].build()
             else:
                 for t in cached_targets:
