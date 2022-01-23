@@ -74,14 +74,13 @@ def detect_version(env, cc):
     # GCC versions older than that, we should use --version and a
     # regular expression.
     # pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
-    pipe=SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
+    with SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
                                  stdin='devnull',
                                  stderr='devnull',
-                                 stdout=subprocess.PIPE)
-    if pipe.wait() != 0:
-        return version
+                                 stdout=subprocess.PIPE) as pipe:
+        if pipe.wait() != 0:
+            return version
 
-    with pipe.stdout:
         # -dumpversion variant:
         # line = pipe.stdout.read().strip()
         # --version variant:
