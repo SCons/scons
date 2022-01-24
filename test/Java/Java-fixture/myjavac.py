@@ -1,4 +1,3 @@
-import fileinput
 import sys
 
 args = sys.argv[1:]
