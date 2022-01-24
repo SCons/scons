@@ -1,3 +1,10 @@
+"""
+Command wrapper, for testing SCons.
+
+Writes the command name to file "wrapper.out",
+then passes the command line on to subprocess.
+No checking is done.
+"""
 import os
 import sys
 import subprocess
@@ -7,4 +14,4 @@ if __name__ == '__main__':
     if '--version' not in sys.argv and '-dumpversion' not in sys.argv:
         with open(path, 'wb') as f:
             f.write(b"wrapper.py\n")
-    subprocess.run(sys.argv[1:])
+    subprocess.run(sys.argv[1:], check=False)

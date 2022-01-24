@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that we can set CFILESUFFIX to arbitrary values.
@@ -35,32 +34,19 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('mylex.py', """
-import getopt
-import sys
-if sys.platform == 'win32':
-    longopts = ['nounistd']
-else:
-    longopts = []
-cmd_opts, args = getopt.getopt(sys.argv[1:], 't', longopts)
-for a in args:
-    with open(a, 'rb') as f:
-        contents = f.read()
-    sys.stdout.write((contents.replace(b'LEX', b'mylex.py')).decode())
-sys.exit(0)
-""")
+test.file_fixture('mylex.py')
 
 test.write('SConstruct', """
-env = Environment(LEX = r'%(_python_)s mylex.py', tools = ['lex'])
-env.CFile(target = 'foo', source = 'foo.l')
-env.Clone(CFILESUFFIX = '.xyz').CFile(target = 'bar', source = 'bar.l')
+env = Environment(LEX=r'%(_python_)s mylex.py', tools=['lex'])
+env.CFile(target='foo', source='foo.l')
+env.Clone(CFILESUFFIX='.xyz').CFile(target='bar', source='bar.l')
 
 # Make sure that calling a Tool on a construction environment *after*
 # we've set CFILESUFFIX doesn't overwrite the value.
-env2 = Environment(tools = [], CFILESUFFIX = '.env2')
+env2 = Environment(tools=[], CFILESUFFIX='.env2')
 env2.Tool('lex')
 env2['LEX'] = r'%(_python_)s mylex.py'
-env2.CFile(target = 'f3', source = 'f3.l')
+env2.CFile(target='f3', source='f3.l')
 """ % locals())
 
 input = r"""
