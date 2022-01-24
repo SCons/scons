@@ -35,33 +35,16 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('myjar.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == 'cf':
-        out = args[1]
-        args = args[1:]
-    else:
-        break
-    args = args[1:]
-outfile = open(out, 'wb')
-for file in args:
-    infile = open(file, 'rb')
-    for l in infile.readlines():
-        if l[:7] != '/*jar*/':
-            outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture(['Java-fixture', 'myjar.py'])
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 import os
-oldpath = os.environ.get('PATH','')
-env = Environment(ENV = {'PATH' : ['.']})
+
+oldpath = os.environ.get('PATH', '')
+env = Environment(ENV={'PATH': ['.']})
 env['ENV']['PATH'] = oldpath
 env['JAR'] = r'%(_python_)s ./myjar.py'
-env.Jar(target = 'test1.jar', source = 'test1.class')
+env.Jar(target='test1.jar', source='test1.class')
 """ % locals())
 
 test.write('test1.class', """\
@@ -70,7 +53,7 @@ test1.class
 line 3
 """)
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
 test.must_exist('test1.jar')
 
