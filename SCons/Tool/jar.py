@@ -105,7 +105,7 @@ def Jar(env, target=None, source=[], *args, **kw):
     # jar target should not be a list so assume they passed
     # no target and want implicit target to be made and the arg
     # was actaully the list of sources
-    if SCons.Util.is_List(target) and source is None:
+    if SCons.Util.is_List(target) and source is []:
         SCons.Warnings.warn(
             SCons.Warnings.SConsWarning,
             "Making implicit target jar file, and treating the list as sources"
