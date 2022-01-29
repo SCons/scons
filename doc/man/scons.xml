@@ -6414,7 +6414,7 @@ env.Command('marker', 'input_file', action=[MyBuildAction, Touch('$TARGET')])
 &scons;
 performs variable substitution on the string that makes up
 the action part of the builder.
-Variables or other text to be substituted are indicated in the
+Variables to be substituted are indicated in the
 string by a leading <emphasis role="bold">$</emphasis>,
 to distinguish them from plain text
 which is not to be substituted.
