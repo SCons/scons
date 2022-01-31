@@ -63,11 +63,13 @@ sys.exit(0)
 
 test.write('SConstruct', """
 import os
-oldpath = os.environ.get('PATH','')
-env = Environment(ENV = {'PATH' : ['.']})
+
+oldpath = os.environ.get('PATH', '')
+DefaultEnvironment(tools=[])
+env = Environment(ENV={'PATH': ['.']}, tools=['javac', 'rmic'])
 env['ENV']['PATH'] = oldpath
 env['RMIC'] = r'%(_python_)s myrmic.py'
-env.RMIC(target = 'outdir', source = 'test1.java')
+env.RMIC(target='outdir', source='test1.java')
 """ % locals())
 
 test.write('test1.java', """\
