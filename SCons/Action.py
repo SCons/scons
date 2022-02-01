@@ -804,10 +804,14 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
             # for example 
             #    with Action._subproc(...) as po:
             #       logic here which uses po
-            def __enter__(self): return self
-            def __exit__(self, *args): pass
-            def communicate(self, input=None): return ('', '')
-            def wait(self): return -self.exception.errno
+            def __enter__(self): 
+                return self
+            def __exit__(self, *args): 
+                pass
+            def communicate(self, input=None): 
+                return ('', '')
+            def wait(self): 
+                return -self.exception.errno
             stdin = None
             class f:
                 def read(self): return ''
