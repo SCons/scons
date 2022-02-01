@@ -22,6 +22,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
           the signature of a Python Action Function.
     - Fix a number of Python ResourceWarnings which are issued when running SCons and/or it's tests
       with python 3.9 (or higher)
+    - Action._subproc() can now be used as a python context manager to ensure that the
+      POpen object is properly closed. 
+      (Thanks to Mats Wichmann for catching that DummyPopen needed additional logic)
+
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
