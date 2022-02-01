@@ -799,19 +799,25 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
         class dummyPopen:
-            def __init__(self, e): self.exception = e
+            def __init__(self, e): 
+                self.exception = e
             # Add the following two to enable using the return value as a context manager
             # for example 
             #    with Action._subproc(...) as po:
             #       logic here which uses po
+
             def __enter__(self): 
                 return self
+
             def __exit__(self, *args): 
                 pass
+
             def communicate(self, input=None): 
                 return ('', '')
+
             def wait(self): 
                 return -self.exception.errno
+                
             stdin = None
             class f:
                 def read(self): return ''
