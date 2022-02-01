@@ -222,13 +222,10 @@ Bug-fix Policy
 --------------
 
 At this time, the application of bug-fix pull requests *normally* happens
-at the top of the main branch. In other words fixes are likely to appear
-in the next regular release and there won't be a bugfix update to a
-past release.  This is mainly down to (lack of) resources to maintain
-multiple branches.  The policy is not cast in stone, but hopefully will
-help set expectations appropriately.  Consumers are of course free
-to internally maintain releases on their own by taking submitted patches
-and applying them.
+at the head of the main branch. In other words fixes are likely to appear
+in the next regular release and there probably won't be a bugfix update
+to a past release.  Consumers are of course free to internally maintain
+releases on their own by taking submitted patches and applying them.
 
 
 Mailing Lists and Other Contacts
