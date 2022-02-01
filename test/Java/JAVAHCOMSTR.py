@@ -45,6 +45,7 @@ out_file3_h = os.path.join('out', 'file3.h')
 test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(
     TOOLS=['default', 'javah'],
     JAVAHCOM=r'%(_python_)s mycompile.py javah $TARGET $SOURCES',

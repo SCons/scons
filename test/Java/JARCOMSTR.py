@@ -37,10 +37,13 @@ test = TestSCons.TestSCons()
 test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(TOOLS = ['default', 'jar'],
-                  JARCOM = r'%(_python_)s mycompile.py jar $TARGET $SOURCES',
-                  JARCOMSTR = "Jar'ing up $TARGET from $SOURCES")
-env.Jar(target = 'test1', source = ['file1.in', 'file2.in', 'file3.in'])
+DefaultEnvironment(tools=[])
+env = Environment(
+    TOOLS=['default', 'jar'],
+    JARCOM=r'%(_python_)s mycompile.py jar $TARGET $SOURCES',
+    JARCOMSTR="Jar'ing up $TARGET from $SOURCES",
+)
+env.Jar(target='test1', source=['file1.in', 'file2.in', 'file3.in'])
 """ % locals())
 
 test.write('file1.in', "file1.in\n/*jar*/\n")
