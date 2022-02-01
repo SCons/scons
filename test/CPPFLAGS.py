@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
@@ -38,25 +37,22 @@ test = TestSCons.TestSCons()
 if sys.platform == 'win32':
     test.skip_test('Skipping on win32.\n')
 
-if sys.platform == 'win32':
-    test.file_fixture('mylink_win32.py', 'mylink.py')
-else:
-     test.file_fixture('mylink.py')
-
+test.file_fixture('mylink.py')
 test.file_fixture('mygcc.py')
 
-
 test.write('SConstruct', """
-env = Environment(CPPFLAGS = '-x',
-                  LINK = r'%(_python_)s mylink.py',
-                  LINKFLAGS = [],
-                  CC = r'%(_python_)s mygcc.py cc',
-                  CXX = r'%(_python_)s mygcc.py c++',
-                  CXXFLAGS = [],
-                  FORTRAN = r'%(_python_)s mygcc.py g77',
-                  OBJSUFFIX = '.obj',
-                  PROGSUFFIX = '.exe')
-env.Program(target = 'foo', source = Split('test1.c test2.cpp test3.F'))
+env = Environment(
+    CPPFLAGS='-x',
+    LINK=r'%(_python_)s mylink.py',
+    LINKFLAGS=[],
+    CC=r'%(_python_)s mygcc.py cc',
+    CXX=r'%(_python_)s mygcc.py c++',
+    CXXFLAGS=[],
+    FORTRAN=r'%(_python_)s mygcc.py g77',
+    OBJSUFFIX='.obj',
+    PROGSUFFIX='.exe',
+)
+env.Program(target='foo', source=Split('test1.c test2.cpp test3.F'))
 """ % locals())
 
 test.write('test1.c', r"""test1.c
@@ -86,19 +82,20 @@ else:
     test.must_match('mygcc.out', "cc\nc++\n")   
 
 test.write('SConstruct', """
-env = Environment(CPPFLAGS = '-x',
-                  SHLINK = r'%(_python_)s mylink.py',
-                  SHLINKFLAGS = [],
-                  CC = r'%(_python_)s mygcc.py cc',
-                  CXX = r'%(_python_)s mygcc.py c++',
-                  CXXFLAGS = [],
-                  FORTRAN = r'%(_python_)s mygcc.py g77',
-                  OBJSUFFIX = '.obj',
-                  SHOBJPREFIX = '',
-                  SHOBJSUFFIX = '.shobj',
-                  PROGSUFFIX = '.exe')
-env.SharedLibrary(target = File('foo.bar'),
-                  source = Split('test1.c test2.cpp test3.F'))
+env = Environment(
+    CPPFLAGS='-x',
+    SHLINK=r'%(_python_)s mylink.py',
+    SHLINKFLAGS=[],
+    CC=r'%(_python_)s mygcc.py cc',
+    CXX=r'%(_python_)s mygcc.py c++',
+    CXXFLAGS=[],
+    FORTRAN=r'%(_python_)s mygcc.py g77',
+    OBJSUFFIX='.obj',
+    SHOBJPREFIX='',
+    SHOBJSUFFIX='.shobj',
+    PROGSUFFIX='.exe',
+)
+env.SharedLibrary(target=File('foo.bar'), source=Split('test1.c test2.cpp test3.F'))
 """ % locals())
 
 test.write('test1.c', r"""test1.c
