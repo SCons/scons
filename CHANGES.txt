@@ -46,6 +46,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Calls now look like 'debug("template %s", text)' rather than
       'debug("template %s" % text)' so the logging system does the
       interpolation only when/if needed (was a pylint warning).
+    - runtest.py now accepts -j 0 to auto-detect number of usable
+      processors for testing threads.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
