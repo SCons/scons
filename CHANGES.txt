@@ -46,7 +46,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Calls now look like 'debug("template %s", text)' rather than
       'debug("template %s" % text)' so the logging system does the
       interpolation only when/if needed (was a pylint warning).
-    - Update Help display a bit - join some lines, drop "ignored for compat".
+    - Update Help (-H) output a bit. Drop "ignored for compat" entry.
+      Pass window size to formatter so it formats for wider displays too.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
