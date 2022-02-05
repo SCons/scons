@@ -1,7 +1,7 @@
 Contributing to SCons
 #####################
 
-Introdction
+Introduction
 ===========
 
 Thanks for taking the time to contribute!
@@ -15,7 +15,7 @@ think we're only interested in contributions to code.
 
 If you're going to contribute, we'd love to get to know you
 a bit and understand and what problems you're looking to solve,
-or what you are intending to improve, whether that's documnetation,
+or what you are intending to improve, whether that's documentation,
 code, examples, tutorials, etc. A great way to introduce yourself is to
 to hop onto the `SCons Discord Server <https://discord.gg/bXVpWAy>`_
 to chat.  You don't have to be a regular Discord user,
