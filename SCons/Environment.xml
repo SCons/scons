@@ -2882,7 +2882,7 @@ when all the directories in which SConscript files may be found
 don't necessarily exist locally.)
 You may enable and disable
 this ability by calling
-SConscriptChdir()
+&f-SConscriptChdir;
 multiple times.
 </para>
 
