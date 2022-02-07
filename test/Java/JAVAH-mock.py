@@ -63,6 +63,7 @@ sys.exit(0)
 """)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools=['javah'], JAVAH=r'%(_python_)s myjavah.py')
 env.JavaH(target=File('test1.h'), source='test1.java')
 """ % locals())
@@ -78,6 +79,7 @@ test.must_match('test1.h', "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
     test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(tools=['javah'], JAVAH=r'%(_python_)s myjavah.py')
 env.JavaH(target=File('test2.h'), source='test2.JAVA')
 """ % locals())

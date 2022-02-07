@@ -36,6 +36,7 @@ test = TestSCons.TestSCons()
 test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(
     TOOLS=['default', 'javah'],
     JAVAHCOM=r'%(_python_)s mycompile.py javah $TARGET $SOURCES',

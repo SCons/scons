@@ -37,6 +37,7 @@ test = TestSCons.TestSCons()
 where_javac, java_version = test.java_where_javac()
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools=['javac'], JAVABOOTCLASSPATH=['dir1', 'dir2'])
 j1 = env.Java(target='class', source='com/Example1.java')
 j2 = env.Java(target='class', source='com/Example2.java')

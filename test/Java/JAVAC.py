@@ -40,6 +40,7 @@ test = TestSCons.TestSCons()
 test.file_fixture(['Java-fixture', 'myjavac.py'])
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(tools=['javac'], JAVAC=r'%(_python_)s myjavac.py')
 env.Java(target='.', source='.')
 """ % locals())
@@ -55,6 +56,7 @@ test.must_match('test1.class', "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
     test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(tools=['javac'], JAVAC=r'%(_python_)s myjavac.py')
 env.Java(target='.', source='.')
 """ % locals())

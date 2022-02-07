@@ -44,7 +44,7 @@ oldpath = os.environ.get('PATH', '')
 DefaultEnvironment(tools=[])
 env = Environment(ENV={'PATH': ['.']}, tools=['javac', 'jar'])
 env['ENV']['PATH'] = oldpath
-env['JAR'] = r'%(_python_)s ./myjar.py'
+env['JAR'] = r'%(_python_)s myjar.py'
 env.Jar(target='test1.jar', source='test1.class')
 """ % locals())
 

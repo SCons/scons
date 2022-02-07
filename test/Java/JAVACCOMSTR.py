@@ -41,10 +41,13 @@ test.subdir('src')
 test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(TOOLS = ['default', 'javac'],
-                  JAVACCOM = r'%(_python_)s mycompile.py javac $TARGET $SOURCES',
-                  JAVACCOMSTR = "Compiling class(es) $TARGET from $SOURCES")
-env.Java(target = 'classes', source = 'src')
+DefaultEnvironment(tools=[])
+env = Environment(
+    TOOLS=['default', 'javac'],
+    JAVACCOM=r'%(_python_)s mycompile.py javac $TARGET $SOURCES',
+    JAVACCOMSTR="Compiling class(es) $TARGET from $SOURCES",
+)
+env.Java(target='classes', source='src')
 """ % locals())
 
 test.write(['src', 'file1.java'], "file1.java\n/*javac*/\n")
