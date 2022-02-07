@@ -56,7 +56,7 @@ test.run(
     '-Q -q . --extras A',
     status=2,
     stderr="""\
-usage: scons [OPTION] [TARGET] ...
+usage: scons [OPTIONS] [VARIABLES] [TARGETS]
 
 SCons Error: --extras option requires 2 arguments
 """,
