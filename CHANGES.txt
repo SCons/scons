@@ -48,6 +48,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       interpolation only when/if needed (was a pylint warning).
     - Update Help (-H) output a bit. Drop "ignored for compat" entry.
       Pass window size to formatter so it formats for wider displays too.
+    - runtest.py now accepts -j 0 to auto-detect number of usable
+      processors for testing threads.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
