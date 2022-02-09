@@ -1207,7 +1207,7 @@ Program('hello', 'hello.c', CPPPATH='.')
     <para>
 
     Apparently, the scanner does not know about the header dependency.
-    Note being a full-fledged C preprocessor, the scanner does not
+    Not being a full-fledged C preprocessor, the scanner does not
     expand the macro.
 
     </para>
