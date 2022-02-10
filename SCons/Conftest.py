@@ -116,12 +116,12 @@ def CheckBuilder(context, text = None, language = None):
     "language" should be "C" or "C++" and is used to select the compiler.
     Default is "C".
     "text" may be used to specify the code to be build.
-    Returns an empty string for success, an error message for failure.
+    Returns the status (False : failed, True : ok).
     """
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("%s\n" % msg)
-        return msg
+        return False
 
     if not text:
         text = """
@@ -138,11 +138,10 @@ int main(void) {
 def CheckCC(context):
     """
     Configure check for a working C compiler.
-
     This checks whether the C compiler, as defined in the $CC construction
     variable, can compile a C source file. It uses the current $CCCOM value
     too, so that it can test against non working flags.
-
+    Returns the status (False : failed, True : ok).
     """
     context.Display("Checking whether the C compiler works... ")
     text = """
@@ -158,11 +157,10 @@ int main(void)
 def CheckSHCC(context):
     """
     Configure check for a working shared C compiler.
-
     This checks whether the C compiler, as defined in the $SHCC construction
     variable, can compile a C source file. It uses the current $SHCCCOM value
     too, so that it can test against non working flags.
-
+    Returns the status (False : failed, True : ok).
     """
     context.Display("Checking whether the (shared) C compiler works... ")
     text = """
@@ -178,11 +176,10 @@ int foo(void)
 def CheckCXX(context):
     """
     Configure check for a working CXX compiler.
-
     This checks whether the CXX compiler, as defined in the $CXX construction
     variable, can compile a CXX source file. It uses the current $CXXCOM value
     too, so that it can test against non working flags.
-
+    Returns the status (False : failed, True : ok).
     """
     context.Display("Checking whether the C++ compiler works... ")
     text = """
@@ -198,11 +195,10 @@ int main(void)
 def CheckSHCXX(context):
     """
     Configure check for a working shared CXX compiler.
-
     This checks whether the CXX compiler, as defined in the $SHCXX construction
     variable, can compile a CXX source file. It uses the current $SHCXXCOM value
     too, so that it can test against non working flags.
-
+    Returns the status (False : failed, True : ok).
     """
     context.Display("Checking whether the (shared) C++ compiler works... ")
     text = """
@@ -216,14 +212,14 @@ int main(void)
     return ret
 
 def _check_empty_program(context, comp, text, language, use_shared = False):
-    """Return 0 on success, 1 otherwise."""
+    """Returns the status (False : failed, True : ok)."""
     if comp not in context.env or not context.env[comp]:
         # The compiler construction variable is not set or empty
-        return 1
+        return False
 
     lang, suffix, msg = _lang2suffix(language)
     if msg:
-        return 1
+        return False
 
     if use_shared:
         return context.CompileSharedObject(text, suffix)
@@ -241,7 +237,7 @@ def CheckFunc(context, function_name, header = None, language = None):
     Sets HAVE_function_name in context.havedict according to the result.
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
-    Returns an empty string for success, an error message for failure.
+    Returns the status (False : failed, True : ok).
     """
 
     # Remarks from autoconf:
@@ -272,7 +268,7 @@ char %s();""" % function_name
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("Cannot check for %s(): %s\n" % (function_name, msg))
-        return msg
+        return False
 
     text = """
 %(include)s
@@ -315,7 +311,7 @@ def CheckHeader(context, header_name, header=None, language=None,
     Sets HAVE_header_name in context.havedict according to the result.
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS and $CPPFLAGS are set correctly.
-    Returns an empty string for success, an error message for failure.
+    Returns the status (False : failed, True : ok).
     """
     # Why compile the program instead of just running the preprocessor?
     # It is possible that the header file exists, but actually using it may
@@ -337,7 +333,7 @@ def CheckHeader(context, header_name, header=None, language=None,
     if msg:
         context.Display("Cannot check for header file %s: %s\n"
                                                           % (header_name, msg))
-        return msg
+        return False
 
     if not include_quotes:
         include_quotes = "<>"
@@ -362,7 +358,7 @@ def CheckType(context, type_name, fallback = None,
     Sets HAVE_type_name in context.havedict according to the result.
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
-    Returns an empty string for success, an error message for failure.
+    Returns the status (False : failed, True : ok).
     """
 
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
@@ -376,7 +372,7 @@ def CheckType(context, type_name, fallback = None,
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("Cannot check for %s type: %s\n" % (type_name, msg))
-        return msg
+        return False
 
     # Remarks from autoconf about this test:
     # - Grepping for the type in include files is not reliable (grep isn't
@@ -445,7 +441,7 @@ def CheckTypeSize(context, type_name, header = None, language = None, expect = N
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("Cannot check for %s type: %s\n" % (type_name, msg))
-        return msg
+        return 0
 
     src = includetext + header
     if expect is not None:
@@ -468,7 +464,7 @@ int main(void)
 """
 
         st = context.CompileProg(src % (type_name, expect), suffix)
-        if not st:
+        if st:
             context.Display("yes\n")
             _Have(context, "SIZEOF_%s" % type_name, expect,
                   "The size of `%s', as computed by sizeof." % type_name)
@@ -502,10 +498,10 @@ int main(void) {
         except ValueError:
             # If cannot convert output of test prog to an integer (the size),
             # something went wront, so just fail
-            st = 1
+            st = False
             size = 0
 
-        if not st:
+        if st:
             context.Display("yes\n")
             _Have(context, "SIZEOF_%s" % type_name, size,
                   "The size of `%s', as computed by sizeof." % type_name)
@@ -531,9 +527,8 @@ def CheckDeclaration(context, symbol, includes = None, language = None):
         language : str
             only C and C++ supported.
 
-    Returns:
-        status : bool
-            True if the check failed, False if succeeded."""
+    Returns the status (False : failed, True : ok).
+    """
 
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
     if context.headerfilename:
@@ -547,7 +542,7 @@ def CheckDeclaration(context, symbol, includes = None, language = None):
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("Cannot check for declaration %s: %s\n" % (symbol, msg))
-        return msg
+        return False
 
     src = includetext + includes
     context.Display('Checking whether %s is declared... ' % symbol)
@@ -585,20 +580,19 @@ def CheckMember(context, aggregate_member, header = None, language = None):
         language : str
             only C and C++ supported.
 
-    Returns:
-        status : bool
-            True if the check failed, False if succeeded."""
+    Returns the status (False : failed, True : ok).
+    """
 
     lang, suffix, msg = _lang2suffix(language)
     if msg:
         context.Display("Cannot check for member %s: %s\n" % (aggregate_member, msg))
-        return msg
+        return False
     context.Display("Checking for %s member %s... " % (lang, aggregate_member))
     fields = aggregate_member.split('.')
     if len(fields) != 2:
         msg = "shall contain just one dot, for example 'struct tm.tm_gmtoff'"
         context.Display("Cannot check for member %s: %s\n" % (aggregate_member, msg))
-        return msg
+        return False
     aggregate, member = fields[0], fields[1]
 
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
@@ -646,7 +640,7 @@ def CheckLib(context, libs, func_name = None, header = None,
     Default is "C".
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
-    Returns an empty string for success, an error message for failure.
+    Returns the status (False : failed, True : ok).
     """
     # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
     if context.headerfilename:
@@ -697,7 +691,7 @@ return 0;
         lang, suffix, msg = _lang2suffix(language)
         if msg:
             context.Display("Cannot check for library %s: %s\n" % (lib_name, msg))
-            return msg
+            return False
 
         # if a function was specified to run in main(), say it
         if call:
@@ -725,13 +719,13 @@ return 0;
 
         _YesNoResult(context, ret, sym, text,
                      "Define to 1 if you have the `%s` library." % lib_name)
-        if oldLIBS != -1 and (ret or not autoadd):
+        if oldLIBS != -1 and (not ret or not autoadd):
             context.SetLIBS(oldLIBS)
 
-        if not ret:
-            return ret
+        if ret:
+            return True
 
-    return ret
+    return False
 
 def CheckProg(context, prog_name):
     """
@@ -758,18 +752,18 @@ def _YesNoResult(context, ret, key, text, comment = None):
     Handle the result of a test with a "yes" or "no" result.
 
     :Parameters:
-      - `ret` is the return value: empty if OK, error message when not.
+      - `ret` is the status of an earlier check.
       - `key` is the name of the symbol to be defined (HAVE_foo).
       - `text` is the source code of the program used for testing.
       - `comment` is the C comment to add above the line defining the symbol (the comment is automatically put inside a /\* \*/). If None, no comment is added.
     """
     if key:
-        _Have(context, key, not ret, comment)
+        _Have(context, key, ret, comment)
     if ret:
+        context.Display("yes\n")
+    else:
         context.Display("no\n")
         _LogFailed(context, text, ret)
-    else:
-        context.Display("yes\n")
 
 
 def _Have(context, key, have, comment = None):
@@ -783,8 +777,8 @@ def _Have(context, key, have, comment = None):
 
 
     The value of "have" can be:
-      - 1      - Feature is defined, add "#define key".
-      - 0      - Feature is not defined, add "/\* #undef key \*/". Adding "undef" is what autoconf does.  Not useful for the compiler, but it shows that the test was done.
+      - True   - Feature is defined, add "#define key".
+      - False  - Feature is not defined, add "/\* #undef key \*/". Adding "undef" is what autoconf does.  Not useful for the compiler, but it shows that the test was done.
       - number - Feature is defined to this number "#define key have". Doesn't work for 0 or 1, use a string then.
       - string - Feature is defined to this string "#define key have".
 
@@ -793,10 +787,11 @@ def _Have(context, key, have, comment = None):
     key_up = key.upper()
     key_up = re.sub('[^A-Z0-9_]', '_', key_up)
     context.havedict[key_up] = have
-    if have == 1:
-        line = "#define %s 1\n" % key_up
-    elif have == 0:
-        line = "/* #undef %s */\n" % key_up
+    if isinstance(have, bool):
+        if have:
+            line = "#define %s 1\n" % key_up
+        else:
+            line = "/* #undef %s */\n" % key_up
     elif isinstance(have, int):
         line = "#define %s %d\n" % (key_up, have)
     else:

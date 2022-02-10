@@ -450,8 +450,8 @@ class SConfBase:
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
-                 'CheckDeclaration'   : CheckDeclaration,
                  'CheckMember'        : CheckMember,
+                 'CheckDeclaration'   : CheckDeclaration,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
                  'CheckCXXHeader'     : CheckCXXHeader,
@@ -502,8 +502,8 @@ class SConfBase:
 
     def BuildNodes(self, nodes):
         """
-        Tries to build the given nodes immediately. Returns 1 on success,
-        0 on error.
+        Tries to build the given nodes immediately. Returns True on success,
+        False on error.
         """
         if self.logstream is not None:
             # override stdout / stderr to write in log file
@@ -543,7 +543,7 @@ class SConfBase:
                         c.attributes.keep_targetinfo = 1
                     # pass
 
-        ret = 1
+        ret = True
 
         try:
             # ToDo: use user options for calc
@@ -558,7 +558,7 @@ class SConfBase:
                 if (state != SCons.Node.executed and
                     state != SCons.Node.up_to_date):
                     # the node could not be built. we return 0 in this case
-                    ret = 0
+                    ret = False
         finally:
             SConfFS.set_max_drift(save_max_drift)
             os.chdir(old_os_dir)
@@ -583,8 +583,8 @@ class SConfBase:
 
     def TryBuild(self, builder, text=None, extension=""):
         """Low level TryBuild implementation. Normally you don't need to
-        call that - you can use TryCompile / TryLink / TryRun instead.
-        Returns 1 on success, 0 on error.
+        call that - you can use TryCompile / TryLink / TryRun instead
+        Returns the build status (False : failed, True : ok).
         """
         global _ac_build_counter
 
@@ -656,7 +656,7 @@ class SConfBase:
     def TryAction(self, action, text = None, extension = ""):
         """Tries to execute the given action with optional source file
         contents <text> and optional source file extension <extension>,
-        Returns the status (0 : failed, 1 : ok) and the contents of the
+        Returns the status (False : failed, True : ok) and the contents of the
         output file.
         """
         builder = SCons.Builder.Builder(action=action)
@@ -665,29 +665,29 @@ class SConfBase:
         del self.env['BUILDERS']['SConfActionBuilder']
         if ok:
             outputStr = self.lastTarget.get_text_contents()
-            return (1, outputStr)
-        return (0, "")
+            return (True, outputStr)
+        return (False, "")
 
     def TryCompile( self, text, extension):
         """Compiles the program given in text to an env.Object, using extension
-        as file extension (e.g. '.c'). Returns 1, if compilation was
-        successful, 0 otherwise. The target is saved in self.lastTarget (for
+        as file extension (e.g. '.c'). Returns True, if compilation was
+        successful, False otherwise. The target is saved in self.lastTarget (for
         further processing).
         """
         return self.TryBuild(self.env.Object, text, extension)
 
     def TryLink( self, text, extension ):
         """Compiles the program given in text to an executable env.Program,
-        using extension as file extension (e.g. '.c'). Returns 1, if
-        compilation was successful, 0 otherwise. The target is saved in
+        using extension as file extension (e.g. '.c'). Returns True, if
+        compilation was successful, False otherwise. The target is saved in
         self.lastTarget (for further processing).
         """
         return self.TryBuild(self.env.Program, text, extension )
 
     def TryRun(self, text, extension ):
         """Compiles and runs the program given in text, using extension
-        as file extension (e.g. '.c'). Returns (1, outputStr) on success,
-        (0, '') otherwise. The target (a file containing the program's stdout)
+        as file extension (e.g. '.c'). Returns (True, outputStr) on success,
+        (False, '') otherwise. The target (a file containing the program's stdout)
         is saved in self.lastTarget (for further processing).
         """
         ok = self.TryLink(text, extension)
@@ -699,8 +699,8 @@ class SConfBase:
             ok = self.BuildNodes(node)
             if ok:
                 outputStr = SCons.Util.to_str(output.get_contents())
-                return( 1, outputStr)
-        return (0, "")
+                return( True, outputStr)
+        return (False, "")
 
     class TestWrapper:
         """A wrapper around Tests (to ensure sanity)"""
@@ -904,25 +904,29 @@ class CheckContext:
     #### Stuff used by Conftest.py (look there for explanations).
 
     def BuildProg(self, text, ext):
+        '''Returns the status (False : failed, True : ok).'''
         self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
-        return not self.TryBuild(self.env.Program, text, ext)
+        return self.TryBuild(self.env.Program, text, ext)
 
     def CompileProg(self, text, ext):
+        '''Returns the status (False : failed, True : ok).'''
         self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
-        return not self.TryBuild(self.env.Object, text, ext)
+        return self.TryBuild(self.env.Object, text, ext)
 
     def CompileSharedObject(self, text, ext):
+        '''Returns the status (False : failed, True : ok).'''
         self.sconf.cached = 1
         # TODO: should use self.vardict for $SHCC, $CPPFLAGS, etc.
-        return not self.TryBuild(self.env.SharedObject, text, ext)
+        return self.TryBuild(self.env.SharedObject, text, ext)
 
     def RunProg(self, text, ext):
+        '''Returns the status (False : failed, True : ok) and output.'''
         self.sconf.cached = 1
         # TODO: should use self.vardict for $CC, $CPPFLAGS, etc.
         st, out = self.TryRun(text, ext)
-        return not st, out
+        return st, out
 
     def AppendLIBS(self, lib_name_list):
         oldLIBS = self.env.get( 'LIBS', [] )
@@ -970,15 +974,17 @@ def SConf(*args, **kw):
 
 
 def CheckFunc(context, function_name, header = None, language = None):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckType(context, type_name, includes = "", language = None):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckType(context, type_name,
                                    header = includes, language = language)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckTypeSize(context, type_name, includes = "", language = None, expect = None):
     res = SCons.Conftest.CheckTypeSize(context, type_name,
@@ -988,17 +994,18 @@ def CheckTypeSize(context, type_name, includes = "", language = None, expect = N
     return res
 
 def CheckDeclaration(context, declaration, includes = "", language = None):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckDeclaration(context, declaration,
                                           includes = includes,
                                           language = language)
     context.did_show_result = 1
-    return not res
-
+    return res
 
 def CheckMember(context, aggregate_member, header = None, language = None):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckMember(context, aggregate_member, header = header, language = language)
     context.did_show_result = 1
-    return not res
+    return res
 
 def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include
@@ -1019,6 +1026,7 @@ def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
 def CheckHeader(context, header, include_quotes = '<>', language = None):
     """
     A test for a C or C++ header file.
+    Returns the status (False : failed, True : ok).
     """
     prog_prefix, hdr_to_check = \
                  createIncludesFromHeaders(header, 1, include_quotes)
@@ -1026,33 +1034,38 @@ def CheckHeader(context, header, include_quotes = '<>', language = None):
                                      language = language,
                                      include_quotes = include_quotes)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckCC(context):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckCC(context)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckCXX(context):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckCXX(context)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckSHCC(context):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckSHCC(context)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckSHCXX(context):
+    '''Returns the status (False : failed, True : ok).'''
     res = SCons.Conftest.CheckSHCXX(context)
     context.did_show_result = 1
-    return not res
+    return res
 
 # Bram: Make this function obsolete?  CheckHeader() is more generic.
 
 def CheckCHeader(context, header, include_quotes = '""'):
     """
     A test for a C header file.
+    Returns the status (False : failed, True : ok).
     """
     return CheckHeader(context, header, include_quotes, language = "C")
 
@@ -1062,6 +1075,7 @@ def CheckCHeader(context, header, include_quotes = '""'):
 def CheckCXXHeader(context, header, include_quotes = '""'):
     """
     A test for a C++ header file.
+    Returns the status (False : failed, True : ok).
     """
     return CheckHeader(context, header, include_quotes, language = "C++")
 
@@ -1072,6 +1086,7 @@ def CheckLib(context, library = None, symbol = "main",
     A test for a library. See also CheckLibWithHeader.
     Note that library may also be None to test whether the given symbol
     compiles without flags.
+    Returns the status (False : failed, True : ok).
     """
 
     if not library:
@@ -1084,7 +1099,7 @@ def CheckLib(context, library = None, symbol = "main",
     res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
                                         language = language, autoadd = autoadd)
     context.did_show_result = 1
-    return not res
+    return res
 
 # XXX
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
@@ -1098,6 +1113,7 @@ def CheckLibWithHeader(context, libs, header, language,
     or 'CXX'). Call maybe be a valid expression _with_ a trailing ';'.
     As in CheckLib, we support library=None, to test if the call compiles
     without extra link flags.
+    Returns the status (False : failed, True : ok).
     """
     prog_prefix, dummy = \
                  createIncludesFromHeaders(header, 0)
@@ -1110,11 +1126,12 @@ def CheckLibWithHeader(context, libs, header, language,
     res = SCons.Conftest.CheckLib(context, libs, None, prog_prefix,
             call = call, language = language, autoadd = autoadd)
     context.did_show_result = 1
-    return not res
+    return res
 
 def CheckProg(context, prog_name):
     """Simple check if a program exists in the path.  Returns the path
     for the application, or None if not found.
+    Returns the status (False : failed, True : ok).
     """
     res = SCons.Conftest.CheckProg(context, prog_name)
     context.did_show_result = 1
