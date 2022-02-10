@@ -46,17 +46,19 @@ r2 = conf.CheckFunc('noFunctionCall')
 r3 = conf.CheckFunc('memmove')
 r4 = conf.CheckType('int')
 r5 = conf.CheckType('noType')
-r6 = conf.CheckCHeader('stdio.h', '<>')
-r7 = conf.CheckCHeader('hopefullynoc-header.h')
-r8 = conf.CheckCXXHeader('vector', '<>')
-r9 = conf.CheckCXXHeader('hopefullynocxx-header.h')
+r6 = conf.CheckMember('struct tm.tm_sec', '#include <time.h>')
+r7 = conf.CheckMember('struct tm.tm_msec', '#include <time.h>')
+r8 = conf.CheckCHeader('stdio.h', '<>')
+r9 = conf.CheckCHeader('hopefullynoc-header.h')
+r10 = conf.CheckCXXHeader('vector', '<>')
+r11 = conf.CheckCXXHeader('hopefullynocxx-header.h')
 env = conf.Finish()
 conf = Configure(env, config_h = 'config.h')
-r10 = conf.CheckLib('%(lib)s', 'sin')
-r11 = conf.CheckLib('hopefullynolib', 'sin')
-r12 = conf.CheckLibWithHeader('%(lib)s', 'math.h', 'c')
-r13 = conf.CheckLibWithHeader('%(lib)s', 'hopefullynoheader2.h', 'c')
-r14 = conf.CheckLibWithHeader('hopefullynolib2', 'math.h', 'c')
+r12 = conf.CheckLib('%(lib)s', 'sin')
+r13 = conf.CheckLib('hopefullynolib', 'sin')
+r14 = conf.CheckLibWithHeader('%(lib)s', 'math.h', 'c')
+r15 = conf.CheckLibWithHeader('%(lib)s', 'hopefullynoheader2.h', 'c')
+r16 = conf.CheckLibWithHeader('hopefullynolib2', 'math.h', 'c')
 env = conf.Finish()
 """ % locals())
 
@@ -66,6 +68,8 @@ Checking for C function noFunctionCall()... no
 Checking for C function memmove()... yes
 Checking for C type int... yes
 Checking for C type noType... no
+Checking for C member struct tm.tm_sec... yes
+Checking for C member struct tm.tm_msec... no
 Checking for C header file stdio.h... yes
 Checking for C header file hopefullynoc-header.h... no
 Checking for C++ header file vector... yes
@@ -89,20 +93,26 @@ expected_config_h = ("""\
 #define CONFIG_H_SEEN
 
 
-/* Define to 1 if the system has the function `printf'. */
+/* Define to 1 if the system has the function `printf`. */
 #define HAVE_PRINTF 1
 
-/* Define to 1 if the system has the function `noFunctionCall'. */
+/* Define to 1 if the system has the function `noFunctionCall`. */
 /* #undef HAVE_NOFUNCTIONCALL */
 
-/* Define to 1 if the system has the function `memmove'. */
+/* Define to 1 if the system has the function `memmove`. */
 #define HAVE_MEMMOVE 1
 
-/* Define to 1 if the system has the type `int'. */
+/* Define to 1 if the system has the type `int`. */
 #define HAVE_INT 1
 
-/* Define to 1 if the system has the type `noType'. */
+/* Define to 1 if the system has the type `noType`. */
 /* #undef HAVE_NOTYPE */
+
+/* Define to 1 if the system has the member `struct tm.tm_sec`. */
+#define HAVE_STRUCT_TM_TM_SEC 1
+
+/* Define to 1 if the system has the member `struct tm.tm_msec`. */
+/* #undef HAVE_STRUCT_TM_TM_MSEC */
 
 /* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
@@ -116,19 +126,19 @@ expected_config_h = ("""\
 /* Define to 1 if you have the <hopefullynocxx-header.h> header file. */
 /* #undef HAVE_HOPEFULLYNOCXX_HEADER_H */
 
-/* Define to 1 if you have the `%(lib)s' library. */
+/* Define to 1 if you have the `%(lib)s` library. */
 #define HAVE_%(LIB)s 1
 
-/* Define to 1 if you have the `hopefullynolib' library. */
+/* Define to 1 if you have the `hopefullynolib` library. */
 /* #undef HAVE_LIBHOPEFULLYNOLIB */
 
-/* Define to 1 if you have the `%(lib)s' library. */
+/* Define to 1 if you have the `%(lib)s` library. */
 #define HAVE_%(LIB)s 1
 
-/* Define to 1 if you have the `%(lib)s' library. */
+/* Define to 1 if you have the `%(lib)s` library. */
 /* #undef HAVE_%(LIB)s */
 
-/* Define to 1 if you have the `hopefullynolib2' library. */
+/* Define to 1 if you have the `hopefullynolib2` library. */
 /* #undef HAVE_LIBHOPEFULLYNOLIB2 */
 
 #endif /* CONFIG_H_SEEN */

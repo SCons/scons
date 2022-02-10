@@ -725,6 +725,26 @@ int main(void) {
         finally:
             sconf.Finish()
 
+    def test_CheckMember(self):
+        """Test SConf.CheckMember()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
+            # CheckMember()
+            r = sconf.CheckMember('struct tm.tm_sec', '#include <time.h>')
+            assert r, "did not find tm.tm_sec"
+            r = sconf.CheckMember('struct tm.tm_msec', '#include <time.h>')
+            assert not r, "unexpectedly found struct tm.tm_msec"
+            r = sconf.CheckFunc('hopefullynomember')
+            assert not r, "unexpectedly found hopefullynomember"
+
+        finally:
+            sconf.Finish()
+
     def test_(self):
         """Test SConf.CheckType()
         """

@@ -451,6 +451,7 @@ class SConfBase:
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
                  'CheckDeclaration'   : CheckDeclaration,
+                 'CheckMember'        : CheckMember,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
                  'CheckCXXHeader'     : CheckCXXHeader,
@@ -582,7 +583,8 @@ class SConfBase:
 
     def TryBuild(self, builder, text=None, extension=""):
         """Low level TryBuild implementation. Normally you don't need to
-        call that - you can use TryCompile / TryLink / TryRun instead
+        call that - you can use TryCompile / TryLink / TryRun instead.
+        Returns 1 on success, 0 on error.
         """
         global _ac_build_counter
 
@@ -989,6 +991,12 @@ def CheckDeclaration(context, declaration, includes = "", language = None):
     res = SCons.Conftest.CheckDeclaration(context, declaration,
                                           includes = includes,
                                           language = language)
+    context.did_show_result = 1
+    return not res
+
+
+def CheckMember(context, aggregate_member, header = None, language = None):
+    res = SCons.Conftest.CheckMember(context, aggregate_member, header = header, language = language)
     context.did_show_result = 1
     return not res
 
