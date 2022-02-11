@@ -987,7 +987,8 @@ def _main(parser):
     # This would then cause subtle bugs, as already happened in #2971.
     if options.interactive:
         SCons.Node.interactive = True
-
+    if options.ninja_scons_daemon:
+        SCons.Node.ninja_scons_daemon = True
     # That should cover (most of) the options.
     # Next, set up the variables that hold command-line arguments,
     # so the SConscript files that we read and execute have access to them.
@@ -1125,7 +1126,7 @@ def _main(parser):
 
     platform = SCons.Platform.platform_module()
 
-    if options.interactive:
+    if options.interactive or options.ninja_scons_daemon:
         SCons.Script.Interactive.interact(fs, OptionsParser, options,
                                           targets, target_top)
 

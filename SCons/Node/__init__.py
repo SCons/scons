@@ -105,6 +105,7 @@ SConscriptNodes = set()
 # currently used to release parts of a target's info during
 # clean builds and update runs (see release_target_info).
 interactive = False
+ninja_scons_daemon = False
 
 def is_derived_none(node):
     raise NotImplementedError
