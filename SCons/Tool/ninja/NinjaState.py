@@ -24,11 +24,15 @@
 
 import io
 import os
+import pathlib
+import signal
+import tempfile
 import shutil
 import sys
 from os.path import splitext
 from tempfile import NamedTemporaryFile
 import ninja
+import hashlib
 
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
@@ -59,7 +63,7 @@ class NinjaState:
                 os.pardir,
                 'data',
                 'bin',
-                ninja_bin))
+                ninja_bin))            
             if not os.path.exists(self.ninja_bin_path):
                 # couldn't find it, just give the bin name and hope
                 # its in the path later
@@ -83,6 +87,10 @@ class NinjaState:
         # to make the SCONS_INVOCATION variable properly quoted for things
         # like CCFLAGS
         scons_escape = env.get("ESCAPE", lambda x: x)
+
+        import random
+
+        PORT = str(random.randint(10000, 60000))
 
         # if SCons was invoked from python, we expect the first arg to be the scons.py
         # script, otherwise scons was invoked from the scons script
@@ -184,15 +192,38 @@ class NinjaState:
                 "restat": 1,
             },
             "TEMPLATE": {
-                "command": "$SCONS_INVOCATION $out",
-                "description": "Rendering $SCONS_INVOCATION  $out",
-                "pool": "scons_pool",
-                "restat": 1,
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_daemon_build.py'} {PORT} {get_path(env.get('NINJA_DIR'))} $out",
+                "description": "Defer to SCons to build $out",
+                "pool": "local_pool",
+                "restat": 1
             },
             "SCONS": {
                 "command": "$SCONS_INVOCATION $out",
                 "description": "$SCONS_INVOCATION $out",
                 "pool": "scons_pool",
+                # restat
+                #    if present, causes Ninja to re-stat the command's outputs
+                #    after execution of the command. Each output whose
+                #    modification time the command did not change will be
+                #    treated as though it had never needed to be built. This
+                #    may cause the output's reverse dependencies to be removed
+                #    from the list of pending build actions.
+                #
+                # We use restat any time we execute SCons because
+                # SCons calls in Ninja typically create multiple
+                # targets. But since SCons is doing it's own up to
+                # date-ness checks it may only update say one of
+                # them. Restat will find out which of the multiple
+                # build targets did actually change then only rebuild
+                # those targets which depend specifically on that
+                # output.
+                "restat": 1,
+            },
+            
+            "SCONS_DAEMON": {
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {PORT} {get_path(env.get('NINJA_DIR'))} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
+                "description": "Starting scons daemon...",
+                "pool": "local_pool",
                 # restat
                 #    if present, causes Ninja to re-stat the command's outputs
                 #    after execution of the command. Each output whose
@@ -245,6 +276,9 @@ class NinjaState:
         if not node.has_builder():
             return False
 
+        if isinstance(node, SCons.Node.Python.Value):
+            return False
+
         if isinstance(node, SCons.Node.Alias.Alias):
             build = alias_to_ninja_build(node)
         else:
@@ -256,7 +290,24 @@ class NinjaState:
 
         node_string = str(node)
         if node_string in self.builds:
-            raise InternalError("Node {} added to ninja build state more than once".format(node_string))
+            warn_msg = f"Alias {node_string} name the same as File node, ninja does not support this. Renaming Alias {node_string} to {node_string}_alias."
+            if isinstance(node, SCons.Node.Alias.Alias):
+                for i, output in enumerate(build["outputs"]):
+                    if output == node_string:
+                        build["outputs"][i] += "_alias"
+                node_string += "_alias"
+                print(warn_msg)
+            elif self.builds[node_string]["rule"] == "phony":
+                for i, output in enumerate(self.builds[node_string]["outputs"]):
+                    if output == node_string:
+                        self.builds[node_string]["outputs"][i] += "_alias"
+                tmp_build = self.builds[node_string].copy()
+                del self.builds[node_string]
+                node_string += "_alias"
+                self.builds[node_string] = tmp_build
+                print(warn_msg)
+            else:
+                raise InternalError("Node {} added to ninja build state more than once".format(node_string))
         self.builds[node_string] = build
         self.built.update(build["outputs"])
         return True
@@ -330,8 +381,12 @@ class NinjaState:
             )
 
         template_builders = []
+        scons_compiledb = False
 
         for build in [self.builds[key] for key in sorted(self.builds.keys())]:
+            if "compile_commands.json" in build["outputs"]:
+                scons_compiledb = True
+
             if build["rule"] == "TEMPLATE":
                 template_builders.append(build)
                 continue
@@ -345,10 +400,10 @@ class NinjaState:
             # generated sources or else we will create a dependency
             # cycle.
             if (
-                    generated_source_files
-                    and not build["rule"] == "INSTALL"
-                    and set(build["outputs"]).isdisjoint(generated_source_files)
-                    and set(build.get("implicit", [])).isdisjoint(generated_source_files)
+                generated_source_files
+                and not build["rule"] == "INSTALL"
+                and set(build["outputs"]).isdisjoint(generated_source_files)
+                and set(build.get("implicit", [])).isdisjoint(generated_source_files)
             ):
                 # Make all non-generated source targets depend on
                 # _generated_sources. We use order_only for generated
@@ -422,41 +477,10 @@ class NinjaState:
 
             ninja.build(**build)
 
-        template_builds = dict()
+        scons_daemon_dirty = str(pathlib.Path(get_path(self.env.get("NINJA_DIR"))) / "scons_daemon_dirty")
         for template_builder in template_builders:
-
-            # Special handling for outputs and implicit since we need to
-            # aggregate not replace for each builder.
-            for agg_key in ["outputs", "implicit", "inputs"]:
-                new_val = template_builds.get(agg_key, [])
-
-                # Use pop so the key is removed and so the update
-                # below will not overwrite our aggregated values.
-                cur_val = template_builder.pop(agg_key, [])
-                if is_List(cur_val):
-                    new_val += cur_val
-                else:
-                    new_val.append(cur_val)
-                template_builds[agg_key] = new_val
-
-            # Collect all other keys
-            template_builds.update(template_builder)
-
-        if template_builds.get("outputs", []):
-
-            # Try to clean up any dependency cycles. If we are passing an 
-            # ouptut node to SCons, it will build any dependencys if ninja 
-            # has not already.
-            for output in template_builds.get("outputs", []):
-                inputs = template_builds.get('inputs')
-                if inputs and output in inputs:
-                    inputs.remove(output)
-
-                implicits = template_builds.get('implicit')
-                if implicits and output in implicits:
-                    implicits.remove(output)
-
-            ninja.build(**template_builds)
+            template_builder["implicit"] += [scons_daemon_dirty]
+            ninja.build(**template_builder)
 
         # We have to glob the SCons files here to teach the ninja file
         # how to regenerate itself. We'll never see ourselves in the
@@ -483,29 +507,54 @@ class NinjaState:
             }
         )
 
-        # If we ever change the name/s of the rules that include
-        # compile commands (i.e. something like CC) we will need to
-        # update this build to reflect that complete list.
-        ninja.build(
-            "compile_commands.json",
-            rule="CMD",
-            pool="console",
-            implicit=[str(self.ninja_file)],
-            variables={
-                "cmd": "{} -f {} -t compdb {}CC CXX > compile_commands.json".format(
-                    # NINJA_COMPDB_EXPAND - should only be true for ninja
-                    # This was added to ninja's compdb tool in version 1.9.0 (merged April 2018)
-                    # https://github.com/ninja-build/ninja/pull/1223
-                    # TODO: add check in generate to check version and enable this by default if it's available.
-                    self.ninja_bin_path, str(self.ninja_file),
-                    '-x ' if self.env.get('NINJA_COMPDB_EXPAND', True) else ''
-                )
-            },
-        )
+        if not scons_compiledb:
+            # If we ever change the name/s of the rules that include
+            # compile commands (i.e. something like CC) we will need to
+            # update this build to reflect that complete list.
+            ninja.build(
+                "compile_commands.json",
+                rule="CMD",
+                pool="console",
+                implicit=[str(self.ninja_file)],
+                variables={
+                    "cmd": "{} -f {} -t compdb {}CC CXX > compile_commands.json".format(
+                        # NINJA_COMPDB_EXPAND - should only be true for ninja
+                        # This was added to ninja's compdb tool in version 1.9.0 (merged April 2018)
+                        # https://github.com/ninja-build/ninja/pull/1223
+                        # TODO: add check in generate to check version and enable this by default if it's available.
+                        self.ninja_bin_path, str(self.ninja_file),
+                        '-x ' if self.env.get('NINJA_COMPDB_EXPAND', True) else ''
+                    )
+                },
+            )
+
+            ninja.build(
+                "compiledb", rule="phony", implicit=["compile_commands.json"],
+            )
 
         ninja.build(
-            "compiledb", rule="phony", implicit=["compile_commands.json"],
+            ["run_scons_daemon", scons_daemon_dirty],
+            rule="SCONS_DAEMON",
         )
+
+        daemon_dir =  pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
+        pidfile = None
+        if os.path.exists(scons_daemon_dirty):
+            pidfile = scons_daemon_dirty
+        elif os.path.exists(daemon_dir / 'pidfile'):
+            pidfile = daemon_dir / 'pidfile'
+
+        if pidfile:
+            with open(pidfile) as f:
+                pid = int(f.readline())
+                try:
+                    os.kill(pid, signal.SIGINT)
+                except OSError:
+                    pass
+                
+        if os.path.exists(scons_daemon_dirty): 
+            os.unlink(scons_daemon_dirty)
+
 
         # Look in SCons's list of DEFAULT_TARGETS, find the ones that
         # we generated a ninja build rule for.
@@ -588,7 +637,13 @@ class SConsToNinjaTranslator:
         elif isinstance(action, COMMAND_TYPES):
             build = get_command(env, node, action)
         else:
-            raise Exception("Got an unbuildable ListAction for: {}".format(str(node)))
+            return {
+                "rule": "TEMPLATE",
+                "order_only": get_order_only(node),
+                "outputs": get_outputs(node),
+                "inputs": get_inputs(node),
+                "implicit": get_dependencies(node, skip_sources=True),
+            }
 
         if build is not None:
             build["order_only"] = get_order_only(node)
@@ -657,7 +712,7 @@ class SConsToNinjaTranslator:
             return results[0]
 
         all_outputs = list({output for build in results for output in build["outputs"]})
-        dependencies = list({dep for build in results for dep in build["implicit"]})
+        dependencies = list({dep for build in results for dep in build.get("implicit", [])})
 
         if results[0]["rule"] == "CMD" or results[0]["rule"] == "GENERATED_CMD":
             cmdline = ""
@@ -669,6 +724,9 @@ class SConsToNinjaTranslator:
                 # condition if not cmdstr. So here we strip preceding
                 # and proceeding whitespace to make strings like the
                 # above become empty strings and so will be skipped.
+                if not cmd.get("variables") or not cmd["variables"].get("cmd"):
+                    continue
+
                 cmdstr = cmd["variables"]["cmd"].strip()
                 if not cmdstr:
                     continue
@@ -717,4 +775,10 @@ class SConsToNinjaTranslator:
                 "implicit": dependencies,
             }
 
-        raise Exception("Unhandled list action with rule: " + results[0]["rule"])
+        return {
+            "rule": "TEMPLATE",
+            "order_only": get_order_only(node),
+            "outputs": get_outputs(node),
+            "inputs": get_inputs(node),
+            "implicit": get_dependencies(node, skip_sources=True),
+        }

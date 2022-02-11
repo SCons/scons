@@ -53,7 +53,7 @@ test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
-if test.stdout().count('scons: Building targets') != 2:
+if test.stdout().count('Defer to SCons to build') != 1:
     test.fail_test()
 test.must_match('out.txt', 'foo.c' + os.linesep)
 test.must_match('out2.txt', "test2.cpp" + os.linesep)
@@ -74,7 +74,7 @@ test.must_not_exist(test.workpath('out2.txt'))
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
 test.run(program=program, stdout=None)
-if test.stdout().count('scons: Building targets') != 1:
+if test.stdout().count('Defer to SCons to build') != 1:
     test.fail_test()
 test.must_match('out.txt', 'foo.c' + os.linesep)
 test.must_match('out2.txt', "test2.cpp" + os.linesep)

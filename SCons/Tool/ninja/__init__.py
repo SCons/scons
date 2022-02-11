@@ -187,6 +187,10 @@ def generate(env):
 
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_DIR'] = env.Dir(env.get("NINJA_DIR", '#/.ninja'))
+    env["NINJA_SCONS_DAEMON_KEEP_ALIVE"] = env.get("NINJA_SCONS_DAEMON_KEEP_ALIVE", 180000)
+
+    if GetOption("disable_ninja"):
+        env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
@@ -423,7 +427,7 @@ def generate(env):
             return
         if target.check_attributes('ninja_file') is None:
             NINJA_STATE.add_build(target)
-        else: 
+        else:
             target.build()
 
     SCons.Taskmaster.Task.execute = ninja_execute
