@@ -3836,8 +3836,7 @@ char function_name();
 </programlisting>
 
 <para>
-Returns an empty string on success, a string containing
-an error message on failure.
+Returns a boolean indicating success or failure.
 </para>
   </listitem>
   </varlistentry>
@@ -3934,8 +3933,7 @@ sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
 </programlisting>
 
 <para>
-Returns an empty string on success, a string containing
-an error message on failure.
+Returns a boolean indicating success or failure.
 </para>
 
   </listitem>
@@ -4088,6 +4086,30 @@ that will be run to test for the existence of the symbol.
 Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
+
+  <varlistentry>
+    <term><replaceable>context</replaceable>.<methodname>CheckMember</methodname>(<parameter>aggregate_member, [header, language]</parameter>)</term>
+    <listitem>
+  <para>Checks for the existence of a member of the C/C++ struct or class.
+  <parameter>aggregate_member</parameter>
+  specifies the struct/class and member to check for.
+  <parameter>header</parameter>
+  is a string containing one or more
+  <literal>#include</literal>
+  lines that will be inserted into the program
+  that will be run to test for the existence of the member.
+  Example:</para>
+
+  <programlisting language="python">
+  sconf.CheckMember('struct tm.tm_sec', '#include &lt;time.h&gt;')
+  </programlisting>
+
+  <para>
+  Returns a boolean indicating success or failure.
+  </para>
+
+    </listitem>
+    </varlistentry>
 
   <varlistentry>
   <term><replaceable>context</replaceable>.<methodname>Define</methodname>(<parameter>symbol, [value, comment]</parameter>)</term>

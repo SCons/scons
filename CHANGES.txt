@@ -52,6 +52,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       processors for testing threads.
 
 
+  From Zhichang Yu:
+    - Add CheckMember functionality to SConf.
+
+
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
   From Jacob Cassagnol:

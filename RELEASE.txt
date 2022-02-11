@@ -14,7 +14,7 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- Add CheckMember functionality to SConf.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
