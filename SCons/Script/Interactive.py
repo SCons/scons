@@ -266,7 +266,12 @@ version                 Prints SCons version information.
                 #    from SCons.Debug import Trace
                 #    Trace('node %s, ref_count %s !!!\n' % (node, node.ref_count))
 
-            SCons.SConsign.Reset()
+            # TODO: REMOVE WPD DEBUG 02/14/2022
+            # This call was clearing the list of sconsign files to be written, so it would
+            # only write the results of the first build command. All others wouldn't be written
+            # to .SConsign.
+            # Pretty sure commenting this out is the correct fix.
+            # SCons.SConsign.Reset()
             SCons.Script.Main.progress_display("scons: done clearing node information.")
 
     def do_clean(self, argv):
