@@ -295,7 +295,7 @@ int main(void) {
     context.Display("Checking for %s function %s()... " % (lang, function_name))
     ret = context.BuildProg(text, suffix)
     _YesNoResult(context, ret, "HAVE_" + function_name, text,
-                 "Define to 1 if the system has the function `%s`." %\
+                 "Define to 1 if the system has the function `%s`." %
                  function_name)
     return ret
 
@@ -609,10 +609,10 @@ def CheckMember(context, aggregate_member, header = None, language = None):
 int main(void) {
   if (sizeof ((%(aggregate)s *) 0)->%(member)s)
     return 0;
-}''' % { 'include': includetext,
-         'header': header,
-         'aggregate': aggregate,
-         'member': member }
+}''' % {'include': includetext,
+        'header': header,
+        'aggregate': aggregate,
+        'member': member}
 
     ret = context.BuildProg(text, suffix)
     _YesNoResult(context, ret, "HAVE_" + aggregate_member, text,

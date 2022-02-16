@@ -699,7 +699,7 @@ class SConfBase:
             ok = self.BuildNodes(node)
             if ok:
                 outputStr = SCons.Util.to_str(output.get_contents())
-                return( True, outputStr)
+                return (True, outputStr)
         return (False, "")
 
     class TestWrapper:
