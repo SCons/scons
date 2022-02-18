@@ -15,6 +15,7 @@ NEW FUNCTIONALITY
 -----------------
 
 - List new features (presumably why a checkpoint is being released)
+- Define MSVC_SCRIPT_ARGS to pass arguments (whitespace separated) to MSVC_USE_SCRIPT.
 
 DEPRECATED FUNCTIONALITY
 ------------------------

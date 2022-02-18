@@ -51,6 +51,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - runtest.py now accepts -j 0 to auto-detect number of usable
       processors for testing threads.
 
+  From Zhichang Yu:
+    - Define MSVC_SCRIPT_ARGS to pass arguments (whitespace separated) to MSVC_USE_SCRIPT.
+
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
