@@ -53,7 +53,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
 
   From Zhichang Yu:
-    - Add CheckMember functionality to SConf.
+    - Add CheckMember call to configure contexts.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
