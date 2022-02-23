@@ -34,21 +34,24 @@ test.subdir('subdir')
 subdir_BuildThis = os.path.join('subdir', 'Buildthis')
 
 test.write('SConscript', """
-DefaultEnvironment(tools=[])
 import os
+
+DefaultEnvironment(tools=[])
 print("SConscript " + os.getcwd())
 """)
 
 test.write(subdir_BuildThis, """
-DefaultEnvironment(tools=[])
 import os
-print("subdir/BuildThis "+ os.getcwd())
+
+DefaultEnvironment(tools=[])
+print("subdir/BuildThis " + os.getcwd())
 """)
 
 test.write('Build2', """
-DefaultEnvironment(tools=[])
 import os
-print("Build2 "+ os.getcwd())
+
+DefaultEnvironment(tools=[])
+print("Build2 " + os.getcwd())
 """)
 
 wpath = test.workpath()
@@ -56,14 +59,15 @@ wpath = test.workpath()
 test.run(
     arguments='-f SConscript .',
     stdout=test.wrap_stdout(
-        read_str='SConscript %s\n' % wpath, build_str="scons: `.' is up to date.\n"
+        read_str=f'SConscript {wpath}\n',
+        build_str="scons: `.' is up to date.\n"
     ),
 )
 
 test.run(
-    arguments='-f %s .' % subdir_BuildThis,
+    arguments=f'-f {subdir_BuildThis} .',
     stdout=test.wrap_stdout(
-        read_str='subdir/BuildThis %s\n' % wpath,
+        read_str=f'subdir/BuildThis {wpath}\n',
         build_str="scons: `.' is up to date.\n",
     ),
 )
@@ -71,14 +75,15 @@ test.run(
 test.run(
     arguments='--file=SConscript .',
     stdout=test.wrap_stdout(
-        read_str='SConscript %s\n' % wpath, build_str="scons: `.' is up to date.\n"
+        read_str=f'SConscript {wpath}\n',
+        build_str="scons: `.' is up to date.\n"
     ),
 )
 
 test.run(
-    arguments='--file=%s .' % subdir_BuildThis,
+    arguments=f'--file={subdir_BuildThis} .',
     stdout=test.wrap_stdout(
-        read_str='subdir/BuildThis %s\n' % wpath,
+        read_str=f'subdir/BuildThis {wpath}\n',
         build_str="scons: `.' is up to date.\n",
     ),
 )
@@ -86,14 +91,15 @@ test.run(
 test.run(
     arguments='--makefile=SConscript .',
     stdout=test.wrap_stdout(
-        read_str='SConscript %s\n' % wpath, build_str="scons: `.' is up to date.\n"
+        read_str=f'SConscript {wpath}\n',
+        build_str="scons: `.' is up to date.\n"
     ),
 )
 
 test.run(
-    arguments='--makefile=%s .' % subdir_BuildThis,
+    arguments=f'--makefile={subdir_BuildThis} .',
     stdout=test.wrap_stdout(
-        read_str='subdir/BuildThis %s\n' % wpath,
+        read_str=f'subdir/BuildThis {wpath}\n',
         build_str="scons: `.' is up to date.\n",
     ),
 )
@@ -101,14 +107,15 @@ test.run(
 test.run(
     arguments='--sconstruct=SConscript .',
     stdout=test.wrap_stdout(
-        read_str='SConscript %s\n' % wpath, build_str="scons: `.' is up to date.\n"
+        read_str=f'SConscript {wpath}\n',
+        build_str="scons: `.' is up to date.\n"
     ),
 )
 
 test.run(
-    arguments='--sconstruct=%s .' % subdir_BuildThis,
+    arguments=f'--sconstruct={subdir_BuildThis} .',
     stdout=test.wrap_stdout(
-        read_str='subdir/BuildThis %s\n' % wpath,
+        read_str=f'subdir/BuildThis {wpath}\n',
         build_str="scons: `.' is up to date.\n",
     ),
 )
@@ -121,28 +128,21 @@ import os
 print("STDIN " + os.getcwd())
 """,
     stdout=test.wrap_stdout(
-        read_str='STDIN %s\n' % wpath, build_str="scons: `.' is up to date.\n"
+        read_str=f'STDIN {wpath}\n',
+        build_str="scons: `.' is up to date.\n"
     ),
 )
 
 expect = test.wrap_stdout(
-    read_str='Build2 %s\nSConscript %s\n' % (wpath, wpath),
+    read_str=f'Build2 {wpath}\nSConscript {wpath}\n',
     build_str="scons: `.' is up to date.\n",
 )
 test.run(arguments='-f Build2 -f SConscript .', stdout=expect)
 
-test.run(
-    arguments='-f no_such_file .',
-    stdout=test.wrap_stdout("scons: `.' is up to date.\n"),
-    stderr=None,
-)
-
-expect = """
-scons: warning: Calling missing SConscript without error is deprecated.
-Transition by adding must_exist=False to SConscript calls.
-Missing SConscript 'no_such_file'"""
-stderr = test.stderr()
-test.must_contain_all(test.stderr(), expect)
+missing = "no_such_file"
+test.run(arguments=f"-f {missing} .", status=2, stderr=None)
+expect = [f"scons: *** Fatal: missing SConscript {missing!r}"]
+test.must_contain_all_lines(test.stderr(), expect)
 
 test.pass_test()
 

@@ -37,76 +37,93 @@ test = TestSCons.TestSCons()
 # this gives us traceability of the line responsible
 SConstruct_path = test.workpath('SConstruct')
 test.write(SConstruct_path, """\
-import SCons
-from SCons.Warnings import _warningOut
 import sys
+import traceback
+
+import SCons.Script
+from SCons.Errors import UserError
+from SCons.Script.Main import find_deepest_user_frame
 
 DefaultEnvironment(tools=[])
-# 1. 1st default call should succeed with deprecation warning
-try:
-    SConscript('missing/SConscript')
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-# 2. 2nd default call should succeed with warning (no depr)
-try:
-    SConscript('missing/SConscript')
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-# 3. must_exist True call should raise exception
-try:
-    SConscript('missing/SConscript', must_exist=True)
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-# 4. must_exist False call should succeed silently
-try:
-    SConscript('missing/SConscript', must_exist=False)
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-# 5. with system setting changed, should raise exception
-SCons.Script.set_missing_sconscript_error()
-try:
-    SConscript('missing/SConscript')
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-# 6. must_exist=False overrides system setting, should emit warning
-try:
-    SConscript('missing/SConscript', must_exist=False)
-except SCons.Errors.UserError as e:
-    if _warningOut:
-        _warningOut(e)
-""")
 
-# we should see two exceptions as "Fatal" and
-# and see four warnings, the first having the depr message
-# need to build the path in the expected msg in an OS-agnostic way
-missing = os.path.normpath('missing/SConscript')
-warn1 = """
-scons: warning: Calling missing SConscript without error is deprecated.
-Transition by adding must_exist=False to SConscript calls.
-Missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 8)
+def user_error(e):
+    "Synthesize msg from UserError."
+    # Borrowed from SCons.Script._scons_user_error which we don't use
+    # because it exits - we only want the message.
+    etype, value, tb = sys.exc_info()
+    filename, lineno, routine, _ = find_deepest_user_frame(traceback.extract_tb(tb))
+    sys.stderr.write(f"\\nscons: *** {value}\\n")
+    sys.stderr.write(f'File "{filename}", line {lineno}, in {routine}\\n')
 
-warn2 = """
-scons: warning: Ignoring missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 14)
+# 1. Call with defaults raises exception
+try:
+    SConscript("missing/SConscript")
+except UserError as e:
+    user_error(e)
 
-err1 = """
-scons: warning: Fatal: missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 23)
+# 2. Call with must_exist=True raises exception
+try:
+    SConscript("missing/SConscript", must_exist=True)
+except UserError as e:
+    user_error(e)
 
-err2 = """
-scons: warning: Fatal: missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 36)
+# 3. Call with must_exist=False call should succeed silently
+try:
+    SConscript("missing/SConscript", must_exist=False)
+except UserError as e:
+    user_error(e)
+
+# 4. with system setting changed, should succeed silently
+SCons.Script.set_missing_sconscript_error(flag=False)
+try:
+    SConscript("missing/SConscript")
+except UserError as e:
+    user_error(e)
+
+# 5. must_exist=True "wins" over system setting
+try:
+    SConscript("missing/SConscript", must_exist=True)
+except UserError as e:
+    user_error(e)
+""",
+)
+
+missing = "missing/SConscript"
+err1 = f"""
+scons: *** Fatal: missing SConscript {missing!r}
+""" + test.python_file_line(
+    SConstruct_path, 21
+)
+
+err2 = f"""
+scons: *** Fatal: missing SConscript {missing!r}
+""" + test.python_file_line(
+    SConstruct_path, 27
+)
+
+err3 = f"""
+scons: *** Fatal: missing SConscript {missing!r}
+""" + test.python_file_line(
+    SConstruct_path, 33
+)
+
+err4 = f"""
+scons: *** Fatal: missing SConscript {missing!r}
+""" + test.python_file_line(
+    SConstruct_path, 40
+)
+
+err5 = f"""
+scons: *** Fatal: missing SConscript {missing!r}
+""" + test.python_file_line(
+    SConstruct_path, 46
+)
 
 nowarn = ""
 
-expect_stderr = warn1 + warn2 + err1 + nowarn + err2 + nowarn
-test.run(arguments = ".", stderr = expect_stderr)
+# of the five tests, we actually expect fails from 1 and 2
+expect_stderr = err1 + err2 + nowarn + nowarn + nowarn
+test.run(arguments=".", stderr=expect_stderr)
 test.pass_test()
 
 # Local Variables:
