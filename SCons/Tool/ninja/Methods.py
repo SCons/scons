@@ -134,7 +134,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
 
     variables = {}
 
-    comstr = get_comstr(sub_env, action, tlist, slist)
+    comstr = str(get_comstr(sub_env, action, tlist, slist))
     if not comstr:
         return None
 
@@ -255,6 +255,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
             )
 
         cmd, rsp_content = cmd_list[:tool_idx], cmd_list[tool_idx:]
+        rsp_content = [rsp_content_item.replace('\\', '/') for rsp_content_item in rsp_content]
         rsp_content = ['"' + rsp_content_item + '"' for rsp_content_item in rsp_content]
         rsp_content = " ".join(rsp_content)
 

@@ -1213,7 +1213,7 @@ class CLVar(UserList):
         return super().__iadd__(CLVar(other))
 
     def __str__(self):
-        return ' '.join(self.data)
+        return ' '.join([str(d) for d in self.data])
 
 
 class Selector(OrderedDict):
