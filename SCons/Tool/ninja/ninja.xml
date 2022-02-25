@@ -142,7 +142,7 @@ SetOption('experimental', 'ninja')
                     as the tool by default depends on being able to do an
                     <systemitem>import</systemitem> of the package
                     (although see &cv-link-__NINJA_NO;).
-                    The can be done via:
+                    This can be done via:
                     <example_commands>
 # In a virtualenv, or "python" is the native executable:
 python -m pip install ninja
