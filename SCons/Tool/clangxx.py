@@ -51,7 +51,8 @@ def generate(env):
     SCons.Tool.cxx.generate(env)
 
     env['CXX']        = env.Detect(compilers) or 'clang++'
-
+    env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
+    
     # platform specific settings
     if env['PLATFORM'] == 'aix':
         env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -mminimal-toc')

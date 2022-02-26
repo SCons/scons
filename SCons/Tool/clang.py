@@ -81,7 +81,7 @@ def generate(env):
         if match:
             env['CCVERSION'] = match.group(1)
 
-    env['CCDEPFLAGS'] = '.MMD -MF ${TARGET}.d'
+    env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
 
 
 
