@@ -57,6 +57,9 @@ def generate(env):
     if version:
         env['CCVERSION'] = version
 
+    env['CCDEPFLAGS'] = '.MMD -MF ${TARGET}.d'
+
+
 
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)

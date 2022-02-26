@@ -214,10 +214,11 @@ def generate(env):
 
     # This adds the required flags such that the generated compile
     # commands will create depfiles as appropriate in the Ninja file.
-    if env["PLATFORM"] == "win32" and 'mingw' not in env['TOOLS']:
-        env.Append(CCFLAGS=["/showIncludes"])
+    if 'CCDEPFLAGS' not in env:
+        # Issue some warning here
+        pass
     else:
-        env.Append(CCFLAGS=["-MMD", "-MF", "${TARGET}.d"])
+        env.Append(CCFLAGS='$CCDEPFLAGS')
 
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
