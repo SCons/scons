@@ -30,6 +30,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        if: matrix.os == 'windows-latest'
+        with:
+          platform: x64
+
       - name: Set up Python 3.8 ${{ matrix.os }}
         uses: actions/setup-python@v2
         with:
