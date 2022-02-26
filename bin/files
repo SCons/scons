@@ -99,6 +99,7 @@
 ./SCons/Tool/tar.py
 ./SCons/Tool/tex.py
 ./SCons/Tool/tlib.py
+./SCons/Tool/vcpkg.py
 ./SCons/Tool/yacc.py
 ./SCons/Util.py
 ./SCons/Warnings.py

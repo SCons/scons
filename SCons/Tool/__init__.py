@@ -815,6 +815,8 @@ def tool_list(platform, env):
         'tar', 'zip',
         # File builders (text)
         'textfile',
+        # Package management
+        'vcpkg',
     ], env)
 
     tools = [

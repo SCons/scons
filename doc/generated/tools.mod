@@ -104,6 +104,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-tex "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>tex</literal>">
 <!ENTITY t-textfile "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>textfile</literal>">
 <!ENTITY t-tlib "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>tlib</literal>">
+<!ENTITY t-vcpkg "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>vcpkg</literal>">
 <!ENTITY t-xgettext "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>xgettext</literal>">
 <!ENTITY t-yacc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>yacc</literal>">
 <!ENTITY t-zip "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>zip</literal>">
@@ -210,6 +211,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY t-link-tex "<link linkend='t-tex' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>tex</literal></link>">
 <!ENTITY t-link-textfile "<link linkend='t-textfile' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>textfile</literal></link>">
 <!ENTITY t-link-tlib "<link linkend='t-tlib' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>tlib</literal></link>">
+<!ENTITY t-link-vcpkg "<link linkend='t-vcpkg' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>vcpkg</literal></link>">
 <!ENTITY t-link-xgettext "<link linkend='t-xgettext' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>xgettext</literal></link>">
 <!ENTITY t-link-yacc "<link linkend='t-yacc' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>yacc</literal></link>">
 <!ENTITY t-link-zip "<link linkend='t-zip' xmlns='http://www.scons.org/dbxsd/v1.0'><literal>zip</literal></link>">

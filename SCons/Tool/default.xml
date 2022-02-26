@@ -55,7 +55,7 @@ are selected if their respective conditions are met:
 &t-link-jar;, &t-link-javac;, &t-link-javah;, &t-link-rmic;,
 &t-link-dvipdf;, &t-link-dvips;, &t-link-gs;,
 &t-link-tex;, &t-link-latex;, &t-link-pdflatex;, &t-link-pdftex;,
-&t-link-tar;, &t-link-zip;, &t-link-textfile;.
+&t-link-tar;, &t-link-zip;, &t-link-textfile; &t-link-vcpkg;.
 </para>
 
 <para>
