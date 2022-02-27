@@ -1,0 +1,7 @@
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=['mingw'])
+env.Tool('ninja')
+dll = env.SharedLibrary(target='test_impl', source='test_impl.c')
+env.Program(target='test', source='test1.c', LIBS=[dll])
