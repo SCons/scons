@@ -15,10 +15,11 @@ TODO:
   * unit tests
   * verify that feature supersetting works
   * print errors from vcpkg on console
-  * print vcpkg commands unless in silent mode
   * debug libs
   * install/symlink built dlls into variant dir
-  * flag detection
+  * parallel builds?
+  * can we ensure granular detection, and fail on undetected dependencies?
+  * batch depend-info calls to vcpkg for better perf?
 
 """
 
@@ -54,6 +55,25 @@ import SCons.Node.Python
 import SCons.Script
 from SCons.Errors import UserError, InternalError, BuildError
 
+
+# Named constants for verbosity levels supported by _vcpkg_print
+Silent = 0
+Normal = 1
+Debug  = 2
+
+_max_verbosity = Normal # Can be changed with --silent or --vcpkg-debug
+
+# Add --vcpkg-debug command-line option
+SCons.Script.AddOption('--vcpkg-debug', dest = 'vcpkg-debug', default = False, action = 'store_true',
+                       help = 'Emit verbose debugging spew from the vcpkg builder')
+
+def _vcpkg_print(verbosity, *args):
+    """Prints *args"""
+
+    if verbosity <= _max_verbosity:
+        print(*args)
+
+
 def _get_built_vcpkg_full_version(vcpkg_exe):
     """Runs 'vcpkg version' and parses the version string from the output"""
 
@@ -64,6 +84,7 @@ def _get_built_vcpkg_full_version(vcpkg_exe):
     match_version = re.search(r' version (\S+)', line)
     if (match_version):
         version = match_version.group(1)
+        _vcpkg_print(Debug, 'vcpkg full version is "' + version + '"')
         return version
     raise InternalError(vcpkg_exe.get_path() + ': failed to parse version string')
 
@@ -71,9 +92,14 @@ def _get_built_vcpkg_full_version(vcpkg_exe):
 def _get_built_vcpkg_base_version(vcpkg_exe):
     """Returns just the base version from 'vcpkg version' (i.e., with any '-whatever' suffix stripped off"""
     full_version = _get_built_vcpkg_full_version(vcpkg_exe)
+
     dash_pos = full_version.find('-')
     if dash_pos != -1:
-        return full_version[0:dash_pos]
+        base_version = full_version[0:dash_pos]
+        _vcpkg_print(Debug, 'vcpkg base version is "' + base_version + '"')
+        return base_version
+
+    _vcpkg_print(Debug, 'vcpkg base version is identical to full version "' + full_version + '"')
     return full_version
 
 
@@ -124,16 +150,16 @@ def _bootstrap_vcpkg(env):
         built_version = _get_built_vcpkg_base_version(vcpkg_exe)
         source_version = _get_source_vcpkg_version(vcpkgroot_dir)
         if built_version != source_version and not built_version.startswith(source_version + '-'):
-            print(vcpkg_exe.get_path() + ' (version ' + built_version + ') is out of date (source version: ' + source_version + '); rebuilding')
+            _vcpkg_print(Normal, 'vcpkg executable (version ' + built_version + ') is out of date (source version: ' + source_version + '); rebuilding')
             build_vcpkg = True
         else:
-            print(vcpkg_exe.get_path() + ' (version ' + built_version + ') is up-to-date')
+            _vcpkg_print(Debug, 'vcpkg executable (version ' + built_version + ') is up-to-date')
 
     # If we need to build, do it now, and ensure that it built
     if build_vcpkg:
         if not bootstrap_vcpkg_script.exists():
             raise InternalError(bootstrap_vcpkg_script.get_path() + ' does not exist...what gives?')
-        print('Building vcpkg binary')
+        _vcpkg_print(Normal, 'Building vcpkg binary')
         if subprocess.call(bootstrap_vcpkg_script.get_abspath()) != 0:
             raise BuildError(bootstrap_vcpkg_script.get_path() + ' failed')
         vcpkg_exe.clear_memoized_values()
@@ -150,11 +176,15 @@ def _call_vcpkg(env, params, check_output = False):
 
     vcpkg_exe = _bootstrap_vcpkg(env)
     command_line = [vcpkg_exe.get_abspath()] + params
-    print(str(command_line))
+    _vcpkg_print(Debug, "Running " + str(command_line))
     if check_output:
-        return str(subprocess.check_output(command_line, universal_newlines = True))
+        output = str(subprocess.check_output(command_line, text = True))
+        _vcpkg_print(Debug, 'Output is: ' + output)
+        return output
     else:
-        return subprocess.call(args = command_line, universal_newlines = True)
+        result = subprocess.call(args = command_line, text = True)
+        _vcpkg_print(Debug, 'Result is: ' + str(result))
+        return result
 
 
 def _get_vcpkg_triplet(env, static):
@@ -184,17 +214,6 @@ def _get_vcpkg_triplet(env, static):
         return 'x64-linux'
 
     raise UserError('This architecture/platform (%s/%s) is currently unsupported with VCPkg' % (arch, platform))
-
-
-def _parse_build_depends(s):
-    """Given a string from the Build-Depends field of a CONTROL file, parse just the package name from it"""
-
-    match_name = re.match(r'^\s*([^\(\)\[\] ]+)\s*(\[.*\])?$', s)
-    if not match_name:
-        print('Failed to parse package name from string "' + s + '"')
-        return s
-
-    return match_name.group(1), match_name.group(2)
 
 
 def _read_vcpkg_file_list(env, list_file):
@@ -253,11 +272,9 @@ def _get_package_deps(env, spec, static):
     return deps_list
 
 
-# Global mapping of previously-computed package-name -> list-file targets. This
-# exists because we may discover additional packages that we need to build, based
-# on the Build-Depends field in the CONTROL file), and these packages may or may
-# not have been explicitly requested by the 
-# CHECKIN
+# Global mapping of previously-computed package-name -> list-file targets. This exists because we may discover
+# additional packages that we need to build, based on running :vcpkg depend-info"), and these packages may or
+# may not have been explicitly requested by calls to VCPkg.
 _package_descriptors_map = {}
 _package_targets_map = {}
 
@@ -309,6 +326,7 @@ class PackageDescriptor(SCons.Node.Python.Value):
 
     def is_mismatched_version_installed(self):
         triplet = _get_vcpkg_triplet(self.env, self.value['static'])
+        _vcpkg_print(Debug, 'Checking for mismatched version of "' + str(self) + '"')
         list_file = self.env.File('$VCPKGROOT/installed/vcpkg/info/' + self.value['name'] + '_' + self.value['version'] + '_' + triplet + '.list')
         if list_file.exists():
             return False
@@ -320,7 +338,7 @@ class PackageDescriptor(SCons.Node.Python.Value):
         match = re.match(r'^\S+\s+(\S+)\s+\S', installed)
         if match[1] == self.value['version']:
             raise InternalError("VCPkg thinks " + str(self) + " is installed, but '" + list_file.get_abspath() + "' does not exist")
-        print("Installed is " + match[1])
+        _vcpkg_print(Debug, "Installed is " + match[1])
         return True
 
     def target_from_source(self, pre, suf, splitext):
@@ -329,35 +347,36 @@ class PackageDescriptor(SCons.Node.Python.Value):
         target = self.env.File('$VCPKGROOT/installed/vcpkg/info/' + self.value['name'] + '_' + self.value['version'] + '_' + _get_vcpkg_triplet(self.env, self.value['static']) + suf)
         target.state = SCons.Node.up_to_date
 
-#         print("target_from_source: " + self.value['name'])
         for pkg in self.package_deps:
-            # CHECKIN: verify features
             if pkg in _package_targets_map:
-#                 print("Reused dep: " + str(_package_targets_map[pkg]))
+                _vcpkg_print(Debug, 'Reused dep: ' + str(_package_targets_map[pkg]))
                 self.env.Depends(target, _package_targets_map[pkg])
             else:
-#                 print("New dep: " + str(pkg))
+                _vcpkg_print(Debug, "New dep: " + str(pkg))
                 dep = self.env.VCPkg(pkg)
-#                 print("Depends: " + str(dep[0]))
                 self.env.Depends(target, dep[0])
 
-        if not target.exists():
-            if self.is_mismatched_version_installed():
-                if _call_vcpkg(self.env, ['upgrade', '--no-dry-run', str(self)]) != 0:
-                    print("Failed to upgrade package '" + str(self) + "'")
-                    target.state = SCons.Node.failed
-            elif _call_vcpkg(self.env, ['install', str(self)]) != 0:
-                print("Failed to install package '" + str(self) + "'")
-                target.state = SCons.Node.failed
-            target.clear_memoized_values()
+        if not SCons.Script.GetOption('help'):
             if not target.exists():
-                print("What gives? vcpkg install failed to create '" + target.get_abspath() + "'")
-                target.state = SCons.Node.failed
+                if self.is_mismatched_version_installed():
+                    _vcpkg_print(Debug, 'Upgrading package "' + str(self) + '"')
+                    if _call_vcpkg(self.env, ['upgrade', '--no-dry-run', str(self)]) != 0:
+                        _vcpkg_print(Silent, "Failed to upgrade package '" + str(self) + "'")
+                        target.state = SCons.Node.failed
+                else:
+                    _vcpkg_print(Debug, 'Installing package "' + str(self) + '"')
+                    if _call_vcpkg(self.env, ['install', str(self)]) != 0:
+                        _vcpkg_print(Silent, "Failed to install package '" + str(self) + "'")
+                        target.state = SCons.Node.failed
+                target.clear_memoized_values()
+                if not target.exists():
+                    _vcpkg_print(Silent, "What gives? vcpkg install failed to create '" + target.get_abspath() + "'")
+                    target.state = SCons.Node.failed
 
         target.precious = True
         target.noclean = True
 
-        print("Caching target for package: " + self.value['name'])
+        _vcpkg_print(Debug, "Caching target for package: " + self.value['name'])
         _package_targets_map[self.value['name']] = target
 
         return target
@@ -371,21 +390,24 @@ def get_package_descriptor(env, spec):
     return desc
 
 
+# TODO: at the moment, we can't execute vcpkg install at the "normal" point in time, because we need to know what
+# files are produced by running this, and we can't do that without actually running the command. Thus, we have to
+# shoe-horn the building of packages into the target_from_source function. If vcpkg supported some kind of "outputs"
+# mode where it could spit out the contents of the .list file without actually doing the build, then we could defer
+# the build until vcpkg_action.
 def vcpkg_action(target, source, env):
     pass
 #     packages = list(map(str, source))
-#     print("Running action")
 #     return _call_vcpkg(env, ['install'] + packages)
 
 
 def get_vcpkg_deps(node, env, path, arg):
-    print("Scan!!!!")
     deps = []
     if not node.package_deps is None:
         for pkg in node.package_deps:
             target = env.VCPkg(pkg)
             deps += target[0]
-            print("Dep: " + str(target[0]))
+            _vcpkg_print(Debug, 'Found dependency: "' + str(node) + '" -> "' + str(target[0]))
     return deps
 
 
@@ -418,6 +440,16 @@ def vcpkg_emitter(target, source, env):
 # TODO: static?
 def generate(env):
     """Add Builders and construction variables for vcpkg to an Environment."""
+
+    # Set verbosity to the appropriate level
+    global _max_verbosity
+    if SCons.Script.GetOption('vcpkg-debug'):
+        _max_verbosity = Debug
+    elif SCons.Script.GetOption('silent'):
+        _max_verbosity = Silent
+    else:
+        _max_verbosity = Normal
+
     VCPkgBuilder = SCons.Builder.Builder(action = vcpkg_action,
                                          source_factory = lambda spec: get_package_descriptor(env, spec),
                                          target_factory = SCons.Node.FS.File,
