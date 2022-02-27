@@ -64,7 +64,7 @@ def generate(env):
     if version:
         env['CXXVERSION'] = version
 
-    env['CCDEPFLAGS'] = '.MMD -MF ${TARGET}.d'
+    env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
 
 
 

@@ -89,6 +89,9 @@ def generate(env):
         if match:
             env['CXXVERSION'] = match.group(1)
 
+    env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
+
+
 def exists(env):
     return env.Detect(compilers)
 
