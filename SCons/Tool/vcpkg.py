@@ -20,6 +20,8 @@ TODO:
   * parallel builds?
   * can we ensure granular detection, and fail on undetected dependencies?
   * batch depend-info calls to vcpkg for better perf?
+  * bootstrap-vcpkg now installs from github...how to detect when to do this?
+  * Make "vcpkg search" faster by supporting a strict match option
 
 """
 
@@ -68,9 +70,10 @@ SCons.Script.AddOption('--vcpkg-debug', dest = 'vcpkg-debug', default = False, a
                        help = 'Emit verbose debugging spew from the vcpkg builder')
 
 def _vcpkg_print(verbosity, *args):
-    """Prints *args"""
+    """If the user wants to see messages of 'verbosity', prints *args with a 'vcpkg' prefix"""
 
     if verbosity <= _max_verbosity:
+        print('vcpkg: ', end='')
         print(*args)
 
 
@@ -171,20 +174,26 @@ def _bootstrap_vcpkg(env):
     return vcpkg_exe
 
 
-def _call_vcpkg(env, params, check_output = False):
+def _call_vcpkg(env, params, check_output = False, check = True):
     """Run the vcpkg executable wth the given set of parameters, optionally returning its standard output as a string. If the vcpkg executable is not yet built, or out of date, it will be rebuilt."""
 
     vcpkg_exe = _bootstrap_vcpkg(env)
     command_line = [vcpkg_exe.get_abspath()] + params
     _vcpkg_print(Debug, "Running " + str(command_line))
-    if check_output:
-        output = str(subprocess.check_output(command_line, text = True))
-        _vcpkg_print(Debug, 'Output is: ' + output)
-        return output
-    else:
-        result = subprocess.call(args = command_line, text = True)
-        _vcpkg_print(Debug, 'Result is: ' + str(result))
-        return result
+    try:
+        result = subprocess.run(command_line, text = True, capture_output = check_output or _max_verbosity == Silent, check = check)
+        if check_output:
+            _vcpkg_print(Debug, result.stdout)
+            return result.stdout
+        else:
+            return result.returncode
+    except subprocess.CalledProcessError as ex:
+        if check_output:
+            _vcpkg_print(Silent, result.stdout)
+            _vcpkg_print(Silent, result.stderr)
+            return result.stdout
+        else:
+            return ex.returncode
 
 
 def _get_vcpkg_triplet(env, static):
@@ -227,19 +236,17 @@ def _read_vcpkg_file_list(env, list_file):
 
 
 def _get_package_version(env, spec):
-    """Read the CONTROL file for a package, returning (version, depends[])"""
+    """Read the available version of a package (i.e., what would be installed)"""
 
     name = spec.split('[')[0]
-    control_file = env.File('$VCPKGROOT/ports/' + name + '/CONTROL')
-    version = None
-    for line in open(control_file.get_abspath()):
-        match_version = re.match(r'^Version: (\S+)$', line)
-        if match_version:
-            version = match_version.group(1)
-            break
-    if version is None:
-        raise InternalError('Failed to parse package version from control file "' + control_file.get_abspath() + '"')
-    return version
+    output = _call_vcpkg(env, ['search', name], check_output = True)
+    for line in output.split('\n'):
+        match = re.match(r'^(\S+)\s*(\S+)', line)
+        if match and match.group(1) == name:
+            version = match.group(2)
+            _vcpkg_print(Debug, 'Available version of package "' + name + '" is ' + version)
+            return version
+    raise UserError('No package "' + name + '" found via vcpkg search')
 
 
 def _get_package_deps(env, spec, static):
@@ -321,30 +328,32 @@ class PackageDescriptor(SCons.Node.Python.Value):
         s += ':' + _get_vcpkg_triplet(self.env, self.value['static'])
         return s
 
+    def get_listfile_basename(self):
+        # Trim off any suffix like '#3' from the version, as this doesn't appear in the listfile name
+        version = self.value['version']
+        hash_pos = version.find('#')
+        if hash_pos != -1:
+            version = version[0:hash_pos]
+        return self.value['name'] + '_' + version + '_' + _get_vcpkg_triplet(self.env, self.value['static'])
+
     def __str__(self):
         return self.get_package_string()
 
     def is_mismatched_version_installed(self):
         triplet = _get_vcpkg_triplet(self.env, self.value['static'])
         _vcpkg_print(Debug, 'Checking for mismatched version of "' + str(self) + '"')
-        list_file = self.env.File('$VCPKGROOT/installed/vcpkg/info/' + self.value['name'] + '_' + self.value['version'] + '_' + triplet + '.list')
-        if list_file.exists():
-            return False
-
-        installed = _call_vcpkg(self.env, ['list', self.value['name'] + ':' + triplet], check_output = True)
-        if installed == '' or installed.startswith('No packages are installed'):
-            return False
-
-        match = re.match(r'^\S+\s+(\S+)\s+\S', installed)
-        if match[1] == self.value['version']:
-            raise InternalError("VCPkg thinks " + str(self) + " is installed, but '" + list_file.get_abspath() + "' does not exist")
-        _vcpkg_print(Debug, "Installed is " + match[1])
-        return True
+        output = _call_vcpkg(self.env, ['update'], check_output = True)
+        for line in output.split('\n'):
+            match = re.match(r'^\s*(\S+)\s*(\S+) -> (\S+)', line)
+            if match and match.group(1) == str(self):
+                _vcpkg_print(Debug, 'Package "' + str(self) + '" can be updated (' + match.group(2) + ' -> ' + match.group(3))
+                return True
+        return False
 
     def target_from_source(self, pre, suf, splitext):
         _bootstrap_vcpkg(self.env)
 
-        target = self.env.File('$VCPKGROOT/installed/vcpkg/info/' + self.value['name'] + '_' + self.value['version'] + '_' + _get_vcpkg_triplet(self.env, self.value['static']) + suf)
+        target = self.env.File('$VCPKGROOT/installed/vcpkg/info/' + self.get_listfile_basename() + suf)
         target.state = SCons.Node.up_to_date
 
         for pkg in self.package_deps:
@@ -359,14 +368,14 @@ class PackageDescriptor(SCons.Node.Python.Value):
         if not SCons.Script.GetOption('help'):
             if not target.exists():
                 if self.is_mismatched_version_installed():
-                    _vcpkg_print(Debug, 'Upgrading package "' + str(self) + '"')
+                    _vcpkg_print(Silent, str(self) + ' (upgrade)')
                     if _call_vcpkg(self.env, ['upgrade', '--no-dry-run', str(self)]) != 0:
-                        _vcpkg_print(Silent, "Failed to upgrade package '" + str(self) + "'")
+                        _vcpkg_print(Silent, "Failed to upgrade package " + str(self))
                         target.state = SCons.Node.failed
                 else:
-                    _vcpkg_print(Debug, 'Installing package "' + str(self) + '"')
+                    _vcpkg_print(Silent, str(self) + ' (install)')
                     if _call_vcpkg(self.env, ['install', str(self)]) != 0:
-                        _vcpkg_print(Silent, "Failed to install package '" + str(self) + "'")
+                        _vcpkg_print(Silent, "Failed to install package " + str(self))
                         target.state = SCons.Node.failed
                 target.clear_memoized_values()
                 if not target.exists():
