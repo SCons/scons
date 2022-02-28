@@ -144,14 +144,7 @@ SetOption('experimental', 'ninja')
                     (although see &cv-link-__NINJA_NO;).
                     This can be done via:
                     <example_commands>
-# In a virtualenv, or "python" is the native executable:
 python -m pip install ninja
-
-# Windows using Python launcher:
-py -m pip install ninja
-
-# Anaconda:
-conda install -c conda-forge ninja
                     </example_commands>
                 </para>
 
@@ -205,7 +198,8 @@ conda install -c conda-forge ninja
     <cvar name="NINJA_MSVC_DEPS_PREFIX">
         <summary>
             <para>
-                A string which propagates directly into the generated &ninja; build file.
+                The <parameter>msvc_deps_prefix</parameter> string.
+                Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
                 <quote>defines the string which should be stripped from msvc’s <option>/showIncludes</option> output</quote>
             </para>
@@ -215,9 +209,10 @@ conda install -c conda-forge ninja
     <cvar name="NINJA_DIR">
         <summary>
             <para>
-                A directory name which propagates directly into the generated &ninja; build file.
+                The <parameter>builddir</parameter> value.
+                Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
-                <quote> builddir:
+                <quote>
                     A directory for some Ninja output files. ... (You can also store other build output in this
                     directory.)
                 </quote>
@@ -229,7 +224,8 @@ conda install -c conda-forge ninja
     <cvar name="NINJA_REGENERATE_DEPS">
         <summary>
             <para>
-                A generator function used to create a &ninja; depsfile which includes all the files which would require
+                A generator function used to create a &ninja; depfile which
+                includes all the files which would require
                 &SCons; to be invoked if they change.
                 Or a list of said files.
             </para>

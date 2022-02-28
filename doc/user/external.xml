@@ -367,7 +367,7 @@ conda install -c conda-forge ninja
         <para>
             It is not expected that the &b-link-Ninja; builder will work for all builds at this point. It is still under active
             development. If you find that your build doesn't work with &ninja; please bring this to the users mailing list
-            or devel channel on our Discord server.
+            or <literal>#scons-help</literal> channel on our Discord server.
         </para>
 
         <para>
