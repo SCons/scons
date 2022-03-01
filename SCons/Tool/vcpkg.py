@@ -10,17 +10,14 @@ selection method.
 
 
 TODO:
-  * ensure that upgrading to a new package version works after a repo update
   * ensure Linux works
   * unit tests
   * verify that feature supersetting works
-  * print errors from vcpkg on console
   * debug libs
   * install/symlink built dlls into variant dir
   * parallel builds?
   * can we ensure granular detection, and fail on undetected dependencies?
   * batch depend-info calls to vcpkg for better perf?
-  * bootstrap-vcpkg now installs from github...how to detect when to do this?
   * Make "vcpkg search" faster by supporting a strict match option
 
 """
@@ -96,9 +93,10 @@ def _get_built_vcpkg_base_version(vcpkg_exe):
     """Returns just the base version from 'vcpkg version' (i.e., with any '-whatever' suffix stripped off"""
     full_version = _get_built_vcpkg_full_version(vcpkg_exe)
 
-    dash_pos = full_version.find('-')
-    if dash_pos != -1:
-        base_version = full_version[0:dash_pos]
+    # Allow either 2022-02-02 or 2022.02.02 date syntax
+    match = re.match(r'^(\d{4}[.-]\d{2}[.-]\d{2})', full_version)
+    if match:
+        base_version = match.group(1)
         _vcpkg_print(Debug, 'vcpkg base version is "' + base_version + '"')
         return base_version
 
@@ -112,15 +110,36 @@ def _get_source_vcpkg_version(vcpkg_root):
     if not vcpkg_root.exists():
         raise InternalError(vcpkg_root.get_path() + ' does not exist')
 
+    # Older vcpkg versions had the source version in VERSION.txt
     version_txt = vcpkg_root.File('toolsrc/VERSION.txt')
-    if not version_txt.exists():
-        raise InternalError(version_txt.get_path() + ' does not exist; did something change in the vcpkg directory structure?')
+    if version_txt.exists():
+        _vcpkg_print(Debug, "Looking for source version in " + version_txt.get_path())
+        for line in open(version_txt.get_abspath()):
+            match_version = re.match(r'^"(.*)"$', line)
+            if (match_version):
+                version = match_version.group(1)
 
-    for line in open(version_txt.get_abspath()):
-        match_version = re.match(r'^"(.*)"$', line)
-        if (match_version):
-            return match_version.group(1)
-    raise InternalError(version_txt.get_path() + ": Failed to parse vcpkg version string")
+                # Newer versions of vcpkg have a hard-coded invalid date in the VERSION.txt for local builds,
+                # and the actual version comes from the bootstrap.ps1 script
+                if version != '9999.99.99':
+                    _vcpkg_print(Debug, 'Found valid vcpkg source version "' + version + '" in VERSION.txt')
+                    return version
+                else:
+                    _vcpkg_print(Debug, 'VERSION.txt contains invalid vcpkg source version "' + version + '"')
+                    break
+
+    # Newer versions of bootstrap-vcpkg simply download a pre-built executable from GitHub, and the version to download
+    # is hard-coded in a deployment script.
+    bootstrap_ps1 = vcpkg_root.File('scripts/bootstrap.ps1')
+    if bootstrap_ps1.exists():
+        for line in open(bootstrap_ps1.get_abspath()):
+            match_version = re.match(r"\$versionDate\s*=\s*'(.*)'", line)
+            if match_version:
+                version = match_version.group(1)
+                _vcpkg_print(Debug, 'Found valid vcpkg source version "' + version + '" in bootstrap.ps1')
+                return version
+
+    raise InternalError("Failed to determine vcpkg source version")
 
 
 def _bootstrap_vcpkg(env):
@@ -189,9 +208,9 @@ def _call_vcpkg(env, params, check_output = False, check = True):
             return result.returncode
     except subprocess.CalledProcessError as ex:
         if check_output:
-            _vcpkg_print(Silent, result.stdout)
-            _vcpkg_print(Silent, result.stderr)
-            return result.stdout
+            _vcpkg_print(Silent, ex.stdout)
+            _vcpkg_print(Silent, ex.stderr)
+            return ex.stdout
         else:
             return ex.returncode
 
@@ -272,11 +291,17 @@ def _get_package_deps(env, spec, static):
         # containing feature specifications. So, we'll strip these out (but possibly miss some dependencies).
         params.append(spec.split('[')[0])
 
+    name = spec.split('[')[0]
     output = _call_vcpkg(env, params, check_output = True)
-    deps_list = output[output.index(':') + 1:].split(',')
-    deps_list = list(map(lambda s: s.strip(), deps_list))
-    deps_list = list(filter(lambda s: s != "", deps_list))
-    return deps_list
+    for line in output.split('\n'):
+        match = re.match(r'^([^:[]+)(?:\[[^]]+\])?:\s*(.+)?', line)
+        if match and match.group(1) == name:
+            deps_list = []
+            if match.group(2):
+                deps_list = list(filter(lambda s: s != "", map(lambda s: s.strip(), match.group(2).split(','))))
+            _vcpkg_print(Debug, 'Package ' + spec + ' has dependencies [' + ','.join(deps_list) + ']')
+            return deps_list
+    raise InternalError('Failed to parse output from vcpkg ' + ' '.join(params) + '\n' + output)
 
 
 # Global mapping of previously-computed package-name -> list-file targets. This exists because we may discover
