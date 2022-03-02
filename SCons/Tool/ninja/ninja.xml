@@ -71,7 +71,7 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_SYNTAX</item>
             <item>NINJA_FORCE_SCONS_BUILD</item>
             <item>_NINJA_REGENERATE_DEPS_FUNC</item>
-            <item>__NINJA_NO</item>
+<!--            <item>__NINJA_NO</item>-->
             <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
 
 
@@ -141,7 +141,7 @@ SetOption('experimental', 'ninja')
                     To use this tool you need to install the &Python; &ninja; package,
                     as the tool by default depends on being able to do an
                     <systemitem>import</systemitem> of the package
-                    (although see &cv-link-__NINJA_NO;).
+<!--                    (although see &cv-link-__NINJA_NO;).-->
                     This can be done via:
                     <example_commands>
 python -m pip install ninja
@@ -290,6 +290,7 @@ python -m pip install ninja
         </summary>
     </cvar>
 
+<!-- Internal for now
     <cvar name="__NINJA_NO">
         <summary>
             <para>
@@ -298,7 +299,7 @@ python -m pip install ninja
             </para>
         </summary>
     </cvar>
-
+-->
 
     <cvar name="NINJA_FILE_NAME">
         <summary>
