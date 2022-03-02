@@ -32,8 +32,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   POpen object is properly closed.
 - SCons help (-H) no longer prints the "ignored for compatibility" options,
   which are still listed in the manpage.
-- Help is now sensitive to the size of the terminal window: the width of the
-  help text will scale to wider (or narrower) terminals than 80 characters.
+- The change to "content" and "content-timestamp" Decider names is reflected
+  in the User Guide as well, since the hash function may be other than md5
+  (tidying up from earlier change)
 
 
 FIXES
@@ -48,6 +49,8 @@ IMPROVEMENTS
 - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
   exception immediately when the user specified msvc script does not exist.
 - Add cache-debug messages for push failures.
+- Command-line help is now sensitive to the size of the terminal window: the
+  width of the help text will scale for terminals other than 80 chars wide.
 
 PACKAGING
 ---------
