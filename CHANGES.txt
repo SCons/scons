@@ -25,6 +25,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Action._subproc() can now be used as a python context manager to ensure that the
       POpen object is properly closed. 
       (Thanks to Mats Wichmann for catching that DummyPopen needed additional logic)
+    - Added project_url for mailing lists and Discord
+    - Updated project url in steup.cfg to be https instead of http
+    - Updated setup.cfg to remove Python 3.5 and add Python 3.10
+
 
 
   From Daniel Moody:

@@ -55,7 +55,8 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- Added project_url for mailing lists and Discord
+- Updated setup.cfg to remove Python 3.5 and add Python 3.10
 
 DOCUMENTATION
 -------------
