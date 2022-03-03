@@ -42,6 +42,9 @@ FIXES
 
 - Fix a number of Python ResourceWarnings which are issued when running SCons and/or it's tests
   with python 3.9 (or higher)
+- Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
+  AppendUnique is called on CPPPATH. (Issue #4108).
+
 
 IMPROVEMENTS
 ------------
