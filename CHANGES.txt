@@ -50,8 +50,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Pass window size to formatter so it formats for wider displays too.
     - runtest.py now accepts -j 0 to auto-detect number of usable
       processors for testing threads.
-    - Fixed Scanner/C:dictify_CPPDEFINES() crash if given single-item
-      tuples, as can happen if AppendUnique has been called (issue 4108).
+    - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
+      AppendUnique is called on CPPPATH. (Issue #4108).
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
