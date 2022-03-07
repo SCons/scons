@@ -15,6 +15,7 @@ NEW FUNCTIONALITY
 -----------------
 
 - List new features (presumably why a checkpoint is being released)
+- Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
