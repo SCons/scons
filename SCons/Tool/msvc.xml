@@ -416,7 +416,7 @@ you don't want &SCons; to change anything.
 <cvar name="MSVC_USE_SCRIPT_ARGS">
 <summary>
 <para>
-Provides arguments passed to the script &cv-MSVC_USE_SCRIPT;.
+Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
 </para>
 </summary>
 </cvar>
