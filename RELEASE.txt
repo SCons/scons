@@ -15,6 +15,7 @@ NEW FUNCTIONALITY
 -----------------
 
 - List new features (presumably why a checkpoint is being released)
+- Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
@@ -32,8 +33,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   POpen object is properly closed.
 - SCons help (-H) no longer prints the "ignored for compatibility" options,
   which are still listed in the manpage.
-- Help is now sensitive to the size of the terminal window: the width of the
-  help text will scale to wider (or narrower) terminals than 80 characters.
+- The change to "content" and "content-timestamp" Decider names is reflected
+  in the User Guide as well, since the hash function may be other than md5
+  (tidying up from earlier change)
 
 
 FIXES
@@ -41,6 +43,9 @@ FIXES
 
 - Fix a number of Python ResourceWarnings which are issued when running SCons and/or it's tests
   with python 3.9 (or higher)
+- Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
+  AppendUnique is called on CPPPATH. (Issue #4108).
+
 
 IMPROVEMENTS
 ------------
@@ -49,11 +54,14 @@ IMPROVEMENTS
   exception immediately when the user specified msvc script does not exist.
 - Add cache-debug messages for push failures.
 - Added ninja mingw support and improved ninja CommandGeneratorAction support.
+- Command-line help is now sensitive to the size of the terminal window: the
+  width of the help text will scale for terminals other than 80 chars wide.
 
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- Added project_url for mailing lists and Discord
+- Updated setup.cfg to remove Python 3.5 and add Python 3.10
 
 DOCUMENTATION
 -------------

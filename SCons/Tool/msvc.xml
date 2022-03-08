@@ -396,6 +396,7 @@ and extract the relevant variables from the result (typically
 <envar>%PATH%</envar>) for supplying to the build.
 This can be useful to force the use of a compiler version that
 &SCons; does not detect.
+&cv-MSVC_USE_SCRIPT_ARGS; privides arguments passed to this script.
 </para>
 
 <para>
@@ -409,6 +410,14 @@ you don't want &SCons; to change anything.
 </para>
 <para>
 &cv-MSVC_USE_SCRIPT; overrides &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MSVC_USE_SCRIPT_ARGS">
+<summary>
+<para>
+Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
 </para>
 </summary>
 </cvar>

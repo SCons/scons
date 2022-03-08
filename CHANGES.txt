@@ -25,6 +25,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Action._subproc() can now be used as a python context manager to ensure that the
       POpen object is properly closed. 
       (Thanks to Mats Wichmann for catching that DummyPopen needed additional logic)
+    - Added project_url for mailing lists and Discord
+    - Updated project url in steup.cfg to be https instead of http
+    - Updated setup.cfg to remove Python 3.5 and add Python 3.10
+
 
 
   From Daniel Moody:
@@ -51,6 +55,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Pass window size to formatter so it formats for wider displays too.
     - runtest.py now accepts -j 0 to auto-detect number of usable
       processors for testing threads.
+    - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
+      AppendUnique is called on CPPPATH. (Issue #4108).
+
+  From Zhichang Yu:
+    - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
 
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700

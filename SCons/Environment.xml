@@ -107,8 +107,7 @@ to the commands executed
 to build target files,
 you must do so explicitly.
 A common example is
-the system
-<envar>PATH</envar>
+the system &PATH;
 environment variable,
 so that
 &scons;
@@ -547,7 +546,7 @@ and/or suffix,
 so the contents are treated as a list of strings, that is,
 adding a string will result in a separate string entry,
 not a combined string. For &cv-CPPDEFINES; as well as
-for &cv-link-LIBS;, and the various <varname>*PATH</varname>
+for &cv-link-LIBS;, and the various <literal>*PATH</literal>;
 variables, &SCons; will supply the compiler-specific
 syntax (e.g. adding a <literal>-D</literal> or <literal>/D</literal>
 prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
@@ -625,7 +624,7 @@ do not make sense and a &Python; exception will be raised.
 <para>
 When using &f-env-Append; to modify &consvars;
 which are path specifications (conventionally,
-the names of such end in <varname>PATH</varname>),
+the names of such end in <literal>PATH</literal>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
 The same goes for adding library names to &cv-LIBS;.
@@ -812,7 +811,7 @@ is being used and
 &scons;
 finds a derived file that needs to be rebuilt,
 it will first look in the cache to see if a
-file with matching build signature exists
+file with matching &buildsig; exists
 (indicating the input file(s) and build action(s)
 were identical to those for the current target),
 and if so, will retrieve the file from the cache.
@@ -824,7 +823,7 @@ If the derived file is not present in the cache,
 &scons;
 will build it and
 then place a copy of the built file in the cache,
-identified by its build signature, for future use.
+identified by its &buildsig;, for future use.
 </para>
 
 <para>
@@ -881,6 +880,13 @@ method can be used to disable caching of specific files.  This can be
 useful if inputs and/or outputs of some tool are impossible to
 predict or prohibitively large.
 </para>
+
+<para>
+Note that (at this time) &SCons; provides no facilities
+for managing the derived-file cache. It is up to the developer
+to arrange for cache pruning, expiry, etc. if needed.
+</para>
+
 </summary>
 </scons_function>
 
@@ -1324,7 +1330,7 @@ was built.
 This can be consulted to match various
 file characteristics
 such as the timestamp,
-size, or content signature.
+size, or &contentsig;.
 </para>
 </listitem>
 </varlistentry>
