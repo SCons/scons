@@ -8082,7 +8082,7 @@ in tightly controlled Continuous Integration setups.</para>
 <para>If set to a True-like value (<literal>"1"</literal>,
 <literal>"true"</literal> or
 <literal>"True"</literal>) will cache to a file named
-<filename>.scons_msvc_cache</filename> in the user's home directory.
+<filename>.scons_msvc_cache.json</filename> in the user's home directory.
 If set to a pathname, will use that pathname for the cache.</para>
 
 <para>Note: use this cache with caution as it
