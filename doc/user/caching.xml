@@ -22,7 +22,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -49,19 +51,24 @@
 
   On multi-developer software projects,
   you can sometimes speed up every developer's builds a lot by
-  allowing them to share the derived files that they build.
+  allowing them to share a cache of the derived files that they build.
   After all, it is relatively rare that any in-progress change affects
   more than a few derived files, most will be unchanged.
+  Using a cache can also help an individual developer:
+  for example if you wish to start work on a new feature in a clean tree,
+  those build artifacts which could be reused can be
+  retrieved from the cache to populate the tree and save
+  a lot of initial build time.
   &SCons; makes this easy and reliable.
 
   </para>
 
   <section>
-  <title>Specifying the Shared Cache Directory</title>
+  <title>Specifying the Derived-File Cache Directory</title>
 
     <para>
 
-    To enable sharing of derived files,
+    To enable caching of derived files,
     use the &f-link-CacheDir; function
     in any &SConscript; file:
 
@@ -86,8 +93,10 @@ CacheDir('/usr/local/build_cache')
     <para>
 
     The cache directory you specify must
-    be readable and writable by all developers
-    who will be sharing derived files.
+    have read and write access for all developers
+    who will be accessing the cached files
+    (if <option>--cache-readonly</option> is used,
+    only read access is required).
     It should also be in some central location
     that all builds will be able to access.
     In environments where developers are using separate systems
@@ -107,31 +116,44 @@ CacheDir('/usr/local/build_cache')
     When a build has a &CacheDir; specified,
     every time a file is built,
     it is stored in that cache directory
-    along with its build signature.
+    indexed by its &buildsig;.
     On subsequent builds,
     before an action is invoked to build a file,
-    &SCons; will check the shared cache directory
-    to see if a file with the exact same build
-    signature already exists.
+    the &buildsig; is computed and &SCons; checks
+    the derived-file cache directory
+    to see if a file with the exact same &buildsig;
+    already exists.
+
       <footnote>
       <para>
-      A few inner details: &SCons; tracks two main kinds of cryptographic
-      hashes: <emphasis>content signatures</emphasis>,
-      which are a hash of the contents of a file;
-      and <emphasis>build signatures</emphasis>, which are a hash of the
-      elements needed to build a target, such as the exact command line,
+      A few inside details: &SCons; tracks two main kinds of cryptographic
+      hashes: a <emphasis>&contentsig;</emphasis>,
+      which is a hash of the contents of a file participating in the
+      build (depepdencies as well as targets);
+      and a <emphasis>&buildsig;</emphasis>, which is a hash of the
+      elements needed to build a target, such as the command line,
       the contents of the sources, and possibly information about
       tools used in the build. The hash function produces a unique signature
       from its inputs, no other set of inputs can produce that same
-      signature.  The build signature from building
+      signature.  The &buildsig; from building
       a target is used as the filename of the target file in the
-      shared cache - that way lookups are efficient, just compute
-      a build signature and see if a file exists with that as the name.
+      derived-file cache - that way lookups are efficient, just compute
+      a &buildsig; and see if a file exists with that as the name.
+      </para>
+
+      <para>
+      The use of the &buildsig; provides protection from concflicts:
+      if two developers have different setups, so they would produce
+      built objects that are not identical, then because the difference in
+      tools will show up in the &buildsig;, which is used as the
+      name of the cache entry, they will end up being
+      stored as separate entries.
       </para>
       </footnote>
+
     If so, the derived file will not be built locally,
     but will be copied into the local build directory
-    from the shared cache directory,
+    from the derived-file cache directory,
     like this:
 
     </para>
@@ -144,17 +166,16 @@ CacheDir('/usr/local/build_cache')
 
     <para>
 
-    Note that the &CacheDir; feature requires that build signatures
+    Note that the &CacheDir; feature requires that the &buildsig;
     be calculated,
     even if you configure &SCons; to use timestamps
     to decide if files are up to date
     (see the <xref linkend="chap-depends"></xref>
     chapter for information about the &f-link-Decider; function),
-    since the build signature is used to determine if a target file
+    since the &buildsig; is used to determine if a target file
     exists in the cache.
-    Consequently, using &CacheDir; may reduce or eliminate any
-    potential performance improvements
-    from using timestamps for up-to-date decisions.
+    Consequently, using &CacheDir; may reduce or negate any performance
+    improvements from using timestamps for up-to-date decisions.
 
     </para>
 
@@ -165,11 +186,11 @@ CacheDir('/usr/local/build_cache')
 
     <para>
 
-    One potential drawback to using a shared cache
+    One potential drawback to using a derived-file cache
     is that the output printed by &SCons;
     can be inconsistent from invocation to invocation,
     because any given file may be rebuilt one time
-    and retrieved from the shared cache the next time.
+    and retrieved from the derived-file cache the next time.
     This can make analyzing build output more difficult,
     especially for automated scripts that
     expect consistent output each time.
@@ -182,9 +203,8 @@ CacheDir('/usr/local/build_cache')
     &SCons; will print the command line that it
     <emphasis>would</emphasis> have executed
     to build the file,
-    even when it is retrieving the file from the shared cache.
-    This makes the build output consistent
-    every time the build is run:
+    even when it is retrieving the file from the derived-file cache.
+    This keeps the build output consistent across builds:
 
     </para>
 
@@ -206,7 +226,7 @@ CacheDir('/usr/local/build_cache')
   </section>
 
   <section>
-  <title>Not Using the Shared Cache for Specific Files</title>
+  <title>Not Using the Derived-File Cache for Specific Files</title>
 
     <para>
 
@@ -215,7 +235,7 @@ CacheDir('/usr/local/build_cache')
     For example, if you only want to put
     executable files in a central cache,
     but not the intermediate object files,
-    you can use the &NoCache;
+    you can use the &f-link-NoCache;
     function to specify that the
     object files should not be cached:
 
@@ -241,8 +261,8 @@ hello.c
     Then when you run &scons; after cleaning
     the built targets,
     it will recompile the object file locally
-    (since it doesn't exist in the shared cache directory),
-    but still realize that the shared cache directory
+    (since it doesn't exist in the derived-file cache directory),
+    but still realize that the derived-file cache directory
     contains an up-to-date executable program
     that can be retrieved instead of re-linking:
 
@@ -273,12 +293,12 @@ Retrieved `hello' from cache
   </section>
 
   <section>
-  <title>Disabling the Shared Cache</title>
+  <title>Disabling the Derived-File Cache</title>
 
     <para>
 
     Retrieving an already-built file
-    from the shared cache
+    from the derived-file cache
     is usually a significant time-savings
     over rebuilding the file,
     but how much of a savings
@@ -298,7 +318,7 @@ Retrieved `hello' from cache
     the <option>--cache-disable</option>
     command-line option to tell &SCons;
     to not retrieve already-built files from the
-    shared cache directory:
+    derived-file cache directory:
 
     </para>
 
@@ -313,7 +333,7 @@ Retrieved `hello' from cache
   </section>
 
   <section>
-  <title>Populating a Shared Cache With Already-Built Files</title>
+  <title>Populating a Derived-File Cache With Already-Built Files</title>
 
     <para>
 
@@ -323,7 +343,7 @@ Retrieved `hello' from cache
     For example, you may find it more effective to perform
     integration builds with the cache disabled
     (per the previous section)
-    and only populate the shared cache directory
+    and only populate the derived-file cache directory
     with the built files after the integration build
     has completed successfully.
     This way, the cache will only get filled up
@@ -373,7 +393,7 @@ Retrieved `hello' from cache
     <para>
 
     If you allow multiple builds to update the
-    shared cache directory simultaneously,
+    derived-file cache directory simultaneously,
     two builds that occur at the same time
     can sometimes start "racing"
     with one another to build the same files
@@ -385,8 +405,7 @@ Retrieved `hello' from cache
 
     <scons_example name="caching_ex-random">
        <file name="SConstruct" printme="1">
-Program('prog',
-        ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
+Program('prog', ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
        </file>
        <file name="f1.c">f1.c</file>
        <file name="f2.c">f2.c</file>
@@ -412,9 +431,9 @@ Program('prog',
     But if two such builds take place simultaneously,
     they may each look in the cache at nearly the same
     time and both decide that <filename>f1.o</filename>
-    must be rebuilt and pushed into the shared cache directory,
+    must be rebuilt and pushed into the derived-file cache directory,
     then both decide that <filename>f2.o</filename>
-    must be rebuilt (and pushed into the shared cache directory),
+    must be rebuilt (and pushed into the derived-file cache directory),
     then both decide that <filename>f3.o</filename>
     must be rebuilt...
     This won't cause any actual build problems--both
@@ -465,7 +484,7 @@ to return things in the original sorted order.
     random orders,
     which minimizes the chances for a lot of
     contention for same-named files
-    in the shared cache directory.
+    in the derived-file cache directory.
     Multiple simultaneous builds might still race to try to build
     the same target file on occasion,
     but long sequences of inefficient contention
@@ -489,7 +508,7 @@ to return things in the original sorted order.
     If you want to make sure dependencies will be built
     in a random order without having to specify
     the <option>--random</option> on very command line,
-    you can use the &SetOption; function to
+    you can use the &f-link-SetOption; function to
     set the <literal>random</literal> option
     within any &SConscript; file:
 
@@ -498,8 +517,7 @@ to return things in the original sorted order.
     <scons_example name="caching_ex-random">
        <file name="SConstruct" printme="1">
 SetOption('random', 1)
-Program('prog',
-        ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
+Program('prog', ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
        </file>
        <file name="f1.c">f1.c</file>
        <file name="f2.c">f2.c</file>
@@ -516,7 +534,7 @@ Program('prog',
 
     <para>
 
-    SCons' internal <classname>CacheDir</classname> class can be extended to support customization
+    &SCons;' internal <classname>CacheDir</classname> class can be extended to support customization
     around the details of caching behaviors, for example using compressed cache files,
     encrypted cache files, gathering statistics and data, or many other aspects.
 
@@ -524,33 +542,38 @@ Program('prog',
 
     <para>
 
-    To create your own custom &f-link-CacheDir; class, your custom class must be a subclass
-    of SCons internal <classname>SCons.CacheDir.CacheDir</classname> class.
-    You can then pass your custom &f-link-CacheDir; class to the &f-link-CacheDir;
-    method or set the environment construction variable &cv-link-CACHEDIR_CLASS; to the class before configuring the cache
-    in that environment. SCons will internally invoke and use your custom class when performing
-    cache operations. The below example shows a simple use case of overriding the copy_from_cache
+    To create your own custom cache class,
+    your custom class must be a subclass
+    of the <classname>SCons.CacheDir.CacheDir</classname> class.
+    You can then pass your custom class to the &f-link-CacheDir;
+    method or set the &consvar;
+    &cv-link-CACHEDIR_CLASS; to the class before configuring the cache
+    in that environment.
+    SCons will internally invoke and use your custom class when performing
+    cache operations.
+    The below example shows a simple use case of overriding the
+    <function>copy_from_cache</function>
     method to record the total number of bytes pulled from the cache.
 
     </para>
 
     <scons_example name="custom_caching">
       <file name="SConstruct" printme="1">
-        import SCons
-        import os
+import SCons
+import os
 
-        class CustomCacheDir(SCons.CacheDir.CacheDir):
-            total_retrieved = 0
+class CustomCacheDir(SCons.CacheDir.CacheDir):
+    total_retrieved = 0
 
-            @classmethod
-            def copy_from_cache(cls, env, src, dst):
-                # record total bytes pulled from cache
-                cls.total_retrieved += os.stat(src).st_size
-                super().copy_from_cache(env, src, dst)
+    @classmethod
+    def copy_from_cache(cls, env, src, dst):
+        # record total bytes pulled from cache
+        cls.total_retrieved += os.stat(src).st_size
+        super().copy_from_cache(env, src, dst)
 
-        env = Environment()
-        env.CacheDir('scons-cache', CustomCacheDir)
-        # ...
+env = Environment()
+env.CacheDir('scons-cache', CustomCacheDir)
+# ...
       </file>
     </scons_example>
 
