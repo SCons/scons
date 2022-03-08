@@ -1165,7 +1165,7 @@ the help message not to be displayed.
     <option>--hash-chunksize=<replaceable>KILOBYTES</replaceable></option>
   </term>
   <listitem>
-<para>Set the block size used when computing content signatures to
+<para>Set the block size used when computing &contentsigs; to
 <replaceable>KILOBYTES</replaceable>.
 This value determines the size of the chunks which are read in at once when
 computing signature hashes.  Files below that size are fully stored in memory
@@ -1187,8 +1187,8 @@ be appropriate for most uses.</para>
   <listitem>
 <para>Set the hashing algorithm used by SCons to
 <replaceable>ALGORITHM</replaceable>.
-This value determines the hashing algorithm used in generating content
-signatures or &f-link-CacheDir; keys.</para>
+This value determines the hashing algorithm used in generating
+&contentsigs; or &CacheDir; keys.</para>
 
 <para>The supported list of values are: md5, sha1, and sha256.
 However, the Python interpreter used to run SCons must have the corresponding
@@ -1272,8 +1272,7 @@ but with the following limitations:</para>
 
 <para>&scons;
 will not detect changes to implicit dependency search paths
-(e.g.
-<envar>CPPPATH</envar>, <envar>LIBPATH</envar>)
+(e.g.  &cv-link-CPPPATH;, &cv-link-LIBPATH;)
 that would ordinarily
 cause different versions of same-named files to be used.</para>
 
@@ -1281,8 +1280,7 @@ cause different versions of same-named files to be used.</para>
 will miss changes in the implicit dependencies
 in cases where a new implicit
 dependency is added earlier in the implicit dependency search path
-(e.g.
-<envar>CPPPATH</envar>, <envar>LIBPATH</envar>)
+(e.g.  &cv-link-CPPPATH;, &cv-link-LIBPATH;)
 than a current implicit dependency with the same name.</para>
   </listitem>
   </varlistentry>
@@ -1551,16 +1549,16 @@ targets specified on the command line will still be processed.</para>
 <para>Set the maximum expected drift in the modification time of files to
 <replaceable>SECONDS</replaceable>.
 This value determines how long a file must be unmodified
-before its cached content signature
+before its cached &contentsig;
 will be used instead of
-calculating a new content signature (hash)
+calculating a new &contentsig; (hash)
 of the file's contents.
 The default value is 2 days, which means a file must have a
 modification time of at least two days ago in order to have its
-cached content signature used.
-A negative value means to never cache the content
-signature and to ignore the cached value if there already is one. A value
-of 0 means to always use the cached signature,
+cached &contentsig; used.
+A negative value means to never cache the
+&contentsig; and to ignore the cached value if there already is one.
+A value of 0 means to always use the cached signature,
 no matter how old the file is.</para>
   </listitem>
   </varlistentry>
@@ -2408,11 +2406,11 @@ env = Environment(parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-the <envar>CPPPATH</envar> &consvar;,
+the &cv-link-CPPPATH; &consvar;,
 'EBUG' to
-<envar>CPPDEFINES</envar>,
+&cv-link-CPPDEFINES;,
 and 'm' to
-<envar>LIBS</envar>.
+&cv-link-LIBS;.
 </para>
 
 <para>
@@ -2574,7 +2572,7 @@ or if <parameter>tools</parameter> includes <literal>'default'</literal>,
 then &scons; will auto-detect usable tools,
 using the execution environment value of <varname>PATH</varname>
 (that is, <varname><replaceable>env</replaceable>['ENV']['PATH']</varname> -
-the external evironment <envar>PATH</envar> from <varname>os.environ</varname>
+the external evironment &PATH; from <varname>os.environ</varname>
 is <emphasis>not</emphasis> used)
 for looking up any backing programs, and the platform name in effect
 to determine the default tools for that platform.
@@ -2856,11 +2854,12 @@ env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
 </programlisting>
 
 <para>This example adds 'include' to
-<envar>CPPPATH</envar>,
+the &cv-link-CPPPATH; &consvar;,
 'EBUG' to
-<envar>CPPDEFINES</envar>,
+&cv-link-CPPDEFINES;,
 and 'm' to
-<envar>LIBS</envar>.</para>
+&cv-link-LIBS;.
+</para>
 
 <para>Although the builder methods defined by
 &scons;
@@ -5568,9 +5567,9 @@ must accept four arguments:
 <parameter>env</parameter> is the &consenv; to use for context,
 and <parameter>for_signature</parameter> is
 a Boolean value that tells the function
-if it is being called for the purpose of generating a build signature
+if it is being called for the purpose of generating a &buildsig;
 (as opposed to actually executing the command).
-Since the build signature is used for rebuild determination,
+Since the &buildsig; is used for rebuild determination,
 the function should omit those elements
 that do not affect whether a rebuild should be triggered
 if <parameter>for_signature</parameter> is true.
@@ -5996,6 +5995,7 @@ l = Action(build_it, '$STRINGIT')
 <para>Any additional positional arguments, if present,
 may either be &consvars; or lists of &consvars;
 whose values will be included in the signature of the Action
+(the &buildsig;)
 when deciding whether a target should be rebuilt because the action changed.
 Such variables may also be specified using the
 <parameter>varlist</parameter>
@@ -6659,14 +6659,14 @@ may be used to surround parts of a command line
 that may change
 <emphasis>without</emphasis>
 causing a rebuild--that is,
-which are not included in the signature
+which are not included in the &buildsig;
 of target files built with this command.
 All text between
 <emphasis role="bold">$(</emphasis>
 and
 <emphasis role="bold">$)</emphasis>
 will be removed from the command line
-before it is added to the build action signature,
+before it is added to the &buildsig;
 and the
 <emphasis role="bold">$(</emphasis>
 and
@@ -6684,7 +6684,9 @@ echo Last build occurred $( $TODAY $). &gt; $TARGET
 echo Last build occurred $TODAY. &gt; $TARGET
 </screen>
 
-<para>but the command signature added to any target files would be:</para>
+<para>but the command portion of the
+the &buildsig; computed for any target files built
+by this action would be:</para>
 
 <screen>
 echo Last build occurred  . &gt; $TARGET
@@ -6704,8 +6706,8 @@ Such a function must accept four arguments:
 <parameter>env</parameter> is the &consenv; to use for context,
 and <parameter>for_signature</parameter> is
 a Boolean value that tells the function
-if it is being called for the purpose of generating a build signature.
-Since the build signature is used for rebuild determination,
+if it is being called for the purpose of generating a &buildsig;.
+Since the &buildsig; is used for rebuild determination,
 the function should omit variable elements
 that do not affect whether a rebuild should be triggered
 (see <emphasis role="bold">$(</emphasis>
@@ -6943,7 +6945,7 @@ directories when generating the dependency Nodes. To illustrate this,
 a C language source file may contain a line like
 <literal>#include "foo.h"</literal>.  However, there is no guarantee
 that <filename>foo.h</filename> exists in the current directory:
-the contents of &cv-CPPPATH; is passed to the C preprocessor which
+the contents of &cv-link-CPPPATH; is passed to the C preprocessor which
 will look in those places for the header,
 so the scanner function needs to look in those places as well
 in order to build Nodes with correct paths.
@@ -7223,7 +7225,7 @@ to vary its initialization.</para>
 <para>Returns <constant>True</constant> if the tool can
 be called in the context of <parameter>env</parameter>.
 Usually this means looking up one or more
-known programs using the <envar>PATH</envar> from the
+known programs using the <varname>PATH</varname> from the
 supplied <parameter>env</parameter>, but the tool can
 make the "exists" decision in any way it chooses.
 </para>

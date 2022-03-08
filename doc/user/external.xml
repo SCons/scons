@@ -110,7 +110,7 @@
             The entries in this file can be filtered by using
 
             <envar>COMPILATIONDB_PATH_FILTER='pattern'</envar>
-            where the filter pattern is a string following the Python
+            where the filter pattern is a string following the &Python;
             <ulink url="https://docs.python.org/3/library/fnmatch.html">
                 <systemitem>fnmatch</systemitem>
             </ulink>
@@ -306,54 +306,90 @@
 
         <note>
             <para>
-                This is an experimental new feature. It is subject to change and/or removal without depreciation cycle
+                This is an experimental new feature.
+                It is subject to change and/or removal without a depreciation cycle.
             </para>
+
             <para>
-                To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
-                package</ulink>.
-                This can be done via
-                <command>pip install ninja</command>
+                To enable this feature you'll need to use one of the following:
             </para>
-            <para>
-                To enable this feature you'll need to use one of the following
-            </para>
+<!--        NOTE DO NOT INDENT example_commands CONTENTS AS IT WILL ALTER THE FORMATTING-->
             <example_commands>
-                # On the command line
-                --experimental=ninja
+# On the command line
+--experimental=ninja
 
-                # Or in your SConstruct
-                SetOption('experimental', 'ninja')
+# Or in your SConstruct
+SetOption('experimental', 'ninja')
             </example_commands>
-
         </note>
 
         <para>
-            This tool will enabled creating a ninja build file from your SCons based build system. It can then invoke
-            ninja to run your build. For most builds ninja will be significantly faster, but you may have to give up
-            some accuracy. You are NOT advised to use this for production builds. It can however significantly speed up
-            your build/debug/compile iterations.
-        </para>
-        <para>
-            It's not expected that the ninja builder will work for all builds at this point. It's still under active
-            development. If you find that your build doesn't work with ninja please bring this to the users mailing list
-            or devel channel on our discord server.
-        </para>
-        <para>
-            Specifically if your build has many (or even any) python function actions you may find that the ninja build
-            will be slower as it will run ninja, which will then run SCons for each target created by a python action.
-            To alleviate some of these, especially those python based actions built into SCons there is special logic to
-            implement those actions via shell commands in the ninja build file.
-        </para>
-        <para>
-            <ulink url="https://ninja-build.org/">
-                <citetitle>Ninja Build System</citetitle>
-            </ulink>
+            Ninja is a small build system that tries to be fast
+            by not making decisions. &SCons; can at times be slow
+            because it makes lots of decisions to carry out its goal
+            of "correctness".  The two tools can be paired to benefit
+            some build scenarios: by using the &t-link-ninja; tool,
+            &SCons; can generate the build file &ninja; uses (basically
+            doing the decision-making ahead of time and recording that
+            for &ninja;), and can invoke &ninja; to perform a build.
+            For situations where relationships are not changing, such
+            as edit/build/debug iterations, this works fine and should
+            provide considerable speedups for more complex builds.
+            The implication is if there are larger changes taking place,
+            &ninja; is not as appropriate - but you can always use &SCons;
+            to regenerate the build file.  You are NOT advised to use
+            this for production builds.
         </para>
 
         <para>
+            To use the &t-link-ninja; tool you'll need to first install the
+            &Python; &ninja; package, as the tool depends on being able to do an
+            <systemitem>import</systemitem> of the package.
+            This can be done via:
+        </para>
+
+        <example_commands>
+# In a virtualenv, or "python" is the native executable:
+python -m pip install ninja
+
+# Windows using Python launcher:
+py -m pip install ninja
+
+# Anaconda:
+conda install -c conda-forge ninja
+        </example_commands>
+
+        <para>
+            Reminder that like any non-default tool, you need to initialize it before use
+            (e.g. <code>env.Tool('ninja')</code>).
+        </para>
+
+        <para>
+            It is not expected that the &b-link-Ninja; builder will work for all builds at this point. It is still under active
+            development. If you find that your build doesn't work with &ninja; please bring this to the users mailing list
+            or <literal>#scons-help</literal> channel on our Discord server.
+        </para>
+
+        <para>
+            Specifically if your build has many (or even any) &Python; function actions you may find that the &ninja; build
+            will be slower as it will run &ninja;, which will then run SCons for each target created by a &Python; action.
+            To alleviate some of these, especially those &Python; based actions built into SCons there is special logic to
+            implement those actions via shell commands in the &ninja; build file.
+        </para>
+
+        <para>See:</para>
+
+        <simplelist type="vert">
+            <member>
+            <ulink url="https://ninja-build.org/">
+                <citetitle>Ninja Build System</citetitle>
+            </ulink>
+            </member>
+            <member>
             <ulink url="https://ninja-build.org/manual.html#ref_ninja_file">
                 <citetitle>Ninja File Format Specification</citetitle>
             </ulink>
-        </para>
+            </member>
+        </simplelist>
     </section>
 </chapter>
