@@ -34,9 +34,9 @@ where_javac, java_version = test.java_where_javac()
 test.subdir('src')
 
 test.write('SConstruct', """
-env = Environment(tools = ['javac'],
-                  JAVACFLAGS = '-O')
-env.Java(target = 'classes', source = 'src')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['javac'], JAVACFLAGS='-O')
+env.Java(target='classes', source='src')
 """ % locals())
 
 test.write(['src', 'Example1.java'], """\

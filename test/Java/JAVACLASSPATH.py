@@ -54,6 +54,7 @@ if javacdir != javahdir:
     test.skip_test("Cannot find Java javah matching javac, skipping test.\n")
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(tools=['javac', 'javah'])
 j1 = env.Java(target='class1', source='com.1/Example1.java')
 j2 = env.Java(target='class2', source='com.2/Example2.java')

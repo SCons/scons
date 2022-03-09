@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -24,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the ability to configure the $JAVACCOM construction variable.
+Test the $MSVC_USE_SCRIPT construction variable.
 """
 
 import TestSCons
@@ -33,27 +31,12 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.subdir('src')
+test.skip_if_not_msvc()
+test.dir_fixture('MSVC_USE_SCRIPT_ARGS-fixture')
 
-test.file_fixture('mycompile.py')
+test.run(arguments = ".", status=0, stderr=None)
 
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-env = Environment(
-    TOOLS=['default', 'javac'],
-    JAVACCOM=r'%(_python_)s mycompile.py javac $TARGET $SOURCES',
-)
-env.Java(target='classes', source='src')
-""" % locals())
-
-test.write(['src', 'file1.java'], "file1.java\n/*javac*/\n")
-test.write(['src', 'file2.java'], "file2.java\n/*javac*/\n")
-test.write(['src', 'file3.java'], "file3.java\n/*javac*/\n")
-
-test.run()
-
-test.must_match(['classes', 'file1.class'],
-                "file1.java\nfile2.java\nfile3.java\n")
+test.must_contain('MSDEBUG_OUTPUT.log', "Calling 'fake_script.bat one two'")
 
 test.pass_test()
 

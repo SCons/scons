@@ -36,38 +36,17 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('myrmic.py', r"""
-import os
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-d':
-        outdir = args[1]
-        args = args[1:]
-    elif a == '-classpath':
-        args = args[1:]
-    elif a == '-sourcepath':
-        args = args[1:]
-    else:
-        break
-    args = args[1:]
-for file in args:
-    infile = open(file, 'rb')
-    outfile = open(os.path.join(outdir, file[:-5] + '.class'), 'wb')
-    for l in infile.readlines():
-        if l[:8] != '/*rmic*/':
-            outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture(['Java-fixture', 'myrmic.py'])
 
 test.write('SConstruct', """
 import os
-oldpath = os.environ.get('PATH','')
-env = Environment(ENV = {'PATH' : ['.']})
+
+oldpath = os.environ.get('PATH', '')
+DefaultEnvironment(tools=[])
+env = Environment(ENV={'PATH': ['.']}, tools=['javac', 'rmic'])
 env['ENV']['PATH'] = oldpath
 env['RMIC'] = r'%(_python_)s myrmic.py'
-env.RMIC(target = 'outdir', source = 'test1.java')
+env.RMIC(target='outdir', source='test1.java')
 """ % locals())
 
 test.write('test1.java', """\

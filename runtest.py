@@ -43,7 +43,6 @@ suppress_output = False
 script = os.path.basename(sys.argv[0])
 usagestr = """\
 %(script)s [OPTIONS] [TEST ...]
-       %(script)s -h|--help
 """ % locals()
 
 epilogstr = """\
@@ -86,7 +85,7 @@ parser.add_argument('-D', '--devmode', action='store_true',
 parser.add_argument('-e', '--external', action='store_true',
                     help="Run the script in external mode (for external Tools)")
 parser.add_argument('-j', '--jobs', metavar='JOBS', default=1, type=int,
-                    help="Run tests in JOBS parallel jobs.")
+                    help="Run tests in JOBS parallel jobs (0 for cpu_count).")
 parser.add_argument('-l', '--list', action='store_true', dest='list_only',
                     help="List available tests and exit.")
 parser.add_argument('-n', '--no-exec', action='store_false',
@@ -136,10 +135,10 @@ outctl.add_argument('-s', '--short-progress', action='store_true',
 outctl.add_argument('-t', '--time', action='store_true', dest='print_times',
                     help="Print test execution time.")
 outctl.add_argument('--verbose', metavar='LEVEL', type=int, choices=range(1, 4),
-                    help="""Set verbose level:
-                             1 = print executed commands,
-                             2 = print commands and non-zero output,
-                             3 = print commands and all output.""")
+                    help="""Set verbose level
+                             (1=print executed commands,
+                             2=print commands and non-zero output,
+                             3=print commands and all output).""")
 # maybe add?
 # outctl.add_argument('--version', action='version', version='%s 1.0' % script)
 
@@ -175,7 +174,7 @@ if args.testlistfile:
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
-            + "error: -f/--file testlist file \"%s\" not found\n" % p
+            + 'error: -f/--file testlist file "%s" not found\n' % p
         )
         sys.exit(1)
 
@@ -191,9 +190,25 @@ if args.excludelistfile:
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
-            + "error: --exclude-list file \"%s\" not found\n" % p
+            + 'error: --exclude-list file "%s" not found\n' % p
         )
         sys.exit(1)
+
+if args.jobs == 0:
+    try:
+        # on Linux, check available rather then physical CPUs
+        args.jobs = len(os.sched_getaffinity(0))
+    except AttributeError:
+        # Windows
+        args.jobs = os.cpu_count()
+
+# sanity check
+if args.jobs == 0:
+    sys.stderr.write(
+        parser.format_usage()
+        + "Unable to detect CPU count, give -j a non-zero value\n"
+    )
+    sys.exit(1)
 
 if args.jobs > 1 or args.output:
     # 1. don't let tests write stdout/stderr directly if multi-job,

@@ -48,7 +48,7 @@ Experimental=%s
              stdout=test.wrap_stdout(read_str=read_string, build_str="scons: `.' is up to date.\n"))
 
 test.run(arguments='--experimental=warp_drive',
-         stderr="""usage: scons [OPTION] [TARGET] ...
+         stderr="""usage: scons [OPTIONS] [VARIABLES] [TARGETS]
 
 SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','ninja','transporter','warp_speed')
 """,

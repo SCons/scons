@@ -59,6 +59,7 @@ if javacdir != javahdir:
 test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 foo = Environment(tools=['javac', 'javah', 'install'])
 jv = %(java_version)s
 if jv:

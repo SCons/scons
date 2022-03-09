@@ -490,6 +490,17 @@ class CConditionalScannerTestCase3(unittest.TestCase):
         headers = ['d1/f1.h']
         deps_match(self, deps, headers)
 
+class dictify_CPPDEFINESTestCase(unittest.TestCase):
+    def runTest(self):
+        """Make sure single-item tuples convert correctly.
+
+        This is a regression test: AppendUnique turns sequences into
+        lists of tuples, and dictify could gack on these.
+        """
+        env = DummyEnvironment(CPPDEFINES=(("VALUED_DEFINE", 1), ("UNVALUED_DEFINE", )))
+        d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+        expect = {'VALUED_DEFINE': 1, 'UNVALUED_DEFINE': None}
+        assert d == expect
 
 def suite():
     suite = unittest.TestSuite()
@@ -510,6 +521,7 @@ def suite():
     suite.addTest(CConditionalScannerTestCase1())
     suite.addTest(CConditionalScannerTestCase2())
     suite.addTest(CConditionalScannerTestCase3())
+    suite.addTest(dictify_CPPDEFINESTestCase())
     return suite
 
 if __name__ == "__main__":

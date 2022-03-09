@@ -44,11 +44,14 @@ out_file3 = os.path.join('out', 'file3', 'class_Stub.class')
 test.file_fixture('mycompile.py')
 
 test.write('SConstruct', """
-env = Environment(TOOLS = ['default', 'rmic'],
-                  RMICCOM = r'%(_python_)s mycompile.py rmic $TARGET $SOURCES')
-env.RMIC(target = 'out', source = 'file1.class')
-env.RMIC(target = 'out', source = 'file2.class')
-env.RMIC(target = 'out', source = 'file3.class')
+DefaultEnvironment(tools=[])
+env = Environment(
+    TOOLS=['default', 'rmic'],
+    RMICCOM=r'%(_python_)s mycompile.py rmic $TARGET $SOURCES',
+)
+env.RMIC(target='out', source='file1.class')
+env.RMIC(target='out', source='file2.class')
+env.RMIC(target='out', source='file3.class')
 """ % locals())
 
 test.write('file1.class', "file1.class\n/*rmic*/\n")

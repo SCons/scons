@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,7 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 This tests the --duplicate command line option, and the duplicate
@@ -125,7 +126,7 @@ type='copy'
 RunTest('copy', type, bss)
 
 test.run(arguments='--duplicate=nonsense', status=2, stderr="""\
-usage: scons [OPTION] [TARGET] ...
+usage: scons [OPTIONS] [VARIABLES] [TARGETS]
 
 SCons Error: `nonsense' is not a valid duplication option type, try:
     hard-soft-copy, soft-hard-copy, hard-copy, soft-copy, copy

@@ -450,8 +450,9 @@
 
 <!ENTITY Nodes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Nodes</literal>">
 
-<!ENTITY signature "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>signature</literal>">
-<!ENTITY buildsignature "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</literal>">
+<!ENTITY contentsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signature</phrase>">
+<!ENTITY contentsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signatures</phrase>">
+<!ENTITY buildsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</phrase>">
 
 <!ENTITY true "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>true</literal>">
 <!ENTITY false "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>false</literal>">

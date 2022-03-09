@@ -34,11 +34,11 @@ where_jar = test.java_where_jar()
 test.subdir('src')
 
 test.write('SConstruct', """
-env = Environment(tools = ['javac', 'jar'],
-                  JARFLAGS = 'cvf')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['javac', 'jar'], JARFLAGS='cvf')
 env['JARFLAGS'] = 'cvf'
-class_files = env.Java(target = 'classes', source = 'src')
-env.Jar(target = 'test.jar', source = class_files)
+class_files = env.Java(target='classes', source='src')
+env.Jar(target='test.jar', source=class_files)
 """ % locals())
 
 test.write(['src', 'Example1.java'], """\

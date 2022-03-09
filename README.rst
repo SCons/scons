@@ -41,33 +41,33 @@ commands to build them.
 
 Features:
 
-    * Configuration files are Python scripts -
-      use the power of a real programming language
-      to solve build problems; no complex domain-specific language to learn.
-    * Reliable, automatic dependency analysis built-in for C, C++ and Fortran.
-      No more "make depend" or "make clean" to get all of the dependencies.
-      Dependency analysis is easily extensible through user-defined
-      dependency Scanners for other languages or file types.
-    * Built-in support for C, C++, D, Java, Fortran, Yacc, Lex, Qt and SWIG,
-      and building TeX and LaTeX documents.
-      Easily extensible through user-defined Builders for other languages
-      or file types.
-    * Building from central repositories of source code and/or pre-built targets.
-    * Built-in support for Microsoft Visual Studio, including generation of
-      .dsp, .dsw, .sln and .vcproj files.
-    * Reliable detection of build changes using cryptographic hashes;
-      optionally can configure other algorithms including traditional timestamps.
-    * Support for parallel builds - can keep multiple jobs running
-      simultaneously regardless of directory hierarchy.
-    * Integrated Autoconf-like support for finding #include files, libraries,
-      functions and typedefs.
-    * Global view of all dependencies - no more multiple build passes or
-      reordering targets to build everything.
-    * Ability to share built files in a cache to speed up multiple builds.
-    * Designed from the ground up for cross-platform builds, and known to
-      work on Linux, other POSIX systems (including AIX, BSD systems,
-      HP/UX, IRIX and Solaris), Windows 7/8/10, MacOS, and OS/2.
-    * Written in Python.
+  * Configuration files are Python scripts -
+    use the power of a real programming language
+    to solve build problems; no complex domain-specific language to learn.
+  * Reliable, automatic dependency analysis built-in for C, C++ and FORTRAN.
+    No more "make depend" or "make clean" to get all of the dependencies.
+    Dependency analysis is easily extensible through user-defined
+    dependency Scanners for other languages or file types.
+  * Built-in support for C, C++, D, Java, FORTRAN, Yacc, Lex, Qt and SWIG,
+    and building TeX and LaTeX documents.
+    Easily extensible through user-defined Builders for other languages
+    or file types.
+  * Building from central repositories of source code and/or pre-built targets.
+  * Built-in support for Microsoft Visual Studio, including generation of
+    .dsp, .dsw, .sln and .vcproj files.
+  * Reliable detection of build changes using cryptographic hashes;
+    optionally can configure other algorithms including traditional timestamps.
+  * Support for parallel builds - can keep multiple jobs running
+    simultaneously regardless of directory hierarchy.
+  * Integrated Autoconf-like support for finding #include files, libraries,
+    functions and typedefs.
+  * Global view of all dependencies - no more multiple build passes or
+    reordering targets to build everything.
+  * Ability to share built files in a cache to speed up multiple builds.
+  * Designed from the ground up for cross-platform builds, and known to
+    work on Linux, other POSIX systems (including AIX, BSD systems,
+    HP/UX, IRIX and Solaris), Windows 7/8/10, MacOS, and OS/2.
+  * Written in Python.
 
 
 Documentation
@@ -98,7 +98,7 @@ supporting `ninja package <https://pypi.org/project/ninja/>`_.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named ``cc``, a C++
-compiler named ``c++``, and a Fortran compiler named ``gfortran`` (such as found
+compiler named ``c++``, and a FORTRAN compiler named ``gfortran`` (such as found
 in the GNU Compiler Collection) on any other type of system.  You may
 override these default values by appropriate configuration of variables
 in a Construction Environment, or in the case of Cygwin on a Win32 system,
@@ -141,7 +141,7 @@ Some installation examples::
     # to do a system-level install:
     $ python -m pip install --user scons
 
-    # Windows variant, assuming Python Laucher:
+    # Windows variant, assuming Python Launcher:
     C:\Users\me> py -m pip install --user scons
 
     # inside a virtualenv it's safe to use bare pip:
@@ -211,29 +211,43 @@ or on the SCons Discord server in
 Once you have discussed your issue on the users mailing list and the
 community has confirmed that it is either a new bug or a duplicate of an
 existing bug, then please follow the instructions the community provides
-to file a new bug or to add yourself to the CC list for an existing bug
+(including the issue template presented by GitHub)
+to file a new bug or to add yourself to the CC list for an existing bug.
 
 You can explore the list of existing bugs, which may include workarounds
 for the problem you've run into, on the
 `GitHub issue tracker <https://github.com/SCons/scons/issues>`_.
 
+Bug-fix Policy
+--------------
 
-Mailing Lists
-=============
+At this time, the application of bug-fix pull requests *normally* happens
+at the head of the main branch. In other words fixes are likely to appear
+in the next regular release and there probably won't be a bugfix update
+to a past release.  Consumers are of course free to internally maintain
+releases on their own by taking submitted patches and applying them.
 
-An active mailing list for developers of SCons is available.  You may
-send questions or comments to the list at scons-dev@scons.org.
+
+Mailing Lists and Other Contacts
+================================
+
+In addition to the scons-users list, an active mailing list for developers
+of SCons is available.  You may send questions or comments to the list
+at scons-dev@scons.org.
 
 You may subscribe to the developer's mailing list using the form at
-https://two.pairlist.net/mailman/listinfo/scons-dev.
+https://two.pairlist.net/mailman/listinfo/scons-dev.  The same page
+contains archives of past postings.
 
 Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
 in the future and/or weed out lurkers.
 
-There are other mailing lists available for SCons users, for notification of
-SCons code changes, and for notification of updated bug reports and project
-documents.  Please see our mailing lists page for details.
+There are other ways to contact the SCons community.  An active Discord
+server is the most direct.  The server includes a channel for code
+notifications and other GitHub events (``#github-update``),
+if those are of interest. See the website for more contact information:
+https://scons.org/contact.html.
 
 
 Donations
