@@ -57,11 +57,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
       AppendUnique is called on CPPPATH. (Issue #4108).
     - The MSVC script_env_cache now contains a sanity check: if the retrieved
-      tools path does not exist, it is invalidated so it will be recomputed.
-      The dictionary key, which is the name of a batch file, is also computed
-      a bit differently: the dashes are left off if there are no arguments.
-      The cachefile is changed to have a .json suffix, for better recognition
-      on Windows where there might, for example, be an editor association.
+      tools path does not exist, the entry is invalidated so it will
+      be recomputed, in an attempt to avoid scons failing when certain
+      compiler version bumps have taken place.  The dictionary key (uses
+      the name of a batch file and any arguments which may have been
+      passes), is now computed a bit differently: the dashes are left
+      off if there are no arguments.  The default cachefile is changed
+      to have a .json suffix, for better recognition on Windows since
+      the contents are json.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

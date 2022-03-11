@@ -26,19 +26,23 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
 - On Windows, %AllUsersProfile%\scons\site_scons is now the default "system"
-  location for a site_scons. %AllUsersProfile%\Application Data\scons\site_scons
-  will continue to work. There does not seem to be any convention to use
-  an "Application Data" subdirectory here.
+  location for a site_scons directory.
+  %AllUsersProfile%\Application Data\scons\site_scons will continue to work.
+  There does not seem to be any existing convention to use an
+  "Application Data" subdirectory here.
 - Action._subproc() can now be used as a python context manager to ensure that the
   POpen object is properly closed.
-- SCons help (-H) no longer prints the "ignored for compatibility" options,
-  which are still listed in the manpage.
+- SCons help (-H) no longer prints the "ignored for compatibility" options
+  to save some space (these are still listed in the manpage).
 - The change to "content" and "content-timestamp" Decider names is reflected
   in the User Guide as well, since the hash function may be other than md5
   (tidying up from earlier change)
-- The SCONS_CACHE_MSVC_CONFIG behavior changes slightly: will now do a
-  sanity check to hopefully regenerate if the compiler version has changed,
-  rather than fail; the default filename now has a .json suffix.
+- If SCONS_CACHE_MSVC_CONFIG is used, it will now attempt a sanity check for
+  the cached compiler information, and regenerate the information
+  if needed, rather than just failing after certain compiler version
+  changes have  happened.  The cache file can still be manually removed
+  if there are issues to force a regen.  The default cache filename now
+  has a .json suffix - the contents have always been json.
 
 
 FIXES

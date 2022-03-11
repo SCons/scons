@@ -31,6 +31,7 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import SCons.Util
 
@@ -102,7 +103,8 @@ def read_script_env_cache():
     envcache = {}
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_CACHE, 'r') as f:
+            p = Path(CONFIG_CACHE)
+            with p.open('r') as f:
                 envcache = json.load(f)
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
@@ -114,11 +116,12 @@ def write_script_env_cache(cache):
     """ write out cache of msvc env vars if requested """
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_CACHE, 'w') as f:
+            p = Path(CONFIG_CACHE)
+            with p.open('w') as f:
                 json.dump(cache, f, indent=2)
         except TypeError:
             # data can't serialize to json, don't leave partial file
-            os.remove(CONFIG_CACHE)
+            p.unlink(missing_ok=True)
         except IOError:
             # can't write the file, just skip
             pass
