@@ -742,19 +742,24 @@ def script_env(script, args=None):
 
     if script_env_cache is None:
         script_env_cache = common.read_script_env_cache()
-    extra = f"--{args}" if args else ""
-    cache_key = f"{script}{extra}"
+    cache_key = f"{script}--{args}" if args else f"{script}"
     cache_data = script_env_cache.get(cache_key, None)
 
-    # brief sanity check
+    # Brief sanity check: if we got a value for the key,
+    # see if it has a VCToolsInstallDir entry that is not empty.
+    # If so, and that path does not exist, invalidate the entry.
+    # If empty, this is an old compiler, just leave it alone.
     if cache_data is not None:
         try:
-            cache_check = cache_data["VCToolsInstallDir"][0]
-            toolsdir = Path(cache_check)
-            if not toolsdir.exists():
-                cache_data = None
-        except (KeyError, IndexError):
-            cache_data = None
+            toolsdir = cache_data["VCToolsInstallDir"]
+        except KeyError:
+            # we write this value, so should not happen
+            pass
+        else:
+            if toolsdir:
+                toolpath = Path(toolsdir[0])
+                if not toolpath.exists():
+                    cache_data = None
 
     if cache_data is None:
         stdout = common.get_output(script, args)
