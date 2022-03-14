@@ -537,7 +537,7 @@ class NinjaState:
             rule="SCONS_DAEMON",
         )
 
-        daemon_dir =  pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
+        daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
         pidfile = None
         if os.path.exists(scons_daemon_dirty):
             pidfile = scons_daemon_dirty

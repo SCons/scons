@@ -19,7 +19,9 @@ ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_keep_alive = int(sys.argv[3])
 args = sys.argv[4:]
 
-daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(ninja_builddir).encode()).hexdigest()))
+daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
+    "scons_daemon_" + str(hashlib.md5(str(ninja_builddir).encode()).hexdigest())
+)
 os.makedirs(daemon_dir, exist_ok=True)
 logging.basicConfig(
     filename=daemon_dir / "scons_daemon.log",
@@ -27,8 +29,11 @@ logging.basicConfig(
     format="%(asctime)s %(message)s",
     level=logging.DEBUG,
 )
+
+
 def daemon_log(message):
     logging.debug(message)
+
 
 def custom_readlines(handle, line_separator="\n", chunk_size=1):
     buf = ""
@@ -46,6 +51,7 @@ def custom_readlines(handle, line_separator="\n", chunk_size=1):
             yield buf
             buf = ""
 
+
 def custom_readerr(handle, line_separator="\n", chunk_size=1):
     buf = ""
     while not handle.closed:
@@ -58,16 +64,19 @@ def custom_readerr(handle, line_separator="\n", chunk_size=1):
             buf = chunks.pop()
             for chunk in chunks:
                 yield chunk + line_separator
-        
+
+
 def enqueue_output(out, queue):
     for line in iter(custom_readlines(out)):
         queue.put(line)
     out.close()
-        
+
+
 def enqueue_error(err, queue):
     for line in iter(custom_readerr(err)):
         queue.put(line)
     err.close()
+
 
 input_q = queue.Queue()
 output_q = queue.Queue()
@@ -80,6 +89,7 @@ building_cv = Condition()
 error_cv = Condition()
 
 thread_error = False
+
 
 def daemon_thread_func():
     global thread_error
@@ -120,12 +130,12 @@ def daemon_thread_func():
                                 error_output += error_q.get(block=False, timeout=0.01)
                             except queue.Empty:
                                 break
-                        error_nodes += [{'node': building_node, 'error': error_output}]
+                        error_nodes += [{"node": building_node, "error": error_output}]
                         daemon_ready = True
                         building_node = None
                         with building_cv:
                             building_cv.notify()
-                        
+
                     elif line == "scons>>>":
                         with error_q.mutex:
                             error_q.queue.clear()
@@ -159,7 +169,7 @@ def daemon_thread_func():
                     daemon_ready = False
 
             time.sleep(0.01)
-    except:
+    except Exception:
         thread_error = True
         daemon_log("SERVER ERROR: " + traceback.format_exc())
         raise
@@ -169,14 +179,15 @@ daemon_thread = threading.Thread(target=daemon_thread_func)
 daemon_thread.daemon = True
 daemon_thread.start()
 
-logging.debug(f"Starting request server on port {port}, keep alive: {daemon_keep_alive}")
+logging.debug(
+    f"Starting request server on port {port}, keep alive: {daemon_keep_alive}"
+)
 
 keep_alive_timer = timer()
 httpd = None
 
 
 def server_thread_func():
-
     class S(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             global thread_error
@@ -197,15 +208,15 @@ def server_thread_func():
 
                     with building_cv:
                         building_cv.wait_for(pred)
-                    
+
                     for error_node in error_nodes:
-                        if error_node['node'] == build[0]:
+                        if error_node["node"] == build[0]:
                             self.send_response(500)
                             self.send_header("Content-type", "text/html")
                             self.end_headers()
-                            self.wfile.write(error_node['error'].encode())
+                            self.wfile.write(error_node["error"].encode())
                             return
-                    
+
                     self.send_response(200)
                     self.send_header("Content-type", "text/html")
                     self.end_headers()
@@ -213,12 +224,12 @@ def server_thread_func():
 
                 exitbuild = gets.get("exit")
                 if exitbuild:
-                    input_q.put('exit')
-                
+                    input_q.put("exit")
+
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-               
+
             except:
                 thread_error = True
                 daemon_log("SERVER ERROR: " + traceback.format_exc())
@@ -230,6 +241,7 @@ def server_thread_func():
     httpd = socketserver.TCPServer(("127.0.0.1", port), S)
     httpd.serve_forever()
 
+
 server_thread = threading.Thread(target=server_thread_func)
 server_thread.daemon = True
 server_thread.start()
@@ -240,20 +252,22 @@ while timer() - keep_alive_timer < daemon_keep_alive and not thread_error:
 if thread_error:
     daemon_log(f"Shutting server on port {port} down because thread error.")
 else:
-    daemon_log(f"Shutting server on port {port} down because timed out: {daemon_keep_alive}")
+    daemon_log(
+        f"Shutting server on port {port} down because timed out: {daemon_keep_alive}"
+    )
 
-# if there are errors, don't immediatly shutdown the daemon
+# if there are errors, don't immediately shut down the daemon
 # the process which started the server is attempt to connect to
 # the daemon before allowing jobs to start being sent. If the daemon
-# shutsdown too fast, the launchs script will think it has not
+# shuts down too fast, the launch script will think it has not
 # started yet and sit and wait. If the launch script is able to connect
-# and then the connection is dropped, it will immediatly exit with fail.
+# and then the connection is dropped, it will immediately exit with fail.
 time.sleep(5)
 
 if os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     os.unlink(ninja_builddir / "scons_daemon_dirty")
 if os.path.exists(daemon_dir / "pidfile"):
     os.unlink(daemon_dir / "pidfile")
-    
+
 httpd.shutdown()
 server_thread.join()
