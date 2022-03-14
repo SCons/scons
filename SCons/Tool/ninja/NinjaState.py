@@ -290,6 +290,10 @@ class NinjaState:
 
         node_string = str(node)
         if node_string in self.builds:
+            # TODO: If we work out a way to handle Alias() with same name as file this logic can be removed
+            # This works around adding Alias with the same name as a Node.
+            # It's not great way to workaround because it force renames the alias,
+            # but the alternative is broken ninja support.
             warn_msg = f"Alias {node_string} name the same as File node, ninja does not support this. Renaming Alias {node_string} to {node_string}_alias."
             if isinstance(node, SCons.Node.Alias.Alias):
                 for i, output in enumerate(build["outputs"]):
