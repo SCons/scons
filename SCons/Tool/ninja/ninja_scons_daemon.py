@@ -33,7 +33,8 @@ from threading import Condition
 from subprocess import PIPE, Popen
 import sys
 import os
-import threading, queue
+import threading
+import queue
 import pathlib
 import logging
 from timeit import default_timer as timer
@@ -257,7 +258,7 @@ def server_thread_func():
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
 
-            except:
+            except Exception:
                 thread_error = True
                 daemon_log("SERVER ERROR: " + traceback.format_exc())
                 raise
@@ -305,3 +306,4 @@ server_thread.join()
 # indent-tabs-mode:nil
 # End:
 # vim: set expandtab tabstop=4 shiftwidth=4:
+
