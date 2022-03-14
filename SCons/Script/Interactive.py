@@ -29,7 +29,7 @@
 # of its own, which might or might not be a good thing.  Nevertheless,
 # here are some enhancements that will probably be requested some day
 # and are worth keeping in mind (assuming this takes off):
-# 
+#
 # - A command to re-read / re-load the SConscript files.  This may
 #   involve allowing people to specify command-line options (e.g. -f,
 #   -I, --no-site-dir) that affect how the SConscript files are read.
@@ -188,91 +188,82 @@ version                 Prints SCons version information.
             x.extend(n.alter_targets()[0])
         nodes.extend(x)
 
-        if SCons.Node.ninja_scons_daemon:
-            for n in nodes:
-                print(f"Node: {n}, State: {SCons.Node.failed}")
-                if n.get_state() == SCons.Node.failed:
-                    print(n)
-                    n.clear()
-                    n.set_state(SCons.Node.no_state)
-                    n.implicit = None
-        else:
-            # Clean up so that we can perform the next build correctly.
-            #
-            # We do this by walking over all the children of the targets,
-            # and clearing their state.
-            #
-            # We currently have to re-scan each node to find their
-            # children, because built nodes have already been partially
-            # cleared and don't remember their children.  (In scons
-            # 0.96.1 and earlier, this wasn't the case, and we didn't
-            # have to re-scan the nodes.)
-            #
-            # Because we have to re-scan each node, we can't clear the
-            # nodes as we walk over them, because we may end up rescanning
-            # a cleared node as we scan a later node.  Therefore, only
-            # store the list of nodes that need to be cleared as we walk
-            # the tree, and clear them in a separate pass.
-            #
-            # XXX: Someone more familiar with the inner workings of scons
-            # may be able to point out a more efficient way to do this.
+        # Clean up so that we can perform the next build correctly.
+        #
+        # We do this by walking over all the children of the targets,
+        # and clearing their state.
+        #
+        # We currently have to re-scan each node to find their
+        # children, because built nodes have already been partially
+        # cleared and don't remember their children.  (In scons
+        # 0.96.1 and earlier, this wasn't the case, and we didn't
+        # have to re-scan the nodes.)
+        #
+        # Because we have to re-scan each node, we can't clear the
+        # nodes as we walk over them, because we may end up rescanning
+        # a cleared node as we scan a later node.  Therefore, only
+        # store the list of nodes that need to be cleared as we walk
+        # the tree, and clear them in a separate pass.
+        #
+        # XXX: Someone more familiar with the inner workings of scons
+        # may be able to point out a more efficient way to do this.
 
-            SCons.Script.Main.progress_display("scons: Clearing cached node information ...")
+        SCons.Script.Main.progress_display("scons: Clearing cached node information ...")
 
-            seen_nodes = {}
+        seen_nodes = {}
 
-            def get_unseen_children(node, parent, seen_nodes=seen_nodes):
-                def is_unseen(node, seen_nodes=seen_nodes):
-                    return node not in seen_nodes
-                return [child for child in node.children(scan=1) if is_unseen(child)]
+        def get_unseen_children(node, parent, seen_nodes=seen_nodes):
+            def is_unseen(node, seen_nodes=seen_nodes):
+                return node not in seen_nodes
+            return [child for child in node.children(scan=1) if is_unseen(child)]
 
-            def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes):
-                seen_nodes[node] = 1
+        def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes):
+            seen_nodes[node] = 1
 
-                # If this file is in a VariantDir and has a
-                # corresponding source file in the source tree, remember the
-                # node in the source tree, too.  This is needed in
-                # particular to clear cached implicit dependencies on the
-                # source file, since the scanner will scan it if the
-                # VariantDir was created with duplicate=0.
-                try:
-                    rfile_method = node.rfile
-                except AttributeError:
-                    return
-                else:
-                    rfile = rfile_method()
-                if rfile != node:
-                    seen_nodes[rfile] = 1
+            # If this file is in a VariantDir and has a
+            # corresponding source file in the source tree, remember the
+            # node in the source tree, too.  This is needed in
+            # particular to clear cached implicit dependencies on the
+            # source file, since the scanner will scan it if the
+            # VariantDir was created with duplicate=0.
+            try:
+                rfile_method = node.rfile
+            except AttributeError:
+                return
+            else:
+                rfile = rfile_method()
+            if rfile != node:
+                seen_nodes[rfile] = 1
 
-            for node in nodes:
-                walker = SCons.Node.Walker(node,
-                                            kids_func=get_unseen_children,
-                                            eval_func=add_to_seen_nodes)
+        for node in nodes:
+            walker = SCons.Node.Walker(node,
+                                        kids_func=get_unseen_children,
+                                        eval_func=add_to_seen_nodes)
+            n = walker.get_next()
+            while n:
                 n = walker.get_next()
-                while n:
-                    n = walker.get_next()
 
-            for node in seen_nodes.keys():
-                # Call node.clear() to clear most of the state
-                node.clear()
-                # node.clear() doesn't reset node.state, so call
-                # node.set_state() to reset it manually
-                node.set_state(SCons.Node.no_state)
-                node.implicit = None
+        for node in seen_nodes.keys():
+            # Call node.clear() to clear most of the state
+            node.clear()
+            # node.clear() doesn't reset node.state, so call
+            # node.set_state() to reset it manually
+            node.set_state(SCons.Node.no_state)
+            node.implicit = None
 
-                # Debug:  Uncomment to verify that all Taskmaster reference
-                # counts have been reset to zero.
-                #if node.ref_count != 0:
-                #    from SCons.Debug import Trace
-                #    Trace('node %s, ref_count %s !!!\n' % (node, node.ref_count))
+            # Debug:  Uncomment to verify that all Taskmaster reference
+            # counts have been reset to zero.
+            #if node.ref_count != 0:
+            #    from SCons.Debug import Trace
+            #    Trace('node %s, ref_count %s !!!\n' % (node, node.ref_count))
 
-            # TODO: REMOVE WPD DEBUG 02/14/2022
-            # This call was clearing the list of sconsign files to be written, so it would
-            # only write the results of the first build command. All others wouldn't be written
-            # to .SConsign.
-            # Pretty sure commenting this out is the correct fix.
-            # SCons.SConsign.Reset()
-            SCons.Script.Main.progress_display("scons: done clearing node information.")
+        # TODO: REMOVE WPD DEBUG 02/14/2022
+        # This call was clearing the list of sconsign files to be written, so it would
+        # only write the results of the first build command. All others wouldn't be written
+        # to .SConsign.
+        # Pretty sure commenting this out is the correct fix.
+        # SCons.SConsign.Reset()
+        SCons.Script.Main.progress_display("scons: done clearing node information.")
 
     def do_clean(self, argv):
         """\
