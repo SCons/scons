@@ -134,6 +134,8 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
 
     variables = {}
 
+    # since we will check the ninja rule map for this command str, we must make sure
+    # its string so its hashable.
     comstr = str(get_comstr(sub_env, action, tlist, slist))
     if not comstr:
         return None
@@ -267,7 +269,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
                 variables["env"] += env.subst(
                     "export %s=%s;" % (key, value), target=targets, source=sources, executor=executor
                 ) + " "
-                
+
         if node.get_env().get('NINJA_FORCE_SCONS_BUILD'):
             ret_rule = 'TEMPLATE'
         else:
