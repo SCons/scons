@@ -34,13 +34,18 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   which are still listed in the manpage.
 - Help is now sensitive to the size of the terminal window: the width of the
   help text will scale to wider (or narrower) terminals than 80 characters.
-
+- Ninja: Changed generated build.ninja file to run SCons only build Actions via
+  a SCons Deamon. Added logic for starting and connecting to SCons daemon (currently
+  only used for ninja)
 
 FIXES
 -----
 
 - Fix a number of Python ResourceWarnings which are issued when running SCons and/or it's tests
   with python 3.9 (or higher)
+- Ninja: Fix issue where Configure files weren't being properly processed when build run
+  via ninja.
+
 
 IMPROVEMENTS
 ------------
@@ -70,4 +75,4 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.3.0..HEAD
