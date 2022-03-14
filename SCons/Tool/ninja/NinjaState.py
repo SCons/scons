@@ -87,10 +87,7 @@ class NinjaState:
         # to make the SCONS_INVOCATION variable properly quoted for things
         # like CCFLAGS
         scons_escape = env.get("ESCAPE", lambda x: x)
-
-        import random
-
-        PORT = str(random.randint(10000, 60000))
+        scons_daemon_port = int(env.get('NINJA_SCONS_DAEMON_PORT',-1))
 
         # if SCons was invoked from python, we expect the first arg to be the scons.py
         # script, otherwise scons was invoked from the scons script
@@ -192,7 +189,7 @@ class NinjaState:
                 "restat": 1,
             },
             "TEMPLATE": {
-                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_daemon_build.py'} {PORT} {get_path(env.get('NINJA_DIR'))} $out",
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_daemon_build.py'} {scons_daemon_port} {get_path(env.get('NINJA_DIR'))} $out",
                 "description": "Defer to SCons to build $out",
                 "pool": "local_pool",
                 "restat": 1
@@ -221,7 +218,7 @@ class NinjaState:
             },
 
             "SCONS_DAEMON": {
-                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {PORT} {get_path(env.get('NINJA_DIR'))} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {scons_daemon_port} {get_path(env.get('NINJA_DIR'))} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
                 "description": "Starting scons daemon...",
                 "pool": "local_pool",
                 # restat

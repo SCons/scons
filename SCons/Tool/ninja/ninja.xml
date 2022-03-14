@@ -74,6 +74,7 @@ See its __doc__ string for a discussion of the format.
             <item>__NINJA_NO</item>
             <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
             <item>NINJA_SCONS_DAEMON_KEEP_ALIVE</item>
+            <item>NINJA_SCONS_DAEMON_PORT</item>
 
 
             <!-- TODO: Document these -->
@@ -341,6 +342,16 @@ See its __doc__ string for a discussion of the format.
             <para>
                 The number of seconds for the SCons deamon launched by ninja to stay alive.
                 (Default: 180000)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_SCONS_DAEMON_PORT">
+        <summary>
+            <para>
+                The TCP/IP port for the SCons daemon to listen on.
+                <emphasis>NOTE: You cannot use a port already being listened to on your build machine.</emphasis>
+                (Default: random number between 10000,60000)
             </para>
         </summary>
     </cvar>
