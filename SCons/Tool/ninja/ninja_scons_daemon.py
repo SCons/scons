@@ -124,7 +124,7 @@ def daemon_thread_func():
     global finished_building
     global error_nodes
     try:
-        args_list = args + ["--ninja-scons-daemon"]
+        args_list = args + ["--interactive"]
         daemon_log(f"Starting daemon with args: {' '.join(args_list)}")
         daemon_log(f"cwd: {os.getcwd()}")
 

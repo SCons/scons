@@ -858,11 +858,6 @@ def Parser(version):
                   action="store_true",
                   help="Run in interactive mode")
 
-    op.add_option('--ninja-scons-daemon',
-                  dest='ninja_scons_daemon', default=False,
-                  action="store_true",
-                  help="A special interactive mode to support a scons daemon for ninja builds. Intended for use only by the ninja tool.")
-
     op.add_option('-j', '--jobs',
                   nargs=1, type="int",
                   dest="num_jobs", default=1,

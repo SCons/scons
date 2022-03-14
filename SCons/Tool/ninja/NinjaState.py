@@ -63,7 +63,7 @@ class NinjaState:
                 os.pardir,
                 'data',
                 'bin',
-                ninja_bin))            
+                ninja_bin))
             if not os.path.exists(self.ninja_bin_path):
                 # couldn't find it, just give the bin name and hope
                 # its in the path later
@@ -219,7 +219,7 @@ class NinjaState:
                 # output.
                 "restat": 1,
             },
-            
+
             "SCONS_DAEMON": {
                 "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {PORT} {get_path(env.get('NINJA_DIR'))} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
                 "description": "Starting scons daemon...",
@@ -551,8 +551,8 @@ class NinjaState:
                     os.kill(pid, signal.SIGINT)
                 except OSError:
                     pass
-                
-        if os.path.exists(scons_daemon_dirty): 
+
+        if os.path.exists(scons_daemon_dirty):
             os.unlink(scons_daemon_dirty)
 
 
