@@ -189,7 +189,7 @@ def generate(env):
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_DIR'] = env.Dir(env.get("NINJA_DIR", '#/.ninja'))
     env["NINJA_SCONS_DAEMON_KEEP_ALIVE"] = env.get("NINJA_SCONS_DAEMON_KEEP_ALIVE", 180000)
-    env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000,60000))
+    env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000, 60000))
 
     if GetOption("disable_ninja"):
         env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
