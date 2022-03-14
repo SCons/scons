@@ -145,7 +145,7 @@ to support additional input file types.
 
 <para>Information about files involved in the build,
 including a cryptographic hash of the contents,
-is cached for later reuse, 
+is cached for later reuse,
 By default content hashes are used to determine if a file
 has changed since the last build,
 but this can be controlled by selecting an appropriate
@@ -3983,7 +3983,7 @@ actually two bytes.</para>
 <para>Checks whether the C compiler
 (as defined by the &cv-link-CC; &consvar;) works,
 by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4003,7 +4003,7 @@ be accepted or rejected by the compiler.
 <para>Checks whether the C++ compiler
 (as defined by the &cv-link-CXX; &consvar;) works,
 by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4023,7 +4023,7 @@ be accepted or rejected by the compiler.
 <para>Checks whether the shared-object C compiler (as defined by the
 &cv-link-SHCC; &consvar;) works
 by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4045,7 +4045,7 @@ be created.
 <para>Checks whether the shared-object C++ compiler (as defined by the
 &cv-link-SHCXX; &consvar;)
 works by trying to compile a small source file.
-This provides a more rigorous check: 
+This provides a more rigorous check:
 by default, &SCons; itself only detects if there is a program
 with the correct name, not if it is a functioning compiler.
 Returns a boolean indicating success or failure.</para>
@@ -4064,7 +4064,7 @@ be created.
   <varlistentry>
   <term><replaceable>context</replaceable>.<methodname>CheckProg</methodname>(<parameter>prog_name</parameter>)</term>
   <listitem>
-<para>Checks if 
+<para>Checks if
 <parameter>prog_name</parameter>
 exists in the path &SCons; will use at build time.
 (<replaceable>context</replaceable>.<varname>env['ENV']['PATH']</varname>).
@@ -4100,7 +4100,7 @@ it will be be used as the macro replacement value.
 If <parameter>value</parameter> is a string and needs to
 display with quotes, the quotes need to be included,
 as in <literal>'"string"'</literal>
-If the optional 
+If the optional
 <parameter>comment</parameter> is given,
 it is inserted as a comment above the macro definition
 (suitable comment marks will be added automatically).
@@ -6410,34 +6410,200 @@ env.Command('marker', 'input_file', action=[MyBuildAction, Touch('$TARGET')])
 <refsect3 id='variable_substitution'>
 <title>Variable Substitution</title>
 
-<para>Before executing a command,
-&scons;
-performs variable substitution on the string that makes up
-the action part of the builder.
-Variables to be substituted are indicated in the
-string by a leading <emphasis role="bold">$</emphasis>,
-to distinguish them from plain text
-which is not to be substituted.
-The substitutable text may be surrounded by curly braces
-to separate it from surrounding characters if necessary
-(for example <literal>${FOO}BAR</literal>).
-To avoid substituting a substring that looks like a variable name,
-escape it with an additional <emphasis role="bold">$</emphasis>,
-(for example, <literal>$$FOO</literal> will be left in the
-final string as <literal>$FOO</literal>).
-</para>
 <para>
-The curly brace notation is required when you use
-Python list subscripting/slicing notation on a variable
-to select one or more items from a list,
-or access a variable's special attributes,
-or when you use Python expression substitution
-(see below for descriptions of these).
+Before executing a command, &scons;
+performs parameter expansion (<firstterm>substitution</firstterm>)
+on the string that makes up the action part of the builder.
+The format of a substitutable parameter is
+<literal>${<replaceable>expression</replaceable>}</literal>.
+If <replaceable>expression</replaceable> refers to a variable,
+the braces in <literal>${<replaceable>expression</replaceable>}</literal>
+can be omitted <emphasis>unless</emphasis> the variable name is
+immediately followed by a character that could either be interpreted
+as part of the name, or is &Python; syntax such as
+<emphasis role="bold">[</emphasis> (for indexing/slicing)
+or <emphasis role="bold">.</emphasis> (for attribute access -
+see <link linkend="special_attributes">Special Attributes</link> below).
 </para>
 
 <para>
+If <replaceable>expression</replaceable> refers to a &consvar;,
+it is replaced with the value of that variable in the
+&consenv; at the time of execution.
+If <replaceable>expression</replaceable> looks like
+a variable name but is not defined in the &consenv;
+it is replaced with an empty string.
+If <replaceable>expression</replaceable> refers to one of the
+<link linkend="special_variables">Special Variables</link>
+(see below) the corresponding value of the variable is substituted.
+<replaceable>expression</replaceable> may also be
+a &Python; expression to be evaluated.
+See <link linkend='python_code_substitution'>Python Code Substitution</link>
+below for a description.
+</para>
+
+<para>&SCons; uses the following rules when converting &consvars; into
+command line strings:</para>
+
+<itemizedlist>
+  <listitem>
+  <para>If the value is a string it is interpreted as space delimited
+  command line arguments.</para>
+  </listitem>
+
+  <listitem>
+  <para>If the value is a list it is interpreted as a list of command
+  line arguments. Each element of the list is converted to a string.</para>
+  </listitem>
+
+  <listitem>
+  <para>Anything that is not a list or string is converted to a string and
+  interpreted as a single command line argument.</para>
+  </listitem>
+
+  <listitem>
+  <para>Newline characters (<literal>\n</literal>) delimit lines.
+  The newline parsing is done after
+  all other parsing, so it is not possible for arguments (e.g. file names) to
+  contain embedded newline characters.</para>
+  </listitem>
+
+  <listitem>
+  <para>For a literal <emphasis role="bold">$</emphasis>
+  use <emphasis role="bold">$$</emphasis>.
+  For example, <literal>$$FOO</literal> will be left in the
+  final string as <literal>$FOO</literal>.</para>
+  </listitem>
+</itemizedlist>
+
+<para>
+When a build action is executed, a hash of the command line is
+saved, together with other information about the target(s) built
+by the action, for future use in rebuild determination.
+This is called the <firstterm>&buildsig;</firstterm>
+(or <firstterm>&build_action; signature</firstterm>).
+The escape sequence
+<emphasis role="bold">$(</emphasis>
+<replaceable>subexpression</replaceable>
+<emphasis role="bold">$)</emphasis>
+may be used to indicate parts of a command line
+that may change without
+causing a rebuild--that is,
+which are not to be included when calculating the &buildsig;.
+All text from
+<emphasis role="bold">$(</emphasis>
+up to and including the matching
+<emphasis role="bold">$)</emphasis>
+will be removed from the command line
+before it is added to the &buildsig;
+while only the
+<emphasis role="bold">$(</emphasis>
+and
+<emphasis role="bold">$)</emphasis>
+will be removed before the command is executed.
+For example, the command line string:</para>
+
+<programlisting language="python">
+"echo Last build occurred $( $TODAY $). &gt; $TARGET"
+</programlisting>
+
+<para>would execute the command:</para>
+
+<screen>
+echo Last build occurred $TODAY. &gt; $TARGET
+</screen>
+
+<para>but the build signature added to any target files would be computed from:</para>
+
+<screen>
+echo Last build occurred  . &gt; $TARGET
+</screen>
+
+<para>While &consvars; are normally directly substituted,
+if a &consvar; has a value which
+is a callable &Python; object
+(a function, or a class with a <literal>__call__</literal> method),
+that object is called during substitution.
+The callable must accept four arguments:
+<parameter>target</parameter>,
+<parameter>source</parameter>,
+<parameter>env</parameter> and
+<parameter>for_signature</parameter>.
+<parameter>source</parameter> is a list of source nodes,
+<parameter>target</parameter> is a list of target nodes,
+<parameter>env</parameter> is the &consenv; to use for context,
+and <parameter>for_signature</parameter> is
+a boolean value that tells the callable
+if it is being called for the purpose of generating a build signature.
+Since the build signature is used for rebuild determination,
+variable elements that do not affect whether
+a rebuild should be triggered
+should be omitted from the returned string
+if <parameter>for_signature</parameter> is true.
+See <emphasis role="bold">$(</emphasis>
+and <emphasis role="bold">$)</emphasis> above
+for the syntax.
+</para>
+
+<para>
+&SCons; will insert whatever
+the callable returns
+into the expanded string:
+</para>
+
+<programlisting language="python">
+def foo(target, source, env, for_signature):
+    return "bar"
+
+# Will expand $BAR to "bar baz"
+env = Environment(FOO=foo, BAR="$FOO baz")
+</programlisting>
+
+<para>As a reminder, substitution happens when
+<literal>$BAR</literal> is actually used in a
+builder action.  The value of <literal>env['BAR']</literal>
+will be exactly as it was set: <literal>"$FOO baz"</literal>.
+This can make debugging tricky,
+as the substituted result is not available at the time
+the SConscript files are being interpreted and
+thus not available to <systemitem>print()</systemitem>.
+However, you can perform the substitution on demand
+by calling the &f-link-env-subst; method for this purpose.
+</para>
+
+<para>You can use this feature to pass arguments to a
+callable variable by creating a callable class
+that stores passed arguments in the instance,
+and then uses them
+(in the <methodname>__call__</methodname> method)
+when the instance is called.
+Note that in this case,
+the entire variable expansion must
+be enclosed by curly braces
+so that the arguments will
+be associated with the
+instantiation of the class:</para>
+
+<programlisting language="python">
+class foo:
+    def __init__(self, arg):
+        self.arg = arg
+
+    def __call__(self, target, source, env, for_signature):
+        return self.arg + " bar"
+
+# Will expand $BAR to "my argument bar baz"
+env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
+</programlisting>
+
+</refsect3>
+
+<refsect3 id='special_variables'>
+<title>Substitution: Special Variables</title>
+
+<para>
 Besides regular &consvars;, scons provides the following
-special variables for use in expanding commands:</para>
+<firstterm>Special Variables</firstterm> for use in expanding commands:</para>
 
 <variablelist>
   <varlistentry>
@@ -6509,8 +6675,12 @@ changed since the target was last built.</para>
   </varlistentry>
 </variablelist>
 
-<para>These names are reserved
-and may not be assigned to or used as &consvars;.</para>
+<para>
+These names are reserved
+and may not be assigned to or used as &consvars;.
+&SCons; computes them in a context-dependent manner
+and they and are not retrieved from a &consenv;.
+</para>
 
 <para>For example, the following builder call:
 </para>
@@ -6536,6 +6706,11 @@ In the previous example, a string
 would expand to: <computeroutput>bar.c</computeroutput>.
 </para>
 
+</refsect3>
+
+<refsect3 id='special_attributes'>
+<title>Substitution: Special Attributes
+</title>
 <para>A variable name may
 have the following
 modifiers appended within the enclosing curly braces
@@ -6631,120 +6806,6 @@ Some modifiers can be combined, like
 <literal>${TARGET.file.suffix}</literal>, etc.
 </para>
 
-<para>The curly brace notation may also be used
-to enclose a Python expression to be evaluated.
-See <xref linkend='python_code_substitution'/> below
-for a description.</para>
-
-<para>The special escape sequences
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-may be used to surround parts of a command line
-that may change
-<emphasis>without</emphasis>
-causing a rebuild--that is,
-which are not included in the &buildsig;
-of target files built with this command.
-All text between
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-will be removed from the command line
-before it is added to the &buildsig;
-and the
-<emphasis role="bold">$(</emphasis>
-and
-<emphasis role="bold">$)</emphasis>
-will be removed before the command is executed.
-For example, the command line:</para>
-
-<programlisting language="python">
-echo Last build occurred $( $TODAY $). &gt; $TARGET
-</programlisting>
-
-<para>would execute the command:</para>
-
-<screen>
-echo Last build occurred $TODAY. &gt; $TARGET
-</screen>
-
-<para>but the command portion of the
-the &buildsig; computed for any target files built
-by this action would be:</para>
-
-<screen>
-echo Last build occurred  . &gt; $TARGET
-</screen>
-
-<para>While &consvars; are normally directly substituted,
-if a variable refers to a &consvar;
-whose value is a callable &Python; object (a function
-or a class with a <literal>__call__</literal> method),
-that object is called during substitution.
-The callable must accept four arguments:
-<parameter>target</parameter>,
-<parameter>source</parameter>,
-<parameter>env</parameter> and
-<parameter>for_signature</parameter>.
-<parameter>source</parameter> is a list of source nodes,
-<parameter>target</parameter> is a list of target nodes,
-<parameter>env</parameter> is the &consenv; to use for context,
-and <parameter>for_signature</parameter> is
-a Boolean value that tells the function
-if it is being called for the purpose of generating a &buildsig;.
-Since the &buildsig; is used for rebuild determination,
-the function should omit variable elements
-that do not affect whether a rebuild should be triggered
-(see <emphasis role="bold">$(</emphasis>
-and <emphasis role="bold">$)</emphasis>
-above) if <parameter>for_signature</parameter> is true.
-</para>
-
-<para>
-&SCons; will insert whatever
-the callable returns
-into the expanded string:
-</para>
-
-<programlisting language="python">
-def foo(target, source, env, for_signature):
-    return "bar"
-
-# Will expand $BAR to "bar baz"
-env = Environment(FOO=foo, BAR="$FOO baz")
-</programlisting>
-
-<para>As a reminder, substitution happens when
-<literal>$BAR</literal> is actually used in a
-builder action.  The value of <literal>env['BAR']</literal>
-will be exactly as it was set: <literal>"$FOO baz"</literal>.
-</para>
-
-<para>You can use this feature to pass arguments to a
-callable variable by creating a callable class
-that stores passed arguments in the instance,
-and then uses them
-(in the <methodname>__call__</methodname> method)
-when the instance is called.
-Note that in this case,
-the entire variable expansion must
-be enclosed by curly braces
-so that the arguments will
-be associated with the
-instantiation of the class:</para>
-
-<programlisting language="python">
-class foo:
-    def __init__(self, arg):
-        self.arg = arg
-
-    def __call__(self, target, source, env, for_signature):
-        return self.arg + " bar"
-
-# Will expand $BAR to "my argument bar baz"
-env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
-</programlisting>
 </refsect3>
 
 <refsect3 id='python_code_substitution'>
@@ -6752,8 +6813,8 @@ env=Environment(FOO=foo, BAR="${FOO('my argument')} baz")
 
 <para>
 If a substitutable expression using the notation
-<literal>${something}</literal> does not appear to match one of
-the other substitution patterns,
+<literal>${<replaceable>expression</replaceable>}</literal>
+does not appear to match one of the other substitution patterns,
 it is evaluated as a Python expression.
 This uses Python's <function>eval</function> function,
 with the <parameter>globals</parameter> parameter set to
@@ -6819,45 +6880,6 @@ which &SCons; passes to <function>eval</function> which
 returns the value.
 </para>
 
-<para>&SCons; uses the following rules when converting &consvars; into
-command lines:</para>
-
-<variablelist>
-  <varlistentry>
-  <term>string</term>
-  <listitem>
-<para>When the value is a string it is interpreted as a space delimited list of
-command line arguments.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>list</term>
-  <listitem>
-<para>When the value is a list it is interpreted as a list of command line
-arguments. Each element of the list is converted to a string.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>other</term>
-  <listitem>
-<para>Anything that is not a list or string is converted to a string and
-interpreted as a single command line argument.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term>newline</term>
-  <listitem>
-<para>Newline characters (<literal>\n</literal>) delimit lines.
-The newline parsing is done after
-all other parsing, so it is not possible for arguments (e.g. file names) to
-contain embedded newline characters.</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
-
 <note><para>
 Use of the Python <function>eval</function> function
 is considered to have security implications, since,
@@ -6917,7 +6939,7 @@ is optional, the default is no <parameter>arg</parameter>.
 <para>
 The function can use use
 <function>str</function>(<parameter>node</parameter>)
-to fetch the name of the file, 
+to fetch the name of the file,
 <replaceable>node</replaceable>.<function>dir</function>
 to fetch the directory the file is in,
 <replaceable>node</replaceable>.<function>get_contents</function>()
@@ -6938,7 +6960,7 @@ in order to build Nodes with correct paths.
 Using &f-link-FindPathDirs; with an argument of <literal>CPPPATH</literal>
 as the <parameter>path_function</parameter> in the &f-Scanner; call
 means the scanner function will be called with the paths extracted
-from &cv-CPPPATH; in the environment <parameter>env</parameter> 
+from &cv-CPPPATH; in the environment <parameter>env</parameter>
 passed as the <parameter>paths</parameter> parameter.
 </para>
 <para>
