@@ -2521,16 +2521,20 @@ def NoSubstitutionProxy(subject):
     class _NoSubstitutionProxy(Environment):
         def __init__(self, subject):
             self.__dict__['__subject'] = subject
+
         def __getattr__(self, name):
             return getattr(self.__dict__['__subject'], name)
+
         def __setattr__(self, name, value):
             return setattr(self.__dict__['__subject'], name, value)
+
         def executor_to_lvars(self, kwdict):
             if 'executor' in kwdict:
                 kwdict['lvars'] = kwdict['executor'].get_lvars()
                 del kwdict['executor']
             else:
                 kwdict['lvars'] = {}
+
         def raw_to_mode(self, mapping):
             try:
                 raw = mapping['raw']
@@ -2539,10 +2543,13 @@ def NoSubstitutionProxy(subject):
             else:
                 del mapping['raw']
                 mapping['mode'] = raw
+
         def subst(self, string, *args, **kwargs):
             return string
+
         def subst_kw(self, kw, *args, **kwargs):
             return kw
+
         def subst_list(self, string, *args, **kwargs):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
@@ -2550,6 +2557,7 @@ def NoSubstitutionProxy(subject):
             self.executor_to_lvars(nkw)
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst_list(*nargs, **nkw)
+
         def subst_target_source(self, string, *args, **kwargs):
             nargs = (string, self,) + args
             nkw = kwargs.copy()
@@ -2557,6 +2565,7 @@ def NoSubstitutionProxy(subject):
             self.executor_to_lvars(nkw)
             self.raw_to_mode(nkw)
             return SCons.Subst.scons_subst(*nargs, **nkw)
+
     return _NoSubstitutionProxy(subject)
 
 # Local Variables:
