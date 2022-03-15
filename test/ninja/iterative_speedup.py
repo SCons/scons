@@ -109,7 +109,7 @@ def generate_source(parent_source, current_source):
     test.write('source_{}.h'.format(current_source), """
         #include <stdio.h>
         #include <stdlib.h>
-       
+
         int
         print_function%(current_source)s();
         """ % locals())
@@ -125,7 +125,7 @@ def mod_source_return(test_num):
 
         int
         print_function%(test_num)s()
-        {   
+        {
             int test = 5 + 5;
             print_function%(parent_source)s();
             return test;
@@ -143,7 +143,7 @@ def mod_source_orig(test_num):
 
         int
         print_function%(test_num)s()
-        {   
+        {
             return print_function%(parent_source)s();
         }
         """ % locals())
@@ -190,12 +190,14 @@ jobs = '-j' + str(get_num_cpus())
 
 ninja_program = [test.workpath('run_ninja_env.bat'), jobs] if IS_WINDOWS else [ninja_bin, jobs]
 
-start = time.perf_counter()
 test.run(arguments='--disable-execute-ninja', stdout=None)
+test.run(program=ninja_program, arguments='run-ninja-scons-daemon', stdout=None)
+start = time.perf_counter()
 test.run(program=ninja_program, stdout=None)
 stop = time.perf_counter()
 ninja_times += [stop - start]
 test.run(program=test.workpath('print_bin'), stdout="main print")
+
 
 for test_mod in tests_mods:
     mod_source_return(test_mod)

@@ -206,6 +206,7 @@ def generate(env):
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
         ninja_file = [NINJA_STATE.ninja_file]
 
+
     def ninja_generate_deps(env):
         """Return a list of SConscripts
         TODO: Should we also include files loaded from site_scons/***
@@ -456,3 +457,6 @@ def generate(env):
 
     env['TEMPFILEDIR'] = "$NINJA_DIR/.response_files"
     env["TEMPFILE"] = NinjaNoResponseFiles
+
+
+    env.Alias('run-ninja-scons-daemon', 'run_ninja_scons_daemon_phony')
