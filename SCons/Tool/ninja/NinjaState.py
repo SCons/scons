@@ -218,7 +218,7 @@ class NinjaState:
             },
 
             "SCONS_DAEMON": {
-                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {scons_daemon_port} {get_path(env.get('NINJA_DIR'))} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {scons_daemon_port} {env.get('NINJA_DIR').abspath} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
                 "description": "Starting scons daemon...",
                 "pool": "local_pool",
                 # restat

@@ -90,12 +90,15 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
                 if status != 200:
                     print(msg.decode("utf-8"))
                     exit(1)
-                logging.debug(f"Request Done: {sys.argv[3]}")
+                logging.debug(f"Server Responded it was ready!")
                 break
 
         except ConnectionRefusedError:
-            logging.debug(f"Server not ready: {sys.argv[3]}")
+            logging.debug(f"Server not ready, server PID: {p.pid}")
             time.sleep(1)
+            if p.poll is not None:
+                logging.debug(f"Server process died, aborting: {p.returncode}")
+                sys.exit(p.returncode)
         except ConnectionResetError:
             logging.debug("Server ConnectionResetError")
             sys.stderr.write(error_msg)
