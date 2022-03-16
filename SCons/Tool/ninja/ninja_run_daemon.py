@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -22,7 +24,16 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
+This script is intended to be called by ninja to start up the scons daemon process. It will
+launch the server and attempt to connect to it. This process needs to completely detach
+from the spawned process so ninja can consider the build edge completed. It should be passed
+the args which should be forwarded to the scons daemon process which could be any number of
+# arguments. However the first few arguements are required to be port, ninja dir, and keep alive
+timeout in seconds.
 
+The scons_daemon_dirty file acts as a pidfile marker letting this script quickly skip over
+restarting the server if the server is running. The assumption here is the pidfile should only
+exist if the server is running.
 """
 
 import subprocess
@@ -90,7 +101,7 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
                 if status != 200:
                     print(msg.decode("utf-8"))
                     exit(1)
-                logging.debug(f"Server Responded it was ready!")
+                logging.debug("Server Responded it was ready!")
                 break
 
         except ConnectionRefusedError:

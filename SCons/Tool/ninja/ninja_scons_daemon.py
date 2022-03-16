@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -22,7 +24,14 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
+This script primarily consists of two threads, the http server thread and the scons interactive
+process thread. The http server thread will listen on the passed port for http get request
+which should indicate some action for the scons interactive process to take.
 
+The daemon will keep log files in a tmp directory correlated to the hash of the absolute path
+of the ninja build dir passed. The daemon will also use a keep alive time to know when to shut
+itself down after the passed timeout of no activity. Any time the server receives a get request,
+the keep alive time will be reset.
 """
 
 import http.server

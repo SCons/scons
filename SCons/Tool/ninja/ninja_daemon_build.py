@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -22,7 +24,10 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-
+This script is intended to execute a single build target. This script should be
+called by ninja, passing the port, ninja dir, and build target via arguments.
+The script then executes a simple get request to the scons daemon which is listening
+on from localhost on the set port.
 """
 
 import http.client
@@ -74,12 +79,10 @@ while True:
                 logging.debug(f"Request Done: {sys.argv[3]}")
                 exit(0)
 
-    except ConnectionRefusedError:
-        logging.debug(f"Server not ready: {traceback.format_exc()}")
-        time.sleep(1)
-    except ConnectionResetError:
-        logging.debug("Server ConnectionResetError")
+    except Exception:
+        logging.debug(f"Failed to send command: {traceback.format_exc()}")
         exit(1)
+
 
 
 # Local Variables:
