@@ -28,7 +28,7 @@ This script is intended to be called by ninja to start up the scons daemon proce
 launch the server and attempt to connect to it. This process needs to completely detach
 from the spawned process so ninja can consider the build edge completed. It should be passed
 the args which should be forwarded to the scons daemon process which could be any number of
-# arguments. However the first few arguements are required to be port, ninja dir, and keep alive
+# arguments. However the first few arguments are required to be port, ninja dir, and keep alive
 timeout in seconds.
 
 The scons_daemon_dirty file acts as a pidfile marker letting this script quickly skip over
