@@ -810,11 +810,13 @@ sys.exit(0)
             "-fmerge-all-constants "
             "-fopenmp "
             "-mno-cygwin -mwindows "
-            "-arch i386 -isysroot /tmp "
+            "-arch i386 "
+            "-isysroot /tmp "
             "-iquote /usr/include/foo1 "
             "-isystem /usr/include/foo2 "
             "-idirafter /usr/include/foo3 "
             "-imacros /usr/include/foo4 "
+            "-include /usr/include/foo5 "
             "--param l1-cache-size=32 --param l2-cache-size=6144 "
             "+DD64 "
             "-DFOO -DBAR=value -D BAZ "
@@ -832,6 +834,7 @@ sys.exit(0)
                                 ('-isystem', '/usr/include/foo2'),
                                 ('-idirafter', '/usr/include/foo3'),
                                 ('-imacros', env.fs.File('/usr/include/foo4')),
+                                ('-include', env.fs.File('/usr/include/foo5')),
                                 ('--param', 'l1-cache-size=32'), ('--param', 'l2-cache-size=6144'),
                                 '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
