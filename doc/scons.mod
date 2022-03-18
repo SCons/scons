@@ -440,15 +440,15 @@
 
 <!ENTITY Dictionary "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Dictionary</literal>">
 
-<!ENTITY Emitter "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Emitter</literal>">
-<!ENTITY emitter "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>emitter</literal>">
+<!ENTITY Emitter "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Emitter</phrase>">
+<!ENTITY emitter "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>emitter</phrase>">
 
-<!ENTITY factory "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>factory</literal>">
+<!ENTITY factory "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>factory</phrase>">
 
-<!ENTITY Generator "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Generator</literal>">
-<!ENTITY generator "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>generator</literal>">
+<!ENTITY Generator "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Generator</phrase>">
+<!ENTITY generator "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>generator</phrase>">
 
-<!ENTITY Nodes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Nodes</literal>">
+<!ENTITY Nodes "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Nodes</phrase>">
 
 <!ENTITY contentsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signature</phrase>">
 <!ENTITY contentsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signatures</phrase>">
@@ -462,12 +462,12 @@
 
 <!-- Python keyword arguments -->
 
-<!ENTITY action "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>action=</literal>">
-<!ENTITY batch_key "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>batch_key=</literal>">
-<!ENTITY cmdstr "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cmdstr=</literal>">
-<!ENTITY exitstatfunc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>exitstatfunc=</literal>">
-<!ENTITY strfunction "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>strfunction=</literal>">
-<!ENTITY varlist "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>varlist=</literal>">
+<!ENTITY action "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>action=</parameter>">
+<!ENTITY batch_key "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>batch_key=</parameter>">
+<!ENTITY cmdstr "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>cmdstr=</parameter>">
+<!ENTITY exitstatfunc "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>exitstatfunc=</parameter>">
+<!ENTITY strfunction "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>strfunction=</parameter>">
+<!ENTITY varlist "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>varlist=</parameter>">
 
 
 <!-- File and program names used in examples.  -->
