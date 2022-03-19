@@ -512,12 +512,10 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
     msvc_ver_numeric = get_msvc_version_numeric(msvc_version)
     use_arg = True
     vernum = float(msvc_ver_numeric)
-    if 7 <= vernum < 8:
-        pdir = os.path.join(pdir, os.pardir, "Common7", "Tools")
-        batfilename = os.path.join(pdir, "vsvars32.bat")
-    elif vernum < 7:
+    if vernum < 8:
         pdir = os.path.join(pdir, "Bin")
         batfilename = os.path.join(pdir, "vcvars32.bat")
+        use_arg = False
     elif 8 <= vernum <= 14:
         batfilename = os.path.join(pdir, "vcvarsall.bat")
     else:  # vernum >= 14.1  VS2017 and above

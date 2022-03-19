@@ -12,6 +12,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Joseph Brill:
     - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
       when the user specified msvc script does not exist.
+    - Replace non-existent MSVS environment variables VS70COMNTOOLS and VS60COMNTOOLS with 
+      VSCOMNTOOLS and MSDevDir for MSVC 7.0 and 6.0, respectively.  Change the MSVS 7.x batch 
+      files used from vsvars32.bat to vcvars32.bat.  Suppress passing arguments to the MSVS 6.0-7.1 
+      batch files as no arguments are required.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message

@@ -36,6 +36,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The change to "content" and "content-timestamp" Decider names is reflected
   in the User Guide as well, since the hash function may be other than md5
   (tidying up from earlier change)
+- The MSVC batch file names used for MSVC versions 6.0 to 7.1 were unified after the 
+  requisite MSVC environment variable for version 7.0 was updated. The build argument 
+  is now suppressed for the MSVC 6.0 to 7.1 batch files to be consistent with the expected
+  batch file usage.
 
 
 FIXES
@@ -45,6 +49,8 @@ FIXES
   with python 3.9 (or higher)
 - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
   AppendUnique is called on CPPPATH. (Issue #4108).
+- The environment variable names used when constructing the MSVC 7.0 and 6.0 environments were 
+  updated to be consistent with the names defined by the respective installers.
 
 
 IMPROVEMENTS

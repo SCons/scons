@@ -253,8 +253,8 @@ def get_output(vcbat, args=None, env=None):
         'VS90COMNTOOLS',
         'VS80COMNTOOLS',
         'VS71COMNTOOLS',
-        'VS70COMNTOOLS',
-        'VS60COMNTOOLS',
+        'VSCOMNTOOLS',
+        'MSDevDir',
         'VSCMD_DEBUG',   # enable logging and other debug aids
         'VSCMD_SKIP_SENDTELEMETRY',
     ]
