@@ -257,7 +257,10 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
             )
 
         cmd, rsp_content = cmd_list[:tool_idx], cmd_list[tool_idx:]
-        rsp_content = [rsp_content_item.replace('\\', '/') for rsp_content_item in rsp_content]
+
+        # Canonicalize the path to have forward (posix style) dir sep characters.
+        if os.altsep:
+            rsp_content = [rsp_content_item.replace(os.sep, os.altsep) for rsp_content_item in rsp_content]
         rsp_content = ['"' + rsp_content_item + '"' for rsp_content_item in rsp_content]
         rsp_content = " ".join(rsp_content)
 
