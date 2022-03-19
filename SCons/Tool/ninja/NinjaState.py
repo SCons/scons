@@ -218,7 +218,7 @@ class NinjaState:
             },
 
             "SCONS_DAEMON": {
-                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {scons_daemon_port} {get_path(env.get('NINJA_DIR'))} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {scons_daemon_port} {env.get('NINJA_DIR').abspath} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
                 "description": "Starting scons daemon...",
                 "pool": "local_pool",
                 # restat
@@ -534,9 +534,10 @@ class NinjaState:
             )
 
         ninja.build(
-            ["run_scons_daemon", scons_daemon_dirty],
+            ["run_ninja_scons_daemon_phony", scons_daemon_dirty],
             rule="SCONS_DAEMON",
         )
+
 
         daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
         pidfile = None
