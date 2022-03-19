@@ -1213,7 +1213,9 @@ class CLVar(UserList):
         return super().__iadd__(CLVar(other))
 
     def __str__(self):
-        return ' '.join(self.data)
+        # Some cases the data can contain Nodes, so make sure they
+        # processed to string before handing them over to join.
+        return ' '.join([str(d) for d in self.data])
 
 
 class Selector(OrderedDict):
@@ -1684,10 +1686,10 @@ def _attempt_init_of_python_3_9_hash_object(hash_function_object, sys_used=sys):
     """
     if hash_function_object is None:
         return None
-    
+
     # https://stackoverflow.com/a/11887885 details how to check versions with the "packaging" library.
     # however, for our purposes checking the version is greater than or equal to 3.9 is good enough, as
-    # the API is guaranteed to have support for the 'usedforsecurity' flag in 3.9. See 
+    # the API is guaranteed to have support for the 'usedforsecurity' flag in 3.9. See
     # https://docs.python.org/3/library/hashlib.html#:~:text=usedforsecurity for the version support notes.
     if (sys_used.version_info.major > 3) or (sys_used.version_info.major == 3 and sys_used.version_info.minor >= 9):
         return hash_function_object(usedforsecurity=False)
@@ -1716,7 +1718,7 @@ def _set_allowed_viable_default_hashes(hashlib_used, sys_used=sys):
     # note: if you call this method repeatedly, example using timeout, this is needed.
     # otherwise it keeps appending valid formats to the string
     ALLOWED_HASH_FORMATS = []
-    
+
     for test_algorithm in DEFAULT_HASH_FORMATS:
         _test_hash = getattr(hashlib_used, test_algorithm, None)
         # we know hashlib claims to support it... check to see if we can call it.
@@ -1731,7 +1733,7 @@ def _set_allowed_viable_default_hashes(hashlib_used, sys_used=sys):
             except ValueError as e:
                 _last_error = e
                 continue
-    
+
     if len(ALLOWED_HASH_FORMATS) == 0:
         from SCons.Errors import SConsEnvironmentError  # pylint: disable=import-outside-toplevel
         # chain the exception thrown with the most recent error from hashlib.
@@ -1817,7 +1819,7 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
                             'is reporting; SCons supports: %s. Your local system only '
                             'supports: %s' %
                             (hash_format_lower,
-                             ', '.join(DEFAULT_HASH_FORMATS), 
+                             ', '.join(DEFAULT_HASH_FORMATS),
                              ', '.join(ALLOWED_HASH_FORMATS))
                     )
 
@@ -1825,7 +1827,7 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
         # function did not throw, or when it threw, the exception was caught and ignored, or
         # the global ALLOWED_HASH_FORMATS was changed by an external user.
         _HASH_FUNCTION = _attempt_get_hash_function(hash_format_lower, hashlib_used, sys_used)
-        
+
         if _HASH_FUNCTION is None:
             from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
 
@@ -1842,7 +1844,7 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
         # disabled.
         for choice in ALLOWED_HASH_FORMATS:
             _HASH_FUNCTION = _attempt_get_hash_function(choice, hashlib_used, sys_used)
-            
+
             if _HASH_FUNCTION is not None:
                 break
         else:
@@ -1864,7 +1866,7 @@ set_hash_format(None)
 
 def get_current_hash_algorithm_used():
     """Returns the current hash algorithm name used.
-    
+
     Where the python version >= 3.9, this is expected to return md5.
     If python's version is <= 3.8, this returns md5 on non-FIPS-mode platforms, and
     sha1 or sha256 on FIPS-mode Linux platforms.

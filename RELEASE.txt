@@ -53,6 +53,7 @@ IMPROVEMENTS
 - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
   exception immediately when the user specified msvc script does not exist.
 - Add cache-debug messages for push failures.
+- Added ninja mingw support and improved ninja CommandGeneratorAction support.
 - Command-line help is now sensitive to the size of the terminal window: the
   width of the help text will scale for terminals other than 80 chars wide.
 

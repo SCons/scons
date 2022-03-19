@@ -48,6 +48,7 @@ Sets construction variables for generic POSIX C compilers.
 <item>SHOBJSUFFIX</item>
 <item><!--STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME--></item>
 <item>CFILESUFFIX</item>
+ <item>CCDEPFLAGS</item>
 </sets>
 <uses>
 <item>PLATFORM</item>
@@ -214,5 +215,17 @@ See also &cv-link-CFLAGS; for compiling to static objects.
 </para>
 </summary>
 </cvar>
+
+<cvar name="CCDEPFLAGS">
+<summary>
+<para>
+Options to pass to C or C++ compiler to generate list of dependency files.
+</para>
+ <para>
+  This is set only by compilers which support this functionality. (&t-link-gcc;, &t-link-clang;, and &t-link-msvc; currently)
+ </para>
+</summary>
+</cvar>
+
 
 </sconsdoc>
