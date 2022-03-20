@@ -45,7 +45,11 @@ FIXES
   with python 3.9 (or higher)
 - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
   AppendUnique is called on CPPPATH. (Issue #4108).
-
+- Added default values for source and target arguments to _defines() function. This
+  is used to expand CPPDEFINES (and others). Previous change added those arguments
+  with no defaults, so old usage where _defines() was called without source and target
+  arguments would yield an exception. This issue was found via qt4 and qt5 tools in
+  scons-contrib https://github.com/SCons/scons-contrib/issues/45
 
 IMPROVEMENTS
 ------------
