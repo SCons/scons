@@ -12,10 +12,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Joseph Brill:
     - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
       when the user specified msvc script does not exist.
-    - Replace non-existent MSVS environment variables VS70COMNTOOLS and VS60COMNTOOLS with 
-      VSCOMNTOOLS and MSDevDir for MSVC 7.0 and 6.0, respectively.  Change the MSVS 7.x batch 
-      files used from vsvars32.bat to vcvars32.bat.  Suppress passing arguments to the MSVS 6.0-7.1 
-      batch files as no arguments are required.
+    - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
+      names set by their respective installers.  Prior to this change, bypassing MSVC detection by
+      specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment
+      variable name.  Arguments are no longer passed to the MSVC 6.0 to 7.1 batch files as no
+      arguments are required and could improve the effectiveness of the internal MSVC cache.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
