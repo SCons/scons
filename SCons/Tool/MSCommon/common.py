@@ -31,6 +31,7 @@ import os
 import re
 import subprocess
 import sys
+from contextlib import suppress
 from pathlib import Path
 
 import SCons.Util
@@ -121,7 +122,8 @@ def write_script_env_cache(cache):
                 json.dump(cache, f, indent=2)
         except TypeError:
             # data can't serialize to json, don't leave partial file
-            p.unlink(missing_ok=True)
+            with suppress(FileNotFoundError):
+                p.unlink()
         except IOError:
             # can't write the file, just skip
             pass
