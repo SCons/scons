@@ -59,6 +59,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - As "code modernization" all of SCons now uses the current super()
       zero-argument syntax instead of direct calls to a parent class method
       or the super() two-argument syntax.
+    - Renamed ParseFlag's internal data structure to "mapping" instead of
+      "dict" (avoid redefining builtin)
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
