@@ -38,6 +38,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
+    - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

@@ -30,6 +30,7 @@ Sets construction variables for the Microsoft Visual C/C++ compiler.
 </para>
 </summary>
 <sets>
+<item>CCDEPFLAGS</item>
 <item>CCPDBFLAGS</item>
 <item>CCPCHFLAGS</item>
 <item><!--CCCOMFLAGS--></item>

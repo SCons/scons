@@ -90,6 +90,7 @@ See its __doc__ string for a discussion of the format.
             <item>ARFLAGS</item>
             <item>CC</item>
             <item>CCCOM</item>
+            <item>CCDEPFLAGS</item>
             <item>CCFLAGS</item>
             <item>CXX</item>
             <item>CXXCOM</item>
