@@ -769,7 +769,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         ni.update(fff)
 
-        mtime = st.st_mtime
+        mtime = st[stat.ST_MTIME]
         assert ni.timestamp == mtime, (ni.timestamp, mtime)
         size = st.st_size
         assert ni.size == size, (ni.size, size)
@@ -781,7 +781,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         st = os.stat('fff')
 
-        mtime = st.st_mtime
+        mtime = st[stat.ST_MTIME]
         assert ni.timestamp != mtime, (ni.timestamp, mtime)
         size = st.st_size
         assert ni.size != size, (ni.size, size)
