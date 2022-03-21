@@ -112,6 +112,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix a test harness exception returning stderr if a wait_for timed out.
     - ParseConfig now correctly passes the *unique* flag to a user-supplied
       flag-merging function.
+    - Restore the ability of the content-timestamp decider to see that a
+      a source which is a symlink has changed if the file-system target of
+      that link has been modified (issue #3880)
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

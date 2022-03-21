@@ -408,8 +408,8 @@ class VariantDirTestCase(unittest.TestCase):
                            None)
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR | stat.S_IWRITE)
         st = os.stat(test.workpath('build/foo'))
-        assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
-            stat.S_IMODE(st[stat.ST_MODE])
+        assert (stat.S_IMODE(st.st_mode) & stat.S_IWRITE), \
+            stat.S_IMODE(st.st_mode)
 
         # This used to generate a UserError when we forbid the source
         # directory from being outside the top-level SConstruct dir.
@@ -769,9 +769,9 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         ni.update(fff)
 
-        mtime = st[stat.ST_MTIME]
+        mtime = st.st_mtime
         assert ni.timestamp == mtime, (ni.timestamp, mtime)
-        size = st[stat.ST_SIZE]
+        size = st.st_size
         assert ni.size == size, (ni.size, size)
 
         import time
@@ -781,9 +781,9 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         st = os.stat('fff')
 
-        mtime = st[stat.ST_MTIME]
+        mtime = st.st_mtime
         assert ni.timestamp != mtime, (ni.timestamp, mtime)
-        size = st[stat.ST_SIZE]
+        size = st.st_size
         assert ni.size != size, (ni.size, size)
 
 

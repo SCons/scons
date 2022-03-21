@@ -255,7 +255,7 @@ else:
 def _copy_func(fs, src, dest):
     shutil.copy2(src, dest)
     st = fs.stat(src)
-    fs.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    fs.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
 
 
 Valid_Duplicates = ['hard-soft-copy', 'soft-hard-copy',
@@ -733,39 +733,33 @@ class Base(SCons.Node.Node):
         return SCons.Node._rexists_map[self._func_rexists](self)
 
     def getmtime(self):
-        if self.islink():
-            st = self.lstat()
-        else:
-            st = self.stat()
+        st = self.stat()
 
         if st:
-            return st[stat.ST_MTIME]
+            return st.st_mtime
         else:
             return None
 
     def getsize(self):
-        if self.islink():
-            st = self.lstat()
-        else:
-            st = self.stat()
+        st = self.stat()
 
         if st:
-            return st[stat.ST_SIZE]
+            return st.st_size
         else:
             return None
 
     def isdir(self):
         st = self.stat()
-        return st is not None and stat.S_ISDIR(st[stat.ST_MODE])
+        return st is not None and stat.S_ISDIR(st.st_mode)
 
     def isfile(self):
         st = self.stat()
-        return st is not None and stat.S_ISREG(st[stat.ST_MODE])
+        return st is not None and stat.S_ISREG(st.st_mode)
 
     if hasattr(os, 'symlink'):
         def islink(self):
             st = self.lstat()
-            return st is not None and stat.S_ISLNK(st[stat.ST_MODE])
+            return st is not None and stat.S_ISLNK(st.st_mode)
     else:
         def islink(self):
             return False                    # no symlinks
@@ -2793,7 +2787,7 @@ class File(Base):
         return size
 
     @SCons.Memoize.CountMethodCall
-    def get_timestamp(self) -> int:
+    def get_timestamp(self) -> float:
         try:
             return self._memo['get_timestamp']
         except KeyError:
