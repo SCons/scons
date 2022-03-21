@@ -26,8 +26,6 @@ Test the content-timestamp decider (formerly known as md5-timestamp)
 correctly detects modification of a source file which is a symlink.
 """
 
-import os
-
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -47,13 +45,12 @@ sys.exit(0)
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-Build = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
+Build = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')
 env = Environment(tools=[], BUILDERS={'Build': Build})
 env.Decider('content-timestamp')
 env.Build(target='match1.out', source='match1.in')
 env.Build(target='match2.out', source='match2.in')
-""" % locals()
-)
+""" % locals())
 
 test.write('match1.in', 'match1.in\n')
 test.symlink('match1.in', 'match2.in')
