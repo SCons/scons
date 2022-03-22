@@ -740,7 +740,7 @@ int main(void) {
             r = sconf.CheckMember('struct timespec.tv_nano', '#include <time.h>')
             assert not r, "unexpectedly found struct timespec.tv_nano"
             r = sconf.CheckMember('hopefullynomember')
-            assert not r, "unexpectedly found hopefullynomember :%s"%r
+            assert not r, "unexpectedly found hopefullynomember :%s" % r
 
         finally:
             sconf.Finish()
