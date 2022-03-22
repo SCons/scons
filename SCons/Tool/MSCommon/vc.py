@@ -931,27 +931,26 @@ def get_use_script_use_settings(env):
     if _undefined is None:
         _undefined = object()
 
-    #   use_script  use_settings  return values
-    #     value         n/a       (value, None)
-    #   undefined    undefined    (True,  None)
-    #   undefined       None      (True,  None)
-    #   undefined     not None    (False, value)
+    #   use_script  use_settings   return values
+    #     value        ignore      (value, None)
+    #   undefined  undefined/None  (True,  None)
+    #   undefined  value not None  (False, value)
 
+    # None (documentation) or evaluates False (code): bypass detection
+    # distinguish between undefined and defined as evaluates False
     use_script = env.get('MSVC_USE_SCRIPT', _undefined)
-    use_settings = env.get('MSVC_USE_SETTINGS', _undefined)
+
+    # undefined or None: use settings ignored
+    use_settings = env.get('MSVC_USE_SETTINGS', None)
 
     if use_script != _undefined:
-        # use_script defined, use_settings ignored
-        use_settings = None
-    elif use_settings == _undefined:
-        # use_script undefined, use_settings undefined
-        use_script = True
+        # use_script defined, use_settings ignored (not type checked)
         use_settings = None
     elif use_settings is None:
-        # use script undefined, use_settings defined (None)
+        # use script undefined, use_settings undefined or None
         use_script = True
     else:
-        # use script undefined, use_settings defined (not None)
+        # use script undefined, use_settings defined and not None (type checked)
         use_script = False
 
     return use_script, use_settings
