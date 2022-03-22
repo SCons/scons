@@ -509,7 +509,7 @@ def processDefines(defs):
     return l
 
 
-def _defines(prefix, defs, suffix, env, target, source, c=_concat_ixes):
+def _defines(prefix, defs, suffix, env, target=None, source=None, c=_concat_ixes):
     """A wrapper around _concat_ixes that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
