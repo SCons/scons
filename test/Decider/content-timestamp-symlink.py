@@ -32,6 +32,9 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+if not test.platform_has_symlink():
+    test.skip_test('Symbolic links not reliably available on this platform, skipping test.\n')
+
 # a dummy "compiler" for the builder
 test.write('build.py', r"""
 import sys
