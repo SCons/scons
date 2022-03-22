@@ -28,6 +28,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added project_url for mailing lists and Discord
     - Updated project url in steup.cfg to be https instead of http
     - Updated setup.cfg to remove Python 3.5 and add Python 3.10
+    - Added default values for source and target arguments to _defines() function. This
+      is used to expand CPPDEFINES (and others). Previous change added those arguments
+      with no defaults, so old usage where _defines() was called without source and target
+      arguments would yield an exception. This issue was found via qt4 and qt5 tools in
+      scons-contrib https://github.com/SCons/scons-contrib/issues/45
 
 
 
