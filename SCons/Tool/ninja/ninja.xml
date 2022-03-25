@@ -202,7 +202,7 @@ python -m pip install ninja
                 The <parameter>msvc_deps_prefix</parameter> string.
                 Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
-                <quote>defines the string which should be stripped from msvc’s <option>/showIncludes</option> output</quote>
+                <quote>defines the string which should be stripped from msvc's <option>/showIncludes</option> output</quote>
             </para>
         </summary>
     </cvar>

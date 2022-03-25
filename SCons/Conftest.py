@@ -568,6 +568,63 @@ int main(void)
                  "Set to 1 if %s is defined." % symbol)
     return st
 
+
+def CheckMember(context, aggregate_member, header = None, language = None):
+    """
+    Configure check for a C or C++ member "aggregate_member".
+    Optional "header" can be defined to include a header file.
+    "language" should be "C" or "C++" and is used to select the compiler.
+    Default is "C".
+    Note that this uses the current value of compiler and linker flags, make
+    sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
+
+    Arguments:
+        aggregate_member : str
+            the member to check. For example, 'struct tm.tm_gmtoff'.
+        includes : str
+            Optional "header" can be defined to include a header file.
+        language : str
+            only C and C++ supported.
+
+    Returns the status (0 or False = Passed, True/non-zero = Failed).
+    """
+
+    lang, suffix, msg = _lang2suffix(language)
+    if msg:
+        context.Display("Cannot check for member %s: %s\n" % (aggregate_member, msg))
+        return True
+    context.Display("Checking for %s member %s... " % (lang, aggregate_member))
+    fields = aggregate_member.split('.')
+    if len(fields) != 2:
+        msg = "shall contain just one dot, for example 'struct tm.tm_gmtoff'"
+        context.Display("Cannot check for member %s: %s\n" % (aggregate_member, msg))
+        return True
+    aggregate, member = fields[0], fields[1]
+
+    # Include "confdefs.h" first, so that the header can use HAVE_HEADER_H.
+    if context.headerfilename:
+        includetext = '#include "%s"' % context.headerfilename
+    else:
+        includetext = ''
+    if not header:
+        header = ''
+    text = '''
+%(include)s
+%(header)s
+
+int main(void) {
+  if (sizeof ((%(aggregate)s *) 0)->%(member)s)
+    return 0;
+}''' % {'include': includetext,
+        'header': header,
+        'aggregate': aggregate,
+        'member': member}
+
+    ret = context.BuildProg(text, suffix)
+    _YesNoResult(context, ret, "HAVE_" + aggregate_member, text,
+                 "Define to 1 if the system has the member `%s`." % aggregate_member)
+    return ret
+
 def CheckLib(context, libs, func_name = None, header = None,
              extra_libs = None, call = None, language = None, autoadd = 1,
              append = True):
