@@ -450,6 +450,7 @@ class SConfBase:
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
+                 'CheckMember'        : CheckMember,
                  'CheckDeclaration'   : CheckDeclaration,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
@@ -991,6 +992,13 @@ def CheckDeclaration(context, declaration, includes = "", language = None):
                                           language = language)
     context.did_show_result = 1
     return not res
+
+def CheckMember(context, aggregate_member, header = None, language = None):
+    '''Returns the status (False : failed, True : ok).'''
+    res = SCons.Conftest.CheckMember(context, aggregate_member, header=header, language=language)
+    context.did_show_result = 1
+    return not res
+
 
 def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include
