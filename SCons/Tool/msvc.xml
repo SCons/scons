@@ -422,6 +422,31 @@ Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
 </summary>
 </cvar>
 
+<cvar name="MSVC_USE_SETTINGS">
+<summary>
+<para>
+Use a dictionary to set up the Microsoft Visual C++ compiler.
+</para>
+<para>
+&cv-MSVC_USE_SETTINGS; is ignored when &cv-link-MSVC_USE_SCRIPT; is defined
+and/or when &cv-MSVC_USE_SETTINGS; is set to <constant>None</constant>.
+</para>
+<para>
+The dictionary is used to populate the environment with the relevant variables
+(typically  <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
+for supplying to the build. This can be useful to force the use of a compiler environment
+that &SCons; does not configure correctly. This is an alternative to manually configuring
+the environment when bypassing Visual Studio autodetection entirely by setting
+&cv-link-MSVC_USE_SCRIPT; to <constant>None</constant>.
+</para>
+<para>
+Note: the dictionary content requirements are based on the internal msvc implementation and
+therefore may change at any time. The burden is on the user to ensure the dictionary contents
+are minimally sufficient to ensure successful builds.
+</para>
+</summary>
+</cvar>
+
 <!-- This has moved to Platform/Platform.xml to avoid duplication
 <cvar name="HOST_ARCH">
 <summary>
