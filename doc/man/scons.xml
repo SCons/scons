@@ -7219,23 +7219,38 @@ A tool specification module must include two functions:
   <varlistentry>
     <term><function>generate</function>(<parameter>env, **kwargs</parameter>)</term>
     <listitem>
-<para>Modifies the &consenv; <parameter>env</parameter>
-to set up necessary &consvars; so that the facilities represented by
-the tool can be executed.
-It may use any keyword arguments
-that the user supplies in <parameter>kwargs</parameter>
+<para>Modify the &consenv; <parameter>env</parameter>
+to set up necessary &consvars;, Builders, Emitters, etc.,
+so the facilities represented by the tool can be executed. 
+Care should be taken not to overwrite &consvars; intended
+to be settable by the user. For example:
+</para>
+<programlisting language="python">
+def generate(env):
+    ...
+    if 'MYTOOL' not in env:
+        env['MYTOOL'] = env.Detect("mytool")
+    if 'MYTOOLFLAGS' not in env:
+        env['MYTOOLFLAGS'] = SCons.Util.CLVar('--myarg')
+    ...
+</programlisting>
+
+<para>The <function>generate</function> function
+may use any keyword arguments
+that the user supplies via <parameter>kwargs</parameter>
 to vary its initialization.</para>
     </listitem>
   </varlistentry>
   <varlistentry>
     <term><function>exists</function>(<parameter>env</parameter>)</term>
     <listitem>
-<para>Returns <constant>True</constant> if the tool can
+<para>Return a true value if the tool can
 be called in the context of <parameter>env</parameter>.
+else false.
 Usually this means looking up one or more
 known programs using the <varname>PATH</varname> from the
 supplied <parameter>env</parameter>, but the tool can
-make the "exists" decision in any way it chooses.
+make the <emphasis>exists</emphasis> decision in any way it chooses.
 </para>
     </listitem>
   </varlistentry>
