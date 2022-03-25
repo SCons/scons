@@ -16,6 +16,8 @@ NEW FUNCTIONALITY
 
 - List new features (presumably why a checkpoint is being released)
 - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
+- Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
+  system environment as an alternative to bypassing Visual Studio autodetection entirely.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
