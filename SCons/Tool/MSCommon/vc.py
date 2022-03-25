@@ -940,7 +940,7 @@ def get_use_script_use_settings(env):
     # distinguish between undefined and None or evaluates False
     use_script = env.get('MSVC_USE_SCRIPT', _undefined)
 
-    # undefined or None: use settings ignored
+    # undefined or None: use_settings ignored
     use_settings = env.get('MSVC_USE_SETTINGS', None)
 
     if use_script != _undefined:
