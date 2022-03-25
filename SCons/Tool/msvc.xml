@@ -433,7 +433,7 @@ and/or when &cv-MSVC_USE_SETTINGS; is set to <constant>None</constant>.
 </para>
 <para>
 The dictionary is used to populate the environment with the relevant variables
-(typically  <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
+(typically <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
 for supplying to the build. This can be useful to force the use of a compiler environment
 that &SCons; does not configure correctly. This is an alternative to manually configuring
 the environment when bypassing Visual Studio autodetection entirely by setting
