@@ -937,7 +937,7 @@ def get_use_script_use_settings(env):
     #   undefined  value not None  (False, value)
 
     # None (documentation) or evaluates False (code): bypass detection
-    # distinguish between undefined and defined as evaluates False
+    # distinguish between undefined and None or evaluates False
     use_script = env.get('MSVC_USE_SCRIPT', _undefined)
 
     # undefined or None: use settings ignored
@@ -987,7 +987,7 @@ def msvc_setup_env(env):
             return d
     elif use_settings is not None:
         if not SCons.Util.is_Dict(use_settings):
-            error_msg = 'MSVC_USE_SETTINGS type error: expected a dictionary, found {}'.format(type(use_settings).__name__) 
+            error_msg = 'MSVC_USE_SETTINGS type error: expected a dictionary, found {}'.format(type(use_settings).__name__)
             raise MSVCUseSettingsError(error_msg)
         d = use_settings
         debug('use_settings %s', d)
