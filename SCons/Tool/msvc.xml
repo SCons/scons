@@ -396,7 +396,7 @@ and extract the relevant variables from the result (typically
 <envar>%PATH%</envar>) for supplying to the build.
 This can be useful to force the use of a compiler version that
 &SCons; does not detect.
-&cv-MSVC_USE_SCRIPT_ARGS; privides arguments passed to this script.
+&cv-link-MSVC_USE_SCRIPT_ARGS; provides arguments passed to this script.
 </para>
 
 <para>
