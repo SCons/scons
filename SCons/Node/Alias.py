@@ -99,7 +99,7 @@ class Alias(SCons.Node.Node):
     BuildInfo = AliasBuildInfo
 
     def __init__(self, name):
-        SCons.Node.Node.__init__(self)
+        super().__init__()
         self.name = name
         self.changed_since_last_build = 1
         self.store_info = 0

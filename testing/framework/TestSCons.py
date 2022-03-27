@@ -321,7 +321,7 @@ class TestSCons(TestCommon):
         if kw.get('ignore_python_version', -1) != -1:
             del kw['ignore_python_version']
 
-        TestCommon.__init__(self, **kw)
+        super().__init__(**kw)
 
         if not self.external:
             import SCons.Node.FS
@@ -1755,7 +1755,7 @@ class TimeSCons(TestSCons):
         if 'verbose' not in kw and not self.calibrate:
             kw['verbose'] = True
 
-        TestSCons.__init__(self, *args, **kw)
+        super().__init__(*args, **kw)
 
         # TODO(sgk):    better way to get the script dir than sys.argv[0]
         self.test_dir = os.path.dirname(sys.argv[0])
