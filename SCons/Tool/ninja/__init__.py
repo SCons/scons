@@ -221,10 +221,11 @@ def generate(env):
 
     # This adds the required flags such that the generated compile
     # commands will create depfiles as appropriate in the Ninja file.
-    if env["PLATFORM"] == "win32":
-        env.Append(CCFLAGS=["/showIncludes"])
+    if 'CCDEPFLAGS' not in env:
+        # Issue some warning here
+        pass
     else:
-        env.Append(CCFLAGS=["-MMD", "-MF", "${TARGET}.d"])
+        env.Append(CCFLAGS='$CCDEPFLAGS')
 
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
@@ -274,7 +275,12 @@ def generate(env):
     def robust_rule_mapping(var, rule, tool):
         provider = gen_get_response_file_command(env, rule, tool)
         env.NinjaRuleMapping("${" + var + "}", provider)
-        env.NinjaRuleMapping(env.get(var, None), provider)
+
+        # some of these construction vars could be generators, e.g. 
+        # CommandGeneratorAction, so if the var is not a string, we 
+        # can't parse the generated string.
+        if isinstance(env.get(var), str):
+            env.NinjaRuleMapping(env.get(var, None), provider)
 
     robust_rule_mapping("CCCOM", "CC", "$CC")
     robust_rule_mapping("SHCCCOM", "CC", "$CC")

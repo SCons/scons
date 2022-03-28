@@ -261,7 +261,7 @@ class TestCommon(TestCmd):
         calling the base class initialization, and then changing directory
         to the workdir.
         """
-        TestCmd.__init__(self, **kw)
+        super().__init__(**kw)
         os.chdir(self.workdir)
 
     def options_arguments(self, options, arguments):

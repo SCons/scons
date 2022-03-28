@@ -25,6 +25,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Action._subproc() can now be used as a python context manager to ensure that the
       POpen object is properly closed. 
       (Thanks to Mats Wichmann for catching that DummyPopen needed additional logic)
+    - Added project_url for mailing lists and Discord
+    - Updated project url in steup.cfg to be https instead of http
+    - Updated setup.cfg to remove Python 3.5 and add Python 3.10
+    - Added default values for source and target arguments to _defines() function. This
+      is used to expand CPPDEFINES (and others). Previous change added those arguments
+      with no defaults, so old usage where _defines() was called without source and target
+      arguments would yield an exception. This issue was found via qt4 and qt5 tools in
+      scons-contrib https://github.com/SCons/scons-contrib/issues/45
+
 
 
   From Daniel Moody:
@@ -34,7 +43,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       only used for ninja)
     - Ninja: Fix issue where Configure files weren't being properly processed when build run
       via ninja.
-
+    - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
@@ -56,7 +65,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Pass window size to formatter so it formats for wider displays too.
     - runtest.py now accepts -j 0 to auto-detect number of usable
       processors for testing threads.
+    - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
+      AppendUnique is called on CPPPATH. (Issue #4108).
+    - As "code modernization" all of SCons now uses the current super()
+      zero-argument syntax instead of direct calls to a parent class method
+      or the super() two-argument syntax.
+    - Renamed ParseFlag's internal data structure to "mapping" instead of
+      "dict" (avoid redefining builtin)
 
+  From Zhichang Yu:
+    - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
+    - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 

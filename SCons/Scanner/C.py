@@ -61,7 +61,8 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             self.missing.append((file, self.current_file))
             return ''
 
-def dictify_CPPDEFINES(env):
+def dictify_CPPDEFINES(env) -> dict:
+    """Returns CPPDEFINES converted to a dict."""
     cppdefines = env.get('CPPDEFINES', {})
     if cppdefines is None:
         return {}
@@ -69,7 +70,11 @@ def dictify_CPPDEFINES(env):
         result = {}
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
-                result[c[0]] = c[1]
+                try:
+                    result[c[0]] = c[1]
+                except IndexError:
+                    # it could be a one-item sequence
+                    result[c[0]] = None
             else:
                 result[c] = None
         return result

@@ -121,7 +121,7 @@ class SubstTestCase(unittest.TestCase):
     class MyNode(DummyNode):
         """Simple node work-alike with some extra stuff for testing."""
         def __init__(self, name):
-            DummyNode.__init__(self, name)
+            super().__init__(name)
             class Attribute:
                 pass
             self.attribute = Attribute()

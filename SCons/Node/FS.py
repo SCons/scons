@@ -82,7 +82,7 @@ class EntryProxyAttributeError(AttributeError):
     of the underlying Entry involved in an AttributeError exception.
     """
     def __init__(self, entry_proxy, attribute):
-        AttributeError.__init__(self)
+        super().__init__()
         self.entry_proxy = entry_proxy
         self.attribute = attribute
     def __str__(self):
@@ -579,7 +579,7 @@ class Base(SCons.Node.Node):
         signatures."""
 
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Base')
-        SCons.Node.Node.__init__(self)
+        super().__init__()
 
         # Filenames and paths are probably reused and are intern'ed to save some memory.
         # Filename with extension as it was specified when the object was
@@ -982,7 +982,7 @@ class Entry(Base):
                  'contentsig']
 
     def __init__(self, name, directory, fs):
-        Base.__init__(self, name, directory, fs)
+        super().__init__(name, directory, fs)
         self._func_exists = 3
         self._func_get_contents = 1
 
@@ -1574,7 +1574,7 @@ class Dir(Base):
 
     def __init__(self, name, directory, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Dir')
-        Base.__init__(self, name, directory, fs)
+        super().__init__(name, directory, fs)
         self._morph()
 
     def _morph(self):
@@ -2563,7 +2563,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         if key != 'dependency_map' and hasattr(self, 'dependency_map'):
             del self.dependency_map
 
-        return super(FileBuildInfo, self).__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def convert_to_sconsign(self):
         """
@@ -2674,7 +2674,7 @@ class File(Base):
 
     def __init__(self, name, directory, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
-        Base.__init__(self, name, directory, fs)
+        super().__init__(name, directory, fs)
         self._morph()
 
     def Entry(self, name):

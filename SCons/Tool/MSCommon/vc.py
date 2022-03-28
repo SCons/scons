@@ -942,8 +942,9 @@ def msvc_setup_env(env):
         use_script = use_script.strip()
         if not os.path.exists(use_script):
             raise MSVCScriptNotFound('Script specified by MSVC_USE_SCRIPT not found: "{}"'.format(use_script))
-        debug('use_script 1 %s', repr(use_script))
-        d = script_env(use_script)
+        args = env.subst('$MSVC_USE_SCRIPT_ARGS')
+        debug('use_script 1 %s %s', repr(use_script), repr(args))
+        d = script_env(use_script, args)
     elif use_script:
         d = msvc_find_valid_batch_script(env,version)
         debug('use_script 2 %s', d)

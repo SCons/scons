@@ -48,12 +48,12 @@ See its __doc__ string for a discussion of the format.
     <tool name="ninja">
         <summary>
             <para>
-                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs &ninja;.
+                Sets up the &b-link-Ninja; builder, which generates a &ninja; build file, and then optionally runs &ninja;.
             </para>
             <note>
                 <para>This is an experimental feature.
+                    This functionality is subject to change and/or removal without a deprecation cycle.
                 </para>
-                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
             </note>
 
         </summary>
@@ -71,18 +71,18 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_SYNTAX</item>
             <item>NINJA_FORCE_SCONS_BUILD</item>
             <item>_NINJA_REGENERATE_DEPS_FUNC</item>
-            <item>__NINJA_NO</item>
+<!--            <item>__NINJA_NO</item>-->
             <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
             <item>NINJA_SCONS_DAEMON_KEEP_ALIVE</item>
             <item>NINJA_SCONS_DAEMON_PORT</item>
 
 
             <!-- TODO: Document these -->
-            <!--            <item>NINJA_RULES</item>-->
-            <!--            <item>NINJA_POOLS</item>-->
-            <!--            <item>NINJA</item>-->
-            <!--            <item>GENERATING_NINJA</item>-->
-            <!--            <item>NINJA_DIR</item>-->
+            <!-- <item>NINJA_RULES</item>-->
+            <!-- <item>NINJA_POOLS</item>-->
+            <!-- <item>NINJA</item>-->
+            <!-- <item>GENERATING_NINJA</item>-->
+            <!-- <item>NINJA_DIR</item>-->
 
         </sets>
 
@@ -92,6 +92,7 @@ See its __doc__ string for a discussion of the format.
             <item>ARFLAGS</item>
             <item>CC</item>
             <item>CCCOM</item>
+            <item>CCDEPFLAGS</item>
             <item>CCFLAGS</item>
             <item>CXX</item>
             <item>CXXCOM</item>
@@ -107,13 +108,12 @@ See its __doc__ string for a discussion of the format.
             <item>SHLINKCOM</item>
             <item>PROGSUFFIX</item>
             <item>PRINT_CMD_LINE_FUNC</item>
-            <!--            <item>TEMPFILE</item>-->
+            <!--<item>TEMPFILE</item>-->
 
-            <!-- TODO: Document these
-            <item>NINJA_MAX_JOBS</item>
-            <item>NINJA_SKIP</item>
-            <item>NINJA_CUSTOM_HANDLERS</item>
--->
+            <!-- TODO: Document these -->
+            <!-- <item>NINJA_MAX_JOBS</item> -->
+            <!-- <item>NINJA_SKIP</item> -->
+            <!-- <item>NINJA_CUSTOM_HANDLERS</item> -->
 
         </uses>
     </tool>
@@ -121,31 +121,34 @@ See its __doc__ string for a discussion of the format.
     <builder name="Ninja">
         <summary>
             <para>
-                &b-Ninja; is a special builder which
-                adds a target to create a ninja build file.
+                A special builder which
+                adds a target to create a Ninja build file.
                 The builder does not require any source files to be specified.
             </para>
             <note>
                 <para>This is an experimental feature. To enable it you must use one of the following methods
                 </para>
 
-<!--                NOTE DO NOT INDENT THE FOLLOWING AS IT WILL ALTER THE FORMATTING-->
+<!--            NOTE DO NOT INDENT example_commands CONTENTS AS IT WILL ALTER THE FORMATTING-->
                 <example_commands>
-    # On the command line
-    --experimental=ninja
+# On the command line
+--experimental=ninja
 
-    # Or in your SConstruct
-    SetOption('experimental', 'ninja')
+# Or in your SConstruct
+SetOption('experimental', 'ninja')
                 </example_commands>
 
                 <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
 
-
                 <para>
-                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
-                    package</ulink>.
-                    This can be done via
-                    <command>pip install ninja</command>
+                    To use this tool you need to install the &Python; &ninja; package,
+                    as the tool by default depends on being able to do an
+                    <systemitem>import</systemitem> of the package
+<!--                    (although see &cv-link-__NINJA_NO;).-->
+                    This can be done via:
+                    <example_commands>
+python -m pip install ninja
+                    </example_commands>
                 </para>
 
             </note>
@@ -186,10 +189,10 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_GENERATED_SOURCE_SUFFIXES">
         <summary>
             <para>
-                The list of source file suffixes which are generated by SCons build steps.
+                The list of source file suffixes which are generated by &SCons; build steps.
                 All source files which match these suffixes will be added to the _generated_sources alias in the output
-                <filename>ninja.build</filename> file.
-                Then all other source files will be made to depend on this in the <filename>ninja.build</filename> file, forcing the
+                &ninja; build file.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
                 generated sources to be built first.
             </para>
         </summary>
@@ -198,9 +201,10 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_MSVC_DEPS_PREFIX">
         <summary>
             <para>
-                This propagates directly into the generated <filename>ninja.build</filename> file.
-                From Ninja's docs
-                <quote>defines the string which should be stripped from msvc’s /showIncludes output</quote>
+                The <parameter>msvc_deps_prefix</parameter> string.
+                Propagates directly into the generated &ninja; build file.
+                From Ninja's docs:
+                <quote>defines the string which should be stripped from msvc's <option>/showIncludes</option> output</quote>
             </para>
         </summary>
     </cvar>
@@ -208,15 +212,14 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_DIR">
         <summary>
             <para>
-                This propagates directly into the generated <filename>ninja.build</filename> file.
+                The <parameter>builddir</parameter> value.
+                Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
-                <blockquote>
-                    <para>
-                        builddir
-                        A directory for some Ninja output files. ... (You can also store other build output in this
-                        directory.)
-                    </para>
-                </blockquote>
+                <quote>
+                    A directory for some Ninja output files. ... (You can also store other build output in this
+                    directory.)
+                </quote>
+            The default value is <filename>.ninja</filename>.
             </para>
         </summary>
     </cvar>
@@ -224,8 +227,9 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_REGENERATE_DEPS">
         <summary>
             <para>
-                A generator function used to create a ninja depsfile which includes all the files which would require
-                SCons to be invoked if they change.
+                A generator function used to create a &ninja; depfile which
+                includes all the files which would require
+                &SCons; to be invoked if they change.
                 Or a list of said files.
             </para>
         </summary>
@@ -234,13 +238,14 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_COMPDB_EXPAND">
         <summary>
             <para>
-                Boolean value (True|False) to instruct ninja to expand the command line arguments normally put into
+                Boolean value to instruct &ninja; to expand the command line arguments normally put into
                 response files.
-                This prevents lines in the compilation database like <quote>gcc @rsp_file</quote> and instead yields
-                <quote>gcc -c -o myfile.o myfile.c -Ia -DXYZ</quote>
+                If true, prevents unexpanded lines in the compilation database like
+                <quote><literal>gcc @rsp_file</literal></quote> and instead yields expanded lines like
+                <quote><literal>gcc -c -o myfile.o myfile.c -Ia -DXYZ</literal></quote>.
             </para>
             <para>
-                Ninja's compdb tool added the <quote>-x</quote> flag in Ninja V1.9.0
+                Ninja's compdb tool added the <option>-x</option> flag in Ninja V1.9.0
             </para>
         </summary>
     </cvar>
@@ -249,12 +254,17 @@ See its __doc__ string for a discussion of the format.
         <summary>
             <para>
                 A string that sets the environment for any environment variables that
-                differ between the OS environment and the SCons command ENV.
+                differ between the OS environment and the &SCons; execution environment.
+            </para>
 
+            <para>
                 It will be compatible with the default shell of the operating system.
+            </para>
 
-                If not explicitly specified, SCons will generate this dynamically from the Environment()'s 'ENV'
-                <quote>env['ENV']</quote>
+            <para>
+                If not explicitly set, &SCons; will generate this dynamically from the 
+                execution environment stored in the current &consenv;
+                (e.g. <literal>env['ENV']</literal>)
                 where those values differ from the existing shell..
             </para>
         </summary>
@@ -263,7 +273,7 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_POOL">
         <summary>
             <para>
-                Set the <quote>ninja_pool</quote> for this or all targets in scope for this env var.
+                Set the <parameter>ninja_pool</parameter> for this or all targets in scope for this env var.
             </para>
         </summary>
     </cvar>
@@ -271,30 +281,34 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_DISABLE_AUTO_RUN">
         <summary>
             <para>
-                Boolean (True|False). Default: False
-                When True, SCons will not run ninja automatically after creating the <filename>ninja.build</filename> file.
+                Boolean. Default: <constant>False</constant>.
+                If true, &SCons; will not run &ninja; automatically after creating the &ninja; build file.
+            </para>
 
-                If not set, this will be set to True if <quote>--disable_execute_ninja</quote> or
-                <code>SetOption('disable_execute_ninja', True)</code>
+            <para>
+                If not explicitly set, this will be set to <constant>True</constant>
+                if <option>--disable_execute_ninja</option> or
+                <code>SetOption('disable_execute_ninja', True)</code> is seen.
             </para>
         </summary>
     </cvar>
 
+<!-- Internal for now
     <cvar name="__NINJA_NO">
         <summary>
             <para>
-                Internal flag. Used to tell SCons whether or not to try to import pypi's ninja python package.
+                Internal flag. Used to tell &SCons; whether or not to try to import the &Python; &ninja; module.
                 This is set to True when being called by Ninja?
             </para>
         </summary>
     </cvar>
-
+-->
 
     <cvar name="NINJA_FILE_NAME">
         <summary>
             <para>
-                The filename for the generated Ninja build file defaults to
-                <filename>ninja.build</filename>
+                The filename for the generated Ninja build file.
+                The default is <filename>ninja.build</filename>.
             </para>
         </summary>
     </cvar>
@@ -302,8 +316,9 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_ALIAS_NAME">
         <summary>
             <para>
-                Name of the Alias() which is will cause SCons to create the <filename>ninja.build</filename> file, and
-                then (optionally) run ninja.
+                The name of the alias target which will cause &SCons; to create the &ninja; build file,
+                and then (optionally) run &ninja;.
+                The default value is <literal>generate-ninja</literal>.
             </para>
         </summary>
     </cvar>
@@ -311,9 +326,9 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_SYNTAX">
         <summary>
             <para>
-                Theres also NINJA_SYNTAX which is the path to a custom ninja_syntax.py file which is used in generation.
-                The tool currently assumes you have ninja installed through pip, and grabs the syntax file from that
-                installation if none specified.
+                The path to a custom <filename>ninja_syntax.py</filename> file which is used in generation.
+                The tool currently assumes you have &ninja; installed as a &Python; module and grabs the syntax file from that
+                installation if &cv-NINJA_SYNTAX; is not explicitly set.
             </para>
         </summary>
     </cvar>
@@ -321,9 +336,9 @@ See its __doc__ string for a discussion of the format.
     <cvar name="NINJA_FORCE_SCONS_BUILD">
         <summary>
             <para>
-                When NINJA_FORCE_SCONS_BUILD is True, this will cause the build nodes to callback to scons instead of using
-                ninja to build them. This is intended to be passed to the environment on the builder invocation.
-                It is useful if you have a build node which does something which is not easily translated into ninja.
+                If true, causes the build nodes to callback to scons instead of using
+                &ninja; to build them. This is intended to be passed to the environment on the builder invocation.
+                It is useful if you have a build node which does something which is not easily translated into &ninja;.
             </para>
         </summary>
     </cvar>
@@ -332,7 +347,7 @@ See its __doc__ string for a discussion of the format.
         <summary>
             <para>
                 Internal value used to specify the function to call with argument env to generate the list of files
-                which if changed would require the ninja file to be regenerated.
+                which if changed would require the &ninja; build file to be regenerated.
             </para>
         </summary>
     </cvar>

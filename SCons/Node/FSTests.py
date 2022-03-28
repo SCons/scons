@@ -2568,7 +2568,7 @@ class FileTestCase(_tempdirTestCase):
 
         class ChangedNode(SCons.Node.FS.File):
             def __init__(self, name, directory=None, fs=None):
-                SCons.Node.FS.File.__init__(self, name, directory, fs)
+                super().__init__(name, directory, fs)
                 self.name = name
                 self.Tag('found_includes', [])
                 self.stored_info = None
@@ -2608,7 +2608,7 @@ class FileTestCase(_tempdirTestCase):
         class ChangedEnvironment(SCons.Environment.Base):
 
             def __init__(self):
-                SCons.Environment.Base.__init__(self)
+                super().__init__()
                 self.decide_source = self._changed_timestamp_then_content
 
         class FakeNodeInfo:

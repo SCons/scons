@@ -81,7 +81,7 @@ class MyTestSCons(TestSCons.TestSCons):
     ]
 
     def __init__(self):
-        TestSCons.TestSCons.__init__(self)
+        super().__init__()
         self.root = self.workpath('root')
         self.prefix = self.root + os.path.splitdrive(sys.prefix)[1]
 
