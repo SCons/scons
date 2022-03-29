@@ -2691,7 +2691,7 @@ Prepend values to &consvars; in the current &consenv;,
 maintaining uniqueness.
 Works like &f-link-env-Append; (see for details),
 except that values are added to the front,
-rather than the end, of any existing value of the the &consvar;,
+rather than the end, of any existing value of the &consvar;,
 and values already present in the &consvar;
 will not be added again.
 If <parameter>delete_existing</parameter>
@@ -3139,9 +3139,16 @@ files = Split("""
 </arguments>
 <summary>
 <para>
-Performs construction variable interpolation
+Performs &consvar; interpolation
+(<firstterm>substitution</firstterm>)
 on <parameter>input</parameter>,
 which can be a string or a sequence.
+Substitutable elements take the form
+<literal>${<replaceable>expression</replaceable>}</literal>,
+although if there is no ambiguity in recognizing the element,
+the braces can be omitted.
+A literal <emphasis role="bold">$</emphasis> can be entered by
+using <emphasis role="bold">$$</emphasis>.
 </para>
 
 <para>
@@ -3176,7 +3183,7 @@ pairs
 </para>
 
 <para>
-If the input is a sequence
+If <parameter>input</parameter> is a sequence
 (list or tuple),
 the individual elements of
 the sequence will be expanded,
@@ -3388,7 +3395,7 @@ env.Config(target = 'package-config', source = Value(prefix))
 
 def build_value(target, source, env):
     # A function that "builds" a Python Value by updating
-    # the the Python value with the contents of the file
+    # the Python value with the contents of the file
     # specified as the source of the Builder call ($SOURCE).
     target[0].write(source[0].get_contents())
 

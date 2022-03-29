@@ -123,7 +123,7 @@ def get_dependencies(node, skip_sources=False):
             get_path(src_file(child))
             for child in filter_ninja_nodes(node.children())
             if child not in node.sources
-        ]
+        ]    
     return [get_path(src_file(child)) for child in filter_ninja_nodes(node.children())]
 
 
@@ -370,7 +370,7 @@ def ninja_contents(original):
     """Return a dummy content without doing IO"""
 
     def wrapper(self):
-        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
+        if isinstance(self, SCons.Node.Node) and (self.is_sconscript() or self.is_conftest()):
             return original(self)
         return bytes("dummy_ninja_contents", encoding="utf-8")
 

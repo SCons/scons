@@ -848,7 +848,7 @@ class CommandAction(_ActionAction):
         # variables.
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.CommandAction')
 
-        _ActionAction.__init__(self, **kw)
+        super().__init__(**kw)
         if is_List(cmd):
             if [c for c in cmd if is_List(c)]:
                 raise TypeError("CommandAction should be given only "
@@ -1231,7 +1231,7 @@ class FunctionAction(_ActionAction):
                 # This is weird, just do the best we can.
                 self.funccontents = _object_contents(execfunction)
 
-        _ActionAction.__init__(self, **kw)
+        super().__init__(**kw)
 
     def function_name(self):
         try:

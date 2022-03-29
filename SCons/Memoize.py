@@ -159,7 +159,7 @@ class CountDict(Counter):
     def __init__(self, cls_name, method_name, keymaker):
         """
         """
-        Counter.__init__(self, cls_name, method_name)
+        super().__init__(cls_name, method_name)
         self.keymaker = keymaker
     def count(self, *args, **kw):
         """ Counts whether the computed key value is already present

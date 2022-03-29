@@ -134,7 +134,9 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
 
     variables = {}
 
-    comstr = get_comstr(sub_env, action, tlist, slist)
+    # since we will check the ninja rule map for this command str, we must make sure
+    # its string so its hashable.
+    comstr = str(get_comstr(sub_env, action, tlist, slist))
     if not comstr:
         return None
 
@@ -255,6 +257,10 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
             )
 
         cmd, rsp_content = cmd_list[:tool_idx], cmd_list[tool_idx:]
+
+        # Canonicalize the path to have forward (posix style) dir sep characters.
+        if os.altsep:
+            rsp_content = [rsp_content_item.replace(os.sep, os.altsep) for rsp_content_item in rsp_content]
         rsp_content = ['"' + rsp_content_item + '"' for rsp_content_item in rsp_content]
         rsp_content = " ".join(rsp_content)
 
@@ -266,7 +272,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
                 variables["env"] += env.subst(
                     "export %s=%s;" % (key, value), target=targets, source=sources, executor=executor
                 ) + " "
-                
+
         if node.get_env().get('NINJA_FORCE_SCONS_BUILD'):
             ret_rule = 'TEMPLATE'
         else:

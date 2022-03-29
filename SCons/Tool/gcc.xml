@@ -33,6 +33,7 @@ Set construction variables for the &gcc; C compiler.
 <item>CC</item>
 <item>SHCCFLAGS</item>
 <item>CCVERSION</item>
+<item>CCDEPFLAGS</item>
 </sets>
 </tool>
 

@@ -28,11 +28,22 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added project_url for mailing lists and Discord
     - Updated project url in steup.cfg to be https instead of http
     - Updated setup.cfg to remove Python 3.5 and add Python 3.10
+    - Added default values for source and target arguments to _defines() function. This
+      is used to expand CPPDEFINES (and others). Previous change added those arguments
+      with no defaults, so old usage where _defines() was called without source and target
+      arguments would yield an exception. This issue was found via qt4 and qt5 tools in
+      scons-contrib https://github.com/SCons/scons-contrib/issues/45
 
 
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
+    - Ninja: Changed generated build.ninja file to run SCons only build Actions via
+      a SCons Deamon. Added logic for starting and connecting to SCons daemon (currently
+      only used for ninja)
+    - Ninja: Fix issue where Configure files weren't being properly processed when build run
+      via ninja.
+    - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
@@ -65,10 +76,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       off if there are no arguments.  The default cachefile is changed
       to have a .json suffix, for better recognition on Windows since
       the contents are json.
+    - As "code modernization" all of SCons now uses the current super()
+      zero-argument syntax instead of direct calls to a parent class method
+      or the super() two-argument syntax.
+    - Renamed ParseFlag's internal data structure to "mapping" instead of
+      "dict" (avoid redefining builtin)
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
-
+    - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 

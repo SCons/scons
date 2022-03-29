@@ -160,7 +160,7 @@ class NoneBuilder(Builder):
 
 class ListBuilder(Builder):
     def __init__(self, *nodes):
-        Builder.__init__(self)
+        super().__init__()
         self.nodes = nodes
     def execute(self, target, source, env):
         if hasattr(self, 'status'):
@@ -200,7 +200,7 @@ class MyNode(SCons.Node.Node):
     simulate a real, functional Node subclass.
     """
     def __init__(self, name):
-        SCons.Node.Node.__init__(self)
+        super().__init__()
         self.name = name
         self.Tag('found_includes', [])
     def __str__(self):
@@ -1226,7 +1226,7 @@ class NodeTestCase(unittest.TestCase):
         """Test the get_string() method."""
         class TestNode(MyNode):
             def __init__(self, name, sig):
-                MyNode.__init__(self, name)
+                super().__init__(name)
                 self.sig = sig
 
             def for_signature(self):

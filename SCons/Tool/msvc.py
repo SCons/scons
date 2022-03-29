@@ -315,6 +315,9 @@ def generate(env):
     if 'SystemRoot' not in env['ENV']:    # required for dlls in the winsxs folders
         env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
+    env['CCDEPFLAGS'] = '/showIncludes'
+
+
 def exists(env):
     return msvc_exists(env)
 

@@ -26,6 +26,7 @@
 
 import importlib
 import os
+import random
 import subprocess
 import sys
 
@@ -187,6 +188,11 @@ def generate(env):
 
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_DIR'] = env.Dir(env.get("NINJA_DIR", '#/.ninja'))
+    env["NINJA_SCONS_DAEMON_KEEP_ALIVE"] = env.get("NINJA_SCONS_DAEMON_KEEP_ALIVE", 180000)
+    env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000, 60000))
+
+    if GetOption("disable_ninja"):
+        env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
@@ -199,6 +205,7 @@ def generate(env):
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
         ninja_file = [NINJA_STATE.ninja_file]
+
 
     def ninja_generate_deps(env):
         """Return a list of SConscripts
@@ -214,10 +221,11 @@ def generate(env):
 
     # This adds the required flags such that the generated compile
     # commands will create depfiles as appropriate in the Ninja file.
-    if env["PLATFORM"] == "win32":
-        env.Append(CCFLAGS=["/showIncludes"])
+    if 'CCDEPFLAGS' not in env:
+        # Issue some warning here
+        pass
     else:
-        env.Append(CCFLAGS=["-MMD", "-MF", "${TARGET}.d"])
+        env.Append(CCFLAGS='$CCDEPFLAGS')
 
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
@@ -267,7 +275,12 @@ def generate(env):
     def robust_rule_mapping(var, rule, tool):
         provider = gen_get_response_file_command(env, rule, tool)
         env.NinjaRuleMapping("${" + var + "}", provider)
-        env.NinjaRuleMapping(env.get(var, None), provider)
+
+        # some of these construction vars could be generators, e.g. 
+        # CommandGeneratorAction, so if the var is not a string, we 
+        # can't parse the generated string.
+        if isinstance(env.get(var), str):
+            env.NinjaRuleMapping(env.get(var, None), provider)
 
     robust_rule_mapping("CCCOM", "CC", "$CC")
     robust_rule_mapping("SHCCCOM", "CC", "$CC")
@@ -423,7 +436,7 @@ def generate(env):
             return
         if target.check_attributes('ninja_file') is None:
             NINJA_STATE.add_build(target)
-        else: 
+        else:
             target.build()
 
     SCons.Taskmaster.Task.execute = ninja_execute
@@ -450,3 +463,6 @@ def generate(env):
 
     env['TEMPFILEDIR'] = "$NINJA_DIR/.response_files"
     env["TEMPFILE"] = NinjaNoResponseFiles
+
+
+    env.Alias('run-ninja-scons-daemon', 'run_ninja_scons_daemon_phony')

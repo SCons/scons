@@ -853,7 +853,7 @@ class fileTestCase(unittest.TestCase):
         """)
         class MyPreProcessor(cpp.DumbPreProcessor):
             def __init__(self, *args, **kw):
-                cpp.DumbPreProcessor.__init__(self, *args, **kw)
+                super().__init__(*args, **kw)
                 self.files = []
             def __call__(self, file):
                 self.files.append(file)

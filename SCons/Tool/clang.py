@@ -43,6 +43,7 @@ from SCons.Tool.MSCommon import msvc_setup_env_once
 
 compilers = ['clang']
 
+
 def generate(env):
     """Add Builders and construction variables for clang to an Environment."""
     SCons.Tool.cc.generate(env)
@@ -58,7 +59,6 @@ def generate(env):
             # Set-up ms tools paths
             msvc_setup_env_once(env)
 
-
     env['CC'] = env.Detect(compilers) or 'clang'
     if env['PLATFORM'] in ['cygwin', 'win32']:
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
@@ -67,7 +67,7 @@ def generate(env):
 
     # determine compiler version
     if env['CC']:
-        #pipe = SCons.Action._subproc(env, [env['CC'], '-dumpversion'],
+        # pipe = SCons.Action._subproc(env, [env['CC'], '-dumpversion'],
         pipe = SCons.Action._subproc(env, [env['CC'], '--version'],
                                      stdin='devnull',
                                      stderr='devnull',
@@ -80,6 +80,10 @@ def generate(env):
         match = re.search(r'clang +version +([0-9]+(?:\.[0-9]+)+)', line)
         if match:
             env['CCVERSION'] = match.group(1)
+
+    env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
+
+
 
 def exists(env):
     return env.Detect(compilers)
