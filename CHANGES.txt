@@ -38,6 +38,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
+    - Ninja: Changed generated build.ninja file to run SCons only build Actions via
+      a SCons Deamon. Added logic for starting and connecting to SCons daemon (currently
+      only used for ninja)
+    - Ninja: Fix issue where Configure files weren't being properly processed when build run
+      via ninja.
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 
   From Mats Wichmann:

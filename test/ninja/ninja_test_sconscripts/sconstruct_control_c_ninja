@@ -1,7 +1,7 @@
 import os
 import signal
 
-SetOption('experimental','ninja')
+SetOption('experimental', 'ninja')
 DefaultEnvironment(tools=[])
 
 env = Environment()
@@ -9,4 +9,4 @@ env.Tool('ninja')
 env.Program(target='foo', source='foo.c')
 
 if ARGUMENTS.get('NINJA_DISABLE_AUTO_RUN', 0):
-    os.kill(os.getppid(),signal.SIGINT )
+    os.kill(os.getppid(), signal.SIGINT)
