@@ -1933,7 +1933,7 @@ class Dir(Base):
             return self.srcdir
         return Base.srcnode(self)
 
-    def get_timestamp(self):
+    def get_timestamp(self) -> int:
         """Return the latest timestamp from among our children"""
         stamp = 0
         for kid in self.children():
@@ -1941,11 +1941,11 @@ class Dir(Base):
                 stamp = kid.get_timestamp()
         return stamp
 
-    def get_abspath(self):
+    def get_abspath(self) -> str:
         """Get the absolute path of the file."""
         return self._abspath
 
-    def get_labspath(self):
+    def get_labspath(self) -> str:
         """Get the absolute path of the file."""
         return self._labspath
 
@@ -2787,7 +2787,7 @@ class File(Base):
         return size
 
     @SCons.Memoize.CountMethodCall
-    def get_timestamp(self) -> float:
+    def get_timestamp(self) -> int:
         try:
             return self._memo['get_timestamp']
         except KeyError:
