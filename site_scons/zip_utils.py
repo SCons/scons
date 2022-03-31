@@ -64,10 +64,7 @@ def unzipit(env, target, source):
     for name in zf.namelist():
         dest = os.path.join(env['UNPACK_ZIP_DIR'], name)
         dir = os.path.dirname(dest)
-        try:
-            os.makedirs(dir)
-        except:
-            pass
+        os.makedirs(dir, exist_ok=True)
         print(dest, name)
         # if the file exists, then delete it before writing
         # to it so that we don't end up trying to write to a symlink:
@@ -89,7 +86,6 @@ def zipappit(env, target, source):
     print(f"Creating zipapp {target[0]}:")
     dest = target[0].abspath
     olddir = os.getcwd()
-    #os.chdir(env.Dir(env['CD']).abspath)
     os.chdir(env['CD'].abspath)
     try:
         zipapp.create_archive(env['PSV'], dest, "/usr/bin/env python")
