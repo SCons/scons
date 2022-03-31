@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,12 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# This test exercises the AddPreAction() and AddPostAction() API
-# functions, which add pre-build and post-build actions to nodes.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+This test exercises the AddPreAction() and AddPostAction() API
+functions, which add pre-build and post-build actions to nodes.
+"""
 
 import os
 
@@ -56,11 +57,8 @@ def before(env, target, source):
 def after(env, target, source):
     t = str(target[0])
     a = "after_" + t
-    fin = open(t, "rb")
-    fout = open(a, "wb")
-    fout.write(fin.read())
-    fout.close()
-    fin.close()
+    with open(t, "rb") as fin, open(a, "wb") as fout:
+        fout.write(fin.read())
     os.chmod(a, os.stat(a)[stat.ST_MODE] | stat.S_IXUSR)
 
 foo = env.Program(source='foo.c', target='foo')
@@ -103,19 +101,22 @@ test.must_match(['work3', 'dir', 'file'], "build()\n")
 
 # work4 start
 test.write(['work4', 'SConstruct'], """\
-
 DefaultEnvironment(tools=[])
 
 def pre_action(target, source, env):
     with open(str(target[0]), 'ab') as f:
         f.write(('pre %%s\\n' %% source[0]).encode())
+
 def post_action(target, source, env):
     with open(str(target[0]), 'ab') as f:
         f.write(('post %%s\\n' %% source[0]).encode())
+
 env = Environment(tools=[])
-o = env.Command(['pre-post', 'file.out'],
-                'file.in',
-                r'%(_python_)s build.py ${TARGETS[1]} $SOURCE')
+o = env.Command(
+    ['pre-post', 'file.out'],
+    'file.in',
+    r'%(_python_)s build.py ${TARGETS[1]} $SOURCE'
+)
 env.AddPreAction(o, pre_action)
 env.AddPostAction(o, post_action)
 """ % locals())
