@@ -23,7 +23,7 @@
 
 from glob import glob
 import os.path
-from zip_utils import zipit
+from zip_utils import zipit, zipappit
 from Utilities import is_windows
 
 
@@ -36,9 +36,11 @@ def get_local_package_file_list():
     # import pdb; pdb.set_trace()
 
     non_test = [f for f in s_files if "Tests.py" not in f]
-    non_test_non_doc = [f for f in non_test if '.xml' not in f or "SCons/Tool/docbook" in f]
+    non_test_non_doc = [
+        f for f in non_test if '.xml' not in f or "SCons/Tool/docbook" in f
+    ]
     filtered_list = [f for f in non_test_non_doc if 'pyc' not in f]
-    filtered_list = [f for f in filtered_list if '__pycache__' not in f ]
+    filtered_list = [f for f in filtered_list if '__pycache__' not in f]
     filtered_list = [f for f in filtered_list if not os.path.isdir(f)]
 
     return filtered_list
@@ -50,47 +52,71 @@ def install_local_package_files(env):
     files = get_local_package_file_list()
     target_dir = '#/build/scons-local/scons-local-$VERSION'
     for f in files:
-        all_local_installed.extend(env.Install(os.path.join(target_dir, os.path.dirname(f)),
-                                               f))
+        all_local_installed.extend(
+            env.Install(os.path.join(target_dir, os.path.dirname(f)), f)
+        )
 
-    basedir_files = ['scripts/scons.bat',
-                     'scripts/scons.py',
-                     'scripts/scons-configure-cache.py',
-                     'scripts/sconsign.py',
-                     'bin/scons-time.py']
+    basedir_files = [
+        'scripts/scons.bat',
+        'scripts/scons.py',
+        'scripts/scons-configure-cache.py',
+        'scripts/sconsign.py',
+        'bin/scons-time.py',
+    ]
     for bf in basedir_files:
         fn = os.path.basename(bf)
-        all_local_installed.append(env.SCons_revision('#/build/scons-local/%s'%fn, bf))
+        all_local_installed.append(
+            env.SCons_revision(f'#/build/scons-local/{fn}', bf)
+        )
 
     # Now copy manpages into scons-local package
-    built_manpage_files =  env.Glob('build/doc/man/*.1')
+    built_manpage_files = env.Glob('build/doc/man/*.1')
     for bmp in built_manpage_files:
         fn = os.path.basename(str(bmp))
-        all_local_installed.append(env.SCons_revision('#/build/scons-local/%s'%fn, bmp))
+        all_local_installed.append(
+            env.SCons_revision(f'#/build/scons-local/{fn}', bmp)
+        )
 
-    rename_files = [('scons-${VERSION}.bat', 'scripts/scons.bat'),
-                    ('scons-README', 'README-local'),
-                    ('scons-LICENSE', 'LICENSE-local')]
+    rename_files = [
+        ('scons-${VERSION}.bat', 'scripts/scons.bat'),
+        ('scons-README', 'README-local'),
+        ('scons-LICENSE', 'LICENSE-local'),
+    ]
     for t, f in rename_files:
-        target_file = "#/build/scons-local/%s"%t
+        target_file = f"#/build/scons-local/{t}"
         all_local_installed.append(env.SCons_revision(target_file, f))
 
     return all_local_installed
 
 
 def create_local_packages(env):
-    # Add SubstFile builder
-    env.Tool('textfile')
     [env.Tool(x) for x in ['packaging', 'filesystem', 'zip']]
     installed_files = install_local_package_files(env)
 
     build_local_dir = 'build/scons-local'
-    package = env.Command('#build/dist/scons-local-${VERSION}.zip',
-                          installed_files,
-                          zipit,
-                          CD=build_local_dir,
-                          PSV='.',
-                          )
+    package = env.Command(
+        '#build/dist/scons-local-${VERSION}.zip',
+        installed_files,
+        zipit,
+        CD=build_local_dir,
+        PSV='.',
+    )
+
+
+    do_zipapp = False
+    if do_zipapp:
+        # We need to descend into the versioned directory for zipapp,
+        # but we don't know the version. env.Glob lets us expand that.
+        # The action isn't going to use the sources here, but including
+        # them makes sure the deps work out right.
+        app_dir = env.Glob(f"{build_local_dir}/scons-local-*")[0]
+        zipapp = env.Command(
+            target='#build/dist/scons-local-${VERSION}.pyz',
+            source=installed_files,
+            action=zipappit,
+            CD=app_dir,
+            PSV='SCons',
+        )
 
     if is_windows():
         # avoid problem with tar interpreting c:/ as a remote machine
@@ -98,13 +124,12 @@ def create_local_packages(env):
     else:
         tar_cargs = '-czf'
 
-    env.Command('#build/dist/scons-local-${VERSION}.tar.gz',
-                installed_files,
-                "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_local_dir, tar_cargs))
+    env.Command(
+        '#build/dist/scons-local-${VERSION}.tar.gz',
+        installed_files,
+        "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_local_dir, tar_cargs),
+    )
 
-    print("Package:%s"%package)
-
-
-
-
-
+    print(f"Package:{package}")
+    if do_zipapp:
+        print(f"Zipapp:{zipapp}")
