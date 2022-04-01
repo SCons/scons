@@ -90,8 +90,9 @@ PACKAGING
   requirements_pkg.txt are the requirements to do a full build
   (including docs build) with an intent to create the packages.
 - Moved rpm and debian directories under packaging
-- Added logic to help packagers enable reproducible builds into packaging/etc/. Please
-  read packaging/etc/README.txt if you are interested.
+- Added logic to help packagers enable reproducible builds into packaging/etc/.
+  Please read packaging/etc/README.txt if you are interested.
+- A zipapp of scons-local is now also built.
 
 
 DOCUMENTATION

@@ -32,11 +32,11 @@ import zipapp
 
 
 def zipit(env, target, source):
-    """
-    zip *source* into *target*, using some values from *env*
+    """Action function to zip *source* into *target*
 
-    *env* values: `CD` is the directory to work in,
-    `PSV` is the directory name to walk down to find the files
+    Values extracted from *env*:
+      *CD*: the directory to work in
+      *PSV*: the directory name to walk down to find the files
     """
     print(f"Zipping {target[0]}:")
 
@@ -59,6 +59,8 @@ def zipit(env, target, source):
 
 
 def unzipit(env, target, source):
+    """Action function to unzip *source*"""
+
     print(f"Unzipping {source[0]}:")
     zf = zipfile.ZipFile(str(source[0]), 'r')
     for name in zf.namelist():
@@ -76,18 +78,24 @@ def unzipit(env, target, source):
 
 
 def zipappit(env, target, source):
-    """
-    Create a zipapp *target* from specified directory.
+    """Action function to Create a zipapp *target* from specified directory.
 
-    *env* values: ``"CD"`` is the Dir node for the place we want to work.
-    ``"PSV"`` is the directory name to point :meth:`zipapp.create_archive` at
-    (note *source* is unused here in favor of PSV)
+    Values extracted from *env*:
+      *CD*: the Dir node for the place we want to work.
+      *PSV*: the directory name to point :meth:`zipapp.create_archive` at
+        (note *source* is unused here in favor of PSV)
+      *main*: the entry point for the zipapp
     """
     print(f"Creating zipapp {target[0]}:")
     dest = target[0].abspath
     olddir = os.getcwd()
     os.chdir(env['CD'].abspath)
     try:
-        zipapp.create_archive(env['PSV'], dest, "/usr/bin/env python")
+        zipapp.create_archive(
+            source=env['PSV'],
+            target=dest,
+            main=env['entry'],
+            interpreter="/usr/bin/env python",
+        )
     finally:
         os.chdir(olddir)

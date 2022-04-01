@@ -28,9 +28,8 @@ from Utilities import is_windows
 
 
 def get_local_package_file_list():
-    """
-    Get list of all files which should be included in scons-local package
-    """
+    """Get list of all files which should be included in scons-local package"""
+
     s_files = glob("SCons/**", recursive=True)
 
     # import pdb; pdb.set_trace()
@@ -102,20 +101,20 @@ def create_local_packages(env):
         PSV='.',
     )
 
-
-    do_zipapp = False
+    do_zipapp = True  # Q: maybe an external way to specify whether to build?
     if do_zipapp:
         # We need to descend into the versioned directory for zipapp,
         # but we don't know the version. env.Glob lets us expand that.
-        # The action isn't going to use the sources here, but including
-        # them makes sure the deps work out right.
+        # The action isn't going to use the sources, but including
+        # them makes sure SCons has populated the dir we're going to zip.
         app_dir = env.Glob(f"{build_local_dir}/scons-local-*")[0]
         zipapp = env.Command(
             target='#build/dist/scons-local-${VERSION}.pyz',
             source=installed_files,
             action=zipappit,
             CD=app_dir,
-            PSV='SCons',
+            PSV='.',
+            entry='SCons.Script.Main:main',
         )
 
     if is_windows():

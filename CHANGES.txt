@@ -96,6 +96,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - The single-file Util module was split into a package with a few
       functional areas getting their own files - Util.py had grown to
       over 2100 lines.
+    - Add a zipapp package of scons-local: can use SCons from a local
+      file which does not need unpacking.
 
 
 
