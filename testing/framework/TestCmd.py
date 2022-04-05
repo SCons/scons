@@ -311,6 +311,7 @@ import time
 import traceback
 from collections import UserList, UserString
 from subprocess import PIPE, STDOUT
+from typing import Optional
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
@@ -1641,7 +1642,7 @@ class TestCmd:
         """
         time.sleep(seconds)
 
-    def stderr(self, run=None):
+    def stderr(self, run=None) -> Optional[str]:
         """Returns the error output from the specified run number.
 
         If there is no specified run number, then returns the error
@@ -1653,10 +1654,13 @@ class TestCmd:
             run = len(self._stderr)
         elif run < 0:
             run = len(self._stderr) + run
-        run = run - 1
-        return self._stderr[run]
+        run -= 1
+        try:
+            return self._stderr[run]
+        except IndexError:
+            return None
 
-    def stdout(self, run=None):
+    def stdout(self, run=None) -> Optional[str]:
         """Returns the stored standard output from a given run.
 
         Args:
@@ -1673,7 +1677,7 @@ class TestCmd:
             run = len(self._stdout)
         elif run < 0:
             run = len(self._stdout) + run
-        run = run - 1
+        run -= 1
         try:
             return self._stdout[run]
         except IndexError:
