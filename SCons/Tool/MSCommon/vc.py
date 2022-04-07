@@ -807,6 +807,11 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     elif 14 >= vernum >= 8:
         # 14.0 (VS2015) to 8.0 (VS2005)
 
+        clpath_prefixes = ['']
+        if msvc_version == '9.0':
+            # Visual C++ for Python registry key is installdir (root) not productdir (vc)
+            clpath_prefixes.append('VC')
+
         for host_platform, target_platform in host_target_list:
 
             debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
@@ -817,12 +822,15 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
                 continue
 
             _, clpath = batcharg_clpath
-            cl_path = os.path.join(vc_dir, clpath, _CL_EXE_NAME)
-            debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
+            for clpath_prefix in clpath_prefixes:
 
-            if os.path.exists(cl_path):
-                debug('found %s', _CL_EXE_NAME)
-                return True
+                clpath_adj = os.path.join(clpath_prefix, clpath) if clpath_prefix else clpath 
+                cl_path = os.path.join(vc_dir, clpath_adj, _CL_EXE_NAME)
+                debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
+
+                if os.path.exists(cl_path):
+                    debug('found %s', _CL_EXE_NAME)
+                    return True
 
     elif 8 > vernum >= 6:
         # 7.1 (VS2003) to 6.0 (VS6)
