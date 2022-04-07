@@ -46,6 +46,10 @@ import platform
 from string import digits as string_digits
 from subprocess import PIPE
 import re
+from collections import (
+    namedtuple,
+    OrderedDict,
+)
 
 import SCons.Util
 import SCons.Warnings
@@ -97,57 +101,98 @@ _ARCH_TO_CANONICAL = {
     "aarch64"   : "arm64",
 }
 
-# utility methods for derived data structure construction
+# host/target candidate lists
+_HOST_TARGET_CONFIG_NT = namedtuple("HostTargetConfig", [
+    # defined
+    "label",                # name for debugging/output
+    "host_all_hosts",       # host_all_hosts[host] -> host_list
+    "host_all_targets",     # host_all_targets[host] -> target_list
+    "host_def_targets",     # host_def_targets[host] -> target_list
+    # derived
+    "all_pairs",            # host_target_list
+    "host_target_map",      # host_target_map[host][target] -> host_target_list
+    "host_all_targets_map", # host_all_targets_map[host][target] -> host_target_list
+    "host_def_targets_map", # host_def_targets_map[host][target] -> host_target_list
+    "target_host_map",      # target_host_map[target][host] -> host_target_list
+    ])
 
-def _make_host_target_map(all_hosts, all_targets):
-    # host_target_map[host][target] -> host_target_list
-    host_target_map = {}
-    for host, host_list in all_hosts.items():
-        host_target_map[host] = {}
-        for host_platform in host_list:
-            for target_platform in all_targets[host_platform]:
-                if target_platform not in host_target_map[host]:
-                    host_target_map[host][target_platform] = []
-                host_target_map[host][target_platform].append((host_platform, target_platform))
-    return host_target_map
+def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host_def_targets):
 
-def _make_host_all_targets_map(host_target_map, all_targets):
-    # host_all_target_map[host] -> host_target_list
-    # special host key '_all_' contains all (host,target) combinations
-    all = '_all_'
-    host_all_target_map = {}
-    host_all_target_map[all] = []
-    for host in host_target_map.keys():
-        host_all_target_map[host] = []
-        for target in all_targets[host]:
-            for host_target in host_target_map[host][target]:
-                for key in (host, all):
-                    if host_target not in host_all_target_map[key]:
-                        host_all_target_map[key].append(host_target)
-    return host_all_target_map
+    def _make_host_target_map(all_hosts, all_targets):
+        # host_target_map[host][target] -> host_target_list
+        host_target_map = {}
+        for host, host_list in all_hosts.items():
+            host_target_map[host] = {}
+            for host_platform in host_list:
+                for target_platform in all_targets[host_platform]:
+                    if target_platform not in host_target_map[host]:
+                        host_target_map[host][target_platform] = []
+                    host_target_map[host][target_platform].append((host_platform, target_platform))
+        return host_target_map
 
-def _make_host_default_target_map(host_target_map, default_targets):
-    # host_default_target_map[host] -> host_target_list
-    host_default_target_map = {}
-    for host in host_target_map.keys():
-        host_default_target_map[host] = []
-        for target in default_targets[host]:
-            host_default_target_map[host].extend(host_target_map[host][target])
-    return host_default_target_map
+    def _make_host_all_targets_map(all_hosts, host_target_map, all_targets):
+        # host_all_target_map[host] -> host_target_list
+        # special host key '_all_' contains all (host,target) combinations
+        all = '_all_'
+        host_all_targets_map = {}
+        host_all_targets_map[all] = []
+        for host, host_list in all_hosts.items():
+            host_all_targets_map[host] = []
+            for host_platform in host_list:
+                for target in all_targets[host_platform]:
+                    for host_target in host_target_map[host_platform][target]:
+                        for host_key in (host, all):
+                            if host_target not in host_all_targets_map[host_key]:
+                                host_all_targets_map[host_key].append(host_target)
+        return host_all_targets_map
 
-def _make_target_host_map(host_target_map):
-    # target_host_map[target][host] -> host_target_list
-    target_host_map = {}
-    for host in host_target_map.keys():
-        for target in host_target_map[host].keys():
-            if target not in target_host_map:
-                target_host_map[target] = {}
-            if host not in target_host_map[target]:
-                target_host_map[target][host] = []
-            for host_target in host_target_map[host][target]:
-                if host_target not in target_host_map[target][host]:
-                    target_host_map[target][host].append(host_target)
-    return target_host_map
+    def _make_host_def_targets_map(all_hosts, host_target_map, def_targets):
+        # host_def_targets_map[host] -> host_target_list
+        host_def_targets_map = {}
+        for host, host_list in all_hosts.items():
+            host_def_targets_map[host] = []
+            for host_platform in host_list:
+                for target in def_targets[host_platform]:
+                    for host_target in host_target_map[host_platform][target]:
+                        if host_target not in host_def_targets_map[host]:
+                            host_def_targets_map[host].append(host_target)
+        return host_def_targets_map
+
+    def _make_target_host_map(all_hosts, host_all_targets_map):
+        # target_host_map[target][host] -> host_target_list
+        target_host_map = {}
+        for host_platform in all_hosts.keys():
+            for host_target in host_all_targets_map[host_platform]:
+                _, target = host_target
+                if target not in target_host_map:
+                    target_host_map[target] = {}
+                if host_platform not in target_host_map[target]:
+                    target_host_map[target][host_platform] = []
+                if host_target not in target_host_map[target][host_platform]:
+                    target_host_map[target][host_platform].append(host_target)
+        return target_host_map
+
+    host_target_map = _make_host_target_map(host_all_hosts, host_all_targets)
+    host_all_targets_map = _make_host_all_targets_map(host_all_hosts, host_target_map, host_all_targets)
+    host_def_targets_map = _make_host_def_targets_map(host_all_hosts, host_target_map, host_def_targets)
+    target_host_map = _make_target_host_map(host_all_hosts, host_all_targets_map)
+
+    all_pairs = host_all_targets_map['_all_']
+    del host_all_targets_map['_all_']
+
+    host_target_cfg = _HOST_TARGET_CONFIG_NT(
+        label = label,
+        host_all_hosts = dict(host_all_hosts),
+        host_all_targets = host_all_targets,
+        host_def_targets = host_def_targets,
+        all_pairs = all_pairs,
+        host_target_map = host_target_map,
+        host_all_targets_map = host_all_targets_map,
+        host_def_targets_map = host_def_targets_map,
+        target_host_map = target_host_map,
+    )
+
+    return host_target_cfg
 
 # 14.1 (VS2017) and later
 
@@ -164,9 +209,6 @@ def _make_target_host_map(host_target_map):
 # version directory.  For example,  <VSROOT>/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64.
 # The cl path fragment under the toolset version folder is the second value of
 # the stored tuple.
-#
-# Note: 2017 Express uses Hostx86 even if it's on 64-bit Windows which is not
-# reflected in this table.
 
 _GE2017_HOST_TARGET_BATCHFILE_CLPATH = {
 
@@ -182,30 +224,28 @@ _GE2017_HOST_TARGET_BATCHFILE_CLPATH = {
 
 }
 
-_GE2017_HOST_ALL_HOSTS = {
-    'amd64': ['amd64', 'x86'],
-    'x86':   ['x86'],
-}
+_GE2017_HOST_TARGET_CFG = _host_target_config_factory(
 
-_GE2017_HOST_ALL_TARGETS = {
-    'amd64': ['amd64', 'x86', 'arm', 'arm64'],
-    'x86':   ['amd64', 'x86', 'arm', 'arm64'],
-}
+    label = 'GE2017',
 
-_GE2017_HOST_DEFAULT_TARGETS = {
-    'amd64': ['amd64', 'x86'],
-    'x86':   ['x86'],
-}
+    host_all_hosts = OrderedDict([
+        ('amd64', ['amd64', 'x86']),
+        ('x86',   ['x86']),
+    ]),
 
-_GE2017_HOST_TARGET_MAP = _make_host_target_map(_GE2017_HOST_ALL_HOSTS, _GE2017_HOST_ALL_TARGETS)
-_GE2017_HOST_ALL_TARGETS_MAP = _make_host_all_targets_map(_GE2017_HOST_TARGET_MAP, _GE2017_HOST_ALL_TARGETS)
-_GE2017_HOST_DEF_TARGETS_MAP = _make_host_default_target_map(_GE2017_HOST_TARGET_MAP, _GE2017_HOST_DEFAULT_TARGETS)
-_GE2017_TARGET_HOST_MAP = _make_target_host_map(_GE2017_HOST_TARGET_MAP)
+    host_all_targets = {
+        'amd64': ['amd64', 'x86', 'arm', 'arm64'],
+        'x86':   ['x86', 'amd64', 'arm', 'arm64'],
+    },
 
-#debug("_GE2017_HOST_TARGET_MAP: %s", _GE2017_HOST_TARGET_MAP)
-#debug("_GE2017_HOST_ALL_TARGETS_MAP: %s", _GE2017_HOST_ALL_TARGETS_MAP)
-#debug("_GE2017_HOST_DEF_TARGETS_MAP: %s", _GE2017_HOST_DEF_TARGETS_MAP)
-#debug("_GE2017_TARGET_HOST_MAP: %s", _GE2017_TARGET_HOST_MAP)
+    host_def_targets = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+    },
+
+)
+
+# debug("_GE2017_HOST_TARGET_CFG: %s", _GE2017_HOST_TARGET_CFG)
 
 # 14.0 (VS2015) to 8.0 (VS2005)
 
@@ -232,66 +272,62 @@ _LE2015_HOST_TARGET_BATCHARG_CLPATH = {
 
 }
 
-_LE2015_HOST_ALL_HOSTS = {
-    'amd64': ['amd64', 'x86'],
-    'x86':   ['x86'],
-    'arm':   ['arm'],
-    'ia64':  ['ia64'],
-}
+_LE2015_HOST_TARGET_CFG = _host_target_config_factory(
 
-_LE2015_HOST_ALL_TARGETS = {
-    'amd64': ['amd64', 'x86', 'arm'],
-    'x86':   ['amd64', 'x86', 'arm', 'ia64'],
-    'arm':   ['arm'],
-    'ia64':  ['ia64'],
-}
+    label = 'LE2015',
 
-_LE2015_HOST_DEFAULT_TARGETS = {
-    'amd64': ['amd64', 'x86'],
-    'x86':   ['x86'],
-    'arm':   ['arm'],
-    'ia64':  ['ia64'],
-}
+    host_all_hosts = OrderedDict([
+        ('amd64', ['amd64', 'x86']),
+        ('x86',   ['x86']),
+        ('arm',   ['arm']),
+        ('ia64',  ['ia64']),
+    ]),
 
-_LE2015_HOST_TARGET_MAP = _make_host_target_map(_LE2015_HOST_ALL_HOSTS, _LE2015_HOST_ALL_TARGETS)
-_LE2015_HOST_ALL_TARGETS_MAP = _make_host_all_targets_map(_LE2015_HOST_TARGET_MAP, _LE2015_HOST_ALL_TARGETS)
-_LE2015_HOST_DEF_TARGETS_MAP = _make_host_default_target_map(_LE2015_HOST_TARGET_MAP, _LE2015_HOST_DEFAULT_TARGETS)
-_LE2015_TARGET_HOST_MAP = _make_target_host_map(_LE2015_HOST_TARGET_MAP)
+    host_all_targets = {
+        'amd64': ['amd64', 'x86', 'arm'],
+        'x86':   ['x86', 'amd64', 'arm', 'ia64'],
+        'arm':   ['arm'],
+        'ia64':  ['ia64'],
+    },
 
-#debug("_LE2015_HOST_TARGET_MAP: %s", _LE2015_HOST_TARGET_MAP)
-#debug("_LE2015_HOST_ALL_TARGETS_MAP: %s", _LE2015_HOST_ALL_TARGETS_MAP)
-#debug("_LE2015_HOST_DEF_TARGETS_MAP: %s", _LE2015_HOST_DEF_TARGETS_MAP)
-#debug("_LE2015_TARGET_HOST_MAP: %s", _LE2015_TARGET_HOST_MAP)
+    host_def_targets = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm':   ['arm'],
+        'ia64':  ['ia64'],
+    },
+
+)
+
+# debug("_LE2015_HOST_TARGET_CFG: %s", _LE2015_HOST_TARGET_CFG)
 
 # 7.1 (VS2003) and earlier
 
 # For 7.1 (VS2003) and earlier, there are only x86 targets and the batch files
 # take no arguments.
 
-_LE2003_HOST_ALL_HOSTS = {
-    'amd64': ['x86'],
-    'x86':   ['x86'],
-}
+_LE2003_HOST_TARGET_CFG = _host_target_config_factory(
 
-_LE2003_HOST_ALL_TARGETS = {
-    'amd64': ['x86'],
-    'x86':   ['x86'],
-}
+    label = 'LE2003',
 
-_LE2003_HOST_DEFAULT_TARGETS = {
-    'amd64': ['x86'],
-    'x86':   ['x86'],
-}
+    host_all_hosts = OrderedDict([
+        ('amd64', ['x86']),
+        ('x86',   ['x86']),
+    ]),
 
-_LE2003_HOST_TARGET_MAP = _make_host_target_map(_LE2003_HOST_ALL_HOSTS, _LE2003_HOST_ALL_TARGETS)
-_LE2003_HOST_ALL_TARGETS_MAP = _make_host_all_targets_map(_LE2003_HOST_TARGET_MAP, _LE2003_HOST_ALL_TARGETS)
-_LE2003_HOST_DEF_TARGETS_MAP = _make_host_default_target_map(_LE2003_HOST_TARGET_MAP, _LE2003_HOST_DEFAULT_TARGETS)
-_LE2003_TARGET_HOST_MAP = _make_target_host_map(_LE2003_HOST_TARGET_MAP)
+    host_all_targets = {
+        'amd64': ['x86'],
+        'x86':   ['x86'],
+    },
 
-#debug("_LE2003_HOST_TARGET_MAP: %s", _LE2003_HOST_TARGET_MAP)
-#debug("_LE2003_HOST_ALL_TARGETS_MAP: %s", _LE2003_HOST_ALL_TARGETS_MAP)
-#debug("_LE2003_HOST_DEF_TARGETS_MAP: %s", _LE2003_HOST_DEF_TARGETS_MAP)
-#debug("_LE2003_TARGET_HOST_MAP: %s", _LE2003_TARGET_HOST_MAP)
+    host_def_targets = {
+        'amd64': ['x86'],
+        'x86':   ['x86'],
+    },
+
+)
+
+# debug("_LE2003_HOST_TARGET_CFG: %s", _LE2003_HOST_TARGET_CFG)
 
 _CL_EXE_NAME = 'cl.exe'
 
@@ -347,19 +383,13 @@ def get_host_target(env, msvc_version, all_host_targets=False):
 
     if vernum > 14:
         # 14.1 (VS2017) and later
-        target_host_map      = _GE2017_TARGET_HOST_MAP
-        host_all_targets_map = _GE2017_HOST_ALL_TARGETS_MAP
-        host_def_targets_map = _GE2017_HOST_DEF_TARGETS_MAP
+        host_target_cfg = _GE2017_HOST_TARGET_CFG
     elif 14 >= vernum >= 8:
         # 14.0 (VS2015) to 8.0 (VS2005)
-        target_host_map      = _LE2015_TARGET_HOST_MAP
-        host_all_targets_map = _LE2015_HOST_ALL_TARGETS_MAP
-        host_def_targets_map = _LE2003_HOST_DEF_TARGETS_MAP
+        host_target_cfg = _LE2015_HOST_TARGET_CFG
     else:
         # 7.1 (VS2003) and earlier
-        target_host_map      = _LE2003_TARGET_HOST_MAP
-        host_all_targets_map = _LE2015_HOST_ALL_TARGETS_MAP
-        host_def_targets_map = _LE2003_HOST_DEF_TARGETS_MAP
+        host_target_cfg = _LE2003_HOST_TARGET_CFG
 
     host_arch = env.get('HOST_ARCH') if env else None
     debug("HOST_ARCH:%s", str(host_arch))
@@ -383,6 +413,8 @@ def get_host_target(env, msvc_version, all_host_targets=False):
                 % (repr(target_arch), all_archs)
             ) from None
 
+        target_host_map = host_target_cfg.target_host_map
+
         try:
             host_target_list = target_host_map[target_platform][host_platform]
         except KeyError:
@@ -398,9 +430,9 @@ def get_host_target(env, msvc_version, all_host_targets=False):
         target_platform = None
 
         if all_host_targets:
-            host_targets_map = host_all_targets_map
+            host_targets_map = host_target_cfg.host_all_targets_map
         else:
-            host_targets_map = host_def_targets_map
+            host_targets_map = host_target_cfg.host_def_targets_map
 
         try:
             host_target_list = host_targets_map[host_platform]

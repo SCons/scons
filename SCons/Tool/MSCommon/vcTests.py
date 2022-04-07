@@ -135,7 +135,7 @@ class MSVcTestCase(unittest.TestCase):
 
 
         # Now walk all the valid combinations of host/target for 14.1 (VS2017) and later
-        vc_ge2017_list = SCons.Tool.MSCommon.vc._GE2017_HOST_ALL_TARGETS_MAP['_all_']
+        vc_ge2017_list = SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_CFG.all_pairs
 
         for host, target in vc_ge2017_list:
             batfile, clpath =  SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_BATCHFILE_CLPATH[(host,target)]
@@ -171,7 +171,7 @@ class MSVcTestCase(unittest.TestCase):
             self.fail('Did not fail when TARGET_ARCH specified as: %s'%env['TARGET_ARCH'])
 
         # Test 14.0 (VS2015) to 8.0 (VS2005) versions
-        vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_ALL_TARGETS_MAP['_all_']
+        vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_CFG.all_pairs
 
         for host, target in vc_le2015_list:
             batarg, clpath = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATH[(host, target)]
@@ -206,7 +206,7 @@ class MSVcTestCase(unittest.TestCase):
             self.fail('Did not fail when TARGET_ARCH specified as: %s'%env['TARGET_ARCH'])
 
         # Test 7.1 (VS2003) and earlier
-        vc_le2003_list = SCons.Tool.MSCommon.vc._LE2003_HOST_ALL_TARGETS_MAP['_all_']
+        vc_le2003_list = SCons.Tool.MSCommon.vc._LE2003_HOST_TARGET_CFG.all_pairs
 
         for host, target in vc_le2003_list:
             # print("LE 7.1 Got: (%s, %s)"%(host,target))
