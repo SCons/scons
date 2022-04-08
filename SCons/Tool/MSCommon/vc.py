@@ -197,7 +197,7 @@ def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host
 # 14.1 (VS2017) and later
 
 # Given a (host, target) tuple, return a tuple containing the batch file to
-# look for and the path fragment to find cl.exe. We can't rely on returning
+# look for and a tuple of path components to find cl.exe. We can't rely on returning
 # an arg to use for vcvarsall.bat, because that script will run even if given
 # a host/target pair that isn't installed.
 #
@@ -210,17 +210,17 @@ def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host
 # The cl path fragment under the toolset version folder is the second value of
 # the stored tuple.
 
-_GE2017_HOST_TARGET_BATCHFILE_CLPATH = {
+_GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
-    ('amd64', 'amd64') : ( 'vcvars64.bat',          r'bin\Hostx64\x64'   ),
-    ('amd64', 'x86')   : ( 'vcvarsamd64_x86.bat',   r'bin\Hostx64\x86'   ),
-    ('amd64', 'arm')   : ( 'vcvarsamd64_arm.bat',   r'bin\Hostx64\arm'   ),
-    ('amd64', 'arm64') : ( 'vcvarsamd64_arm64.bat', r'bin\Hostx64\arm64' ),
+    ('amd64', 'amd64') : ( 'vcvars64.bat',          ('bin', 'Hostx64', 'x64')   ),
+    ('amd64', 'x86')   : ( 'vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')   ),
+    ('amd64', 'arm')   : ( 'vcvarsamd64_arm.bat',   ('bin', 'Hostx64', 'arm')   ),
+    ('amd64', 'arm64') : ( 'vcvarsamd64_arm64.bat', ('bin', 'Hostx64', 'arm64') ),
 
-    ('x86',   'amd64') : ( 'vcvarsx86_amd64.bat',   r'bin\Hostx86\x64'   ),
-    ('x86',   'x86')   : ( 'vcvars32.bat',          r'bin\Hostx86\x86'   ),
-    ('x86',   'arm')   : ( 'vcvarsx86_arm.bat',     r'bin\Hostx86\arm'   ),
-    ('x86',   'arm64') : ( 'vcvarsx86_arm64.bat',   r'bin\Hostx86\arm64' ),
+    ('x86',   'amd64') : ( 'vcvarsx86_amd64.bat',   ('bin', 'Hostx86', 'x64')   ),
+    ('x86',   'x86')   : ( 'vcvars32.bat',          ('bin', 'Hostx86', 'x86')   ),
+    ('x86',   'arm')   : ( 'vcvarsx86_arm.bat',     ('bin', 'Hostx86', 'arm')   ),
+    ('x86',   'arm64') : ( 'vcvarsx86_arm64.bat',   ('bin', 'Hostx86', 'arm64') ),
 
 }
 
@@ -250,25 +250,25 @@ _GE2017_HOST_TARGET_CFG = _host_target_config_factory(
 # 14.0 (VS2015) to 8.0 (VS2005)
 
 # Given a (host, target) tuple, return a tuple containing the argument for
-# the batch file and the the path fragment to find cl.exe.
+# the batch file and a tuple of the path components to find cl.exe.
 #
 # In 14.0 (VS2015) and earlier, the original x86 tools are in the tools
 # bin directory (i.e., <VSROOT>/VC/bin).  Any other tools are in subdirectory
 # named for the the host/target pair or a single name if the host==target.
 
-_LE2015_HOST_TARGET_BATCHARG_CLPATH = {
+_LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS = {
 
-    ('amd64', 'amd64') : ( 'amd64',     r'bin\amd64'     ),
-    ('amd64', 'x86')   : ( 'amd64_x86', r'bin\amd64_x86' ),
-    ('amd64', 'arm')   : ( 'amd64_arm', r'bin\amd64_arm' ),
+    ('amd64', 'amd64') : ( 'amd64',     ('bin', 'amd64')     ),
+    ('amd64', 'x86')   : ( 'amd64_x86', ('bin', 'amd64_x86') ),
+    ('amd64', 'arm')   : ( 'amd64_arm', ('bin', 'amd64_arm') ),
 
-    ('x86',   'amd64') : ( 'x86_amd64', r'bin\x86_amd64' ),
-    ('x86',   'x86')   : ( 'x86',       r'bin'           ),
-    ('x86',   'arm')   : ( 'x86_arm',   r'bin\x86_arm'   ),
-    ('x86',   'ia64')  : ( 'x86_ia64',  r'bin\x86_ia64'  ),
+    ('x86',   'amd64') : ( 'x86_amd64', ('bin', 'x86_amd64') ),
+    ('x86',   'x86')   : ( 'x86',       ('bin', )            ),
+    ('x86',   'arm')   : ( 'x86_arm',   ('bin', 'x86_arm')   ),
+    ('x86',   'ia64')  : ( 'x86_ia64',  ('bin', 'x86_ia64')  ),
 
-    ('arm',   'arm')   : ( 'arm',       r'bin\arm'       ),
-    ('ia64',  'ia64')  : ( 'ia64',      r'bin\ia64'      ),
+    ('arm',   'arm')   : ( 'arm',       ('bin', 'arm')       ),
+    ('ia64',  'ia64')  : ( 'ia64',      ('bin', 'ia64')      ),
 
 }
 
@@ -703,11 +703,11 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
     if vernum > 14:
         # 14.1 (VS2017) and later
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
-        batfile, _ = _GE2017_HOST_TARGET_BATCHFILE_CLPATH[(host_arch, target_arch)]
+        batfile, _ = _GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
     elif 14 >= vernum >= 8:
         # 14.0 (VS2015) to 8.0 (VS2005)
-        arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATH[(host_arch, target_arch)]
+        arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(pdir, "vcvarsall.bat")
     elif 8 > vernum >= 7:
         # 7.1 (VS2003) to 7.0 (VS2003)
@@ -791,13 +791,13 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
             debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
 
-            batchfile_clpath = _GE2017_HOST_TARGET_BATCHFILE_CLPATH.get((host_platform, target_platform), None)
-            if batchfile_clpath is None:
+            batchfile_clpathcomps = _GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS.get((host_platform, target_platform), None)
+            if batchfile_clpathcomps is None:
                 debug('unsupported host/target platform combo: (%s,%s)', host_platform, target_platform)
                 continue
 
-            _, clpath = batchfile_clpath
-            cl_path = os.path.join(vc_dir, 'Tools', 'MSVC', vc_specific_version, clpath, _CL_EXE_NAME)
+            _, cl_path_comps = batchfile_clpathcomps
+            cl_path = os.path.join(vc_dir, 'Tools', 'MSVC', vc_specific_version, *cl_path_comps, _CL_EXE_NAME)
             debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
 
             if os.path.exists(cl_path):
@@ -807,25 +807,25 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     elif 14 >= vernum >= 8:
         # 14.0 (VS2015) to 8.0 (VS2005)
 
-        clpath_prefixes = ['']
+        cl_path_prefixes = [None]
         if msvc_version == '9.0':
             # Visual C++ for Python registry key is installdir (root) not productdir (vc)
-            clpath_prefixes.append('VC')
+            cl_path_prefixes.append( ('VC',) )
 
         for host_platform, target_platform in host_target_list:
 
             debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
 
-            batcharg_clpath = _LE2015_HOST_TARGET_BATCHARG_CLPATH.get((host_platform, target_platform), None)
-            if batcharg_clpath is None:
+            batcharg_clpathcomps = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS.get((host_platform, target_platform), None)
+            if batcharg_clpathcomps is None:
                 debug('unsupported host/target platform combo: (%s,%s)', host_platform, target_platform)
                 continue
 
-            _, clpath = batcharg_clpath
-            for clpath_prefix in clpath_prefixes:
+            _, cl_path_comps = batcharg_clpathcomps
+            for cl_path_prefix in cl_path_prefixes:
 
-                clpath_adj = os.path.join(clpath_prefix, clpath) if clpath_prefix else clpath 
-                cl_path = os.path.join(vc_dir, clpath_adj, _CL_EXE_NAME)
+                cl_path_comps_adj = cl_path_prefix + cl_path_comps if cl_path_prefix else cl_path_comps 
+                cl_path = os.path.join(vc_dir, *cl_path_comps_adj, _CL_EXE_NAME)
                 debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
 
                 if os.path.exists(cl_path):

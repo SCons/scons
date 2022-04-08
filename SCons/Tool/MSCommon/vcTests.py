@@ -114,8 +114,9 @@ class MSVcTestCase(unittest.TestCase):
         check = SCons.Tool.MSCommon.vc._check_cl_exists_in_vc_dir
 
         env={'TARGET_ARCH':'x86'}
-        _, p = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATH[('x86','x86')]
-        MSVcTestCase._createDummyCl(p, add_bin=False)
+        _, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[('x86','x86')]
+        path = os.path.join('.', *clpathcomps)
+        MSVcTestCase._createDummyCl(path, add_bin=False)
  
         # print("retval:%s"%check(env, '.', '8.0'))
 
@@ -138,11 +139,11 @@ class MSVcTestCase(unittest.TestCase):
         vc_ge2017_list = SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_CFG.all_pairs
 
         for host, target in vc_ge2017_list:
-            batfile, clpath =  SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_BATCHFILE_CLPATH[(host,target)]
-            # print("GT 14 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpath))
+            batfile, clpathcomps =  SCons.Tool.MSCommon.vc._GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
+            # print("GT 14 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
-            path = os.path.join('.','Tools','MSVC', MS_TOOLS_VERSION, clpath)
+            path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
             MSVcTestCase._createDummyCl(path, add_bin=False)
             result=check(env, '.', '14.1')
             # print("for:(%s, %s) got :%s"%(host, target, result))
@@ -174,10 +175,10 @@ class MSVcTestCase(unittest.TestCase):
         vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_CFG.all_pairs
 
         for host, target in vc_le2015_list:
-            batarg, clpath = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATH[(host, target)]
-            # print("LE 14 Got: (%s, %s) -> (%s, %s)"%(host,target,batarg,clpath))
+            batarg, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host, target)]
+            # print("LE 14 Got: (%s, %s) -> (%s, %s)"%(host,target,batarg,clpathcomps))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
-            path = os.path.join('.', clpath)
+            path = os.path.join('.', *clpathcomps)
             MSVcTestCase._createDummyCl(path, add_bin=False)
             result=check(env, '.', '9.0')
             # print("for:(%s, %s) got :%s"%(host, target, result))
