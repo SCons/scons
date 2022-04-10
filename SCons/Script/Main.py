@@ -987,7 +987,6 @@ def _main(parser):
     # This would then cause subtle bugs, as already happened in #2971.
     if options.interactive:
         SCons.Node.interactive = True
-
     # That should cover (most of) the options.
     # Next, set up the variables that hold command-line arguments,
     # so the SConscript files that we read and execute have access to them.

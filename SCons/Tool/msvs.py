@@ -320,7 +320,7 @@ class _GenerateV7User(_UserGenerator):
             self.usrhead = V9UserHeader
             self.usrconf = V9UserConfiguration
             self.usrdebg = V9DebugSettings
-        _UserGenerator.__init__(self, dspfile, source, env)
+        super().__init__(dspfile, source, env)
 
     def UserProject(self):
         confkeys = sorted(self.configs.keys())
@@ -395,7 +395,7 @@ class _GenerateV10User(_UserGenerator):
         self.usrhead = V10UserHeader
         self.usrconf = V10UserConfiguration
         self.usrdebg = V10DebugSettings
-        _UserGenerator.__init__(self, dspfile, source, env)
+        super().__init__(dspfile, source, env)
 
     def UserProject(self):
         confkeys = sorted(self.configs.keys())
@@ -1487,7 +1487,7 @@ class _DSWGenerator:
 class _GenerateV7DSW(_DSWGenerator):
     """Generates a Solution file for MSVS .NET"""
     def __init__(self, dswfile, source, env):
-        _DSWGenerator.__init__(self, dswfile, source, env)
+        super().__init__(dswfile, source, env)
 
         self.file = None
         self.version = self.env['MSVS_VERSION']

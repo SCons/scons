@@ -132,7 +132,7 @@ class CmdStringHolder(collections.UserString):
     proper escape sequences inserted.
     """
     def __init__(self, cmd, literal=None):
-        collections.UserString.__init__(self, cmd)
+        super().__init__(cmd)
         self.literal = literal
 
     def is_literal(self):
@@ -490,7 +490,7 @@ class ListSubber(collections.UserList):
     internally.
     """
     def __init__(self, env, mode, conv, gvars):
-        collections.UserList.__init__(self, [])
+        super().__init__([])
         self.env = env
         self.mode = mode
         self.conv = conv

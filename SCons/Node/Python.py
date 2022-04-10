@@ -83,7 +83,7 @@ class Value(SCons.Node.Node):
     BuildInfo = ValueBuildInfo
 
     def __init__(self, value, built_value=None, name=None):
-        SCons.Node.Node.__init__(self)
+        super().__init__()
         self.value = value
         self.changed_since_last_build = 6
         self.store_info = 0

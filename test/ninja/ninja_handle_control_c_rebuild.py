@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 """
-This test ensures if ninja get's a control-c (or other interrupting signal) while
+This test ensures if ninja gets a control-c (or other interrupting signal) while
 regenerating the build.ninja, it doesn't remove the build.ninja leaving it 
 in an unworkable state.
 """

@@ -40,6 +40,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
+    - Ninja: Changed generated build.ninja file to run SCons only build Actions via
+      a SCons Deamon. Added logic for starting and connecting to SCons daemon (currently
+      only used for ninja)
+    - Ninja: Fix issue where Configure files weren't being properly processed when build run
+      via ninja.
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 
   From Mats Wichmann:
@@ -64,6 +69,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       processors for testing threads.
     - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
       AppendUnique is called on CPPPATH. (Issue #4108).
+    - As "code modernization" all of SCons now uses the current super()
+      zero-argument syntax instead of direct calls to a parent class method
+      or the super() two-argument syntax.
+    - Renamed ParseFlag's internal data structure to "mapping" instead of
+      "dict" (avoid redefining builtin)
+    - Fix an old use-before-set bug in tex tool (issue #2888)
+    - Fix a test harness exception returning stderr if a wait_for timed out.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

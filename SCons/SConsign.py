@@ -248,7 +248,7 @@ class DB(Base):
     determined by the database module.
     """
     def __init__(self, dir):
-        Base.__init__(self)
+        super().__init__()
 
         self.dir = dir
 
@@ -319,7 +319,7 @@ class Dir(Base):
         """
         fp - file pointer to read entries from
         """
-        Base.__init__(self)
+        super().__init__()
 
         if not fp:
             return
@@ -352,7 +352,7 @@ class DirFile(Dir):
             fp = None
 
         try:
-            Dir.__init__(self, fp, dir)
+            super().__init__(fp, dir)
         except KeyboardInterrupt:
             raise
         except Exception:
