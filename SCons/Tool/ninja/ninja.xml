@@ -73,6 +73,8 @@ See its __doc__ string for a discussion of the format.
             <item>_NINJA_REGENERATE_DEPS_FUNC</item>
 <!--            <item>__NINJA_NO</item>-->
             <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
+            <item>NINJA_SCONS_DAEMON_KEEP_ALIVE</item>
+            <item>NINJA_SCONS_DAEMON_PORT</item>
 
 
             <!-- TODO: Document these -->
@@ -346,6 +348,25 @@ python -m pip install ninja
             <para>
                 Internal value used to specify the function to call with argument env to generate the list of files
                 which if changed would require the &ninja; build file to be regenerated.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_SCONS_DAEMON_KEEP_ALIVE">
+        <summary>
+            <para>
+                The number of seconds for the SCons deamon launched by ninja to stay alive.
+                (Default: 180000)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_SCONS_DAEMON_PORT">
+        <summary>
+            <para>
+                The TCP/IP port for the SCons daemon to listen on.
+                <emphasis>NOTE: You cannot use a port already being listened to on your build machine.</emphasis>
+                (Default: random number between 10000,60000)
             </para>
         </summary>
     </cvar>

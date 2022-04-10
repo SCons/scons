@@ -37,47 +37,50 @@ except ImportError:
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
-ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
-    'ninja' + _exe))
+ninja_bin = os.path.abspath(
+    os.path.join(ninja.__file__, os.pardir, "data", "bin", "ninja" + _exe)
+)
 
-test.dir_fixture('ninja-fixture')
+test.dir_fixture("ninja-fixture")
 
-test.file_fixture('ninja_test_sconscripts/sconstruct_force_scons_callback', 'SConstruct')
+test.file_fixture(
+    "ninja_test_sconscripts/sconstruct_force_scons_callback", "SConstruct"
+)
 
 # generate simple build
 test.run(stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_contain_all(test.stdout(), 'Executing:')
-test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
-if test.stdout().count('scons: Building targets') != 2:
+test.must_contain_all_lines(test.stdout(), ["Generating: build.ninja"])
+test.must_contain_all(test.stdout(), "Executing:")
+test.must_contain_all(test.stdout(), "ninja%(_exe)s -f" % locals())
+if test.stdout().count("Defer to SCons to build") != 1:
     test.fail_test()
-test.must_match('out.txt', 'foo.c' + os.linesep)
-test.must_match('out2.txt', "test2.cpp" + os.linesep)
+test.must_match("out.txt", "foo.c" + os.linesep)
+test.must_match("out2.txt", "test2.cpp" + os.linesep)
 
 # clean build and ninja files
-test.run(arguments='-c', stdout=None)
-test.must_contain_all_lines(test.stdout(), [
-    'Removed out.txt',
-    'Removed out2.txt',
-    'Removed build.ninja'])
+test.run(arguments="-c", stdout=None)
+test.must_contain_all_lines(
+    test.stdout(), ["Removed out.txt", "Removed out2.txt", "Removed build.ninja"]
+)
 
 # only generate the ninja file
-test.run(arguments='--disable-execute-ninja', stdout=None)
-test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_not_exist(test.workpath('out.txt'))
-test.must_not_exist(test.workpath('out2.txt'))
+test.run(arguments="--disable-execute-ninja", stdout=None)
+test.must_contain_all_lines(test.stdout(), ["Generating: build.ninja"])
+test.must_not_exist(test.workpath("out.txt"))
+test.must_not_exist(test.workpath("out2.txt"))
 
 # run ninja independently
-program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
+program = test.workpath("run_ninja_env.bat") if IS_WINDOWS else ninja_bin
 test.run(program=program, stdout=None)
-if test.stdout().count('scons: Building targets') != 1:
+if test.stdout().count("Defer to SCons to build") != 1:
     test.fail_test()
-test.must_match('out.txt', 'foo.c' + os.linesep)
-test.must_match('out2.txt', "test2.cpp" + os.linesep)
+test.must_match("out.txt", "foo.c" + os.linesep)
+test.must_match("out2.txt", "test2.cpp" + os.linesep)
+
+# only generate the ninja file with specific NINJA_SCONS_DAEMON_PORT
+test.run(arguments="PORT=9999 --disable-execute-ninja", stdout=None)
+# Verify that port # propagates to call to ninja_run_daemon.py
+test.must_contain(test.workpath("build.ninja"), "ninja_run_daemon.py 9999")
 
 test.pass_test()
 
