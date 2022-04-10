@@ -924,14 +924,14 @@ def script_env(script, args=None):
     if cache_data is None:
         if re_output_error is None:
             re_output_error = re.compile('^(' + '|'.join([
-                'VSINSTALLDIR variable is not set',             # 2002-2003
-                'The specified configuration type is missing',  # 2005+
-                'Error in script usage',                        # 2005+
-                'ERROR\:',                                      # 2005+
-                '\!ERROR\!',                                    # 2015-2015
-                '\[ERROR\:',                                    # 2017+
-                '\[ERROR\]',                                    # 2017+
-                'Syntax\:',                                     # 2017+
+                r'VSINSTALLDIR variable is not set',             # 2002-2003
+                r'The specified configuration type is missing',  # 2005+
+                r'Error in script usage',                        # 2005+
+                r'ERROR\:',                                      # 2005+
+                r'\!ERROR\!',                                    # 2015-2015
+                r'\[ERROR\:',                                    # 2017+
+                r'\[ERROR\]',                                    # 2017+
+                r'Syntax\:',                                     # 2017+
             ]) + ')')
 
         stdout = common.get_output(script, args)
