@@ -114,7 +114,7 @@ _HOST_TARGET_CONFIG_NT = namedtuple("HostTargetConfig", [
     "host_all_targets_map", # host_all_targets_map[host][target] -> host_target_list
     "host_def_targets_map", # host_def_targets_map[host][target] -> host_target_list
     "target_host_map",      # target_host_map[target][host] -> host_target_list
-    ])
+])
 
 def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host_def_targets):
 
@@ -212,15 +212,15 @@ def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host
 
 _GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
 
-    ('amd64', 'amd64') : ( 'vcvars64.bat',          ('bin', 'Hostx64', 'x64')   ),
-    ('amd64', 'x86')   : ( 'vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')   ),
-    ('amd64', 'arm')   : ( 'vcvarsamd64_arm.bat',   ('bin', 'Hostx64', 'arm')   ),
-    ('amd64', 'arm64') : ( 'vcvarsamd64_arm64.bat', ('bin', 'Hostx64', 'arm64') ),
+    ('amd64', 'amd64') : ('vcvars64.bat',          ('bin', 'Hostx64', 'x64')),
+    ('amd64', 'x86')   : ('vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')),
+    ('amd64', 'arm')   : ('vcvarsamd64_arm.bat',   ('bin', 'Hostx64', 'arm')),
+    ('amd64', 'arm64') : ('vcvarsamd64_arm64.bat', ('bin', 'Hostx64', 'arm64')),
 
-    ('x86',   'amd64') : ( 'vcvarsx86_amd64.bat',   ('bin', 'Hostx86', 'x64')   ),
-    ('x86',   'x86')   : ( 'vcvars32.bat',          ('bin', 'Hostx86', 'x86')   ),
-    ('x86',   'arm')   : ( 'vcvarsx86_arm.bat',     ('bin', 'Hostx86', 'arm')   ),
-    ('x86',   'arm64') : ( 'vcvarsx86_arm64.bat',   ('bin', 'Hostx86', 'arm64') ),
+    ('x86',   'amd64') : ('vcvarsx86_amd64.bat',   ('bin', 'Hostx86', 'x64')),
+    ('x86',   'x86')   : ('vcvars32.bat',          ('bin', 'Hostx86', 'x86')),
+    ('x86',   'arm')   : ('vcvarsx86_arm.bat',     ('bin', 'Hostx86', 'arm')),
+    ('x86',   'arm64') : ('vcvarsx86_arm64.bat',   ('bin', 'Hostx86', 'arm64')),
 
 }
 
@@ -258,17 +258,17 @@ _GE2017_HOST_TARGET_CFG = _host_target_config_factory(
 
 _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS = {
 
-    ('amd64', 'amd64') : ( 'amd64',     ('bin', 'amd64')     ),
-    ('amd64', 'x86')   : ( 'amd64_x86', ('bin', 'amd64_x86') ),
-    ('amd64', 'arm')   : ( 'amd64_arm', ('bin', 'amd64_arm') ),
+    ('amd64', 'amd64') : ('amd64',     ('bin', 'amd64')),
+    ('amd64', 'x86')   : ('amd64_x86', ('bin', 'amd64_x86')),
+    ('amd64', 'arm')   : ('amd64_arm', ('bin', 'amd64_arm')),
 
-    ('x86',   'amd64') : ( 'x86_amd64', ('bin', 'x86_amd64') ),
-    ('x86',   'x86')   : ( 'x86',       ('bin', )            ),
-    ('x86',   'arm')   : ( 'x86_arm',   ('bin', 'x86_arm')   ),
-    ('x86',   'ia64')  : ( 'x86_ia64',  ('bin', 'x86_ia64')  ),
+    ('x86',   'amd64') : ('x86_amd64', ('bin', 'x86_amd64')),
+    ('x86',   'x86')   : ('x86',       ('bin', )),
+    ('x86',   'arm')   : ('x86_arm',   ('bin', 'x86_arm')),
+    ('x86',   'ia64')  : ('x86_ia64',  ('bin', 'x86_ia64')),
 
-    ('arm',   'arm')   : ( 'arm',       ('bin', 'arm')       ),
-    ('ia64',  'ia64')  : ( 'ia64',      ('bin', 'ia64')      ),
+    ('arm',   'arm')   : ('arm',       ('bin', 'arm')),
+    ('ia64',  'ia64')  : ('ia64',      ('bin', 'ia64')),
 
 }
 
@@ -810,7 +810,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         cl_path_prefixes = [None]
         if msvc_version == '9.0':
             # Visual C++ for Python registry key is installdir (root) not productdir (vc)
-            cl_path_prefixes.append( ('VC',) )
+            cl_path_prefixes.append(('VC',))
 
         for host_platform, target_platform in host_target_list:
 
@@ -824,7 +824,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             _, cl_path_comps = batcharg_clpathcomps
             for cl_path_prefix in cl_path_prefixes:
 
-                cl_path_comps_adj = cl_path_prefix + cl_path_comps if cl_path_prefix else cl_path_comps 
+                cl_path_comps_adj = cl_path_prefix + cl_path_comps if cl_path_prefix else cl_path_comps
                 cl_path = os.path.join(vc_dir, *cl_path_comps_adj, _CL_EXE_NAME)
                 debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
 
@@ -932,7 +932,7 @@ def script_env(script, args=None):
                 '\[ERROR\:',                                    # 2017+
                 '\[ERROR\]',                                    # 2017+
                 'Syntax\:',                                     # 2017+
-                ]) + ')')
+            ]) + ')')
 
         stdout = common.get_output(script, args)
 
