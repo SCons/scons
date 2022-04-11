@@ -714,7 +714,9 @@ def get_installed_vcs(env=None):
 def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
     global __INSTALLED_VCS_RUN
+    global __MSVC_SETUP_ENV_DEFAULT
     __INSTALLED_VCS_RUN = None
+    __MSVC_SETUP_ENV_DEFAULT = None
 
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
@@ -920,14 +922,18 @@ def msvc_find_valid_batch_script(env, version):
 
     return d
 
+__MSVC_SETUP_ENV_DEFAULT = None
 
 def msvc_setup_env(env):
+    global __MSVC_SETUP_ENV_DEFAULT
     debug('called')
     version = get_default_version(env)
     if version is None:
-        warn_msg = "No version of Visual Studio compiler found - C/C++ " \
-                   "compilers most likely not set correctly"
-        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+        if __MSVC_SETUP_ENV_DEFAULT:
+            warn_msg = "No version of Visual Studio compiler found - C/C++ " \
+                       "compilers most likely not set correctly"
+            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+        __MSVC_SETUP_ENV_DEFAULT = True
         return None
 
     # XXX: we set-up both MSVS version for backward
