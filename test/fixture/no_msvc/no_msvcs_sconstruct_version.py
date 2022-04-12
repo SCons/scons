@@ -10,5 +10,5 @@ for key in SCons.Tool.MSCommon.vc._VCVER_TO_PRODUCT_DIR:
 
 SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
 
-env = SCons.Environment.Environment()
+env = SCons.Environment.Environment(MSVC_VERSION='14.3')
 

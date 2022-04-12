@@ -79,6 +79,9 @@ class BatchFileExecutionError(VisualCException):
 class MSVCScriptNotFound(VisualCException):
     pass
 
+class MSVCVersionNotFound(VisualCException):
+    pass
+
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
     "amd64"     : "amd64",
@@ -853,6 +856,7 @@ def msvc_find_valid_batch_script(env, version):
     debug("host_platform: %s, try_target_archs: %s", host_platform, try_target_archs)
 
     d = None
+    version_installed = False
     for tp in try_target_archs:
         # Set to current arch.
         env['TARGET_ARCH'] = tp
@@ -869,14 +873,11 @@ def msvc_find_valid_batch_script(env, version):
         try:
             (vc_script, use_arg, sdk_script) = find_batch_file(env, version, host_platform, tp)
             debug('vc_script:%s sdk_script:%s', vc_script, sdk_script)
+            version_installed = True
         except VisualCException as e:
             msg = str(e)
             debug('Caught exception while looking for batch file (%s)', msg)
-            warn_msg = "VC version %s not installed.  " + \
-                       "C/C++ compilers are most likely not set correctly.\n" + \
-                       " Installed versions are: %s"
-            warn_msg = warn_msg % (version, get_installed_vcs(env))
-            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+            version_installed = False
             continue
 
         # Try to use the located batch file for this host/target platform combo
@@ -919,6 +920,25 @@ def msvc_find_valid_batch_script(env, version):
     # To it's initial value
     if not d:
         env['TARGET_ARCH']=req_target_platform
+        installed_vcs = get_installed_vcs(env)
+        if version_installed:
+            err_msg = "MSVC version {} working host/target script was not found.\n" \
+                      "  Host = {}, Target = {}\n" \
+                      "  Visual Studio C/C++ compilers may not be set correctly".format(
+                          version, host_platform, target_platform
+                      )
+        elif version and installed_vcs:
+            err_msg = "MSVC version {} was not found.\n" \
+                      "  Visual Studio C/C++ compilers may not be set correctly.\n" \
+                      "  Installed versions are: {}".format(version, installed_vcs)
+        elif version:
+            err_msg = "MSVC version {} was not found.\n" \
+                      "  No versions of the MSVC compiler were found.\n" \
+                      "  Visual Studio C/C++ compilers may not be set correctly".format(version)
+        else:
+            err_msg = "No versions of the MSVC compiler were found.\n" \
+                      "  Visual Studio C/C++ compilers may not be set correctly"
+        raise MSVCVersionNotFound(err_msg)
 
     return d
 
@@ -930,9 +950,9 @@ def msvc_setup_env(env):
     version = get_default_version(env)
     if version is None:
         if __MSVC_SETUP_ENV_DEFAULT:
-            warn_msg = "No version of Visual Studio compiler found - C/C++ " \
-                       "compilers most likely not set correctly"
-            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+            err_msg = "No versions of the MSVC compiler were found.\n" \
+                      "  Visual Studio C/C++ compilers may not be set correctly"
+            raise MSVCVersionNotFound(err_msg)
         __MSVC_SETUP_ENV_DEFAULT = True
         return None
 
