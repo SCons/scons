@@ -276,8 +276,8 @@ def generate(env):
         provider = gen_get_response_file_command(env, rule, tool)
         env.NinjaRuleMapping("${" + var + "}", provider)
 
-        # some of these construction vars could be generators, e.g. 
-        # CommandGeneratorAction, so if the var is not a string, we 
+        # some of these construction vars could be generators, e.g.
+        # CommandGeneratorAction, so if the var is not a string, we
         # can't parse the generated string.
         if isinstance(env.get(var), str):
             env.NinjaRuleMapping(env.get(var, None), provider)
@@ -297,7 +297,7 @@ def generate(env):
     # requires that all generated sources are added as order_only
     # dependencies to any builds that *might* use them.
     # TODO: switch to using SCons to help determine this (Github Issue #3624)
-    env["NINJA_GENERATED_SOURCE_SUFFIXES"] = [".h", ".hpp"]
+    env["NINJA_GENERATED_SOURCE_SUFFIXES"] = env.get('NINJA_GENERATED_SOURCE_SUFFIXES', [".h", ".hpp"])
 
     # Force ARCOM so use 's' flag on ar instead of separately running ranlib
     ninja_hack_arcom(env)

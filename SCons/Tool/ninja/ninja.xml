@@ -65,6 +65,7 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_ENV_VAR_CACHE</item>
             <item>NINJA_FILE_NAME</item>
             <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
+            <item>NINJA_GENERATED_SOURCE_ALIAS_NAME</item>
             <item>NINJA_MSVC_DEPS_PREFIX</item>
             <item>NINJA_POOL</item>
             <item>NINJA_REGENERATE_DEPS</item>
@@ -198,6 +199,17 @@ python -m pip install ninja
         </summary>
     </cvar>
 
+    <cvar name="NINJA_GENERATED_SOURCE_ALIAS_NAME">
+        <summary>
+            <para>
+                A string matching the name of a user defined alias which represents a list of all generated sources.
+                This will prevent the auto-detection of generated sources from &cv-NINJA_GENERATED_SOURCE_SUFFIXES;.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
+                generated sources to be built first.
+            </para>
+        </summary>
+    </cvar>
+
     <cvar name="NINJA_MSVC_DEPS_PREFIX">
         <summary>
             <para>
@@ -262,7 +274,7 @@ python -m pip install ninja
             </para>
 
             <para>
-                If not explicitly set, &SCons; will generate this dynamically from the 
+                If not explicitly set, &SCons; will generate this dynamically from the
                 execution environment stored in the current &consenv;
                 (e.g. <literal>env['ENV']</literal>)
                 where those values differ from the existing shell..
