@@ -23,7 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
+r"""
 Verify that we execute TeX in a subdirectory (if that's where the document
 resides) by checking that all the auxiliary files get created there and
 not in the top-level directory. Test this when variantDir is used
