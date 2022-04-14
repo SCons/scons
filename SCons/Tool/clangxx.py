@@ -33,7 +33,7 @@ selection method.
 
 import os.path
 import re
-import subprocess
+from subprocess import DEVNULL, PIPE
 
 import SCons.Tool
 import SCons.Util
@@ -50,7 +50,7 @@ def generate(env) -> None:
 
     SCons.Tool.cxx.generate(env)
 
-    env['CXX']        = env.Detect(compilers) or 'clang++'
+    env['CXX'] = env.Detect(compilers) or 'clang++'
 
     # platform specific settings
     if env['PLATFORM'] == 'aix':
@@ -63,7 +63,9 @@ def generate(env) -> None:
         env['SHOBJSUFFIX'] = '.pic.o'
     elif env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for clang++
-        clangxx = SCons.Tool.find_program_path(env, compilers[0], default_paths=get_clang_install_dirs(env['PLATFORM']))
+        clangxx = SCons.Tool.find_program_path(
+            env, compilers[0], default_paths=get_clang_install_dirs(env['PLATFORM'])
+        )
         if clangxx:
             clangxx_bin_dir = os.path.dirname(clangxx)
             env.AppendENVPath('PATH', clangxx_bin_dir)
@@ -71,23 +73,17 @@ def generate(env) -> None:
             # Set-up ms tools paths
             msvc_setup_env_once(env)
 
-
     # determine compiler version
     if env['CXX']:
-        pipe = SCons.Action._subproc(env, [env['CXX'], '--version'],
-                                     stdin='devnull',
-                                     stderr='devnull',
-                                     stdout=subprocess.PIPE)
-        if pipe.wait() != 0: 
-            return
-        
-        # clang -dumpversion is of no use
-        with pipe.stdout:
-            line = pipe.stdout.readline()
-        line = line.decode()
-        match = re.search(r'clang +version +([0-9]+(?:\.[0-9]+)+)', line)
-        if match:
-            env['CXXVERSION'] = match.group(1)
+        kw = {
+            'stdout': PIPE,
+            'stderr': DEVNULL,
+            'universal_newlines': True,
+        }
+        cp = SCons.Action.scons_subproc_run(env, [env['CXX'], '-dumpversion'], **kw)
+        line = cp.stdout
+        if line:
+            env['CXXVERSION'] = line
 
     env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'clang'

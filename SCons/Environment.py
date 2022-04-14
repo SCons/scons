@@ -36,6 +36,7 @@ import sys
 import re
 import shlex
 from collections import UserDict, deque
+from subprocess import PIPE, DEVNULL
 
 import SCons.Action
 import SCons.Builder
@@ -770,14 +771,11 @@ class SubstitutionEnvironment:
         Raises:
             OSError: if the external command returned non-zero exit status.
         """
-
-        import subprocess
-
         # common arguments
         kw = {
-            "stdin": "devnull",
-            "stdout": subprocess.PIPE,
-            "stderr": subprocess.PIPE,
+            "stdin": DEVNULL,
+            "stdout": PIPE,
+            "stderr": PIPE,
             "universal_newlines": True,
         }
         # if the command is a list, assume it's been quoted
@@ -785,14 +783,12 @@ class SubstitutionEnvironment:
         if not is_List(command):
             kw["shell"] = True
         # run constructed command
-        p = SCons.Action._subproc(self, command, **kw)
-        out, err = p.communicate()
-        status = p.wait()
-        if err:
-            sys.stderr.write("" + err)
-        if status:
-            raise OSError("'%s' exited %d" % (command, status))
-        return out
+        cp = SCons.Action.scons_subproc_run(self, command, **kw)
+        if cp.stderr:
+            sys.stderr.write(cp.stderr)
+        if cp.returncode:
+            raise OSError(f'{command!r} exited {cp.returncode}')
+        return cp.stdout
 
 
     def AddMethod(self, function, name=None) -> None:

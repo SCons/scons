@@ -33,7 +33,7 @@ selection method.
 
 from . import cc
 import re
-import subprocess
+from subprocess import PIPE
 
 import SCons.Util
 
@@ -77,28 +77,23 @@ def detect_version(env, cc):
     # -dumpversion was added in GCC 3.0.  As long as we're supporting
     # GCC versions older than that, we should use --version and a
     # regular expression.
-    # pipe = SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
-    with SCons.Action._subproc(env, SCons.Util.CLVar(cc) + ['--version'],
-                                 stdin='devnull',
-                                 stderr='devnull',
-                                 stdout=subprocess.PIPE) as pipe:
-        if pipe.wait() != 0:
-            return version
-
-        # -dumpversion variant:
-        # line = pipe.stdout.read().strip()
-        # --version variant:
-        line = SCons.Util.to_str(pipe.stdout.readline())
-        # Non-GNU compiler's output (like AIX xlc's) may exceed the stdout buffer:
-        # So continue with reading to let the child process actually terminate.
-        # We don't need to know the rest of the data, so don't bother decoding.
-        while pipe.stdout.readline():
-            pass
-
+    # pipe = SCons.Action.scons_subproc_run(env, SCons.Util.CLVar(cc) + ['-dumpversion'],
+    cp = SCons.Action.scons_subproc_run(
+        env, SCons.Util.CLVar(cc) + ['--version'], stdout=PIPE
+    )
+    if cp.returncode:
+        return version
 
     # -dumpversion variant:
-    # if line:
-    #     version = line
+    # line = cp.stdout.strip()
+    # --version variant:
+    try:
+        line = SCons.Util.to_str(cp.stdout.splitlines()[0])
+    except IndexError:
+        return version
+
+    # -dumpversion variant:
+    # version = line
     # --version variant:
     match = re.search(r'[0-9]+(\.[0-9]+)+', line)
     if match:

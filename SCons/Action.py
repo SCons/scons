@@ -824,13 +824,112 @@ def _resolve_shell_env(env, target, source):
     return ENV
 
 
-def _subproc(scons_env, cmd, error: str='ignore', **kw):
-    """Wrapper for subprocess which pulls from construction env.
+def scons_subproc_run(
+    scons_env, *args, error: str = None, **kwargs
+) -> subprocess.CompletedProcess:
+    """Run a command with arguments using an SCons execution environment.
+
+    Does an underlyng call to :func:`subprocess.run` to run a command and
+    returns a :class:`subprocess.CompletedProcess` instance with the results.
+    Use when an external command needs to run in an "SCons context" -
+    that is, with a crafted execution environment, rather than the user's
+    existing environment.  A supplied :keyword:`env` keyword argument
+    is used to set up the environment to pass to the call; if omitted,
+    *scons_env* is used to derive a suitable default.  Certain other
+    keyword arguments are examined before passing them through in the call.
+    The legacy :keyword:`error` keyword is remapped to :keyword:`check`.
+    The caller is responsible for setting up the appropriate keyword
+    arguments for :func:`subprocess.run`.
+
+    A subset of interesting kerword arguments follows; see the Python
+    documentation of :mod:`subprocess` for a complete list.
+
+    Keyword Arguments:
+       stdout: (and *stderr*, *stdin*) if set to :const:`subprocess.PIPE`.
+          send input to or collect output from the relevant stream in
+          the subprocess; the default ``None`` does no redirection
+          (i.e. output or errors may go to the console or log file,
+          but is not captured); if set to :const:`subprocess.DEVNULL`
+          they are explicitly thrown away.  :keyword:`capture_output` is a
+          synonym for setting both :keyword:`stdout` and :keyword:`stderr`
+          to :const:`~subprocess.PIPE`.
+       text: open *stdin*, *stdout*, *stderr* in text mode. Default
+          is binary mode. :keyword:`universal_newlines` is a synonym -
+          note :keyword:`text` is not understood before Python 3.7.
+       encoding: specifies an encoding. Changes to text mode.
+       errors: specified error handling. Changes to text mode.
+       input: a byte sequence to be passed to *stdin*, unless text
+          mode is enabled, in which case it must be a string.
+       shell: if true, the command is executed through the shell.
+       check: if true and the subprocess exits with a non-zero exit
+          code, raise a :exc:`subprocess.CalledProcessError` exception.
+          Otherwise (the default) in case of an :exc:`OSError`, report the
+          exit code in the :class:`~Subprocess.CompletedProcess` instance.
+
+    .. versionadded:: 4.5
+    """
+    # Figure out the execution environment to use
+    ENV = kwargs.get('env', None)
+    if ENV is None:
+        ENV = get_default_ENV(scons_env)
+    kwargs['env'] = SCons.Util.sanitize_shell_env(ENV)
+
+    # backwards-compat with _subproc: accept 'error', map it to
+    # ``check`` and remove, since it would not be recognized by run()
+    check = kwargs.get('check')
+    if check and error:
+        raise ValueError('error and check arguments may not both be used.')
+    if check is None:
+        check = False  # always supply some value for check
+    if error is not None:
+        if error == 'raise':
+            check = True
+        del kwargs['error']
+    kwargs['check'] = check
+
+    # Ensure that the ENV values are all strings:
+    new_env = {}
+    for key, value in ENV.items():
+        if is_List(value):
+            # If the value is a list, then we assume it is a path list,
+            # because that's a pretty common list-like value to stick
+            # in an environment variable:
+            value = SCons.Util.flatten_sequence(value)
+            new_env[key] = os.pathsep.join(str(v) for v in value)
+        else:
+            # If it's not a list type, "convert" it to str. This is
+            # harmless if it's already a string, but gets us the right
+            # thing for Dir and File instances and will produce something
+            # reasonable for just about everything else:
+            new_env[key] = str(value)
+    kwargs['env'] = new_env
+
+    # Some tools/tests expect no failures for things like missing files
+    # unless raise/check is set. If set, let subprocess.run go ahead and
+    # kill things, else catch and construct a dummy CompletedProcess instance.
+    if check:
+        cp = subprocess.run(*args, **kwargs)
+    else:
+        try:
+            cp = subprocess.run(*args, **kwargs)
+        except OSError as exc:
+            argline = ' '.join(*args)
+            cp = subprocess.CompletedProcess(argline, 1)
+            cp.stdout = ""
+            cp.stderr = ""
+
+    return cp
+
+
+def _subproc(scons_env, cmd, error='ignore', **kw):
+    """Wrapper for subprocess.Popen which pulls from construction env.
 
     Use for calls to subprocess which need to interpolate values from
     an SCons construction environment into the environment passed to
     subprocess.  Adds an an error-handling argument.  Adds ability
     to specify std{in,out,err} with "'devnull'" tag.
+
+    .. deprecated:: 4.5
     """
     # TODO: just uses subprocess.DEVNULL now, we can drop the "devnull"
     # string now - it is a holdover from Py2, which didn't have DEVNULL.

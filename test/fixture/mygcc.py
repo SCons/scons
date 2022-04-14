@@ -20,6 +20,18 @@ import getopt
 import sys
 
 def fake_gcc():
+
+    # The gcc tool has this comment:
+    #>    is executable, and is a GNU compiler (or accepts '--version' at least)
+    # So to pretend to be gcc, we need to recognize.  Parrot what
+    # test/CC/CCVERSION-fixture/versioned.py does.
+    if '-dumpversion' in sys.argv:
+        print('3.9.9')
+        sys.exit(0)
+    if '--version' in sys.argv:
+        print('this is version 2.9.9 with extra text')
+        sys.exit(0)
+
     compiler = sys.argv[1].encode('utf-8')
     opts, args = getopt.getopt(sys.argv[2:], 'co:xf:K:')
     for opt, arg in opts:
