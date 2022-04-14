@@ -58,6 +58,8 @@ FIXES
   with no defaults, so old usage where _defines() was called without source and target
   arguments would yield an exception. This issue was found via qt4 and qt5 tools in
   scons-contrib https://github.com/SCons/scons-contrib/issues/45
+- Fixed an inconsistency in the mingw tool search paths which could result in a mingw
+  installation not being detected (issue #4134).
 
 IMPROVEMENTS
 ------------
