@@ -12,7 +12,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Joseph Brill:
     - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
       when the user specified msvc script does not exist.
-    - Fix the mingw tool so that the generate and exists methods use the same mingw search paths
+    - Fix issue where if you only had mingw installed on a Windows system and no MSVC compiler, and
+      did not explicitly request the mingw tool, mingw tool initialization would fail and set the 
+      default compiler to MSVC which wasn't installed, yielding broken build.
+      Updated mingw tool so that the generate and exists methods use the same mingw search paths
       (issue #4134).
 
   From William Deegan:
