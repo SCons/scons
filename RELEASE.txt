@@ -58,6 +58,11 @@ FIXES
   with no defaults, so old usage where _defines() was called without source and target
   arguments would yield an exception. This issue was found via qt4 and qt5 tools in
   scons-contrib https://github.com/SCons/scons-contrib/issues/45
+- Fix issue where if you only had mingw installed on a Windows system and no MSVC compiler, and
+  did not explicitly request the mingw tool, mingw tool initialization would fail and set the 
+  default compiler to MSVC which wasn't installed, yielding broken build.
+  Updated mingw tool so that the generate and exists methods use the same mingw search paths
+  (issue #4134).
 
 IMPROVEMENTS
 ------------
