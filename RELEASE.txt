@@ -68,8 +68,8 @@ FIXES
   Updated mingw tool so that the generate and exists methods use the same mingw search paths
   (issue #4134).
 - The system environment variable names imported for MSVC 7.0 and 6.0 were updated to be
-  consistent with the variables names defined by their respective installers.  This fixes an error
-  caused when bypassing MSVC detection by specifying the MSVC 7.0 batch file directly.
+  consistent with the variables names defined by their respective installers.  This fixes an
+  error caused when bypassing MSVC detection by specifying the MSVC 7.0 batch file directly.
 
 IMPROVEMENTS
 ------------
