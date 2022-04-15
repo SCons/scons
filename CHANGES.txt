@@ -44,7 +44,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja: Fix issue where Configure files weren't being properly processed when build run
       via ninja.
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
-    - Added contribution from MongoDB ninja alias generated source tagging:
+    - Added contribution from MongoDB ninja alias generated source tagging. This allows users
+      to optionally set an alias which the ninja tool will use to determine which files are 
+      generated source, and therefore build them first as a workaround to not having 
+      scons scanners. The downstream commit is here:
       https://github.com/mongodb/mongo/commit/2fef432fa6e7cf3fd4f22ba3b193222c2887f14f
 
   From Mats Wichmann:
