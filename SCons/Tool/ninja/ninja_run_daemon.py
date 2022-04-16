@@ -67,10 +67,20 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     ] + sys.argv[1:]
     logging.debug(f"Starting daemon with {' '.join(cmd)}")
 
-    p = subprocess.Popen(
-        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=False
-    )
-
+    
+    if sys.platform == 'win32' and sys.version_info[0] == 3 and sys.version_info[1] == 6:
+        # on windows with python version 3.6, popen does not do a good job disconnecting
+        # the std handles and this make ninja hang becuase they stay open to the original
+        # process ninja launched. Here we can force the handles to be separated.
+        si = subprocess.STARTUPINFO()
+        si.dwFlags = subprocess.STARTF_USESTDHANDLES
+        p = subprocess.Popen(
+            cmd, close_fds=True, shell=False, startupinfo=si
+        )
+    else:
+        p = subprocess.Popen(
+            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=False,
+        )
     with open(daemon_dir / "pidfile", "w") as f:
         f.write(str(p.pid))
     with open(ninja_builddir / "scons_daemon_dirty", "w") as f:
