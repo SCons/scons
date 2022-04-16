@@ -376,6 +376,7 @@ class NinjaState:
             generated_source_files = sorted(
                 [] if not generated_sources_build else generated_sources_build['implicit']
             )
+            
             def check_generated_source_deps(build):
                 return (
                     build != generated_sources_build
@@ -404,6 +405,7 @@ class NinjaState:
                     rule="phony",
                     implicit=generated_source_files
                 )
+                
                 def check_generated_source_deps(build):
                     return (
                         not build["rule"] == "INSTALL"
