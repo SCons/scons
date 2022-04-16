@@ -70,7 +70,7 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     
     if sys.platform == 'win32' and sys.version_info[0] == 3 and sys.version_info[1] == 6:
         # on windows with python version 3.6, popen does not do a good job disconnecting
-        # the std handles and this make ninja hang becuase they stay open to the original
+        # the std handles and this make ninja hang because they stay open to the original
         # process ninja launched. Here we can force the handles to be separated.
         si = subprocess.STARTUPINFO()
         si.dwFlags = subprocess.STARTF_USESTDHANDLES
