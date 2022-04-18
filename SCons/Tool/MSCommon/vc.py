@@ -139,6 +139,7 @@ def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host
         for host, host_list in all_hosts.items():
             host_all_targets_map[host] = []
             for host_platform in host_list:
+                # all_targets[host_platform]: all targets for compatible host
                 for target in all_targets[host_platform]:
                     for host_target in host_target_map[host_platform][target]:
                         for host_key in (host, all):
@@ -152,7 +153,8 @@ def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host
         for host, host_list in all_hosts.items():
             host_def_targets_map[host] = []
             for host_platform in host_list:
-                for target in def_targets[host_platform]:
+                # def_targets[host]: default targets for true host
+                for target in def_targets[host]:
                     for host_target in host_target_map[host_platform][target]:
                         if host_target not in host_def_targets_map[host]:
                             host_def_targets_map[host].append(host_target)
@@ -231,16 +233,19 @@ _GE2017_HOST_TARGET_CFG = _host_target_config_factory(
     host_all_hosts = OrderedDict([
         ('amd64', ['amd64', 'x86']),
         ('x86',   ['x86']),
+        ('arm64', ['amd64', 'x86']),
     ]),
 
     host_all_targets = {
-        'amd64': ['amd64', 'x86', 'arm', 'arm64'],
+        'amd64': ['amd64', 'x86', 'arm64', 'arm'],
         'x86':   ['x86', 'amd64', 'arm', 'arm64'],
+        'arm64': [],
     },
 
     host_def_targets = {
         'amd64': ['amd64', 'x86'],
         'x86':   ['x86'],
+        'arm64': ['arm64', 'arm'],
     },
 
 )
