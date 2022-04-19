@@ -101,6 +101,22 @@ _ARCH_TO_CANONICAL = {
     "aarch64"   : "arm64",
 }
 
+# The msvc batch files report errors via stdout.  The following
+# regular expression attempts to match known msvc error messages
+# written to stdout.
+re_script_output_error = re.compile(
+    r'^(' + r'|'.join([
+        r'VSINSTALLDIR variable is not set',             # 2002-2003
+        r'The specified configuration type is missing',  # 2005+
+        r'Error in script usage',                        # 2005+
+        r'ERROR\:',                                      # 2005+
+        r'\!ERROR\!',                                    # 2015-2015
+        r'\[ERROR\:',                                    # 2017+
+        r'\[ERROR\]',                                    # 2017+
+        r'Syntax\:',                                     # 2017+
+    ]) + r')'
+)
+
 # host/target candidate lists
 _HOST_TARGET_CONFIG_NT = namedtuple("HostTargetConfig", [
     # defined
@@ -916,35 +932,21 @@ def reset_installed_vcs():
 # of time not parsing every time.
 
 script_env_cache = None
-re_output_error = None
 
 def script_env(script, args=None):
     global script_env_cache
-    global re_output_error
 
     if script_env_cache is None:
         script_env_cache = common.read_script_env_cache()
     cache_key = "{}--{}".format(script, args)
     cache_data = script_env_cache.get(cache_key, None)
     if cache_data is None:
-        if re_output_error is None:
-            re_output_error = re.compile('^(' + '|'.join([
-                r'VSINSTALLDIR variable is not set',             # 2002-2003
-                r'The specified configuration type is missing',  # 2005+
-                r'Error in script usage',                        # 2005+
-                r'ERROR\:',                                      # 2005+
-                r'\!ERROR\!',                                    # 2015-2015
-                r'\[ERROR\:',                                    # 2017+
-                r'\[ERROR\]',                                    # 2017+
-                r'Syntax\:',                                     # 2017+
-            ]) + ')')
-
         stdout = common.get_output(script, args)
 
         # Stupid batch files do not set return code: we take a look at the
         # beginning of the output for an error message instead
         olines = stdout.splitlines()
-        if re_output_error.match(olines[0]):
+        if re_script_output_error.match(olines[0]):
             raise BatchFileExecutionError("\n".join(olines[:2]))
 
         cache_data = common.parse_output(stdout)
