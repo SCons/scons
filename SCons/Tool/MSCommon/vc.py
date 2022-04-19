@@ -117,7 +117,51 @@ re_script_output_error = re.compile(
     ]) + r')'
 )
 
-# host/target candidate lists
+# Lists of compatible host/target combinations are derived from a set of defined
+# constant data structures for each host architecture. The derived data structures
+# implicitly handle the differences in full versions and express versions of visual
+# studio. The host/target combination search lists are contructed in order of
+# preference. The construction of the derived data structures is independent of actual
+# visual studio installations.  The host/target configurations are used in both the
+# initial msvc detection and when finding a valid batch file for a given host/target
+# combination.
+#
+# HostTargetConfig description:
+#
+#     label:
+#         Name used for identification.
+#
+#     host_all_hosts:
+#         Defined list of compatible architectures for each host architecture.
+#
+#     host_all_targets:
+#         Defined list of target architectures for each host architecture.
+#
+#     host_def_targets:
+#         Defined list of default target architectures for each host architecture.
+#
+#     all_pairs:
+#         Derived list of all host/target combination tuples.
+#
+#     host_target_map:
+#         Derived list of all compatible host/target combinations for each
+#         supported host/target combination.
+#
+#     host_all_targets_map:
+#         Derived list of all compatible host/target combinations for each
+#         supported host.  This is used in the initial check that cl.exe exists
+#         in the requisite visual studio vc host/target directory for a given host.
+#
+#     host_def_targets_map:
+#         Derived list of default compatible host/target combinations for each
+#         supported host.  This is used for a given host when the user does not
+#         request a target archicture.
+#
+#     target_host_map:
+#         Derived list of compatible host/target combinations for each supported
+#         target/host combination.  This is used for a given host and target when
+#         the user requests a target architecture.
+
 _HOST_TARGET_CONFIG_NT = namedtuple("HostTargetConfig", [
     # defined
     "label",                # name for debugging/output
