@@ -250,18 +250,21 @@ _GE2017_HOST_TARGET_CFG = _host_target_config_factory(
         ('amd64', ['amd64', 'x86']),
         ('x86',   ['x86']),
         ('arm64', ['amd64', 'x86']),
+        ('arm',   ['x86']),
     ]),
 
     host_all_targets = {
         'amd64': ['amd64', 'x86', 'arm64', 'arm'],
         'x86':   ['x86', 'amd64', 'arm', 'arm64'],
         'arm64': [],
+        'arm':   [],
     },
 
     host_def_targets = {
         'amd64': ['amd64', 'x86'],
         'x86':   ['x86'],
         'arm64': ['arm64', 'arm'],
+        'arm':   ['arm'],
     },
 
 )
