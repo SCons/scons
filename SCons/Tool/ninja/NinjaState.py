@@ -132,19 +132,19 @@ class NinjaState:
             # use this to generate a compile_commands.json database
             # which can't use the shell command as it's compile
             # command.
-            "CC": {
+            "CC_RSP": {
                 "command": "$env$CC @$out.rsp",
                 "description": "Compiling $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
             },
-            "CXX": {
+            "CXX_RSP": {
                 "command": "$env$CXX @$out.rsp",
                 "description": "Compiling $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
             },
-            "LINK": {
+            "LINK_RSP": {
                 "command": "$env$LINK @$out.rsp",
                 "description": "Linking $out",
                 "rspfile": "$out.rsp",
@@ -157,13 +157,33 @@ class NinjaState:
             # Native SCons will perform this operation so we need to force ninja
             # to do the same. See related for more info:
             # https://jira.mongodb.org/browse/SERVER-49457
-            "AR": {
+            "AR_RSP": {
                 "command": "{}$env$AR @$out.rsp".format(
                     '' if sys.platform == "win32" else "rm -f $out && "
                 ),
                 "description": "Archiving $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
+                "pool": "local_pool",
+            },
+            "CC": {
+                "command": "$env$CC $rspc",
+                "description": "Compiling $out",
+            },
+            "CXX": {
+                "command": "$env$CXX $rspc",
+                "description": "Compiling $out",
+            },
+            "LINK": {
+                "command": "$env$LINK $rspc",
+                "description": "Linking $out",
+                "pool": "local_pool",
+            },
+            "AR": {
+                "command": "{}$env$AR $rspc".format(
+                    '' if sys.platform == "win32" else "rm -f $out && "
+                ),
+                "description": "Archiving $out",
                 "pool": "local_pool",
             },
             "SYMLINK": {
@@ -339,7 +359,17 @@ class NinjaState:
         if self.__generated:
             return
 
-        self.rules.update(self.env.get(NINJA_RULES, {}))
+
+        for key, rule in self.env.get(NINJA_RULES, {}).items():
+            # make a non response file rule for users custom response file rules.
+            if rule.get('rspfile') is not None:
+                self.rules.update({key + '_RSP': rule})
+                non_rsp_rule = rule.copy()
+                del non_rsp_rule['rspfile']
+                del non_rsp_rule['rspfile_content']
+                self.rules.update({key: non_rsp_rule})
+            else:
+                self.rules.update({key: rule})
         self.pools.update(self.env.get(NINJA_POOLS, {}))
 
         content = io.StringIO()
