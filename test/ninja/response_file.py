@@ -88,7 +88,6 @@ test.must_exist(test.workpath('foo' + _obj + '2.rsp'))
 
 test.run(program=test.workpath('foo' + _exe), stdout="foo.c")
 
-test.run(program=program, arguments='exit_ninja_scons_daemon', stdout=None)
 test.pass_test()
 
 # Local Variables:
