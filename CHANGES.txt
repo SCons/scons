@@ -49,6 +49,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja: Fix issue where Configure files weren't being properly processed when build run
       via ninja.
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
+    - Added special case for ninja scons daemon to work in win32 python3.6 environments.
+      This particular environment does a bad job managing popen standard file handles, so 
+      some special workarounds are needed.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
