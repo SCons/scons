@@ -29,6 +29,7 @@ import signal
 import tempfile
 import shutil
 import sys
+import time
 import random
 import filecmp
 from os.path import splitext
@@ -588,7 +589,7 @@ class NinjaState:
             rule="SCONS_DAEMON",
         )
 
-      
+
         if all_targets is None:
             # Look in SCons's list of DEFAULT_TARGETS, find the ones that
             # we generated a ninja build rule for.
@@ -618,6 +619,15 @@ class NinjaState:
                         os.kill(pid, signal.SIGINT)
                     except OSError:
                         pass
+
+                    # wait for the server process to fully killed
+                    while True:
+                        try:
+                            os.kill(pid, 0)
+                        except OSError:
+                            break
+                        else:
+                            time.sleep(0.1)
 
             if os.path.exists(scons_daemon_dirty):
                 os.unlink(scons_daemon_dirty)
