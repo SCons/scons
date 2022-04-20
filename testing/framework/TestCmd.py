@@ -302,6 +302,7 @@ import errno
 import os
 import re
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -310,6 +311,7 @@ import threading
 import time
 import traceback
 from collections import UserList, UserString
+from pathlib import Path
 from subprocess import PIPE, STDOUT
 from typing import Optional
 
@@ -382,6 +384,14 @@ def _caller(tblist, skip):
         atfrom = "\tfrom"
     return string
 
+def clean_up_daemon(workdir):
+    for path in Path(workdir).rglob('scons_daemon_dirty'):
+        with open(path) as f:
+            try:
+                pid = int(f.read())
+                os.kill(pid, signal.SIGINT)
+            except ValueError:
+                pass
 
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     """Causes a test to exit with a fail.
@@ -402,6 +412,8 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
         return
     if function is not None:
         function()
+    if self:
+        clean_up_daemon(self.workdir)
     of = ""
     desc = ""
     sep = " "
@@ -447,6 +459,8 @@ def no_result(self=None, condition=True, function=None, skip=0):
         return
     if function is not None:
         function()
+    if self:
+        clean_up_daemon(self.workdir)
     of = ""
     desc = ""
     sep = " "
@@ -483,6 +497,8 @@ def pass_test(self=None, condition=True, function=None):
         return
     if function is not None:
         function()
+    if self:
+        clean_up_daemon(self.workdir)
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 

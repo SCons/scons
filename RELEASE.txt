@@ -46,6 +46,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   file if it has changed. Also added the feature to make sure the ninja file is deterministic.
   Also improved the default targets setup and made sure there is always a default target for
   the ninja file, which excludes targets that start and stop the daemon.
+- Added ability for ninja to shutdown the scons daemon server
 
 
 FIXES

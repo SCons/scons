@@ -39,6 +39,7 @@ import pathlib
 import tempfile
 import hashlib
 import traceback
+import socket
 
 ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
@@ -55,18 +56,29 @@ logging.basicConfig(
 
 while True:
     try:
+        if not os.path.exists(daemon_dir / "pidfile"):
+            if sys.argv[3] != '--exit':
+                logging.debug(f"ERROR: Server pid not found {daemon_dir / 'pidfile'} for request {sys.argv[3]}")
+                exit(1)
+            else:
+                logging.debug(f"WARNING: Unecessary request to shutfown server, its already shutdown.")
+                exit(0)
+
         logging.debug(f"Sending request: {sys.argv[3]}")
         conn = http.client.HTTPConnection(
             "127.0.0.1", port=int(sys.argv[1]), timeout=60
         )
-        conn.request("GET", "/?build=" + sys.argv[3])
+        if sys.argv[3] == '--exit':
+            conn.request("GET", "/?exit=1")
+        else:
+            conn.request("GET", "/?build=" + sys.argv[3])
         response = None
 
         while not response:
             try:
                 response = conn.getresponse()
-            except (http.client.RemoteDisconnected, http.client.ResponseNotReady):
-                time.sleep(0.01)
+            except (http.client.RemoteDisconnected, http.client.ResponseNotReady, socket.timeout):
+                time.sleep(0.1)
             except http.client.HTTPException:
                 logging.debug(f"Error: {traceback.format_exc()}")
                 exit(1)
@@ -76,8 +88,14 @@ while True:
                 if status != 200:
                     print(msg.decode("utf-8"))
                     exit(1)
+                    
                 logging.debug(f"Request Done: {sys.argv[3]}")
                 exit(0)
+
+
+    except ConnectionRefusedError:
+        logging.debug(f"Server refused connection to build {sys.argv[3]}, maybe it was too busy, tring again: {traceback.format_exc()}")
+        time.sleep(0.1)
 
     except Exception:
         logging.debug(f"Failed to send command: {traceback.format_exc()}")

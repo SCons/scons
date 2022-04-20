@@ -216,6 +216,12 @@ class NinjaState:
                 "pool": "local_pool",
                 "restat": 1
             },
+            "EXIT_SCONS_DAEMON": {
+                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_daemon_build.py'} $PORT {env.get('NINJA_DIR').abspath} --exit",
+                "description": "Shutting down ninja scons daemon server",
+                "pool": "local_pool",
+                "restat": 1
+            },
             "SCONS": {
                 "command": "$SCONS_INVOCATION $out",
                 "description": "$SCONS_INVOCATION $out",

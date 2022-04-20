@@ -50,6 +50,7 @@ from timeit import default_timer as timer
 import traceback
 import tempfile
 import hashlib
+import signal
 
 port = int(sys.argv[1])
 ninja_builddir = pathlib.Path(sys.argv[2])
@@ -126,12 +127,24 @@ building_cv = Condition()
 error_cv = Condition()
 
 thread_error = False
+httpd = None
+daemon_needs_to_shutdown = False
+
+def sigint_func(signum, frame):
+    global httpd, daemon_needs_to_shutdown
+    daemon_needs_to_shutdown = True
+    if httpd:
+        httpd.shutdown()
+
+signal.signal(signal.SIGINT, sigint_func)
 
 
 def daemon_thread_func():
     global thread_error
     global finished_building
     global error_nodes
+    global httpd
+    global daemon_needs_to_shutdown
     try:
         args_list = args + ["--interactive"]
         daemon_log(f"Starting daemon with args: {' '.join(args_list)}")
@@ -148,6 +161,7 @@ def daemon_thread_func():
         te.start()
 
         daemon_ready = False
+        
         building_node = None
 
         while p.poll() is None:
@@ -188,12 +202,14 @@ def daemon_thread_func():
                 except queue.Empty:
                     break
                 if "exit" in building_node:
+                    daemon_log("input: " + "exit")
                     p.stdin.write("exit\n".encode("utf-8"))
                     p.stdin.flush()
                     with building_cv:
                         finished_building += [building_node]
                     daemon_ready = False
-                    raise
+                    daemon_needs_to_shutdown = True
+                    break
 
                 else:
                     input_command = "build " + building_node + "\n"
@@ -205,6 +221,9 @@ def daemon_thread_func():
                         finished_building += [building_node]
                     daemon_ready = False
 
+            if daemon_needs_to_shutdown:
+                httpd.shutdown()
+                break
             time.sleep(0.01)
     except Exception:
         thread_error = True
@@ -221,15 +240,18 @@ logging.debug(
 )
 
 keep_alive_timer = timer()
-httpd = None
 
 
 def server_thread_func():
+
+    global httpd
+
     class S(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             global thread_error
             global keep_alive_timer
             global error_nodes
+            
 
             try:
                 gets = parse_qs(urlparse(self.path).query)
@@ -283,32 +305,36 @@ server_thread = threading.Thread(target=server_thread_func)
 server_thread.daemon = True
 server_thread.start()
 
-while timer() - keep_alive_timer < daemon_keep_alive and not thread_error:
+
+
+while timer() - keep_alive_timer < daemon_keep_alive and not thread_error and not daemon_needs_to_shutdown:
     time.sleep(1)
 
 if thread_error:
     daemon_log(f"Shutting server on port {port} down because thread error.")
+    httpd.shutdown()
+elif daemon_needs_to_shutdown:
+    daemon_log(f"Server shutting down upon request.")
 else:
     daemon_log(
         f"Shutting server on port {port} down because timed out: {daemon_keep_alive}"
     )
 
-# if there are errors, don't immediately shut down the daemon
-# the process which started the server is attempt to connect to
-# the daemon before allowing jobs to start being sent. If the daemon
-# shuts down too fast, the launch script will think it has not
-# started yet and sit and wait. If the launch script is able to connect
-# and then the connection is dropped, it will immediately exit with fail.
-time.sleep(5)
+if thread_error:
+    # if there are errors, don't immediately shut down the daemon
+    # the process which started the server is attempt to connect to
+    # the daemon before allowing jobs to start being sent. If the daemon
+    # shuts down too fast, the launch script will think it has not
+    # started yet and sit and wait. If the launch script is able to connect
+    # and then the connection is dropped, it will immediately exit with fail.
+    time.sleep(5)
 
 if os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     os.unlink(ninja_builddir / "scons_daemon_dirty")
 if os.path.exists(daemon_dir / "pidfile"):
     os.unlink(daemon_dir / "pidfile")
 
-httpd.shutdown()
 server_thread.join()
-
 
 # Local Variables:
 # tab-width:4
