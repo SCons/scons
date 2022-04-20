@@ -23,6 +23,7 @@
 import os
 import shutil
 from os.path import join as joinpath
+from collections import OrderedDict
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
@@ -123,7 +124,7 @@ def get_dependencies(node, skip_sources=False):
             get_path(src_file(child))
             for child in filter_ninja_nodes(node.children())
             if child not in node.sources
-        ]    
+        ]
     return [get_path(src_file(child)) for child in filter_ninja_nodes(node.children())]
 
 
@@ -258,6 +259,19 @@ def ninja_noop(*_args, **_kwargs):
     """
     return None
 
+def ninja_recursive_sorted_dict(build):
+    sorted_dict = OrderedDict()
+    for key, val in sorted(build.items()):
+        if isinstance(val, dict):
+            sorted_dict[key] = ninja_recursive_sorted_dict(val)
+        else:
+            sorted_dict[key] = val
+    return sorted_dict
+
+
+def ninja_sorted_build(ninja, **build):
+    sorted_dict = ninja_recursive_sorted_dict(build)
+    ninja.build(**sorted_dict)
 
 def get_command_env(env):
     """

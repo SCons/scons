@@ -1,0 +1,14 @@
+import SCons
+
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=[])
+
+env.Tool('ninja')
+
+env.Command('out1.txt', 'foo.c', 'echo test > $TARGET' )
+out2_node = env.Command('out2.txt', 'foo.c', 'echo test > $TARGET', NINJA_FORCE_SCONS_BUILD=True)
+alias = env.Alias('def', out2_node)
+
+env.Default(alias)
