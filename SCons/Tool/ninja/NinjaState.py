@@ -263,11 +263,13 @@ class NinjaState:
         }
 
         for rule in ["CC", "CXX"]:
-            if env["PLATFORM"] == "win32":
+            if env["NINJA_DEPFILE_PARSE_FORMAT"] == "msvc":
                 self.rules[rule]["deps"] = "msvc"
-            else:
+            elif env["NINJA_DEPFILE_PARSE_FORMAT"] == "gcc" or env["NINJA_DEPFILE_PARSE_FORMAT"] == "clang":
                 self.rules[rule]["deps"] = "gcc"
                 self.rules[rule]["depfile"] = "$out.d"
+            else:
+                raise Exception(f"Unknown 'NINJA_DEPFILE_PARSE_FORMAT'={env['NINJA_DEPFILE_PARSE_FORMAT']}, use 'mvsc', 'gcc', or 'clang'.")
 
     def add_build(self, node):
         if not node.has_builder():

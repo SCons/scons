@@ -226,6 +226,8 @@ def generate(env):
         pass
     else:
         env.Append(CCFLAGS='$CCDEPFLAGS')
+    
+    env["NINJA_DEPFILE_PARSE_FORMAT"] = env.get("NINJA_DEPFILE_PARSE_FORMAT", 'msvc' if env['PLATFORM'] == 'win32' else 'gcc')
 
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
