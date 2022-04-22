@@ -63,6 +63,8 @@ FIXES
   default compiler to MSVC which wasn't installed, yielding broken build.
   Updated mingw tool so that the generate and exists methods use the same mingw search paths
   (issue #4134).
+- Added user configurable setting of ninja depfile format. This helps in mingw environments
+  where the gcc/clang format might be used on windows.
 
 IMPROVEMENTS
 ------------
