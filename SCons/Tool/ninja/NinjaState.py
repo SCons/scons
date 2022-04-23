@@ -262,10 +262,11 @@ class NinjaState:
             "scons_pool": 1,
         }
 
+        deps_format = env.get("NINJA_DEPFILE_PARSE_FORMAT", 'msvc' if env['PLATFORM'] == 'win32' else 'gcc')
         for rule in ["CC", "CXX"]:
-            if env["NINJA_DEPFILE_PARSE_FORMAT"] == "msvc":
+            if deps_format == "msvc":
                 self.rules[rule]["deps"] = "msvc"
-            elif env["NINJA_DEPFILE_PARSE_FORMAT"] == "gcc" or env["NINJA_DEPFILE_PARSE_FORMAT"] == "clang":
+            elif deps_format == "gcc" or deps_format == "clang":
                 self.rules[rule]["deps"] = "gcc"
                 self.rules[rule]["depfile"] = "$out.d"
             else:
