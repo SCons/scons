@@ -717,9 +717,7 @@ def get_installed_vcs(env=None):
 def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
     global __INSTALLED_VCS_RUN
-    global __MSVC_SETUP_ENV_DEFAULT
     __INSTALLED_VCS_RUN = None
-    __MSVC_SETUP_ENV_DEFAULT = None
 
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
@@ -920,40 +918,43 @@ def msvc_find_valid_batch_script(env, version):
     # To it's initial value
     if not d:
         env['TARGET_ARCH']=req_target_platform
-        installed_vcs = get_installed_vcs(env)
+
         if version_installed:
             err_msg = "MSVC version {} working host/target script was not found.\n" \
                       "  Host = {}, Target = {}\n" \
                       "  Visual Studio C/C++ compilers may not be set correctly".format(
                           version, host_platform, target_platform
                       )
-        elif version and installed_vcs:
-            err_msg = "MSVC version {} was not found.\n" \
-                      "  Visual Studio C/C++ compilers may not be set correctly.\n" \
-                      "  Installed versions are: {}".format(version, installed_vcs)
-        elif version:
-            err_msg = "MSVC version {} was not found.\n" \
-                      "  No versions of the MSVC compiler were found.\n" \
-                      "  Visual Studio C/C++ compilers may not be set correctly".format(version)
         else:
-            err_msg = "No versions of the MSVC compiler were found.\n" \
-                      "  Visual Studio C/C++ compilers may not be set correctly"
+            installed_vcs = get_installed_vcs(env)
+            if version is not None:
+                if not installed_vcs:
+                    err_msg = "MSVC version {} was not found.\n" \
+                              "  No versions of the MSVC compiler were found.\n" \
+                              "  Visual Studio C/C++ compilers may not be set correctly".format(version)
+                else:
+                    err_msg = "MSVC version {} was not found.\n" \
+                              "  Visual Studio C/C++ compilers may not be set correctly.\n" \
+                              "  Installed versions are: {}".format(version, installed_vcs)
+            else:
+                # should never get here due to early exit in msvc_setup_env
+                if not installed_vcs:
+                    err_msg = "MSVC default version was not found.\n" \
+                              "  No versions of the MSVC compiler were found.\n" \
+                              "  Visual Studio C/C++ compilers may not be set correctly"
+                else:
+                    # should be impossible: version is None and len(installed_vcs) > 0
+                    err_msg = "MSVC default version was not found.\n" \
+                              "  Visual Studio C/C++ compilers may not be set correctly.\n" \
+                              "  Installed versions are: {}".format(installed_vcs)
         raise MSVCVersionNotFound(err_msg)
 
     return d
 
-__MSVC_SETUP_ENV_DEFAULT = None
-
 def msvc_setup_env(env):
-    global __MSVC_SETUP_ENV_DEFAULT
     debug('called')
     version = get_default_version(env)
     if version is None:
-        if __MSVC_SETUP_ENV_DEFAULT:
-            err_msg = "No versions of the MSVC compiler were found.\n" \
-                      "  Visual Studio C/C++ compilers may not be set correctly"
-            raise MSVCVersionNotFound(err_msg)
-        __MSVC_SETUP_ENV_DEFAULT = True
         return None
 
     # XXX: we set-up both MSVS version for backward

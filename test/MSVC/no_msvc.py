@@ -43,7 +43,7 @@ test.run(arguments='-Q -s', stdout='')
 
 # test no msvc's
 test.file_fixture('no_msvc/no_msvcs_sconstruct.py', 'SConstruct')
-test.run(arguments='-Q -s', status=2, stderr=r"^.*MSVCVersionNotFound.+", match=TestSCons.match_re_dotall)
+test.run(arguments='-Q -s', stdout='')
 
 # test msvc version number request with no msvc's
 test.file_fixture('no_msvc/no_msvcs_sconstruct_version.py', 'SConstruct')
