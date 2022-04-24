@@ -920,33 +920,21 @@ def msvc_find_valid_batch_script(env, version):
         env['TARGET_ARCH']=req_target_platform
 
         if version_installed:
-            err_msg = "MSVC version {} working host/target script was not found.\n" \
-                      "  Host = {}, Target = {}\n" \
+            err_msg = "MSVC version '{}' working host/target script was not found.\n" \
+                      "  Host = '{}', Target = '{}'\n" \
                       "  Visual Studio C/C++ compilers may not be set correctly".format(
                           version, host_platform, target_platform
                       )
         else:
             installed_vcs = get_installed_vcs(env)
-            if version is not None:
-                if not installed_vcs:
-                    err_msg = "MSVC version {} was not found.\n" \
-                              "  No versions of the MSVC compiler were found.\n" \
-                              "  Visual Studio C/C++ compilers may not be set correctly".format(version)
-                else:
-                    err_msg = "MSVC version {} was not found.\n" \
-                              "  Visual Studio C/C++ compilers may not be set correctly.\n" \
-                              "  Installed versions are: {}".format(version, installed_vcs)
+            if installed_vcs:
+                err_msg = "MSVC version '{}' was not found.\n" \
+                          "  Visual Studio C/C++ compilers may not be set correctly.\n" \
+                          "  Installed versions are: {}".format(version, installed_vcs)
             else:
-                # should never get here due to early exit in msvc_setup_env
-                if not installed_vcs:
-                    err_msg = "MSVC default version was not found.\n" \
-                              "  No versions of the MSVC compiler were found.\n" \
-                              "  Visual Studio C/C++ compilers may not be set correctly"
-                else:
-                    # should be impossible: version is None and len(installed_vcs) > 0
-                    err_msg = "MSVC default version was not found.\n" \
-                              "  Visual Studio C/C++ compilers may not be set correctly.\n" \
-                              "  Installed versions are: {}".format(installed_vcs)
+                err_msg = "MSVC version '{}' was not found.\n" \
+                          "  No versions of the MSVC compiler were found.\n" \
+                          "  Visual Studio C/C++ compilers may not be set correctly".format(version)
         raise MSVCVersionNotFound(err_msg)
 
     return d
