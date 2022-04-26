@@ -33,13 +33,17 @@ selection method.
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import os
+
 import SCons.Action
 import SCons.Builder
 import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
 
-from .MSCommon import msvc_exists
+from .MSCommon import msvc_setup_env_tool
+
+tool_name = os.path.splitext(os.path.basename(__file__))[0]
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
@@ -79,7 +83,7 @@ def generate(env):
     env['BUILDERS']['TypeLibrary'] = midl_builder
 
 def exists(env):
-    return msvc_exists(env)
+    return msvc_setup_env_tool(env, tool=tool_name)
 
 # Local Variables:
 # tab-width:4

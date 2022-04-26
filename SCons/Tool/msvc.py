@@ -44,8 +44,10 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from .MSCommon import msvc_exists, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
+from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
 from .MSCommon.common import get_pch_node
+
+tool_name = os.path.splitext(os.path.basename(__file__))[0]
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
@@ -293,7 +295,7 @@ def generate(env):
     env['VSWHERE'] = env.get('VSWHERE', msvc_find_vswhere()) 
 
     # Set-up ms tools paths
-    msvc_setup_env_once(env)
+    msvc_setup_env_once(env, tool=tool_name)
 
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
@@ -319,7 +321,7 @@ def generate(env):
 
 
 def exists(env):
-    return msvc_exists(env)
+    return msvc_setup_env_tool(env, tool=tool_name)
 
 # Local Variables:
 # tab-width:4

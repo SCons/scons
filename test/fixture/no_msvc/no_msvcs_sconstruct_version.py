@@ -10,5 +10,7 @@ for key in SCons.Tool.MSCommon.vc._VCVER_TO_PRODUCT_DIR:
 
 SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
 
+SCons.Tool.MSCommon.set_msvc_notfound_policy('error')
+
 env = SCons.Environment.Environment(MSVC_VERSION='14.3')
 

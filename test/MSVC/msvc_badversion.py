@@ -47,7 +47,21 @@ installed_msvc_versions = msvc.get_installed_vcs()
 test.write('SConstruct', """\
 env = Environment(MSVC_VERSION='12.9')
 """)
+test.run(arguments='-Q -s', stdout='')
 
+test.write('SConstruct', """\
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='ignore')
+""")
+test.run(arguments='-Q -s', stdout='')
+
+test.write('SConstruct', """\
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='warning')
+""")
+test.run(arguments='-Q -s', stdout='')
+
+test.write('SConstruct', """\
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='error')
+""")
 test.run(arguments='-Q -s', status=2, stderr=r"^.*MSVCVersionNotFound.+", match=TestSCons.match_re_dotall)
 
 test.pass_test()

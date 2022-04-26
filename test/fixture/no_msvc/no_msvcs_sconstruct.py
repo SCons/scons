@@ -12,3 +12,4 @@ SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
 
 env = SCons.Environment.Environment()
 
+print('MSVC_VERSION='+str(env.get('MSVC_VERSION')))

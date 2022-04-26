@@ -43,7 +43,10 @@ test.run(arguments='-Q -s', stdout='')
 
 # test no msvc's
 test.file_fixture('no_msvc/no_msvcs_sconstruct.py', 'SConstruct')
-test.run(arguments='-Q -s', stdout='')
+test.run(arguments='-Q -s')
+
+if 'MSVC_VERSION=None' not in test.stdout():
+    test.fail_test()
 
 # test msvc version number request with no msvc's
 test.file_fixture('no_msvc/no_msvcs_sconstruct_version.py', 'SConstruct')
@@ -60,9 +63,6 @@ def generate(env):
 def exists(env):
     return 1
 """)
-
-test.file_fixture('no_msvc/no_msvcs_sconstruct_tools.py', 'SConstruct')
-test.run(arguments='-Q -s')
 
 test.file_fixture('no_msvc/no_msvcs_sconstruct_tools.py', 'SConstruct')
 test.run(arguments='-Q -s')
