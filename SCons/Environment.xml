@@ -2204,12 +2204,8 @@ not as separate arguments to
 </para>
 
 <para>
-By default,
-duplicate values are eliminated;
-you can, however, specify
-<literal>unique=False</literal>
-to allow duplicate
-values to be added.
+If <literal>unique</literal> is true (the default),
+duplicate values are not stored.
 When eliminating duplicate values,
 any &consvars; that end with
 the string
@@ -2217,6 +2213,8 @@ the string
 keep the left-most unique value.
 All other &consvars; keep
 the right-most unique value.
+If <literal>unique</literal> is false,
+values are added even if they are duplicates.
 </para>
 
 <para>
@@ -2233,9 +2231,13 @@ env.MergeFlags(['!pkg-config gtk+-2.0 --cflags', '-O3'])
 
 # Combine an optimization flag with the flags returned from running pkg-config
 # twice and merge the result into the construction variables.
-env.MergeFlags(['-O3',
-               '!pkg-config gtk+-2.0 --cflags --libs',
-               '!pkg-config libpng12 --cflags --libs'])
+env.MergeFlags(
+    [
+        '-O3',
+        '!pkg-config gtk+-2.0 --cflags --libs',
+        '!pkg-config libpng12 --cflags --libs',
+    ]
+)
 </example_commands>
 </summary>
 </scons_function>
@@ -2347,15 +2349,13 @@ NoClean(env.Program('hello', 'hello.c'))
 <summary>
 <para>
 Updates the current &consenv; with the values extracted
-from the output from running external <parameter>command</parameter>,
-by calling a helper function <parameter>function</parameter>
-which understands
-the output of <parameter>command</parameter>.
+from the output of running external <parameter>command</parameter>,
+by passing it to a helper <parameter>function</parameter>.
 <parameter>command</parameter> may be a string
 or a list of strings representing the command and
 its arguments.
 If <parameter>function</parameter>
-is not given,
+is omitted or <constant>None</constant>,
 &f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
@@ -2366,33 +2366,32 @@ to allow duplicate values to be added.
 </para>
 
 <para>
-If &f-env-MergeFlags; is used,
-it expects a response in the style of a
-<command>*-config</command>
-command typical of the POSIX programming environment
-(for example,
-<application>gtk-config</application>)
-and adds the options
-to the appropriate construction variables.
-Interpreted options
-and the construction variables they affect
-are as specified for the
-&f-link-env-ParseFlags;
-method (which
-&f-env-MergeFlags; calls).
-See that method's description
-for a table of options and corresponding construction variables.
+<parameter>command</parameter> is executed using the
+SCons execution environment (that is, the &consvar;
+&cv-link-ENV; in the current &consenv;).
+If <parameter>command</parameter> needs additional information
+to operate properly, that needs to be set in the execution environment.
+For example, <command>pkg-config</command>
+may need a custom value set in the <envar>PKG_CONFIG_PATH</envar>
+environment variable.
 </para>
 
 <para>
-If &f-env-MergeFlags; cannot interpret the results of
+&f-env-MergeFlags; needs to understand
+the output produced by <parameter>command</parameter>
+in order to distribute it to appropriate &consvars;.
+&f-env-MergeFlags; uses a separate function to
+do that processing -
+see &f-link-env-ParseFlags; for the details, including a
+a table of options and corresponding construction variables.
+To provide alternative processing of the output of
 <parameter>command</parameter>,
 you can suppply a custom
-<parameter>function</parameter> to do so.
-<parameter>function</parameter>
-must accept three arguments:
-the &consenv; to modify, the string returned
-by running <parameter>command</parameter>,
+<parameter>function</parameter>,
+which must accept three arguments:
+the &consenv; to modify,
+a string argument containing the output from running
+<parameter>command</parameter>,
 and the optional
 <parameter>unique</parameter> flag.
 </para>
@@ -2405,8 +2404,7 @@ and the optional
 </arguments>
 <summary>
 <para>
-Parses the contents of the specified
-<parameter>filename</parameter>
+Parses the contents of <parameter>filename</parameter>
 as a list of dependencies in the style of
 &Make;
 or
@@ -2417,27 +2415,21 @@ and explicitly establishes all of the listed dependencies.
 <para>
 By default,
 it is not an error
-if the specified
-<parameter>filename</parameter>
+if <parameter>filename</parameter>
 does not exist.
 The optional
 <parameter>must_exist</parameter>
-argument may be set to a non-zero
-value to have
-scons
-throw an exception and
-generate an error if the file does not exist,
+argument may be set to <constant>True</constant>
+to have &SCons;
+raise an exception if the file does not exist,
 or is otherwise inaccessible.
 </para>
 
 <para>
 The optional
 <parameter>only_one</parameter>
-argument may be set to a non-zero
-value to have
-scons
-thrown an exception and
-generate an error
+argument may be set to <constant>True</constant>
+to have &SCons; raise an exception
 if the file contains dependency
 information for more than one target.
 This can provide a small sanity check
@@ -2453,7 +2445,6 @@ file.
 </para>
 
 <para>
-The
 <parameter>filename</parameter>
 and all of the files listed therein
 will be interpreted relative to
@@ -2473,10 +2464,10 @@ function.
 <summary>
 <para>
 Parses one or more strings containing
-typical command-line flags for GCC tool chains
+typical command-line flags for GCC-style tool chains
 and returns a dictionary with the flag values
 separated into the appropriate SCons construction variables.
-This is intended as a companion to the
+Intended as a companion to the
 &f-link-env-MergeFlags;
 method, but allows for the values in the returned dictionary
 to be modified, if necessary,
@@ -2491,11 +2482,20 @@ directly unless you want to manipulate the values.)
 
 <para>
 If the first character in any string is
-an exclamation mark (!),
+an exclamation mark (<literal>!</literal>),
 the rest of the string is executed as a command,
 and the output from the command is
 parsed as GCC tool chain command-line flags
 and added to the resulting dictionary.
+This can be used to call a <filename>*-config</filename>
+command typical of the POSIX programming environment
+(for example,
+<command>pkg-config</command>).
+Note that such a comamnd is executed using the
+SCons execution environment;
+if the command needs additional information,
+that information needs to be explcitly provided.
+See &f-link-ParseConfig; for more details.
 </para>
 
 <para>
