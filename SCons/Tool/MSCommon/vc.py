@@ -802,10 +802,12 @@ def _msvc_notfound_policy_lookup(symbol):
 def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
     global _MSVC_NOTFOUND_POLICY
 
+    prev_policy = _MSVC_NOTFOUND_POLICY
+
     if MSVC_NOTFOUND_POLICY is not None:
         _MSVC_NOTFOUND_POLICY = _msvc_notfound_policy_lookup(MSVC_NOTFOUND_POLICY)
 
-    return _MSVC_NOTFOUND_POLICY
+    return prev_policy
 
 def get_msvc_notfound_policy():
     return _MSVC_NOTFOUND_POLICY
