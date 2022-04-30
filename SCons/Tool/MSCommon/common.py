@@ -65,8 +65,8 @@ if LOGFILE:
             record.relfilename = relfilename
             return True
     # Log format looks like:
-    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'       [file]
-    #   debug:00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
+    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
+    #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
     log_format=(
         '%(relativeCreated)05dms'
         ':%(relfilename)s'
