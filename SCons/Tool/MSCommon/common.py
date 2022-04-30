@@ -37,14 +37,7 @@ import SCons.Util
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
-if LOGFILE == '-':
-    def debug(message, *args):
-        if args:
-            print(message % args)
-        else:
-            print(message)
-
-elif LOGFILE:
+if LOGFILE:
     import logging
     modulelist = (
         # root module and parent/root module
@@ -71,17 +64,24 @@ elif LOGFILE:
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
+    # Log format looks like:
+    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'       [file]
+    #   debug:00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
+    log_format=(
+        '%(relativeCreated)05dms'
+        ':%(relfilename)s'
+        ':%(funcName)s'
+        '#%(lineno)s'
+        ': %(message)s'
+    )
+    if LOGFILE == '-':
+        log_format = 'debug:' + log_format
+        log_handler = logging.StreamHandler(sys.stdout)
+    else:
+        log_handler = logging.FileHandler(filename=LOGFILE)
     logging.basicConfig(
-        # This looks like:
-        #   00109ms:MSCommon/vc.py:find_vc_pdir#447:VC found '14.3'
-        format=(
-            '%(relativeCreated)05dms'
-            ':%(relfilename)s'
-            ':%(funcName)s'
-            '#%(lineno)s'
-            ':%(message)s'
-        ),
-        filename=LOGFILE,
+        format=log_format,
+        handlers=[log_handler],
         level=logging.DEBUG)
     logger = logging.getLogger(name=__name__)
     logger.addFilter(_Debug_Filter())
