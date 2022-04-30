@@ -75,7 +75,7 @@ if LOGFILE:
         ': %(message)s'
     )
     if LOGFILE == '-':
-        log_format = 'debug:' + log_format
+        log_format = 'debug: ' + log_format
         log_handler = logging.StreamHandler(sys.stdout)
     else:
         log_handler = logging.FileHandler(filename=LOGFILE)
