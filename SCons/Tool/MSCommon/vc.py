@@ -90,14 +90,16 @@ class MSVCVersionNotFound(VisualCException):
 _MSVC_NOTFOUND_POLICY_DEFAULT = False
 _MSVC_NOTFOUND_POLICY = _MSVC_NOTFOUND_POLICY_DEFAULT
 
+_MSVC_NOTFOUND_POLICY_REVERSE_DICT = {}
 _MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC = []
 _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT = {}
 
 for value, symbol_list in [
-    (True,  ['Error', 'Exception']),
-    (False, ['Warn', 'Warning']),
-    (None,  ['Ignore', 'Suppress']),
+    (True,  ['Error',   'Exception']),
+    (False, ['Warning', 'Warn']),
+    (None,  ['Ignore',  'Suppress']),
 ]:
+    _MSVC_NOTFOUND_POLICY_REVERSE_DICT[value] = symbol_list[0].lower()
     for symbol in symbol_list:
         _MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC.append(symbol.lower())
         _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol] = value
@@ -802,15 +804,19 @@ def _msvc_notfound_policy_lookup(symbol):
 def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
     global _MSVC_NOTFOUND_POLICY
 
-    prev_policy = _MSVC_NOTFOUND_POLICY
+    prev_policy = _MSVC_NOTFOUND_POLICY_REVERSE_DICT[_MSVC_NOTFOUND_POLICY]
 
-    if MSVC_NOTFOUND_POLICY is not None:
-        _MSVC_NOTFOUND_POLICY = _msvc_notfound_policy_lookup(MSVC_NOTFOUND_POLICY)
+    policy = MSVC_NOTFOUND_POLICY
+    if policy is not None:
+        _MSVC_NOTFOUND_POLICY = _msvc_notfound_policy_lookup(policy)
 
+    debug('prev_policy=%s, policy=%s, internal_policy=%s', repr(prev_policy), repr(policy), _MSVC_NOTFOUND_POLICY)
     return prev_policy
 
 def get_msvc_notfound_policy():
-    return _MSVC_NOTFOUND_POLICY
+    policy = _MSVC_NOTFOUND_POLICY_REVERSE_DICT[_MSVC_NOTFOUND_POLICY]
+    debug('policy=%s, internal_policy=%s', repr(policy), _MSVC_NOTFOUND_POLICY)
+    return policy
 
 def _msvc_notfound_policy_handler(env, msg):
 
@@ -821,13 +827,14 @@ def _msvc_notfound_policy_handler(env, msg):
         # use active global setting
         notfound_policy = _MSVC_NOTFOUND_POLICY
 
+    debug('policy=%s, internal_policy=%s', _MSVC_NOTFOUND_POLICY_REVERSE_DICT[notfound_policy], repr(notfound_policy))
+
     if notfound_policy is None:
-        debug('notfound policy: ignore')
+        # ignore
+        pass
     elif notfound_policy:
-        debug('notfound policy: exception')
         raise MSVCVersionNotFound(msg)
     else:
-        debug('notfound policy: warning')
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
 
 class _MSVCSetupEnvDefault:
@@ -853,6 +860,7 @@ class _MSVCSetupEnvDefault:
 
     @classmethod
     def reset(cls):
+        debug('msvc default:init')
         cls.n_setup = 0                 # number of calls to msvc_setup_env_once
         cls.default_ismsvc = False      # is msvc the default compiler
         cls.default_tools_re_list = []  # list of default tools regular expressions
@@ -860,18 +868,20 @@ class _MSVCSetupEnvDefault:
         cls.msvc_tools = None           # tools registered via msvc_setup_env_once
         cls.msvc_installed = False      # is msvc installed (vcs_installed > 0)
         cls.msvc_nodefault = False      # is there a default version of msvc
-        cls.need_init = False           # clear initialization indicator
+        cls.need_init = True            # reset initialization indicator
 
     @classmethod
     def _initialize(cls, env):
         if cls.need_init:
             cls.reset()
+            cls.need_init = False
             vcs = get_installed_vcs(env)
             cls.msvc_installed = len(vcs) > 0
-            debug('msvc default:initialize:msvc_installed=%s', cls.msvc_installed)
+            debug('msvc default:msvc_installed=%s', cls.msvc_installed)
 
     @classmethod
     def register_tool(cls, env, tool):
+        debug('msvc default:tool=%s', tool)
         if cls.need_init:
             cls._initialize(env)
         if cls.msvc_installed:
@@ -881,14 +891,15 @@ class _MSVCSetupEnvDefault:
         if cls.n_setup == 0:
             if tool not in cls.msvc_tools_init:
                 cls.msvc_tools_init.add(tool)
-                debug('msvc default:register tool:tool=%s msvc_tools_init=%s', tool, cls.msvc_tools_init)
+                debug('msvc default:tool=%s, msvc_tools_init=%s', tool, cls.msvc_tools_init)
             return None
         if tool not in cls.msvc_tools:
             cls.msvc_tools.add(tool)
-            debug('msvc default:register tool:tool=%s msvc_tools=%s', tool, cls.msvc_tools)
+            debug('msvc default:tool=%s, msvc_tools=%s', tool, cls.msvc_tools)
 
     @classmethod
     def register_setup(cls, env):
+        debug('msvc default')
         if cls.need_init:
             cls._initialize(env)
         cls.n_setup += 1
@@ -902,7 +913,7 @@ class _MSVCSetupEnvDefault:
                         cls.default_ismsvc = True
             cls.msvc_nodefault = False
             debug(
-                'msvc default:register setup:n=%d msvc_installed=%s default_ismsvc=%s',
+                'msvc default:n_setup=%d, msvc_installed=%s, default_ismsvc=%s',
                 cls.n_setup, cls.msvc_installed, cls.default_ismsvc
             )
 
@@ -910,7 +921,7 @@ class _MSVCSetupEnvDefault:
     def set_nodefault(cls):
         # default msvc version, msvc not installed
         cls.msvc_nodefault = True
-        debug('msvc default:set nodefault:msvc_nodefault=%s', cls.msvc_nodefault)
+        debug('msvc default:msvc_nodefault=%s', cls.msvc_nodefault)
 
     @classmethod
     def register_iserror(cls, env, tool):
@@ -931,7 +942,7 @@ class _MSVCSetupEnvDefault:
             return None
 
         debug(
-            'msvc default:register iserror:n=%s default_ismsvc=%s msvc_tools=%s tool_list=%s',
+            'msvc default:n_setup=%s, default_ismsvc=%s, msvc_tools=%s, tool_list=%s',
             cls.n_setup, cls.default_ismsvc, cls.msvc_tools, tool_list
         )
 
@@ -952,7 +963,7 @@ class _MSVCSetupEnvDefault:
                 #     build default tools regex for current tool state
                 tools = cls.separator.join(tool_list)
                 tools_nchar = len(tools)
-                debug('msvc default:register iserror:add regex nchar=%d, tools=%s', tools_nchar, tools)
+                debug('msvc default:add regex:nchar=%d, tools=%s', tools_nchar, tools)
                 re_default_tools = re.compile(re.escape(tools))
                 cls.default_tools_re_list.insert(0, (tools_nchar, re_default_tools))
                 # early exit: no error for default environment when msvc is not installed
@@ -987,7 +998,7 @@ class _MSVCSetupEnvDefault:
             tools = cls.separator.join(tool_list)
             tools_nchar = len(tools)
 
-            debug('msvc default:register iserror:nchar=%d tools=%s', tools_nchar, tools)
+            debug('msvc default:check tools:nchar=%d, tools=%s', tools_nchar, tools)
 
             # iteratively remove default tool sequences (longest to shortest)
             re_nchar_min, re_tools_min = cls.default_tools_re_list[-1]
@@ -999,7 +1010,7 @@ class _MSVCSetupEnvDefault:
                         continue
                     tools = re_default_tool.sub('', tools).strip(cls.separator)
                     tools_nchar = len(tools)
-                    debug('msvc default:register iserror:nchar=%d tools=%s', tools_nchar, tools)
+                    debug('msvc default:check tools:nchar=%d, tools=%s', tools_nchar, tools)
                     if tools_nchar < re_nchar_min or not re_tools_min.search(tools):
                         # less than minimum characters or minimum pattern does not exist
                         break
@@ -1007,13 +1018,13 @@ class _MSVCSetupEnvDefault:
             # construct non-default list(s) tools set
             tools_set = {msvc_tool for msvc_tool in tools.split(cls.separator) if msvc_tool}
 
-        debug('msvc default:register iserror:tools=%s', tools_set)
+        debug('msvc default:tools=%s', tools_set)
         if not tools_set:
             return None
 
         # compute intersection of remaining tools set and msvc tools set
         tools_found = cls.msvc_tools.intersection(tools_set)
-        debug('msvc default:register iserror:tools_exist=%s', tools_found)
+        debug('msvc default:tools_exist=%s', tools_found)
         if not tools_found:
             return None
 
@@ -1070,6 +1081,7 @@ def msvc_setup_env_once(env, tool=None):
         has_run = False
 
     if not has_run:
+        debug('tool=%s', repr(tool))
         _MSVCSetupEnvDefault.register_setup(env)
         msvc_setup_env(env)
         env["MSVC_SETUP_RUN"] = True
@@ -1264,18 +1276,34 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
+    debug('version=%s', repr(version))
     vcs = get_installed_vcs(env)
     if version is None:
-        return len(vcs) > 0
-    return version in vcs
+        rval = len(vcs) > 0
+    else:
+        rval = version in vcs
+    debug('version=%s, return=%s', repr(version), rval)
+    return rval
+
+def msvc_setup_env_user(env=None):
+    rval = False
+    if env:
+        for key in ('MSVC_VERSION', 'MSVS_VERSION', 'MSVC_USE_SCRIPT'):
+            if key in env:
+                rval = True
+                debug('key=%s, return=%s', repr(key), rval)
+                return rval
+    debug('return=%s', rval)
+    return rval
 
 def msvc_setup_env_tool(env=None, version=None, tool=None):
+    debug('tool=%s, version=%s', repr(tool), repr(version))
     _MSVCSetupEnvDefault.register_tool(env, tool)
-    if msvc_exists(env, version):
-        return True
-    if env:
-        for key in ('MSVC_VERSION', 'MSVS_VERSION'):
-            if key in env:
-                return True
-    return False 
+    rval = False
+    if not rval and msvc_exists(env, version):
+        rval = True
+    if not rval and msvc_setup_env_user(env):
+        rval = True
+    debug('tool=%s, version=%s, return=%s', repr(tool), repr(version), rval)
+    return rval
 
