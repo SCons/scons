@@ -90,7 +90,7 @@ class MSVCVersionNotFound(VisualCException):
 _MSVC_NOTFOUND_POLICY_DEFAULT = False
 _MSVC_NOTFOUND_POLICY = _MSVC_NOTFOUND_POLICY_DEFAULT
 
-_MSVC_NOTFOUND_POLICY_REVERSE_DICT = {}
+_MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL = {}
 _MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC = []
 _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT = {}
 
@@ -99,7 +99,7 @@ for value, symbol_list in [
     (False, ['Warning', 'Warn']),
     (None,  ['Ignore',  'Suppress']),
 ]:
-    _MSVC_NOTFOUND_POLICY_REVERSE_DICT[value] = symbol_list[0].lower()
+    _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[value] = symbol_list[0].lower()
     for symbol in symbol_list:
         _MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC.append(symbol.lower())
         _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol] = value
@@ -804,7 +804,7 @@ def _msvc_notfound_policy_lookup(symbol):
 def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
     global _MSVC_NOTFOUND_POLICY
 
-    prev_policy = _MSVC_NOTFOUND_POLICY_REVERSE_DICT[_MSVC_NOTFOUND_POLICY]
+    prev_policy = _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[_MSVC_NOTFOUND_POLICY]
 
     policy = MSVC_NOTFOUND_POLICY
     if policy is not None:
@@ -814,7 +814,7 @@ def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
     return prev_policy
 
 def get_msvc_notfound_policy():
-    policy = _MSVC_NOTFOUND_POLICY_REVERSE_DICT[_MSVC_NOTFOUND_POLICY]
+    policy = _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[_MSVC_NOTFOUND_POLICY]
     debug('policy=%s, internal_policy=%s', repr(policy), _MSVC_NOTFOUND_POLICY)
     return policy
 
@@ -827,7 +827,7 @@ def _msvc_notfound_policy_handler(env, msg):
         # use active global setting
         notfound_policy = _MSVC_NOTFOUND_POLICY
 
-    debug('policy=%s, internal_policy=%s', _MSVC_NOTFOUND_POLICY_REVERSE_DICT[notfound_policy], repr(notfound_policy))
+    debug('policy=%s, internal_policy=%s', _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[notfound_policy], repr(notfound_policy))
 
     if notfound_policy is None:
         # ignore
