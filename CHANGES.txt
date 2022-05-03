@@ -26,7 +26,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       determination when configuring the build environment.  This could lead to build failures when
       only an MSVC Express instance is installed and the MSVC version is not explicitly specified
       (issue #2668 and issue #2697).
-
+    - Update the debug output written to stdout for MSVC initialization which is enabled by setting
+      SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug output format
+      written to stdout to include more information about the source for each message of MSVC
+      initialization debugging output.  A single space was added before the message for all
+      debugging output records written to stdout and to files.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
