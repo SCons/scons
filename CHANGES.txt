@@ -17,6 +17,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       default compiler to MSVC which wasn't installed, yielding broken build.
       Updated mingw tool so that the generate and exists methods use the same mingw search paths
       (issue #4134).
+    - Update the debug output written to stdout for MSVC initialization which is enabled by setting
+      SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug output format
+      written to stdout to include more information about the source for each message of MSVC
+      initialization debugging output.  A single space was added before the message for all
+      debugging output records written to stdout and to files.
     - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
       names set by their respective installers.  Prior to this change, bypassing MSVC detection by
       specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment

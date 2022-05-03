@@ -42,6 +42,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The change to "content" and "content-timestamp" Decider names is reflected
   in the User Guide as well, since the hash function may be other than md5
   (tidying up from earlier change)
+- Update the debug output written to stdout for MSVC initialization which is enabled
+  by setting SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug
+  output format written to stdout to include more information about the source for each
+  message of MSVC initialization debugging output.  A single space was added before the
+  message for all debugging output records written to stdout and to files.
 - The build argument (i.e., x86) is no longer passed to the MSVC 6.0 to 7.1 batch
   files.  This may improve the effectiveness of the internal msvc cache when using 
   MSVC detection and when bypassing MSVC detection as the MSVC 6.0 to 7.1 batch files 
