@@ -68,10 +68,14 @@ FIXES
   arguments would yield an exception. This issue was found via qt4 and qt5 tools in
   scons-contrib https://github.com/SCons/scons-contrib/issues/45
 - Fix issue where if you only had mingw installed on a Windows system and no MSVC compiler, and
-  did not explicitly request the mingw tool, mingw tool initialization would fail and set the 
+  did not explicitly request the mingw tool, mingw tool initialization would fail and set the
   default compiler to MSVC which wasn't installed, yielding broken build.
   Updated mingw tool so that the generate and exists methods use the same mingw search paths
   (issue #4134).
+- Fix issue where Express versions of the MSVC compiler were not detected due to differences
+  in initial msvc detection and msvc batch file determination when configuring the build
+  environment.  This could lead to build failures when only an MSVC Express instance is installed
+  and the MSVC version is not explicitly specified (issue #2668 and issue #2697).
 - The system environment variable names imported for MSVC 7.0 and 6.0 were updated to be
   consistent with the variables names defined by their respective installers.  This fixes an
   error caused when bypassing MSVC detection by specifying the MSVC 7.0 batch file directly.
@@ -85,6 +89,10 @@ IMPROVEMENTS
 - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 - Command-line help is now sensitive to the size of the terminal window: the
   width of the help text will scale for terminals other than 80 chars wide.
+- Refactor the msvc code so that the same data structures are used during initial msvc detection
+  and msvc batch file determination when configuring the build environment.  Simplify the msvc
+  code by eliminating special case handling primarily due to the differences between the full
+  versions and express versions of visual studio.
 
 PACKAGING
 ---------

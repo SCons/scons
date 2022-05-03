@@ -45,6 +45,11 @@ import os
 import platform
 from string import digits as string_digits
 from subprocess import PIPE
+import re
+from collections import (
+    namedtuple,
+    OrderedDict,
+)
 
 import SCons.Util
 import SCons.Warnings
@@ -96,83 +101,301 @@ _ARCH_TO_CANONICAL = {
     "aarch64"   : "arm64",
 }
 
-# Starting with 14.1 (aka VS2017), the tools are organized by host directory.
-# subdirs for each target. They are now in .../VC/Auxuiliary/Build.
-# Note 2017 Express uses Hostx86 even if it's on 64-bit Windows,
-# not reflected in this table.
-_HOST_TARGET_TO_CL_DIR_GREATER_THAN_14 = {
-    ("amd64","amd64")  : ("Hostx64","x64"),
-    ("amd64","x86")    : ("Hostx64","x86"),
-    ("amd64","arm")    : ("Hostx64","arm"),
-    ("amd64","arm64")  : ("Hostx64","arm64"),
-    ("x86","amd64")    : ("Hostx86","x64"),
-    ("x86","x86")      : ("Hostx86","x86"),
-    ("x86","arm")      : ("Hostx86","arm"),
-    ("x86","arm64")    : ("Hostx86","arm64"),
+# The msvc batch files report errors via stdout.  The following
+# regular expression attempts to match known msvc error messages
+# written to stdout.
+re_script_output_error = re.compile(
+    r'^(' + r'|'.join([
+        r'VSINSTALLDIR variable is not set',             # 2002-2003
+        r'The specified configuration type is missing',  # 2005+
+        r'Error in script usage',                        # 2005+
+        r'ERROR\:',                                      # 2005+
+        r'\!ERROR\!',                                    # 2015-2015
+        r'\[ERROR\:',                                    # 2017+
+        r'\[ERROR\]',                                    # 2017+
+        r'Syntax\:',                                     # 2017+
+    ]) + r')'
+)
+
+# Lists of compatible host/target combinations are derived from a set of defined
+# constant data structures for each host architecture. The derived data structures
+# implicitly handle the differences in full versions and express versions of visual
+# studio. The host/target combination search lists are contructed in order of
+# preference. The construction of the derived data structures is independent of actual
+# visual studio installations.  The host/target configurations are used in both the
+# initial msvc detection and when finding a valid batch file for a given host/target
+# combination.
+#
+# HostTargetConfig description:
+#
+#     label:
+#         Name used for identification.
+#
+#     host_all_hosts:
+#         Defined list of compatible architectures for each host architecture.
+#
+#     host_all_targets:
+#         Defined list of target architectures for each host architecture.
+#
+#     host_def_targets:
+#         Defined list of default target architectures for each host architecture.
+#
+#     all_pairs:
+#         Derived list of all host/target combination tuples.
+#
+#     host_target_map:
+#         Derived list of all compatible host/target combinations for each
+#         supported host/target combination.
+#
+#     host_all_targets_map:
+#         Derived list of all compatible host/target combinations for each
+#         supported host.  This is used in the initial check that cl.exe exists
+#         in the requisite visual studio vc host/target directory for a given host.
+#
+#     host_def_targets_map:
+#         Derived list of default compatible host/target combinations for each
+#         supported host.  This is used for a given host when the user does not
+#         request a target archicture.
+#
+#     target_host_map:
+#         Derived list of compatible host/target combinations for each supported
+#         target/host combination.  This is used for a given host and target when
+#         the user requests a target architecture.
+
+_HOST_TARGET_CONFIG_NT = namedtuple("HostTargetConfig", [
+    # defined
+    "label",                # name for debugging/output
+    "host_all_hosts",       # host_all_hosts[host] -> host_list
+    "host_all_targets",     # host_all_targets[host] -> target_list
+    "host_def_targets",     # host_def_targets[host] -> target_list
+    # derived
+    "all_pairs",            # host_target_list
+    "host_target_map",      # host_target_map[host][target] -> host_target_list
+    "host_all_targets_map", # host_all_targets_map[host][target] -> host_target_list
+    "host_def_targets_map", # host_def_targets_map[host][target] -> host_target_list
+    "target_host_map",      # target_host_map[target][host] -> host_target_list
+])
+
+def _host_target_config_factory(*, label, host_all_hosts, host_all_targets, host_def_targets):
+
+    def _make_host_target_map(all_hosts, all_targets):
+        # host_target_map[host][target] -> host_target_list
+        host_target_map = {}
+        for host, host_list in all_hosts.items():
+            host_target_map[host] = {}
+            for host_platform in host_list:
+                for target_platform in all_targets[host_platform]:
+                    if target_platform not in host_target_map[host]:
+                        host_target_map[host][target_platform] = []
+                    host_target_map[host][target_platform].append((host_platform, target_platform))
+        return host_target_map
+
+    def _make_host_all_targets_map(all_hosts, host_target_map, all_targets):
+        # host_all_target_map[host] -> host_target_list
+        # special host key '_all_' contains all (host,target) combinations
+        all = '_all_'
+        host_all_targets_map = {}
+        host_all_targets_map[all] = []
+        for host, host_list in all_hosts.items():
+            host_all_targets_map[host] = []
+            for host_platform in host_list:
+                # all_targets[host_platform]: all targets for compatible host
+                for target in all_targets[host_platform]:
+                    for host_target in host_target_map[host_platform][target]:
+                        for host_key in (host, all):
+                            if host_target not in host_all_targets_map[host_key]:
+                                host_all_targets_map[host_key].append(host_target)
+        return host_all_targets_map
+
+    def _make_host_def_targets_map(all_hosts, host_target_map, def_targets):
+        # host_def_targets_map[host] -> host_target_list
+        host_def_targets_map = {}
+        for host, host_list in all_hosts.items():
+            host_def_targets_map[host] = []
+            for host_platform in host_list:
+                # def_targets[host]: default targets for true host
+                for target in def_targets[host]:
+                    for host_target in host_target_map[host_platform][target]:
+                        if host_target not in host_def_targets_map[host]:
+                            host_def_targets_map[host].append(host_target)
+        return host_def_targets_map
+
+    def _make_target_host_map(all_hosts, host_all_targets_map):
+        # target_host_map[target][host] -> host_target_list
+        target_host_map = {}
+        for host_platform in all_hosts.keys():
+            for host_target in host_all_targets_map[host_platform]:
+                _, target = host_target
+                if target not in target_host_map:
+                    target_host_map[target] = {}
+                if host_platform not in target_host_map[target]:
+                    target_host_map[target][host_platform] = []
+                if host_target not in target_host_map[target][host_platform]:
+                    target_host_map[target][host_platform].append(host_target)
+        return target_host_map
+
+    host_target_map = _make_host_target_map(host_all_hosts, host_all_targets)
+    host_all_targets_map = _make_host_all_targets_map(host_all_hosts, host_target_map, host_all_targets)
+    host_def_targets_map = _make_host_def_targets_map(host_all_hosts, host_target_map, host_def_targets)
+    target_host_map = _make_target_host_map(host_all_hosts, host_all_targets_map)
+
+    all_pairs = host_all_targets_map['_all_']
+    del host_all_targets_map['_all_']
+
+    host_target_cfg = _HOST_TARGET_CONFIG_NT(
+        label = label,
+        host_all_hosts = dict(host_all_hosts),
+        host_all_targets = host_all_targets,
+        host_def_targets = host_def_targets,
+        all_pairs = all_pairs,
+        host_target_map = host_target_map,
+        host_all_targets_map = host_all_targets_map,
+        host_def_targets_map = host_def_targets_map,
+        target_host_map = target_host_map,
+    )
+
+    return host_target_cfg
+
+# 14.1 (VS2017) and later
+
+# Given a (host, target) tuple, return a tuple containing the batch file to
+# look for and a tuple of path components to find cl.exe. We can't rely on returning
+# an arg to use for vcvarsall.bat, because that script will run even if given
+# a host/target pair that isn't installed.
+#
+# Starting with 14.1 (VS2017), the batch files are located in directory
+# <VSROOT>/VC/Auxiliary/Build.  The batch file name is the first value of the
+# stored tuple.
+#
+# The build tools are organized by host and target subdirectories under each toolset
+# version directory.  For example,  <VSROOT>/VC/Tools/MSVC/14.31.31103/bin/Hostx64/x64.
+# The cl path fragment under the toolset version folder is the second value of
+# the stored tuple.
+
+_GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS = {
+
+    ('amd64', 'amd64') : ('vcvars64.bat',          ('bin', 'Hostx64', 'x64')),
+    ('amd64', 'x86')   : ('vcvarsamd64_x86.bat',   ('bin', 'Hostx64', 'x86')),
+    ('amd64', 'arm')   : ('vcvarsamd64_arm.bat',   ('bin', 'Hostx64', 'arm')),
+    ('amd64', 'arm64') : ('vcvarsamd64_arm64.bat', ('bin', 'Hostx64', 'arm64')),
+
+    ('x86',   'amd64') : ('vcvarsx86_amd64.bat',   ('bin', 'Hostx86', 'x64')),
+    ('x86',   'x86')   : ('vcvars32.bat',          ('bin', 'Hostx86', 'x86')),
+    ('x86',   'arm')   : ('vcvarsx86_arm.bat',     ('bin', 'Hostx86', 'arm')),
+    ('x86',   'arm64') : ('vcvarsx86_arm64.bat',   ('bin', 'Hostx86', 'arm64')),
+
 }
 
-# before 14.1 (VS2017): the original x86 tools are in the tools dir,
-# any others are in a subdir named by the host/target pair,
-# or just a single word if host==target
-_HOST_TARGET_TO_CL_DIR = {
-    ("amd64","amd64")  : "amd64",
-    ("amd64","x86")    : "amd64_x86",
-    ("amd64","arm")    : "amd64_arm",
-    ("amd64","arm64")  : "amd64_arm64",
-    ("x86","amd64")    : "x86_amd64",
-    ("x86","x86")      : "",
-    ("x86","arm")      : "x86_arm",
-    ("x86","arm64")    : "x86_arm64",
-    ("arm","arm")      : "arm",
+_GE2017_HOST_TARGET_CFG = _host_target_config_factory(
+
+    label = 'GE2017',
+
+    host_all_hosts = OrderedDict([
+        ('amd64', ['amd64', 'x86']),
+        ('x86',   ['x86']),
+        ('arm64', ['amd64', 'x86']),
+        ('arm',   ['x86']),
+    ]),
+
+    host_all_targets = {
+        'amd64': ['amd64', 'x86', 'arm64', 'arm'],
+        'x86':   ['x86', 'amd64', 'arm', 'arm64'],
+        'arm64': [],
+        'arm':   [],
+    },
+
+    host_def_targets = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm64': ['arm64', 'arm'],
+        'arm':   ['arm'],
+    },
+
+)
+
+# debug("_GE2017_HOST_TARGET_CFG: %s", _GE2017_HOST_TARGET_CFG)
+
+# 14.0 (VS2015) to 8.0 (VS2005)
+
+# Given a (host, target) tuple, return a tuple containing the argument for
+# the batch file and a tuple of the path components to find cl.exe.
+#
+# In 14.0 (VS2015) and earlier, the original x86 tools are in the tools
+# bin directory (i.e., <VSROOT>/VC/bin).  Any other tools are in subdirectory
+# named for the the host/target pair or a single name if the host==target.
+
+_LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS = {
+
+    ('amd64', 'amd64') : ('amd64',     ('bin', 'amd64')),
+    ('amd64', 'x86')   : ('amd64_x86', ('bin', 'amd64_x86')),
+    ('amd64', 'arm')   : ('amd64_arm', ('bin', 'amd64_arm')),
+
+    ('x86',   'amd64') : ('x86_amd64', ('bin', 'x86_amd64')),
+    ('x86',   'x86')   : ('x86',       ('bin', )),
+    ('x86',   'arm')   : ('x86_arm',   ('bin', 'x86_arm')),
+    ('x86',   'ia64')  : ('x86_ia64',  ('bin', 'x86_ia64')),
+
+    ('arm',   'arm')   : ('arm',       ('bin', 'arm')),
+    ('ia64',  'ia64')  : ('ia64',      ('bin', 'ia64')),
+
 }
 
-# 14.1 (VS2017) and later:
-# Given a (host, target) tuple, return the batch file to look for.
-# We can't rely on returning an arg to use for vcvarsall.bat,
-# because that script will run even if given a pair that isn't installed.
-# Targets that already look like a pair are pseudo targets that
-# effectively mean to skip whatever the host was specified as.
-_HOST_TARGET_TO_BAT_ARCH_GT14 = {
-    ("amd64", "amd64"): "vcvars64.bat",
-    ("amd64", "x86"): "vcvarsamd64_x86.bat",
-    ("amd64", "x86_amd64"): "vcvarsx86_amd64.bat",
-    ("amd64", "x86_x86"): "vcvars32.bat",
-    ("amd64", "arm"): "vcvarsamd64_arm.bat",
-    ("amd64", "x86_arm"): "vcvarsx86_arm.bat",
-    ("amd64", "arm64"): "vcvarsamd64_arm64.bat",
-    ("amd64", "x86_arm64"): "vcvarsx86_arm64.bat",
-    ("x86", "x86"): "vcvars32.bat",
-    ("x86", "amd64"): "vcvarsx86_amd64.bat",
-    ("x86", "x86_amd64"): "vcvarsx86_amd64.bat",
-    ("x86", "arm"): "vcvarsx86_arm.bat",
-    ("x86", "x86_arm"): "vcvarsx86_arm.bat",
-    ("x86", "arm64"): "vcvarsx86_arm64.bat",
-    ("x86", "x86_arm64"): "vcvarsx86_arm64.bat",
-}
+_LE2015_HOST_TARGET_CFG = _host_target_config_factory(
 
-# before 14.1 (VS2017):
-# Given a (host, target) tuple, return the argument for the bat file;
-# Both host and target should be canoncalized.
-# If the target already looks like a pair, return it - these are
-# pseudo targets (mainly used by Express versions)
-_HOST_TARGET_ARCH_TO_BAT_ARCH = {
-    ("x86", "x86"): "x86",
-    ("x86", "amd64"): "x86_amd64",
-    ("x86", "x86_amd64"): "x86_amd64",
-    ("amd64", "x86_amd64"): "x86_amd64", # This is present in (at least) VS2012 express
-    ("amd64", "amd64"): "amd64",
-    ("amd64", "x86"): "x86",
-    ("amd64", "x86_x86"): "x86",
-    ("x86", "ia64"): "x86_ia64",         # gone since 14.0
-    ("x86", "arm"): "x86_arm",          # since 14.0
-    ("x86", "arm64"): "x86_arm64",      # since 14.1
-    ("amd64", "arm"): "amd64_arm",      # since 14.0
-    ("amd64", "arm64"): "amd64_arm64",  # since 14.1
-    ("x86", "x86_arm"): "x86_arm",      # since 14.0
-    ("x86", "x86_arm64"): "x86_arm64",  # since 14.1
-    ("amd64", "x86_arm"): "x86_arm",      # since 14.0
-    ("amd64", "x86_arm64"): "x86_arm64",  # since 14.1
-}
+    label = 'LE2015',
+
+    host_all_hosts = OrderedDict([
+        ('amd64', ['amd64', 'x86']),
+        ('x86',   ['x86']),
+        ('arm',   ['arm']),
+        ('ia64',  ['ia64']),
+    ]),
+
+    host_all_targets = {
+        'amd64': ['amd64', 'x86', 'arm'],
+        'x86':   ['x86', 'amd64', 'arm', 'ia64'],
+        'arm':   ['arm'],
+        'ia64':  ['ia64'],
+    },
+
+    host_def_targets = {
+        'amd64': ['amd64', 'x86'],
+        'x86':   ['x86'],
+        'arm':   ['arm'],
+        'ia64':  ['ia64'],
+    },
+
+)
+
+# debug("_LE2015_HOST_TARGET_CFG: %s", _LE2015_HOST_TARGET_CFG)
+
+# 7.1 (VS2003) and earlier
+
+# For 7.1 (VS2003) and earlier, there are only x86 targets and the batch files
+# take no arguments.
+
+_LE2003_HOST_TARGET_CFG = _host_target_config_factory(
+
+    label = 'LE2003',
+
+    host_all_hosts = OrderedDict([
+        ('amd64', ['x86']),
+        ('x86',   ['x86']),
+    ]),
+
+    host_all_targets = {
+        'amd64': ['x86'],
+        'x86':   ['x86'],
+    },
+
+    host_def_targets = {
+        'amd64': ['x86'],
+        'x86':   ['x86'],
+    },
+
+)
+
+# debug("_LE2003_HOST_TARGET_CFG: %s", _LE2003_HOST_TARGET_CFG)
 
 _CL_EXE_NAME = 'cl.exe'
 
@@ -192,44 +415,100 @@ def get_msvc_version_numeric(msvc_version):
     """
     return ''.join([x for  x in msvc_version if x in string_digits + '.'])
 
-def get_host_target(env):
-    host_platform = env.get('HOST_ARCH')
-    debug("HOST_ARCH:%s", str(host_platform))
-    if not host_platform:
-        host_platform = platform.machine()
+def get_host_platform(host_platform):
+
+    host_platform = host_platform.lower()
 
     # Solaris returns i86pc for both 32 and 64 bit architectures
-    if host_platform == "i86pc":
+    if host_platform == 'i86pc':
         if platform.architecture()[0] == "64bit":
             host_platform = "amd64"
         else:
             host_platform = "x86"
 
-    # Retain user requested TARGET_ARCH
-    req_target_platform = env.get('TARGET_ARCH')
-    debug("TARGET_ARCH:%s", str(req_target_platform))
-    if req_target_platform:
-        # If user requested a specific platform then only try that one.
-        target_platform = req_target_platform
-    else:
-        target_platform = host_platform
-
     try:
-        host = _ARCH_TO_CANONICAL[host_platform.lower()]
+        host =_ARCH_TO_CANONICAL[host_platform]
     except KeyError:
         msg = "Unrecognized host architecture %s"
         raise MSVCUnsupportedHostArch(msg % repr(host_platform)) from None
 
-    try:
-        target = _ARCH_TO_CANONICAL[target_platform.lower()]
-    except KeyError:
-        all_archs = str(list(_ARCH_TO_CANONICAL.keys()))
-        raise MSVCUnsupportedTargetArch(
-            "Unrecognized target architecture %s\n\tValid architectures: %s"
-            % (target_platform, all_archs)
-        ) from None
+    return host
 
-    return (host, target, req_target_platform)
+_native_host_platform = None
+
+def get_native_host_platform():
+    global _native_host_platform
+
+    if _native_host_platform is None:
+
+        _native_host_platform = get_host_platform(platform.machine())
+
+    return _native_host_platform
+
+def get_host_target(env, msvc_version, all_host_targets=False):
+
+    vernum = float(get_msvc_version_numeric(msvc_version))
+
+    if vernum > 14:
+        # 14.1 (VS2017) and later
+        host_target_cfg = _GE2017_HOST_TARGET_CFG
+    elif 14 >= vernum >= 8:
+        # 14.0 (VS2015) to 8.0 (VS2005)
+        host_target_cfg = _LE2015_HOST_TARGET_CFG
+    else:
+        # 7.1 (VS2003) and earlier
+        host_target_cfg = _LE2003_HOST_TARGET_CFG
+
+    host_arch = env.get('HOST_ARCH') if env else None
+    debug("HOST_ARCH:%s", str(host_arch))
+
+    if host_arch:
+        host_platform = get_host_platform(host_arch)
+    else:
+        host_platform = get_native_host_platform()
+
+    target_arch = env.get('TARGET_ARCH') if env else None
+    debug("TARGET_ARCH:%s", str(target_arch))
+
+    if target_arch:
+
+        try:
+            target_platform = _ARCH_TO_CANONICAL[target_arch.lower()]
+        except KeyError:
+            all_archs = str(list(_ARCH_TO_CANONICAL.keys()))
+            raise MSVCUnsupportedTargetArch(
+                "Unrecognized target architecture %s\n\tValid architectures: %s"
+                % (repr(target_arch), all_archs)
+            ) from None
+
+        target_host_map = host_target_cfg.target_host_map
+
+        try:
+            host_target_list = target_host_map[target_platform][host_platform]
+        except KeyError:
+            host_target_list = []
+            warn_msg = "unsupported host, target combination ({}, {}) for MSVC version {}".format(
+                repr(host_platform), repr(target_platform), msvc_version
+            )
+            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
+            debug(warn_msg)
+
+    else:
+
+        target_platform = None
+
+        if all_host_targets:
+            host_targets_map = host_target_cfg.host_all_targets_map
+        else:
+            host_targets_map = host_target_cfg.host_def_targets_map
+
+        try:
+            host_target_list = host_targets_map[host_platform]
+        except KeyError:
+            msg = "Unrecognized host architecture %s for version %s"
+            raise MSVCUnsupportedHostArch(msg % (repr(host_platform), msvc_version)) from None
+
+    return (host_platform, target_platform, host_target_list)
 
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
@@ -334,29 +613,6 @@ def msvc_version_to_maj_min(msvc_version):
         return maj, min
     except ValueError as e:
         raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric)) from None
-
-
-def is_host_target_supported(host_target, msvc_version):
-    """Check if (host, target) pair is supported for a VC version.
-
-    Only checks whether a given version *may* support the given
-    (host, target) pair, not that the toolchain is actually on the machine.
-
-    Args:
-        host_target: canonalized host-target pair, e.g.
-          ("x86", "amd64") for cross compilation from 32- to 64-bit Windows.
-        msvc_version: Visual C++ version (major.minor), e.g. "10.0"
-
-    Returns:
-        True or False
-
-    """
-    # We assume that any Visual Studio version supports x86 as a target
-    if host_target[1] != "x86":
-        maj, min = msvc_version_to_maj_min(msvc_version)
-        if maj < 8:
-            return False
-    return True
 
 
 VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in  [
@@ -493,15 +749,14 @@ def find_vc_pdir(env, msvc_version):
                 raise MissingConfiguration("registry dir {} not found on the filesystem".format(comps))
     return None
 
-def find_batch_file(env,msvc_version,host_arch,target_arch):
+def find_batch_file(env, msvc_version, host_arch, target_arch):
     """
     Find the location of the batch script which should set up the compiler
     for any TARGET_ARCH whose compilers were installed by Visual Studio/VCExpress
 
     In newer (2017+) compilers, make use of the fact there are vcvars
     scripts named with a host_target pair that calls vcvarsall.bat properly,
-    so use that and return an indication we don't need the argument
-    we would have computed to run vcvarsall.bat.
+    so use that and return an empty argument.
     """
     pdir = find_vc_pdir(env, msvc_version)
     if pdir is None:
@@ -510,19 +765,26 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
     # filter out e.g. "Exp" from the version name
     msvc_ver_numeric = get_msvc_version_numeric(msvc_version)
-    use_arg = True
     vernum = float(msvc_ver_numeric)
-    if vernum < 8:
+
+    arg = ''
+    if vernum > 14:
+        # 14.1 (VS2017) and later
+        batfiledir = os.path.join(pdir, "Auxiliary", "Build")
+        batfile, _ = _GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
+        batfilename = os.path.join(batfiledir, batfile)
+    elif 14 >= vernum >= 8:
+        # 14.0 (VS2015) to 8.0 (VS2005)
+        arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host_arch, target_arch)]
+        batfilename = os.path.join(pdir, "vcvarsall.bat")
+    elif 8 > vernum >= 7:
+        # 7.1 (VS2003) to 7.0 (VS2003)
         pdir = os.path.join(pdir, "Bin")
         batfilename = os.path.join(pdir, "vcvars32.bat")
-        use_arg = False
-    elif 8 <= vernum <= 14:
-        batfilename = os.path.join(pdir, "vcvarsall.bat")
-    else:  # vernum >= 14.1  VS2017 and above
-        batfiledir = os.path.join(pdir, "Auxiliary", "Build")
-        targ  = _HOST_TARGET_TO_BAT_ARCH_GT14[(host_arch, target_arch)]
-        batfilename = os.path.join(batfiledir, targ)
-        use_arg = False
+    else:
+        # 6.0 (VS6) and earlier
+        pdir = os.path.join(pdir, "Bin")
+        batfilename = os.path.join(pdir, "vcvars32.bat")
 
     if not os.path.exists(batfilename):
         debug("Not found: %s", batfilename)
@@ -530,16 +792,16 @@ def find_batch_file(env,msvc_version,host_arch,target_arch):
 
     installed_sdks = get_installed_sdks()
     for _sdk in installed_sdks:
-        sdk_bat_file = _sdk.get_sdk_vc_script(host_arch,target_arch)
+        sdk_bat_file = _sdk.get_sdk_vc_script(host_arch, target_arch)
         if not sdk_bat_file:
             debug("batch file not found:%s", _sdk)
         else:
-            sdk_bat_file_path = os.path.join(pdir,sdk_bat_file)
+            sdk_bat_file_path = os.path.join(pdir, sdk_bat_file)
             if os.path.exists(sdk_bat_file_path):
                 debug('sdk_bat_file_path:%s', sdk_bat_file_path)
-                return (batfilename, use_arg, sdk_bat_file_path)
-    return (batfilename, use_arg, None)
+                return (batfilename, arg, sdk_bat_file_path)
 
+    return (batfilename, arg, None)
 
 __INSTALLED_VCS_RUN = None
 _VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
@@ -550,8 +812,8 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     Locates cl in the vc_dir depending on TARGET_ARCH, HOST_ARCH and the
     msvc version. TARGET_ARCH and HOST_ARCH can be extracted from the
-    passed env, unless it is None, in which case the native platform is
-    assumed for both host and target.
+    passed env, unless the env is None, in which case the native platform is
+    assumed for the host and all associated targets.
 
     Args:
         env: Environment
@@ -568,24 +830,16 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
 
     """
 
-    # determine if there is a specific target platform we want to build for and
-    # use that to find a list of valid VCs, default is host platform == target platform
-    # and same for if no env is specified to extract target platform from
-    if env:
-        (host_platform, target_platform, req_target_platform) = get_host_target(env)
-    else:
-        host_platform = platform.machine().lower()
-        target_platform = host_platform
+    # Find the host, target, and all candidate (host, target) platform combinations:
+    platforms = get_host_target(env, msvc_version, all_host_targets=True)
+    debug("host_platform %s, target_platform %s host_target_list %s", *platforms)
+    host_platform, target_platform, host_target_list = platforms
 
-    host_platform = _ARCH_TO_CANONICAL[host_platform]
-    target_platform = _ARCH_TO_CANONICAL[target_platform]
-
-    debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
-
-    ver_num = float(get_msvc_version_numeric(msvc_version))
+    vernum = float(get_msvc_version_numeric(msvc_version))
 
     # make sure the cl.exe exists meaning the tool is installed
-    if ver_num > 14:
+    if vernum > 14:
+        # 14.1 (VS2017) and later
         # 2017 and newer allowed multiple versions of the VC toolset to be
         # installed at the same time. This changes the layout.
         # Just get the default tool version for now
@@ -601,63 +855,54 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
             debug('failed to find MSVC version in %s', default_toolset_file)
             return False
 
-        host_trgt_dir = _HOST_TARGET_TO_CL_DIR_GREATER_THAN_14.get((host_platform, target_platform), None)
-        if host_trgt_dir is None:
-            debug('unsupported host/target platform combo: (%s,%s)', host_platform, target_platform)
-            return False
+        for host_platform, target_platform in host_target_list:
 
-        cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
-        debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
-        if os.path.exists(cl_path):
-            debug('found %s!', _CL_EXE_NAME)
-            return True
+            debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
 
-        elif host_platform == "amd64" and host_trgt_dir[0] == "Hostx64":
-            # Special case: fallback to Hostx86 if Hostx64 was tried
-            # and failed.  This is because VS 2017 Express running on amd64
-            # will look to our probe like the host dir should be Hostx64,
-            # but Express uses Hostx86 anyway.
-            # We should key this off the "x86_amd64" and related pseudo
-            # targets, but we don't see those in this function.
-            host_trgt_dir = ("Hostx86", host_trgt_dir[1])
-            cl_path = os.path.join(vc_dir, 'Tools','MSVC', vc_specific_version, 'bin',  host_trgt_dir[0], host_trgt_dir[1], _CL_EXE_NAME)
+            batchfile_clpathcomps = _GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS.get((host_platform, target_platform), None)
+            if batchfile_clpathcomps is None:
+                debug('unsupported host/target platform combo: (%s,%s)', host_platform, target_platform)
+                continue
+
+            _, cl_path_comps = batchfile_clpathcomps
+            cl_path = os.path.join(vc_dir, 'Tools', 'MSVC', vc_specific_version, *cl_path_comps, _CL_EXE_NAME)
             debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
+
             if os.path.exists(cl_path):
                 debug('found %s!', _CL_EXE_NAME)
                 return True
 
-    elif 14 >= ver_num >= 8:
-        # Set default value to be -1 as "", which is the value for x86/x86,
-        # yields true when tested if not host_trgt_dir
-        host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get((host_platform, target_platform), None)
-        if host_trgt_dir is None:
-            debug('unsupported host/target platform combo')
-            return False
+    elif 14 >= vernum >= 8:
+        # 14.0 (VS2015) to 8.0 (VS2005)
 
-        cl_path = os.path.join(vc_dir, 'bin',  host_trgt_dir, _CL_EXE_NAME)
-        debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
+        cl_path_prefixes = [None]
+        if msvc_version == '9.0':
+            # Visual C++ for Python registry key is installdir (root) not productdir (vc)
+            cl_path_prefixes.append(('VC',))
 
-        cl_path_exists = os.path.exists(cl_path)
-        if not cl_path_exists and host_platform == 'amd64':
-            # older versions of visual studio only had x86 binaries,
-            # so if the host platform is amd64, we need to check cross
-            # compile options (x86 binary compiles some other target on a 64 bit os)
+        for host_platform, target_platform in host_target_list:
 
-            # Set default value to be -1 as "" which is the value for x86/x86 yields true when tested
-            # if not host_trgt_dir
-            host_trgt_dir = _HOST_TARGET_TO_CL_DIR.get(('x86', target_platform), None)
-            if host_trgt_dir is None:
-                return False
+            debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
 
-            cl_path = os.path.join(vc_dir, 'bin', host_trgt_dir, _CL_EXE_NAME)
-            debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
-            cl_path_exists = os.path.exists(cl_path)
+            batcharg_clpathcomps = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS.get((host_platform, target_platform), None)
+            if batcharg_clpathcomps is None:
+                debug('unsupported host/target platform combo: (%s,%s)', host_platform, target_platform)
+                continue
 
-        if cl_path_exists:
-            debug('found %s', _CL_EXE_NAME)
-            return True
+            _, cl_path_comps = batcharg_clpathcomps
+            for cl_path_prefix in cl_path_prefixes:
 
-    elif 8 > ver_num >= 6:
+                cl_path_comps_adj = cl_path_prefix + cl_path_comps if cl_path_prefix else cl_path_comps
+                cl_path = os.path.join(vc_dir, *cl_path_comps_adj, _CL_EXE_NAME)
+                debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
+
+                if os.path.exists(cl_path):
+                    debug('found %s', _CL_EXE_NAME)
+                    return True
+
+    elif 8 > vernum >= 6:
+        # 7.1 (VS2003) to 6.0 (VS6)
+
         # quick check for vc_dir/bin and vc_dir/ before walk
         # need to check root as the walk only considers subdirectories
         for cl_dir in ('bin', ''):
@@ -673,9 +918,10 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
                     debug('%s found %s', _CL_EXE_NAME, cl_path)
                     return True
         return False
+
     else:
         # version not support return false
-        debug('unsupported MSVC version: %s', str(ver_num))
+        debug('unsupported MSVC version: %s', str(vernum))
 
     return False
 
@@ -747,7 +993,7 @@ def script_env(script, args=None):
         # Stupid batch files do not set return code: we take a look at the
         # beginning of the output for an error message instead
         olines = stdout.splitlines()
-        if olines[0].startswith("The specified configuration type is missing"):
+        if re_script_output_error.match(olines[0]):
             raise BatchFileExecutionError("\n".join(olines[:2]))
 
         cache_data = common.parse_output(stdout)
@@ -814,57 +1060,20 @@ def msvc_find_valid_batch_script(env, version):
     get it right.
     """
 
-    # Find the host, target, and if present the requested target:
-    platforms = get_host_target(env)
-    debug("host_platform %s, target_platform %s req_target_platform %s", *platforms)
-    host_platform, target_platform, req_target_platform = platforms
-
-    # Most combinations of host + target are straightforward.
-    # While all MSVC / Visual Studio tools are pysically 32-bit, they
-    # make it look like there are 64-bit tools if the host is 64-bit,
-    # so you can invoke the environment batch script to set up to build,
-    # say, amd64 host -> x86 target. Express versions are an exception:
-    # they always look 32-bit, so the batch scripts with 64-bit
-    # host parts are absent. We try to fix that up in a couple of ways.
-    # One is here: we make a table of "targets" to try, with the extra
-    # targets being tags that tell us to try a different "host" instead
-    # of the deduced host.
-    try_target_archs = [target_platform]
-    if req_target_platform in ('amd64', 'x86_64'):
-        try_target_archs.append('x86_amd64')
-    elif req_target_platform in ('x86',):
-        try_target_archs.append('x86_x86')
-    elif req_target_platform in ('arm',):
-        try_target_archs.append('x86_arm')
-    elif req_target_platform in ('arm64',):
-        try_target_archs.append('x86_arm64')
-    elif not req_target_platform:
-        if target_platform in ('amd64', 'x86_64'):
-            try_target_archs.append('x86_amd64')
-            # If the user hasn't specifically requested a TARGET_ARCH,
-            # and the TARGET_ARCH is amd64 then also try 32 bits
-            # if there are no viable 64 bit tools installed
-            try_target_archs.append('x86')
-
-    debug("host_platform: %s, try_target_archs: %s", host_platform, try_target_archs)
+    # Find the host, target, and all candidate (host, target) platform combinations:
+    platforms = get_host_target(env, version)
+    debug("host_platform %s, target_platform %s host_target_list %s", *platforms)
+    host_platform, target_platform, host_target_list = platforms
 
     d = None
-    for tp in try_target_archs:
+    for host_arch, target_arch, in host_target_list:
         # Set to current arch.
-        env['TARGET_ARCH'] = tp
-
-        debug("trying target_platform:%s", tp)
-        host_target = (host_platform, tp)
-        if not is_host_target_supported(host_target, version):
-            warn_msg = "host, target = %s not supported for MSVC version %s" % \
-                (host_target, version)
-            SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
-        arg = _HOST_TARGET_ARCH_TO_BAT_ARCH[host_target]
+        env['TARGET_ARCH'] = target_arch
 
         # Try to locate a batch file for this host/target platform combo
         try:
-            (vc_script, use_arg, sdk_script) = find_batch_file(env, version, host_platform, tp)
-            debug('vc_script:%s sdk_script:%s', vc_script, sdk_script)
+            (vc_script, arg, sdk_script) = find_batch_file(env, version, host_arch, target_arch)
+            debug('vc_script:%s vc_script_arg:%s sdk_script:%s', vc_script, arg, sdk_script)
         except VisualCException as e:
             msg = str(e)
             debug('Caught exception while looking for batch file (%s)', msg)
@@ -879,8 +1088,6 @@ def msvc_find_valid_batch_script(env, version):
         debug('use_script 2 %s, args:%s', repr(vc_script), arg)
         found = None
         if vc_script:
-            if not use_arg:
-                arg = ''  # bat file will supply platform type
             # Get just version numbers
             maj, min = msvc_version_to_maj_min(version)
             # VS2015+
@@ -914,7 +1121,7 @@ def msvc_find_valid_batch_script(env, version):
     # If we cannot find a viable installed compiler, reset the TARGET_ARCH
     # To it's initial value
     if not d:
-        env['TARGET_ARCH']=req_target_platform
+        env['TARGET_ARCH'] = target_platform
 
     return d
 
