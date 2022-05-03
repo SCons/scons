@@ -18,12 +18,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Updated mingw tool so that the generate and exists methods use the same mingw search paths
       (issue #4134).
     - Refactor the data definitions for msvc configurations to allow derived data structures to be
-      constructed during initialization that removes the need for special case handling during runtime
-      execution. Special case handling of host/target combinations is eliminated and replaced with
-      pre-computed search lists that implicitly handle the differences between full versions and
-      express versions of msvc.  The refactoring is motivated by issues arising from the differences
-      between initial msvc detection and msvc batch file determination when configuring the build
-      environment (issues #2668 and #2697).
+      constructed during initialization that removes the need for special case handling during
+      runtime execution. Special case handling of host/target combinations is eliminated and
+      replaced with pre-computed search lists that implicitly handle the differences between full
+      versions and express versions of msvc. This fixes an issue where Express versions of the MSVC
+      compiler were not detected due to differences in initial msvc detection and msvc batch file
+      determination when configuring the build environment.  This could lead to build failures when
+      only an MSVC Express instance is installed and the MSVC version is not explicitly specified
+      (issue #2668 and issue #2697).
+
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
