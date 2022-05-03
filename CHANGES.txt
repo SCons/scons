@@ -19,6 +19,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (issue #4134).
     - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
       system environment as an alternative to bypassing Visual Studio autodetection entirely.
+    - Update the debug output written to stdout for MSVC initialization which is enabled by setting
+      SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug output format
+      written to stdout to include more information about the source for each message of MSVC
+      initialization debugging output.  A single space was added before the message for all
+      debugging output records written to stdout and to files.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
