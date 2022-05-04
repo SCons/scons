@@ -1,0 +1,10 @@
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=['mingw', 'textfile'])
+env.Tool('ninja')
+
+env.Textfile('main.c', ['#include "test_header.h', 'int main(){return header_func();}'])
+env.Textfile('test_header.h', ['#pragma once', 'int header_func(){return 0;}'])
+
+env.Program('out', 'main.c')

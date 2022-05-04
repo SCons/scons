@@ -7,7 +7,7 @@ on the SCons download page:
 Here is a summary of the changes since 4.3.1:
 
 NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
-      see unexpected rebuilds. This is due to Python internals changing which changed 
+      see unexpected rebuilds. This is due to Python internals changing which changed
       the signature of a Python Action Function.
 
 
@@ -47,6 +47,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   output format written to stdout to include more information about the source for each
   message of MSVC initialization debugging output.  A single space was added before the
   message for all debugging output records written to stdout and to files.
+- Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+  Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
+  format. Compiler tools will also configure the variable automatically.
 
 
 FIXES
