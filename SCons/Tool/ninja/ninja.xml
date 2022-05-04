@@ -66,6 +66,7 @@ See its __doc__ string for a discussion of the format.
             <item>NINJA_FILE_NAME</item>
             <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
             <item>NINJA_MSVC_DEPS_PREFIX</item>
+            <item>NINJA_DEPFILE_PARSE_FORMAT</item>
             <item>NINJA_POOL</item>
             <item>NINJA_REGENERATE_DEPS</item>
             <item>NINJA_SYNTAX</item>
@@ -205,6 +206,17 @@ python -m pip install ninja
                 Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
                 <quote>defines the string which should be stripped from msvc's <option>/showIncludes</option> output</quote>
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_DEPFILE_PARSE_FORMAT">
+        <summary>
+            <para>
+                Determines the type of format ninja should expect when parsing header
+                include depfiles. Can be <option>msvc</option>, <option>gcc</option>, or <option>clang</option>.
+                The <option>msvc</option> option corresponds to <option>/showIncludes</option> format, and 
+                <option>gcc</option> or <option>clang</option> correspond to <option>-MMD -MF</option>.
             </para>
         </summary>
     </cvar>
