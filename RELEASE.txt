@@ -7,7 +7,7 @@ on the SCons download page:
 Here is a summary of the changes since 4.3.1:
 
 NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
-      see unexpected rebuilds. This is due to Python internals changing which changed 
+      see unexpected rebuilds. This is due to Python internals changing which changed
       the signature of a Python Action Function.
 
 
@@ -48,7 +48,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   message of MSVC initialization debugging output.  A single space was added before the
   message for all debugging output records written to stdout and to files.
 
-
 FIXES
 -----
 
@@ -68,6 +67,9 @@ FIXES
   default compiler to MSVC which wasn't installed, yielding broken build.
   Updated mingw tool so that the generate and exists methods use the same mingw search paths
   (issue #4134).
+- Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+  Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
+  format. Compiler tools will also configure the variable automatically.
 - Fix issue where Express versions of the MSVC compiler were not detected due to differences
   in initial msvc detection and msvc batch file determination when configuring the build
   environment.  This could lead to build failures when only an MSVC Express instance is installed

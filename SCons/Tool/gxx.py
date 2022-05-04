@@ -65,6 +65,7 @@ def generate(env):
         env['CXXVERSION'] = version
 
     env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
+    env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
 
 
