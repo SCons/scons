@@ -65,6 +65,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
     - Update ninja file generation to only create response files for build commands 
       which exceed MAXLINELENGTH
+    - Added special case for ninja scons daemon to work in win32 python3.6 environments.
+      This particular environment does a bad job managing popen standard file handles, so 
+      some special workarounds are needed.
     - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
