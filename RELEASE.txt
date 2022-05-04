@@ -47,10 +47,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   output format written to stdout to include more information about the source for each
   message of MSVC initialization debugging output.  A single space was added before the
   message for all debugging output records written to stdout and to files.
-- Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
-  Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
-  format. Compiler tools will also configure the variable automatically.
-
 
 FIXES
 -----
@@ -71,8 +67,9 @@ FIXES
   default compiler to MSVC which wasn't installed, yielding broken build.
   Updated mingw tool so that the generate and exists methods use the same mingw search paths
   (issue #4134).
-- Added user configurable setting of ninja depfile format. This helps in mingw environments
-  where the gcc/clang format might be used on windows.
+- Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+  Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
+  format. Compiler tools will also configure the variable automatically.
 - Fix issue where Express versions of the MSVC compiler were not detected due to differences
   in initial msvc detection and msvc batch file determination when configuring the build
   environment.  This could lead to build failures when only an MSVC Express instance is installed
