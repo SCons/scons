@@ -68,10 +68,15 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     logging.debug(f"Starting daemon with {' '.join(cmd)}")
 
     
+    # TODO: Remove the following when Python3.6 support is dropped.
     if sys.platform == 'win32' and sys.version_info[0] == 3 and sys.version_info[1] == 6:
-        # on windows with python version 3.6, popen does not do a good job disconnecting
+        # on Windows with Python version 3.6, popen does not do a good job disconnecting
         # the std handles and this make ninja hang because they stay open to the original
         # process ninja launched. Here we can force the handles to be separated.
+        # See: https://docs.python.org/3.6/library/subprocess.html#subprocess.STARTUPINFO
+        # See Also: https://docs.python.org/3.6/library/subprocess.html#subprocess.Popen
+        # Note when you don't specify stdin, stdout, and/or stderr they default to None
+        # which indicates no output redirection will occur.
         si = subprocess.STARTUPINFO()
         si.dwFlags = subprocess.STARTF_USESTDHANDLES
         p = subprocess.Popen(
