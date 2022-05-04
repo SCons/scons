@@ -25,9 +25,6 @@
 import os
 
 import TestSCons
-import SCons
-from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
-from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
 test = TestSCons.TestSCons()
 
