@@ -274,20 +274,7 @@ class NinjaState:
                 "description": "Archiving $out",
                 "pool": "local_pool",
             }
-
-        num_jobs = self.env.get('NINJA_MAX_JOBS', self.env.GetOption("num_jobs"))
-        self.pools = {
-            "local_pool": num_jobs,
-            "install_pool": num_jobs / 2,
-            "scons_pool": 1,
-        }
-
-        for rule in ["CC", "CXX"]:
-            if env["PLATFORM"] == "win32":
-                self.rules[rule]["deps"] = "msvc"
-            else:
-                self.rules[rule]["deps"] = "gcc"
-                self.rules[rule]["depfile"] = "$out.d"
+        self.pools = {"scons_pool": 1}
 
     def add_build(self, node):
         if not node.has_builder():
@@ -359,7 +346,23 @@ class NinjaState:
         if self.__generated:
             return
 
+        num_jobs = self.env.get('NINJA_MAX_JOBS', self.env.GetOption("num_jobs"))
+        self.pools.update({
+            "local_pool": num_jobs,
+            "install_pool": num_jobs / 2,
+        })
 
+        deps_format = self.env.get("NINJA_DEPFILE_PARSE_FORMAT", 'msvc' if self.env['PLATFORM'] == 'win32' else 'gcc')
+        for rule in ["CC", "CXX"]:
+            if deps_format == "msvc":
+                self.rules[rule]["deps"] = "msvc"
+            elif deps_format == "gcc" or deps_format == "clang":
+                self.rules[rule]["deps"] = "gcc"
+                self.rules[rule]["depfile"] = "$out.d"
+            else:
+                raise Exception(f"Unknown 'NINJA_DEPFILE_PARSE_FORMAT'={self.env['NINJA_DEPFILE_PARSE_FORMAT']}, use 'mvsc', 'gcc', or 'clang'.")
+        
+        
         for key, rule in self.env.get(NINJA_RULES, {}).items():
             # make a non response file rule for users custom response file rules.
             if rule.get('rspfile') is not None:
@@ -370,6 +373,8 @@ class NinjaState:
                 self.rules.update({key: non_rsp_rule})
             else:
                 self.rules.update({key: rule})
+        
+        self.rules.update(self.env.get(NINJA_RULES, {}))
         self.pools.update(self.env.get(NINJA_POOLS, {}))
 
         content = io.StringIO()
