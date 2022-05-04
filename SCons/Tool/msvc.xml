@@ -427,10 +427,12 @@ Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
 <para>
 Use a dictionary to set up the Microsoft Visual C++ compiler.
 </para>
+
 <para>
 &cv-MSVC_USE_SETTINGS; is ignored when &cv-link-MSVC_USE_SCRIPT; is defined
 and/or when &cv-MSVC_USE_SETTINGS; is set to <constant>None</constant>.
 </para>
+
 <para>
 The dictionary is used to populate the environment with the relevant variables
 (typically <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
@@ -439,9 +441,10 @@ that &SCons; does not configure correctly. This is an alternative to manually co
 the environment when bypassing Visual Studio autodetection entirely by setting
 &cv-link-MSVC_USE_SCRIPT; to <constant>None</constant>.
 </para>
+
+<para>
 Here is an example of configuring a build environment using the Microsoft Visual C/C++ compiler
 included in the Microsoft SDK on a 64-bit host and building for a 64-bit architecture:
-<para>
 <programlisting>
 # Microsoft SDK 6.0 (MSVC 8.0): 64-bit host and 64-bit target
 msvc_use_settings = {
@@ -475,11 +478,13 @@ msvc_use_settings = {
 env = Environment(MSVC_VERSION='8.0', MSVC_USE_SETTINGS=msvc_use_settings)
 </programlisting>
 </para>
+
 <para>
 Note: the dictionary content requirements are based on the internal msvc implementation and
 therefore may change at any time. The burden is on the user to ensure the dictionary contents
 are minimally sufficient to ensure successful builds.
 </para>
+
 </summary>
 </cvar>
 
