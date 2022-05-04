@@ -223,6 +223,7 @@ def __xml_scan(node, env, path, arg):
         # Try to call xsltproc
         xsltproc = env.subst("$DOCBOOK_XSLTPROC")
         if xsltproc and xsltproc.endswith('xsltproc'):
+            # TODO: switch to _subproc or subprocess.run call
             result = env.backtick(' '.join([xsltproc, xsl_file, str(node)]))
             depfiles = [x.strip() for x in str(result).splitlines() if x.strip() != "" and not x.startswith("<?xml ")]
             return depfiles
