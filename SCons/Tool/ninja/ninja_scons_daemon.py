@@ -56,6 +56,14 @@ ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_keep_alive = int(sys.argv[3])
 args = sys.argv[4:]
 
+# TODO: Remove the following when Python3.6 support is dropped.
+# Windows and Python36 passed nothing for the std handles because of issues with popen
+# and its handles so we have to make some fake ones to prevent exceptions.
+if sys.platform == 'win32' and sys.version_info[0] == 3 and sys.version_info[1] == 6:
+    from io import StringIO
+    sys.stderr = StringIO()
+    sys.stdout = StringIO()
+
 daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
     "scons_daemon_" + str(hashlib.md5(str(ninja_builddir).encode()).hexdigest())
 )

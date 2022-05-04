@@ -67,6 +67,9 @@ FIXES
   default compiler to MSVC which wasn't installed, yielding broken build.
   Updated mingw tool so that the generate and exists methods use the same mingw search paths
   (issue #4134).
+- Added special case for ninja scons daemon to work in win32 python3.6 environments.
+  This particular environment does a bad job managing popen standard file handles, so 
+  some special workarounds are needed.
 - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
   Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
   format. Compiler tools will also configure the variable automatically.

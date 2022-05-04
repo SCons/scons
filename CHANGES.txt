@@ -63,6 +63,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja: Fix issue where Configure files weren't being properly processed when build run
       via ninja.
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
+    - Added special case for ninja scons daemon to work in win32 python3.6 environments.
+      This particular environment does a bad job managing popen standard file handles, so 
+      some special workarounds are needed.
     - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
