@@ -31,14 +31,6 @@ from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
 test = TestSCons.TestSCons()
 
-dp = MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS
-gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=dp)
-if not gcc:
-    test.skip_test("Skipping mingw test, no MinGW found.\n")
-
-# ninja must have the os environment setup to work properly
-os.environ["PATH"] += os.pathsep + os.path.dirname(gcc)
-
 try:
     import ninja
 except ImportError:
