@@ -13,7 +13,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
       when the user specified msvc script does not exist.
     - Fix issue where if you only had mingw installed on a Windows system and no MSVC compiler, and
-      did not explicitly request the mingw tool, mingw tool initialization would fail and set the 
+      did not explicitly request the mingw tool, mingw tool initialization would fail and set the
       default compiler to MSVC which wasn't installed, yielding broken build.
       Updated mingw tool so that the generate and exists methods use the same mingw search paths
       (issue #4134).
@@ -22,6 +22,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       written to stdout to include more information about the source for each message of MSVC
       initialization debugging output.  A single space was added before the message for all
       debugging output records written to stdout and to files.
+    - Refactor the data definitions for msvc configurations to allow derived data structures to be
+      constructed during initialization that removes the need for special case handling during
+      runtime execution. Special case handling of host/target combinations is eliminated and
+      replaced with pre-computed search lists that implicitly handle the differences between full
+      versions and express versions of msvc. This fixes an issue where Express versions of the MSVC
+      compiler were not detected due to differences in initial msvc detection and msvc batch file
+      determination when configuring the build environment.  This could lead to build failures when
+      only an MSVC Express instance is installed and the MSVC version is not explicitly specified
+      (issue #2668 and issue #2697).
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
