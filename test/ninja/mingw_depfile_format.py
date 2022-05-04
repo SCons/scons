@@ -23,19 +23,14 @@
 #
 
 import os
-from pathlib import Path
 import sys
 
 import TestSCons
-from TestCmd import IS_WINDOWS
 import SCons
 from SCons.Platform.mingw import MINGW_DEFAULT_PATHS
 from SCons.Platform.cygwin import CYGWIN_DEFAULT_PATHS
 
 test = TestSCons.TestSCons()
-
-if sys.platform not in ('cygwin', 'win32',):
-    test.skip_test("Skipping mingw test on non-Windows platform %s." % sys.platform)
 
 dp = MINGW_DEFAULT_PATHS + CYGWIN_DEFAULT_PATHS
 gcc = SCons.Tool.find_program_path(test.Environment(), 'gcc', default_paths=dp)
