@@ -68,10 +68,16 @@ test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
 
 Path(test.workpath('test_header.h')).touch()
+original_mtime = Path(test.workpath('out' + _exe)).lstat().st_mtime
 
 # only generate the ninja file
-test.run(stdout=None)
-print(test.stdout())
+program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
+test.run(program=program, arguments=['-v'], stdout=None)
+
+new_mtime = Path(test.workpath('out' + _exe)).lstat().st_mtime
+
+if original_mtime == new_mtime:
+    test.fail_test(message="Reason: Ninja failed to rebuild the output when the header changed.")
 
 test.pass_test()
 
