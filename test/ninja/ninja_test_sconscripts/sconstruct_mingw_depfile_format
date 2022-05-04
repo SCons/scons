@@ -3,3 +3,5 @@ DefaultEnvironment(tools=[])
 
 env = Environment(tools=['mingw'])
 env.Tool('ninja')
+env['NINJA_DEPFILE_PARSE_FORMAT'] = 'msvc'
+

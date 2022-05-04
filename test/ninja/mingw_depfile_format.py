@@ -52,7 +52,7 @@ test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
-test.must_contain(test.workpath('build.ninja'), 'deps = gcc')
+test.must_contain(test.workpath('build.ninja'), 'deps = msvc')
 
 test.pass_test()
 
