@@ -43,9 +43,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       6.0-7.1 batch files when the variables are not defined.
       Note: Attempting to run the SDK 6.0-7.1 batch files directly via MSVC_USE_SCRIPT can lead to
             build failures and/or incomplete build environments.  The SDK 6.0-7.1 batch files
-            require delayed expansion to be enabled which is currently supported and is typically
-            not enabled by default on the host system. The batch files may also require environment
-            variables that are not included by default in the msvc environment.
+            require delayed expansion to be enabled which is currently not supported and is
+            typically not enabled by default on the host system. The batch files may also require
+            environment variables that are not included by default in the msvc environment.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
