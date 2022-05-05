@@ -59,6 +59,14 @@ test.run(arguments = "--warn=visual-c-missing .", status=0, stderr=None)
 
 test.must_contain_all(test.stderr(), "Could not find MSVC compiler 'cl'")
 
+test.write('SConstruct', """
+env = Environment(MSVC_USE_SETTINGS='dict or None')
+""" % locals())
+  
+test.run(arguments = ".", status=2, stderr=None)
+  
+test.must_contain_all(test.stderr(), "MSVCUseSettingsError: MSVC_USE_SETTINGS type error")
+  
 test.pass_test()
 
 # Local Variables:
