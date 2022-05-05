@@ -63,6 +63,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Ninja: Fix issue where Configure files weren't being properly processed when build run
       via ninja.
     - Added ninja mingw support and improved ninja CommandGeneratorAction support.
+    - Update ninja file generation to only create response files for build commands 
+      which exceed MAXLINELENGTH
     - Ninja: Added NINJA_GENERATED_SOURCE_ALIAS_NAME which allows user to specify an
       Alias() which the ninja tool can use to determine which files are generated sources.
       If this is not set by the user then the ninja tool will still dynamically determine
