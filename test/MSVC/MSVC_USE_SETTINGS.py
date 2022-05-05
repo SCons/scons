@@ -51,6 +51,14 @@ test.run(arguments = ".", status=0, stderr=None)
 
 test.must_contain_all(test.stdout(), "CL.EXE PATHS MATCH")
 
+test.write('SConstruct', """
+env = Environment(MSVC_USE_SETTINGS={})
+""" % locals())
+
+test.run(arguments = "--warn=visual-c-missing .", status=0, stderr=None)
+
+test.must_contain_all(test.stderr(), "Could not find MSVC compiler 'cl'")
+
 test.pass_test()
 
 # Local Variables:
