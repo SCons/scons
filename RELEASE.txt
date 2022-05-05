@@ -42,7 +42,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The change to "content" and "content-timestamp" Decider names is reflected
   in the User Guide as well, since the hash function may be other than md5
   (tidying up from earlier change)
-
+- Update the debug output written to stdout for MSVC initialization which is enabled
+  by setting SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug
+  output format written to stdout to include more information about the source for each
+  message of MSVC initialization debugging output.  A single space was added before the
+  message for all debugging output records written to stdout and to files.
 
 FIXES
 -----
@@ -70,8 +74,16 @@ FIXES
   a phony target _ninja_generated_sources. Generated sources will be built first by 
   ninja. This is needed because ninja cannot determine which generated sources are
   required by other build targets.  Code contributed by MongoDB.
-  
-
+- Added special case for ninja scons daemon to work in win32 python3.6 environments.
+  This particular environment does a bad job managing popen standard file handles, so 
+  some special workarounds are needed.
+- Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+  Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
+  format. Compiler tools will also configure the variable automatically.
+- Fix issue where Express versions of the MSVC compiler were not detected due to differences
+  in initial msvc detection and msvc batch file determination when configuring the build
+  environment.  This could lead to build failures when only an MSVC Express instance is installed
+  and the MSVC version is not explicitly specified (issue #2668 and issue #2697).
 
 IMPROVEMENTS
 ------------
@@ -82,6 +94,10 @@ IMPROVEMENTS
 - Added ninja mingw support and improved ninja CommandGeneratorAction support.
 - Command-line help is now sensitive to the size of the terminal window: the
   width of the help text will scale for terminals other than 80 chars wide.
+- Refactor the msvc code so that the same data structures are used during initial msvc detection
+  and msvc batch file determination when configuring the build environment.  Simplify the msvc
+  code by eliminating special case handling primarily due to the differences between the full
+  versions and express versions of visual studio.
 
 PACKAGING
 ---------

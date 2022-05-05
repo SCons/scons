@@ -226,7 +226,7 @@ def generate(env):
         pass
     else:
         env.Append(CCFLAGS='$CCDEPFLAGS')
-
+    
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
     # Provide a way for custom rule authors to easily access command

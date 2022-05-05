@@ -13,10 +13,24 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
       when the user specified msvc script does not exist.
     - Fix issue where if you only had mingw installed on a Windows system and no MSVC compiler, and
-      did not explicitly request the mingw tool, mingw tool initialization would fail and set the 
+      did not explicitly request the mingw tool, mingw tool initialization would fail and set the
       default compiler to MSVC which wasn't installed, yielding broken build.
       Updated mingw tool so that the generate and exists methods use the same mingw search paths
       (issue #4134).
+    - Update the debug output written to stdout for MSVC initialization which is enabled by setting
+      SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug output format
+      written to stdout to include more information about the source for each message of MSVC
+      initialization debugging output.  A single space was added before the message for all
+      debugging output records written to stdout and to files.
+    - Refactor the data definitions for msvc configurations to allow derived data structures to be
+      constructed during initialization that removes the need for special case handling during
+      runtime execution. Special case handling of host/target combinations is eliminated and
+      replaced with pre-computed search lists that implicitly handle the differences between full
+      versions and express versions of msvc. This fixes an issue where Express versions of the MSVC
+      compiler were not detected due to differences in initial msvc detection and msvc batch file
+      determination when configuring the build environment.  This could lead to build failures when
+      only an MSVC Express instance is installed and the MSVC version is not explicitly specified
+      (issue #2668 and issue #2697).
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
@@ -58,6 +72,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       required by other build targets. Code contributed by MongoDB
       The downstream commit is here:
       https://github.com/mongodb/mongo/commit/2fef432fa6e7cf3fd4f22ba3b193222c2887f14f
+    - Added special case for ninja scons daemon to work in win32 python3.6 environments.
+      This particular environment does a bad job managing popen standard file handles, so 
+      some special workarounds are needed.
+    - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+      Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
+      format. Compiler tools will also configure the variable automatically.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
@@ -88,6 +108,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       "dict" (avoid redefining builtin)
     - Fix an old use-before-set bug in tex tool (issue #2888)
     - Fix a test harness exception returning stderr if a wait_for timed out.
+    - ParseConfig now correctly passes the *unique* flag to a user-supplied
+      flag-merging function.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
