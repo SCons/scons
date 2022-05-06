@@ -39,6 +39,7 @@ import pathlib
 import tempfile
 import hashlib
 import traceback
+import socket
 
 ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
@@ -65,8 +66,8 @@ while True:
         while not response:
             try:
                 response = conn.getresponse()
-            except (http.client.RemoteDisconnected, http.client.ResponseNotReady):
-                time.sleep(0.01)
+            except (http.client.RemoteDisconnected, http.client.ResponseNotReady, socket.timeout):
+                time.sleep(0.1)
             except http.client.HTTPException:
                 logging.debug(f"Error: {traceback.format_exc()}")
                 exit(1)
@@ -78,6 +79,10 @@ while True:
                     exit(1)
                 logging.debug(f"Request Done: {sys.argv[3]}")
                 exit(0)
+
+    except ConnectionRefusedError:
+        logging.debug(f"Server refused connection to build {sys.argv[3]}, maybe it was too busy, tring again: {traceback.format_exc()}")
+        time.sleep(0.1)
 
     except Exception:
         logging.debug(f"Failed to send command: {traceback.format_exc()}")

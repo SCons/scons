@@ -80,6 +80,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
+    - Made ninja tool force the ninja file as the only target. Also improved the default 
+      targets setup and made sure there is always a default target for
+      the ninja file, which excludes targets that start and stop the daemon.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

@@ -29,6 +29,7 @@ NINJA_CUSTOM_HANDLERS = "__NINJA_CUSTOM_HANDLERS"
 NINJA_BUILD = "NINJA_BUILD"
 NINJA_WHEREIS_MEMO = {}
 NINJA_STAT_MEMO = {}
+NINJA_DEFAULT_TARGETS = []
 __NINJA_RULE_MAPPING = {}
 
 # These are the types that get_command can do something with

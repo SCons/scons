@@ -50,6 +50,7 @@ from timeit import default_timer as timer
 import traceback
 import tempfile
 import hashlib
+import signal
 
 port = int(sys.argv[1])
 ninja_builddir = pathlib.Path(sys.argv[2])
@@ -134,6 +135,15 @@ building_cv = Condition()
 error_cv = Condition()
 
 thread_error = False
+httpd = None
+daemon_needs_to_shutdown = False
+
+def sigint_func(signum, frame):
+    global httpd, daemon_needs_to_shutdown
+    daemon_needs_to_shutdown = True
+
+
+signal.signal(signal.SIGINT, sigint_func)
 
 
 def daemon_thread_func():
@@ -213,6 +223,8 @@ def daemon_thread_func():
                         finished_building += [building_node]
                     daemon_ready = False
 
+            if daemon_needs_to_shutdown:
+                break
             time.sleep(0.01)
     except Exception:
         thread_error = True
@@ -283,6 +295,7 @@ def server_thread_func():
             def log_message(self, format, *args):
                 return
 
+    socketserver.TCPServer.allow_reuse_address = True
     httpd = socketserver.TCPServer(("127.0.0.1", port), S)
     httpd.serve_forever()
 
@@ -291,31 +304,23 @@ server_thread = threading.Thread(target=server_thread_func)
 server_thread.daemon = True
 server_thread.start()
 
-while timer() - keep_alive_timer < daemon_keep_alive and not thread_error:
+while timer() - keep_alive_timer < daemon_keep_alive and not thread_error and not daemon_needs_to_shutdown:
     time.sleep(1)
 
 if thread_error:
     daemon_log(f"Shutting server on port {port} down because thread error.")
+elif daemon_needs_to_shutdown:
+    daemon_log("Server shutting down upon request.")
 else:
     daemon_log(
         f"Shutting server on port {port} down because timed out: {daemon_keep_alive}"
     )
-
-# if there are errors, don't immediately shut down the daemon
-# the process which started the server is attempt to connect to
-# the daemon before allowing jobs to start being sent. If the daemon
-# shuts down too fast, the launch script will think it has not
-# started yet and sit and wait. If the launch script is able to connect
-# and then the connection is dropped, it will immediately exit with fail.
-time.sleep(5)
-
+httpd.shutdown()
 if os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     os.unlink(ninja_builddir / "scons_daemon_dirty")
 if os.path.exists(daemon_dir / "pidfile"):
     os.unlink(daemon_dir / "pidfile")
 
-httpd.shutdown()
-server_thread.join()
 
 
 # Local Variables:

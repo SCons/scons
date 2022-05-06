@@ -34,7 +34,7 @@ import SCons
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
 
-from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
+from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
 from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
     set_build_node_callback, get_generic_shell_command, CheckNinjaCompdbExpand, get_command, \
     gen_get_response_file_command
@@ -118,6 +118,7 @@ def ninja_builder(env, target, source):
             # leaving warnings and other output, seems a bit
             # prone to failure with such a simple check
             erase_previous = output.startswith('[')
+        sys.stdout.write("\n")
 
 
 def exists(env):
@@ -200,7 +201,7 @@ def generate(env):
         ninja_file = env.Ninja()
         env['NINJA_FILE'] = ninja_file[0]
         env.AlwaysBuild(ninja_file)
-        env.Alias("$NINJA_ALIAS_NAME", ninja_file)
+        SCons.Script.BUILD_TARGETS = SCons.Script.TargetList(env.Alias("$NINJA_ALIAS_NAME", ninja_file))
     else:
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
@@ -444,6 +445,23 @@ def generate(env):
     # Make needs_execute always return true instead of determining out of
     # date-ness.
     SCons.Script.Main.BuildTask.needs_execute = lambda x: True
+
+
+    def ninja_Set_Default_Targets(env, tlist):
+        """
+            Record the default targets if they were ever set by the user. Ninja
+            will need to write the default targets and make sure not to include
+            the scons daemon shutdown target.
+        """
+        SCons.Script._Get_Default_Targets = SCons.Script._Set_Default_Targets_Has_Been_Called
+        SCons.Script.DEFAULT_TARGETS = ninja_file
+        for t in tlist:
+            if isinstance(t, SCons.Node.Node):
+                NINJA_DEFAULT_TARGETS.append(t)
+            else:
+                nodes = env.arg2nodes(t, env.fs.Entry)
+                NINJA_DEFAULT_TARGETS.extend(nodes)
+    SCons.Script._Set_Default_Targets = ninja_Set_Default_Targets
 
     # We will eventually need to overwrite TempFileMunge to make it
     # handle persistent tempfiles or get an upstreamed change to add
