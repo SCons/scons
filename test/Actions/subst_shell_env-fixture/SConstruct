@@ -21,4 +21,4 @@ env.Textfile('expand_script.py', [
     'print(os.environ["EXPANDED_SHELL_VAR"])',
     'print(os.environ["NON_EXPANDED_SHELL_VAR"])',
 ])
-env.Command('out.txt', 'expand_script.py', f'{sys.executable} $SOURCE > $TARGET')
+env.Command('out.txt', 'expand_script.py', fr'{sys.executable} $SOURCE > $TARGET')
