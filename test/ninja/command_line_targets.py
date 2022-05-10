@@ -25,7 +25,6 @@
 import os
 
 import TestSCons
-from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 

@@ -338,10 +338,9 @@ server_thread = threading.Thread(target=server_thread_func)
 server_thread.daemon = True
 server_thread.start()
 
-while (
-    timer() - keep_alive_timer < daemon_keep_alive 
-    and not shared_state.thread_error 
-    and not shared_state.daemon_needs_to_shutdown):
+while (timer() - keep_alive_timer < daemon_keep_alive 
+        and not shared_state.thread_error 
+        and not shared_state.daemon_needs_to_shutdown):
     time.sleep(1)
 
 if shared_state.thread_error:

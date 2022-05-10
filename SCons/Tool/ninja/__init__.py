@@ -211,7 +211,7 @@ def generate(env):
         # to do anything in terms of building, so any targets besides the ninja target will
         # end up doing nothing besides causing confusion. We save the targets however, so that
         # SCons and invoke ninja to build them in lieu of the user.
-        NINJA_CMDLINE_TARGETS =  SCons.Script.BUILD_TARGETS
+        NINJA_CMDLINE_TARGETS = SCons.Script.BUILD_TARGETS
         SCons.Script.BUILD_TARGETS = SCons.Script.TargetList(env.Alias("$NINJA_ALIAS_NAME", ninja_file))
     else:
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
