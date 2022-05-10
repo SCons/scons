@@ -31,16 +31,17 @@ import subprocess
 import sys
 
 import SCons
+import SCons.Script
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
 
-from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
+from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS, NINJA_CMDLINE_TARGETS
 from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
     set_build_node_callback, get_generic_shell_command, CheckNinjaCompdbExpand, get_command, \
     gen_get_response_file_command
 from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFiles, ninja_always_serial, AlwaysExecAction
 from .Utils import ninja_add_command_line_options, \
-    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis
+    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis, NinjaExperimentalWarning
 
 try:
     import ninja
@@ -84,7 +85,10 @@ def ninja_builder(env, target, source):
     else:
         cmd = [NINJA_STATE.ninja_bin_path, '-f', generated_build_ninja]
 
-    if not env.get("NINJA_DISABLE_AUTO_RUN"):
+    if str(env.get("NINJA_DISABLE_AUTO_RUN")).lower() not in ['1', 'true']:
+        num_jobs = env.get('NINJA_MAX_JOBS', env.GetOption("num_jobs"))
+        cmd += ['-j' + str(num_jobs)] + NINJA_CMDLINE_TARGETS
+        print(f"ninja will be run with command line targets: {' '.join(NINJA_CMDLINE_TARGETS)}")
         print("Executing:", str(' '.join(cmd)))
 
         # execute the ninja build at the end of SCons, trying to
@@ -165,7 +169,7 @@ def ninja_emitter(target, source, env):
 
 def generate(env):
     """Generate the NINJA builders."""
-    global NINJA_STATE
+    global NINJA_STATE, NINJA_CMDLINE_TARGETS
 
     if 'ninja' not in GetOption('experimental'):
         return
@@ -201,6 +205,13 @@ def generate(env):
         ninja_file = env.Ninja()
         env['NINJA_FILE'] = ninja_file[0]
         env.AlwaysBuild(ninja_file)
+
+        # We need to force SCons to only build the ninja target when ninja tool is loaded.
+        # The ninja tool is going to 'rip the guts out' of scons and make it basically unable
+        # to do anything in terms of building, so any targets besides the ninja target will
+        # end up doing nothing besides causing confusion. We save the targets however, so that
+        # SCons and invoke ninja to build them in lieu of the user.
+        NINJA_CMDLINE_TARGETS =  SCons.Script.BUILD_TARGETS
         SCons.Script.BUILD_TARGETS = SCons.Script.TargetList(env.Alias("$NINJA_ALIAS_NAME", ninja_file))
     else:
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
@@ -306,8 +317,8 @@ def generate(env):
     if GetOption('disable_ninja'):
         return env
 
-    SCons.Warnings.SConsWarning("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
-
+    print("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
+    print(f"SCons running in ninja mode. {env['NINJA_FILE']} will be generated.")
     # This is the point of no return, anything after this comment
     # makes changes to SCons that are irreversible and incompatible
     # with a normal SCons build. We return early if __NINJA_NO=1 has

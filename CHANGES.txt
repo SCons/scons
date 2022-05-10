@@ -83,6 +83,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Made ninja tool force the ninja file as the only target. Also improved the default 
       targets setup and made sure there is always a default target for
       the ninja file, which excludes targets that start and stop the daemon.
+    - Update ninja tool so targets passed to SCons are propgated to ninja when scons
+      automatically executes ninja.
+    - Small refactor of scons daemons using a shared StateInfo class for communication 
+      between the scons interactive thread and the http server thread. Added error handling
+      for scons interactive failing to startup.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

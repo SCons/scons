@@ -52,8 +52,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Made ninja tool force the ninja file as the only target. Also improved the default 
   targets setup and made sure there is always a default target for
   the ninja file, which excludes targets that start and stop the daemon.
-
-
+- Update ninja tool so targets passed to SCons are propgated to ninja when scons
+  automatically executes ninja.
+    
 FIXES
 -----
 
@@ -104,6 +105,9 @@ IMPROVEMENTS
   and msvc batch file determination when configuring the build environment.  Simplify the msvc
   code by eliminating special case handling primarily due to the differences between the full
   versions and express versions of visual studio.
+- Small refactor of scons daemons using a shared StateInfo class for communication 
+  between the scons interactive thread and the http server thread. Added error handling
+  for scons interactive failing to startup.
 
 PACKAGING
 ---------

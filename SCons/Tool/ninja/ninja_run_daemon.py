@@ -114,6 +114,7 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
                 msg = response.read()
                 status = response.status
                 if status != 200:
+                    print("ERROR: SCons daemon failed to start:")
                     print(msg.decode("utf-8"))
                     exit(1)
                 logging.debug("Server Responded it was ready!")
