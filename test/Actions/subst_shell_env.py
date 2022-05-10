@@ -37,6 +37,7 @@ test.dir_fixture('subst_shell_env-fixture')
 
 test.run(arguments = ['-Q'])
 test.must_match('out.txt', f"I_got_expanded_to_out.txt{os.linesep}$EXPAND_THIS{os.linesep}")
+test.must_match('out2.txt', f"I_got_expanded_to_out2.txt{os.linesep}$EXPAND_THIS{os.linesep}")
 
 test.pass_test()
 

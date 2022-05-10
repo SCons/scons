@@ -1,7 +1,7 @@
 import sys
 
 def custom_environment_expansion(env, target, source):
-    ENV = env['ENV']
+    ENV = env['ENV'].copy()
     ENV['EXPANDED_SHELL_VAR'] = env.subst(env['ENV']['EXPANDED_SHELL_VAR'], target=target, source=source)
     return ENV
 
@@ -22,3 +22,5 @@ env.Textfile('expand_script.py', [
     'print(os.environ["NON_EXPANDED_SHELL_VAR"])',
 ])
 env.Command('out.txt', 'expand_script.py', fr'{sys.executable} $SOURCE > $TARGET')
+
+env.Depends('out.txt', env.Command('out2.txt', 'expand_script.py', fr'{sys.executable} $SOURCE > $TARGET'))
