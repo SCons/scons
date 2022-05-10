@@ -200,7 +200,7 @@ in which the command should be executed.
 </summary>
 </cvar>
 
-<cvar name="SHELL_ENV_EXPANDER">
+<cvar name="SHELL_ENV_GENERATOR ">
   <summary>
     <para>
 A function to obtain the environment dictionary which will be used

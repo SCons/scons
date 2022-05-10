@@ -10,7 +10,7 @@ def expand_this_generator(env, target, source, for_signature):
 
 env = Environment(tools=['textfile'])
 
-env['SHELL_ENV_EXPANDER'] = custom_environment_expansion
+env['SHELL_ENV_GENERATOR '] = custom_environment_expansion
 
 env['EXPAND_THIS'] = expand_this_generator
 env['ENV']['EXPANDED_SHELL_VAR'] = "$EXPAND_THIS"
