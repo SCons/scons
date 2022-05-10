@@ -25,10 +25,8 @@
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Verify that an Action list with a string command containing a Unicode file
-name, and a Python function action, works corectly.  This verifies that
-the signatures of the two actions can be concatenated without encoding
-Unicode problems.
+Verify that shell environment variables can be expanded per target/source
+when exectuting actions on the command line.
 """
 import os
 
