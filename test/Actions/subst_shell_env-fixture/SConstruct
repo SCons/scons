@@ -1,0 +1,24 @@
+import sys
+
+def custom_environment_expansion(env, target, source):
+    ENV = env['ENV']
+    ENV['EXPANDED_SHELL_VAR'] = env.subst(env['ENV']['EXPANDED_SHELL_VAR'], target=target, source=source)
+    return ENV
+
+def expand_this_generator(env, target, source, for_signature):
+    return "I_got_expanded_to_" + str(target[0])
+
+env = Environment(tools=['textfile'])
+
+env['SHELL_ENV_EXPANDER'] = custom_environment_expansion
+
+env['EXPAND_THIS'] = expand_this_generator
+env['ENV']['EXPANDED_SHELL_VAR'] = "$EXPAND_THIS"
+env['ENV']['NON_EXPANDED_SHELL_VAR'] = "$EXPAND_THIS"
+
+env.Textfile('expand_script.py', [
+    'import os',
+    'print(os.environ["EXPANDED_SHELL_VAR"])',
+    'print(os.environ["NON_EXPANDED_SHELL_VAR"])',
+])
+env.Command('out.txt', 'expand_script.py', f'{sys.executable} $SOURCE > $TARGET')
