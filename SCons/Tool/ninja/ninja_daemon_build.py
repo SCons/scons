@@ -53,6 +53,10 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
+def log_error(msg):
+    logging.debug(msg)
+    sys.stderr.write(msg)
+
 while True:
     try:
         logging.debug(f"Sending request: {sys.argv[3]}")
@@ -68,19 +72,19 @@ while True:
             except (http.client.RemoteDisconnected, http.client.ResponseNotReady):
                 time.sleep(0.01)
             except http.client.HTTPException:
-                logging.debug(f"Error: {traceback.format_exc()}")
+                log_error(f"Error: {traceback.format_exc()}")
                 exit(1)
             else:
                 msg = response.read()
                 status = response.status
                 if status != 200:
-                    print(msg.decode("utf-8"))
+                    log_error(msg.decode("utf-8"))
                     exit(1)
                 logging.debug(f"Request Done: {sys.argv[3]}")
                 exit(0)
 
     except Exception:
-        logging.debug(f"Failed to send command: {traceback.format_exc()}")
+        log_error(f"Failed to send command: {traceback.format_exc()}")
         exit(1)
 
 

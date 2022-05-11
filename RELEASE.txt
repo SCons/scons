@@ -107,6 +107,7 @@ IMPROVEMENTS
   and msvc batch file determination when configuring the build environment.  Simplify the msvc
   code by eliminating special case handling primarily due to the differences between the full
   versions and express versions of visual studio.
+- Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
 
 PACKAGING
 ---------
