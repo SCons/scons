@@ -80,6 +80,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
+    - Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
