@@ -924,7 +924,7 @@ class CommandAction(_ActionAction):
 
         escape = env.get('ESCAPE', lambda x: x)
 
-        ENV = env.get('SHELL_ENV_GENERATOR ', get_default_ENV)(env, target, source)
+        ENV = env.get('SHELL_ENV_GENERATOR', get_default_ENV)(env, target, source)
 
         # Ensure that the ENV values are all strings:
 
