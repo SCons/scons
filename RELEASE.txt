@@ -91,6 +91,10 @@ FIXES
   in initial msvc detection and msvc batch file determination when configuring the build
   environment.  This could lead to build failures when only an MSVC Express instance is installed
   and the MSVC version is not explicitly specified (issue #2668 and issue #2697).
+- Restore the ability of the content-timestamp decider to see that a
+  a source which is a symlink has changed if the file-system target of
+  that link has been modified (issue #3880)
+
 
 IMPROVEMENTS
 ------------
@@ -108,6 +112,7 @@ IMPROVEMENTS
 - Small refactor of scons daemons using a shared StateInfo class for communication 
   between the scons interactive thread and the http server thread. Added error handling
   for scons interactive failing to startup.
+- Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
 
 PACKAGING
 ---------

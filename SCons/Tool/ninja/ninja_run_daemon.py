@@ -60,6 +60,10 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
+def log_error(msg):
+    logging.debug(msg)
+    sys.stderr.write(msg)
+
 if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     cmd = [
         sys.executable,
@@ -107,15 +111,13 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
             except (http.client.RemoteDisconnected, http.client.ResponseNotReady):
                 time.sleep(0.01)
             except http.client.HTTPException:
-                logging.debug(f"Error: {traceback.format_exc()}")
-                sys.stderr.write(error_msg)
+                log_error(f"Error: {traceback.format_exc()}")
                 exit(1)
             else:
                 msg = response.read()
                 status = response.status
                 if status != 200:
-                    print("ERROR: SCons daemon failed to start:")
-                    print(msg.decode("utf-8"))
+                    log_error(msg.decode("utf-8"))
                     exit(1)
                 logging.debug("Server Responded it was ready!")
                 break
@@ -124,15 +126,13 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
             logging.debug(f"Server not ready, server PID: {p.pid}")
             time.sleep(1)
             if p.poll is not None:
-                logging.debug(f"Server process died, aborting: {p.returncode}")
+                log_error(f"Server process died, aborting: {p.returncode}")
                 sys.exit(p.returncode)
         except ConnectionResetError:
-            logging.debug("Server ConnectionResetError")
-            sys.stderr.write(error_msg)
+            log_error("Server ConnectionResetError")
             exit(1)
         except Exception:
-            logging.debug(f"Error: {traceback.format_exc()}")
-            sys.stderr.write(error_msg)
+            log_error(f"Error: {traceback.format_exc()}")
             exit(1)
 
 # Local Variables:
