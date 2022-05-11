@@ -84,6 +84,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a function which will be called to obtain an environment which will be used in the shell
       command of some Action.
     - Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
+    - Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+      to connect to the server during start up.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

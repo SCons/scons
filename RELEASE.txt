@@ -92,7 +92,8 @@ FIXES
 - Restore the ability of the content-timestamp decider to see that a
   a source which is a symlink has changed if the file-system target of
   that link has been modified (issue #3880)
-
+- Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+  to connect to the server during start up.
 
 IMPROVEMENTS
 ------------
