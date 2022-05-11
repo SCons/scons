@@ -125,7 +125,7 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
         except ConnectionRefusedError:
             logging.debug(f"Server not ready, server PID: {p.pid}")
             time.sleep(1)
-            if p.poll is not None:
+            if p.poll() is not None:
                 log_error(f"Server process died, aborting: {p.returncode}")
                 sys.exit(p.returncode)
         except ConnectionResetError:
