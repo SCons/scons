@@ -209,10 +209,13 @@ wheel = env.Command(
     action='$PYTHON -m build --outdir $DISTDIR',
 )
 
-# Do we actually need this one?
-# zip_file = env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-#            #'$PYTHON setup.py sdist --format=zip')
-#            '$PYTHON setup.py sdist --format=zip')
+# TODO: this is built the old way, because "build" doesn't make zipfiles,
+# and it deletes its isolated env so we can't just zip that one up.
+zip_file = env.Command(
+    target='$DISTDIR/SCons-${VERSION}.zip',
+    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    action='$PYTHON setup.py sdist --format=zip',
+)
 
 # Now set depends so the above run in a particular order
 # NOTE: 'build' with default options builds sdist, then whl from sdist,

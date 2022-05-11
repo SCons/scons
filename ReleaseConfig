@@ -27,9 +27,9 @@
 
 # The version tuple that will be used for the release.  The fields are
 # (major, minor, micro, type, patchlevel).  The release level is one of
-# 'alpha', 'beta', 'candidate', or 'final'.  If the release type is not
-# 'final', the patchlevel is set to the release date.  This value is
-# mandatory and must be present in this file.
+# 'a' (alpha), 'b' (beta), 'rc' (release candidate), or 'final'.
+# If the release type is not 'final', the patchlevel is set to the
+# release date.  This value is mandatory and must be present in this file.
 #version_tuple = (2, 2, 0, 'final', 0)
 version_tuple = (4, 5, 2, 'a', 0)
 
