@@ -16,6 +16,9 @@ NEW FUNCTIONALITY
 
 - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
 - Added Configure.CheckMember() checker to check if struct/class has the specified member.
+- Added SHELL_ENV_GENERATOR construction variables. This variable allows the user to Define
+  a function which will be called to generate or alter the execution environment which will
+  be used in the shell command of some Action.
 
 
 DEPRECATED FUNCTIONALITY
@@ -42,7 +45,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The change to "content" and "content-timestamp" Decider names is reflected
   in the User Guide as well, since the hash function may be other than md5
   (tidying up from earlier change)
-- Update ninja file generation to only create response files for build commands 
+- Update ninja file generation to only create response files for build commands
   which exceed MAXLINELENGTH
 - Update the debug output written to stdout for MSVC initialization which is enabled
   by setting SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug
@@ -73,11 +76,11 @@ FIXES
   Alias() which the ninja tool can use to determine which files are generated sources.
   If this is not set by the user then the ninja tool will still dynamically determine
   which files are generated sources based on NINJA_GENERATED_SOURCE_SUFFIXES, and create
-  a phony target _ninja_generated_sources. Generated sources will be built first by 
+  a phony target _ninja_generated_sources. Generated sources will be built first by
   ninja. This is needed because ninja cannot determine which generated sources are
   required by other build targets.  Code contributed by MongoDB.
 - Added special case for ninja scons daemon to work in win32 python3.6 environments.
-  This particular environment does a bad job managing popen standard file handles, so 
+  This particular environment does a bad job managing popen standard file handles, so
   some special workarounds are needed.
 - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
   Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
