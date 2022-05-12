@@ -17,8 +17,8 @@ NEW FUNCTIONALITY
 - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
 - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 - Added SHELL_ENV_GENERATOR construction variables. This variable allows the user to Define
-  a function which will be called to obtain an environment which will be used in the shell
-  command of some Action.
+  a function which will be called to generate or alter the execution environment which will
+  be used in the shell command of some Action.
 
 
 DEPRECATED FUNCTIONALITY

@@ -203,7 +203,7 @@ in which the command should be executed.
 <cvar name="SHELL_ENV_GENERATOR">
   <summary>
     <para>
-A function to obtain the environment dictionary which will be used
+A function to generate or alter the environment dictionary which will be used
 when executing the &cv-link-SPAWN; function. This primarily give the
 user a chance to customize the execution environment for particular Actions.
 It must return a dictionary containing the environment variables as
