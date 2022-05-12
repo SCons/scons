@@ -22,7 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import time
 
 """
 This test tests directories as source files.  The correct behavior is that
@@ -107,7 +106,7 @@ test.up_to_date(arguments='cmd-content.out')
 test.up_to_date(arguments='cmd-tstamp-noscan.out')
 test.up_to_date(arguments='cmd-content-noscan.out')
 
-time.sleep(2)
+test.sleep()
 
 test.write([ 'tstamp', 'foo.txt' ], 'foo.txt 2\n')
 test.not_up_to_date(arguments='tstamp.out')
