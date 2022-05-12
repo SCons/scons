@@ -409,8 +409,6 @@ else:
                             self.thread_pool.put(task)
                             jobs += 1
                             retired -= 1
-                            if retired == 0:
-                                break
                         else:
                             task.executed()
                             task.postprocess()
