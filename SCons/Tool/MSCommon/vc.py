@@ -533,12 +533,12 @@ _VCVER_TO_VSWHERE_VER = {
         ["-version", "[17.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
     ],
     '14.2': [
-        ["-version", "[16.0, 17.0)"],  # default: Enterprise, Professional, Community  (order unpredictable?)
-        ["-version", "[16.0, 17.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
+        ["-version", "[16.0, 18.0)"],  # default: Enterprise, Professional, Community  (order unpredictable?)
+        ["-version", "[16.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
     ],
     '14.1': [
-        ["-version", "[15.0, 16.0)"],  # default: Enterprise, Professional, Community (order unpredictable?)
-        ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
+        ["-version", "[15.0, 18.0)"],  # default: Enterprise, Professional, Community (order unpredictable?)
+        ["-version", "[15.0, 18.0)", "-products", "Microsoft.VisualStudio.Product.BuildTools"],  # BuildTools
     ],
     '14.1Exp': [
         ["-version", "[15.0, 16.0)", "-products", "Microsoft.VisualStudio.Product.WDExpress"],  # Express
@@ -1095,6 +1095,10 @@ def msvc_find_valid_batch_script(env, version):
                 if env.get('MSVC_UWP_APP') == '1':
                     # Initialize environment variables with store/UWP paths
                     arg = (arg + ' store').lstrip()
+
+                # VS2015 can still be found separately, even when installed as a toolset
+                if maj > 14 or min >= 1:
+                    arg = (arg + ' -vcvars_ver={}.{}'.format(maj, min)).lstrip()
 
             try:
                 d = script_env(vc_script, args=arg)
