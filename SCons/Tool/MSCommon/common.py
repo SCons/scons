@@ -106,6 +106,9 @@ def read_script_env_cache():
         try:
             p = Path(CONFIG_CACHE)
             with p.open('r') as f:
+                # Convert the list of cache entry dictionaries read from
+                # json to the cache dictionary. Reconstruct the cache key
+                # tuple from the key list written to json.
                 envcache_list = json.load(f)
                 envcache = {tuple(d['key']): d['data'] for d in envcache_list}
         except FileNotFoundError:
@@ -120,6 +123,9 @@ def write_script_env_cache(cache):
         try:
             p = Path(CONFIG_CACHE)
             with p.open('w') as f:
+                # Convert the cache dictionary to a list of cache entry
+                # dictionaries. The cache key is converted from a tuple to
+                # a list for compatibility with json.
                 envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
                 json.dump(envcache_list, f, indent=2)
         except TypeError:
