@@ -780,12 +780,8 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
         # 14.0 (VS2015) to 8.0 (VS2005)
         arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(pdir, "vcvarsall.bat")
-    elif 8 > vernum >= 7:
-        # 7.1 (VS2003) to 7.0 (VS2003)
-        pdir = os.path.join(pdir, os.pardir, "Common7", "Tools")
-        batfilename = os.path.join(pdir, "vsvars32.bat")
     else:
-        # 6.0 (VS6) and earlier
+        # 7.1 (VS2003) and earlier
         pdir = os.path.join(pdir, "Bin")
         batfilename = os.path.join(pdir, "vcvars32.bat")
 

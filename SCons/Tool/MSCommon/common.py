@@ -243,6 +243,7 @@ def get_output(vcbat, args=None, env=None):
     # or synced with the the common_tools_var # settings in vs.py.
     vs_vc_vars = [
         'COMSPEC',  # path to "shell"
+        'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
         'VS170COMNTOOLS',  # path to common tools for given version
         'VS160COMNTOOLS',
         'VS150COMNTOOLS',
@@ -253,10 +254,11 @@ def get_output(vcbat, args=None, env=None):
         'VS90COMNTOOLS',
         'VS80COMNTOOLS',
         'VS71COMNTOOLS',
-        'VS70COMNTOOLS',
-        'VS60COMNTOOLS',
+        'VSCOMNTOOLS',
+        'MSDevDir',
         'VSCMD_DEBUG',   # enable logging and other debug aids
         'VSCMD_SKIP_SENDTELEMETRY',
+        'windir', # windows directory (SystemRoot not available in 95/98/ME)
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
