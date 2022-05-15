@@ -22,7 +22,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -48,10 +50,10 @@
   <para>
 
   &SCons; provides a number of ways
-  for the writer of the &SConscript; files
-  to give the users who will run &SCons;
-  a great deal of control over the build execution.
-  The arguments that the user can specify on
+  for you as the writer of the &SConscript; files
+  to give you (and your users)
+  the ability to control the build execution.
+  The arguments that can be specified on
   the command line are broken down into three types:
 
   </para>
@@ -88,11 +90,11 @@
     &SCons; provides direct access to
     all of the command-line variable settings,
     the ability to apply command-line variable settings
-    to construction environments,
+    to &consenvs;,
     and functions for configuring
     specific types of variables
     (Boolean values, path names, etc.)
-    with automatic validation of the user's specified values.
+    with automatic validation of the specified values.
     See <xref linkend="sect-command-line-variables"></xref>, below.
 
     </para>
@@ -109,10 +111,8 @@
     or a variable setting
     (does not begin with a hyphen
     and does not contain an equal sign)
-    is considered a target that the user
-    (presumably) wants &SCons; to build.
-    A list of Node objects representing
-    the target or targets to build.
+    is considered a target that the you
+    are telling &SCons; to build.
     &SCons; provides access to the list of specified targets,
     as well as ways to set the default list of targets
     from within the &SConscript; files.
@@ -129,9 +129,9 @@
 
     <para>
 
-    &SCons; has many <emphasis>command-line options</emphasis>
+    &SCons; has many <firstterm>command-line options</firstterm>
     that control its behavior.
-    A &SCons; <emphasis>command-line option</emphasis>
+    An &SCons; command-line option
     always begins with one or two hyphen (<literal>-</literal>)
     characters.
 
@@ -142,25 +142,29 @@
 
       <para>
 
-      Users may find themselves supplying
+      You may find yourself using
       the same command-line options every time
-      they run &SCons;.
+      you run &SCons;.
       For example, you might find it saves time
-      to specify a value of <option>-j 2</option>
+      to specify <userinput>-j 2</userinput>
       to have &SCons; run up to two build commands in parallel.
-      To avoid having to type <option>-j 2</option> by hand
+      To avoid having to type <userinput>-j 2</userinput> by hand
       every time,
       you can set the external environment variable
       &SCONSFLAGS; to a string containing
-      command-line options that you want &SCons; to use.
+      <option>-j 2</option>, as well as any other
+      command-line options that you want &SCons; to always use.
+      &SCONSFLAGS; is an exception to the usual rule that
+      &SCons; itself avoids looking at environment variables from the
+      shell you are running.
 
       </para>
 
       <para>
 
       If, for example,
-      you're using a POSIX shell that's
-      compatible with the Bourne shell,
+      you are using a POSIX shell such as <command>bash</command>
+      or <command>zsh</command>
       and you always want &SCons; to use the
       <option>-Q</option> option,
       you can set the &SCONSFLAGS;
@@ -172,8 +176,10 @@
         <file name="SConstruct">
 def b(target, source, env):
     pass
+
 def s(target, source, env):
     return "    ... [build output] ..."
+
 a = Action(b, strfunction=s)
 env = Environment(BUILDERS={'A': Builder(action=a)})
 env.A('foo.out', 'foo.in')
@@ -191,8 +197,8 @@ foo.in
 
       <para>
 
-      Users of &csh;-style shells on POSIX systems
-      can set the &SCONSFLAGS; environment variable as follows:
+      For &csh;-style shells on POSIX systems
+      you can set the &SCONSFLAGS; environment variable as follows:
 
       </para>
 
@@ -202,9 +208,23 @@ $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
 
       <para>
 
-      Windows users may typically want to set the
-      &SCONSFLAGS; in the appropriate tab of the
-      <literal>System Properties</literal> window.
+      For the Windows command shell (<command>cmd</command>)
+      you can set the &SCONSFLAGS; environment variable as follows:
+
+      </para>
+
+      <screen>
+C:\Users\foo> <userinput>set SCONSFLAGS="-Q"</userinput>
+      </screen>
+
+      <para>
+
+      To set &SCONSFLAGS; more permanently you can add the
+      setting to the shell's startup file on POSIX systems,
+      and on Windows you can use the
+      <literal>System Properties</literal> control panel applet
+      to select <literal>Environment Variables</literal>
+      and set it there.
 
       </para>
 
@@ -234,12 +254,11 @@ $ <userinput>setenv SCONSFLAGS "-Q"</userinput>
       takes extra time.
       If you know that your configuration does not define
       any additional help text in subsidiary SConscript files,
-      you can speed up the command-line help available to users
+      you can speed up displaying the command-line help
       by using the &GetOption; function to load the
-      subsidiary SConscript files only if the
-      the user has <emphasis>not</emphasis> specified
-      the <option>-h</option> or <option>--help</option> option,
-      like so:
+      subsidiary SConscript files only if
+      the <option>-h</option> or <option>--help</option> option
+      has <emphasis>not</emphasis> been specified like this:
 
       </para>
 
@@ -298,7 +317,7 @@ if not GetOption('help'):
       One use of the &SetOption; function is to
       specify a value for the <option>-j</option>
       or <option>--jobs</option> option,
-      so that users get the improved performance
+      so that you get the improved performance
       of a parallel build without having to specify the option by hand.
       A complicating factor is that a good value
       for the <option>-j</option> option is
@@ -321,13 +340,14 @@ if not GetOption('help'):
       A little bit of Python code
       to access the environment variable
       and the &SetOption; function
-      provide the right level of flexibility:
+      provides the right level of flexibility:
 
       </para>
 
       <scons_example name="commandline_SetOption">
         <file name="SConstruct" printme="1">
 import os
+
 num_cpu = int(os.environ.get('NUM_CPU', 2))
 SetOption('num_jobs', num_cpu)
 print("running with -j %s" % GetOption('num_jobs'))
@@ -365,7 +385,7 @@ foo.in
 
       But if the <envar>NUM_CPU</envar>
       environment variable is set,
-      then we use that for the default number of jobs:
+      then use that for the default number of jobs:
 
       </para>
 
@@ -378,7 +398,7 @@ foo.in
 
       But any explicit
       <option>-j</option> or <option>--jobs</option>
-      value the user specifies an the command line is used first,
+      value you specify on the command line is used first,
       regardless of whether or not
       the <envar>NUM_CPU</envar> environment
       variable is set:
@@ -401,7 +421,7 @@ foo.in
       The strings that you can pass to the &f-link-GetOption;
       and &f-link-SetOption; functions usually correspond to the
       first long-form option name
-      (beginning with two hyphen characters:  <literal>--</literal>),
+      (that is,  name beginning with two hyphen characters:  <literal>--</literal>),
       after replacing any remaining hyphen characters
       with underscores.
 
@@ -631,14 +651,16 @@ foo.in
       </para>
 
       <para>
-      Once you have added a custom command-line option
+      Once you add a custom command-line option
       with the &AddOption; function,
       the value of the option (if any) is immediately available
       using the standard &f-link-GetOption; function.
       The argument to &f-GetOption; must be the name of the
-      variable which will hold the option,
-      which is the value of the <parameter>dest</parameter>
-      keyword parameter, if given. If not given, it is the name
+      variable which holds the option.
+      If the <parameter>dest</parameter>
+      keyword argument to &AddOption; is specified, the value is the
+      variable name.
+      given. If not given, it is the name
       (without the leading hyphens) of the first long option name
       given to &AddOption;
       after replacing any remaining hyphen characters
@@ -661,7 +683,8 @@ foo.in
       <para>
 
       One useful example of using this functionality
-      is to provide a <option>--prefix</option> for users:
+      is to provide a <option>--prefix</option> to help describe
+      where to install files:
 
       </para>
 
@@ -690,15 +713,15 @@ foo.in
       <para>
 
       The above code uses the &GetOption; function
-      to set the <envar>$PREFIX</envar>
-      construction variable to any
-      value that the user specifies with a command-line
+      to set the <varname>$PREFIX</varname>
+      &consvar; to a
+      value you specify with a command-line
       option of <option>--prefix</option>.
-      Because <envar>$PREFIX</envar>
-      will expand to a null string if it's not initialized,
+      Because <varname>$PREFIX</varname>
+      expands to a null string if it's not initialized,
       running &SCons; without the
       option of <option>--prefix</option>
-      will install the file in the
+      installs the file in the
       <filename>/usr/bin/</filename> directory:
 
       </para>
@@ -738,7 +761,7 @@ foo.in
       the processing instructions to resolve any ambiguity,
       happen in an &SConscript;,
       &SCons; does not know in time
-      for options added this way, and unexpected things will happen,
+      for options added this way, and unexpected things happen,
       such as option-arguments assigned as targets and/or exceptions
       due to missing option-arguments.
       </para>
@@ -770,11 +793,10 @@ foo.in
     <para>
 
     You may want to control various aspects
-    of your build by allowing the user
-    to specify <varname>variable</varname>=<replaceable>value</replaceable>
-    values on the command line.
-    For example, suppose you
-    want users to be able to
+    of your build by allowing
+    <varname>variable</varname>=<replaceable>value</replaceable>
+    values to be specified on the command line.
+    For example, suppose you want to be able to
     build a debug version of a program
     by running &SCons; as follows:
 
@@ -794,11 +816,10 @@ foo.in
     aspects of your build in response
     to specifications on the command line.
     (Note that unless you want to require
-    that users <emphasis>always</emphasis>
-    specify a variable,
-    you probably want to use
+    a variable <emphasis>always</emphasis>
+    be specified you probably want to use
     the Python dictionary <methodname>get</methodname> method,
-    which allows you to specify a default value
+    which allows you to designate a default value
     to be used if there is no specification
     on the command line.)
 
@@ -806,8 +827,8 @@ foo.in
 
     <para>
 
-    The following code sets the &cv-link-CCFLAGS; construction
-    variable in response to the <varname>debug</varname>
+    The following code sets the &cv-link-CCFLAGS; &consvar;
+    in response to the <varname>debug</varname>
     flag being set in the &ARGUMENTS; dictionary:
 
     </para>
@@ -843,11 +864,9 @@ prog.c
 
     <para>
 
-    Notice that &SCons; keeps track of
-    the last values used to build the object files,
-    and as a result correctly rebuilds
-    the object and executable files
-    only when the value of the <parameter>debug</parameter>
+    &SCons; keeps track of the precise command line used to build each object file,
+    and as a result can determine that the object and executable files
+    need rebuilding when the value of the <parameter>debug</parameter>
     argument has changed.
 
     </para>
@@ -860,8 +879,8 @@ prog.c
     and thus only "remembers" the last setting
     for each keyword on the command line.
     This makes the &ARGUMENTS; dictionary
-    inappropriate if users should be able to
-    specify multiple values
+    less than ideal if you want to allow
+    specifying multiple values
     on the command line for a given keyword.
     Second, it does not preserve
     the order in which the variable settings
@@ -893,8 +912,8 @@ prog.c
     process the specific settings you want
     in whatever way is appropriate for your configuration.
     For example,
-    the following code to let the user
-    add to the &CPPDEFINES; construction variable
+    the following code lets you
+    add to the &CPPDEFINES; &consvar;
     by specifying multiple
     <varname>define=</varname>
     settings on the command line:
@@ -930,8 +949,8 @@ prog.c
 
     Note that the &ARGLIST; and &ARGUMENTS;
     variables do not interfere with each other,
-    but merely provide slightly different views
-    into how the user specified
+    but rather provide slightly different views
+    into how you specified
     <varname>variable</varname>=<replaceable>value</replaceable>
     settings on the command line.
     You can use both variables in the same
@@ -939,12 +958,12 @@ prog.c
     In general, the &ARGUMENTS; dictionary
     is more convenient to use,
     (since you can just fetch variable
-    settings through a dictionary access),
+    settings through &Python; dictionary access),
     and the &ARGLIST; list
     is more flexible
     (since you can examine the
     specific order in which
-    the user's command-line variabe settings).
+    the command-line variable settings were given).
 
     </para>
 
@@ -958,21 +977,21 @@ prog.c
       but it can be a chore to write specific Python code
       to recognize each such variable,
       check for errors and provide appropriate messages,
-      and apply the values to a construction variable.
+      and apply the values to a &consvar;.
       To help with this,
-      &SCons; supports a class to
+      &SCons; provides a &Variables; class to
       define such build variables easily,
       and a mechanism to apply the
-      build variables to a construction environment.
+      build variables to a &consenv;.
       This allows you to control how the build variables affect
-      construction environments.
+      &consenvs;.
 
       </para>
 
       <para>
 
-      For example, suppose that you want users to set
-      a &RELEASE; construction variable on the
+      For example, suppose that you want to set
+      a &RELEASE; &consvar; on the
       command line whenever the time comes to build
       a program for release,
       and that the value of this variable
@@ -981,7 +1000,7 @@ prog.c
       to pass the value to the C compiler.
       Here's how you might do that by setting
       the appropriate value in a dictionary for the
-      &cv-link-CPPDEFINES; construction variable:
+      &cv-link-CPPDEFINES; &consvar;:
 
       </para>
 
@@ -1004,21 +1023,16 @@ bar.c
 
       This &SConstruct; file first creates a &Variables; object
       which uses the values from the command-line options dictionary &ARGUMENTS;
-      (the <literal>vars = Variables(None, ARGUMENTS)</literal> call).
+      (the <literal>vars=Variables(None, ARGUMENTS)</literal> call).
       It then uses the object's &Add;
       method to indicate that the &RELEASE;
       variable can be set on the command line, and that
-      if not set the default value will be <literal>0</literal>.
-
-      </para>
-
-      <para>
-
-      We then pass the created &Variables;
-      object as a &variables; keyword argument
-      to the &Environment; call
-      used to create the construction environment.
-      This then allows a user to set the
+      if not set the default value is <literal>0</literal>.
+      The newly created &Variables; object
+      is passed to the &Environment; call
+      used to create the &consenv;
+      using a &variables; keyword argument.
+      This then allows you to set the
       &RELEASE; build variable on the command line
       and have the variable show up in
       the command line used to build each object from
@@ -1034,17 +1048,18 @@ bar.c
 
       Historical note:  In old &SCons; (prior to 0.98.1),
       these build variables were known as "command-line build options."
-      The class was named the &Options; class,
+      At that time, class was named &Options;
       and the predefined functions to construct options were named
       &BoolOption;, &EnumOption;, &ListOption;,
       &PathOption;, &PackageOption; and &AddOptions; (contrast
-      with the current names in "Pre-Defined Build Variable Functions"
-      below.  You may encounter these names in older
+      with the current names in
+      <xref linkend="sect-build-variable-functions"></xref>, below).
+      You may encounter these names in older
       &SConscript; files, wiki pages, blog entries, StackExchange
       articles, etc.
       These old names no longer work, but a mental substitution
-      of <quote>Variable</quote>" for <quote>Option</quote>
-      will let the concepts transfer to current usage models.
+      of <quote>Variable</quote> for <quote>Option</quote>
+      allows the concepts to transfer to current usage models.
 
       </para>
 
@@ -1057,14 +1072,12 @@ bar.c
 
       To make command-line build variables most useful,
       you ideally want to provide
-      some help text that will describe
-      the available variables
-      when the user runs <literal>scons -h</literal>.
-      You could write this text by hand,
-      but &SCons; provides an easier way.
-      Variables objects support a
-      &GenerateHelpText; method
-      that will, as its name suggests,
+      some help text to describe the available variables
+      when the you ask for help (run <userinput>scons -h</userinput>).
+      You can write this text by hand,
+      but &SCons; provides some assistance.
+      Variables objects provide a
+      &GenerateHelpText; method the
       generate text that describes
       the various variables that
       have been added to it. The default text includes
@@ -1089,7 +1102,7 @@ Help(vars.GenerateHelpText(env))
 
       <para>
 
-      &SCons; will now display some useful text
+      &SCons; now displays some useful text
       when the <option>-h</option> option is used:
 
       </para>
@@ -1100,8 +1113,8 @@ Help(vars.GenerateHelpText(env))
 
       <para>
 
-      Notice that the help output shows the default value,
-      and the current actual value of the build variable.
+      You can see the help output shows the default value
+      as well as the current actual value of the build variable.
 
       </para>
 
@@ -1112,16 +1125,17 @@ Help(vars.GenerateHelpText(env))
 
       <para>
 
-      Giving the user a way to specify the
+      Being able to to specify the
       value of a build variable on the command line
       is useful,
-      but can still be tedious
-      if users must specify the variable
-      every time they run &SCons;.
-      We can let users provide customized build variable settings
+      but can still become tedious
+      if you have to specify the variable
+      every time you run &SCons;.
+      To make this easier,
+      you can provide customized build variable settings
       in a local file by providing a
-      file name when we create the
-      &Variables; object:
+      file name when the
+      &Variables; object is created:
 
       </para>
 
@@ -1146,7 +1160,7 @@ RELEASE = 1
 
       <para>
 
-      This then allows the user to control the &RELEASE;
+      This then allows you to control the &RELEASE;
       variable by setting it in the &custom_py; file:
 
       </para>
@@ -1157,7 +1171,7 @@ RELEASE = 1
 
       Note that this file is actually executed
       like a Python script.
-      Now when we run &SCons;:
+      Now when you run &SCons;:
 
       </para>
 
@@ -1167,7 +1181,7 @@ RELEASE = 1
 
       <para>
 
-      And if we change the contents of &custom_py; to:
+      And if you change the contents of &custom_py; to:
 
       </para>
 
@@ -1220,16 +1234,18 @@ vars = Variables('custom.py', ARGUMENTS)
 
     </section>
 
-    <section>
+    <section id="sect-build-variable-functions">
     <title>Pre-Defined Build Variable Functions</title>
 
       <para>
 
-      &SCons; provides a number of functions
+      &SCons; provides a number of convenience functions
       that provide ready-made behaviors
       for various types of command-line build variables.
       These functions all return a tuple which is ready
-      to be passed to an &Add; call.
+      to be passed to the &Add; or &AddVariables; method call.
+      You are of course free to define your own behaviors
+      as well.
 
       </para>
 
@@ -1238,11 +1254,11 @@ vars = Variables('custom.py', ARGUMENTS)
 
         <para>
 
-        It's often handy to be able to specify a
+        It is often handy to be able to specify a
         variable that controls a simple Boolean variable
         with a &true; or &false; value.
         It would be even more handy to accomodate
-        users who have different preferences for how to represent
+        different preferences for how to represent
         &true; or &false; values.
         The &BoolVariable; function
         makes it easy to accomodate these
@@ -1276,7 +1292,7 @@ foo.c
 
         <para>
 
-        With this build variable,
+        With this build variable in place,
         the &RELEASE; variable can now be enabled by
         setting it to the value <literal>yes</literal>
         or <literal>t</literal>:
@@ -1333,7 +1349,7 @@ foo.c
 
         <para>
 
-        Lastly, if a user tries to specify
+        Lastly, if you try to specify
         any other value,
         &SCons; supplies an appropriate error message:
 
@@ -1350,14 +1366,14 @@ foo.c
 
         <para>
 
-        Suppose that we want a user to be able to
-        set a &COLOR; variable
+        Suppose that you want to allow
+        setting a &COLOR; variable
         that selects a background color to be
         displayed by an application,
-        but that we want to restrict the
+        but that you want to restrict the
         choices to a specific set of allowed colors.
-        This can be set up quite easily
-        using the &EnumVariable;,
+        You can set this up quite easily
+        using the &EnumVariable; function,
         which takes a list of &allowed_values;
         in addition to the variable name,
         default value,
@@ -1387,7 +1403,7 @@ foo.c
 
         <para>
 
-        The user can now explicity set the &COLOR; build variable
+        You can now explicitly set the &COLOR; build variable
         to any of the specified allowed values:
 
         </para>
@@ -1400,7 +1416,7 @@ foo.c
 
         <para>
 
-        But, almost more importantly,
+        But, importantly,
         an attempt to set &COLOR;
         to a value that's not in the list
         generates an error message:
@@ -1427,15 +1443,14 @@ foo.c
 
         <para>
 
-        The &EnumVariable; function also supports a way
+        The &EnumVariable; function also provides a way
         to map alternate names to allowed values.
-        Suppose, for example,
-        that we want to allow the user
-        to use the word <literal>navy</literal> as a synonym for
+        Suppose, for example, you want to allow
+        the word <literal>navy</literal> to be used as a synonym for
         <literal>blue</literal>.
-        We do this by adding a &map; dictionary
-        that will map its key values
-        to the desired legal value:
+        You do this by adding a &map; dictionary
+        that maps its key values
+        to the desired allowed value:
 
         </para>
 
@@ -1461,9 +1476,9 @@ foo.c
 
         <para>
 
-        As desired, the user can then use
+        Now you can supply
         <literal>navy</literal> on the command line,
-        and &SCons; will translate it into <literal>blue</literal>
+        and &SCons; translates that into <literal>blue</literal>
         when it comes time to use the &COLOR;
         variable to build a target:
 
@@ -1476,10 +1491,7 @@ foo.c
         <para>
 
         By default, when using the &EnumVariable; function,
-        arguments that differ
-        from the legal values
-        only in case
-        are treated as illegal values:
+        the allowed values are case-sensitive:
 
         </para>
 
@@ -1536,7 +1548,8 @@ foo.c
         <para>
 
         Notice that an &ignorecase; value of <literal>1</literal>
-        preserves the case-spelling that the user supplied.
+        preserves the case-spelling supplied,
+        only ignoring the case for matching.
         If you want &SCons; to translate the names
         into lower-case,
         regardless of the case used by the user,
@@ -1567,12 +1580,12 @@ foo.c
 
         <para>
 
-        Now &SCons; will use values of
+        Now &SCons; uses values of
         <literal>red</literal>,
         <literal>green</literal> or
         <literal>blue</literal>
-        regardless of how the user spells
-        those values on the command line:
+        regardless of how those values are spelled
+        on the command line:
 
         </para>
 
@@ -1589,12 +1602,12 @@ foo.c
 
         <para>
 
-        Another way in which you might want to allow users
-        to control a build variable is to
-        specify a list of one or more legal values.
-        &SCons; supports this through the &ListVariable; function.
-        If, for example, we want a user to be able to set a
-        &COLORS; variable to one or more of the legal list of values:
+        Another way in which you might want to control a build variable is to
+        specify a list of allowed values, of which one or more can be chosen
+        (where &EnumVariable; allows exactly one value to be chosen).
+        &SCons; provides this through the &ListVariable; function.
+        If, for example, you want to be able to set a
+        &COLORS; variable to one or more of the allowed values:
 
         </para>
 
@@ -1616,10 +1629,9 @@ foo.c
 
         <para>
 
-        A user can now specify a comma-separated list
-        of legal values,
-        which will get translated into a space-separated
-        list for passing to the any build commands:
+        You can now specify a comma-separated list of allowed values,
+        which get translated into a space-separated
+        list for passing to the build commands:
 
         </para>
 
@@ -1631,9 +1643,9 @@ foo.c
         <para>
 
         In addition, the &ListVariable; function
-        allows the user to specify explicit keywords of
+        lets you specify explicit keywords of
         &all; or &none;
-        to select all of the legal values,
+        to select all of the allowed values,
         or none of them, respectively:
 
         </para>
@@ -1661,7 +1673,7 @@ foo.c
         values with the <parameter>names</parameter> parameter and then
         giving a value not in that list as the <parameter>default</parameter>
         parameter - that way if no value is given on the command line,
-        the default is chosen, and it will error out with an invalid value.
+        the default is chosen, &SCons; errors out as this is invalid.
         The example is, in fact, set up that way by using
         <literal>0</literal> as the default:
 
@@ -1684,11 +1696,11 @@ foo.c
 
         <para>
 
-        &SCons; supports a &PathVariable; function
+        &SCons; provides a &PathVariable; function
         to make it easy to create a build variable
         to control an expected path name.
         If, for example, you need to
-        define a variable in the preprocessor
+        define a preprocessor macro
         that controls the location of a
         configuration file:
 
@@ -1840,7 +1852,7 @@ foo.c
         Lastly, if you don't care whether the path exists,
         is a file, or a directory,
         use the &PathVariable_PathAccept; method
-        to accept any path that the user supplies:
+        to accept any path you supply:
 
         </para>
 
@@ -1870,14 +1882,12 @@ foo.c
 
         <para>
 
-        Sometimes you want to give users
+        Sometimes you want to give
         even more control over a path name variable,
-        allowing them to explicitly enable or
-        disable the path name
+        allowing them to be explicitly enabled or disabled
         by using <literal>yes</literal> or <literal>no</literal> keywords,
-        in addition to allow them
-        to supply an explicit path name.
-        &SCons; supports the &PackageVariable;
+        in addition to allowing supplying an explicit path name.
+        &SCons; provides the &PackageVariable;
         function to support this:
 
         </para>
@@ -1905,9 +1915,9 @@ foo.c
         <para>
 
         When the &SConscript; file uses the &PackageVariable; function,
-        the user can still use the default
+        you can still use the default
         or supply an overriding path name,
-        but can now explicitly set the
+        but you can now explicitly set the
         specified variable to a value
         that indicates the package should be enabled
         (in which case the default should be used)
@@ -1954,25 +1964,25 @@ vars = Variables()
 vars.AddVariables(
     ('RELEASE', 'Set to 1 to build for release', 0),
     ('CONFIG', 'Configuration file', '/etc/my_config'),
-    BoolVariable('warnings',
-                 help='compilation with -Wall and similiar',
-                 default=1),
-    EnumVariable('debug',
-                 help='debug output and symbols',
-                 default='no',
-                 allowed_values=('yes', 'no', 'full'),
-                 map={},
-                 ignorecase=0),
-    ListVariable('shared',
-                 help='libraries to build as shared libraries',
-                 default='all',
-                 names = list_of_libs),
-    PackageVariable('x11',
-                    help='use X11 installed here (yes = search some places)',
-                    default='yes'),
-    PathVariable('qtdir',
-                 help='where the root of Qt is installed',
-                 default=qtdir),
+    BoolVariable('warnings', help='compilation with -Wall and similiar', default=1),
+    EnumVariable(
+        'debug',
+        help='debug output and symbols',
+        default='no',
+        allowed_values=('yes', 'no', 'full'),
+        map={},
+        ignorecase=0,
+    ),
+    ListVariable(
+        'shared',
+        help='libraries to build as shared libraries',
+        default='all',
+        names=list_of_libs,
+    ),
+    PackageVariable(
+        'x11', help='use X11 installed here (yes = search some places)', default='yes'
+    ),
+    PathVariable('qtdir', help='where the root of Qt is installed', default=qtdir),
 )
         </file>
       </scons_example>
@@ -1987,32 +1997,32 @@ vars.AddVariables(
 
       <para>
 
-      Users may, of course,
+      Humans, of course,
       occasionally misspell variable names in their command-line settings.
       &SCons; does not generate an error or warning
-      for any unknown variables the users specifies on the command line.
-      (This is in no small part because you may be
-      processing the arguments directly using the &ARGUMENTS; dictionary,
-      and therefore &SCons; can't know in the general case
+      for any unknown variables specified on the command line,
+      because it can not reliably tell
       whether a given "misspelled" variable is
-      really unknown and a potential problem,
-      or something that your &SConscript; file
-      will handle directly with some Python code.)
+      really unknown and a potential problem or not.
+      After all, you might be processing arguments directly
+      using &ARGUMENTS; or &ARGLIST; with some Python
+      code in your &SConscript; file.
 
       </para>
 
       <para>
 
-      If, however, you're using a &Variables; object to
+      If, however, you are using a &Variables; object to
       define a specific set of command-line build variables
-      that you expect users to be able to set,
+      that you expect to be able to set,
       you may want to provide an error
       message or warning of your own
-      if the user supplies a variable setting
+      if a variable setting is specified
       that is <emphasis>not</emphasis> among
       the defined list of variable names known to the &Variables; object.
       You can do this by calling the &UnknownVariables;
-      method of the &Variables; object:
+      method of the &Variables; object to get the
+      settings &Variables; did not recognize:
 
       </para>
 
@@ -2036,17 +2046,17 @@ foo.c
 
       The &UnknownVariables; method returns a dictionary
       containing the keywords and values
-      of any variables the user specified on the command line
+      of any variables specified on the command line
       that are <emphasis>not</emphasis>
       among the variables known to the &Variables; object
       (from having been specified using
       the &Variables; object's &Add; method).
-      In the example above,
-      we check for whether the dictionary
+      The example above,
+      checks whether the dictionary
       returned by &UnknownVariables; is non-empty,
-      and if so print the Python list
+      and if so prints the Python list
       containing the names of the unknown variables
-      and then call the &Exit; function
+      and then calls the &Exit; function
       to terminate &SCons;:
 
       </para>
@@ -2071,7 +2081,7 @@ foo.c
 
       Note that you must delay the call of &UnknownVariables;
       until after you have applied the &Variables; object
-      to a construction environment
+      to a &consenv;
       with the <parameter>variables=</parameter>
       keyword argument of an &Environment; call: the variables
       in the object are not fully processed until this has happened.
@@ -2090,14 +2100,14 @@ foo.c
 
       <para>
 
-      &SCons; supports a &COMMAND_LINE_TARGETS; variable
-      that lets you fetch the list of targets that the
-      user specified on the command line.
+      &SCons; provides a &COMMAND_LINE_TARGETS; variable
+      that lets you fetch the list of targets that were
+      specified on the command line.
       You can use the targets to manipulate the
       build in any way you wish.
       As a simple example,
       suppose that you want to print a reminder
-      to the user whenever a specific program is built.
+      whenever a specific program is built.
       You can do this by checking for the
       target in the &COMMAND_LINE_TARGETS; list:
 
@@ -2120,8 +2130,8 @@ foo.c
 
       <para>
 
-      Then, running &SCons; with the default target
-      works as it always does,
+      Now, running &SCons; with the default target
+      works as usual,
       but explicity specifying the &bar; target
       on the command line generates the warning message:
 
@@ -2149,10 +2159,10 @@ foo.c
       <para>
 
       You can control
-      which targets &SCons; will build by default - that is,
+      which targets &SCons; builds by default - that is,
       when there are no targets specified on the command line.
       As mentioned previously,
-      &SCons; will normally build every target
+      &SCons; normally builds every target
       in or below the current directory unless you
       explicitly specify one or more targets
       on the command line.
@@ -2256,7 +2266,7 @@ Default(prog1, prog3)
       <para>
 
       Either of these last two examples
-      will build only the
+      build only the
       <application>prog1</application>
       and
       <application>prog3</application>
@@ -2302,7 +2312,7 @@ int bar() { printf("prog2/bar.c\n"); }
       <para>
 
       In which case only the target(s) in that
-      directory will be built by default:
+      directory are built by default:
 
       </para>
 
@@ -2352,7 +2362,7 @@ prog2.c
 
         <para>
 
-        &SCons; supports a &DEFAULT_TARGETS; variable
+        &SCons; provides a &DEFAULT_TARGETS; variable
         that lets you get at the current list of default targets
         specified by calls to the &Default; function or method.
         The &DEFAULT_TARGETS; variable has
@@ -2383,7 +2393,7 @@ prog1.c
         &DEFAULT_TARGETS; list takes place during the
         first phase when &SCons; is reading up the &SConscript; files,
         which is obvious if
-        we leave off the <option>-Q</option> flag when we run &SCons;:)
+        you leave off the <option>-Q</option> flag when you run &SCons;:)
 
         </para>
 
@@ -2434,7 +2444,7 @@ prog2.c
         which you call the &Default; function
         and refer to the &DEFAULT_TARGETS; list,
         to make sure that you don't examine the
-        list before you've added the default targets
+        list before you have added the default targets
         you expect to find in it.
 
         </para>
@@ -2448,7 +2458,7 @@ prog2.c
 
       <para>
 
-      We've already been introduced to the
+      You have already seen the
       &COMMAND_LINE_TARGETS; variable,
       which contains a list of targets specified on the command line,
       and the &DEFAULT_TARGETS; variable,
@@ -2456,7 +2466,7 @@ prog2.c
       via calls to the &Default; method or function.
       Sometimes, however,
       you want a list of whatever targets
-      &SCons; will try to build,
+      &SCons; tries to build,
       regardless of whether the targets came from the
       command line or a &Default; call.
       You could code this up by hand, as follows:

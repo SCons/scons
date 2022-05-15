@@ -117,15 +117,15 @@ def CachePushFunc(target, source, env):
         else:
             cd.copy_to_cache(env, t.get_internal_path(), tempfile)
         fs.rename(tempfile, cachefile)
-        st = fs.stat(t.get_internal_path())
-        fs.chmod(cachefile, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+
     except EnvironmentError:
         # It's possible someone else tried writing the file at the
         # same time we did, or else that there was some problem like
         # the CacheDir being on a separate file system that's full.
         # In any case, inability to push a file to cache doesn't affect
         # the correctness of the build, so just print a warning.
-        msg = errfmt % (str(target), cachefile)
+        msg = errfmt % (str(t), cachefile)
+        cd.CacheDebug(errfmt + '\n', str(t), cachefile)
         SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning, msg)
 
 CachePush = SCons.Action.Action(CachePushFunc, None)
@@ -220,7 +220,11 @@ class CacheDir:
     @classmethod
     def copy_to_cache(cls, env, src, dst):
         try:
-            return env.fs.copy2(src, dst)
+            result = env.fs.copy2(src, dst)
+            fs = env.File(src).fs
+            st = fs.stat(src)
+            fs.chmod(dst, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+            return result
         except AttributeError as ex:
             raise EnvironmentError from ex
 

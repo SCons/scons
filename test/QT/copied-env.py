@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,8 +26,6 @@
 """
 Test Qt with a copied construction environment.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -63,7 +63,7 @@ test.write('MyForm.ui', r"""
 void aaa(void)
 """)
 
-test.run()
+test.run(arguments="--warn=no-tool-qt-deprecated")
 
 moc_MyForm = [x for x in test.stdout().split('\n') if x.find('moc_MyForm') != -1]
 

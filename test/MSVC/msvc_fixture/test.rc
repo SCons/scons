@@ -1,0 +1,6 @@
+#include "resource.h"
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TEST "test 1"
+END

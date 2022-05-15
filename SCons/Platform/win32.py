@@ -30,6 +30,7 @@ selection method.
 
 import os
 import os.path
+import platform
 import sys
 import tempfile
 
@@ -321,7 +322,7 @@ def get_architecture(arch=None):
         arch = os.environ.get('PROCESSOR_ARCHITEW6432')
         if not arch:
             arch = os.environ.get('PROCESSOR_ARCHITECTURE')
-    return SupportedArchitectureMap.get(arch, ArchDefinition('', ['']))
+    return SupportedArchitectureMap.get(arch, ArchDefinition(platform.machine(), [platform.machine()]))
 
 
 def generate(env):
@@ -380,7 +381,7 @@ def generate(env):
     # for SystemDrive because it's related.
     #
     # Weigh the impact carefully before adding other variables to this list.
-    import_env = ['SystemDrive', 'SystemRoot', 'TEMP', 'TMP' ]
+    import_env = ['SystemDrive', 'SystemRoot', 'TEMP', 'TMP', 'USERPROFILE']
     for var in import_env:
         v = os.environ.get(var)
         if v:

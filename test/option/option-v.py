@@ -38,7 +38,7 @@ copyright_line = """\
 
 
 expect2 = r"""SCons by Steven Knight et al.:
-\tSCons: v\S+, [^,]*, by \S+ on \S+
+\tSCons: v\S+, [^,]*,[^,]*, by \S+ on \S+
 \tSCons path: \[.*\]
 """ + copyright_line
 

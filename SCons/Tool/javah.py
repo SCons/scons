@@ -1,15 +1,6 @@
-"""SCons.Tool.javah
-
-Tool-specific initialization for javah.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,16 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+"""SCons.Tool.javah
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+Tool-specific initialization for javah.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
+
 
 import os.path
 
@@ -130,12 +128,15 @@ def generate(env):
             javah_bin_dir = os.path.dirname(javah)
             env.AppendENVPath('PATH', javah_bin_dir)
 
-    env['_JAVAHOUTFLAG']    = JavaHOutFlagGenerator
-    env['JAVAH']            = 'javah'
-    env['JAVAHFLAGS']       = SCons.Util.CLVar('')
-    env['_JAVAHCLASSPATH']  = getJavaHClassPath
-    env['JAVAHCOM']         = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG $_JAVAHCLASSPATH ${SOURCES.attributes.java_classname}'
-    env['JAVACLASSSUFFIX']  = '.class'
+    env.SetDefault(
+        JAVAH='javah',
+        JAVAHFLAGS=SCons.Util.CLVar(''),
+        JAVACLASSSUFFIX='.class',
+        JAVASUFFIX='.java',
+    )
+    env['_JAVAHOUTFLAG'] = JavaHOutFlagGenerator
+    env['_JAVAHCLASSPATH'] = getJavaHClassPath
+    env['JAVAHCOM'] = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG $_JAVAHCLASSPATH ${SOURCES.attributes.java_classname}'
 
 def exists(env):
     return env.Detect('javah')

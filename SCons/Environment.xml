@@ -78,49 +78,40 @@ env['BUILDERS']['NewBuilder'] = bld
 <cvar name="ENV">
 <summary>
 <para>
-A dictionary of environment variables
-to use when invoking commands. When
-&cv-ENV; is used in a command all list
-values will be joined using the path separator and any other non-string
-values will simply be coerced to a string.
-Note that, by default,
-&scons;
+The <firstterm>execution environment</firstterm> -
+a dictionary of environment variables
+used when &SCons; invokes external commands
+to build targets defined in this &consenv;.
+When &cv-ENV; is passed to a command,
+all list values are assumed to be path lists and
+are joined using the search path separator.
+Any other non-string values are coerced to a string.
+</para>
+
+<para>
+Note that by default
+&SCons;
 does
 <emphasis>not</emphasis>
-propagate the environment in effect when you
-execute
-&scons;
-to the commands used to build target files.
+propagate the environment in effect when you execute
+&scons; (the "shell environment")
+to the execution environment.
 This is so that builds will be guaranteed
 repeatable regardless of the environment
 variables set at the time
 &scons;
 is invoked.
-</para>
-
-<para>
-If you want to propagate your
-environment variables
+If you want to propagate a
+shell environment variable
 to the commands executed
 to build target files,
-you must do so explicitly:
-</para>
-
-<example_commands>
-import os
-env = Environment(ENV=os.environ.copy())
-</example_commands>
-
-<para>
-Note that you can choose only to propagate
-certain environment variables.
+you must do so explicitly.
 A common example is
-the system
-<envar>PATH</envar>
+the system &PATH;
 environment variable,
 so that
 &scons;
-uses the same utilities
+will find utilities the same way
 as the invoking shell (or other process):
 </para>
 
@@ -128,6 +119,18 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV={'PATH': os.environ['PATH']})
 </example_commands>
+
+<para>
+Although it is usually not recommended,
+you can propagate the entire shell environment
+in one go:
+</para>
+
+<example_commands>
+import os
+env = Environment(ENV=os.environ.copy())
+</example_commands>
+
 </summary>
 </cvar>
 
@@ -499,12 +502,12 @@ Multiple targets can be passed in to a single call to
 Intelligently append values to &consvars; in the &consenv;
 named by <varname>env</varname>.
 The &consvars; and values to add to them are passed as
-<parameter>key=val</parameter> pairs (Python keyword arguments).
+<parameter>key=val</parameter> pairs (&Python; keyword arguments).
 &f-env-Append; is designed to allow adding values
 without normally having to know the data type of an existing &consvar;.
-Regular Python syntax can also be used to manipulate the &consvar;,
+Regular &Python; syntax can also be used to manipulate the &consvar;,
 but for that you must know the type of the &consvar;:
-for example, different Python syntax is needed to combine
+for example, different &Python; syntax is needed to combine
 a list of values with a single string value, or vice versa.
 Some pre-defined &consvars; do have type expectations
 based on how &SCons; will use them,
@@ -543,7 +546,7 @@ and/or suffix,
 so the contents are treated as a list of strings, that is,
 adding a string will result in a separate string entry,
 not a combined string. For &cv-CPPDEFINES; as well as
-for &cv-link-LIBS;, and the various <varname>*PATH</varname>
+for &cv-link-LIBS;, and the various <literal>*PATH</literal>;
 variables, &SCons; will supply the compiler-specific
 syntax (e.g. adding a <literal>-D</literal> or <literal>/D</literal>
 prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
@@ -615,13 +618,13 @@ described above.
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a Python exception will be raised.
+do not make sense and a &Python; exception will be raised.
 </para>
 
 <para>
-When using &f-env-Append; to modify &consvars; 
-which are path specifications (normally, 
-those names which end in <varname>PATH</varname>),
+When using &f-env-Append; to modify &consvars;
+which are path specifications (conventionally,
+the names of such end in <literal>PATH</literal>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
 The same goes for adding library names to &cv-LIBS;.
@@ -645,26 +648,26 @@ See also &f-link-env-AppendUnique;,
 </arguments>
 <summary>
 <para>
-Append new path elements to the given path in the
-specified external environment (&cv-link-ENV; by default).
-This will only add
-any particular path once (leaving the last one it encounters and
-ignoring the rest, to preserve path order),
-and to help assure this,
-will normalize all paths (using
-<function>os.path.normpath</function>
+Append path elements specified by <parameter>newpath</parameter>
+to the given search path string or list <parameter>name</parameter>
+in mapping <parameter>envname</parameter> in the &consenv;.
+Supplying <parameter>envname</parameter> is optional:
+the default is the execution environment &cv-link-ENV;.
+Optional <parameter>sep</parameter> is used as the search path separator,
+the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
+A path element will only appear once.
+Any duplicates in <parameter>newpath</parameter> are dropped,
+keeping the last appearing (to preserve path order).
+If <parameter>delete_existing</parameter>
+is <constant>False</constant> (the default)
+any addition duplicating an existing path element is ignored;
+if <parameter>delete_existing</parameter>
+is <constant>True</constant> the existing value will
+be dropped and the path element will be added at the end.
+To help maintain uniqueness all paths are normalized (using
+<systemitem>os.path.normpath</systemitem>
 and
-<function>os.path.normcase</function>).
-This can also handle the
-case where the given old path variable is a list instead of a
-string, in which case a list will be returned instead of a string.
-</para>
-
-<para>
-If
-<parameter>delete_existing</parameter>
-is <constant>False</constant>, then adding a path that already exists
-will not move it to the end; it will stay where it is in the list.
+<systemitem>os.path.normcase</systemitem>).
 </para>
 
 <para>
@@ -683,6 +686,11 @@ print('after:', env['ENV']['INCLUDE'])
 before: /foo:/biz
 after: /biz:/foo/bar:/foo
 </screen>
+
+<para>
+See also &f-link-env-PrependENVPath;.
+</para>
+
 </summary>
 </scons_function>
 
@@ -803,7 +811,7 @@ is being used and
 &scons;
 finds a derived file that needs to be rebuilt,
 it will first look in the cache to see if a
-file with matching build signature exists
+file with matching &buildsig; exists
 (indicating the input file(s) and build action(s)
 were identical to those for the current target),
 and if so, will retrieve the file from the cache.
@@ -815,7 +823,7 @@ If the derived file is not present in the cache,
 &scons;
 will build it and
 then place a copy of the built file in the cache,
-identified by its build signature, for future use.
+identified by its &buildsig;, for future use.
 </para>
 
 <para>
@@ -872,6 +880,13 @@ method can be used to disable caching of specific files.  This can be
 useful if inputs and/or outputs of some tool are impossible to
 predict or prohibitively large.
 </para>
+
+<para>
+Note that (at this time) &SCons; provides no facilities
+for managing the derived-file cache. It is up to the developer
+to arrange for cache pruning, expiry, etc. if needed.
+</para>
+
 </summary>
 </scons_function>
 
@@ -1056,7 +1071,7 @@ same-named existing construction variables.
 <para>
 An action can be an external command,
 specified as a string,
-or a callable Python object;
+or a callable &Python; object;
 see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
@@ -1270,7 +1285,7 @@ env.Decider('content')
 <para>
 In addition to the above already-available functions, the
 <parameter>function</parameter>
-argument may be a Python function you supply.
+argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
@@ -1315,7 +1330,7 @@ was built.
 This can be consulted to match various
 file characteristics
 such as the timestamp,
-size, or content signature.
+size, or &contentsig;.
 </para>
 </listitem>
 </varlistentry>
@@ -1437,10 +1452,11 @@ Find an executable from one or more choices:
 <parameter>progs</parameter> may be a string or a list of strings.
 Returns the first value from <parameter>progs</parameter>
 that was found, or <constant>None</constant>.
-Executable is searched by checking the paths specified
-by <varname>env</varname><literal>['ENV']['PATH']</literal>.
+Executable is searched by checking the paths in the execution environment
+(<varname>env</varname><literal>['ENV']['PATH']</literal>).
 On Windows systems, additionally applies the filename suffixes found in
-<varname>env</varname><literal>['ENV']['PATHEXT']</literal>
+the execution environment
+(<varname>env</varname><literal>['ENV']['PATHEXT']</literal>)
 but will not include any such extension in the return value.
 &f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
 </para>
@@ -1626,7 +1642,7 @@ may be an Action object
 for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
-or executable Python function,
+or executable &Python; function,
 each of which will be converted
 into an Action object
 and then executed.
@@ -1635,7 +1651,7 @@ Any additional arguments to &f-Execute;
 are passed on to the &f-link-Action; factory function
 which actually creates the Action object.
 The exit value of the command
-or return value of the Python function
+or return value of the &Python; function
 will be returned.
 </para>
 
@@ -1824,7 +1840,7 @@ will also be returned by this function.
 </arguments>
 <summary>
 <para>
-Takes a sequence (that is, a Python list or tuple)
+Takes a sequence (that is, a &Python; list or tuple)
 that may contain nested sequences
 and returns a flattened list containing
 all of the individual elements in any sequence.
@@ -1832,7 +1848,7 @@ This can be helpful for collecting
 the lists returned by calls to Builders;
 other Builders will automatically
 flatten lists specified as input,
-but direct Python manipulation of
+but direct &Python; manipulation of
 these lists does not.
 </para>
 
@@ -1852,7 +1868,7 @@ objects = ['f1.o', foo, 'f2.o', bar, 'f3.o']
 # the Builder will flatten the list automatically:
 Program(source = objects)
 
-# If you need to manipulate the list directly using Python, you need to
+# If you need to manipulate the list directly using &Python;, you need to
 # call Flatten() yourself, or otherwise handle nested lists:
 for object in Flatten(objects):
     print(str(object))
@@ -2168,12 +2184,12 @@ env.MergeShellPaths({'INCLUDE': ['c:/inc1', 'c:/inc2']}, prepend=0)
 </arguments>
 <summary>
 <para>
-Merges the specified
+Merges values from
 <parameter>arg</parameter>
-values to the construction environment's construction variables.
-If the
+into &consvars; in the current &consenv;.
+If
 <parameter>arg</parameter>
-argument is not a dictionary,
+is not a dictionary,
 it is converted to one by calling
 &f-link-env-ParseFlags;
 on the argument
@@ -2188,19 +2204,17 @@ not as separate arguments to
 </para>
 
 <para>
-By default,
-duplicate values are eliminated;
-you can, however, specify
-<literal>unique=0</literal>
-to allow duplicate
-values to be added.
+If <literal>unique</literal> is true (the default),
+duplicate values are not stored.
 When eliminating duplicate values,
-any construction variables that end with
+any &consvars; that end with
 the string
 <literal>PATH</literal>
 keep the left-most unique value.
-All other construction variables keep
+All other &consvars; keep
 the right-most unique value.
+If <literal>unique</literal> is false,
+values are added even if they are duplicates.
 </para>
 
 <para>
@@ -2217,9 +2231,13 @@ env.MergeFlags(['!pkg-config gtk+-2.0 --cflags', '-O3'])
 
 # Combine an optimization flag with the flags returned from running pkg-config
 # twice and merge the result into the construction variables.
-env.MergeFlags(['-O3',
-               '!pkg-config gtk+-2.0 --cflags --libs',
-               '!pkg-config libpng12 --cflags --libs'])
+env.MergeFlags(
+    [
+        '-O3',
+        '!pkg-config gtk+-2.0 --cflags --libs',
+        '!pkg-config libpng12 --cflags --libs',
+    ]
+)
 </example_commands>
 </summary>
 </scons_function>
@@ -2330,38 +2348,52 @@ NoClean(env.Program('hello', 'hello.c'))
 </arguments>
 <summary>
 <para>
-Calls the specified
-<parameter>function</parameter>
-to modify the environment as specified by the output of
-<parameter>command</parameter>.
-The default
-<parameter>function</parameter>
-is
-&f-link-env-MergeFlags;,
-which expects the output of a typical
-<application>*-config</application>
-command
-(for example,
-<application>gtk-config</application>)
-and adds the options
-to the appropriate construction variables.
+Updates the current &consenv; with the values extracted
+from the output of running external <parameter>command</parameter>,
+by passing it to a helper <parameter>function</parameter>.
+<parameter>command</parameter> may be a string
+or a list of strings representing the command and
+its arguments.
+If <parameter>function</parameter>
+is omitted or <constant>None</constant>,
+&f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
 added to any construction variables;
 you can specify
-<literal>unique=0</literal>
-to allow duplicate
-values to be added.
+<parameter>unique=False</parameter>
+to allow duplicate values to be added.
 </para>
 
 <para>
-Interpreted options
-and the construction variables they affect
-are as specified for the
-&f-link-env-ParseFlags;
-method (which this method calls).
-See that method's description
-for a table of options and construction variables.
+<parameter>command</parameter> is executed using the
+SCons execution environment (that is, the &consvar;
+&cv-link-ENV; in the current &consenv;).
+If <parameter>command</parameter> needs additional information
+to operate properly, that needs to be set in the execution environment.
+For example, <command>pkg-config</command>
+may need a custom value set in the <envar>PKG_CONFIG_PATH</envar>
+environment variable.
+</para>
+
+<para>
+&f-env-MergeFlags; needs to understand
+the output produced by <parameter>command</parameter>
+in order to distribute it to appropriate &consvars;.
+&f-env-MergeFlags; uses a separate function to
+do that processing -
+see &f-link-env-ParseFlags; for the details, including a
+a table of options and corresponding construction variables.
+To provide alternative processing of the output of
+<parameter>command</parameter>,
+you can suppply a custom
+<parameter>function</parameter>,
+which must accept three arguments:
+the &consenv; to modify,
+a string argument containing the output from running
+<parameter>command</parameter>,
+and the optional
+<parameter>unique</parameter> flag.
 </para>
 </summary>
 </scons_function>
@@ -2372,8 +2404,7 @@ for a table of options and construction variables.
 </arguments>
 <summary>
 <para>
-Parses the contents of the specified
-<parameter>filename</parameter>
+Parses the contents of <parameter>filename</parameter>
 as a list of dependencies in the style of
 &Make;
 or
@@ -2384,27 +2415,21 @@ and explicitly establishes all of the listed dependencies.
 <para>
 By default,
 it is not an error
-if the specified
-<parameter>filename</parameter>
+if <parameter>filename</parameter>
 does not exist.
 The optional
 <parameter>must_exist</parameter>
-argument may be set to a non-zero
-value to have
-scons
-throw an exception and
-generate an error if the file does not exist,
+argument may be set to <constant>True</constant>
+to have &SCons;
+raise an exception if the file does not exist,
 or is otherwise inaccessible.
 </para>
 
 <para>
 The optional
 <parameter>only_one</parameter>
-argument may be set to a non-zero
-value to have
-scons
-thrown an exception and
-generate an error
+argument may be set to <constant>True</constant>
+to have &SCons; raise an exception
 if the file contains dependency
 information for more than one target.
 This can provide a small sanity check
@@ -2420,7 +2445,6 @@ file.
 </para>
 
 <para>
-The
 <parameter>filename</parameter>
 and all of the files listed therein
 will be interpreted relative to
@@ -2440,10 +2464,10 @@ function.
 <summary>
 <para>
 Parses one or more strings containing
-typical command-line flags for GCC tool chains
+typical command-line flags for GCC-style tool chains
 and returns a dictionary with the flag values
 separated into the appropriate SCons construction variables.
-This is intended as a companion to the
+Intended as a companion to the
 &f-link-env-MergeFlags;
 method, but allows for the values in the returned dictionary
 to be modified, if necessary,
@@ -2452,17 +2476,26 @@ before merging them into the construction environment.
 &f-env-MergeFlags;
 will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
-&f-link-env-ParseFlags;
+&f-env-ParseFlags;
 directly unless you want to manipulate the values.)
 </para>
 
 <para>
 If the first character in any string is
-an exclamation mark (!),
+an exclamation mark (<literal>!</literal>),
 the rest of the string is executed as a command,
 and the output from the command is
 parsed as GCC tool chain command-line flags
 and added to the resulting dictionary.
+This can be used to call a <filename>*-config</filename>
+command typical of the POSIX programming environment
+(for example,
+<command>pkg-config</command>).
+Note that such a comamnd is executed using the
+SCons execution environment;
+if the command needs additional information,
+that information needs to be explcitly provided.
+See &f-link-ParseConfig; for more details.
 </para>
 
 <para>
@@ -2524,18 +2557,22 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
 
 <scons_function name="Platform">
 <arguments signature="global">
-(string)
+(plat)
+</arguments>
+<arguments signature="env">
+(plat)
 </arguments>
 <summary>
 <para>
-The
-&f-Platform;
-form returns a callable object
+When called as a global function,
+returns a callable platform object
+selected by <parameter>plat</parameter>
+(defaults to the detected platform for the
+current system)
 that can be used to initialize
-a construction environment using the
-platform keyword of the
-&f-Environment;
-function.
+a construction environment by passing it as the
+<parameter>platform</parameter> keyword argument to the
+&f-link-Environment; function.
 </para>
 
 <para>
@@ -2547,11 +2584,10 @@ env = Environment(platform=Platform('win32'))
 </example_commands>
 
 <para>
-The
-&f-env-Platform;
-form applies the callable object for the specified platform
-<parameter>string</parameter>
-to the environment through which the method was called.
+When called as a method of an environment,
+calls the platform object indicated by
+<parameter>plat</parameter>
+to update that environment.
 </para>
 
 <example_commands>
@@ -2559,22 +2595,7 @@ env.Platform('posix')
 </example_commands>
 
 <para>
-Note that the
-<literal>win32</literal>
-platform adds the
-<literal>SystemDrive</literal>
-and
-<literal>SystemRoot</literal>
-variables from the user's external environment
-to the construction environment's
-&cv-link-ENV;
-dictionary.
-This is so that any executed commands
-that use sockets to connect with other systems
-(such as fetching source files from
-external CVS repository specifications like
-<literal>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</literal>)
-will work on Windows systems.
+See the manpage section "Construction Environments" for more details.
 </para>
 </summary>
 </scons_function>
@@ -2609,32 +2630,30 @@ and &f-link-env-PrependUnique;.
 
 <scons_function name="PrependENVPath">
 <arguments signature="env">
-(name, newpath, [envname, sep, delete_existing])
+(name, newpath, [envname, sep, delete_existing=True])
 </arguments>
 <summary>
 <para>
-Prepend new path elements to the given path in the
-specified external environment (&cv-link-ENV; by default).
-This will only add
-any particular path once (leaving the first one it encounters and
-ignoring the rest, to preserve path order),
-and to help assure this,
-will normalize all paths (using
+Prepend path elements specified by <parameter>newpath</parameter>
+to the given search path string or list <parameter>name</parameter>
+in mapping <parameter>envname</parameter> in the &consenv;.
+Supplying <parameter>envname</parameter> is optional:
+the default is the execution environment &cv-link-ENV;.
+Optional <parameter>sep</parameter> is used as the search path separator,
+the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
+A path element will only appear once.
+Any duplicates in <parameter>newpath</parameter> are dropped,
+keeping the first appearing (to preserve path order).
+If <parameter>delete_existing</parameter>
+is <constant>False</constant>
+any addition duplicating an existing path element is ignored;
+if <parameter>delete_existing</parameter>
+is <constant>True</constant> (the default) the existing value will
+be dropped and the path element will be inserted at the beginning.
+To help maintain uniqueness all paths are normalized (using
 <systemitem>os.path.normpath</systemitem>
 and
 <systemitem>os.path.normcase</systemitem>).
-This can also handle the
-case where the given old path variable is a list instead of a
-string, in which case a list will be returned instead of a string.
-</para>
-
-<para>
-If
-<parameter>delete_existing</parameter>
-is <constant>False</constant>,
-then adding a path that already exists
-will not move it to the beginning;
-it will stay where it is in the list.
 </para>
 
 <para>
@@ -2654,6 +2673,11 @@ print('after:', env['ENV']['INCLUDE'])
 before: /biz:/foo
 after: /foo/bar:/foo:/biz
 </screen>
+
+<para>
+See also &f-link-env-AppendENVPath;.
+</para>
+
 </summary>
 </scons_function>
 
@@ -2667,7 +2691,7 @@ Prepend values to &consvars; in the current &consenv;,
 maintaining uniqueness.
 Works like &f-link-env-Append; (see for details),
 except that values are added to the front,
-rather than the end, of any existing value of the the &consvar;,
+rather than the end, of any existing value of the &consvar;,
 and values already present in the &consvar;
 will not be added again.
 If <parameter>delete_existing</parameter>
@@ -2864,7 +2888,7 @@ when all the directories in which SConscript files may be found
 don't necessarily exist locally.)
 You may enable and disable
 this ability by calling
-SConscriptChdir()
+&f-SConscriptChdir;
 multiple times.
 </para>
 
@@ -2909,7 +2933,7 @@ by the chosen
 <para>
 The optional <parameter>dbm_module</parameter>
 argument specifies which
-Python database module to use
+&Python; database module to use
 for reading/writing the file.
 The module must be imported first;
 then the imported module name
@@ -2917,9 +2941,9 @@ is passed as the argument.
 The default is a custom
 <systemitem>SCons.dblite</systemitem>
 module that uses pickled
-Python data structures,
-which works on all Python versions.
-See documentation of the Python
+&Python; data structures,
+which works on all &Python; versions.
+See documentation of the &Python;
 <systemitem>dbm</systemitem> module
 for other available types.
 </para>
@@ -3077,16 +3101,20 @@ they are not added and included in the returned list.
 <arguments>(arg)</arguments>
 <summary>
 <para>
-Returns a list of file names or other objects.
 If <parameter>arg</parameter> is a string,
-it will be split on strings of white-space characters
-within the string,
-making it easier to write long lists of file names.
-If <parameter>arg</parameter> is already a list,
-the list will be returned untouched.
+splits on whitespace and returns a list of
+strings without whitespace.
+This mode is the most common case,
+and can be used to split a list of filenames
+(for example) rather than having to type them as a
+list of individually quoted words.
+If <parameter>arg</parameter> is a list or tuple
+returns the list or tuple unchanged.
 If <parameter>arg</parameter> is any other type of object,
-it will be returned as a list
-containing just the object.
+returns a list containing just the object.
+These non-string cases do not actually do any spliting,
+but allow an argument variable to be passed to
+&f-Split; without having to first check its type.
 </para>
 
 <para>
@@ -3097,9 +3125,9 @@ Example:
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-       f7.c
-       f8.c
-       f9.c
+    f7.c
+    f8.c
+    f9.c
 """)
 </example_commands>
 </summary>
@@ -3111,15 +3139,22 @@ files = Split("""
 </arguments>
 <summary>
 <para>
-Performs construction variable interpolation
-on the specified string or sequence argument
-<parameter>input</parameter>.
+Performs &consvar; interpolation
+(<firstterm>substitution</firstterm>)
+on <parameter>input</parameter>,
+which can be a string or a sequence.
+Substitutable elements take the form
+<literal>${<replaceable>expression</replaceable>}</literal>,
+although if there is no ambiguity in recognizing the element,
+the braces can be omitted.
+A literal <emphasis role="bold">$</emphasis> can be entered by
+using <emphasis role="bold">$$</emphasis>.
 </para>
 
 <para>
 By default,
 leading or trailing white space will
-be removed from the result.
+be removed from the result,
 and all sequences of white space
 will be compressed to a single space character.
 Additionally, any
@@ -3138,9 +3173,8 @@ The
 <parameter>raw</parameter>
 argument may be set to
 <literal>2</literal>
-if you want to strip
-all characters between
-any
+if you want to additionally discard
+all characters between any
 <literal>$(</literal>
 and
 <literal>$)</literal>
@@ -3149,7 +3183,7 @@ pairs
 </para>
 
 <para>
-If the input is a sequence
+If <parameter>input</parameter> is a sequence
 (list or tuple),
 the individual elements of
 the sequence will be expanded,
@@ -3174,7 +3208,7 @@ to be available for expansion.
 This is usually necessary if you are
 calling
 &f-env-subst;
-from within a Python function used
+from within a &Python; function used
 as an SCons action.
 </para>
 
@@ -3187,12 +3221,11 @@ argument
 may specify a conversion function
 that will be used in place of
 the default.
-For example, if you want Python objects
+For example, if you want &Python; objects
 (including SCons Nodes)
-to be returned as Python objects,
-you can use the Python
-&lambda;
-idiom to pass in an unnamed function
+to be returned as &Python; objects,
+you can use a &Python;
+lambda expression to pass in an unnamed function
 that simply returns its unconverted argument.
 </para>
 
@@ -3304,7 +3337,7 @@ the tool object, previously it did not return
 </arguments>
 <summary>
 <para>
-Returns a Node object representing the specified Python value.  Value
+Returns a Node object representing the specified &Python; value.  Value
 Nodes can be used as dependencies of targets.  If the result of
 calling
 <function>str</function>(<parameter>value</parameter>)
@@ -3362,7 +3395,7 @@ env.Config(target = 'package-config', source = Value(prefix))
 
 def build_value(target, source, env):
     # A function that "builds" a Python Value by updating
-    # the the Python value with the contents of the file
+    # the Python value with the contents of the file
     # specified as the source of the Builder call ($SOURCE).
     target[0].write(source[0].get_contents())
 

@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,26 +20,26 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-__doc__ = """Module to detect Visual Studio and/or Visual C/C++
+"""
+MS Compilers: detect Visual Studio and/or Visual C/C++
 """
 
 import os
 
 import SCons.Errors
+import SCons.Tool.MSCommon.vc
 import SCons.Util
 
-from .common import debug, \
-                   get_output, \
-                   is_win64, \
-                   normalize_env, \
-                   parse_output, \
-                   read_reg
+from .common import (
+    debug,
+    get_output,
+    is_win64,
+    normalize_env,
+    parse_output,
+    read_reg,
+)
 
-import SCons.Tool.MSCommon.vc
 
 class VisualStudio:
     """
@@ -60,14 +61,14 @@ class VisualStudio:
         batch_file = os.path.join(vs_dir, self.batch_file_path)
         batch_file = os.path.normpath(batch_file)
         if not os.path.isfile(batch_file):
-            debug('%s not on file system' % batch_file)
+            debug('%s not on file system', batch_file)
             return None
         return batch_file
 
     def find_vs_dir_by_vc(self, env):
         dir = SCons.Tool.MSCommon.vc.find_vc_pdir(env, self.vc_version)
         if not dir:
-            debug('no installed VC %s' % self.vc_version)
+            debug('no installed VC %s', self.vc_version)
             return None
         return os.path.abspath(os.path.join(dir, os.pardir))
 
@@ -83,9 +84,9 @@ class VisualStudio:
             try:
                 comps = read_reg(key)
             except OSError:
-                debug('no VS registry key {}'.format(repr(key)))
+                debug('no VS registry key %s', repr(key))
             else:
-                debug('found VS in registry: {}'.format(comps))
+                debug('found VS in registry: %s', comps)
                 return comps
         return None
 
@@ -94,21 +95,21 @@ class VisualStudio:
         First try to find by registry, and if that fails find via VC dir
         """
 
-        vs_dir=self.find_vs_dir_by_reg(env)
+        vs_dir = self.find_vs_dir_by_reg(env)
         if not vs_dir:
             vs_dir = self.find_vs_dir_by_vc(env)
-        debug('found VS in ' + str(vs_dir ))
+        debug('found VS in %s', str(vs_dir))
         return vs_dir
 
     def find_executable(self, env):
         vs_dir = self.get_vs_dir(env)
         if not vs_dir:
-            debug('no vs_dir ({})'.format(vs_dir))
+            debug('no vs_dir (%s)', vs_dir)
             return None
         executable = os.path.join(vs_dir, self.executable_path)
         executable = os.path.normpath(executable)
         if not os.path.isfile(executable):
-            debug('{} not on file system'.format(executable))
+            debug('%s not on file system', executable)
             return None
         return executable
 
@@ -122,15 +123,15 @@ class VisualStudio:
 
     def get_executable(self, env=None):
         try:
-            debug('using cache:%s'%self._cache['executable'])
+            debug('using cache:%s', self._cache['executable'])
             return self._cache['executable']
         except KeyError:
             executable = self.find_executable(env)
             self._cache['executable'] = executable
-            debug('not in cache:%s'%executable)
+            debug('not in cache:%s', executable)
             return executable
 
-    def get_vs_dir(self, env):
+    def get_vs_dir(self, env=None):
         try:
             return self._cache['vs_dir']
         except KeyError:
@@ -197,6 +198,18 @@ class VisualStudio:
 # Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
 
 SupportedVSList = [
+    # Visual Studio 2022
+    VisualStudio('14.3',
+                 vc_version='14.3',
+                 sdk_version='10.0A',
+                 hkeys=[],
+                 common_tools_var='VS170COMNTOOLS',
+                 executable_path=r'Common7\IDE\devenv.com',
+                 # should be a fallback, prefer use vswhere installationPath
+                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
+                 supported_arch=['x86', 'amd64', "arm"],
+                 ),
+
     # Visual Studio 2019
     VisualStudio('14.2',
                  vc_version='14.2',
@@ -419,9 +432,9 @@ def get_installed_visual_studios(env=None):
         InstalledVSList = []
         InstalledVSMap = {}
         for vs in SupportedVSList:
-            debug('trying to find VS %s' % vs.version)
+            debug('trying to find VS %s', vs.version)
             if vs.get_executable(env):
-                debug('found VS %s' % vs.version)
+                debug('found VS %s', vs.version)
                 InstalledVSList.append(vs)
                 InstalledVSMap[vs.version] = vs
     return InstalledVSList
@@ -471,8 +484,8 @@ def reset_installed_visual_studios():
 #    for variable, directory in env_tuple_list:
 #        env.PrependENVPath(variable, directory)
 
-def msvs_exists(env=None):
-    return (len(get_installed_visual_studios(env)) > 0)
+def msvs_exists(env=None) -> bool:
+    return len(get_installed_visual_studios(env)) > 0
 
 def get_vs_by_version(msvs):
     global InstalledVSMap
@@ -484,8 +497,8 @@ def get_vs_by_version(msvs):
         raise SCons.Errors.UserError(msg)
     get_installed_visual_studios()
     vs = InstalledVSMap.get(msvs)
-    debug('InstalledVSMap:%s' % InstalledVSMap)
-    debug('found vs:%s' % vs)
+    debug('InstalledVSMap:%s', InstalledVSMap)
+    debug('found vs:%s', vs)
     # Some check like this would let us provide a useful error message
     # if they try to set a Visual Studio version that's not installed.
     # However, we also want to be able to run tests (like the unit
@@ -521,7 +534,8 @@ def get_default_version(env):
             env['MSVS_VERSION'] = versions[0] #use highest version by default
         else:
             debug('WARNING: no installed versions found, '
-                  'using first in SupportedVSList (%s)' % SupportedVSList[0].version)
+                  'using first in SupportedVSList (%s)',
+                  SupportedVSList[0].version)
             env['MSVS_VERSION'] = SupportedVSList[0].version
 
     env['MSVS']['VERSION'] = env['MSVS_VERSION']
@@ -554,11 +568,12 @@ def merge_default_version(env):
     version = get_default_version(env)
     arch = get_default_arch(env)
 
+# TODO: refers to versions and arch which aren't defined; called nowhere. Drop?
 def msvs_setup_env(env):
-    batfilename = msvs.get_batch_file()
     msvs = get_vs_by_version(version)
     if msvs is None:
         return
+    batfilename = msvs.get_batch_file()
 
     # XXX: I think this is broken. This will silently set a bogus tool instead
     # of failing, but there is no other way with the current scons tool

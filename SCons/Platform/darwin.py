@@ -34,6 +34,7 @@ import os
 def generate(env):
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
+    env['HOST_OS'] = 'darwin'
     # put macports paths at front to override Apple's versions, fink path is after
     # For now let people who want Macports or Fink tools specify it!
     # env['ENV']['PATH'] = '/opt/local/bin:/opt/local/sbin:' + env['ENV']['PATH'] + ':/sw/bin'

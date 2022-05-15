@@ -59,6 +59,10 @@ napoleon_include_private_with_doc = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+# Since 0.99, rst2pdf says: "twoColumn isn't part of the default styles
+# in 0.99. You need to add the twocolumn style file."
+pdf_stylesheets = ['twocolumn']
+
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
@@ -69,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SCons'
-copyright = '2020, SCons Project'
+copyright = '2021, SCons Project'
 author = 'SCons Project Team'
 
 # The version info for the project you're documenting, acts as replacement for

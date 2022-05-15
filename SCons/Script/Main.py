@@ -32,8 +32,8 @@ it goes here.
 """
 
 # these define the range of versions SCons supports
-unsupported_python_version = (3, 4, 0)
-deprecated_python_version = (3, 5, 0)
+minimum_python_version = (3, 6, 0)
+deprecated_python_version = (3, 6, 0)
 
 import SCons.compat
 
@@ -63,6 +63,8 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+
+from SCons import __version__ as SConsVersion
 
 # Global variables
 first_command_start = None
@@ -451,7 +453,7 @@ def python_version_string():
     return sys.version.split()[0]
 
 def python_version_unsupported(version=sys.version_info):
-    return version < unsupported_python_version
+    return version < minimum_python_version
 
 def python_version_deprecated(version=sys.version_info):
     return version < deprecated_python_version
@@ -788,13 +790,12 @@ def _load_all_site_scons_dirs(topdir, verbose=False):
         return os.path.expanduser('~/'+d)
 
     if platform == 'win32' or platform == 'cygwin':
-        # Note we use $ here instead of %...% because older
-        # pythons (prior to 2.6?) didn't expand %...% on Windows.
-        # This set of dirs should work on XP, Vista, 7 and later.
         sysdirs=[
-            os.path.expandvars('$ALLUSERSPROFILE\\Application Data\\scons'),
-            os.path.expandvars('$USERPROFILE\\Local Settings\\Application Data\\scons')]
-        appdatadir = os.path.expandvars('$APPDATA\\scons')
+            os.path.expandvars('%AllUsersProfile%\\scons'),
+            # TODO older path, kept for compat
+            os.path.expandvars('%AllUsersProfile%\\Application Data\\scons'),
+            os.path.expandvars('%LocalAppData%\\scons')]
+        appdatadir = os.path.expandvars('%AppData%\\scons')
         if appdatadir not in sysdirs:
             sysdirs.append(appdatadir)
         sysdirs.append(homedir('.scons'))
@@ -986,7 +987,6 @@ def _main(parser):
     # This would then cause subtle bugs, as already happened in #2971.
     if options.interactive:
         SCons.Node.interactive = True
-
     # That should cover (most of) the options.
     # Next, set up the variables that hold command-line arguments,
     # so the SConscript files that we read and execute have access to them.
@@ -1375,7 +1375,8 @@ def main():
     # disable that warning.
     if python_version_unsupported():
         msg = "scons: *** SCons version %s does not run under Python version %s.\n"
-        sys.stderr.write(msg % (SCons.__version__, python_version_string()))
+        sys.stderr.write(msg % (SConsVersion, python_version_string()))
+        sys.stderr.write("scons: *** Minimum Python version is %d.%d.%d\n" %minimum_python_version)
         sys.exit(1)
 
     parts = ["SCons by Steven Knight et al.:\n"]

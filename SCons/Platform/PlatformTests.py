@@ -50,6 +50,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'cygwin', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('os2')
         assert str(p) == 'os2', p
@@ -57,6 +59,8 @@ class PlatformTestCase(unittest.TestCase):
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
+        assert env['HOST_OS'] == 'os2', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('posix')
         assert str(p) == 'posix', p
@@ -65,6 +69,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'posix', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('irix')
         assert str(p) == 'irix', p
@@ -73,6 +79,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'irix', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('aix')
         assert str(p) == 'aix', p
@@ -81,6 +89,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'aix', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('sunos')
         assert str(p) == 'sunos', p
@@ -89,6 +99,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'sunos', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('hpux')
         assert str(p) == 'hpux', p
@@ -97,6 +109,8 @@ class PlatformTestCase(unittest.TestCase):
         assert env['PROGSUFFIX'] == '', env
         assert env['LIBSUFFIX'] == '.a', env
         assert env['SHELL'] == 'sh', env
+        assert env['HOST_OS'] == 'hpux', env
+        assert env['HOST_ARCH'] != '', env
 
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
@@ -104,6 +118,8 @@ class PlatformTestCase(unittest.TestCase):
         p(env)
         assert env['PROGSUFFIX'] == '.exe', env
         assert env['LIBSUFFIX'] == '.lib', env
+        assert env['HOST_OS'] == 'win32', env
+        assert env['HOST_ARCH'] != '', env
 
         exc_caught = None
         try:
@@ -115,6 +131,36 @@ class PlatformTestCase(unittest.TestCase):
         env = Environment()
         SCons.Platform.Platform()(env)
         assert env != {}, env
+
+    def test_win32_no_arch_shell_variables(self):
+        """
+        Test that a usable HOST_ARCH is available when
+        neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE
+        is set for SCons.Platform.win32.get_architecture()
+        """
+
+        # Save values if defined
+        PA_6432 = os.environ.get('PROCESSOR_ARCHITEW6432')
+        PA = os.environ.get('PROCESSOR_ARCHITECTURE')
+        if PA_6432:
+            del(os.environ['PROCESSOR_ARCHITEW6432'])
+        if PA:
+            del(os.environ['PROCESSOR_ARCHITECTURE'])
+
+        p = SCons.Platform.win32.get_architecture()
+
+        # restore values
+        if PA_6432:
+            os.environ['PROCESSOR_ARCHITEW6432']=PA_6432
+        if PA:
+            os.environ['PROCESSOR_ARCHITECTURE']=PA
+
+        assert p.arch != '', 'SCons.Platform.win32.get_architecture() not setting arch'
+        assert p.synonyms != '', 'SCons.Platform.win32.get_architecture() not setting synonyms'
+
+
+
+
 
 
 class TempFileMungeTestCase(unittest.TestCase):

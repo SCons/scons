@@ -1,0 +1,24 @@
+import SCons
+
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=[])
+env.Tool('ninja')
+
+
+def test_subst_func(env, target, source, for_signature):
+    cmd = 'echo test > '
+    if not for_signature:
+        cmd += 'out.txt'
+    return cmd
+
+bld = SCons.Builder.Builder(
+        action=SCons.Action.CommandGeneratorAction(
+            test_subst_func,
+            {}
+        )
+    )
+
+env['BUILDERS']['TestBld'] = bld
+env.TestBld(target='out.txt', source='foo.c')

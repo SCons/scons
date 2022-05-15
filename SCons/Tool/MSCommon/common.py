@@ -1,8 +1,6 @@
-"""
-Common helper functions for working with the Microsoft tool chain.
-"""
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -22,8 +20,10 @@ Common helper functions for working with the Microsoft tool chain.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
+"""
+Common helper functions for working with the Microsoft tool chain.
+"""
 
 import copy
 import json
@@ -37,10 +37,7 @@ import SCons.Util
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
-if LOGFILE == '-':
-    def debug(message):
-        print(message)
-elif LOGFILE:
+if LOGFILE:
     import logging
     modulelist = (
         # root module and parent/root module
@@ -67,23 +64,31 @@ elif LOGFILE:
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
+    # Log format looks like:
+    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
+    #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
+    log_format=(
+        '%(relativeCreated)05dms'
+        ':%(relfilename)s'
+        ':%(funcName)s'
+        '#%(lineno)s'
+        ': %(message)s'
+    )
+    if LOGFILE == '-':
+        log_format = 'debug: ' + log_format
+        log_handler = logging.StreamHandler(sys.stdout)
+    else:
+        log_handler = logging.FileHandler(filename=LOGFILE)
     logging.basicConfig(
-        # This looks like:
-        #   00109ms:MSCommon/vc.py:find_vc_pdir#447:
-        format=(
-            '%(relativeCreated)05dms'
-            ':%(relfilename)s'
-            ':%(funcName)s'
-            '#%(lineno)s'
-            ':%(message)s: '
-        ),
-        filename=LOGFILE,
+        format=log_format,
+        handlers=[log_handler],
         level=logging.DEBUG)
     logger = logging.getLogger(name=__name__)
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
 else:
-    def debug(x): return None
+    def debug(x, *args):
+        return None
 
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
@@ -214,7 +219,7 @@ def normalize_env(env, keys, force=False):
     if sys32_ps_dir not in normenv['PATH']:
         normenv['PATH'] = normenv['PATH'] + os.pathsep + sys32_ps_dir
 
-    debug("PATH: %s" % normenv['PATH'])
+    debug("PATH: %s", normenv['PATH'])
     return normenv
 
 
@@ -238,7 +243,8 @@ def get_output(vcbat, args=None, env=None):
     # or synced with the the common_tools_var # settings in vs.py.
     vs_vc_vars = [
         'COMSPEC',  # path to "shell"
-        'VS160COMNTOOLS',  # path to common tools for given version
+        'VS170COMNTOOLS',  # path to common tools for given version
+        'VS160COMNTOOLS',
         'VS150COMNTOOLS',
         'VS140COMNTOOLS',
         'VS120COMNTOOLS',
@@ -255,14 +261,14 @@ def get_output(vcbat, args=None, env=None):
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
     if args:
-        debug("Calling '%s %s'" % (vcbat, args))
+        debug("Calling '%s %s'", vcbat, args)
         popen = SCons.Action._subproc(env,
                                       '"%s" %s & set' % (vcbat, args),
                                       stdin='devnull',
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
     else:
-        debug("Calling '%s'" % vcbat)
+        debug("Calling '%s'", vcbat)
         popen = SCons.Action._subproc(env,
                                       '"%s" & set' % vcbat,
                                       stdin='devnull',
@@ -278,8 +284,8 @@ def get_output(vcbat, args=None, env=None):
         stderr = popen.stderr.read()
 
     # Extra debug logic, uncomment if necessary
-    # debug('stdout:%s' % stdout)
-    # debug('stderr:%s' % stderr)
+    # debug('stdout:%s', stdout)
+    # debug('stderr:%s', stderr)
 
     # Ongoing problems getting non-corrupted text led to this
     # changing to "oem" from "mbcs" - the scripts run presumably
@@ -320,7 +326,7 @@ def parse_output(output, keep=KEEPLIST):
 
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and path_list the associated list of paths
-    dkeep = dict([(i, []) for i in keep])
+    dkeep = {i: [] for i in keep}
 
     # rdk will  keep the regex to match the .bat file output line starts
     rdk = {}
@@ -345,6 +351,21 @@ def parse_output(output, keep=KEEPLIST):
                 add_env(match, k)
 
     return dkeep
+
+def get_pch_node(env, target, source):
+    """
+    Get the actual PCH file node
+    """
+    pch_subst = env.get('PCH', False) and env.subst('$PCH',target=target, source=source, conv=lambda x:x)
+
+    if not pch_subst:
+        return ""
+
+    if SCons.Util.is_String(pch_subst):
+        pch_subst = target[0].dir.File(pch_subst)
+
+    return pch_subst
+
 
 # Local Variables:
 # tab-width:4

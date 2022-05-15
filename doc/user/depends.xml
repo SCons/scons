@@ -22,7 +22,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -107,26 +109,26 @@ int main() { printf("Hello, world!\n"); }
     things when an input file changes,
     so that the built software is up to date.
     By default,
-    &SCons; keeps track of this through an
-    MD5 &signature;, or checksum, of the contents of each file,
+    &SCons; keeps track of this through a
+    <firstterm>&contentsig;</firstterm>,
+    or hash, of the contents of each file,
     although you can easily configure
     &SCons; to use the
-    modification times (or time stamps)
-    instead.
-    You can even specify your own Python function
-    for deciding if an input file has changed.
+    modification times (or time stamps) instead.
+    You can even write your own Python function
+    for deciding if an input file should trigger a rebuild.
 
     </para>
 
     <section>
-    <title>Using MD5 Signatures to Decide if a File Has Changed</title>
+    <title>Using Content Signatures to Decide if a File Has Changed</title>
 
       <para>
 
-      By default,
-      &SCons; keeps track of whether a file has changed
-      based on an MD5 checksum of the file's contents,
-      not the file's modification time.
+      By default, &SCons; 
+      uses a cryptographic hash of the file's contents,
+      not the file's modification time,
+      to decide whether a file has changed.
       This means that you may be surprised by the
       default &SCons; behavior if you are used to the
       &Make; convention of forcing
@@ -166,31 +168,33 @@ int main() { printf("Hello, world!\n"); }
       <para>
 
       Note that you can, if you wish,
-      specify this default behavior
-      (MD5 signatures) explicitly
-      using the &Decider; function as follows:
+      specify the default behavior of using
+      &contentsigs; explicitly,
+      using the &f-link-Decider; function as follows:
 
       </para>
 
       <sconstruct>
 Program('hello.c')
-Decider('MD5')
+Decider('content')
       </sconstruct>
 
       <para>
 
-      You can also use the string <literal>'content'</literal>
-      as a synonym for <literal>'MD5'</literal>
-      when calling the &Decider; function.
+      You can also use the string <literal>'MD5'</literal>
+      as a synonym for <literal>'content'</literal>
+      when calling the &f-Decider; function - this older
+      name is deprecated since &SCons; now supports a
+      choice of hash functions, not just the MD5 function.
 
       </para>
 
       <section>
-      <title>Ramifications of Using MD5 Signatures</title>
+      <title>Ramifications of Using Content Signatures</title>
 
         <para>
 
-        Using MD5 signatures to decide if an input file has changed
+        Using &contentsigs; to decide if an input file has changed
         has one surprising benefit:
         if a source file has been changed
         in such a way that the contents of the
@@ -263,7 +267,7 @@ Decider('MD5')
       if a source file's modification time is
       <emphasis>newer</emphasis>
       than the target file.
-      To do this, call the &Decider;
+      To do this, call the &f-link-Decider;
       function as follows:
 
       </para>
@@ -298,7 +302,7 @@ int main() { printf("Hello, world!\n"); }
       as the behavior of &Make;,
       you can also use the string <literal>'make'</literal>
       as a synonym for <literal>'timestamp-newer'</literal>
-      when calling the &Decider; function:
+      when calling the &f-Decider; function:
 
       </para>
 
@@ -333,7 +337,7 @@ Decider('make')
       is newer than the target file.
       To do this, specify the argument
       <literal>'timestamp-match'</literal>
-      when calling the &Decider; function:
+      when calling the &f-Decider; function:
 
       </para>
 
@@ -387,11 +391,11 @@ int main() { printf("Hello, world!\n"); }
 
       As a performance enhancement,
       &SCons; provides a way to use
-      MD5 checksums of file contents
+      a file's &contentsig;,
       but to read those contents
       only when the file's timestamp has changed.
-      To do this, call the &Decider;
-      function with <literal>'MD5-timestamp'</literal>
+      To do this, call the &f-link-Decider;
+      function with <literal>'content-timestamp'</literal>
       argument as follows:
 
       </para>
@@ -399,7 +403,7 @@ int main() { printf("Hello, world!\n"); }
       <scons_example name="depends_MD5-timestamp">
         <file name="SConstruct" printme="1">
 Program('hello.c')
-Decider('MD5-timestamp')
+Decider('content-timestamp')
         </file>
         <file name="hello.c">
 int main() { printf("Hello, world!\n"); }
@@ -409,7 +413,7 @@ int main() { printf("Hello, world!\n"); }
       <para>
 
       So configured, &SCons; will still behave like
-      it does when using <literal>Decider('MD5')</literal>:
+      it does when using <literal>Decider('content')</literal>:
 
       </para>
 
@@ -451,7 +455,7 @@ cc -o hello hello.o
       will have been performed by simply looking at the
       modification time of the &hello_c; file,
       not by opening it and performing
-      an MD5 checksum calcuation on its contents.
+      a signature calcuation on its contents.
       This can significantly speed up many up-to-date builds.
 
       </para>
@@ -459,7 +463,7 @@ cc -o hello hello.o
       <para>
 
       The only drawback to using
-      <literal>Decider('MD5-timestamp')</literal>
+      <literal>Decider('content-timestamp')</literal>
       is that &SCons; will <emphasis>not</emphasis>
       rebuild a target file if a source file was modified
       within one second of the last time &SCons; built the file.
@@ -473,7 +477,7 @@ cc -o hello hello.o
       rely on the ability to apply changes to files
       automatically and then rebuild as quickly as possible,
       in which case use of
-      <literal>Decider('MD5-timestamp')</literal>
+      <literal>Decider('content-timestamp')</literal>
       may not be appropriate.
 
       </para>
@@ -481,12 +485,12 @@ cc -o hello hello.o
     </section>
 
     <section>
-    <title>Writing Your Own Custom &Decider; Function</title>
+    <title>Extending &SCons;: Writing Your Own Custom &Decider; Function</title>
 
       <para>
 
       The different string values that we've passed to
-      the &Decider; function are essentially used by &SCons;
+      the &f-link-Decider; function are essentially used by &SCons;
       to pick one of several specific internal functions
       that implement various ways of deciding if a dependency
       (usually a source file)
@@ -548,7 +552,7 @@ int main() { printf("Hello, world!\n"); }
 
       The third argument, <varname>prev_ni</varname>,
       is an object that holds the
-      signature or timestamp information
+      &contentsig; and/or timestamp information
       that was recorded about the dependency
       the last time the target was built.
       A <varname>prev_ni</varname> object can hold
@@ -564,13 +568,13 @@ int main() { printf("Hello, world!\n"); }
       <variablelist>
 
         <varlistentry>
-        <term>.csig</term>
+        <term><literal>csig</literal></term>
 
         <listitem>
         <para>
-        The <emphasis>content signature</emphasis>,
-        or MD5 checksum, of the contents of the
-        <varname>dependency</varname>
+        The &contentsig;:
+        a cryptgraphic hash, or checksum, of the file contents
+        of the <varname>dependency</varname>
         file the last time the &target; was built.
         </para>
         </listitem>
@@ -578,7 +582,7 @@ int main() { printf("Hello, world!\n"); }
         </varlistentry>
 
         <varlistentry>
-        <term>.size</term>
+        <term><literal>size</literal></term>
 
         <listitem>
         <para>
@@ -590,7 +594,7 @@ int main() { printf("Hello, world!\n"); }
         </varlistentry>
 
         <varlistentry>
-        <term>.timestamp</term>
+        <term><literal>timestamp</literal></term>
 
         <listitem>
         <para>
@@ -687,22 +691,21 @@ env.Install("install", "test.txt")
       <para>
 
       The previous examples have all demonstrated calling
-      the global &Decider; function
+      the global &f-link-Decider; function
       to configure all dependency decisions that &SCons; makes.
       Sometimes, however, you want to be able to configure
       different decision-making for different targets.
-      When that's necessary, you can use the
-      <function>env.Decider</function>
+      When that's necessary, you can use the &f-env-Decider;
       method to affect only the configuration
       decisions for targets built with a
-      specific construction environment.
+      specific &consenv;.
 
       </para>
 
       <para>
 
       For example, if we arbitrarily want to build
-      one program using MD5 checkums
+      one program using &contentsigs;
       and another using file modification times
       from the same source
       we might configure it this way:
@@ -714,7 +717,7 @@ env.Install("install", "test.txt")
 env1 = Environment(CPPPATH = ['.'])
 env2 = env1.Clone()
 env2.Decider('timestamp-match')
-env1.Program('prog-MD5', 'program1.c')
+env1.Program('prog-content', 'program1.c')
 env2.Program('prog-timestamp', 'program2.c')
         </file>
         <file name="program1.c">
@@ -765,7 +768,7 @@ int main() { printf("Hello, world!\n"); }
 
     <scons_example name="depends_include">
       <file name="SConstruct">
-Program('hello.c', CPPPATH = '.')
+Program('hello.c', CPPPATH='.')
       </file>
       <file name="hello.c" printme="1">
 #include &lt;hello.h&gt;
@@ -823,8 +826,8 @@ main()
     <para>
 
     First, notice that &SCons;
-    added the <literal>-I.</literal> argument
-    from the &cv-CPPPATH; variable
+    constructed the <literal>-I.</literal> argument
+    from the <literal>'.'</literal> in the &cv-CPPPATH; variable
     so that the compilation would find the
     &hello_h; file in the local directory.
 
@@ -1102,7 +1105,7 @@ SetOption('implicit_cache', 1)
     &SCons; allows you to specific explicitly that one file
     depends on another file,
     and must be rebuilt whenever that file changes.
-    This is specified using the &Depends; method:
+    This is specified using the &f-link-Depends; method:
 
     </para>
 
@@ -1129,7 +1132,7 @@ cc -o hello hello.o
     <para>
 
     Note that the dependency
-    (the second argument to &Depends;)
+    (the second argument to &f-Depends;)
     may also be a list of Node objects
     (for example, as returned by a call to a Builder):
 
@@ -1204,7 +1207,7 @@ Program('hello', 'hello.c', CPPPATH='.')
     <para>
 
     Apparently, the scanner does not know about the header dependency.
-    Being not a full-fledged C preprocessor, the scanner does not
+    Not being a full-fledged C preprocessor, the scanner does not
     expand the macro.
 
     </para>
@@ -1212,7 +1215,7 @@ Program('hello', 'hello.c', CPPPATH='.')
     <para>
 
     In these cases, you may also use the compiler to extract the
-    implicit dependencies. &ParseDepends; can parse the contents of
+    implicit dependencies. &f-link-ParseDepends; can parse the contents of
     the compiler output in the style of &Make;, and explicitly
     establish all of the listed dependencies.
 
@@ -1220,7 +1223,7 @@ Program('hello', 'hello.c', CPPPATH='.')
 
     <para>
 
-    The following example uses &ParseDepends; to process a compiler
+    The following example uses &f-ParseDepends; to process a compiler
     generated dependency file which is generated as a side effect
     during compilation of the object file:
 
@@ -1318,13 +1321,13 @@ scons: `.' is up to date.
 
     <para>
 
-    &ParseDepends; immediately reads the specified file at invocation
+    &f-ParseDepends; immediately reads the specified file at invocation
     time and just returns if the file does not exist. A dependency
     file generated during the build process is not automatically
     parsed again. Hence, the compiler-extracted dependencies are not
     stored in the signature database during the same build pass. This
-    limitation of &ParseDepends; leads to unnecessary recompilations.
-    Therefore, &ParseDepends; should only be used if scanners are not
+    limitation of &f-ParseDepends; leads to unnecessary recompilations.
+    Therefore, &f-ParseDepends; should only be used if scanners are not
     available for the employed language or not powerful enough for the
     specific task.
 
@@ -1342,7 +1345,8 @@ scons: `.' is up to date.
     even if a dependency file changes.
     In this case,
     you would tell &SCons; specifically
-    to ignore a dependency as follows:
+    to ignore a dependency using the
+    &f-link-Ignore; function as follows:
 
     </para>
 
@@ -1412,7 +1416,7 @@ Ignore(hello, '/usr/include/stdio.h')
     </programlisting>
 
     <para>
-    &Ignore; can also be used to prevent a generated file from being built
+    &f-Ignore; can also be used to prevent a generated file from being built
     by default. This is due to the fact that directories depend on
     their contents.  So to ignore a generated file from the default build,
     you specify that the directory should ignore the generated file.
@@ -1533,7 +1537,7 @@ int main() { printf("Hello, %s!  I was built: %s\n", date); }
 
     <para>
 
-    One solution is to use the &Requires; function
+    One solution is to use the &f-link-Requires; function
     to specify that the <filename>version.o</filename>
     must be rebuilt before it is used by the link step,
     but that changes to <filename>version.o</filename>
@@ -1571,7 +1575,7 @@ int main() { printf("Hello, %s!  I was built: %s\n", date); }
     we have to find some other way to get it into the link command line.
     For this example, we're cheating a bit and stuffing the
     object file name (extracted from <literal>version_obj</literal>
-    list returned by the &b-Object; call)
+    list returned by the &b-Object; builder call)
     into the &cv-link-LINKFLAGS; variable,
     because &cv-LINKFLAGS; is already included
     in the &cv-link-LINKCOM; command line.
@@ -1609,8 +1613,8 @@ int main() { printf("Hello, %s!  I was built: %s\n", date); }
     <para>
 
     How &SCons; handles dependencies can also be affected
-    by the &AlwaysBuild; method.
-    When a file is passed to the &AlwaysBuild; method,
+    by the &f-link-AlwaysBuild; method.
+    When a file is passed to the &f-AlwaysBuild; method,
     like so:
 
     </para>
@@ -1641,7 +1645,7 @@ int main() { printf("Hello, %s!\n", string); }
 
     <para>
 
-    The &AlwaysBuild; function has a somewhat misleading name,
+    The &f-AlwaysBuild; function has a somewhat misleading name,
     because it does not actually mean the target file will
     be rebuilt every single time &SCons; is invoked.
     Instead, it means that the target will, in fact,
@@ -1650,7 +1654,7 @@ int main() { printf("Hello, %s!\n", string); }
     the command line (and their dependencies).
     So specifying some other target on the command line,
     a target that does <emphasis>not</emphasis>
-    itself depend on the &AlwaysBuild; target,
+    itself depend on the &f-AlwaysBuild; target,
     will still be rebuilt only if it's out-of-date
     with respect to its dependencies:
 

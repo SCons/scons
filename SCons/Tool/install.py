@@ -122,12 +122,17 @@ def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
                         continue
                     # otherwise let the copy occurs. copy2 will raise an error
                     if os.path.isdir(srcname):
-                        scons_copytree(srcname, dstname, symlinks, ignore,
-                                       copy_function, dirs_exist_ok)
+                        scons_copytree(srcname, dstname, symlinks=symlinks,
+                                       ignore=ignore, copy_function=copy_function,
+                                       ignore_dangling_symlinks=ignore_dangling_symlinks,
+                                       dirs_exist_ok=dirs_exist_ok)
                     else:
                         copy_function(srcname, dstname)
             elif os.path.isdir(srcname):
-                scons_copytree(srcname, dstname, symlinks, ignore, copy_function, dirs_exist_ok)
+                scons_copytree(srcname, dstname, symlinks=symlinks,
+                               ignore=ignore, copy_function=copy_function,
+                               ignore_dangling_symlinks=ignore_dangling_symlinks,
+                               dirs_exist_ok=dirs_exist_ok)
             else:
                 # Will raise a SpecialFileError for unsupported file types
                 copy_function(srcname, dstname)
@@ -448,9 +453,9 @@ def generate(env):
                               action         = install_action,
                               target_factory = target_factory.Entry,
                               source_factory = env.fs.Entry,
-                              multi          = 1,
+                              multi          = True,
                               emitter        = [ add_targets_to_INSTALLED_FILES, ],
-                              source_scanner = SCons.Scanner.Base( {}, name = 'Install', recursive = False ),
+                              source_scanner = SCons.Scanner.ScannerBase({}, name='Install', recursive=False),
                               name           = 'InstallBuilder')
 
     global BaseVersionedInstallBuilder
@@ -465,7 +470,7 @@ def generate(env):
                                        action         = installVerLib_action,
                                        target_factory = target_factory.Entry,
                                        source_factory = env.fs.Entry,
-                                       multi          = 1,
+                                       multi          = True,
                                        emitter        = [ add_versioned_targets_to_INSTALLED_FILES, ],
                                        name           = 'InstallVersionedBuilder')
 

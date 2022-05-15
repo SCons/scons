@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 
@@ -32,35 +31,12 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('myrmic.py', r"""
-import os
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-d':
-        outdir = args[1]
-        args = args[1:]
-    elif a == '-classpath':
-        args = args[1:]
-    elif a == '-sourcepath':
-        args = args[1:]
-    else:
-        break
-    args = args[1:]
-for file in args:
-    infile = open(file, 'r')
-    outfile = open(os.path.join(outdir, file[:-5] + '.class'), 'w')
-    for l in infile.readlines():
-        if l[:8] != '/*rmic*/':
-            outfile.write(l)
-sys.exit(0)
-""")
+test.file_fixture(['Java-fixture', 'myrmic.py'])
 
 test.write('SConstruct', """
-env = Environment(tools = ['rmic'],
-                  RMIC = r'%(_python_)s myrmic.py')
-env.RMIC(target = 'outdir', source = 'test1.java')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['rmic'], RMIC=r'%(_python_)s myrmic.py')
+env.RMIC(target='outdir', source='test1.java')
 """ % locals())
 
 test.write('test1.java', """\
@@ -75,9 +51,9 @@ test.must_match(['outdir', 'test1.class'], "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
     test.write('SConstruct', """\
-env = Environment(tools = ['rmic'],
-                  RMIC = r'%(_python_)s myrmic.py')
-env.RMIC(target = 'outdir', source = 'test2.JAVA')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['rmic'], RMIC=r'%(_python_)s myrmic.py')
+env.RMIC(target='outdir', source='test2.JAVA')
 """ % locals())
 
     test.write('test2.JAVA', """\
@@ -123,30 +99,34 @@ if curver < (1, 8):
     test.file_fixture('wrapper_with_args.py')
 
     test.write('SConstruct', """
-foo = Environment(tools = ['javac', 'rmic'])
-foo.Java(target = 'class1', source = 'com/sub/foo')
-foo.RMIC(target = 'outdir1',
-          source = ['class1/com/sub/foo/Example1.class',
-                    'class1/com/sub/foo/Example2'],
-          JAVACLASSDIR = 'class1')
+DefaultEnvironment(tools=[])
+foo = Environment(tools=['javac', 'rmic'])
+foo.Java(target='class1', source='com/sub/foo')
+foo.RMIC(
+    target='outdir1',
+    source=['class1/com/sub/foo/Example1.class', 'class1/com/sub/foo/Example2'],
+    JAVACLASSDIR='class1',
+)
 
 rmic = foo.Dictionary('RMIC')
-bar = foo.Clone(RMIC = r'%(_python_)s wrapper_with_args.py ' + rmic)
-bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
+bar = foo.Clone(RMIC=r'%(_python_)s wrapper_with_args.py ' + rmic)
+bar_classes = bar.Java(target='class2', source='com/sub/bar')
 # XXX This is kind of a Python brute-force way to do what Ant
 # does with its "excludes" attribute.  We should probably find
 # a similar friendlier way to do this.
 bar_classes = [c for c in bar_classes if 'Hello' not in str(c)]
-bar.RMIC(target = Dir('outdir2'), source = bar_classes)
+bar.RMIC(target=Dir('outdir2'), source=bar_classes)
 """ % locals() )
 
-    test.subdir('com',
-                ['com', 'other'],
-                ['com', 'sub'],
-                ['com', 'sub', 'foo'],
-                ['com', 'sub', 'bar'],
-                'src3a',
-                'src3b')
+    test.subdir(
+        'com',
+        ['com', 'other'],
+        ['com', 'sub'],
+        ['com', 'sub', 'foo'],
+        ['com', 'sub', 'bar'],
+        'src3a',
+        'src3b',
+    )
 
     test.write(['com', 'sub', 'foo', 'Hello.java'], """\
 package com.sub.foo;

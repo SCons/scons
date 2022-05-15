@@ -2246,16 +2246,17 @@ class ObjectContentsTestCase(unittest.TestCase):
 
         # Since the python bytecode has per version differences, we need different expected results per version
         expected = {
-            (3, 5): bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()'),
-            (3, 6): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
-            (3, 7): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
-            (3, 8): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
-            (3, 9): bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
-            (3, 10): bytearray(b'3, 3, 0, 0,(N.),(),(|\x00S\x00),(),()'),
+            (3, 5): (bytearray(b'3, 3, 0, 0,(),(),(|\x00\x00S),(),()')),
+            (3, 6): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()')),
+            (3, 7): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()')),
+            (3, 8): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()')),
+            (3, 9): (bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()')),
+            (3, 10): (bytearray(b'3, 3, 0, 0,(N.),(),(|\x00S\x00),(),()'),
+                      bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()')) # 3.10.1, 3.10.2
         }
 
         c = SCons.Action._function_contents(func1)
-        assert c == expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(
+        assert c in expected[sys.version_info[:2]], "Got\n" + repr(c) + "\nExpected \n" + "\n" + repr(
             expected[sys.version_info[:2]])
 
     def test_object_contents(self):

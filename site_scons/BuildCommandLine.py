@@ -67,13 +67,26 @@ class BuildCommandLine:
 
         self.init_command_line_variables()
 
+    def set_date(self):
+        """
+        Determine the release date and the pattern to match a date
+        Mon, 05 Jun 2010 21:17:15 -0700
+        NEW DATE WILL BE INSERTED HERE
+        """
+
+        min = (time.daylight and time.altzone or time.timezone) // 60
+        hr = min // 60
+        min = -(min % 60 + hr * 100)
+        self.date = (time.strftime('%a, %d %b %Y %X', time.localtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
+                     + ' %+.4d' % min)
+
     def process_command_line_vars(self):
         #
         # Now grab the information that we "build" into the files.
         #
         self.date = ARGUMENTS.get('DATE')
         if not self.date:
-            self.date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
+            self.set_date()
 
         self.developer = ARGUMENTS.get('DEVELOPER')
         if not self.developer:

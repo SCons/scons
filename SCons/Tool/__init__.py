@@ -62,7 +62,7 @@ JavaScanner = SCons.Scanner.Java.JavaScanner()
 LaTeXScanner = SCons.Scanner.LaTeX.LaTeXScanner()
 PDFLaTeXScanner = SCons.Scanner.LaTeX.PDFLaTeXScanner()
 ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
-SourceFileScanner = SCons.Scanner.Base({}, name='SourceFileScanner')
+SourceFileScanner = SCons.Scanner.ScannerBase({}, name='SourceFileScanner')
 SWIGScanner = SCons.Scanner.SWIG.SWIGScanner()
 
 CSuffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",

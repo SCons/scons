@@ -66,7 +66,7 @@ f2.out: \S+ \d+ \d+
         \S+ \[build\(target, source, env\)\]
 """
 
-test.run_sconsign(arguments = test.workpath('.sconsign'),
+test.run_sconsign(arguments = test.workpath(test.get_sconsignname()),
                   stdout = expect)
 
 

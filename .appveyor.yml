@@ -1,10 +1,14 @@
 #version: '3.0.1.{build}'
+#
+# When planning updates here, check availability at:
+# https://www.appveyor.com/docs/windows-images-software/
+# This is slow, try to keep the number of builds as low as makes sense.
 
 image:
   # linux builds done in Travis CI for now
-  - Visual Studio 2015
   - Visual Studio 2017
   - Visual Studio 2019
+  - Visual Studio 2022
 
 cache:
   - downloads -> appveyor.yml
@@ -21,9 +25,6 @@ install:
 # split builds into sets of four jobs due to appveyor per-job time limit
 environment:
   matrix:
-    - WINPYTHON: "Python35"
-      COVERAGE: 0
-
     - WINPYTHON: "Python36"
       COVERAGE: 1
 
@@ -33,21 +34,17 @@ environment:
     - WINPYTHON: "Python38"
       COVERAGE: 0
 
+    - WINPYTHON: "Python310"
+      COVERAGE: 0
+
+
 # remove sets of build jobs based on criteria below
 # to fine tune the number and platforms tested
 matrix:
   exclude:
-    # test python 3.5 on Visual Studio 2015 image
-    - image: Visual Studio 2015
-      WINPYTHON: "Python36"
-    - image: Visual Studio 2015
-      WINPYTHON: "Python37"
-    - image: Visual Studio 2015
-      WINPYTHON: "Python38"
-
     # test python 3.8 on Visual Studio 2017 image
     - image: Visual Studio 2017
-      WINPYTHON: "Python35"
+      WINPYTHON: "Python310"
     - image: Visual Studio 2017
       WINPYTHON: "Python37"
     - image: Visual Studio 2017
@@ -55,9 +52,17 @@ matrix:
 
     # test python 3.7 on Visual Studio 2019 image
     - image: Visual Studio 2019
-      WINPYTHON: "Python35"
+      WINPYTHON: "Python310"
     - image: Visual Studio 2019
       WINPYTHON: "Python36"
+
+    # test python 3.10 on Visual Studio 2022 image
+    - image: Visual Studio 2022
+      WINPYTHON: "Python36"
+    - image: Visual Studio 2022
+      WINPYTHON: "Python37"
+    - image: Visual Studio 2022
+      WINPYTHON: "Python38"
 
 # remove some binaries we don't want to be found
 before_build:

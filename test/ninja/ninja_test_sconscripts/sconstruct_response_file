@@ -1,0 +1,15 @@
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+vars = Variables()
+vars.Add('MLL', default='2048')
+
+env = Environment(variables=vars)
+env['MAXLINELENGTH'] = int(env['MLL'])
+env.Tool('ninja')
+
+env.Program(target='foo', source='foo.c', OBJSUFFIX=env['OBJSUFFIX'] + "1")
+
+env2 = env.Clone()
+env2.Append(CPPPATH='very/long/and/very/fake/path/for/testing')
+env2.Program(target='foo2', source='foo.c', OBJSUFFIX=env['OBJSUFFIX'] + "2")

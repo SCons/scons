@@ -1,6 +1,6 @@
-# -*- python -*-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +20,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__doc__ = """
+"""
 Textfile/Substfile builder for SCons.
 
     Create file 'target' which typically is a textfile.  The 'source'
@@ -44,8 +43,6 @@ Textfile/Substfile builder for SCons.
     is unpredictable whether the expansion will occur.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import SCons
 
 
@@ -57,6 +54,7 @@ from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes
 TEXTFILE_FILE_WRITE_MODE = 'w'
 
 LINESEP = '\n'
+
 
 def _do_subst(node, subs):
     """
@@ -86,7 +84,7 @@ def _action(target, source, env):
     # prepare the line separator
     linesep = env['LINESEPARATOR']
     if linesep is None:
-        linesep = LINESEP # os.linesep
+        linesep = LINESEP  # os.linesep
     elif is_String(linesep):
         pass
     elif isinstance(linesep, Value):
@@ -114,7 +112,7 @@ def _action(target, source, env):
             if callable(value):
                 value = value()
             if is_String(value):
-                value = env.subst(value)
+                value = env.subst(value, raw=1)
             else:
                 value = str(value)
             subs.append((k, value))

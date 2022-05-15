@@ -64,7 +64,7 @@ scons: \\*\\*\\* \\[%s\\] Error 1
 """
 
 cannot_execute = """\
-(sh: )*.+: cannot execute( \\[Is a directory\\])?
+(sh: )*.+: cannot execute(( -)? \\[?Is a directory\\]?)?
 scons: \\*\\*\\* \\[%s\\] Error %s
 """
 

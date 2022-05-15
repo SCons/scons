@@ -1,15 +1,6 @@
-"""SCons.Tool.javac
-
-Tool-specific initialization for javac.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,7 +21,16 @@ selection method.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.javac
+
+Tool-specific initialization for javac.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
+
 
 import os
 import os.path
@@ -221,23 +221,24 @@ def generate(env):
     else:
         javac = SCons.Tool.find_program_path(env, 'javac')
 
-    env['JAVAINCLUDES'] = get_java_include_paths(env, javac, version)
 
-
-    env['JAVAC']                    = 'javac'
-    env['JAVACFLAGS']               = SCons.Util.CLVar('')
-    env['JAVABOOTCLASSPATH']        = []
-    env['JAVACLASSPATH']            = []
-    env['JAVASOURCEPATH']           = []
-    env['_javapathopt']             = pathopt
-    env['_JAVABOOTCLASSPATH']       = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
-    env['_JAVACLASSPATH']           = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
-    env['_JAVASOURCEPATH']          = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
-    env['_JAVASOURCEPATHDEFAULT']   = '${TARGET.attributes.java_sourcedir}'
-    env['_JAVACCOM']                = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
-    env['JAVACCOM']                 = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
-    env['JAVACLASSSUFFIX']          = '.class'
-    env['JAVASUFFIX']               = '.java'
+    env.SetDefault(
+        JAVAC='javac',
+        JAVACFLAGS=SCons.Util.CLVar(''),
+        JAVAINCLUDES=get_java_include_paths(env, javac, version),
+        JAVACLASSSUFFIX='.class',
+        JAVASUFFIX='.java',
+        JAVABOOTCLASSPATH=[],
+        JAVACLASSPATH=[],
+        JAVASOURCEPATH=[],
+    )
+    env['_javapathopt'] = pathopt
+    env['_JAVABOOTCLASSPATH'] = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
+    env['_JAVACLASSPATH'] = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
+    env['_JAVASOURCEPATH'] = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
+    env['_JAVASOURCEPATHDEFAULT'] = '${TARGET.attributes.java_sourcedir}'
+    env['_JAVACCOM'] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
+    env['JAVACCOM'] = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
 
 def exists(env):
     return 1

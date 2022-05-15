@@ -130,8 +130,8 @@ class DictCmdGenerator(SCons.Util.Selector):
     to return the proper action based on the file suffix of
     the source file."""
 
-    def __init__(self, dict=None, source_ext_match=1):
-        SCons.Util.Selector.__init__(self, dict)
+    def __init__(self, mapping=None, source_ext_match=True):
+        super().__init__(mapping)
         self.source_ext_match = source_ext_match
 
     def src_suffixes(self):
@@ -222,10 +222,11 @@ class OverrideWarner(UserDict):
     can actually invoke multiple builders.  This class only emits the
     warnings once, no matter how many Builders are invoked.
     """
-    def __init__(self, dict):
-        UserDict.__init__(self, dict)
+    def __init__(self, mapping):
+        super().__init__(mapping)
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.OverrideWarner')
         self.already_warned = None
+
     def warn(self):
         if self.already_warned:
             return
@@ -245,7 +246,7 @@ def Builder(**kw):
         kw['action'] = SCons.Action.CommandGeneratorAction(kw['generator'], {})
         del kw['generator']
     elif 'action' in kw:
-        source_ext_match = kw.get('source_ext_match', 1)
+        source_ext_match = kw.get('source_ext_match', True)
         if 'source_ext_match' in kw:
             del kw['source_ext_match']
         if SCons.Util.is_Dict(kw['action']):
@@ -353,12 +354,20 @@ class EmitterProxy:
 
         return (target, source)
 
-
     def __eq__(self, other):
         return self.var == other.var
 
     def __lt__(self, other):
         return self.var < other.var
+
+    def __le__(self, other):
+        return self.var <= other.var
+
+    def __gt__(self, other):
+        return self.var > other.var
+
+    def __ge__(self, other):
+        return self.var >= other.var
 
 class BuilderBase:
     """Base class for Builders, objects that create output
@@ -613,6 +622,10 @@ class BuilderBase:
             t.set_executor(executor)
             t.set_explicit(self.is_explicit)
 
+        if env.get("SCONF_NODE"):
+            for node in tlist:
+                node.attributes.conftest_node = 1
+
         return SCons.Node.NodeList(tlist)
 
     def __call__(self, env, target=None, source=None, chdir=_null, **kw):
@@ -864,7 +877,7 @@ class CompositeBuilder(SCons.Util.Proxy):
 
     def __init__(self, builder, cmdgen):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Builder.CompositeBuilder')
-        SCons.Util.Proxy.__init__(self, builder)
+        super().__init__(builder)
 
         # cmdgen should always be an instance of DictCmdGenerator.
         self.cmdgen = cmdgen

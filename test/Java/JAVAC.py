@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,12 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test setting the JAVAC variable.
+
+This test does not require a JDK to operate.
 """
 
 import os
@@ -36,33 +37,12 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+test.file_fixture(['Java-fixture', 'myjavac.py'])
 
-
-test.write('myjavac.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-d':
-        args = args[1:]
-    elif a == '-sourcepath':
-        args = args[1:]
-    else:
-        break
-    args = args[1:]
-for file in args:
-    infile = open(file, 'r')
-    outfile = open(file[:-5] + '.class', 'w')
-    for l in infile.readlines():
-        if l[:9] != '/*javac*/':
-            outfile.write(l)
-sys.exit(0)
-""")
-
-test.write('SConstruct', """
-env = Environment(tools = ['javac'],
-                  JAVAC = r'%(_python_)s myjavac.py')
-env.Java(target = '.', source = '.')
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(tools=['javac'], JAVAC=r'%(_python_)s myjavac.py')
+env.Java(target='.', source='.')
 """ % locals())
 
 test.write('test1.java', """\
@@ -72,15 +52,13 @@ line 3
 """)
 
 test.run(arguments='.', stderr=None)
-
 test.must_match('test1.class', "test1.java\nline 3\n", mode='r')
 
 if os.path.normcase('.java') == os.path.normcase('.JAVA'):
-
     test.write('SConstruct', """\
-env = Environment(tools = ['javac'],
-                  JAVAC = r'%(_python_)s myjavac.py')
-env.Java(target = '.', source = '.')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['javac'], JAVAC=r'%(_python_)s myjavac.py')
+env.Java(target='.', source='.')
 """ % locals())
 
     test.write('test2.JAVA', """\
@@ -90,10 +68,7 @@ line 3
 """)
 
     test.run(arguments='.', stderr=None)
-
     test.must_match('test2.class', "test2.JAVA\nline 3\n", mode='r')
-
-
 
 test.pass_test()
 

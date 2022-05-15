@@ -38,6 +38,7 @@ import SCons.Scanner
 import SCons.Tool
 import SCons.Util
 import SCons.Tool.cxx
+import SCons.Warnings
 cplusplus = SCons.Tool.cxx
 
 class ToolQtWarning(SCons.Warnings.SConsWarning):
@@ -258,7 +259,7 @@ def uicScannerFunc(node, env, path):
             result.append(dep)
     return result
 
-uicScanner = SCons.Scanner.Base(uicScannerFunc,
+uicScanner = SCons.Scanner.ScannerBase(uicScannerFunc,
                                 name = "UicScanner",
                                 node_class = SCons.Node.FS.File,
                                 node_factory = SCons.Node.FS.File,
@@ -269,6 +270,10 @@ def generate(env):
     CLVar = SCons.Util.CLVar
     Action = SCons.Action.Action
     Builder = SCons.Builder.Builder
+
+    SCons.Warnings.warn(
+        SCons.Warnings.ToolQtDeprecatedWarning, "Tool module for Qt version 3 is deprecated"
+    )
 
     env.SetDefault(QTDIR  = _detect(env),
                    QT_BINPATH = os.path.join('$QTDIR', 'bin'),

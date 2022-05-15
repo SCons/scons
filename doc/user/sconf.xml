@@ -363,7 +363,7 @@ env = conf.Finish()
 
   </section>
   <section>
-  <title>Adding Your Own Custom Checks</title>
+  <title>Extending &SCons;: Adding Your Own Custom Checks</title>
 
     <para>
 

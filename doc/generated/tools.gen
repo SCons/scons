@@ -811,6 +811,19 @@ Sets construction variables for the
 </para>
 <para>Sets: &cv-link-AS;, &cv-link-ASCOM;, &cv-link-ASFLAGS;, &cv-link-ASPPCOM;, &cv-link-ASPPFLAGS;.</para><para>Uses: &cv-link-ASCOMSTR;, &cv-link-ASPPCOMSTR;.</para></listitem>
   </varlistentry>
+  <varlistentry id="t-ninja">
+    <term>ninja</term>
+    <listitem><para>
+                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs &ninja;.
+            </para>
+            <note>
+                <para>This is an experimental feature.
+                </para>
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+            </note>
+
+        <para>Sets: &cv-link-IMPLICIT_COMMAND_DEPENDENCIES;, &cv-link-NINJA_ALIAS_NAME;, &cv-link-NINJA_COMPDB_EXPAND;, &cv-link-NINJA_DIR;, &cv-link-NINJA_DISABLE_AUTO_RUN;, &cv-link-NINJA_ENV_VAR_CACHE;, &cv-link-NINJA_FILE_NAME;, &cv-link-NINJA_FORCE_SCONS_BUILD;, &cv-link-NINJA_GENERATED_SOURCE_SUFFIXES;, &cv-link-NINJA_MSVC_DEPS_PREFIX;, &cv-link-NINJA_POOL;, &cv-link-NINJA_REGENERATE_DEPS;, &cv-link-NINJA_SYNTAX;, &cv-link-_NINJA_REGENERATE_DEPS_FUNC;, &cv-link-__NINJA_NO;.</para><para>Uses: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-ESCAPE;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-PLATFORM;, &cv-link-PRINT_CMD_LINE_FUNC;, &cv-link-PROGSUFFIX;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-SHCCCOM;, &cv-link-SHCXXCOM;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;.</para></listitem>
+  </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
     <listitem><para>
@@ -855,9 +868,92 @@ provided to an Action that uses this environment.
   <varlistentry id="t-qt">
     <term>qt</term>
     <listitem><para>
-Sets construction variables for building Qt applications.
+Sets &consvars; for building Qt3 applications.
 </para>
-<para>Sets: &cv-link-QTDIR;, &cv-link-QT_AUTOSCAN;, &cv-link-QT_BINPATH;, &cv-link-QT_CPPPATH;, &cv-link-QT_LIB;, &cv-link-QT_LIBPATH;, &cv-link-QT_MOC;, &cv-link-QT_MOCCXXPREFIX;, &cv-link-QT_MOCCXXSUFFIX;, &cv-link-QT_MOCFROMCXXCOM;, &cv-link-QT_MOCFROMCXXFLAGS;, &cv-link-QT_MOCFROMHCOM;, &cv-link-QT_MOCFROMHFLAGS;, &cv-link-QT_MOCHPREFIX;, &cv-link-QT_MOCHSUFFIX;, &cv-link-QT_UIC;, &cv-link-QT_UICCOM;, &cv-link-QT_UICDECLFLAGS;, &cv-link-QT_UICDECLPREFIX;, &cv-link-QT_UICDECLSUFFIX;, &cv-link-QT_UICIMPLFLAGS;, &cv-link-QT_UICIMPLPREFIX;, &cv-link-QT_UICIMPLSUFFIX;, &cv-link-QT_UISUFFIX;.</para></listitem>
+
+<note><para>
+This tool is only suitable for building targeted to Qt3,
+which is obsolete
+(<emphasis>the tool is deprecated since 4.3</emphasis>).
+There are contributed tools for Qt4 and Qt5, see
+<ulink url="https://github.com/SCons/scons-contrib">
+https://github.com/SCons/scons-contrib</ulink>.
+Qt4 has also passed end of life for standard support (in Dec 2015).
+</para></note>
+
+<para>
+Note paths for these &consvars; are assembled
+using the <function>os.path.join</function> method
+so they will have the appropriate separator at runtime,
+but are listed here in the various
+entries only with the <literal>'/'</literal> separator
+for simplicity.
+</para>
+
+<para>
+In addition, the &consvars;
+&cv-link-CPPPATH;,
+&cv-link-LIBPATH; and
+&cv-link-LIBS; may be modified
+and the variables
+&cv-link-PROGEMITTER;, &cv-link-SHLIBEMITTER; and &cv-link-LIBEMITTER;
+are modified. Because the build-performance is affected when using this tool,
+you have to explicitly specify it at Environment creation:
+</para>
+
+<example_commands>
+Environment(tools=['default','qt'])
+</example_commands>
+
+<para>
+The &t-qt; tool supports the following operations:
+</para>
+
+<para>
+<emphasis role="strong">Automatic moc file generation from header files.</emphasis>
+You do not have to specify moc files explicitly, the tool does it for you.
+However, there are a few preconditions to do so: Your header file must have
+the same filebase as your implementation file and must stay in the same
+directory. It must have one of the suffixes
+<filename>.h</filename>,
+<filename>.hpp</filename>,
+<filename>.H</filename>,
+<filename>.hxx</filename>,
+<filename>.hh</filename>.
+You can turn off automatic moc file generation by setting
+&cv-link-QT_AUTOSCAN; to <constant>False</constant>.
+See also the corresponding
+&b-link-Moc; Builder.
+</para>
+
+<para>
+<emphasis role="strong">Automatic moc file generation from C++ files.</emphasis>
+As described in the Qt documentation, include the moc file at the end of
+the C++ file. Note that you have to include the file, which is generated
+by the transformation
+<literal>${QT_MOCCXXPREFIX}&lt;basename&gt;${QT_MOCCXXSUFFIX}</literal>, by default
+<filename>&lt;basename&gt;.mo</filename>. A warning is generated after building the moc file if you
+do not include the correct file. If you are using &f-link-VariantDir;, you may
+need to specify <parameter>duplicate=True</parameter>.
+You can turn off automatic moc file generation by setting &cv-QT_AUTOSCAN; to
+<literal>False</literal>. See also the corresponding
+&b-link-Moc; Builder.
+</para>
+
+<para>
+<emphasis role="strong">Automatic handling of .ui files.</emphasis>
+The implementation files generated from <filename>.ui</filename>
+files are handled much the same as yacc or lex files.
+Each <command>.ui</command> file given as a source of &b-link-Program;,
+&b-link-Library; or &b-link-SharedLibrary;
+will generate three files: the declaration file, the
+implementation file and a moc file. Because there are also generated headers,
+you may need to specify <parameter>duplicate=True</parameter> in calls to
+&f-link-VariantDir;.
+See also the corresponding
+&b-link-Uic; Builder.
+</para>
+<para>Sets: &cv-link-QTDIR;, &cv-link-QT_AUTOSCAN;, &cv-link-QT_BINPATH;, &cv-link-QT_CPPPATH;, &cv-link-QT_LIB;, &cv-link-QT_LIBPATH;, &cv-link-QT_MOC;, &cv-link-QT_MOCCXXPREFIX;, &cv-link-QT_MOCCXXSUFFIX;, &cv-link-QT_MOCFROMCXXCOM;, &cv-link-QT_MOCFROMCXXFLAGS;, &cv-link-QT_MOCFROMHCOM;, &cv-link-QT_MOCFROMHFLAGS;, &cv-link-QT_MOCHPREFIX;, &cv-link-QT_MOCHSUFFIX;, &cv-link-QT_UIC;, &cv-link-QT_UICCOM;, &cv-link-QT_UICDECLFLAGS;, &cv-link-QT_UICDECLPREFIX;, &cv-link-QT_UICDECLSUFFIX;, &cv-link-QT_UICIMPLFLAGS;, &cv-link-QT_UICIMPLPREFIX;, &cv-link-QT_UICIMPLSUFFIX;, &cv-link-QT_UISUFFIX;.</para><para>Uses: &cv-link-QTDIR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-rmic">
     <term>rmic</term>

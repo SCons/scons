@@ -121,7 +121,7 @@ class SubstTestCase(unittest.TestCase):
     class MyNode(DummyNode):
         """Simple node work-alike with some extra stuff for testing."""
         def __init__(self, name):
-            DummyNode.__init__(self, name)
+            super().__init__(name)
             class Attribute:
                 pass
             self.attribute = Attribute()
@@ -597,8 +597,10 @@ class scons_subst_TestCase(SubstTestCase):
             scons_subst('$foo.bar.3.0', env)
         except SCons.Errors.UserError as e:
             expect = [
-                # Python 2.5 and later
+                # Python 2.5 to 3.9
                 "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
+                # Python 3.10 and later
+                "SyntaxError `invalid syntax. Perhaps you forgot a comma? (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
             ]
             assert str(e) in expect, e
         else:
@@ -1054,9 +1056,10 @@ class scons_subst_list_TestCase(SubstTestCase):
             scons_subst_list('$foo.bar.3.0', env)
         except SCons.Errors.UserError as e:
             expect = [
-                "SyntaxError `invalid syntax' trying to evaluate `$foo.bar.3.0'",
-                "SyntaxError `invalid syntax (line 1)' trying to evaluate `$foo.bar.3.0'",
+                # Python 2.5 to 3.9
                 "SyntaxError `invalid syntax (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
+                # Python 3.10 and later
+                "SyntaxError `invalid syntax. Perhaps you forgot a comma? (<string>, line 1)' trying to evaluate `$foo.bar.3.0'",
             ]
             assert str(e) in expect, e
         else:

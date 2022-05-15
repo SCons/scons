@@ -320,7 +320,7 @@ class _GenerateV7User(_UserGenerator):
             self.usrhead = V9UserHeader
             self.usrconf = V9UserConfiguration
             self.usrdebg = V9DebugSettings
-        _UserGenerator.__init__(self, dspfile, source, env)
+        super().__init__(dspfile, source, env)
 
     def UserProject(self):
         confkeys = sorted(self.configs.keys())
@@ -379,7 +379,10 @@ class _GenerateV10User(_UserGenerator):
 
     def __init__(self, dspfile, source, env):
         version_num, suite = msvs_parse_version(env['MSVS_VERSION'])
-        if version_num >= 14.2:
+        if version_num >= 14.3:
+            # Visual Studio 2022 is considered to be version 17.
+            self.versionstr = '17.0'
+        elif version_num >= 14.2:
             # Visual Studio 2019 is considered to be version 16.
             self.versionstr = '16.0'
         elif version_num >= 14.1:
@@ -392,7 +395,7 @@ class _GenerateV10User(_UserGenerator):
         self.usrhead = V10UserHeader
         self.usrconf = V10UserConfiguration
         self.usrdebg = V10DebugSettings
-        _UserGenerator.__init__(self, dspfile, source, env)
+        super().__init__(dspfile, source, env)
 
     def UserProject(self):
         confkeys = sorted(self.configs.keys())
@@ -1484,7 +1487,7 @@ class _DSWGenerator:
 class _GenerateV7DSW(_DSWGenerator):
     """Generates a Solution file for MSVS .NET"""
     def __init__(self, dswfile, source, env):
-        _DSWGenerator.__init__(self, dswfile, source, env)
+        super().__init__(dswfile, source, env)
 
         self.file = None
         self.version = self.env['MSVS_VERSION']
@@ -1599,7 +1602,10 @@ class _GenerateV7DSW(_DSWGenerator):
     def PrintSolution(self):
         """Writes a solution file"""
         self.file.write('Microsoft Visual Studio Solution File, Format Version %s\n' % self.versionstr)
-        if self.version_num >= 14.2:
+        if self.version_num >= 14.3:
+            # Visual Studio 2022 is considered to be version 17.
+            self.file.write('# Visual Studio 17\n')
+        elif self.version_num >= 14.2:
             # Visual Studio 2019 is considered to be version 16.
             self.file.write('# Visual Studio 16\n')
         elif self.version_num > 14.0:

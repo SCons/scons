@@ -53,7 +53,7 @@ scons: \\*\\*\\* \\[%s\\] Error 1
 """
 
 cannot_execute = """\
-(sh: )*.+: cannot execute( \\[Permission denied\\])?
+(sh: )*.+: cannot execute(( -)? \\[?Permission denied\\]?)?
 scons: \\*\\*\\* \\[%s\\] Error %s
 """
 

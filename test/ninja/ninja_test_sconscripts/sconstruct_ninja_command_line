@@ -1,0 +1,14 @@
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+env_vars=Variables(args=ARGUMENTS)
+env_vars.Add('BUILD')
+env_vars.Add('OTHER_VAR')
+env = Environment(variables=env_vars)
+
+env.VariantDir(env['OTHER_VAR'], 'src')
+env.Tool('ninja')
+with open('src/foo.c') as foo:
+    env.Textfile('$BUILD/bar2.c', foo.read())
+    
+env.Program(target = 'foo', source = '$BUILD/bar2.c', CPPPATH='src')

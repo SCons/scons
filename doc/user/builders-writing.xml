@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -18,11 +18,13 @@
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
-<title>Writing Your Own Builders</title>
+<title>Extending &SCons;: Writing Your Own Builders</title>
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -79,14 +81,14 @@
     </para>
 
     <programlisting>
-bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
+bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')
     </programlisting>
 
     <para>
 
     All the above line does is create a free-standing
     &Builder; object.
-    The next section will show us how to actually use it.
+    The next section will show how to actually use it.
 
     </para>
 
@@ -103,7 +105,7 @@ bld = Builder(action = 'foobuild &lt; $SOURCE &gt; $TARGET')
     for files to be built.
     This is done through the &cv-link-BUILDERS;
     &consvar; in an environment.
-    The &cv-BUILDERS; variable is a Python dictionary
+    The &cv-link-BUILDERS; variable is a &Python; dictionary
     that maps the names by which you want to call
     various &Builder; objects to the objects themselves.
     For example, if we want to call the
@@ -219,7 +221,7 @@ hello.c
 
     To be able to use both our own defined &Builder; objects
     and the default &Builder; objects in the same &consenv;,
-    you can either add to the &cv-BUILDERS; variable
+    you can either add to the &cv-link-BUILDERS; variable
     using the &Append; function:
 
     </para>
@@ -294,8 +296,8 @@ env.Program('hello.c')
     suffixes to the target and/or the source file.
     For example, rather than having to specify
     explicitly that you want the <literal>Foo</literal>
-    &Builder; to build the <literal>file.foo</literal>
-    target file from the <literal>file.input</literal> source file,
+    &Builder; to build the <filename>file.foo</filename>
+    target file from the <filename>file.input</filename> source file,
     you can give the <literal>.foo</literal>
     and <literal>.input</literal> suffixes to the &Builder;,
     making for more compact and readable calls to
@@ -359,7 +361,7 @@ env.Foo('file2')
 
     In &SCons;, you don't have to call an external command
     to build a file.
-    You can, instead, define a Python function
+    You can, instead, define a &Python; function
     that a &Builder; object can invoke
     to build your target file (or files).
     Such a &buildfunc; definition looks like:
@@ -381,7 +383,7 @@ def build_function(target, source, env):
     <variablelist>
 
       <varlistentry>
-      <term>target</term>
+      <term><parameter>target</parameter></term>
 
       <listitem>
       <para>
@@ -390,14 +392,14 @@ def build_function(target, source, env):
       the target or targets to be
       built by this function.
       The file names of these target(s)
-      may be extracted using the Python &str; function.
+      may be extracted using the &Python; &str; function.
 
       </para>
       </listitem>
       </varlistentry>
 
       <varlistentry>
-      <term>source</term>
+      <term><parameter>source</parameter></term>
 
       <listitem>
       <para>
@@ -406,21 +408,21 @@ def build_function(target, source, env):
       the sources to be
       used by this function to build the targets.
       The file names of these source(s)
-      may be extracted using the Python &str; function.
+      may be extracted using the &Python; &str; function.
 
       </para>
       </listitem>
       </varlistentry>
 
       <varlistentry>
-      <term>env</term>
+      <term><parameter>env</parameter></term>
 
       <listitem>
       <para>
 
       The &consenv; used for building the target(s).
       The function may use any of the
-      environment's construction variables
+      environment's &consvars;
       in any way to affect how it builds the targets.
 
       </para>
@@ -444,7 +446,7 @@ def build_function(target, source, env):
 
     <para>
 
-    Once you've defined the Python function
+    Once you've defined the &Python; function
     that will build your target file,
     defining a &Builder; object for it is as
     simple as specifying the name of the function,
@@ -477,7 +479,7 @@ file.input
     <para>
 
     And notice that the output changes slightly,
-    reflecting the fact that a Python function,
+    reflecting the fact that a &Python; function,
     not an external command,
     is now called to build the target file:
 
@@ -495,8 +497,8 @@ file.input
     <para>
 
     &SCons; Builder objects can create an action "on the fly"
-    by using a function called a &generator;.
-    (Note: this is not the same thing as a Python generator function
+    by using a function called a <firstterm>&Generator;</firstterm>.
+    (Note: this is not the same thing as a &Python; generator function
     described in <ulink url="https://www.python.org/dev/peps/pep-0255/">PEP 255</ulink>)
     This provides a great deal of flexibility to
     construct just the right list of commands
@@ -519,7 +521,7 @@ def generate_actions(source, target, env, for_signature):
     <variablelist>
 
       <varlistentry>
-      <term>source</term>
+      <term><parameter>source</parameter></term>
 
       <listitem>
       <para>
@@ -529,7 +531,7 @@ def generate_actions(source, target, env, for_signature):
       by the command or other action
       generated by this function.
       The file names of these source(s)
-      may be extracted using the Python &str; function.
+      may be extracted using the &Python; &str; function.
 
       </para>
       </listitem>
@@ -537,7 +539,7 @@ def generate_actions(source, target, env, for_signature):
       </varlistentry>
 
       <varlistentry>
-      <term>target</term>
+      <term><parameter>target</parameter></term>
 
       <listitem>
       <para>
@@ -547,7 +549,7 @@ def generate_actions(source, target, env, for_signature):
       by the command or other action
       generated by this function.
       The file names of these target(s)
-      may be extracted using the Python &str; function.
+      may be extracted using the &Python; &str; function.
 
       </para>
       </listitem>
@@ -555,14 +557,14 @@ def generate_actions(source, target, env, for_signature):
       </varlistentry>
 
       <varlistentry>
-      <term>env</term>
+      <term><parameter>env</parameter></term>
 
       <listitem>
       <para>
 
       The &consenv; used for building the target(s).
-      The generator may use any of the
-      environment's construction variables
+      The &generator; may use any of the
+      environment's &consvars;
       in any way to determine what command
       or other action to return.
 
@@ -572,13 +574,13 @@ def generate_actions(source, target, env, for_signature):
       </varlistentry>
 
       <varlistentry>
-      <term>for_signature</term>
+      <term><parameter>for_signature</parameter></term>
 
       <listitem>
       <para>
 
       A flag that specifies whether the
-      generator is being called to contribute to a build signature,
+      &generator; is being called to contribute to a &buildsig;,
       as opposed to actually executing the command.
 
       <!-- XXX NEED MORE HERE, describe generators use in signatures -->
@@ -602,8 +604,8 @@ def generate_actions(source, target, env, for_signature):
 
     Once you've defined a &generator;,
     you create a &Builder; to use it
-    by specifying the generator keyword argument
-    instead of <literal>action</literal>.
+    by specifying the <parameter>generator</parameter> keyword argument
+    instead of <parameter>action</parameter>.
 
     </para>
 
@@ -650,9 +652,9 @@ env.Foo('file')
     <para>
 
     Note that it's illegal to specify both an
-    <literal>action</literal>
+    <parameter>action</parameter>
     and a
-    <literal>generator</literal>
+    <parameter>generator</parameter>
     for a &Builder;.
 
     </para>
@@ -670,7 +672,7 @@ env.Foo('file')
     that takes as its arguments
     the list of the targets passed to the builder,
     the list of the sources passed to the builder,
-    and the construction environment.
+    and the &consenv;.
     The emitter function should return the modified
     lists of targets that should be built
     and sources from which the targets will be built.
@@ -737,7 +739,7 @@ env.Foo('file')
     </sconstruct>
 
     <para>
-    
+
     And would yield the following output:
 
     </para>
@@ -749,16 +751,15 @@ env.Foo('file')
     <para>
 
     One very flexible thing that you can do is
-    use a construction variable to specify
-    different emitter functions for different
-    construction variable.
+    use a &consvar; to specify
+    different emitter functions for different &consenvs;.
     To do this, specify a string
-    containing a construction variable
+    containing a &consvar;
     expansion as the emitter when you call
     the &f-link-Builder; function,
-    and set that construction variable to
+    and set that &consvar; to
     the desired emitter function
-    in different construction environments:
+    in different &consenvs;:
 
     </para>
 
@@ -825,9 +826,9 @@ cat
     is a powerful concept, but sometimes all you really want
     is to be able to use an existing builder but change its
     concept of what targets are created.
-    In this case, 
+    In this case,
     trying to recreate the logic of an existing Builder to
-    supply a special emitter can be a lot of work. 
+    supply a special emitter can be a lot of work.
     The typical case for this is when you want to use a compiler flag
     that causes additional files to be generated.
     For example the GNU linker accepts an option
@@ -842,12 +843,12 @@ cat
     <para>
 
     To help with this, &SCons; provides &consvars; which correspond
-    to a few standard builders: 
-    &cv-link-PROGEMITTER; for &b-link-Program;; 
-    &cv-link-LIBEMITTER; for &b-link-Library;; 
-    &cv-link-SHLIBEMITTER; for &b-link-SharedLibrary; and 
+    to a few standard builders:
+    &cv-link-PROGEMITTER; for &b-link-Program;;
+    &cv-link-LIBEMITTER; for &b-link-Library;;
+    &cv-link-SHLIBEMITTER; for &b-link-SharedLibrary; and
     &cv-link-LDMODULEEMITTER; for &b-link-LoadableModule;;.
-    Adding an emitter to one of these will cause it to be 
+    Adding an emitter to one of these will cause it to be
     invoked in addition to any existing emitter for the
     corresponding builder.
 
@@ -942,10 +943,10 @@ main()
     <para>
 
     The <filename>site_scons</filename> directories give you a place to
-    put Python modules and packages that you can import into your &SConscript; files
-    (<filename>site_scons</filename>),
+    put &Python; modules and packages that you can import into your
+    &SConscript; files (at the top level)
     add-on tools that can integrate into &SCons;
-    (<filename>site_scons/site_tools</filename>),
+    (in a <filename>site_tools</filename> subdirectory),
     and a <filename>site_scons/site_init.py</filename> file that
     gets read before any &SConstruct; or &SConscript; file,
     allowing you to change &SCons;'s default behavior.
@@ -955,8 +956,10 @@ main()
     <para>
 
     Each system type (Windows, Mac, Linux, etc.) searches a canonical
-    set of directories for <filename>site_scons</filename>; see the man page for details.
-    The top-level SConstruct's <filename>site_scons</filename> dir is always searched last,
+    set of directories for <filename>site_scons</filename>;
+    see the man page for details.
+    The top-level SConstruct's <filename>site_scons</filename> dir
+    (that is, the one in the project) is always searched last,
     and its dir is placed first in the tool path so it overrides all
     others.
 
@@ -967,8 +970,8 @@ main()
     If you get a tool from somewhere (the &SCons; wiki or a third party,
     for instance) and you'd like to use it in your project, a
     <filename>site_scons</filename> dir is the simplest place to put it.
-    Tools come in two flavors; either a Python function that operates on
-    an &Environment; or a Python module or package  containing two functions,
+    Tools come in two flavors; either a &Python; function that operates on
+    an &Environment; or a &Python; module or package  containing two functions,
     <function>exists()</function> and <function>generate()</function>.
 
     </para>
@@ -1021,7 +1024,7 @@ env.AddHeader('tgt', 'src')
 
     </para>
 
-    <!-- 
+    <!--
     <scons_output example="builderswriting_site1" os="posix" suffix="1">
        <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
@@ -1048,15 +1051,16 @@ env.AddHeader('tgt', 'src')
     </para>
 
     <para>
-      Many people have a library of utility Python functions they'd like
-      to include in &SConscript;s; just put that module in
-      <filename>site_scons/my_utils.py</filename> or any valid Python module name of your
+      Many people have a collection of utility &Python; functions they'd like
+      to include in their &SConscript; files: just put them in
+      <filename>site_scons/my_utils.py</filename>
+      or any valid &Python; module name of your
       choice.  For instance you can do something like this in
       <filename>site_scons/my_utils.py</filename> to add
       <function>build_id</function> and <function>MakeWorkDir</function>
       functions:
     </para>
-      
+
     <scons_example name="builderswriting_site2">
       <file name="site_scons/my_utils.py" printme="1">
 from SCons.Script import *  # for Execute and Mkdir
@@ -1071,16 +1075,15 @@ def MakeWorkDir(workdir):
       </file>
       <file name="SConscript">
 import my_utils
+
 MakeWorkDir('/tmp/work')
 print("build_id=" + my_utils.build_id())
       </file>
     </scons_example>
 
     <para>
-
-    And then in your &SConscript; or any sub-&SConscript; anywhere in
-    your build, you can import <filename>my_utils</filename> and use it:
-
+      And then in your &SConscript; or any sub-&SConscript; anywhere in
+      your build, you can import <filename>my_utils</filename> and use it:
     </para>
 
     <sconstruct>
@@ -1090,11 +1093,12 @@ my_utils.MakeWorkDir('/tmp/work')
     </sconstruct>
 
     <para>
-      Note that although you can put this library in
+      You can put this collection in its own module in a
+      <filename>site_scons</filename> and import it as in the example,
+      or you can include it in
       <filename>site_scons/site_init.py</filename>,
-      it is no better there than <filename>site_scons/my_utils.py</filename>
-      since you still have to import that module into your &SConscript;.
-      Also note that in order to refer to objects in the SCons namespace
+      which is automatically imported (unless you disable site directories).
+      Note that in order to refer to objects in the SCons namespace
       such as &Environment; or &Mkdir; or &Execute; in any file other
       than a &SConstruct; or &SConscript; you always need to do
     </para>
@@ -1103,22 +1107,20 @@ from SCons.Script import *
     </sconstruct>
 
     <para>
-      This is true in modules in <filename>site_scons</filename> such as
+      This is true of modules in <filename>site_scons</filename> such as
       <filename>site_scons/site_init.py</filename> as well.
     </para>
 
     <para>
-
-      You can use any of the user- or machine-wide site dirs such as
+      You can use any of the user- or machine-wide site directories such as
       <filename>~/.scons/site_scons</filename> instead of
       <filename>./site_scons</filename>, or use the
-      <option>--site-dir</option> option to point to your own dir.
+      <option>--site-dir</option> option to point to your own directory.
       <filename>site_init.py</filename> and
-      <filename>site_tools</filename> will be located under that dir.
-      To avoid using a <filename>site_scons</filename> dir at all,
+      <filename>site_tools</filename> will be located under that directory.
+      To avoid using a <filename>site_scons</filename> directory at all,
       even if it exists, use the <option>--no-site-dir</option>
       option.
-
     </para>
 
   </section>

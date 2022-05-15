@@ -9,6 +9,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
 
 <!ENTITY cv-__LDMODULEVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__LDMODULEVERSIONFLAGS</envar>">
+<!ENTITY cv-__NINJA_NO "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__NINJA_NO</envar>">
 <!ENTITY cv-__SHLIBVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$__SHLIBVERSIONFLAGS</envar>">
 <!ENTITY cv-APPLELINK_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$APPLELINK_COMPATIBILITY_VERSION</envar>">
 <!ENTITY cv-_APPLELINK_COMPATIBILITY_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_APPLELINK_COMPATIBILITY_VERSION</envar>">
@@ -349,6 +350,19 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-MWCW_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MWCW_VERSION</envar>">
 <!ENTITY cv-MWCW_VERSIONS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MWCW_VERSIONS</envar>">
 <!ENTITY cv-NAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NAME</envar>">
+<!ENTITY cv-NINJA_ALIAS_NAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_ALIAS_NAME</envar>">
+<!ENTITY cv-NINJA_COMPDB_EXPAND "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_COMPDB_EXPAND</envar>">
+<!ENTITY cv-NINJA_DIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_DIR</envar>">
+<!ENTITY cv-NINJA_DISABLE_AUTO_RUN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_DISABLE_AUTO_RUN</envar>">
+<!ENTITY cv-NINJA_ENV_VAR_CACHE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_ENV_VAR_CACHE</envar>">
+<!ENTITY cv-NINJA_FILE_NAME "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_FILE_NAME</envar>">
+<!ENTITY cv-NINJA_FORCE_SCONS_BUILD "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_FORCE_SCONS_BUILD</envar>">
+<!ENTITY cv-NINJA_GENERATED_SOURCE_SUFFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_GENERATED_SOURCE_SUFFIXES</envar>">
+<!ENTITY cv-NINJA_MSVC_DEPS_PREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_MSVC_DEPS_PREFIX</envar>">
+<!ENTITY cv-NINJA_POOL "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_POOL</envar>">
+<!ENTITY cv-NINJA_REGENERATE_DEPS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_REGENERATE_DEPS</envar>">
+<!ENTITY cv-_NINJA_REGENERATE_DEPS_FUNC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_NINJA_REGENERATE_DEPS_FUNC</envar>">
+<!ENTITY cv-NINJA_SYNTAX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$NINJA_SYNTAX</envar>">
 <!ENTITY cv-no_import_lib "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$no_import_lib</envar>">
 <!ENTITY cv-OBJPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$OBJPREFIX</envar>">
 <!ENTITY cv-OBJSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$OBJSUFFIX</envar>">
@@ -549,6 +563,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-TARGET_OS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGET_OS</envar>">
 <!ENTITY cv-TARGETS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARGETS</envar>">
 <!ENTITY cv-TARSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TARSUFFIX</envar>">
+<!ENTITY cv-TEMPFILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILE</envar>">
 <!ENTITY cv-TEMPFILEARGESCFUNC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGESCFUNC</envar>">
 <!ENTITY cv-TEMPFILEARGJOIN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEARGJOIN</envar>">
 <!ENTITY cv-TEMPFILEDIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$TEMPFILEDIR</envar>">
@@ -649,6 +664,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
 
 <!ENTITY cv-link-__LDMODULEVERSIONFLAGS "<link linkend='cv-__LDMODULEVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__LDMODULEVERSIONFLAGS</envar></link>">
+<!ENTITY cv-link-__NINJA_NO "<link linkend='cv-__NINJA_NO' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__NINJA_NO</envar></link>">
 <!ENTITY cv-link-__SHLIBVERSIONFLAGS "<link linkend='cv-__SHLIBVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$__SHLIBVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-APPLELINK_COMPATIBILITY_VERSION "<link linkend='cv-APPLELINK_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$APPLELINK_COMPATIBILITY_VERSION</envar></link>">
 <!ENTITY cv-link-_APPLELINK_COMPATIBILITY_VERSION "<link linkend='cv-_APPLELINK_COMPATIBILITY_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_APPLELINK_COMPATIBILITY_VERSION</envar></link>">
@@ -989,6 +1005,19 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-MWCW_VERSION "<link linkend='cv-MWCW_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MWCW_VERSION</envar></link>">
 <!ENTITY cv-link-MWCW_VERSIONS "<link linkend='cv-MWCW_VERSIONS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MWCW_VERSIONS</envar></link>">
 <!ENTITY cv-link-NAME "<link linkend='cv-NAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NAME</envar></link>">
+<!ENTITY cv-link-NINJA_ALIAS_NAME "<link linkend='cv-NINJA_ALIAS_NAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_ALIAS_NAME</envar></link>">
+<!ENTITY cv-link-NINJA_COMPDB_EXPAND "<link linkend='cv-NINJA_COMPDB_EXPAND' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_COMPDB_EXPAND</envar></link>">
+<!ENTITY cv-link-NINJA_DIR "<link linkend='cv-NINJA_DIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_DIR</envar></link>">
+<!ENTITY cv-link-NINJA_DISABLE_AUTO_RUN "<link linkend='cv-NINJA_DISABLE_AUTO_RUN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_DISABLE_AUTO_RUN</envar></link>">
+<!ENTITY cv-link-NINJA_ENV_VAR_CACHE "<link linkend='cv-NINJA_ENV_VAR_CACHE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_ENV_VAR_CACHE</envar></link>">
+<!ENTITY cv-link-NINJA_FILE_NAME "<link linkend='cv-NINJA_FILE_NAME' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_FILE_NAME</envar></link>">
+<!ENTITY cv-link-NINJA_FORCE_SCONS_BUILD "<link linkend='cv-NINJA_FORCE_SCONS_BUILD' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_FORCE_SCONS_BUILD</envar></link>">
+<!ENTITY cv-link-NINJA_GENERATED_SOURCE_SUFFIXES "<link linkend='cv-NINJA_GENERATED_SOURCE_SUFFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_GENERATED_SOURCE_SUFFIXES</envar></link>">
+<!ENTITY cv-link-NINJA_MSVC_DEPS_PREFIX "<link linkend='cv-NINJA_MSVC_DEPS_PREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_MSVC_DEPS_PREFIX</envar></link>">
+<!ENTITY cv-link-NINJA_POOL "<link linkend='cv-NINJA_POOL' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_POOL</envar></link>">
+<!ENTITY cv-link-NINJA_REGENERATE_DEPS "<link linkend='cv-NINJA_REGENERATE_DEPS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_REGENERATE_DEPS</envar></link>">
+<!ENTITY cv-link-_NINJA_REGENERATE_DEPS_FUNC "<link linkend='cv-_NINJA_REGENERATE_DEPS_FUNC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_NINJA_REGENERATE_DEPS_FUNC</envar></link>">
+<!ENTITY cv-link-NINJA_SYNTAX "<link linkend='cv-NINJA_SYNTAX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$NINJA_SYNTAX</envar></link>">
 <!ENTITY cv-link-no_import_lib "<link linkend='cv-no_import_lib' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$no_import_lib</envar></link>">
 <!ENTITY cv-link-OBJPREFIX "<link linkend='cv-OBJPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$OBJPREFIX</envar></link>">
 <!ENTITY cv-link-OBJSUFFIX "<link linkend='cv-OBJSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$OBJSUFFIX</envar></link>">
@@ -1189,6 +1218,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-TARGET_OS "<link linkend='cv-TARGET_OS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGET_OS</envar></link>">
 <!ENTITY cv-link-TARGETS "<link linkend='cv-TARGETS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARGETS</envar></link>">
 <!ENTITY cv-link-TARSUFFIX "<link linkend='cv-TARSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TARSUFFIX</envar></link>">
+<!ENTITY cv-link-TEMPFILE "<link linkend='cv-TEMPFILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILE</envar></link>">
 <!ENTITY cv-link-TEMPFILEARGESCFUNC "<link linkend='cv-TEMPFILEARGESCFUNC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGESCFUNC</envar></link>">
 <!ENTITY cv-link-TEMPFILEARGJOIN "<link linkend='cv-TEMPFILEARGJOIN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEARGJOIN</envar></link>">
 <!ENTITY cv-link-TEMPFILEDIR "<link linkend='cv-TEMPFILEDIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$TEMPFILEDIR</envar></link>">

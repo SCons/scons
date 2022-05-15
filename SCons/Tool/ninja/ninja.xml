@@ -1,0 +1,399 @@
+<?xml version="1.0"?>
+<!--
+ MIT License
+
+ Copyright The SCons Foundation
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+        <!ENTITY % scons SYSTEM '../../../doc/scons.mod'>
+        %scons;
+        <!ENTITY % builders-mod SYSTEM '../../../doc/generated/builders.mod'>
+        %builders-mod;
+        <!ENTITY % functions-mod SYSTEM '../../../doc/generated/functions.mod'>
+        %functions-mod;
+        <!ENTITY % tools-mod SYSTEM '../../../doc/generated/tools.mod'>
+        %tools-mod;
+        <!ENTITY % variables-mod SYSTEM '../../../doc/generated/variables.mod'>
+        %variables-mod;
+        ]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+    <tool name="ninja">
+        <summary>
+            <para>
+                Sets up the &b-link-Ninja; builder, which generates a &ninja; build file, and then optionally runs &ninja;.
+            </para>
+            <note>
+                <para>This is an experimental feature.
+                    This functionality is subject to change and/or removal without a deprecation cycle.
+                </para>
+            </note>
+
+        </summary>
+        <sets>
+            <item>NINJA_DISABLE_AUTO_RUN</item>
+            <item>NINJA_ALIAS_NAME</item>
+            <item>NINJA_DIR</item>
+            <item>NINJA_COMPDB_EXPAND</item>
+            <item>NINJA_ENV_VAR_CACHE</item>
+            <item>NINJA_FILE_NAME</item>
+            <item>NINJA_GENERATED_SOURCE_SUFFIXES</item>
+            <item>NINJA_GENERATED_SOURCE_ALIAS_NAME</item>
+            <item>NINJA_MSVC_DEPS_PREFIX</item>
+            <item>NINJA_DEPFILE_PARSE_FORMAT</item>
+            <item>NINJA_POOL</item>
+            <item>NINJA_REGENERATE_DEPS</item>
+            <item>NINJA_SYNTAX</item>
+            <item>NINJA_FORCE_SCONS_BUILD</item>
+            <item>_NINJA_REGENERATE_DEPS_FUNC</item>
+<!--            <item>__NINJA_NO</item>-->
+            <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
+            <item>NINJA_SCONS_DAEMON_KEEP_ALIVE</item>
+            <item>NINJA_SCONS_DAEMON_PORT</item>
+
+
+            <!-- TODO: Document these -->
+            <!-- <item>NINJA_RULES</item>-->
+            <!-- <item>NINJA_POOLS</item>-->
+            <!-- <item>NINJA</item>-->
+            <!-- <item>GENERATING_NINJA</item>-->
+            <!-- <item>NINJA_DIR</item>-->
+
+        </sets>
+
+        <uses>
+            <item>AR</item>
+            <item>ARCOM</item>
+            <item>ARFLAGS</item>
+            <item>CC</item>
+            <item>CCCOM</item>
+            <item>CCDEPFLAGS</item>
+            <item>CCFLAGS</item>
+            <item>CXX</item>
+            <item>CXXCOM</item>
+            <item>ESCAPE</item>
+            <item>LINK</item>
+            <item>LINKCOM</item>
+            <item>PLATFORM</item>
+            <item>RANLIB</item>
+            <item>RANLIBCOM</item>
+            <item>SHCCCOM</item>
+            <item>SHCXXCOM</item>
+            <item>SHLINK</item>
+            <item>SHLINKCOM</item>
+            <item>PROGSUFFIX</item>
+            <item>PRINT_CMD_LINE_FUNC</item>
+            <!--<item>TEMPFILE</item>-->
+
+            <!-- TODO: Document these -->
+            <!-- <item>NINJA_MAX_JOBS</item> -->
+            <!-- <item>NINJA_SKIP</item> -->
+            <!-- <item>NINJA_CUSTOM_HANDLERS</item> -->
+
+        </uses>
+    </tool>
+
+    <builder name="Ninja">
+        <summary>
+            <para>
+                A special builder which
+                adds a target to create a Ninja build file.
+                The builder does not require any source files to be specified.
+            </para>
+            <note>
+                <para>This is an experimental feature. To enable it you must use one of the following methods
+                </para>
+
+<!--            NOTE DO NOT INDENT example_commands CONTENTS AS IT WILL ALTER THE FORMATTING-->
+                <example_commands>
+# On the command line
+--experimental=ninja
+
+# Or in your SConstruct
+SetOption('experimental', 'ninja')
+                </example_commands>
+
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+
+                <para>
+                    To use this tool you need to install the &Python; &ninja; package,
+                    as the tool by default depends on being able to do an
+                    <systemitem>import</systemitem> of the package
+<!--                    (although see &cv-link-__NINJA_NO;).-->
+                    This can be done via:
+                    <example_commands>
+python -m pip install ninja
+                    </example_commands>
+                </para>
+
+            </note>
+
+            <para>
+                If called with no arguments,
+                the builder will default to a target name of
+                <filename>ninja.build</filename>.
+            </para>
+            <para>
+                If called with a single positional argument,
+                &scons; will "deduce" the target name from that source
+                argument, giving it the same name, and then
+                ignore the source.
+                This is the usual way to call the builder if a
+                non-default target name is wanted.
+            </para>
+            <para>
+                If called with either the
+                <parameter>target=</parameter>
+                or <parameter>source=</parameter> keyword arguments,
+                the value of the argument is taken as the target name.
+                If called with both, the
+                <parameter>target=</parameter>
+                value is used and <parameter>source=</parameter> is ignored.
+                If called with multiple sources,
+                the source list will be ignored,
+                since there is no way to deduce what the intent was;
+                in this case the default target name will be used.
+            </para>
+            <para>
+                <emphasis>Available since &scons; 4.2.</emphasis>
+            </para>
+        </summary>
+    </builder>
+
+
+    <cvar name="NINJA_GENERATED_SOURCE_SUFFIXES">
+        <summary>
+            <para>
+                The list of source file suffixes which are generated by &SCons; build steps.
+                All source files which match these suffixes will be added to the _generated_sources alias in the output
+                &ninja; build file.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
+                generated sources to be built first.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_GENERATED_SOURCE_ALIAS_NAME">
+        <summary>
+            <para>
+                A string matching the name of a user defined alias which represents a list of all generated sources.
+                This will prevent the auto-detection of generated sources from &cv-NINJA_GENERATED_SOURCE_SUFFIXES;.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
+                generated sources to be built first.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_MSVC_DEPS_PREFIX">
+        <summary>
+            <para>
+                The <parameter>msvc_deps_prefix</parameter> string.
+                Propagates directly into the generated &ninja; build file.
+                From Ninja's docs:
+                <quote>defines the string which should be stripped from msvc's <option>/showIncludes</option> output</quote>
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_DEPFILE_PARSE_FORMAT">
+        <summary>
+            <para>
+                Determines the type of format ninja should expect when parsing header
+                include depfiles. Can be <option>msvc</option>, <option>gcc</option>, or <option>clang</option>.
+                The <option>msvc</option> option corresponds to <option>/showIncludes</option> format, and 
+                <option>gcc</option> or <option>clang</option> correspond to <option>-MMD -MF</option>.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_DIR">
+        <summary>
+            <para>
+                The <parameter>builddir</parameter> value.
+                Propagates directly into the generated &ninja; build file.
+                From Ninja's docs:
+                <quote>
+                    A directory for some Ninja output files. ... (You can also store other build output in this
+                    directory.)
+                </quote>
+            The default value is <filename>.ninja</filename>.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_REGENERATE_DEPS">
+        <summary>
+            <para>
+                A generator function used to create a &ninja; depfile which
+                includes all the files which would require
+                &SCons; to be invoked if they change.
+                Or a list of said files.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_COMPDB_EXPAND">
+        <summary>
+            <para>
+                Boolean value to instruct &ninja; to expand the command line arguments normally put into
+                response files.
+                If true, prevents unexpanded lines in the compilation database like
+                <quote><literal>gcc @rsp_file</literal></quote> and instead yields expanded lines like
+                <quote><literal>gcc -c -o myfile.o myfile.c -Ia -DXYZ</literal></quote>.
+            </para>
+            <para>
+                Ninja's compdb tool added the <option>-x</option> flag in Ninja V1.9.0
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_ENV_VAR_CACHE">
+        <summary>
+            <para>
+                A string that sets the environment for any environment variables that
+                differ between the OS environment and the &SCons; execution environment.
+            </para>
+
+            <para>
+                It will be compatible with the default shell of the operating system.
+            </para>
+
+            <para>
+                If not explicitly set, &SCons; will generate this dynamically from the
+                execution environment stored in the current &consenv;
+                (e.g. <literal>env['ENV']</literal>)
+                where those values differ from the existing shell..
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_POOL">
+        <summary>
+            <para>
+                Set the <parameter>ninja_pool</parameter> for this or all targets in scope for this env var.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_DISABLE_AUTO_RUN">
+        <summary>
+            <para>
+                Boolean. Default: <constant>False</constant>.
+                If true, &SCons; will not run &ninja; automatically after creating the &ninja; build file.
+            </para>
+
+            <para>
+                If not explicitly set, this will be set to <constant>True</constant>
+                if <option>--disable_execute_ninja</option> or
+                <code>SetOption('disable_execute_ninja', True)</code> is seen.
+            </para>
+        </summary>
+    </cvar>
+
+<!-- Internal for now
+    <cvar name="__NINJA_NO">
+        <summary>
+            <para>
+                Internal flag. Used to tell &SCons; whether or not to try to import the &Python; &ninja; module.
+                This is set to True when being called by Ninja?
+            </para>
+        </summary>
+    </cvar>
+-->
+
+    <cvar name="NINJA_FILE_NAME">
+        <summary>
+            <para>
+                The filename for the generated Ninja build file.
+                The default is <filename>ninja.build</filename>.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_ALIAS_NAME">
+        <summary>
+            <para>
+                The name of the alias target which will cause &SCons; to create the &ninja; build file,
+                and then (optionally) run &ninja;.
+                The default value is <literal>generate-ninja</literal>.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_SYNTAX">
+        <summary>
+            <para>
+                The path to a custom <filename>ninja_syntax.py</filename> file which is used in generation.
+                The tool currently assumes you have &ninja; installed as a &Python; module and grabs the syntax file from that
+                installation if &cv-NINJA_SYNTAX; is not explicitly set.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_FORCE_SCONS_BUILD">
+        <summary>
+            <para>
+                If true, causes the build nodes to callback to scons instead of using
+                &ninja; to build them. This is intended to be passed to the environment on the builder invocation.
+                It is useful if you have a build node which does something which is not easily translated into &ninja;.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="_NINJA_REGENERATE_DEPS_FUNC">
+        <summary>
+            <para>
+                Internal value used to specify the function to call with argument env to generate the list of files
+                which if changed would require the &ninja; build file to be regenerated.
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_SCONS_DAEMON_KEEP_ALIVE">
+        <summary>
+            <para>
+                The number of seconds for the SCons deamon launched by ninja to stay alive.
+                (Default: 180000)
+            </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_SCONS_DAEMON_PORT">
+        <summary>
+            <para>
+                The TCP/IP port for the SCons daemon to listen on.
+                <emphasis>NOTE: You cannot use a port already being listened to on your build machine.</emphasis>
+                (Default: random number between 10000,60000)
+            </para>
+        </summary>
+    </cvar>
+
+
+</sconsdoc>

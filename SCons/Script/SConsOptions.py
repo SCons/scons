@@ -24,6 +24,7 @@
 import gettext
 import optparse
 import re
+import shutil
 import sys
 import textwrap
 
@@ -39,7 +40,7 @@ SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_features = {'warp_speed', 'transporter'}
+experimental_features = {'warp_speed', 'transporter', 'ninja'}
 
 
 def diskcheck_convert(value):
@@ -98,7 +99,6 @@ class SConsValues(optparse.Values):
         self.__defaults__ = defaults
         self.__SConscript_settings__ = {}
 
-
     def __getattr__(self, attr):
         """
         Fetches an options value, checking first for explicit settings
@@ -145,6 +145,13 @@ class SConsValues(optparse.Values):
         'silent',
         'stack_size',
         'warn',
+
+        # TODO: Remove these once we update the AddOption() API to allow setting
+        #       added flag as setable.
+        # Requested setable flag in : https://github.com/SCons/scons/issues/3983
+        # From experimental ninja
+        'disable_execute_ninja',
+        'disable_ninja'
     ]
 
     def set_option(self, name, value):
@@ -166,19 +173,19 @@ class SConsValues(optparse.Values):
                 if value < 1:
                     raise ValueError
             except ValueError:
-                raise SCons.Errors.UserError(
-                    "A positive integer is required: %s" % repr(value)
-                )
+                raise SCons.Errors.UserError("A positive integer is required: %s" % repr(value))
         elif name == 'max_drift':
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "An integer is required: %s" % repr(value))
         elif name == 'duplicate':
             try:
                 value = str(value)
             except ValueError:
-                raise SCons.Errors.UserError("A string is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "A string is required: %s" % repr(value))
             if value not in SCons.Node.FS.Valid_Duplicates:
                 raise SCons.Errors.UserError(
                     "Not a valid duplication style: %s" % value
@@ -190,7 +197,8 @@ class SConsValues(optparse.Values):
             try:
                 value = diskcheck_convert(value)
             except ValueError as v:
-                raise SCons.Errors.UserError("Not a valid diskcheck value: %s" % v)
+                raise SCons.Errors.UserError(
+                    "Not a valid diskcheck value: %s" % v)
             if 'diskcheck' not in self.__dict__:
                 # No --diskcheck= option was specified on the command line.
                 # Set this right away so it can affect the rest of the
@@ -200,12 +208,14 @@ class SConsValues(optparse.Values):
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "An integer is required: %s" % repr(value))
         elif name in ('md5_chunksize', 'hash_chunksize'):
             try:
                 value = int(value)
             except ValueError:
-                raise SCons.Errors.UserError("An integer is required: %s" % repr(value))
+                raise SCons.Errors.UserError(
+                    "An integer is required: %s" % repr(value))
             name = 'md5_chunksize'  # for now, the old name is used
         elif name == 'warn':
             if SCons.Util.is_String(value):
@@ -230,8 +240,7 @@ class SConsOption(optparse.Option):
         if value is not None:
             if self.nargs in (1, '?'):
                 return self.check_value(opt, value)
-            else:
-                return tuple([self.check_value(opt, v) for v in value])
+            return tuple([self.check_value(opt, v) for v in value])
 
     def process(self, opt, value, values, parser):
 
@@ -256,6 +265,7 @@ class SConsOption(optparse.Option):
     CHECK_METHODS = CHECK_METHODS + [_check_nargs_optional]
     CONST_ACTIONS = optparse.Option.CONST_ACTIONS + optparse.Option.TYPED_ACTIONS
 
+
 class SConsOptionGroup(optparse.OptionGroup):
     """
     A subclass for SCons-specific option groups.
@@ -264,16 +274,19 @@ class SConsOptionGroup(optparse.OptionGroup):
     the group's help text flush left, underneath their own title but
     lined up with the normal "SCons Options".
     """
+
     def format_help(self, formatter):
-        """
-        Format an option group's help text, outdenting the title so it's
-        flush with the "SCons Options" title we print at the top.
+        """ Format an option group's help text.
+
+        The title is dedented so it's flush with the "SCons Options"
+        title we print at the top.
         """
         formatter.dedent()
         result = formatter.format_heading(self.title)
         formatter.indent()
         result = result + optparse.OptionContainer.format_help(self, formatter)
         return result
+
 
 class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
@@ -285,14 +298,14 @@ class SConsOptionParser(optparse.OptionParser):
         sys.exit(2)
 
     def _process_long_opt(self, rargs, values):
-        """
-        SCons-specific processing of long options.
+        """ SCons-specific processing of long options.
 
         This is copied directly from the normal
-        optparse._process_long_opt() method, except that, if configured
+        ``optparse._process_long_opt()`` method, except that, if configured
         to do so, we catch the exception thrown when an unknown option
         is encountered and just stick it back on the "leftover" arguments
-        for later (re-)processing.
+        for later (re-)processing. This is because we may see the option
+        definition later, while processing SConscript files.
         """
         arg = rargs.pop(0)
 
@@ -336,7 +349,7 @@ class SConsOptionParser(optparse.OptionParser):
                     if not option.choices:
                         self.error(_("%s option requires an argument") % opt)
                     else:
-                        msg  = _("%s option requires an argument " % opt)
+                        msg = _("%s option requires an argument " % opt)
                         msg += _("(choose from %s)"
                                  % ', '.join(option.choices))
                         self.error(msg)
@@ -421,10 +434,9 @@ class SConsOptionParser(optparse.OptionParser):
         self.largs = self.largs + largs_restore
 
     def add_local_option(self, *args, **kw):
-        """
-        Adds a local option to the parser.
+        """ Adds a local option to the parser.
 
-        This is initiated by an AddOption() call to add a user-defined
+        This is initiated by an :func:`AddOption` call to add a user-defined
         command-line option.  We add the option to a separate option
         group for the local options, creating the group if necessary.
         """
@@ -451,56 +463,71 @@ class SConsOptionParser(optparse.OptionParser):
 
         return result
 
+
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
+        """ Formats the usage message. """
         return "usage: %s\n" % usage
 
     def format_heading(self, heading):
-        """
-        This translates any heading of "options" or "Options" into
-        "SCons Options."  Unfortunately, we have to do this here,
-        because those titles are hard-coded in the optparse calls.
+        """ Translates heading to "SCons Options"
+
+        Heading of "Options" changed to "SCons Options."
+        Unfortunately, we have to do this here, because those titles
+        are hard-coded in the optparse calls.
         """
         if heading == 'Options':
             heading = "SCons Options"
         return optparse.IndentedHelpFormatter.format_heading(self, heading)
 
     def format_option(self, option):
-        """
-        A copy of the normal optparse.IndentedHelpFormatter.format_option()
+        """ Customized option formatter.
+
+        A copy of the normal ``optparse.IndentedHelpFormatter.format_option()``
         method.  This has been snarfed so we can modify text wrapping to
-        out liking:
+        our liking:
 
-        --  add our own regular expression that doesn't break on hyphens
-            (so things like --no-print-directory don't get broken);
+        * add our own regular expression that doesn't break on hyphens
+          (so things like ``--no-print-directory`` don't get broken).
+        * wrap the list of options themselves when it's too long
+          (the ``wrapper.fill(opts)`` call below).
+        * set the :attr:`subsequent_indent` when wrapping the :attr:`help_text`.
 
-        --  wrap the list of options themselves when it's too long
-            (the wrapper.fill(opts) call below);
+        The help for each option consists of two parts:
 
-        --  set the subsequent_indent when wrapping the help_text.
+        * the opt strings and metavars e.g. ("-x", or
+          "-fFILENAME, --file=FILENAME")
+        * the user-supplied help string e.g.
+          ("turn on expert mode", "read data from FILENAME")
+
+        If possible, we write both of these on the same line::
+
+          -x      turn on expert mode
+
+        But if the opt string list is too long, we put the help
+        string on a second line, indented to the same column it would
+        start in if it fit on the first line::
+
+          -fFILENAME, --file=FILENAME
+                  read data from FILENAME
         """
-        # The help for each option consists of two parts:
-        #   * the opt strings and metavars
-        #     eg. ("-x", or "-fFILENAME, --file=FILENAME")
-        #   * the user-supplied help string
-        #     eg. ("turn on expert mode", "read data from FILENAME")
-        #
-        # If possible, we write both of these on the same line:
-        #   -x      turn on expert mode
-        #
-        # But if the opt string list is too long, we put the help
-        # string on a second line, indented to the same column it would
-        # start in if it fit on the first line.
-        #   -fFILENAME, --file=FILENAME
-        #           read data from FILENAME
         result = []
-
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
-        if len(opts) > opt_width:
-            wrapper = textwrap.TextWrapper(width=self.width,
-                                           initial_indent = '  ',
-                                           subsequent_indent = '  ')
+        # SCons: pre-compute if we could combine opts and text on one line,
+        # even if opts spills over opt_width. Saves some lines.
+        # Note: check is currently disabled and this removed from docstring:
+        # * if it would all fit on one line even if opts are long, don't break.
+        combine_anyway = False
+        if option.help:
+            help_text = self.expand_default(option)
+            # if len(opts) > opt_width and len(opts) + len(help_text) + 2 <= self.width:
+            #     combine_anyway = True
+        if len(opts) > opt_width and not combine_anyway:
+            # SCons: wrap options if needed
+            wrapper = textwrap.TextWrapper(
+                width=self.width, initial_indent='  ', subsequent_indent='  '
+            )
             wrapper.wordsep_re = no_hyphen_re
             opts = wrapper.fill(opts) + '\n'
             indent_first = self.help_position
@@ -509,12 +536,12 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
             indent_first = 0
         result.append(opts)
         if option.help:
-
-            help_text = self.expand_default(option)
-
-            # SCons:  indent every line of the help text but the first.
-            wrapper = textwrap.TextWrapper(width=self.help_width,
-                                           subsequent_indent = '  ')
+            # this is now done above in the pre-check.
+            # help_text = self.expand_default(option)
+            # SCons: indent every line of the help text but the first.
+            wrapper = textwrap.TextWrapper(
+                width=self.help_width, subsequent_indent='  '
+            )
             wrapper.wordsep_re = no_hyphen_re
             help_lines = wrapper.wrap(help_text)
             result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
@@ -526,43 +553,40 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
 
 
 def Parser(version):
+    """Returns a parser object initialized with the standard SCons options.
+
+    Add options in the order we want them to show up in the ``-H`` help
+    text, basically alphabetical.  Each ``op.add_option()`` call
+    should have a consistent format::
+
+      op.add_option("-L", "--long-option-name",
+                    nargs=1, type="string",
+                    dest="long_option_name", default='foo',
+                    action="callback", callback=opt_long_option,
+                    help="help text goes here",
+                    metavar="VAR")
+
+    Even though the :mod:`optparse` module constructs reasonable default
+    destination names from the long option names, we're going to be
+    explicit about each one for easier readability and so this code
+    will at least show up when grepping the source for option attribute
+    names, or otherwise browsing the source code.
     """
-    Returns an options parser object initialized with the standard
-    SCons options.
-    """
-
-    formatter = SConsIndentedHelpFormatter(max_help_position=30)
-
-    op = SConsOptionParser(option_class=SConsOption,
-                           add_help_option=False,
-                           formatter=formatter,
-                           usage="usage: scons [OPTION] [TARGET] ...",)
-
+    columns, lines = shutil.get_terminal_size()
+    formatter = SConsIndentedHelpFormatter(max_help_position=30, width=columns)
+    op = SConsOptionParser(
+        option_class=SConsOption,
+        add_help_option=False,
+        formatter=formatter,
+        usage="usage: scons [OPTIONS] [VARIABLES] [TARGETS]",
+    )
     op.preserve_unknown_options = True
     op.version = version
-
-    # Add the options to the parser we just created.
-    #
-    # These are in the order we want them to show up in the -H help
-    # text, basically alphabetical.  Each op.add_option() call below
-    # should have a consistent format:
-    #
-    #   op.add_option("-L", "--long-option-name",
-    #                 nargs=1, type="string",
-    #                 dest="long_option_name", default='foo',
-    #                 action="callback", callback=opt_long_option,
-    #                 help="help text goes here",
-    #                 metavar="VAR")
-    #
-    # Even though the optparse module constructs reasonable default
-    # destination names from the long option names, we're going to be
-    # explicit about each one for easier readability and so this code
-    # will at least show up when grepping the source for option attribute
-    # names, or otherwise browsing the source code.
 
     # options ignored for compatibility
     def opt_ignore(option, opt, value, parser):
         sys.stderr.write("Warning:  ignoring %s option\n" % opt)
+
     op.add_option("-b", "-d", "-e", "-m", "-S", "-t", "-w",
                   "--environment-overrides",
                   "--no-keep-going",
@@ -571,60 +595,60 @@ def Parser(version):
                   "--stop",
                   "--touch",
                   action="callback", callback=opt_ignore,
-                  help="Ignored for compatibility.")
+                  help=SUPPRESS_HELP)
 
     op.add_option('-c', '--clean', '--remove',
                   dest="clean", default=False,
                   action="store_true",
-                  help="Remove specified targets and dependencies.")
+                  help="Remove specified targets and dependencies")
 
     op.add_option('-C', '--directory',
                   nargs=1, type="string",
                   dest="directory", default=[],
                   action="append",
-                  help="Change to DIR before doing anything.",
+                  help="Change to DIR before doing anything",
                   metavar="DIR")
 
     op.add_option('--cache-debug',
                   nargs=1,
                   dest="cache_debug", default=None,
                   action="store",
-                  help="Print CacheDir debug info to FILE.",
+                  help="Print CacheDir debug info to FILE",
                   metavar="FILE")
 
     op.add_option('--cache-disable', '--no-cache',
                   dest='cache_disable', default=False,
                   action="store_true",
-                  help="Do not retrieve built targets from CacheDir.")
+                  help="Do not retrieve built targets from CacheDir")
 
     op.add_option('--cache-force', '--cache-populate',
                   dest='cache_force', default=False,
                   action="store_true",
-                  help="Copy already-built targets into the CacheDir.")
+                  help="Copy already-built targets into the CacheDir")
 
     op.add_option('--cache-readonly',
                   dest='cache_readonly', default=False,
                   action="store_true",
-                  help="Do not update CacheDir with built targets.")
+                  help="Do not update CacheDir with built targets")
 
     op.add_option('--cache-show',
                   dest='cache_show', default=False,
                   action="store_true",
-                  help="Print build actions for files from CacheDir.")
+                  help="Print build actions for files from CacheDir")
 
     def opt_invalid(group, value, options):
         """report an invalid option from a group"""
-        errmsg  = "`%s' is not a valid %s option type, try:\n" % (value, group)
+        errmsg = "`%s' is not a valid %s option type, try:\n" % (value, group)
         return errmsg + "    %s" % ", ".join(options)
 
     def opt_invalid_rm(group, value, msg):
         """report an invalid option from a group: recognized but removed"""
-        errmsg  = "`%s' is not a valid %s option type " % (value, group)
+        errmsg = "`%s' is not a valid %s option type " % (value, group)
         return errmsg + msg
 
     config_options = ["auto", "force", "cache"]
 
-    opt_config_help = "Controls Configure subsystem: %s." \
+    opt_config_help = "Controls Configure subsystem [%s]" \
                       % ", ".join(config_options)
 
     op.add_option('--config',
@@ -636,16 +660,16 @@ def Parser(version):
     op.add_option('-D',
                   dest="climb_up", default=None,
                   action="store_const", const=2,
-                  help="Search up directory tree for SConstruct,       "
-                       "build all Default() targets.")
+                  help="Search up directory tree for SConstruct, "
+                       "build all Default() targets")
 
     deprecated_debug_options = {}
 
     removed_debug_options = {
-        "dtree"         : '; please use --tree=derived instead',
-        "nomemoizer"    : '; there is no replacement',
-        "stree"         : '; please use --tree=all,status instead',
-        "tree"          : '; please use --tree=all instead',
+        "dtree": '; please use --tree=derived instead',
+        "nomemoizer": '; there is no replacement',
+        "stree": '; please use --tree=all,status instead',
+        "tree": '; please use --tree=all instead',
     }
 
     debug_options = ["count", "duplicate", "explain", "findlibs",
@@ -674,9 +698,10 @@ def Parser(version):
                 msg = removed_debug_options[value]
                 raise OptionValueError(opt_invalid_rm('debug', value, msg))
             else:
-                raise OptionValueError(opt_invalid('debug', value, debug_options))
+                raise OptionValueError(opt_invalid(
+                    'debug', value, debug_options))
 
-    opt_debug_help = "Print various types of debugging information: %s." \
+    opt_debug_help = "Print various types of debugging information [%s]" \
                      % ", ".join(debug_options)
     op.add_option('--debug',
                   nargs=1, type="string",
@@ -696,20 +721,20 @@ def Parser(version):
                   nargs=1, type="string",
                   dest='diskcheck', default=None,
                   action="callback", callback=opt_diskcheck,
-                  help="Enable specific on-disk checks.",
+                  help="Enable specific on-disk checks",
                   metavar="TYPE")
 
     def opt_duplicate(option, opt, value, parser):
         if value not in SCons.Node.FS.Valid_Duplicates:
             raise OptionValueError(opt_invalid('duplication', value,
-                                              SCons.Node.FS.Valid_Duplicates))
+                                               SCons.Node.FS.Valid_Duplicates))
         setattr(parser.values, option.dest, value)
         # Set the duplicate style right away so it can affect linking
         # of SConscript files.
         SCons.Node.FS.set_duplicate(value)
 
-    opt_duplicate_help = "Set the preferred duplication methods. Must be one of " \
-                         + ", ".join(SCons.Node.FS.Valid_Duplicates)
+    opt_duplicate_help = "Set the preferred duplication methods [%s]" \
+                         % ", ".join(SCons.Node.FS.Valid_Duplicates)
 
     op.add_option('--duplicate',
                   nargs=1, type="string",
@@ -719,9 +744,9 @@ def Parser(version):
 
     if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
         op.add_option('--enable-virtualenv',
-                     dest="enable_virtualenv",
-                     action="store_true",
-                     help="Import certain virtualenv variables to SCons")
+                      dest="enable_virtualenv",
+                      action="store_true",
+                      help="Import certain virtualenv variables to SCons")
 
     def experimental_callback(option, opt, value, parser):
         experimental = getattr(parser.values, option.dest)
@@ -729,7 +754,7 @@ def Parser(version):
         if ',' in value:
             value = value.split(',')
         else:
-            value = [value, ]
+            value = [value]
 
         for v in value:
             if v == 'none':
@@ -737,38 +762,39 @@ def Parser(version):
             elif v == 'all':
                 experimental = experimental_features
             elif v not in experimental_features:
-                raise OptionValueError("option --experimental: invalid choice: '%s' (choose from 'all','none',%s)" % (
-                                       v, ','.join(["'%s'" % e for e in sorted(experimental_features)])))
+                raise OptionValueError(
+                    "option --experimental: invalid choice: '%s' "
+                    "(choose from 'all','none',%s)"
+                    % (v, ','.join(["'%s'" % e for e in sorted(experimental_features)]))
+                )
             else:
                 experimental |= {v}
 
         setattr(parser.values, option.dest, experimental)
 
-
-
     op.add_option('--experimental',
                   dest='experimental',
                   action='callback',
-                  default={}, # empty set
+                  default=set(),  # empty set
                   type='str',
                   # choices=experimental_options+experimental_features,
-                  callback =experimental_callback,
+                  callback=experimental_callback,
                   help='Enable experimental features')
 
     op.add_option('-f', '--file', '--makefile', '--sconstruct',
                   nargs=1, type="string",
                   dest="file", default=[],
                   action="append",
-                  help="Read FILE as the top-level SConstruct file.")
+                  help="Read FILE as the top-level SConstruct file")
 
     op.add_option('-h', '--help',
                   dest="help", default=False,
                   action="store_true",
-                  help="Print defined help message, or this one.")
+                  help="Print defined help message, or this one")
 
     op.add_option("-H", "--help-options",
                   action="help",
-                  help="Print this message and exit.")
+                  help="Print this message and exit")
 
     def warn_md5_chunksize_deprecated(option, opt, value, parser):
         if opt == '--md5-chunksize':
@@ -782,31 +808,31 @@ def Parser(version):
                   nargs=1, type="int",
                   dest='md5_chunksize', default=SCons.Node.FS.File.hash_chunksize,
                   action="callback",
-                  help="Set chunk-size for hash signature computation to N kilobytes.",
+                  help="Set chunk-size for hash signature computation to N kilobytes",
                   callback=warn_md5_chunksize_deprecated,
                   metavar="N")
 
     op.add_option('--hash-format',
                   dest='hash_format',
                   action='store',
-                  help='Hash format (e.g. md5, sha1, or sha256).')
+                  help='Hash format [md5, sha1, sha256, etc].')
 
     op.add_option('-i', '--ignore-errors',
                   dest='ignore_errors', default=False,
                   action="store_true",
-                  help="Ignore errors from build actions.")
+                  help="Ignore errors from build actions")
 
     op.add_option('-I', '--include-dir',
                   nargs=1,
                   dest='include_dir', default=[],
                   action="append",
-                  help="Search DIR for imported Python modules.",
+                  help="Search DIR for imported Python modules",
                   metavar="DIR")
 
     op.add_option('--ignore-virtualenv',
-                 dest="ignore_virtualenv",
-                 action="store_true",
-                 help="Do not import virtualenv variables to SCons")
+                  dest="ignore_virtualenv",
+                  action="store_true",
+                  help="Do not import virtualenv variables to SCons")
 
     op.add_option('--implicit-cache',
                   dest='implicit_cache', default=False,
@@ -820,93 +846,93 @@ def Parser(version):
     op.add_option('--implicit-deps-changed',
                   dest="implicit_deps_changed", default=False,
                   action="callback", callback=opt_implicit_deps,
-                  help="Ignore cached implicit dependencies.")
+                  help="Ignore cached implicit dependencies")
 
     op.add_option('--implicit-deps-unchanged',
                   dest="implicit_deps_unchanged", default=False,
                   action="callback", callback=opt_implicit_deps,
-                  help="Ignore changes in implicit dependencies.")
+                  help="Ignore changes in implicit dependencies")
 
     op.add_option('--interact', '--interactive',
                   dest='interactive', default=False,
                   action="store_true",
-                  help="Run in interactive mode.")
+                  help="Run in interactive mode")
 
     op.add_option('-j', '--jobs',
                   nargs=1, type="int",
                   dest="num_jobs", default=1,
                   action="store",
-                  help="Allow N jobs at once.",
+                  help="Allow N jobs at once",
                   metavar="N")
 
     op.add_option('-k', '--keep-going',
                   dest='keep_going', default=False,
                   action="store_true",
-                  help="Keep going when a target can't be made.")
+                  help="Keep going when a target can't be made")
 
     op.add_option('--max-drift',
                   nargs=1, type="int",
                   dest='max_drift', default=SCons.Node.FS.default_max_drift,
                   action="store",
-                  help="Set maximum system clock drift to N seconds.",
+                  help="Set maximum system clock drift to N seconds",
                   metavar="N")
 
     op.add_option('-n', '--no-exec', '--just-print', '--dry-run', '--recon',
                   dest='no_exec', default=False,
                   action="store_true",
-                  help="Don't build; just print commands.")
+                  help="Don't build; just print commands")
 
     op.add_option('--no-site-dir',
                   dest='site_dir',
                   action="store_false",
-                  help="Don't search or use the usual site_scons dir.")
+                  help="Don't search or use the usual site_scons dir")
 
     op.add_option('--profile',
                   nargs=1,
                   dest="profile_file", default=None,
                   action="store",
-                  help="Profile SCons and put results in FILE.",
+                  help="Profile SCons and put results in FILE",
                   metavar="FILE")
 
     op.add_option('-q', '--question',
                   dest="question", default=False,
                   action="store_true",
-                  help="Don't build; exit status says if up to date.")
+                  help="Don't build; exit status says if up to date")
 
     op.add_option('-Q',
                   dest='no_progress', default=False,
                   action="store_true",
-                  help="Suppress \"Reading/Building\" progress messages.")
+                  help="Suppress \"Reading/Building\" progress messages")
 
     op.add_option('--random',
                   dest="random", default=False,
                   action="store_true",
-                  help="Build dependencies in random order.")
+                  help="Build dependencies in random order")
 
     op.add_option('-s', '--silent', '--quiet',
                   dest="silent", default=False,
                   action="store_true",
-                  help="Don't print commands.")
+                  help="Don't print commands")
 
     op.add_option('--site-dir',
                   nargs=1,
                   dest='site_dir', default=None,
                   action="store",
-                  help="Use DIR instead of the usual site_scons dir.",
+                  help="Use DIR instead of the usual site_scons dir",
                   metavar="DIR")
 
     op.add_option('--stack-size',
                   nargs=1, type="int",
                   dest='stack_size',
                   action="store",
-                  help="Set the stack size of the threads used to run jobs to N kilobytes.",
+                  help="Set the stack size of the threads used to run jobs to N kilobytes",
                   metavar="N")
 
     op.add_option('--taskmastertrace',
                   nargs=1,
                   dest="taskmastertrace_file", default=None,
                   action="store",
-                  help="Trace Node evaluation to FILE.",
+                  help="Trace Node evaluation to FILE",
                   metavar="FILE")
 
     tree_options = ["all", "derived", "prune", "status", "linedraw"]
@@ -928,7 +954,7 @@ def Parser(version):
                 raise OptionValueError(opt_invalid('--tree', o, tree_options))
         parser.values.tree_printers.append(tp)
 
-    opt_tree_help = "Print a dependency tree in various formats: %s." \
+    opt_tree_help = "Print a dependency tree in various formats [%s]" \
                     % ", ".join(tree_options)
 
     op.add_option('--tree',
@@ -941,21 +967,22 @@ def Parser(version):
     op.add_option('-u', '--up', '--search-up',
                   dest="climb_up", default=0,
                   action="store_const", const=1,
-                  help="Search up directory tree for SConstruct,       "
-                       "build targets at or below current directory.")
+                  help="Search up directory tree for SConstruct, "
+                       "build targets at or below current directory")
 
     op.add_option('-U',
                   dest="climb_up", default=0,
                   action="store_const", const=3,
-                  help="Search up directory tree for SConstruct,       "
-                       "build Default() targets from local SConscript.")
+                  help="Search up directory tree for SConstruct, "
+                       "build Default() targets from local SConscript")
 
     def opt_version(option, opt, value, parser):
         sys.stdout.write(parser.version + '\n')
         sys.exit(0)
+
     op.add_option("-v", "--version",
                   action="callback", callback=opt_version,
-                  help="Print the SCons version number and exit.")
+                  help="Print the SCons version number and exit")
 
     def opt_warn(option, opt, value, parser, tree_options=tree_options):
         if SCons.Util.is_String(value):
@@ -966,15 +993,14 @@ def Parser(version):
                   nargs=1, type="string",
                   dest="warn", default=[],
                   action="callback", callback=opt_warn,
-                  help="Enable or disable warnings.",
+                  help="Enable or disable warnings",
                   metavar="WARNING-SPEC")
 
     op.add_option('-Y', '--repository', '--srcdir',
                   nargs=1,
                   dest="repository", default=[],
                   action="append",
-                  help="Search REPOSITORY for source and target files.")
-
+                  help="Search REPOSITORY for source and target files")
 
     # Options from Make and Cons classic that we do not yet support,
     # but which we may support someday and whose (potential) meanings
@@ -991,62 +1017,62 @@ def Parser(version):
                   action="callback", callback=opt_not_yet,
                   # action="store",
                   # help="Don't start multiple jobs unless load is below "
-                  #      "LOAD-AVERAGE."
+                  #      "LOAD-AVERAGE"
                   help=SUPPRESS_HELP)
     op.add_option('--list-actions',
                   dest="list_actions",
                   action="callback", callback=opt_not_yet,
-                  # help="Don't build; list files and build actions."
+                  # help="Don't build; list files and build actions"
                   help=SUPPRESS_HELP)
     op.add_option('--list-derived',
                   dest="list_derived",
                   action="callback", callback=opt_not_yet,
-                  # help="Don't build; list files that would be built."
+                  # help="Don't build; list files that would be built"
                   help=SUPPRESS_HELP)
     op.add_option('--list-where',
                   dest="list_where",
                   action="callback", callback=opt_not_yet,
-                  # help="Don't build; list files and where defined."
+                  # help="Don't build; list files and where defined"
                   help=SUPPRESS_HELP)
     op.add_option('-o', '--old-file', '--assume-old',
                   nargs=1, type="string",
                   dest="old_file", default=[],
                   action="callback", callback=opt_not_yet,
                   # action="append",
-                  # help = "Consider FILE to be old; don't rebuild it."
+                  # help = "Consider FILE to be old; don't rebuild it"
                   help=SUPPRESS_HELP)
     op.add_option('--override',
                   nargs=1, type="string",
                   action="callback", callback=opt_not_yet,
                   dest="override",
-                  # help="Override variables as specified in FILE."
+                  # help="Override variables as specified in FILE"
                   help=SUPPRESS_HELP)
     op.add_option('-p',
                   action="callback", callback=opt_not_yet,
                   dest="p",
-                  # help="Print internal environments/objects."
+                  # help="Print internal environments/objects"
                   help=SUPPRESS_HELP)
     op.add_option('-r', '-R', '--no-builtin-rules', '--no-builtin-variables',
                   action="callback", callback=opt_not_yet,
                   dest="no_builtin_rules",
-                  # help="Clear default environments and variables."
+                  # help="Clear default environments and variables"
                   help=SUPPRESS_HELP)
     op.add_option('--write-filenames',
                   nargs=1, type="string",
                   dest="write_filenames",
                   action="callback", callback=opt_not_yet,
-                  # help="Write all filenames examined into FILE."
+                  # help="Write all filenames examined into FILE"
                   help=SUPPRESS_HELP)
     op.add_option('-W', '--new-file', '--assume-new', '--what-if',
                   nargs=1, type="string",
                   dest="new_file",
                   action="callback", callback=opt_not_yet,
-                  # help="Consider FILE to be changed."
+                  # help="Consider FILE to be changed"
                   help=SUPPRESS_HELP)
     op.add_option('--warn-undefined-variables',
                   dest="warn_undefined_variables",
                   action="callback", callback=opt_not_yet,
-                  # help="Warn when an undefined variable is referenced."
+                  # help="Warn when an undefined variable is referenced"
                   help=SUPPRESS_HELP)
     return op
 

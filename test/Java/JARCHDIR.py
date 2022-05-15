@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that when JARCHDIR that our command to create .jar files
@@ -44,21 +43,20 @@ where_jar = test.java_where_jar()
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 dir = 'dist'
-env = Environment(tools    = ['javac', 'jar'],
-                  JARCHDIR = dir)
+env = Environment(tools=['javac', 'jar'], JARCHDIR=dir)
 bin = env.Java(dir, Dir('./'))
 jar = env.Jar(File('c.jar', dir), bin)
 
 # Make sure we handle class files with $ in them, such as typically
 # created for inner classes.
-env = env.Clone(JARCHDIR = '.')
+env = env.Clone(JARCHDIR='.')
 inner = env.Jar('inner.jar', 'Inner$$Class.class')
 
 # Commented out as this logic doesn't work as is.
 # target_env = env.Clone(JARCHDIR = '${TARGET.dir}')
 # target_env.Jar('out/t.jar', 'in/t.class')
 
-source_env = env.Clone(JARCHDIR = '${SOURCE.dir}')
+source_env = env.Clone(JARCHDIR='${SOURCE.dir}')
 source_env.Jar('out/s.jar', 'in/s.class')
 
 Default(bin, jar, inner)

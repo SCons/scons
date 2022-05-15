@@ -96,8 +96,8 @@ class PathVariableTestCase(unittest.TestCase):
             o.validator('X', dne, {})
         except SCons.Errors.UserError as e:
             assert str(e) == 'Directory path for option X does not exist: %s' % dne, e
-        except:
-            raise Exception("did not catch expected UserError")
+        except Exception as e:
+            raise Exception("did not catch expected UserError") from e
 
     def test_PathIsDirCreate(self):
         """Test the PathIsDirCreate validator"""
@@ -121,8 +121,16 @@ class PathVariableTestCase(unittest.TestCase):
             o.validator('X', f, {})
         except SCons.Errors.UserError as e:
             assert str(e) == 'Path for option X is a file, not a directory: %s' % f, e
-        except:
-            raise Exception("did not catch expected UserError")
+        except Exception as e:
+            raise Exception("did not catch expected UserError") from e
+
+        f = '/yyy/zzz'  # this not exists and should fail to create
+        try:
+            o.validator('X', f, {})
+        except SCons.Errors.UserError as e:
+            assert str(e) == 'Path for option X could not be created: %s' % f, e
+        except Exception as e:
+            raise Exception("did not catch expected UserError") from e
 
     def test_PathIsFile(self):
         """Test the PathIsFile validator"""

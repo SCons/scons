@@ -50,6 +50,9 @@ Execution Requirements
 Running SCons requires Python 3.5 or higher. There should be no other
 dependencies or requirements to run scons.
 
+As of SCons 4.2.0 support for Python 3.5 is deprecated and will be removed
+with the next major release.
+
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named 'cc', a C++
 compiler named 'c++', and a Fortran compiler named 'gfortran' (such as found
@@ -390,12 +393,12 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-    SCons-4.0.0-py3-none-any.whl
-    SCons-4.1.0.devyyyymmdd.tar.gz
-    SCons-4.1.0.devyyyymmdd.zip
-    scons-doc-4.1.0.devyyyymmdd.tar.gz
-    scons-local-4.1.0.devyyyymmdd.tar.gz
-    scons-local-4.1.0.devyyyymmdd.zip
+    SCons-4.2.0-py3-none-any.whl
+    SCons-4.3.0ayyyymmdd.tar.gz
+    SCons-4.3.0ayyyymmdd.zip
+    scons-doc-4.3.0ayyyymmdd.tar.gz
+    scons-local-4.3.0ayyyymmdd.tar.gz
+    scons-local-4.3.0ayyyymmdd.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
@@ -609,5 +612,5 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2020 The SCons Foundation
+Copyright (c) 2001 - 2021 The SCons Foundation
 

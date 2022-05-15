@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,8 +23,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Validate that a stripped-down real-world Qt configuation (thanks
@@ -128,14 +128,12 @@ test.write(['layer', 'aclock', 'qt_bug', 'my.cc'], """\
 #include <main.h>
 """)
 
-my_obj = 'layer/aclock/qt_bug/my'+_obj
+my_obj = 'layer/aclock/qt_bug/my' + _obj
 
-test.run(arguments = my_obj, stderr=None)
+test.run(arguments='--warn=no-tool-qt-deprecated ' + my_obj, stderr=None)
 
-expect = my_obj.replace( '/', os.sep )
-test.up_to_date(options = '--debug=explain',
-                arguments =expect,
-                stderr=None)
+expect = my_obj.replace('/', os.sep)
+test.up_to_date(options='--debug=explain', arguments=expect, stderr=None)
 
 test.pass_test()
 

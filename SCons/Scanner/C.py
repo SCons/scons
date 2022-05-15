@@ -24,10 +24,10 @@
 """Dependency scanner for C/C++ code."""
 
 import SCons.Node.FS
-import SCons.Scanner
-import SCons.Util
-
 import SCons.cpp
+import SCons.Util
+from . import ClassicCPP, FindPathDirs
+
 
 class SConsCPPScanner(SCons.cpp.PreProcessor):
     """SCons-specific subclass of the cpp.py module's processing.
@@ -36,19 +36,23 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
     by Nodes, not strings; 2) we can keep track of the files that are
     missing.
     """
-    def __init__(self, *args, **kw):
-        SCons.cpp.PreProcessor.__init__(self, *args, **kw)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.missing = []
+
     def initialize_result(self, fname):
         self.result = SCons.Util.UniqueList([fname])
+
     def finalize_result(self, fname):
         return self.result[1:]
+
     def find_include_file(self, t):
         keyword, quote, fname = t
         result = SCons.Node.FS.find_file(fname, self.searchpath[quote])
         if not result:
             self.missing.append((fname, self.current_file))
         return result
+
     def read_file(self, file):
         try:
             with open(str(file.rfile())) as fp:
@@ -57,7 +61,8 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             self.missing.append((file, self.current_file))
             return ''
 
-def dictify_CPPDEFINES(env):
+def dictify_CPPDEFINES(env) -> dict:
+    """Returns CPPDEFINES converted to a dict."""
     cppdefines = env.get('CPPDEFINES', {})
     if cppdefines is None:
         return {}
@@ -65,7 +70,11 @@ def dictify_CPPDEFINES(env):
         result = {}
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
-                result[c[0]] = c[1]
+                try:
+                    result[c[0]] = c[1]
+                except IndexError:
+                    # it could be a one-item sequence
+                    result[c[0]] = None
             else:
                 result[c] = None
         return result
@@ -81,18 +90,22 @@ class SConsCPPScannerWrapper:
     to look for #include lines with reasonably real C-preprocessor-like
     evaluation of #if/#ifdef/#else/#elif lines.
     """
+
     def __init__(self, name, variable):
         self.name = name
-        self.path = SCons.Scanner.FindPathDirs(variable)
-    def __call__(self, node, env, path = ()):
-        cpp = SConsCPPScanner(current = node.get_dir(),
-                              cpppath = path,
-                              dict = dictify_CPPDEFINES(env))
+        self.path = FindPathDirs(variable)
+
+    def __call__(self, node, env, path=()):
+        cpp = SConsCPPScanner(
+            current=node.get_dir(), cpppath=path, dict=dictify_CPPDEFINES(env)
+        )
         result = cpp(node)
         for included, includer in cpp.missing:
-            fmt = "No dependency generated for file: %s (included from: %s) -- file not found"
-            SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                                fmt % (included, includer))
+            SCons.Warnings.warn(
+                SCons.Warnings.DependencyWarning,
+                "No dependency generated for file: %s (included from: %s) "
+                "-- file not found" % (included, includer),
+            )
         return result
 
     def recurse_nodes(self, nodes):
@@ -110,7 +123,7 @@ def CScanner():
     # right configurability to let users pick between the scanners.
     # return SConsCPPScannerWrapper("CScanner", "CPPPATH")
 
-    cs = SCons.Scanner.ClassicCPP(
+    cs = ClassicCPP(
         "CScanner",
         "$CPPSUFFIXES",
         "CPPPATH",
@@ -132,8 +145,8 @@ class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
     missing.
     """
 
-    def __init__(self, *args, **kw):
-        SCons.cpp.PreProcessor.__init__(self, *args, **kw)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.missing = []
         self._known_paths = []
 
@@ -177,7 +190,7 @@ class SConsCPPConditionalScannerWrapper:
 
     def __init__(self, name, variable):
         self.name = name
-        self.path = SCons.Scanner.FindPathDirs(variable)
+        self.path = FindPathDirs(variable)
 
     def __call__(self, node, env, path=(), depth=-1):
         cpp = SConsCPPConditionalScanner(

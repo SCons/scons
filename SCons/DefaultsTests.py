@@ -23,22 +23,40 @@
 
 import os
 import unittest
+import collections
 
 import TestCmd
 
-from SCons.Defaults import mkdir_func
+from SCons.Defaults import mkdir_func, _defines
+
+
+class DummyEnvironment(collections.UserDict):
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.data.update(kwargs)
+
+    def subst(self, str_subst, target=None, source=None, conv=None):
+        if str_subst[0] == '$':
+            return self.data[str_subst[1:]]
+        return str_subst
+
+    def subst_list(self, str_subst, target=None, source=None, conv=None):
+        if str_subst[0] == '$':
+            return [self.data[str_subst[1:]]]
+        return [[str_subst]]
+
 
 class DefaultsTestCase(unittest.TestCase):
     def test_mkdir_func0(self):
-        test = TestCmd.TestCmd(workdir = '')
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir2 = test.workpath('sub', 'dir1', 'dir2')
         # Simple smoke test
         mkdir_func(subdir2)
-        mkdir_func(subdir2)     # 2nd time should be OK too
+        mkdir_func(subdir2)  # 2nd time should be OK too
 
     def test_mkdir_func1(self):
-        test = TestCmd.TestCmd(workdir = '')
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir1 = test.workpath('sub', 'dir1')
         subdir2 = test.workpath('sub', 'dir1', 'dir2')
@@ -48,7 +66,7 @@ class DefaultsTestCase(unittest.TestCase):
         mkdir_func(subdir1)
 
     def test_mkdir_func2(self):
-        test = TestCmd.TestCmd(workdir = '')
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir1 = test.workpath('sub', 'dir1')
         subdir2 = test.workpath('sub', 'dir1', 'dir2')
@@ -64,6 +82,26 @@ class DefaultsTestCase(unittest.TestCase):
             pass
         else:
             self.fail("expected OSError")
+
+    def test__defines_no_target_or_source_arg(self):
+        """
+        Verify that _defines() function can handle either or neither source or
+        target being specified
+        """
+        env = DummyEnvironment()
+
+        # Neither source or target specified
+        x = _defines('-D', ['A', 'B', 'C'], 'XYZ', env)
+        self.assertEqual(x, ['-DAXYZ', '-DBXYZ', '-DCXYZ'])
+
+        # only source specified
+        y = _defines('-D', ['AA', 'BA', 'CA'], 'XYZA', env, 'XYZ')
+        self.assertEqual(y, ['-DAAXYZA', '-DBAXYZA', '-DCAXYZA'])
+
+        # source and target specified
+        z = _defines('-D', ['AAB', 'BAB', 'CAB'], 'XYZAB', env, 'XYZ', 'abc')
+        self.assertEqual(z,['-DAABXYZAB', '-DBABXYZAB', '-DCABXYZAB'])
+
 
 
 if __name__ == "__main__":

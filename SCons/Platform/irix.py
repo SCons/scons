@@ -32,6 +32,7 @@ from . import posix
 
 def generate(env):
     posix.generate(env)
+    env['HOST_OS'] = 'irix'
 
 # Local Variables:
 # tab-width:4

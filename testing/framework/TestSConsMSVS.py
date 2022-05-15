@@ -655,7 +655,7 @@ def get_tested_proj_file_vc_versions():
     """
     Returns all MSVC versions that we want to test project file creation for.
     """
-    return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2']
+    return ['8.0', '9.0', '10.0', '11.0', '12.0', '14.0', '14.1', '14.2', '14.3']
 
 
 class TestSConsMSVS(TestSCons):
@@ -763,8 +763,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         return result
 
     def get_vs_host_arch(self):
-        """ Get an MSVS, SDK , and/or MSVS acceptable platform arch
-        """
+        """ Returns an MSVS, SDK , and/or MSVS acceptable platform arch. """
 
         # Dict to 'canonalize' the arch
         _ARCH_TO_CANONICAL = {
@@ -778,11 +777,6 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         }
 
         host_platform = platform.machine()
-        # TODO(2.5):  the native Python platform.machine() function returns
-        # '' on all Python versions before 2.6, after which it also uses
-        # PROCESSOR_ARCHITECTURE.
-        if not host_platform:
-            host_platform = os.environ.get('PROCESSOR_ARCHITECTURE', '')
 
         try:
             host = _ARCH_TO_CANONICAL[host_platform]
@@ -879,6 +873,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         elif vc_version == '14.2':
             # ToolsVersion='16'
             return '16.0'
+        elif vc_version == '14.3':
+            # ToolsVersion='17'
+            return '17.0'
         else:
             raise SCons.Errors.UserError('Received unexpected VC version %s' % vc_version)
 

@@ -58,7 +58,6 @@ else
         pip install git+https://github.com/lxml/lxml.git
     fi
 
-
 #    sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
 #    wget -qO - https://dlang.org/d-keyring.gpg | sudo apt-key add -
 #    sudo apt-get update && sudo apt-get -y --allow-unauthenticated install dmd-bin

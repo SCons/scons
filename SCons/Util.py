@@ -52,7 +52,7 @@ NOFILE = "SCONS_MAGIC_MISSING_FILE_STRING"
 def dictify(keys, values, result=None) -> dict:
     if result is None:
         result = {}
-    result.update(dict(zip(keys, values)))
+    result.update(zip(keys, values))
     return result
 
 _ALTSEP = os.altsep
@@ -70,17 +70,11 @@ else:
 # (Yeah, yeah, YAGNI...)
 def containsAny(s, pat) -> bool:
     """Check whether string `s` contains ANY of the items in `pat`."""
-    for c in pat:
-        if c in s:
-            return True
-    return False
+    return any(c in s for c in pat)
 
 def containsAll(s, pat) -> bool:
     """Check whether string `s` contains ALL of the items in `pat`."""
-    for c in pat:
-        if c not in s:
-            return False
-    return True
+    return all(c in s for c in pat)
 
 def containsOnly(s, pat) -> bool:
     """Check whether string `s` contains ONLY items in `pat`."""
@@ -99,7 +93,7 @@ def splitext(path) -> tuple:
     sep = rightmost_separator(path, os.sep)
     dot = path.rfind('.')
     # An ext is only real if it has at least one non-digit char
-    if dot > sep and not containsOnly(path[dot:], "0123456789."):
+    if dot > sep and not path[dot + 1:].isdigit():
         return path[:dot], path[dot:]
 
     return path, ""
@@ -119,10 +113,14 @@ def updrive(path) -> str:
 class NodeList(UserList):
     """A list of Nodes with special attribute retrieval.
 
-    This class is almost exactly like a regular list of Nodes
-    (actually it can hold any object), with one important difference.
-    If you try to get an attribute from this list, it will return that
-    attribute from every item in the list.  For example:
+    Unlike an ordinary list, access to a member's attribute returns a
+    `NodeList` containing the same attribute for each member.  Although
+    this can hold any object, it is intended for use when processing
+    Nodes, where fetching an attribute of each member is very commone,
+    for example getting the content signature of each node.  The term
+    "attribute" here includes the string representation.
+
+    Example:
 
     >>> someList = NodeList(['  foo  ', '  bar  '])
     >>> someList.strip()
@@ -138,30 +136,20 @@ class NodeList(UserList):
     def __iter__(self):
         return iter(self.data)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> 'NodeList':
         result = [x(*args, **kwargs) for x in self.data]
         return self.__class__(result)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name) -> 'NodeList':
+        """Returns a NodeList of `name` from each member."""
         result = [getattr(x, name) for x in self.data]
         return self.__class__(result)
 
     def __getitem__(self, index):
-        """
-        This comes for free on py2,
-        but py3 slices of NodeList are returning a list
-        breaking slicing nodelist and refering to
-        properties and methods on contained object
-        """
-#        return self.__class__(self.data[index])
-
+        """Returns one item, forces a `NodeList` if `index` is a slice."""
+        # TODO: annotate return how? Union[] - don't know type of single item
         if isinstance(index, slice):
-            # Expand the slice object using range()
-            # limited by number of items in self.data
-            indices = index.indices(len(self.data))
-            return self.__class__([self[x] for x in range(*indices)])
-
-        # Return one item of the tart
+            return self.__class__(self.data[index])
         return self.data[index]
 
 
@@ -1213,7 +1201,7 @@ class CLVar(UserList):
     """
 
     def __init__(self, initlist=None):
-        super().__init__(Split(initlist))
+        super().__init__(Split(initlist if initlist is not None else []))
 
     def __add__(self, other):
         return super().__add__(CLVar(other))
@@ -1225,7 +1213,9 @@ class CLVar(UserList):
         return super().__iadd__(CLVar(other))
 
     def __str__(self):
-        return ' '.join(self.data)
+        # Some cases the data can contain Nodes, so make sure they
+        # processed to string before handing them over to join.
+        return ' '.join([str(d) for d in self.data])
 
 
 class Selector(OrderedDict):
@@ -1675,9 +1665,85 @@ def AddMethod(obj, function, name=None):
 
 
 # Default hash function and format. SCons-internal.
-ALLOWED_HASH_FORMATS = ['md5', 'sha1', 'sha256']
+DEFAULT_HASH_FORMATS = ['md5', 'sha1', 'sha256']
+ALLOWED_HASH_FORMATS = []
 _HASH_FUNCTION = None
 _HASH_FORMAT = None
+
+def _attempt_init_of_python_3_9_hash_object(hash_function_object, sys_used=sys):
+    """Python 3.9 and onwards lets us initialize the hash function object with the
+    key "usedforsecurity"=false. This lets us continue to use algorithms that have
+    been deprecated either by FIPS or by Python itself, as the MD5 algorithm SCons
+    prefers is not being used for security purposes as much as a short, 32 char
+    hash that is resistant to accidental collisions.
+
+    In prior versions of python, hashlib returns a native function wrapper, which
+    errors out when it's queried for the optional parameter, so this function
+    wraps that call.
+
+    It can still throw a ValueError if the initialization fails due to FIPS
+    compliance issues, but that is assumed to be the responsibility of the caller.
+    """
+    if hash_function_object is None:
+        return None
+
+    # https://stackoverflow.com/a/11887885 details how to check versions with the "packaging" library.
+    # however, for our purposes checking the version is greater than or equal to 3.9 is good enough, as
+    # the API is guaranteed to have support for the 'usedforsecurity' flag in 3.9. See
+    # https://docs.python.org/3/library/hashlib.html#:~:text=usedforsecurity for the version support notes.
+    if (sys_used.version_info.major > 3) or (sys_used.version_info.major == 3 and sys_used.version_info.minor >= 9):
+        return hash_function_object(usedforsecurity=False)
+
+    # note that this can throw a ValueError in FIPS-enabled versions of Linux prior to 3.9
+    # the OpenSSL hashlib will throw on first init here, but that is assumed to be responsibility of
+    # the caller to diagnose the ValueError & potentially display the error to screen.
+    return hash_function_object()
+
+def _set_allowed_viable_default_hashes(hashlib_used, sys_used=sys):
+    """Checks if SCons has ability to call the default algorithms normally supported.
+
+    This util class is sometimes called prior to setting the user-selected hash algorithm,
+    meaning that on FIPS-compliant systems the library would default-initialize MD5
+    and throw an exception in set_hash_format. A common case is using the SConf options,
+    which can run prior to main, and thus ignore the options.hash_format variable.
+
+    This function checks the DEFAULT_HASH_FORMATS and sets the ALLOWED_HASH_FORMATS
+    to only the ones that can be called. In Python >= 3.9 this will always default to
+    MD5 as in Python 3.9 there is an optional attribute "usedforsecurity" set for the method.
+
+    Throws if no allowed hash formats are detected.
+    """
+    global ALLOWED_HASH_FORMATS
+    _last_error = None
+    # note: if you call this method repeatedly, example using timeout, this is needed.
+    # otherwise it keeps appending valid formats to the string
+    ALLOWED_HASH_FORMATS = []
+
+    for test_algorithm in DEFAULT_HASH_FORMATS:
+        _test_hash = getattr(hashlib_used, test_algorithm, None)
+        # we know hashlib claims to support it... check to see if we can call it.
+        if _test_hash is not None:
+            # the hashing library will throw an exception on initialization in FIPS mode,
+            # meaning if we call the default algorithm returned with no parameters, it'll
+            # throw if it's a bad algorithm, otherwise it will append it to the known
+            # good formats.
+            try:
+                _attempt_init_of_python_3_9_hash_object(_test_hash, sys_used)
+                ALLOWED_HASH_FORMATS.append(test_algorithm)
+            except ValueError as e:
+                _last_error = e
+                continue
+
+    if len(ALLOWED_HASH_FORMATS) == 0:
+        from SCons.Errors import SConsEnvironmentError  # pylint: disable=import-outside-toplevel
+        # chain the exception thrown with the most recent error from hashlib.
+        raise SConsEnvironmentError(
+            'No usable hash algorithms found.'
+            'Most recent error from hashlib attached in trace.'
+        ) from _last_error
+    return
+
+_set_allowed_viable_default_hashes(hashlib)
 
 
 def get_hash_format():
@@ -1690,8 +1756,27 @@ def get_hash_format():
     """
     return _HASH_FORMAT
 
+def _attempt_get_hash_function(hash_name, hashlib_used=hashlib, sys_used=sys):
+    """Wrapper used to try to initialize a hash function given.
 
-def set_hash_format(hash_format):
+    If successful, returns the name of the hash function back to the user.
+
+    Otherwise returns None.
+    """
+    try:
+        _fetch_hash = getattr(hashlib_used, hash_name, None)
+        if _fetch_hash is None:
+            return None
+        _attempt_init_of_python_3_9_hash_object(_fetch_hash, sys_used)
+        return hash_name
+    except ValueError:
+        # if attempt_init_of_python_3_9 throws, this is typically due to FIPS being enabled
+        # however, if we get to this point, the viable hash function check has either been
+        # bypassed or otherwise failed to properly restrict the user to only the supported
+        # functions. As such throw the UserError as an internal assertion-like error.
+        return None
+
+def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
     """Sets the default hash format used by SCons.
 
     If `hash_format` is ``None`` or
@@ -1708,24 +1793,58 @@ def set_hash_format(hash_format):
         if hash_format_lower not in ALLOWED_HASH_FORMATS:
             from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
 
-            raise UserError('Hash format "%s" is not supported by SCons. Only '
+            # user can select something not supported by their OS but normally supported by
+            # SCons, example, selecting MD5 in an OS with FIPS-mode turned on. Therefore we first
+            # check if SCons supports it, and then if their local OS supports it.
+            if hash_format_lower in DEFAULT_HASH_FORMATS:
+                raise UserError('While hash format "%s" is supported by SCons, the '
+                        'local system indicates only the following hash '
+                        'formats are supported by the hashlib library: %s' %
+                        (hash_format_lower,
+                        ', '.join(ALLOWED_HASH_FORMATS))
+                )
+            else:
+                # the hash format isn't supported by SCons in any case. Warn the user, and
+                # if we detect that SCons supports more algorithms than their local system
+                # supports, warn the user about that too.
+                if ALLOWED_HASH_FORMATS == DEFAULT_HASH_FORMATS:
+                    raise UserError('Hash format "%s" is not supported by SCons. Only '
                             'the following hash formats are supported: %s' %
                             (hash_format_lower,
-                             ', '.join(ALLOWED_HASH_FORMATS)))
+                             ', '.join(ALLOWED_HASH_FORMATS))
+                    )
+                else:
+                    raise UserError('Hash format "%s" is not supported by SCons. '
+                            'SCons supports more hash formats than your local system '
+                            'is reporting; SCons supports: %s. Your local system only '
+                            'supports: %s' %
+                            (hash_format_lower,
+                             ', '.join(DEFAULT_HASH_FORMATS),
+                             ', '.join(ALLOWED_HASH_FORMATS))
+                    )
 
-        _HASH_FUNCTION = getattr(hashlib, hash_format_lower, None)
+        # this is not expected to fail. If this fails it means the set_allowed_viable_default_hashes
+        # function did not throw, or when it threw, the exception was caught and ignored, or
+        # the global ALLOWED_HASH_FORMATS was changed by an external user.
+        _HASH_FUNCTION = _attempt_get_hash_function(hash_format_lower, hashlib_used, sys_used)
+
         if _HASH_FUNCTION is None:
             from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
 
             raise UserError(
-                'Hash format "%s" is not available in your Python interpreter.'
+                'Hash format "%s" is not available in your Python interpreter. '
+                'Expected to be supported algorithm by set_allowed_viable_default_hashes, '
+                'Assertion error in SCons.'
                 % hash_format_lower
             )
     else:
         # Set the default hash format based on what is available, defaulting
-        # to md5 for backwards compatibility.
+        # to the first supported hash algorithm (usually md5) for backwards compatibility.
+        # in FIPS-compliant systems this usually defaults to SHA1, unless that too has been
+        # disabled.
         for choice in ALLOWED_HASH_FORMATS:
-            _HASH_FUNCTION = getattr(hashlib, choice, None)
+            _HASH_FUNCTION = _attempt_get_hash_function(choice, hashlib_used, sys_used)
+
             if _HASH_FUNCTION is not None:
                 break
         else:
@@ -1734,7 +1853,9 @@ def set_hash_format(hash_format):
 
             raise UserError(
                 'Your Python interpreter does not have MD5, SHA1, or SHA256. '
-                'SCons requires at least one.')
+                'SCons requires at least one. Expected to support one or more '
+                'during set_allowed_viable_default_hashes.'
+            )
 
 # Ensure that this is initialized in case either:
 #    1. This code is running in a unit test.
@@ -1743,7 +1864,19 @@ def set_hash_format(hash_format):
 set_hash_format(None)
 
 
-def _get_hash_object(hash_format):
+def get_current_hash_algorithm_used():
+    """Returns the current hash algorithm name used.
+
+    Where the python version >= 3.9, this is expected to return md5.
+    If python's version is <= 3.8, this returns md5 on non-FIPS-mode platforms, and
+    sha1 or sha256 on FIPS-mode Linux platforms.
+
+    This function is primarily useful for testing, where one expects a value to be
+    one of N distinct hashes, and therefore the test needs to know which hash to select.
+    """
+    return _HASH_FUNCTION
+
+def _get_hash_object(hash_format, hashlib_used=hashlib, sys_used=sys):
     """Allocates a hash object using the requested hash format.
 
     Args:
@@ -1758,7 +1891,7 @@ def _get_hash_object(hash_format):
 
             raise UserError('There is no default hash function. Did you call '
                             'a hashing function before SCons was initialized?')
-        return _HASH_FUNCTION()
+        return _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, _HASH_FUNCTION, None), sys_used)
 
     if not hasattr(hashlib, hash_format):
         from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
@@ -1767,7 +1900,7 @@ def _get_hash_object(hash_format):
             'Hash format "%s" is not available in your Python interpreter.' %
             hash_format)
 
-    return getattr(hashlib, hash_format)()
+    return _attempt_init_of_python_3_9_hash_object(getattr(hashlib, hash_format), sys_used)
 
 
 def hash_signature(s, hash_format=None):

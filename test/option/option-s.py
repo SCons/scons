@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
@@ -34,18 +33,19 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-file = open(sys.argv[1], 'w')
-file.write("build.py: %s\n" % sys.argv[1])
-file.close()
+
+with open(sys.argv[1], 'w') as file:
+    file.write("build.py: %s\n" % sys.argv[1])
+sys.exit(0)
 """)
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
-MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
+MyBuild = Builder(action=r'%(_python_)s build.py $TARGET')
 
-silent = ARGUMENTS.get('QUIET',0)
+silent = ARGUMENTS.get('QUIET', 0)
 if silent:
-    SetOption('silent',True)
+    SetOption('silent', True)
 
 env = Environment(BUILDERS={'MyBuild': MyBuild}, tools=[])
 env.MyBuild(target='f1.out', source='f1.in')
@@ -86,10 +86,7 @@ test.run(arguments='QUIET=1 f1.out f2.out',
 test.fail_test(not os.path.exists(test.workpath('f1.out')))
 test.fail_test(not os.path.exists(test.workpath('f2.out')))
 
-
-
 test.pass_test()
- 
 
 # Local Variables:
 # tab-width:4

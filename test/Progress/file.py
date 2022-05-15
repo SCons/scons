@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +21,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that the file= argument to Progress() allows us to redirect the
@@ -36,9 +34,18 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
+import atexit
 env = Environment()
 env['BUILDERS']['C'] = Builder(action=Copy('$TARGET', '$SOURCE'))
-Progress('stderr: $TARGET\\n', file=open('progress.out', 'w'))
+fo = open('progress.out', 'w')
+Progress('stderr: $TARGET\\n', file=fo)
+
+# close file at exit
+def close_it():
+    fo.close()
+
+atexit.register(close_it)
+
 env.C('S1.out', 'S1.in')
 env.C('S2.out', 'S2.in')
 env.C('S3.out', 'S3.in')

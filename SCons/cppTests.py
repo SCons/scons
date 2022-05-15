@@ -853,7 +853,7 @@ class fileTestCase(unittest.TestCase):
         """)
         class MyPreProcessor(cpp.DumbPreProcessor):
             def __init__(self, *args, **kw):
-                cpp.DumbPreProcessor.__init__(self, *args, **kw)
+                super().__init__(*args, **kw)
                 self.files = []
             def __call__(self, file):
                 self.files.append(file)
@@ -878,10 +878,9 @@ if __name__ == '__main__':
     for tclass in tclasses:
         names = unittest.getTestCaseNames(tclass, 'test_')
         try:
-            names = list(set(names))
+            names = sorted(set(names))
         except NameError:
             pass
-        names.sort()
         suite.addTests(list(map(tclass, names)))
     TestUnit.run(suite)
 

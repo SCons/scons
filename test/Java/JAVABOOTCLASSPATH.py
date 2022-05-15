@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that use of $JAVABOOTCLASSPATH sets the -bootclasspath option
@@ -33,19 +32,16 @@ import os
 
 import TestSCons
 
-_python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
 where_javac, java_version = test.java_where_javac()
-where_javah = test.java_where_javah()
 
 test.write('SConstruct', """
-env = Environment(tools = ['javac', 'javah'],
-                  JAVABOOTCLASSPATH = ['dir1', 'dir2'])
-j1 = env.Java(target = 'class', source = 'com/Example1.java')
-j2 = env.Java(target = 'class', source = 'com/Example2.java')
-""" % locals())
+DefaultEnvironment(tools=[])
+env = Environment(tools=['javac'], JAVABOOTCLASSPATH=['dir1', 'dir2'])
+j1 = env.Java(target='class', source='com/Example1.java')
+j2 = env.Java(target='class', source='com/Example2.java')
+""")
 
 test.subdir('com')
 

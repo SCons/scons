@@ -126,8 +126,9 @@ test.pass_test()
 #def clean(full=0):
 #    for f in ('d','b','a','SConstruct'):
 #        rm(f)
+#    database_name = test.get_sconsignname()
 #    if full:
-#        for f in ('.sconsign.dblite', 'build.py'):
+#        for f in (database_name + '.dblite', 'build.py'):
 #            rm(f)
 #
 #clean(1)

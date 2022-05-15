@@ -1,0 +1,11 @@
+SetOption("experimental", "ninja")
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=[])
+daemon_port = ARGUMENTS.get("PORT", False)
+if daemon_port:
+    env["NINJA_SCONS_DAEMON_PORT"] = int(daemon_port)
+env.Tool("ninja")
+
+env.Command("out.txt", "foo.c", "echo $SOURCE> $TARGET", NINJA_FORCE_SCONS_BUILD=True)
+env.Command("out2.txt", "test2.cpp", "echo $SOURCE> $TARGET")

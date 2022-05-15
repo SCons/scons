@@ -364,9 +364,18 @@ class TreeFactory:
         doc.xinclude()
         try:
             TreeFactory.xmlschema.assertValid(doc)
+        except etree.XMLSchemaValidateError as e:
+            print("ERROR: %s fails to validate:" % fpath)
+            print(e)
+            print(e.error_log.last_error.message)
+            print("In file: [%s]" % e.error_log.last_error.filename)
+            print("Line   : %d" % e.error_log.last_error.line)
+            return False
+
         except Exception as e:
             print("ERROR: %s fails to validate:" % fpath)
             print(e)
+
             return False
         return True
 
@@ -490,7 +499,7 @@ class Function(Item):
 
 class Tool(Item):
     def __init__(self, name):
-        Item.__init__(self, name)
+        super().__init__(name)
         self.entity = self.name.replace('+', 'X')
 
 

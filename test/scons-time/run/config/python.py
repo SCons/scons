@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,38 +27,45 @@
 Verify specifying an alternate Python executable in a config file.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 import os
 
 import TestSCons_time
 
-_python_ = TestSCons_time._python_
+from TestCmd import NEED_HELPER
+from TestSCons_time import _python_
 
 test = TestSCons_time.TestSCons_time()
+
+if NEED_HELPER:
+    test.skip_test("Test host cannot directly execute scripts, skipping test\n")
 
 test.write_sample_project('foo.tar.gz')
 
 my_python_py = test.workpath('my_python.py')
 
-test.write('config', """\
-python = r'%(my_python_py)s'
-""" % locals())
+test.write(
+    'config',
+    f"""\
+python = r'{my_python_py}'
+""",
+)
 
-test.write(my_python_py, """\
-#!%(_python_)s
+test.write(
+    my_python_py,
+    fr"""#!{_python_}
 import sys
 profile = ''
 for arg in sys.argv[1:]:
     if arg.startswith('--profile='):
         profile = arg[10:]
         break
-print('my_python.py: %%s' %% profile)
-""" % locals())
+print('my_python.py: %s' % profile)
+""",
+)
 
 os.chmod(my_python_py, 0o755)
 
-test.run(arguments = 'run -f config foo.tar.gz')
+test.run(arguments='run -f config foo.tar.gz')
 
 prof0 = test.workpath('foo-000-0.prof')
 prof1 = test.workpath('foo-000-1.prof')

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,11 +22,9 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
+import pathlib
 
 import TestSCons
 
@@ -32,70 +32,8 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-test.write('myjavah.py', r"""
-import sys
-args = sys.argv[1:]
-while args:
-    a = args[0]
-    if a == '-d':
-        outdir = args[1]
-        args = args[1:]
-    elif a == '-o':
-        outfile = open(args[1], 'w')
-        args = args[1:]
-    elif a == '-classpath':
-        args = args[1:]
-    elif a == '-sourcepath':
-        args = args[1:]
-    else:
-        break
-    args = args[1:]
-for file in args:
-    infile = open(file, 'r')
-    for l in infile.readlines():
-        if l[:9] != '/*javah*/':
-            outfile.write(l)
-sys.exit(0)
-""")
-
-test.write('SConstruct', """
-env = Environment(tools = ['javah'],
-                  JAVAH = r'%(_python_)s myjavah.py')
-env.JavaH(target = File('test1.h'), source = 'test1.java')
-""" % locals())
-
-test.write('test1.java', """\
-test1.java
-/*javah*/
-line 3
-""")
-
-test.run(arguments='.', stderr=None)
-
-test.must_match('test1.h', "test1.java\nline 3\n", mode='r')
-
-if os.path.normcase('.java') == os.path.normcase('.JAVA'):
-
-    test.write('SConstruct', """\
-env = Environment(tools = ['javah'],
-                  JAVAH = r'%(_python_)s myjavah.py')
-env.JavaH(target = File('test2.h'), source = 'test2.JAVA')
-""" % locals())
-
-    test.write('test2.JAVA', """\
-test2.JAVA
-/*javah*/
-line 3
-""")
-
-    test.run(arguments='.', stderr=None)
-
-    test.must_match('test2.h', "test2.JAVA\nline 3\n", mode='r')
-
-
 where_javac, java_version = test.java_where_javac()
 where_javah = test.java_where_javah()
-
 if java_version:
     java_version = repr(java_version)
 
@@ -105,36 +43,58 @@ if java_version:
 if test.javac_is_gcj:
     test.skip_test('Test not valid for gcj (gnu java); skipping test(s).\n')
 
+# TODO rework for 'javac -h', for now skip
+# The logical test would be:  if java_version > 9:
+# but java_where_javah() roots around and will find from an older version
+if not test.Environment().WhereIs('javah'):
+    test.skip_test("No Java javah for version > 9, skipping test.\n")
+
+# On some systems, the alternatives system does not remove javah even if the
+# preferred Java doesn't have it, so try another check
+javacdir = pathlib.Path(where_javac).parent
+javahdir = pathlib.Path(where_javah).parent
+if javacdir != javahdir:
+    test.skip_test("Cannot find Java javah matching javac, skipping test.\n")
+
 test.file_fixture('wrapper_with_args.py')
 
 test.write('SConstruct', """
-foo = Environment(tools = ['javac', 'javah', 'install'])
+DefaultEnvironment(tools=[])
+foo = Environment(tools=['javac', 'javah', 'install'])
 jv = %(java_version)s
 if jv:
     foo['JAVAVERSION'] = jv
 javah = foo.Dictionary('JAVAH')
-bar = foo.Clone(JAVAH = r'%(_python_)s wrapper_with_args.py ' + javah)
-foo.Java(target = 'class1', source = 'com/sub/foo')
-bar_classes = bar.Java(target = 'class2', source = 'com/sub/bar')
-foo_classes = foo.Java(target = 'class3', source = 'src')
-foo.JavaH(target = 'outdir1',
-          source = ['class1/com/sub/foo/Example1.class',
-                    'class1/com/other/Example2',
-                    'class1/com/sub/foo/Example3'],
-          JAVACLASSDIR = 'class1')
-bar.JavaH(target = 'outdir2', source = bar_classes)
-foo.JavaH(target = File('output.h'), source = foo_classes)
+bar = foo.Clone(JAVAH=r'%(_python_)s wrapper_with_args.py ' + javah)
+foo.Java(target='class1', source='com/sub/foo')
+bar_classes = bar.Java(target='class2', source='com/sub/bar')
+foo_classes = foo.Java(target='class3', source='src')
+foo.JavaH(
+    target='outdir1',
+    source=[
+        'class1/com/sub/foo/Example1.class',
+        'class1/com/other/Example2',
+        'class1/com/sub/foo/Example3',
+    ],
+    JAVACLASSDIR='class1',
+)
+bar.JavaH(target='outdir2', source=bar_classes)
+foo.JavaH(target=File('output.h'), source=foo_classes)
 foo.Install('class4/com/sub/foo', 'class1/com/sub/foo/Example1.class')
-foo.JavaH(target = 'outdir4',
-          source = ['class4/com/sub/foo/Example1.class'],
-          JAVACLASSDIR = 'class4')
+foo.JavaH(
+    target='outdir4',
+    source=['class4/com/sub/foo/Example1.class'],
+    JAVACLASSDIR='class4',
+)
 """ % locals())
 
-test.subdir('com',
-            ['com', 'sub'],
-            ['com', 'sub', 'foo'],
-            ['com', 'sub', 'bar'],
-            'src')
+test.subdir(
+    'com',
+    ['com', 'sub'],
+    ['com', 'sub', 'foo'],
+    ['com', 'sub', 'bar'],
+    'src',
+)
 
 test.write(['com', 'sub', 'foo', 'Example1.java'], """\
 package com.sub.foo;
@@ -280,8 +240,12 @@ class Private {
 
 test.run(arguments = '.')
 
-test.must_match('wrapper.out', "wrapper_with_args.py javah -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n" % locals(),
-                mode='r')
+test.must_match(
+    'wrapper.out',
+    "wrapper_with_args.py javah -d outdir2 -classpath class2 com.sub.bar.Example4 com.other.Example5 com.sub.bar.Example6\n"
+    % locals(),
+    mode='r',
+)
 
 test.must_exist(['outdir1', 'com_sub_foo_Example1.h'])
 test.must_exist(['outdir1', 'com_other_Example2.h'])

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,7 +26,6 @@
 Verify creation of a config.h file from a Configure context.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
 
@@ -46,6 +46,10 @@ r2 = conf.CheckFunc('noFunctionCall')
 r3 = conf.CheckFunc('memmove')
 r4 = conf.CheckType('int')
 r5 = conf.CheckType('noType')
+
+m1 = conf.CheckMember('struct timespec.tv_sec', '#include <time.h>')
+m2 = conf.CheckMember('struct timespec.tv_nanosec', '#include <time.h>')
+
 r6 = conf.CheckCHeader('stdio.h', '<>')
 r7 = conf.CheckCHeader('hopefullynoc-header.h')
 r8 = conf.CheckCXXHeader('vector', '<>')
@@ -66,6 +70,8 @@ Checking for C function noFunctionCall()... no
 Checking for C function memmove()... yes
 Checking for C type int... yes
 Checking for C type noType... no
+Checking for C member struct timespec.tv_sec... yes
+Checking for C member struct timespec.tv_nanosec... no
 Checking for C header file stdio.h... yes
 Checking for C header file hopefullynoc-header.h... no
 Checking for C++ header file vector... yes
@@ -103,6 +109,12 @@ expected_config_h = ("""\
 
 /* Define to 1 if the system has the type `noType'. */
 /* #undef HAVE_NOTYPE */
+
+/* Define to 1 if the system has the member `struct timespec.tv_sec`. */
+#define HAVE_STRUCT_TIMESPEC_TV_SEC 1
+
+/* Define to 1 if the system has the member `struct timespec.tv_nanosec`. */
+/* #undef HAVE_STRUCT_TIMESPEC_TV_NANOSEC */
 
 /* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,7 +28,6 @@ Verify basic invocation of Microsoft Visual C/C++, including use
 of a precompiled header with the $CCFLAGS variable.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import time
 
@@ -36,70 +37,10 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.skip_if_not_msvc()
 
+test.dir_fixture('msvc_fixture')
+
 #####
 # Test the basics
-
-test.write('SConstruct',"""
-import os
-DefaultEnvironment(tools=[])
-# TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
-# and ideally we shouldn't need to specify the tools= list anyway.
-env = Environment(tools=['mssdk', 'msvc', 'mslink'])
-env.Append(CPPPATH=os.environ.get('INCLUDE', ''),
-           LIBPATH=os.environ.get('LIB', ''),
-           CCFLAGS='/DPCHDEF')
-env['PDB'] = File('test.pdb')
-env['PCHSTOP'] = 'StdAfx.h'
-env['PCH'] = env.PCH('StdAfx.cpp')[0]
-env.Program('test', ['test.cpp', env.RES('test.rc')], LIBS=['user32'])
-
-env.Object('fast', 'foo.cpp')
-env.Object('slow', 'foo.cpp', PCH=0)
-""")
-
-test.write('test.cpp', '''
-#include "StdAfx.h"
-#include "resource.h"
-
-int main(void) 
-{ 
-    char test[1024];
-    LoadString(GetModuleHandle(NULL), IDS_TEST, test, sizeof(test));
-    printf("%d %s\\n", IDS_TEST, test);
-    return 0;
-}
-''')
-
-test.write('test.rc', '''
-#include "resource.h"
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_TEST "test 1"
-END
-''')
-
-test.write('resource.h', '''
-#define IDS_TEST 2001
-''')
-
-
-test.write('foo.cpp', '''
-#include "StdAfx.h"
-''')
-
-test.write('StdAfx.h', '''
-#include <windows.h>
-#include <stdio.h>
-#include "resource.h"
-''')
-
-test.write('StdAfx.cpp', '''
-#include "StdAfx.h"
-#ifndef PCHDEF
-this line generates an error if PCHDEF is not defined!
-#endif
-''')
 
 #  Visual Studio 8 has deprecated the /Yd option and prints warnings
 #  about it, so ignore stderr when running SCons.

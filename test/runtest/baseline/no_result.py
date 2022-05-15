@@ -48,10 +48,16 @@ expect_stderr = """\
 NO RESULT TEST STDERR
 """
 
-test.run(arguments='-k -b . test/no_result.py',
+test.run(arguments='--no-ignore-skips -k -b . test/no_result.py',
          status=2,
          stdout=expect_stdout,
          stderr=expect_stderr)
+
+test.run(arguments='-k -b . test/no_result.py',
+         status=0,
+         stdout=expect_stdout,
+         stderr=expect_stderr)
+
 
 test.pass_test()
 

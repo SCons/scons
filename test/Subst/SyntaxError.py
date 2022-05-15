@@ -34,7 +34,7 @@ import TestSCons
 test = TestSCons.TestSCons(match = TestSCons.match_re_dotall)
 
 
-expect_build = r"""scons: \*\*\*%s SyntaxError `(invalid syntax|Unknown character)( \((<string>, )?line 1\))?' trying to evaluate `%s'
+expect_build = r"""scons: \*\*\*%s SyntaxError `invalid syntax( |\. Perhaps you forgot a comma\? )\(<string>, line 1\)?' trying to evaluate `%s'
 """
 
 expect_read = "\n" + expect_build + TestSCons.file_expr

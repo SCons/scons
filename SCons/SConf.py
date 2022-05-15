@@ -73,6 +73,9 @@ FORCE=1 # force all tests to be rebuilt
 CACHE=2 # force all tests to be taken from cache (raise an error, if necessary)
 cache_mode = AUTO
 
+def _set_conftest_node(node):
+    node.attributes.conftest_node = 1
+
 def SetCacheMode(mode):
     """Set the Configure cache mode. mode must be one of "auto", "force",
     or "cache"."""
@@ -139,7 +142,7 @@ SCons.Warnings.enableWarningClass(SConfWarning)
 # some error definitions
 class SConfError(SCons.Errors.UserError):
     def __init__(self,msg):
-        SCons.Errors.UserError.__init__(self,msg)
+        super().__init__(msg)
 
 class ConfigureDryRunError(SConfError):
     """Raised when a file or directory needs to be updated during a Configure
@@ -149,13 +152,13 @@ class ConfigureDryRunError(SConfError):
             msg = 'Cannot create configure directory "%s" within a dry-run.' % str(target)
         else:
             msg = 'Cannot update configure test "%s" within a dry-run.' % str(target)
-        SConfError.__init__(self,msg)
+        super().__init__(msg)
 
 class ConfigureCacheError(SConfError):
     """Raised when a use explicitely requested the cache feature, but the test
     is run the first time."""
     def __init__(self,target):
-        SConfError.__init__(self, '"%s" is not yet built and cache is forced.' % str(target))
+        super().__init__('"%s" is not yet built and cache is forced.' % str(target))
 
 
 # define actions for building text files
@@ -447,6 +450,7 @@ class SConfBase:
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
+                 'CheckMember'        : CheckMember,
                  'CheckDeclaration'   : CheckDeclaration,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
@@ -518,7 +522,7 @@ class SConfBase:
         # we override the store_info() method with a null place-holder
         # so we really control how it gets written.
         for n in nodes:
-            self._set_conftest_node(n)
+            _set_conftest_node(n)
             n.store_info = 0
             if not hasattr(n, 'attributes'):
                 n.attributes = SCons.Node.Node.Attrs()
@@ -531,7 +535,7 @@ class SConfBase:
                 for c in n.children(scan=False):
                     # Keep debug code here.
                     # print("Checking [%s] for builders and then setting keep_targetinfo"%c)
-                    self._set_conftest_node(c)
+                    _set_conftest_node(c)
                     if  c.has_builder():
                         n.store_info = 0
                         if not hasattr(c, 'attributes'):
@@ -596,7 +600,7 @@ class SConfBase:
 
         nodesToBeBuilt = []
         sourcetext = self.env.Value(text)
-        self._set_conftest_node(sourcetext)
+        _set_conftest_node(sourcetext)
         f = "conftest"
 
         if text is not None:
@@ -606,14 +610,14 @@ class SConfBase:
 
             f = "_".join([f, textSig, textSigCounter])
             textFile = self.confdir.File(f + extension)
-            self._set_conftest_node(sourcetext)
+            _set_conftest_node(textFile)
             textFileNode = self.env.SConfSourceBuilder(target=textFile,
                                                        source=sourcetext)
             nodesToBeBuilt.extend(textFileNode)
 
             source = textFile
             target = textFile.File(f + "SConfActionsContentDummyTarget")
-            self._set_conftest_node(target)
+            _set_conftest_node(target)
         else:
             source = None
             target = None
@@ -625,13 +629,14 @@ class SConfBase:
         pref = self.env.subst( builder.builder.prefix )
         suff = self.env.subst( builder.builder.suffix )
         target = self.confdir.File(pref + f + suff)
+        _set_conftest_node(target)
 
         try:
             # Slide our wrapper into the construction environment as
             # the SPAWN function.
             self.env['SPAWN'] = self.pspawn_wrapper
 
-            nodes = builder(target = target, source = source)
+            nodes = builder(target = target, source = source, SCONF_NODE=True)
             if not SCons.Util.is_List(nodes):
                 nodes = [nodes]
             nodesToBeBuilt.extend(nodes)
@@ -731,9 +736,6 @@ class SConfBase:
         else:
             if not os.path.isdir( dirName ):
                 os.makedirs( dirName )
-
-    def _set_conftest_node(self, node):
-        node.attributes.conftest_node = 1
 
     def _startup(self):
         """Private method. Set up logstream, and set the environment
@@ -990,6 +992,13 @@ def CheckDeclaration(context, declaration, includes = "", language = None):
                                           language = language)
     context.did_show_result = 1
     return not res
+
+def CheckMember(context, aggregate_member, header = None, language = None):
+    '''Returns the status (False : failed, True : ok).'''
+    res = SCons.Conftest.CheckMember(context, aggregate_member, header=header, language=language)
+    context.did_show_result = 1
+    return not res
+
 
 def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include

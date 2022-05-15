@@ -33,8 +33,9 @@ In 'post' mode, files are prepared for the next release cycle:
   - A new section to accumulate changes is added to src/CHANGES.txt and
     src/Announce.txt.
 """
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -53,14 +54,14 @@ In 'post' mode, files are prepared for the next release cycle:
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
+
+import argparse
 import os
+import re
 import sys
 import time
-import re
-import argparse
 
 DEBUG = os.environ.get('DEBUG', 0)
 
@@ -257,15 +258,15 @@ def main(args, rel_info):
         rel_info.version_string = new_version
 
         # Update ReleaseConfig
-
         t = UpdateFile('ReleaseConfig')
-        if DEBUG: t.file = '/tmp/ReleaseConfig'
+        if DEBUG:
+            t.file = '/tmp/ReleaseConfig'
         t.replace_assign('version_tuple', str(new_tuple))
 
         # Update src/CHANGES.txt
-
         t = UpdateFile('CHANGES.txt')
-        if DEBUG: t.file = '/tmp/CHANGES.txt'
+        if DEBUG:
+            t.file = '/tmp/CHANGES.txt'
         t.sub('(\nRELEASE .*)', r"""\nRELEASE  VERSION/DATE TO BE FILLED IN LATER\n
       From John Doe:\n
         - Whatever John Doe did.\n\n\1""")
@@ -273,7 +274,8 @@ def main(args, rel_info):
         # Update src/RELEASE.txt
         t = UpdateFile('RELEASE.txt',
                        os.path.join('template', 'RELEASE.txt'))
-        if DEBUG: t.file = '/tmp/RELEASE.txt'
+        if DEBUG:
+            t.file = '/tmp/RELEASE.txt'
         t.replace_version()
 
         # Update README
@@ -287,9 +289,9 @@ def main(args, rel_info):
                       count=0)
 
         # Update testing/framework/TestSCons.py
-
         t = UpdateFile(os.path.join('testing', 'framework', 'TestSCons.py'))
-        if DEBUG: t.file = '/tmp/TestSCons.py'
+        if DEBUG:
+            t.file = '/tmp/TestSCons.py'
         t.replace_assign('copyright_years', repr(rel_info.copyright_years))
         t.replace_assign('default_version', repr(rel_info.version_string))
         # ??? t.replace_assign('SConsVersion', repr(version_string))
@@ -297,26 +299,18 @@ def main(args, rel_info):
         t.replace_assign('python_version_deprecated', str(rel_info.deprecated_version))
 
         # Update Script/Main.py
-
         t = UpdateFile(os.path.join('SCons', 'Script', 'Main.py'))
-        if DEBUG: t.file = '/tmp/Main.py'
+        if DEBUG:
+            t.file = '/tmp/Main.py'
         t.replace_assign('unsupported_python_version', str(rel_info.unsupported_version))
         t.replace_assign('deprecated_python_version', str(rel_info.deprecated_version))
 
-        # Update doc/user/main.{in,xml}
-
+        # Update doc/user/main.xml
         docyears = '2004 - %d' % rel_info.release_date[0]
-        if os.path.exists(os.path.join('doc', 'user', 'main.in')):
-            # this is no longer used as of Dec 2013
-            t = UpdateFile(os.path.join('doc', 'user', 'main.in'))
-        if DEBUG: t.file = '/tmp/main.in'
-        ## TODO debug these
-        # t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
-        # t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
-
         t = UpdateFile(os.path.join('doc', 'user', 'main.xml'))
-        if DEBUG: t.file = '/tmp/main.xml'
-        t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>' + docyears + '</pubdate>')
+        if DEBUG:
+            t.file = '/tmp/main.xml'
+        t.sub('<pubdate>[^<]*</pubdate>', '<pubdate>Released: ' + rel_info.new_date + '</pubdate>')
         t.sub('<year>[^<]*</year>', '<year>' + docyears + '</year>')
 
         # Write out the last update

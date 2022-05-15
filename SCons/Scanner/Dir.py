@@ -22,25 +22,25 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import SCons.Node.FS
-import SCons.Scanner
+from . import ScannerBase
 
 def only_dirs(nodes):
     is_Dir = lambda n: isinstance(n.disambiguate(), SCons.Node.FS.Dir)
     return [node for node in nodes if is_Dir(node)]
 
-def DirScanner(**kw):
+def DirScanner(**kwargs):
     """Return a prototype Scanner instance for scanning
     directories for on-disk files"""
-    kw['node_factory'] = SCons.Node.FS.Entry
-    kw['recursive'] = only_dirs
-    return SCons.Scanner.Base(scan_on_disk, "DirScanner", **kw)
+    kwargs['node_factory'] = SCons.Node.FS.Entry
+    kwargs['recursive'] = only_dirs
+    return ScannerBase(scan_on_disk, "DirScanner", **kwargs)
 
-def DirEntryScanner(**kw):
+def DirEntryScanner(**kwargs):
     """Return a prototype Scanner instance for "scanning"
     directory Nodes for their in-memory entries"""
-    kw['node_factory'] = SCons.Node.FS.Entry
-    kw['recursive'] = None
-    return SCons.Scanner.Base(scan_in_memory, "DirEntryScanner", **kw)
+    kwargs['node_factory'] = SCons.Node.FS.Entry
+    kwargs['recursive'] = None
+    return ScannerBase(scan_in_memory, "DirEntryScanner", **kwargs)
 
 skip_entry = {}
 
@@ -59,6 +59,29 @@ skip_entry_list = [
    '.sconsign.bak',
    # Used by some dbm emulations using Berkeley DB.
    '.sconsign.db',
+   # new filenames since multiple hash formats allowed:
+   '.sconsign_md5.dblite',
+   '.sconsign_sha1.dblite',
+   '.sconsign_sha256.dblite',
+   # and all the duplicate files for each sub-sconsfile type
+   '.sconsign_md5',
+   '.sconsign_md5.dir',
+   '.sconsign_md5.pag',
+   '.sconsign_md5.dat',
+   '.sconsign_md5.bak',
+   '.sconsign_md5.db',
+   '.sconsign_sha1',
+   '.sconsign_sha1.dir',
+   '.sconsign_sha1.pag',
+   '.sconsign_sha1.dat',
+   '.sconsign_sha1.bak',
+   '.sconsign_sha1.db',
+   '.sconsign_sha256',
+   '.sconsign_sha256.dir',
+   '.sconsign_sha256.pag',
+   '.sconsign_sha256.dat',
+   '.sconsign_sha256.bak',
+   '.sconsign_sha256.db',
 ]
 
 for skip in skip_entry_list:

@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -21,7 +21,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -47,9 +49,8 @@
   <para>
 
   Thank you for taking the time to read about &SCons;.
-  &SCons; is a next-generation
-  software construction tool,
-  or make tool--that is, a software utility
+  &SCons; is a modern
+  software construction too - a software utility
   for building software (or other files)
   and keeping built software up-to-date
   whenever the underlying input files change.
@@ -124,8 +125,8 @@
 
     <para>
 
-    There are a few overriding principles
-    we try to live up to in designing and implementing &SCons;:
+    There are a few overriding principles the &SCons; team
+    tries to follow in the design and implementation.
 
     </para>
 
@@ -198,71 +199,79 @@
   <!--
 
   <section>
-  <title>History</title>
-
-    <para>
-
-    &SCons; originated with a design
-    that was submitted to the Software Carpentry
-    design competition in 2000.
-
-    </para>
-
-    <para>
-
-    &SCons; is the direct descendant
-    of a Perl utility called &Cons;.
-    &Cons; in turn based some of its ideas on &Jam;,
-    a build tool from Perforce Systems.
-
-    </para>
-
-    <para>
-
-    XXX history of SCons
-
-    </para>
-
-  </section>
-
-  -->
-
-  <!--
-
-  <section>
   <title>Conventions</title>
 
     <para>
 
-    XXX conventions used in this manual
+    XXX conventions used in this guide
 
     </para>
 
   </section>
 
   -->
+
+  <section>
+  <title>How to Use this Guide</title>
+
+    <para>
+
+    This guide intends to coach you how to use &SCons; effectively
+    and efficiently, by providing a range of examples and usage scenarios.
+    As such it is not exactly a tutorial (as usually those build
+    a single example topic from start to finish), but if you are
+    just starting with &SCons; it <emphasis>is</emphasis> recommended
+    you step through the first 10 chapters
+    in sequence as this will give a solid
+    grounding in the principles of working with &SCons;.
+    If you follow that trail, you can feel free to initially skip
+    sections on extending &SCons;, such as
+    <emphasis>Writing your own Decider Function</emphasis>,
+    and come back to those if the need arises.
+
+    </para>
+
+    <para>
+
+    The remaining chapters cover more advanced topics that not all
+    build systems will need, and can be used in more of a single-topic
+    way, to read if you find you need that particular information.
+
+    </para>
+
+    <para>
+
+    It is often useful to keep &SCons; man page open in a separate
+    browser tab or window to refer to as a complement to this Guide,
+    as the User Guide does not attempt to provide every detail.
+    While this Guide's Appendices A-D do duplicate information that appears
+    in the man page (this is to allow intra-document links to
+    definitions of &consvars;, builders, tools and environment methods
+    to work), the rest of the man page is unique content.
+
+    </para>
+
+  </section>
 
   <section>
   <title>A Caveat About This Guide's Completeness</title>
 
   <para>
 
-  One word of warning as you read through this Guide:
-  Like too much Open Source software out there,
-  the &SCons; documentation isn't always
-  kept up-to-date with the available features.
-  In other words,
-  there's a lot that &SCons; can do that
+  &SCons; is a volunteer-run open source project.
+  As such, the &SCons; documentation isn't always
+  completely up-to-date with all the available features -
+  somehow it's almost harder to write high quality, easy to
+  use documentation than it is to implement a feature in software.
+  In other words, there may be  a lot that &SCons; can do that
   isn't yet covered in this User's Guide.
-  (Come to think of it,
-  that also describes a lot of proprietary software, doesn't it?)
 
   </para>
 
   <para>
 
-  Although this User's Guide isn't as complete as we'd like it to be,
-  our development process does emphasize
+  Although this User's Guide may not be as complete as it could be,
+  the development process does emphasize
   making sure that the &SCons; man page is kept up-to-date
   with new features.
   So if you're trying to figure out how to do something
@@ -418,7 +427,6 @@
     <para>
 
     The best way to contact people involved with SCons,
-    including the author,
     is through the SCons mailing lists.
 
     </para>
@@ -439,8 +447,17 @@
 
     <para>
 
-    If you want to receive announcements about &SCons;,
-    join the low-volume &scons-announce; mailing list.
+    For quicker, informal questions, discussion, etc. the project
+    operated a Discord server at
+    <ulink url="https://discord.gg/bXVpWAy"/>
+    and a Libera.chat IRC channel at
+    <ulink url="https://web.libera.chat/#scons"/>
+    (the former channel at irc.freenode.net is now unused).
+    Certain discussions may also be moved by administrators from
+    mailing list or chat to
+    <ulink url="https://github.com/SCons/scons/discussions">
+    GitHub Discussions</ulink> for greater permanence and easier
+    finding.
 
     </para>
 

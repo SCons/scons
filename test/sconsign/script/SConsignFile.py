@@ -31,15 +31,22 @@ using the signatures in an SConsignFile().
 import TestSCons
 import TestSConsign
 
-_python_ = TestSCons._python_
+from TestSCons import _python_
+from TestCmd import NEED_HELPER
 
 test = TestSConsign.TestSConsign(match = TestSConsign.match_re)
+
+if NEED_HELPER:
+    test.skip_test("Test host cannot directly execute scripts, skipping test\n")
+
 test.subdir('sub1', 'sub2')
 
 fake_cc_py = test.workpath('fake_cc.py')
 fake_link_py = test.workpath('fake_link.py')
 
-test.write(fake_cc_py, r"""#!%(_python_)s
+test.write(
+    fake_cc_py,
+    fr"""#!{_python_}
 import os
 import re
 import sys
@@ -66,21 +73,25 @@ def process(infp, outfp):
             outfp.write(line)
 
 with open(sys.argv[2], 'w') as outf, open(sys.argv[3], 'r') as ifp:
-    outf.write('fake_cc.py:  %%s\n' %% sys.argv)
+    outf.write('fake_cc.py:  %s\n' % sys.argv)
     process(ifp, outf)
 
 sys.exit(0)
-""" % locals())
+""",
+)
 
-test.write(fake_link_py, r"""#!%(_python_)s
+test.write(
+    fake_link_py,
+    fr"""#!{_python_}
 import sys
 
 with open(sys.argv[1], 'w') as outf, open(sys.argv[2], 'r') as ifp:
-    outf.write('fake_link.py:  %%s\n' %% sys.argv)
+    outf.write('fake_link.py:  %s\n' % sys.argv)
     outf.write(ifp.read())
 
 sys.exit(0)
-""" % locals())
+""",
+)
 
 test.chmod(fake_cc_py, 0o755)
 test.chmod(fake_link_py, 0o755)
@@ -96,24 +107,29 @@ sub2_hello_obj  = 'sub2/hello.obj'
 sub2_inc1_h     = 'sub2/inc1.h'
 sub2_inc2_h     = 'sub2/inc2.h'
 
-test.write(['SConstruct'], """\
+test.write(
+    ['SConstruct'],
+    f"""\
 SConsignFile()
 env1 = Environment(
     PROGSUFFIX='.exe',
     OBJSUFFIX='.obj',
-    CCCOM=[[r'%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
-    LINKCOM=[[r'%(fake_link_py)s', '$TARGET', '$SOURCE']],
+    CCCOM=[[r'{fake_cc_py}', 'sub2', '$TARGET', '$SOURCE']],
+    LINKCOM=[[r'{fake_link_py}', '$TARGET', '$SOURCE']],
 )
 env1.PrependENVPath('PATHEXT', '.PY')
 env1.Program('sub1/hello.c')
 env2 = env1.Clone(CPPPATH=['sub2'])
 env2.Program('sub2/hello.c')
-""" % locals())
+""",
+)
 # TODO in the above, we would normally want to run a python program
-# using "our python" as in:
-#    CCCOM=[[r'%(_python_)s', r'%(fake_cc_py)s', 'sub2', '$TARGET', '$SOURCE']],
-#    LINKCOM=[[r'%(_python_)s', r'%(fake_link_py)s', '$TARGET', '$SOURCE']],
-# however we're looking at dependencies with sconsign, so that breaks things
+# using "our python" like this:
+#    CCCOM=[[r'{_python_}', r'{fake_cc_py}', 'sub2', '$TARGET', '$SOURCE']],
+#    LINKCOM=[[r'{_python_}', r'{fake_link_py}', '$TARGET', '$SOURCE']],
+# however we're looking at dependencies with sconsign, so that breaks things.
+# It still breaks things on Windows if something else is registered as the
+# handler for .py files, as Visual Studio Code installs itself.
 
 test.write(['sub1', 'hello.c'], r"""
 sub1/hello.c
@@ -131,19 +147,21 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write(['sub2', 'inc1.h'], r"""\
+test.write(['sub2', 'inc1.h'], r"""
 #define STRING1 "inc1.h"
 """)
 
-test.write(['sub2', 'inc2.h'], r"""\
+test.write(['sub2', 'inc2.h'], r"""
 #define STRING2 "inc2.h"
 """)
 
 test.run(arguments = '--implicit-cache .')
 
-sig_re = r'[0-9a-fA-F]{32}'
+sig_re = r'[0-9a-fA-F]{32,64}'
 
-test.run_sconsign(arguments = ".sconsign",
+database_name = test.get_sconsignname()
+
+test.run_sconsign(arguments = database_name,
          stdout = r"""=== .:
 SConstruct: None \d+ \d+
 fake_cc\.py: %(sig_re)s \d+ \d+
@@ -174,7 +192,7 @@ inc1.h: %(sig_re)s \d+ \d+
 inc2.h: %(sig_re)s \d+ \d+
 """ % locals())
 
-test.run_sconsign(arguments = "--raw .sconsign",
+test.run_sconsign(arguments = "--raw " + database_name,
          stdout = r"""=== .:
 SConstruct: {'csig': None, 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
 fake_cc\.py: {'csig': '%(sig_re)s', 'timestamp': \d+L?, 'size': \d+L?, '_version_id': 2}
@@ -302,9 +320,9 @@ inc2.h:
     size: \d+
 """ % locals()
 
-test.run_sconsign(arguments = "-v .sconsign", stdout=expect)
+test.run_sconsign(arguments = "-v " + database_name, stdout=expect)
 
-test.run_sconsign(arguments = "-c -v .sconsign",
+test.run_sconsign(arguments = "-c -v " + database_name,
          stdout = r"""=== .:
 SConstruct:
     csig: None
@@ -332,7 +350,7 @@ inc2.h:
     csig: %(sig_re)s
 """ % locals())
 
-test.run_sconsign(arguments = "-s -v .sconsign",
+test.run_sconsign(arguments = "-s -v " + database_name,
          stdout = r"""=== .:
 SConstruct:
     size: \d+
@@ -360,7 +378,7 @@ inc2.h:
     size: \d+
 """ % locals())
 
-test.run_sconsign(arguments = "-t -v .sconsign",
+test.run_sconsign(arguments = "-t -v " + database_name,
          stdout = r"""=== .:
 SConstruct:
     timestamp: \d+
@@ -388,7 +406,7 @@ inc2.h:
     timestamp: \d+
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.obj .sconsign",
+test.run_sconsign(arguments = "-e hello.obj " + database_name,
          stdout = r"""=== .:
 === sub1:
 hello.obj: %(sig_re)s \d+ \d+
@@ -406,7 +424,7 @@ hello.obj: %(sig_re)s \d+ \d+
          stderr = r"""sconsign: no entry `hello\.obj' in `\.'
 """ % locals())
 
-test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj .sconsign",
+test.run_sconsign(arguments = "-e hello.obj -e hello.exe -e hello.obj " + database_name,
          stdout = r"""=== .:
 === sub1:
 hello.obj: %(sig_re)s \d+ \d+
@@ -444,7 +462,7 @@ sconsign: no entry `hello\.exe' in `\.'
 sconsign: no entry `hello\.obj' in `\.'
 """ % locals())
 
-#test.run_sconsign(arguments = "-i -v .sconsign",
+#test.run_sconsign(arguments = "-i -v " + database_name,
 #         stdout = r"""=== sub1:
 #hello.exe:
 #    implicit:

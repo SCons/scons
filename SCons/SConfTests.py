@@ -168,7 +168,7 @@ class SConfTestCase(unittest.TestCase):
                 # need action because temporary file name uses hash of actions get_contents()
                 self.action = MyAction()
 
-            def __call__(self, env, target, source):
+            def __call__(self, env, target, source, *args, **kw):
                 class MyNode:
                     def __init__(self, name):
                         self.name = name
@@ -724,6 +724,27 @@ int main(void) {
             assert not r, "unknown language was supported ??"
         finally:
             sconf.Finish()
+
+    def test_CheckMember(self):
+        """Test SConf.CheckMember()
+        """
+        self._resetSConfState()
+        sconf = self.SConf.SConf(self.scons_env,
+                                 conf_dir=self.test.workpath('config.tests'),
+                                 log_file=self.test.workpath('config.log'))
+
+        try:
+            # CheckMember()
+            r = sconf.CheckMember('struct timespec.tv_sec', '#include <time.h>')
+            assert r, "did not find timespec.tv_sec"
+            r = sconf.CheckMember('struct timespec.tv_nano', '#include <time.h>')
+            assert not r, "unexpectedly found struct timespec.tv_nano"
+            r = sconf.CheckMember('hopefullynomember')
+            assert not r, "unexpectedly found hopefullynomember :%s" % r
+
+        finally:
+            sconf.Finish()
+
 
     def test_(self):
         """Test SConf.CheckType()

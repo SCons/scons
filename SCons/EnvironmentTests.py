@@ -41,6 +41,7 @@ from SCons.Environment import (
     is_valid_construction_var,
 )
 from SCons.Util import CLVar
+from SCons.SConsign import current_sconsign_filename
 
 
 def diff_env(env1, env2):
@@ -809,11 +810,13 @@ sys.exit(0)
             "-fmerge-all-constants "
             "-fopenmp "
             "-mno-cygwin -mwindows "
-            "-arch i386 -isysroot /tmp "
+            "-arch i386 "
+            "-isysroot /tmp "
             "-iquote /usr/include/foo1 "
             "-isystem /usr/include/foo2 "
             "-idirafter /usr/include/foo3 "
             "-imacros /usr/include/foo4 "
+            "-include /usr/include/foo5 "
             "--param l1-cache-size=32 --param l2-cache-size=6144 "
             "+DD64 "
             "-DFOO -DBAR=value -D BAZ "
@@ -831,6 +834,7 @@ sys.exit(0)
                                 ('-isystem', '/usr/include/foo2'),
                                 ('-idirafter', '/usr/include/foo3'),
                                 ('-imacros', env.fs.File('/usr/include/foo4')),
+                                ('-include', env.fs.File('/usr/include/foo5')),
                                 ('--param', 'l1-cache-size=32'), ('--param', 'l2-cache-size=6144'),
                                 '+DD64'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
@@ -1695,23 +1699,32 @@ def exists(env):
 
     def test_AppendENVPath(self):
         """Test appending to an ENV path."""
-        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
-                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        env1 = self.TestEnvironment(
+            ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+            MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
+        )
         # have to include the pathsep here so that the test will work on UNIX too.
-        env1.AppendENVPath('PATH',r'C:\dir\num\two', sep = ';')
-        env1.AppendENVPath('PATH',r'C:\dir\num\three', sep = ';')
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\one','MYENV', sep = ';', delete_existing=1)
-        # this should do nothing since delete_existing is 0
-        env1.AppendENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';')
-        assert(env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three')
-        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one')
+        env1.AppendENVPath('PATH', r'C:\dir\num\two', sep=';')
+        env1.AppendENVPath('PATH', r'C:\dir\num\three', sep=';')
+        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        assert (
+            env1['ENV']['PATH'] == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three'
+        ), env1['ENV']['PATH']
 
-        test = TestCmd.TestCmd(workdir = '')
+        env1.AppendENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        env1.AppendENVPath(
+            'MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';', delete_existing=1
+        )
+        # this should do nothing since delete_existing is 0
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one'
+        ), env1['MYENV']['MYPATH']
+
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub1', 'sub2')
-        p=env1['ENV']['PATH']
-        env1.AppendENVPath('PATH','#sub1', sep = ';')
-        env1.AppendENVPath('PATH',env1.fs.Dir('sub2'), sep = ';')
+        p = env1['ENV']['PATH']
+        env1.AppendENVPath('PATH', '#sub1', sep=';')
+        env1.AppendENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == p + ';sub1;sub2', env1['ENV']['PATH']
 
     def test_AppendUnique(self):
@@ -2062,6 +2075,10 @@ def generate(env):
 
         orig_backtick = env.backtick
         class my_backtick:
+            """mocked backtick routine so command is not actually issued.
+
+            Just returns the string it was given.
+            """
             def __init__(self, save_command, output):
                 self.save_command = save_command
                 self.output = output
@@ -2124,6 +2141,32 @@ def generate(env):
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar', 'bar'], env['CPPPATH']
         finally:
             env.backtick = orig_backtick
+
+        # check that we can pass our own function,
+        # and that it works for both values of unique
+
+        def my_function(myenv, flags, unique=True):
+            import json
+
+            args = json.loads(flags)
+            if unique:
+                myenv.AppendUnique(**args)
+            else:
+                myenv.Append(**args)
+
+        json_str = '{"LIBS": ["yyy", "xxx", "yyy"]}'
+
+        env = Environment(LIBS=['xxx'])
+        env2 = env.Clone()
+        env.backtick = my_backtick([], json_str)
+        env2.backtick = my_backtick([], json_str)
+
+        env.ParseConfig("foo", my_function)
+        assert env['LIBS'] == ['xxx', 'yyy'], env['LIBS']
+
+        env2.ParseConfig("foo2", my_function, unique=False)
+        assert env2['LIBS'] == ['xxx', 'yyy', 'xxx', 'yyy'], env2['LIBS']
+
 
     def test_ParseDepends(self):
         """Test the ParseDepends() method"""
@@ -2356,23 +2399,32 @@ f5: \
 
     def test_PrependENVPath(self):
         """Test prepending to an ENV path."""
-        env1 = self.TestEnvironment(ENV = {'PATH': r'C:\dir\num\one;C:\dir\num\two'},
-                           MYENV = {'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'})
+        env1 = self.TestEnvironment(
+            ENV={'PATH': r'C:\dir\num\one;C:\dir\num\two'},
+            MYENV={'MYPATH': r'C:\mydir\num\one;C:\mydir\num\two'},
+        )
         # have to include the pathsep here so that the test will work on UNIX too.
-        env1.PrependENVPath('PATH',r'C:\dir\num\two',sep = ';')
-        env1.PrependENVPath('PATH',r'C:\dir\num\three',sep = ';')
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV',sep = ';')
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\one','MYENV',sep = ';')
-        # this should do nothing since delete_existing is 0
-        env1.PrependENVPath('MYPATH',r'C:\mydir\num\three','MYENV', sep = ';', delete_existing=0)
-        assert(env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one')
-        assert(env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two')
+        env1.PrependENVPath('PATH', r'C:\dir\num\two', sep=';')
+        env1.PrependENVPath('PATH', r'C:\dir\num\three', sep=';')
+        assert (
+            env1['ENV']['PATH'] == r'C:\dir\num\three;C:\dir\num\two;C:\dir\num\one'
+        ), env1['ENV']['PATH']
 
-        test = TestCmd.TestCmd(workdir = '')
+        env1.PrependENVPath('MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';')
+        env1.PrependENVPath('MYPATH', r'C:\mydir\num\one', 'MYENV', sep=';')
+        # this should do nothing since delete_existing is 0
+        env1.PrependENVPath(
+            'MYPATH', r'C:\mydir\num\three', 'MYENV', sep=';', delete_existing=0
+        )
+        assert (
+            env1['MYENV']['MYPATH'] == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two'
+        ), env1['MYENV']['MYPATH']
+
+        test = TestCmd.TestCmd(workdir='')
         test.subdir('sub1', 'sub2')
-        p=env1['ENV']['PATH']
-        env1.PrependENVPath('PATH','#sub1', sep = ';')
-        env1.PrependENVPath('PATH',env1.fs.Dir('sub2'), sep = ';')
+        p = env1['ENV']['PATH']
+        env1.PrependENVPath('PATH', '#sub1', sep=';')
+        env1.PrependENVPath('PATH', env1.fs.Dir('sub2'), sep=';')
         assert env1['ENV']['PATH'] == 'sub2;sub1;' + p, env1['ENV']['PATH']
 
     def test_PrependUnique(self):
@@ -3321,7 +3373,7 @@ def generate(env):
             assert dbms[-1] == 7, dbms
 
             env.SConsignFile()
-            assert fnames[-1] == os.path.join(os.sep, 'dir', '.sconsign'), fnames
+            assert fnames[-1] == os.path.join(os.sep, 'dir', current_sconsign_filename()), fnames
             assert dbms[-1] is None, dbms
 
             env.SConsignFile(None)

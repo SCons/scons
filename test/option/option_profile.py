@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import contextlib
 import sys
@@ -47,7 +46,7 @@ test.write('file.in', "file.in\n")
 scons_prof = test.workpath('scons.prof')
 
 test.run(arguments = "--profile=%s -h" % scons_prof)
-test.must_contain_all_lines(test.stdout(), ['usage: scons [OPTION]'])
+test.must_contain_all_lines(test.stdout(), ['usage: scons [OPTIONS] [VARIABLES] [TARGETS]'])
 
 try:
     save_stdout = sys.stdout
@@ -89,7 +88,7 @@ scons_prof = test.workpath('scons3.prof')
 
 test.run(arguments = "--profile %s --debug=memory -h" % scons_prof)
 expect = [
-    'usage: scons [OPTION]',
+    'usage: scons [OPTIONS] [VARIABLES] [TARGETS]',
     'Options:'
 ]
 test.must_contain_all_lines(test.stdout(), expect)

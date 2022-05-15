@@ -698,6 +698,27 @@ env.JavaH(
     JAVACLASSDIR="classes",
 )
 </example_commands>
+
+<note>
+<para>
+Java versions starting with 10.0 no longer use the
+<command>javah</command> command for generating JNI
+headers/sources, and indeed have removed the command entirely
+(see Java Enhancement Proposal
+<ulink url="https:openjdk.java.net/jeps/313">JEP 313</ulink>),
+making this tool harder to use for that purpose.
+&SCons; may autodiscover a <command>javah</command>
+belonging to an older release if there are multiple Java
+versions on the system, which will lead to incorrect results.
+To use with a newer Java, override the default values of &cv-link-JAVAH;
+(to contain the path to the <command>javac</command>)
+and &cv-link-JAVAHFLAGS; (to contain at least a <option>-h</option>
+flag) and note that generating headers with
+<command>javac</command> requires supplying source
+<filename>.java</filename> files only,
+not <filename>.class</filename> files.
+</para>
+</note>
 </listitem>
   </varlistentry>
   <varlistentry id="b-Library">
@@ -744,15 +765,16 @@ env.M4(target = 'foo.c', source = 'foo.c.m4')
     <term><function>Moc</function>()</term>
     <term><replaceable>env</replaceable>.<methodname>Moc</methodname>()</term>
     <listitem><para>
-Builds an output file from a moc input file. Moc input files are either
-header files or cxx files. This builder is only available after using the
-tool 'qt'. See the &cv-link-QTDIR; variable for more information.
+Builds an output file from a <command>moc</command> input file.
+<command>moc</command> input files are either header files or C++ files.
+This builder is only available after using the
+tool &t-link-qt;. See the &cv-link-QTDIR; variable for more information.
 Example:
 </para>
 
 <example_commands>
-env.Moc('foo.h') # generates moc_foo.cc
-env.Moc('foo.cpp') # generates foo.moc
+env.Moc('foo.h')  # generates moc_foo.cc
+env.Moc('foo.cpp')  # generates foo.moc
 </example_commands>
 </listitem>
   </varlistentry>
@@ -1220,6 +1242,70 @@ env.MSVSSolution(
 )
       </example_commands>
     </listitem>
+  </varlistentry>
+  <varlistentry id="b-Ninja">
+    <term><function>Ninja</function>()</term>
+    <term><replaceable>env</replaceable>.<methodname>Ninja</methodname>()</term>
+    <listitem><para>
+                &b-Ninja; is a special builder which
+                adds a target to create a ninja build file.
+                The builder does not require any source files to be specified.
+            </para>
+            <note>
+                <para>This is an experimental feature. To enable it you must use one of the following methods
+                </para>
+
+<!--                NOTE DO NOT INDENT THE FOLLOWING AS IT WILL ALTER THE FORMATTING-->
+                <example_commands>
+    # On the command line
+    --experimental=ninja
+
+    # Or in your SConstruct
+    SetOption('experimental', 'ninja')
+                </example_commands>
+
+                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
+
+
+                <para>
+                    To use this tool you must install pypi's <ulink url="https://pypi.org/project/ninja/">ninja
+                    package</ulink>.
+                    This can be done via
+                    <command>pip install ninja</command>
+                </para>
+
+            </note>
+
+            <para>
+                If called with no arguments,
+                the builder will default to a target name of
+                <filename>ninja.build</filename>.
+            </para>
+            <para>
+                If called with a single positional argument,
+                &scons; will "deduce" the target name from that source
+                argument, giving it the same name, and then
+                ignore the source.
+                This is the usual way to call the builder if a
+                non-default target name is wanted.
+            </para>
+            <para>
+                If called with either the
+                <parameter>target=</parameter>
+                or <parameter>source=</parameter> keyword arguments,
+                the value of the argument is taken as the target name.
+                If called with both, the
+                <parameter>target=</parameter>
+                value is used and <parameter>source=</parameter> is ignored.
+                If called with multiple sources,
+                the source list will be ignored,
+                since there is no way to deduce what the intent was;
+                in this case the default target name will be used.
+            </para>
+            <para>
+                <emphasis>Available since &scons; 4.2.</emphasis>
+            </para>
+        </listitem>
   </varlistentry>
   <varlistentry id="b-Object">
     <term><function>Object</function>()</term>
@@ -2138,8 +2224,8 @@ Note that the source files will be scanned
 according to the suffix mappings in the
 <classname>SourceFileScanner</classname>
 object.
-See the section "Scanner Objects,"
-below, for more information.
+See the manpage section "Scanner Objects"
+for more information.
 </para>
 </listitem>
   </varlistentry>
@@ -2243,8 +2329,8 @@ Note that the source files will be scanned
 according to the suffix mappings in the
 <classname>SourceFileScanner</classname>
 object.
-See the section "Scanner Objects,"
-below, for more information.
+See the manpage section "Scanner Objects"
+for more information.
 </para>
 </listitem>
   </varlistentry>
@@ -2614,11 +2700,11 @@ files.
     <term><replaceable>env</replaceable>.<methodname>Uic</methodname>()</term>
     <listitem><para>
 Builds a header file, an implementation file and a moc file from an ui file.
-and returns the corresponding nodes in the above order.
-This builder is only available after using the tool 'qt'. Note: you can
-specify <filename>.ui</filename> files directly as source
-files to the &b-Program;,
-&b-Library; and &b-SharedLibrary; builders
+and returns the corresponding nodes in the that order.
+This builder is only available after using the tool &t-link-qt;.
+Note: you can specify <filename>.ui</filename> files directly as source
+files to the &b-link-Program;,
+&b-link-Library; and &b-link-SharedLibrary; builders
 without using this builder. Using this builder lets you override the standard
 naming conventions (be careful: prefixes are always prepended to names of
 built files; if you don't want prefixes, you may set them to ``).
@@ -2627,9 +2713,11 @@ Example:
 </para>
 
 <example_commands>
-env.Uic('foo.ui') # -&gt; ['foo.h', 'uic_foo.cc', 'moc_foo.cc']
-env.Uic(target = Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
-        source = 'foo.ui') # -&gt; ['include/foo.h', 'gen/uicfoo.cc', 'gen/mocfoo.cc']
+env.Uic('foo.ui')  # -&gt; ['foo.h', 'uic_foo.cc', 'moc_foo.cc']
+env.Uic(
+    target=Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
+    source='foo.ui'
+)  # -&gt; ['include/foo.h', 'gen/uicfoo.cc', 'gen/mocfoo.cc']
 </example_commands>
 </listitem>
   </varlistentry>

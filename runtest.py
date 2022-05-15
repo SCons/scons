@@ -14,6 +14,11 @@ This script adds SCons/ and testing/ directories to PYTHONPATH,
 performs test discovery and processes tests according to options.
 """
 
+# TODO: normalize requested and testlist/exclude paths for easier comparison.
+# e.g.: "runtest foo/bar" on windows will produce paths like foo/bar\test.py
+# this is hard to match with excludelists, and makes those both os.sep-specific
+# and command-line-typing specific.
+
 import argparse
 import glob
 import os
@@ -38,7 +43,6 @@ suppress_output = False
 script = os.path.basename(sys.argv[0])
 usagestr = """\
 %(script)s [OPTIONS] [TEST ...]
-       %(script)s -h|--help
 """ % locals()
 
 epilogstr = """\
@@ -81,7 +85,7 @@ parser.add_argument('-D', '--devmode', action='store_true',
 parser.add_argument('-e', '--external', action='store_true',
                     help="Run the script in external mode (for external Tools)")
 parser.add_argument('-j', '--jobs', metavar='JOBS', default=1, type=int,
-                    help="Run tests in JOBS parallel jobs.")
+                    help="Run tests in JOBS parallel jobs (0 for cpu_count).")
 parser.add_argument('-l', '--list', action='store_true', dest='list_only',
                     help="List available tests and exit.")
 parser.add_argument('-n', '--no-exec', action='store_false',
@@ -110,6 +114,11 @@ parser.add_argument('--no-faillog', dest='error_log',
                     default='failed_tests.log',
                     help="Do not log failed tests to a file")
 
+parser.add_argument('--no-ignore-skips', dest='dont_ignore_skips',
+                    action='store_true',
+                    default=False,
+                    help="If any tests are skipped, exit status 2")
+
 outctl = parser.add_argument_group(description='Output control options:')
 outctl.add_argument('-k', '--no-progress', action='store_false',
                     dest='print_progress',
@@ -126,10 +135,10 @@ outctl.add_argument('-s', '--short-progress', action='store_true',
 outctl.add_argument('-t', '--time', action='store_true', dest='print_times',
                     help="Print test execution time.")
 outctl.add_argument('--verbose', metavar='LEVEL', type=int, choices=range(1, 4),
-                    help="""Set verbose level:
-                             1 = print executed commands,
-                             2 = print commands and non-zero output,
-                             3 = print commands and all output.""")
+                    help="""Set verbose level
+                             (1=print executed commands,
+                             2=print commands and non-zero output,
+                             3=print commands and all output).""")
 # maybe add?
 # outctl.add_argument('--version', action='version', version='%s 1.0' % script)
 
@@ -157,6 +166,7 @@ if args.testlistfile:
     # args.testlistfile changes from a string to a pathlib Path object
     try:
         p = Path(args.testlistfile)
+        # TODO simplify when Py3.5 dropped
         if sys.version_info.major == 3 and sys.version_info.minor < 6:
             args.testlistfile = p.resolve()
         else:
@@ -164,7 +174,7 @@ if args.testlistfile:
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
-            + "error: -f/--file testlist file \"%s\" not found\n" % p
+            + 'error: -f/--file testlist file "%s" not found\n' % p
         )
         sys.exit(1)
 
@@ -172,6 +182,7 @@ if args.excludelistfile:
     # args.excludelistfile changes from a string to a pathlib Path object
     try:
         p = Path(args.excludelistfile)
+        # TODO simplify when Py3.5 dropped
         if sys.version_info.major == 3 and sys.version_info.minor < 6:
             args.excludelistfile = p.resolve()
         else:
@@ -179,13 +190,30 @@ if args.excludelistfile:
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
-            + "error: --exclude-list file \"%s\" not found\n" % p
+            + 'error: --exclude-list file "%s" not found\n' % p
         )
         sys.exit(1)
 
-if args.jobs > 1:
-    # don't let tests write stdout/stderr directly if multi-job,
-    # else outputs will interleave and be hard to read
+if args.jobs == 0:
+    try:
+        # on Linux, check available rather then physical CPUs
+        args.jobs = len(os.sched_getaffinity(0))
+    except AttributeError:
+        # Windows
+        args.jobs = os.cpu_count()
+
+# sanity check
+if args.jobs == 0:
+    sys.stderr.write(
+        parser.format_usage()
+        + "Unable to detect CPU count, give -j a non-zero value\n"
+    )
+    sys.exit(1)
+
+if args.jobs > 1 or args.output:
+    # 1. don't let tests write stdout/stderr directly if multi-job,
+    # else outputs will interleave and be hard to read.
+    # 2. If we're going to write a logfile, we also need to catch the output.
     catch_output = True
 
 if not args.printcommand:
@@ -224,43 +252,63 @@ sys.stderr = Unbuffered(sys.stderr)
 # print = functools.partial(print, flush)
 
 if args.output:
-    logfile = open(args.output, 'w')
     class Tee:
         def __init__(self, openfile, stream):
             self.file = openfile
             self.stream = stream
+
         def write(self, data):
             self.file.write(data)
             self.stream.write(data)
+
+        def flush(self, data):
+            self.file.flush(data)
+            self.stream.flush(data)
+
+    logfile = open(args.output, 'w')
+    # this is not ideal: we monkeypatch stdout/stderr a second time
+    # (already did for Unbuffered), so here we can't easily detect what
+    # state we're in on closedown. Just hope it's okay...
     sys.stdout = Tee(logfile, sys.stdout)
     sys.stderr = Tee(logfile, sys.stderr)
 
 # --- define helpers ----
-if sys.platform in ('win32', 'cygwin'):
+if sys.platform == 'win32':
+    # thanks to Eryk Sun for this recipe
+    import ctypes
 
-    def whereis(file):
-        pathext = [''] + os.environ['PATHEXT'].split(os.pathsep)
-        for d in os.environ['PATH'].split(os.pathsep):
-            f = os.path.join(d, file)
-            for ext in pathext:
-                fext = f + ext
-                if os.path.isfile(fext):
-                    return fext
-        return None
+    shlwapi = ctypes.OleDLL('shlwapi')
+    shlwapi.AssocQueryStringW.argtypes = (
+        ctypes.c_ulong,  # flags
+        ctypes.c_ulong,  # str
+        ctypes.c_wchar_p,  # pszAssoc
+        ctypes.c_wchar_p,  # pszExtra
+        ctypes.c_wchar_p,  # pszOut
+        ctypes.POINTER(ctypes.c_ulong),  # pcchOut
+    )
 
-else:
+    ASSOCF_NOTRUNCATE = 0x00000020
+    ASSOCF_INIT_IGNOREUNKNOWN = 0x00000400
+    ASSOCSTR_COMMAND = 1
+    ASSOCSTR_EXECUTABLE = 2
+    E_POINTER = ctypes.c_long(0x80004003).value
 
-    def whereis(file):
-        for d in os.environ['PATH'].split(os.pathsep):
-            f = os.path.join(d, file)
-            if os.path.isfile(f):
-                try:
-                    st = os.stat(f)
-                except OSError:
-                    continue
-                if stat.S_IMODE(st[stat.ST_MODE]) & 0o111:
-                    return f
-        return None
+    def get_template_command(filetype, verb=None):
+        flags = ASSOCF_INIT_IGNOREUNKNOWN | ASSOCF_NOTRUNCATE
+        assoc_str = ASSOCSTR_COMMAND
+        cch = ctypes.c_ulong(260)
+        while True:
+            buf = (ctypes.c_wchar * cch.value)()
+            try:
+                shlwapi.AssocQueryStringW(
+                    flags, assoc_str, filetype, verb, buf, ctypes.byref(cch)
+                )
+            except OSError as e:
+                if e.winerror != E_POINTER:
+                    raise
+                continue
+            break
+        return buf.value
 
 
 _ws = re.compile(r'\s')
@@ -506,6 +554,19 @@ pythonpath = os.environ.get('PYTHONPATH')
 if pythonpath:
     testenv['PYTHONPATH'] = testenv['PYTHONPATH'] + os.pathsep + pythonpath
 
+if sys.platform == 'win32':
+    # Windows doesn't support "shebang" lines directly (the Python launcher
+    # and Windows Store version do, but you have to get them launched first)
+    # so to directly launch a script we depend on an assoc for .py to work.
+    # Some systems may have none, and in some cases IDE programs take over 
+    # the assoc.  Detect this so the small number of tests affected can skip.
+    try:
+        python_assoc = get_template_command('.py')
+    except OSError:
+        python_assoc = None
+    if not python_assoc or "py" not in python_assoc:
+        testenv['SCONS_NO_DIRECT_SCRIPT'] = '1'
+
 os.environ.update(testenv)
 
 # Clear _JAVA_OPTIONS which java tools output to stderr when run breaking tests
@@ -563,14 +624,23 @@ def find_e2e_tests(directory):
         # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
             continue
-        try:
-            with open(os.path.join(dirpath, ".exclude_tests")) as f:
+
+        # Slurp in any tests in exclude lists
+        excludes = []
+        if ".exclude_tests" in filenames:
+            p = Path(dirpath).joinpath(".exclude_tests")
+            # TODO simplify when Py3.5 dropped
+            if sys.version_info.major == 3 and sys.version_info.minor < 6:
+                excludefile = p.resolve()
+            else:
+                excludefile = p.resolve(strict=True)
+            with excludefile.open() as f:
                 excludes = scanlist(f)
-        except EnvironmentError:
-            excludes = []
+
         for fname in filenames:
             if fname.endswith(".py") and fname not in excludes:
                 result.append(os.path.join(dirpath, fname))
+
     return sorted(result)
 
 
@@ -815,12 +885,13 @@ if len(tests) != 1 and args.execute_tests:
         sys.stdout.write("\t" + "\n\t".join(paths) + "\n")
 
 # save the fails to a file
-if fail and args.error_log:
-    paths = [x.path for x in fail]
-    #print(f"DEBUG: Writing fails to {args.error_log}")
+if args.error_log:
     with open(args.error_log, "w") as f:
-        for test in paths:
-            print(test, file=f)
+        if fail:
+            paths = [x.path for x in fail]
+            for test in paths:
+                print(test, file=f)
+        # if there are no fails, file will be cleared
 
 if args.xml:
     if args.output == '-':
@@ -844,7 +915,7 @@ if args.output:
 
 if fail:
     sys.exit(1)
-elif no_result:
+elif no_result and args.dont_ignore_skips:
     # if no fails, but skips were found
     sys.exit(2)
 else:

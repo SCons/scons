@@ -22,6 +22,16 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-__NINJA_NO">
+    <term>
+      <envar>__NINJA_NO</envar>
+    </term>
+    <listitem><para>
+                Internal flag. Used to tell SCons whether or not to try to import pypi's ninja python package.
+                This is set to True when being called by Ninja?
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="cv-__SHLIBVERSIONFLAGS">
     <term>
       <envar>__SHLIBVERSIONFLAGS</envar>
@@ -627,17 +637,22 @@ section of the RPM
       <envar>_concat</envar>
     </term>
     <listitem><para>
-A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
-four or five
-arguments: a prefix to concatenate onto each element, a list of
-elements, a suffix to concatenate onto each element, an environment
-for variable interpolation, and an optional function that will be
-called to transform the list before concatenation.
-</para>
+        A function used to produce variables like &cv-link-_CPPINCFLAGS;. It takes
+        four mandatory arguments, and up to 4 additional optional arguments:
+        1) a prefix to concatenate onto each element,
+        2) a list of elements,
+        3) a suffix to concatenate onto each element,
+        4) an environment for variable interpolation,
+        5) an optional function that will be called to transform the list before concatenation,
+        6) an optionally specified target (Can use TARGET),
+        7) an optionally specified source (Can use SOURCE),
+        8) optional <parameter>affect_signature</parameter> flag which will wrap non-empty returned value with $( and $) to indicate the contents
+        should not affect the signature of the generated command line.
+    </para>
 
-<example_commands>
-env['_CPPINCFLAGS'] = '$( ${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs)} $)',
-</example_commands>
+    <example_commands>
+        env['_CPPINCFLAGS'] = '${_concat(INCPREFIX, CPPPATH, INCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}'
+    </example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CONFIGUREDIR">
@@ -3077,44 +3092,52 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       <envar>HOST_ARCH</envar>
     </term>
     <listitem><para>
-        The name of the host hardware architecture used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
+      The name of the host hardware architecture
+      used to create this &consenv;.
+      The platform code sets this when initializing
+      (see &cv-link-PLATFORM; and the
+      <parameter>platform</parameter> argument to &f-link-Environment;).
+      Note the detected name of the architecture may not be identical to
+      that returned by the &Python;
+      <systemitem>platform.machine</systemitem> method.
+    </para>
     <para>
-Sets the host architecture for the Visual C++ compiler. If not set,
-default to the detected host architecture: note that this may depend
-on the python you are using.
-This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect.
-</para>
-
-<para>
-Valid values are the same as for &cv-link-TARGET_ARCH;.
-</para>
-
-<para>
-This is currently only used on Windows, but in the future it may be
-used on other OSes as well.
-</para>
-</listitem>
+      On the <literal>win32</literal> platform,
+      if the Microsoft Visual C++ compiler is available,
+      &t-link-msvc; tool setup is done using
+      &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;.
+      Changing the values at any later time will not cause
+      the tool to be reinitialized.
+      Valid host arch values are
+      <literal>x86</literal> and <literal>arm</literal>
+      for 32-bit hosts and
+      <literal>amd64</literal> and <literal>x86_64</literal>
+      for 64-bit hosts.
+    </para>
+    <para>
+      Should be considered immutable. 
+      &cv-HOST_ARCH; is not currently used by other platforms,
+      but the option is reserved to do so in future
+    </para>
+  </listitem>
   </varlistentry>
   <varlistentry id="cv-HOST_OS">
     <term>
       <envar>HOST_OS</envar>
     </term>
     <listitem><para>
-        The name of the host operating system used to create the Environment.
-        If a platform is specified when creating the Environment, then
-        that Platform's logic will handle setting this value.
-        This value is immutable, and should not be changed by the user after
-        the Environment is initialized.
-        Currently only set for Win32.
-</para>
-    </listitem>
+      The name of the host operating system for the platform
+      used to create this &consenv;.
+      The platform code sets this when initializing
+      (see &cv-link-PLATFORM; and the
+      <parameter>platform</parameter> argument to &f-link-Environment;).
+    </para>
+    <para>
+      Should be considered immutable. 
+      &cv-HOST_OS; is not currently used by &SCons;,
+      but the option is reserved to do so in future
+    </para>
+  </listitem>
   </varlistentry>
   <varlistentry id="cv-IDLSUFFIXES">
     <term>
@@ -3650,25 +3673,30 @@ for Java classes.
       <envar>JAVAVERSION</envar>
     </term>
     <listitem><para>
-                Specifies the Java version being used by the &b-Java; builder.
-                This is <emphasis>not</emphasis> currently used to select one
-                version of the Java compiler vs. another.
-                Instead, you should set this to specify the version of Java
-                supported by your &javac; compiler.
-                The default is <literal>1.4</literal>.
-            </para>
-
-            <para>
+                Specifies the Java version being used by the &b-link-Java;
+                builder. Set this to specify the version of Java targeted
+                by the &javac; compiler.
                 This is sometimes necessary because
                 Java 1.5 changed the file names that are created
                 for nested anonymous inner classes,
                 which can cause a mismatch with the files
                 that &SCons; expects will be generated by the &javac; compiler.
-                Setting &cv-JAVAVERSION; to
-                <literal>1.5</literal>
-                (or <literal>1.6</literal>, as appropriate)
-                can make &SCons; realize that a Java 1.5 or 1.6
-                build is actually up to date.
+                Setting &cv-JAVAVERSION; to a version greater than
+                <literal>1.4</literal> makes &SCons; realize that a build
+                with such a compiler is actually up to date.
+                The default is <literal>1.4</literal>.
+            </para>
+            <para>
+                While this is <emphasis>not</emphasis> primarily intended for
+                selecting one version of the Java compiler vs. another,
+                it does have that effect on the Windows platform. A
+                more precise approach is to set &cv-link-JAVAC; (and related
+                &consvars; for related utilities) to the path to the specific
+                Java compiler you want, if that is not the default compiler.
+                On non-Windows platforms, the
+                <systemitem>alternatives</systemitem> system may provide a
+                way to adjust the default Java compiler without
+                having to specify explicit paths.
             </para>
         </listitem>
   </varlistentry>
@@ -4735,6 +4763,7 @@ constructor; setting it later has no effect.
 
 <para>
 Valid values for Windows are
+<literal>14.3</literal>,
 <literal>14.2</literal>,
 <literal>14.1</literal>,
 <literal>14.1Exp</literal>,
@@ -5156,6 +5185,163 @@ Specfies the name of the project to package.
 <para>See the &b-link-Package; builder.</para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-NINJA_ALIAS_NAME">
+    <term>
+      <envar>NINJA_ALIAS_NAME</envar>
+    </term>
+    <listitem><para>
+                Name of the Alias() which is will cause SCons to create the <filename>ninja.build</filename> file, and
+                then (optionally) run ninja.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_COMPDB_EXPAND">
+    <term>
+      <envar>NINJA_COMPDB_EXPAND</envar>
+    </term>
+    <listitem><para>
+                Boolean value (True|False) to instruct ninja to expand the command line arguments normally put into
+                response files.
+                This prevents lines in the compilation database like <quote>gcc @rsp_file</quote> and instead yields
+                <quote>gcc -c -o myfile.o myfile.c -Ia -DXYZ</quote>
+            </para>
+            <para>
+                Ninja's compdb tool added the <quote>-x</quote> flag in Ninja V1.9.0
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_DIR">
+    <term>
+      <envar>NINJA_DIR</envar>
+    </term>
+    <listitem><para>
+                This propagates directly into the generated <filename>ninja.build</filename> file.
+                From Ninja's docs:
+                <blockquote>
+                    <para>
+                        builddir
+                        A directory for some Ninja output files. ... (You can also store other build output in this
+                        directory.)
+                    </para>
+                </blockquote>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_DISABLE_AUTO_RUN">
+    <term>
+      <envar>NINJA_DISABLE_AUTO_RUN</envar>
+    </term>
+    <listitem><para>
+                Boolean (True|False). Default: False
+                When True, SCons will not run ninja automatically after creating the <filename>ninja.build</filename> file.
+
+                If not set, this will be set to True if <quote>--disable_execute_ninja</quote> or
+                <code>SetOption('disable_execute_ninja', True)</code>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_ENV_VAR_CACHE">
+    <term>
+      <envar>NINJA_ENV_VAR_CACHE</envar>
+    </term>
+    <listitem><para>
+                A string that sets the environment for any environment variables that
+                differ between the OS environment and the SCons command ENV.
+
+                It will be compatible with the default shell of the operating system.
+
+                If not explicitly specified, SCons will generate this dynamically from the Environment()'s 'ENV'
+                <quote>env['ENV']</quote>
+                where those values differ from the existing shell..
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_FILE_NAME">
+    <term>
+      <envar>NINJA_FILE_NAME</envar>
+    </term>
+    <listitem><para>
+                The filename for the generated Ninja build file defaults to
+                <filename>ninja.build</filename>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_FORCE_SCONS_BUILD">
+    <term>
+      <envar>NINJA_FORCE_SCONS_BUILD</envar>
+    </term>
+    <listitem><para>
+                When NINJA_FORCE_SCONS_BUILD is True, this will cause the build nodes to callback to scons instead of using
+                ninja to build them. This is intended to be passed to the environment on the builder invocation.
+                It is useful if you have a build node which does something which is not easily translated into ninja.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_GENERATED_SOURCE_SUFFIXES">
+    <term>
+      <envar>NINJA_GENERATED_SOURCE_SUFFIXES</envar>
+    </term>
+    <listitem><para>
+                The list of source file suffixes which are generated by SCons build steps.
+                All source files which match these suffixes will be added to the _generated_sources alias in the output
+                <filename>ninja.build</filename> file.
+                Then all other source files will be made to depend on this in the <filename>ninja.build</filename> file, forcing the
+                generated sources to be built first.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_MSVC_DEPS_PREFIX">
+    <term>
+      <envar>NINJA_MSVC_DEPS_PREFIX</envar>
+    </term>
+    <listitem><para>
+                This propagates directly into the generated <filename>ninja.build</filename> file.
+                From Ninja's docs
+                <quote>defines the string which should be stripped from msvc’s /showIncludes output</quote>
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_POOL">
+    <term>
+      <envar>NINJA_POOL</envar>
+    </term>
+    <listitem><para>
+                Set the <quote>ninja_pool</quote> for this or all targets in scope for this env var.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_REGENERATE_DEPS">
+    <term>
+      <envar>NINJA_REGENERATE_DEPS</envar>
+    </term>
+    <listitem><para>
+                A generator function used to create a ninja depsfile which includes all the files which would require
+                SCons to be invoked if they change.
+                Or a list of said files.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-_NINJA_REGENERATE_DEPS_FUNC">
+    <term>
+      <envar>_NINJA_REGENERATE_DEPS_FUNC</envar>
+    </term>
+    <listitem><para>
+                Internal value used to specify the function to call with argument env to generate the list of files
+                which if changed would require the ninja file to be regenerated.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_SYNTAX">
+    <term>
+      <envar>NINJA_SYNTAX</envar>
+    </term>
+    <listitem><para>
+                Theres also NINJA_SYNTAX which is the path to a custom ninja_syntax.py file which is used in generation.
+                The tool currently assumes you have ninja installed through pip, and grabs the syntax file from that
+                installation if none specified.
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="cv-no_import_lib">
     <term>
       <envar>no_import_lib</envar>
@@ -5163,11 +5349,11 @@ Specfies the name of the project to package.
     <listitem><para>
 When set to non-zero,
 suppresses creation of a corresponding Windows static import lib by the
-<literal>SharedLibrary</literal>
+&b-link-SharedLibrary;
 builder when used with
 MinGW, Microsoft Visual Studio or Metrowerks.
 This also suppresses creation
-of an export (.exp) file
+of an export (<filename>.exp</filename>) file
 when using Microsoft Visual Studio.
 </para>
 </listitem>
@@ -5246,7 +5432,7 @@ Example:
 </para>
 
 <example_commands>
-env['PCH'] = 'StdAfx.pch'
+env['PCH'] = File('StdAfx.pch')
 </example_commands>
 </listitem>
   </varlistentry>
@@ -5471,20 +5657,21 @@ The default is
       <envar>PLATFORM</envar>
     </term>
     <listitem><para>
-The name of the platform used to create the Environment.  If no platform is
-specified when the Environment is created,
-&scons;
-autodetects the platform.
-</para>
+      The name of the platform used to create this &consenv;.
+      &SCons; sets this when initializing the platform,
+      which by default is auto-detected
+      (see the <parameter>platform</parameter>
+      argument to &f-link-Environment;).
+    </para>
 
-<example_commands>
-env = Environment(tools = [])
+    <example_commands>
+env = Environment(tools=[])
 if env['PLATFORM'] == 'cygwin':
     Tool('mingw')(env)
 else:
     Tool('msvc')(env)
-</example_commands>
-</listitem>
+    </example_commands>
+  </listitem>
   </varlistentry>
   <varlistentry id="cv-POAUTOINIT">
     <term>
@@ -5693,8 +5880,8 @@ The prefix used for PostScript file names.
       <envar>QT_AUTOSCAN</envar>
     </term>
     <listitem><para>
-Turn off scanning for mocable files. Use the Moc Builder to explicitly
-specify files to run moc on.
+Turn off scanning for mocable files. Use the &b-link-Moc; Builder to explicitly
+specify files to run <command>moc</command> on.
 </para>
 </listitem>
   </varlistentry>
@@ -5703,8 +5890,8 @@ specify files to run moc on.
       <envar>QT_BINPATH</envar>
     </term>
     <listitem><para>
-The path where the qt binaries are installed.
-The default value is '&cv-link-QTDIR;/bin'.
+The path where the Qt binaries are installed.
+The default value is '&cv-link-QTDIR;<filename>/bin</filename>'.
 </para>
 </listitem>
   </varlistentry>
@@ -5713,9 +5900,9 @@ The default value is '&cv-link-QTDIR;/bin'.
       <envar>QT_CPPPATH</envar>
     </term>
     <listitem><para>
-The path where the qt header files are installed.
+The path where the Qt header files are installed.
 The default value is '&cv-link-QTDIR;/include'.
-Note: If you set this variable to None,
+Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-CPPPATH;
 construction variable.
 </para>
@@ -5735,8 +5922,10 @@ Prints lots of debugging information while scanning for moc files.
       <envar>QT_LIB</envar>
     </term>
     <listitem><para>
-Default value is 'qt'. You may want to set this to 'qt-mt'. Note: If you set
-this variable to None, the tool won't change the &cv-link-LIBS; variable.
+Default value is <literal>'qt'</literal>.
+You may want to set this to <literal>'qt-mt'</literal>.
+Note: If you set this variable to <constant>None</constant>,
+the tool won't change the &cv-link-LIBS; variable.
 </para>
 </listitem>
   </varlistentry>
@@ -5745,9 +5934,9 @@ this variable to None, the tool won't change the &cv-link-LIBS; variable.
       <envar>QT_LIBPATH</envar>
     </term>
     <listitem><para>
-The path where the qt libraries are installed.
-The default value is '&cv-link-QTDIR;/lib'.
-Note: If you set this variable to None,
+The path where the Qt libraries are installed.
+The default value is '&cv-link-QTDIR;<filename>/lib</filename>'.
+Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-LIBPATH;
 construction variable.
 </para>
@@ -5758,7 +5947,7 @@ construction variable.
       <envar>QT_MOC</envar>
     </term>
     <listitem><para>
-Default value is '&cv-link-QT_BINPATH;/moc'.
+Default value is '&cv-link-QT_BINPATH;<filename>/moc</filename>'.
 </para>
 </listitem>
   </varlistentry>
@@ -5767,7 +5956,8 @@ Default value is '&cv-link-QT_BINPATH;/moc'.
       <envar>QT_MOCCXXPREFIX</envar>
     </term>
     <listitem><para>
-Default value is ''. Prefix for moc output files, when source is a cxx file.
+Default value is <literal>''</literal>.
+Prefix for <command>moc</command> output files when source is a C++ file.
 </para>
 </listitem>
   </varlistentry>
@@ -5776,8 +5966,8 @@ Default value is ''. Prefix for moc output files, when source is a cxx file.
       <envar>QT_MOCCXXSUFFIX</envar>
     </term>
     <listitem><para>
-Default value is '.moc'. Suffix for moc output files, when source is a cxx
-file.
+Default value is <literal>'.moc'</literal>.
+Suffix for <command>moc</command> output files when source is a C++ file.
 </para>
 </listitem>
   </varlistentry>
@@ -5786,7 +5976,7 @@ file.
       <envar>QT_MOCFROMCXXCOM</envar>
     </term>
     <listitem><para>
-Command to generate a moc file from a cpp file.
+Command to generate a moc file from a C++ file.
 </para>
 </listitem>
   </varlistentry>
@@ -5795,7 +5985,7 @@ Command to generate a moc file from a cpp file.
       <envar>QT_MOCFROMCXXCOMSTR</envar>
     </term>
     <listitem><para>
-The string displayed when generating a moc file from a cpp file.
+The string displayed when generating a moc file from a C++ file.
 If this is not set, then &cv-link-QT_MOCFROMCXXCOM; (the command line) is displayed.
 </para>
 </listitem>
@@ -5805,8 +5995,8 @@ If this is not set, then &cv-link-QT_MOCFROMCXXCOM; (the command line) is displa
       <envar>QT_MOCFROMCXXFLAGS</envar>
     </term>
     <listitem><para>
-Default value is '-i'. These flags are passed to moc, when moccing a
-C++ file.
+Default value is <literal>'-i'</literal>.
+These flags are passed to <command>moc</command> when moccing a C++ file.
 </para>
 </listitem>
   </varlistentry>
@@ -5824,7 +6014,7 @@ Command to generate a moc file from a header.
       <envar>QT_MOCFROMHCOMSTR</envar>
     </term>
     <listitem><para>
-The string displayed when generating a moc file from a cpp file.
+The string displayed when generating a moc file from a C++ file.
 If this is not set, then &cv-link-QT_MOCFROMHCOM; (the command line) is displayed.
 </para>
 </listitem>
@@ -5834,8 +6024,8 @@ If this is not set, then &cv-link-QT_MOCFROMHCOM; (the command line) is displaye
       <envar>QT_MOCFROMHFLAGS</envar>
     </term>
     <listitem><para>
-Default value is ''. These flags are passed to moc, when moccing a header
-file.
+Default value is <literal>''</literal>. These flags are passed to <command>moc</command>
+when moccing a header file.
 </para>
 </listitem>
   </varlistentry>
@@ -5844,7 +6034,8 @@ file.
       <envar>QT_MOCHPREFIX</envar>
     </term>
     <listitem><para>
-Default value is 'moc_'. Prefix for moc output files, when source is a header.
+Default value is <literal>'moc_'</literal>.
+Prefix for <command>moc</command> output files when source is a header.
 </para>
 </listitem>
   </varlistentry>
@@ -5853,8 +6044,8 @@ Default value is 'moc_'. Prefix for moc output files, when source is a header.
       <envar>QT_MOCHSUFFIX</envar>
     </term>
     <listitem><para>
-Default value is '&cv-link-CXXFILESUFFIX;'. Suffix for moc output files, when source is
-a header.
+Default value is '&cv-link-CXXFILESUFFIX;'.
+Suffix for moc output files when source is a header.
 </para>
 </listitem>
   </varlistentry>
@@ -5863,7 +6054,7 @@ a header.
       <envar>QT_UIC</envar>
     </term>
     <listitem><para>
-Default value is '&cv-link-QT_BINPATH;/uic'.
+Default value is '&cv-link-QT_BINPATH;<filename>/uic</filename>'.
 </para>
 </listitem>
   </varlistentry>
@@ -5872,7 +6063,7 @@ Default value is '&cv-link-QT_BINPATH;/uic'.
       <envar>QT_UICCOM</envar>
     </term>
     <listitem><para>
-Command to generate header files from .ui files.
+Command to generate header files from <filename>.ui</filename> files.
 </para>
 </listitem>
   </varlistentry>
@@ -5881,7 +6072,7 @@ Command to generate header files from .ui files.
       <envar>QT_UICCOMSTR</envar>
     </term>
     <listitem><para>
-The string displayed when generating header files from .ui files.
+The string displayed when generating header files from <filename>.ui</filename> files.
 If this is not set, then &cv-link-QT_UICCOM; (the command line) is displayed.
 </para>
 </listitem>
@@ -5891,8 +6082,8 @@ If this is not set, then &cv-link-QT_UICCOM; (the command line) is displayed.
       <envar>QT_UICDECLFLAGS</envar>
     </term>
     <listitem><para>
-Default value is ''. These flags are passed to uic, when creating a a h
-file from a .ui file.
+Default value is ''. These flags are passed to <command>uic</command>
+when creating a header file from a <filename>.ui</filename> file.
 </para>
 </listitem>
   </varlistentry>
@@ -5901,7 +6092,8 @@ file from a .ui file.
       <envar>QT_UICDECLPREFIX</envar>
     </term>
     <listitem><para>
-Default value is ''. Prefix for uic generated header files.
+Default value is <literal>''</literal>.
+Prefix for <command>uic</command> generated header files.
 </para>
 </listitem>
   </varlistentry>
@@ -5910,7 +6102,8 @@ Default value is ''. Prefix for uic generated header files.
       <envar>QT_UICDECLSUFFIX</envar>
     </term>
     <listitem><para>
-Default value is '.h'. Suffix for uic generated header files.
+Default value is <literal>'.h'</literal>.
+Suffix for <command>uic</command> generated header files.
 </para>
 </listitem>
   </varlistentry>
@@ -5919,8 +6112,9 @@ Default value is '.h'. Suffix for uic generated header files.
       <envar>QT_UICIMPLFLAGS</envar>
     </term>
     <listitem><para>
-Default value is ''. These flags are passed to uic, when creating a cxx
-file from a .ui file.
+Default value is <literal>''</literal>.
+These flags are passed to <command>uic</command> when creating a C++
+file from a <filename>.ui</filename> file.
 </para>
 </listitem>
   </varlistentry>
@@ -5929,7 +6123,8 @@ file from a .ui file.
       <envar>QT_UICIMPLPREFIX</envar>
     </term>
     <listitem><para>
-Default value is 'uic_'. Prefix for uic generated implementation files.
+Default value is <literal>'uic_'</literal>.
+Prefix for uic generated implementation files.
 </para>
 </listitem>
   </varlistentry>
@@ -5948,7 +6143,8 @@ files.
       <envar>QT_UISUFFIX</envar>
     </term>
     <listitem><para>
-Default value is '.ui'. Suffix of designer input files.
+Default value is <literal>'.ui'</literal>.
+Suffix of designer input files.
 </para>
 </listitem>
   </varlistentry>
@@ -5957,66 +6153,11 @@ Default value is '.ui'. Suffix of designer input files.
       <envar>QTDIR</envar>
     </term>
     <listitem><para>
-The qt tool tries to take this from os.environ.
-It also initializes all QT_*
-construction variables listed below.
-(Note that all paths are constructed
-with python's os.path.join() method,
-but are listed here with the '/' separator
-for easier reading.)
-In addition, the construction environment
-variables &cv-link-CPPPATH;,
-&cv-link-LIBPATH; and
-&cv-link-LIBS; may be modified
-and the variables
-&cv-link-PROGEMITTER;, &cv-link-SHLIBEMITTER; and &cv-link-LIBEMITTER;
-are modified. Because the build-performance is affected when using this tool,
-you have to explicitly specify it at Environment creation:
-</para>
-
-<example_commands>
-Environment(tools=['default','qt'])
-</example_commands>
-
-<para>
-The qt tool supports the following operations:
-</para>
-
-<para>
-<emphasis role="strong">Automatic moc file generation from header files.</emphasis>
-You do not have to specify moc files explicitly, the tool does it for you.
-However, there are a few preconditions to do so: Your header file must have
-the same filebase as your implementation file and must stay in the same
-directory. It must have one of the suffixes .h, .hpp, .H, .hxx, .hh. You
-can turn off automatic moc file generation by setting QT_AUTOSCAN to 0.
-See also the corresponding
-&b-Moc;()
-builder method.
-</para>
-
-<para>
-<emphasis role="strong">Automatic moc file generation from cxx files.</emphasis>
-As stated in the qt documentation, include the moc file at the end of
-the cxx file. Note that you have to include the file, which is generated
-by the transformation ${QT_MOCCXXPREFIX}&lt;basename&gt;${QT_MOCCXXSUFFIX}, by default
-&lt;basename&gt;.moc. A warning is generated after building the moc file, if you
-do not include the correct file. If you are using VariantDir, you may
-need to specify duplicate=1. You can turn off automatic moc file generation
-by setting QT_AUTOSCAN to 0. See also the corresponding
-&b-Moc;
-builder method.
-</para>
-
-<para>
-<emphasis role="strong">Automatic handling of .ui files.</emphasis>
-The implementation files generated from .ui files are handled much the same
-as yacc or lex files. Each .ui file given as a source of Program, Library or
-SharedLibrary will generate three files, the declaration file, the
-implementation file and a moc file. Because there are also generated headers,
-you may need to specify duplicate=1 in calls to VariantDir.
-See also the corresponding
-&b-Uic;
-builder method.
+The path to the Qt installation to build against.
+If not already set,
+&t-link-qt; tool tries to obtain this from
+<varname>os.environ</varname>;
+if not found there, it tries to make a guess.
 </para>
 </listitem>
   </varlistentry>
@@ -6161,8 +6302,8 @@ searching the repositories.
     <listitem><para>
 The program used on Windows systems
 to register a newly-built DLL library
-whenever the &b-SharedLibrary; builder
-is passed a keyword argument of <literal>register=1</literal>.
+whenever the &b-link-SharedLibrary; builder
+is passed a keyword argument of <literal>register=True</literal>.
 </para>
 </listitem>
   </varlistentry>
@@ -6173,8 +6314,8 @@ is passed a keyword argument of <literal>register=1</literal>.
     <listitem><para>
 The command line used on Windows systems
 to register a newly-built DLL library
-whenever the &b-SharedLibrary; builder
-is passed a keyword argument of <literal>register=1</literal>.
+whenever the &b-link-SharedLibrary; builder
+is passed a keyword argument of <literal>register=True</literal>.
 </para>
 </listitem>
   </varlistentry>
@@ -7746,60 +7887,64 @@ for more information).
       <envar>TARGET_ARCH</envar>
     </term>
     <listitem><para>
-        The name of the target hardware architecture for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_ARCH, and the user can override it.
-        Currently only set for Win32.
-</para>
+      The name of the hardware architecture that objects
+      created using this &consenv; should target.
+      Can be set when creating a &consenv; by passing as a keyword
+      argument in the &f-link-Environment; call.
+    </para>
     <para>
-Sets the target architecture for the Visual C++ compiler (i.e. the arch
-of the binaries generated by the compiler). If not set, default to
-&cv-link-HOST_ARCH;, or, if that is unset, to the architecture of the
-running machine's OS (note that the python build or architecture has no
-effect).
-This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect.
-This is currently only used on Windows, but in the future it will be
-used on other OSes as well.
-If this is set and &cv-link-MSVC_VERSION; is not set, this will search for
-all installed MSVC's that support the &cv-TARGET_ARCH;, selecting the
-latest version for use.
-</para>
-
-<para>
-On Windows, valid target values are
-<literal>x86</literal>,
-<literal>arm</literal>,
-<literal>i386</literal>
-for 32-bit targets and
-<literal>amd64</literal>,
-<literal>arm64</literal>,
-<literal>em64t</literal>,
-<literal>x86_64</literal>
-and <literal>ia64</literal> (Itanium)
-for 64-bit targets.
-Note that not all target architectures are
-supported for all Visual Studio / MSVC versions.
-Check the relevant Microsoft documentation.
-</para>
-
-<para>
-For example, if you want to compile 64-bit binaries, you would set
-<literal>TARGET_ARCH='x86_64'</literal> in your SCons environment.
-</para>
-</listitem>
+      On the <literal>win32</literal> platform,
+      if the Microsoft Visual C++ compiler is available,
+      &t-link-msvc; tool setup is done using
+      &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;.
+      If a value is not specified,
+      will be set to the same value as &cv-link-HOST_ARCH;.
+      Changing the value after the environment is initialized
+      will not cause the tool to be reinitialized.
+      Compiled objects will be in the target architecture if
+      the compilation system supports generating for that target.
+      The latest compiler which can fulfill the requirement will
+      be selected, unless a different version is directed by the
+      value of the &cv-link-MSVC_VERSION; &consvar;.
+    </para>
+    <para>
+      On the win32/msvc combination, valid target arch values are
+      <literal>x86</literal>,
+      <literal>arm</literal>,
+      <literal>i386</literal>
+      for 32-bit targets and
+      <literal>amd64</literal>,
+      <literal>arm64</literal>,
+      <literal>x86_64</literal>
+      and <literal>ia64</literal> (Itanium)
+      for 64-bit targets.
+      For example, if you want to compile 64-bit binaries, you would set
+      <literal>TARGET_ARCH='x86_64'</literal> when creating the &consenv;.
+      Note that not all target architectures are
+      supported for all Visual Studio / MSVC versions.
+      Check the relevant Microsoft documentation.
+    </para>
+    <para>
+      &cv-TARGET_ARCH; is not currently used by other compilation tools,
+      but the option is reserved to do so in future
+    </para>
+  </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGET_OS">
     <term>
       <envar>TARGET_OS</envar>
     </term>
     <listitem><para>
-        The name of the target operating system for the compiled objects
-        created by this Environment.
-        This defaults to the value of HOST_OS, and the user can override it.
-        Currently only set for Win32.
-</para>
-    </listitem>
+      The name of the operating system that objects
+      created using this &consenv; should target.
+      Can be set when creating a &consenv; by passing as a keyword
+      argument in the &f-link-Environment; call;.
+    </para>
+    <para>
+      &cv-TARGET_OS; is not currently used by &SCons;
+      but the option is reserved to do so in future
+    </para>
+  </listitem>
   </varlistentry>
   <varlistentry id="cv-TARGETS">
     <term>
@@ -7822,15 +7967,45 @@ The suffix used for tar file names.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-TEMPFILE">
+    <term>
+      <envar>TEMPFILE</envar>
+    </term>
+    <listitem><para>
+A callable object used to handle overly long command line strings,
+since operations which call out to a shell will fail
+if the line is longer than the shell can accept.
+This tends to particularly impact linking.
+The tempfile object stores the command line in a temporary
+file in the appropriate format, and returns
+an alternate command line so the invoked tool will make
+use of the contents of the temporary file.
+If you need to replace the default tempfile object,
+the callable should take into account the settings of
+&cv-link-MAXLINELENGTH;, 
+&cv-link-TEMPFILEPREFIX;,
+&cv-link-TEMPFILESUFFIX;,
+&cv-link-TEMPFILEARGJOIN;,
+&cv-link-TEMPFILEDIR;
+and
+&cv-link-TEMPFILEARGESCFUNC;.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-TEMPFILEARGESCFUNC">
     <term>
       <envar>TEMPFILEARGESCFUNC</envar>
     </term>
     <listitem><para>
-A default argument escape function is ``SCons.Subst.quote_spaces``.
-If you need to apply extra operations on a command argument before
-writing to a temporary file(fix Windows slashes, normalize paths, etc.),
-please set `TEMPFILEARGESCFUNC` variable to a custom function. Example::
+The default argument escape function is 
+<function>SCons.Subst.quote_spaces</function>.
+If you need to apply extra operations on a command argument
+(to fix Windows slashes, normalize paths, etc.)
+before writing to the temporary file,
+you can set the &cv-TEMPFILEARGESCFUNC; variable to a custom function.
+Such a function takes a single string argument and returns
+a new string with any modifications applied.
+Example:
 </para>
 
 <example_commands>
@@ -7856,8 +8031,12 @@ env["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
       <envar>TEMPFILEARGJOIN</envar>
     </term>
     <listitem><para>
-The string (or character) to be used to join the arguments passed to TEMPFILE when command line exceeds the limit set by &cv-MAXLINELENGTH;.
-The default value is a space. However for MSVC, MSLINK the default is a line seperator characters as defined by os.linesep.
+The string to use to join the arguments passed to
+&cv-link-TEMPFILE; when the command line exceeds the limit set by
+&cv-link-MAXLINELENGTH;.
+The default value is a space.
+However for MSVC, MSLINK the default is a line separator
+as defined by <systemitem>os.linesep</systemitem>.
 Note this value is used literally and not expanded by the subst logic.
 </para>
 </listitem>
@@ -7867,7 +8046,7 @@ Note this value is used literally and not expanded by the subst logic.
       <envar>TEMPFILEDIR</envar>
     </term>
     <listitem><para>
-The directory to create the tempfile in.
+The directory to create the long-lines temporary file in.
 </para>
 </listitem>
   </varlistentry>
@@ -7876,16 +8055,13 @@ The directory to create the tempfile in.
       <envar>TEMPFILEPREFIX</envar>
     </term>
     <listitem><para>
-The prefix for a temporary file used
-to store lines lines longer than $MAXLINELENGTH
-as operations which call out to a shell will fail
-if the line is too long, which particularly
-impacts linking.
-The default is '@', which works for the Microsoft
+The prefix for the name of the temporary file used
+to store command lines exceeding &cv-link-MAXLINELENGTH;.
+The default prefix is <literal>'@'</literal>, which works for the Microsoft
 and GNU toolchains on Windows.
 Set this appropriately for other toolchains,
-for example '-@' for the diab compiler
-or '-via' for ARM toolchain.
+for example <literal>'-@'</literal> for the diab compiler
+or <literal>'-via'</literal> for ARM toolchain.
 </para>
 </listitem>
   </varlistentry>
@@ -7894,11 +8070,11 @@ or '-via' for ARM toolchain.
       <envar>TEMPFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for the temporary file name
-used for long command lines. The name should
-include the dot ('.') if one is wanted as
+The suffix for the name of the temporary file used
+to store command lines exceeding &cv-link-MAXLINELENGTH;.
+The suffix should include the dot ('.') if one is wanted as
 it will not be added automatically.
-The default is '.lnk'.
+The default is <filename>.lnk</filename>.
 </para>
 </listitem>
   </varlistentry>
@@ -8091,11 +8267,13 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
       <envar>WINDOWS_EMBED_MANIFEST</envar>
     </term>
     <listitem><para>
-Set this variable to True or 1 to embed the compiler-generated manifest
+Set to <constant>True</constant> to embed the
+compiler-generated manifest
 (normally <literal>${TARGET}.manifest</literal>)
-into all Windows exes and DLLs built with this environment,
+into all Windows executables and DLLs built with this environment,
 as a resource during their link step.
 This is done using &cv-link-MT; and &cv-link-MTEXECOM; and &cv-link-MTSHLIBCOM;.
+See also &cv-link-WINDOWS_INSERT_MANIFEST;.
 </para>
 </listitem>
   </varlistentry>
@@ -8104,14 +8282,21 @@ This is done using &cv-link-MT; and &cv-link-MTEXECOM; and &cv-link-MTSHLIBCOM;.
       <envar>WINDOWS_INSERT_DEF</envar>
     </term>
     <listitem><para>
-When this is set to true,
+If set to true,
 a library build of a Windows shared library
 (<filename>.dll</filename> file)
-will also build a corresponding <filename>.def</filename> file
-at the same time,
-if a <filename>.def</filename> file
+will include a reference to the corresponding
+module-definition file at the same time,
+if a module-definition file
 is not already listed as a build target.
-The default is 0 (do not build a <filename>.def</filename> file).
+The name of the module-definition file will
+be constructed from the base name of the library
+and the &consvars;
+&cv-link-WINDOWSDEFSUFFIX; and
+&cv-link-WINDOWSDEFPREFIX;.
+The default is to not add a module-definition file.
+The module-definition file is not created by this directive,
+and must be supplied by the developer.
 </para>
 </listitem>
   </varlistentry>
@@ -8120,11 +8305,21 @@ The default is 0 (do not build a <filename>.def</filename> file).
       <envar>WINDOWS_INSERT_MANIFEST</envar>
     </term>
     <listitem><para>
-When this is set to true,
+If set to true,
 &scons;
-will be aware of the
-<filename>.manifest</filename>
-files generated by Microsoft Visua C/C++ 8.
+will add the manifest file
+generated by Microsoft Visual C++ 8.0 and later
+to the target list so &SCons; will be aware they
+were generated.
+In the case of an executable, the manifest file name
+is constructed using
+&cv-link-WINDOWSPROGMANIFESTSUFFIX; and
+&cv-link-WINDOWSPROGMANIFESTPREFIX;.
+In the case of a shared library, the manifest file name
+is constructed using
+&cv-link-WINDOWSSHLIBMANIFESTSUFFIX; and
+&cv-link-WINDOWSSHLIBMANIFESTPREFIX;.
+See also &cv-link-WINDOWS_EMBED_MANIFEST;.
 </para>
 </listitem>
   </varlistentry>
@@ -8133,7 +8328,8 @@ files generated by Microsoft Visua C/C++ 8.
       <envar>WINDOWSDEFPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for Windows <filename>.def</filename> file names.
+The prefix used for a Windows linker module-definition file name.
+Defaults to empty.
 </para>
 </listitem>
   </varlistentry>
@@ -8142,7 +8338,8 @@ The prefix used for Windows <filename>.def</filename> file names.
       <envar>WINDOWSDEFSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for Windows <filename>.def</filename> file names.
+The suffix used for a Windows linker module-definition file name.
+Defaults to <filename>.def</filename>.
 </para>
 </listitem>
   </varlistentry>
@@ -8151,7 +8348,8 @@ The suffix used for Windows <filename>.def</filename> file names.
       <envar>WINDOWSEXPPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for Windows <filename>.exp</filename> file names.
+The prefix used for Windows linker exports file names.
+Defaults to empty.
 </para>
 </listitem>
   </varlistentry>
@@ -8160,7 +8358,8 @@ The prefix used for Windows <filename>.exp</filename> file names.
       <envar>WINDOWSEXPSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for Windows <filename>.exp</filename> file names.
+The suffix used for Windows linker exports file names.
+Defaults to <filename>.exp</filename>.
 </para>
 </listitem>
   </varlistentry>
@@ -8169,8 +8368,9 @@ The suffix used for Windows <filename>.exp</filename> file names.
       <envar>WINDOWSPROGMANIFESTPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for executable program <filename>.manifest</filename> files
+The prefix used for executable program manifest files
 generated by Microsoft Visual C/C++.
+Defaults to empty.
 </para>
 </listitem>
   </varlistentry>
@@ -8179,8 +8379,9 @@ generated by Microsoft Visual C/C++.
       <envar>WINDOWSPROGMANIFESTSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for executable program <filename>.manifest</filename> files
+The suffix used for executable program manifest files
 generated by Microsoft Visual C/C++.
+Defaults to <filename>.manifest</filename>.
 </para>
 </listitem>
   </varlistentry>
@@ -8189,8 +8390,9 @@ generated by Microsoft Visual C/C++.
       <envar>WINDOWSSHLIBMANIFESTPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used for shared library <filename>.manifest</filename> files
+The prefix used for shared library manifest files
 generated by Microsoft Visual C/C++.
+Defaults to empty.
 </para>
 </listitem>
   </varlistentry>
@@ -8199,8 +8401,9 @@ generated by Microsoft Visual C/C++.
       <envar>WINDOWSSHLIBMANIFESTSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used for shared library <filename>.manifest</filename> files
+The suffix used for shared library manifest files
 generated by Microsoft Visual C/C++.
+Defaults to <filename>.manifest</filename>.
 </para>
 </listitem>
   </varlistentry>

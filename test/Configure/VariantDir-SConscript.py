@@ -128,7 +128,7 @@ test.checkLogAndStdout( ["Checking for C header file math.h... ",
 
 import shutil
 shutil.rmtree(test.workpath(".sconf_temp"))
-test.unlink(".sconsign.dblite")
+test.unlink(test.get_sconsignname()+".dblite")
 
 # now with SConscriptChdir(1)
 test.run(arguments='chdir=yes')

@@ -33,6 +33,7 @@ import os
 import signal
 
 import SCons.Errors
+import SCons.Warnings
 
 # The default stack size (in kilobytes) of the threads used to execute
 # jobs in parallel.
@@ -139,7 +140,7 @@ class Jobs:
                 self.job.taskmaster.stop()
                 self.job.interrupted.set()
             else:
-                os._exit(2)
+                os._exit(2)  # pylint: disable=protected-access
 
         self.old_sigint  = signal.signal(signal.SIGINT, handler)
         self.old_sigterm = signal.signal(signal.SIGTERM, handler)
@@ -147,15 +148,22 @@ class Jobs:
             self.old_sighup = signal.signal(signal.SIGHUP, handler)
         except AttributeError:
             pass
+        if (self.old_sigint is None) or (self.old_sigterm is None) or \
+                (hasattr(self, "old_sighup") and self.old_sighup is None):
+            msg = "Overwritting previous signal handler which was not installed from Python. " + \
+                "Will not be able to reinstate and so will return to default handler."
+            SCons.Warnings.warn(SCons.Warnings.SConsWarning, msg)
 
     def _reset_sig_handler(self):
         """Restore the signal handlers to their previous state (before the
          call to _setup_sig_handler()."""
-
-        signal.signal(signal.SIGINT, self.old_sigint)
-        signal.signal(signal.SIGTERM, self.old_sigterm)
+        sigint_to_use = self.old_sigint if self.old_sigint is not None else signal.SIG_DFL
+        sigterm_to_use = self.old_sigterm if self.old_sigterm is not None else signal.SIG_DFL
+        signal.signal(signal.SIGINT, sigint_to_use)
+        signal.signal(signal.SIGTERM, sigterm_to_use)
         try:
-            signal.signal(signal.SIGHUP, self.old_sighup)
+            sigterm_to_use = self.old_sighup if self.old_sighup is not None else signal.SIG_DFL
+            signal.signal(signal.SIGHUP, sigterm_to_use)
         except AttributeError:
             pass
 
@@ -230,8 +238,8 @@ else:
         and a boolean indicating whether the task executed successfully. """
 
         def __init__(self, requestQueue, resultsQueue, interrupted):
-            threading.Thread.__init__(self)
-            self.setDaemon(1)
+            super().__init__()
+            self.daemon = True
             self.requestQueue = requestQueue
             self.resultsQueue = resultsQueue
             self.interrupted = interrupted
@@ -389,7 +397,7 @@ else:
                         if task.needs_execute():
                             # dispatch task
                             self.tp.put(task)
-                            jobs = jobs + 1
+                            jobs += 1
                         else:
                             task.executed()
                             task.postprocess()
@@ -400,7 +408,7 @@ else:
                 # back and put the next batch of tasks on the queue.
                 while True:
                     task, ok = self.tp.get()
-                    jobs = jobs - 1
+                    jobs -= 1
 
                     if ok:
                         task.executed()

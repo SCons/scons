@@ -5,9 +5,237 @@
                             Change Log
 
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
-NOTE: The 4.2.0 Release of SCons will drop Python 3.5 Support
+NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+
+  From Joseph Brill:
+    - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
+      when the user specified msvc script does not exist.
+    - Fix issue where if you only had mingw installed on a Windows system and no MSVC compiler, and
+      did not explicitly request the mingw tool, mingw tool initialization would fail and set the
+      default compiler to MSVC which wasn't installed, yielding broken build.
+      Updated mingw tool so that the generate and exists methods use the same mingw search paths
+      (issue #4134).
+    - Update the debug output written to stdout for MSVC initialization which is enabled by setting
+      SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug output format
+      written to stdout to include more information about the source for each message of MSVC
+      initialization debugging output.  A single space was added before the message for all
+      debugging output records written to stdout and to files.
+    - Refactor the data definitions for msvc configurations to allow derived data structures to be
+      constructed during initialization that removes the need for special case handling during
+      runtime execution. Special case handling of host/target combinations is eliminated and
+      replaced with pre-computed search lists that implicitly handle the differences between full
+      versions and express versions of msvc. This fixes an issue where Express versions of the MSVC
+      compiler were not detected due to differences in initial msvc detection and msvc batch file
+      determination when configuring the build environment.  This could lead to build failures when
+      only an MSVC Express instance is installed and the MSVC version is not explicitly specified
+      (issue #2668 and issue #2697).
+
+  From William Deegan:
+    - Fix check for unsupported Python version. It was broken. Also now the error message
+      will include what is the minimum supported version of Python
+    - Fix ActionTests to work with python 3.10.1 (and higher)
+    NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
+          see unexpected rebuilds. This is due to Python internals changing which changed
+          the signature of a Python Action Function.
+    - Fix a number of Python ResourceWarnings which are issued when running SCons and/or it's tests
+      with python 3.9 (or higher)
+    - Action._subproc() can now be used as a python context manager to ensure that the
+      POpen object is properly closed.
+      (Thanks to Mats Wichmann for catching that DummyPopen needed additional logic)
+    - Added project_url for mailing lists and Discord
+    - Updated project url in steup.cfg to be https instead of http
+    - Updated setup.cfg to remove Python 3.5 and add Python 3.10
+    - Added default values for source and target arguments to _defines() function. This
+      is used to expand CPPDEFINES (and others). Previous change added those arguments
+      with no defaults, so old usage where _defines() was called without source and target
+      arguments would yield an exception. This issue was found via qt4 and qt5 tools in
+      scons-contrib https://github.com/SCons/scons-contrib/issues/45
+
+
+
+  From Daniel Moody:
+    - Add cache-debug messages for push failures.
+    - Ninja: Changed generated build.ninja file to run SCons only build Actions via
+      a SCons Deamon. Added logic for starting and connecting to SCons daemon (currently
+      only used for ninja)
+    - Ninja: Fix issue where Configure files weren't being properly processed when build run
+      via ninja.
+    - Added ninja mingw support and improved ninja CommandGeneratorAction support.
+    - Update ninja file generation to only create response files for build commands
+      which exceed MAXLINELENGTH
+    - Ninja: Added NINJA_GENERATED_SOURCE_ALIAS_NAME which allows user to specify an
+      Alias() which the ninja tool can use to determine which files are generated sources.
+      If this is not set by the user then the ninja tool will still dynamically determine
+      which files are generated sources based on NINJA_GENERATED_SOURCE_SUFFIXES, and create
+      a phony target _ninja_generated_sources. Generated sources will be built first by
+      ninja. This is needed because ninja cannot determine which generated sources are
+      required by other build targets. Code contributed by MongoDB
+      The downstream commit is here:
+      https://github.com/mongodb/mongo/commit/2fef432fa6e7cf3fd4f22ba3b193222c2887f14f
+    - Added special case for ninja scons daemon to work in win32 python3.6 environments.
+      This particular environment does a bad job managing popen standard file handles, so
+      some special workarounds are needed.
+    - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+      Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
+      format. Compiler tools will also configure the variable automatically.
+    - Added SHELL_ENV_GENERATOR construction variables. This variable allows the user to Define
+      a function which will be called to generate or alter the execution environment which will
+      be used in the shell command of some Action.
+    - Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
+    - Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+      to connect to the server during start up.
+
+  From Mats Wichmann:
+    - Tweak the way default site_scons paths on Windows are expressed to
+      conform to conventions (what they actually resolve to is unchanged),
+      drop a Py2 workaround, and pick a better "system" path, old one
+      remains supported (%AllUsersProfile%\scons\site_scons vs old
+      %AllUsersProfile%\Application Data\scons\site_scons).
+    - Fix testsuite to work on Windows systems where there is no usable
+      association for running .py files directly. There are a few tests where
+      we need to do this for internal reasons, those are skipped in that case.
+      Bad association could mean some other tool took it over (Visual
+      Studio Code is known to do this), or no association at all.
+    - Updated debug code in MSVC and MSVS tools to conform to the
+      suggested "lazy interpolation" use of the Python logging module.
+      Calls now look like 'debug("template %s", text)' rather than
+      'debug("template %s" % text)' so the logging system does the
+      interpolation only when/if needed (was a pylint warning).
+    - Update Help (-H) output a bit. Drop "ignored for compat" entry.
+      Pass window size to formatter so it formats for wider displays too.
+    - runtest.py now accepts -j 0 to auto-detect number of usable
+      processors for testing threads.
+    - Fixed crash in C scanner's dictify_CPPDEFINES() function which happens if
+      AppendUnique is called on CPPPATH. (Issue #4108).
+    - As "code modernization" all of SCons now uses the current super()
+      zero-argument syntax instead of direct calls to a parent class method
+      or the super() two-argument syntax.
+    - Renamed ParseFlag's internal data structure to "mapping" instead of
+      "dict" (avoid redefining builtin)
+    - Fix an old use-before-set bug in tex tool (issue #2888)
+    - Fix a test harness exception returning stderr if a wait_for timed out.
+    - ParseConfig now correctly passes the *unique* flag to a user-supplied
+      flag-merging function.
+    - Restore the ability of the content-timestamp decider to see that a
+      a source which is a symlink has changed if the file-system target of
+      that link has been modified (issue #3880)
+
+  From Zhichang Yu:
+    - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
+    - Added Configure.CheckMember() checker to check if struct/class has the specified member.
+
+RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
+
+  From Jacob Cassagnol:
+    - Default hash algorithm check updated for SCons FIPS compliance. Now checks for hash viability
+      first and then walks the tree to use the first viable hash as the default one. This typically
+      selects SHA1 on FIPS-enabled systems less than Python 3.9 as the new default instead of MD5,
+      unless SHA1 has also been disabled by security policy, at which point SCons selects SHA256
+      as the default. For systems running Python 3.9 and later, the hashlib bug has been fixed,
+      and SCons will once again default to MD5 as the preferred algorithm.
+
+  From Joseph Brill:
+    - Fix MSVS tests (vs-N.N-exec.py) for MSVS 6.0, 7.0, and 7.1 (import missing module).
+    - Add support for Visual Studio 2022.
+
+  From William Deegan:
+    - Fix reproducible builds. Restore logic respecting SOURCE_DATE_EPOCH when set.
+    - Fix version tests to work with updated scons --version output. (Date format changed)
+    - Fix issue #4021.  Change the way subst() is used in Textfile() to not evaluate '$$(' -> '$',
+      but instead it should yield '$('.
+    - Change SCons.Platform.win32.get_architecture() to return platform.platform() when run in an
+      environment where neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE is set.
+      This should fix platform tests which started failing when HOST_OS/HOST_ARCH changes
+      introduced by Aaron Franke (listed below) were merged.
+    - Further PCH updates. It's now recommended that env['PCH'] should always be a File node.
+      Either via return value from env.PCH() or by explicitly using File('StdAfx.pch').
+    - Added --no-ignore-skips to runtest.py. Changed default to ignore skips when setting
+      runtest.py's exit status. Previously would exit 2 if any tests were skipped.
+      Now will only exit 2 if user specifies --no-ignore-skips and some tests were skipped.
+
+  From Ryan Egesdahl:
+    - Small fix to ensure CLVar default value is an empty list.
+      See MongoDB bug report: https://jira.mongodb.org/browse/SERVER-59656
+      Code contributed by MongoDB.
+    - Ninja - Fixed an issue where if you control-c and/or killed ninja while it was running scons to
+      regenerate build.ninja you would end up with no build.ninja file and have to rerun scons from scratch.
+      Code contributed by MongoDB.
+
+  From Aaron Franke:
+    - Define HOST_OS and HOST_ARCH in the environment for all platforms.
+      Before this change, these were only defined for Win32 and OS/2.
+
+  From Daniel Moody:
+    - Fix ninja tool to never use for_sig substitution because ninja does not use signatures. This
+      issue affected CommandGeneratorAction function actions specifically.
+    - Expanded ninja Mkdir to also support Mkdir actions.
+    - Added support for the PCH environment variable to support subst generators.
+    - Fix command line escaping for ninja dollar sign escape. Without escaping ninja properly,
+      the ninja file scons regenerate and callback invocations will lose the $ characters used in
+      the scons command line which ninja uses itself for escaping. For Example:
+          scons BUILD=xyz OTHERVAR=$BUILD
+      Prior to this fix, it would cause ninja to fail to escape the dollar sign, leading to the
+      single dollar sign being used as a ninja escape character in the ninja file.
+
+  From Daniel Moody:
+    - Added ninja API 'NINJA_FORCE_SCONS_BUILD' to force a node to callback to scons.
+
+  From Mats Wichmann:
+    - Two small Python 3.10 fixes: one more docstring turned into raw
+      because it contained an escape; updated "helpful" syntax error message
+      from 3.10 was not expected by SubstTests.py and test/Subst/Syntax.py
+    - EmitterProxy rich comparison set is completed (checker warning).
+      Added __le__, __gt__, __ge__.
+    - Fix gcc/g++ tool failing if "gcc --version" returns text which fails
+      to_String conversion (i.e., not UTF-8) - failure happens when tool
+      initialization checks version. For gcc, the initial version string is
+      not translated, for the rest, don't convert, just consume raw and discard.
+    - Maintenance and doc: modernize some usage in Scanner package,
+      calling super(), switching some imitialization to comprehensions,
+      and code formatting.  Docstring for scanner Base moved from
+      init-method to class-level so it's picked up by Sphinx.
+      Added new sconsign filenames to skip_entry_list in Scanner/Dir.py
+    - Change SCons.Scanner.Base to ScannerBase. Old name kept as an alias
+      but is now unused in SCons itself.
+    - Call Variables option converter consistently - the converter should
+      have access to the env if it needs to (issue #2064).
+    - Fixed the variables Add() method to accept a tuple for the variable
+      name the same way AddVariables() does (issue #3869).
+    - The premade validator PathIsDirCreate for for PathVariable now catches
+      the case where the directory could not be created due to permission
+      problems, allowing a more helpful error to be emitted (issue #2828)
+    - Maintenance: Python thread.setDaemon is deprecated in favor of
+      directly updating daemon attribute - update SCons to do this.
+    - Make sure when subst'ing a callable, the callable is called with
+      the correct for_signature value, previously it would be true even
+      if doing SUBST_RAW (issue #4037)
+    - Update Util/NodeList implementation to get rid of a workaround for
+      early Python 3 slicing issue that is no longer a problem.
+    - Rework some Java tests to skip rather than fail on CI systems, where
+      the working java is > v9, but a 1.8 or 9 was also found.
+    - Java updates: on Windows, detect more default JDK install locations.
+      On all platforms, more Java versions (up to 17.0 now).  Add more information
+      on version selection to docs.
+      Update docs on JavaH tool in light of javah command dropped since 10.0.
+      Try to be better about preserving user's passed-in JAVA* construction vars.
+    - Start the deprecation of the qt tool, which refers to Qt3 (usupported
+      since around 2006). There's a deprecation warning added, initially
+      defaulting to disabled.
+
+  From Brian Quistorff:
+    - Fix crash when scons is run from a python environement where a signal
+      is set from outside Python.
+
+
+RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
+
+  From Byron Platt:
+    - Fix Install() issue when copytree recursion gives bad arguments that can
+      lead to install side-effects including keeping dangling symlinks and
+      silently failing to copy directories (and their subdirectories) when the
+      directory already exists in the target.
 
   From Joseph Brill:
     - Internal MSVS update: Remove unnecessary calls to find all installed versions of msvc
@@ -29,9 +257,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix versioned shared library naming for MacOS platform. (Previously was libxyz.dylib.1.2.3,
       has been fixed to libxyz.1.2.3.dylib. Additionally the sonamed symlink had the same issue,
       that is now resolved as well)
+    - Add experimental ninja builder. (Contributed by MongoDB, Daniel Moody and many others).
     - Fix #3955 - _LIBDIRFLAGS leaving $( and $) in *COMSTR output.  Added affect_signature flag to
       _concat function.  If set to False, it will prepend and append $( and $). That way the various
       Environment variables can use that rather than "$( _concat(...) $)".
+    - Fix issue with exparimental ninja tool which would fail on windows or when ninja package wasn't
+      installed but --experimental=ninja was specified.
+    - As part of experimental ninja tool, allow SetOption() to set both disable_execute_ninja and
+      disable_ninja.
 
   From David H:
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
@@ -61,6 +294,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Update BuildTask to pass all targets to the progress object fixing an issue
       where multi-target build nodes only got the first target passed to the progress
       object.
+    - Fix a potential race condition in shared cache environments where the permissions are
+      not writeable for a moment after the file has been renamed and other builds (users) will copy
+      it out of the cache. Small reorganization of logic to copy files from cachedir. Moved CacheDir
+      writeable permission code for copy to cache behind the atomic rename operation.
+    - Added marking of intermediate and and multi target nodes generated from SConf tests so that
+      is_conftest() is more accurate.
+    - Added test for configure check failing to ensure it didn't break generating and running ninja.
+
 
   From Mats Wichmann:
     - Initial support in tests for Python 3.10 - expected bytecode and
@@ -108,6 +349,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       and EnvironmentTests (asserts comparing with self).
       For consistency, env.Tool() now returns a tool object the same way
       Tool() has done.
+    - Change SConscript() missing SConscript behavior - if must_exist=False,
+      the warning is suppressed.
+    - Make sure TEMPFILEPREFIX can be set to an empty string (issue 3964)
 
   From Dillan Mills:
     - Add support for the (TARGET,SOURCE,TARGETS,SOURCES,CHANGED_TARGETS,CHANGED_SOURCES}.relpath property.
@@ -148,6 +392,7 @@ RELEASE 4.1.0 - Tues, 19 Jan 2021 15:04:42 -0700
       This is a simpler fix which should avoid some problems identified with the initial PR.
       (Credit to Fredrik Medley for reporting the issue, the initial PR, and discussing and testing
        this solution)
+    - Minor edits to User Guide and manpage's header with copyright, released date changed.
 
   From Michał Górny:
     - Fix dvipdf test failure due to passing incorrect flag to dvipdf.
@@ -630,6 +875,9 @@ RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
   From Lukas Schrangl:
     - Enable LaTeX scanner to find more than one include per line
+
+  From  Sergey Torokhov:
+    - Recognize jdk on Gentoo systems.
 
   From Mats Wichmann:
     - scons-time takes more care closing files and uses safer mkdtemp to avoid

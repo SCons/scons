@@ -428,12 +428,12 @@ Multiple targets can be passed in to a single call to
 Intelligently append values to &consvars; in the &consenv;
 named by <varname>env</varname>.
 The &consvars; and values to add to them are passed as
-<parameter>key=val</parameter> pairs (Python keyword arguments).
+<parameter>key=val</parameter> pairs (&Python; keyword arguments).
 &f-env-Append; is designed to allow adding values
 without normally having to know the data type of an existing &consvar;.
-Regular Python syntax can also be used to manipulate the &consvar;,
+Regular &Python; syntax can also be used to manipulate the &consvar;,
 but for that you must know the type of the &consvar;:
-for example, different Python syntax is needed to combine
+for example, different &Python; syntax is needed to combine
 a list of values with a single string value, or vice versa.
 Some pre-defined &consvars; do have type expectations
 based on how &SCons; will use them,
@@ -544,13 +544,13 @@ described above.
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a Python exception will be raised.
+do not make sense and a &Python; exception will be raised.
 </para>
 
 <para>
-When using &f-env-Append; to modify &consvars; 
-which are path specifications (normally, 
-those names which end in <varname>PATH</varname>),
+When using &f-env-Append; to modify &consvars;
+which are path specifications (conventionally,
+the names of such end in <varname>PATH</varname>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
 The same goes for adding library names to &cv-LIBS;.
@@ -944,7 +944,7 @@ same-named existing construction variables.
 <para>
 An action can be an external command,
 specified as a string,
-or a callable Python object;
+or a callable &Python; object;
 see the manpage section "Action Objects"
 for more complete information.
 Also note that a string specifying an external command
@@ -1149,7 +1149,7 @@ env.Decider('content')
 <para>
 In addition to the above already-available functions, the
 <parameter>function</parameter>
-argument may be a Python function you supply.
+argument may be a &Python; function you supply.
 Such a function must accept the following four arguments:
 </para>
 
@@ -1609,7 +1609,7 @@ may be an Action object
 for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
-or executable Python function,
+or executable &Python; function,
 each of which will be converted
 into an Action object
 and then executed.
@@ -1618,7 +1618,7 @@ Any additional arguments to &f-Execute;
 are passed on to the &f-link-Action; factory function
 which actually creates the Action object.
 The exit value of the command
-or return value of the Python function
+or return value of the &Python; function
 will be returned.
 </para>
 
@@ -1924,7 +1924,7 @@ will also be returned by this function.
     <term><function>Flatten</function>(<parameter>sequence</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Flatten</methodname>(<parameter>sequence</parameter>)</term>
     <listitem><para>
-Takes a sequence (that is, a Python list or tuple)
+Takes a sequence (that is, a &Python; list or tuple)
 that may contain nested sequences
 and returns a flattened list containing
 all of the individual elements in any sequence.
@@ -1932,7 +1932,7 @@ This can be helpful for collecting
 the lists returned by calls to Builders;
 other Builders will automatically
 flatten lists specified as input,
-but direct Python manipulation of
+but direct &Python; manipulation of
 these lists does not.
 </para>
 
@@ -1952,7 +1952,7 @@ objects = ['f1.o', foo, 'f2.o', bar, 'f3.o']
 # the Builder will flatten the list automatically:
 Program(source = objects)
 
-# If you need to manipulate the list directly using Python, you need to
+# If you need to manipulate the list directly using &Python;, you need to
 # call Flatten() yourself, or otherwise handle nested lists:
 for object in Flatten(objects):
     print(str(object))
@@ -2124,260 +2124,241 @@ file is found.
     <term><replaceable>env</replaceable>.<methodname>GetOption</methodname>(<parameter>name</parameter>)</term>
     <listitem><para>
 This function provides a way to query the value of
-SCons options set on scons command line
-(or set using the
-&f-link-SetOption;
-function).
-The options supported are:
+options which can be set via the command line or using the
+&f-link-SetOption; function.
+</para>
+<para>
+<parameter>name</parameter> can be an entry from the following table,
+which shows the corresponding command line arguments
+that could affect the value.
+<parameter>name</parameter> can be also be the destination
+variable name from a project-specific option added using the
+&f-link-AddOption; function, as long as the addition
+happens prior to the &f-GetOption; call in the SConscript files.
 </para>
 
-<para>
-<variablelist>
-<varlistentry>
-<term><literal>cache_debug</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-debug</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>cache_disable</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-disable</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>cache_force</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-force</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>cache_show</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--cache-show</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>clean</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-c</option>, <option>--clean</option>
-and <option>--remove</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>config</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--config</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>directory</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-C</option> and <option>--directory</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>diskcheck</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--diskcheck</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>duplicate</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--duplicate</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>file</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-f</option>, <option>--file</option>, <option>--makefile</option> and <option>--sconstruct</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>help</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-h</option> and <option>--help</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>ignore_errors</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--ignore-errors</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_cache</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-cache</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_deps_changed</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-deps-changed</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>implicit_deps_unchanged</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--implicit-deps-unchanged</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>interactive</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--interact</option> and <option>--interactive</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>keep_going</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-k</option> and <option>--keep-going</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>max_drift</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--max-drift</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_exec</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-n</option>,
-<option>--no-exec</option>, <option>--just-print</option>,
-<option>--dry-run</option> and <option>--recon</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>no_site_dir</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--no-site-dir</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>num_jobs</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-j</option> and <option>--jobs</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>profile_file</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--profile</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>question</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-q</option> and <option>--question</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>random</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--random</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>repository</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-Y</option>, <option>--repository</option> and <option>--srcdir</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>silent</literal></term>
-<listitem>
-<para>
-which corresponds to <option>-s</option>, <option>--silent</option> and <option>--quiet</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>site_dir</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--site-dir</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>stack_size</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--stack-size</option>;
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>taskmastertrace_file</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--taskmastertrace</option>; and
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>warn</literal></term>
-<listitem>
-<para>
-which corresponds to <option>--warn</option> and <option>--warning</option>.
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
-</para>
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="3">
+<thead>
+<row>
+  <entry align="left">Query name</entry>
+  <entry align="left">Command-line options</entry>
+  <entry align="left">Notes</entry>
+</row>
+</thead>
+
+<tbody>
+<row>
+  <entry><varname>cache_debug</varname></entry>
+  <entry><option>--cache-debug</option></entry>
+</row>
+<row>
+  <entry><varname>cache_disable</varname></entry>
+  <entry>
+      <option>--cache-disable</option>,
+      <option>--no-cache</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>cache_force</varname></entry>
+  <entry>
+      <option>--cache-force</option>,
+      <option>--cache-populate</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>cache_readonly</varname></entry>
+  <entry><option>--cache-readonly</option></entry>
+</row>
+<row>
+  <entry><varname>cache_show</varname></entry>
+  <entry><option>--cache-show</option></entry>
+</row>
+<row>
+  <entry><varname>clean</varname></entry>
+  <entry>
+      <option>-c</option>,
+      <option>--clean</option>,
+      <option>--remove</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>climb_up</varname></entry>
+  <entry>
+      <option>-D</option>
+      <option>-U</option>
+      <option>-u</option>
+      <option>--up</option>
+      <option>--search_up</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>config</varname></entry>
+  <entry><option>--config</option></entry>
+</row>
+<row>
+  <entry><varname>debug</varname></entry>
+  <entry><option>--debug</option></entry>
+</row>
+<row>
+  <entry><varname>directory</varname></entry>
+  <entry><option>-C</option>, <option>--directory</option></entry>
+</row>
+<row>
+  <entry><varname>diskcheck</varname></entry>
+  <entry><option>--diskcheck</option></entry>
+</row>
+<row>
+  <entry><varname>duplicate</varname></entry>
+  <entry><option>--duplicate</option></entry>
+</row>
+<row>
+  <entry><varname>enable_virtualenv</varname></entry>
+  <entry><option>--enable-virtualenv</option></entry>
+</row>
+<row>
+  <entry><varname>experimental</varname></entry>
+  <entry><option>--experimental</option></entry>
+  <entry><emphasis>since 4.2</emphasis></entry>
+</row>
+<row>
+  <entry><varname>file</varname></entry>
+  <entry>
+      <option>-f</option>,
+      <option>--file</option>,
+      <option>--makefile</option>,
+      <option>--sconstruct</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>hash_format</varname></entry>
+  <entry><option>--hash-format</option></entry>
+  <entry><emphasis>since 4.2</emphasis></entry>
+</row>
+<row>
+  <entry><varname>help</varname></entry>
+  <entry><option>-h</option>, <option>--help</option></entry>
+</row>
+<row>
+  <entry><varname>ignore_errors</varname></entry>
+  <entry><option>-i</option>, <option>--ignore-errors</option></entry>
+</row>
+<row>
+  <entry><varname>ignore_virtualenv</varname></entry>
+  <entry><option>--ignore-virtualenv</option></entry>
+</row>
+<row>
+  <entry><varname>implicit_cache</varname></entry>
+  <entry><option>--implicit-cache</option></entry>
+</row>
+<row>
+  <entry><varname>implicit_deps_changed</varname></entry>
+  <entry><option>--implicit-deps-changed</option></entry>
+</row>
+<row>
+  <entry><varname>implicit_deps_unchanged</varname></entry>
+  <entry><option>--implicit-deps-unchanged</option></entry>
+</row>
+<row>
+  <entry><varname>include_dir</varname></entry>
+  <entry><option>-I</option>, <option>--include-dir</option></entry>
+</row>
+<row>
+  <entry><varname>install_sandbox</varname></entry>
+  <entry><option>--install-sandbox</option></entry>
+  <entry>Available only if the &t-link-install; tool has been called</entry>
+</row>
+<row>
+  <entry><varname>keep_going</varname></entry>
+  <entry><option>-k</option>, <option>--keep-going</option></entry>
+</row>
+<row>
+  <entry><varname>max_drift</varname></entry>
+  <entry><option>--max-drift</option></entry>
+</row>
+<row>
+  <entry><varname>md5_chunksize</varname></entry>
+  <entry>
+      <option>--hash-chunksize</option>,
+      <option>--md5-chunksize</option>
+  </entry>
+  <entry><emphasis><option>--hash-chunksize</option> since 4.2</emphasis></entry>
+</row>
+<row>
+  <entry><varname>no_exec</varname></entry>
+  <entry>
+      <option>-n</option>,
+      <option>--no-exec</option>,
+      <option>--just-print</option>,
+      <option>--dry-run</option>,
+      <option>--recon</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>no_progress</varname></entry>
+  <entry><option>-Q</option></entry>
+</row>
+<row>
+  <entry><varname>num_jobs</varname></entry>
+  <entry><option>-j</option>, <option>--jobs</option></entry>
+</row>
+<row>
+  <entry><varname>package_type</varname></entry>
+  <entry><option>--package-type</option></entry>
+  <entry>Available only if the &t-link-packaging; tool has been called</entry>
+</row>
+<row>
+  <entry><varname>profile_file</varname></entry>
+  <entry><option>--profile</option></entry>
+</row>
+<row>
+  <entry><varname>question</varname></entry>
+  <entry><option>-q</option>, <option>--question</option></entry>
+</row>
+<row>
+  <entry><varname>random</varname></entry>
+  <entry><option>--random</option></entry>
+</row>
+<row>
+  <entry><varname>repository</varname></entry>
+  <entry>
+      <option>-Y</option>,
+      <option>--repository</option>,
+      <option>--srcdir</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>silent</varname></entry>
+  <entry>
+      <option>-s</option>,
+      <option>--silent</option>,
+      <option>--quiet</option>
+  </entry>
+</row>
+<row>
+  <entry><varname>site_dir</varname></entry>
+  <entry><option>--site-dir</option>, <option>--no-site-dir</option></entry>
+</row>
+<row>
+  <entry><varname>stack_size</varname></entry>
+  <entry><option>--stack-size</option></entry>
+</row>
+<row>
+  <entry><varname>taskmastertrace_file</varname></entry>
+  <entry><option>--taskmastertrace</option></entry>
+</row>
+<row>
+  <entry><varname>tree_printers</varname></entry>
+  <entry><option>--tree</option></entry>
+</row>
+<row>
+  <entry><varname>warn</varname></entry>
+  <entry><option>--warn</option>, <option>--warning</option></entry>
+</row>
+
+</tbody>
+</tgroup>
+</informaltable>
 
 <para>
 See the documentation for the
@@ -2639,12 +2620,12 @@ Returns a list of the target Node or Nodes.
   <varlistentry id="f-MergeFlags">
     <term><replaceable>env</replaceable>.<methodname>MergeFlags</methodname>(<parameter>arg, [unique]</parameter>)</term>
     <listitem><para>
-Merges the specified
+Merges values from
 <parameter>arg</parameter>
-values to the construction environment's construction variables.
-If the
+into &consvars; in the current &consenv;.
+If
 <parameter>arg</parameter>
-argument is not a dictionary,
+is not a dictionary,
 it is converted to one by calling
 &f-link-env-ParseFlags;
 on the argument
@@ -2662,15 +2643,15 @@ not as separate arguments to
 By default,
 duplicate values are eliminated;
 you can, however, specify
-<literal>unique=0</literal>
+<literal>unique=False</literal>
 to allow duplicate
 values to be added.
 When eliminating duplicate values,
-any construction variables that end with
+any &consvars; that end with
 the string
 <literal>PATH</literal>
 keep the left-most unique value.
-All other construction variables keep
+All other &consvars; keep
 the right-most unique value.
 </para>
 
@@ -2791,38 +2772,55 @@ NoClean(env.Program('hello', 'hello.c'))
   <varlistentry id="f-ParseConfig">
     <term><replaceable>env</replaceable>.<methodname>ParseConfig</methodname>(<parameter>command, [function, unique]</parameter>)</term>
     <listitem><para>
-Calls the specified
-<parameter>function</parameter>
-to modify the environment as specified by the output of
-<parameter>command</parameter>.
-The default
-<parameter>function</parameter>
-is
-&f-link-env-MergeFlags;,
-which expects the output of a typical
-<application>*-config</application>
-command
-(for example,
-<application>gtk-config</application>)
-and adds the options
-to the appropriate construction variables.
+Updates the current &consenv; with the values extracted
+from the output from running external <parameter>command</parameter>,
+by calling a helper function <parameter>function</parameter>
+which understands
+the output of <parameter>command</parameter>.
+<parameter>command</parameter> may be a string
+or a list of strings representing the command and
+its arguments.
+If <parameter>function</parameter>
+is not given,
+&f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
 added to any construction variables;
 you can specify
-<literal>unique=0</literal>
-to allow duplicate
-values to be added.
+<parameter>unique=False</parameter>
+to allow duplicate values to be added.
 </para>
 
 <para>
+If &f-env-MergeFlags; is used,
+it expects a response in the style of a
+<command>*-config</command>
+command typical of the POSIX programming environment
+(for example,
+<application>gtk-config</application>)
+and adds the options
+to the appropriate construction variables.
 Interpreted options
 and the construction variables they affect
 are as specified for the
 &f-link-env-ParseFlags;
-method (which this method calls).
+method (which
+&f-env-MergeFlags; calls).
 See that method's description
-for a table of options and construction variables.
+for a table of options and corresponding construction variables.
+</para>
+
+<para>
+If &f-env-MergeFlags; cannot interpret the results of
+<parameter>command</parameter>,
+you can suppply a custom
+<parameter>function</parameter> to do so.
+<parameter>function</parameter>
+must accept three arguments:
+the &consenv; to modify, the string returned
+by running <parameter>command</parameter>,
+and the optional
+<parameter>unique</parameter> flag.
 </para>
 </listitem>
   </varlistentry>
@@ -2906,7 +2904,7 @@ before merging them into the construction environment.
 &f-env-MergeFlags;
 will call this method if its argument is not a dictionary,
 so it is usually not necessary to call
-&f-link-env-ParseFlags;
+&f-env-ParseFlags;
 directly unless you want to manipulate the values.)
 </para>
 
@@ -2976,16 +2974,18 @@ dict = env.ParseFlags('-O2', '!echo -Dfoo -Dbar=1')
 </listitem>
   </varlistentry>
   <varlistentry id="f-Platform">
-    <term><function>Platform</function>(<parameter>string</parameter>)</term>
+    <term><function>Platform</function>(<parameter>plat</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Platform</methodname>(<parameter>plat</parameter>)</term>
     <listitem><para>
-The
-&f-Platform;
-form returns a callable object
+When called as a global function,
+returns a callable platform object
+selected by <parameter>plat</parameter>
+(defaults to the detected platform for the
+current system)
 that can be used to initialize
-a construction environment using the
-platform keyword of the
-&f-Environment;
-function.
+a construction environment by passing it as the
+<parameter>platform</parameter> keyword argument to the
+&f-link-Environment; function.
 </para>
 
 <para>
@@ -2997,11 +2997,10 @@ env = Environment(platform=Platform('win32'))
 </example_commands>
 
 <para>
-The
-&f-env-Platform;
-form applies the callable object for the specified platform
-<parameter>string</parameter>
-to the environment through which the method was called.
+When called as a method of an environment,
+calls the platform object indicated by
+<parameter>plat</parameter>
+to update that environment.
 </para>
 
 <example_commands>
@@ -3009,22 +3008,7 @@ env.Platform('posix')
 </example_commands>
 
 <para>
-Note that the
-<literal>win32</literal>
-platform adds the
-<literal>SystemDrive</literal>
-and
-<literal>SystemRoot</literal>
-variables from the user's external environment
-to the construction environment's
-&cv-link-ENV;
-dictionary.
-This is so that any executed commands
-that use sockets to connect with other systems
-(such as fetching source files from
-external CVS repository specifications like
-<literal>:pserver:anonymous@cvs.sourceforge.net:/cvsroot/scons</literal>)
-will work on Windows systems.
+See the manpage section "Construction Environments" for more details.
 </para>
 </listitem>
   </varlistentry>
@@ -3782,7 +3766,7 @@ by the chosen
 <para>
 The optional <parameter>dbm_module</parameter>
 argument specifies which
-Python database module to use
+&Python; database module to use
 for reading/writing the file.
 The module must be imported first;
 then the imported module name
@@ -3790,9 +3774,9 @@ is passed as the argument.
 The default is a custom
 <systemitem>SCons.dblite</systemitem>
 module that uses pickled
-Python data structures,
-which works on all Python versions.
-See documentation of the Python
+&Python; data structures,
+which works on all &Python; versions.
+See documentation of the &Python;
 <systemitem>dbm</systemitem> module
 for other available types.
 </para>
@@ -3879,15 +3863,33 @@ if 'FOO' not in env:
 Sets &scons; option variable <parameter>name</parameter>
 to <parameter>value</parameter>.
 These options are all also settable via
-&scons; command-line options but the variable name
-may differ from the command-line option name (see table).
+command-line options but the variable name
+may differ from the command-line option name - 
+see the table for correspondences.
 A value set via command-line option will take
 precedence over one set with &f-SetOption;, which
 allows setting a project default in the scripts and
 temporarily overriding it via command line.
+&f-SetOption; calls can also be placed in the
+<filename>site_init.py</filename> file.
+</para>
+
+<para>
+See the documentation in the manpage for the
+corresponding command line option for information about each specific option.
+The <parameter>value</parameter> parameter is mandatory,
+for option values which are boolean in nature
+(that is, the command line option does not take an argument)
+use a <parameter>value</parameter>
+which evaluates to true (e.g. <constant>True</constant>,
+<constant>1</constant>) or false (e.g. <constant>False</constant>,
+<constant>0</constant>).
+</para>
+
+<para>
 Options which affect the reading and processing of SConscript files
-are not settable this way, since those files must
-be read in order to find the &f-SetOption; call.
+are not settable using &f-SetOption; since those files must
+be read in order to find the &f-SetOption; call in the first place.
 </para>
 
 <para>
@@ -3895,126 +3897,161 @@ The settable variables with their associated command-line options are:
 </para>
 
 <informaltable rowsep="1" colsep="1" frame="topbot">
-<tgroup cols="2">
+<tgroup cols="3">
 <thead>
-<row><entry>Variable</entry><entry>Command-line options</entry></row>
+<row>
+  <entry align="left">Settable name</entry>
+  <entry align="left">Command-line options</entry>
+  <entry align="left">Notes</entry>
+</row>
 </thead>
+
 <tbody>
-<row><entry>
-<varname>clean</varname>
-</entry><entry>
-<option>-c</option>, <option>--clean</option>, <option>--remove</option>
-</entry></row>
-<row><entry>
-<varname>diskcheck</varname>
-</entry><entry>
-<option>--diskcheck</option>
-</entry></row>
+<row>
+  <entry><varname>clean</varname></entry>
+  <entry>
+    <option>-c</option>,
+    <option>--clean</option>,
+    <option>--remove</option>
+  </entry>
+</row>
 
-    <row><entry>
-<varname>duplicate</varname>
-</entry><entry>
-<option>--duplicate</option>
-</entry></row>
+<row>
+  <entry><varname>diskcheck</varname></entry>
+  <entry><option>--diskcheck</option></entry>
+</row>
 
+<row>
+  <entry><varname>duplicate</varname></entry>
+  <entry><option>--duplicate</option></entry>
+</row>
 
-    <row>
-        <entry>
-            <varname>experimental</varname>
-        </entry>
-        <entry>
-            <option>--experimental</option>
-        </entry>
-    </row>
+<row>
+  <entry><varname>experimental</varname></entry>
+  <entry><option>--experimental</option></entry>
+  <entry><emphasis>since 4.2</emphasis></entry>
+</row>
 
+<row>
+  <entry><varname>hash_chunksize</varname></entry>
+  <entry><option>--hash-chunksize</option></entry>
+  <entry>
+    Actually sets <varname>md5_chunksize</varname>.
+    <emphasis>since 4.2</emphasis>
+  </entry>
+</row>
 
-<row><entry>
-<varname>help</varname>
-</entry><entry>
-<option>-h</option>, <option>--help</option>
-</entry></row>
-<row><entry>
-<varname>implicit_cache</varname>
-</entry><entry>
-<option>--implicit-cache</option>
-</entry></row>
-<!--TODO: add implicit-deps-changed, implicit-deps-unchanged ? -->
-<row><entry>
-<varname>max_drift</varname>
-</entry><entry>
-<option>--max-drift</option>
-</entry></row>
-<row><entry>
-<varname>md5_chunksize</varname>
-</entry><entry>
-<option>--md5-chunksize</option>
-</entry></row>
-<row><entry>
-<varname>no_exec</varname>
-</entry><entry>
-<option>-n</option>, <option>--no-exec</option>,
-<option>--just-print</option>, <option>--dry-run</option>,
-<option>--recon</option>
-</entry></row>
-<row><entry>
-<varname>no_progress</varname>
-</entry><entry>
-<option>-Q</option>
-</entry></row>
-<row><entry>
-<varname>num_jobs</varname>
-</entry><entry>
-<option>-j</option>, <option>--jobs</option>
-</entry></row>
-<row><entry>
-<varname>random</varname>
-</entry><entry>
-<option>--random</option>
-</entry></row>
-<row><entry>
-<varname>silent</varname>
-</entry><entry>
-<option>--silent</option>.
-</entry></row>
-<row><entry>
-<varname>stack_size</varname>
-</entry><entry>
-<option>--stack-size</option>
-</entry></row>
-<row><entry>
-<varname>warn</varname>
-</entry><entry>
-<option>--warn</option>.
-</entry></row>
+<row>
+  <entry><varname>hash_format</varname></entry>
+  <entry><option>--hash-format</option></entry>
+  <entry><emphasis>since 4.2</emphasis></entry>
+</row>
+
+<row>
+  <entry><varname>help</varname></entry>
+  <entry><option>-h</option>, <option>--help</option></entry>
+</row>
+
+<row>
+  <entry><varname>implicit_cache</varname></entry>
+  <entry><option>--implicit-cache</option></entry>
+</row>
+
+<row>
+  <entry><varname>implicit_deps_changed</varname></entry>
+  <entry><option>--implicit-deps-changed</option></entry>
+  <entry>
+    Also sets <varname>implicit_cache</varname>.
+    <emphasis>(settable since 4.2)</emphasis>
+  </entry>
+</row>
+
+<row>
+  <entry><varname>implicit_deps_unchanged</varname></entry>
+  <entry><option>--implicit-deps-unchanged</option></entry>
+  <entry>
+    Also sets <varname>implicit_cache</varname>.
+    <emphasis>(settable since 4.2)</emphasis>
+  </entry>
+</row>
+
+<row>
+  <entry><varname>max_drift</varname></entry>
+  <entry><option>--max-drift</option></entry>
+</row>
+
+<row>
+  <entry><varname>md5_chunksize</varname></entry>
+  <entry><option>--md5-chunksize</option></entry>
+</row>
+
+<row>
+  <entry><varname>no_exec</varname></entry>
+  <entry>
+    <option>-n</option>,
+    <option>--no-exec</option>,
+    <option>--just-print</option>,
+    <option>--dry-run</option>,
+    <option>--recon</option>
+  </entry>
+</row>
+
+<row>
+  <entry><varname>no_progress</varname></entry>
+  <entry><option>-Q</option></entry>
+  <entry>See
+    <footnote>
+      <para>If <varname>no_progress</varname> is set via &f-SetOption;
+      in an SConscript file
+      (but not if set in a <filename>site_init.py</filename> file)
+      there will still be an initial status message about
+      reading SConscript files since &SCons; has
+      to start reading them before it can see the
+      &f-SetOption;.
+      </para>
+    </footnote>
+  </entry>
+</row>
+
+<row>
+  <entry><varname>num_jobs</varname></entry>
+  <entry><option>-j</option>, <option>--jobs</option></entry>
+</row>
+
+<row>
+  <entry><varname>random</varname></entry>
+  <entry><option>--random</option></entry>
+</row>
+
+<row>
+  <entry><varname>silent</varname></entry>
+  <entry>
+    <option>-s</option>,
+    <option>--silent</option>,
+    <option>--quiet</option>
+  </entry>
+</row>
+
+<row>
+  <entry><varname>stack_size</varname></entry>
+  <entry><option>--stack-size</option></entry>
+</row>
+
+<row>
+  <entry><varname>warn</varname></entry>
+  <entry><option>--warn</option></entry>
+</row>
+
 </tbody>
 </tgroup>
 </informaltable>
-
-<para>
-See the documentation in the manpage for the
-corresponding command line option for information about each specific option.
-Option values which are boolean in nature (that is, they are
-either on or off) should be set to a true value (<constant>True</constant>,
-<constant>1</constant>) or a false value (<constant>False</constant>,
-<constant>0</constant>).
-</para>
-
-<note>
-<para>
-If <varname>no_progress</varname> is set via &f-SetOption;
-there will still be initial progress output as &SCons; has
-to start reading SConscript files before it can see the
-&f-SetOption; in an SConscript file:
-<computeroutput>scons: Reading SConscript files ...</computeroutput>
-</para>
-</note>
 
 <para>
 Example:
 </para>
 
 <example_commands>
-SetOption('max_drift', True)
+SetOption('max_drift', 0)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -4088,16 +4125,20 @@ they are not added and included in the returned list.
     <term><function>Split</function>(<parameter>arg</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Split</methodname>(<parameter>arg</parameter>)</term>
     <listitem><para>
-Returns a list of file names or other objects.
 If <parameter>arg</parameter> is a string,
-it will be split on strings of white-space characters
-within the string,
-making it easier to write long lists of file names.
-If <parameter>arg</parameter> is already a list,
-the list will be returned untouched.
+splits on whitespace and returns a list of
+strings without whitespace.
+This mode is the most common case,
+and can be used to split a list of filenames
+(for example) rather than having to type them as a
+list of individually quoted words.
+If <parameter>arg</parameter> is a list or tuple
+returns the list or tuple unchanged.
 If <parameter>arg</parameter> is any other type of object,
-it will be returned as a list
-containing just the object.
+returns a list containing just the object.
+These non-string cases do not actually do any spliting,
+but allow an argument variable to be passed to
+&f-Split; without having to first check its type.
 </para>
 
 <para>
@@ -4108,9 +4149,9 @@ Example:
 files = Split("f1.c f2.c f3.c")
 files = env.Split("f4.c f5.c f6.c")
 files = Split("""
-       f7.c
-       f8.c
-       f9.c
+    f7.c
+    f8.c
+    f9.c
 """)
 </example_commands>
 </listitem>
@@ -4119,14 +4160,14 @@ files = Split("""
     <term><replaceable>env</replaceable>.<methodname>subst</methodname>(<parameter>input, [raw, target, source, conv]</parameter>)</term>
     <listitem><para>
 Performs construction variable interpolation
-on the specified string or sequence argument
-<parameter>input</parameter>.
+on <parameter>input</parameter>,
+which can be a string or a sequence.
 </para>
 
 <para>
 By default,
 leading or trailing white space will
-be removed from the result.
+be removed from the result,
 and all sequences of white space
 will be compressed to a single space character.
 Additionally, any
@@ -4145,9 +4186,8 @@ The
 <parameter>raw</parameter>
 argument may be set to
 <literal>2</literal>
-if you want to strip
-all characters between
-any
+if you want to additionally discard
+all characters between any
 <literal>$(</literal>
 and
 <literal>$)</literal>
@@ -4181,7 +4221,7 @@ to be available for expansion.
 This is usually necessary if you are
 calling
 &f-env-subst;
-from within a Python function used
+from within a &Python; function used
 as an SCons action.
 </para>
 
@@ -4194,12 +4234,11 @@ argument
 may specify a conversion function
 that will be used in place of
 the default.
-For example, if you want Python objects
+For example, if you want &Python; objects
 (including SCons Nodes)
-to be returned as Python objects,
-you can use the Python
-&lambda;
-idiom to pass in an unnamed function
+to be returned as &Python; objects,
+you can use a &Python;
+lambda expression to pass in an unnamed function
 that simply returns its unconverted argument.
 </para>
 
@@ -4248,31 +4287,34 @@ Tag('file2.txt', DOC)
     <term><function>Tool</function>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Tool</methodname>(<parameter>name, [toolpath, **kwargs]</parameter>)</term>
     <listitem><para>
-Locates and possibly runs the tool identified by
-<parameter>name</parameter>, which is
-searched for in standard locations and any
-paths specified by the optional
-<parameter>toolpath</parameter>.
-When run, the tool
-updates a &consenv; with &consvars; and arranges
-any other initialization
-needed to use the mechanisms that tool describes.
+Locates the tool specification module <parameter>name</parameter>
+and returns a callable tool object for that tool.
+The tool module is searched for in standard locations
+and in any paths specified by the optional
+<parameter>toolpath</parameter> parameter.
+The standard locations are &SCons;' own internal
+path for tools plus the toolpath, if any (see the
+<emphasis role="bold">Tools</emphasis> section in the manual page
+for more details).
 Any additional keyword arguments
 <parameter>kwargs</parameter> are passed
-on to the tool module's <function>generate</function> function.
-Returns a callable tool object.
+to the tool module's <function>generate</function> function
+during tool object construction.
 </para>
 
 <para>
-When called as &f-env-Tool;,
-the tool module is called to update <varname>env</varname>
-and the <parameter>tool</parameter> is
+When called, the tool object
+updates a &consenv; with &consvars; and arranges
+any other initialization
+needed to use the mechanisms that tool describes.
+</para>
+
+<para>
+When the &f-env-Tool; form is used,
+the tool object is automatically called to update <varname>env</varname>
+and the value of <parameter>tool</parameter> is
 appended to the &cv-link-TOOLS;
 &consvar; in that environment.
-In this form, there is usually no need to save
-the returned tool object, since it is of no further use.
-<emphasis>Prior to &SCons; 4.2, &f-env-Tool; returned
-<constant>None</constant></emphasis>
 </para>
 
 <para>
@@ -4285,14 +4327,16 @@ env.Tool('opengl', toolpath=['build/tools'])
 </example_commands>
 
 <para>
-When called as a global function &f-Tool;,
+When the global function &f-Tool; form is used,
 the tool object is constructed but not called,
 as it lacks the context of an environment to update.
 The tool object can be passed to an
 &f-link-Environment; or &f-link-Clone; call
 as part of the <parameter>tools</parameter> keyword argument,
+in which case the tool is applied to the environment being constructed,
 or it can be called directly,
-passing a &consenv; to update as the argument.
+in which case a &consenv; to update must be
+passed as the argument.
 Either approach will also update the
 &cv-TOOLS; &consvar;.
 </para>
@@ -4310,13 +4354,19 @@ msvctool(env)  # adds 'msvc' to the TOOLS variable
 gltool = Tool('opengl', toolpath = ['tools'])
 gltool(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
+
+<para>
+<emphasis>Changed in &SCons; 4.2: &f-env-Tool; now returns
+the tool object, previously it did not return
+(i.e. returned <constant>None</constant>).</emphasis>
+</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Value">
     <term><function>Value</function>(<parameter>value, [built_value], [name]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Value</methodname>(<parameter>value, [built_value], [name]</parameter>)</term>
     <listitem><para>
-Returns a Node object representing the specified Python value.  Value
+Returns a Node object representing the specified &Python; value.  Value
 Nodes can be used as dependencies of targets.  If the result of
 calling
 <function>str</function>(<parameter>value</parameter>)

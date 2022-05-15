@@ -39,12 +39,13 @@ import re
 import shutil
 import sys
 import time
-import subprocess
+import subprocess as sp
 import zipfile
 from collections import namedtuple
 
 from TestCommon import *
 from TestCommon import __all__
+from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 
 from TestCmd import Popen
 from TestCmd import PIPE
@@ -54,11 +55,11 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '4.1.1ayyyymmdd'
+default_version = '4.3.1ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
-python_version_unsupported = (3, 4, 0)  # highest unsupported version
-python_version_deprecated = (3, 5, 0)   # deprecated version
+python_version_unsupported = (3, 6, 0)
+python_version_deprecated = (3, 6, 0)
 python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
 
 # In the checked-in source, the value of SConsVersion in the following
@@ -306,8 +307,6 @@ class TestSCons(TestCommon):
                 kw['program'] = os.path.join(self.orig_cwd, kw['program'])
         if 'interpreter' not in kw and not os.environ.get('SCONS_EXEC'):
             kw['interpreter'] = [python, ]
-            if sys.version_info[0] < 3:
-                kw['interpreter'].append('-tt')
         if 'match' not in kw:
             kw['match'] = match_exact
         if 'workdir' not in kw:
@@ -322,7 +321,7 @@ class TestSCons(TestCommon):
         if kw.get('ignore_python_version', -1) != -1:
             del kw['ignore_python_version']
 
-        TestCommon.__init__(self, **kw)
+        super().__init__(**kw)
 
         if not self.external:
             import SCons.Node.FS
@@ -719,6 +718,27 @@ class TestSCons(TestCommon):
         for p in patterns:
             result.extend(sorted(glob.glob(p)))
         return result
+    
+    def get_sconsignname(self):
+        """Get the scons database name used, and return both the prefix and full filename.
+        if the user left the options defaulted AND the default algorithm set by
+        SCons is md5, then set the database name to be the special default name
+        
+        otherwise, if it defaults to something like 'sha1' or the user explicitly
+        set 'md5' as the hash format, set the database name to .sconsign_<algorithm>
+        eg .sconsign_sha1, etc.
+
+        Returns:
+            a pair containing: the current dbname, the dbname.dblite filename
+        """
+        hash_format = get_hash_format()
+        current_hash_algorithm = get_current_hash_algorithm_used()
+        if hash_format is None and current_hash_algorithm == 'md5':
+            return ".sconsign"
+        else:
+            database_prefix=".sconsign_%s" % current_hash_algorithm
+            return database_prefix
+
 
     def unlink_sconsignfile(self, name='.sconsign.dblite'):
         """Delete the sconsign file.
@@ -829,7 +849,7 @@ class TestSCons(TestCommon):
             result.append(os.path.join(d, 'linux'))
         return result
 
-    def java_where_java_home(self, version=None):
+    def java_where_java_home(self, version=None) -> str:
         """ Find path to what would be JAVA_HOME.
 
         SCons does not read JAVA_HOME from the environment, so deduce it.
@@ -839,53 +859,71 @@ class TestSCons(TestCommon):
 
         Returns: 
             path where JDK components live
+            Bails out of the entire test (skip) if not found.
         """
         if sys.platform[:6] == 'darwin':
-            # osx 10.11, 10.12
+            # osx 10.11+
             home_tool = '/usr/libexec/java_home'
-            java_home = False
+            java_home = ''
             if os.path.exists(home_tool):
-                java_home = subprocess.check_output(home_tool).strip()
-                java_home = java_home.decode()
+                cp = sp.run(home_tool, stdout=sp.PIPE, stderr=sp.STDOUT)
+                if cp.returncode == 0:
+                    java_home = cp.stdout.decode().strip()
 
             if version is None:
                 if java_home:
                     return java_home
-                else:
-                    homes = ['/System/Library/Frameworks/JavaVM.framework/Home',
-                             # osx 10.10
-                             '/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home']
-                    for home in homes:
-                        if os.path.exists(home):
-                            return home
-
+                for home in [
+                    '/System/Library/Frameworks/JavaVM.framework/Home',
+                    # osx 10.10
+                    '/System/Library/Frameworks/JavaVM.framework/Versions/Current/Home'
+                ]:
+                    if os.path.exists(home):
+                        return home
             else:
                 if java_home.find('jdk%s' % version) != -1:
                     return java_home
-                else:
-                    home = '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version
-                    if not os.path.exists(home):
-                        # This works on OSX 10.10
-                        home = '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
+                for home in [
+                    '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version,
+                    # osx 10.10
+                    '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
+                ]:
+                    if os.path.exists(home):
+                        return home
+            # if we fell through, make sure flagged as not found
+            home = ''
         else:
             jar = self.java_where_jar(version)
             home = os.path.normpath('%s/..' % jar)
-        if os.path.isdir(home):
+
+        if home and os.path.isdir(home):
             return home
-        print("Could not determine JAVA_HOME: %s is not a directory" % home)
-        self.fail_test()
 
-    def java_mac_check(self, where_java_bin, java_bin_name):
-        # on Mac there is a place holder java installed to start the java install process
-        # so we need to check the output in this case, more info here:
-        # http://anas.pk/2015/09/02/solution-no-java-runtime-present-mac-yosemite/
-        sp = subprocess.Popen([where_java_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = sp.communicate()
-        sp.wait()
-        if "No Java runtime" in str(stderr):
-            self.skip_test("Could not find Java " + java_bin_name + ", skipping test(s).\n", from_fw=True)
+        self.skip_test(
+            "Could not run Java: unable to detect valid JAVA_HOME, skipping test.\n",
+            from_fw=True,
+        )
 
-    def java_where_jar(self, version=None):
+    def java_mac_check(self, where_java_bin, java_bin_name) -> None:
+        """Extra check for Java on MacOS.
+
+        MacOS has a place holder java/javac, which fails with a detectable
+        error if Java is not actually installed, and works normally if it is.
+        Note msg has changed over time.
+
+        Bails out of the entire test (skip) if not found.
+        """
+        cp = sp.run([where_java_bin, "-version"], stdout=sp.PIPE, stderr=sp.STDOUT)
+        if (
+            b"No Java runtime" in cp.stdout
+            or b"Unable to locate a Java Runtime" in cp.stdout
+        ):
+            self.skip_test(
+                "Could not find Java " + java_bin_name + ", skipping test.\n",
+                from_fw=True,
+            )
+
+    def java_where_jar(self, version=None) -> str:
         """ Find java archiver jar.
 
         Args:
@@ -906,7 +944,7 @@ class TestSCons(TestCommon):
 
         return where_jar
 
-    def java_where_java(self, version=None):
+    def java_where_java(self, version=None) -> str:
         """ Find java executable.
 
         Args:
@@ -925,7 +963,7 @@ class TestSCons(TestCommon):
 
         return where_java
 
-    def java_where_javac(self, version=None):
+    def java_where_javac(self, version=None) -> str:
         """ Find java compiler.
 
         Args:
@@ -971,7 +1009,7 @@ class TestSCons(TestCommon):
                 self.javac_is_gcj = False
         return where_javac, version
 
-    def java_where_javah(self, version=None):
+    def java_where_javah(self, version=None) -> str:
         """ Find java header generation tool.
 
         TODO issue #3347 since JDK10, there is no separate javah command,
@@ -993,7 +1031,7 @@ class TestSCons(TestCommon):
             self.skip_test("Could not find Java javah, skipping test(s).\n", from_fw=True)
         return where_javah
 
-    def java_where_rmic(self, version=None):
+    def java_where_rmic(self, version=None) -> str:
         """ Find java rmic tool.
 
         Args:
@@ -1397,10 +1435,10 @@ SConscript(sconscript)
                     for ext, flag in bld_desc:  # each file in TryBuild
                         if ext in ['.c', '.cpp']:
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}_\d+%s' % re.escape(ext)
+                                            r'_[a-z0-9]{32,64}_\d+%s' % re.escape(ext)
                         elif ext == '':
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}(_\d+_[a-z0-9]{32})?'
+                                            r'_[a-z0-9]{32,64}(_\d+_[a-z0-9]{32,64})?'
 
                         else:
                             # We allow the second hash group to be optional because
@@ -1412,7 +1450,7 @@ SConscript(sconscript)
                             # TODO: perhaps revisit and/or fix file naming for intermediate files in
                             #  Configure context logic
                             conf_filename = re.escape(os.path.join(sconf_dir, "conftest")) +\
-                                            r'_[a-z0-9]{32}_\d+(_[a-z0-9]{32})?%s' % re.escape(ext)
+                                            r'_[a-z0-9]{32,64}_\d+(_[a-z0-9]{32,64})?%s' % re.escape(ext)
 
                         if flag == self.NCR:
                             # NCR = Non Cached Rebuild
@@ -1627,7 +1665,12 @@ else:
             alt_cpp_suffix = '.C'
         return alt_cpp_suffix
 
-    def platform_has_symlink(self):
+    def platform_has_symlink(self) -> bool:
+        """Retun an indication of whether symlink tests should be run.
+
+        Despite the name, we really mean "are they reliably usable"
+        rather than "do they exist" - basically the Windows case.
+        """
         if not hasattr(os, 'symlink') or sys.platform == 'win32':
             return False
         else:
@@ -1717,7 +1760,7 @@ class TimeSCons(TestSCons):
         if 'verbose' not in kw and not self.calibrate:
             kw['verbose'] = True
 
-        TestSCons.__init__(self, *args, **kw)
+        super().__init__(*args, **kw)
 
         # TODO(sgk):    better way to get the script dir than sys.argv[0]
         self.test_dir = os.path.dirname(sys.argv[0])
