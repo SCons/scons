@@ -132,19 +132,19 @@ class NinjaState:
             # use this to generate a compile_commands.json database
             # which can't use the shell command as it's compile
             # command.
-            "CC": {
+            "CC_RSP": {
                 "command": "$env$CC @$out.rsp",
                 "description": "Compiling $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
             },
-            "CXX": {
+            "CXX_RSP": {
                 "command": "$env$CXX @$out.rsp",
                 "description": "Compiling $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
             },
-            "LINK": {
+            "LINK_RSP": {
                 "command": "$env$LINK @$out.rsp",
                 "description": "Linking $out",
                 "rspfile": "$out.rsp",
@@ -157,13 +157,33 @@ class NinjaState:
             # Native SCons will perform this operation so we need to force ninja
             # to do the same. See related for more info:
             # https://jira.mongodb.org/browse/SERVER-49457
-            "AR": {
+            "AR_RSP": {
                 "command": "{}$env$AR @$out.rsp".format(
                     '' if sys.platform == "win32" else "rm -f $out && "
                 ),
                 "description": "Archiving $out",
                 "rspfile": "$out.rsp",
                 "rspfile_content": "$rspc",
+                "pool": "local_pool",
+            },
+            "CC": {
+                "command": "$env$CC $rspc",
+                "description": "Compiling $out",
+            },
+            "CXX": {
+                "command": "$env$CXX $rspc",
+                "description": "Compiling $out",
+            },
+            "LINK": {
+                "command": "$env$LINK $rspc",
+                "description": "Linking $out",
+                "pool": "local_pool",
+            },
+            "AR": {
+                "command": "{}$env$AR $rspc".format(
+                    '' if sys.platform == "win32" else "rm -f $out && "
+                ),
+                "description": "Archiving $out",
                 "pool": "local_pool",
             },
             "SYMLINK": {
@@ -254,20 +274,7 @@ class NinjaState:
                 "description": "Archiving $out",
                 "pool": "local_pool",
             }
-
-        num_jobs = self.env.get('NINJA_MAX_JOBS', self.env.GetOption("num_jobs"))
-        self.pools = {
-            "local_pool": num_jobs,
-            "install_pool": num_jobs / 2,
-            "scons_pool": 1,
-        }
-
-        for rule in ["CC", "CXX"]:
-            if env["PLATFORM"] == "win32":
-                self.rules[rule]["deps"] = "msvc"
-            else:
-                self.rules[rule]["deps"] = "gcc"
-                self.rules[rule]["depfile"] = "$out.d"
+        self.pools = {"scons_pool": 1}
 
     def add_build(self, node):
         if not node.has_builder():
@@ -339,6 +346,34 @@ class NinjaState:
         if self.__generated:
             return
 
+        num_jobs = self.env.get('NINJA_MAX_JOBS', self.env.GetOption("num_jobs"))
+        self.pools.update({
+            "local_pool": num_jobs,
+            "install_pool": num_jobs / 2,
+        })
+
+        deps_format = self.env.get("NINJA_DEPFILE_PARSE_FORMAT", 'msvc' if self.env['PLATFORM'] == 'win32' else 'gcc')
+        for rule in ["CC", "CXX"]:
+            if deps_format == "msvc":
+                self.rules[rule]["deps"] = "msvc"
+            elif deps_format == "gcc" or deps_format == "clang":
+                self.rules[rule]["deps"] = "gcc"
+                self.rules[rule]["depfile"] = "$out.d"
+            else:
+                raise Exception(f"Unknown 'NINJA_DEPFILE_PARSE_FORMAT'={self.env['NINJA_DEPFILE_PARSE_FORMAT']}, use 'mvsc', 'gcc', or 'clang'.")
+        
+        
+        for key, rule in self.env.get(NINJA_RULES, {}).items():
+            # make a non response file rule for users custom response file rules.
+            if rule.get('rspfile') is not None:
+                self.rules.update({key + '_RSP': rule})
+                non_rsp_rule = rule.copy()
+                del non_rsp_rule['rspfile']
+                del non_rsp_rule['rspfile_content']
+                self.rules.update({key: non_rsp_rule})
+            else:
+                self.rules.update({key: rule})
+        
         self.rules.update(self.env.get(NINJA_RULES, {}))
         self.pools.update(self.env.get(NINJA_POOLS, {}))
 
@@ -360,26 +395,58 @@ class NinjaState:
                 kwargs['pool'] = 'local_pool'
             ninja.rule(rule, **kwargs)
 
-        generated_source_files = sorted({
-            output
-            # First find builds which have header files in their outputs.
-            for build in self.builds.values()
-            if self.has_generated_sources(build["outputs"])
-            for output in build["outputs"]
-            # Collect only the header files from the builds with them
-            # in their output. We do this because is_generated_source
-            # returns True if it finds a header in any of the outputs,
-            # here we need to filter so we only have the headers and
-            # not the other outputs.
-            if self.is_generated_source(output)
-        })
+        # If the user supplied an alias to determine generated sources, use that, otherwise
+        # determine what the generated sources are dynamically.
+        generated_sources_alias = self.env.get('NINJA_GENERATED_SOURCE_ALIAS_NAME')
+        generated_sources_build = None
 
-        if generated_source_files:
-            ninja.build(
-                outputs="_generated_sources",
-                rule="phony",
-                implicit=generated_source_files
+        if generated_sources_alias:
+            generated_sources_build = self.builds.get(generated_sources_alias)
+            if generated_sources_build is None or generated_sources_build["rule"] != 'phony':
+                raise Exception(
+                    "ERROR: 'NINJA_GENERATED_SOURCE_ALIAS_NAME' set, but no matching Alias object found."
+                )
+
+        if generated_sources_alias and generated_sources_build:
+            generated_source_files = sorted(
+                [] if not generated_sources_build else generated_sources_build['implicit']
             )
+            
+            def check_generated_source_deps(build):
+                return (
+                    build != generated_sources_build
+                    and set(build["outputs"]).isdisjoint(generated_source_files)
+                )
+        else:
+            generated_sources_build = None
+            generated_source_files = sorted({
+                output
+                # First find builds which have header files in their outputs.
+                for build in self.builds.values()
+                if self.has_generated_sources(build["outputs"])
+                for output in build["outputs"]
+                # Collect only the header files from the builds with them
+                # in their output. We do this because is_generated_source
+                # returns True if it finds a header in any of the outputs,
+                # here we need to filter so we only have the headers and
+                # not the other outputs.
+                if self.is_generated_source(output)
+            })
+
+            if generated_source_files:
+                generated_sources_alias = "_ninja_generated_sources"
+                ninja.build(
+                    outputs=generated_sources_alias,
+                    rule="phony",
+                    implicit=generated_source_files
+                )
+                
+                def check_generated_source_deps(build):
+                    return (
+                        not build["rule"] == "INSTALL"
+                        and set(build["outputs"]).isdisjoint(generated_source_files)
+                        and set(build.get("implicit", [])).isdisjoint(generated_source_files)
+                    )
 
         template_builders = []
         scons_compiledb = False
@@ -402,9 +469,7 @@ class NinjaState:
             # cycle.
             if (
                 generated_source_files
-                and not build["rule"] == "INSTALL"
-                and set(build["outputs"]).isdisjoint(generated_source_files)
-                and set(build.get("implicit", [])).isdisjoint(generated_source_files)
+                and check_generated_source_deps(build)
             ):
                 # Make all non-generated source targets depend on
                 # _generated_sources. We use order_only for generated
@@ -413,7 +478,7 @@ class NinjaState:
                 # sure that all of these sources are generated before
                 # other builds.
                 order_only = build.get("order_only", [])
-                order_only.append("_generated_sources")
+                order_only.append(generated_sources_alias)
                 build["order_only"] = order_only
             if "order_only" in build:
                 build["order_only"].sort()
