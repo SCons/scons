@@ -200,4 +200,34 @@ in which the command should be executed.
 </summary>
 </cvar>
 
+<cvar name="SHELL_ENV_GENERATOR">
+  <summary>
+    <para>
+A function to generate or alter the environment dictionary which will be used
+when executing the &cv-link-SPAWN; function. This primarily give the
+user a chance to customize the execution environment for particular Actions.
+It must return a dictionary containing the environment variables as
+keys and the values as values.
+    </para>
+
+    <example_commands>
+def custom_shell_env(env, target, source):
+    </example_commands>
+
+    <para>
+      <varname>env</varname>
+The SCons construction environment from which the
+execution environment can be derived from.
+    </para>
+    <para>
+    <varname>target</varname>
+The list of targets associated with this action.
+    </para>
+        <para>
+    <varname>source</varname>
+The list of sources associated with this action.
+    </para>
+  </summary>
+</cvar>
+
 </sconsdoc>

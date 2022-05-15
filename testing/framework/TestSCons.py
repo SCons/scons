@@ -1665,7 +1665,12 @@ else:
             alt_cpp_suffix = '.C'
         return alt_cpp_suffix
 
-    def platform_has_symlink(self):
+    def platform_has_symlink(self) -> bool:
+        """Retun an indication of whether symlink tests should be run.
+
+        Despite the name, we really mean "are they reliably usable"
+        rather than "do they exist" - basically the Windows case.
+        """
         if not hasattr(os, 'symlink') or sys.platform == 'win32':
             return False
         else:
