@@ -986,7 +986,7 @@ def script_env(script, args=None):
 
     if script_env_cache is None:
         script_env_cache = common.read_script_env_cache()
-    cache_key = f"{script}--{args}" if args else f"{script}"
+    cache_key = (script, args if args else None)
     cache_data = script_env_cache.get(cache_key, None)
 
     # Brief sanity check: if we got a value for the key,
