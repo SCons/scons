@@ -31,6 +31,8 @@ import os
 import re
 import subprocess
 import sys
+from contextlib import suppress
+from pathlib import Path
 
 import SCons.Util
 
@@ -94,7 +96,7 @@ else:
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
-    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
+    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
 
 def read_script_env_cache():
@@ -102,8 +104,13 @@ def read_script_env_cache():
     envcache = {}
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_CACHE, 'r') as f:
-                envcache = json.load(f)
+            p = Path(CONFIG_CACHE)
+            with p.open('r') as f:
+                # Convert the list of cache entry dictionaries read from
+                # json to the cache dictionary. Reconstruct the cache key
+                # tuple from the key list written to json.
+                envcache_list = json.load(f)
+                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass
@@ -114,11 +121,17 @@ def write_script_env_cache(cache):
     """ write out cache of msvc env vars if requested """
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_CACHE, 'w') as f:
-                json.dump(cache, f, indent=2)
+            p = Path(CONFIG_CACHE)
+            with p.open('w') as f:
+                # Convert the cache dictionary to a list of cache entry
+                # dictionaries. The cache key is converted from a tuple to
+                # a list for compatibility with json.
+                envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
+                json.dump(envcache_list, f, indent=2)
         except TypeError:
             # data can't serialize to json, don't leave partial file
-            os.remove(CONFIG_CACHE)
+            with suppress(FileNotFoundError):
+                p.unlink()
         except IOError:
             # can't write the file, just skip
             pass
