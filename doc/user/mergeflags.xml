@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -21,7 +21,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -46,16 +48,16 @@
 
  <para>
 
- &SCons; &consenvs; have an &f-link-env-MergeFlags; method
- that merges values from a passed-in argument into the &consenv;
+ &SCons; &consenvs; have a &f-link-MergeFlags; method
+ that merges values from a passed-in argument into the &consenv;.
  If the argument is a dictionary,
  &MergeFlags; treats each value in the dictionary
- as a list of options such as one might pass to a command
+ as a list of options you would pass to a command
  (such as a compiler or linker).
  &MergeFlags; will not duplicate an option
- if it already exists in the construction environment variable.
+ if it already exists in the &consvar;.
  If the argument is a string, &MergeFlags; calls the
- &f-link-env-ParseFlags; method to burst it out into a 
+ &f-link-ParseFlags; method to burst it out into a
  dictionary first, then acts on the result.
 
  </para>
@@ -82,7 +84,7 @@ env = Environment()
 env.Append(CCFLAGS='-option -O3 -O1')
 flags = {'CCFLAGS': '-whatever -O3'}
 env.MergeFlags(flags)
-print(env['CCFLAGS'])
+print("CCFLAGS:", env['CCFLAGS'])
    </file>
  </scons_example>
 
@@ -99,7 +101,7 @@ print(env['CCFLAGS'])
  -->
  is an internal &SCons; object
  which automatically converts
- the options we specified as a string into a list.
+ the options you specify as a string into a list.
 
  </para>
 
@@ -109,7 +111,7 @@ env = Environment()
 env.Append(CPPPATH=['/include', '/usr/local/include', '/usr/include'])
 flags = {'CPPPATH': ['/usr/opt/include', '/usr/local/include']}
 env.MergeFlags(flags)
-print(env['CPPPATH'])
+print("CPPPATH:", env['CPPPATH'])
    </file>
  </scons_example>
 
@@ -124,9 +126,9 @@ print(env['CPPPATH'])
  [TODO: for when we make CLVar public]
  is a Python list, not a <varname>CLVar</varname>,
  -->
- is a normal Python list,
- so we must specify its values as a list
- in the dictionary we pass to the &MergeFlags; function.
+ is a normal &Python; list,
+ so you should give its values as a list
+ in the dictionary you pass to the &MergeFlags; function.
 
  </para>
 
@@ -143,8 +145,8 @@ env = Environment()
 env.Append(CCFLAGS='-option -O3 -O1')
 env.Append(CPPPATH=['/include', '/usr/local/include', '/usr/include'])
 env.MergeFlags('-whatever -I/usr/opt/include -O3 -I/usr/local/include')
-print(env['CCFLAGS'])
-print(env['CPPPATH'])
+print("CCFLAGS:", env['CCFLAGS'])
+print("CPPPATH:", env['CPPPATH'])
    </file>
  </scons_example>
 
@@ -157,8 +159,8 @@ print(env['CPPPATH'])
  In the combined example above,
  &ParseFlags; has sorted the options into their corresponding variables
  and returned a dictionary for &MergeFlags; to apply
- to the construction variables
- in the specified construction environment.
+ to the &consvars;
+ in the specified &consenv;.
 
  </para>
 

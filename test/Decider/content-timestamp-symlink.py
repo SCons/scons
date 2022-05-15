@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 #
-# MIT License
-#
 # Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -23,7 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os.path
+"""
+Test the content-timestamp decider (formerly known as md5-timestamp)
+correctly detects modification of a source file which is a symlink.
+"""
 
 import TestSCons
 
@@ -31,30 +32,45 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
+if not test.platform_has_symlink():
+    test.skip_test('Symbolic links not reliably available on this platform, skipping test.\n')
+
+# a dummy "compiler" for the builder
 test.write('build.py', r"""
 import sys
 
-with open(sys.argv[1], 'w') as file:
-    file.write("build.py: %s\n" % sys.argv[1])
+with open(sys.argv[1], 'wb') as ofp:
+    for infile in sys.argv[2:]:
+        with open (infile, 'rb') as ifp:
+            ofp.write(ifp.read())
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
-MyBuild = Builder(action=r'%(_python_)s build.py $TARGETS')
-env = Environment(BUILDERS={'MyBuild': MyBuild})
-env.MyBuild(target='-f1.out', source='f1.in')
-env.MyBuild(target='-f2.out', source='f2.in')
+DefaultEnvironment(tools=[])
+Build = Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')
+env = Environment(tools=[], BUILDERS={'Build': Build})
+env.Decider('content-timestamp')
+env.Build(target='match1.out', source='match1.in')
+env.Build(target='match2.out', source='match2.in')
 """ % locals())
 
-test.write('f1.in', "f1.in\n")
-test.write('f2.in', "f2.in\n")
+test.write('match1.in', 'match1.in\n')
+test.symlink('match1.in', 'match2.in')
 
-expect = test.wrap_stdout('%(_python_)s build.py -f1.out\n%(_python_)s build.py -f2.out\n' % locals())
+test.run(arguments='.')
+test.must_match('match1.out', 'match1.in\n')
+test.must_match('match2.out', 'match1.in\n')
 
-test.run(arguments='-- -f1.out -f2.out', stdout=expect)
+# first make sure some time has elapsed, so a low-granularity timestamp
+# doesn't fail to trigger
+test.sleep()
+# Now update the source file contents, both targets should rebuild
+test.write('match1.in', 'match2.in\n')
 
-test.fail_test(not os.path.exists(test.workpath('-f1.out')))
-test.fail_test(not os.path.exists(test.workpath('-f2.out')))
+test.run(arguments='.')
+test.must_match('match1.out', 'match2.in\n', message="match1.out not rebuilt\n")
+test.must_match('match2.out', 'match2.in\n', message="match2.out not rebuilt\n")
 
 test.pass_test()
 

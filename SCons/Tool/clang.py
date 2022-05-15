@@ -82,7 +82,7 @@ def generate(env):
             env['CCVERSION'] = match.group(1)
 
     env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
-
+    env["NINJA_DEPFILE_PARSE_FORMAT"] = 'clang'
 
 
 def exists(env):

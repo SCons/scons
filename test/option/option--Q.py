@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
@@ -35,24 +34,24 @@ test = TestSCons.TestSCons()
 
 test.write('build.py', r"""
 import sys
-file = open(sys.argv[1], 'w')
-file.write("build.py: %s\n" % sys.argv[1])
-file.close()
+
+with open(sys.argv[1], 'w') as file:
+    file.write("build.py: %s\n" % sys.argv[1])
+sys.exit(0)
 """)
 
 test.write('SConstruct', """
-
 AddOption('--use_SetOption', action='store_true', dest='setoption', default=False)
 
-use_setoption=GetOption('setoption')
+use_setoption = GetOption('setoption')
 
 if use_setoption:
     SetOption('no_progress', True)
-    
-MyBuild = Builder(action = r'%(_python_)s build.py $TARGET')
-env = Environment(BUILDERS = { 'MyBuild' : MyBuild })
-env.MyBuild(target = 'f1.out', source = 'f1.in')
-env.MyBuild(target = 'f2.out', source = 'f2.in')
+
+MyBuild = Builder(action=r'%(_python_)s build.py $TARGET')
+env = Environment(BUILDERS={'MyBuild': MyBuild})
+env.MyBuild(target='f1.out', source='f1.in')
+env.MyBuild(target='f2.out', source='f2.in')
 """ % locals())
 
 test.write('f1.in', "f1.in\n")
