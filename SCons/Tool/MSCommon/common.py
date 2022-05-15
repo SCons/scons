@@ -96,7 +96,7 @@ else:
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
-    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache.json')
+    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
 
 def read_script_env_cache():
