@@ -106,7 +106,8 @@ def read_script_env_cache():
         try:
             p = Path(CONFIG_CACHE)
             with p.open('r') as f:
-                envcache = json.load(f)
+                envcache_list = json.load(f)
+                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass
@@ -119,7 +120,8 @@ def write_script_env_cache(cache):
         try:
             p = Path(CONFIG_CACHE)
             with p.open('w') as f:
-                json.dump(cache, f, indent=2)
+                envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
+                json.dump(envcache_list, f, indent=2)
         except TypeError:
             # data can't serialize to json, don't leave partial file
             with suppress(FileNotFoundError):
