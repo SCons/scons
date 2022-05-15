@@ -1,10 +1,10 @@
 import os
 import stat
 import time
-import distutils.util
+import sysconfig
 
 
-platform = distutils.util.get_platform()
+platform = sysconfig.get_platform()
 
 def is_windows():
     """ Check if we're on a Windows platform"""

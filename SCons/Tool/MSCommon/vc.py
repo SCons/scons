@@ -43,6 +43,7 @@ import SCons.compat
 import subprocess
 import os
 import platform
+from pathlib import Path
 from string import digits as string_digits
 from subprocess import PIPE
 import re
@@ -109,6 +110,9 @@ for value, symbol_list in [
         _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol] = value
         _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol.lower()] = value
         _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol.upper()] = value
+
+class MSVCUseSettingsError(VisualCException):
+    pass
 
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
@@ -803,12 +807,8 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
         # 14.0 (VS2015) to 8.0 (VS2005)
         arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(pdir, "vcvarsall.bat")
-    elif 8 > vernum >= 7:
-        # 7.1 (VS2003) to 7.0 (VS2003)
-        pdir = os.path.join(pdir, os.pardir, "Common7", "Tools")
-        batfilename = os.path.join(pdir, "vsvars32.bat")
     else:
-        # 6.0 (VS6) and earlier
+        # 7.1 (VS2003) and earlier
         pdir = os.path.join(pdir, "Bin")
         batfilename = os.path.join(pdir, "vcvars32.bat")
 
@@ -1012,8 +1012,25 @@ def script_env(script, args=None):
 
     if script_env_cache is None:
         script_env_cache = common.read_script_env_cache()
-    cache_key = "{}--{}".format(script, args)
+    cache_key = (script, args if args else None)
     cache_data = script_env_cache.get(cache_key, None)
+
+    # Brief sanity check: if we got a value for the key,
+    # see if it has a VCToolsInstallDir entry that is not empty.
+    # If so, and that path does not exist, invalidate the entry.
+    # If empty, this is an old compiler, just leave it alone.
+    if cache_data is not None:
+        try:
+            toolsdir = cache_data["VCToolsInstallDir"]
+        except KeyError:
+            # we write this value, so should not happen
+            pass
+        else:
+            if toolsdir:
+                toolpath = Path(toolsdir[0])
+                if not toolpath.exists():
+                    cache_data = None
+
     if cache_data is None:
         stdout = common.get_output(script, args)
 
@@ -1431,6 +1448,38 @@ def msvc_find_valid_batch_script(env, version):
 
     return d
 
+_undefined = None
+
+def get_use_script_use_settings(env):
+    global _undefined
+
+    if _undefined is None:
+        _undefined = object()
+
+    #   use_script  use_settings   return values   action
+    #     value       ignored      (value, None)   use script or bypass detection
+    #   undefined  value not None  (False, value)  use dictionary
+    #   undefined  undefined/None  (True,  None)   msvc detection
+
+    # None (documentation) or evaluates False (code): bypass detection
+    # need to distinguish between undefined and None
+    use_script = env.get('MSVC_USE_SCRIPT', _undefined)
+
+    if use_script != _undefined:
+        # use_script defined, use_settings ignored (not type checked)
+        return (use_script, None)
+
+    # undefined or None: use_settings ignored
+    use_settings = env.get('MSVC_USE_SETTINGS', None)
+
+    if use_settings is not None:
+        # use script undefined, use_settings defined and not None (type checked)
+        return (False, use_settings)
+
+    # use script undefined, use_settings undefined or None
+    return (True, None)
+
+
 def msvc_setup_env(env):
     debug('called')
     version = get_default_version(env)
@@ -1445,7 +1494,7 @@ def msvc_setup_env(env):
     env['MSVS'] = {}
 
 
-    use_script = env.get('MSVC_USE_SCRIPT', True)
+    use_script, use_settings = get_use_script_use_settings(env)
     if SCons.Util.is_String(use_script):
         use_script = use_script.strip()
         if not os.path.exists(use_script):
@@ -1458,6 +1507,12 @@ def msvc_setup_env(env):
         debug('use_script 2 %s', d)
         if not d:
             return d
+    elif use_settings is not None:
+        if not SCons.Util.is_Dict(use_settings):
+            error_msg = 'MSVC_USE_SETTINGS type error: expected a dictionary, found {}'.format(type(use_settings).__name__)
+            raise MSVCUseSettingsError(error_msg)
+        d = use_settings
+        debug('use_settings %s', d)
     else:
         debug('MSVC_USE_SCRIPT set to False')
         warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment " \

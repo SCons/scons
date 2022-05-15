@@ -276,7 +276,10 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
         if node.get_env().get('NINJA_FORCE_SCONS_BUILD'):
             ret_rule = 'TEMPLATE'
         else:
-            ret_rule = rule
+            if len(' '.join(cmd_list)) < env.get('MAXLINELENGTH', 2048):
+                ret_rule = rule
+            else:
+                ret_rule = rule + '_RSP'
 
         return ret_rule, variables, [tool_command]
 

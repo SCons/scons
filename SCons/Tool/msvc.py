@@ -318,6 +318,7 @@ def generate(env):
         env['ENV']['SystemRoot'] = SCons.Platform.win32.get_system_root()
 
     env['CCDEPFLAGS'] = '/showIncludes'
+    env["NINJA_DEPFILE_PARSE_FORMAT"] = 'msvc'
 
 
 def exists(env):
