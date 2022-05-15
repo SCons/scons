@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -21,7 +21,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -48,22 +50,22 @@
 
  Configuring the right options to build programs to work with
  libraries--especially shared libraries--that are available
- on POSIX systems can be very complicated.
+ on POSIX systems can be complex.
  To help this situation,
  various utilies with names that end in <filename>config</filename>
  return the command-line options for the GNU Compiler Collection (GCC)
- that are needed to use these libraries;
+ that are needed to build and link against those libraries;
  for example, the command-line options
  to use a library named <filename>lib</filename>
- would be found by calling a utility named <filename>lib-config</filename>.
+ could be found by calling a utility named <command>lib-config</command>.
 
  </para>
 
  <para>
 
  A more recent convention is that these options
- are available from the generic <filename>pkg-config</filename> program,
- which has common framework, error handling, and the like,
+ are available through the generic <command>pkg-config</command> program,
+ providing a common framework, error handling, and the like,
  so that all the package creator has to do is provide the set of strings
  for his particular package.
 
@@ -71,14 +73,12 @@
 
  <para>
 
- &SCons; construction environments have a &ParseConfig; method
- that executes a <filename>*config</filename> utility
- (either <filename>pkg-config</filename> or a
- more specific utility)
- and configures the appropriate construction variables
- in the environment
- based on the command-line options
- returned by the specified command.
+ &SCons; &consvars; have a &f-link-ParseConfig;
+ method that asks the host system to execute a command
+ and then configures the appropriate &consvars; based on
+ the output of that command.
+ This lets you run a program like <command>pkg-config</command>
+ or a more specific utility to help set up your build.
 
  </para>
 
@@ -87,7 +87,7 @@
 env = Environment()
 env['CPPPATH'] = ['/lib/compat']
 env.ParseConfig("pkg-config x11 --cflags --libs")
-print(env['CPPPATH'])
+print("CPPPATH:", env['CPPPATH'])
    </file>
  </scons_example>
 
@@ -112,14 +112,14 @@ print(env['CPPPATH'])
 
  <screen>
 % <userinput>scons -Q</userinput>
-['/lib/compat', '/usr/X11/include']
+CPPPATH: ['/lib/compat', '/usr/X11/include']
 scons: `.' is up to date.
  </screen>
 
  <para>
 
  In the example above, &SCons; has added the include directory to
- <varname>CPPPATH</varname>.
+ &cv-link-CPPPATH;
  (Depending upon what other flags are emitted by the
  <filename>pkg-config</filename> command,
  other variables may have been extended as well.)
@@ -129,8 +129,8 @@ scons: `.' is up to date.
  <para>
 
  Note that the options are merged with existing options using
- the &MergeFlags; method,
- so that each option only occurs once in the construction variable:
+ the &f-link-MergeFlags; method,
+ so that each option only occurs once in the &consvar;.
 
  </para>
 
@@ -139,7 +139,7 @@ scons: `.' is up to date.
 env = Environment()
 env.ParseConfig("pkg-config x11 --cflags --libs")
 env.ParseConfig("pkg-config x11 --cflags --libs")
-print(env['CPPPATH'])
+print("CPPPATH:", "CPPPATH:", env['CPPPATH'])
    </file>
  </scons_example>
 
@@ -156,7 +156,7 @@ print(env['CPPPATH'])
 
  <screen>
 % <userinput>scons -Q</userinput>
-['/usr/X11/include']
+CPPPATH: ['/usr/X11/include']
 scons: `.' is up to date.
  </screen>
 

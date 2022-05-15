@@ -2,7 +2,7 @@
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -21,7 +21,9 @@
 
 <!--
 
-  __COPYRIGHT__
+  MIT License
+
+  Copyright The SCons Foundation
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -55,10 +57,10 @@
 
  <para>
 
- &SCons; &consenvs; have a &f-link-env-ParseFlags; method
+ &SCons; &consenvs; have a &f-link-ParseFlags; method
  that takes a set of typical command-line options
- and distributes them into the appropriate construction variables.
- Historically, it was created to support the &f-link-env-ParseConfig; method,
+ and distributes them into the appropriate &consvars;
+ Historically, it was created to support the &f-link-ParseConfig; method,
  so it focuses on options used by the GNU Compiler Collection (GCC)
  for the C and C++ toolchains.
 
@@ -67,8 +69,8 @@
  <para>
 
  &ParseFlags; returns a dictionary containing the options
- distributed into their respective construction variables.
- Normally, this dictionary would then be passed to &MergeFlags;
+ distributed into their respective &consvars;.
+ Normally, this dictionary would then be passed to &f-link-MergeFlags;
  to merge the options into a &consenv;,
  but the dictionary can be edited if desired to provide
  additional functionality.
@@ -164,8 +166,7 @@ void main() { return 0; }
 
  <para>
 
- If a string begins with a an exclamation mark (<literal>!</literal>,
- sometimes also called a bang),
+ If a string begins with a an exclamation mark (<literal>!</literal>),
  the string is passed to the shell for execution.
  The output of the command is then parsed:
 
