@@ -363,8 +363,8 @@ Return('val1 val2')
 <!-- (scripts, [exports, variant_dir, src_dir, duplicate, must_exist]) -->
 </arguments>
 <arguments>
-(dirs=subdirs, [name=script, exports, variant_dir, duplicate, must_exist])
-<!-- (dirs=subdirs, [name=script, exports, variant_dir, src_dir, duplicate, must_exist]) -->
+(dirs=subdirs, [name=scriptname, exports, variant_dir, duplicate, must_exist])
+<!-- (dirs=subdirs, [name=scriptname, exports, variant_dir, src_dir, duplicate, must_exist]) -->
 </arguments>
 <summary>
 <para>
@@ -374,31 +374,27 @@ There are two ways to call the
 </para>
 
 <para>
-The first calling style
-is to explicitly specify one or more
-<varname>scripts</varname>
-as the first argument.
+The first calling style is to supply
+one or more SConscript file names
+as the first (positional) argument.
 A single script may be specified as a string;
-multiple scripts must be specified as a list
+multiple scripts must be specified as a list of strings
 (either explicitly or as created by
 a function like
 &f-link-Split;).
 Examples:
 </para>
 <example_commands>
-SConscript('SConscript')      # run SConscript in the current directory
+SConscript('SConscript')  # run SConscript in the current directory
 SConscript('src/SConscript')  # run SConscript in the src directory
 SConscript(['src/SConscript', 'doc/SConscript'])
 config = SConscript('MyConfig.py')
 </example_commands>
 
 <para>
-The second way to call
-&f-SConscript;
-is to specify a list of directory names
-using the
-<varname>dirs</varname>=<replaceable>subdirs</replaceable>
-keyword argument.
+The other calling style is to omit the positional argument naming
+scripts and instead specify a list of directory names using the
+<varname>dirs</varname> keyword argument.
 In this case,
 &scons;
 will
@@ -408,14 +404,13 @@ in each of the specified directories.
 You may specify a name other than
 &SConscript;
 by supplying an optional
-<varname>name</varname>=<replaceable>script</replaceable>
-keyword argument.
+<varname>name</varname> keyword argument.
 The first three examples below have the same effect
 as the first three examples above:
 </para>
 <example_commands>
-SConscript(dirs='.')      # run SConscript in the current directory
-SConscript(dirs='src')    # run SConscript in the src directory
+SConscript(dirs='.')  # run SConscript in the current directory
+SConscript(dirs='src')  # run SConscript in the src directory
 SConscript(dirs=['src', 'doc'])
 SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 </example_commands>
@@ -423,8 +418,12 @@ SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 <para>
 The optional
 <varname>exports</varname>
-argument provides a string or list of strings representing
+keyword argument provides a string or list of strings representing
 variable names, or a dictionary of named values, to export.
+For the first calling style only, a second positional argument
+will be interpreted as <varname>exports</varname>; the
+second calling style must use the keyword argument form
+for <varname>exports</varname>.
 These variables are locally exported only to the called
 SConscript file(s)
 and do not affect the global pool of variables managed by the
@@ -585,11 +584,11 @@ SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
 
 <para>
 &f-SConscript; returns the values of any variables
-named by the executed SConscript(s) in arguments
-to the &f-link-Return; function (see above for details).
+named by the executed SConscript file(s) in arguments
+to the &f-link-Return; function.
 If a single &f-SConscript; call causes multiple scripts to
 be executed, the return value is a tuple containing
-the returns of all of the scripts. If an executed
+the returns of each of the scripts. If an executed
 script does not explicitly call &Return;, it returns
 <constant>None</constant>.
 </para>
