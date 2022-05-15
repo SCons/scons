@@ -368,7 +368,7 @@ Return('val1 val2')
 </arguments>
 <summary>
 <para>
-Execute one or more subsidiary SConscript (configuration) files.
+Executes one or more subsidiary SConscript (configuration) files.
 There are two ways to call the
 &f-SConscript; function.
 </para>
@@ -395,8 +395,8 @@ config = SConscript('MyConfig.py')
 <para>
 The second way to call
 &f-SConscript;
-is to specify a list of (sub)directory names
-as a
+is to specify a list of directory names
+using the
 <varname>dirs</varname>=<replaceable>subdirs</replaceable>
 keyword argument.
 In this case,
@@ -448,38 +448,24 @@ SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
-&f-link-VariantDir; function.
+&f-link-VariantDir; function,
+but in effect only during the execution of the SConscript file.
 The <varname>variant_dir</varname>
-argument is interpreted relative to the directory of the calling
-SConscript file.
-The optional
-<varname>duplicate</varname> argument is
-interpreted as for &f-link-VariantDir;.
-If <varname>variant_dir</varname>
-is omitted, the <varname>duplicate</varname> argument is ignored.
-See the description of
-&f-link-VariantDir;
-below for additional details and restrictions.
-</para>
-
-<para>
-If
-<varname>variant_dir</varname>
-is present,
-the source directory is the directory in which the
-SConscript
-file resides and the
-SConscript
+argument is interpreted relative to the directory of the
+<emphasis>calling</emphasis> SConscript file.
+The source directory is the directory in which the
+<emphasis>called</emphasis> SConscript
+file resides and the SConscript
 file is evaluated as if it were in the
 <varname>variant_dir</varname>
-directory:
+directory. Thus:
 </para>
 <example_commands>
 SConscript('src/SConscript', variant_dir='build')
 </example_commands>
 
 <para>
-is equivalent to
+is equivalent to:
 </para>
 
 <example_commands>
@@ -488,9 +474,8 @@ SConscript('build/SConscript')
 </example_commands>
 
 <para>
-This later paradigm is often used when the sources are
-in the same directory as the
-&SConstruct;:
+If the sources are in the same directory as the
+&SConstruct;,
 </para>
 
 <example_commands>
@@ -498,13 +483,24 @@ SConscript('SConscript', variant_dir='build')
 </example_commands>
 
 <para>
-is equivalent to
+is equivalent to:
 </para>
 
 <example_commands>
 VariantDir('build', '.')
 SConscript('build/SConscript')
 </example_commands>
+
+<para>
+The optional
+<varname>duplicate</varname> argument is
+interpreted as for &f-link-VariantDir;.
+If the <varname>variant_dir</varname> argument
+is omitted, the <varname>duplicate</varname> argument is ignored.
+See the description of
+&f-link-VariantDir;
+for additional details and restrictions.
+</para>
 
 <para>
 <!--
