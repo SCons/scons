@@ -31,6 +31,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       determination when configuring the build environment.  This could lead to build failures when
       only an MSVC Express instance is installed and the MSVC version is not explicitly specified
       (issue #2668 and issue #2697).
+    - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
+      system environment as an alternative to bypassing Visual Studio autodetection entirely.
     - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
       names set by their respective installers.  Prior to this change, bypassing MSVC detection by
       specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment
