@@ -47,7 +47,7 @@ import SCons.Scanner.RC
 from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
 from .MSCommon.common import get_pch_node
 
-tool_name = os.path.splitext(os.path.basename(__file__))[0]
+tool_name = 'msvc'
 
 CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']

@@ -43,7 +43,7 @@ import SCons.Util
 
 from .MSCommon import msvc_setup_env_tool
 
-tool_name = os.path.splitext(os.path.basename(__file__))[0]
+tool_name = 'midl'
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""

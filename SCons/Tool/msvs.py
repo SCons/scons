@@ -47,7 +47,7 @@ from SCons.Defaults import processDefines
 from SCons.compat import PICKLE_PROTOCOL
 from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once
 
-tool_name = os.path.splitext(os.path.basename(__file__))[0]
+tool_name = 'msvs'
 
 ##############################################################################
 # Below here are the classes and functions for generation of

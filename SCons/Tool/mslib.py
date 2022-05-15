@@ -43,7 +43,7 @@ import SCons.Util
 
 from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once
 
-tool_name = os.path.splitext(os.path.basename(__file__))[0]
+tool_name = 'mslib'
 
 def generate(env):
     """Add Builders and construction variables for lib to an Environment."""

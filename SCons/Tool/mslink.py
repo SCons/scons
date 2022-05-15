@@ -46,7 +46,7 @@ import SCons.Util
 from .MSCommon import msvc_setup_env_once, msvc_setup_env_tool
 from .MSCommon.common import get_pch_node
 
-tool_name = os.path.splitext(os.path.basename(__file__))[0]
+tool_name = 'mslink'
 
 def pdbGenerator(env, target, source, for_signature):
     try:
