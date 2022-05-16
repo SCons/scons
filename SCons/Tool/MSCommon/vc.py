@@ -43,6 +43,7 @@ import SCons.compat
 import subprocess
 import os
 import platform
+from pathlib import Path
 from string import digits as string_digits
 from subprocess import PIPE
 import re
@@ -1011,8 +1012,25 @@ def script_env(script, args=None):
 
     if script_env_cache is None:
         script_env_cache = common.read_script_env_cache()
-    cache_key = "{}--{}".format(script, args)
+    cache_key = (script, args if args else None)
     cache_data = script_env_cache.get(cache_key, None)
+
+    # Brief sanity check: if we got a value for the key,
+    # see if it has a VCToolsInstallDir entry that is not empty.
+    # If so, and that path does not exist, invalidate the entry.
+    # If empty, this is an old compiler, just leave it alone.
+    if cache_data is not None:
+        try:
+            toolsdir = cache_data["VCToolsInstallDir"]
+        except KeyError:
+            # we write this value, so should not happen
+            pass
+        else:
+            if toolsdir:
+                toolpath = Path(toolsdir[0])
+                if not toolpath.exists():
+                    cache_data = None
+
     if cache_data is None:
         stdout = common.get_output(script, args)
 
