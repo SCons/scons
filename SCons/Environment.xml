@@ -3421,7 +3421,7 @@ Sets up a mapping to define a variant build directory in
 <parameter>src_dir</parameter> may not be underneath
 <parameter>variant_dir</parameter>.
 A &f-VariantDir; mapping is global, even if called using the
-the &f-env-VariantDir; form.
+&f-env-VariantDir; form.
 &f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
