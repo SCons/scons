@@ -110,7 +110,15 @@ def read_script_env_cache():
                 # json to the cache dictionary. Reconstruct the cache key
                 # tuple from the key list written to json.
                 envcache_list = json.load(f)
-                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                if isinstance(envcache_list, list):
+                    envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                else:
+                    raise TypeError(
+                        'SCONS_CACHE_MSVC_CONFIG cache file read error: expected type {}, found type {}.\n' \
+                        '  Remove cache file {} and try again'.format(
+                            repr('list'), repr(type(envcache_list).__name__), repr(CONFIG_CACHE)
+                        )
+                    )
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass
