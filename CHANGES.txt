@@ -152,6 +152,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
     - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 
+  From Andrew Morrow:
+    - Prioritize nodes with more waiting parents when adding new candidate nodes.
+       NOTE: This may change build order and expose missing dependency edges
+
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
   From Jacob Cassagnol:
