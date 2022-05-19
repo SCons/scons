@@ -1096,17 +1096,24 @@ def get_msvc_notfound_policy():
 def _msvc_notfound_policy_handler(env, msg):
 
     if env and 'MSVC_NOTFOUND_POLICY' in env:
-        # use environment setting
-        notfound_policy_def = _msvc_notfound_policy_lookup(env['MSVC_NOTFOUND_POLICY'])
+        # environment setting
         notfound_policy_src = 'environment'
+        policy = env['MSVC_NOTFOUND_POLICY']
+        if policy is not None:
+            # user policy request
+            notfound_policy_def = _msvc_notfound_policy_lookup(policy)
+        else:
+            # active global setting
+            notfound_policy_def = _MSVC_NOTFOUND_POLICY_DEF
     else:
-        # use active global setting
-        notfound_policy_def = _MSVC_NOTFOUND_POLICY_DEF
+        # active global setting
         notfound_policy_src = 'default'
+        policy = None
+        notfound_policy_def = _MSVC_NOTFOUND_POLICY_DEF
 
     debug(
-        'source=%s, policy.symbol=%s, policy.value=%s',
-        notfound_policy_src, repr(notfound_policy_def.symbol), repr(notfound_policy_def.value)
+        'source=%s, set_policy=%s, policy.symbol=%s, policy.value=%s',
+        notfound_policy_src, repr(policy), repr(notfound_policy_def.symbol), repr(notfound_policy_def.value)
     )
 
     if notfound_policy_def.value is None:
