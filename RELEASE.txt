@@ -48,12 +48,16 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - The change to "content" and "content-timestamp" Decider names is reflected
   in the User Guide as well, since the hash function may be other than md5
   (tidying up from earlier change)
-- If SCONS_CACHE_MSVC_CONFIG is used, it will now attempt a sanity check for
-  the cached compiler information, and regenerate the information
-  if needed, rather than just failing after certain compiler version
-  changes have  happened.  The cache file can still be manually removed
-  if there are issues to force a regen.  The default cache filename now
-  has a .json suffix - the contents have always been json.
+- If the (experimental) SCONS_CACHE_MSVC_CONFIG feature is used, it will now
+  attempt a sanity check for the cached compiler information, and regenerate
+  it if needed. Previously, this cache would fail if a compiler upgrade caused
+  a change to internal paths (e.g. upgrading from 17.1 to 17.2 causes
+  a necessary path component in some of the cached vars to need to 14.32.31326
+  instead of 14.31.31103), and the cache file needed to be manually removed.
+  The default cachefile name is now "scons_msvc_cache.json" rather than
+  ".scons_msvc_cache" so there should be no transition problem if using the
+  default; if using a custom cache file name, the cache should still be
+  manually removed if there are problems to transition to the new style.
 - Update ninja file generation to only create response files for build commands
   which exceed MAXLINELENGTH
 - Update the debug output written to stdout for MSVC initialization which is enabled
