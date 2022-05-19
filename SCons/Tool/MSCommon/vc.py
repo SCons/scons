@@ -91,28 +91,36 @@ class MSVCUseSettingsError(VisualCException):
 class MSVCVersionNotFound(VisualCException):
     pass
 
-# MSVC_NOTFOUND_POLICY:
-#     error:  raise exception
-#     warn:   issue warning and continue
-#     ignore: continue
-_MSVC_NOTFOUND_POLICY_DEFAULT = False
-_MSVC_NOTFOUND_POLICY = _MSVC_NOTFOUND_POLICY_DEFAULT
+# MSVC_NOTFOUND_POLICY definition:
+#     error:   raise exception
+#     warning: issue warning and continue
+#     ignore:  continue
 
-_MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL = {}
-_MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC = []
-_MSVC_NOTFOUND_POLICY_SYMBOLS_DICT = {}
+_MSVC_NOTFOUND_POLICY_DEFINITION = namedtuple('MSVCNotFoundPolicyDefinition', [
+    'value',
+    'symbol',
+])
 
-for value, symbol_list in [
+_MSVC_NOTFOUND_POLICY_INTERNAL = {}
+_MSVC_NOTFOUND_POLICY_EXTERNAL = {}
+
+for policy_value, policy_symbol_list in [
     (True,  ['Error',   'Exception']),
     (False, ['Warning', 'Warn']),
     (None,  ['Ignore',  'Suppress']),
 ]:
-    _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[value] = symbol_list[0].lower()
-    for symbol in symbol_list:
-        _MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC.append(symbol.lower())
-        _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol] = value
-        _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol.lower()] = value
-        _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol.upper()] = value
+
+    policy_symbol = policy_symbol_list[0].lower()
+    policy_def = _MSVC_NOTFOUND_POLICY_DEFINITION(policy_value, policy_symbol)
+
+    _MSVC_NOTFOUND_POLICY_INTERNAL[policy_symbol] = policy_def
+
+    for policy_symbol in policy_symbol_list:
+        _MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol.lower()] = policy_def
+        _MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol] = policy_def
+        _MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol.upper()] = policy_def
+
+_MSVC_NOTFOUND_POLICY_DEF = _MSVC_NOTFOUND_POLICY_INTERNAL['warning']
 
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
@@ -1050,69 +1058,82 @@ def script_env(script, args=None):
 def _msvc_notfound_policy_lookup(symbol):
 
     try:
-        notfound_policy = _MSVC_NOTFOUND_POLICY_SYMBOLS_DICT[symbol]
+        notfound_policy_def = _MSVC_NOTFOUND_POLICY_EXTERNAL[symbol]
     except KeyError:
         err_msg = "Value specified for MSVC_NOTFOUND_POLICY is not supported: {}.\n" \
                   "  Valid values are: {}".format(
                      repr(symbol),
-                     ', '.join([repr(s) for s in _MSVC_NOTFOUND_POLICY_SYMBOLS_PUBLIC])
+                     ', '.join([repr(s) for s in _MSVC_NOTFOUND_POLICY_EXTERNAL.keys()])
                   )
         raise ValueError(err_msg)
 
-    return notfound_policy
+    return notfound_policy_def
 
 def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
-    global _MSVC_NOTFOUND_POLICY
+    global _MSVC_NOTFOUND_POLICY_DEF
 
-    prev_policy = _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[_MSVC_NOTFOUND_POLICY]
+    prev_policy = _MSVC_NOTFOUND_POLICY_DEF.symbol
 
     policy = MSVC_NOTFOUND_POLICY
     if policy is not None:
-        _MSVC_NOTFOUND_POLICY = _msvc_notfound_policy_lookup(policy)
+        _MSVC_NOTFOUND_POLICY_DEF = _msvc_notfound_policy_lookup(policy)
 
-    debug('prev_policy=%s, policy=%s, internal_policy=%s', repr(prev_policy), repr(policy), _MSVC_NOTFOUND_POLICY)
+    debug(
+        'prev_policy=%s, set_policy=%s, policy.symbol=%s, policy.value=%s',
+        repr(prev_policy), repr(policy),
+        repr(_MSVC_NOTFOUND_POLICY_DEF.symbol), repr(_MSVC_NOTFOUND_POLICY_DEF.value)
+    )
+
     return prev_policy
 
 def get_msvc_notfound_policy():
-    policy = _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[_MSVC_NOTFOUND_POLICY]
-    debug('policy=%s, internal_policy=%s', repr(policy), _MSVC_NOTFOUND_POLICY)
-    return policy
+    debug(
+        'policy.symbol=%s, policy.value=%s',
+        repr(_MSVC_NOTFOUND_POLICY_DEF.symbol), repr(_MSVC_NOTFOUND_POLICY_DEF.value)
+    )
+    return _MSVC_NOTFOUND_POLICY_DEF.symbol
 
 def _msvc_notfound_policy_handler(env, msg):
 
     if env and 'MSVC_NOTFOUND_POLICY' in env:
         # use environment setting
-        notfound_policy = _msvc_notfound_policy_lookup(env['MSVC_NOTFOUND_POLICY'])
+        notfound_policy_def = _msvc_notfound_policy_lookup(env['MSVC_NOTFOUND_POLICY'])
+        notfound_policy_src = 'environment'
     else:
         # use active global setting
-        notfound_policy = _MSVC_NOTFOUND_POLICY
+        notfound_policy_def = _MSVC_NOTFOUND_POLICY_DEF
+        notfound_policy_src = 'default'
 
-    debug('policy=%s, internal_policy=%s', _MSVC_NOTFOUND_POLICY_INTERNAL_SYMBOL[notfound_policy], repr(notfound_policy))
+    debug(
+        'source=%s, policy.symbol=%s, policy.value=%s',
+        notfound_policy_src, repr(notfound_policy_def.symbol), repr(notfound_policy_def.value)
+    )
 
-    if notfound_policy is None:
+    if notfound_policy_def.value is None:
         # ignore
         pass
-    elif notfound_policy:
+    elif notfound_policy_def.value:
         raise MSVCVersionNotFound(msg)
     else:
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
 
 class _MSVCSetupEnvDefault:
+    """
+    Determine if and/or when an error/warning should be issued when there
+    are no versions of msvc installed.  If there is at least one version of
+    msvc installed, these routines do (almost) nothing.
 
-    # Determine if and/or when an error/warning should be issued when there
-    # are no versions of msvc installed.  If there is at least one version of
-    # msvc installed, these routines do (almost) nothing.
-
-    # Notes:
-    #     * When msvc is the default compiler because there are no compilers
-    #       installed, a build may fail due to the cl.exe command not being
-    #       recognized.  Currently, there is no easy way to detect during
-    #       msvc initialization if the default environment will be used later
-    #       to build a program and/or library. There is no error/warning
-    #       as there are legitimate SCons uses that do not require a c compiler.
-    #     * As implemented, the default is that a warning is issued.  This can
-    #       be changed globally via the function set_msvc_notfound_policy and/or
-    #       through the environment via the MSVC_NOTFOUND_POLICY variable.
+    Notes:
+        * When msvc is the default compiler because there are no compilers
+          installed, a build may fail due to the cl.exe command not being
+          recognized.  Currently, there is no easy way to detect during
+          msvc initialization if the default environment will be used later
+          to build a program and/or library. There is no error/warning
+          as there are legitimate SCons uses that do not require a c compiler.
+        * As implemented, the default is that a warning is issued.  This can
+          be changed globally via the function set_msvc_notfound_policy and/or
+          through the environment via the MSVC_NOTFOUND_POLICY variable.
+    """
 
     separator = r';'
 
