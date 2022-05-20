@@ -3012,6 +3012,8 @@ class File(Base):
         if self.nocache:
             return None
         if not self.is_derived():
+            if self.srcnode().is_derived():
+                return self.get_build_env().get_CacheDir().retrieve(self.srcnode())
             return None
         return self.get_build_env().get_CacheDir().retrieve(self)
 

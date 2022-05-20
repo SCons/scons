@@ -124,7 +124,10 @@ FIXES
 - The system environment variable names imported for MSVC 7.0 and 6.0 were updated to be
   consistent with the variables names defined by their respective installers.  This fixes an
   error caused when bypassing MSVC detection by specifying the MSVC 7.0 batch file directly.
-
+- Fix for github issue #2908, this updates taskmaster to queue up srcnodes of nodes which
+  are in a variantdir if the srcnode has a builder. For the executors prepare, it also
+  checks the srcnode if the node has a srcnode.
+  
 IMPROVEMENTS
 ------------
 

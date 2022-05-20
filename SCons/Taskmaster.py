@@ -181,6 +181,8 @@ class Task(ABC):
         # or implicit dependencies exists, and also initialize the
         # .sconsign info.
         executor = self.targets[0].get_executor()
+        if executor is None and hasattr(self.targets[0], 'srcnode'):
+            executor = self.targets[0].srcnode().get_executor()
         if executor is None:
             return
         executor.prepare()
@@ -232,7 +234,12 @@ class Task(ABC):
                         t.fs.unlink(t.get_internal_path())
                     except (IOError, OSError):
                         pass
-                self.targets[0].build()
+                if self.targets[0].has_builder():
+                    self.targets[0].build()
+                elif hasattr(self.targets[0], 'srcnode'):
+                    self.targets[0].srcnode().build()
+                else:
+                    self.targets[0].build()
             else:
                 for t in cached_targets:
                     t.cached = 1
@@ -387,7 +394,7 @@ class Task(ABC):
         for t in self.targets:
             try:
                 t.disambiguate().make_ready()
-                is_up_to_date = not t.has_builder() or \
+                is_up_to_date = not (t.has_builder() or (hasattr(t, 'srcnode') and t.srcnode().has_builder())) or \
                                 (not t.always_build and t.is_up_to_date())
             except EnvironmentError as e:
                 raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
@@ -946,11 +953,12 @@ class Taskmaster:
         it in the specific Task subclass with which we were initialized.
         """
         node = self._find_next_ready_node()
-
         if node is None:
             return None
 
         executor = node.get_executor()
+        if executor is None and hasattr(node, 'srcnode'):
+            executor = node.srcnode().get_executor()
         if executor is None:
             return None
 

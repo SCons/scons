@@ -1,0 +1,3 @@
+VariantDir('bin', 'src', duplicate=False)
+Command('src/file.cc', 'src/file.in', Copy('$TARGET', '$SOURCE'))
+Program('bin/program', ['bin/main.cc', 'bin/file.cc'])

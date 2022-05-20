@@ -1264,7 +1264,11 @@ class Node(object, metaclass=NoSlotsPyPy):
         return _get_contents_map[self._func_get_contents](self)
 
     def missing(self):
-        return not self.is_derived() and \
+        # nodes in variant dirs may have a srcnode which is also derived
+        # so check if that is the case.
+        return not (self.is_derived() or \
+                        (hasattr(self, 'srcnode')
+                         and self.srcnode().is_derived())) and \
                not self.linked and \
                not self.rexists()
 
