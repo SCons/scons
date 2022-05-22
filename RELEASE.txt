@@ -52,6 +52,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   output format written to stdout to include more information about the source for each
   message of MSVC initialization debugging output.  A single space was added before the
   message for all debugging output records written to stdout and to files.
+- Add JavaScanner to include JAVACLASSPATH as a dependency when using the Java tool.
 
 FIXES
 -----
@@ -94,6 +95,7 @@ FIXES
   that link has been modified (issue #3880)
 - Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
   to connect to the server during start up.
+- Fix incorrect Java classpath generation when a NodeList is used as part of any JAVA*PATH variables.
 
 IMPROVEMENTS
 ------------
