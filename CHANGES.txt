@@ -70,7 +70,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       arguments would yield an exception. This issue was found via qt4 and qt5 tools in
       scons-contrib https://github.com/SCons/scons-contrib/issues/45
 
-
+  From David H:
+    - Add JavaScanner to include JAVACLASSPATH as a dependency when using the Java tool.
+    - Fix incorrect Java classpath generation when a NodeList is used as part of any JAVA*PATH variables.
 
   From Daniel Moody:
     - Add cache-debug messages for push failures.
@@ -296,7 +298,7 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
       set to any string value (For example ['none','false','no','off'])
       Also previously 'All' wouldn't have the desired affect.
-
+      
   From Ivan Kravets:
     - Provide a custom argument escape function for `TempFileMunge` using a new
       `TEMPFILEARGESCFUNC` variable. Useful if you need to apply extra operations on
