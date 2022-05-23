@@ -3482,14 +3482,11 @@ The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
-When calling an SConscript file,
-you can pass an appropriately set up environment
-using the <parameter>exports</parameter> keyword
-argument so the SConscript can pick up the right settings
-for that variant build.
-This is how you tell
-&scons;
-which variant of a source directory to build:
+When calling an SConscript file, you can use the 
+<parameter>exports</parameter> keyword argument
+to pass parameters (individually or as an appropriately set up environment)
+so the SConscript can pick up the right settings for that variant build.
+The SConscript must &f-link-Import; these to use them. Example:
 </para>
 
 <example_commands>
@@ -3511,7 +3508,7 @@ in conjunction with calling a subsidiary SConscript file.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>
