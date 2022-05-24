@@ -809,6 +809,15 @@ class SConsToNinjaTranslator:
 
             # Remove all preceding and proceeding whitespace
             cmdline = cmdline.strip()
+            env = node.env if node.env else self.env
+            executor = node.get_executor()
+            if executor is not None:
+                targets = executor.get_all_targets()
+            else:
+                if hasattr(node, "target_peers"):
+                    targets = node.target_peers
+                else:
+                    targets = [node]
 
             # Make sure we didn't generate an empty cmdline
             if cmdline:
@@ -817,7 +826,7 @@ class SConsToNinjaTranslator:
                     "rule": get_rule(node, "GENERATED_CMD"),
                     "variables": {
                         "cmd": cmdline,
-                        "env": get_command_env(node.env if node.env else self.env),
+                        "env": get_command_env(env, targets, node.sources),
                     },
                     "implicit": dependencies,
                 }

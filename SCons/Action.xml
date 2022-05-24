@@ -200,18 +200,32 @@ in which the command should be executed.
 </summary>
 </cvar>
 
-<cvar name="SHELL_ENV_GENERATOR">
+<cvar name="SHELL_ENV_GENERATORS">
   <summary>
     <para>
-A function to generate or alter the environment dictionary which will be used
-when executing the &cv-link-SPAWN; function. This primarily give the
-user a chance to customize the execution environment for particular Actions.
-It must return a dictionary containing the environment variables as
-keys and the values as values.
+Must be an iterable containing functions where each function generates or 
+alters the environment dictionary which will be used
+when executing the &cv-link-SPAWN; function. The functions will initially 
+be passed a reference of the current execution environment (e.g. env['ENV']), 
+and each called while iterating the list. Each function must return a dictionary
+which will then be passed to the next function iterated. The return dictionary 
+should contain keys which represent the environment variables and their respective
+values.
+
+This primary purpose of this construction variable is to give the user the ability
+to substitute execution environment variables based on env, targets, and sources. 
+If desired, the user can completly customize the execution environment for particular 
+targets.
     </para>
 
     <example_commands>
-def custom_shell_env(env, target, source):
+def custom_shell_env(env, target, source, shell_env):
+    # customize shell_env if desired
+    if str(target[0]) == 'special_target'is:
+      shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
+    return shell_env
+  
+env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
     </example_commands>
 
     <para>
@@ -223,9 +237,14 @@ execution environment can be derived from.
     <varname>target</varname>
 The list of targets associated with this action.
     </para>
-        <para>
+    <para>
     <varname>source</varname>
 The list of sources associated with this action.
+    </para>
+    <para>
+    <varname>shell_env</varname>
+The current shell_env after iterating other SHELL_ENV_GENERATORS functions. This can be compared
+to the passed env['ENV'] to detect any changes.
     </para>
   </summary>
 </cvar>

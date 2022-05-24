@@ -259,7 +259,7 @@ def ninja_noop(*_args, **_kwargs):
     return None
 
 
-def get_command_env(env):
+def get_command_env(env, target, source):
     """
     Return a string that sets the environment for any environment variables that
     differ between the OS environment and the SCons command ENV.
@@ -275,7 +275,7 @@ def get_command_env(env):
     # os.environ or differ from it. We assume if it's a new or
     # differing key from the process environment then it's
     # important to pass down to commands in the Ninja file.
-    ENV = get_default_ENV(env)
+    ENV = SCons.Action._resolve_shell_env(env, target, source)
     scons_specified_env = {
         key: value
         for key, value in ENV.items()
