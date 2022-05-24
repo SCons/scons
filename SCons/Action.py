@@ -108,7 +108,6 @@ import subprocess
 from subprocess import DEVNULL
 import inspect
 from collections import OrderedDict
-from typing import Type
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
