@@ -108,6 +108,7 @@ import subprocess
 from subprocess import DEVNULL
 import inspect
 from collections import OrderedDict
+from typing import Type
 
 import SCons.Debug
 from SCons.Debug import logInstanceCreation
@@ -762,7 +763,7 @@ def _resolve_shell_env(env, target, source):
         ENV = ENV.copy()
         try:
             shell_gens = iter(shell_gen)
-        except:
+        except TypeError:
             raise SCons.Errors.UserError("SHELL_ENV_GENERATORS must be iteratable.")
         else:
             for generator in shell_gens:
