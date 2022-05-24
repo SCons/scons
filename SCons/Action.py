@@ -759,12 +759,12 @@ def _resolve_shell_env(env, target, source):
     ENV = get_default_ENV(env)
     shell_gen = env.get('SHELL_ENV_GENERATORS') 
     if shell_gen is not None:
-        ENV = ENV.copy()
         try:
             shell_gens = iter(shell_gen)
         except TypeError:
             raise SCons.Errors.UserError("SHELL_ENV_GENERATORS must be iteratable.")
         else:
+            ENV = ENV.copy()
             for generator in shell_gens:
                 ENV = generator(env, target, source, ENV)
                 if not isinstance(ENV, dict):
