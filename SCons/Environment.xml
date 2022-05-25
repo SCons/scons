@@ -318,7 +318,7 @@ Added methods propagate through &f-env-Clone; calls.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>
@@ -3477,7 +3477,7 @@ if it causes problems.
 
 <para>
 &f-VariantDir;
-works most naturally with used with a subsidiary SConscript file.
+works most naturally when used with a subsidiary SConscript file.
 The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
