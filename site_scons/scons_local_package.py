@@ -36,7 +36,7 @@ def get_local_package_file_list():
     # import pdb; pdb.set_trace()
 
     non_test = [f for f in s_files if "Tests.py" not in f]
-    non_test_non_doc = [f for f in non_test if '.xml' not in f or "SCons/Tool/docbook" in f]
+    non_test_non_doc = [f for f in non_test if '.xml' not in f and "SCons/Tool/docbook" not in f]
     filtered_list = [f for f in non_test_non_doc if 'pyc' not in f]
     filtered_list = [f for f in filtered_list if '__pycache__' not in f ]
     filtered_list = [f for f in filtered_list if not os.path.isdir(f)]
