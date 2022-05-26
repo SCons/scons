@@ -43,6 +43,10 @@ int test_header = 2;
 
 test.not_up_to_date(read_str="Checking for C header file header1.h... (cached) yes\n")
 
+test.up_to_date(read_str="Checking for C header file header1.h... yes\n")
+
+test.up_to_date(read_str="Checking for C header file header1.h... (cached) yes\n")
+
 test.pass_test()
 
 # Local Variables:
