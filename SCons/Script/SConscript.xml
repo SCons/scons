@@ -404,7 +404,8 @@ in each of the specified directories.
 You may specify a name other than
 &SConscript;
 by supplying an optional
-<varname>name</varname> keyword argument.
+<varname>name</varname>=<replaceable>scriptname</replaceable>
+keyword argument.
 The first three examples below have the same effect
 as the first three examples above:
 </para>
@@ -448,7 +449,7 @@ If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
 &f-link-VariantDir; function,
-but in effect only during the execution of the SConscript file.
+but in effect only within the scope of the &f-SConscript; call.
 The <varname>variant_dir</varname>
 argument is interpreted relative to the directory of the
 <emphasis>calling</emphasis> SConscript file.
