@@ -489,7 +489,7 @@ class TestSCons(TestCommon):
         kw['match'] = self.match_re_dotall
         self.run(**kw)
 
-    def not_up_to_date(self, arguments='.', **kw):
+    def not_up_to_date(self, arguments='.', read_str="", **kw):
         """Asserts that none of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
@@ -499,7 +499,7 @@ class TestSCons(TestCommon):
             s = s + "(?!scons: `%s' is up to date.)" % re.escape(arg)
         s = '(' + s + '[^\n]*\n)*'
         kw['arguments'] = arguments
-        stdout = re.escape(self.wrap_stdout(build_str='ARGUMENTSGOHERE'))
+        stdout = re.escape(self.wrap_stdout(read_str=read_str, build_str='ARGUMENTSGOHERE'))
         kw['stdout'] = stdout.replace('ARGUMENTSGOHERE', s)
         kw['match'] = self.match_re_dotall
         self.run(**kw)

@@ -227,6 +227,8 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
     This is almost the same as SCons.Script.BuildTask. Handles SConfErrors
     correctly and knows about the current cache_mode.
     """
+    sconf_nodes = set()
+
     def display(self, message):
         if sconf_global.logstream:
             sconf_global.logstream.write("scons: Configure: " + message + "\n")
@@ -375,6 +377,17 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                     sconsign = t.dir.sconsign()
                     sconsign.set_entry(t.name, sconsign_entry)
                     sconsign.merge()
+
+    def make_ready_current(self):
+        self.sconf_nodes.update(self.targets)
+        super().make_ready_current()
+    make_ready = make_ready_current
+
+    def postprocess(self):
+        for node in self.sconf_nodes:
+            if not node.is_conftest():
+                node.ninfo = node.new_ninfo()
+        super().postprocess()
 
 class SConfBase:
     """This is simply a class to represent a configure context. After

@@ -126,6 +126,8 @@ FIXES
 - The system environment variable names imported for MSVC 7.0 and 6.0 were updated to be
   consistent with the variables names defined by their respective installers.  This fixes an
   error caused when bypassing MSVC detection by specifying the MSVC 7.0 batch file directly.
+- Fix for issue #2757, configure checks now clear node info for non conftest nodes, so they 
+  will be re-evaluated for the real taskmaster run when the build commences.
 
 IMPROVEMENTS
 ------------

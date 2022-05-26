@@ -105,6 +105,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
     - Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
       to connect to the server during start up.
+    - Fix for issue #2757, configure checks now clear node info for non conftest nodes, so they 
+      will be re-evaluated for the real taskmaster run when the build commences.
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

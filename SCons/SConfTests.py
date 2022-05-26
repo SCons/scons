@@ -214,6 +214,8 @@ class SConfTestCase(unittest.TestCase):
                         pass
                     def get_stored_info(self):
                         pass
+                    def is_conftest(self):
+                        return True
                     def get_executor(self):
                         class Executor:
                             def __init__(self, targets):

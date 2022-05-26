@@ -84,10 +84,10 @@ conftest_%(sig_re)s_0.c:
         %(sig_re)s \[.*\]
 conftest_%(sig_re)s_0_%(sig_re)s%(_obj)s:
         %(_sconf_temp_conftest_0_c)s: %(sig_re)s \d+ \d+
-        %(CC)s: %(sig_re)s \d+ \d+
+        %(CC)s: %(sig_re)s None None
         %(sig_re)s \[.*\]
 === %(CC_dir)s:
-%(CC_file)s: %(sig_re)s \d+ \d+
+%(CC_file)s: None None None
 """ % locals()
 
 # grab .sconsign or .sconsign_<hashname>
