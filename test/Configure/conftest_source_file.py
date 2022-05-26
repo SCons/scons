@@ -28,6 +28,8 @@ Template for end-to-end test file.
 Replace this with a description of the test.
 """
 
+import textwrap
+
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -36,16 +38,23 @@ test.dir_fixture("conftest_source_file")
 
 test.run(arguments='.')
 
+conf_text = textwrap.dedent("""\
+    Checking for C header file header1.h... {cached1}yes
+    Checking for C header file header3.h... {cached3}yes
+""")
+
+test.up_to_date(read_str=conf_text.format(cached1='(cached) ', cached3='(cached) '))
+
 test.write('header2.h', """
 #pragma once
 int test_header = 2;
 """)
 
-test.not_up_to_date(read_str="Checking for C header file header1.h... (cached) yes\n")
+test.not_up_to_date(read_str=conf_text.format(cached1='(cached) ', cached3='(cached) '))
 
-test.up_to_date(read_str="Checking for C header file header1.h... yes\n")
+test.up_to_date(read_str=conf_text.format(cached1='', cached3='(cached) '))
 
-test.up_to_date(read_str="Checking for C header file header1.h... (cached) yes\n")
+test.up_to_date(read_str=conf_text.format(cached1='(cached) ', cached3='(cached) '))
 
 test.pass_test()
 
