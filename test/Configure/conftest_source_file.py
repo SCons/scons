@@ -39,22 +39,22 @@ test.dir_fixture("conftest_source_file")
 test.run(arguments='.')
 
 conf_text = textwrap.dedent("""\
-    Checking for C header file header1.h... {cached1}yes
-    Checking for C header file header3.h... {cached3}yes
+    Checking for C header file header1.h... {}yes
+    Checking for C header file header3.h... (cached) yes
 """)
 
-test.up_to_date(read_str=conf_text.format(cached1='(cached) ', cached3='(cached) '))
+test.up_to_date(read_str=conf_text.format('(cached) '))
 
 test.write('header2.h', """
 #pragma once
 int test_header = 2;
 """)
 
-test.not_up_to_date(read_str=conf_text.format(cached1='(cached) ', cached3='(cached) '))
+test.not_up_to_date(read_str=conf_text.format('(cached) '))
 
-test.up_to_date(read_str=conf_text.format(cached1='', cached3='(cached) '))
+test.up_to_date(read_str=conf_text.format(''))
 
-test.up_to_date(read_str=conf_text.format(cached1='(cached) ', cached3='(cached) '))
+test.up_to_date(read_str=conf_text.format('(cached) '))
 
 test.pass_test()
 
