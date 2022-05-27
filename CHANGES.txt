@@ -99,12 +99,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
-    - Added SHELL_ENV_GENERATOR construction variable. This variable allows the user to Define
-      a function which will be called to generate or alter the execution environment which will
-      be used in the shell command of some Action.
-    - Updated SHELL_ENV_GENERATOR construction variable to SHELL_ENV_GENERATORS. This variable 
-      is now an iterable which will contain functions which each are called and each can customize
-      the execution environment.
+    - Added SHELL_ENV_GENERATORS construction variable. This variable 
+      is an iterable which will contain functions in which each are called and each can allow
+      the user a method to customize the execution environment.
     - Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
     - Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
       to connect to the server during start up.
