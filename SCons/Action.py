@@ -768,7 +768,7 @@ def _resolve_shell_env(env, target, source):
             for generator in shell_gens:
                 ENV = generator(env, target, source, ENV)
                 if not isinstance(ENV, dict):
-                    raise SCons.Errors.UserError("SHELL_ENV_GENERATORS function: {generator} must return a dict.")
+                    raise SCons.Errors.UserError(f"SHELL_ENV_GENERATORS function: {generator} must return a dict.")
     return ENV
 
 
