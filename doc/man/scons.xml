@@ -12,10 +12,10 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
-#
+
 The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
-#
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -145,16 +145,16 @@ to support additional input file types.
 
 <para>Information about files involved in the build,
 including a cryptographic hash of the contents,
-is cached for later reuse,
-By default content hashes are used to determine if a file
-has changed since the last build,
+is cached for later reuse.
+By default this hash (the <firstterm>&contentsig;</firstterm>)
+is used to determine if a file has changed since the last build,
 but this can be controlled by selecting an appropriate
 <firstterm>&f-link-Decider;</firstterm> function.
 Implicit dependency files are also part of out-of-date computation.
 The scanned implicit dependency information can optionally be
 cached and used to speed up future builds.
-A hash of each executed build action is cached,
-so that changes to build instructions (changing flags, etc.)
+A hash of each executed build action (the <firstterm>&buildsig;</firstterm>
+is cached, so that changes to build instructions (changing flags, etc.)
 or to the build tools themselves (new version)
 can also trigger a rebuild.
 </para>
@@ -4968,20 +4968,51 @@ vars.AddVariables(
 </refsect2>
 
 <refsect2 id='node_objects'>
-<title>File and Directory Nodes</title>
+<title>Node Objects</title>
+
+<para>
+&SCons; represents objects that are the sources or targets of
+build operations as <firstterm>Nodes</firstterm>,
+which are internal data structures.
+There are a number of user-visible types of nodes:
+File Nodes, Directory Nodes, Value Nodes and Alias Nodes.
+Some of the node types have public attributes and methods,
+described below. Each of the node types has a global function
+and a matching environment method to create instances:
+&f-link-File;, &f-link-Dir;, &f-link-Value; and &f-link-Alias;.
+</para>
+
+<refsect3 id='file_and_directory_nodes'>
+<title>Filesystem Nodes</title>
 
 <para>
 The &f-link-File; and &f-link-Dir;
 functions/methods return
 File and Directory Nodes, respectively.
-Such nodes are Python objects with
-several user-visible attributes
-and methods that are often useful to access
-in SConscript files:</para>
+File and Directory Nodes
+(collectively, Filesystem Nodes)
+represent build components that correspond to an entry
+in the computer's filesystem,
+whether or not such an entry exists at the time the Node is created.
+You do not usually need to explicitly create filesystem Nodes,
+since when you supply a string as a target or source of a Builder,
+&SCons; will create the Nodes as needed to populate the
+dependency graph.
+Builders return the target Node(s) in the form of a list,
+which you can then make use of.
+However, since filesystem Nodes have some useful
+public attributes and methods
+that you can use in SConscript files,
+it is sometimes appropriate to create them manually,
+outside the regular context of a Builder call.
+</para>
+<para>
+The following attributes provide information about a Node:
+</para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>path</varname></term>
+  <term><replaceable>node</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
 of the given
@@ -4995,21 +5026,21 @@ is not being used.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>abspath</varname></term>
+  <term><replaceable>node</replaceable>.<varname>abspath</varname></term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>relpath</varname></term>
+  <term><replaceable>node</replaceable>.<varname>relpath</varname></term>
   <listitem>
 <para>The build path of the given file or directory relative to the root SConstruct file's directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<function>srcnode</function>()</term>
+  <term><replaceable>node</replaceable>.<function>srcnode</function>()</term>
   <listitem>
 <para>The
 <function>srcnode</function>
@@ -5022,101 +5053,116 @@ File or Directory Node.
   </varlistentry>
 </variablelist>
 
-<para>For example:</para>
+<para>Examples:</para>
 
 <programlisting language="python">
 # Get the current build dir's path, relative to top.
 Dir('.').path
+
 # Current dir's absolute path
 Dir('.').abspath
+
 # Current dir's path relative to the root SConstruct file's directory
 Dir('.').relpath
+
 # Next line is always '.', because it is the top dir's path relative to itself.
 Dir('#.').path
-File('foo.c').srcnode().path   # source path of the given source file.
 
-# Builders also return File objects:
+# Source path of the given source file.
+File('foo.c').srcnode().path
+
+# Builders return lists of File objects:
 foo = env.Program('foo.c')
-print("foo will be built in", foo.path)
+print("foo will be built in", foo[0].path)
 </programlisting>
 
 <para>
-File and Directory Node objects have methods to create
+Filesystem Node objects have methods to create new
 File and Directory Nodes relative to the original Node.
+There are also times when you may need to refer to an entry
+in a filesystem without knowing in advance whether it's a
+file or a directory.
+For those situations,
+there is an <function>Entry</function> method of filesystem node objects,
+which returns a Node that can represent either a file or a directory.
 </para>
 
 <para>
-If the object is a Directory Node,
-these methods will place the the new Node within the directory
-the Node represents:
+If the original Node is a Directory Node,
+these methods will place the new Node within the directory
+the original Node represents:
 </para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a directory Node for a subdirectory of
-<replaceable>d</replaceable>
-named
-<parameter>name</parameter>.</para>
+<para>Returns a directory Node
+<parameter>name</parameter>
+which is a subdirectory of
+the directory represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a file Node for a file within
-<replaceable>d</replaceable>
-named
-<parameter>name</parameter>.</para>
+<para>Returns a file Node
+<parameter>name</parameter>
+in the directory represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns an unresolved Node within
-<replaceable>d</replaceable>
-named
-<parameter>name</parameter>.</para>
+<para>Returns an unresolved Node
+<parameter>name</parameter>
+in the directory represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
 <para>
-If the object is a File Node,
+If the original Node is a File Node,
 these methods will place the the new Node in the same
-directory as the one the Node represents:
+directory as the one the original Node represents:
 </para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a directory named
+<para>Returns a Node
 <parameter>name</parameter>
-within the parent directory of
-<replaceable>f</replaceable>.</para>
+for a directory in the parent directory of
+the file represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a file named
+<para>Returns a Node
 <parameter>name</parameter>
-within the parent directory of
-<replaceable>f</replaceable>.</para>
+for a file in the parent directory of
+the file represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns an unresolved Node named
+<para>Returns an unresolved Node
 <parameter>name</parameter>
-within the parent directory of
-<replaceable>f</replaceable>.</para>
+in the parent directory of
+the file represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -5142,6 +5188,56 @@ html = docs.Dir('html')
 index = html.File('index.html')
 css = index.File('app.css')
 </programlisting>
+</refsect3>
+
+<refsect3 id='value_and_alias_nodes'>
+<title>Value and Alias Nodes</title>
+
+<para>
+&SCons; provides two other Node types to represent
+object that will not have an equivalent filesystem entry.
+Such Nodes always need to be created explicitly.
+</para>
+
+<para>
+The &f-link-Alias; method returns an Alias Node.
+Aliases are virtual objects - they will not themselves result
+in physical objects being constructed, but are entered into
+the dependency graph related to their sources.
+An alias is checked for up to date by checking if
+its sources are up to date.
+An alias is built by making sure its sources have been built,
+and if any building took place, 
+applying any Actions that are defined as part of the alias.
+</para>
+
+<para>
+An &f-link-Alias; call creates an entry in the alias namespace,
+which is used for disambiguation.
+If an alias source has a string valued name,
+it will be resolved to a filesystem entry Node,
+unless it is found in the alias namespace,
+in which case it it resolved to the matching alias Node.
+As a result, the order of &f-Alias; calls is significant.
+An alias can refer to another alias, but only if the
+other alias has previously been created.
+</para>
+
+<para>
+The &f-link-Value; method returns a Value Node.
+Value nodes are often used for generated data that
+will not have any corresponding filesystem entry,
+but will be used to determine whether a build target is out of date,
+or to include as part of a build Action.
+Common examples are timestamp strings,
+revision control version strings
+and other run-time generated strings.
+</para>
+
+<para>
+A Value Node can also be the target of a builder.
+</para>
+</refsect3>
 
 </refsect2>
 </refsect1>
@@ -5156,13 +5252,14 @@ to customize its behavior.
 A number of the main operations use callable objects
 which can be supplemented by writing your own.
 Builders, Scanners and Tools each use a kind of plugin system,
-allowing you to seamlessly drop in new ones.
+allowing you to easily drop in new ones.
 Information about creating
 <link linkend='builder_objects'>Builder Objects</link> and
 <link linkend='scanner_objects'>Scanner Objects</link>
 appear in the following sections.
-The instructions &SCons; actually uses to make things are called
-Actions, and it is easy to create Action Objects and hand them
+The instructions &SCons; actually uses to
+construct things are called Actions,
+and it is easy to create Action Objects and hand them
 to the objects that need to know about those actions
 (besides Builders, see &f-link-AddPostAction;,
 &f-link-AddPreAction; and &f-link-Alias; for some examples
@@ -5762,14 +5859,13 @@ The canonical example here would be
 to set a &consvar; to
 the repository of a source code system.</para>
 
-<para>Any additional keyword arguments supplied
+<para>Any such keyword arguments supplied
 when a Builder object is called
 will only be associated with the target
 created by that particular &f-Builder; call
 (and any other files built as a
-result of the call).</para>
-
-<para>These extra keyword arguments are passed to the
+result of the call).
+These extra keyword arguments are passed to the
 following functions:
 <link linkend='generator_function'>command generator functions</link>,
 <link linkend='miscellaneous_action_functions'>function Actions</link>,
@@ -7249,7 +7345,7 @@ A tool specification module must include two functions:
     <listitem>
 <para>Modify the &consenv; <parameter>env</parameter>
 to set up necessary &consvars;, Builders, Emitters, etc.,
-so the facilities represented by the tool can be executed. 
+so the facilities represented by the tool can be executed.
 Care should be taken not to overwrite &consvars; intended
 to be settable by the user. For example:
 </para>
@@ -7506,8 +7602,8 @@ arguments to itself, not to &scons;:</para>
 </screen>
 
 <para>Second, the Cygwin shell does not
-reognize typing <userinput>scons</userinput>
-at the command line prompt as referring to this weapper.
+recognize typing <userinput>scons</userinput>
+at the command line prompt as referring to this wrapper.
 You can work around this either by executing
 <userinput>scons.bat</userinput>
 (including the extension)
@@ -8155,7 +8251,7 @@ in tightly controlled Continuous Integration setups.</para>
 <para>If set to a True-like value (<literal>"1"</literal>,
 <literal>"true"</literal> or
 <literal>"True"</literal>) will cache to a file named
-<filename>.scons_msvc_cache</filename> in the user's home directory.
+<filename>.scons_msvc_cache.json</filename> in the user's home directory.
 If set to a pathname, will use that pathname for the cache.</para>
 
 <para>Note: use this cache with caution as it

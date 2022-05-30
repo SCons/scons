@@ -1,0 +1,41 @@
+import SCons
+
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
+
+vars = Variables()
+vars.Add("USE_GEN_SOURCE_ALIAS")
+
+env = Environment(variables=vars)
+my_gen_alias = 'my_ninja_gen_sources'
+
+
+env['SCANNERS'][0].add_scanner('.htest', SCons.Tool.CScanner)
+env.Command('out.txt', [], f'echo USE_GEN_SOURCE_ALIAS={env["USE_GEN_SOURCE_ALIAS"]}')
+
+if env['USE_GEN_SOURCE_ALIAS'] == "1":
+    env['NINJA_GENERATED_SOURCE_ALIAS_NAME'] = my_gen_alias
+else:
+    env['NINJA_GENERATED_SOURCE_SUFFIXES'] = ['.htest']
+
+env.Tool('ninja')
+
+env.Alias(my_gen_alias, env.Textfile('generated_header1.htest', [
+    '#pragma once',
+    'int func1(){return 4;};'
+]))
+alias = env.Alias(my_gen_alias, env.Textfile('generated_header2.htest', [
+    '#pragma once',
+    '',
+    'int func2();'
+]))
+env.Depends(alias, 'out.txt')
+
+my_gen_alias, env.Textfile('generated_header2.c', [
+    '#include "generated_header1.htest"',
+    '#include "generated_header2.htest"',
+    '',
+    'int func2(){return func1();}'
+])
+
+env.Program(target='gen_source', source=['gen_source.c', 'generated_header2.c'])

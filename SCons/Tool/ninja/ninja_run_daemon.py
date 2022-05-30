@@ -60,6 +60,10 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
+def log_error(msg):
+    logging.debug(msg)
+    sys.stderr.write(msg)
+
 if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     cmd = [
         sys.executable,
@@ -67,10 +71,25 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
     ] + sys.argv[1:]
     logging.debug(f"Starting daemon with {' '.join(cmd)}")
 
-    p = subprocess.Popen(
-        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=False
-    )
-
+    
+    # TODO: Remove the following when Python3.6 support is dropped.
+    if sys.platform == 'win32' and sys.version_info[0] == 3 and sys.version_info[1] == 6:
+        # on Windows with Python version 3.6, popen does not do a good job disconnecting
+        # the std handles and this make ninja hang because they stay open to the original
+        # process ninja launched. Here we can force the handles to be separated.
+        # See: https://docs.python.org/3.6/library/subprocess.html#subprocess.STARTUPINFO
+        # See Also: https://docs.python.org/3.6/library/subprocess.html#subprocess.Popen
+        # Note when you don't specify stdin, stdout, and/or stderr they default to None
+        # which indicates no output redirection will occur.
+        si = subprocess.STARTUPINFO()
+        si.dwFlags = subprocess.STARTF_USESTDHANDLES
+        p = subprocess.Popen(
+            cmd, close_fds=True, shell=False, startupinfo=si
+        )
+    else:
+        p = subprocess.Popen(
+            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=False,
+        )
     with open(daemon_dir / "pidfile", "w") as f:
         f.write(str(p.pid))
     with open(ninja_builddir / "scons_daemon_dirty", "w") as f:
@@ -92,14 +111,13 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
             except (http.client.RemoteDisconnected, http.client.ResponseNotReady):
                 time.sleep(0.01)
             except http.client.HTTPException:
-                logging.debug(f"Error: {traceback.format_exc()}")
-                sys.stderr.write(error_msg)
+                log_error(f"Error: {traceback.format_exc()}")
                 exit(1)
             else:
                 msg = response.read()
                 status = response.status
                 if status != 200:
-                    print(msg.decode("utf-8"))
+                    log_error(msg.decode("utf-8"))
                     exit(1)
                 logging.debug("Server Responded it was ready!")
                 break
@@ -107,16 +125,14 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
         except ConnectionRefusedError:
             logging.debug(f"Server not ready, server PID: {p.pid}")
             time.sleep(1)
-            if p.poll is not None:
-                logging.debug(f"Server process died, aborting: {p.returncode}")
+            if p.poll() is not None:
+                log_error(f"Server process died, aborting: {p.returncode}")
                 sys.exit(p.returncode)
         except ConnectionResetError:
-            logging.debug("Server ConnectionResetError")
-            sys.stderr.write(error_msg)
+            log_error("Server ConnectionResetError")
             exit(1)
         except Exception:
-            logging.debug(f"Error: {traceback.format_exc()}")
-            sys.stderr.write(error_msg)
+            log_error(f"Error: {traceback.format_exc()}")
             exit(1)
 
 # Local Variables:
