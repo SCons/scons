@@ -93,6 +93,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       "dict" (avoid redefining builtin)
     - Fix an old use-before-set bug in tex tool (issue #2888)
     - Fix a test harness exception returning stderr if a wait_for timed out.
+    - Modernize a few tests that use now-deprecated unittest.getTestCaseNames
+      and unittest.makeSuite - Python itself suggests the replacements.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
