@@ -2429,8 +2429,10 @@ if __name__ == "__main__":
     ]
     suite = unittest.TestSuite()
     for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests([ tclass(n) for n in names ])
+        loader = unittest.TestLoader()
+        loader.testMethodPrefix = 'test_'
+        names = loader.getTestCaseNames(tclass)
+        suite.addTests([tclass(n) for n in names])
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 
