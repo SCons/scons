@@ -166,7 +166,7 @@ def must_be_same(f1, f2):
     for value in ['ST_MODE', 'ST_MTIME']:
         v = getattr(stat, value)
         if s1[v] != s2[v]:
-            msg = f"{f1!r}[{value}] {s1[v1]} != {f2!r}[{value}] {s2[v]}\n"
+            msg = f"{f1!r}[{value}] {s1[v]} != {f2!r}[{value}] {s2[v]}\n"
             sys.stderr.write(msg)
             errors += 1
 
