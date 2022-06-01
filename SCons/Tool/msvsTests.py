@@ -982,7 +982,9 @@ if __name__ == "__main__":
                 if k in os.environ:
                     del os.environ[k]
 
-            suite = unittest.makeSuite(test_class, 'test_')
+            loader = unittest.TestLoader()
+            loader.testMethodPrefix = 'test_'
+            suite = loader.loadTestsFromTestCase(test_class)
             if not TestUnit.cli.get_runner()().run(suite).wasSuccessful():
                 exit_val = 1
         finally:
