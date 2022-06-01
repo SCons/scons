@@ -732,7 +732,7 @@ def _string_from_cmd_list(cmd_list):
 default_ENV = None
 
 
-def get_default_ENV(env, target=None, source=None):
+def get_default_ENV(env):
     """
     A fiddlin' little function that has an 'import SCons.Environment' which
     can't be moved to the top level without creating an import loop.  Since
@@ -753,6 +753,29 @@ def get_default_ENV(env, target=None, source=None):
             # we're not going to worry about it overmuch.
             default_ENV = SCons.Environment.Environment()['ENV']
         return default_ENV
+
+
+def _resolve_shell_env(env, target, source):
+    """
+    First get default environment.
+    Then if SHELL_ENV_GENERATORS is set and is iterable,
+    call each callable in that list to allow it to alter
+    the created execution environment.
+    """
+    ENV = get_default_ENV(env)
+    shell_gen = env.get('SHELL_ENV_GENERATORS')
+    if shell_gen:
+        try:
+            shell_gens = iter(shell_gen)
+        except TypeError:
+            raise SCons.Errors.UserError("SHELL_ENV_GENERATORS must be iteratable.")
+        else:
+            ENV = ENV.copy()
+            for generator in shell_gens:
+                ENV = generator(env, target, source, ENV)
+                if not isinstance(ENV, dict):
+                    raise SCons.Errors.UserError(f"SHELL_ENV_GENERATORS function: {generator} must return a dict.")
+    return ENV
 
 
 def _subproc(scons_env, cmd, error='ignore', **kw):
@@ -924,10 +947,9 @@ class CommandAction(_ActionAction):
 
         escape = env.get('ESCAPE', lambda x: x)
 
-        ENV = env.get('SHELL_ENV_GENERATOR', get_default_ENV)(env, target, source)
+        ENV = _resolve_shell_env(env, target, source)
 
         # Ensure that the ENV values are all strings:
-
         for key, value in ENV.items():
             if not is_String(value):
                 if is_List(value):

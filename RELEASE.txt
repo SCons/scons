@@ -16,9 +16,12 @@ NEW FUNCTIONALITY
 
 - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
 - Added Configure.CheckMember() checker to check if struct/class has the specified member.
-- Added SHELL_ENV_GENERATOR construction variables. This variable allows the user to Define
-  a function which will be called to generate or alter the execution environment which will
-  be used in the shell command of some Action.
+- Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
+  (or an iterable) which contains functions to be called in order
+  when constructing the execution environment (Generally this is the shell environment
+  variables). This allows the user to customize how (for example) PATH is constructed.
+  Note that these are called for every build command run by SCons. It could have considerable
+  performance impact if not used carefully.
 - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
 
