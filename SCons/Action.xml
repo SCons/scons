@@ -203,7 +203,7 @@ in which the command should be executed.
 <cvar name="SHELL_ENV_GENERATORS">
   <summary>
     <para>
-Must be an iterable containing functions where each function generates or 
+Must be a list (or an iterable) containing functions where each function generates or
 alters the environment dictionary which will be used
 when executing the &cv-link-SPAWN; function. The functions will initially 
 be passed a reference of the current execution environment (e.g. env['ENV']), 
@@ -214,14 +214,14 @@ values.
 
 This primary purpose of this construction variable is to give the user the ability
 to substitute execution environment variables based on env, targets, and sources. 
-If desired, the user can completly customize the execution environment for particular 
+If desired, the user can completely customize the execution environment for particular
 targets.
     </para>
 
     <example_commands>
 def custom_shell_env(env, target, source, shell_env):
-    # customize shell_env if desired
-    if str(target[0]) == 'special_target'is:
+    """customize shell_env if desired"""
+    if str(target[0]) == 'special_target':
       shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
     return shell_env
   

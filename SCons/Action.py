@@ -756,9 +756,15 @@ def get_default_ENV(env):
 
 
 def _resolve_shell_env(env, target, source):
+    """
+    First get default environment.
+    Then if SHELL_ENV_GENERATORS is set and is iterable,
+    call each callable in that list to allow it to alter
+    the created execution environment.
+    """
     ENV = get_default_ENV(env)
-    shell_gen = env.get('SHELL_ENV_GENERATORS') 
-    if shell_gen is not None:
+    shell_gen = env.get('SHELL_ENV_GENERATORS')
+    if shell_gen:
         try:
             shell_gens = iter(shell_gen)
         except TypeError:

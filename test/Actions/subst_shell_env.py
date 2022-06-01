@@ -25,7 +25,7 @@
 
 """
 Verify that shell environment variables can be expanded per target/source
-when exectuting actions on the command line.
+when executing actions on the command line.
 """
 import os
 
