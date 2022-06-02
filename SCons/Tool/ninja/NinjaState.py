@@ -37,7 +37,7 @@ import hashlib
 
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
-from SCons.Util import is_List
+from SCons.Util import is_List, wait_for_process_to_die
 from SCons.Errors import InternalError
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
@@ -644,32 +644,7 @@ class NinjaState:
                     pass
 
                 # wait for the server process to fully killed
-                try:
-                    import psutil
-                    while True:
-                        if pid not in [proc.pid for proc in psutil.process_iter()]:
-                            break
-                        else:
-                            time.sleep(0.1)
-                except ImportError:                            
-                    # if psutil is not installed we can do this the hard way
-                    while True:
-                        if sys.platform == 'win32':
-                            import ctypes
-                            PROCESS_QUERY_INFORMATION = 0x1000
-                            processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0,pid)
-                            if processHandle == 0:
-                                break
-                            else:
-                                ctypes.windll.kernel32.CloseHandle(processHandle)
-                                time.sleep(0.1)
-                        else:
-                            try:
-                                os.kill(pid, 0)
-                            except OSError:
-                                break
-                            else:
-                                time.sleep(0.1)
+                wait_for_process_to_die(pid)
 
         if os.path.exists(scons_daemon_dirty):
             os.unlink(scons_daemon_dirty)
