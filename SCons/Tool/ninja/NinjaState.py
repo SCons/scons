@@ -29,7 +29,6 @@ import signal
 import tempfile
 import shutil
 import sys
-import time
 from os.path import splitext
 from tempfile import NamedTemporaryFile
 import ninja
@@ -37,7 +36,7 @@ import hashlib
 
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
-from SCons.Util import is_List, wait_for_process_to_die
+from SCons.Util import wait_for_process_to_die
 from SCons.Errors import InternalError
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
