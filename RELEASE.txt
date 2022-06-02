@@ -58,17 +58,17 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   ".scons_msvc_cache" so there should be no transition problem if using the
   default; if using a custom cache file name, the cache should still be
   manually removed if there are problems to transition to the new style.
-- Update ninja file generation to only create response files for build commands
+- Ninja: Update ninja file generation to only create response files for build commands
   which exceed MAXLINELENGTH
 - Update the debug output written to stdout for MSVC initialization which is enabled
   by setting SCONS_MSCOMMON_DEBUG=- to use the logging module. Also changed the debug
   output format written to stdout to include more information about the source for each
   message of MSVC initialization debugging output.  A single space was added before the
   message for all debugging output records written to stdout and to files.
-- Made ninja tool force the ninja file as the only target. Also improved the default 
+- Ninja: Made ninja tool force the ninja file as the only target. Also improved the default 
   targets setup and made sure there is always a default target for
   the ninja file, which excludes targets that start and stop the daemon.
-- Update ninja tool so targets passed to SCons are propgated to ninja when scons
+- Ninja: Update ninja tool so targets passed to SCons are propgated to ninja when scons
   automatically executes ninja.
 - Add JavaScanner to include JAVACLASSPATH as a dependency when using the Java tool.
 - The build argument (i.e., x86) is no longer passed to the MSVC 6.0 to 7.1 batch
@@ -138,7 +138,7 @@ IMPROVEMENTS
 - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
   exception immediately when the user specified msvc script does not exist.
 - Add cache-debug messages for push failures.
-- Added ninja mingw support and improved ninja CommandGeneratorAction support.
+- Ninja: Added ninja mingw support and improved ninja CommandGeneratorAction support.
 - Command-line help is now sensitive to the size of the terminal window: the
   width of the help text will scale for terminals other than 80 chars wide.
 - Refactor the msvc code so that the same data structures are used during initial msvc detection
@@ -148,7 +148,10 @@ IMPROVEMENTS
 - Small refactor of scons daemons using a shared StateInfo class for communication 
   between the scons interactive thread and the http server thread. Added error handling
   for scons interactive failing to startup.
-- Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
+- Ninja: Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
+- Ninja: Ensure that all targets set as default via Default() in SConstruct/SConscripts are 
+  default targets in the generated ninja.build file.
+
 
 PACKAGING
 ---------
