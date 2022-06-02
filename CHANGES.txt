@@ -107,11 +107,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Small refactor of scons daemons using a shared StateInfo class for communication 
       between the scons interactive thread and the http server thread. Added error handling
       for scons interactive failing to startup.
-    - Added SHELL_ENV_GENERATOR construction variables. This variable allows the user to Define
-      a function which will be called to generate or alter the execution environment which will
-      be used in the shell command of some Action.
     - Ninja: Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
     - Ninja: Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+    - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
+      (or an iterable) which contains functions to be called in order
+      when constructing the execution environment (Generally this is the shell environment
+      variables). This allows the user to customize how (for example) PATH is constructed.
+      Note that these are called for every build command run by SCons. It could have considerable
+      performance impact if not used carefully.
       to connect to the server during start up.
 
   From Mats Wichmann:
@@ -157,6 +160,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Restore the ability of the content-timestamp decider to see that a
       a source which is a symlink has changed if the file-system target of
       that link has been modified (issue #3880)
+    - Modernize a few tests that use now-deprecated unittest.getTestCaseNames
+      and unittest.makeSuite - Python itself suggests the replacements.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

@@ -876,7 +876,9 @@ if __name__ == '__main__':
                  fileTestCase,
                ]
     for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
+        loader = unittest.TestLoader()
+        loader.testMethodPrefix = 'test_'
+        names = loader.getTestCaseNames(tclass)
         try:
             names = sorted(set(names))
         except NameError:

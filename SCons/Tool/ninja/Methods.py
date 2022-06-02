@@ -81,7 +81,7 @@ def get_generic_shell_command(env, node, action, targets, sources, executor=None
         "GENERATED_CMD",
         {
             "cmd": generate_command(env, node, action, targets, sources, executor=executor),
-            "env": get_command_env(env),
+            "env": get_command_env(env, targets, sources),
         },
         # Since this function is a rule mapping provider, it must return a list of dependencies,
         # and usually this would be the path to a tool, such as a compiler, used for this rule.
@@ -266,7 +266,7 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
 
         variables = {"rspc": rsp_content, rule: cmd}
         if use_command_env:
-            variables["env"] = get_command_env(env)
+            variables["env"] = get_command_env(env, targets, sources)
 
             for key, value in custom_env.items():
                 variables["env"] += env.subst(

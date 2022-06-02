@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -58,23 +57,20 @@ test.write(['w1', 'SConstruct1'], SConstruct1_contents)
 test.write(['w1', 'SConstruct2'], SConstruct2_contents)
 test.write(['w1', 'foo.in'], "foo.in 1")
 
-test.run(chdir='w1',
-         arguments="--max-drift=0 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
+test.run(
+    chdir='w1',
+    arguments="--max-drift=0 -f SConstruct1 foo.mid",
+    stdout=test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'),
+)
+test.run(
+    chdir='w1',
+    arguments="--max-drift=0 -f SConstruct2 foo.out",
+    stdout=test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'),
+)
+test.up_to_date(chdir='w1', options="--max-drift=0 -f SConstruct1", arguments="foo.mid")
+test.up_to_date(chdir='w1', options="--max-drift=0 -f SConstruct2", arguments="foo.out")
 
-test.run(chdir='w1',
-         arguments="--max-drift=0 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
-
-test.up_to_date(chdir='w1',
-                options="--max-drift=0 -f SConstruct1",
-                arguments="foo.mid")
-
-test.up_to_date(chdir='w1',
-                options="--max-drift=0 -f SConstruct2",
-                arguments="foo.out")
-
-test.sleep()  # make sure foo.in rewrite has new mod-time
+test.sleep()  # delay for timestamps
 test.write(['w1', 'foo.in'], "foo.in 2")
 
 # Because we're using --max-drift=0, we use the cached csig value
@@ -86,17 +82,19 @@ test.up_to_date(chdir='w1',
 # Now try with --max-drift disabled.  The build of foo.out should still
 # be considered up-to-date, but the build of foo.mid now detects the
 # change and rebuilds, too, which then causes a rebuild of foo.out.
-test.up_to_date(chdir='w1',
-                options="--max-drift=-1 -f SConstruct2",
-                arguments="foo.out")
-
-test.run(chdir='w1',
-         arguments="--max-drift=-1 -f SConstruct1 foo.mid",
-         stdout = test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'))
-
-test.run(chdir='w1',
-         arguments="--max-drift=-1 -f SConstruct2 foo.out",
-         stdout = test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'))
+test.up_to_date(
+    chdir='w1', options="--max-drift=-1 -f SConstruct2", arguments="foo.out"
+)
+test.run(
+    chdir='w1',
+    arguments="--max-drift=-1 -f SConstruct1 foo.mid",
+    stdout=test.wrap_stdout('build(["foo.mid"], ["foo.in"])\n'),
+)
+test.run(
+    chdir='w1',
+    arguments="--max-drift=-1 -f SConstruct2 foo.out",
+    stdout=test.wrap_stdout('build(["foo.out"], ["foo.mid"])\n'),
+)
 
 test.pass_test()
 

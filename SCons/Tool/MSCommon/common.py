@@ -35,6 +35,10 @@ from contextlib import suppress
 from pathlib import Path
 
 import SCons.Util
+import SCons.Warnings
+
+class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
+    pass
 
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
@@ -110,7 +114,15 @@ def read_script_env_cache():
                 # json to the cache dictionary. Reconstruct the cache key
                 # tuple from the key list written to json.
                 envcache_list = json.load(f)
-                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                if isinstance(envcache_list, list):
+                    envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                else:
+                    # don't fail if incompatible format, just proceed without it
+                    warn_msg = "Incompatible format for msvc cache file {}: file may be overwritten.".format(
+                        repr(CONFIG_CACHE)
+                    )
+                    SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
+                    debug(warn_msg)
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass

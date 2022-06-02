@@ -621,7 +621,9 @@ def suite():
                  ClassicCPPTestCase,
                ]
     for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
+        loader = unittest.TestLoader()
+        loader.testMethodPrefix = 'test_'
+        names = loader.getTestCaseNames(tclass)
         suite.addTests(list(map(tclass, names)))
     return suite
 

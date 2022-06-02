@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that various ways of getting at a an sconsign file written with
@@ -97,17 +96,11 @@ main(int argc, char *argv[])
 }
 """)
 
-test.write(['sub2', 'inc1.h'], r"""\
-#define STRING1 "inc1.h"
-""")
+test.write(['sub2', 'inc1.h'], r'#define STRING1 "inc1.h"')
+test.write(['sub2', 'inc2.h'], r'#define STRING2 "inc2.h"')
 
-test.write(['sub2', 'inc2.h'], r"""\
-#define STRING2 "inc2.h"
-""")
-
-test.sleep()
-
-test.run(arguments = '. --max-drift=1')
+test.sleep()  # delay for timestamps
+test.run(arguments='. --max-drift=1')
 
 sig_re = r'[0-9a-fA-F]{32,64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
@@ -146,23 +139,23 @@ hello%(_obj)s: %(sig_re)s '%(date_re)s' \d+
 
 common_flags = '-e hello%(_exe)s -e hello%(_obj)s -d sub1' % locals()
 
-test.run_sconsign(arguments = "%s my_sconsign" % common_flags,
-                  stdout = expect)
+test.run_sconsign(arguments="%s my_sconsign" % common_flags, stdout=expect)
 
-test.run_sconsign(arguments = "%s my_sconsign.dblite" % common_flags,
-                  stdout = expect)
+test.run_sconsign(arguments="%s my_sconsign.dblite" % common_flags, stdout=expect)
 
-test.run_sconsign(arguments = "%s -f dblite my_sconsign" % common_flags,
-                  stdout = expect)
+test.run_sconsign(arguments="%s -f dblite my_sconsign" % common_flags, stdout=expect)
 
-test.run_sconsign(arguments = "%s -f dblite my_sconsign.dblite" % common_flags,
-                  stdout = expect)
+test.run_sconsign(
+    arguments="%s -f dblite my_sconsign.dblite" % common_flags, stdout=expect
+)
 
-test.run_sconsign(arguments = "%s -r -f dblite my_sconsign" % common_flags,
-                  stdout = expect_r)
+test.run_sconsign(
+    arguments="%s -r -f dblite my_sconsign" % common_flags, stdout=expect_r
+)
 
-test.run_sconsign(arguments = "%s -r -f dblite my_sconsign.dblite" % common_flags,
-                  stdout = expect_r)
+test.run_sconsign(
+    arguments="%s -r -f dblite my_sconsign.dblite" % common_flags, stdout=expect_r
+)
 
 test.pass_test()
 
