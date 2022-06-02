@@ -303,25 +303,45 @@
 
     <section>
         <title>Ninja Build Generator</title>
-
-        <note>
-            <para>
+<note>
+    <para>
                 This is an experimental new feature.
                 It is subject to change and/or removal without a depreciation cycle.
-            </para>
+    </para>
 
+
+
+    <para>
+            Loading the &t-link-ninja; tool into SCons will make significant changes
+            in SCons' normal functioning.
+    </para>
+    <itemizedlist>
+        <listitem>
             <para>
-                To enable this feature you'll need to use one of the following:
+        SCons will no longer execute any commands directly and will only create the <filename>build.ninja</filename> and
+        run ninja.
             </para>
-<!--        NOTE DO NOT INDENT example_commands CONTENTS AS IT WILL ALTER THE FORMATTING-->
-            <example_commands>
-# On the command line
---experimental=ninja
+        </listitem>
+        <listitem>
+            <para>
+        Any targets specified on the command line will be passed along to &ninja;
+            </para>
+        </listitem>
+    </itemizedlist>
+
+    <para>
+                To enable this feature you'll need to use one of the following:
+    </para>
+    <!--        NOTE DO NOT INDENT example_commands CONTENTS AS IT WILL ALTER THE FORMATTING-->
+    <example_commands>
+# On the command line --experimental=ninja
 
 # Or in your SConstruct
 SetOption('experimental', 'ninja')
-            </example_commands>
-        </note>
+    </example_commands>
+</note>
+
+
 
         <para>
             Ninja is a small build system that tries to be fast
@@ -366,8 +386,10 @@ conda install -c conda-forge ninja
 
         <para>
             It is not expected that the &b-link-Ninja; builder will work for all builds at this point. It is still under active
-            development. If you find that your build doesn't work with &ninja; please bring this to the users mailing list
-            or <literal>#scons-help</literal> channel on our Discord server.
+            development. If you find that your build doesn't work with &ninja; please bring this to the <ulink url="https://pairlist4.pair.net/mailman/listinfo/scons-users">users mailing list</ulink>
+            or <ulink url="https://discord.gg/bXVpWAy">
+            <literal>#scons-help</literal>
+            </ulink> channel on our Discord server.
         </para>
 
         <para>
@@ -375,6 +397,12 @@ conda install -c conda-forge ninja
             will be slower as it will run &ninja;, which will then run SCons for each target created by a &Python; action.
             To alleviate some of these, especially those &Python; based actions built into SCons there is special logic to
             implement those actions via shell commands in the &ninja; build file.
+        </para>
+
+        <para>
+            When ninja runs the generated &ninja; build file, ninja will launch &scons; as a daemon and feed commands
+            to that &scons; process which &ninja; is unable to build directly.  This daemon will stay alive until
+            explicitly killed or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE; .
         </para>
 
         <para>See:</para>

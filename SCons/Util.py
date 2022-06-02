@@ -2138,7 +2138,7 @@ def wait_for_process_to_die(pid):
                 break
             else:
                 time.sleep(0.1)
-    except ImportError:                            
+    except ImportError:
         # if psutil is not installed we can do this the hard way
         while True:
             if sys.platform == 'win32':
