@@ -116,7 +116,9 @@ class ToolTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ToolTestCase, 'test_')
+    loader = unittest.TestLoader()
+    loader.testMethodPrefix = 'test_'
+    suite = loader.loadTestsFromTestCase(ToolTestCase)
     TestUnit.run(suite)
 
 # Local Variables:

@@ -318,7 +318,7 @@ Added methods propagate through &f-env-Clone; calls.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>
@@ -3416,42 +3416,41 @@ env.UpdateValue(target = Value(output), source = Value(input))
 </arguments>
 <summary>
 <para>
-Sets up an alternate build location.
-When building in the <parameter>variant_dir</parameter>,
-&SCons; backfills as needed with files from <parameter>src_dir</parameter>
-to create a complete build directory.
+Sets up a mapping to define a variant build directory in
+<parameter>variant_dir</parameter>.
+<parameter>src_dir</parameter> may not be underneath
+<parameter>variant_dir</parameter>.
+A &f-VariantDir; mapping is global, even if called using the
+&f-env-VariantDir; form.
 &f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
-to set up multiple builds with different options
-(<emphasis>variants</emphasis>).
+to set up multiple variant builds with different options.
 </para>
 
 <para>
-The
-<parameter>variant</parameter>
-location must be in or underneath the project top directory,
-and <parameter>src_dir</parameter>
-may not be underneath
-<parameter>variant_dir</parameter>.
+Note if <parameter>variant_dir</parameter>
+is not under the project top directory,
+target selection rules will not pick targets in the
+variant directory unless they are explicitly specified.
 </para>
 
 <para>
+When files in <parameter>variant_dir</parameter> are referenced,
+&SCons; backfills as needed with files from <parameter>src_dir</parameter>
+to create a complete build directory.
 By default, &SCons;
-physically duplicates the source files and SConscript files
-as needed into the variant tree.
-Thus, a build performed in the variant tree is guaranteed to be identical
-to a build performed in the source tree even if
+physically duplicates the source files, SConscript files,
+and directory structure as needed into the variant directory.
+Thus, a build performed in the variant directory is guaranteed to be identical
+to a build performed in the source directory even if
 intermediate source files are generated during the build,
 or if preprocessors or other scanners search for included files
-relative to the source file,
+using paths relative to the source file,
 or if individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
 Only the files &SCons; calculates are needed for the build are
 duplicated into <parameter>variant_dir</parameter>.
-</para>
-
-<para>
 If possible on the platform,
 the duplication is performed by linking rather than copying.
 This behavior is affected by the
@@ -3470,44 +3469,46 @@ to invoke Builders using the path names of source files in
 <parameter>src_dir</parameter>
 and the path names of derived files within
 <parameter>variant_dir</parameter>.
-This is more efficient than
-<literal>duplicate=True</literal>,
+This is more efficient than duplicating,
 and is safe for most builds;
-revert to <constant>True</constant>
+revert to <literal>duplicate=True</literal>
 if it causes problems.
 </para>
 
 <para>
 &f-VariantDir;
-works most naturally with used with a subsidiary SConscript file.
-The subsidiary SConscript file is called as if it
-were in
+works most naturally when used with a subsidiary SConscript file.
+The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
-This is how you tell
-&scons;
-which variant of a source tree to build:
+When calling an SConscript file, you can use the 
+<parameter>exports</parameter> keyword argument
+to pass parameters (individually or as an appropriately set up environment)
+so the SConscript can pick up the right settings for that variant build.
+The SConscript must &f-link-Import; these to use them. Example:
 </para>
 
 <example_commands>
+env1 = Environment(...settings for variant1...)
+env2 = Environment(...settings for variant2...)
+
 # run src/SConscript in two variant directories
 VariantDir('build/variant1', 'src')
-SConscript('build/variant1/SConscript')
+SConscript('build/variant1/SConscript', exports={"env": env1})
 VariantDir('build/variant2', 'src')
-SConscript('build/variant2/SConscript')
+SConscript('build/variant2/SConscript', exports={"env": env2})
 </example_commands>
 
 <para>
 See also the
-&f-link-SConscript;
-function, described above,
+&f-link-SConscript; function
 for another way to specify a variant directory
 in conjunction with calling a subsidiary SConscript file.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>
