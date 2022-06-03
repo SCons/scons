@@ -29,6 +29,9 @@ from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
 
+class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
+    pass
+
 
 def ninja_add_command_line_options():
     """
