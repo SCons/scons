@@ -782,6 +782,8 @@ class TestCommon(TestCmd):
         """
         if message:
             sys.stdout.write(message)
+            if not message.endswith('\n'):
+                sys.stdout.write('\n')
             sys.stdout.flush()
         pass_skips = os.environ.get('TESTCOMMON_PASS_SKIPS')
         if pass_skips in [None, 0, '0']:
