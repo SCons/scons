@@ -400,9 +400,14 @@ conda install -c conda-forge ninja
         </para>
 
         <para>
-            When ninja runs the generated &ninja; build file, ninja will launch &scons; as a daemon and feed commands
+            When &ninja; runs the generated &ninja; build file, &ninja; will launch &scons; as a daemon and feed commands
             to that &scons; process which &ninja; is unable to build directly.  This daemon will stay alive until
-            explicitly killed or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE; .
+            explicitly killed, or it times out. The timeout is set by &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE; .
+        </para>
+
+        <para>
+            The daemon will be restarted if any &SConscript; file(s) change or the build changes in a way that &ninja; determines
+            it needs to regenerate the build.ninja file
         </para>
 
         <para>See:</para>
