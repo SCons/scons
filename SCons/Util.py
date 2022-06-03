@@ -2129,6 +2129,7 @@ def wait_for_process_to_die(pid):
     """
     Wait for specified process to die, or alternatively kill it
     NOTE: This function operates best with psutil pypi package
+    TODO: Add timeout which raises exception
     """
     # wait for the process to fully killed
     try:
