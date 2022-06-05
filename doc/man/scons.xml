@@ -2612,28 +2612,35 @@ and specifically <link linkend='tool_modules'>Tool Modules</link>.
 <refsect2 id='builder_methods'>
 <title>Builder Methods</title>
 
-<para>You tell &scons; what to build
+<para>You tell &SCons; what to build
 by calling <firstterm>Builders</firstterm>,
-functions which take
-particular action(s) to produce a particular result type
-(conventionally described by the builder name such as &b-Program;)
-when given source files of a particular type.
-Calling a builder defines one or more targets to the build system;
-whether the targets are actually built on a given
-invocation is determined by command-line options,
-target selection rules, and whether &SCons;
-determines the target(s) are out of date.
+functions which take particular action(s)
+to produce target(s) of a particular type
+(conventionally hinted at by the builder name, e.g. &Program;)
+from the specified source files.
+A builder call is a declaration: &SCons; enters the
+specified relationship into its internal dependency node graph,
+and only later makes the decision on whether anything is actually built,
+since this depends on command-line options,
+target selection rules, and whether the target(s) are
+out of date with respect to the sources.
 </para>
 
 <para>
 &SCons;
-defines a number of builders, and you can also write your own.
-Builders are attached to a &consenv; as methods,
-and the available builder methods are listed as
+provides a number of builders, and you can also write your own
+(see <link linkend='builder_objects'>Builder Objects</link>).
+Builders are created dynamically at run-time,
+often (though not always) by tools which determine
+whether the external dependencies for the builder are satisfied,
+and which perform the necessary setup
+(see <link linkend='tools'>Tools</link>).
+Builers are attached to a &consenv; as methods.
+The available builder methods are registered as
 key-value pairs in the
-<varname>BUILDERS</varname> attribute of the &consenv;.
-The available builders can be displayed like this
-for debugging purposes:
+&cv-link-BUILDERS; attribute of the &consenv;,
+so the available builders can be examined.
+This example displays them for debugging purposes:
 </para>
 
 <programlisting language="python">
@@ -2646,7 +2653,6 @@ Builder methods take two required arguments:
 <parameter>target</parameter>
 and
 <parameter>source</parameter>.
-Either can be passed as a scalar or as a list.
 The <parameter>target</parameter> and
 <parameter>source</parameter> arguments
 can be specified either as positional arguments,
@@ -2660,24 +2666,17 @@ Builder methods also take a variety of
 keyword arguments, described below.
 </para>
 
-<para>
-The builder <emphasis>may</emphasis> add other targets
-beyond those requested if indicated by an <firstterm>Emitter</firstterm>
-(see <xref linkend="builder_objects"/> and, for example,
-&cv-link-PROGEMITTER; for more information).
-</para>
-
 <para>Because long lists of file names
-can lead to a lot of quoting,
-&scons;
+can lead to a lot of quoting in a builder call,
+&SCons;
 supplies a &f-link-Split;
 global function
 and a same-named environment method
 that splits a single string
 into a list, using
-strings of white-space characters as the delimiter.
+strings of white-space characters as the delimiter
 (similar to the Python string <function>split</function>
-method, but succeeds even if the input isn't a string.)</para>
+method, but succeeds even if the input isn't a string).</para>
 
 <para>
 The following are equivalent examples of calling the
@@ -2695,9 +2694,12 @@ env.Program('bar', source='bar.c foo.c'.split())
 </programlisting>
 
 <para>
-Python follows the POSIX pathname convention for path
-strings: if a string begins with the operating system pathname separator
-(on Windows both the slash and backslash separator work,
+Sources and targets can be specified as a a scalar or as a list,
+either of strings or nodes (more on nodes below).
+When specifying path strings,
+Python follows the POSIX pathname convention:
+if a string begins with the operating system pathname separator
+(on Windows both the slash and backslash separator are accepted,
 and any leading drive specifier is ignored for
 the determination) it is considered an absolute path,
 otherwise it is a relative path.
@@ -2706,30 +2708,24 @@ it is searched for as a file in the current directory. If it
 contains separator characters, the search follows down
 from the starting point, which is the top of the directory tree for
 an absolute path and the current directory for a relative path.
+The "current directory" in this context is the directory
+of the SConscript file currently being processed.
 </para>
 
 <para>
-&scons; recognizes a third way to specify
+&SCons; also recognizes a third way to specify
 path strings: if the string begins with
 the <emphasis role="bold">#</emphasis> character it is
 <firstterm>top-relative</firstterm> - it works like a relative path but the
 search follows down from the directory containing the top-level
 &SConstruct; rather than
-from the current directory. The <emphasis role="bold">#</emphasis> is allowed
-to be followed by a pathname separator, which is ignored if
-found in that position.
+from the current directory. The <emphasis role="bold">#</emphasis>
+can optionally be followed by a pathname separator,
+which is ignored if found in that position.
 Top-relative paths only work in places where &scons; will
 interpret the path (see some examples below).  To be
 used in other contexts the string will need to be converted
 to a relative or absolute path first.
-</para>
-
-<para>
-<parameter>target</parameter> and <parameter>source</parameter>
-can be absolute, relative, or
-top-relative. Relative pathnames are searched considering the
-directory of the SConscript
-file currently being processed as the "current directory".
 </para>
 
 <para>Examples:</para>
@@ -2786,14 +2782,12 @@ env.Program(source='bar.c')
 env.Program('bar.c')
 </programlisting>
 
-<para>As a convenience, a
+<para>The optional
 <parameter>srcdir</parameter>
-keyword argument may be specified
-when calling a Builder.
-When specified,
+keyword argument specifies that
 all source file strings that are not absolute paths
 or top-relative paths
-will be interpreted relative to the specified
+shall be interpreted relative to the specified
 <parameter>srcdir</parameter>.
 The following example will build the
 <filename>build/prog</filename>
@@ -2809,6 +2803,84 @@ and
 <programlisting language="python">
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </programlisting>
+
+<para>The optional
+<parameter>parse_flags</parameter>
+keyword argument causes behavior similarly to the
+&f-link-env-MergeFlags; method, where the argument value is
+broken into individual settings and merged into the appropriate &consvars;.
+</para>
+
+<programlisting language="python">
+env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
+</programlisting>
+
+<para>This example adds 'include' to
+the &cv-link-CPPPATH; &consvar;,
+'EBUG' to
+&cv-link-CPPDEFINES;,
+and 'm' to
+&cv-link-LIBS;.
+</para>
+
+<para>The optional
+<parameter>chdir</parameter>
+keyword argument
+specifies that the Builder's action(s)
+should be executed
+after changing directory.
+If the
+<parameter>chdir</parameter>
+argument is
+a path string or a directory Node,
+scons will change to the specified directory.
+If the
+<parameter>chdir</parameter>
+is not a string or Node
+and evaluates true,
+then &scons; will change to the
+target file's directory.</para>
+
+<programlisting language="python">
+# scons will change to the "sub" subdirectory
+# before executing the "cp" command.
+env.Command(
+    target='sub/dir/foo.out',
+    source='sub/dir/foo.in',
+    action="cp dir/foo.in dir/foo.out",
+    chdir='sub',
+)
+
+# Because chdir is not a string, scons will change to the
+# target's directory ("sub/dir") before executing the
+# "cp" command.
+env.Command('sub/dir/foo.out', 'sub/dir/foo.in', "cp foo.in foo.out", chdir=True)
+</programlisting>
+
+<para>Note that &SCons; will
+<emphasis>not</emphasis>
+automatically modify
+its expansion of
+&consvars; like
+<envar>$TARGET</envar>
+and
+<envar>$SOURCE</envar>
+when using the <parameter>chdir</parameter>
+keyword argument--that is,
+the expanded file names
+will still be relative to
+the top-level directory where &SConstruct; was found,
+and consequently incorrect
+relative to the chdir directory.
+If you use the <parameter>chdir</parameter> keyword argument,
+you will typically need to supply a different
+command line using
+expansions like
+<literal>${TARGET.file}</literal>
+and
+<literal>${SOURCE.file}</literal>
+to use just the filename portion of the
+targets and source.</para>
 
 <para>Keyword arguments that are not specifically
 recognized are treated as &consvar;
@@ -2837,29 +2909,9 @@ env.SharedLibrary(
 
 <para>Note that both the &cv-link-SHLIBSUFFIX;
 and &cv-link-LIBSUFFIXES;
-variables must be set if you want &scons; to search automatically
+&consvars; must be set if you want &scons; to search automatically
 for dependencies on the non-standard library names;
 see the descriptions below of these variables for more information.</para>
-
-<para>The optional
-<parameter>parse_flags</parameter>
-keyword argument is recognized by builders.
-This works similarly to the
-&f-link-env-MergeFlags; method, where the argument value is
-broken into individual settings and merged into the appropriate &consvars;.
-</para>
-
-<programlisting language="python">
-env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
-</programlisting>
-
-<para>This example adds 'include' to
-the &cv-link-CPPPATH; &consvar;,
-'EBUG' to
-&cv-link-CPPDEFINES;,
-and 'm' to
-&cv-link-LIBS;.
-</para>
 
 <para>Although the builder methods defined by
 &scons;
@@ -2872,8 +2924,8 @@ Program('hello', 'hello.c')
 SharedLibrary('word', 'word.cpp')
 </programlisting>
 
-<para>If called this way, methods will internally use the
-&defenv; that consists of the tools and values that
+<para>If called this way, the builder will internally use the
+&DefEnv; that consists of the tools and values that
 &scons;
 has determined are appropriate for the local system.</para>
 
@@ -2888,14 +2940,31 @@ to the Python module:</para>
 from SCons.Script import *
 </programlisting>
 
-<para>Builder methods return a <classname>NodeList</classname>,
-a list-like object whose elements are Nodes,
-&SCons;' internal representation of build targets or sources.
-See <xref linkend="node_objects"/> for more information.
+<para>
+A builder <emphasis>may</emphasis> add additional targets
+(and, in fact, sources) beyond those requested,
+if an attached <firstterm>Emitter</firstterm> chooses to do so
+(see <xref linkend="builder_objects"/> and, as an example,
+&cv-link-PROGEMITTER;, for more information).
+For example, the GNU linker takes a command-line argument
+<option>-Map=<replaceable>mapfile</replaceable></option>,
+which causes it to produce a linker map file in addition
+to the executable file actually being linked.
+If the &b-link-Program; builder's emitter is configured
+to add this mapfile if the option is set,
+two targets will be returned when you only asked for one.
+</para>
+
+<para>
+For this reason,
+builder methods always return a <classname>NodeList</classname>,
+a list-like object whose elements are Nodes.
+Nodes are the internal representation of build targets or sources
+(see <xref linkend="node_objects"/> for more information).
 The returned <classname>NodeList</classname> object
 can be passed to other builder methods as source(s)
-or passed to any &SCons; function or method
-where a filename would normally be accepted.
+or to other &SCons; functions or methods
+where a path string would normally be accepted.
 </para>
 
 <para> For example,
@@ -2912,7 +2981,7 @@ env.Program("prog", ['foo.c', bar_obj_list, 'main.c'])
 makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
-when calling the &Program; builder method.
+when calling the &b-link-Program; builder method.
 </para>
 
 <para>The <classname>NodeList</classname> object
@@ -2929,7 +2998,7 @@ Default(tgt)
 lists passed as source and target, so they are free to
 contain elements which are themselves lists, such as
 <varname>bar_obj_list</varname>
-returned by the &StaticObject; call above.
+returned by the &b-link-StaticObject; call.
 If you need to manipulate a list of lists returned by builders
 directly in Python code,
 you can either build a new list by hand:</para>
@@ -2943,7 +3012,7 @@ for obj in objects:
 </programlisting>
 
 <para>Or you can use the &f-link-Flatten;
-function supplied by &scons;
+function supplied by &SCons;
 to create a list containing just the Nodes,
 which may be more convenient:</para>
 
@@ -2955,9 +3024,9 @@ for obj in objects:
     print(str(obj))
 </programlisting>
 
-<para>&SCons; builder calls return
+<para>Since builder calls return
 a list-like object, not an actual Python list,
-so it is not appropriate to use the Python add
+it is not appropriate to use the Python add
 operator (<literal>+</literal> or <literal>+=</literal>)
 to append builder results to a Python list.
 Because the list and the object are different types,
@@ -2997,68 +3066,10 @@ print("The path to bar_obj is:", str(bar_obj_list[0]))
 
 <para>Note that because the Builder call returns a
 <classname>NodeList</classname>,
-you have to access the first element in the list,
+you have to access the first element in the list
 (<literal>bar_obj_list[0]</literal> in the example)
 to get at the Node that actually represents
 the object file.</para>
-
-<para>Builder calls support a
-<parameter>chdir</parameter>
-keyword argument that
-specifies that the Builder's action(s)
-should be executed
-after changing directory.
-If the
-<parameter>chdir</parameter>
-argument is
-a string or a directory Node,
-scons will change to the specified directory.
-If the
-<parameter>chdir</parameter>
-is not a string or Node
-and is non-zero,
-then scons will change to the
-target file's directory.</para>
-
-<programlisting language="python">
-# scons will change to the "sub" subdirectory
-# before executing the "cp" command.
-env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
-            "cp dir/foo.in dir/foo.out",
-            chdir='sub')
-
-# Because chdir is not a string, scons will change to the
-# target's directory ("sub/dir") before executing the
-# "cp" command.
-env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
-            "cp foo.in foo.out",
-            chdir=1)
-</programlisting>
-
-<para>Note that &SCons; will
-<emphasis>not</emphasis>
-automatically modify
-its expansion of
-&consvars; like
-<envar>$TARGET</envar>
-and
-<envar>$SOURCE</envar>
-when using the <parameter>chdir</parameter>
-keyword argument--that is,
-the expanded file names
-will still be relative to
-the top-level directory where &SConstruct; was found,
-and consequently incorrect
-relative to the chdir directory.
-If you use the <parameter>chdir</parameter> keyword argument,
-you will typically need to supply a different
-command line using
-expansions like
-<literal>${TARGET.file}</literal>
-and
-<literal>${SOURCE.file}</literal>
-to use just the filename portion of the
-targets and source.</para>
 
 <para>
 When trying to handle errors that may occur in a builder method,
@@ -3073,13 +3084,22 @@ a useful exception message indicating the problem in the SConscript files -
 programmatically recovering from build errors is rarely useful.
 </para>
 
-<para>&scons;
-predefines the following builder methods.
+<para>
+The following builder methods are predefined in the
+&SCons; core software distribution.
 Depending on the setup of a particular
 &consenv; and on the type and software
 installation status of the underlying system,
-not all builders may be available to that
-&consenv;.</para>
+not all builders may be available in that
+&consenv;.
+Since the function calling signature is the same for all builders:
+</para>
+<programlisting language="python">
+<function>Buildername</function>(<parameter>target, source, [key=val, ...]</parameter>)
+</programlisting>
+<para>
+it is omitted in this listing for brevity.
+</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
@@ -5585,38 +5605,37 @@ and the list of sources for this builder.</para>
 
 <programlisting language="python">
 def e(target, source, env):
-    return (target + ['foo.foo'], source + ['foo.src'])
+    return target + ['foo.foo'], source + ['foo.src']
 
 # Simple association of an emitter function with a Builder.
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = e)
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter=e)
 
 def e2(target, source, env):
-    return (target + ['bar.foo'], source + ['bar.src'])
+    return target + ['bar.foo'], source + ['bar.src']
 
 # Simple association of a list of emitter functions with a Builder.
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = [e, e2])
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter=[e, e2])
 
-# Calling an emitter function through a &consvar;.
+# Calling an emitter function through a construction variable.
 env = Environment(MY_EMITTER=e)
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter='$MY_EMITTER')
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter='$MY_EMITTER')
 
-# Calling a list of emitter functions through a &consvar;.
+# Calling a list of emitter functions through a construction variable.
 env = Environment(EMITTER_LIST=[e, e2])
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter='$EMITTER_LIST')
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter='$EMITTER_LIST')
 
 # Associating multiple emitters with different file
 # suffixes using a dictionary.
 def e_suf1(target, source, env):
-    return (target + ['another_target_file'], source)
+    return target + ['another_target_file'], source
+
 def e_suf2(target, source, env):
-    return (target, source + ['another_source_file'])
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter={'.suf1' : e_suf1,
-                     '.suf2' : e_suf2})
+    return target, source + ['another_source_file']
+
+b = Builder(
+    action="my_build &lt; $TARGET &gt; $SOURCE",
+    emitter={'.suf1': e_suf1, '.suf2': e_suf2}
+)
 </programlisting>
   </listitem>
   </varlistentry>
