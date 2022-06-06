@@ -582,16 +582,16 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
 <cvar name="MSVC_NOTFOUND_POLICY">
 <summary>
 <para>
-Specify the action taken when the Microsoft Visual C/C++ compiler is not found.
+Specify the scons behavior when the Microsoft Visual C/C++ compiler is not detected.
 </para>
 
 <para>
-    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies the &scons; action taken when there are no
-    msvc versions installed or when the requested msvc version is not installed.
+    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies the &scons; behavior when no msvc versions are detected or
+    when the requested msvc version is not detected.
 </para>
 
 <para> 
-The valid values for <envar>MSVC_NOTFOUND_POLICY</envar> and the corresponding &scons; action taken are:
+The valid values for <envar>MSVC_NOTFOUND_POLICY</envar> and the corresponding &scons; behavior are:
 </para>
 
 <variablelist>
@@ -600,7 +600,7 @@ The valid values for <envar>MSVC_NOTFOUND_POLICY</envar> and the corresponding &
 <term><parameter>'Error' or 'Exception'</parameter></term>
 <listitem>
 <para>
-Raise an exception when there are no msvc versions installed or when the requested msvc version is not installed.
+Raise an exception when no msvc versions are detected or when the requested msvc version is not detected.
 </para>
 </listitem>
 </varlistentry>
@@ -609,7 +609,7 @@ Raise an exception when there are no msvc versions installed or when the request
 <term><parameter>'Warning' or 'Warn'</parameter></term>
 <listitem>
 <para>
-Issue a warning and continue when there are no msvc versions installed or when the requested msvc version is not installed.
+Issue a warning and continue when no msvc versions are detected or when the requested msvc version is not detected.
 Depending on usage, this could result in build failure(s).
 </para>
 </listitem>
@@ -619,7 +619,7 @@ Depending on usage, this could result in build failure(s).
 <term><parameter>'Ignore' or 'Suppress'</parameter></term>
 <listitem>
 <para>
-Take no action and continue when there are no msvc versions installed or when the requested msvc version is not installed.
+Take no action and continue when no msvc versions are detected or when the requested msvc version is not detected.
 Depending on usage, this could result in build failure(s).
 </para>
 </listitem>
@@ -632,8 +632,8 @@ Note: in addition to the camel case values shown above, lower case and upper cas
 </para>
 
 <para>
-The default scons action taken when there are no msvc versions installed or when the requested msvc version is
-not installed is to issue a warning and continue.  This may change in the future. 
+The default scons behavior when no msvc versions are detected or when the requested msvc version is not detected
+is to issue a warning and continue. This may change in the future.
 </para>
 
 </summary>
