@@ -116,6 +116,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Note that these are called for every build command run by SCons. It could have considerable
       performance impact if not used carefully.
       to connect to the server during start up.
+    - Updated lex emitter to respect escaped spaces when climbing out of a the SCosncript dir
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

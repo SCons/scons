@@ -58,7 +58,7 @@ def lexEmitter(target, source, env):
     # Different options that are used to trigger the creation of extra files.
     fileGenOptions = ["--header-file=", "--tables-file="]
 
-    lexflags = env.subst("$LEXFLAGS", target=target, source=source)
+    lexflags = env.subst_list("$LEXFLAGS", target=target, source=source)
     for option in SCons.Util.CLVar(lexflags):
         for fileGenOption in fileGenOptions:
             l = len(fileGenOption)
