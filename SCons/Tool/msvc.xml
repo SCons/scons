@@ -597,7 +597,7 @@ The valid values for <envar>MSVC_NOTFOUND_POLICY</envar> and the corresponding &
 <variablelist>
 
 <varlistentry>
-<term><parameter>'error', 'Error', 'ERROR', 'exception', 'Exception', 'EXCEPTION'</parameter></term>
+<term><parameter>'Error' or 'Exception'</parameter></term>
 <listitem>
 <para>
 Raise an exception when there are no msvc versions installed or when the requested msvc version is not installed.
@@ -606,24 +606,35 @@ Raise an exception when there are no msvc versions installed or when the request
 </varlistentry>
 
 <varlistentry>
-<term><parameter>'warning', 'Warning', 'WARNING', 'warn', 'Warn', 'WARN'</parameter></term>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
 <listitem>
 <para>
-Issue a warning when there are no msvc versions installed or when the requested msvc version is not installed.
+Issue a warning and continue when there are no msvc versions installed or when the requested msvc version is not installed.
+Depending on usage, this could result in build failure(s).
 </para>
 </listitem>
 </varlistentry>
 
 <varlistentry>
-<term><parameter>'ignore', 'Ignore', 'IGNORE', 'suppress', 'Suppress', 'SUPPRESS'</parameter></term>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
 <listitem>
 <para>
-Take no action and continue when there are no msvc versions installed or when the requested msvc version is not installed.  Depending on usage, this could result in build failure(s).
+Take no action and continue when there are no msvc versions installed or when the requested msvc version is not installed.
+Depending on usage, this could result in build failure(s).
 </para>
 </listitem>
 </varlistentry>
 
 </variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+The default scons action taken when there are no msvc versions installed or when the requested msvc version is
+not installed is to issue a warning and continue.  This may change in the future. 
+</para>
 
 </summary>
 </cvar>
