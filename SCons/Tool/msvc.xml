@@ -582,11 +582,11 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
 <cvar name="MSVC_NOTFOUND_POLICY">
 <summary>
 <para>
-Specify the &scons; action to take when an msvc installation is not found.
+Specify the action taken when the Microsoft Visual C/C++ compiler is not found.
 </para>
 
 <para>
-    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies the action &scons; should take when there are no
+    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies the &scons; action taken when there are no
     msvc versions installed or when the requested msvc version is not installed.
 </para>
 
