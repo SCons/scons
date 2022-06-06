@@ -44,24 +44,34 @@ installed_msvc_versions = msvc.get_installed_vcs()
 # skip_if_not_msvc() function would have skipped the test
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(MSVC_VERSION='12.9')
 """)
 test.run(arguments='-Q -s', stdout='')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='ignore')
 """)
 test.run(arguments='-Q -s', stdout='')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='warning')
 """)
 test.run(arguments='-Q -s', stdout='')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='error')
 """)
 test.run(arguments='-Q -s', status=2, stderr=r"^.*MSVCVersionNotFound.+", match=TestSCons.match_re_dotall)
+
+test.write('SConstruct', """\
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='bad_value')
+""")
+test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_NOTFOUND_POLICY.+", match=TestSCons.match_re_dotall)
+
 
 test.pass_test()
 
