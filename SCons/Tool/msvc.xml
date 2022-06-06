@@ -582,22 +582,48 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
 <cvar name="MSVC_NOTFOUND_POLICY">
 <summary>
 <para>
-Specify how to handle missing MSVC.
+Specify the &scons; action to take when an msvc installation is not found.
 </para>
 
 <para>
-    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies how &scons; should handle when there is no installed
-    MSVC or if a specific version is requested, that version is not available.
+    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies the action &scons; should take when there are no
+    msvc versions installed or when the requested msvc version is not installed.
 </para>
 
 <para> 
-Valid values for <envar>MSVC_NOTFOUND_POLICY</envar> are listed here. Note that each group below is equivalent.
+The valid values for <envar>MSVC_NOTFOUND_POLICY</envar> and the corresponding &scons; action taken are:
 </para>
-<itemizedlist>
-<listitem><para><literal>'error', 'Error', 'ERROR', 'exception', 'Exception', 'EXCEPTION'</literal></para></listitem>
-<listitem><para><literal>'warning', 'Warning', 'WARNING', 'warn', 'Warn', 'WARN'</literal></para></listitem>
-<listitem><para><literal>'suppress', 'Suppress', 'SUPPRESS'</literal></para></listitem>
-</itemizedlist>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'error', 'Error', 'ERROR', 'exception', 'Exception', 'EXCEPTION'</parameter></term>
+<listitem>
+<para>
+Raise an exception when there are no msvc versions installed or when the requested msvc version is not installed.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'warning', 'Warning', 'WARNING', 'warn', 'Warn', 'WARN'</parameter></term>
+<listitem>
+<para>
+Issue a warning when there are no msvc versions installed or when the requested msvc version is not installed.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'ignore', 'Ignore', 'IGNORE', 'suppress', 'Suppress', 'SUPPRESS'</parameter></term>
+<listitem>
+<para>
+Take no action and continue when there are no msvc versions installed or when the requested msvc version is not installed.  Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
 
 </summary>
 </cvar>
