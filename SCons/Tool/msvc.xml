@@ -74,6 +74,7 @@ Sets construction variables for the Microsoft Visual C/C++ compiler.
 <item>PCH</item>
 <item>PCHSTOP</item>
 <item>PDB</item>
+<item>MSVC_NOTFOUND_POLICY</item>
 </uses>
 </tool>
 
@@ -574,6 +575,29 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
     env.Tool('msvs')
     </programlisting>
 </para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_NOTFOUND_POLICY">
+<summary>
+<para>
+Specify how to handle missing MSVC.
+</para>
+
+<para>
+    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies how &scons; should handle when there is no installed
+    MSVC or if a specific version is requested, that version is not available.
+</para>
+
+<para> 
+Valid values for <envar>MSVC_NOTFOUND_POLICY</envar> are listed here. Note that each group below is equivalent.
+</para>
+<itemizedlist>
+<listitem><para><literal>'error', 'Error', 'ERROR', 'exception', 'Exception', 'EXCEPTION'</literal></para></listitem>
+<listitem><para><literal>'warning', 'Warning', 'WARNING', 'warn', 'Warn', 'WARN'</literal></para></listitem>
+<listitem><para><literal>'suppress', 'Suppress', 'SUPPRESS'</literal></para></listitem>
+</itemizedlist>
 
 </summary>
 </cvar>
