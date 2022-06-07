@@ -24,6 +24,7 @@ NEW FUNCTIONALITY
   performance impact if not used carefully.
 - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
+- Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
 
 
 DEPRECATED FUNCTIONALITY

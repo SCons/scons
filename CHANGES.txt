@@ -116,6 +116,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Note that these are called for every build command run by SCons. It could have considerable
       performance impact if not used carefully.
       to connect to the server during start up.
+    - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
+
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to

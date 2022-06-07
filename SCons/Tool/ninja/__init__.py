@@ -33,6 +33,7 @@ import sys
 import SCons
 import SCons.Script
 import SCons.Tool.ninja.Globals
+from SCons.Script import Variables
 from SCons.Script import GetOption
 
 from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS, NINJA_CMDLINE_TARGETS
@@ -87,7 +88,7 @@ def ninja_builder(env, target, source):
 
     if str(env.get("NINJA_DISABLE_AUTO_RUN")).lower() not in ['1', 'true']:
         num_jobs = env.get('NINJA_MAX_JOBS', env.GetOption("num_jobs"))
-        cmd += ['-j' + str(num_jobs)] + NINJA_CMDLINE_TARGETS
+        cmd += ['-j' + str(num_jobs)] + env.get('NINJA_CMD_ARGS', '').split() + NINJA_CMDLINE_TARGETS
         print(f"ninja will be run with command line targets: {' '.join(NINJA_CMDLINE_TARGETS)}")
         print("Executing:", str(' '.join(cmd)))
 
@@ -184,6 +185,15 @@ def generate(env):
 
     env["NINJA_DISABLE_AUTO_RUN"] = env.get("NINJA_DISABLE_AUTO_RUN", GetOption('disable_execute_ninja'))
     env["NINJA_FILE_NAME"] = env.get("NINJA_FILE_NAME", "build.ninja")
+
+    if env.get("NINJA_CMD_ARGS") is not None:
+        env["NINJA_CMD_ARGS"] = env.get("NINJA_CMD_ARGS")
+    else:
+        vars = Variables()
+        vars.Add("NINJA_CMD_ARGS")
+        var_env = env.Clone()
+        vars.Update(var_env)
+        env["NINJA_CMD_ARGS"] = var_env.get("NINJA_CMD_ARGS", '')
 
     # Add the Ninja builder.
     always_exec_ninja_action = AlwaysExecAction(ninja_builder, {})
