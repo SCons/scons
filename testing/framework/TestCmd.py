@@ -299,9 +299,12 @@ __version__ = "1.3"
 import atexit
 import difflib
 import errno
+import hashlib
 import os
 import re
+import psutil
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -310,6 +313,7 @@ import threading
 import time
 import traceback
 from collections import UserList, UserString
+from pathlib import Path
 from subprocess import PIPE, STDOUT
 from typing import Optional
 
@@ -382,6 +386,31 @@ def _caller(tblist, skip):
         atfrom = "\tfrom"
     return string
 
+def clean_up_ninja_daemon(self, result_type):
+    if self:
+        for path in Path(self.workdir).rglob('.ninja'):
+            daemon_dir = Path(tempfile.gettempdir()) / (
+                "scons_daemon_" + str(hashlib.md5(str(path.resolve()).encode()).hexdigest())
+            )
+            pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
+            for pidfile in pidfiles:
+                if pidfile.exists():
+                    with open(daemon_dir / 'pidfile') as f:
+                        try:
+                            pid = int(f.read())
+                            os.kill(pid, signal.SIGINT)
+                        except  OSError:
+                            pass
+                    
+                        while True:
+                            if pid not in [proc.pid for proc in psutil.process_iter()]:
+                                break
+                            else:
+                                time.sleep(0.1)
+                
+            if not self._preserve[result_type]:
+                if daemon_dir.exists():
+                    shutil.rmtree(daemon_dir)
 
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     """Causes a test to exit with a fail.
@@ -402,6 +431,7 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'fail_test')
     of = ""
     desc = ""
     sep = " "
@@ -447,6 +477,7 @@ def no_result(self=None, condition=True, function=None, skip=0):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'no_result')
     of = ""
     desc = ""
     sep = " "
@@ -483,6 +514,7 @@ def pass_test(self=None, condition=True, function=None):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'pass_test')
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 

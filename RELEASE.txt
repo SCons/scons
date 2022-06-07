@@ -24,6 +24,8 @@ NEW FUNCTIONALITY
   performance impact if not used carefully.
 - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
+- Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
+  Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
 
 
 DEPRECATED FUNCTIONALITY

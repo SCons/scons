@@ -495,3 +495,4 @@ def generate(env):
 
 
     env.Alias('run-ninja-scons-daemon', 'run_ninja_scons_daemon_phony')
+    env.Alias('shutdown-ninja-scons-daemon', 'shutdown_ninja_scons_daemon_phony')
