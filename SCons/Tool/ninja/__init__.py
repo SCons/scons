@@ -26,7 +26,7 @@
 
 import importlib
 import os
-import random
+import traceback
 import subprocess
 import sys
 
@@ -66,8 +66,12 @@ def ninja_builder(env, target, source):
     print("Generating:", str(target[0]))
 
     generated_build_ninja = target[0].get_abspath()
-    NINJA_STATE.generate()
-
+    try:
+        NINJA_STATE.generate()
+    except Exception as e:
+        raise SCons.Errors.BuildError(
+            errstr=f"ERROR: an excetion occurred while generating the ninja file:\n{traceback.format_exc()}",
+            node=target)
     if env["PLATFORM"] == "win32":
         # TODO: Is this necessary as you set env variable in the ninja build file per target?
         # this is not great, its doesn't consider specific
@@ -194,7 +198,6 @@ def generate(env):
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_DIR'] = env.Dir(env.get("NINJA_DIR", '#/.ninja'))
     env["NINJA_SCONS_DAEMON_KEEP_ALIVE"] = env.get("NINJA_SCONS_DAEMON_KEEP_ALIVE", 180000)
-    env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000, 60000))
 
     if GetOption("disable_ninja"):
         env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))

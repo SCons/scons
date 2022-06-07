@@ -151,7 +151,8 @@ class SConsValues(optparse.Values):
         # Requested setable flag in : https://github.com/SCons/scons/issues/3983
         # From experimental ninja
         'disable_execute_ninja',
-        'disable_ninja'
+        'disable_ninja',
+        'skip_ninja_regen'
     ]
 
     def set_option(self, name, value):
