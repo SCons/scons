@@ -68,7 +68,7 @@ def ninja_builder(env, target, source):
     generated_build_ninja = target[0].get_abspath()
     try:
         NINJA_STATE.generate()
-    except Exception as e:
+    except Exception:
         raise SCons.Errors.BuildError(
             errstr=f"ERROR: an excetion occurred while generating the ninja file:\n{traceback.format_exc()}",
             node=target)
