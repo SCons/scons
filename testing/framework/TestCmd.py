@@ -399,7 +399,7 @@ def clean_up_ninja_daemon(self, result_type):
                         try:
                             pid = int(f.read())
                             os.kill(pid, signal.SIGINT)
-                        except  OSError:
+                        except OSError:
                             pass
                     
                         while True:

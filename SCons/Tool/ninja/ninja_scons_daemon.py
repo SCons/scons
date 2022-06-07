@@ -225,7 +225,7 @@ def daemon_thread_func():
                     with building_cv:
                         shared_state.finished_building += [building_node]
                     daemon_ready = False
-                    daemon_needs_to_shutdown = True
+                    shared_state.daemon_needs_to_shutdown = True
                     break
 
                 else:
