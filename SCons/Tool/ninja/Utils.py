@@ -59,7 +59,7 @@ def ninja_add_command_line_options():
               action="store_true",
               default=False,
               help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
-                    'Care should be taken in cases where Glob is in use or generated files are used in ' + 
+                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' + 
                     'command lines.')
 
 
