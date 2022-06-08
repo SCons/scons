@@ -1070,6 +1070,19 @@ def _msvc_notfound_policy_lookup(symbol):
     return notfound_policy_def
 
 def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
+    """ Set the default policy when MSVC is not found.
+
+    Args:
+        MSVC_NOTFOUND_POLICY:
+           string representing the policy behavior
+           when MSVC is not found or None
+
+    Returns:
+        The previous policy is returned when the MSVC_NOTFOUND_POLICY argument
+        is not None. The active policy is returned when the MSVC_NOTFOUND_POLICY
+        argument is None.
+
+    """
     global _MSVC_NOTFOUND_POLICY_DEF
 
     prev_policy = _MSVC_NOTFOUND_POLICY_DEF.symbol
@@ -1087,6 +1100,7 @@ def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
     return prev_policy
 
 def get_msvc_notfound_policy():
+    """Return the active policy when MSVC is not found."""
     debug(
         'policy.symbol=%s, policy.value=%s',
         repr(_MSVC_NOTFOUND_POLICY_DEF.symbol), repr(_MSVC_NOTFOUND_POLICY_DEF.value)
