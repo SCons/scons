@@ -632,9 +632,27 @@ Note: in addition to the camel case values shown above, lower case and upper cas
 </para>
 
 <para>
-The default scons behavior when no msvc versions are detected or when the requested msvc version is not detected
-is to issue a warning and continue. This may change in the future.
+The <envar>MSVC_NOTFOUND_POLICY</envar> is enforced if any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>&cv-MSVC_VERSION; is specified, the default tools list is implicitly defined (i.e., the tools list is not specified), and the default tools list contains one or more of the msvc tools.</para></listitem>
+<listitem><para>&cv-MSVC_VERSION; is specified, the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>), and the default tools list contains one or more of the msvc tools.</para></listitem>
+<listitem><para>A non-default tools list is specified that contains one or more of the msvc tools (e.g., <literal>tools=['msvc', 'mslink']</literal>).</para></listitem>
+</itemizedlist>
 </para>
+
+<para>
+The <envar>MSVC_NOTFOUND_POLICY</envar> is ignored if any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>&cv-MSVC_VERSION; is not specified and the default tools list is implicitly defined (i.e., the tools list is not specified).</para></listitem>
+<listitem><para>&cv-MSVC_VERSION; is not specified and the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>).</para></listitem>
+<listitem><para>A non-default tool list is specified that does not contain any of the msvc tools (e.g., <literal>tools=['mingw']</literal>).</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+When <envar>MSVC_NOTFOUND_POLICY</envar> is not specified, the default &scons; behavior is to issue a warning and continue subject to the enforcement conditions listed above. The default &scons; behavior may change in the future.
+</para>
+
 
 </summary>
 </cvar>
