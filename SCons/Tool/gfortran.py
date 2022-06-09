@@ -22,16 +22,12 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-
-Tool-specific initialization for gfortran, the GNU Fortran 95/Fortran
-2003 compiler.
+Tool-specific initialization for gfortran, the GNU Fortran compiler.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
-
 
 import SCons.Util
 
@@ -44,15 +40,15 @@ def generate(env):
     fortran.generate(env)
 
     for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03', 'F08']:
-        env['%s' % dialect] = 'gfortran'
-        env['SH%s' % dialect] = '$%s' % dialect
+        env[f'{dialect}'] = 'gfortran'
+        env[f'SH{dialect}'] = f'${dialect}'
         if env['PLATFORM'] in ['cygwin', 'win32']:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS' % dialect)
+            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS')
         else:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS -fPIC')
 
-        env['INC%sPREFIX' % dialect] = "-I"
-        env['INC%sSUFFIX' % dialect] = ""
+        env[f'INC{dialect}PREFIX'] = "-I"
+        env[f'INC{dialect}SUFFIX'] = ""
 
     env['FORTRANMODDIRPREFIX'] = "-J"
 

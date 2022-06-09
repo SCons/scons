@@ -37,28 +37,26 @@ test = TestSCons.TestSCons()
 
 fc = 'f77'
 if not test.detect_tool(fc):
-    test.skip_test('Could not find a f77 tool; skipping test.\n')
-    
-test.subdir('include',
-            'subdir',
-            ['subdir', 'include'],
-            'foobar',
-            'inc2')
+    # gfortran names all variants the same, try it too
+    fc = 'gfortran'
+    if not test.detect_tool(fc):
+        test.skip_test('Could not find a f77 tool; skipping test.\n')
 
+test.subdir('include', 'subdir', ['subdir', 'include'], 'foobar', 'inc2')
 
-
-test.write('SConstruct', """
-env = Environment(FORTRAN = '%s',
-                  FORTRANPATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
-                  FOO='include')
+test.write('SConstruct', """\
+env = Environment(
+    FORTRAN='%s',
+    FORTRANPATH=['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
+    FOO='include'
+)
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 VariantDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(FORTRAN = '%s',
-                  FORTRANPATH=[include, '#foobar', '#subdir'])
+env = Environment(FORTRAN='%s', FORTRANPATH=[include, '#foobar', '#subdir'])
 SConscript('variant/SConscript', "env")
 """ % (fc, fc))
 
@@ -151,8 +149,6 @@ test.must_not_exist(test.workpath('variant', 'prog.f'))
 
 test.up_to_date(arguments = args)
 
-
-
 test.write(['include', 'foo.f'],
 r"""
       PRINT *, 'include/foo.f 2'
@@ -197,9 +193,6 @@ test.must_not_exist(test.workpath('variant', 'prog.f'))
 
 test.up_to_date(arguments = args)
 
-
-
-#
 test.write(['include', 'bar.f'],
 r"""
       PRINT *, 'include/bar.f 2'
@@ -247,25 +240,26 @@ test.up_to_date(arguments = args)
 
 
 # Change FORTRANPATH and make sure we don't rebuild because of it.
-test.write('SConstruct', """
-env = Environment(FORTRAN = '%s',
-                  FORTRANPATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'))
+test.write('SConstruct', """\
+env = Environment(
+    FORTRAN='%s',
+    FORTRANPATH=Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
+)
 obj = env.Object(target='foobar/prog', source='subdir/prog.f')
 env.Program(target='prog', source=obj)
 SConscript('subdir/SConscript', "env")
 
 VariantDir('variant', 'subdir', 0)
 include = Dir('include')
-env = Environment(FORTRAN = '%s',
-                  FORTRANPATH=['inc2', include, '#foobar', '#subdir'])
+env = Environment(
+    FORTRAN='%s',
+    FORTRANPATH=['inc2', include, '#foobar', '#subdir'],
+)
 SConscript('variant/SConscript', "env")
 """ % (fc, fc))
 
 test.up_to_date(arguments = args)
 
-
-
-#
 test.write(['inc2', 'foo.f'],
 r"""
       PRINT *, 'inc2/foo.f 1'
@@ -307,8 +301,6 @@ test.run(program = test.workpath(variant_prog),
 """)
 
 test.up_to_date(arguments = args)
-
-
 
 # Check that a null-string FORTRANPATH doesn't blow up.
 test.write('SConstruct', """

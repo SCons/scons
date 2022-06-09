@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
@@ -35,28 +34,30 @@ test.file_fixture('mylink.py')
 test.file_fixture(['fixture', 'myfortran.py'])
 
 # Test non default file suffix: .f, .f90 and .f95 for FORTRAN
-test.write('SConstruct', """
-env = Environment(LINK = r'%(_python_)s mylink.py',
-                  LINKFLAGS = [],
-                  F77 = r'%(_python_)s myfortran.py g77',
-                  FORTRAN = r'%(_python_)s myfortran.py fortran',
-                  FORTRANFILESUFFIXES = ['.f', '.f95', '.f90', '.ffake'],
-                  tools = ['default', 'fortran'])
-#print(env.Dump())
-env.Program(target = 'test01', source = 'test01.f')
-env.Program(target = 'test02', source = 'test02.f90')
-env.Program(target = 'test03', source = 'test03.f95')
-env.Program(target = 'test04', source = 'test04.ffake')
-env.Program(target = 'test05', source = 'test05.f77')
+test.write( 'SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(
+    LINK=r'%(_python_)s mylink.py',
+    LINKFLAGS=[],
+    F77=r'%(_python_)s myfortran.py g77',
+    FORTRAN=r'%(_python_)s myfortran.py fortran',
+    FORTRANFILESUFFIXES=['.f', '.f95', '.f90', '.ffake'],
+    tools=['default', 'fortran'],
+)
+env.Program(target='test01', source='test01.f')
+env.Program(target='test02', source='test02.f90')
+env.Program(target='test03', source='test03.f95')
+env.Program(target='test04', source='test04.ffake')
+env.Program(target='test05', source='test05.f77')
 """ % locals())
 
-test.write('test01.f',   "This is a .f file.\n#link\n#fortran\n")
-test.write('test02.f90',   "This is a .f90 file.\n#link\n#fortran\n")
+test.write('test01.f', "This is a .f file.\n#link\n#fortran\n")
+test.write('test02.f90', "This is a .f90 file.\n#link\n#fortran\n")
 test.write('test03.f95', "This is a .f95 file.\n#link\n#fortran\n")
 test.write('test04.ffake', "This is a .ffake file.\n#link\n#fortran\n")
 test.write('test05.f77', "This is a .f77 file.\n#link\n#g77\n")
 
-test.run(arguments = '.', stderr = None)
+test.run(arguments='.', stderr=None)
 
 test.must_match('test01' + _exe, "This is a .f file.\n")
 test.must_match('test02' + _exe, "This is a .f90 file.\n")

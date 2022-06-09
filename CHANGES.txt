@@ -194,6 +194,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       to add a path to the execution environment if it was discovered in
       default_paths. Previously, the routine, called by many tool modules,
       never altered the execution environment, leaving it to the tools.
+    - A new construction variable FORTRANCOMMONFLAGS is added which is
+      applied to all Fortran dialects, in case someone needs to set some
+      flags globally. FORTRANFLAGS looked like it was intended for that,
+      but was not applied to other dialects, and e2e tests explicitly checked
+      that FORTRANFLAGS did not propagate outside the FORTRAN dialect,
+      so the conclusion is that behavior is intentional (issue #2257)
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

@@ -102,7 +102,8 @@ FORTRAN dialect will be used. By default, this is <literal>['.fpp', '.FPP']</lit
 <cvar name="FORTRANFLAGS">
 <summary>
 <para>
-General user-specified options that are passed to the Fortran compiler.
+General user-specified options for the FORTRAN dialect
+that are passed to the Fortran compiler.
 Note that this variable does
 <emphasis>not</emphasis>
 contain
@@ -113,6 +114,16 @@ See
 &cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
 below,
 for the variables that expand those options.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANCOMMONFLAGS">
+<summary>
+<para>
+General user-specified options that are passed to the Fortran compiler.
+Similar to &cv-link-FORTRANFLAGS;,
+but this variable is applied to all dialects.
 </para>
 </summary>
 </cvar>
