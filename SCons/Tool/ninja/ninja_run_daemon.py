@@ -46,6 +46,7 @@ import logging
 import time
 import http.client
 import traceback
+import socket
 
 ninja_builddir = pathlib.Path(sys.argv[2])
 daemon_dir = pathlib.Path(tempfile.gettempdir()) / (
@@ -108,7 +109,7 @@ if not os.path.exists(ninja_builddir / "scons_daemon_dirty"):
 
             try:
                 response = conn.getresponse()
-            except (http.client.RemoteDisconnected, http.client.ResponseNotReady):
+            except (http.client.RemoteDisconnected, http.client.ResponseNotReady, socket.timeout):
                 time.sleep(0.01)
             except http.client.HTTPException:
                 log_error(f"Error: {traceback.format_exc()}")

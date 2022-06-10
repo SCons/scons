@@ -29,6 +29,7 @@ import os
 import pprint
 import re
 import sys
+import time
 from collections import UserDict, UserList, UserString, OrderedDict
 from collections.abc import MappingView
 from contextlib import suppress
@@ -2122,6 +2123,41 @@ def print_time():
     # pylint: disable=redefined-outer-name,import-outside-toplevel
     from SCons.Script.Main import print_time
     return print_time
+
+
+def wait_for_process_to_die(pid):
+    """
+    Wait for specified process to die, or alternatively kill it
+    NOTE: This function operates best with psutil pypi package
+    TODO: Add timeout which raises exception
+    """
+    # wait for the process to fully killed
+    try:
+        import psutil
+        while True:
+            if pid not in [proc.pid for proc in psutil.process_iter()]:
+                break
+            else:
+                time.sleep(0.1)
+    except ImportError:
+        # if psutil is not installed we can do this the hard way
+        while True:
+            if sys.platform == 'win32':
+                import ctypes
+                PROCESS_QUERY_INFORMATION = 0x1000
+                processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0,pid)
+                if processHandle == 0:
+                    break
+                else:
+                    ctypes.windll.kernel32.CloseHandle(processHandle)
+                    time.sleep(0.1)
+            else:
+                try:
+                    os.kill(pid, 0)
+                except OSError:
+                    break
+                else:
+                    time.sleep(0.1)
 
 # Local Variables:
 # tab-width:4
