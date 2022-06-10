@@ -1525,7 +1525,8 @@ def msvc_setup_env(env):
     debug('called')
     version = get_default_version(env)
     if version is None:
-        _MSVCSetupEnvDefault.set_nodefault()
+        if not msvc_setup_env_user(env):
+            _MSVCSetupEnvDefault.set_nodefault()
         return None
 
     # XXX: we set-up both MSVS version for backward
@@ -1533,7 +1534,6 @@ def msvc_setup_env(env):
     env['MSVC_VERSION'] = version
     env['MSVS_VERSION'] = version
     env['MSVS'] = {}
-
 
     use_script, use_settings = get_use_script_use_settings(env)
     if SCons.Util.is_String(use_script):
@@ -1588,11 +1588,33 @@ def msvc_exists(env=None, version=None):
 def msvc_setup_env_user(env=None):
     rval = False
     if env:
-        for key in ('MSVC_VERSION', 'MSVS_VERSION', 'MSVC_USE_SCRIPT'):
-            if key in env:
+
+        # Intent is to use msvc tools:
+        #     MSVC_VERSION or MSVS_VERSION: defined and is True
+        #     MSVC_USE_SCRIPT:   defined and (is string or is False)
+        #     MSVC_USE_SETTINGS: defined and is not None
+
+        # defined and is True
+        for key in ['MSVC_VERSION', 'MSVS_VERSION']:
+            if key in env and env[key]:
                 rval = True
                 debug('key=%s, return=%s', repr(key), rval)
                 return rval
+
+        # defined and (is string or is False)
+        for key in ['MSVC_USE_SCRIPT']:
+            if key in env and (SCons.Util.is_String(env[key]) or not env[key]):
+                rval = True
+                debug('key=%s, return=%s', repr(key), rval)
+                return rval
+
+        # defined and is not None
+        for key in ['MSVC_USE_SETTINGS']:
+            if key in env and env[key] is not None:
+                rval = True
+                debug('key=%s, return=%s', repr(key), rval)
+                return rval
+
     debug('return=%s', rval)
     return rval
 
