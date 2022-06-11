@@ -41,14 +41,16 @@ import SCons.Tool.msvs
 import SCons.Tool.msvc
 import SCons.Util
 
-from .MSCommon import msvc_exists, msvc_setup_env_once
+from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once
+
+tool_name = 'mslib'
 
 def generate(env):
     """Add Builders and construction variables for lib to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)
 
     # Set-up ms tools paths
-    msvc_setup_env_once(env)
+    msvc_setup_env_once(env, tool=tool_name)
 
     env['AR']          = 'lib'
     env['ARFLAGS']     = SCons.Util.CLVar('/nologo')
@@ -64,7 +66,7 @@ def generate(env):
 
 
 def exists(env):
-    return msvc_exists(env)
+    return msvc_setup_env_tool(env, tool=tool_name)
 
 # Local Variables:
 # tab-width:4
