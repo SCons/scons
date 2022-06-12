@@ -109,7 +109,7 @@ VS2008 = 9.0
 VS2005 = 8.0
 VS2003 = 7.1
 VS2002 = 7.0
-VS6    = 6.0
+VS6 = 6.0
 
 # Force -vcvars_ver argument for default toolset
 _MSVC_TOOLSET_DEFAULT_VCVARSVER = False
@@ -1548,7 +1548,7 @@ class _MSVCScriptArguments:
         toolsets_full = []
 
         build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
-        sxs_toolsets = [ f.name for f in os.scandir(build_dir) if f.is_dir() ]
+        sxs_toolsets = [f.name for f in os.scandir(build_dir) if f.is_dir()]
         for sxs_toolset in sxs_toolsets:
             filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_toolset)
             filepath = os.path.join(build_dir, sxs_toolset, filename)
@@ -1560,7 +1560,7 @@ class _MSVCScriptArguments:
                 debug('sxs toolset: msvc_version=%s, sxs_version=%s, toolset_version=%s', repr(version), repr(sxs_toolset), toolset_version)
 
         toolset_dir = os.path.join(vc_dir, "Tools", "MSVC")
-        toolsets = [ f.name for f in os.scandir(toolset_dir) if f.is_dir() ]
+        toolsets = [f.name for f in os.scandir(toolset_dir) if f.is_dir()]
         for toolset_version in toolsets:
             binpath = os.path.join(toolset_dir, toolset_version, "bin")
             if os.path.exists(binpath):
@@ -1856,7 +1856,7 @@ class _MSVCScriptArguments:
 
     def reset(cls):
         debug('reset')
-        cl._reset_toolset()
+        cls._reset_toolset()
 
 def msvc_find_valid_batch_script(env, version):
     """Find and execute appropriate batch script to set up build env.
