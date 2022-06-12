@@ -91,6 +91,29 @@ class MSVCUseSettingsError(VisualCException):
 class MSVCVersionNotFound(VisualCException):
     pass
 
+class MSVCArgumentError(VisualCException):
+    pass
+
+class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
+    pass
+
+# VS constants = VS product MSVC version introduced
+VS2022 = 14.3
+VS2019 = 14.2
+VS2017 = 14.1
+VS2015 = 14.0
+VS2013 = 12.0
+VS2012 = 11.0
+VS2010 = 10.0
+VS2008 = 9.0
+VS2005 = 8.0
+VS2003 = 7.1
+VS2002 = 7.0
+VS6    = 6.0
+
+# Force -vcvars_ver argument for default toolset
+_MSVC_TOOLSET_DEFAULT_VCVARSVER = False
+
 # MSVC_NOTFOUND_POLICY definition:
 #     error:   raise exception
 #     warning: issue warning and continue
@@ -806,11 +829,14 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
     vernum = float(msvc_ver_numeric)
 
     arg = ''
+    vcdir = None
+
     if vernum > 14:
         # 14.1 (VS2017) and later
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
         batfile, _ = _GE2017_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
+        vcdir = pdir
     elif 14 >= vernum >= 8:
         # 14.0 (VS2015) to 8.0 (VS2005)
         arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host_arch, target_arch)]
@@ -833,9 +859,9 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
             sdk_bat_file_path = os.path.join(pdir, sdk_bat_file)
             if os.path.exists(sdk_bat_file_path):
                 debug('sdk_bat_file_path:%s', sdk_bat_file_path)
-                return (batfilename, arg, sdk_bat_file_path)
+                return (batfilename, arg, vcdir, sdk_bat_file_path)
 
-    return (batfilename, arg, None)
+    return (batfilename, arg, vcdir, None)
 
 __INSTALLED_VCS_RUN = None
 _VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
@@ -994,6 +1020,7 @@ def reset_installed_vcs():
     global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
     _MSVCSetupEnvDefault.reset()
+    _MSVCScriptArguments.reset()
 
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
@@ -1041,16 +1068,39 @@ def script_env(script, args=None):
 
     if cache_data is None:
         stdout = common.get_output(script, args)
-
-        # Stupid batch files do not set return code: we take a look at the
-        # beginning of the output for an error message instead
-        olines = stdout.splitlines()
-        if re_script_output_error.match(olines[0]):
-            raise BatchFileExecutionError("\n".join(olines[:2]))
-
         cache_data = common.parse_output(stdout)
-        script_env_cache[cache_key] = cache_data
+
+        olines = stdout.splitlines()
+        #debug(olines)
+
+        # process stdout: batch file errors (not necessarily first line)
+        script_errlog = []
+        for line in olines:
+            if re_script_output_error.match(line):
+                if not script_errlog:
+                    script_errlog.append('vc script errors detected:')
+                script_errlog.append(line)
+
+        if script_errlog:
+            script_errmsg = '\n'.join(script_errlog)
+            have_cl = False
+            if cache_data and 'PATH' in cache_data:
+                for p in cache_data['PATH']:
+                    if os.path.exists(os.path.join(p, _CL_EXE_NAME)):
+                        have_cl = True
+                        break
+            if not have_cl:
+                # detected errors, cl.exe not on path
+                raise BatchFileExecutionError(script_errmsg)
+            else:
+                # detected errors, cl.exe on path
+                debug('script=%s args=%s errors=%s', repr(script), repr(args), script_errmsg)
+                # This may be a bad idea (scons environment != vs cmdline environment)
+                SCons.Warnings.warn(BatchFileExecutionWarning, script_errmsg)
+                # TODO: errlog/errstr should be added to cache and warning moved to call site
+
         # once we updated cache, give a chance to write out if user wanted
+        script_env_cache[cache_key] = cache_data
         common.write_script_env_cache(script_env_cache)
 
     return cache_data
@@ -1395,6 +1445,419 @@ def msvc_setup_env_once(env, tool=None):
               "  Requested tool(s) are: {}".format(req_tools)
         _msvc_notfound_policy_handler(env, msg)
 
+class _MSVCScriptArguments:
+
+    # MSVC batch file arguments:
+    #
+    #     VS2022: UWP, SDK, TOOLSET, SPECTRE
+    #     VS2019: UWP, SDK, TOOLSET, SPECTRE
+    #     VS2017: UWP, SDK, TOOLSET, SPECTRE
+    #     VS2015: UWP, SDK
+    #
+    #     MSVC_UWP_APP:         VS2015+
+    #     MSVC_SDK_VERSION:     VS2015+
+    #     MSVC_TOOLSET_VERSION: VS2017+
+    #     MSVC_SPECTRE_LIBS:    VS2017+
+    #
+    #     MSVC_SCRIPT_ARGS:     VS2015+
+    #
+
+    @classmethod
+    def _msvc_script_argument_uwp(cls, env, version, vernum, arglist):
+
+        uwp_app = env['MSVC_UWP_APP']
+        debug('MSVC_VERSION=%s, MSVC_UWP_APP=%s', repr(version), repr(uwp_app))
+
+        if not uwp_app:
+            return False
+
+        if uwp_app not in (True, '1'):
+            return False
+
+        if vernum < VS2015:
+            debug('invalid: msvc_version constraint: msvc_version=%s < VS2015=%s', repr(version), repr(str(VS2015)))
+            err_msg = "MSVC_UWP_APP ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
+                repr(uwp_app), repr(version), repr(str(VS2015))
+            )
+            raise MSVCArgumentError(err_msg)
+
+        # uwp may not be installed
+        uwp_arg = 'uwp' if vernum > VS2015 else 'store'
+        arglist.append(uwp_arg)
+        return True
+
+    # TODO: verify SDK 10 version folder names 10.0.XXXXX.0 {1,3} last?
+    re_sdk_version_10 = re.compile(r'^10[.][0-9][.][0-9]{5}[.][0-9]{1}$')
+
+    @classmethod
+    def _msvc_script_argument_sdk_constraints(cls, version, msvc_vernum, sdk_version):
+
+        if msvc_vernum < VS2015:
+            debug('invalid: msvc_version constraint: msvc_version=%s < VS2015=%s', repr(version), repr(str(VS2015)))
+            err_msg = "MSVC_SDK_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
+                repr(sdk_version), repr(version), repr(str(VS2015))
+            )
+            return err_msg
+
+        if sdk_version == '8.1':
+            debug('valid: sdk_version=%s', repr(sdk_version))
+            return None
+
+        if cls.re_sdk_version_10.match(sdk_version):
+            debug('valid: sdk_version=%s', repr(sdk_version))
+            return None
+
+        debug('invalid: method exit: sdk_version=%s', repr(sdk_version))
+        err_msg = "MSVC_SDK_VERSION ({}) is not supported".format(repr(sdk_version))
+        return err_msg
+
+    @classmethod
+    def _msvc_script_argument_sdk(cls, env, version, vernum, is_uwp, arglist):
+
+        sdk_version = env['MSVC_SDK_VERSION']
+        debug('MSVC_VERSION=%s, MSVC_SDK_VERSION=%s, uwp=%s', repr(version), repr(sdk_version), repr(is_uwp))
+
+        if not sdk_version:
+            return False
+
+        err_msg = cls._msvc_script_argument_sdk_constraints(version, vernum, sdk_version)
+        if err_msg:
+            raise MSVCArgumentError(err_msg)
+
+        # sdk folder may not exist
+        arglist.append(sdk_version)
+        return True
+
+    @classmethod
+    def _msvc_read_toolset_file(cls, version, filename):
+        toolset_version = None
+        try:
+            with open(filename) as f:
+                toolset_version = f.readlines()[0].strip()
+            debug('msvc_version=%s, filename=%s, toolset_version=%s', repr(version), repr(filename), repr(toolset_version))
+        except IOError:
+            debug('IOError: msvc_version=%s, filename=%s', repr(version), repr(filename))
+        except IndexError:
+            debug('IndexError: msvc_version=%s, filename=%s', repr(version), repr(filename))
+        return toolset_version
+
+    @classmethod
+    def _msvc_read_toolset_folders(cls, version, vc_dir):
+
+        toolsets_sxs = {}
+        toolsets_full = []
+
+        build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
+        sxs_toolsets = [ f.name for f in os.scandir(build_dir) if f.is_dir() ]
+        for sxs_toolset in sxs_toolsets:
+            filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_toolset)
+            filepath = os.path.join(build_dir, sxs_toolset, filename)
+            if os.path.exists(filepath):
+                toolset_version = cls._msvc_read_toolset_file(version, filepath)
+                if not toolset_version:
+                    continue
+                toolsets_sxs[sxs_toolset] = toolset_version
+                debug('sxs toolset: msvc_version=%s, sxs_version=%s, toolset_version=%s', repr(version), repr(sxs_toolset), toolset_version)
+
+        toolset_dir = os.path.join(vc_dir, "Tools", "MSVC")
+        toolsets = [ f.name for f in os.scandir(toolset_dir) if f.is_dir() ]
+        for toolset_version in toolsets:
+            binpath = os.path.join(toolset_dir, toolset_version, "bin")
+            if os.path.exists(binpath):
+                toolsets_full.append(toolset_version)
+                debug('toolset: msvc_version=%s, toolset_version=%s', repr(version), repr(toolset_version))
+
+        toolsets_full.sort(reverse=True)
+        debug('msvc_version=%s, toolsets=%s', repr(version), repr(toolsets_full))
+
+        return toolsets_sxs, toolsets_full
+
+    @classmethod
+    def _msvc_read_toolset_default(cls, version, vc_dir):
+
+        build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
+
+        version_numeric = get_msvc_version_numeric(version)
+
+        # VS2019+
+        buildtools_version = ''.join(version_numeric.split('.'))
+        filename = "Microsoft.VCToolsVersion.v{}.default.txt".format(buildtools_version)
+        filepath = os.path.join(build_dir, filename)
+
+        toolset_buildtools = None
+        if os.path.exists(filepath):
+            toolset_buildtools = cls._msvc_read_toolset_file(version, filepath)
+            if toolset_buildtools:
+                return toolset_buildtools
+
+        # VS2017+
+        filename = "Microsoft.VCToolsVersion.default.txt"
+        filepath = os.path.join(build_dir, filename)
+
+        toolset_default = None
+        if os.path.exists(filepath):
+            toolset_default = cls._msvc_read_toolset_file(version, filepath)
+            if toolset_default:
+                return toolset_default
+
+        return None
+
+    @classmethod
+    def _reset_toolset(cls):
+        debug('reset: toolset cache')
+        cls._toolset_version_cache = {}
+        cls._toolset_default_cache = {}
+
+    _toolset_version_cache = {}
+    _toolset_default_cache = {}
+
+    @classmethod
+    def _msvc_version_toolsets(cls, version, vc_dir):
+
+        if version in cls._toolset_version_cache:
+            toolsets_sxs, toolsets_full = cls._toolset_version_cache[version]
+        else:
+            toolsets_sxs, toolsets_full = cls._msvc_read_toolset_folders(version, vc_dir)
+            cls._toolset_version_cache[version] = toolsets_sxs, toolsets_full
+
+        return toolsets_sxs, toolsets_full
+
+    @classmethod
+    def _msvc_default_toolset(cls, version, vc_dir):
+
+        if version in cls._toolset_default_cache:
+            toolset_default = cls._toolset_default_cache[version]
+        else:
+            toolset_default = cls._msvc_read_toolset_default(version, vc_dir)
+            cls._toolset_default_cache[version] = toolset_default
+
+        return toolset_default
+
+    @classmethod
+    def _msvc_version_toolset_vcvars(cls, version, vernum, vc_dir, toolset_version):
+
+        if toolset_version == '14.0':
+            return toolset_version
+
+        toolsets_sxs, toolsets_full = cls._msvc_version_toolsets(version, vc_dir)
+
+        if vernum == VS2019 and toolset_version == '14.28.16.8':
+            # VS2019\Common7\Tools\vsdevcmd\ext\vcvars.bat AzDO Bug#1293526
+            #     special handling of the 16.8 SxS toolset, use VC\Auxiliary\Build\14.28 directory and SxS files
+            #     if SxS version 14.28 not present/installed, fallback selection of toolset VC\Tools\MSVC\14.28.nnnnn.
+            toolset_version = '14.28'
+
+        if toolset_version in toolsets_sxs:
+            toolset_vcvars = toolsets_sxs[toolset_version]
+            return toolset_vcvars
+
+        for toolset_full in toolsets_full:
+            if toolset_full.startswith(toolset_version):
+                toolset_vcvars = toolset_full
+                return toolset_vcvars
+
+        return None
+
+    # capture msvc version
+    re_toolset_version = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9])[0-9.]*$', re.IGNORECASE)
+
+    re_toolset_full = re.compile(r'''^(?:
+        (?:[1-9][0-9][.][0-9]{1,2})|           # XX.Y    - XX.YY
+        (?:[1-9][0-9][.][0-9]{2}[.][0-9]{1,5}) # XX.YY.Z - XX.YY.ZZZZZ
+    )$''', re.VERBOSE)
+
+    re_toolset_140 = re.compile(r'''^(?:
+        (?:14[.]0{1,2})|       # 14.0    - 14.00
+        (?:14[.]0{2}[.]0{1,5}) # 14.00.0 - 14.00.00000
+    )$''', re.VERBOSE)
+
+    # valid SxS formats will be matched with re_toolset_full: match 3 '.' format
+    re_toolset_sxs = re.compile(r'^[1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}$')
+
+    @classmethod
+    def _msvc_script_argument_toolset_constraints(cls, version, msvc_vernum, toolset_version):
+
+        if msvc_vernum < VS2017:
+            debug('invalid: msvc_version constraint: msvc_version=%s < VS2017=%s', repr(version), repr(str(VS2017)))
+            err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
+                repr(toolset_version), repr(version), repr(str(VS2017))
+            )
+            return err_msg
+
+        m = cls.re_toolset_version.match(toolset_version)
+        if not m:
+            debug('invalid: re_toolset_version: toolset_version=%s', repr(toolset_version))
+            err_msg = 'MSVC_TOOLSET_VERSION {} format is not supported'.format(
+                repr(toolset_version)
+            )
+            return err_msg
+
+        toolset_ver = m.group('version')
+        toolset_vernum = float(toolset_ver)
+
+        if toolset_vernum < VS2015:
+            debug('invalid: toolset_vernum constraint: toolset_vernum=%s < VS2015=%s', repr(str(toolset_vernum)), repr(str(VS2015)))
+            err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} < {} VS2015".format(
+                repr(toolset_version), repr(str(toolset_vernum)), repr(str(VS2015))
+            )
+            return err_msg
+
+        if toolset_vernum > msvc_vernum:
+            debug('invalid: toolset_vernum constraint: toolset_vernum=%s > msvc_vernum=%s', repr(str(toolset_vernum)), repr(str(msvc_vernum)))
+            err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > {} MSVC_VERSION".format(
+                repr(toolset_version), repr(str(toolset_vernum)), repr(version)
+            )
+            return err_msg
+
+        if toolset_vernum == VS2015 and cls.re_toolset_full.match(toolset_version):
+            if not cls.re_toolset_140.match(toolset_version):
+                debug('invalid: 14.0 version: toolset_version=%s', repr(toolset_version))
+                err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > '14.0'".format(
+                    repr(toolset_version), repr(toolset_version)
+                )
+                return err_msg
+            return None
+
+        if cls.re_toolset_full.match(toolset_version):
+            debug('valid: re_toolset_full: toolset_version=%s', repr(toolset_version))
+            return None
+
+        if cls.re_toolset_sxs.match(toolset_version):
+            debug('valid: re_toolset_sxs: toolset_version=%s', repr(toolset_version))
+            return None
+
+        debug('invalid: method exit: toolset_version=%s', repr(toolset_version))
+        err_msg = "MSVC_TOOLSET_VERSION ({}) format is not supported".format(repr(toolset_version))
+        return err_msg
+
+    @classmethod
+    def _msvc_script_argument_toolset(cls, env, version, vernum, vc_dir, arglist):
+
+        toolset_version = env['MSVC_TOOLSET_VERSION']
+        debug('MSVC_VERSION=%s, MSVC_TOOLSET_VERSION=%s', repr(version), repr(toolset_version))
+
+        if not toolset_version:
+            return False
+
+        err_msg = cls._msvc_script_argument_toolset_constraints(version, vernum, toolset_version)
+        if err_msg:
+            raise MSVCArgumentError(err_msg)
+
+        if toolset_version.startswith('14.0') and len(toolset_version) > len('14.0'):
+            debug('rewrite 14.0 toolset_version=%s', repr(toolset_version))
+            toolset_version = '14.0'
+
+        toolset_vcvars = cls._msvc_version_toolset_vcvars(version, vernum, vc_dir, toolset_version)
+        debug('toolset: toolset_version=%s, toolset_vcvars=%s', repr(toolset_version), repr(toolset_vcvars))
+
+        if not toolset_vcvars:
+            err_msg = "MSVC_VERSION {}: MSVC_TOOLSET_VERSION {} not found".format(
+                repr(version), repr(toolset_version)
+            )
+            raise MSVCArgumentError(err_msg)
+
+        arglist.append('-vcvars_ver={}'.format(toolset_vcvars))
+        return True
+
+    @classmethod
+    def _msvc_script_default_toolset(cls, env, version, vernum, vc_dir, arglist):
+
+        if vernum < VS2017:
+            return False
+
+        toolset_default = cls._msvc_default_toolset(version, vc_dir)
+        if not toolset_default:
+            return False
+
+        debug('MSVC_VERSION=%s, toolset_default=%s', repr(version), repr(toolset_default))
+        arglist.append('-vcvars_ver={}'.format(toolset_default))
+        return True
+
+    @classmethod
+    def _msvc_script_argument_spectre(cls, env, version, vernum, arglist):
+
+        spectre_libs = env['MSVC_SPECTRE_LIBS']
+        debug('MSVC_VERSION=%s, MSVC_SPECTRE_LIBS=%s', repr(version), repr(spectre_libs))
+
+        if not spectre_libs:
+            return False
+
+        if spectre_libs not in (True, '1'):
+            return False
+
+        if vernum < VS2017:
+            debug('invalid: msvc_version constraint: msvc_version=%s < VS2017=%s', repr(version), repr(str(VS2017)))
+            err_msg = "MSVC_SPECTRE_LIBS ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
+                repr(spectre_libs), repr(version), repr(str(VS2017))
+            )
+            raise MSVCArgumentError(err_msg)
+
+        # spectre libs may not be installed
+        arglist.append('-vcvars_spectre_libs=spectre')
+        return True
+
+    @classmethod
+    def _msvc_script_argument_user(cls, env, version, vernum, arglist):
+
+        # subst None -> empty string
+        script_args = env.subst('$MSVC_SCRIPT_ARGS')
+        debug('MSVC_VERSION=%s, MSVC_SCRIPT_ARGS=%s', repr(version), repr(script_args))
+
+        if not script_args:
+            return False
+
+        if vernum < VS2015:
+            debug('invalid: msvc_version constraint: msvc_version=%s < VS2015=%s', repr(version), repr(str(VS2015)))
+            err_msg = "MSVC_SCRIPT_ARGS ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
+                repr(script_args), repr(version), repr(str(VS2015))
+            )
+            raise MSVCArgumentError(err_msg)
+
+        # user arguments are not validated
+        arglist.append(script_args)
+        return True
+
+    @classmethod
+    def msvc_script_arguments(cls, env, version, vc_dir, arg):
+
+        msvc_ver_numeric = get_msvc_version_numeric(version)
+        vernum = float(msvc_ver_numeric)
+
+        arglist = [arg]
+
+        have_uwp = False
+        have_sdk = False
+        have_toolset = False
+        have_spectre = False
+        have_user = False
+
+        if 'MSVC_UWP_APP' in env:
+            have_uwp = cls._msvc_script_argument_uwp(env, version, vernum, arglist)
+
+        if 'MSVC_SDK_VERSION' in env:
+            have_sdk = cls._msvc_script_argument_sdk(env, version, vernum, have_uwp, arglist)
+
+        if 'MSVC_TOOLSET_VERSION' in env:
+            have_toolset = cls._msvc_script_argument_toolset(env, version, vernum, vc_dir, arglist)
+
+        if _MSVC_TOOLSET_DEFAULT_VCVARSVER and not have_toolset and vernum >= VS2017:
+            have_toolset = cls._msvc_script_default_toolset(env, version, vernum, vc_dir, arglist)
+
+        if 'MSVC_SPECTRE_LIBS' in env:
+            have_spectre = cls._msvc_script_argument_spectre(env, version, vernum, arglist)
+
+        if 'MSVC_SCRIPT_ARGS' in env:
+            have_user = cls._msvc_script_argument_user(env, version, vernum, arglist)
+
+        argstr = ' '.join(arglist).strip()
+        debug('arguments: %s', repr(argstr))
+
+        return argstr
+
+    def reset(cls):
+        debug('reset')
+        cl._reset_toolset()
+
 def msvc_find_valid_batch_script(env, version):
     """Find and execute appropriate batch script to set up build env.
 
@@ -1418,10 +1881,11 @@ def msvc_find_valid_batch_script(env, version):
     for host_arch, target_arch, in host_target_list:
         # Set to current arch.
         env['TARGET_ARCH'] = target_arch
+        arg = ''
 
         # Try to locate a batch file for this host/target platform combo
         try:
-            (vc_script, arg, sdk_script) = find_batch_file(env, version, host_arch, target_arch)
+            (vc_script, arg, vc_dir, sdk_script) = find_batch_file(env, version, host_arch, target_arch)
             debug('vc_script:%s vc_script_arg:%s sdk_script:%s', vc_script, arg, sdk_script)
             version_installed = True
         except VisualCException as e:
@@ -1434,14 +1898,7 @@ def msvc_find_valid_batch_script(env, version):
         debug('use_script 2 %s, args:%s', repr(vc_script), arg)
         found = None
         if vc_script:
-            # Get just version numbers
-            maj, min = msvc_version_to_maj_min(version)
-            # VS2015+
-            if maj >= 14:
-                if env.get('MSVC_UWP_APP') == '1':
-                    # Initialize environment variables with store/UWP paths
-                    arg = (arg + ' store').lstrip()
-
+            arg = _MSVCScriptArguments.msvc_script_arguments(env, version, vc_dir, arg)
             try:
                 d = script_env(vc_script, args=arg)
                 found = vc_script
