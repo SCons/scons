@@ -97,22 +97,41 @@ class MSVCArgumentError(VisualCException):
 class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
-# VS constants = VS product MSVC version introduced
-VS2022 = 14.3
-VS2019 = 14.2
-VS2017 = 14.1
-VS2015 = 14.0
-VS2013 = 12.0
-VS2012 = 11.0
-VS2010 = 10.0
-VS2008 = 9.0
-VS2005 = 8.0
-VS2003 = 7.1
-VS2002 = 7.0
-VS6 = 6.0
-
 # Force -vcvars_ver argument for default toolset
 _MSVC_TOOLSET_DEFAULT_VCVARSVER = False
+
+# VS constants: VSPRODUCT defined as MSVC_VERSION introduced
+
+_VS_MSVC_VERSION_DEFINITION = namedtuple('VSMSVCVersionDefinition', [
+    'vernum',
+    'symbol',
+    'major',
+    'minor',
+])
+
+def _vs_msvc_version(vernum):
+    symbol = str(vernum)
+    major, minor = [int(s) for s in symbol.split('.')]
+    vs_msvc_version = _VS_MSVC_VERSION_DEFINITION(
+        vernum = vernum,
+        symbol = symbol,
+        major = major,
+        minor = minor
+    )
+    return vs_msvc_version
+
+VS2022 = _vs_msvc_version(14.3)
+VS2019 = _vs_msvc_version(14.2)
+VS2017 = _vs_msvc_version(14.1)
+VS2015 = _vs_msvc_version(14.0)
+VS2013 = _vs_msvc_version(12.0)
+VS2012 = _vs_msvc_version(11.0)
+VS2010 = _vs_msvc_version(10.0)
+VS2008 = _vs_msvc_version(9.0)
+VS2005 = _vs_msvc_version(8.0)
+VS2003 = _vs_msvc_version(7.1)
+VS2002 = _vs_msvc_version(7.0)
+VS6 = _vs_msvc_version(6.0)
 
 # MSVC_NOTFOUND_POLICY definition:
 #     error:   raise exception
@@ -1474,15 +1493,15 @@ class _MSVCScriptArguments:
         if uwp_app not in (True, '1'):
             return False
 
-        if vernum < VS2015:
-            debug('invalid: msvc_version constraint: msvc_version=%s < VS2015=%s', repr(version), repr(str(VS2015)))
+        if vernum < VS2015.vernum:
+            debug('invalid: msvc_version constraint: vernum %s < %s VS2015', repr(vernum), repr(VS2015.vernum))
             err_msg = "MSVC_UWP_APP ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
-                repr(uwp_app), repr(version), repr(str(VS2015))
+                repr(uwp_app), repr(version), repr(VS2015.symbol)
             )
             raise MSVCArgumentError(err_msg)
 
         # uwp may not be installed
-        uwp_arg = 'uwp' if vernum > VS2015 else 'store'
+        uwp_arg = 'uwp' if vernum > VS2015.vernum else 'store'
         arglist.append(uwp_arg)
         return True
 
@@ -1492,10 +1511,10 @@ class _MSVCScriptArguments:
     @classmethod
     def _msvc_script_argument_sdk_constraints(cls, version, msvc_vernum, sdk_version):
 
-        if msvc_vernum < VS2015:
-            debug('invalid: msvc_version constraint: msvc_version=%s < VS2015=%s', repr(version), repr(str(VS2015)))
+        if msvc_vernum < VS2015.vernum:
+            debug('invalid: msvc_version constraint: vernum %s < %s VS2015', repr(msvc_vernum), repr(VS2015.vernum))
             err_msg = "MSVC_SDK_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
-                repr(sdk_version), repr(version), repr(str(VS2015))
+                repr(sdk_version), repr(version), repr(VS2015.symbol)
             )
             return err_msg
 
@@ -1641,7 +1660,7 @@ class _MSVCScriptArguments:
 
         toolsets_sxs, toolsets_full = cls._msvc_version_toolsets(version, vc_dir)
 
-        if vernum == VS2019 and toolset_version == '14.28.16.8':
+        if vernum == VS2019.vernum and toolset_version == '14.28.16.8':
             # VS2019\Common7\Tools\vsdevcmd\ext\vcvars.bat AzDO Bug#1293526
             #     special handling of the 16.8 SxS toolset, use VC\Auxiliary\Build\14.28 directory and SxS files
             #     if SxS version 14.28 not present/installed, fallback selection of toolset VC\Tools\MSVC\14.28.nnnnn.
@@ -1677,10 +1696,10 @@ class _MSVCScriptArguments:
     @classmethod
     def _msvc_script_argument_toolset_constraints(cls, version, msvc_vernum, toolset_version):
 
-        if msvc_vernum < VS2017:
-            debug('invalid: msvc_version constraint: msvc_version=%s < VS2017=%s', repr(version), repr(str(VS2017)))
+        if msvc_vernum < VS2017.vernum:
+            debug('invalid: msvc_version constraint: vernum %s < %s VS2017', repr(msvc_vernum), repr(VS2017.vernum))
             err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
-                repr(toolset_version), repr(version), repr(str(VS2017))
+                repr(toolset_version), repr(version), repr(VS2017.symbol)
             )
             return err_msg
 
@@ -1695,23 +1714,23 @@ class _MSVCScriptArguments:
         toolset_ver = m.group('version')
         toolset_vernum = float(toolset_ver)
 
-        if toolset_vernum < VS2015:
-            debug('invalid: toolset_vernum constraint: toolset_vernum=%s < VS2015=%s', repr(str(toolset_vernum)), repr(str(VS2015)))
+        if toolset_vernum < VS2015.vernum:
+            debug('invalid: toolset_version constraint: toolset vernum %s < %s VS2015', repr(toolset_vernum), repr(VS2015.vernum))
             err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} < {} VS2015".format(
-                repr(toolset_version), repr(str(toolset_vernum)), repr(str(VS2015))
+                repr(toolset_version), repr(toolset_ver), repr(VS2015.symbol)
             )
             return err_msg
 
         if toolset_vernum > msvc_vernum:
-            debug('invalid: toolset_vernum constraint: toolset_vernum=%s > msvc_vernum=%s', repr(str(toolset_vernum)), repr(str(msvc_vernum)))
+            debug('invalid: toolset_version constraint: toolset vernum %s > %s msvc vernum', repr(toolset_vernum), repr(msvc_vernum))
             err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > {} MSVC_VERSION".format(
-                repr(toolset_version), repr(str(toolset_vernum)), repr(version)
+                repr(toolset_version), repr(toolset_ver), repr(version)
             )
             return err_msg
 
-        if toolset_vernum == VS2015 and cls.re_toolset_full.match(toolset_version):
+        if toolset_vernum == VS2015.vernum and cls.re_toolset_full.match(toolset_version):
             if not cls.re_toolset_140.match(toolset_version):
-                debug('invalid: 14.0 version: toolset_version=%s', repr(toolset_version))
+                debug('invalid: 14.0 constraint: toolset version %s > 14.0', repr(toolset_version))
                 err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > '14.0'".format(
                     repr(toolset_version), repr(toolset_version)
                 )
@@ -1762,7 +1781,7 @@ class _MSVCScriptArguments:
     @classmethod
     def _msvc_script_default_toolset(cls, env, version, vernum, vc_dir, arglist):
 
-        if vernum < VS2017:
+        if vernum < VS2017.vernum:
             return False
 
         toolset_default = cls._msvc_default_toolset(version, vc_dir)
@@ -1785,10 +1804,10 @@ class _MSVCScriptArguments:
         if spectre_libs not in (True, '1'):
             return False
 
-        if vernum < VS2017:
-            debug('invalid: msvc_version constraint: msvc_version=%s < VS2017=%s', repr(version), repr(str(VS2017)))
+        if vernum < VS2017.vernum:
+            debug('invalid: msvc_version constraint: vernum %s < %s VS2017', repr(vernum), repr(VS2017.vernum))
             err_msg = "MSVC_SPECTRE_LIBS ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
-                repr(spectre_libs), repr(version), repr(str(VS2017))
+                repr(spectre_libs), repr(version), repr(VS2017.symbol)
             )
             raise MSVCArgumentError(err_msg)
 
@@ -1806,10 +1825,10 @@ class _MSVCScriptArguments:
         if not script_args:
             return False
 
-        if vernum < VS2015:
-            debug('invalid: msvc_version constraint: msvc_version=%s < VS2015=%s', repr(version), repr(str(VS2015)))
+        if vernum < VS2015.vernum:
+            debug('invalid: msvc_version constraint: vernum %s < %s VS2015', repr(vernum), repr(VS2015.vernum))
             err_msg = "MSVC_SCRIPT_ARGS ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
-                repr(script_args), repr(version), repr(str(VS2015))
+                repr(script_args), repr(version), repr(VS2015.symbol)
             )
             raise MSVCArgumentError(err_msg)
 
@@ -1826,28 +1845,25 @@ class _MSVCScriptArguments:
         arglist = [arg]
 
         have_uwp = False
-        have_sdk = False
         have_toolset = False
-        have_spectre = False
-        have_user = False
 
         if 'MSVC_UWP_APP' in env:
             have_uwp = cls._msvc_script_argument_uwp(env, version, vernum, arglist)
 
         if 'MSVC_SDK_VERSION' in env:
-            have_sdk = cls._msvc_script_argument_sdk(env, version, vernum, have_uwp, arglist)
+            cls._msvc_script_argument_sdk(env, version, vernum, have_uwp, arglist)
 
         if 'MSVC_TOOLSET_VERSION' in env:
             have_toolset = cls._msvc_script_argument_toolset(env, version, vernum, vc_dir, arglist)
 
-        if _MSVC_TOOLSET_DEFAULT_VCVARSVER and not have_toolset and vernum >= VS2017:
+        if _MSVC_TOOLSET_DEFAULT_VCVARSVER and not have_toolset and vernum >= VS2017.vernum:
             have_toolset = cls._msvc_script_default_toolset(env, version, vernum, vc_dir, arglist)
 
         if 'MSVC_SPECTRE_LIBS' in env:
-            have_spectre = cls._msvc_script_argument_spectre(env, version, vernum, arglist)
+            cls._msvc_script_argument_spectre(env, version, vernum, arglist)
 
         if 'MSVC_SCRIPT_ARGS' in env:
-            have_user = cls._msvc_script_argument_user(env, version, vernum, arglist)
+            cls._msvc_script_argument_user(env, version, vernum, arglist)
 
         argstr = ' '.join(arglist).strip()
         debug('arguments: %s', repr(argstr))
