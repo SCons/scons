@@ -1125,6 +1125,9 @@ class TestCmd:
                 interpreter = [interpreter]
             cmd = list(interpreter) + cmd
         if arguments:
+            if isinstance(arguments, dict):
+                cmd.extend(["%s=%s" % (k, v) for k, v in arguments.items()])
+                return cmd
             if isinstance(arguments, str):
                 arguments = arguments.split()
             cmd.extend(arguments)
@@ -1569,6 +1572,9 @@ class TestCmd:
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
+
+        argument: If this is a dict() then will create arguments with KEY+VALUE for
+                  each entry in the dict.
         """
         if self.external:
             if not program:
