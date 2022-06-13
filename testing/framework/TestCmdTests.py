@@ -2591,7 +2591,7 @@ script_recv:  STDERR:  input
             with open(t.recv_out_path, 'rb') as f:
                 result = to_str(f.read())
             expect = 'script_recv:  ' + input
-            assert result == expect, "Result:[%s] should match\nExpected:[%s]"%(result, expect)
+            assert result == expect, "Result:[%s] should match\nExpected:[%s]" % (result, expect)
 
             p = test.start(stdin=1)
             input = 'send() input to the receive script\n'

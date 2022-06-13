@@ -33,7 +33,6 @@ import sys
 import SCons
 import SCons.Script
 import SCons.Tool.ninja.Globals
-from SCons.Script import Variables
 from SCons.Script import GetOption
 
 from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS, NINJA_CMDLINE_TARGETS
