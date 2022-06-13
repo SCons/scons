@@ -126,6 +126,14 @@ def ninja_builder(env, target, source):
         sys.stdout.write("\n")
 
 
+def options(opts):
+    """
+    Add command line Variables for Ninja builder.
+    """
+    opts.AddVariables(
+        ("NINJA_CMD_ARGS", "Arguments to pass to ninja"),
+    )
+
 def exists(env):
     """Enable if called."""
 
@@ -186,15 +194,6 @@ def generate(env):
     env["NINJA_DISABLE_AUTO_RUN"] = env.get("NINJA_DISABLE_AUTO_RUN", GetOption('disable_execute_ninja'))
     env["NINJA_FILE_NAME"] = env.get("NINJA_FILE_NAME", "build.ninja")
 
-    if env.get("NINJA_CMD_ARGS") is not None:
-        env["NINJA_CMD_ARGS"] = env.get("NINJA_CMD_ARGS")
-    else:
-        vars = Variables()
-        vars.Add("NINJA_CMD_ARGS")
-        var_env = env.Clone()
-        vars.Update(var_env)
-        env["NINJA_CMD_ARGS"] = var_env.get("NINJA_CMD_ARGS", '')
-
     # Add the Ninja builder.
     always_exec_ninja_action = AlwaysExecAction(ninja_builder, {})
     ninja_builder_obj = SCons.Builder.Builder(action=always_exec_ninja_action,
@@ -207,7 +206,7 @@ def generate(env):
     env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000, 60000))
 
     if GetOption("disable_ninja"):
-        env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
+        env.SConsignFile(os.path.join(str(env['NINJA_DIR']), '.ninja.sconsign'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
