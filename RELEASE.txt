@@ -14,7 +14,8 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
 NEW FUNCTIONALITY
 -----------------
 
-- Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
+- Added MSVC_USE_SCRIPT_ARGS command line variable to pass arguments to MSVC_USE_SCRIPT.
+  This can also be set in your Environment().
 - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
   (or an iterable) which contains functions to be called in order

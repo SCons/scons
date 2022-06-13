@@ -117,6 +117,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       performance impact if not used carefully.
       to connect to the server during start up.
     - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
+      This can also be set in your Environment().
 
 
   From Mats Wichmann:
