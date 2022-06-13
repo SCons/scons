@@ -48,6 +48,25 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
             require delayed expansion to be enabled which is currently not supported and is
             typically not enabled by default on the host system. The batch files may also require
             environment variables that are not included by default in the msvc environment.
+    - Suppress issuing a warning when there are no installed Visual Studio instances for the default
+      tools configuration (issue #2813).  When msvc is the default compiler because there are no
+      compilers installed, a build may fail due to the cl.exe command not being recognized.  At
+      present, there is no easy way to detect during msvc initialization if the default environment
+      will be used later to build a program and/or library. There is no error/warning issued for the
+      default tools as there are legitimate SCons uses that do not require a c compiler.
+    - Added a global policy setting and an environment policy variable for specifying the action to
+      be taken when an msvc request cannot be satisfied. The available options are "error",
+      "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
+      set and retrieved via the functions set_msvc_notfound_policy and get_msvc_notfound_policy,
+      respectively.  These two methods may be imported from SCons.Tool.MSCommon.  The environment
+      policy variable introduced is MSVC_NOTFOUND_POLICY.  When defined, the environment policy
+      variable overrides the global policy setting for a given environment. When the active policy
+      is "error" or "exception", an MSVCVersionNotFound exception is raised.  When the active policy
+      is "warning" or "warn", a VisualCMissingWarning warning is issued and the constructed
+      environment is likely incomplete. When the active policy is "ignore" or "suppress", no action
+      is taken and the constructed environment is likely incomplete.  As implemented, the default
+      global policy is "warning".  The ability to set the global policy via an SCons command-line
+      option may be added in a future enhancement.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
