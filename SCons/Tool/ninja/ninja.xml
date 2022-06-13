@@ -401,6 +401,14 @@ python -m pip install ninja
                 A string which will pass arguments through SCons to the ninja command when scons executes ninja.
                 Has no effect if &cv-NINJA_DISABLE_AUTO_RUN; is set.
             </para>
+            <para>
+                This value can also be passed on the command line:
+            </para>
+            <example_commands>
+scons NINJA_CMD_ARGS=-v
+or
+scons NINJA_CMD_ARGS="-v -j 3"
+            </example_commands>
         </summary>
     </cvar>
 
