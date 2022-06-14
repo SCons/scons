@@ -1840,7 +1840,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -1868,7 +1868,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1897,7 +1897,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1929,8 +1929,8 @@ class run_TestCase(TestCommonTestCase):
         def raise_exception(*args, **kw):
             raise TypeError("forced TypeError")
         TestCmd.TestCmd.start = raise_exception
-        tc = TestCommon(program='%(pass_script)s',
-                        interpreter='%(python)s',
+        tc = TestCommon(program=r'%(pass_script)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1966,7 +1966,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stderr = None)
         """)
@@ -1980,7 +1980,7 @@ class run_TestCase(TestCommonTestCase):
         def my_match_exact(actual, expect): return actual == expect
         from TestCommon import TestCommon, match_re_dotall
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_re_dotall)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -1997,7 +1997,7 @@ class run_TestCase(TestCommonTestCase):
         def my_match_exact(actual, expect): return actual == expect
         from TestCommon import TestCommon, match_re_dotall
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_re_dotall)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -2013,7 +2013,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 1)
         """)
@@ -2026,7 +2026,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(stdout = r"%(pass_script)s:  STDOUT:  []" + "\\n")
@@ -2040,7 +2040,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(stderr = r"%(stderr_script)s:  STDERR:  []" + "\\n")
@@ -2054,7 +2054,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 1)
         """)
@@ -2084,7 +2084,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 2)
         """)
@@ -2114,7 +2114,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stdout = "Not found\\n")
         """)
@@ -2146,7 +2146,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stderr = "Not found\\n")
         """)
@@ -2180,7 +2180,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(options = "opt1 opt2 opt3",
@@ -2195,7 +2195,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(options = "opt1 opt2 opt3",
@@ -2217,7 +2217,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(signal_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -2249,7 +2249,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(stdin_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='',
                         match=match_exact)
         expect_stdout = r"%(stdin_script)s:  STDOUT:  'input'" + "\\n"
@@ -2277,7 +2277,7 @@ class start_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         p = tc.start(options = "opt1 opt2 opt3")
@@ -2293,7 +2293,7 @@ class start_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         p = tc.start(options = "opt1 opt2 opt3",

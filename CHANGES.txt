@@ -48,6 +48,25 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
             require delayed expansion to be enabled which is currently not supported and is
             typically not enabled by default on the host system. The batch files may also require
             environment variables that are not included by default in the msvc environment.
+    - Suppress issuing a warning when there are no installed Visual Studio instances for the default
+      tools configuration (issue #2813).  When msvc is the default compiler because there are no
+      compilers installed, a build may fail due to the cl.exe command not being recognized.  At
+      present, there is no easy way to detect during msvc initialization if the default environment
+      will be used later to build a program and/or library. There is no error/warning issued for the
+      default tools as there are legitimate SCons uses that do not require a c compiler.
+    - Added a global policy setting and an environment policy variable for specifying the action to
+      be taken when an msvc request cannot be satisfied. The available options are "error",
+      "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
+      set and retrieved via the functions set_msvc_notfound_policy and get_msvc_notfound_policy,
+      respectively.  These two methods may be imported from SCons.Tool.MSCommon.  The environment
+      policy variable introduced is MSVC_NOTFOUND_POLICY.  When defined, the environment policy
+      variable overrides the global policy setting for a given environment. When the active policy
+      is "error" or "exception", an MSVCVersionNotFound exception is raised.  When the active policy
+      is "warning" or "warn", a VisualCMissingWarning warning is issued and the constructed
+      environment is likely incomplete. When the active policy is "ignore" or "suppress", no action
+      is taken and the constructed environment is likely incomplete.  As implemented, the default
+      global policy is "warning".  The ability to set the global policy via an SCons command-line
+      option may be added in a future enhancement.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
@@ -116,7 +135,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Note that these are called for every build command run by SCons. It could have considerable
       performance impact if not used carefully.
       to connect to the server during start up.
-    - Updated lex emitter to respect escaped spaces when climbing out of a the SCosncript dir
+    - Updated lex emitter to respect escaped spaces when climbing out of a the SConscript dir
+    - Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
+      Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
+      NOTE: Test for this requires python psutil module. It will be skipped if not present.
+    - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
+      This can also be set in your Environment().
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
@@ -163,6 +187,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       that link has been modified (issue #3880)
     - Modernize a few tests that use now-deprecated unittest.getTestCaseNames
       and unittest.makeSuite - Python itself suggests the replacements.
+    - SCons.Tool.find_program_path now takes an optional add_path argument
+      to add a path to the execution environment if it was discovered in
+      default_paths. Previously, the routine, called by many tool modules,
+      never altered the execution environment, leaving it to the tools.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
