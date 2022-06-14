@@ -117,11 +117,11 @@ class _Const:
         ('120', 120, ['msvcr120']),
         ('110', 110, ['msvcr110']),
         ('100', 100, ['msvcr100']),
-        ( '90',  90, ['msvcr90']),
-        ( '80',  80, ['msvcr80']),
-        ( '71',  71, ['msvcr71']),
-        ( '70',  70, ['msvcr70']),
-        ( '60',  60, ['msvcrt']),
+        ('90',   90, ['msvcr90']),
+        ('80',   80, ['msvcr80']),
+        ('71',   71, ['msvcr71']),
+        ('70',   70, ['msvcr70']),
+        ('60',   60, ['msvcrt']),
     ]:
         vc_runtime_def = MSVC_RUNTIME_DEFINITION(
             vc_runtime = vc_runtime,
@@ -163,11 +163,11 @@ class _Const:
         ('v120', '12.0', '18.0', '120'),
         ('v110', '11.0', '17.0', '110'),
         ('v100', '10.0', '16.0', '100'),
-        ( 'v90',  '9.0', '15.0',  '90'),
-        ( 'v80',  '8.0', '14.0',  '80'),
-        ( 'v71',  '7.1', '13.1',  '71'),
-        ( 'v70',  '7.0', '13.0',  '70'),
-        ( 'v60',  '6.0', '12.0',  '60'),
+        ('v90',   '9.0', '15.0',  '90'),
+        ('v80',   '8.0', '14.0',  '80'),
+        ('v71',   '7.1', '13.1',  '71'),
+        ('v70',   '7.0', '13.0',  '70'),
+        ('v60',   '6.0', '12.0',  '60'),
     ]:
 
         vc_runtime_def = MSVC_RUNTIME_INTERNAL[vc_runtime]
@@ -232,11 +232,11 @@ class _Const:
         ('2013', '12.0', True,  True,  'registry',            None,   None,    None, ['v120']),
         ('2012', '11.0', True,  True,  'registry',            None,   None,    None, ['v110']),
         ('2010', '10.0', False, True,  'registry',            None,   None,    None, ['v100']),
-        ('2008',  '9.0', False, True,  'registry',            None,   None,    None, [ 'v90']),
-        ('2005',  '8.0', False, True,  'registry',            None,   None,    None, [ 'v80']),
-        ('2003',  '7.1', False, False, 'registry',            None,   None,    None, [ 'v71']),
-        ('2002',  '7.0', False, False, 'registry',            None,   None,    None, [ 'v70']),
-        ('1998',  '6.0', False, False, 'registry',            None,   None,    None, [ 'v60']),
+        ('2008',  '9.0', False, True,  'registry',            None,   None,    None, ['v90']),
+        ('2005',  '8.0', False, True,  'registry',            None,   None,    None, ['v80']),
+        ('2003',  '7.1', False, False, 'registry',            None,   None,    None, ['v71']),
+        ('2002',  '7.0', False, False, 'registry',            None,   None,    None, ['v70']),
+        ('1998',  '6.0', False, False, 'registry',            None,   None,    None, ['v60']),
     ]:
 
         vs_version_major = vs_version.split('.')[0]
@@ -1623,6 +1623,9 @@ def msvc_setup_env_once(env, tool=None):
 
 class _MSVCScriptArguments:
 
+    # Force -vcvars_ver argument for default toolset
+    MSVC_TOOLSET_DEFAULT_VCVARSVER = True
+
     # MSVC batch file arguments:
     #
     #     VS2022: UWP, SDK, TOOLSET, SPECTRE
@@ -1630,35 +1633,42 @@ class _MSVCScriptArguments:
     #     VS2017: UWP, SDK, TOOLSET, SPECTRE
     #     VS2015: UWP, SDK
     #
+    #     MSVC_SCRIPT_ARGS:     VS2015+
+    #
     #     MSVC_UWP_APP:         VS2015+
     #     MSVC_SDK_VERSION:     VS2015+
     #     MSVC_TOOLSET_VERSION: VS2017+
     #     MSVC_SPECTRE_LIBS:    VS2017+
-    #
-    #     MSVC_SCRIPT_ARGS:     VS2015+
-    #
 
-    # Force -vcvars_ver argument for default toolset
-    MSVC_TOOLSET_DEFAULT_VCVARSVER = False
+    class SortOrder:
+        ARCH    = 0  # arch
+        UWP     = 1  # MSVC_UWP_APP
+        SDK     = 2  # MSVC_SDK_VERSION
+        TOOLSET = 3  # MSVC_TOOLSET_VERSION
+        SPECTRE = 4  # MSVC_SPECTRE_LIBS
+        USER    = 5  # MSVC_SCRIPT_ARGS
 
     VS2019 = _Const.MSVS_VERSION_INTERNAL['2019']
     VS2017 = _Const.MSVS_VERSION_INTERNAL['2017']
     VS2015 = _Const.MSVS_VERSION_INTERNAL['2015']
 
     MSVC_VERSION_ARGS_DEFINITION = namedtuple('MSVCVersionArgsDefinition', [
-        'version',
+        'version', # fully qualified msvc version (e.g., '14.1Exp')
         'vs_def',
     ])
 
     @classmethod
     def _msvc_version(cls, version):
+
         verstr = get_msvc_version_numeric(version)
         vs_def = _Const.MSVC_VERSION_INTERNAL[verstr]
-        msvc_req = cls.MSVC_VERSION_ARGS_DEFINITION(
+
+        version_args = cls.MSVC_VERSION_ARGS_DEFINITION(
             version = version,
             vs_def = vs_def,
         )
-        return msvc_req
+
+        return version_args
 
     @classmethod
     def _msvc_script_argument_uwp(cls, env, msvc, arglist):
@@ -1667,10 +1677,10 @@ class _MSVCScriptArguments:
         debug('MSVC_VERSION=%s, MSVC_UWP_APP=%s', repr(msvc.version), repr(uwp_app))
 
         if not uwp_app:
-            return False
+            return None
 
         if uwp_app not in (True, '1'):
-            return False
+            return None
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2015.vc_buildtools_def.vc_version_numeric:
             debug(
@@ -1683,10 +1693,14 @@ class _MSVCScriptArguments:
             )
             raise MSVCArgumentError(err_msg)
 
-        # uwp may not be installed
+        # VS2017+ rewrites uwp => store for 14.0 toolset
         uwp_arg = msvc.vs_def.vc_uwp
-        arglist.append(uwp_arg)
-        return True
+
+        # uwp may not be installed
+        argpair = (cls.SortOrder.UWP, uwp_arg)
+        arglist.append(argpair)
+
+        return uwp_arg
 
     # TODO: verify SDK 10 version folder names 10.0.XXXXX.0 {1,3} last?
     re_sdk_version_10 = re.compile(r'^10[.][0-9][.][0-9]{5}[.][0-9]{1}$')
@@ -1729,15 +1743,17 @@ class _MSVCScriptArguments:
         )
 
         if not sdk_version:
-            return False
+            return None
 
         err_msg = cls._msvc_script_argument_sdk_constraints(msvc, sdk_version)
         if err_msg:
             raise MSVCArgumentError(err_msg)
 
         # sdk folder may not exist
-        arglist.append(sdk_version)
-        return True
+        argpair = (cls.SortOrder.SDK, sdk_version)
+        arglist.append(argpair)
+
+        return sdk_version
 
     @classmethod
     def _msvc_read_toolset_file(cls, msvc, filename):
@@ -1766,6 +1782,7 @@ class _MSVCScriptArguments:
         for sxs_toolset in sxs_toolsets:
             filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_toolset)
             filepath = os.path.join(build_dir, sxs_toolset, filename)
+            debug('sxs toolset: check file=%s', repr(filepath))
             if os.path.exists(filepath):
                 toolset_version = cls._msvc_read_toolset_file(msvc, filepath)
                 if not toolset_version:
@@ -1780,6 +1797,7 @@ class _MSVCScriptArguments:
         toolsets = [f.name for f in os.scandir(toolset_dir) if f.is_dir()]
         for toolset_version in toolsets:
             binpath = os.path.join(toolset_dir, toolset_version, "bin")
+            debug('toolset: check binpath=%s', repr(binpath))
             if os.path.exists(binpath):
                 toolsets_full.append(toolset_version)
                 debug(
@@ -1801,6 +1819,7 @@ class _MSVCScriptArguments:
         filename = "Microsoft.VCToolsVersion.{}.default.txt".format(msvc.vs_def.vc_buildtools_def.vc_buildtools)
         filepath = os.path.join(build_dir, filename)
 
+        debug('default toolset: check file=%s', repr(filepath))
         toolset_buildtools = None
         if os.path.exists(filepath):
             toolset_buildtools = cls._msvc_read_toolset_file(msvc, filepath)
@@ -1811,6 +1830,7 @@ class _MSVCScriptArguments:
         filename = "Microsoft.VCToolsVersion.default.txt"
         filepath = os.path.join(build_dir, filename)
 
+        debug('default toolset: check file=%s', repr(filepath))
         toolset_default = None
         if os.path.exists(filepath):
             toolset_default = cls._msvc_read_toolset_file(msvc, filepath)
@@ -1859,6 +1879,7 @@ class _MSVCScriptArguments:
         toolsets_sxs, toolsets_full = cls._msvc_version_toolsets(msvc, vc_dir)
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric == cls.VS2019.vc_buildtools_def.vc_version_numeric:
+            # necessary to detect toolset not found
             if toolset_version == '14.28.16.8':
                 new_toolset_version = '14.28'
                 # VS2019\Common7\Tools\vsdevcmd\ext\vcvars.bat AzDO Bug#1293526
@@ -1975,7 +1996,7 @@ class _MSVCScriptArguments:
         debug('MSVC_VERSION=%s, MSVC_TOOLSET_VERSION=%s', repr(msvc.version), repr(toolset_version))
 
         if not toolset_version:
-            return False
+            return None
 
         err_msg = cls._msvc_script_argument_toolset_constraints(msvc, toolset_version)
         if err_msg:
@@ -2001,22 +2022,27 @@ class _MSVCScriptArguments:
             )
             raise MSVCArgumentError(err_msg)
 
-        arglist.append('-vcvars_ver={}'.format(toolset_vcvars))
-        return True
+        argpair = (cls.SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_vcvars))
+        arglist.append(argpair)
+
+        return toolset_vcvars
 
     @classmethod
     def _msvc_script_default_toolset(cls, env, msvc, vc_dir, arglist):
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2017.vc_buildtools_def.vc_version_numeric:
-            return False
+            return None
 
         toolset_default = cls._msvc_default_toolset(msvc, vc_dir)
         if not toolset_default:
-            return False
+            return None
 
         debug('MSVC_VERSION=%s, toolset_default=%s', repr(msvc.version), repr(toolset_default))
-        arglist.append('-vcvars_ver={}'.format(toolset_default))
-        return True
+
+        argpair = (cls.SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_default))
+        arglist.append(argpair)
+
+        return toolset_default
 
     @classmethod
     def _msvc_script_argument_spectre(cls, env, msvc, arglist):
@@ -2025,10 +2051,10 @@ class _MSVCScriptArguments:
         debug('MSVC_VERSION=%s, MSVC_SPECTRE_LIBS=%s', repr(msvc.version), repr(spectre_libs))
 
         if not spectre_libs:
-            return False
+            return None
 
         if spectre_libs not in (True, '1'):
-            return False
+            return None
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2017.vc_buildtools_def.vc_version_numeric:
             debug(
@@ -2041,9 +2067,13 @@ class _MSVCScriptArguments:
             )
             raise MSVCArgumentError(err_msg)
 
+        spectre_arg = 'spectre'
+
         # spectre libs may not be installed
-        arglist.append('-vcvars_spectre_libs=spectre')
-        return True
+        argpair = (cls.SortOrder.SPECTRE, '-vcvars_spectre_libs={}'.format(spectre_arg))
+        arglist.append(argpair)
+
+        return spectre_arg
 
     @classmethod
     def _msvc_script_argument_user(cls, env, msvc, arglist):
@@ -2053,7 +2083,7 @@ class _MSVCScriptArguments:
         debug('MSVC_VERSION=%s, MSVC_SCRIPT_ARGS=%s', repr(msvc.version), repr(script_args))
 
         if not script_args:
-            return False
+            return None
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2015.vc_buildtools_def.vc_version_numeric:
             debug(
@@ -2067,40 +2097,147 @@ class _MSVCScriptArguments:
             raise MSVCArgumentError(err_msg)
 
         # user arguments are not validated
-        arglist.append(script_args)
-        return True
+        argpair = (cls.SortOrder.USER, script_args)
+        arglist.append(argpair)
+
+        return script_args
+
+    re_vcvars_uwp = re.compile(r'(?:\s|^)(?P<uwp>(?:uwp|store))(?:\s|$)',re.IGNORECASE)
+    re_vcvars_sdk = re.compile(r'(?:\s|^)(?P<sdk>(?:[1-9][0-9]*[.]\S*))(?:\s|$)',re.IGNORECASE)
+    re_vcvars_spectre = re.compile(r'(?:\s|^)(?P<spectre_arg>(?:[-]{1,2}|[/])vcvars_spectre_libs[=](?P<spectre>\S*))(?:\s|$)',re.IGNORECASE)
+    re_vcvars_toolset = re.compile(r'(?:\s|^)(?P<toolset_arg>(?:[-]{1,2}|[/])vcvars_ver[=](?P<toolset>\S*))(?:\s|$)', re.IGNORECASE)
+
+    @classmethod
+    def _user_script_argument_uwp(cls, env, uwp, user_argstr):
+
+        if not uwp:
+            return None
+
+        m = cls.re_vcvars_uwp.search(user_argstr)
+        if not m:
+            return None
+
+        env_argstr = env.get('MSVC_UWP_APP','')
+        debug('multiple uwp declarations: MSVC_UWP_APP=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
+
+        err_msg = "multiple uwp declarations: MSVC_UWP_APP={} and MSVC_SCRIPT_ARGS={}".format(
+            repr(env_argstr), repr(user_argstr)
+        )
+
+        raise MSVCArgumentError(err_msg)
+
+    @classmethod
+    def _user_script_argument_sdk(cls, env, sdk_version, user_argstr):
+
+        if not sdk_version:
+            return None
+
+        m = cls.re_vcvars_sdk.search(user_argstr)
+        if not m:
+            return None
+
+        env_argstr = env.get('MSVC_SDK_VERSION','')
+        debug('multiple sdk version declarations: MSVC_SDK_VERSION=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
+
+        err_msg = "multiple sdk version declarations: MSVC_SDK_VERSION={} and MSVC_SCRIPT_ARGS={}".format(
+            repr(env_argstr), repr(user_argstr)
+        )
+
+        raise MSVCArgumentError(err_msg)
+
+    @classmethod
+    def _user_script_argument_toolset(cls, env, toolset_version, user_argstr):
+
+        m = cls.re_vcvars_toolset.search(user_argstr)
+        if not m:
+            return None
+
+        if not toolset_version:
+            user_toolset = m.group('toolset')
+            return user_toolset
+
+        env_argstr = env.get('MSVC_TOOLSET_VERSION','')
+        debug('multiple toolset version declarations: MSVC_TOOLSET_VERSION=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
+
+        err_msg = "multiple toolset version declarations: MSVC_TOOLSET_VERSION={} and MSVC_SCRIPT_ARGS={}".format(
+            repr(env_argstr), repr(user_argstr)
+        )
+
+        raise MSVCArgumentError(err_msg)
+
+    @classmethod
+    def _user_script_argument_spectre(cls, env, spectre, user_argstr):
+
+        if not spectre:
+            return None
+
+        m = cls.re_vcvars_spectre.search(user_argstr)
+        if not m:
+            return None
+
+        env_argstr = env.get('MSVC_SPECTRE_LIBS','')
+        debug('multiple spectre declarations: MSVC_SPECTRE_LIBS=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
+
+        err_msg = "multiple spectre declarations: MSVC_SPECTRE_LIBS={} and MSVC_SCRIPT_ARGS={}".format(
+            repr(env_argstr), repr(user_argstr)
+        )
+
+        raise MSVCArgumentError(err_msg)
 
     @classmethod
     def msvc_script_arguments(cls, env, version, vc_dir, arg):
 
         msvc = cls._msvc_version(version)
 
-        arglist = [arg]
+        argstr = ''
+        arglist = []
 
-        have_uwp = False
-        have_toolset = False
+        if arg:
+            argpair = (cls.SortOrder.ARCH, arg)
+            arglist.append(argpair)
 
-        if 'MSVC_UWP_APP' in env:
-            have_uwp = cls._msvc_script_argument_uwp(env, msvc, arglist)
+        user_argstr = None
+        user_toolset = None
 
-        if 'MSVC_SDK_VERSION' in env:
-            cls._msvc_script_argument_sdk(env, msvc, have_uwp, arglist)
-
-        if 'MSVC_TOOLSET_VERSION' in env:
-            have_toolset = cls._msvc_script_argument_toolset(env, msvc, vc_dir, arglist)
-
-        if cls.MSVC_TOOLSET_DEFAULT_VCVARSVER and not have_toolset:
-            have_toolset = cls._msvc_script_default_toolset(env, msvc, vc_dir, arglist)
-
-        if 'MSVC_SPECTRE_LIBS' in env:
-            cls._msvc_script_argument_spectre(env, msvc, arglist)
+        uwp = None
+        sdk_version = None
+        toolset_version = None
+        spectre = None
 
         if 'MSVC_SCRIPT_ARGS' in env:
-            cls._msvc_script_argument_user(env, msvc, arglist)
+            user_argstr = cls._msvc_script_argument_user(env, msvc, arglist)
 
-        argstr = ' '.join(arglist).strip()
+        if 'MSVC_UWP_APP' in env:
+            uwp = cls._msvc_script_argument_uwp(env, msvc, arglist)
+            if uwp and user_argstr:
+                cls._user_script_argument_uwp(env, uwp, user_argstr)
+
+        if 'MSVC_SDK_VERSION' in env:
+            is_uwp = True if uwp else False
+            sdk_version = cls._msvc_script_argument_sdk(env, msvc, is_uwp, arglist)
+            if sdk_version and user_argstr:
+                cls._user_script_argument_sdk(env, sdk_version, user_argstr)
+
+        if 'MSVC_TOOLSET_VERSION' in env:
+            toolset_version = cls._msvc_script_argument_toolset(env, msvc, vc_dir, arglist)
+
+        if user_argstr:
+            user_toolset = cls._user_script_argument_toolset(env, toolset_version, user_argstr)
+
+        if cls.MSVC_TOOLSET_DEFAULT_VCVARSVER:
+            if not toolset_version and not user_toolset:
+                toolset_version = cls._msvc_script_default_toolset(env, msvc, vc_dir, arglist)
+
+        if 'MSVC_SPECTRE_LIBS' in env:
+            spectre = cls._msvc_script_argument_spectre(env, msvc, arglist)
+            if spectre and user_argstr:
+                cls._user_script_argument_spectre(env, spectre, user_argstr)
+
+        if arglist:
+            arglist.sort()
+            argstr = ' '.join([argpair[-1] for argpair in arglist]).strip()
+
         debug('arguments: %s', repr(argstr))
-
         return argstr
 
     @classmethod
