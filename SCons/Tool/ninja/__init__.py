@@ -91,7 +91,7 @@ def ninja_builder(env, target, source):
 
     if str(env.get("NINJA_DISABLE_AUTO_RUN")).lower() not in ['1', 'true']:
         num_jobs = env.get('NINJA_MAX_JOBS', env.GetOption("num_jobs"))
-        cmd += ['-j' + str(num_jobs)] + NINJA_CMDLINE_TARGETS
+        cmd += ['-j' + str(num_jobs)] + env.get('NINJA_CMD_ARGS', '').split() + NINJA_CMDLINE_TARGETS
         print(f"ninja will be run with command line targets: {' '.join(NINJA_CMDLINE_TARGETS)}")
         print("Executing:", str(' '.join(cmd)))
 
@@ -128,6 +128,14 @@ def ninja_builder(env, target, source):
             erase_previous = output.startswith('[')
         sys.stdout.write("\n")
 
+
+def options(opts):
+    """
+    Add command line Variables for Ninja builder.
+    """
+    opts.AddVariables(
+        ("NINJA_CMD_ARGS", "Arguments to pass to ninja"),
+    )
 
 def exists(env):
     """Enable if called."""
@@ -200,7 +208,7 @@ def generate(env):
     env["NINJA_SCONS_DAEMON_KEEP_ALIVE"] = env.get("NINJA_SCONS_DAEMON_KEEP_ALIVE", 180000)
 
     if GetOption("disable_ninja"):
-        env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
+        env.SConsignFile(os.path.join(str(env['NINJA_DIR']), '.ninja.sconsign'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
@@ -460,7 +468,6 @@ def generate(env):
     # date-ness.
     SCons.Script.Main.BuildTask.needs_execute = lambda x: True
 
-
     def ninja_Set_Default_Targets(env, tlist):
         """
             Record the default targets if they were ever set by the user. Ninja
@@ -496,5 +503,5 @@ def generate(env):
     env['TEMPFILEDIR'] = "$NINJA_DIR/.response_files"
     env["TEMPFILE"] = NinjaNoResponseFiles
 
-
     env.Alias('run-ninja-scons-daemon', 'run_ninja_scons_daemon_phony')
+    env.Alias('shutdown-ninja-scons-daemon', 'shutdown_ninja_scons_daemon_phony')

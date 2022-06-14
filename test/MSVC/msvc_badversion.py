@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,52 +22,61 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test scons when no MSVCs are present.
+Test scons with an invalid MSVC version when at least one MSVC is present.
 """
 
 import sys
 
 import TestSCons
+import SCons.Tool.MSCommon.vc as msvc
 
 test = TestSCons.TestSCons()
 
 if sys.platform != 'win32':
     test.skip_test("Not win32 platform. Skipping test\n")
 
-# test find_vc_pdir_vswhere by removing all other VS's reg keys
-test.file_fixture('no_msvc/no_regs_sconstruct.py', 'SConstruct')
+test.skip_if_not_msvc()
+
+installed_msvc_versions = msvc.get_installed_vcs()
+# MSVC guaranteed to be at least one version on the system or else
+# skip_if_not_msvc() function would have skipped the test
+
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(MSVC_VERSION='12.9')
+""")
 test.run(arguments='-Q -s', stdout='')
 
-# test no msvc's
-test.file_fixture('no_msvc/no_msvcs_sconstruct.py', 'SConstruct')
-test.run(arguments='-Q -s')
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='ignore')
+""")
+test.run(arguments='-Q -s', stdout='')
 
-if 'MSVC_VERSION=None' not in test.stdout():
-    test.fail_test()
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='warning')
+""")
+test.run(arguments='-Q -s', stdout='')
 
-# test msvc version number request with no msvc's
-test.file_fixture('no_msvc/no_msvcs_sconstruct_version.py', 'SConstruct')
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='error')
+""")
 test.run(arguments='-Q -s', status=2, stderr=r"^.*MSVCVersionNotFound.+", match=TestSCons.match_re_dotall)
 
-# test that MSVCVersionNotFound is not raised for default msvc tools
-# when a non-msvc tool list is used
-test.subdir('site_scons', ['site_scons', 'site_tools'])
-
-test.write(['site_scons', 'site_tools', 'myignoredefaultmsvctool.py'], """
-import SCons.Tool
-def generate(env):
-    env['MYIGNOREDEFAULTMSVCTOOL']='myignoredefaultmsvctool'
-def exists(env):
-    return 1
+test.write('SConstruct', """\
+env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='bad_value')
 """)
+test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_NOTFOUND_POLICY.+", match=TestSCons.match_re_dotall)
 
-test.file_fixture('no_msvc/no_msvcs_sconstruct_tools.py', 'SConstruct')
-test.run(arguments='-Q -s')
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
