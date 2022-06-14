@@ -386,7 +386,12 @@ def _caller(tblist, skip):
         atfrom = "\tfrom"
     return string
 
+
 def clean_up_ninja_daemon(self, result_type):
+    """
+    Kill any running scons daemon started by ninja and clean up it's working dir and
+    temp files.
+    """
     if self:
         for path in Path(self.workdir).rglob('.ninja'):
             daemon_dir = Path(tempfile.gettempdir()) / (
@@ -411,6 +416,7 @@ def clean_up_ninja_daemon(self, result_type):
             if not self._preserve[result_type]:
                 if daemon_dir.exists():
                     shutil.rmtree(daemon_dir)
+
 
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     """Causes a test to exit with a fail.

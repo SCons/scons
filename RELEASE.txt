@@ -27,6 +27,7 @@ NEW FUNCTIONALITY
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
 - Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
   Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
+  NOTE: Test for this requires python psutil module. It will be skipped if not present.
 - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
   This can also be set in your Environment().
 - Added a global policy setting and an environment policy variable for specifying the action to

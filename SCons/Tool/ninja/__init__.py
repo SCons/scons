@@ -465,7 +465,6 @@ def generate(env):
     # date-ness.
     SCons.Script.Main.BuildTask.needs_execute = lambda x: True
 
-
     def ninja_Set_Default_Targets(env, tlist):
         """
             Record the default targets if they were ever set by the user. Ninja
@@ -500,7 +499,6 @@ def generate(env):
 
     env['TEMPFILEDIR'] = "$NINJA_DIR/.response_files"
     env["TEMPFILE"] = NinjaNoResponseFiles
-
 
     env.Alias('run-ninja-scons-daemon', 'run_ninja_scons_daemon_phony')
     env.Alias('shutdown-ninja-scons-daemon', 'shutdown_ninja_scons_daemon_phony')

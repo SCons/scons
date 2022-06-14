@@ -54,9 +54,11 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
+
 def log_error(msg):
     logging.debug(msg)
     sys.stderr.write(msg)
+
 
 while True:
     try:
@@ -65,7 +67,7 @@ while True:
                 logging.debug(f"ERROR: Server pid not found {daemon_dir / 'pidfile'} for request {sys.argv[3]}")
                 exit(1)
             else:
-                logging.debug("WARNING: Unnecessary request to shutfown server, its already shutdown.")
+                logging.debug("WARNING: Unnecessary request to shutdown server, it's already shutdown.")
                 exit(0)
 
         logging.debug(f"Sending request: {sys.argv[3]}")
