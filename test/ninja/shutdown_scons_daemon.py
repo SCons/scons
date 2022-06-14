@@ -28,6 +28,8 @@ from timeit import default_timer as timer
 import TestSCons
 from TestCmd import IS_WINDOWS
 
+test = TestSCons.TestSCons()
+
 try:
     import ninja
 except ImportError:
@@ -38,7 +40,6 @@ try:
 except ImportError:
     test.skip_test("Could not find psutil module in python")
 
-test = TestSCons.TestSCons()
 
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
