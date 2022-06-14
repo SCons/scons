@@ -70,8 +70,9 @@ def ninja_builder(env, target, source):
         NINJA_STATE.generate()
     except Exception:
         raise SCons.Errors.BuildError(
-            errstr=f"ERROR: an excetion occurred while generating the ninja file:\n{traceback.format_exc()}",
+            errstr=f"ERROR: an exception occurred while generating the ninja file:\n{traceback.format_exc()}",
             node=target)
+    
     if env["PLATFORM"] == "win32":
         # TODO: Is this necessary as you set env variable in the ninja build file per target?
         # this is not great, its doesn't consider specific
