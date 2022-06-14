@@ -1625,7 +1625,7 @@ def msvc_setup_env_once(env, tool=None):
 class _MSVCScriptArguments:
 
     # Force -vcvars_ver argument for default toolset
-    MSVC_TOOLSET_DEFAULT_VCVARSVER = True
+    MSVC_TOOLSET_DEFAULT_VCVARSVER = False
 
     # MSVC batch file arguments:
     #
