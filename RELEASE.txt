@@ -104,6 +104,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
         require delayed expansion to be enabled which is currently not supported and is
         typically not enabled by default on the host system. The batch files may also require
         environment variables that are not included by default in the msvc environment.
+- Prioritize nodes with more waiting parents when adding new candidate nodes.
 
 FIXES
 -----

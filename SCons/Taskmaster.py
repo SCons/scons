@@ -471,13 +471,15 @@ class Task(ABC):
                         if p.ref_count == 0:
                             self.tm.candidates.append(p)
 
+        new_candidates = []
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract
             if T: T.write(self.trace_message('Task.postprocess()',
                                              p,
                                              'adjusted parent ref count'))
             if p.ref_count == 0:
-                self.tm.candidates.append(p)
+                new_candidates.append(p)
+        self.tm.candidates.extend(sorted(new_candidates, key = lambda c: len(c.waiting_parents)))
 
         for t in targets:
             t.postprocess()
