@@ -2261,6 +2261,12 @@ class command_args_TestCase(TestCmdTestCase):
         expect = ['PYTHON', default_prog, 'arg3', 'arg4']
         assert r == expect, (expect, r)
 
+        # Test arguments = dict
+        r = test.command_args(interpreter='PYTHON', arguments={'VAR1':'1'})
+        expect = ['PYTHON', default_prog, 'VAR1=1']
+        assert r == expect, (expect, r)
+
+
         test.interpreter_set('default_python')
 
         r = test.command_args()
@@ -2585,7 +2591,7 @@ script_recv:  STDERR:  input
             with open(t.recv_out_path, 'rb') as f:
                 result = to_str(f.read())
             expect = 'script_recv:  ' + input
-            assert result == expect, repr(result)
+            assert result == expect, "Result:[%s] should match\nExpected:[%s]" % (result, expect)
 
             p = test.start(stdin=1)
             input = 'send() input to the receive script\n'
@@ -3103,7 +3109,7 @@ class workpath_TestCase(TestCmdTestCase):
         assert wpath == os.path.join(test.workdir, 'foo', 'bar')
 
 
-
+@unittest.skipIf(sys.platform == 'win32', "Don't run on win32")
 class readable_TestCase(TestCmdTestCase):
     def test_readable(self):
         """Test readable()"""
@@ -3183,7 +3189,7 @@ class writable_TestCase(TestCmdTestCase):
         assert not _is_writable(test.workpath('file1'))
 
 
-
+@unittest.skipIf(sys.platform == 'win32', "Don't run on win32")
 class executable_TestCase(TestCmdTestCase):
     def test_executable(self):
         """Test executable()"""
@@ -3331,70 +3337,8 @@ class variables_TestCase(TestCmdTestCase):
         assert stderr == "", stderr
 
 
-
 if __name__ == "__main__":
-    tclasses = [
-        __init__TestCase,
-        basename_TestCase,
-        cleanup_TestCase,
-        chmod_TestCase,
-        combine_TestCase,
-        command_args_TestCase,
-        description_TestCase,
-        diff_TestCase,
-        diff_stderr_TestCase,
-        diff_stdout_TestCase,
-        exit_TestCase,
-        fail_test_TestCase,
-        interpreter_TestCase,
-        match_TestCase,
-        match_exact_TestCase,
-        match_re_dotall_TestCase,
-        match_re_TestCase,
-        match_stderr_TestCase,
-        match_stdout_TestCase,
-        no_result_TestCase,
-        pass_test_TestCase,
-        preserve_TestCase,
-        program_TestCase,
-        read_TestCase,
-        rmdir_TestCase,
-        run_TestCase,
-        run_verbose_TestCase,
-        set_diff_function_TestCase,
-        set_match_function_TestCase,
-        sleep_TestCase,
-        start_TestCase,
-        stderr_TestCase,
-        stdin_TestCase,
-        stdout_TestCase,
-        subdir_TestCase,
-        symlink_TestCase,
-        tempdir_TestCase,
-        timeout_TestCase,
-        unlink_TestCase,
-        touch_TestCase,
-        verbose_TestCase,
-        workdir_TestCase,
-        workdirs_TestCase,
-        workpath_TestCase,
-        writable_TestCase,
-        write_TestCase,
-        variables_TestCase,
-    ]
-    if sys.platform != 'win32':
-        tclasses.extend([
-            executable_TestCase,
-            readable_TestCase,
-        ])
-    suite = unittest.TestSuite()
-    for tclass in tclasses:
-        loader = unittest.TestLoader()
-        loader.testMethodPrefix = 'test_'
-        names = loader.getTestCaseNames(tclass)
-        suite.addTests([tclass(n) for n in names])
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
