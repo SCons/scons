@@ -51,6 +51,7 @@ from collections import (
     namedtuple,
     OrderedDict,
 )
+import enum
 
 import SCons.Util
 import SCons.Warnings
@@ -1640,13 +1641,14 @@ class _MSVCScriptArguments:
     #     MSVC_TOOLSET_VERSION: VS2017+
     #     MSVC_SPECTRE_LIBS:    VS2017+
 
-    class SortOrder:
-        ARCH    = 0  # arch
-        UWP     = 1  # MSVC_UWP_APP
-        SDK     = 2  # MSVC_SDK_VERSION
+    @enum.unique
+    class SortOrder(enum.IntEnum):
+        ARCH = 0     # arch
+        UWP = 1      # MSVC_UWP_APP
+        SDK = 2      # MSVC_SDK_VERSION
         TOOLSET = 3  # MSVC_TOOLSET_VERSION
         SPECTRE = 4  # MSVC_SPECTRE_LIBS
-        USER    = 5  # MSVC_SCRIPT_ARGS
+        USER = 5     # MSVC_SCRIPT_ARGS
 
     VS2019 = _Const.MSVS_VERSION_INTERNAL['2019']
     VS2017 = _Const.MSVS_VERSION_INTERNAL['2017']
