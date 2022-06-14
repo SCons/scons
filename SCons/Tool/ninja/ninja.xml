@@ -77,7 +77,7 @@ See its __doc__ string for a discussion of the format.
             <item>IMPLICIT_COMMAND_DEPENDENCIES</item>
             <item>NINJA_SCONS_DAEMON_KEEP_ALIVE</item>
             <item>NINJA_SCONS_DAEMON_PORT</item>
-
+            <item>NINJA_CMD_ARGS</item>
 
             <!-- TODO: Document these -->
             <!-- <item>NINJA_RULES</item>-->
@@ -392,6 +392,23 @@ python -m pip install ninja
                 <emphasis>NOTE: You cannot use a port already being listened to on your build machine.</emphasis>
                 (Default: random number between 10000,60000)
             </para>
+        </summary>
+    </cvar>
+
+    <cvar name="NINJA_CMD_ARGS">
+        <summary>
+            <para>
+                A string which will pass arguments through SCons to the ninja command when scons executes ninja.
+                Has no effect if &cv-NINJA_DISABLE_AUTO_RUN; is set.
+            </para>
+            <para>
+                This value can also be passed on the command line:
+            </para>
+            <example_commands>
+scons NINJA_CMD_ARGS=-v
+or
+scons NINJA_CMD_ARGS="-v -j 3"
+            </example_commands>
         </summary>
     </cvar>
 

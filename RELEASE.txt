@@ -14,7 +14,8 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
 NEW FUNCTIONALITY
 -----------------
 
-- Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
+- Added MSVC_USE_SCRIPT_ARGS Environment variable which specifies command line arguments
+  to pass to the script specified by MSVC_USE_SCRIPT.
 - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
   (or an iterable) which contains functions to be called in order
@@ -24,6 +25,8 @@ NEW FUNCTIONALITY
   performance impact if not used carefully.
 - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
+- Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
+  This can also be set in your Environment().
 - Added a global policy setting and an environment policy variable for specifying the action to
   be taken when an msvc request cannot be satisfied. The available options are "error",
   "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be

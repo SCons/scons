@@ -87,7 +87,7 @@ def ninja_builder(env, target, source):
 
     if str(env.get("NINJA_DISABLE_AUTO_RUN")).lower() not in ['1', 'true']:
         num_jobs = env.get('NINJA_MAX_JOBS', env.GetOption("num_jobs"))
-        cmd += ['-j' + str(num_jobs)] + NINJA_CMDLINE_TARGETS
+        cmd += ['-j' + str(num_jobs)] + env.get('NINJA_CMD_ARGS', '').split() + NINJA_CMDLINE_TARGETS
         print(f"ninja will be run with command line targets: {' '.join(NINJA_CMDLINE_TARGETS)}")
         print("Executing:", str(' '.join(cmd)))
 
@@ -124,6 +124,14 @@ def ninja_builder(env, target, source):
             erase_previous = output.startswith('[')
         sys.stdout.write("\n")
 
+
+def options(opts):
+    """
+    Add command line Variables for Ninja builder.
+    """
+    opts.AddVariables(
+        ("NINJA_CMD_ARGS", "Arguments to pass to ninja"),
+    )
 
 def exists(env):
     """Enable if called."""
@@ -197,7 +205,7 @@ def generate(env):
     env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000, 60000))
 
     if GetOption("disable_ninja"):
-        env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
+        env.SConsignFile(os.path.join(str(env['NINJA_DIR']), '.ninja.sconsign'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
