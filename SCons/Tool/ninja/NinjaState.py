@@ -214,6 +214,12 @@ class NinjaState:
                 "pool": "local_pool",
                 "restat": 1
             },
+            "EXIT_SCONS_DAEMON": {
+                "command": "$PYTHON_BIN $NINJA_TOOL_DIR/ninja_daemon_build.py $PORT $NINJA_DIR_PATH --exit",
+                "description": "Shutting down ninja scons daemon server",
+                "pool": "local_pool",
+                "restat": 1
+            },
             "SCONS": {
                 "command": "$SCONS_INVOCATION $out",
                 "description": "$SCONS_INVOCATION $out",
@@ -608,6 +614,11 @@ class NinjaState:
         ninja.build(
             ["run_ninja_scons_daemon_phony", scons_daemon_dirty],
             rule="SCONS_DAEMON",
+        )
+
+        ninja.build(
+            "shutdown_ninja_scons_daemon_phony",
+            rule="EXIT_SCONS_DAEMON",
         )
 
 

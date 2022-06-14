@@ -135,9 +135,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Note that these are called for every build command run by SCons. It could have considerable
       performance impact if not used carefully.
       to connect to the server during start up.
+    - Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
+      Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
+      NOTE: Test for this requires python psutil module. It will be skipped if not present.
     - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
       This can also be set in your Environment().
-
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
