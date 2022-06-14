@@ -400,7 +400,7 @@ def clean_up_ninja_daemon(self, result_type):
             pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
             for pidfile in pidfiles:
                 if pidfile.exists():
-                    with open(daemon_dir / 'pidfile') as f:
+                    with open(pidfile) as f:
                         try:
                             pid = int(f.read())
                             os.kill(pid, signal.SIGINT)
