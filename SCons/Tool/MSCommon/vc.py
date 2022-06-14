@@ -1767,8 +1767,8 @@ class _MSVCScriptArguments:
                 'msvc_version=%s, filename=%s, toolset_version=%s',
                 repr(msvc.version), repr(filename), repr(toolset_version)
             )
-        except IOError:
-            debug('IOError: msvc_version=%s, filename=%s', repr(msvc.version), repr(filename))
+        except OSError:
+            debug('OSError: msvc_version=%s, filename=%s', repr(msvc.version), repr(filename))
         except IndexError:
             debug('IndexError: msvc_version=%s, filename=%s', repr(msvc.version), repr(filename))
         return toolset_version
