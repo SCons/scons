@@ -65,7 +65,7 @@ test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
 test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
 
 if os.path.getmtime(test.workpath('build.ninja')) != ninja_file_mtime:
-    test.fail_test()
+    test.fail_test(message="build.ninja file has been updated (mtime changed) and should not have been")
 
 # make sure the ninja file was deterministic
 if not filecmp.cmp(test.workpath('build.ninja'), test.workpath('build.ninja.orig')):
