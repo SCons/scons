@@ -29,6 +29,8 @@ import signal
 import tempfile
 import shutil
 import sys
+import random
+import filecmp
 from os.path import splitext
 from tempfile import NamedTemporaryFile
 import ninja
@@ -42,7 +44,7 @@ from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
 from .Utils import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
-    get_outputs, get_inputs, get_dependencies, get_rule, get_command_env, to_escaped_list
+    get_outputs, get_inputs, get_dependencies, get_rule, get_command_env, to_escaped_list, ninja_sorted_build
 from .Methods import get_command
 
 
@@ -82,7 +84,26 @@ class NinjaState:
         # to make the SCONS_INVOCATION variable properly quoted for things
         # like CCFLAGS
         scons_escape = env.get("ESCAPE", lambda x: x)
-        scons_daemon_port = int(env.get('NINJA_SCONS_DAEMON_PORT',-1))
+
+        # The daemon port should be the same across runs, unless explicitly set
+        # or if the portfile is deleted. This ensures the ninja file is deterministic
+        # across regen's if nothings changed. The construction var should take preference,
+        # then portfile is next, and then otherwise create a new random port to persist in
+        # use.
+        scons_daemon_port = None
+        os.makedirs(get_path(self.env.get("NINJA_DIR")), exist_ok=True)
+        scons_daemon_port_file = str(pathlib.Path(get_path(self.env.get("NINJA_DIR"))) / "scons_daemon_portfile")
+
+        if env.get('NINJA_SCONS_DAEMON_PORT') is not None:
+            scons_daemon_port = int(env.get('NINJA_SCONS_DAEMON_PORT'))
+        elif os.path.exists(scons_daemon_port_file):
+            with open(scons_daemon_port_file) as f:
+                scons_daemon_port = int(f.read())
+        else:
+            scons_daemon_port = random.randint(10000, 60000)
+
+        with open(scons_daemon_port_file, 'w') as f:
+            f.write(str(scons_daemon_port))
 
         # if SCons was invoked from python, we expect the first arg to be the scons.py
         # script, otherwise scons was invoked from the scons script
@@ -387,13 +408,13 @@ class NinjaState:
 
         ninja.variable("builddir", get_path(self.env.Dir(self.env['NINJA_DIR']).path))
 
-        for pool_name, size in self.pools.items():
+        for pool_name, size in sorted(self.pools.items()):
             ninja.pool(pool_name, min(self.env.get('NINJA_MAX_JOBS', size), size))
 
-        for var, val in self.variables.items():
+        for var, val in sorted(self.variables.items()):
             ninja.variable(var, val)
 
-        for rule, kwargs in self.rules.items():
+        for rule, kwargs in sorted(self.rules.items()):
             if self.env.get('NINJA_MAX_JOBS') is not None and 'pool' not in kwargs:
                 kwargs['pool'] = 'local_pool'
             ninja.rule(rule, **kwargs)
@@ -535,8 +556,9 @@ class NinjaState:
                 )
 
                 if remaining_outputs:
-                    ninja.build(
-                        outputs=sorted(remaining_outputs), rule="phony", implicit=first_output,
+                    ninja_sorted_build(
+                        ninja,
+                        outputs=remaining_outputs, rule="phony", implicit=first_output,
                     )
 
                 build["outputs"] = first_output
@@ -554,12 +576,18 @@ class NinjaState:
             if "inputs" in build:
                 build["inputs"].sort()
 
-            ninja.build(**build)
+            ninja_sorted_build(
+                ninja,
+                **build
+            )
 
         scons_daemon_dirty = str(pathlib.Path(get_path(self.env.get("NINJA_DIR"))) / "scons_daemon_dirty")
         for template_builder in template_builders:
             template_builder["implicit"] += [scons_daemon_dirty]
-            ninja.build(**template_builder)
+            ninja_sorted_build(
+                ninja,
+                **template_builder
+            )
 
         # We have to glob the SCons files here to teach the ninja file
         # how to regenerate itself. We'll never see ourselves in the
@@ -569,17 +597,19 @@ class NinjaState:
         ninja_file_path = self.env.File(self.ninja_file).path
         regenerate_deps = to_escaped_list(self.env, self.env['NINJA_REGENERATE_DEPS'])
 
-        ninja.build(
-            ninja_file_path,
+        ninja_sorted_build(
+            ninja,
+            outputs=ninja_file_path,
             rule="REGENERATE",
             implicit=regenerate_deps,
             variables={
-                "self": ninja_file_path,
+                "self": ninja_file_path
             }
         )
 
-        ninja.build(
-            regenerate_deps,
+        ninja_sorted_build(
+            ninja,
+            outputs=regenerate_deps,
             rule="phony",
             variables={
                 "self": ninja_file_path,
@@ -590,8 +620,9 @@ class NinjaState:
             # If we ever change the name/s of the rules that include
             # compile commands (i.e. something like CC) we will need to
             # update this build to reflect that complete list.
-            ninja.build(
-                "compile_commands.json",
+            ninja_sorted_build(
+                ninja,
+                outputs="compile_commands.json",
                 rule="CMD",
                 pool="console",
                 implicit=[str(self.ninja_file)],
@@ -607,12 +638,14 @@ class NinjaState:
                 },
             )
 
-            ninja.build(
-                "compiledb", rule="phony", implicit=["compile_commands.json"],
+            ninja_sorted_build(
+                ninja,
+                outputs="compiledb", rule="phony", implicit=["compile_commands.json"],
             )
 
-        ninja.build(
-            ["run_ninja_scons_daemon_phony", scons_daemon_dirty],
+        ninja_sorted_build(
+            ninja,
+            outputs=["run_ninja_scons_daemon_phony", scons_daemon_dirty],
             rule="SCONS_DAEMON",
         )
 
@@ -631,39 +664,45 @@ class NinjaState:
         
         if len(all_targets) == 0:
             all_targets = ["phony_default"]
-            ninja.build(
+            ninja_sorted_build(
+                ninja,
                 outputs=all_targets,
                 rule="phony",
             )
         
         ninja.default([self.ninja_syntax.escape_path(path) for path in sorted(all_targets)])
 
-        daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
-        pidfile = None
-        if os.path.exists(scons_daemon_dirty):
-            pidfile = scons_daemon_dirty
-        elif os.path.exists(daemon_dir / 'pidfile'):
-            pidfile = daemon_dir / 'pidfile'
+        with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
+            temp_ninja_file.write(content.getvalue())
 
-        if pidfile:
-            with open(pidfile) as f:
-                pid = int(f.readline())
-                try:
-                    os.kill(pid, signal.SIGINT)
-                except OSError:
-                    pass
+        if self.env.GetOption('skip_ninja_regen') and os.path.exists(ninja_file_path) and filecmp.cmp(temp_ninja_file.name, ninja_file_path):
+            os.unlink(temp_ninja_file.name)
+        else:
+
+            daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
+            pidfile = None
+            if os.path.exists(scons_daemon_dirty):
+                pidfile = scons_daemon_dirty
+            elif os.path.exists(daemon_dir / 'pidfile'):
+                pidfile = daemon_dir / 'pidfile'
+
+            if pidfile:
+                with open(pidfile) as f:
+                    pid = int(f.readline())
+                    try:
+                        os.kill(pid, signal.SIGINT)
+                    except OSError:
+                        pass
 
                 # wait for the server process to fully killed
                 # TODO: update wait_for_process_to_die() to handle timeout and then catch exception
                 #       here and do something smart.
                 wait_for_process_to_die(pid)
 
-        if os.path.exists(scons_daemon_dirty):
-            os.unlink(scons_daemon_dirty)
+            if os.path.exists(scons_daemon_dirty):
+                os.unlink(scons_daemon_dirty)
 
-        with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
-            temp_ninja_file.write(content.getvalue())
-        shutil.move(temp_ninja_file.name, ninja_file_path)
+            shutil.move(temp_ninja_file.name, ninja_file_path)
 
         self.__generated = True
 

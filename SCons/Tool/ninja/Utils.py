@@ -23,6 +23,7 @@
 import os
 import shutil
 from os.path import join as joinpath
+from collections import OrderedDict
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
@@ -51,6 +52,15 @@ def ninja_add_command_line_options():
               default=False,
               help='Disable ninja generation and build with scons even if tool is loaded. '+
                    'Also used by ninja to build targets which only scons can build.')
+
+    AddOption('--skip-ninja-regen',
+              dest='skip_ninja_regen',
+              metavar='BOOL',
+              action="store_true",
+              default=False,
+              help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
+                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' + 
+                    'command lines.')
 
 
 def is_valid_dependent_node(node):
@@ -126,7 +136,7 @@ def get_dependencies(node, skip_sources=False):
             get_path(src_file(child))
             for child in filter_ninja_nodes(node.children())
             if child not in node.sources
-        ]    
+        ]
     return [get_path(src_file(child)) for child in filter_ninja_nodes(node.children())]
 
 
@@ -261,6 +271,19 @@ def ninja_noop(*_args, **_kwargs):
     """
     return None
 
+def ninja_recursive_sorted_dict(build):
+    sorted_dict = OrderedDict()
+    for key, val in sorted(build.items()):
+        if isinstance(val, dict):
+            sorted_dict[key] = ninja_recursive_sorted_dict(val)
+        else:
+            sorted_dict[key] = val
+    return sorted_dict
+
+
+def ninja_sorted_build(ninja, **build):
+    sorted_dict = ninja_recursive_sorted_dict(build)
+    ninja.build(**sorted_dict)
 
 def get_command_env(env, target, source):
     """
