@@ -21,7 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""SCons.Tool.ifort
+"""
 
 Tool-specific initialization for newer versions of the Intel Fortran Compiler
 for Linux/Windows (and possibly Mac OS X).
