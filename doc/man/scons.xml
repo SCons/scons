@@ -5207,7 +5207,7 @@ the dependency graph related to their sources.
 An alias is checked for up to date by checking if
 its sources are up to date.
 An alias is built by making sure its sources have been built,
-and if any building took place, 
+and if any building took place,
 applying any Actions that are defined as part of the alias.
 </para>
 
@@ -7470,7 +7470,7 @@ There are, however, a few portability
 issues waiting to trap the unwary.</para>
 
 <refsect2 id='c_file_suffix'>
-<title>.C file suffix</title>
+<title>.C File Suffix</title>
 
 <para>&scons; handles the upper-case
 <filename>.C</filename>
@@ -7490,50 +7490,125 @@ suffix as a C source file.</para>
 </refsect2>
 
 <refsect2 id='f_file_suffix'>
-<title>Fortran file suffixes</title>
+<title>Fortran File Suffixes</title>
 
-<para>&scons; handles upper-case
-Fortran file suffixes differently
-depending on the capabilities of
-the underlying system.
-On a case-sensitive system
-such as Linux or UNIX,
-&scons; treats a file with a
-<filename>.F</filename>
-as a Fortran source file
-that is to be first run through
-the standard C preprocessor,
-while the lower-case version is not.
-This matches the convention of <command>gfortran</command>,
-which may also be followed by other Fortran compilers.
-This also applies to other naming variants,
+<para>
+There are several ways source file suffixes impact the
+behavior of &SCons; when working with Fortran language code
+(not all are system-specific, but they are included here
+for completeness).
+</para>
+
+<para>
+As the Fortran language has evolved through multiple
+standards editions, projects might have a need to handle
+files from different language generations differently.
+To this end, &SCons; dispatches to  a different compiler
+dialect setup (expressed as a set of &consvars;)
+depending on the file suffix.
+By default, all of these setups start out the same,
+but individual &consvars; can be modified as needed to tune a given dialect.
+Each of these dialacts has a tool specification module
+whose documentation describes the &consvars; associated
+with that dialect: <filename>.f</filename>
+(as well as <filename>.for</filename> and <filename>.ftn</filename>)
+in &t-link-fortran;; (&consvars; start with <literal>FORTRAN</literal>)
+<filename>.f77</filename> in &t-link-f77;;
+(&consvars; start with <literal>F77</literal>)
+<filename>.f90</filename> in &t-link-f90;;
+(&consvars; start with <literal>F90</literal>)
+<filename>.f95</filename> in &t-link-f95;;
+(&consvars; start with <literal>F95</literal>)
+<filename>.f03</filename> in &t-link-f03;;
+(&consvars; start with <literal>F03</literal>)
+<filename>.f08</filename> in &t-link-f08;
+(&consvars; start with <literal>F08</literal>).
+</para>
+
+<para>
+While &SCons; recognizes multiple internal dialects
+based on filename suffixes,
+the convention of various available Fortran compilers is
+to assign an actual meaning to only two of these suffixes:
+<filename>.f</filename>
+(as well as <filename>.for</filename> and <filename>.ftn</filename>)
+refers to the fixed-format source
+code that was the only available option in FORTRAN 77 and earlier,
+and <filename>.f90</filename> refers to free-format source code
+which became available as of the Fortran 90 standard.
+Some compilers recognize suffixes which correspond to Fortran
+specifications later then F90 as equivalent to
+<filename>.f90</filename> for this purpose,
+while some do not - check the documentation for your compiler.
+An occasionally suggested policy suggestion is to use only
+<filename>.f</filename> and <filename>.f90</filename>
+as Fortran filename suffixes.
+The fixed/free form determination can usually be controlled
+explicitly with compiler flags
+(e.g. <option>-ffixed-form</option> for gfortran),
+overriding any assumption that may be made based on the source file suffix.
+</para>
+
+<para>
+The source file suffix does not imply conformance
+with the similarly-named Fortran standard - a suffix of
+<filename>.f08</filename> does not mean you are compiling
+specifically for Fortran 2008.  Normally, compilers
+provide command-line options for making this selection
+(e.g. <option>-std=f2008</option> for gfortran).
+</para>
+
+<para>
+For dialects from F90 on (including the generic FORTRAN dialect),
+a suffix of <filename>.mod</filename> is recognized for Fortran modules.
+These files are a side effect of compiling a Fortran
+source file containing module declarations,
+and must be available when other code which declares
+that it uses the module is processed.
+&SCons; does not currently have integrated support for submodules,
+introduced in the Fortran 2008 standard -
+the invoked compiler will produce results,
+but &SCons; will not recognize
+<filename>.smod</filename> files as tracked objects.
+</para>
+
+<para>
+On a case-sensitive system such as Linux or UNIX,
+a file with a an upper-cased suffix from the set
+<filename>.F</filename>,
 <filename>.FOR</filename>,
 <filename>.FTN</filename>,
 <filename>.F90</filename>,
 <filename>.F95</filename>,
 <filename>.F03</filename> and
-<filename>.F08</filename>;
-files suffixed with
+<filename>.F08</filename>
+is treated as a Fortran source file
+which shall first be run through
+the standard C preprocessor.
+The lower-cased versions of these suffixes do not
+trigger this behavior.
+On systems which do not distinguish between uppper
+and lower case in filenames,
+this behavior is not available,
+but files suffixed with either
 <filename>.FPP</filename>
-and <filename>.fpp</filename>
-are both run through the preprocessor,
-as indicated by the <literal>pp</literal>
-part of the name.
-On a case-insensitive system
-such as Windows,
-&scons; treats a file with a
-<filename>.F</filename>
-suffix as a Fortran source file that should
-<emphasis>not</emphasis>
-be run through the C preprocessor.</para>
+or <filename>.fpp</filename>
+are always passed to the preprocessor first.
+This matches the convention of <command>gfortran</command>
+from the GNU Compiler Collection,
+and also followed by certain other Fortran compilers.
+For these two suffixes,
+the generic <emphasis>FORTRAN</emphasis> dialect will be selected.
+</para>
+
 <para>
-<emphasis>Run through the C preprocessor</emphasis>
-here means that a different set of &consvars; will
-be applied in constructed commands, for example
+&SCons; itself does not invoke the preprocessor,
+that is handled by the compiler,
+but it adds &consvars; which are applicable to the preprocessor run.
+You can see this difference by examining
 &cv-link-FORTRANPPCOM; and &cv-link-FORTRANPPCOMSTR;
-instead of
-&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR;.
-See the Fortran-related &consvars; for more details.
+which are used instead of
+&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR; for that dialect.
 </para>
 </refsect2>
 
@@ -7542,10 +7617,10 @@ See the Fortran-related &consvars; for more details.
 
 <para>Cygwin supplies a set of tools and utilities
 that let users work on a
-Windows system using a more POSIX-like environment.
-The Cygwin tools, including Cygwin Python,
+Windows system using a POSIX-like environment.
+The Cygwin tools, including Cygwin &Python;,
 do this, in part,
-by sharing an ability to interpret UNIX-like path names.
+by sharing an ability to interpret POSIX-style path names.
 For example, the Cygwin tools
 will internally translate a Cygwin path name
 like <filename>/cygdrive/c/mydir</filename>
@@ -7553,11 +7628,11 @@ to an equivalent Windows pathname
 of <filename>C:/mydir</filename> (equivalent to <filename>C:\mydir</filename>).
 </para>
 
-<para>Versions of Python
+<para>Versions of &Python;
 that are built for native Windows execution,
 such as the python.org and ActiveState versions,
-do not have the Cygwin path name semantics.
-This means that using a native Windows version of Python
+do not understand the Cygwin path name semantics.
+This means that using a native Windows version of &Python;
 to build compiled programs using Cygwin tools
 (such as &gcc;, &bison; and &flex;)
 may yield unpredictable results.
@@ -7567,14 +7642,22 @@ but it requires careful attention to the use of path names
 in your SConscript files.</para>
 
 <para>In practice, users can sidestep
-the issue by adopting the following rules:
+the issue by adopting the following guidelines:
 When using Cygwin's &gcc; for compiling,
-use the Cygwin-supplied Python interpreter
+use the Cygwin-supplied &Python; interpreter
 to run &scons;;
 when using Microsoft Visual C/C++
-(or some other Windows compiler)
-use the python.org or Microsoft Store or ActiveState version of Python
-to run &scons;.</para>
+(or some other "native" Windows compiler)
+use the python.org, Microsoft Store, ActiveState or other
+native version of &Python; to run &scons;.
+</para>
+
+<para>
+This discussion largely applies to the msys2 environment
+as well (with the use of the mingw compiler toolchain),
+in particular the recommendation to use the msys2 version of
+&Python; if running &scons; from inside an msys2 shell.
+</para>
 </refsect2>
 
 <refsect2 id='windows_sconsbat_file'>
@@ -7584,7 +7667,7 @@ to run &scons;.</para>
 <filename>scons.bat</filename> batch file,
 there are (at least) two ramifications.
 Note this is no longer the default - &scons; installed
-via Python's <command>pip</command> installer
+via &Python;''s <command>pip</command> installer
 will have an <command>scons.exe</command> which does
 not have these limitations:
 </para>
@@ -7624,7 +7707,7 @@ directory must be in your <envar>PATH</envar>
 environment variable or the
 <varname>['ENV']['PATH']</varname> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
-Python interpreter, &scons; will prefer the MinGW tools over the Cygwin
+Python; interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
 directories in the <envar>PATH</envar> variable.
 If you have both MSVC and MinGW
