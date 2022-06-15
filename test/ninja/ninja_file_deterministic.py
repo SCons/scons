@@ -55,12 +55,17 @@ test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
 test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
 shutil.copyfile(test.workpath('build.ninja'), test.workpath('build.ninja.orig'))
 
+ninja_file_mtime = os.path.getmtime(test.workpath('build.ninja'))
+
 # generate same build again
 test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja', 'ninja: no work to do.'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
 test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
+
+if os.path.getmtime(test.workpath('build.ninja')) != ninja_file_mtime:
+    test.fail_test()
 
 # make sure the ninja file was deterministic
 if not filecmp.cmp(test.workpath('build.ninja'), test.workpath('build.ninja.orig')):
