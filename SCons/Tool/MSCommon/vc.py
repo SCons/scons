@@ -106,7 +106,7 @@ class _Const:
 
     for bool, symbol_list in [
         (False, (0, '0', False, 'False', 'FALSE', 'false', 'No',  'NO',  'no',  None, '')),
-        (True,  (1, '1', True,  'True',  'TRUE',  'true',  'Yes', 'YES', 'yes',         )),
+        (True,  (1, '1', True,  'True',  'TRUE',  'true',  'Yes', 'YES', 'yes')),
     ]:
         BOOLEAN_KEYS[bool] = symbol_list
         for symbol in symbol_list:
@@ -2007,7 +2007,7 @@ class _WindowsSDK:
                 if not os.path.exists(sdk_inc_path):
                     continue
 
-                for platform, sdk_inc_file in [
+                for platform_type, sdk_inc_file in [
                     ('desktop', 'winsdkver.h'),
                     ('uwp',     'windows.h'),
                 ]:
@@ -2015,12 +2015,12 @@ class _WindowsSDK:
                     if not os.path.exists(os.path.join(sdk_inc_path, sdk_inc_file)):
                         continue
 
-                    key = (version_nbr, platform)
+                    key = (version_nbr, platform_type)
                     if key in sdk_version_platform_seen:
                         continue
                     sdk_version_platform_seen.add(key)
 
-                    sdk_map[platform].append(version_nbr)
+                    sdk_map[platform_type].append(version_nbr)
 
         for key, val in sdk_map.items():
             val.sort(reverse=True)
@@ -2039,8 +2039,6 @@ class _WindowsSDK:
         sdk_version_platform_seen = set()
         sdk_roots_seen = set()
 
-        sdk_targets = []
-
         for sdk_t in sdk_roots:
 
             sdk_root = sdk_t[0]
@@ -2054,7 +2052,7 @@ class _WindowsSDK:
             if not os.path.exists(sdk_inc_path):
                 continue
 
-            for platform, sdk_inc_file in [
+            for platform_type, sdk_inc_file in [
                 ('desktop', 'winsdkver.h'),
                 ('uwp',     'windows.h'),
             ]:
@@ -2062,12 +2060,12 @@ class _WindowsSDK:
                 if not os.path.exists(os.path.join(sdk_inc_path, sdk_inc_file)):
                     continue
 
-                key = (version_nbr, platform)
+                key = (version_nbr, platform_type)
                 if key in sdk_version_platform_seen:
                     continue
                 sdk_version_platform_seen.add(key)
 
-                sdk_map[platform].append(version_nbr)
+                sdk_map[platform_type].append(version_nbr)
 
         for key, val in sdk_map.items():
             val.sort(reverse=True)
@@ -2134,9 +2132,9 @@ class _WindowsSDK:
         return sdk_map
 
     @classmethod
-    def _get_sdk_version_list(cls, version_list, platform):
+    def _get_sdk_version_list(cls, version_list, platform_type):
         sdk_map = cls._sdk_map(version_list)
-        sdk_list = sdk_map.get(platform, [])
+        sdk_list = sdk_map.get(platform_type, [])
         return sdk_list
 
 def get_sdk_versions(MSVC_VERSION=None, MSVC_UWP_APP=False):
@@ -2155,8 +2153,8 @@ def get_sdk_versions(MSVC_VERSION=None, MSVC_UWP_APP=False):
         return sdk_versions
 
     is_uwp = True if MSVC_UWP_APP in _Const.BOOLEAN_KEYS[True] else False
-    platform = 'uwp' if is_uwp else 'desktop'
-    sdk_list = _WindowsSDK._get_sdk_version_list(vs_def.vc_sdk_versions, platform)
+    platform_type = 'uwp' if is_uwp else 'desktop'
+    sdk_list = _WindowsSDK._get_sdk_version_list(vs_def.vc_sdk_versions, platform_type)
 
     sdk_versions.extend(sdk_list)
     return sdk_versions
@@ -2326,12 +2324,12 @@ class _ScriptArguments:
         return err_msg
 
     @classmethod
-    def _msvc_script_argument_sdk(cls, env, msvc, platform, arglist):
+    def _msvc_script_argument_sdk(cls, env, msvc, platform_type, arglist):
 
         sdk_version = env['MSVC_SDK_VERSION']
         debug(
-            'MSVC_VERSION=%s, MSVC_SDK_VERSION=%s, platform=%s',
-            repr(msvc.version), repr(sdk_version), repr(platform)
+            'MSVC_VERSION=%s, MSVC_SDK_VERSION=%s, platform_type=%s',
+            repr(msvc.version), repr(sdk_version), repr(platform_type)
         )
 
         if not sdk_version:
@@ -2341,11 +2339,11 @@ class _ScriptArguments:
         if err_msg:
             raise MSVCArgumentError(err_msg)
 
-        sdk_list = _WindowsSDK._get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform)
+        sdk_list = _WindowsSDK._get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
 
         if sdk_version not in sdk_list:
-            err_msg = "MSVC_SDK_VERSION {} not found for platform {}".format(
-                repr(sdk_version), repr(platform)
+            err_msg = "MSVC_SDK_VERSION {} not found for platform type {}".format(
+                repr(sdk_version), repr(platform_type)
             )
             raise MSVCArgumentError(err_msg)
 
@@ -2356,20 +2354,20 @@ class _ScriptArguments:
         return sdk_version
 
     @classmethod
-    def _msvc_script_default_sdk(cls, env, msvc, platform, arglist):
+    def _msvc_script_default_sdk(cls, env, msvc, platform_type, arglist):
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2015.vc_buildtools_def.vc_version_numeric:
             return None
 
-        sdk_list = _WindowsSDK._get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform)
+        sdk_list = _WindowsSDK._get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
         if not len(sdk_list):
             return None
 
         sdk_default = sdk_list[0]
 
         debug(
-            'MSVC_VERSION=%s, sdk_default=%s, platform=%s',
-            repr(msvc.version), repr(sdk_default), repr(platform)
+            'MSVC_VERSION=%s, sdk_default=%s, platform_type=%s',
+            repr(msvc.version), repr(sdk_default), repr(platform_type)
         )
 
         argpair = (cls.SortOrder.SDK, sdk_default)
@@ -2806,10 +2804,10 @@ class _ScriptArguments:
         if user_argstr:
             cls._user_script_argument_uwp(env, uwp, user_argstr)
 
-        platform = 'uwp' if uwp else 'desktop'
+        platform_type = 'uwp' if uwp else 'desktop'
 
         if 'MSVC_SDK_VERSION' in env:
-            sdk_version = cls._msvc_script_argument_sdk(env, msvc, platform, arglist)
+            sdk_version = cls._msvc_script_argument_sdk(env, msvc, platform_type, arglist)
         else:
             sdk_version = None
 
@@ -2820,7 +2818,7 @@ class _ScriptArguments:
 
         if cls.MSVC_FORCE_DEFAULT_SDK:
             if not sdk_version and not user_sdk:
-                sdk_version = cls._msvc_script_default_sdk(env, msvc, platform, arglist)
+                sdk_version = cls._msvc_script_default_sdk(env, msvc, platform_type, arglist)
 
         if 'MSVC_TOOLSET_VERSION' in env:
             toolset_version = cls._msvc_script_argument_toolset(env, msvc, vc_dir, arglist)
