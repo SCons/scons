@@ -2269,7 +2269,7 @@ class _ScriptArguments:
         # VS2017+ rewrites uwp => store for 14.0 toolset
         uwp_arg = msvc.vs_def.vc_uwp
 
-        # uwp may not be installed
+        # store/uwp may not be fully installed
         argpair = (cls.SortOrder.UWP, uwp_arg)
         arglist.append(argpair)
 
@@ -2347,7 +2347,6 @@ class _ScriptArguments:
             )
             raise MSVCArgumentError(err_msg)
 
-        # sdk folder may not exist
         argpair = (cls.SortOrder.SDK, sdk_version)
         arglist.append(argpair)
 
