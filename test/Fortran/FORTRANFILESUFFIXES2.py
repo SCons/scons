@@ -34,7 +34,7 @@ test.file_fixture('mylink.py')
 test.file_fixture(['fixture', 'myfortran.py'])
 
 # Test non default file suffix: .f, .f90 and .f95 for FORTRAN
-test.write( 'SConstruct', """\
+test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
 env = Environment(
     LINK=r'%(_python_)s mylink.py',

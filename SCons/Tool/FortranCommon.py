@@ -171,15 +171,15 @@ def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods=False) -> N
     env[f'_{dialect}INCFLAGS'] = f'${{_concat(INC{dialect}PREFIX, {dialect}PATH, INC{dialect}SUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}}'
 
     if support_mods:
-        env[f'{dialect}COM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES #XXX{dialect}'
-        env[f'{dialect}PPCOM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES #XXXPP{dialect}'
-        env[f'SH{dialect}COM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES #XXX{dialect}'
-        env[f'SH{dialect}PPCOM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES #XXXPP{dialect}'
+        env[f'{dialect}COM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES'
+        env[f'{dialect}PPCOM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES'
+        env[f'SH{dialect}COM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES'
+        env[f'SH{dialect}PPCOM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $_FORTRANMODFLAG $SOURCES'
     else:
-        env[f'{dialect}COM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $_{dialect}INCFLAGS $SOURCES #XXX{dialect}'
-        env[f'{dialect}PPCOM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $SOURCES #XXXPP{dialect}'
-        env[f'SH{dialect}COM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $_{dialect}INCFLAGS $SOURCES #XXX{dialect}'
-        env[f'SH{dialect}PPCOM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $SOURCES #XXXPP{dialect}'
+        env[f'{dialect}COM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $_{dialect}INCFLAGS $SOURCES'
+        env[f'{dialect}PPCOM'] = f'${dialect} -o $TARGET -c $FORTRANCOMMONFLAGS ${dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $SOURCES'
+        env[f'SH{dialect}COM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $_{dialect}INCFLAGS $SOURCES'
+        env[f'SH{dialect}PPCOM'] = f'$SH{dialect} -o $TARGET -c $FORTRANCOMMONFLAGS $SH{dialect}FLAGS $CPPFLAGS $_CPPDEFFLAGS $_{dialect}INCFLAGS $SOURCES'
 
 
 def add_fortran_to_env(env) -> None:
