@@ -22,16 +22,6 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-__NINJA_NO">
-    <term>
-      <envar>__NINJA_NO</envar>
-    </term>
-    <listitem><para>
-                Internal flag. Used to tell SCons whether or not to try to import pypi's ninja python package.
-                This is set to True when being called by Ninja?
-            </para>
-        </listitem>
-  </varlistentry>
   <varlistentry id="cv-__SHLIBVERSIONFLAGS">
     <term>
       <envar>__SHLIBVERSIONFLAGS</envar>
@@ -425,6 +415,18 @@ See also &cv-link-SHCCCOMSTR; for compiling to shared objects.
 <example_commands>
 env = Environment(CCCOMSTR = "Compiling static object $TARGET")
 </example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-CCDEPFLAGS">
+    <term>
+      <envar>CCDEPFLAGS</envar>
+    </term>
+    <listitem><para>
+Options to pass to C or C++ compiler to generate list of dependency files.
+</para>
+ <para>
+  This is set only by compilers which support this functionality. (&t-link-gcc;, &t-link-clang;, and &t-link-msvc; currently)
+ </para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CCFLAGS">
@@ -1641,49 +1643,40 @@ General options passed to the TeX DVI file to PostScript converter.
       <envar>ENV</envar>
     </term>
     <listitem><para>
-A dictionary of environment variables
-to use when invoking commands. When
-&cv-ENV; is used in a command all list
-values will be joined using the path separator and any other non-string
-values will simply be coerced to a string.
-Note that, by default,
-&scons;
+The <firstterm>execution environment</firstterm> -
+a dictionary of environment variables
+used when &SCons; invokes external commands
+to build targets defined in this &consenv;.
+When &cv-ENV; is passed to a command,
+all list values are assumed to be path lists and
+are joined using the search path separator.
+Any other non-string values are coerced to a string.
+</para>
+
+<para>
+Note that by default
+&SCons;
 does
 <emphasis>not</emphasis>
-propagate the environment in effect when you
-execute
-&scons;
-to the commands used to build target files.
+propagate the environment in effect when you execute
+&scons; (the "shell environment")
+to the execution environment.
 This is so that builds will be guaranteed
 repeatable regardless of the environment
 variables set at the time
 &scons;
 is invoked.
-</para>
-
-<para>
-If you want to propagate your
-environment variables
+If you want to propagate a
+shell environment variable
 to the commands executed
 to build target files,
-you must do so explicitly:
-</para>
-
-<example_commands>
-import os
-env = Environment(ENV=os.environ.copy())
-</example_commands>
-
-<para>
-Note that you can choose only to propagate
-certain environment variables.
+you must do so explicitly.
 A common example is
-the system
-<envar>PATH</envar>
+the system &PATH;
 environment variable,
 so that
 &scons;
-uses the same utilities
+will find utilities the same way
 as the invoking shell (or other process):
 </para>
 
@@ -1691,6 +1684,18 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV={'PATH': os.environ['PATH']})
 </example_commands>
+
+<para>
+Although it is usually not recommended,
+you can propagate the entire shell environment
+in one go:
+</para>
+
+<example_commands>
+import os
+env = Environment(ENV=os.environ.copy())
+</example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-ESCAPE">
@@ -2671,11 +2676,9 @@ for all versions of Fortran.
 The command line used to compile a Fortran source file to an object file.
 By default, any options specified
 in the &cv-link-FORTRANFLAGS;,
-&cv-link-CPPFLAGS;,
-&cv-link-_CPPDEFFLAGS;,
 &cv-link-_FORTRANMODFLAG;, and
-&cv-link-_FORTRANINCFLAGS; construction variables
-are included on this command line.
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
 </para>
 </listitem>
   </varlistentry>
@@ -2725,7 +2728,7 @@ for the variables that expand those options.
       <envar>_FORTRANINCFLAGS</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran compiler command-line options
 for specifying directories to be searched for include
 files and module files.
@@ -2757,7 +2760,7 @@ for module files, as well.
 The prefix used to specify a module directory on the Fortran compiler command
 line.
 This will be prepended to the beginning of the directory
-in the &cv-link-FORTRANMODDIR; construction variables
+in the &cv-link-FORTRANMODDIR; &consvars;
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
 </listitem>
@@ -2770,7 +2773,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 The suffix used to specify a module directory on the Fortran compiler command
 line.
 This will be appended to the end of the directory
-in the &cv-link-FORTRANMODDIR; construction variables
+in the &cv-link-FORTRANMODDIR; &consvars;
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
 </listitem>
@@ -2780,7 +2783,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
       <envar>_FORTRANMODFLAG</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran compiler command-line option
 for specifying the directory location where the Fortran
 compiler should place any module files that happen to get
@@ -2861,11 +2864,11 @@ env = Environment(FORTRANPATH=include)
 The directory list will be added to command lines
 through the automatically-generated
 &cv-link-_FORTRANINCFLAGS;
-construction variable,
+&consvar;,
 which is constructed by
 respectively prepending and appending the values of the
 &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
-construction variables
+&consvars;
 to the beginning and end
 of each directory in &cv-link-FORTRANPATH;.
 Any command lines you define that need
@@ -2890,7 +2893,7 @@ By default, any options specified in the &cv-link-FORTRANFLAGS;,
 &cv-link-_CPPDEFFLAGS;,
 &cv-link-_FORTRANMODFLAG;, and
 &cv-link-_FORTRANINCFLAGS;
-construction variables are included on this command line.
+&consvars; are included on this command line.
 </para>
 </listitem>
   </varlistentry>
@@ -3550,15 +3553,6 @@ env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
                 (<filename>:</filename> on UNIX/Linux/POSIX,
                 <filename>;</filename>
                 on Windows).
-            </para>
-
-            <para>
-                Note that this currently just adds the specified
-                directory via the <option>-classpath</option> option.
-                &SCons; does not currently search the
-                &cv-JAVACLASSPATH; directories for dependency
-                <filename>.class</filename>
-                files.
             </para>
         </listitem>
   </varlistentry>
@@ -4687,6 +4681,100 @@ will be compiled separately.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-MSVC_NOTFOUND_POLICY">
+    <term>
+      <envar>MSVC_NOTFOUND_POLICY</envar>
+    </term>
+    <listitem><para>
+Specify the scons behavior when the Microsoft Visual C/C++ compiler is not detected.
+</para>
+
+<para>
+    The <envar>MSVC_NOTFOUND_POLICY</envar> specifies the &scons; behavior when no msvc versions are detected or
+    when the requested msvc version is not detected.
+</para>
+
+<para> 
+The valid values for <envar>MSVC_NOTFOUND_POLICY</envar> and the corresponding &scons; behavior are:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'Error' or 'Exception'</parameter></term>
+<listitem>
+<para>
+Raise an exception when no msvc versions are detected or when the requested msvc version is not detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
+<listitem>
+<para>
+Issue a warning and continue when no msvc versions are detected or when the requested msvc version is not detected.
+Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
+<listitem>
+<para>
+Take no action and continue when no msvc versions are detected or when the requested msvc version is not detected.
+Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+The <envar>MSVC_NOTFOUND_POLICY</envar> is applied when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_VERSION; is specified, the default tools list is implicitly defined (i.e., the tools list is not specified),
+and the default tools list contains one or more of the msvc tools.
+</para></listitem>
+<listitem><para>
+&cv-MSVC_VERSION; is specified, the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>),
+and the default tools list contains one or more of the msvc tools.
+</para></listitem>
+<listitem><para>
+A non-default tools list is specified that contains one or more of the msvc tools (e.g., <literal>tools=['msvc', 'mslink']</literal>).
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The <envar>MSVC_NOTFOUND_POLICY</envar> is ignored when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_VERSION; is not specified and the default tools list is implicitly defined (i.e., the tools list is not specified).
+</para></listitem>
+<listitem><para>
+&cv-MSVC_VERSION; is not specified and the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>).
+</para></listitem>
+<listitem><para>
+A non-default tool list is specified that does not contain any of the msvc tools (e.g., <literal>tools=['mingw']</literal>).
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+When <envar>MSVC_NOTFOUND_POLICY</envar> is not specified, the default &scons; behavior is to issue a warning and continue
+subject to the conditions listed above. The default &scons; behavior may change in the future.
+</para>
+
+
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-MSVC_USE_SCRIPT">
     <term>
       <envar>MSVC_USE_SCRIPT</envar>
@@ -4705,6 +4793,7 @@ and extract the relevant variables from the result (typically
 <envar>%PATH%</envar>) for supplying to the build.
 This can be useful to force the use of a compiler version that
 &SCons; does not detect.
+&cv-link-MSVC_USE_SCRIPT_ARGS; provides arguments passed to this script.
 </para>
 
 <para>
@@ -4719,6 +4808,82 @@ you don't want &SCons; to change anything.
 <para>
 &cv-MSVC_USE_SCRIPT; overrides &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
 </para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_USE_SCRIPT_ARGS">
+    <term>
+      <envar>MSVC_USE_SCRIPT_ARGS</envar>
+    </term>
+    <listitem><para>
+Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_USE_SETTINGS">
+    <term>
+      <envar>MSVC_USE_SETTINGS</envar>
+    </term>
+    <listitem><para>
+Use a dictionary to set up the Microsoft Visual C++ compiler.
+</para>
+
+<para>
+&cv-MSVC_USE_SETTINGS; is ignored when &cv-link-MSVC_USE_SCRIPT; is defined
+and/or when &cv-MSVC_USE_SETTINGS; is set to <constant>None</constant>.
+</para>
+
+<para>
+The dictionary is used to populate the environment with the relevant variables
+(typically <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
+for supplying to the build. This can be useful to force the use of a compiler environment
+that &SCons; does not configure correctly. This is an alternative to manually configuring
+the environment when bypassing Visual Studio autodetection entirely by setting
+&cv-link-MSVC_USE_SCRIPT; to <constant>None</constant>.
+</para>
+
+<para>
+Here is an example of configuring a build environment using the Microsoft Visual C/C++ compiler
+included in the Microsoft SDK on a 64-bit host and building for a 64-bit architecture:
+<programlisting>
+# Microsoft SDK 6.0 (MSVC 8.0): 64-bit host and 64-bit target
+msvc_use_settings = {
+    "PATH": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Bin\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Bin\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Bin",
+        "C:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727",
+        "C:\\Windows\\system32",
+        "C:\\Windows",
+        "C:\\Windows\\System32\\Wbem",
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\"
+    ],
+    "INCLUDE": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Include",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Include\\Sys",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Include",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Include\\gl",
+    ],
+    "LIB": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Lib\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Lib\\x64",
+    ],
+    "LIBPATH": [],
+    "VSCMD_ARG_app_plat": [],
+    "VCINSTALLDIR": [],
+    "VCToolsInstallDir": []
+}
+
+# Specifying MSVC_VERSION is recommended
+env = Environment(MSVC_VERSION='8.0', MSVC_USE_SETTINGS=msvc_use_settings)
+</programlisting>
+</para>
+
+<para>
+Note: the dictionary content requirements are based on the internal msvc implementation and
+therefore may change at any time. The burden is on the user to ensure the dictionary contents
+are minimally sufficient to ensure successful builds.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_UWP_APP">
@@ -5190,9 +5355,28 @@ Specfies the name of the project to package.
       <envar>NINJA_ALIAS_NAME</envar>
     </term>
     <listitem><para>
-                Name of the Alias() which is will cause SCons to create the <filename>ninja.build</filename> file, and
-                then (optionally) run ninja.
+                The name of the alias target which will cause &SCons; to create the &ninja; build file,
+                and then (optionally) run &ninja;.
+                The default value is <literal>generate-ninja</literal>.
             </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_CMD_ARGS">
+    <term>
+      <envar>NINJA_CMD_ARGS</envar>
+    </term>
+    <listitem><para>
+                A string which will pass arguments through SCons to the ninja command when scons executes ninja.
+                Has no effect if &cv-NINJA_DISABLE_AUTO_RUN; is set.
+            </para>
+            <para>
+                This value can also be passed on the command line:
+            </para>
+            <example_commands>
+scons NINJA_CMD_ARGS=-v
+or
+scons NINJA_CMD_ARGS="-v -j 3"
+            </example_commands>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-NINJA_COMPDB_EXPAND">
@@ -5200,13 +5384,26 @@ Specfies the name of the project to package.
       <envar>NINJA_COMPDB_EXPAND</envar>
     </term>
     <listitem><para>
-                Boolean value (True|False) to instruct ninja to expand the command line arguments normally put into
+                Boolean value to instruct &ninja; to expand the command line arguments normally put into
                 response files.
-                This prevents lines in the compilation database like <quote>gcc @rsp_file</quote> and instead yields
-                <quote>gcc -c -o myfile.o myfile.c -Ia -DXYZ</quote>
+                If true, prevents unexpanded lines in the compilation database like
+                <quote><literal>gcc @rsp_file</literal></quote> and instead yields expanded lines like
+                <quote><literal>gcc -c -o myfile.o myfile.c -Ia -DXYZ</literal></quote>.
             </para>
             <para>
-                Ninja's compdb tool added the <quote>-x</quote> flag in Ninja V1.9.0
+                Ninja's compdb tool added the <option>-x</option> flag in Ninja V1.9.0
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_DEPFILE_PARSE_FORMAT">
+    <term>
+      <envar>NINJA_DEPFILE_PARSE_FORMAT</envar>
+    </term>
+    <listitem><para>
+                Determines the type of format ninja should expect when parsing header
+                include depfiles. Can be <option>msvc</option>, <option>gcc</option>, or <option>clang</option>.
+                The <option>msvc</option> option corresponds to <option>/showIncludes</option> format, and 
+                <option>gcc</option> or <option>clang</option> correspond to <option>-MMD -MF</option>.
             </para>
         </listitem>
   </varlistentry>
@@ -5215,15 +5412,14 @@ Specfies the name of the project to package.
       <envar>NINJA_DIR</envar>
     </term>
     <listitem><para>
-                This propagates directly into the generated <filename>ninja.build</filename> file.
+                The <parameter>builddir</parameter> value.
+                Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
-                <blockquote>
-                    <para>
-                        builddir
-                        A directory for some Ninja output files. ... (You can also store other build output in this
-                        directory.)
-                    </para>
-                </blockquote>
+                <quote>
+                    A directory for some Ninja output files. ... (You can also store other build output in this
+                    directory.)
+                </quote>
+            The default value is <filename>.ninja</filename>.
             </para>
         </listitem>
   </varlistentry>
@@ -5232,11 +5428,14 @@ Specfies the name of the project to package.
       <envar>NINJA_DISABLE_AUTO_RUN</envar>
     </term>
     <listitem><para>
-                Boolean (True|False). Default: False
-                When True, SCons will not run ninja automatically after creating the <filename>ninja.build</filename> file.
+                Boolean. Default: <constant>False</constant>.
+                If true, &SCons; will not run &ninja; automatically after creating the &ninja; build file.
+            </para>
 
-                If not set, this will be set to True if <quote>--disable_execute_ninja</quote> or
-                <code>SetOption('disable_execute_ninja', True)</code>
+            <para>
+                If not explicitly set, this will be set to <constant>True</constant>
+                if <option>--disable_execute_ninja</option> or
+                <code>SetOption('disable_execute_ninja', True)</code> is seen.
             </para>
         </listitem>
   </varlistentry>
@@ -5246,12 +5445,17 @@ Specfies the name of the project to package.
     </term>
     <listitem><para>
                 A string that sets the environment for any environment variables that
-                differ between the OS environment and the SCons command ENV.
+                differ between the OS environment and the &SCons; execution environment.
+            </para>
 
+            <para>
                 It will be compatible with the default shell of the operating system.
+            </para>
 
-                If not explicitly specified, SCons will generate this dynamically from the Environment()'s 'ENV'
-                <quote>env['ENV']</quote>
+            <para>
+                If not explicitly set, &SCons; will generate this dynamically from the
+                execution environment stored in the current &consenv;
+                (e.g. <literal>env['ENV']</literal>)
                 where those values differ from the existing shell..
             </para>
         </listitem>
@@ -5261,8 +5465,8 @@ Specfies the name of the project to package.
       <envar>NINJA_FILE_NAME</envar>
     </term>
     <listitem><para>
-                The filename for the generated Ninja build file defaults to
-                <filename>ninja.build</filename>
+                The filename for the generated Ninja build file.
+                The default is <filename>ninja.build</filename>.
             </para>
         </listitem>
   </varlistentry>
@@ -5271,9 +5475,21 @@ Specfies the name of the project to package.
       <envar>NINJA_FORCE_SCONS_BUILD</envar>
     </term>
     <listitem><para>
-                When NINJA_FORCE_SCONS_BUILD is True, this will cause the build nodes to callback to scons instead of using
-                ninja to build them. This is intended to be passed to the environment on the builder invocation.
-                It is useful if you have a build node which does something which is not easily translated into ninja.
+                If true, causes the build nodes to callback to scons instead of using
+                &ninja; to build them. This is intended to be passed to the environment on the builder invocation.
+                It is useful if you have a build node which does something which is not easily translated into &ninja;.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_GENERATED_SOURCE_ALIAS_NAME">
+    <term>
+      <envar>NINJA_GENERATED_SOURCE_ALIAS_NAME</envar>
+    </term>
+    <listitem><para>
+                A string matching the name of a user defined alias which represents a list of all generated sources.
+                This will prevent the auto-detection of generated sources from &cv-NINJA_GENERATED_SOURCE_SUFFIXES;.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
+                generated sources to be built first.
             </para>
         </listitem>
   </varlistentry>
@@ -5282,10 +5498,10 @@ Specfies the name of the project to package.
       <envar>NINJA_GENERATED_SOURCE_SUFFIXES</envar>
     </term>
     <listitem><para>
-                The list of source file suffixes which are generated by SCons build steps.
+                The list of source file suffixes which are generated by &SCons; build steps.
                 All source files which match these suffixes will be added to the _generated_sources alias in the output
-                <filename>ninja.build</filename> file.
-                Then all other source files will be made to depend on this in the <filename>ninja.build</filename> file, forcing the
+                &ninja; build file.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
                 generated sources to be built first.
             </para>
         </listitem>
@@ -5295,9 +5511,10 @@ Specfies the name of the project to package.
       <envar>NINJA_MSVC_DEPS_PREFIX</envar>
     </term>
     <listitem><para>
-                This propagates directly into the generated <filename>ninja.build</filename> file.
-                From Ninja's docs
-                <quote>defines the string which should be stripped from msvc’s /showIncludes output</quote>
+                The <parameter>msvc_deps_prefix</parameter> string.
+                Propagates directly into the generated &ninja; build file.
+                From Ninja's docs:
+                <quote>defines the string which should be stripped from msvc's <option>/showIncludes</option> output</quote>
             </para>
         </listitem>
   </varlistentry>
@@ -5306,7 +5523,7 @@ Specfies the name of the project to package.
       <envar>NINJA_POOL</envar>
     </term>
     <listitem><para>
-                Set the <quote>ninja_pool</quote> for this or all targets in scope for this env var.
+                Set the <parameter>ninja_pool</parameter> for this or all targets in scope for this env var.
             </para>
         </listitem>
   </varlistentry>
@@ -5315,8 +5532,9 @@ Specfies the name of the project to package.
       <envar>NINJA_REGENERATE_DEPS</envar>
     </term>
     <listitem><para>
-                A generator function used to create a ninja depsfile which includes all the files which would require
-                SCons to be invoked if they change.
+                A generator function used to create a &ninja; depfile which
+                includes all the files which would require
+                &SCons; to be invoked if they change.
                 Or a list of said files.
             </para>
         </listitem>
@@ -5327,7 +5545,28 @@ Specfies the name of the project to package.
     </term>
     <listitem><para>
                 Internal value used to specify the function to call with argument env to generate the list of files
-                which if changed would require the ninja file to be regenerated.
+                which if changed would require the &ninja; build file to be regenerated.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_SCONS_DAEMON_KEEP_ALIVE">
+    <term>
+      <envar>NINJA_SCONS_DAEMON_KEEP_ALIVE</envar>
+    </term>
+    <listitem><para>
+                The number of seconds for the SCons deamon launched by ninja to stay alive.
+                (Default: 180000)
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_SCONS_DAEMON_PORT">
+    <term>
+      <envar>NINJA_SCONS_DAEMON_PORT</envar>
+    </term>
+    <listitem><para>
+                The TCP/IP port for the SCons daemon to listen on.
+                <emphasis>NOTE: You cannot use a port already being listened to on your build machine.</emphasis>
+                (Default: random number between 10000,60000)
             </para>
         </listitem>
   </varlistentry>
@@ -5336,9 +5575,9 @@ Specfies the name of the project to package.
       <envar>NINJA_SYNTAX</envar>
     </term>
     <listitem><para>
-                Theres also NINJA_SYNTAX which is the path to a custom ninja_syntax.py file which is used in generation.
-                The tool currently assumes you have ninja installed through pip, and grabs the syntax file from that
-                installation if none specified.
+                The path to a custom <filename>ninja_syntax.py</filename> file which is used in generation.
+                The tool currently assumes you have &ninja; installed as a &Python; module and grabs the syntax file from that
+                installation if &cv-NINJA_SYNTAX; is not explicitly set.
             </para>
         </listitem>
   </varlistentry>
@@ -6751,6 +6990,56 @@ construction variable for more information.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SHELL_ENV_GENERATORS">
+    <term>
+      <envar>SHELL_ENV_GENERATORS</envar>
+    </term>
+    <listitem><para>
+Must be a list (or an iterable) containing functions where each function generates or
+alters the environment dictionary which will be used
+when executing the &cv-link-SPAWN; function. The functions will initially 
+be passed a reference of the current execution environment (e.g. env['ENV']), 
+and each called while iterating the list. Each function must return a dictionary
+which will then be passed to the next function iterated. The return dictionary 
+should contain keys which represent the environment variables and their respective
+values.
+
+This primary purpose of this construction variable is to give the user the ability
+to substitute execution environment variables based on env, targets, and sources. 
+If desired, the user can completely customize the execution environment for particular
+targets.
+    </para>
+
+    <example_commands>
+def custom_shell_env(env, target, source, shell_env):
+    """customize shell_env if desired"""
+    if str(target[0]) == 'special_target':
+      shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
+    return shell_env
+  
+env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
+    </example_commands>
+
+    <para>
+      <varname>env</varname>
+The SCons construction environment from which the
+execution environment can be derived from.
+    </para>
+    <para>
+    <varname>target</varname>
+The list of targets associated with this action.
+    </para>
+    <para>
+    <varname>source</varname>
+The list of sources associated with this action.
+    </para>
+    <para>
+    <varname>shell_env</varname>
+The current shell_env after iterating other SHELL_ENV_GENERATORS functions. This can be compared
+to the passed env['ENV'] to detect any changes.
+    </para>
+  </listitem>
+  </varlistentry>
   <varlistentry id="cv-SHF03">
     <term>
       <envar>SHF03</envar>
@@ -7207,6 +7496,12 @@ The default Fortran compiler used for generating shared-library objects.
     <listitem><para>
 The command line used to compile a Fortran source file
 to a shared-library object file.
+By default, any options specified
+in the &cv-link-SHFORTRANFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+See also &cv-link-FORTRANCOM;.
 </para>
 </listitem>
   </varlistentry>
@@ -7240,10 +7535,13 @@ to generate shared-library objects.
 The command line used to compile a Fortran source file to a
 shared-library object file
 after first running the file through the C preprocessor.
-Any options specified
-in the &cv-link-SHFORTRANFLAGS; and
-&cv-link-CPPFLAGS; construction variables
-are included on this command line.
+By default, any options specified in the &cv-link-SHFORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+See also &cv-link-SHFORTRANCOM;.
 </para>
 </listitem>
   </varlistentry>
@@ -7604,7 +7902,7 @@ field in MSI packages.
       <envar>SWIG</envar>
     </term>
     <listitem><para>
-The scripting language wrapper and interface generator.
+The name of the &swig; compiler to use.
 </para>
 </listitem>
   </varlistentry>
@@ -7614,10 +7912,11 @@ The scripting language wrapper and interface generator.
     </term>
     <listitem><para>
 The suffix that will be used for intermediate C
-source files generated by
-the scripting language wrapper and interface generator.
-The default value is
-<filename>_wrap</filename>&cv-link-CFILESUFFIX;.
+source files generated by &swig;.
+The default value is <literal>'_wrap$CFILESUFFIX'</literal> -
+that is, the concatenation of the string
+<literal>_wrap</literal>
+and the current C suffix &cv-link-CFILESUFFIX;.
 By default, this value is used whenever the
 <option>-c++</option>
 option is
@@ -7633,8 +7932,7 @@ construction variable.
       <envar>SWIGCOM</envar>
     </term>
     <listitem><para>
-The command line used to call
-the scripting language wrapper and interface generator.
+The command line used to call &swig;.
 </para>
 </listitem>
   </varlistentry>
@@ -7643,8 +7941,7 @@ the scripting language wrapper and interface generator.
       <envar>SWIGCOMSTR</envar>
     </term>
     <listitem><para>
-The string displayed when calling
-the scripting language wrapper and interface generator.
+The string displayed when calling &swig;.
 If this is not set, then &cv-link-SWIGCOM; (the command line) is displayed.
 </para>
 </listitem>
@@ -7655,12 +7952,13 @@ If this is not set, then &cv-link-SWIGCOM; (the command line) is displayed.
     </term>
     <listitem><para>
 The suffix that will be used for intermediate C++
-source files generated by
-the scripting language wrapper and interface generator.
-The default value is
-<filename>_wrap</filename>&cv-link-CFILESUFFIX;.
+source files generated by &swig;.
+The default value is <literal>'_wrap$CXXFILESUFFIX'</literal> -
+that is, the concatenation of the string
+<literal>_wrap</literal>
+and the current C++ suffix &cv-link-CXXFILESUFFIX;.
 By default, this value is used whenever the
-<filename>-c++</filename>
+<option>-c++</option>
 option is specified as part of the
 &cv-link-SWIGFLAGS;
 construction variable.
@@ -7673,8 +7971,8 @@ construction variable.
     </term>
     <listitem><para>
 The suffix that will be used for intermediate C++ header
-files generated by the scripting language wrapper and interface generator.
-These are only generated for C++ code when the SWIG 'directors' feature is
+files generated by &swig;.
+These are only generated for C++ code when the &swig; 'directors' feature is
 turned on.
 The default value is
 <filename>_wrap.h</filename>.
@@ -7686,22 +7984,14 @@ The default value is
       <envar>SWIGFLAGS</envar>
     </term>
     <listitem><para>
-General options passed to
-the scripting language wrapper and interface generator.
-This is where you should set
-<option>-python</option>,
+General options passed to &swig;.
+This is where you should set the target language
+(<option>-python</option>,
 <option>-perl5</option>,
-<option>-tcl</option>,
-or whatever other options you want to specify to SWIG.
-If you set the
-<option>-c++</option>
-option in this variable,
-&scons;
-will, by default,
-generate a C++ intermediate source file
-with the extension that is specified as the
-&cv-link-CXXFILESUFFIX;
-variable.
+<option>-tcl</option>, etc.)
+and whatever other options you want to specify to &swig;,
+such as the <option>-c++</option> to generate C++ code
+instead of C Code.
 </para>
 </listitem>
   </varlistentry>
@@ -7711,7 +8001,7 @@ variable.
     </term>
     <listitem><para>
 An automatically-generated construction variable
-containing the SWIG command-line options
+containing the &swig; command-line options
 for specifying directories to be searched for included files.
 The value of &cv-_SWIGINCFLAGS; is created
 by respectively prepending and appending
@@ -7726,7 +8016,7 @@ of each directory in &cv-SWIGPATH;.
       <envar>SWIGINCPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used to specify an include directory on the SWIG command line.
+The prefix used to specify an include directory on the &swig; command line.
 This will be prepended to the beginning of each directory
 in the &cv-SWIGPATH; construction variable
 when the &cv-_SWIGINCFLAGS; variable is automatically generated.
@@ -7738,7 +8028,7 @@ when the &cv-_SWIGINCFLAGS; variable is automatically generated.
       <envar>SWIGINCSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used to specify an include directory on the SWIG command line.
+The suffix used to specify an include directory on the &swig; command line.
 This will be appended to the end of each directory
 in the &cv-SWIGPATH; construction variable
 when the &cv-_SWIGINCFLAGS; variable is automatically generated.
@@ -7750,8 +8040,7 @@ when the &cv-_SWIGINCFLAGS; variable is automatically generated.
       <envar>SWIGOUTDIR</envar>
     </term>
     <listitem><para>
-Specifies the output directory in which
-the scripting language wrapper and interface generator
+Specifies the output directory in which &swig;
 should place generated language-specific files.
 This will be used by SCons to identify
 the files that will be generated by the &swig; call,
@@ -7765,22 +8054,24 @@ and translated into the
       <envar>SWIGPATH</envar>
     </term>
     <listitem><para>
-The list of directories that the scripting language wrapper
-and interface generate will search for included files.
-The SWIG implicit dependency scanner will search these
+The list of directories that &swig;
+will search for included files.
+&SCons;' SWIG implicit dependency scanner will search these
 directories for include files. The default value is an empty list.
 </para>
 
 <para>
 Don't explicitly put include directory
-arguments in SWIGFLAGS;
+arguments in &cv-link-SWIGFLAGS;
 the result will be non-portable
 and the directories will not be searched by the dependency scanner.
-Note: directory names in SWIGPATH will be looked-up relative to the SConscript
+Note: directory names in &cv-link-SWIGPATH;
+will be looked-up relative to the SConscript
 directory when they are used in a command.
 To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to look-up a directory relative to the root of the source tree use
+a top-relative path (<literal>#</literal>):
 </para>
 
 <example_commands>
@@ -7824,7 +8115,7 @@ env = Environment(SWIGCOM="my_swig -o $TARGET $_SWIGINCFLAGS $SOURCES")
       <envar>SWIGVERSION</envar>
     </term>
     <listitem><para>
-The version number of the SWIG tool.
+The detected version string of the &swig; tool.
 </para>
 </listitem>
   </varlistentry>

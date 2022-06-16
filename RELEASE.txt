@@ -107,7 +107,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
         require delayed expansion to be enabled which is currently not supported and is
         typically not enabled by default on the host system. The batch files may also require
         environment variables that are not included by default in the msvc environment.
-
+- Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
+  if scons can determine the ninja file doesnot need to be regenerated, which will also
+  skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
+  if scons Glob or scons generated files are used in ninja build target's command lines.
 FIXES
 -----
 
