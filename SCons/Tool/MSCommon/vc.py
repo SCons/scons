@@ -102,7 +102,7 @@ class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
 
-class _Manager:
+class _Dispatcher:
 
     classrefs = []
 
@@ -1250,7 +1250,7 @@ def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
     global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
-    _Manager.reset()
+    _Dispatcher.reset()
 
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
@@ -1622,7 +1622,7 @@ class _MSVCSetupEnvDefault:
         # return tool list in order presented
         return tools_found_list
 
-_Manager.register(_MSVCSetupEnvDefault)
+_Dispatcher.register(_MSVCSetupEnvDefault)
 
 def get_default_version(env):
     msvc_version = env.get('MSVC_VERSION')
@@ -2234,7 +2234,7 @@ class _WindowsSDK:
         debug('verify %s', cls.__name__)
         cls._verify_sdk_dispatch_map()
 
-_Manager.register(_WindowsSDK)
+_Dispatcher.register(_WindowsSDK)
 
 def get_sdk_versions(MSVC_VERSION=None, MSVC_UWP_APP=False):
     debug('MSVC_VERSION=%s, MSVC_UWP_APP=%s', repr(MSVC_VERSION), repr(MSVC_UWP_APP))
@@ -2951,7 +2951,7 @@ class _ScriptArguments:
         debug('verify %s', cls.__name__)
         cls._verify_re_sdk_dispatch_map()
 
-_Manager.register(_ScriptArguments)
+_Dispatcher.register(_ScriptArguments)
 
 # internal consistency check
-_Manager.verify()
+_Dispatcher.verify()
