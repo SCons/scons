@@ -2555,7 +2555,6 @@ class _ScriptArguments:
         filepath = os.path.join(build_dir, filename)
 
         debug('default toolset: check file=%s', repr(filepath))
-        toolset_buildtools = None
         if os.path.exists(filepath):
             toolset_buildtools = cls._msvc_read_toolset_file(msvc, filepath)
             if toolset_buildtools:
@@ -2566,7 +2565,6 @@ class _ScriptArguments:
         filepath = os.path.join(build_dir, filename)
 
         debug('default toolset: check file=%s', repr(filepath))
-        toolset_default = None
         if os.path.exists(filepath):
             toolset_default = cls._msvc_read_toolset_file(msvc, filepath)
             if toolset_default:
