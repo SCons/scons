@@ -21,13 +21,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""SCons.Tool
+"""SCons tool selection.
 
-SCons tool selection.
-
-This looks for modules that define a callable object that can modify
-a construction environment as appropriate for a given tool (or tool
-chain).
+Looks for modules that define a callable object that can modify a
+construction environment as appropriate for a given tool (or tool chain).
 
 Note that because this subsystem just *selects* a callable that can
 modify a construction environment, it's possible for people to define
@@ -35,8 +32,6 @@ their own "tool specification" in an arbitrary callable function.  No
 one needs to use or tie in to this subsystem in order to roll their own
 tool specifications.
 """
-
-
 
 import sys
 import os
@@ -834,15 +829,17 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=None):
+def find_program_path(env, key_program, default_paths=None, add_path=False) -> str:
     """
     Find the location of a tool using various means.
 
     Mainly for windows where tools aren't all installed in /usr/bin, etc.
 
-    :param env: Current Construction Environment.
-    :param key_program: Tool to locate.
-    :param default_paths: List of additional paths this tool might be found in.
+    Args:
+        env: Current Construction Environment.
+        key_program: Tool to locate.
+        default_paths: List of additional paths this tool might be found in.
+        add_path: If true, add path found if it was from *default_paths*.
     """
     # First search in the SCons path
     path = env.WhereIs(key_program)
@@ -854,15 +851,22 @@ def find_program_path(env, key_program, default_paths=None):
     if path:
         return path
 
-    # Finally, add the defaults and check again. Do not change
-    # ['ENV']['PATH'] permananetly, the caller can do that if needed.
+    # Finally, add the defaults and check again.
     if default_paths is None:
         return path
+
     save_path = env['ENV']['PATH']
     for p in default_paths:
         env.AppendENVPath('PATH', p)
     path = env.WhereIs(key_program)
+
+    # By default, do not change ['ENV']['PATH'] permananetly
+    # leave that to the caller, unless add_path is true.
     env['ENV']['PATH'] = save_path
+    if path and add_path:
+        bin_dir = os.path.dirname(path)
+        env.AppendENVPath('PATH', bin_dir)
+
     return path
 
 # Local Variables:

@@ -54,17 +54,30 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
+
 def log_error(msg):
     logging.debug(msg)
     sys.stderr.write(msg)
 
+
 while True:
     try:
+        if not os.path.exists(daemon_dir / "pidfile"):
+            if sys.argv[3] != '--exit':
+                logging.debug(f"ERROR: Server pid not found {daemon_dir / 'pidfile'} for request {sys.argv[3]}")
+                exit(1)
+            else:
+                logging.debug("WARNING: Unnecessary request to shutdown server, it's already shutdown.")
+                exit(0)
+
         logging.debug(f"Sending request: {sys.argv[3]}")
         conn = http.client.HTTPConnection(
             "127.0.0.1", port=int(sys.argv[1]), timeout=60
         )
-        conn.request("GET", "/?build=" + sys.argv[3])
+        if sys.argv[3] == '--exit':
+            conn.request("GET", "/?exit=1")
+        else:
+            conn.request("GET", "/?build=" + sys.argv[3])
         response = None
 
         while not response:
@@ -81,6 +94,7 @@ while True:
                 if status != 200:
                     log_error(msg.decode("utf-8"))
                     exit(1)
+                    
                 logging.debug(f"Request Done: {sys.argv[3]}")
                 exit(0)
 

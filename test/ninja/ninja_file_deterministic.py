@@ -23,6 +23,8 @@
 #
 
 import os
+import shutil
+import filecmp
 
 import TestSCons
 from TestCmd import IS_WINDOWS
@@ -38,44 +40,66 @@ _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 ninja_bin = os.path.abspath(os.path.join(
-    ninja.__file__,
-    os.pardir,
-    'data',
-    'bin',
+    ninja.BIN_DIR,
     'ninja' + _exe))
 
 test.dir_fixture('ninja-fixture')
 
-test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build', 'SConstruct')
+test.file_fixture('ninja_test_sconscripts/sconstruct_ninja_determinism', 'SConstruct')
 
 # generate simple build
-test.run(stdout=None, arguments='NINJA_CMD_ARGS=-v')
+test.run(stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
-test.must_contain_all(test.stdout(), ' -j1 -v')
-test.run(program=test.workpath('foo' + _exe), stdout="foo.c")
+test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
+shutil.copyfile(test.workpath('build.ninja'), test.workpath('build.ninja.orig'))
 
-# Test multiple args for NINJA_CMD_ARGS
-test.run(stdout=None, arguments={'NINJA_CMD_ARGS':"-v -j3"})
-test.must_contain_all(test.stdout(), ' -v -j3')
+ninja_file_mtime = os.path.getmtime(test.workpath('build.ninja'))
+
+# generate same build again
+test.run(stdout=None)
+test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja', 'ninja: no work to do.'])
+test.must_contain_all(test.stdout(), 'Executing:')
+test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
+test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
+
+if os.path.getmtime(test.workpath('build.ninja')) != ninja_file_mtime:
+    test.fail_test(message="build.ninja file has been updated (mtime changed) and should not have been")
+
+# make sure the ninja file was deterministic
+if not filecmp.cmp(test.workpath('build.ninja'), test.workpath('build.ninja.orig')):
+    test.fail_test()
 
 # clean build and ninja files
+os.unlink(test.workpath('build.ninja.orig'))
 test.run(arguments='-c', stdout=None)
-test.must_contain_all_lines(test.stdout(), [
-    'Removed foo.o',
-    'Removed foo',
-    'Removed build.ninja'])
 
 # only generate the ninja file
 test.run(arguments='--disable-execute-ninja', stdout=None)
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
-test.must_not_exist(test.workpath('foo' + _exe))
+test.must_not_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
 
 # run ninja independently
 program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
 test.run(program=program, stdout=None)
-test.run(program=test.workpath('foo' + _exe), stdout="foo.c")
+test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
+shutil.copyfile(test.workpath('build.ninja'), test.workpath('build.ninja.orig'))
+
+# only generate the ninja file again
+test.run(arguments='--disable-execute-ninja', stdout=None)
+test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
+test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
+
+# run ninja independently again
+program = test.workpath('run_ninja_env.bat') if IS_WINDOWS else ninja_bin
+test.run(program=program, stdout=None)
+test.must_contain_all_lines(test.stdout(), ['ninja: no work to do.'])
+test.must_exist([test.workpath('out1.txt'), test.workpath('out2.txt')])
+
+# make sure the ninja file was deterministic
+if not filecmp.cmp(test.workpath('build.ninja'), test.workpath('build.ninja.orig')):
+    test.fail_test()
 
 test.pass_test()
 

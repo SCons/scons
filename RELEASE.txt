@@ -14,7 +14,8 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
 NEW FUNCTIONALITY
 -----------------
 
-- Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
+- Added MSVC_USE_SCRIPT_ARGS Environment variable which specifies command line arguments
+  to pass to the script specified by MSVC_USE_SCRIPT.
 - Added Configure.CheckMember() checker to check if struct/class has the specified member.
 - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
   (or an iterable) which contains functions to be called in order
@@ -24,6 +25,11 @@ NEW FUNCTIONALITY
   performance impact if not used carefully.
 - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
+- Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
+  Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
+  NOTE: Test for this requires python psutil module. It will be skipped if not present.
+- Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
+  This can also be set in your Environment().
 - Added a global policy setting and an environment policy variable for specifying the action to
   be taken when an msvc request cannot be satisfied. The available options are "error",
   "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
@@ -101,7 +107,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
         require delayed expansion to be enabled which is currently not supported and is
         typically not enabled by default on the host system. The batch files may also require
         environment variables that are not included by default in the msvc environment.
-
+- Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
+  if scons can determine the ninja file doesnot need to be regenerated, which will also
+  skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
+  if scons Glob or scons generated files are used in ninja build target's command lines.
 FIXES
 -----
 

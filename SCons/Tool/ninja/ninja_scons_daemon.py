@@ -168,6 +168,7 @@ def daemon_thread_func():
         te.start()
 
         daemon_ready = False
+        
         building_node = None
         startup_complete = False
 
@@ -218,12 +219,14 @@ def daemon_thread_func():
                 except queue.Empty:
                     break
                 if "exit" in building_node:
+                    daemon_log("input: " + "exit")
                     p.stdin.write("exit\n".encode("utf-8"))
                     p.stdin.flush()
                     with building_cv:
                         shared_state.finished_building += [building_node]
                     daemon_ready = False
-                    raise
+                    shared_state.daemon_needs_to_shutdown = True
+                    break
 
                 else:
                     input_command = "build " + building_node + "\n"

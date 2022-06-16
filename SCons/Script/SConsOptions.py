@@ -147,11 +147,12 @@ class SConsValues(optparse.Values):
         'warn',
 
         # TODO: Remove these once we update the AddOption() API to allow setting
-        #       added flag as setable.
-        # Requested setable flag in : https://github.com/SCons/scons/issues/3983
+        #       added flag as settable.
+        # Requested settable flag in : https://github.com/SCons/scons/issues/3983
         # From experimental ninja
         'disable_execute_ninja',
-        'disable_ninja'
+        'disable_ninja',
+        'skip_ninja_regen'
     ]
 
     def set_option(self, name, value):

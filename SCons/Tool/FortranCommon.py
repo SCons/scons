@@ -20,7 +20,8 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""SCons.Tool.FortranCommon
+
+"""
 
 Stuff for processing Fortran, common to all fortran dialects.
 
@@ -55,6 +56,7 @@ def isfortran(env, source):
                 return 1
     return 0
 
+
 def _fortranEmitter(target, source, env):
     node = source[0].rfile()
     if not node.exists() and not node.is_derived():
@@ -75,15 +77,18 @@ def _fortranEmitter(target, source, env):
        target.append(env.fs.File(m, moddir))
     return (target, source)
 
+
 def FortranEmitter(target, source, env):
     import SCons.Defaults
     target, source = _fortranEmitter(target, source, env)
     return SCons.Defaults.StaticObjectEmitter(target, source, env)
 
+
 def ShFortranEmitter(target, source, env):
     import SCons.Defaults
     target, source = _fortranEmitter(target, source, env)
     return SCons.Defaults.SharedObjectEmitter(target, source, env)
+
 
 def ComputeFortranSuffixes(suffixes, ppsuffixes):
     """suffixes are fortran source files, and ppsuffixes the ones to be
@@ -97,6 +102,7 @@ def ComputeFortranSuffixes(suffixes, ppsuffixes):
     else:
         suffixes.extend(upper_suffixes)
 
+
 def CreateDialectActions(dialect):
     """Create dialect specific actions."""
     CompAction = SCons.Action.Action('$%sCOM ' % dialect, '$%sCOMSTR' % dialect)
@@ -106,7 +112,8 @@ def CreateDialectActions(dialect):
 
     return CompAction, CompPPAction, ShCompAction, ShCompPPAction
 
-def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_module = 0):
+
+def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_module=False):
     """Add dialect specific construction variables."""
     ComputeFortranSuffixes(suffixes, ppsuffixes)
 
@@ -149,7 +156,7 @@ def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_module = 0):
 
     env['_%sINCFLAGS' % dialect] = '${_concat(INC%sPREFIX, %sPATH, INC%sSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}' % (dialect, dialect, dialect)
 
-    if support_module == 1:
+    if support_module:
         env['%sCOM' % dialect]     = '$%s -o $TARGET -c $%sFLAGS $_%sINCFLAGS $_FORTRANMODFLAG $SOURCES' % (dialect, dialect, dialect)
         env['%sPPCOM' % dialect]   = '$%s -o $TARGET -c $%sFLAGS $CPPFLAGS $_CPPDEFFLAGS $_%sINCFLAGS $_FORTRANMODFLAG $SOURCES' % (dialect, dialect, dialect)
         env['SH%sCOM' % dialect]    = '$SH%s -o $TARGET -c $SH%sFLAGS $_%sINCFLAGS $_FORTRANMODFLAG $SOURCES' % (dialect, dialect, dialect)
@@ -174,7 +181,7 @@ def add_fortran_to_env(env):
         FortranPPSuffixes = ['.fpp', '.FPP']
 
     DialectAddToEnv(env, "FORTRAN", FortranSuffixes,
-                    FortranPPSuffixes, support_module = 1)
+                    FortranPPSuffixes, support_module=True)
 
     env['FORTRANMODPREFIX'] = ''     # like $LIBPREFIX
     env['FORTRANMODSUFFIX'] = '.mod' # like $LIBSUFFIX
@@ -213,7 +220,8 @@ def add_f90_to_env(env):
         F90PPSuffixes = []
 
     DialectAddToEnv(env, "F90", F90Suffixes, F90PPSuffixes,
-                    support_module = 1)
+                    support_module=True)
+
 
 def add_f95_to_env(env):
     """Add Builders and construction variables for f95 to an Environment."""
@@ -229,7 +237,8 @@ def add_f95_to_env(env):
         F95PPSuffixes = []
 
     DialectAddToEnv(env, "F95", F95Suffixes, F95PPSuffixes,
-                    support_module = 1)
+                    support_module=True)
+
 
 def add_f03_to_env(env):
     """Add Builders and construction variables for f03 to an Environment."""
@@ -245,7 +254,8 @@ def add_f03_to_env(env):
         F03PPSuffixes = []
 
     DialectAddToEnv(env, "F03", F03Suffixes, F03PPSuffixes,
-                    support_module = 1)
+                    support_module=True)
+
 
 def add_f08_to_env(env):
     """Add Builders and construction variables for f08 to an Environment."""
@@ -260,7 +270,8 @@ def add_f08_to_env(env):
         F08PPSuffixes = []
 
     DialectAddToEnv(env, "F08", F08Suffixes, F08PPSuffixes,
-                    support_module = 1)
+                    support_module=True)
+
 
 def add_all_to_env(env):
     """Add builders and construction variables for all supported fortran
