@@ -95,22 +95,55 @@ class MSVCVersionNotFound(VisualCException):
 class MSVCArgumentError(VisualCException):
     pass
 
+class MSVCInternalError(VisualCException):
+    pass
+
 class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
 
+class _Manager:
+
+    classrefs = []
+
+    @classmethod
+    def register(cls, classref):
+        cls.classrefs.append(classref)
+
+    @classmethod
+    def reset(cls):
+        debug('reset %s', cls.__name__)
+        for classref in cls.classrefs:
+            for method in ['reset', '_reset']:
+                if not hasattr(classref, method) or not callable(getattr(classref, method, None)):
+                    continue
+                debug('call %s.%s()', classref.__name__, method)
+                func = getattr(classref, method)
+                func()
+
+    @classmethod
+    def verify(cls):
+        debug('verify %s', cls.__name__)
+        for classref in cls.classrefs:
+            for method in ['verify', '_verify']:
+                if not hasattr(classref, method) or not callable(getattr(classref, method, None)):
+                    continue
+                debug('call %s.%s()', classref.__name__, method)
+                func = getattr(classref, method)
+                func()
+
 class _Const:
 
-    BOOLEAN_KEYS = {}
     BOOLEAN_SYMBOLS = {}
+    BOOLEAN_EXTERNAL = {}
 
     for bool, symbol_list in [
         (False, (0, '0', False, 'False', 'FALSE', 'false', 'No',  'NO',  'no',  None, '')),
         (True,  (1, '1', True,  'True',  'TRUE',  'true',  'Yes', 'YES', 'yes')),
     ]:
-        BOOLEAN_KEYS[bool] = symbol_list
+        BOOLEAN_SYMBOLS[bool] = symbol_list
         for symbol in symbol_list:
-            BOOLEAN_SYMBOLS[symbol] = bool
+            BOOLEAN_EXTERNAL[symbol] = bool
 
     MSVC_RUNTIME_DEFINITION = namedtuple('MSVCRuntime', [
         'vc_runtime',
@@ -212,6 +245,8 @@ class _Const:
 
     CL_VERSION_MAP = {}
 
+    MSVC_SDK_VERSIONS = set()
+
     VISUALSTUDIO_DEFINITION = namedtuple('VisualStudioDefinition', [
         'vs_product',
         'vs_product_alias_list',
@@ -292,6 +327,14 @@ class _Const:
         MSVS_VERSION_MAJOR_MAP[vs_version_major] = vs_def
 
         CL_VERSION_MAP[vc_buildtools_def.cl_version] = vs_def
+
+        if not vc_sdk:
+            continue
+
+        MSVC_SDK_VERSIONS.update(vc_sdk)
+
+    # convert string version set to string version list ranked in descending order
+    MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS], reverse=True)]
 
     MSVS_VERSION_LEGACY = {}
     MSVC_VERSION_LEGACY = {}
@@ -1207,9 +1250,7 @@ def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
     global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
-    _MSVCSetupEnvDefault.reset()
-    _WindowsSDK.reset()
-    _ScriptArguments.reset()
+    _Manager.reset()
 
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
@@ -1580,6 +1621,8 @@ class _MSVCSetupEnvDefault:
 
         # return tool list in order presented
         return tools_found_list
+
+_Manager.register(_MSVCSetupEnvDefault)
 
 def get_default_version(env):
     msvc_version = env.get('MSVC_VERSION')
@@ -1956,14 +1999,6 @@ class _Registry:
 
 class _WindowsSDK:
 
-    sdk_map_cache = {}
-    sdk_cache = {}
-
-    @classmethod
-    def reset(cls):
-        cls.sdk_map_cache = {}
-        cls.sdk_cache = {}
-
     @classmethod
     def _new_sdk_map(cls):
         sdk_map = {
@@ -2072,6 +2107,15 @@ class _WindowsSDK:
 
         return sdk_map
 
+    sdk_map_cache = {}
+    sdk_cache = {}
+
+    @classmethod
+    def _reset_sdk_cache(cls):
+        debug('reset %s: sdk cache', cls.__name__)
+        cls._sdk_map_cache = {}
+        cls._sdk_cache = {}
+
     @classmethod
     def _sdk_10(cls, key, reg_version):
         if key in cls.sdk_map_cache:
@@ -2101,13 +2145,28 @@ class _WindowsSDK:
     sdk_dispatch_map = None
 
     @classmethod
+    def _init_sdk_dispatch_map(cls):
+        cls.sdk_dispatch_map = {
+            '10.0': (cls._sdk_10, '10.0'),
+            '8.1': (cls._sdk_81, '8.1'),
+        }
+
+    @classmethod
+    def _verify_sdk_dispatch_map(cls):
+        debug('%s verify sdk_dispatch_map', cls.__name__)
+        cls._init_sdk_dispatch_map()
+        for sdk_version in _Const.MSVC_SDK_VERSIONS:
+            if sdk_version in cls.sdk_dispatch_map:
+                continue
+            err_msg = 'sdk version {} not in {}.sdk_dispatch_map'.format(sdk_version, cls.__name__)
+            raise MSVCInternalError(err_msg)
+        return None
+
+    @classmethod
     def _version_list_sdk_map(cls, version_list):
 
         if not cls.sdk_dispatch_map:
-            cls.sdk_dispatch_map = {
-                '10.0': (cls._sdk_10, '10.0'),
-                '8.1': (cls._sdk_81, '8.1'),
-            }
+            cls._init_sdk_dispatch_map()
 
         sdk_map_list = []
         for version in version_list:
@@ -2132,32 +2191,54 @@ class _WindowsSDK:
         return sdk_map
 
     @classmethod
-    def _get_sdk_version_list(cls, version_list, platform_type):
+    def get_sdk_version_list(cls, version_list, platform_type):
         sdk_map = cls._sdk_map(version_list)
         sdk_list = sdk_map.get(platform_type, [])
         return sdk_list
 
-def get_sdk_versions(MSVC_VERSION=None, MSVC_UWP_APP=False):
+    @classmethod
+    def get_msvc_sdk_version_list(cls, msvc_version=None, msvc_uwp_app=False):
+        debug('msvc_version=%s, msvc_uwp_app=%s', repr(msvc_version), repr(msvc_uwp_app))
 
-    sdk_versions = []
+        sdk_versions = []
 
-    if not MSVC_VERSION:
-        vcs = get_installed_vcs()
-        if not vcs:
+        if not msvc_version:
+            vcs = get_installed_vcs()
+            if not vcs:
+                debug('no msvc versions detected')
+                return sdk_versions
+            msvc_version = vcs[0]
+
+        verstr = get_msvc_version_numeric(msvc_version)
+        vs_def = _Const.MSVC_VERSION_EXTERNAL.get(verstr, None)
+        if not vs_def:
+            debug('vs_def is not defined')
             return sdk_versions
-        MSVC_VERSION = vcs[0]
 
-    verstr = get_msvc_version_numeric(MSVC_VERSION)
-    vs_def = _Const.MSVC_VERSION_EXTERNAL.get(verstr, None)
-    if not vs_def:
+        is_uwp = True if msvc_uwp_app in _Const.BOOLEAN_SYMBOLS[True] else False
+        platform_type = 'uwp' if is_uwp else 'desktop'
+        sdk_list = _WindowsSDK.get_sdk_version_list(vs_def.vc_sdk_versions, platform_type)
+
+        sdk_versions.extend(sdk_list)
+        debug('sdk_versions=%s', repr(sdk_versions))
+
         return sdk_versions
 
-    is_uwp = True if MSVC_UWP_APP in _Const.BOOLEAN_KEYS[True] else False
-    platform_type = 'uwp' if is_uwp else 'desktop'
-    sdk_list = _WindowsSDK._get_sdk_version_list(vs_def.vc_sdk_versions, platform_type)
+    @classmethod
+    def reset(cls):
+        debug('reset %s', cls.__name__)
+        cls._reset_sdk_cache()
 
-    sdk_versions.extend(sdk_list)
-    return sdk_versions
+    @classmethod
+    def verify(cls):
+        debug('verify %s', cls.__name__)
+        cls._verify_sdk_dispatch_map()
+
+_Manager.register(_WindowsSDK)
+
+def get_sdk_versions(MSVC_VERSION=None, MSVC_UWP_APP=False):
+    debug('MSVC_VERSION=%s, MSVC_UWP_APP=%s', repr(MSVC_VERSION), repr(MSVC_UWP_APP))
+    return _WindowsSDK.get_msvc_sdk_version_list(msvc_version=MSVC_VERSION, msvc_uwp_app=MSVC_UWP_APP)
 
 class _ScriptArguments:
 
@@ -2169,6 +2250,16 @@ class _ScriptArguments:
         '10.0': re_sdk_version_100,
         '8.1': re_sdk_version_81,
     }
+
+    @classmethod
+    def _verify_re_sdk_dispatch_map(cls):
+        debug('%s verify re_sdk_dispatch_map', cls.__name__)
+        for sdk_version in _Const.MSVC_SDK_VERSIONS:
+            if sdk_version in cls.re_sdk_dispatch_map:
+                continue
+            err_msg = 'sdk version {} not in {}.re_sdk_dispatch_map'.format(sdk_version, cls.__name__)
+            raise MSVCInternalError(err_msg)
+        return None
 
     # capture msvc version
     re_toolset_version = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9])[0-9.]*$', re.IGNORECASE)
@@ -2252,7 +2343,7 @@ class _ScriptArguments:
         if not uwp_app:
             return None
 
-        if uwp_app not in _Const.BOOLEAN_KEYS[True]:
+        if uwp_app not in _Const.BOOLEAN_SYMBOLS[True]:
             return None
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2015.vc_buildtools_def.vc_version_numeric:
@@ -2339,7 +2430,7 @@ class _ScriptArguments:
         if err_msg:
             raise MSVCArgumentError(err_msg)
 
-        sdk_list = _WindowsSDK._get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
+        sdk_list = _WindowsSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
 
         if sdk_version not in sdk_list:
             err_msg = "MSVC_SDK_VERSION {} not found for platform type {}".format(
@@ -2358,7 +2449,7 @@ class _ScriptArguments:
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2015.vc_buildtools_def.vc_version_numeric:
             return None
 
-        sdk_list = _WindowsSDK._get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
+        sdk_list = _WindowsSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
         if not len(sdk_list):
             return None
 
@@ -2483,14 +2574,14 @@ class _ScriptArguments:
 
         return None
 
-    @classmethod
-    def _reset_toolsets(cls):
-        debug('reset: toolset cache')
-        cls._toolset_version_cache = {}
-        cls._toolset_default_cache = {}
-
     _toolset_version_cache = {}
     _toolset_default_cache = {}
+
+    @classmethod
+    def _reset_toolset_cache(cls):
+        debug('reset %s: toolset cache', cls.__name__)
+        cls._toolset_version_cache = {}
+        cls._toolset_default_cache = {}
 
     @classmethod
     def _msvc_version_toolsets(cls, msvc, vc_dir):
@@ -2852,6 +2943,15 @@ class _ScriptArguments:
 
     @classmethod
     def reset(cls):
-        debug('reset')
-        cls._reset_toolsets()
+        debug('reset %s', cls.__name__)
+        cls._reset_toolset_cache()
 
+    @classmethod
+    def verify(cls):
+        debug('verify %s', cls.__name__)
+        cls._verify_re_sdk_dispatch_map()
+
+_Manager.register(_ScriptArguments)
+
+# internal consistency check
+_Manager.verify()
