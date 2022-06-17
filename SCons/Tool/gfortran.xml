@@ -30,6 +30,20 @@ Sets construction variables for the GNU Fortran compiler.
 Calls the &t-link-fortran; Tool module to set variables.
 </para>
 </summary>
+<sets>
+<item>FORTRAN</item>
+<item>F77</item>
+<item>F90</item>
+<item>F95</item>
+<item>SHFORTRAN</item>
+<item>SHF77</item>
+<item>SHF90</item>
+<item>SHF95</item>
+<item>SHFORTRANFLAGS</item>
+<item>SHF77FLAGS</item>
+<item>SHF90FLAGS</item>
+<item>SHF95FLAGS</item>
+</sets>
 </tool>
 
 </sconsdoc>
