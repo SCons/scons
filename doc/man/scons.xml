@@ -2675,7 +2675,7 @@ and a same-named environment method
 that splits a single string
 into a list, using
 strings of white-space characters as the delimiter
-(similar to the Python string <function>split</function>
+(similar to the &Python; string <function>split</function>
 method, but succeeds even if the input isn't a string).</para>
 
 <para>
@@ -2697,7 +2697,7 @@ env.Program('bar', source='bar.c foo.c'.split())
 Sources and targets can be specified as a a scalar or as a list,
 either of strings or nodes (more on nodes below).
 When specifying path strings,
-Python follows the POSIX pathname convention:
+&Python; follows the POSIX pathname convention:
 if a string begins with the operating system pathname separator
 (on Windows both the slash and backslash separator are accepted,
 and any leading drive specifier is ignored for
@@ -2806,7 +2806,7 @@ env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 
 <para>The optional
 <parameter>parse_flags</parameter>
-keyword argument causes behavior similarly to the
+keyword argument causes behavior similarl to the
 &f-link-env-MergeFlags; method, where the argument value is
 broken into individual settings and merged into the appropriate &consvars;.
 </para>
@@ -2861,15 +2861,13 @@ env.Command('sub/dir/foo.out', 'sub/dir/foo.in', "cp foo.in foo.out", chdir=True
 <emphasis>not</emphasis>
 automatically modify
 its expansion of
-&consvars; like
-<envar>$TARGET</envar>
-and
-<envar>$SOURCE</envar>
+&consvars; like &cv-link-TARGET;
+and &cv-link-SOURCE;
 when using the <parameter>chdir</parameter>
 keyword argument--that is,
 the expanded file names
 will still be relative to
-the top-level directory where &SConstruct; was found,
+the top-level directory where the &SConstruct; was found,
 and consequently incorrect
 relative to the chdir directory.
 If you use the <parameter>chdir</parameter> keyword argument,
@@ -2880,7 +2878,7 @@ expansions like
 and
 <literal>${SOURCE.file}</literal>
 to use just the filename portion of the
-targets and source.</para>
+target and source.</para>
 
 <para>Keyword arguments that are not specifically
 recognized are treated as &consvar;
@@ -2911,7 +2909,7 @@ env.SharedLibrary(
 and &cv-link-LIBSUFFIXES;
 &consvars; must be set if you want &scons; to search automatically
 for dependencies on the non-standard library names;
-see the descriptions below of these variables for more information.</para>
+see the descriptions of these variables for more information.</para>
 
 <para>Although the builder methods defined by
 &scons;
@@ -2930,11 +2928,11 @@ SharedLibrary('word', 'word.cpp')
 has determined are appropriate for the local system.</para>
 
 <para>Builder methods that can be called without an explicit
-environment (indicated in the listing of builders without
-a leading <varname>env.</varname>)
-may be called from custom Python modules that you
+environment (indicated in the listing of builders below 
+without a leading <varname>env.</varname>)
+may be called from custom &Python; modules that you
 import into an SConscript file by adding the following
-to the Python module:</para>
+to the &Python; module:</para>
 
 <programlisting language="python">
 from SCons.Script import *
@@ -2942,17 +2940,17 @@ from SCons.Script import *
 
 <para>
 A builder <emphasis>may</emphasis> add additional targets
-(and, in fact, sources) beyond those requested,
+beyond those requested
 if an attached <firstterm>Emitter</firstterm> chooses to do so
-(see <xref linkend="builder_objects"/> and, as an example,
-&cv-link-PROGEMITTER;, for more information).
+(see <xref linkend="builder_objects"/> for more information.
+&cv-link-PROGEMITTER; is an example).
 For example, the GNU linker takes a command-line argument
 <option>-Map=<replaceable>mapfile</replaceable></option>,
 which causes it to produce a linker map file in addition
 to the executable file actually being linked.
 If the &b-link-Program; builder's emitter is configured
 to add this mapfile if the option is set,
-two targets will be returned when you only asked for one.
+then two targets will be returned when you only asked for one.
 </para>
 
 <para>
@@ -3000,7 +2998,7 @@ contain elements which are themselves lists, such as
 <varname>bar_obj_list</varname>
 returned by the &b-link-StaticObject; call.
 If you need to manipulate a list of lists returned by builders
-directly in Python code,
+directly in &Python; code,
 you can either build a new list by hand:</para>
 
 <programlisting language="python">
@@ -3025,19 +3023,19 @@ for obj in objects:
 </programlisting>
 
 <para>Since builder calls return
-a list-like object, not an actual Python list,
-it is not appropriate to use the Python add
+a list-like object, not an actual &Python; list,
+it is not appropriate to use the &Python; add
 operator (<literal>+</literal> or <literal>+=</literal>)
-to append builder results to a Python list.
+to append builder results to a &Python; list.
 Because the list and the object are different types,
-Python will not update the original list in place,
+&Python; will not update the original list in place,
 but will instead create a new <classname>NodeList</classname> object
 containing the concatenation of the list
 elements and the builder results.
-This will cause problems for any other Python variables
+This will cause problems for any other &Python; variables
 in your SCons configuration
 that still hold on to a reference to the original list.
-Instead, use the Python list
+Instead, use the &Python; list
 <function>extend</function>
 method to make sure the list is updated in-place.
 Example:</para>
@@ -3055,7 +3053,7 @@ object_files.extend(Object('bar.c'))
 </programlisting>
 
 <para>The path name for a Node's file may be used
-by passing the Node to Python's builtin
+by passing the Node to &Python;'s builtin
 <function>str</function>
 function:</para>
 
