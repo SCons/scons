@@ -37,7 +37,6 @@ from ..common import (
     debug,
 )
 
-from . import Dispatcher
 from . import Util
 from . import Config
 from . import WinSDK
@@ -47,7 +46,9 @@ from .Exceptions import (
     MSVCArgumentError,
 )
 
+from . import Dispatcher
 Dispatcher.register_modulename(__name__)
+
 
 # TODO: verify SDK 10 version folder names 10.0.XXXXX.0 {1,3} last?
 re_sdk_version_100 = re.compile(r'^10[.][0-9][.][0-9]{5}[.][0-9]{1}$')

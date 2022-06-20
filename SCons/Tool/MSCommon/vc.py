@@ -61,8 +61,14 @@ from .common import CONFIG_CACHE, debug
 from .sdk import get_installed_sdks
 
 from . import MSVC
+
 from .MSVC.Exceptions import (
     VisualCException
+)
+
+from .MSVC.NotFound import (
+    set_msvc_notfound_policy,
+    get_msvc_notfound_policy,
 )
 
 class UnsupportedVersion(VisualCException):

@@ -31,6 +31,7 @@ from ..common import (
     debug,
 )
 
+
 _refs = []
 
 def register_class(ref):

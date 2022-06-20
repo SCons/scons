@@ -36,14 +36,15 @@ from ..common import (
     debug,
 )
 
-from . import Dispatcher
 from . import Config
 
 from .Exceptions import (
     MSVCVersionNotFound,
 )
 
+from . import Dispatcher
 Dispatcher.register_modulename(__name__)
+
 
 _MSVC_NOTFOUND_POLICY_DEF = Config.MSVC_NOTFOUND_POLICY_INTERNAL['warning']
 

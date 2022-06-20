@@ -28,8 +28,6 @@ Functions for Microsoft Visual C/C++.
 from . import Exceptions
 from . import Util
 
-from . import Dispatcher as _Dispatcher
-
 from . import Config
 from . import Registry
 from . import SetupEnvDefault
@@ -37,10 +35,7 @@ from . import NotFound
 from . import WinSDK
 from . import ScriptArguments
 
-from .NotFound import (
-    set_msvc_notfound_policy,
-    get_msvc_notfound_policy,
-)
+from . import Dispatcher as _Dispatcher
 
 def reset():
     _Dispatcher.reset()

@@ -30,8 +30,8 @@ from collections import (
 )
 
 from . import Dispatcher
-
 Dispatcher.register_modulename(__name__)
+
 
 UNDEFINED = object()
 

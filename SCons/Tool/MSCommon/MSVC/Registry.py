@@ -39,10 +39,11 @@ from .. common import (
     read_reg,
 )
 
-from . import Dispatcher
 from . import Util
 
+from . import Dispatcher
 Dispatcher.register_modulename(__name__)
+
 
 def read_value(hkey, subkey_valname):
     try:

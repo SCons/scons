@@ -32,18 +32,12 @@ import SCons.Util
 
 from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
 
-from SCons.Tool.MSCommon.MSVC import (
-    set_msvc_notfound_policy,
-    get_msvc_notfound_policy,
-)
-
 from SCons.Tool.MSCommon.vc import (
     msvc_exists,
     msvc_setup_env_tool,
     msvc_setup_env_once,
     msvc_version_to_maj_min,
     msvc_find_vswhere,
-    get_msvc_sdk_versions,
 )
 
 from SCons.Tool.MSCommon.vs import (

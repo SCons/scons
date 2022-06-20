@@ -31,7 +31,6 @@ from ..common import (
     debug,
 )
 
-from . import Dispatcher
 from . import Util
 from . import Config
 from . import Registry
@@ -40,7 +39,9 @@ from .Exceptions import (
     MSVCInternalError,
 )
 
+from . import Dispatcher
 Dispatcher.register_modulename(__name__)
+
 
 def _new_sdk_map():
     sdk_map = {

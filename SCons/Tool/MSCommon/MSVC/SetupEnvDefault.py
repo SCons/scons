@@ -44,8 +44,8 @@ from .. common import (
 )
 
 from . import Dispatcher
-
 Dispatcher.register_modulename(__name__)
+
 
 class _Data:
 
