@@ -1107,7 +1107,7 @@ def msvc_setup_env_once(env, tool=None):
         msg = "No versions of the MSVC compiler were found.\n" \
               "  Visual Studio C/C++ compilers may not be set correctly.\n" \
               "  Requested tool(s) are: {}".format(req_tools)
-        MSVC.Notfound.policy_handler(env, msg)
+        MSVC.NotFound.policy_handler(env, msg)
 
 def msvc_find_valid_batch_script(env, version):
     """Find and execute appropriate batch script to set up build env.
