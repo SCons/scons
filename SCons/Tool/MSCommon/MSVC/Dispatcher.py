@@ -22,40 +22,41 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Common functions for Microsoft Visual Studio and Visual C/C++.
+Internal method dispatcher for Microsoft Visual C/C++.
 """
 
+import sys
 
-import SCons.Errors
-import SCons.Platform.win32
-import SCons.Util
-
-from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
-
-from SCons.Tool.MSCommon.MSVC import (
-    set_msvc_notfound_policy,
-    get_msvc_notfound_policy,
+from ..common import (
+    debug,
 )
 
-from SCons.Tool.MSCommon.vc import (
-    msvc_exists,
-    msvc_setup_env_tool,
-    msvc_setup_env_once,
-    msvc_version_to_maj_min,
-    msvc_find_vswhere,
-    get_msvc_sdk_versions,
-)
+_refs = []
 
-from SCons.Tool.MSCommon.vs import (
-    get_default_version,
-    get_vs_by_version,
-    merge_default_version,
-    msvs_exists,
-    query_versions,
-)
+def register_class(ref):
+    _refs.append(ref)
 
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
+def register_modulename(modname):
+    module = sys.modules[modname]
+    _refs.append(module)
+
+def reset():
+    debug('')
+    for ref in _refs:
+        for method in ['reset', '_reset']:
+            if not hasattr(ref, method) or not callable(getattr(ref, method, None)):
+                continue
+            debug('call %s.%s()', ref.__name__, method)
+            func = getattr(ref, method)
+            func()
+
+def verify():
+    debug('')
+    for ref in _refs:
+        for method in ['verify', '_verify']:
+            if not hasattr(ref, method) or not callable(getattr(ref, method, None)):
+                continue
+            debug('call %s.%s()', ref.__name__, method)
+            func = getattr(ref, method)
+            func()
+

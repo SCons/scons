@@ -22,40 +22,34 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Common functions for Microsoft Visual Studio and Visual C/C++.
+Helper functions for Microsoft Visual C/C++.
 """
 
+import os
+import re
 
-import SCons.Errors
-import SCons.Platform.win32
-import SCons.Util
+def listdir_dirs(p):
+    dirs = []
+    for dir_name in os.listdir(p):
+        dir_path = os.path.join(p, dir_name)
+        if os.path.isdir(dir_path):
+            dirs.append((dir_name, dir_path))
+    return dirs
 
-from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
+def process_path(p):
+    if p:
+        p = os.path.normpath(p)
+        p = os.path.realpath(p)
+        p = os.path.normcase(p)
+    return p
 
-from SCons.Tool.MSCommon.MSVC import (
-    set_msvc_notfound_policy,
-    get_msvc_notfound_policy,
-)
+re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*')
 
-from SCons.Tool.MSCommon.vc import (
-    msvc_exists,
-    msvc_setup_env_tool,
-    msvc_setup_env_once,
-    msvc_version_to_maj_min,
-    msvc_find_vswhere,
-    get_msvc_sdk_versions,
-)
+def get_version_prefix(version):
+    m = re_version_prefix.match(version)
+    if m:
+        rval = m.group('version')
+    else:
+        rval = ''
+    return rval
 
-from SCons.Tool.MSCommon.vs import (
-    get_default_version,
-    get_vs_by_version,
-    merge_default_version,
-    msvs_exists,
-    query_versions,
-)
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

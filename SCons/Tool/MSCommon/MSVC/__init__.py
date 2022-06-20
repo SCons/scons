@@ -22,40 +22,29 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Common functions for Microsoft Visual Studio and Visual C/C++.
+Functions for Microsoft Visual C/C++.
 """
 
+from . import Exceptions
+from . import Util
 
-import SCons.Errors
-import SCons.Platform.win32
-import SCons.Util
+from . import Dispatcher as _Dispatcher
 
-from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
+from . import Config
+from . import Registry
+from . import SetupEnvDefault
+from . import NotFound
+from . import WinSDK
+from . import ScriptArguments
 
-from SCons.Tool.MSCommon.MSVC import (
+from .NotFound import (
     set_msvc_notfound_policy,
     get_msvc_notfound_policy,
 )
 
-from SCons.Tool.MSCommon.vc import (
-    msvc_exists,
-    msvc_setup_env_tool,
-    msvc_setup_env_once,
-    msvc_version_to_maj_min,
-    msvc_find_vswhere,
-    get_msvc_sdk_versions,
-)
+def reset():
+    _Dispatcher.reset()
 
-from SCons.Tool.MSCommon.vs import (
-    get_default_version,
-    get_vs_by_version,
-    merge_default_version,
-    msvs_exists,
-    query_versions,
-)
+#reset() # testing
+_Dispatcher.verify()
 
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
