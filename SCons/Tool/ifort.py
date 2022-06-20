@@ -22,16 +22,13 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-
 Tool-specific initialization for newer versions of the Intel Fortran Compiler
 for Linux/Windows (and possibly Mac OS X).
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
-
 
 import SCons.Defaults
 from SCons.Scanner.Fortran import FortranScan
@@ -61,18 +58,18 @@ def generate(env):
     fc = 'ifort'
 
     for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
-        env['%s' % dialect] = fc
-        env['SH%s' % dialect] = '$%s' % dialect
+        env[f'{dialect}'] = fc
+        env[f'SH{dialect}'] = f'${dialect}'
         if env['PLATFORM'] == 'posix':
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS -fPIC')
 
     if env['PLATFORM'] == 'win32':
         # On Windows, the ifort compiler specifies the object on the
         # command line with -object:, not -o.  Massage the necessary
         # command-line construction variables.
         for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
-            for var in ['%sCOM' % dialect, '%sPPCOM' % dialect,
-                        'SH%sCOM' % dialect, 'SH%sPPCOM' % dialect]:
+            for var in [f'{dialect}COM', f'{dialect}PPCOM',
+                        f'SH{dialect}COM', f'SH{dialect}PPCOM']:
                 env[var] = env[var].replace('-o $TARGET', '-object:$TARGET')
         env['FORTRANMODDIRPREFIX'] = "/module:"
     else:

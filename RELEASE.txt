@@ -43,6 +43,8 @@ NEW FUNCTIONALITY
   is taken and the constructed environment is likely incomplete.  As implemented, the default
   global policy is "warning".  The ability to set the global policy via an SCons command-line
   option may be added in a future enhancement.
+- Fortran: a new construction variable FORTRANCOMMONFLAGS is added which is
+  applied to all Fortran dialects, to enable global (all-dialect) settings.
 
 
 DEPRECATED FUNCTIONALITY

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+Copyright The SCons Foundation
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -26,7 +26,8 @@ See its __doc__ string for a discussion of the format.
 <tool name="gfortran">
 <summary>
 <para>
-Sets construction variables for the GNU F95/F2003 GNU compiler.
+Sets construction variables for the GNU Fortran compiler.
+Calls the &t-link-fortran; Tool module to set variables.
 </para>
 </summary>
 <sets>
