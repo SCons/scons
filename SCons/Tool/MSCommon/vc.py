@@ -1920,7 +1920,7 @@ def get_msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
         debug('no msvc versions detected')
         return rval
 
-    rval = MSVC.WinSDK.get_msvc_sdk_version_list(msvc_version, msvc_uwp_app)
+    rval = _WindowsSDK.get_msvc_sdk_version_list(msvc_version, msvc_uwp_app)
     return rval
 
 class _Util:
