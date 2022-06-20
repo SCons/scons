@@ -132,7 +132,7 @@ class _Dispatcher:
                 func = getattr(classref, method)
                 func()
 
-class _Const:
+class _Config:
 
     BOOLEAN_SYMBOLS = {}
     BOOLEAN_EXTERNAL = {}
@@ -1255,6 +1255,12 @@ def reset_installed_vcs():
     __INSTALLED_VCS_RUN = None
     _Dispatcher.reset()
 
+def get_default_installed_msvc(env=None):
+    vcs = get_installed_vcs(env)
+    msvc_version = vcs[0] if vcs else None
+    debug('msvc_version=%s', repr(msvc_version))
+    return msvc_version
+
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
 # in multiple environments, for example:
@@ -1648,13 +1654,11 @@ def get_default_version(env):
         return msvs_version
 
     if not msvc_version:
-        installed_vcs = get_installed_vcs(env)
-        debug('installed_vcs:%s', installed_vcs)
-        if not installed_vcs:
+        msvc_version = get_default_installed_msvc(env)
+        if not msvc_version:
             #SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
             debug('No installed VCs')
             return None
-        msvc_version = installed_vcs[0]
         debug('using default installed MSVC version %s', repr(msvc_version))
     else:
         debug('using specified MSVC version %s', repr(msvc_version))
@@ -1769,13 +1773,9 @@ def msvc_find_valid_batch_script(env, version):
 
     return d
 
-_undefined = None
+_UNDEFINED = object()
 
 def get_use_script_use_settings(env):
-    global _undefined
-
-    if _undefined is None:
-        _undefined = object()
 
     #   use_script  use_settings   return values   action
     #     value       ignored      (value, None)   use script or bypass detection
@@ -1784,9 +1784,9 @@ def get_use_script_use_settings(env):
 
     # None (documentation) or evaluates False (code): bypass detection
     # need to distinguish between undefined and None
-    use_script = env.get('MSVC_USE_SCRIPT', _undefined)
+    use_script = env.get('MSVC_USE_SCRIPT', _UNDEFINED)
 
-    if use_script != _undefined:
+    if use_script != _UNDEFINED:
         # use_script defined, use_settings ignored (not type checked)
         return (use_script, None)
 
@@ -1906,6 +1906,21 @@ def msvc_setup_env_tool(env=None, version=None, tool=None):
     if not rval and msvc_setup_env_user(env):
         rval = True
     debug('tool=%s, version=%s, return=%s', repr(tool), repr(version), rval)
+    return rval
+
+def get_msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
+    debug('msvc_version=%s, msvc_uwp_app=%s', repr(msvc_version), repr(msvc_uwp_app))
+
+    rval = []
+
+    if not msvc_version:
+        msvc_version = get_default_installed_msvc()
+
+    if not msvc_version:
+        debug('no msvc versions detected')
+        return rval
+
+    rval = MSVC.WinSDK.get_msvc_sdk_version_list(msvc_version, msvc_uwp_app)
     return rval
 
 class _Util:
@@ -2158,7 +2173,7 @@ class _WindowsSDK:
     def _verify_sdk_dispatch_map(cls):
         debug('%s verify sdk_dispatch_map', cls.__name__)
         cls._init_sdk_dispatch_map()
-        for sdk_version in _Const.MSVC_SDK_VERSIONS:
+        for sdk_version in _Config.MSVC_SDK_VERSIONS:
             if sdk_version in cls.sdk_dispatch_map:
                 continue
             err_msg = 'sdk version {} not in {}.sdk_dispatch_map'.format(sdk_version, cls.__name__)
@@ -2205,20 +2220,13 @@ class _WindowsSDK:
 
         sdk_versions = []
 
-        if not msvc_version:
-            vcs = get_installed_vcs()
-            if not vcs:
-                debug('no msvc versions detected')
-                return sdk_versions
-            msvc_version = vcs[0]
-
         verstr = get_msvc_version_numeric(msvc_version)
-        vs_def = _Const.MSVC_VERSION_EXTERNAL.get(verstr, None)
+        vs_def = _Config.MSVC_VERSION_EXTERNAL.get(verstr, None)
         if not vs_def:
             debug('vs_def is not defined')
             return sdk_versions
 
-        is_uwp = True if msvc_uwp_app in _Const.BOOLEAN_SYMBOLS[True] else False
+        is_uwp = True if msvc_uwp_app in _Config.BOOLEAN_SYMBOLS[True] else False
         platform_type = 'uwp' if is_uwp else 'desktop'
         sdk_list = _WindowsSDK.get_sdk_version_list(vs_def.vc_sdk_versions, platform_type)
 
@@ -2239,10 +2247,6 @@ class _WindowsSDK:
 
 _Dispatcher.register(_WindowsSDK)
 
-def get_sdk_versions(MSVC_VERSION=None, MSVC_UWP_APP=False):
-    debug('MSVC_VERSION=%s, MSVC_UWP_APP=%s', repr(MSVC_VERSION), repr(MSVC_UWP_APP))
-    return _WindowsSDK.get_msvc_sdk_version_list(msvc_version=MSVC_VERSION, msvc_uwp_app=MSVC_UWP_APP)
-
 class _ScriptArguments:
 
     # TODO: verify SDK 10 version folder names 10.0.XXXXX.0 {1,3} last?
@@ -2257,7 +2261,7 @@ class _ScriptArguments:
     @classmethod
     def _verify_re_sdk_dispatch_map(cls):
         debug('%s verify re_sdk_dispatch_map', cls.__name__)
-        for sdk_version in _Const.MSVC_SDK_VERSIONS:
+        for sdk_version in _Config.MSVC_SDK_VERSIONS:
             if sdk_version in cls.re_sdk_dispatch_map:
                 continue
             err_msg = 'sdk version {} not in {}.re_sdk_dispatch_map'.format(sdk_version, cls.__name__)
@@ -2315,9 +2319,9 @@ class _ScriptArguments:
         SPECTRE = 4  # MSVC_SPECTRE_LIBS
         USER = 5     # MSVC_SCRIPT_ARGS
 
-    VS2019 = _Const.MSVS_VERSION_INTERNAL['2019']
-    VS2017 = _Const.MSVS_VERSION_INTERNAL['2017']
-    VS2015 = _Const.MSVS_VERSION_INTERNAL['2015']
+    VS2019 = _Config.MSVS_VERSION_INTERNAL['2019']
+    VS2017 = _Config.MSVS_VERSION_INTERNAL['2017']
+    VS2015 = _Config.MSVS_VERSION_INTERNAL['2015']
 
     MSVC_VERSION_ARGS_DEFINITION = namedtuple('MSVCVersionArgsDefinition', [
         'version', # fully qualified msvc version (e.g., '14.1Exp')
@@ -2328,7 +2332,7 @@ class _ScriptArguments:
     def _msvc_version(cls, version):
 
         verstr = get_msvc_version_numeric(version)
-        vs_def = _Const.MSVC_VERSION_INTERNAL[verstr]
+        vs_def = _Config.MSVC_VERSION_INTERNAL[verstr]
 
         version_args = cls.MSVC_VERSION_ARGS_DEFINITION(
             version = version,
@@ -2346,7 +2350,7 @@ class _ScriptArguments:
         if not uwp_app:
             return None
 
-        if uwp_app not in _Const.BOOLEAN_SYMBOLS[True]:
+        if uwp_app not in _Config.BOOLEAN_SYMBOLS[True]:
             return None
 
         if msvc.vs_def.vc_buildtools_def.vc_version_numeric < cls.VS2015.vc_buildtools_def.vc_version_numeric:

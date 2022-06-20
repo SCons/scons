@@ -40,6 +40,7 @@ from SCons.Tool.MSCommon.vc import (
     msvc_find_vswhere,
     set_msvc_notfound_policy,
     get_msvc_notfound_policy,
+    get_msvc_sdk_versions,
 )
 
 from SCons.Tool.MSCommon.vs import (
