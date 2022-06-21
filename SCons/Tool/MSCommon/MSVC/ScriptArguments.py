@@ -373,6 +373,8 @@ _toolset_version_cache = {}
 _toolset_default_cache = {}
 
 def _reset_toolset_cache():
+    global _toolset_version_cache
+    global _toolset_default_cache
     debug('reset: toolset cache')
     _toolset_version_cache = {}
     _toolset_default_cache = {}

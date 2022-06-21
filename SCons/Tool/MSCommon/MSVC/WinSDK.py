@@ -152,6 +152,8 @@ _sdk_map_cache = {}
 _sdk_cache = {}
 
 def _reset_sdk_cache():
+    global _sdk_map_cache
+    global _sdk_cache
     debug('')
     _sdk_map_cache = {}
     _sdk_cache = {}

@@ -30,8 +30,6 @@ import os
 from SCons.Util import (
     HKEY_LOCAL_MACHINE,
     HKEY_CURRENT_USER,
-    HKEY_LOCAL_MACHINE,
-    HKEY_CURRENT_USER,
 )
 
 from .. common import (
