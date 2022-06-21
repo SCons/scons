@@ -73,7 +73,6 @@ def _initialize(env, msvc_exists_func):
         debug('msvc default:msvc_installed=%s', _Data.msvc_installed)
 
 def register_tool(env, tool, msvc_exists_func):
-    debug('msvc default:tool=%s', tool)
     if _Data.need_init:
         _initialize(env, msvc_exists_func)
     if _Data.msvc_installed:
@@ -90,7 +89,6 @@ def register_tool(env, tool, msvc_exists_func):
         debug('msvc default:tool=%s, msvc_tools=%s', tool, _Data.msvc_tools)
 
 def register_setup(env, msvc_exists_func):
-    debug('msvc default')
     if _Data.need_init:
         _initialize(env, msvc_exists_func)
     _Data.n_setup += 1

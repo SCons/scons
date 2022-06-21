@@ -1102,7 +1102,6 @@ def msvc_setup_env_once(env, tool=None):
         has_run = False
 
     if not has_run:
-        debug('tool=%s', repr(tool))
         MSVC.SetupEnvDefault.register_setup(env, msvc_exists)
         msvc_setup_env(env)
         env["MSVC_SETUP_RUN"] = True
@@ -1285,13 +1284,13 @@ def msvc_setup_env(env):
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
-    debug('version=%s', repr(version))
     vcs = get_installed_vcs(env)
     if version is None:
         rval = len(vcs) > 0
     else:
         rval = version in vcs
-    debug('version=%s, return=%s', repr(version), rval)
+    if not rval:
+        debug('version=%s, return=%s', repr(version), rval)
     return rval
 
 def msvc_setup_env_user(env=None):
@@ -1336,14 +1335,12 @@ def msvc_setup_env_user(env=None):
     return rval
 
 def msvc_setup_env_tool(env=None, version=None, tool=None):
-    debug('tool=%s, version=%s', repr(tool), repr(version))
     MSVC.SetupEnvDefault.register_tool(env, tool, msvc_exists)
     rval = False
     if not rval and msvc_exists(env, version):
         rval = True
     if not rval and msvc_setup_env_user(env):
         rval = True
-    debug('tool=%s, version=%s, return=%s', repr(tool), repr(version), rval)
     return rval
 
 def get_msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
