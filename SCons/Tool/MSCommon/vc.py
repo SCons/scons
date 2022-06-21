@@ -95,8 +95,8 @@ class MSVCScriptNotFound(VisualCException):
 class MSVCUseSettingsError(VisualCException):
     pass
 
-class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
-    pass
+#class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
+#    pass
 
 
 # Dict to 'canonalize' the arch
@@ -1055,7 +1055,7 @@ def script_env(script, args=None):
                 # detected errors, cl.exe on path
                 debug('script=%s args=%s errors=%s', repr(script), repr(args), script_errmsg)
                 # This may be a bad idea (scons environment != vs cmdline environment)
-                SCons.Warnings.warn(BatchFileExecutionWarning, script_errmsg)
+                #SCons.Warnings.warn(BatchFileExecutionWarning, script_errmsg)
                 # TODO: errlog/errstr should be added to cache and warning moved to call site
 
         # once we updated cache, give a chance to write out if user wanted
