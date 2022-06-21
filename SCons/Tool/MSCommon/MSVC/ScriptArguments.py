@@ -50,6 +50,9 @@ from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
 
+# MSVC_UWP_APP argument: boolean True
+_UWP_ARGUMENT_BOOLEAN_TRUE = (True, '1')
+
 # TODO: verify SDK 10 version folder names 10.0.XXXXX.0 {1,3} last?
 re_sdk_version_100 = re.compile(r'^10[.][0-9][.][0-9]{5}[.][0-9]{1}$')
 re_sdk_version_81 = re.compile(r'^8[.]1$')
@@ -91,10 +94,10 @@ re_vcvars_toolset = re.compile(r'(?:(?<!\S)|^)(?P<toolset_arg>(?:[-]{1,2}|[/])vc
 re_vcvars_spectre = re.compile(r'(?:(?<!\S)|^)(?P<spectre_arg>(?:[-]{1,2}|[/])vcvars_spectre_libs[=](?P<spectre>\S*))(?:(?!\S)|$)',re.IGNORECASE)
 
 # Force default sdk argument
-MSVC_FORCE_DEFAULT_SDK = False
+_MSVC_FORCE_DEFAULT_SDK = False
 
 # Force default toolset argument
-MSVC_FORCE_DEFAULT_TOOLSET = False
+_MSVC_FORCE_DEFAULT_TOOLSET = False
 
 # MSVC batch file arguments:
 #
@@ -148,7 +151,7 @@ def _msvc_script_argument_uwp(env, msvc, arglist):
     if not uwp_app:
         return None
 
-    if uwp_app not in Config.BOOLEAN_SYMBOLS[True]:
+    if uwp_app not in _UWP_ARGUMENT_BOOLEAN_TRUE:
         return None
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
@@ -691,7 +694,7 @@ def msvc_script_arguments(env, version, vc_dir, arg):
     else:
         user_sdk = None
 
-    if MSVC_FORCE_DEFAULT_SDK:
+    if _MSVC_FORCE_DEFAULT_SDK:
         if not sdk_version and not user_sdk:
             sdk_version = _msvc_script_default_sdk(env, msvc, platform_type, arglist)
 
@@ -705,7 +708,7 @@ def msvc_script_arguments(env, version, vc_dir, arg):
     else:
         user_toolset = None
 
-    if MSVC_FORCE_DEFAULT_TOOLSET:
+    if _MSVC_FORCE_DEFAULT_TOOLSET:
         if not toolset_version and not user_toolset:
             toolset_version = _msvc_script_default_toolset(env, msvc, vc_dir, arglist)
 

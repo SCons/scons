@@ -25,15 +25,15 @@
 Functions for Microsoft Visual C/C++.
 """
 
-from . import Exceptions
-from . import Util
+from . import Exceptions  # noqa: F401
+from . import Util  # noqa: F401
 
-from . import Config
-from . import Registry
-from . import SetupEnvDefault
-from . import NotFound
-from . import WinSDK
-from . import ScriptArguments
+from . import Config  # noqa: F401
+from . import Registry  # noqa: F401
+from . import SetupEnvDefault  # noqa: F401
+from . import NotFound  # noqa: F401
+from . import WinSDK  # noqa: F401
+from . import ScriptArguments  # noqa: F401
 
 from . import Dispatcher as _Dispatcher
 

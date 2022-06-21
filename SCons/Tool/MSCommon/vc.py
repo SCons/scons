@@ -67,8 +67,8 @@ from .MSVC.Exceptions import (
 )
 
 from .MSVC.NotFound import (
-    set_msvc_notfound_policy,
-    get_msvc_notfound_policy,
+    set_msvc_notfound_policy,  # noqa: F401
+    get_msvc_notfound_policy,  # noqa: F401
 )
 
 class UnsupportedVersion(VisualCException):
