@@ -66,7 +66,7 @@ from .MSVC.Exceptions import (
     VisualCException
 )
 
-# msvc test(s) expect avaiable via vc
+# msvc test(s) expect notfound policy available via vc
 from .MSVC.NotFound import set_msvc_notfound_policy  # noqa: F401
 from .MSVC.NotFound import get_msvc_notfound_policy  # noqa: F401
 
