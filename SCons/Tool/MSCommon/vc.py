@@ -66,10 +66,9 @@ from .MSVC.Exceptions import (
     VisualCException
 )
 
-from .MSVC.NotFound import (
-    set_msvc_notfound_policy,
-    get_msvc_notfound_policy,
-)  # noqa: F401
+# msvc test(s) expect avaiable via vc
+from .MSVC.NotFound import set_msvc_notfound_policy  # noqa: F401
+from .MSVC.NotFound import get_msvc_notfound_policy  # noqa: F401
 
 class UnsupportedVersion(VisualCException):
     pass
