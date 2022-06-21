@@ -58,8 +58,9 @@ if CONFIG_CACHE:
     if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in Config.BOOLEAN_SYMBOLS[True]:
         _SCONS_CACHE_MSVC_FORCE_DEFAULTS = True
 
-# MSVC_UWP_APP argument: boolean True
-_UWP_ARGUMENT_BOOLEAN_TRUE = (True, '1')
+# Script argument: boolean True
+_ARGUMENT_BOOLEAN_TRUE_LEGACY = (True, '1') # MSVC_UWP_APP
+_ARGUMENT_BOOLEAN_TRUE = (True,)
 
 # TODO: verify SDK 10 version folder names 10.0.XXXXX.0 {1,3} last?
 re_sdk_version_100 = re.compile(r'^10[.][0-9][.][0-9]{5}[.][0-9]{1}$')
@@ -173,7 +174,7 @@ def _msvc_script_argument_uwp(env, msvc, arglist):
     if not uwp_app:
         return None
 
-    if uwp_app not in _UWP_ARGUMENT_BOOLEAN_TRUE:
+    if uwp_app not in _ARGUMENT_BOOLEAN_TRUE_LEGACY:
         return None
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
@@ -610,7 +611,7 @@ def _msvc_script_argument_spectre(env, msvc, arglist):
     if not spectre_libs:
         return None
 
-    if spectre_libs not in (True, '1'):
+    if spectre_libs not in _ARGUMENT_BOOLEAN_TRUE:
         return None
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:

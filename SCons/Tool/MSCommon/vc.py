@@ -1300,12 +1300,20 @@ def msvc_setup_env_user(env=None):
     if env:
 
         # Intent is to use msvc tools:
-        #     MSVC_VERSION or MSVS_VERSION: defined and is True
-        #     MSVC_USE_SCRIPT:   defined and (is string or is False)
-        #     MSVC_USE_SETTINGS: defined and is not None
+        #     MSVC_VERSION:         defined and evaluates True
+        #     MSVS_VERSION:         defined and evaluates True
+        #     MSVC_TOOLSET_VERSION: defined and evaluates True
+        #     MSVC_USE_SCRIPT:      defined and (is string or evaluates False)
+        #     MSVC_USE_SETTINGS:    defined and is not None
+
+        # Arguments possibly present but not considered:
+        #     MSVC_SDK_VERSION
+        #     MSVC_UWP_APP
+        #     MSVC_SPECTRE_LIBS
+        #     MSVC_SCRIPT_ARGS
 
         # defined and is True
-        for key in ['MSVC_VERSION', 'MSVS_VERSION']:
+        for key in ['MSVC_VERSION', 'MSVS_VERSION', 'MSVC_TOOLSET_VERSION']:
             if key in env and env[key]:
                 rval = True
                 debug('key=%s, return=%s', repr(key), rval)
