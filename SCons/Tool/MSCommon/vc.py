@@ -1304,14 +1304,8 @@ def msvc_setup_env_user(env=None):
         #     MSVC_USE_SCRIPT:      defined and (is string or evaluates False)
         #     MSVC_USE_SETTINGS:    defined and is not None
 
-        # Arguments possibly present but not considered:
-        #     MSVC_SDK_VERSION
-        #     MSVC_UWP_APP
-        #     MSVC_SPECTRE_LIBS
-        #     MSVC_SCRIPT_ARGS
-
         # defined and is True
-        for key in ['MSVC_VERSION', 'MSVS_VERSION', 'MSVC_TOOLSET_VERSION']:
+        for key in ['MSVC_VERSION', 'MSVS_VERSION']:
             if key in env and env[key]:
                 rval = True
                 debug('key=%s, return=%s', repr(key), rval)
