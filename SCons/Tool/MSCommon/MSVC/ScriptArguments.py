@@ -34,7 +34,7 @@ from collections import (
 )
 
 from ..common import (
-    CONFIG_CACHE,
+    CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS,
     debug,
 )
 
@@ -50,13 +50,6 @@ from .Exceptions import (
 from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
-
-# Force default SDK and toolset arguments in cache
-_SCONS_CACHE_MSVC_FORCE_DEFAULTS = False
-if CONFIG_CACHE:
-    # SCONS_CACHE_MSVC_FORCE_DEFAULTS is internal and not documented.
-    if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in Config.BOOLEAN_SYMBOLS[True]:
-        _SCONS_CACHE_MSVC_FORCE_DEFAULTS = True
 
 # Script argument: boolean True
 _ARGUMENT_BOOLEAN_TRUE_LEGACY = (True, '1') # MSVC_UWP_APP
@@ -118,9 +111,12 @@ def _msvc_force_default_toolset(force=True):
     _MSVC_FORCE_DEFAULT_TOOLSET = force
     debug('_MSVC_FORCE_DEFAULT_TOOLSET=%s', repr(force))
 
-if _SCONS_CACHE_MSVC_FORCE_DEFAULTS:
-    _msvc_force_default_sdk(True)
-    _msvc_force_default_toolset(True)
+def msvc_force_default_arguments(force=True):
+    _msvc_force_default_sdk(force)
+    _msvc_force_default_toolset(force)
+
+if CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS:
+    msvc_force_default_arguments(force=True)
 
 # MSVC batch file arguments:
 #

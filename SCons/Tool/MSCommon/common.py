@@ -102,6 +102,11 @@ CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
+# SCONS_CACHE_MSVC_FORCE_DEFAULTS is internal-use so undocumented.
+CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = False
+if CONFIG_CACHE:
+    if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
+        CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
 def read_script_env_cache():
     """ fetch cached msvc env vars if requested, else return empty dict """
