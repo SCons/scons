@@ -629,6 +629,29 @@ def _msvc_script_argument_spectre(env, msvc, arglist):
 
     return spectre_arg
 
+def _user_script_argument_spectre(env, spectre, user_argstr):
+
+    matches = [m for m in re_vcvars_spectre.finditer(user_argstr)]
+    if not matches:
+        return None
+
+    if len(matches) > 1:
+        debug('multiple spectre declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
+        err_msg = "multiple spectre declarations: MSVC_SCRIPT_ARGS={}".format(repr(user_argstr))
+        raise MSVCArgumentError(err_msg)
+
+    if not spectre:
+        return None
+
+    env_argstr = env.get('MSVC_SPECTRE_LIBS','')
+    debug('multiple spectre declarations: MSVC_SPECTRE_LIBS=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
+
+    err_msg = "multiple spectre declarations: MSVC_SPECTRE_LIBS={} and MSVC_SCRIPT_ARGS={}".format(
+        repr(env_argstr), repr(user_argstr)
+    )
+
+    raise MSVCArgumentError(err_msg)
+
 def _msvc_script_argument_user(env, msvc, arglist):
 
     # subst None -> empty string
@@ -654,29 +677,6 @@ def _msvc_script_argument_user(env, msvc, arglist):
     arglist.append(argpair)
 
     return script_args
-
-def _user_script_argument_spectre(env, spectre, user_argstr):
-
-    matches = [m for m in re_vcvars_spectre.finditer(user_argstr)]
-    if not matches:
-        return None
-
-    if len(matches) > 1:
-        debug('multiple spectre declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
-        err_msg = "multiple spectre declarations: MSVC_SCRIPT_ARGS={}".format(repr(user_argstr))
-        raise MSVCArgumentError(err_msg)
-
-    if not spectre:
-        return None
-
-    env_argstr = env.get('MSVC_SPECTRE_LIBS','')
-    debug('multiple spectre declarations: MSVC_SPECTRE_LIBS=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
-
-    err_msg = "multiple spectre declarations: MSVC_SPECTRE_LIBS={} and MSVC_SCRIPT_ARGS={}".format(
-        repr(env_argstr), repr(user_argstr)
-    )
-
-    raise MSVCArgumentError(err_msg)
 
 def msvc_script_arguments(env, version, vc_dir, arg):
 
