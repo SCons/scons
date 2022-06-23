@@ -321,6 +321,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-MSSDK_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSSDK_VERSION</envar>">
 <!ENTITY cv-MSVC_BATCH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_BATCH</envar>">
 <!ENTITY cv-MSVC_NOTFOUND_POLICY "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_NOTFOUND_POLICY</envar>">
+<!ENTITY cv-MSVC_SCRIPT_ARGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_SCRIPT_ARGS</envar>">
+<!ENTITY cv-MSVC_SDK_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_SDK_VERSION</envar>">
+<!ENTITY cv-MSVC_SPECTRE_LIBS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_SPECTRE_LIBS</envar>">
+<!ENTITY cv-MSVC_TOOLSET_VERSION "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_TOOLSET_VERSION</envar>">
 <!ENTITY cv-MSVC_USE_SCRIPT "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_USE_SCRIPT</envar>">
 <!ENTITY cv-MSVC_USE_SCRIPT_ARGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_USE_SCRIPT_ARGS</envar>">
 <!ENTITY cv-MSVC_USE_SETTINGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$MSVC_USE_SETTINGS</envar>">
@@ -985,6 +989,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-MSSDK_VERSION "<link linkend='cv-MSSDK_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSSDK_VERSION</envar></link>">
 <!ENTITY cv-link-MSVC_BATCH "<link linkend='cv-MSVC_BATCH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_BATCH</envar></link>">
 <!ENTITY cv-link-MSVC_NOTFOUND_POLICY "<link linkend='cv-MSVC_NOTFOUND_POLICY' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_NOTFOUND_POLICY</envar></link>">
+<!ENTITY cv-link-MSVC_SCRIPT_ARGS "<link linkend='cv-MSVC_SCRIPT_ARGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_SCRIPT_ARGS</envar></link>">
+<!ENTITY cv-link-MSVC_SDK_VERSION "<link linkend='cv-MSVC_SDK_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_SDK_VERSION</envar></link>">
+<!ENTITY cv-link-MSVC_SPECTRE_LIBS "<link linkend='cv-MSVC_SPECTRE_LIBS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_SPECTRE_LIBS</envar></link>">
+<!ENTITY cv-link-MSVC_TOOLSET_VERSION "<link linkend='cv-MSVC_TOOLSET_VERSION' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_TOOLSET_VERSION</envar></link>">
 <!ENTITY cv-link-MSVC_USE_SCRIPT "<link linkend='cv-MSVC_USE_SCRIPT' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_USE_SCRIPT</envar></link>">
 <!ENTITY cv-link-MSVC_USE_SCRIPT_ARGS "<link linkend='cv-MSVC_USE_SCRIPT_ARGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_USE_SCRIPT_ARGS</envar></link>">
 <!ENTITY cv-link-MSVC_USE_SETTINGS "<link linkend='cv-MSVC_USE_SETTINGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$MSVC_USE_SETTINGS</envar></link>">
