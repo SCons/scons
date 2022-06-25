@@ -994,10 +994,12 @@ the requested SDK version is installed with the necessary platform type componen
 </para></listitem>
 
 <listitem><para>
-There is a known issue with the Microsoft libraries for SDK version <literal>'10.0.22000.0'</literal>
-when using the <literal>v141</literal> build tools and the target architecture is <literal>ARM64</literal>.
-Should build failures arise with this combination of settings, &cv-MSVC_SDK_VERSION; may be
-employed to specify a different SDK version for the build.
+There is a known issue with the Microsoft libraries when the target architecture is
+<literal>ARM64</literal> and a Windows 11 SDK (version <literal>'10.0.22000.0'</literal> and later) is used
+with the <literal>v141</literal> build tools and older <literal>v142</literal> toolsets
+(versions <literal>'14.28.29333'</literal> and earlier). Should build failures arise with these combinations
+of settings due to unresolved symbols in the Microsoft libraries, &cv-MSVC_SDK_VERSION; may be employed to
+specify a Windows 10 SDK (e.g., <literal>'10.0.20348.0'</literal>) for the build.
 </para></listitem>
 
 </itemizedlist>
