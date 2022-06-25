@@ -135,9 +135,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Note that these are called for every build command run by SCons. It could have considerable
       performance impact if not used carefully.
       to connect to the server during start up.
-    - Updated lex emitter to respect escaped spaces when climbing out of a the SConscript dir.
-      Previously if the build/source directories absolute path included a space the lex emitter
-      would fail to use the correct paths.
+    - lex: Fixed an issue with the lex tool where file arguments specified to either "--header-file="
+      or "--tables-file=" which included a space in the path to the file would be processed incorrectly
     - Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
       if scons can determine the ninja file doesnot need to be regenerated, which will also
       skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
