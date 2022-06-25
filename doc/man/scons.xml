@@ -5904,7 +5904,7 @@ you need to create the action object using &f-Action;.
 returns an appropriate object for the action
 represented by the type of the
 <parameter>action</parameter> argument
-(the first positional parmeter):</para>
+(the first positional parameter):</para>
 
 <itemizedlist>
   <listitem>
@@ -6034,19 +6034,22 @@ The following argument types are accepted:
 
 <itemizedlist>
   <listitem>
-<para>If <parameter>output</parameter> is a string,
-substitution is performed on the string before it is printed.
-The string typically contains variables, notably
+<para>If the second argument is a string,
+or if the <parameter>cmdstr</parameter> keyword argument is supplied,
+the string defines what is printed.
+Substitution is performed on the string before it is printed.
+The string typically contains substitutable variables, notably
 <literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
-or consists of just a single
-variable, which is optionally defined somewhere else.
+or consists of just a single variable
+which is optionally defined somewhere else.
 &SCons; itself heavily uses the latter variant.</para>
   </listitem>
 
   <listitem>
-<para>If <parameter>output</parameter> is a function,
-the function will be called to obtain a string
-describing the action being executed.
+<para>If the second argument is a function,
+or if the <parameter>strfunction</parameter> keyword argument is supplied,
+the function will be called to obtain the string
+to be printed when the action is performed.
 The function
 must accept three keyword arguments:
 <parameter>target</parameter>,
@@ -6054,22 +6057,26 @@ must accept three keyword arguments:
 <parameter>env</parameter>,
 with the same interpretation as for a callable
 <parameter>action</parameter> argument above.
+The function is responsible for handling any required substitutions.
 </para>
   </listitem>
 
   <listitem>
-<para>If <parameter>output</parameter>is <constant>None</constant>,
+<para>If the second argument is <constant>None</constant>,
+or if <literal>cmdstr=None</literal> is supplied,
 output is suppressed entirely.</para>
   </listitem>
 </itemizedlist>
 
 <para>
-Instead of using a positional argument,
-the <parameter>cmdstr</parameter>
-keyword argument may be used to specify the output string,
-or the <parameter>strfunction</parameter> keyword argument
-may be used to specify a function to return the output string.
-<literal>cmdstr=None</literal> suppresses output entirely.
+The <parameter>cmdstr</parameter> and
+<parameter>strfunction</parameter>
+keyword arguments may not both be supplied in a single call to &f-Action;
+</para>
+
+<para>
+Printing of action strings is affected by the setting of
+&cv-link-PRINT_CMD_LINE_FUNC;.
 </para>
 
 <para>Examples:</para>
