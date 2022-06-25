@@ -1646,7 +1646,7 @@ and then executed.
 Any additional arguments to &f-Execute;
 are passed on to the &f-link-Action; factory function
 which actually creates the Action object
-(see the manpage section "Action Objects"
+(see the manpage section <link linkend="action_objects">Action Objects</link>
 for a description). Example:
 </para>
 

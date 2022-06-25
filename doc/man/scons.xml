@@ -6076,7 +6076,7 @@ keyword arguments may not both be supplied in a single call to &f-Action;
 
 <para>
 Printing of action strings is affected by the setting of
-&cv-link-PRINT_CMD_LINE_FUNC; (see).
+&cv-link-PRINT_CMD_LINE_FUNC;.
 </para>
 
 <para>Examples:</para>
