@@ -2635,7 +2635,7 @@ often (though not always) by tools which determine
 whether the external dependencies for the builder are satisfied,
 and which perform the necessary setup
 (see <link linkend='tools'>Tools</link>).
-Builers are attached to a &consenv; as methods.
+Builders are attached to a &consenv; as methods.
 The available builder methods are registered as
 key-value pairs in the
 &cv-link-BUILDERS; attribute of the &consenv;,
@@ -2694,8 +2694,8 @@ env.Program('bar', source='bar.c foo.c'.split())
 </programlisting>
 
 <para>
-Sources and targets can be specified as a a scalar or as a list,
-either of strings or nodes (more on nodes below).
+Sources and targets can be specified as a scalar or as a list,
+composed of either strings or nodes (more on nodes below).
 When specifying path strings,
 &Python; follows the POSIX pathname convention:
 if a string begins with the operating system pathname separator
@@ -2806,7 +2806,7 @@ env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 
 <para>The optional
 <parameter>parse_flags</parameter>
-keyword argument causes behavior similarl to the
+keyword argument causes behavior similar to the
 &f-link-env-MergeFlags; method, where the argument value is
 broken into individual settings and merged into the appropriate &consvars;.
 </para>
@@ -2840,6 +2840,23 @@ is not a string or Node
 and evaluates true,
 then &scons; will change to the
 target file's directory.</para>
+
+<warning>
+<para>
+Python only keeps one current directory
+location even if there are multiple threads.
+This means that use of the
+<parameter>chdir</parameter>
+argument
+will
+<emphasis>not</emphasis>
+work with the SCons
+<option>-j</option>
+option,
+because individual worker threads spawned
+by SCons interfere with each other
+when they start changing directory.</para>
+</warning>
 
 <programlisting language="python">
 # scons will change to the "sub" subdirectory
@@ -2950,7 +2967,7 @@ which causes it to produce a linker map file in addition
 to the executable file actually being linked.
 If the &b-link-Program; builder's emitter is configured
 to add this mapfile if the option is set,
-then two targets will be returned when you only asked for one.
+then two targets will be returned when you only provided for one.
 </para>
 
 <para>
