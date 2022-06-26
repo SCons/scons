@@ -66,6 +66,18 @@ re_manvolnum = re.compile(r"<manvolnum>([^<]*)</manvolnum>")
 re_refname = re.compile(r"<refname>([^<]*)</refname>")
 
 #
+# lxml etree XSLT global max traversal depth
+#
+
+lmxl_xslt_global_max_depth = 3100
+
+if has_lxml and lmxl_xslt_global_max_depth:
+    def __lxml_xslt_set_global_max_depth(max_depth):
+        from lxml import etree
+        etree.XSLT.set_global_max_depth(max_depth)
+    __lxml_xslt_set_global_max_depth(lmxl_xslt_global_max_depth)
+
+#
 # Helper functions
 #
 def __extend_targets_sources(target, source):

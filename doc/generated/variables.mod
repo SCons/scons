@@ -186,6 +186,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-File "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$File</envar>">
 <!ENTITY cv-FORTRAN "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRAN</envar>">
 <!ENTITY cv-FORTRANCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANCOM</envar>">
+<!ENTITY cv-FORTRANCOMMONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANCOMMONFLAGS</envar>">
 <!ENTITY cv-FORTRANCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANCOMSTR</envar>">
 <!ENTITY cv-FORTRANFILESUFFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANFILESUFFIXES</envar>">
 <!ENTITY cv-FORTRANFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$FORTRANFLAGS</envar>">
@@ -854,6 +855,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-File "<link linkend='cv-File' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$File</envar></link>">
 <!ENTITY cv-link-FORTRAN "<link linkend='cv-FORTRAN' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRAN</envar></link>">
 <!ENTITY cv-link-FORTRANCOM "<link linkend='cv-FORTRANCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANCOM</envar></link>">
+<!ENTITY cv-link-FORTRANCOMMONFLAGS "<link linkend='cv-FORTRANCOMMONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANCOMMONFLAGS</envar></link>">
 <!ENTITY cv-link-FORTRANCOMSTR "<link linkend='cv-FORTRANCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANCOMSTR</envar></link>">
 <!ENTITY cv-link-FORTRANFILESUFFIXES "<link linkend='cv-FORTRANFILESUFFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANFILESUFFIXES</envar></link>">
 <!ENTITY cv-link-FORTRANFLAGS "<link linkend='cv-FORTRANFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$FORTRANFLAGS</envar></link>">

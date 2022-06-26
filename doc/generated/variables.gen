@@ -2682,6 +2682,17 @@ in the &cv-link-FORTRANFLAGS;,
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-FORTRANCOMMONFLAGS">
+    <term>
+      <envar>FORTRANCOMMONFLAGS</envar>
+    </term>
+    <listitem><para>
+General user-specified options that are passed to the Fortran compiler.
+Similar to &cv-link-FORTRANFLAGS;,
+but this variable is applied to all dialects.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-FORTRANCOMSTR">
     <term>
       <envar>FORTRANCOMSTR</envar>
@@ -2709,7 +2720,8 @@ default, this is <literal>['.f', '.for', '.ftn']</literal>
       <envar>FORTRANFLAGS</envar>
     </term>
     <listitem><para>
-General user-specified options that are passed to the Fortran compiler.
+General user-specified options for the FORTRAN dialect
+that are passed to the Fortran compiler.
 Note that this variable does
 <emphasis>not</emphasis>
 contain
@@ -6578,44 +6590,65 @@ A Python function used to print the command lines as they are executed
 or
 <option>-s</option>
 options or their equivalents).
-The function should take four arguments:
+The function must accept four arguments:
 <varname>s</varname>,
-the command being executed (a string),
 <varname>target</varname>,
-the target being built (file node, list, or string name(s)),
+<varname>source</varname> and
+<varname>env</varname>.
+<varname>s</varname>
+is a string showing the command being executed,
+<varname>target</varname>,
+is the target being built (file node, list, or string name(s)),
 <varname>source</varname>,
-the source(s) used (file node, list, or string name(s)), and
-<varname>env</varname>,
-the environment being used.
+is the source(s) used (file node, list, or string name(s)),
+and <varname>env</varname>
+is the environment being used.
 </para>
 
 <para>
-The function must do the printing itself.  The default implementation,
-used if this variable is not set or is None, is:
+The function must do the printing itself.
+The default implementation,
+used if this variable is not set or is <constant>None</constant>,
+is to just print the string, as in:
 </para>
 <example_commands>
 def print_cmd_line(s, target, source, env):
-  sys.stdout.write(s + "\n")
+    sys.stdout.write(s + "\n")
 </example_commands>
 
 <para>
-Here's an example of a more interesting function:
+Here is an example of a more interesting function:
 </para>
 
 <example_commands>
 def print_cmd_line(s, target, source, env):
-   sys.stdout.write("Building %s -&gt; %s...\n" %
-    (' and '.join([str(x) for x in source]),
-     ' and '.join([str(x) for x in target])))
-env=Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
-env.Program('foo', 'foo.c')
+    sys.stdout.write(
+        "Building %s -&gt; %s...\n"
+        % (
+            ' and '.join([str(x) for x in source]),
+            ' and '.join([str(x) for x in target]),
+        )
+    )
+
+env = Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
+env.Program('foo', ['foo.c', 'bar.c'])
 </example_commands>
 
 <para>
-This just prints "Building <varname>targetname</varname> from <varname>sourcename</varname>..." instead
-of the actual commands.
-Such a function could also log the actual commands to a log file,
-for example.
+This prints:
+</para>
+
+<screen>
+...
+scons: Building targets ...
+Building bar.c -&gt; bar.o...
+Building foo.c -&gt; foo.o...
+Building foo.o and bar.o -&gt; foo...
+scons: done building targets.
+</screen>
+
+<para>
+Another example could be a function that logs the actual commands to a file.
 </para>
 </listitem>
   </varlistentry>
@@ -7587,9 +7620,9 @@ targets.
 def custom_shell_env(env, target, source, shell_env):
     """customize shell_env if desired"""
     if str(target[0]) == 'special_target':
-      shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
+        shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
     return shell_env
-  
+
 env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
     </example_commands>
 
@@ -7663,7 +7696,7 @@ Options that are passed to the Fortran 03 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF03FLAGS; if you need to define specific
 user options for Fortran 03 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -7751,7 +7784,7 @@ Options that are passed to the Fortran 08 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF08FLAGS; if you need to define specific
 user options for Fortran 08 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -7839,7 +7872,7 @@ Options that are passed to the Fortran 77 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF77FLAGS; if you need to define specific
 user options for Fortran 77 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -7927,7 +7960,7 @@ Options that are passed to the Fortran 90 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF90FLAGS; if you need to define specific
 user options for Fortran 90 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -8015,7 +8048,7 @@ Options that are passed to the Fortran 95 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF95FLAGS; if you need to define specific
 user options for Fortran 95 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -8389,7 +8422,7 @@ which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
     </term>
     <listitem><para>
 A command interpreter function that will be called to execute command line
-strings. The function must expect the following arguments:
+strings. The function must accept five arguments:
 </para>
 
 <example_commands>
@@ -8397,18 +8430,18 @@ def spawn(shell, escape, cmd, args, env):
 </example_commands>
 
 <para>
-<varname>sh</varname>
-is a string naming the shell program to use.
+<varname>shell</varname>
+is a string naming the shell program to use,
 <varname>escape</varname>
 is a function that can be called to escape shell special characters in
-the command line.
+the command line,
 <varname>cmd</varname>
-is the path to the command to be executed.
+is the path to the command to be executed,
 <varname>args</varname>
-is the arguments to the command.
+holds the arguments to the command and
 <varname>env</varname>
-is a dictionary of the environment variables
-in which the command should be executed.
+is a dictionary of environment variables
+defining the execution environment in which the command should be executed.
 </para>
 </listitem>
   </varlistentry>
