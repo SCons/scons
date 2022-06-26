@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+Copyright The SCons Foundation
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -45,6 +45,7 @@ Set construction variables for generic POSIX Fortran 03 compilers.
 <item>F03PPCOMSTR</item>
 <item>SHF03COMSTR</item>
 <item>SHF03PPCOMSTR</item>
+<item>FORTRANCOMMONFLAGS</item>
 </uses>
 </tool>
 
@@ -271,7 +272,7 @@ Options that are passed to the Fortran 03 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF03FLAGS; if you need to define specific
 user options for Fortran 03 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.

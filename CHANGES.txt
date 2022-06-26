@@ -135,6 +135,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Note that these are called for every build command run by SCons. It could have considerable
       performance impact if not used carefully.
       to connect to the server during start up.
+    - lex: Fixed an issue with the lex tool where file arguments specified to either "--header-file="
+      or "--tables-file=" which included a space in the path to the file would be processed incorrectly
     - Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
       if scons can determine the ninja file doesnot need to be regenerated, which will also
       skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
@@ -194,6 +196,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       to add a path to the execution environment if it was discovered in
       default_paths. Previously, the routine, called by many tool modules,
       never altered the execution environment, leaving it to the tools.
+    - A new construction variable FORTRANCOMMONFLAGS is added which is
+      applied to all Fortran dialects, in case someone needs to set some
+      flags globally. FORTRANFLAGS looked like it was intended for that,
+      but was not applied to other dialects, and e2e tests explicitly checked
+      that FORTRANFLAGS did not propagate outside the FORTRAN dialect,
+      so the conclusion is that behavior is intentional (issue #2257)
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

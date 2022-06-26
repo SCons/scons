@@ -1,0 +1,10 @@
+env = Environment(tools=['lex'])
+
+def make_header_path(env, target, source, for_signature):
+    return target[1]
+
+env.Replace(LEX_HEADER_FILE_GEN=make_header_path)
+env.Append(LEXFLAGS=['--header-file=$LEX_HEADER_FILE_GEN'])
+
+env.CFile(target=['#gen_src/lexer.c', '#gen_src/lexer.l.h'], source='lexer.l')
+env.CFile(target=['#gen_src/lexer2.c', '#gen_src/lexer2.l.h'], source='lexer2.l')

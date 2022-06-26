@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -22,39 +24,18 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Tool-specific initialization for gfortran, the GNU Fortran compiler.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
+Test the headerfile option for lex tool.
 """
 
-import SCons.Util
+import TestSCons
 
-from . import fortran
+test = TestSCons.TestSCons()
 
+test.dir_fixture('lex_headerfile')
 
-def generate(env):
-    """Add Builders and construction variables for gfortran to an
-    Environment."""
-    fortran.generate(env)
+test.run(chdir='spaced path', arguments='.')
 
-    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03', 'F08']:
-        env[f'{dialect}'] = 'gfortran'
-        env[f'SH{dialect}'] = f'${dialect}'
-        if env['PLATFORM'] in ['cygwin', 'win32']:
-            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS')
-        else:
-            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS -fPIC')
-
-        env[f'INC{dialect}PREFIX'] = "-I"
-        env[f'INC{dialect}SUFFIX'] = ""
-
-    env['FORTRANMODDIRPREFIX'] = "-J"
-
-
-def exists(env):
-    return env.Detect('gfortran')
+test.pass_test()
 
 # Local Variables:
 # tab-width:4
