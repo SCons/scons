@@ -127,6 +127,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - An exception is raised when MSVC_UWP_APP is enabled for Visual Studio 2013 and earlier.
   Previous behavior was to silently ignore MSVC_UWP_APP when enabled for Visual Studio 2013
   and earlier. Refer to the documentation for additional requirements and validation details.
+  MSVC_UWP_APP was extended to accept True, False, and None in addition to '1' and '0'.
 - Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
   if scons can determine the ninja file doesnot need to be regenerated, which will also
   skip restarting the scons daemon. Note this option is could result in incorrect rebuilds

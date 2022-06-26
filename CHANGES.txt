@@ -54,6 +54,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - An exception is raised when MSVC_UWP_APP is enabled for Visual Studio 2013 and earlier.
       Previous behavior was to silently ignore MSVC_UWP_APP when enabled for Visual Studio 2013
       and earlier. Refer to the documentation for additional requirements and validation details.
+      MSVC_UWP_APP was extended to accept True, False, and None in addition to '1' and '0'.
     - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
       names set by their respective installers.  Prior to this change, bypassing MSVC detection by
       specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment
