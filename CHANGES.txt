@@ -31,8 +31,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       determination when configuring the build environment.  This could lead to build failures when
       only an MSVC Express instance is installed and the MSVC version is not explicitly specified
       (issue #2668 and issue #2697).
-    - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
+    - Added MSVC_USE_SETTINGS construction variable to pass a dictionary to configure the msvc compiler
       system environment as an alternative to bypassing Visual Studio autodetection entirely.
+    - Added MSVC_SDK_VERSION construction variable which allows building with a specific Microsoft
+      SDK version. This variable is used with the msvc batch file determined via autodetection subject
+      to validation constraints.  Refer to the documentation for additional requirements and validation
+      details.
+    - Added MSVC_TOOLSET_VERSION construction variable which allows building with a specific toolset
+      version. This variable is used with the msvc batch file determined via autodetection subject to
+      validation constraints. This variable does not affect the autodetection and selection of msvc
+      instances. The toolset version is applied after an msvc instance is selected. This could be the
+      default version of msvc. Refer to the documentation for additional requirements and validation
+      details.  Addresses issue #3265, issue #3664, and pull request #4149.
+    - Added MSVC_SPECTRE_LIBS construction variable which allows building with spectre-mitigated
+      Visual C++ libraries. This variable is used with the msvc batch file determined via autodetection
+      subject to validation constraints. Refer to the documentation for additional requirements and
+      validation details.
+    - Added MSVC_SCRIPT_ARGS construction variable which specifies command line arguments that are
+      passed to the msvc batch file determined via autodetection subject to validation constraints.
+      Refer to the documentation for additional requirements and validation details.  Addresses
+      enhancement issue #4106.
+    - An exception is raised when MSVC_UWP_APP is enabled for Visual Studio 2013 and earlier.
+      Previous behavior was to silently ignore MSVC_UWP_APP when enabled for Visual Studio 2013
+      and earlier. Refer to the documentation for additional requirements and validation details.
     - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
       names set by their respective installers.  Prior to this change, bypassing MSVC detection by
       specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment

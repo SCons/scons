@@ -23,8 +23,23 @@ NEW FUNCTIONALITY
   variables). This allows the user to customize how (for example) PATH is constructed.
   Note that these are called for every build command run by SCons. It could have considerable
   performance impact if not used carefully.
-- Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
+- Added MSVC_USE_SETTINGS construction variable to pass a dictionary to configure the msvc compiler
   system environment as an alternative to bypassing Visual Studio autodetection entirely.
+- Added MSVC_SDK_VERSION construction variable which allows building with a specific Microsoft
+  SDK version. This variable is used with the msvc batch file determined via autodetection. Refer
+  to the documentation for additional requirements and validation details.
+- Added MSVC_TOOLSET_VERSION construction variable which allows building with a specific toolset
+  version. This variable is used with the msvc batch file determined via autodetection.  This
+  variable does not affect the autodetection and selection of msvc instances. The toolset version
+  is applied after an msvc instance is selected. This could be the default version of msvc. Refer
+  to the documentation for additional requirements and validation details.  Addresses issue #3265,
+  issue #3664, and pull request #4149.
+- Added MSVC_SPECTRE_LIBS construction variable which allows building with spectre-mitigated
+  Visual C++ libraries. This variable is used with the msvc batch file determined via autodetection.
+  Refer to the documentation for additional requirements and validation details.
+- Added MSVC_SCRIPT_ARGS construction variable which specifies command line arguments that are
+  passed to the msvc batch file determined via autodetection.  Refer to the documentation for
+  additional requirements and validation details.  Addresses enhancement issue #4106.
 - Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
   Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
   NOTE: Test for this requires python psutil module. It will be skipped if not present.
@@ -96,8 +111,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   automatically executes ninja.
 - Add JavaScanner to include JAVACLASSPATH as a dependency when using the Java tool.
 - The build argument (i.e., x86) is no longer passed to the MSVC 6.0 to 7.1 batch
-  files.  This may improve the effectiveness of the internal msvc cache when using 
-  MSVC detection and when bypassing MSVC detection as the MSVC 6.0 to 7.1 batch files 
+  files.  This may improve the effectiveness of the internal msvc cache when using
+  MSVC detection and when bypassing MSVC detection as the MSVC 6.0 to 7.1 batch files
   do not expect any arguments.
 - Propagate the OS and windir environment variables from the system environment to the msvc
   environment.  The OS and windir environment variables are used in the MSVC 6.0 batch file
@@ -109,6 +124,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
         require delayed expansion to be enabled which is currently not supported and is
         typically not enabled by default on the host system. The batch files may also require
         environment variables that are not included by default in the msvc environment.
+- An exception is raised when MSVC_UWP_APP is enabled for Visual Studio 2013 and earlier.
+  Previous behavior was to silently ignore MSVC_UWP_APP when enabled for Visual Studio 2013
+  and earlier. Refer to the documentation for additional requirements and validation details.
 - Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
   if scons can determine the ninja file doesnot need to be regenerated, which will also
   skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
