@@ -23,6 +23,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test that detection of file-writing options in YACCFLAGS works.
+"""
+
 import sys
 
 import TestSCons
@@ -40,23 +44,44 @@ else:
 
 test = TestSCons.TestSCons()
 
-test.subdir('in')
+test.subdir('sub')
 
 test.dir_fixture('YACCFLAGS-fixture')
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
+SConscript("sub/SConscript")
+""")
+
+test.write(['sub', 'SConscript'], f"""\
+import sys
+
 env = Environment(
     YACC=r'%(_python_)s myyacc.py',
-    YACCFLAGS='-x -I${TARGET.dir} -I${SOURCE.dir}',
+    YACCFLAGS='-x --header=header.h --graph=graph.g',
     tools=['yacc', '%(linker)s', '%(compiler)s'],
 )
-env.CFile(target='out/aaa', source='in/aaa.y')
+targs = env.CFile(target='aaa', source='aaa.y')
+t = [str(target) for target in targs]
+# fail ourselves if the two extra files were not detected
+if not all((len(t) == 3, "header.h" in t, "graph.g" in t)):
+    sys.exit(1)
 """ % locals())
-
-test.write(['in', 'aaa.y'], "aaa.y\nYACCFLAGS\nI_ARGS\n")
+test.write(['sub', 'aaa.y'], "aaa.y\nYACCFLAGS\n")
 test.run('.', stderr=None)
-test.must_match(['out', 'aaa.c'], "aaa.y\n -x\n out in\n")
+test.must_match(['sub', 'aaa.c'], "aaa.y\n -x --header=header.h --graph=graph.g\n")
+
+# NOTE: this behavior is "wrong" but we're keeping it for compat:
+# the generated files should go into 'sub'.
+test.must_match(['header.h'], 'yacc header\n')
+test.must_match(['graph.g'], 'yacc graph\n')
+
+# To confirm the files from the file-output options were tracked,
+# do a clean and make sure they got removed. As noted, they currently
+# don't go into the tracked location, so using the the SConscript check instead.
+#test.run(arguments='-c .')
+#test.must_not_exist(test.workpath(['sub', 'header.h']))
+#test.must_not_exist(test.workpath(['sub', 'graph.g']))
 
 test.pass_test()
 

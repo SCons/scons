@@ -30,13 +30,14 @@ Test LEX and LEXFLAGS and unistd.h with a live lex in mingw environment.
 import sys
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _exe = TestSCons._exe
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
+if not IS_WINDOWS:
     test.skip_test('Not windows environment; skipping test.\n')
 
 if not test.where_is('gcc'):
@@ -50,6 +51,7 @@ if not lex:
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 foo = Environment(tools=['default', 'mingw', 'lex'], LEXUNISTD="")
 lex = foo.Dictionary('LEX')
 bar = Environment(

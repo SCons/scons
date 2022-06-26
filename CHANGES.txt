@@ -202,6 +202,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       but was not applied to other dialects, and e2e tests explicitly checked
       that FORTRANFLAGS did not propagate outside the FORTRAN dialect,
       so the conclusion is that behavior is intentional (issue #2257)
+    - Improvements to lex and yacc tools: better documentation of
+      extra-file options, add test for extra-file behavior.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

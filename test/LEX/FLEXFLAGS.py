@@ -23,6 +23,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""
+Test that detection of file-writing options in LEXFLAGS works.
+"""
+
 import sys
 import sysconfig
 
@@ -34,30 +38,51 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.subdir('in')
+test.subdir('sub')
 
 test.file_fixture('mylex.py')
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
+SConscript("sub/SConscript")
+""")
+
+test.write(['sub', 'SConscript'], f"""\
+import sys
+
 env = Environment(
-    LEX=r'%(_python_)s mylex.py',
-    LEXFLAGS='-x -I${TARGET.dir} -I${SOURCE.dir}',
+    LEX=r'{_python_} mylex.py',
+    LEXFLAGS='-x --header-file=header.h --tables-file=tables.t',
     tools=['default', 'lex'],
 )
-env.CFile(target='out/aaa', source='in/aaa.l')
-""" % locals())
-
-test.write(['in', 'aaa.l'], "aaa.l\nLEXFLAGS\nI_ARGS\n")
+targs = env.CFile(target='aaa', source='aaa.l')
+t = [str(target) for target in targs]
+# fail ourselves if the two extra files were not detected
+if not all((len(t) == 3, "header.h" in t, "tables.t" in t)):
+    sys.exit(1)
+""")
+test.write(['sub', 'aaa.l'], "aaa.l\nLEXFLAGS\n")
 
 test.run('.', stderr=None)
 
-lexflags = ' -x -t'
+lexflags = ' -x --header-file=header.h --tables-file=tables.t -t'
 if IS_WINDOWS and not sysconfig.get_platform() in ("mingw",):
     lexflags = ' --nounistd' + lexflags
 # Read in with mode='r' because mylex.py implicitly wrote to stdout
 # with mode='w'.
-test.must_match(['out', 'aaa.c'], "aaa.l\n%s\n out in\n" % lexflags, mode='r')
+test.must_match(['sub', 'aaa.c'], "aaa.l\n%s\n" % lexflags, mode='r')
+
+# NOTE: this behavior is "wrong" but we're keeping it for compat.
+# the generated files should go into 'sub'.
+test.must_match(['header.h'], 'lex header\n')
+test.must_match(['tables.t'], 'lex table\n')
+
+# To confirm the files from the file-output options were tracked,
+# do a clean and make sure they got removed. As noted, they currently
+# don't go into the tracked location, so using the the SConscript check instead.
+#test.run(arguments='-c .')
+#test.must_not_exist(test.workpath(['sub', 'header.h']))
+#test.must_not_exist(test.workpath(['sub', 'tables.t']))
 
 test.pass_test()
 
