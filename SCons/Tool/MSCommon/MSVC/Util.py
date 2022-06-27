@@ -29,6 +29,16 @@ import os
 import re
 
 def listdir_dirs(p):
+    """Get a list of qualified subdirectory paths from a windows path.
+
+    Args:
+        p: str
+            windows path
+
+    Returns:
+        List[str]: list of qualified subdirectory paths
+
+    """
     dirs = []
     for dir_name in os.listdir(p):
         dir_path = os.path.join(p, dir_name)
@@ -37,6 +47,16 @@ def listdir_dirs(p):
     return dirs
 
 def process_path(p):
+    """Normalize a windows path.
+
+    Args:
+        p: str
+            windows path
+
+    Returns:
+        str: normalized windows path
+
+    """
     if p:
         p = os.path.normpath(p)
         p = os.path.realpath(p)
@@ -46,6 +66,16 @@ def process_path(p):
 re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*')
 
 def get_version_prefix(version):
+    """Get the version number prefix from a string.
+
+    Args:
+        version: str
+            version string
+
+    Returns:
+        str: the version number prefix
+
+    """
     m = re_version_prefix.match(version)
     if m:
         rval = m.group('version')
