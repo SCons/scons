@@ -1352,3 +1352,6 @@ def get_msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
     rval = MSVC.WinSDK.get_msvc_sdk_version_list(msvc_version, msvc_uwp_app)
     return rval
 
+# internal consistency check (should be last)
+MSVC.verify()
+

@@ -29,6 +29,12 @@ from collections import (
     namedtuple,
 )
 
+from . import Util
+
+from .Exceptions import (
+    MSVCInternalError,
+)
+
 from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
@@ -281,4 +287,13 @@ for policy_value, policy_symbol_list in [
         MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol.lower()] = policy_def
         MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol] = policy_def
         MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol.upper()] = policy_def
+
+def verify():
+    from .. import vc
+    for msvc_version in vc._VCVER:
+        vc_version = Util.get_version_prefix(msvc_version)
+        if vc_version in MSVC_VERSION_INTERNAL:
+            continue
+        err_msg = 'vc_version {} not in MSVC_VERSION_INTERNAL'.format(repr(vc_version))
+        raise MSVCInternalError(err_msg)
 
