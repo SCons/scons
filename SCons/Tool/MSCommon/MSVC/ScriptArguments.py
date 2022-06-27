@@ -86,8 +86,21 @@ re_toolset_140 = re.compile(r'''^(?:
     (?:14[.]0{2}[.]0{1,5}) # 14.00.0 - 14.00.00000
 )$''', re.VERBOSE)
 
-# valid SxS formats will be matched with re_toolset_full: match 3 '.' format
+# SxS toolset version: MM.mm.VV.vv format
 re_toolset_sxs = re.compile(r'^[1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}$')
+
+# SxS version bugfix
+_msvc_sxs_bugfix_folder = set()
+_msvc_sxs_bugfix_version = {}
+
+for msvc_version, sxs_version, sxs_bugfix in [
+    # VS2019\Common7\Tools\vsdevcmd\ext\vcvars.bat AzDO Bug#1293526
+    #     special handling of the 16.8 SxS toolset, use VC\Auxiliary\Build\14.28 directory and SxS files
+    #     if SxS version 14.28 not present/installed, fallback selection of toolset VC\Tools\MSVC\14.28.nnnnn.
+    ('14.2', '14.28.16.8', '14.28')
+]:
+    _msvc_sxs_bugfix_folder.add((msvc_version, sxs_bugfix))
+    _msvc_sxs_bugfix_version[(msvc_version, sxs_version)] = sxs_bugfix
 
 # MSVC_SCRIPT_ARGS
 re_vcvars_uwp = re.compile(r'(?:(?<!\S)|^)(?P<uwp>(?:uwp|store))(?:(?!\S)|$)',re.IGNORECASE)
@@ -327,14 +340,42 @@ def _msvc_read_toolset_file(msvc, filename):
         debug('IndexError: msvc_version=%s, filename=%s', repr(msvc.version), repr(filename))
     return toolset_version
 
+def _msvc_sxs_toolset_folder(msvc, sxs_folder):
+
+    if re_toolset_sxs.match(sxs_folder):
+        return sxs_folder
+
+    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_folder)
+    if key in _msvc_sxs_bugfix_folder:
+        return sxs_folder
+
+    debug('sxs folder: ignore version=%s', repr(sxs_folder))
+    return None
+
+def _msvc_sxs_toolset_version(msvc, sxs_toolset):
+
+    if not re_toolset_sxs.match(sxs_toolset):
+        return None, False
+
+    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_toolset)
+    sxs_bugfix = _msvc_sxs_bugfix_version.get(key)
+    if not sxs_bugfix:
+        return sxs_toolset, False
+
+    debug('sxs bugfix: version=%s => version=%s', repr(sxs_toolset), repr(sxs_bugfix))
+    return sxs_bugfix, True
+
 def _msvc_read_toolset_folders(msvc, vc_dir):
 
     toolsets_sxs = {}
     toolsets_full = []
 
     build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
-    sxs_toolsets = [f.name for f in os.scandir(build_dir) if f.is_dir()]
-    for sxs_toolset in sxs_toolsets:
+    sxs_folders = [f.name for f in os.scandir(build_dir) if f.is_dir()]
+    for sxs_folder in sxs_folders:
+        sxs_toolset = _msvc_sxs_toolset_folder(msvc, sxs_folder)
+        if not sxs_toolset:
+            continue
         filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_toolset)
         filepath = os.path.join(build_dir, sxs_toolset, filename)
         debug('sxs toolset: check file=%s', repr(filepath))
@@ -428,22 +469,26 @@ def _msvc_version_toolset_vcvars(msvc, vc_dir, toolset_version):
 
     toolsets_sxs, toolsets_full = _msvc_version_toolsets(msvc, vc_dir)
 
-    if msvc.vs_def.vc_buildtools_def.vc_version_numeric == VS2019.vc_buildtools_def.vc_version_numeric:
-        # necessary to detect toolset not found
-        if toolset_version == '14.28.16.8':
-            new_toolset_version = '14.28'
-            # VS2019\Common7\Tools\vsdevcmd\ext\vcvars.bat AzDO Bug#1293526
-            #     special handling of the 16.8 SxS toolset, use VC\Auxiliary\Build\14.28 directory and SxS files
-            #     if SxS version 14.28 not present/installed, fallback selection of toolset VC\Tools\MSVC\14.28.nnnnn.
-            debug(
-                'rewrite toolset_version=%s => toolset_version=%s',
-                repr(toolset_version), repr(new_toolset_version)
-            )
-            toolset_version = new_toolset_version
-
-    if toolset_version in toolsets_sxs:
-        toolset_vcvars = toolsets_sxs[toolset_version]
+    if toolset_version in toolsets_full:
+        # full toolset version provided
+        toolset_vcvars = toolset_version
         return toolset_vcvars
+
+    sxs_toolset, sxs_isbugfix = _msvc_sxs_toolset_version(msvc, toolset_version)
+    if sxs_toolset:
+        # SxS version provided
+        sxs_version = toolsets_sxs.get(sxs_toolset, None)
+        if sxs_version:
+            # SxS full toolset version
+            if sxs_version in toolsets_full:
+                toolset_vcvars = sxs_version
+                return toolset_vcvars
+            return None
+        # SxS version file missing
+        if not sxs_isbugfix:
+            return None
+        # SxS version bugfix: check toolset version
+        toolset_version = sxs_toolset
 
     for toolset_full in toolsets_full:
         if toolset_full.startswith(toolset_version):

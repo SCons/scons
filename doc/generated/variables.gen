@@ -5226,13 +5226,6 @@ Toolset selection details:
 <itemizedlist>
 
 <listitem><para>
-SxS version numbers are not always in three dot format (e.g., <literal>'XX.YY.ZZ.NN'</literal>) as shown above.
-</para><para>
-In Visual Studio 2022 for example, <literal>14.16</literal> is an SxS toolset version that is directly
-mapped to toolset version <literal>14.16.27023</literal>.
-</para></listitem>
-
-<listitem><para>
 When &cv-MSVC_TOOLSET_VERSION; is not an SxS version number or a full toolset version number:
 the first toolset version, ranked in descending order, that matches the &cv-MSVC_TOOLSET_VERSION;
 prefix is selected.
@@ -5251,13 +5244,31 @@ toolset with the largest version number.
 </para>
 
 <para>
-Example environment constructor invocations with toolset version specifications:
-<programlisting>
-Environment(MSVC_TOOLSET_VERSION='14.2')
-Environment(MSVC_TOOLSET_VERSION='14.29')
-Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.30133')
-Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.16.11')
-</programlisting>
+Example 1 - A default Visual Studio build with a partial toolset version specified:
+<example_commands>
+env = Environment(MSVC_TOOLSET_VERSION='14.2')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A default Visual Studio build with a partial toolset version specified:
+<example_commands>
+env = Environment(MSVC_TOOLSET_VERSION='14.29')
+</example_commands>
+</para>
+
+<para>
+Example 3 - A Visual Studio 2022 build with a full toolset version specified:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.30133')
+</example_commands>
+</para>
+
+<para>
+Example 4 - A Visual Studio 2022 build with an SxS toolset version specified:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.16.11')
+</example_commands>
 </para>
 
 <para>
