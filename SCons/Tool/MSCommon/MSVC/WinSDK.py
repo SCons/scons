@@ -43,10 +43,13 @@ from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
 
+_DESKTOP = Config.MSVC_PLATFORM_INTERNAL['Desktop']
+_UWP = Config.MSVC_PLATFORM_INTERNAL['UWP']
+
 def _new_sdk_map():
     sdk_map = {
-        'desktop': [],
-        'uwp': [],
+        _DESKTOP.vc_platform: [],
+        _UWP.vc_platform: [],
     }
     return sdk_map
 
@@ -84,20 +87,20 @@ def _sdk_10_layout(version):
             if not os.path.exists(sdk_inc_path):
                 continue
 
-            for platform_type, sdk_inc_file in [
-                ('desktop', 'winsdkver.h'),
-                ('uwp',     'windows.h'),
+            for vc_platform, sdk_inc_file in [
+                (_DESKTOP.vc_platform, 'winsdkver.h'),
+                (_UWP.vc_platform,     'windows.h'),
             ]:
 
                 if not os.path.exists(os.path.join(sdk_inc_path, sdk_inc_file)):
                     continue
 
-                key = (version_nbr, platform_type)
+                key = (version_nbr, vc_platform)
                 if key in sdk_version_platform_seen:
                     continue
                 sdk_version_platform_seen.add(key)
 
-                sdk_map[platform_type].append(version_nbr)
+                sdk_map[vc_platform].append(version_nbr)
 
     for key, val in sdk_map.items():
         val.sort(reverse=True)
@@ -128,20 +131,20 @@ def _sdk_81_layout(version):
         if not os.path.exists(sdk_inc_path):
             continue
 
-        for platform_type, sdk_inc_file in [
-            ('desktop', 'winsdkver.h'),
-            ('uwp',     'windows.h'),
+        for vc_platform, sdk_inc_file in [
+            (_DESKTOP.vc_platform, 'winsdkver.h'),
+            (_UWP.vc_platform,     'windows.h'),
         ]:
 
             if not os.path.exists(os.path.join(sdk_inc_path, sdk_inc_file)):
                 continue
 
-            key = (version_nbr, platform_type)
+            key = (version_nbr, vc_platform)
             if key in sdk_version_platform_seen:
                 continue
             sdk_version_platform_seen.add(key)
 
-            sdk_map[platform_type].append(version_nbr)
+            sdk_map[vc_platform].append(version_nbr)
 
     for key, val in sdk_map.items():
         val.sort(reverse=True)
@@ -218,9 +221,13 @@ def _sdk_map(version_list):
         _sdk_cache[key] = sdk_map
     return sdk_map
 
-def get_sdk_version_list(version_list, platform_type):
+def get_msvc_platform(is_uwp=False):
+    platform_def = _UWP if is_uwp else _DESKTOP
+    return platform_def
+
+def get_sdk_version_list(version_list, platform_def):
     sdk_map = _sdk_map(version_list)
-    sdk_list = sdk_map.get(platform_type, [])
+    sdk_list = sdk_map.get(platform_def.vc_platform, [])
     return sdk_list
 
 def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
@@ -235,8 +242,8 @@ def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
         return sdk_versions
 
     is_uwp = True if msvc_uwp_app in Config.BOOLEAN_SYMBOLS[True] else False
-    platform_type = 'uwp' if is_uwp else 'desktop'
-    sdk_list = get_sdk_version_list(vs_def.vc_sdk_versions, platform_type)
+    platform_def = get_msvc_platform(is_uwp)
+    sdk_list = get_sdk_version_list(vs_def.vc_sdk_versions, platform_def)
 
     sdk_versions.extend(sdk_list)
     debug('sdk_versions=%s', repr(sdk_versions))

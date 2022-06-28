@@ -28,10 +28,19 @@ Exceptions for Microsoft Visual C/C++.
 class VisualCException(Exception):
     pass
 
+class MSVCInternalError(VisualCException):
+    pass
+
 class MSVCVersionNotFound(VisualCException):
     pass
 
-class MSVCInternalError(VisualCException):
+class MSVCSDKVersionNotFound(VisualCException):
+    pass
+
+class MSVCToolsetVersionNotFound(VisualCException):
+    pass
+
+class MSVCSpectreLibsNotFound(VisualCException):
     pass
 
 class MSVCArgumentError(VisualCException):

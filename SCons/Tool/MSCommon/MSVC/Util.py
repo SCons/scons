@@ -83,3 +83,23 @@ def get_version_prefix(version):
         rval = ''
     return rval
 
+re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*')
+
+def get_msvc_version_prefix(version):
+    """Get the msvc version number prefix from a string.
+
+    Args:
+        version: str
+            version string
+
+    Returns:
+        str: the msvc version number prefix
+
+    """
+    m = re_msvc_version_prefix.match(version)
+    if m:
+        rval = m.group('version')
+    else:
+        rval = ''
+    return rval
+

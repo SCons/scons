@@ -950,6 +950,13 @@ type (i.e., <literal>UWP</literal> or <literal>Desktop</literal>).  The requeste
 platform type components do not appear to be installed.
 </para></listitem>
 
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; version is <literal>8.1</literal>, the platform type is
+<literal>UWP</literal>, and the build tools selected are from Visual Studio 2017
+and later (i.e., &cv-link-MSVC_VERSION; must be '14.0' or &cv-link-MSVC_TOOLSET_VERSION;
+must be '14.0').
+</para></listitem>
+
 </itemizedlist>
 </para>
 
@@ -1209,6 +1216,12 @@ An exception is raised when any of the following conditions are satisfied:
 and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
 </para></listitem>
 
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled and the platform type is <literal>UWP</literal>. There
+are no spectre-mitigated libraries for Universal Windows Platform (UWP) applications or
+components.
+</para></listitem>
+
 </itemizedlist>
 </para>
 
@@ -1240,8 +1253,8 @@ details.
 
 <listitem><para>
 <emphasis>
-The existence of the spectre mitigations libraries is not verified when &cv-MSVC_SPECTRE_LIBS;
-is enabled which could result in build failures.
+The existence of the spectre libraries host architecture and target architecture folders are not
+verified when &cv-MSVC_SPECTRE_LIBS; is enabled which could result in build failures.
 </emphasis>
 The burden is on the user to ensure the requisite libraries with spectre mitigations are installed.
 </para></listitem>

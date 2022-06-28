@@ -44,6 +44,9 @@ from . import WinSDK
 
 from .Exceptions import (
     MSVCInternalError,
+    MSVCSDKVersionNotFound,
+    MSVCToolsetVersionNotFound,
+    MSVCSpectreLibsNotFound,
     MSVCArgumentError,
 )
 
@@ -131,6 +134,18 @@ def msvc_force_default_arguments(force=True):
 if CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS:
     msvc_force_default_arguments(force=True)
 
+# UWP SDK 8.1 and SDK 10:
+#
+#     https://stackoverflow.com/questions/46659238/build-windows-app-compatible-for-8-1-and-10
+#     VS2019 - UWP (Except for Win10Mobile)
+#     VS2017 - UWP
+#     VS2015 - UWP, Win8.1 StoreApp, WP8/8.1 StoreApp
+#     VS2013 - Win8/8.1 StoreApp, WP8/8.1 StoreApp
+
+# SPECTRE LIBS (msvc documentation):
+#     "There are no versions of Spectre-mitigated libraries for Universal Windows (UWP) apps or
+#     components. App-local deployment of such libraries isn't possible."
+
 # MSVC batch file arguments:
 #
 #     VS2022: UWP, SDK, TOOLSET, SPECTRE
@@ -159,13 +174,25 @@ VS2017 = Config.MSVS_VERSION_INTERNAL['2017']
 VS2015 = Config.MSVS_VERSION_INTERNAL['2015']
 
 MSVC_VERSION_ARGS_DEFINITION = namedtuple('MSVCVersionArgsDefinition', [
-    'version', # fully qualified msvc version (e.g., '14.1Exp')
+    'version', # full version (e.g., '14.1Exp', '14.32.31326')
     'vs_def',
 ])
 
 def _msvc_version(version):
 
     verstr = Util.get_version_prefix(version)
+    vs_def = Config.MSVC_VERSION_INTERNAL[verstr]
+
+    version_args = MSVC_VERSION_ARGS_DEFINITION(
+        version = version,
+        vs_def = vs_def,
+    )
+
+    return version_args
+
+def _toolset_version(version):
+
+    verstr = Util.get_msvc_version_prefix(version)
     vs_def = Config.MSVC_VERSION_INTERNAL[verstr]
 
     version_args = MSVC_VERSION_ARGS_DEFINITION(
@@ -252,12 +279,38 @@ def _msvc_script_argument_sdk_constraints(msvc, sdk_version):
     err_msg = "MSVC_SDK_VERSION ({}) is not supported".format(repr(sdk_version))
     return err_msg
 
-def _msvc_script_argument_sdk(env, msvc, platform_type, arglist):
+def _msvc_script_argument_sdk_platform_constraints(msvc, toolset, sdk_version, platform_def):
+
+    if sdk_version == '8.1' and platform_def.is_uwp:
+
+        vs_def = toolset.vs_def if toolset else msvc.vs_def
+
+        if vs_def.vc_buildtools_def.vc_version_numeric > VS2015.vc_buildtools_def.vc_version_numeric:
+            debug(
+                'invalid: uwp/store SDK 8.1 msvc_version constraint: %s > %s VS2015',
+                repr(vs_def.vc_buildtools_def.vc_version_numeric),
+                repr(VS2015.vc_buildtools_def.vc_version_numeric)
+            )
+            if toolset and toolset.vs_def != msvc.vs_def:
+                err_msg = "MSVC_SDK_VERSION ({}) and platform type ({}) constraint violation: toolset version {} > {} VS2015".format(
+                    repr(sdk_version), repr(platform_def.vc_platform),
+                    repr(toolset.version), repr(VS2015.vc_buildtools_def.vc_version)
+                )
+            else:
+                err_msg = "MSVC_SDK_VERSION ({}) and platform type ({}) constraint violation: MSVC_VERSION {} > {} VS2015".format(
+                    repr(sdk_version), repr(platform_def.vc_platform),
+                    repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
+                )
+            return err_msg
+
+    return None
+
+def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
 
     sdk_version = env['MSVC_SDK_VERSION']
     debug(
         'MSVC_VERSION=%s, MSVC_SDK_VERSION=%s, platform_type=%s',
-        repr(msvc.version), repr(sdk_version), repr(platform_type)
+        repr(msvc.version), repr(sdk_version), repr(platform_def.vc_platform)
     )
 
     if not sdk_version:
@@ -267,12 +320,16 @@ def _msvc_script_argument_sdk(env, msvc, platform_type, arglist):
     if err_msg:
         raise MSVCArgumentError(err_msg)
 
-    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
+    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_def)
 
     if sdk_version not in sdk_list:
         err_msg = "MSVC_SDK_VERSION {} not found for platform type {}".format(
-            repr(sdk_version), repr(platform_type)
+            repr(sdk_version), repr(platform_def.vc_platform)
         )
+        raise MSVCSDKVersionNotFound(err_msg)
+
+    err_msg = _msvc_script_argument_sdk_platform_constraints(msvc, toolset, sdk_version, platform_def)
+    if err_msg:
         raise MSVCArgumentError(err_msg)
 
     argpair = (SortOrder.SDK, sdk_version)
@@ -280,12 +337,12 @@ def _msvc_script_argument_sdk(env, msvc, platform_type, arglist):
 
     return sdk_version
 
-def _msvc_script_default_sdk(env, msvc, platform_type, arglist):
+def _msvc_script_default_sdk(env, msvc, platform_def, arglist):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
         return None
 
-    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_type)
+    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_def)
     if not len(sdk_list):
         return None
 
@@ -293,7 +350,7 @@ def _msvc_script_default_sdk(env, msvc, platform_type, arglist):
 
     debug(
         'MSVC_VERSION=%s, sdk_default=%s, platform_type=%s',
-        repr(msvc.version), repr(sdk_default), repr(platform_type)
+        repr(msvc.version), repr(sdk_default), repr(platform_def.vc_platform)
     )
 
     argpair = (SortOrder.SDK, sdk_default)
@@ -597,8 +654,9 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
         err_msg = "MSVC_TOOLSET_VERSION {} not found for MSVC_VERSION {}".format(
             repr(toolset_version), repr(msvc.version)
         )
-        raise MSVCArgumentError(err_msg)
+        raise MSVCToolsetVersionNotFound(err_msg)
 
+    # toolset may not be installed for host/target
     argpair = (SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_vcvars))
     arglist.append(argpair)
 
@@ -644,16 +702,7 @@ def _user_script_argument_toolset(env, toolset_version, user_argstr):
 
     raise MSVCArgumentError(err_msg)
 
-def _msvc_script_argument_spectre(env, msvc, arglist):
-
-    spectre_libs = env['MSVC_SPECTRE_LIBS']
-    debug('MSVC_VERSION=%s, MSVC_SPECTRE_LIBS=%s', repr(msvc.version), repr(spectre_libs))
-
-    if not spectre_libs:
-        return None
-
-    if spectre_libs not in _ARGUMENT_BOOLEAN_TRUE:
-        return None
+def _msvc_script_argument_spectre_constraints(msvc, toolset, spectre_libs, platform_def):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
         debug(
@@ -664,11 +713,63 @@ def _msvc_script_argument_spectre(env, msvc, arglist):
         err_msg = "MSVC_SPECTRE_LIBS ({}) constraint violation: MSVC_VERSION {} < {} VS2017".format(
             repr(spectre_libs), repr(msvc.version), repr(VS2017.vc_buildtools_def.vc_version)
         )
+        return err_msg
+
+    if toolset:
+        if toolset.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
+            debug(
+                'invalid: toolset version constraint: %s < %s VS2017',
+                repr(toolset.vs_def.vc_buildtools_def.vc_version_numeric),
+                repr(VS2017.vc_buildtools_def.vc_version_numeric)
+            )
+            err_msg = "MSVC_SPECTRE_LIBS ({}) constraint violation: toolset version {} < {} VS2017".format(
+                repr(spectre_libs), repr(toolset.version), repr(VS2017.vc_buildtools_def.vc_version)
+            )
+            return err_msg
+
+
+    if platform_def.is_uwp:
+        debug(
+            'invalid: spectre_libs=%s and platform_type=%s',
+            repr(spectre_libs), repr(platform_def.vc_platform)
+        )
+        err_msg = "MSVC_SPECTRE_LIBS ({}) are not supported for platform type ({})".format(
+            repr(spectre_libs), repr(platform_def.vc_platform)
+        )
+        return err_msg
+
+    return None
+
+def _msvc_script_argument_spectre(env, msvc, vc_dir, toolset, platform_def, arglist):
+
+    spectre_libs = env['MSVC_SPECTRE_LIBS']
+    debug('MSVC_VERSION=%s, MSVC_SPECTRE_LIBS=%s', repr(msvc.version), repr(spectre_libs))
+
+    if not spectre_libs:
+        return None
+
+    if spectre_libs not in _ARGUMENT_BOOLEAN_TRUE:
+        return None
+
+    err_msg = _msvc_script_argument_spectre_constraints(msvc, toolset, spectre_libs, platform_def)
+    if err_msg:
         raise MSVCArgumentError(err_msg)
+
+    if toolset:
+        spectre_dir = os.path.join(vc_dir, "Tools", "MSVC", toolset.version, "lib", "spectre")
+        if not os.path.exists(spectre_dir):
+            debug(
+                'spectre libs: msvc_version=%s, toolset_version=%s, spectre_dir=%s',
+                repr(msvc.version), repr(toolset.version), repr(spectre_dir)
+            )
+            err_msg = "Spectre libraries not found for MSVC_VERSION {} toolset version {}".format(
+                repr(msvc.version), repr(toolset.version)
+            )
+            raise MSVCSpectreLibsNotFound(err_msg)
 
     spectre_arg = 'spectre'
 
-    # spectre libs may not be installed
+    # spectre libs may not be installed for host/target
     argpair = (SortOrder.SPECTRE, '-vcvars_spectre_libs={}'.format(spectre_arg))
     arglist.append(argpair)
 
@@ -723,66 +824,111 @@ def _msvc_script_argument_user(env, msvc, arglist):
 
     return script_args
 
+def _msvc_process_construction_variables(env):
+
+    for cache_variable in [
+        _MSVC_FORCE_DEFAULT_TOOLSET,
+        _MSVC_FORCE_DEFAULT_SDK,
+    ]:
+        if cache_variable:
+            return True
+
+    for env_variable in [
+        'MSVC_UWP_APP',
+        'MSVC_TOOLSET_VERSION',
+        'MSVC_SDK_VERSION',
+        'MSVC_SPECTRE_LIBS',
+    ]:
+        if env.get(env_variable, None) != None:
+            return True
+
+    return False
+
 def msvc_script_arguments(env, version, vc_dir, arg):
 
     arglist = []
 
-    msvc = _msvc_version(version)
-
     if arg:
         argpair = (SortOrder.ARCH, arg)
         arglist.append(argpair)
+
+    msvc = _msvc_version(version)
 
     if 'MSVC_SCRIPT_ARGS' in env:
         user_argstr = _msvc_script_argument_user(env, msvc, arglist)
     else:
         user_argstr = None
 
-    if 'MSVC_UWP_APP' in env:
-        uwp = _msvc_script_argument_uwp(env, msvc, arglist)
-    else:
-        uwp = None
+    if _msvc_process_construction_variables(env):
 
-    if user_argstr:
-        _user_script_argument_uwp(env, uwp, user_argstr)
+        # MSVC_UWP_APP
 
-    platform_type = 'uwp' if uwp else 'desktop'
+        if 'MSVC_UWP_APP' in env:
+            uwp = _msvc_script_argument_uwp(env, msvc, arglist)
+        else:
+            uwp = None
 
-    if 'MSVC_SDK_VERSION' in env:
-        sdk_version = _msvc_script_argument_sdk(env, msvc, platform_type, arglist)
-    else:
-        sdk_version = None
+        if user_argstr:
+            _user_script_argument_uwp(env, uwp, user_argstr)
 
-    if user_argstr:
-        user_sdk = _user_script_argument_sdk(env, sdk_version, user_argstr)
-    else:
-        user_sdk = None
+        is_uwp = True if uwp else False
+        platform_def = WinSDK.get_msvc_platform(is_uwp)
 
-    if _MSVC_FORCE_DEFAULT_SDK:
-        if not sdk_version and not user_sdk:
-            sdk_version = _msvc_script_default_sdk(env, msvc, platform_type, arglist)
+        # MSVC_TOOLSET_VERSION
 
-    if 'MSVC_TOOLSET_VERSION' in env:
-        toolset_version = _msvc_script_argument_toolset(env, msvc, vc_dir, arglist)
-    else:
-        toolset_version = None
+        if 'MSVC_TOOLSET_VERSION' in env:
+            toolset_version = _msvc_script_argument_toolset(env, msvc, vc_dir, arglist)
+        else:
+            toolset_version = None
 
-    if user_argstr:
-        user_toolset = _user_script_argument_toolset(env, toolset_version, user_argstr)
-    else:
-        user_toolset = None
+        if user_argstr:
+            user_toolset = _user_script_argument_toolset(env, toolset_version, user_argstr)
+        else:
+            user_toolset = None
 
-    if _MSVC_FORCE_DEFAULT_TOOLSET:
         if not toolset_version and not user_toolset:
-            toolset_version = _msvc_script_default_toolset(env, msvc, vc_dir, arglist)
+            default_toolset = _msvc_script_default_toolset(env, msvc, vc_dir, arglist)
+        else:
+            default_toolset = None
 
-    if 'MSVC_SPECTRE_LIBS' in env:
-        spectre = _msvc_script_argument_spectre(env, msvc, arglist)
-    else:
-        spectre = None
+        if _MSVC_FORCE_DEFAULT_TOOLSET:
+            if default_toolset:
+                toolset_version = default_toolset
 
-    if user_argstr:
-        _user_script_argument_spectre(env, spectre, user_argstr)
+        if user_toolset:
+            toolset = None
+        elif toolset_version:
+            toolset = _toolset_version(toolset_version)
+        elif default_toolset:
+            toolset = _toolset_version(default_toolset)
+        else:
+            toolset = None
+
+        # MSVC_SDK_VERSION
+
+        if 'MSVC_SDK_VERSION' in env:
+            sdk_version = _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist)
+        else:
+            sdk_version = None
+
+        if user_argstr:
+            user_sdk = _user_script_argument_sdk(env, sdk_version, user_argstr)
+        else:
+            user_sdk = None
+
+        if _MSVC_FORCE_DEFAULT_SDK:
+            if not sdk_version and not user_sdk:
+                sdk_version = _msvc_script_default_sdk(env, msvc, platform_def, arglist)
+
+        # MSVC_SPECTRE_LIBS
+
+        if 'MSVC_SPECTRE_LIBS' in env:
+            spectre = _msvc_script_argument_spectre(env, msvc, vc_dir, toolset, platform_def, arglist)
+        else:
+            spectre = None
+
+        if user_argstr:
+            _user_script_argument_spectre(env, spectre, user_argstr)
 
     if arglist:
         arglist.sort()

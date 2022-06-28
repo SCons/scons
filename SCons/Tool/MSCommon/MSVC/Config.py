@@ -55,6 +55,33 @@ for bool, symbol_list, symbol_case_list in [
     for symbol in BOOLEAN_SYMBOLS[bool]:
         BOOLEAN_EXTERNAL[symbol] = bool
 
+MSVC_PLATFORM_DEFINITION = namedtuple('MSVCPlatform', [
+    'vc_platform',
+    'is_uwp',
+])
+
+MSVC_PLATFORM_DEFINITION_LIST = []
+
+MSVC_PLATFORM_INTERNAL = {}
+MSVC_PLATFORM_EXTERNAL = {}
+
+for vc_platform, is_uwp in [
+    ('Desktop', False),
+    ('UWP', True),
+]:
+
+    vc_platform_def = MSVC_PLATFORM_DEFINITION(
+        vc_platform = vc_platform,
+        is_uwp = is_uwp,
+    )
+
+    MSVC_PLATFORM_DEFINITION_LIST.append(vc_platform_def)
+
+    MSVC_PLATFORM_INTERNAL[vc_platform] = vc_platform_def
+
+    for symbol in [vc_platform, vc_platform.lower(), vc_platform.upper()]:
+        MSVC_PLATFORM_EXTERNAL[symbol] = vc_platform_def
+
 MSVC_RUNTIME_DEFINITION = namedtuple('MSVCRuntime', [
     'vc_runtime',
     'vc_runtime_numeric',
