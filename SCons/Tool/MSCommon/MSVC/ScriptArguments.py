@@ -839,7 +839,7 @@ def _msvc_process_construction_variables(env):
         'MSVC_SDK_VERSION',
         'MSVC_SPECTRE_LIBS',
     ]:
-        if env.get(env_variable, None) != None:
+        if env.get(env_variable, None) is not None:
             return True
 
     return False
