@@ -104,7 +104,7 @@ If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
 will be respectively prepended and appended to 
-each definition in &cv-link-CPPDEFINES;.
+each definition in &cv-CPPDEFINES;.
 </para>
 
 <example_commands>
@@ -142,11 +142,12 @@ to the dictionary item's corresponding value;
 if the value is
 <literal>None</literal>,
 then the name is defined without an explicit value.
-Note that the resulting flags are sorted by keyword
-to ensure that the order of the options on the
-command line is consistent each time
-&scons;
-is run.
+Note that to ensure build order will be stable,
+&SCons; sorts the flags generated from the dictionary,
+since a changed command line triggers a rebuild
+(older &Python; interpreters did
+not guarantee to preserve dictionary keys in insert order),
+This precaution may be removed in a future version.
 </para>
 
 <example_commands>
@@ -154,6 +155,27 @@ is run.
 # and /DA /DB=2 to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES={'B':2, 'A':None})
 </example_commands>
+
+<para>
+Depending on how contents are added to &cv-CPPDEFINES;,
+it may end up as a compound type,
+for example a list containing strings, tuples and/or dictionaries.
+&SCons; will still expand this correctly.
+</para>
+
+<para>
+Note that if a value contains spaces (or other syntax that
+will be meaningful to the shell that calls the compiler)
+it needs to be quoted:
+</para>
+
+<example_commands>
+# SPACED will just get the string 'spaced', arg will be a separate arg
+env = Environment(CPPDEFINES={'SPACED': 'spaced arg'})
+# SPACED will get the full value
+env = Environment(CPPDEFINES={'SPACED': '"spaced arg"'})
+</example_commands>
+
 </summary>
 </cvar>
 

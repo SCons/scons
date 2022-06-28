@@ -79,6 +79,8 @@ DOCUMENTATION
   Added note on the possibly surprising feature that SCons always passes
   -sourcepath when calling javac, which affects how the class path is
   used when finding sources.
+- Added further details in the documentation of Append and related functions
+  on the special handling of CPPDEFINES.
 
 DEVELOPMENT
 -----------
