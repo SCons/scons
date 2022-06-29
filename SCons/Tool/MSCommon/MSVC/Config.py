@@ -318,7 +318,7 @@ for policy_value, policy_symbol_list in [
 def verify():
     from .. import vc
     for msvc_version in vc._VCVER:
-        vc_version = Util.get_version_prefix(msvc_version)
+        vc_version = Util.get_msvc_version_prefix(msvc_version)
         if vc_version in MSVC_VERSION_INTERNAL:
             continue
         err_msg = 'vc_version {} not in MSVC_VERSION_INTERNAL'.format(repr(vc_version))

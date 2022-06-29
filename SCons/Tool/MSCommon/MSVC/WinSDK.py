@@ -235,7 +235,7 @@ def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
 
     sdk_versions = []
 
-    verstr = Util.get_version_prefix(msvc_version)
+    verstr = Util.get_msvc_version_prefix(msvc_version)
     vs_def = Config.MSVC_VERSION_EXTERNAL.get(verstr, None)
     if not vs_def:
         debug('vs_def is not defined')

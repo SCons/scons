@@ -180,7 +180,7 @@ MSVC_VERSION_ARGS_DEFINITION = namedtuple('MSVCVersionArgsDefinition', [
 
 def _msvc_version(version):
 
-    verstr = Util.get_version_prefix(version)
+    verstr = Util.get_msvc_version_prefix(version)
     vs_def = Config.MSVC_VERSION_INTERNAL[verstr]
 
     version_args = MSVC_VERSION_ARGS_DEFINITION(
