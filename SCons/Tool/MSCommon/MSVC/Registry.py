@@ -107,3 +107,6 @@ def windows_kit_query_paths(version):
     q = windows_kits(version)
     return microsoft_query_paths(q)
 
+def vstudio_sxs_vc7(version):
+    return '\\'.join([r'VisualStudio\SxS\VC7', version])
+

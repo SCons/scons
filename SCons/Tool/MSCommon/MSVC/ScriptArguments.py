@@ -40,6 +40,7 @@ from ..common import (
 
 from . import Util
 from . import Config
+from . import Registry
 from . import WinSDK
 
 from .Exceptions import (
@@ -491,13 +492,16 @@ def _msvc_read_toolset_default(msvc, vc_dir):
 
 _toolset_version_cache = {}
 _toolset_default_cache = {}
+_toolset_have140_cache = None
 
 def _reset_toolset_cache():
     global _toolset_version_cache
     global _toolset_default_cache
+    global _toolset_have140_cache
     debug('reset: toolset cache')
     _toolset_version_cache = {}
     _toolset_default_cache = {}
+    _toolset_have140_cache = None
 
 def _msvc_version_toolsets(msvc, vc_dir):
 
@@ -519,10 +523,23 @@ def _msvc_default_toolset(msvc, vc_dir):
 
     return toolset_default
 
+def _msvc_have140_toolset():
+    global _toolset_have140_cache
+
+    if _toolset_have140_cache is None:
+        suffix = Registry.vstudio_sxs_vc7('14.0')
+        vcinstalldirs = [record[0] for record in Registry.microsoft_query_paths(suffix)]
+        debug('vc140 toolset: paths=%s', repr(vcinstalldirs))
+        _toolset_have140_cache = True if vcinstalldirs else False
+
+    return _toolset_have140_cache
+
 def _msvc_version_toolset_vcvars(msvc, vc_dir, toolset_version):
 
     if toolset_version == '14.0':
-        return toolset_version
+        if _msvc_have140_toolset():
+            return toolset_version
+        return None
 
     toolsets_sxs, toolsets_full = _msvc_version_toolsets(msvc, vc_dir)
 

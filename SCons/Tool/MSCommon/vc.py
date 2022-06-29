@@ -1300,7 +1300,6 @@ def msvc_setup_env_user(env=None):
         # Intent is to use msvc tools:
         #     MSVC_VERSION:         defined and evaluates True
         #     MSVS_VERSION:         defined and evaluates True
-        #     MSVC_TOOLSET_VERSION: defined and evaluates True
         #     MSVC_USE_SCRIPT:      defined and (is string or evaluates False)
         #     MSVC_USE_SETTINGS:    defined and is not None
 
