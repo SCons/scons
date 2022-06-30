@@ -29,14 +29,17 @@ import os
 import re
 
 def listdir_dirs(p):
-    """Get a list of qualified subdirectory paths from a windows path.
+    """
+    Return a list of tuples for each subdirectory of the given directory path.
+    Each tuple is comprised of the subdirectory name and the qualified subdirectory path.
+    Assumes the given directory path exists and is a directory.
 
     Args:
         p: str
-            windows path
+            directory path
 
     Returns:
-        List[str]: list of qualified subdirectory paths
+        list[tuple[str,str]]: a list of tuples
 
     """
     dirs = []
@@ -47,14 +50,15 @@ def listdir_dirs(p):
     return dirs
 
 def process_path(p):
-    """Normalize a windows path.
+    """
+    Normalize a system path
 
     Args:
         p: str
-            windows path
+            system path
 
     Returns:
-        str: normalized windows path
+        str: normalized system path
 
     """
     if p:
@@ -66,11 +70,12 @@ def process_path(p):
 re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*')
 
 def get_version_prefix(version):
-    """Get the version number prefix from a string.
+    """
+    Get the version number prefix from a string.
 
     Args:
         version: str
-            version string
+            version specification
 
     Returns:
         str: the version number prefix
@@ -86,11 +91,12 @@ def get_version_prefix(version):
 re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*')
 
 def get_msvc_version_prefix(version):
-    """Get the msvc version number prefix from a string.
+    """
+    Get the msvc version number prefix from a string.
 
     Args:
         version: str
-            version string
+            version specification
 
     Returns:
         str: the msvc version number prefix

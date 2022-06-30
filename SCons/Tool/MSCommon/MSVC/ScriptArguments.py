@@ -398,16 +398,16 @@ def _msvc_read_toolset_file(msvc, filename):
         debug('IndexError: msvc_version=%s, filename=%s', repr(msvc.version), repr(filename))
     return toolset_version
 
-def _msvc_sxs_toolset_folder(msvc, sxs_folder):
+def _msvc_sxs_toolset_folder(msvc, sxs_version):
 
-    if re_toolset_sxs.match(sxs_folder):
-        return sxs_folder
+    if re_toolset_sxs.match(sxs_version):
+        return sxs_version
 
-    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_folder)
+    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_version)
     if key in _msvc_sxs_bugfix_folder:
-        return sxs_folder
+        return sxs_version
 
-    debug('sxs folder: ignore version=%s', repr(sxs_folder))
+    debug('sxs folder: ignore version=%s', repr(sxs_version))
     return None
 
 def _msvc_sxs_toolset_version(msvc, sxs_toolset):
@@ -429,35 +429,35 @@ def _msvc_read_toolset_folders(msvc, vc_dir):
     toolsets_full = []
 
     build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
-    sxs_folders = [f.name for f in os.scandir(build_dir) if f.is_dir()]
-    for sxs_folder in sxs_folders:
-        sxs_toolset = _msvc_sxs_toolset_folder(msvc, sxs_folder)
-        if not sxs_toolset:
-            continue
-        filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_toolset)
-        filepath = os.path.join(build_dir, sxs_toolset, filename)
-        debug('sxs toolset: check file=%s', repr(filepath))
-        if os.path.exists(filepath):
-            toolset_version = _msvc_read_toolset_file(msvc, filepath)
-            if not toolset_version:
+    if os.path.exists(build_dir):
+        for sxs_version, sxs_path in Util.listdir_dirs(build_dir):
+            sxs_version = _msvc_sxs_toolset_folder(msvc, sxs_version)
+            if not sxs_version:
                 continue
-            toolsets_sxs[sxs_toolset] = toolset_version
-            debug(
-                'sxs toolset: msvc_version=%s, sxs_version=%s, toolset_version=%s',
-                repr(msvc.version), repr(sxs_toolset), toolset_version
-            )
+            filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_version)
+            filepath = os.path.join(sxs_path, filename)
+            debug('sxs toolset: check file=%s', repr(filepath))
+            if os.path.exists(filepath):
+                toolset_version = _msvc_read_toolset_file(msvc, filepath)
+                if not toolset_version:
+                    continue
+                toolsets_sxs[sxs_version] = toolset_version
+                debug(
+                    'sxs toolset: msvc_version=%s, sxs_version=%s, toolset_version=%s',
+                    repr(msvc.version), repr(sxs_version), repr(toolset_version)
+                )
 
     toolset_dir = os.path.join(vc_dir, "Tools", "MSVC")
-    toolsets = [f.name for f in os.scandir(toolset_dir) if f.is_dir()]
-    for toolset_version in toolsets:
-        binpath = os.path.join(toolset_dir, toolset_version, "bin")
-        debug('toolset: check binpath=%s', repr(binpath))
-        if os.path.exists(binpath):
-            toolsets_full.append(toolset_version)
-            debug(
-                'toolset: msvc_version=%s, toolset_version=%s',
-                repr(msvc.version), repr(toolset_version)
-            )
+    if os.path.exists(toolset_dir):
+        for toolset_version, toolset_path in Util.listdir_dirs(toolset_dir):
+            binpath = os.path.join(toolset_path, "bin")
+            debug('toolset: check binpath=%s', repr(binpath))
+            if os.path.exists(binpath):
+                toolsets_full.append(toolset_version)
+                debug(
+                    'toolset: msvc_version=%s, toolset_version=%s',
+                    repr(msvc.version), repr(toolset_version)
+                )
 
     toolsets_full.sort(reverse=True)
     debug('msvc_version=%s, toolsets=%s', repr(msvc.version), repr(toolsets_full))
