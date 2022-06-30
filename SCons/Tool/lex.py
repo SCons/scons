@@ -65,7 +65,7 @@ def lexEmitter(target, source, env) -> tuple:
     # NOTE: a filename passed to the command this way is not modified by SCons,
     # and so will be interpreted relative to the project top directory at
     # execution time, while the name added to the target list will be
-    # interpreted relative to the SConscript directory - a possibile mismatch.
+    # interpreted relative to the SConscript directory - a possible mismatch.
     #
     # These are GNU flex-only options.
     # TODO: recognize --outfile also?

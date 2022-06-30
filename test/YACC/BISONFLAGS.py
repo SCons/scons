@@ -27,13 +27,11 @@
 Test that detection of file-writing options in YACCFLAGS works.
 """
 
-import sys
-
 import TestSCons
 from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
+_exe = TestSCons._exe
 
 if IS_WINDOWS:
     compiler = 'msvc'
@@ -53,7 +51,7 @@ DefaultEnvironment(tools=[])
 SConscript("sub/SConscript")
 """)
 
-test.write(['sub', 'SConscript'], f"""\
+test.write(['sub', 'SConscript'], """\
 import sys
 
 env = Environment(

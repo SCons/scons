@@ -27,14 +27,13 @@
 Test that detection of file-writing options in LEXFLAGS works.
 """
 
-import sys
 import sysconfig
 
 import TestSCons
 from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
+_exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
