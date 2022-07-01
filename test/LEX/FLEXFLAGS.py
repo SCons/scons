@@ -25,9 +25,11 @@
 
 """
 Test that detection of file-writing options in LEXFLAGS works.
+Also test that construction vars for the same purpose work.
 """
 
 import sysconfig
+from pathlib import Path
 
 import TestSCons
 from TestCmd import IS_WINDOWS
@@ -37,16 +39,18 @@ _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-test.subdir('sub')
+test.subdir('sub1')
+test.subdir('sub2')
 
 test.file_fixture('mylex.py')
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
-SConscript("sub/SConscript")
+SConscript(dirs=['sub1', 'sub2'])
 """)
 
-test.write(['sub', 'SConscript'], f"""\
+# this SConscript is for the options-in-flags version
+test.write(['sub1', 'SConscript'], f"""\
 import sys
 
 env = Environment(
@@ -60,7 +64,25 @@ t = [str(target) for target in targs]
 if not all((len(t) == 3, "header.h" in t, "tables.t" in t)):
     sys.exit(1)
 """)
-test.write(['sub', 'aaa.l'], "aaa.l\nLEXFLAGS\n")
+test.write(['sub1', 'aaa.l'], "aaa.l\nLEXFLAGS\n")
+
+# this SConscript is for the construction var version
+test.write(['sub2', 'SConscript'], f"""\
+import sys
+
+env = Environment(
+    LEX=r'{_python_} mylex.py',
+    LEXFLAGS='-x',
+    tools=['default', 'lex'],
+)
+env.CFile(
+    target='aaa',
+    source='aaa.l',
+    LEXHEADERFILE='header.h',
+    LEXTABLESFILE='tables.t',
+)
+""")
+test.write(['sub2', 'aaa.l'], "aaa.l\nLEXFLAGS\n")
 
 test.run('.', stderr=None)
 
@@ -69,19 +91,38 @@ if IS_WINDOWS and not sysconfig.get_platform() in ("mingw",):
     lexflags = ' --nounistd' + lexflags
 # Read in with mode='r' because mylex.py implicitly wrote to stdout
 # with mode='w'.
-test.must_match(['sub', 'aaa.c'], "aaa.l\n%s\n" % lexflags, mode='r')
+test.must_match(['sub1', 'aaa.c'], "aaa.l\n%s\n" % lexflags, mode='r')
 
 # NOTE: this behavior is "wrong" but we're keeping it for compat.
-# the generated files should go into 'sub'.
+# the generated files should go into 'sub1', not the topdir.
 test.must_match(['header.h'], 'lex header\n')
 test.must_match(['tables.t'], 'lex table\n')
 
 # To confirm the files from the file-output options were tracked,
-# do a clean and make sure they got removed. As noted, they currently
-# don't go into the tracked location, so using the the SConscript check instead.
+# we should do a clean and make sure they got removed.
+# As noted, they currently don't go into the tracked location,
+# so using the check in the SConscript instead.
 #test.run(arguments='-c .')
-#test.must_not_exist(test.workpath(['sub', 'header.h']))
-#test.must_not_exist(test.workpath(['sub', 'tables.t']))
+#test.must_not_exist(test.workpath(['sub1', 'header.h']))
+#test.must_not_exist(test.workpath(['sub1', 'tables.t']))
+
+sub2 = Path('sub2')
+headerfile = sub2 / 'header.h'
+tablefile = sub2 / 'tables.t'
+lexflags = f' -x --header-file={headerfile} --tables-file={tablefile} -t'
+if IS_WINDOWS and not sysconfig.get_platform() in ("mingw",):
+    lexflags = ' --nounistd' + lexflags
+# Read in with mode='r' because mylex.py implicitly wrote to stdout
+# with mode='w'.
+test.must_match(['sub2', 'aaa.c'], "aaa.l\n%s\n" % lexflags, mode='r')
+test.must_match(['sub2', 'header.h'], 'lex header\n')
+test.must_match(['sub2', 'tables.t'], 'lex table\n')
+
+# To confirm the files from the file-output options were tracked,
+# do a clean and make sure they got removed.
+test.run(arguments='-c .', stderr=None)
+test.must_not_exist(test.workpath('sub2', 'header.h'))
+test.must_not_exist(test.workpath('sub2', 'tables.t'))
 
 test.pass_test()
 
