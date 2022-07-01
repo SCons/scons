@@ -85,11 +85,11 @@ if LOGFILE:
         log_handler = logging.StreamHandler(sys.stdout)
     else:
         log_handler = logging.FileHandler(filename=LOGFILE)
-    logging.basicConfig(
-        format=log_format,
-        handlers=[log_handler],
-        level=logging.DEBUG)
+    log_formatter = logging.Formatter(log_format)
+    log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
+    logger.setLevel(level=logging.DEBUG)
+    logger.addHandler(log_handler)
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
 else:
