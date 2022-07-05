@@ -25,11 +25,6 @@
 Warnings for Microsoft Visual C/C++.
 """
 
-__all__ = [
-    'VisualCWarning',
-    'MSVCScriptExecutionWarning',
-]
-
 import SCons.Warnings
 
 class VisualCWarning(SCons.Warnings.WarningOnByDefault):

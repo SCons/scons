@@ -25,17 +25,6 @@
 Exceptions for Microsoft Visual C/C++.
 """
 
-__all__ = [
-    'VisualCException',
-    'MSVCInternalError',
-    'MSVCScriptExecutionError',
-    'MSVCVersionNotFound',
-    'MSVCSDKVersionNotFound',
-    'MSVCToolsetVersionNotFound',
-    'MSVCSpectreLibsNotFound',
-    'MSVCArgumentError',
-]
-
 class VisualCException(Exception):
     pass
 

@@ -62,7 +62,19 @@ from .sdk import get_installed_sdks
 
 from . import MSVC
 
-from .MSVC.API import *
+from .MSVC.Policy import set_msvc_notfound_policy  # noqa: F401
+from .MSVC.Policy import get_msvc_notfound_policy  # noqa: F401
+from .MSVC.Policy import set_msvc_scripterror_policy  # noqa: F401
+from .MSVC.Policy import get_msvc_scripterror_policy  # noqa: F401
+
+from .MSVC.Exceptions import VisualCException
+from .MSVC.Exceptions import MSVCInternalError  # noqa: F401
+from .MSVC.Exceptions import MSVCScriptExecutionError  # noqa: F401
+from .MSVC.Exceptions import MSVCVersionNotFound  # noqa: F401
+from .MSVC.Exceptions import MSVCSDKVersionNotFound  # noqa: F401
+from .MSVC.Exceptions import MSVCToolsetVersionNotFound
+from .MSVC.Exceptions import MSVCSpectreLibsNotFound   # noqa: F401
+from .MSVC.Exceptions import MSVCArgumentError
 
 class UnsupportedVersion(VisualCException):
     pass
