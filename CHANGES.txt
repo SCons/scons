@@ -84,7 +84,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       construction variable is MSVC_NOTFOUND_POLICY.  When defined, the environment construction
       variable overrides the global policy setting for a given environment. When the active policy
       is "error" or "exception", an MSVCVersionNotFound exception is raised.  When the active policy
-      is "warning" or "warn", an MSVCVersionNotFoundWarning warning is issued and the constructed
+      is "warning" or "warn", a VisualCMissingWarning warning is issued and the constructed
       environment is likely incomplete. When the active policy is "ignore" or "suppress", no action
       is taken and the constructed environment is likely incomplete.  As implemented, the default
       global policy is "warning".  The ability to set the global policy via an SCons command-line

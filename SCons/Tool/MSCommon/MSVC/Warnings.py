@@ -28,7 +28,6 @@ Warnings for Microsoft Visual C/C++.
 __all__ = [
     'VisualCWarning',
     'MSVCScriptExecutionWarning',
-    'MSVCVersionNotFoundWarning',
 ]
 
 import SCons.Warnings
@@ -37,8 +36,5 @@ class VisualCWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
 class MSVCScriptExecutionWarning(VisualCWarning):
-    pass
-
-class MSVCVersionNotFoundWarning(VisualCWarning):
     pass
 

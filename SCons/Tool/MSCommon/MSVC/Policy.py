@@ -50,7 +50,6 @@ from .Exceptions import (
 )
 
 from .Warnings import (
-    MSVCVersionNotFoundWarning,
     MSVCScriptExecutionWarning,
 )
 
@@ -213,7 +212,7 @@ def msvc_notfound_handler(env, msg):
     elif notfound_policy_def.value:
         raise MSVCVersionNotFound(msg)
     else:
-        SCons.Warnings.warn(MSVCVersionNotFoundWarning, msg)
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
 
 
 def _msvc_scripterror_policy_lookup(symbol):
