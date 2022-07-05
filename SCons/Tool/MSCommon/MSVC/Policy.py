@@ -145,7 +145,7 @@ def _msvc_notfound_policy_lookup(symbol):
 
     return notfound_policy_def
 
-def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
+def msvc_set_notfound_policy(MSVC_NOTFOUND_POLICY=None):
     """ Set the default policy when MSVC is not found.
 
     Args:
@@ -175,7 +175,7 @@ def set_msvc_notfound_policy(MSVC_NOTFOUND_POLICY=None):
 
     return prev_policy
 
-def get_msvc_notfound_policy():
+def msvc_get_notfound_policy():
     """Return the active policy when MSVC is not found."""
     debug(
         'policy.symbol=%s, policy.value=%s',
@@ -229,7 +229,7 @@ def _msvc_scripterror_policy_lookup(symbol):
 
     return scripterror_policy_def
 
-def set_msvc_scripterror_policy(MSVC_SCRIPTERROR_POLICY=None):
+def msvc_set_scripterror_policy(MSVC_SCRIPTERROR_POLICY=None):
     """ Set the default policy when msvc batch file execution errors are detected.
 
     Args:
@@ -259,7 +259,7 @@ def set_msvc_scripterror_policy(MSVC_SCRIPTERROR_POLICY=None):
 
     return prev_policy
 
-def get_msvc_scripterror_policy():
+def msvc_get_scripterror_policy():
     """Return the active policy when msvc batch file execution errors are detected."""
     debug(
         'policy.symbol=%s, policy.value=%s',

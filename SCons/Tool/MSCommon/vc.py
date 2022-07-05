@@ -62,19 +62,11 @@ from .sdk import get_installed_sdks
 
 from . import MSVC
 
-from .MSVC.Policy import set_msvc_notfound_policy  # noqa: F401
-from .MSVC.Policy import get_msvc_notfound_policy  # noqa: F401
-from .MSVC.Policy import set_msvc_scripterror_policy  # noqa: F401
-from .MSVC.Policy import get_msvc_scripterror_policy  # noqa: F401
-
-from .MSVC.Exceptions import VisualCException
-from .MSVC.Exceptions import MSVCInternalError  # noqa: F401
-from .MSVC.Exceptions import MSVCScriptExecutionError  # noqa: F401
-from .MSVC.Exceptions import MSVCVersionNotFound  # noqa: F401
-from .MSVC.Exceptions import MSVCSDKVersionNotFound  # noqa: F401
-from .MSVC.Exceptions import MSVCToolsetVersionNotFound
-from .MSVC.Exceptions import MSVCSpectreLibsNotFound   # noqa: F401
-from .MSVC.Exceptions import MSVCArgumentError
+from .MSVC.Exceptions import (
+    VisualCException,
+    MSVCArgumentError,
+    MSVCToolsetVersionNotFound,
+)
 
 class UnsupportedVersion(VisualCException):
     pass
@@ -1381,7 +1373,7 @@ def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_version, vc_dir, full=full, sxs=sxs)
     return rval
 
-def find_msvc_version_toolset(version, prefer_newest=True):
+def msvc_query_version_toolset(version, prefer_newest=True):
     """
     Returns an msvc version and a toolset version given a version
     specification.

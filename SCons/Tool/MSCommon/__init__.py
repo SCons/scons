@@ -32,12 +32,37 @@ import SCons.Util
 
 from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
 
+from SCons.Tool.MSCommon.MSVC.Exceptions import (
+    VisualCException,
+    MSVCInternalError,
+    MSVCScriptExecutionError,
+    MSVCVersionNotFound,
+    MSVCSDKVersionNotFound,
+    MSVCToolsetVersionNotFound,
+    MSVCSpectreLibsNotFound,
+    MSVCArgumentError,
+)
+
+from SCons.Tool.MSCommon.MSVC.Policy import (
+    msvc_set_notfound_policy,
+    msvc_get_notfound_policy,
+    msvc_set_scripterror_policy,
+    msvc_get_scripterror_policy,
+)
+
 from SCons.Tool.MSCommon.vc import (
     msvc_exists,
     msvc_setup_env_tool,
     msvc_setup_env_once,
     msvc_version_to_maj_min,
     msvc_find_vswhere,
+    msvc_sdk_versions,
+    msvc_toolset_versions,
+    msvc_query_version_toolset,
+    MSVCUnsupportedHostArch,
+    MSVCUnsupportedTargetArch,
+    MSVCScriptNotFound,
+    MSVCUseSettingsError,
 )
 
 from SCons.Tool.MSCommon.vs import (
