@@ -22,41 +22,17 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Exceptions for Microsoft Visual C/C++.
+Public API for Microsoft Visual C/C++.
 """
 
-__all__ = [
-    'VisualCException',
-    'MSVCInternalError',
-    'MSVCScriptExecutionError',
-    'MSVCVersionNotFound',
-    'MSVCSDKVersionNotFound',
-    'MSVCToolsetVersionNotFound',
-    'MSVCSpectreLibsNotFound',
-    'MSVCArgumentError',
-]
+from .Exceptions import *  # noqa: F401
+from .Warnings import *  # noqa: F401
 
-class VisualCException(Exception):
-    pass
+from .Policy import set_msvc_notfound_policy  # noqa: F401
+from .Policy import get_msvc_notfound_policy  # noqa: F401
 
-class MSVCInternalError(VisualCException):
-    pass
+from .Policy import set_msvc_scripterror_policy  # noqa: F401
+from .Policy import get_msvc_scripterror_policy  # noqa: F401
 
-class MSVCScriptExecutionError(VisualCException):
-    pass
-
-class MSVCVersionNotFound(VisualCException):
-    pass
-
-class MSVCSDKVersionNotFound(VisualCException):
-    pass
-
-class MSVCToolsetVersionNotFound(VisualCException):
-    pass
-
-class MSVCSpectreLibsNotFound(VisualCException):
-    pass
-
-class MSVCArgumentError(VisualCException):
-    pass
+from .Util import get_version_elements  # noqa: F401
 

@@ -28,6 +28,10 @@ Helper functions for Microsoft Visual C/C++.
 import os
 import re
 
+from collections import (
+    namedtuple,
+)
+
 def listdir_dirs(p):
     """
     Return a list of tuples for each subdirectory of the given directory path.
@@ -67,7 +71,7 @@ def process_path(p):
         p = os.path.normcase(p)
     return p
 
-re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*')
+re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*$')
 
 def get_version_prefix(version):
     """
@@ -88,7 +92,7 @@ def get_version_prefix(version):
         rval = ''
     return rval
 
-re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*')
+re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*$')
 
 def get_msvc_version_prefix(version):
     """
@@ -108,4 +112,42 @@ def get_msvc_version_prefix(version):
     else:
         rval = ''
     return rval
+
+VERSION_ELEMENTS_DEFINITION = namedtuple('VersionElements', [
+    'vc_version_numstr', # msvc version numeric string ('14.1')
+    'vc_toolset_numstr', # toolset version numeric string ('14.16.27023')
+    'vc_version_suffix', # component type ('Exp')
+    'msvc_version',      # msvc version ('14.1Exp')
+])
+
+re_version_elements = re.compile(r'^(?P<version>(?P<msvc_version>[1-9][0-9]?[.][0-9])[0-9.]*)(?P<suffix>.*)$')
+
+def get_version_elements(version):
+    """
+    Get the version elements from an msvc version or toolset version.
+
+    Args:
+        version: str
+            version specification
+
+    Returns:
+        None or VersionElements namedtuple:
+    """
+
+    m = re_version_elements.match(version)
+    if not m:
+        return None
+
+    vc_version_numstr = m.group('msvc_version')
+    vc_toolset_numstr = m.group('version')
+    vc_version_suffix = m.group('suffix')
+
+    version_elements_def = VERSION_ELEMENTS_DEFINITION(
+        vc_version_numstr = vc_version_numstr,
+        vc_toolset_numstr = vc_toolset_numstr,
+        vc_version_suffix = vc_version_suffix,
+        msvc_version = vc_version_numstr + vc_version_suffix,
+    )
+
+    return version_elements_def
 

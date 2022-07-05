@@ -24,15 +24,15 @@
 """
 Functions for Microsoft Visual C/C++.
 
-The reset method is used to restore MSVC module data structures to their
+The _reset method is used to restore MSVC module data structures to their
 initial state for testing purposes.
 
-The verify method is used as a sanity check that MSVC module data structures
+The _verify method is used as a sanity check that MSVC module data structures
 are internally consistent.
 
 Currently:
-* reset is invoked from reset_installed_vcs in the vc module.
-* verify is invoked from the last line in the vc module.
+* _reset is invoked from reset_installed_vcs in the vc module.
+* _verify is invoked from the last line in the vc module.
 """
 
 from . import Exceptions  # noqa: F401
@@ -41,15 +41,17 @@ from . import Util  # noqa: F401
 from . import Config  # noqa: F401
 from . import Registry  # noqa: F401
 from . import SetupEnvDefault  # noqa: F401
-from . import NotFound  # noqa: F401
+from . import Policy  # noqa: F401
 from . import WinSDK  # noqa: F401
 from . import ScriptArguments  # noqa: F401
 
+from . import API # noqa: F401
+
 from . import Dispatcher as _Dispatcher
 
-def reset():
+def _reset():
     _Dispatcher.reset()
 
-def verify():
+def _verify():
     _Dispatcher.verify()
 

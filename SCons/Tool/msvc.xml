@@ -761,6 +761,131 @@ subject to the conditions listed above. The default &scons; behavior may change 
 </summary>
 </cvar>
 
+<cvar name="MSVC_SCRIPTERROR_POLICY">
+<summary>
+<para>
+Specify the &scons; behavior when Microsoft Visual C/C++ batch file errors are detected.
+</para>
+
+<para>
+The &cv-MSVC_SCRIPTERROR_POLICY; specifies the &scons; behavior when msvc batch file errors are
+detected.
+When &cv-MSVC_SCRIPTERROR_POLICY; is not specified, the default &scons; behavior is to suppress
+msvc batch file error messages.
+</para>
+<para>
+The root cause of msvc build failures may be difficult to diagnose. In these situations, setting
+the &scons; behavior to issue a warning when msvc batch file errors are detected <emphasis>may</emphasis>
+produce additional diagnostic information.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SCRIPTERROR_POLICY; and the corresponding &scons; behavior are:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'Error' or 'Exception'</parameter></term>
+<listitem>
+<para>
+Raise an exception when msvc batch file errors are detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
+<listitem>
+<para>
+Issue a warning when msvc batch file errors are detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
+<listitem>
+<para>
+Suppress msvc batch file error messages.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with user-defined script arguments:
+<example_commands>
+env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'])
+env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
+</example_commands>
+</para>
+
+<para>
+Example 1 - Output fragment:
+<example_commands>
+...
+link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
+LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
+...
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with user-defined script arguments and the script error policy set
+to issue a warning when msvc batch file errors are detected:
+<example_commands>
+env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'], MSVC_SCRIPTERROR_POLICY='warn')
+env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
+</example_commands>
+</para>
+
+<para>
+Example 2 - Output fragment:
+<example_commands>
+...
+scons: warning: vc script errors detected:
+[ERROR:vcvars.bat] The UWP Application Platform requires a Windows 10 SDK.
+[ERROR:vcvars.bat] WindowsSdkDir = "C:\Program Files (x86)\Windows Kits\8.1\"
+[ERROR:vcvars.bat] host/target architecture is not supported : { x64 , x64 }
+...
+link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
+LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPTERROR_POLICY; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SCRIPTERROR_POLICY; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Due to &scons; implementation details, not all Windows system environment variables are propagated
+to the environment in which the msvc batch file is executed.  Depending on Visual Studio version
+and installation options, non-fatal msvc batch file error messages may be generated for ancillary
+tools which may not affect builds with the msvc compiler.  For this reason, caution is recommended
+when setting the script error policy to raise an exception (e.g., <literal>'Error'</literal>).
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</summary>
+</cvar>
+
 <cvar name="MSVC_SCRIPT_ARGS">
 <summary>
 <para>

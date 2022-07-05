@@ -22,41 +22,23 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Exceptions for Microsoft Visual C/C++.
+Warnings for Microsoft Visual C/C++.
 """
 
 __all__ = [
-    'VisualCException',
-    'MSVCInternalError',
-    'MSVCScriptExecutionError',
-    'MSVCVersionNotFound',
-    'MSVCSDKVersionNotFound',
-    'MSVCToolsetVersionNotFound',
-    'MSVCSpectreLibsNotFound',
-    'MSVCArgumentError',
+    'VisualCWarning',
+    'MSVCScriptExecutionWarning',
+    'MSVCVersionNotFoundWarning',
 ]
 
-class VisualCException(Exception):
+import SCons.Warnings
+
+class VisualCWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
-class MSVCInternalError(VisualCException):
+class MSVCScriptExecutionWarning(VisualCWarning):
     pass
 
-class MSVCScriptExecutionError(VisualCException):
-    pass
-
-class MSVCVersionNotFound(VisualCException):
-    pass
-
-class MSVCSDKVersionNotFound(VisualCException):
-    pass
-
-class MSVCToolsetVersionNotFound(VisualCException):
-    pass
-
-class MSVCSpectreLibsNotFound(VisualCException):
-    pass
-
-class MSVCArgumentError(VisualCException):
+class MSVCVersionNotFoundWarning(VisualCWarning):
     pass
 

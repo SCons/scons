@@ -45,19 +45,39 @@ NEW FUNCTIONALITY
   NOTE: Test for this requires python psutil module. It will be skipped if not present.
 - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
   This can also be set in your Environment().
-- Added a global policy setting and an environment policy variable for specifying the action to
-  be taken when an msvc request cannot be satisfied. The available options are "error",
+- Added a global policy setting and an environment construction variable for specifying the
+  action to be taken when an msvc request cannot be satisfied. The available options are "error",
   "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
   set and retrieved via the functions set_msvc_notfound_policy and get_msvc_notfound_policy,
-  respectively.  These two methods may be imported from SCons.Tool.MSCommon.  The environment
-  policy variable introduced is MSVC_NOTFOUND_POLICY.  When defined, the environment policy
+  respectively.  These two methods may be imported from SCons.Tool.MSCommon.vc. The environment
+  construction variable is MSVC_NOTFOUND_POLICY.  When defined, the environment construction
   variable overrides the global policy setting for a given environment. When the active policy
   is "error" or "exception", an MSVCVersionNotFound exception is raised.  When the active policy
-  is "warning" or "warn", a VisualCMissingWarning warning is issued and the constructed
+  is "warning" or "warn", an MSVCVersionNotFoundWarning warning is issued and the constructed
   environment is likely incomplete. When the active policy is "ignore" or "suppress", no action
   is taken and the constructed environment is likely incomplete.  As implemented, the default
   global policy is "warning".  The ability to set the global policy via an SCons command-line
   option may be added in a future enhancement.
+- Added a global policy setting and an environment construction variable for specifying the
+  action to be taken when msvc script errors are detected. The available options are "error",
+  "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
+  set and retrieved via the functions set_msvc_scripterror_policy and get_msvc_scripterror_policy,
+  respectively.  These two methods may be imported from SCons.Tool.MSCommon.vc. The environment
+  construction variable is MSVC_SCRIPTERROR_POLICY.  When defined, the environment construction
+  variable overrides the global policy setting for a given environment. When the active policy
+  is "error" or "exception", an MSVCScriptExecutionError exception is raised when msvc batch file
+  errors are detected.  When the active policy is "warning" or "warn", an MSVCScriptExecutionWarning
+  warning is issued when msvc batch file errors are detected. When the active policy is "ignore" or
+  "suppress", msvc batch error messages are suppressed.  As implemented, the default global policy
+  is "ignore".  The ability to set the global policy via an SCons command-line option may be added
+  in a future enhancement.
+- Experimental: added function find_msvc_version_toolset to SCons.Tool.MSCommon.vc. Given a version
+  specification, this function will return a msvc version and a toolset version.  The toolset version
+  may be None.  The msvc version and toolset version can be used in the environment construction
+  variables MSVC_VERSION and MSVC_TOOLSET_VERSION, respectively.  The version specification may be an
+  msvc version or an msvc toolset version. This is an experimental proxy for using a toolset version
+  to perform instance selection.  This function may be removed when toolset version is taken into
+  account during msvc instance selection.
 - Fortran: a new construction variable FORTRANCOMMONFLAGS is added which is
   applied to all Fortran dialects, to enable global (all-dialect) settings.
 

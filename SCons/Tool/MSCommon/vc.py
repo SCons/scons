@@ -62,13 +62,7 @@ from .sdk import get_installed_sdks
 
 from . import MSVC
 
-from .MSVC.Exceptions import (
-    VisualCException
-)
-
-# msvc test(s) expect notfound policy available via vc
-from .MSVC.NotFound import set_msvc_notfound_policy  # noqa: F401
-from .MSVC.NotFound import get_msvc_notfound_policy  # noqa: F401
+from .MSVC.API import *
 
 class UnsupportedVersion(VisualCException):
     pass
@@ -93,9 +87,6 @@ class MSVCScriptNotFound(VisualCException):
 
 class MSVCUseSettingsError(VisualCException):
     pass
-
-#class BatchFileExecutionWarning(SCons.Warnings.WarningOnByDefault):
-#    pass
 
 
 # Dict to 'canonalize' the arch
@@ -972,7 +963,7 @@ def reset_installed_vcs():
     """Make it try again to find VC.  This is just for the tests."""
     global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
-    MSVC.reset()
+    MSVC._reset()
 
 def get_default_installed_msvc(env=None):
     vcs = get_installed_vcs(env)
@@ -1000,7 +991,7 @@ def get_default_installed_msvc(env=None):
 
 script_env_cache = None
 
-def script_env(script, args=None):
+def script_env(env, script, args=None):
     global script_env_cache
 
     if script_env_cache is None:
@@ -1028,8 +1019,8 @@ def script_env(script, args=None):
         stdout = common.get_output(script, args)
         cache_data = common.parse_output(stdout)
 
+        # debug(stdout)
         olines = stdout.splitlines()
-        #debug(olines)
 
         # process stdout: batch file errors (not necessarily first line)
         script_errlog = []
@@ -1041,21 +1032,23 @@ def script_env(script, args=None):
 
         if script_errlog:
             script_errmsg = '\n'.join(script_errlog)
+
             have_cl = False
             if cache_data and 'PATH' in cache_data:
                 for p in cache_data['PATH']:
                     if os.path.exists(os.path.join(p, _CL_EXE_NAME)):
                         have_cl = True
                         break
+
+            debug(
+                'script=%s args=%s have_cl=%s, errors=%s',
+                repr(script), repr(args), repr(have_cl), script_errmsg
+            )
+            MSVC.Policy.msvc_scripterror_handler(env, script_errmsg)
+
             if not have_cl:
                 # detected errors, cl.exe not on path
                 raise BatchFileExecutionError(script_errmsg)
-            else:
-                # detected errors, cl.exe on path
-                debug('script=%s args=%s errors=%s', repr(script), repr(args), script_errmsg)
-                # This may be a bad idea (scons environment != vs cmdline environment)
-                #SCons.Warnings.warn(BatchFileExecutionWarning, script_errmsg)
-                # TODO: errlog/errstr should be added to cache and warning moved to call site
 
         # once we updated cache, give a chance to write out if user wanted
         script_env_cache[cache_key] = cache_data
@@ -1111,7 +1104,7 @@ def msvc_setup_env_once(env, tool=None):
         msg = "No versions of the MSVC compiler were found.\n" \
               "  Visual Studio C/C++ compilers may not be set correctly.\n" \
               "  Requested tool(s) are: {}".format(req_tools)
-        MSVC.NotFound.policy_handler(env, msg)
+        MSVC.Policy.msvc_notfound_handler(env, msg)
 
 def msvc_find_valid_batch_script(env, version):
     """Find and execute appropriate batch script to set up build env.
@@ -1155,7 +1148,7 @@ def msvc_find_valid_batch_script(env, version):
         if vc_script:
             arg = MSVC.ScriptArguments.msvc_script_arguments(env, version, vc_dir, arg)
             try:
-                d = script_env(vc_script, args=arg)
+                d = script_env(env, vc_script, args=arg)
                 found = vc_script
             except BatchFileExecutionError as e:
                 debug('use_script 3: failed running VC script %s: %s: Error:%s', repr(vc_script), arg, e)
@@ -1164,7 +1157,7 @@ def msvc_find_valid_batch_script(env, version):
         if not vc_script and sdk_script:
             debug('use_script 4: trying sdk script: %s', sdk_script)
             try:
-                d = script_env(sdk_script)
+                d = script_env(env, sdk_script)
                 found = sdk_script
             except BatchFileExecutionError as e:
                 debug('use_script 5: failed running SDK script %s: Error:%s', repr(sdk_script), e)
@@ -1198,7 +1191,7 @@ def msvc_find_valid_batch_script(env, version):
                       "  No versions of the MSVC compiler were found.\n" \
                       "  Visual Studio C/C++ compilers may not be set correctly".format(version)
 
-        MSVC.NotFound.policy_handler(env, msg)
+        MSVC.Policy.msvc_notfound_handler(env, msg)
 
     return d
 
@@ -1250,7 +1243,7 @@ def msvc_setup_env(env):
             raise MSVCScriptNotFound('Script specified by MSVC_USE_SCRIPT not found: "{}"'.format(use_script))
         args = env.subst('$MSVC_USE_SCRIPT_ARGS')
         debug('use_script 1 %s %s', repr(use_script), repr(args))
-        d = script_env(use_script, args)
+        d = script_env(env, use_script, args)
     elif use_script:
         d = msvc_find_valid_batch_script(env,version)
         debug('use_script 2 %s', d)
@@ -1336,7 +1329,7 @@ def msvc_setup_env_tool(env=None, version=None, tool=None):
         rval = True
     return rval
 
-def get_msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
+def msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
     debug('msvc_version=%s, msvc_uwp_app=%s', repr(msvc_version), repr(msvc_uwp_app))
 
     rval = []
@@ -1351,6 +1344,185 @@ def get_msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
     rval = MSVC.WinSDK.get_msvc_sdk_version_list(msvc_version, msvc_uwp_app)
     return rval
 
+def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
+    debug('msvc_version=%s, full=%s, sxs=%s', repr(msvc_version), repr(full), repr(sxs))
+
+    env = None
+    rval = []
+
+    if not msvc_version:
+        msvc_version = get_default_installed_msvc()
+
+    if not msvc_version:
+        debug('no msvc versions detected')
+        return rval
+
+    if msvc_version not in _VCVER:
+        msg = 'Unsupported msvc version {}'.format(repr(msvc_version))
+        raise MSVCArgumentError(msg)
+
+    vc_dir = find_vc_pdir(env, msvc_version)
+    if not vc_dir:
+        debug('VC folder not found for version %s', repr(msvc_version))
+        return
+
+    rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_version, vc_dir, full=full, sxs=sxs)
+    return rval
+
+def find_msvc_version_toolset(version, prefer_newest=True):
+    """
+    Returns an msvc version and a toolset version given a version
+    specification.
+
+    This an EXPERIMENTAL proxy for using a toolset version to perform
+    msvc instance selection.  This function will be removed when
+    toolset version is taken into account during msvc instance selection.
+
+    Search for an installed Visual Studio instance that supports the
+    specified version.
+
+    When the specified version contains a component suffix (e.g., Exp),
+    the msvc version is returned and the toolset version is None. No
+    search if performed.
+
+    When the specified version does not contain a component suffix, the
+    version is treated as a toolset version specification. A search is
+    performed for the first msvc instance that contains the toolset
+    version.
+
+    Only Visual Studio 2017 and later support toolset arguments.  For
+    Visual Studio 2015 and earlier, the msvc version is returned and
+    the toolset version is None.
+
+    Args:
+
+        version: str
+            The version specification may be an msvc version or a toolset
+            version.
+
+        prefer_newest: bool
+            True:  prefer newer Visual Studio instances.
+            False: prefer the "native" Visual Studio instance first. If
+                   the native Visual Studio instance is not detected, prefer
+                   newer Visual Studio instances.
+
+    Returns:
+        tuple: A tuple containing the msvc version and the msvc toolset version.
+               The msvc toolset version may be None.
+
+    Raises:
+        MSVCToolsetVersionNotFound: when the specified version is not found.
+        MSVCArgumentError: when argument validation fails.
+    """
+    debug('version=%s, prefer_newest=%s', repr(version), repr(prefer_newest))
+
+    env = None
+    msvc_version = version
+    msvc_toolset_version = None
+
+    if not version:
+        debug(
+            'ignore: msvc_version=%s, msvc_toolset_version=%s',
+            repr(msvc_version), repr(msvc_toolset_version)
+        )
+        return msvc_version, msvc_toolset_version
+
+    version_elements_def = MSVC.Util.get_version_elements(version)
+    if not version_elements_def:
+        msg = 'Unsupported version format {}'.format(repr(version))
+        raise MSVCArgumentError(msg)
+
+    if version_elements_def.msvc_version not in _VCVER:
+        msg = 'Unsupported msvc version {}'.format(repr(version))
+        raise MSVCArgumentError(msg)
+
+    if version_elements_def.vc_version_suffix:
+        if version_elements_def.vc_version_numstr != version_elements_def.vc_toolset_numstr:
+            # toolset version with component suffix
+            msg = 'Unsupported toolset version {}'.format(repr(version))
+            raise MSVCArgumentError(msg)
+
+    if float(version_elements_def.vc_version_numstr) > 14.0:
+        # VS2017 and later
+        force_toolset_msvc_version = False
+    else:
+        # VS2015 and earlier
+        force_toolset_msvc_version = True
+        extended_version = version_elements_def.vc_version_numstr + '0.00000'
+        if not extended_version.startswith(version_elements_def.vc_toolset_numstr):
+            # toolset not equivalent to msvc version
+            msg = 'Unsupported toolset version {} (expected {})'.format(
+                repr(version), repr(extended_version)
+            )
+            raise MSVCArgumentError(msg)
+
+    msvc_version = version_elements_def.msvc_version
+
+    if msvc_version not in MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP:
+        # VS2013 and earlier
+        debug(
+            'ignore: msvc_version=%s, msvc_toolset_version=%s',
+            repr(msvc_version), repr(msvc_toolset_version)
+        )
+        return msvc_version, msvc_toolset_version
+
+    if force_toolset_msvc_version:
+        msvc_toolset_version = version_elements_def.vc_version_numstr
+    else:
+        msvc_toolset_version = version_elements_def.vc_toolset_numstr
+
+    if prefer_newest:
+        query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
+    else:
+        query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_DEFAULTS_MAP[msvc_version] + \
+                             MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
+
+    seen_msvc_version = set()
+    for query_msvc_version in query_version_list:
+
+        if query_msvc_version in seen_msvc_version:
+            continue
+        seen_msvc_version.add(query_msvc_version)
+
+        vc_dir = find_vc_pdir(env, query_msvc_version)
+        if not vc_dir:
+            continue
+
+        if query_msvc_version.startswith('14.0'):
+            # VS2015 does not support toolset version argument
+            msvc_toolset_version = None
+            debug(
+                'found: msvc_version=%s, msvc_toolset_version=%s',
+                repr(query_msvc_version), repr(msvc_toolset_version)
+            )
+            return query_msvc_version, msvc_toolset_version
+
+        try:
+            toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_version, msvc_toolset_version, vc_dir)
+            if toolset_vcvars:
+                debug(
+                    'found: msvc_version=%s, msvc_toolset_version=%s',
+                    repr(query_msvc_version), repr(msvc_toolset_version)
+                )
+                return query_msvc_version, msvc_toolset_version
+
+        except MSVCToolsetVersionNotFound:
+            pass
+
+    debug(
+        'not found: msvc_version=%s, msvc_toolset_version=%s',
+        repr(msvc_version), repr(msvc_toolset_version)
+    )
+
+    if version_elements_def.vc_version_numstr == msvc_toolset_version:
+        msg = 'MSVC version {} was not found'.format(repr(version))
+        MSVC.Policy.msvc_notfound_handler(None, msg)
+        return msvc_version, msvc_toolset_version
+
+    msg = 'MSVC toolset version {} not found'.format(repr(version))
+    raise MSVCToolsetVersionNotFound(msg)
+
+
 # internal consistency check (should be last)
-MSVC.verify()
+MSVC._verify()
 

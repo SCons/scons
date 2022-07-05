@@ -94,7 +94,8 @@ re_toolset_140 = re.compile(r'''^(?:
 re_toolset_sxs = re.compile(r'^[1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}$')
 
 # SxS version bugfix
-_msvc_sxs_bugfix_folder = set()
+_msvc_sxs_bugfix_map = {}
+_msvc_sxs_bugfix_folder = {}
 _msvc_sxs_bugfix_version = {}
 
 for msvc_version, sxs_version, sxs_bugfix in [
@@ -103,7 +104,8 @@ for msvc_version, sxs_version, sxs_bugfix in [
     #     if SxS version 14.28 not present/installed, fallback selection of toolset VC\Tools\MSVC\14.28.nnnnn.
     ('14.2', '14.28.16.8', '14.28')
 ]:
-    _msvc_sxs_bugfix_folder.add((msvc_version, sxs_bugfix))
+    _msvc_sxs_bugfix_map.setdefault(msvc_version, []).append((sxs_version, sxs_bugfix))
+    _msvc_sxs_bugfix_folder[(msvc_version, sxs_bugfix)] = sxs_version
     _msvc_sxs_bugfix_version[(msvc_version, sxs_version)] = sxs_bugfix
 
 # MSVC_SCRIPT_ARGS
@@ -383,6 +385,24 @@ def _user_script_argument_sdk(env, sdk_version, user_argstr):
 
     raise MSVCArgumentError(err_msg)
 
+_toolset_have140_cache = None
+
+def _msvc_have140_toolset():
+    global _toolset_have140_cache
+
+    if _toolset_have140_cache is None:
+        suffix = Registry.vstudio_sxs_vc7('14.0')
+        vcinstalldirs = [record[0] for record in Registry.microsoft_query_paths(suffix)]
+        debug('vc140 toolset: paths=%s', repr(vcinstalldirs))
+        _toolset_have140_cache = True if vcinstalldirs else False
+
+    return _toolset_have140_cache
+
+def _reset_have140_cache():
+    global _toolset_have140_cache
+    debug('reset: cache')
+    _toolset_have140_cache = None
+
 def _msvc_read_toolset_file(msvc, filename):
     toolset_version = None
     try:
@@ -398,30 +418,18 @@ def _msvc_read_toolset_file(msvc, filename):
         debug('IndexError: msvc_version=%s, filename=%s', repr(msvc.version), repr(filename))
     return toolset_version
 
-def _msvc_sxs_toolset_folder(msvc, sxs_version):
+def _msvc_sxs_toolset_folder(msvc, sxs_folder):
 
-    if re_toolset_sxs.match(sxs_version):
-        return sxs_version
+    if re_toolset_sxs.match(sxs_folder):
+        return sxs_folder, sxs_folder
 
-    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_version)
+    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_folder)
     if key in _msvc_sxs_bugfix_folder:
-        return sxs_version
+        sxs_version = _msvc_sxs_bugfix_folder[key]
+        return sxs_folder, sxs_version
 
-    debug('sxs folder: ignore version=%s', repr(sxs_version))
-    return None
-
-def _msvc_sxs_toolset_version(msvc, sxs_toolset):
-
-    if not re_toolset_sxs.match(sxs_toolset):
-        return None, False
-
-    key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_toolset)
-    sxs_bugfix = _msvc_sxs_bugfix_version.get(key)
-    if not sxs_bugfix:
-        return sxs_toolset, False
-
-    debug('sxs bugfix: version=%s => version=%s', repr(sxs_toolset), repr(sxs_bugfix))
-    return sxs_bugfix, True
+    debug('sxs folder: ignore version=%s', repr(sxs_folder))
+    return None, None
 
 def _msvc_read_toolset_folders(msvc, vc_dir):
 
@@ -430,11 +438,11 @@ def _msvc_read_toolset_folders(msvc, vc_dir):
 
     build_dir = os.path.join(vc_dir, "Auxiliary", "Build")
     if os.path.exists(build_dir):
-        for sxs_version, sxs_path in Util.listdir_dirs(build_dir):
-            sxs_version = _msvc_sxs_toolset_folder(msvc, sxs_version)
+        for sxs_folder, sxs_path in Util.listdir_dirs(build_dir):
+            sxs_folder, sxs_version = _msvc_sxs_toolset_folder(msvc, sxs_folder)
             if not sxs_version:
                 continue
-            filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_version)
+            filename = 'Microsoft.VCToolsVersion.{}.txt'.format(sxs_folder)
             filepath = os.path.join(sxs_path, filename)
             debug('sxs toolset: check file=%s', repr(filepath))
             if os.path.exists(filepath):
@@ -459,7 +467,34 @@ def _msvc_read_toolset_folders(msvc, vc_dir):
                     repr(msvc.version), repr(toolset_version)
                 )
 
+    vcvars140 = os.path.join(vc_dir, "..", "Common7", "Tools", "vsdevcmd", "ext", "vcvars", "vcvars140.bat")
+    if os.path.exists(vcvars140) and _msvc_have140_toolset():
+        toolset_version = '14.0'
+        toolsets_full.append(toolset_version)
+        debug(
+            'toolset: msvc_version=%s, toolset_version=%s',
+            repr(msvc.version), repr(toolset_version)
+        )
+
     toolsets_full.sort(reverse=True)
+
+    # SxS bugfix fixup (if necessary)
+    if msvc.version in _msvc_sxs_bugfix_map:
+        for sxs_version, sxs_bugfix in _msvc_sxs_bugfix_map[msvc.version]:
+            if sxs_version in toolsets_sxs:
+                # have SxS version (folder/file mapping exists)
+                continue
+            for toolset_version in toolsets_full:
+                if not toolset_version.startswith(sxs_bugfix):
+                    continue
+                debug(
+                    'sxs toolset: msvc_version=%s, sxs_version=%s, toolset_version=%s',
+                    repr(msvc.version), repr(sxs_version), repr(toolset_version)
+                )
+                # SxS compatible bugfix version (equivalent to toolset search)
+                toolsets_sxs[sxs_version] = toolset_version
+                break
+
     debug('msvc_version=%s, toolsets=%s', repr(msvc.version), repr(toolsets_full))
 
     return toolsets_sxs, toolsets_full
@@ -492,16 +527,13 @@ def _msvc_read_toolset_default(msvc, vc_dir):
 
 _toolset_version_cache = {}
 _toolset_default_cache = {}
-_toolset_have140_cache = None
 
 def _reset_toolset_cache():
     global _toolset_version_cache
     global _toolset_default_cache
-    global _toolset_have140_cache
     debug('reset: toolset cache')
     _toolset_version_cache = {}
     _toolset_default_cache = {}
-    _toolset_have140_cache = None
 
 def _msvc_version_toolsets(msvc, vc_dir):
 
@@ -523,23 +555,7 @@ def _msvc_default_toolset(msvc, vc_dir):
 
     return toolset_default
 
-def _msvc_have140_toolset():
-    global _toolset_have140_cache
-
-    if _toolset_have140_cache is None:
-        suffix = Registry.vstudio_sxs_vc7('14.0')
-        vcinstalldirs = [record[0] for record in Registry.microsoft_query_paths(suffix)]
-        debug('vc140 toolset: paths=%s', repr(vcinstalldirs))
-        _toolset_have140_cache = True if vcinstalldirs else False
-
-    return _toolset_have140_cache
-
 def _msvc_version_toolset_vcvars(msvc, vc_dir, toolset_version):
-
-    if toolset_version == '14.0':
-        if _msvc_have140_toolset():
-            return toolset_version
-        return None
 
     toolsets_sxs, toolsets_full = _msvc_version_toolsets(msvc, vc_dir)
 
@@ -548,21 +564,14 @@ def _msvc_version_toolset_vcvars(msvc, vc_dir, toolset_version):
         toolset_vcvars = toolset_version
         return toolset_vcvars
 
-    sxs_toolset, sxs_isbugfix = _msvc_sxs_toolset_version(msvc, toolset_version)
-    if sxs_toolset:
+    if re_toolset_sxs.match(toolset_version):
         # SxS version provided
-        sxs_version = toolsets_sxs.get(sxs_toolset, None)
-        if sxs_version:
+        sxs_version = toolsets_sxs.get(toolset_version, None)
+        if sxs_version and sxs_version in toolsets_full:
             # SxS full toolset version
-            if sxs_version in toolsets_full:
-                toolset_vcvars = sxs_version
-                return toolset_vcvars
-            return None
-        # SxS version file missing
-        if not sxs_isbugfix:
-            return None
-        # SxS version bugfix: check toolset version
-        toolset_version = sxs_toolset
+            toolset_vcvars = sxs_version
+            return toolset_vcvars
+        return None
 
     for toolset_full in toolsets_full:
         if toolset_full.startswith(toolset_version):
@@ -641,13 +650,7 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
     err_msg = "MSVC_TOOLSET_VERSION ({}) format is not supported".format(repr(toolset_version))
     return err_msg
 
-def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
-
-    toolset_version = env['MSVC_TOOLSET_VERSION']
-    debug('MSVC_VERSION=%s, MSVC_TOOLSET_VERSION=%s', repr(msvc.version), repr(toolset_version))
-
-    if not toolset_version:
-        return None
+def _msvc_script_argument_toolset_vcvars(msvc, toolset_version, vc_dir):
 
     err_msg = _msvc_script_argument_toolset_constraints(msvc, toolset_version)
     if err_msg:
@@ -672,6 +675,18 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
             repr(toolset_version), repr(msvc.version)
         )
         raise MSVCToolsetVersionNotFound(err_msg)
+
+    return toolset_vcvars
+
+def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
+
+    toolset_version = env['MSVC_TOOLSET_VERSION']
+    debug('MSVC_VERSION=%s, MSVC_TOOLSET_VERSION=%s', repr(msvc.version), repr(toolset_version))
+
+    if not toolset_version:
+        return None
+
+    toolset_vcvars = _msvc_script_argument_toolset_vcvars(msvc, toolset_version, vc_dir)
 
     # toolset may not be installed for host/target
     argpair = (SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_vcvars))
@@ -956,8 +971,38 @@ def msvc_script_arguments(env, version, vc_dir, arg):
     debug('arguments: %s', repr(argstr))
     return argstr
 
+def _msvc_toolset_internal(msvc_version, toolset_version, vc_dir):
+
+    msvc = _msvc_version(msvc_version)
+
+    toolset_vcvars = _msvc_script_argument_toolset_vcvars(msvc, toolset_version, vc_dir)
+
+    return toolset_vcvars
+
+def _msvc_toolset_versions_internal(msvc_version, vc_dir, full=True, sxs=False):
+
+    msvc = _msvc_version(msvc_version)
+
+    if len(msvc.vs_def.vc_buildtools_all) <= 1:
+        return None
+
+    toolset_versions = []
+
+    toolsets_sxs, toolsets_full = _msvc_version_toolsets(msvc, vc_dir)
+
+    if sxs:
+        sxs_versions = list(toolsets_sxs.keys())
+        sxs_versions.sort(reverse=True)
+        toolset_versions.extend(sxs_versions)
+
+    if full:
+        toolset_versions.extend(toolsets_full)
+
+    return toolset_versions
+
 def reset():
     debug('')
+    _reset_have140_cache()
     _reset_toolset_cache()
 
 def verify():

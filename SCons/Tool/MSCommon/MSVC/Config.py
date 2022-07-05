@@ -128,6 +128,7 @@ MSVC_BUILDTOOLS_DEFINITION = namedtuple('MSVCBuildtools', [
     'cl_version',
     'cl_version_numeric',
     'vc_runtime_def',
+    'vc_istoolset',
 ])
 
 MSVC_BUILDTOOLS_DEFINITION_LIST = []
@@ -137,19 +138,19 @@ MSVC_BUILDTOOLS_EXTERNAL = {}
 
 VC_VERSION_MAP = {}
 
-for vc_buildtools, vc_version, cl_version, vc_runtime in [
-    ('v143', '14.3', '19.3', '140'),
-    ('v142', '14.2', '19.2', '140'),
-    ('v141', '14.1', '19.1', '140'),
-    ('v140', '14.0', '19.0', '140'),
-    ('v120', '12.0', '18.0', '120'),
-    ('v110', '11.0', '17.0', '110'),
-    ('v100', '10.0', '16.0', '100'),
-    ('v90',   '9.0', '15.0',  '90'),
-    ('v80',   '8.0', '14.0',  '80'),
-    ('v71',   '7.1', '13.1',  '71'),
-    ('v70',   '7.0', '13.0',  '70'),
-    ('v60',   '6.0', '12.0',  '60'),
+for vc_buildtools, vc_version, cl_version, vc_runtime, vc_istoolset in [
+    ('v143', '14.3', '19.3', '140', True),
+    ('v142', '14.2', '19.2', '140', True),
+    ('v141', '14.1', '19.1', '140', True),
+    ('v140', '14.0', '19.0', '140', True),
+    ('v120', '12.0', '18.0', '120', False),
+    ('v110', '11.0', '17.0', '110', False),
+    ('v100', '10.0', '16.0', '100', False),
+    ('v90',   '9.0', '15.0',  '90', False),
+    ('v80',   '8.0', '14.0',  '80', False),
+    ('v71',   '7.1', '13.1',  '71', False),
+    ('v70',   '7.0', '13.0',  '70', False),
+    ('v60',   '6.0', '12.0',  '60', False),
 ]:
 
     vc_runtime_def = MSVC_RUNTIME_INTERNAL[vc_runtime]
@@ -162,6 +163,7 @@ for vc_buildtools, vc_version, cl_version, vc_runtime in [
         cl_version = cl_version,
         cl_version_numeric = float(cl_version),
         vc_runtime_def = vc_runtime_def,
+        vc_istoolset = vc_istoolset,
     )
 
     MSVC_BUILDTOOLS_DEFINITION_LIST.append(vc_buildtools_def)
@@ -270,6 +272,43 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
 
     MSVC_SDK_VERSIONS.update(vc_sdk)
 
+# EXPERIMENTAL: msvc version/toolset search lists
+#
+# VS2017 example:
+#
+#     defaults['14.1']    = ['14.1', '14.1Exp']
+#     defaults['14.1Exp'] = ['14.1Exp']
+#
+#     search['14.1']    = ['14.3', '14.2', '14.1', '14.1Exp']
+#     search['14.1Exp'] = ['14.1Exp']
+
+MSVC_VERSION_TOOLSET_DEFAULTS_MAP = {}
+MSVC_VERSION_TOOLSET_SEARCH_MAP = {}
+
+# Pass 1: Build defaults lists and setup express versions
+for vs_def in VISUALSTUDIO_DEFINITION_LIST:
+    if not vs_def.vc_buildtools_def.vc_istoolset:
+        continue
+    version_key = vs_def.vc_buildtools_def.vc_version
+    MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key] = [version_key]
+    MSVC_VERSION_TOOLSET_SEARCH_MAP[version_key] = []
+    if vs_def.vs_express:
+        express_key = version_key + 'Exp'
+        MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key].append(express_key)
+        MSVC_VERSION_TOOLSET_DEFAULTS_MAP[express_key] = [express_key]
+        MSVC_VERSION_TOOLSET_SEARCH_MAP[express_key] = [express_key]
+
+# Pass 2: Extend search lists (decreasing version order)
+for vs_def in VISUALSTUDIO_DEFINITION_LIST:
+    if not vs_def.vc_buildtools_def.vc_istoolset:
+        continue
+    version_key = vs_def.vc_buildtools_def.vc_version
+    for vc_buildtools in vs_def.vc_buildtools_all:
+        toolset_buildtools_def = MSVC_BUILDTOOLS_INTERNAL[vc_buildtools]
+        toolset_vs_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.vc_version]
+        buildtools_key = toolset_buildtools_def.vc_version
+        MSVC_VERSION_TOOLSET_SEARCH_MAP[buildtools_key].extend(MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key])
+
 # convert string version set to string version list ranked in descending order
 MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS], reverse=True)]
 
@@ -281,39 +320,6 @@ for vdict in (MSVS_VERSION_EXTERNAL, MSVC_VERSION_INTERNAL):
         if key not in MSVS_VERSION_LEGACY:
             MSVS_VERSION_LEGACY[key] = vs_def
             MSVC_VERSION_LEGACY[key] = vs_def
-
-# MSVC_NOTFOUND_POLICY definition:
-#     error:   raise exception
-#     warning: issue warning and continue
-#     ignore:  continue
-
-MSVC_NOTFOUND_POLICY_DEFINITION = namedtuple('MSVCNotFoundPolicyDefinition', [
-    'value',
-    'symbol',
-])
-
-MSVC_NOTFOUND_DEFINITION_LIST = []
-
-MSVC_NOTFOUND_POLICY_INTERNAL = {}
-MSVC_NOTFOUND_POLICY_EXTERNAL = {}
-
-for policy_value, policy_symbol_list in [
-    (True,  ['Error',   'Exception']),
-    (False, ['Warning', 'Warn']),
-    (None,  ['Ignore',  'Suppress']),
-]:
-
-    policy_symbol = policy_symbol_list[0].lower()
-    policy_def = MSVC_NOTFOUND_POLICY_DEFINITION(policy_value, policy_symbol)
-
-    MSVC_NOTFOUND_DEFINITION_LIST.append(vs_def)
-
-    MSVC_NOTFOUND_POLICY_INTERNAL[policy_symbol] = policy_def
-
-    for policy_symbol in policy_symbol_list:
-        MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol.lower()] = policy_def
-        MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol] = policy_def
-        MSVC_NOTFOUND_POLICY_EXTERNAL[policy_symbol.upper()] = policy_def
 
 def verify():
     from .. import vc
