@@ -1471,9 +1471,9 @@ def msvc_query_version_toolset(version, prefer_newest=True):
         return msvc_version, msvc_toolset_version
 
     if force_toolset_msvc_version:
-        msvc_toolset_version = version_elements_def.vc_version_numstr
+        query_msvc_toolset_version = version_elements_def.vc_version_numstr
     else:
-        msvc_toolset_version = version_elements_def.vc_toolset_numstr
+        query_msvc_toolset_version = version_elements_def.vc_toolset_numstr
 
     if prefer_newest:
         query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
@@ -1502,8 +1502,9 @@ def msvc_query_version_toolset(version, prefer_newest=True):
             return query_msvc_version, msvc_toolset_version
 
         try:
-            toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_version, msvc_toolset_version, vc_dir)
+            toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_version, query_msvc_toolset_version, vc_dir)
             if toolset_vcvars:
+                msvc_toolset_version = toolset_vcvars
                 debug(
                     'found: msvc_version=%s, msvc_toolset_version=%s',
                     repr(query_msvc_version), repr(msvc_toolset_version)
@@ -1512,6 +1513,8 @@ def msvc_query_version_toolset(version, prefer_newest=True):
 
         except MSVCToolsetVersionNotFound:
             pass
+
+    msvc_toolset_version = query_msvc_toolset_version
 
     debug(
         'not found: msvc_version=%s, msvc_toolset_version=%s',
