@@ -33,12 +33,11 @@ test.skip_if_not_msvc()
 
 import textwrap
 
-from SCons.Tool.MSCommon.vc import (
-    get_installed_vcs,
-    get_msvc_version_numeric,
-)
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 
-default_msvc_vernum = float(get_msvc_version_numeric(get_installed_vcs()[0]))
+installed_versions = get_installed_vcs_components()
+
+default_version = installed_versions[0]
 
 # Test global functions with valid symbols
 test.write('SConstruct', textwrap.dedent(
@@ -81,7 +80,7 @@ test.write('SConstruct', textwrap.dedent(
 ))
 test.run(arguments='-Q -s', stdout='')
 
-if default_msvc_vernum >= 14.1:
+if default_version.msvc_vernum >= 14.1:
     # Need VS2017 or later for MSVC_SCRIPT_ARGS
 
     # Test environment construction with construction variable (invalid)

@@ -976,6 +976,12 @@ def get_default_installed_msvc(env=None):
     debug('msvc_version=%s', repr(msvc_version))
     return msvc_version
 
+def get_installed_vcs_components(env=None):
+    """Test suite convenience function: return list of installed msvc version component tuples"""
+    vcs = get_installed_vcs(env)
+    msvc_version_component_defs = [MSVC.Util.get_msvc_version_components(vcver) for vcver in vcs]
+    return msvc_version_component_defs
+
 # Running these batch files isn't cheap: most of the time spent in
 # msvs.generate() is due to vcvars*.bat.  In a build that uses "tools='msvs'"
 # in multiple environments, for example:

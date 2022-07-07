@@ -32,25 +32,10 @@ test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
 import textwrap
-from collections import namedtuple
 
-from SCons.Tool.MSCommon.vc import (
-    get_installed_vcs,
-    get_msvc_version_numeric,
-)
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 
-MSVC_VERSION = namedtuple('MSVCVersion', [
-    'msvc_version',
-    'msvc_verstr',
-    'msvc_vernum',
-])
-
-def process_version(msvc_version):
-    msvc_verstr = get_msvc_version_numeric(msvc_version)
-    msvc_vernum = float(msvc_verstr)
-    return MSVC_VERSION(msvc_version, msvc_verstr, msvc_vernum)
-
-installed_versions = [process_version(msvc_version) for msvc_version in get_installed_vcs()]
+installed_versions = get_installed_vcs_components()
 
 default_version = installed_versions[0]
 
