@@ -198,9 +198,8 @@ if GE_VS2017_versions:
             ))
             test.run(arguments='-Q -s', stdout='')
 
-    # msvc_version is invalid (version greater than default msvc_version)
-    invalid_msvc_vernum = round(default_version.msvc_vernum + 0.1, 1)
-    invalid_msvc_version = str(invalid_msvc_vernum)
+    # msvc_version is invalid
+    invalid_msvc_version = '12.9'
     test.write('SConstruct', textwrap.dedent(
         """
         from SCons.Tool.MSCommon import msvc_toolset_versions
