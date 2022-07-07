@@ -64,6 +64,7 @@ from . import MSVC
 
 from .MSVC.Exceptions import (
     VisualCException,
+    MSVCUserError,
     MSVCArgumentError,
     MSVCToolsetVersionNotFound,
 )
@@ -86,10 +87,10 @@ class NoVersionFound(VisualCException):
 class BatchFileExecutionError(VisualCException):
     pass
 
-class MSVCScriptNotFound(VisualCException):
+class MSVCScriptNotFound(MSVCUserError):
     pass
 
-class MSVCUseSettingsError(VisualCException):
+class MSVCUseSettingsError(MSVCUserError):
     pass
 
 

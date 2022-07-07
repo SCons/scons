@@ -25,27 +25,32 @@
 Exceptions for Microsoft Visual C/C++.
 """
 
+# reminder: add exceptions to MSCommon if necessary
+
 class VisualCException(Exception):
     pass
 
 class MSVCInternalError(VisualCException):
     pass
 
+class MSVCUserError(VisualCException):
+    pass
+
 class MSVCScriptExecutionError(VisualCException):
     pass
 
-class MSVCVersionNotFound(VisualCException):
+class MSVCVersionNotFound(MSVCUserError):
     pass
 
-class MSVCSDKVersionNotFound(VisualCException):
+class MSVCSDKVersionNotFound(MSVCUserError):
     pass
 
-class MSVCToolsetVersionNotFound(VisualCException):
+class MSVCToolsetVersionNotFound(MSVCUserError):
     pass
 
-class MSVCSpectreLibsNotFound(VisualCException):
+class MSVCSpectreLibsNotFound(MSVCUserError):
     pass
 
-class MSVCArgumentError(VisualCException):
+class MSVCArgumentError(MSVCUserError):
     pass
 

@@ -25,13 +25,9 @@
 Test the msvc script error policy construction variable and functions.
 """
 
-import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
-
-if sys.platform != 'win32':
-    test.skip_test("Not win32 platform. Skipping test\n")
 
 test.skip_if_not_msvc()
 
@@ -45,36 +41,44 @@ from SCons.Tool.MSCommon.vc import (
 default_msvc_vernum = float(get_msvc_version_numeric(get_installed_vcs()[0]))
 
 # Test global functions with valid symbols
-test.write('SConstruct', """\
-from SCons.Tool.MSCommon import msvc_set_scripterror_policy
-from SCons.Tool.MSCommon import msvc_get_scripterror_policy
-DefaultEnvironment(tools=[])
-for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
-    for policy in [symbol, symbol.upper(), symbol.lower()]:
-        old_policy = msvc_set_scripterror_policy(policy)
-        cur_policy = msvc_get_scripterror_policy()
-if msvc_set_scripterror_policy(None) != msvc_get_scripterror_policy():
-    raise RuntimeError()
-""")
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+    from SCons.Tool.MSCommon import msvc_get_scripterror_policy
+    DefaultEnvironment(tools=[])
+    for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
+        for policy in [symbol, symbol.upper(), symbol.lower()]:
+            old_policy = msvc_set_scripterror_policy(policy)
+            cur_policy = msvc_get_scripterror_policy()
+    if msvc_set_scripterror_policy(None) != msvc_get_scripterror_policy():
+        raise RuntimeError()
+    """
+))
 test.run(arguments='-Q -s', stdout='')
 
 # Test global function with invalid symbol
-test.write('SConstruct', """\
-from SCons.Tool.MSCommon import msvc_set_scripterror_policy
-DefaultEnvironment(tools=[])
-msvc_set_scripterror_policy('Undefined')
-""")
-test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_SCRIPTERROR_POLICY.+", match=TestSCons.match_re_dotall)
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+    DefaultEnvironment(tools=[])
+    msvc_set_scripterror_policy('Undefined')
+    """
+))
+test.run(arguments='-Q -s', status=2, stderr=None)
+expect = "MSVCArgumentError: Value specified for MSVC_SCRIPTERROR_POLICY is not supported: 'Undefined'."
+test.must_contain_all(test.stderr(), expect)
 
 # Test construction variable with valid symbols
-test.write('SConstruct', """\
-env_list = []
-DefaultEnvironment(tools=[])
-for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
-    for policy in [symbol, symbol.upper(), symbol.lower()]:
-        env = Environment(MSVC_SCRIPTERROR_POLICY=policy, tools=['msvc'])
-        env_list.append(env)
-""")
+test.write('SConstruct', textwrap.dedent(
+    """
+    env_list = []
+    DefaultEnvironment(tools=[])
+    for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
+        for policy in [symbol, symbol.upper(), symbol.lower()]:
+            env = Environment(MSVC_SCRIPTERROR_POLICY=policy, tools=['msvc'])
+            env_list.append(env)
+    """
+))
 test.run(arguments='-Q -s', stdout='')
 
 if default_msvc_vernum >= 14.1:
@@ -87,7 +91,9 @@ if default_msvc_vernum >= 14.1:
         env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY='Undefined', tools=['msvc'])
         """
     ))
-    test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_SCRIPTERROR_POLICY.+", match=TestSCons.match_re_dotall)
+    test.run(arguments='-Q -s', status=2, stderr=None)
+    expect = "MSVCArgumentError: Value specified for MSVC_SCRIPTERROR_POLICY is not supported: 'Undefined'."
+    test.must_contain_all(test.stderr(), expect)
 
     # Test environment construction with construction variable (override global)
     test.write('SConstruct', textwrap.dedent(
@@ -109,7 +115,9 @@ if default_msvc_vernum >= 14.1:
         env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], tools=['msvc'])
         """
     ))
-    test.run(arguments='-Q -s', status=2, stderr=r"^.* vc script errors detected.+", match=TestSCons.match_re_dotall)
+    test.run(arguments='-Q -s', status=2, stderr=None)
+    expect = "MSVCScriptExecutionError: vc script errors detected:"
+    test.must_contain_all(test.stderr(), expect)
 
     # Test environment construction with construction variable
     test.write('SConstruct', textwrap.dedent(
@@ -118,7 +126,9 @@ if default_msvc_vernum >= 14.1:
         env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY='Error', tools=['msvc'])
         """
     ))
-    test.run(arguments='-Q -s', status=2, stderr=r"^.* vc script errors detected.+", match=TestSCons.match_re_dotall)
+    test.run(arguments='-Q -s', status=2, stderr=None)
+    expect = "MSVCScriptExecutionError: vc script errors detected:"
+    test.must_contain_all(test.stderr(), expect)
 
     # Test environment construction with global policy
     test.write('SConstruct', textwrap.dedent(
@@ -130,7 +140,8 @@ if default_msvc_vernum >= 14.1:
         """
     ))
     test.run(arguments='-Q -s', status=0, stderr=None)
-    test.fail_test(test.stderr().lstrip().split('\n')[0].strip() != "scons: warning: vc script errors detected:")
+    expect = "scons: warning: vc script errors detected:"
+    test.must_contain_all(test.stderr(), expect)
 
     # Test environment construction with construction variable
     test.write('SConstruct', textwrap.dedent(
@@ -140,7 +151,8 @@ if default_msvc_vernum >= 14.1:
         """
     ))
     test.run(arguments='-Q -s', status=0, stderr=None)
-    test.fail_test(test.stderr().lstrip().split('\n')[0].strip() != "scons: warning: vc script errors detected:")
+    expect = "scons: warning: vc script errors detected:"
+    test.must_contain_all(test.stderr(), expect)
 
 test.pass_test()
 

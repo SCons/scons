@@ -45,6 +45,7 @@ from ..common import (
 )
 
 from .Exceptions import (
+    MSVCArgumentError,
     MSVCVersionNotFound,
     MSVCScriptExecutionError,
 )
@@ -141,7 +142,7 @@ def _msvc_notfound_policy_lookup(symbol):
                      repr(symbol),
                      ', '.join([repr(s) for s in MSVC_NOTFOUND_POLICY_EXTERNAL.keys()])
                   )
-        raise ValueError(err_msg)
+        raise MSVCArgumentError(err_msg)
 
     return notfound_policy_def
 
@@ -225,7 +226,7 @@ def _msvc_scripterror_policy_lookup(symbol):
                      repr(symbol),
                      ', '.join([repr(s) for s in MSVC_SCRIPTERROR_POLICY_EXTERNAL.keys()])
                   )
-        raise ValueError(err_msg)
+        raise MSVCArgumentError(err_msg)
 
     return scripterror_policy_def
 

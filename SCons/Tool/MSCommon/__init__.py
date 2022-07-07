@@ -58,6 +58,7 @@ from .MSVC.Policy import msvc_get_scripterror_policy  # noqa: F401
 
 from .MSVC.Exceptions import VisualCException  # noqa: F401
 from .MSVC.Exceptions import MSVCInternalError  # noqa: F401
+from .MSVC.Exceptions import MSVCUserError  # noqa: F401
 from .MSVC.Exceptions import MSVCScriptExecutionError  # noqa: F401
 from .MSVC.Exceptions import MSVCVersionNotFound  # noqa: F401
 from .MSVC.Exceptions import MSVCSDKVersionNotFound  # noqa: F401

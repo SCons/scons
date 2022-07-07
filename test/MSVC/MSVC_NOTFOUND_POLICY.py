@@ -25,75 +25,117 @@
 Test the msvc not found policy construction variable and functions.
 """
 
-import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-if sys.platform != 'win32':
-    test.skip_test("Not win32 platform. Skipping test\n")
-
 test.skip_if_not_msvc()
 
+import textwrap
+
 # Test global functions with valid symbols
-test.write('SConstruct', """\
-from SCons.Tool.MSCommon import msvc_set_notfound_policy
-from SCons.Tool.MSCommon import msvc_get_notfound_policy
-DefaultEnvironment(tools=[])
-for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
-    for policy in [symbol, symbol.upper(), symbol.lower()]:
-        old_policy = msvc_set_notfound_policy(policy)
-        cur_policy = msvc_get_notfound_policy()
-if msvc_set_notfound_policy(None) != msvc_get_notfound_policy():
-    raise RuntimeError()
-""")
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_notfound_policy
+    from SCons.Tool.MSCommon import msvc_get_notfound_policy
+    DefaultEnvironment(tools=[])
+    for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
+        for policy in [symbol, symbol.upper(), symbol.lower()]:
+            old_policy = msvc_set_notfound_policy(policy)
+            cur_policy = msvc_get_notfound_policy()
+    if msvc_set_notfound_policy(None) != msvc_get_notfound_policy():
+        raise RuntimeError()
+    """
+))
 test.run(arguments='-Q -s', stdout='')
 
 # Test global function with invalid symbol
-test.write('SConstruct', """\
-from SCons.Tool.MSCommon import msvc_set_notfound_policy
-DefaultEnvironment(tools=[])
-msvc_set_notfound_policy('Undefined')
-""")
-test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_NOTFOUND_POLICY.+", match=TestSCons.match_re_dotall)
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_notfound_policy
+    DefaultEnvironment(tools=[])
+    msvc_set_notfound_policy('Undefined')
+    """
+))
+test.run(arguments='-Q -s', status=2, stderr=None)
+expect = "MSVCArgumentError: Value specified for MSVC_NOTFOUND_POLICY is not supported: 'Undefined'."
+test.must_contain_all(test.stderr(), expect)
 
 # Test construction variable with valid symbols
-test.write('SConstruct', """\
-env_list = []
-DefaultEnvironment(tools=[])
-for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
-    for policy in [symbol, symbol.upper(), symbol.lower()]:
-        env = Environment(MSVC_NOTFOUND_POLICY=policy, tools=['msvc'])
-        env_list.append(env)
-""")
+test.write('SConstruct', textwrap.dedent(
+    """
+    env_list = []
+    DefaultEnvironment(tools=[])
+    for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
+        for policy in [symbol, symbol.upper(), symbol.lower()]:
+            env = Environment(MSVC_NOTFOUND_POLICY=policy, tools=['msvc'])
+            env_list.append(env)
+    """
+))
 test.run(arguments='-Q -s', stdout='')
 
 # Test construction variable with invalid symbol
-test.write('SConstruct', """\
-env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Undefined', tools=['msvc'])
-""")
-test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_NOTFOUND_POLICY.+", match=TestSCons.match_re_dotall)
+test.write('SConstruct', textwrap.dedent(
+    """
+    env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Undefined', tools=['msvc'])
+    """
+))
+test.run(arguments='-Q -s', status=2, stderr=None)
+expect = "MSVCArgumentError: Value specified for MSVC_NOTFOUND_POLICY is not supported: 'Undefined'."
+test.must_contain_all(test.stderr(), expect)
 
 # Test environment construction with global policy
-test.write('SConstruct', """\
-from SCons.Tool.MSCommon import msvc_set_notfound_policy
-msvc_set_notfound_policy('Exception')
-env = Environment(MSVC_VERSION='12.9', tools=['msvc'])
-""")
-test.run(arguments='-Q -s', status=2, stderr=r"^.* MSVC version '12.9' was not found.+", match=TestSCons.match_re_dotall)
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_notfound_policy
+    msvc_set_notfound_policy('Exception')
+    env = Environment(MSVC_VERSION='12.9', tools=['msvc'])
+    """
+))
+test.run(arguments='-Q -s', status=2, stderr=None)
+expect = "MSVCVersionNotFound: MSVC version '12.9' was not found."
+test.must_contain_all(test.stderr(), expect)
 
 # Test environment construction with construction variable
-test.write('SConstruct', """\
-env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Error', tools=['msvc'])
-""")
-test.run(arguments='-Q -s', status=2, stderr=r"^.* MSVC version '12.9' was not found.+", match=TestSCons.match_re_dotall)
+test.write('SConstruct', textwrap.dedent(
+    """
+    env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Error', tools=['msvc'])
+    """
+))
+test.run(arguments='-Q -s', status=2, stderr=None)
+expect = "MSVCVersionNotFound: MSVC version '12.9' was not found."
+test.must_contain_all(test.stderr(), expect)
+
+# Test environment construction with global policy
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_notfound_policy
+    msvc_set_notfound_policy('Warning')
+    env = Environment(MSVC_VERSION='12.9', tools=['msvc'])
+    """
+))
+test.run(arguments="-Q -s --warn=visual-c-missing .", status=0, stderr=None)
+expect = "scons: warning: MSVC version '12.9' was not found."
+test.must_contain_all(test.stderr(), expect)
+
+# Test environment construction with construction variable
+test.write('SConstruct', textwrap.dedent(
+    """
+    env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Warning', tools=['msvc'])
+    """
+))
+test.run(arguments="-Q -s --warn=visual-c-missing .", status=0, stderr=None)
+expect = "scons: warning: MSVC version '12.9' was not found."
+test.must_contain_all(test.stderr(), expect)
 
 # Test environment construction with construction variable (override global)
-test.write('SConstruct', """\
-from SCons.Tool.MSCommon import msvc_set_notfound_policy
-msvc_set_notfound_policy('Exception')
-env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Ignore', tools=['msvc'])
-""")
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_notfound_policy
+    msvc_set_notfound_policy('Exception')
+    env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Ignore', tools=['msvc'])
+    """
+))
 test.run(arguments='-Q -s', stdout='')
 
 test.pass_test()
