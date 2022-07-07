@@ -1,0 +1,146 @@
+# MIT License
+#
+# Copyright The SCons Foundation
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+"""
+Test the msvc script error policy construction variable and functions.
+"""
+
+import sys
+import TestSCons
+
+test = TestSCons.TestSCons()
+
+if sys.platform != 'win32':
+    test.skip_test("Not win32 platform. Skipping test\n")
+
+test.skip_if_not_msvc()
+
+import textwrap
+
+from SCons.Tool.MSCommon.vc import (
+    get_installed_vcs,
+    get_msvc_version_numeric,
+)
+
+default_msvc_vernum = float(get_msvc_version_numeric(get_installed_vcs()[0]))
+
+# Test global functions with valid symbols
+test.write('SConstruct', """\
+from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+from SCons.Tool.MSCommon import msvc_get_scripterror_policy
+DefaultEnvironment(tools=[])
+for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
+    for policy in [symbol, symbol.upper(), symbol.lower()]:
+        old_policy = msvc_set_scripterror_policy(policy)
+        cur_policy = msvc_get_scripterror_policy()
+if msvc_set_scripterror_policy(None) != msvc_get_scripterror_policy():
+    raise RuntimeError()
+""")
+test.run(arguments='-Q -s', stdout='')
+
+# Test global function with invalid symbol
+test.write('SConstruct', """\
+from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+DefaultEnvironment(tools=[])
+msvc_set_scripterror_policy('Undefined')
+""")
+test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_SCRIPTERROR_POLICY.+", match=TestSCons.match_re_dotall)
+
+# Test construction variable with valid symbols
+test.write('SConstruct', """\
+env_list = []
+DefaultEnvironment(tools=[])
+for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
+    for policy in [symbol, symbol.upper(), symbol.lower()]:
+        env = Environment(MSVC_SCRIPTERROR_POLICY=policy, tools=['msvc'])
+        env_list.append(env)
+""")
+test.run(arguments='-Q -s', stdout='')
+
+if default_msvc_vernum >= 14.1:
+    # Need VS2017 or later for MSVC_SCRIPT_ARGS
+
+    # Test environment construction with construction variable (invalid)
+    test.write('SConstruct', textwrap.dedent(
+        """
+        DefaultEnvironment(tools=[])
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY='Undefined', tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', status=2, stderr=r"^.* Value specified for MSVC_SCRIPTERROR_POLICY.+", match=TestSCons.match_re_dotall)
+
+    # Test environment construction with construction variable (override global)
+    test.write('SConstruct', textwrap.dedent(
+        """
+        from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+        DefaultEnvironment(tools=[])
+        msvc_set_scripterror_policy('Exception')
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY='Ignore', tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', stdout='')
+
+    # Test environment construction with global policy
+    test.write('SConstruct', textwrap.dedent(
+        """
+        from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+        DefaultEnvironment(tools=[])
+        msvc_set_scripterror_policy('Exception')
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', status=2, stderr=r"^.* vc script errors detected.+", match=TestSCons.match_re_dotall)
+
+    # Test environment construction with construction variable
+    test.write('SConstruct', textwrap.dedent(
+        """
+        DefaultEnvironment(tools=[])
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY='Error', tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', status=2, stderr=r"^.* vc script errors detected.+", match=TestSCons.match_re_dotall)
+
+    # Test environment construction with global policy
+    test.write('SConstruct', textwrap.dedent(
+        """
+        from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+        DefaultEnvironment(tools=[])
+        msvc_set_scripterror_policy('Warning')
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', status=0, stderr=None)
+    test.fail_test(test.stderr().lstrip().split('\n')[0].strip() != "scons: warning: vc script errors detected:")
+
+    # Test environment construction with construction variable
+    test.write('SConstruct', textwrap.dedent(
+        """
+        DefaultEnvironment(tools=[])
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY='Warning', tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', status=0, stderr=None)
+    test.fail_test(test.stderr().lstrip().split('\n')[0].strip() != "scons: warning: vc script errors detected:")
+
+test.pass_test()
+

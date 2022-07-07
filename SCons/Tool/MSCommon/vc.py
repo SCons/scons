@@ -1378,7 +1378,7 @@ def msvc_query_version_toolset(version, prefer_newest=True):
     Returns an msvc version and a toolset version given a version
     specification.
 
-    This an EXPERIMENTAL proxy for using a toolset version to perform
+    This is an EXPERIMENTAL proxy for using a toolset version to perform
     msvc instance selection.  This function will be removed when
     toolset version is taken into account during msvc instance selection.
 
