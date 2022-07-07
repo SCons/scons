@@ -1368,12 +1368,12 @@ def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
     vc_dir = find_vc_pdir(env, msvc_version)
     if not vc_dir:
         debug('VC folder not found for version %s', repr(msvc_version))
-        return
+        return rval
 
     rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_version, vc_dir, full=full, sxs=sxs)
     return rval
 
-def msvc_query_version_toolset(version, prefer_newest=True):
+def msvc_query_version_toolset(version=None, prefer_newest=True):
     """
     Returns an msvc version and a toolset version given a version
     specification.
