@@ -158,7 +158,7 @@ if GE_VS2015_versions:
                     """
                     DefaultEnvironment(tools=[])
                     env = Environment(MSVC_VERSION={}, MSVC_SDK_VERSION='8.1', MSVC_UWP_APP=True, tools=['msvc'])
-                    """.format(repr(supported.msvc_version), repr(sdk_version))
+                    """.format(repr(supported.msvc_version))
                 ))
                 test.run(arguments='-Q -s', status=2, stderr=None)
                 expect = "MSVCArgumentError: MSVC_SDK_VERSION ('8.1') and platform type ('UWP') constraint violation: MSVC_VERSION {} > '14.0' VS2015:".format(
@@ -173,8 +173,8 @@ if GE_VS2015_versions:
                         """
                         DefaultEnvironment(tools=[])
                         env = Environment(MSVC_VERSION={}, MSVC_TOOLSET_VERSION={}, MSVC_SDK_VERSION='8.1', MSVC_UWP_APP=True, tools=['msvc'])
-                        """.format(repr(supported.msvc_version), repr(toolset_version), repr(sdk_version))
-                        ))
+                        """.format(repr(supported.msvc_version), repr(toolset_version))
+                    ))
                     test.run(arguments='-Q -s', status=2, stderr=None)
                     expect = "MSVCArgumentError: MSVC_SDK_VERSION ('8.1') and platform type ('UWP') constraint violation: toolset version {} > '14.0' VS2015:".format(
                         repr(toolset_version)
@@ -188,7 +188,7 @@ if GE_VS2015_versions:
                         """
                         DefaultEnvironment(tools=[])
                         env = Environment(MSVC_VERSION={}, MSVC_SDK_VERSION='8.1', MSVC_TOOLSET_VERSION='14.0', MSVC_UWP_APP=True, tools=['msvc'])
-                        """.format(repr(supported.msvc_version), repr(sdk_version))
+                        """.format(repr(supported.msvc_version))
                     ))
                     test.run(arguments='-Q -s', stdout='')
 
@@ -199,7 +199,7 @@ if GE_VS2015_versions:
                     """
                     DefaultEnvironment(tools=[])
                     env = Environment(MSVC_VERSION={}, MSVC_SDK_VERSION='8.1', MSVC_UWP_APP=True, tools=['msvc'])
-                    """.format(repr(supported.msvc_version), repr(sdk_version))
+                    """.format(repr(supported.msvc_version))
                 ))
                 test.run(arguments='-Q -s', stdout='')
 
