@@ -96,6 +96,18 @@ test.run(arguments='-Q -s', status=2, stderr=None)
 expect = "MSVCVersionNotFound: MSVC version '12.9' was not found."
 test.must_contain_all(test.stderr(), expect)
 
+# Test environment construction with global policy and construction variable ignored
+test.write('SConstruct', textwrap.dedent(
+    """
+    from SCons.Tool.MSCommon import msvc_set_notfound_policy
+    msvc_set_notfound_policy('Exception')
+    env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY=None, tools=['msvc'])
+    """
+))
+test.run(arguments='-Q -s', status=2, stderr=None)
+expect = "MSVCVersionNotFound: MSVC version '12.9' was not found."
+test.must_contain_all(test.stderr(), expect)
+
 # Test environment construction with construction variable
 test.write('SConstruct', textwrap.dedent(
     """

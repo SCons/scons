@@ -118,6 +118,19 @@ if default_version.msvc_vernum >= 14.1:
     expect = "MSVCScriptExecutionError: vc script errors detected:"
     test.must_contain_all(test.stderr(), expect)
 
+    # Test environment construction with global policy and construction variable ignored
+    test.write('SConstruct', textwrap.dedent(
+        """
+        from SCons.Tool.MSCommon import msvc_set_scripterror_policy
+        DefaultEnvironment(tools=[])
+        msvc_set_scripterror_policy('Exception')
+        env = Environment(MSVC_SCRIPT_ARGS=['-thisdoesnotexist=somevalue'], MSVC_SCRIPTERROR_POLICY=None, tools=['msvc'])
+        """
+    ))
+    test.run(arguments='-Q -s', status=2, stderr=None)
+    expect = "MSVCScriptExecutionError: vc script errors detected:"
+    test.must_contain_all(test.stderr(), expect)
+
     # Test environment construction with construction variable
     test.write('SConstruct', textwrap.dedent(
         """
