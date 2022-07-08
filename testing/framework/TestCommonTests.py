@@ -1943,7 +1943,7 @@ class run_TestCase(TestCommonTestCase):
 
         expect_stderr = lstrip("""\
         Exception trying to execute: \\[%s, '[^']*pass'\\]
-        Traceback \\((innermost|most recent call) last\\):
+        Traceback \\(most recent call last\\):
           File "<stdin>", line \\d+, in (\\?|<module>)
           File "[^"]+TestCommon.py", line \\d+, in run
             TestCmd.run\\(self, \\*\\*kw\\)
