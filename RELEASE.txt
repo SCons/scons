@@ -199,6 +199,13 @@ FIXES
   error caused when bypassing MSVC detection by specifying the MSVC 7.0 batch file directly.
 - lex: Fixed an issue with the lex tool where file arguments specified to either "--header-file="
   or "--tables-file=" which included a space in the path to the file would be processed incorrectly
+- Modify the MSCommon logger configuration to be independent of the root logger. This fixes an issue
+  when multiple loggers are created and the MSCommon logger added computed fields to the root logger
+  that are not present in other logging instances.
+- Modify the MSVC_USE_SCRIPT_ARGS test fixture to disable the msvc cache. This fixes an issue where
+  the MSVC_USE_SCRIPT_ARGS test for success relied on a debug log message that was not produced when
+  the msvc cache file exists and the test keys are already in the cache as the msvc script invocation
+  was bypassed.
 - Suppress issuing a warning when there are no installed Visual Studio instances for the default
   tools configuration (issue #2813).  When msvc is the default compiler because there are no
   compilers installed, a build may fail due to the cl.exe command not being recognized. At

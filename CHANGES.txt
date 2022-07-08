@@ -109,6 +109,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       version specification may be an msvc version or an msvc toolset version. This is a proxy for
       using an msvc toolset version to select an msvc instance. This function may be removed when an
       msvc toolset version is used during msvc instance selection.
+    - Modify the MSCommon logger configuration to be independent of the root logger. This fixes an issue
+      when multiple loggers are created and the MSCommon logger added computed fields to the root logger
+      that are not present in other logging instances.
+    - Modify the MSVC_USE_SCRIPT_ARGS test fixture to disable the msvc cache. This fixes an issue where
+      the MSVC_USE_SCRIPT_ARGS test for success relied on a debug log message that was not produced when
+      the msvc cache file exists and the test keys are already in the cache as the msvc script invocation
+      was bypassed.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
