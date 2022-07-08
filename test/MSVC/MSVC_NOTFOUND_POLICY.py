@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the msvc not found policy construction variable and functions.
+Test the MSVC_NOTFOUND_POLICY construction variable and functions.
 """
 
 import TestSCons

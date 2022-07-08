@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the msvc script error policy construction variable and functions.
+Test the MSVC_SCRIPTERROR_POLICY construction variable and functions.
 """
 
 import TestSCons
