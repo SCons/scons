@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,15 +22,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 Verify that the GetBuildFailures() function returns a list of
 BuildError exceptions.  Also verify printing the BuildError
 attributes we expect to be most commonly used.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 import re
@@ -196,7 +195,7 @@ scons: *** [f12] f12: My SConsEnvironmentError
 scons: *** [f13] f13: My SConsEnvironmentError
 scons: *** [f14] InternalError : My InternalError
 """) + \
-r"""Traceback \((most recent call|innermost) last\):
+r"""Traceback \(most recent call last\):
 (  File ".+", line \d+, in \S+
     [^\n]+
 )*(  File ".+", line \d+, in \S+
