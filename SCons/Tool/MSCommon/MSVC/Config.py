@@ -179,6 +179,7 @@ MSVS_VERSION_EXTERNAL = {}
 
 MSVC_VERSION_INTERNAL = {}
 MSVC_VERSION_EXTERNAL = {}
+MSVC_VERSION_SUFFIX = {}
 
 MSVS_VERSION_MAJOR_MAP = {}
 
@@ -248,13 +249,15 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
 
     vc_buildtools_def.vc_runtime_def.vc_runtime_vsdef_list.append(vs_def)
 
+    vc_version = vc_buildtools_def.vc_version
+
     MSVS_VERSION_INTERNAL[vs_product] = vs_def
     MSVS_VERSION_EXTERNAL[vs_product] = vs_def
     MSVS_VERSION_EXTERNAL[vs_version] = vs_def
 
-    MSVC_VERSION_INTERNAL[vc_buildtools_def.vc_version] = vs_def
+    MSVC_VERSION_INTERNAL[vc_version] = vs_def
     MSVC_VERSION_EXTERNAL[vs_product] = vs_def
-    MSVC_VERSION_EXTERNAL[vc_buildtools_def.vc_version] = vs_def
+    MSVC_VERSION_EXTERNAL[vc_version] = vs_def
     MSVC_VERSION_EXTERNAL[vc_buildtools_def.vc_buildtools] = vs_def
 
     if vs_product in VS_PRODUCT_ALIAS:
@@ -263,14 +266,16 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
             MSVS_VERSION_EXTERNAL[vs_product_alias] = vs_def
             MSVC_VERSION_EXTERNAL[vs_product_alias] = vs_def
 
+    MSVC_VERSION_SUFFIX[vc_version] = vs_def
+    if vs_express:
+        MSVC_VERSION_SUFFIX[vc_version + 'Exp'] = vs_def
+
     MSVS_VERSION_MAJOR_MAP[vs_version_major] = vs_def
 
     CL_VERSION_MAP[vc_buildtools_def.cl_version] = vs_def
 
-    if not vc_sdk:
-        continue
-
-    MSVC_SDK_VERSIONS.update(vc_sdk)
+    if vc_sdk:
+        MSVC_SDK_VERSIONS.update(vc_sdk)
 
 # EXPERIMENTAL: msvc version/toolset search lists
 #
@@ -312,21 +317,15 @@ for vs_def in VISUALSTUDIO_DEFINITION_LIST:
 # convert string version set to string version list ranked in descending order
 MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS], reverse=True)]
 
-MSVS_VERSION_LEGACY = {}
-MSVC_VERSION_LEGACY = {}
-
-for vdict in (MSVS_VERSION_EXTERNAL, MSVC_VERSION_INTERNAL):
-    for key, vs_def in vdict.items():
-        if key not in MSVS_VERSION_LEGACY:
-            MSVS_VERSION_LEGACY[key] = vs_def
-            MSVC_VERSION_LEGACY[key] = vs_def
 
 def verify():
     from .. import vc
     for msvc_version in vc._VCVER:
+        if not msvc_version in MSVC_VERSION_SUFFIX:
+            err_msg = 'msvc_version {} not in MSVC_VERSION_SUFFIX'.format(repr(msvc_version))
+            raise MSVCInternalError(err_msg)
         vc_version = Util.get_msvc_version_prefix(msvc_version)
-        if vc_version in MSVC_VERSION_INTERNAL:
-            continue
-        err_msg = 'vc_version {} not in MSVC_VERSION_INTERNAL'.format(repr(vc_version))
-        raise MSVCInternalError(err_msg)
+        if vc_version not in MSVC_VERSION_INTERNAL:
+            err_msg = 'vc_version {} not in MSVC_VERSION_INTERNAL'.format(repr(vc_version))
+            raise MSVCInternalError(err_msg)
 

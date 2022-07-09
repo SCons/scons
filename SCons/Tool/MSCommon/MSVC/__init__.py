@@ -36,9 +36,9 @@ Currently:
 """
 
 from . import Exceptions  # noqa: F401
-from . import Util  # noqa: F401
 
 from . import Config  # noqa: F401
+from . import Util  # noqa: F401
 from . import Registry  # noqa: F401
 from . import SetupEnvDefault  # noqa: F401
 from . import Policy  # noqa: F401

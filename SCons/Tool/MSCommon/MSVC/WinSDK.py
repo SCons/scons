@@ -225,7 +225,8 @@ def get_msvc_platform(is_uwp=False):
     platform_def = _UWP if is_uwp else _DESKTOP
     return platform_def
 
-def get_sdk_version_list(version_list, platform_def):
+def get_sdk_version_list(vs_def, platform_def):
+    version_list = vs_def.vc_sdk_versions if vs_def.vc_sdk_versions is not None else []
     sdk_map = _sdk_map(version_list)
     sdk_list = sdk_map.get(platform_def.vc_platform, [])
     return sdk_list
@@ -243,7 +244,7 @@ def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
 
     is_uwp = True if msvc_uwp_app in Config.BOOLEAN_SYMBOLS[True] else False
     platform_def = get_msvc_platform(is_uwp)
-    sdk_list = get_sdk_version_list(vs_def.vc_sdk_versions, platform_def)
+    sdk_list = get_sdk_version_list(vs_def, platform_def)
 
     sdk_versions.extend(sdk_list)
     debug('sdk_versions=%s', repr(sdk_versions))

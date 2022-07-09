@@ -32,6 +32,8 @@ from collections import (
     namedtuple,
 )
 
+from . import Config
+
 def listdir_dirs(p):
     """
     Return a list of tuples for each subdirectory of the given directory path.
@@ -113,47 +115,9 @@ def get_msvc_version_prefix(version):
         rval = ''
     return rval
 
-_VERSION_ELEMENTS_DEFINITION = namedtuple('VersionElements', [
-    'vc_version_numstr', # msvc version numeric string ('14.1')
-    'vc_toolset_numstr', # toolset version numeric string ('14.16.27023')
-    'vc_version_suffix', # component type ('Exp')
-    'msvc_version',      # msvc version ('14.1Exp')
-])
+# convenience functions
 
-re_version_elements = re.compile(r'^(?P<version>(?P<msvc_version>[1-9][0-9]?[.][0-9])[0-9.]*)(?P<suffix>[A-Z]+)*$', re.IGNORECASE)
-
-def get_version_elements(version):
-    """
-    Get the version elements from an msvc version or toolset version.
-
-    Args:
-        version: str
-            version specification
-
-    Returns:
-        None or VersionElements namedtuple:
-    """
-
-    m = re_version_elements.match(version)
-    if not m:
-        return None
-
-    vc_version_numstr = m.group('msvc_version')
-    vc_toolset_numstr = m.group('version')
-    vc_version_suffix = m.group('suffix') if m.group('suffix') else ''
-
-    version_elements_def = _VERSION_ELEMENTS_DEFINITION(
-        vc_version_numstr = vc_version_numstr,
-        vc_toolset_numstr = vc_toolset_numstr,
-        vc_version_suffix = vc_version_suffix,
-        msvc_version = vc_version_numstr + vc_version_suffix,
-    )
-
-    return version_elements_def
-
-# test suite convenience function
-
-_MSVC_VERSION_COMPONENTS = namedtuple('MSVCVersionComponents', [
+_MSVC_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCVersionComponentsDefinition', [
     'msvc_version', # msvc version (e.g., '14.1Exp')
     'msvc_verstr',  # msvc version numeric string (e.g., '14.1')
     'msvc_suffix',  # msvc version component type (e.g., 'Exp')
@@ -164,9 +128,9 @@ _MSVC_VERSION_COMPONENTS = namedtuple('MSVCVersionComponents', [
 
 re_msvc_version = re.compile(r'^(?P<msvc_version>[1-9][0-9]?[.][0-9])(?P<suffix>[A-Z]+)*$', re.IGNORECASE)
 
-def get_msvc_version_components(vcver):
+def msvc_version_components(vcver):
     """
-    Get a tuple of msvc version components.
+    Decompose an msvc version into components.
 
     Tuple fields:
         msvc_version: msvc version (e.g., '14.1Exp')
@@ -188,6 +152,10 @@ def get_msvc_version_components(vcver):
     if not m:
         return None
 
+    vs_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
+    if not vs_def:
+        return None
+
     msvc_version = vcver
     msvc_verstr = m.group('msvc_version')
     msvc_suffix = m.group('suffix') if m.group('suffix') else ''
@@ -195,14 +163,82 @@ def get_msvc_version_components(vcver):
 
     msvc_major, msvc_minor = [int(x) for x in msvc_verstr.split('.')]
 
-    msvc_version_components_def = _MSVC_VERSION_COMPONENTS(
-        msvc_vernum = msvc_vernum,
+    msvc_version_components_def = _MSVC_VERSION_COMPONENTS_DEFINITION(
+        msvc_version = msvc_version,
         msvc_verstr = msvc_verstr,
         msvc_suffix = msvc_suffix,
-        msvc_version = msvc_version,
+        msvc_vernum = msvc_vernum,
         msvc_major = msvc_major,
         msvc_minor = msvc_minor,
     )
 
     return msvc_version_components_def
+
+_MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCExtendedVersionComponentsDefinition', [
+    'msvc_version', # msvc version (e.g., '14.1Exp')
+    'msvc_verstr',  # msvc version numeric string (e.g., '14.1')
+    'msvc_suffix',  # msvc version component type (e.g., 'Exp')
+    'msvc_vernum',  # msvc version floating point number (e.g, 14.1)
+    'msvc_major',   # msvc major version integer number (e.g., 14)
+    'msvc_minor',   # msvc minor version integer number (e.g., 1)
+    'msvc_toolset_version', # msvc toolset version
+    'version',              # msvc version or msvc toolset version
+])
+
+# regex needs to accept same formats as toolset regexes in ./ScriptArguments.py
+
+re_extended_version = re.compile(r'''^
+    (?P<version>(?:
+        ([1-9][0-9]?[.][0-9]{1,2})|                       # XX.Y       - XX.YY
+        ([1-9][0-9][.][0-9]{2}[.][0-9]{1,5})|             # XX.YY.Z    - XX.YY.ZZZZZ
+        ([1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2})   # XX.YY.AA.B - XX.YY.AA.BB
+    ))
+    (?P<suffix>[A-Z]+)*
+$''', re.IGNORECASE | re.VERBOSE)
+
+def msvc_extended_version_components(version):
+    """
+    Decompose an msvc version or msvc toolset version into components.
+
+    Args:
+        version: str
+            version specification
+
+    Returns:
+        None or MSVCExtendedVersionComponents namedtuple:
+    """
+
+    m = re_extended_version.match(version)
+    if not m:
+        return None
+
+    msvc_toolset_version = m.group('version')
+
+    msvc_verstr = get_msvc_version_prefix(msvc_toolset_version)
+    if not msvc_verstr:
+        return None
+
+    msvc_suffix = m.group('suffix') if m.group('suffix') else ''
+    msvc_version = msvc_verstr + msvc_suffix
+
+    vs_def = Config.MSVC_VERSION_SUFFIX.get(msvc_version)
+    if not vs_def:
+        return None
+
+    msvc_vernum = float(msvc_verstr)
+
+    msvc_major, msvc_minor = [int(x) for x in msvc_verstr.split('.')]
+
+    msvc_extended_version_components_def = _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION(
+        msvc_version = msvc_version,
+        msvc_verstr = msvc_verstr,
+        msvc_suffix = msvc_suffix,
+        msvc_vernum = msvc_vernum,
+        msvc_major = msvc_major,
+        msvc_minor = msvc_minor,
+        msvc_toolset_version = msvc_toolset_version,
+        version = version,
+    )
+
+    return msvc_extended_version_components_def
 

@@ -44,8 +44,8 @@ default_version = installed_versions[0]
 GE_VS2015_versions = [v for v in installed_versions if v.msvc_vernum >= 14.0]
 LT_VS2015_versions = [v for v in installed_versions if v.msvc_vernum < 14.0]
 
-default_sdk_versions_uwp = msvc_sdk_versions(msvc_version=None, msvc_uwp_app=True)
-default_sdk_versions_def = msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False)
+default_sdk_versions_uwp = msvc_sdk_versions(version=None, msvc_uwp_app=True)
+default_sdk_versions_def = msvc_sdk_versions(version=None, msvc_uwp_app=False)
 
 have_140 = any([v.msvc_verstr == '14.0' for v in GE_VS2015_versions])
 
@@ -72,8 +72,8 @@ if GE_VS2015_versions:
 
     for supported in GE_VS2015_versions:
 
-        sdk_versions_uwp = msvc_sdk_versions(msvc_version=supported.msvc_version, msvc_uwp_app=True)
-        sdk_versions_def = msvc_sdk_versions(msvc_version=supported.msvc_version, msvc_uwp_app=False)
+        sdk_versions_uwp = msvc_sdk_versions(version=supported.msvc_version, msvc_uwp_app=True)
+        sdk_versions_def = msvc_sdk_versions(version=supported.msvc_version, msvc_uwp_app=False)
 
         # find sdk version for each major SDK
         sdk_versions = version_major_list(sdk_versions_def)

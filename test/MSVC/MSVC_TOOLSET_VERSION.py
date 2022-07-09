@@ -34,6 +34,7 @@ test.skip_if_not_msvc()
 import textwrap
 
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon import msvc_toolset_versions
 
 installed_versions = get_installed_vcs_components()
 
@@ -47,6 +48,30 @@ if GE_VS2017_versions:
     # VS2017 and later for toolset argument
 
     for supported in GE_VS2017_versions:
+
+        toolset_full_versions = msvc_toolset_versions(supported.msvc_version, full=True, sxs=False)
+        toolset_full_version = toolset_full_versions[0] if toolset_full_versions else None
+
+        toolset_sxs_versions = msvc_toolset_versions(supported.msvc_version, full=False, sxs=True)
+        toolset_sxs_version = toolset_sxs_versions[0] if toolset_sxs_versions else None
+
+        if toolset_full_version:
+            test.write('SConstruct', textwrap.dedent(
+                """
+                DefaultEnvironment(tools=[])
+                env = Environment(MSVC_VERSION={}, MSVC_TOOLSET_VERSION={}, tools=['msvc'])
+                """.format(repr(supported.msvc_version), repr(toolset_full_version))
+            ))
+            test.run(arguments='-Q -s', stdout='')
+
+        if toolset_sxs_version:
+            test.write('SConstruct', textwrap.dedent(
+                """
+                DefaultEnvironment(tools=[])
+                env = Environment(MSVC_VERSION={}, MSVC_TOOLSET_VERSION={}, tools=['msvc'])
+                """.format(repr(supported.msvc_version), repr(toolset_sxs_version))
+            ))
+            test.run(arguments='-Q -s', stdout='')
 
         # msvc_version as toolset version
         test.write('SConstruct', textwrap.dedent(

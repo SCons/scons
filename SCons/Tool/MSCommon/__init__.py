@@ -71,6 +71,9 @@ from .vc import MSVCUnsupportedTargetArch  # noqa: F401
 from .vc import MSVCScriptNotFound  # noqa: F401
 from .vc import MSVCUseSettingsError  # noqa: F401
 
+from .MSVC.Util import msvc_version_components  # noqa: F401
+from .MSVC.Util import msvc_extended_version_components  # noqa: F401
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

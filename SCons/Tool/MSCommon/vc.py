@@ -970,7 +970,8 @@ def reset_installed_vcs():
     __INSTALLED_VCS_RUN = None
     MSVC._reset()
 
-def get_default_installed_msvc(env=None):
+def msvc_get_default_version(env=None):
+    """Get default msvc version."""
     vcs = get_installed_vcs(env)
     msvc_version = vcs[0] if vcs else None
     debug('msvc_version=%s', repr(msvc_version))
@@ -979,7 +980,7 @@ def get_default_installed_msvc(env=None):
 def get_installed_vcs_components(env=None):
     """Test suite convenience function: return list of installed msvc version component tuples"""
     vcs = get_installed_vcs(env)
-    msvc_version_component_defs = [MSVC.Util.get_msvc_version_components(vcver) for vcver in vcs]
+    msvc_version_component_defs = [MSVC.Util.msvc_version_components(vcver) for vcver in vcs]
     return msvc_version_component_defs
 
 # Running these batch files isn't cheap: most of the time spent in
@@ -1088,7 +1089,7 @@ def get_default_version(env):
         return msvs_version
 
     if not msvc_version:
-        msvc_version = get_default_installed_msvc(env)
+        msvc_version = msvc_get_default_version(env)
         if not msvc_version:
             #SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
             debug('No installed VCs')
@@ -1340,19 +1341,24 @@ def msvc_setup_env_tool(env=None, version=None, tool=None):
         rval = True
     return rval
 
-def msvc_sdk_versions(msvc_version=None, msvc_uwp_app=False):
-    debug('msvc_version=%s, msvc_uwp_app=%s', repr(msvc_version), repr(msvc_uwp_app))
+def msvc_sdk_versions(version=None, msvc_uwp_app=False):
+    debug('version=%s, msvc_uwp_app=%s', repr(version), repr(msvc_uwp_app))
 
     rval = []
 
-    if not msvc_version:
-        msvc_version = get_default_installed_msvc()
+    if not version:
+        version = msvc_get_default_version()
 
-    if not msvc_version:
+    if not version:
         debug('no msvc versions detected')
         return rval
 
-    rval = MSVC.WinSDK.get_msvc_sdk_version_list(msvc_version, msvc_uwp_app)
+    version_def = MSVC.Util.msvc_extended_version_components(version)
+    if not version_def:
+        msg = 'Unsupported version {}'.format(repr(version))
+        raise MSVCArgumentError(msg)
+
+    rval = MSVC.WinSDK.get_msvc_sdk_version_list(version, msvc_uwp_app)
     return rval
 
 def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
@@ -1362,7 +1368,7 @@ def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
     rval = []
 
     if not msvc_version:
-        msvc_version = get_default_installed_msvc()
+        msvc_version = msvc_get_default_version()
 
     if not msvc_version:
         debug('no msvc versions detected')
@@ -1438,36 +1444,33 @@ def msvc_query_version_toolset(version=None, prefer_newest=True):
         )
         return msvc_version, msvc_toolset_version
 
-    version_elements_def = MSVC.Util.get_version_elements(version)
-    if not version_elements_def:
-        msg = 'Unsupported version format {}'.format(repr(version))
-        raise MSVCArgumentError(msg)
+    version_def = MSVC.Util.msvc_extended_version_components(version)
 
-    if version_elements_def.msvc_version not in _VCVER:
+    if not version_def:
         msg = 'Unsupported msvc version {}'.format(repr(version))
         raise MSVCArgumentError(msg)
 
-    if version_elements_def.vc_version_suffix:
-        if version_elements_def.vc_version_numstr != version_elements_def.vc_toolset_numstr:
+    if version_def.msvc_suffix:
+        if version_def.msvc_verstr != version_def.msvc_toolset_version:
             # toolset version with component suffix
             msg = 'Unsupported toolset version {}'.format(repr(version))
             raise MSVCArgumentError(msg)
 
-    if float(version_elements_def.vc_version_numstr) > 14.0:
+    if version_def.msvc_vernum > 14.0:
         # VS2017 and later
         force_toolset_msvc_version = False
     else:
         # VS2015 and earlier
         force_toolset_msvc_version = True
-        extended_version = version_elements_def.vc_version_numstr + '0.00000'
-        if not extended_version.startswith(version_elements_def.vc_toolset_numstr):
+        extended_version = version_def.msvc_verstr + '0.00000'
+        if not extended_version.startswith(version_def.msvc_toolset_version):
             # toolset not equivalent to msvc version
             msg = 'Unsupported toolset version {} (expected {})'.format(
                 repr(version), repr(extended_version)
             )
             raise MSVCArgumentError(msg)
 
-    msvc_version = version_elements_def.msvc_version
+    msvc_version = version_def.msvc_version
 
     if msvc_version not in MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP:
         # VS2013 and earlier
@@ -1478,9 +1481,9 @@ def msvc_query_version_toolset(version=None, prefer_newest=True):
         return msvc_version, msvc_toolset_version
 
     if force_toolset_msvc_version:
-        query_msvc_toolset_version = version_elements_def.vc_version_numstr
+        query_msvc_toolset_version = version_def.msvc_verstr
     else:
-        query_msvc_toolset_version = version_elements_def.vc_toolset_numstr
+        query_msvc_toolset_version = version_def.msvc_toolset_version
 
     if prefer_newest:
         query_version_list = MSVC.Config.MSVC_VERSION_TOOLSET_SEARCH_MAP[msvc_version]
@@ -1528,7 +1531,7 @@ def msvc_query_version_toolset(version=None, prefer_newest=True):
         repr(msvc_version), repr(msvc_toolset_version)
     )
 
-    if version_elements_def.vc_version_numstr == msvc_toolset_version:
+    if version_def.msvc_verstr == msvc_toolset_version:
         msg = 'MSVC version {} was not found'.format(repr(version))
         MSVC.Policy.msvc_notfound_handler(None, msg)
         return msvc_version, msvc_toolset_version

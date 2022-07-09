@@ -77,6 +77,8 @@ def _verify_re_sdk_dispatch_map():
         raise MSVCInternalError(err_msg)
     return None
 
+# toolset regexes need to accept same formats as extended version regexes in ./Util.py
+
 # capture msvc version
 re_toolset_version = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9])[0-9.]*$', re.IGNORECASE)
 
@@ -323,7 +325,7 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
     if err_msg:
         raise MSVCArgumentError(err_msg)
 
-    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_def)
+    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def, platform_def)
 
     if sdk_version not in sdk_list:
         err_msg = "MSVC_SDK_VERSION {} not found for platform type {}".format(
@@ -345,7 +347,7 @@ def _msvc_script_default_sdk(env, msvc, platform_def, arglist):
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
         return None
 
-    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def.vc_sdk_versions, platform_def)
+    sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def, platform_def)
     if not len(sdk_list):
         return None
 
