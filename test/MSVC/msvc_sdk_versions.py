@@ -34,7 +34,7 @@ test.skip_if_not_msvc()
 import unittest
 
 from SCons.Tool.MSCommon.vc import _VCVER
-from SCons.Tool.MSCommon.vc import msvc_get_default_version
+from SCons.Tool.MSCommon.vc import msvc_default_version
 from SCons.Tool.MSCommon import msvc_version_components
 from SCons.Tool.MSCommon import msvc_extended_version_components
 from SCons.Tool.MSCommon import msvc_sdk_versions
@@ -44,7 +44,7 @@ from SCons.Tool.MSCommon import MSVCArgumentError
 class MsvcSdkVersionsTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
-        symbol = msvc_get_default_version()
+        symbol = msvc_default_version()
         version_def = msvc_version_components(symbol)
         for msvc_uwp_app in (True, False):
             sdk_list = msvc_sdk_versions(version=None, msvc_uwp_app=msvc_uwp_app)

@@ -77,24 +77,6 @@ def _verify_re_sdk_dispatch_map():
         raise MSVCInternalError(err_msg)
     return None
 
-# toolset regexes need to accept same formats as extended version regexes in ./Util.py
-
-# capture msvc version
-re_toolset_version = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9])[0-9.]*$', re.IGNORECASE)
-
-re_toolset_full = re.compile(r'''^(?:
-    (?:[1-9][0-9][.][0-9]{1,2})|           # XX.Y    - XX.YY
-    (?:[1-9][0-9][.][0-9]{2}[.][0-9]{1,5}) # XX.YY.Z - XX.YY.ZZZZZ
-)$''', re.VERBOSE)
-
-re_toolset_140 = re.compile(r'''^(?:
-    (?:14[.]0{1,2})|       # 14.0    - 14.00
-    (?:14[.]0{2}[.]0{1,5}) # 14.00.0 - 14.00.00000
-)$''', re.VERBOSE)
-
-# SxS toolset version: MM.mm.VV.vv format
-re_toolset_sxs = re.compile(r'^[1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}$')
-
 # SxS version bugfix
 _msvc_sxs_bugfix_map = {}
 _msvc_sxs_bugfix_folder = {}
@@ -422,7 +404,7 @@ def _msvc_read_toolset_file(msvc, filename):
 
 def _msvc_sxs_toolset_folder(msvc, sxs_folder):
 
-    if re_toolset_sxs.match(sxs_folder):
+    if Util.is_toolset_sxs(sxs_folder):
         return sxs_folder, sxs_folder
 
     key = (msvc.vs_def.vc_buildtools_def.vc_version, sxs_folder)
@@ -566,7 +548,7 @@ def _msvc_version_toolset_vcvars(msvc, vc_dir, toolset_version):
         toolset_vcvars = toolset_version
         return toolset_vcvars
 
-    if re_toolset_sxs.match(toolset_version):
+    if Util.is_toolset_sxs(toolset_version):
         # SxS version provided
         sxs_version = toolsets_sxs.get(toolset_version, None)
         if sxs_version and sxs_version in toolsets_full:
@@ -595,16 +577,16 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
         )
         return err_msg
 
-    m = re_toolset_version.match(toolset_version)
-    if not m:
-        debug('invalid: re_toolset_version: toolset_version=%s', repr(toolset_version))
+    toolset_verstr = Util.get_msvc_version_prefix(toolset_version)
+
+    if not toolset_verstr:
+        debug('invalid: msvc version: toolset_version=%s', repr(toolset_version))
         err_msg = 'MSVC_TOOLSET_VERSION {} format is not supported'.format(
             repr(toolset_version)
         )
         return err_msg
 
-    toolset_ver = m.group('version')
-    toolset_vernum = float(toolset_ver)
+    toolset_vernum = float(toolset_verstr)
 
     if toolset_vernum < VS2015.vc_buildtools_def.vc_version_numeric:
         debug(
@@ -612,7 +594,7 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
             repr(toolset_vernum), repr(VS2015.vc_buildtools_def.vc_version_numeric)
         )
         err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} < {} VS2015".format(
-            repr(toolset_version), repr(toolset_ver), repr(VS2015.vc_buildtools_def.vc_version)
+            repr(toolset_version), repr(toolset_verstr), repr(VS2015.vc_buildtools_def.vc_version)
         )
         return err_msg
 
@@ -622,14 +604,14 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
             repr(toolset_vernum), repr(msvc.vs_def.vc_buildtools_def.vc_version_numeric)
         )
         err_msg = "MSVC_TOOLSET_VERSION ({}) constraint violation: toolset version {} > {} MSVC_VERSION".format(
-            repr(toolset_version), repr(toolset_ver), repr(msvc.version)
+            repr(toolset_version), repr(toolset_verstr), repr(msvc.version)
         )
         return err_msg
 
     if toolset_vernum == VS2015.vc_buildtools_def.vc_version_numeric:
         # tooset = 14.0
-        if re_toolset_full.match(toolset_version):
-            if not re_toolset_140.match(toolset_version):
+        if Util.is_toolset_full(toolset_version):
+            if not Util.is_toolset_140(toolset_version):
                 debug(
                     'invalid: toolset version 14.0 constraint: %s != 14.0',
                     repr(toolset_version)
@@ -640,12 +622,12 @@ def _msvc_script_argument_toolset_constraints(msvc, toolset_version):
                 return err_msg
             return None
 
-    if re_toolset_full.match(toolset_version):
-        debug('valid: re_toolset_full: toolset_version=%s', repr(toolset_version))
+    if Util.is_toolset_full(toolset_version):
+        debug('valid: toolset full: toolset_version=%s', repr(toolset_version))
         return None
 
-    if re_toolset_sxs.match(toolset_version):
-        debug('valid: re_toolset_sxs: toolset_version=%s', repr(toolset_version))
+    if Util.is_toolset_sxs(toolset_version):
+        debug('valid: toolset sxs: toolset_version=%s', repr(toolset_version))
         return None
 
     debug('invalid: method exit: toolset_version=%s', repr(toolset_version))

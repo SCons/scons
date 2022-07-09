@@ -34,6 +34,8 @@ from collections import (
 
 from . import Config
 
+# path utilities
+
 def listdir_dirs(p):
     """
     Return a list of tuples for each subdirectory of the given directory path.
@@ -73,7 +75,38 @@ def process_path(p):
         p = os.path.normcase(p)
     return p
 
+# msvc version and msvc toolset version regexes
+
 re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*$')
+
+re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*$')
+
+re_msvc_version = re.compile(r'^(?P<msvc_version>[1-9][0-9]?[.][0-9])(?P<suffix>[A-Z]+)*$', re.IGNORECASE)
+
+re_extended_version = re.compile(r'''^
+    (?P<version>(?:
+        ([1-9][0-9]?[.][0-9]{1,2})|                     # XX.Y       - XX.YY
+        ([1-9][0-9][.][0-9]{2}[.][0-9]{1,5})|           # XX.YY.Z    - XX.YY.ZZZZZ
+        ([1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}) # XX.YY.AA.B - XX.YY.AA.BB
+    ))
+    (?P<suffix>[A-Z]+)*
+$''', re.IGNORECASE | re.VERBOSE)
+
+re_toolset_full = re.compile(r'''^(?:
+    (?:[1-9][0-9][.][0-9]{1,2})|           # XX.Y    - XX.YY
+    (?:[1-9][0-9][.][0-9]{2}[.][0-9]{1,5}) # XX.YY.Z - XX.YY.ZZZZZ
+)$''', re.VERBOSE)
+
+re_toolset_140 = re.compile(r'''^(?:
+    (?:14[.]0{1,2})|       # 14.0    - 14.00
+    (?:14[.]0{2}[.]0{1,5}) # 14.00.0 - 14.00.00000
+)$''', re.VERBOSE)
+
+re_toolset_sxs = re.compile(
+    r'^[1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}$' # MM.mm.VV.vv format
+)
+
+# version prefix utilities
 
 def get_version_prefix(version):
     """
@@ -94,8 +127,6 @@ def get_version_prefix(version):
         rval = ''
     return rval
 
-re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*$')
-
 def get_msvc_version_prefix(version):
     """
     Get the msvc version number prefix from a string.
@@ -115,7 +146,24 @@ def get_msvc_version_prefix(version):
         rval = ''
     return rval
 
-# convenience functions
+# toolset version query utilities
+
+def is_toolset_full(toolset_version):
+    if re_toolset_full.match(toolset_version):
+        return True
+    return False
+
+def is_toolset_140(toolset_version):
+    if re_toolset_140.match(toolset_version):
+        return True
+    return False
+
+def is_toolset_sxs(toolset_version):
+    if re_toolset_sxs.match(toolset_version):
+        return True
+    return False
+
+# msvc version and msvc toolset version decomposition utilties
 
 _MSVC_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCVersionComponentsDefinition', [
     'msvc_version', # msvc version (e.g., '14.1Exp')
@@ -125,8 +173,6 @@ _MSVC_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCVersionComponentsDefinitio
     'msvc_major',   # msvc major version integer number (e.g., 14)
     'msvc_minor',   # msvc minor version integer number (e.g., 1)
 ])
-
-re_msvc_version = re.compile(r'^(?P<msvc_version>[1-9][0-9]?[.][0-9])(?P<suffix>[A-Z]+)*$', re.IGNORECASE)
 
 def msvc_version_components(vcver):
     """
@@ -184,17 +230,6 @@ _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCExtendedVersionCo
     'msvc_toolset_version', # msvc toolset version
     'version',              # msvc version or msvc toolset version
 ])
-
-# regex needs to accept same formats as toolset regexes in ./ScriptArguments.py
-
-re_extended_version = re.compile(r'''^
-    (?P<version>(?:
-        ([1-9][0-9]?[.][0-9]{1,2})|                       # XX.Y       - XX.YY
-        ([1-9][0-9][.][0-9]{2}[.][0-9]{1,5})|             # XX.YY.Z    - XX.YY.ZZZZZ
-        ([1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2})   # XX.YY.AA.B - XX.YY.AA.BB
-    ))
-    (?P<suffix>[A-Z]+)*
-$''', re.IGNORECASE | re.VERBOSE)
 
 def msvc_extended_version_components(version):
     """

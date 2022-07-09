@@ -970,7 +970,7 @@ def reset_installed_vcs():
     __INSTALLED_VCS_RUN = None
     MSVC._reset()
 
-def msvc_get_default_version(env=None):
+def msvc_default_version(env=None):
     """Get default msvc version."""
     vcs = get_installed_vcs(env)
     msvc_version = vcs[0] if vcs else None
@@ -1089,7 +1089,7 @@ def get_default_version(env):
         return msvs_version
 
     if not msvc_version:
-        msvc_version = msvc_get_default_version(env)
+        msvc_version = msvc_default_version(env)
         if not msvc_version:
             #SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, msg)
             debug('No installed VCs')
@@ -1347,7 +1347,7 @@ def msvc_sdk_versions(version=None, msvc_uwp_app=False):
     rval = []
 
     if not version:
-        version = msvc_get_default_version()
+        version = msvc_default_version()
 
     if not version:
         debug('no msvc versions detected')
@@ -1368,7 +1368,7 @@ def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
     rval = []
 
     if not msvc_version:
-        msvc_version = msvc_get_default_version()
+        msvc_version = msvc_default_version()
 
     if not msvc_version:
         debug('no msvc versions detected')
