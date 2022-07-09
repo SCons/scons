@@ -78,13 +78,13 @@ class MsvcSdkVersionsTests(unittest.TestCase):
         for symbol in ['6.0Exp', '14.3Exp', '99', '14.1Bug']:
             for msvc_uwp_app in (True, False):
                 with self.assertRaises(MSVCArgumentError):
-                    sdk_list = msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
+                    msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
 
     def test_invalid_vcver_toolsets(self):
         for symbol in ['14.31.123456', '14.31.1.1']:
             for msvc_uwp_app in (True, False):
                 with self.assertRaises(MSVCArgumentError):
-                    sdk_list = msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
+                    msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
 
 unittest.main()
 

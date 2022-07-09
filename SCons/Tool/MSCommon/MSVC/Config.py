@@ -321,7 +321,7 @@ MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS
 def verify():
     from .. import vc
     for msvc_version in vc._VCVER:
-        if not msvc_version in MSVC_VERSION_SUFFIX:
+        if msvc_version not in MSVC_VERSION_SUFFIX:
             err_msg = 'msvc_version {} not in MSVC_VERSION_SUFFIX'.format(repr(msvc_version))
             raise MSVCInternalError(err_msg)
         vc_version = Util.get_msvc_version_prefix(msvc_version)
