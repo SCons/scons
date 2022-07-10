@@ -44,7 +44,6 @@ from SCons.Tool.MSCommon import MSVCArgumentError
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
-        symbol = msvc_default_version()
         for prefer_newest in (True, False):
             msvc_version, msvc_toolset_version = msvc_query_version_toolset(version=None, prefer_newest=prefer_newest)
             self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(None)))

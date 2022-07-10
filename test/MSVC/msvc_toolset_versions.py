@@ -34,11 +34,13 @@ test.skip_if_not_msvc()
 import unittest
 
 from SCons.Tool.MSCommon.vc import _VCVER
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon.vc import msvc_default_version
 from SCons.Tool.MSCommon import msvc_version_components
-from SCons.Tool.MSCommon import msvc_extended_version_components
 from SCons.Tool.MSCommon import msvc_toolset_versions
 from SCons.Tool.MSCommon import MSVCArgumentError
+
+installed_versions = get_installed_vcs_components()
 
 class MsvcToolsetVersionsTests(unittest.TestCase):
 
@@ -49,7 +51,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
         toolset_full_list = msvc_toolset_versions(msvc_version=None, full=True, sxs=False)
         toolset_sxs_list = msvc_toolset_versions(msvc_version=None, full=False, sxs=True)
         toolset_all_list = msvc_toolset_versions(msvc_version=None, full=True, sxs=True)
-        if version_def.msvc_vernum >= 14.1:
+        if version_def in installed_versions and version_def.msvc_vernum >= 14.1:
             # sxs list could be empty
             self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(None)))
             self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(None)))
@@ -66,7 +68,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             toolset_full_list = msvc_toolset_versions(msvc_version=symbol, full=True, sxs=False)
             toolset_sxs_list = msvc_toolset_versions(msvc_version=symbol, full=False, sxs=True)
             toolset_all_list = msvc_toolset_versions(msvc_version=symbol, full=True, sxs=True)
-            if version_def.msvc_vernum >= 14.1:
+            if version_def in installed_versions and version_def.msvc_vernum >= 14.1:
                 # sxs list could be empty
                 self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(symbol)))
                 self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(symbol)))
