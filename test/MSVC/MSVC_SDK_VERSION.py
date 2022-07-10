@@ -111,8 +111,6 @@ if GE_VS2015_versions:
             )
             test.must_contain_all(test.stderr(), expect)
 
-        # TODO: non-existent sdk version
-
         # sdk version is not supported
         invalid_sdk_version = '9.1'
         test.write('SConstruct', textwrap.dedent(

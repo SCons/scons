@@ -77,5 +77,10 @@ test.file_fixture('no_msvc/no_msvcs_sconstruct_msvc_toolset_versions.py', 'SCons
 test.run(arguments='-Q -s')
 test.must_contain_all(test.stdout(), 'toolset_version_list=[]')
 
+# test no msvc's and msvc_query_version_toolset() call
+test.file_fixture('no_msvc/no_msvcs_sconstruct_msvc_query_toolset_version.py', 'SConstruct')
+test.run(arguments='-Q -s')
+test.must_contain_all(test.stdout(), 'msvc_version=None, msvc_toolset_version=None')
+
 test.pass_test()
 

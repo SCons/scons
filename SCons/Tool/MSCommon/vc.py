@@ -1434,14 +1434,14 @@ def msvc_query_version_toolset(version=None, prefer_newest=True):
     debug('version=%s, prefer_newest=%s', repr(version), repr(prefer_newest))
 
     env = None
-    msvc_version = version
+    msvc_version = None
     msvc_toolset_version = None
 
     if not version:
-        debug(
-            'ignore: msvc_version=%s, msvc_toolset_version=%s',
-            repr(msvc_version), repr(msvc_toolset_version)
-        )
+        version = msvc_default_version()
+
+    if not version:
+        debug('no msvc versions detected')
         return msvc_version, msvc_toolset_version
 
     version_def = MSVC.Util.msvc_extended_version_components(version)

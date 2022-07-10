@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the msvc_sdk_versions method.
+Test the msvc_query_version_toolset method.
 """
 
 import TestSCons
@@ -37,31 +37,31 @@ from SCons.Tool.MSCommon.vc import _VCVER
 from SCons.Tool.MSCommon.vc import msvc_default_version
 from SCons.Tool.MSCommon import msvc_version_components
 from SCons.Tool.MSCommon import msvc_extended_version_components
-from SCons.Tool.MSCommon import msvc_sdk_versions
 from SCons.Tool.MSCommon import msvc_toolset_versions
+from SCons.Tool.MSCommon import msvc_query_version_toolset
 from SCons.Tool.MSCommon import MSVCArgumentError
 
-class MsvcSdkVersionsTests(unittest.TestCase):
+class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
         symbol = msvc_default_version()
-        version_def = msvc_version_components(symbol)
-        for msvc_uwp_app in (True, False):
-            sdk_list = msvc_sdk_versions(version=None, msvc_uwp_app=msvc_uwp_app)
-            if version_def.msvc_vernum >= 14.0:
-                self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(None)))
-            else:
-                self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(None)))
+        for prefer_newest in (True, False):
+            msvc_version, msvc_toolset_version = msvc_query_version_toolset(version=None, prefer_newest=prefer_newest)
+            self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(None)))
+            version_def = msvc_version_components(msvc_version)
+            if version_def.msvc_vernum > 14.0:
+                # VS2017 and later for toolset version
+                self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc version {}".format(repr(None)))
 
     def test_valid_vcver(self):
         for symbol in _VCVER:
             version_def = msvc_version_components(symbol)
-            for msvc_uwp_app in (True, False):
-                sdk_list = msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-                if version_def.msvc_vernum >= 14.0:
-                    self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
-                else:
-                    self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
+            for prefer_newest in (True, False):
+                msvc_version, msvc_toolset_version = msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
+                self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(symbol)))
+                if version_def.msvc_vernum > 14.0:
+                    # VS2017 and later for toolset version
+                    self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc version {}".format(repr(symbol)))
 
     def test_valid_vcver_toolsets(self):
         for symbol in _VCVER:
@@ -70,21 +70,25 @@ class MsvcSdkVersionsTests(unittest.TestCase):
                 continue
             for toolset in toolset_list:
                 extended_def = msvc_extended_version_components(toolset)
-                for msvc_uwp_app in (True, False):
-                    sdk_list = msvc_sdk_versions(version=extended_def.msvc_toolset_version, msvc_uwp_app=msvc_uwp_app)
-                    self.assertTrue(sdk_list, "SDK list is empty for msvc toolset version {}".format(repr(toolset)))
+                for prefer_newest in (True, False):
+                    version = extended_def.msvc_toolset_version
+                    msvc_version, msvc_toolset_version = msvc_query_version_toolset(version=version, prefer_newest=prefer_newest)
+                    self.assertTrue(msvc_version, "msvc_version is undefined for msvc toolset version {}".format(repr(toolset)))
+                    if extended_def.msvc_vernum > 14.0:
+                        # VS2017 and later for toolset version
+                        self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc toolset version {}".format(repr(toolset)))
 
     def test_invalid_vcver(self):
         for symbol in ['6.0Exp', '14.3Exp', '99', '14.1Bug']:
-            for msvc_uwp_app in (True, False):
+            for prefer_newest in (True, False):
                 with self.assertRaises(MSVCArgumentError):
-                    msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
+                    msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
 
     def test_invalid_vcver_toolsets(self):
         for symbol in ['14.31.123456', '14.31.1.1']:
-            for msvc_uwp_app in (True, False):
+            for prefer_newest in (True, False):
                 with self.assertRaises(MSVCArgumentError):
-                    msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
+                    msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
 
 unittest.main()
 
