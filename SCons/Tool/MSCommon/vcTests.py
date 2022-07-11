@@ -80,7 +80,7 @@ class MSVcTestCase(unittest.TestCase):
     @staticmethod
     def _createDummyCl(path, add_bin=True):
         """
-        Creates a dummy cl.exe in the correct directory. 
+        Creates a dummy cl.exe in the correct directory.
         It will create all missing parent directories as well
 
         Args:

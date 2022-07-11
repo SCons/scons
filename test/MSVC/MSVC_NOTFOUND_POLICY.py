@@ -33,34 +33,6 @@ test.skip_if_not_msvc()
 
 import textwrap
 
-# Test global functions with valid symbols
-test.write('SConstruct', textwrap.dedent(
-    """
-    from SCons.Tool.MSCommon import msvc_set_notfound_policy
-    from SCons.Tool.MSCommon import msvc_get_notfound_policy
-    DefaultEnvironment(tools=[])
-    for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
-        for policy in [symbol, symbol.upper(), symbol.lower()]:
-            old_policy = msvc_set_notfound_policy(policy)
-            cur_policy = msvc_get_notfound_policy()
-    if msvc_set_notfound_policy(None) != msvc_get_notfound_policy():
-        raise RuntimeError()
-    """
-))
-test.run(arguments='-Q -s', stdout='')
-
-# Test global function with invalid symbol
-test.write('SConstruct', textwrap.dedent(
-    """
-    from SCons.Tool.MSCommon import msvc_set_notfound_policy
-    DefaultEnvironment(tools=[])
-    msvc_set_notfound_policy('Undefined')
-    """
-))
-test.run(arguments='-Q -s', status=2, stderr=None)
-expect = "MSVCArgumentError: Value specified for MSVC_NOTFOUND_POLICY is not supported: 'Undefined'."
-test.must_contain_all(test.stderr(), expect)
-
 # Test construction variable with valid symbols
 test.write('SConstruct', textwrap.dedent(
     """

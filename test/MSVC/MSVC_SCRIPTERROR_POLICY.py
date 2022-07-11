@@ -39,34 +39,6 @@ installed_versions = get_installed_vcs_components()
 
 default_version = installed_versions[0]
 
-# Test global functions with valid symbols
-test.write('SConstruct', textwrap.dedent(
-    """
-    from SCons.Tool.MSCommon import msvc_set_scripterror_policy
-    from SCons.Tool.MSCommon import msvc_get_scripterror_policy
-    DefaultEnvironment(tools=[])
-    for symbol in ['Error', 'Exception', 'Warn', 'Warning', 'Ignore', 'Suppress']:
-        for policy in [symbol, symbol.upper(), symbol.lower()]:
-            old_policy = msvc_set_scripterror_policy(policy)
-            cur_policy = msvc_get_scripterror_policy()
-    if msvc_set_scripterror_policy(None) != msvc_get_scripterror_policy():
-        raise RuntimeError()
-    """
-))
-test.run(arguments='-Q -s', stdout='')
-
-# Test global function with invalid symbol
-test.write('SConstruct', textwrap.dedent(
-    """
-    from SCons.Tool.MSCommon import msvc_set_scripterror_policy
-    DefaultEnvironment(tools=[])
-    msvc_set_scripterror_policy('Undefined')
-    """
-))
-test.run(arguments='-Q -s', status=2, stderr=None)
-expect = "MSVCArgumentError: Value specified for MSVC_SCRIPTERROR_POLICY is not supported: 'Undefined'."
-test.must_contain_all(test.stderr(), expect)
-
 # Test construction variable with valid symbols
 test.write('SConstruct', textwrap.dedent(
     """

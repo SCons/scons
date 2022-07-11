@@ -56,7 +56,7 @@ if default_version.msvc_vernum >= 14.0:
         DefaultEnvironment(tools=[])
         env = Environment(tools=['msvc'])
 
-        envcache_keys = [] 
+        envcache_keys = []
         with open(cache_file, 'r') as file:
             envcache_list = json.load(file)
             envcache_keys = [tuple(d['key']) for d in envcache_list]

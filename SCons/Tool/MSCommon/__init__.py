@@ -31,7 +31,7 @@ import SCons.Platform.win32
 import SCons.Util  # noqa: F401
 
 from SCons.Tool.MSCommon.sdk import (  # noqa: F401
-    mssdk_exists, 
+    mssdk_exists,
     mssdk_setup_env,
 )
 
@@ -83,7 +83,7 @@ from .vc import (  # noqa: F401
 from .MSVC.Util import (  # noqa: F401
     msvc_version_components,
     msvc_extended_version_components,
-) 
+)
 
 # Local Variables:
 # tab-width:4
