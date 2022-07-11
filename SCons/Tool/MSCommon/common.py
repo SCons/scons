@@ -45,6 +45,7 @@ class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE:
     import logging
+
     modulelist = (
         # root module and parent/root module
         'MSCommon', 'Tool',
@@ -53,6 +54,7 @@ if LOGFILE:
         # scons modules
         'SCons', 'test', 'scons'
     )
+
     def get_relative_filename(filename, module_list):
         if not filename:
             return filename
@@ -63,6 +65,7 @@ if LOGFILE:
             except ValueError:
                 pass
         return filename
+
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
         def filter(self, record):
@@ -70,6 +73,7 @@ if LOGFILE:
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
+
     # Log format looks like:
     #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
     #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
@@ -231,7 +235,7 @@ def normalize_env(env, keys, force=False):
     # should include it, but keep this here to be safe (needed for reg.exe)
     sys32_dir = os.path.join(
         os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
-)
+    )
     if sys32_dir not in normenv["PATH"]:
         normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
 

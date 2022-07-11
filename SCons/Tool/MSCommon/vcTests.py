@@ -50,7 +50,7 @@ class VswhereTestCase(unittest.TestCase):
     def _createVSWhere(path):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
-            f.write("Created:%s"%f)
+            f.write("Created:%s" % f)
 
     def testDefaults(self):
         """
@@ -59,13 +59,13 @@ class VswhereTestCase(unittest.TestCase):
         # import pdb; pdb.set_trace()
         vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc.VSWHERE_PATHS]
         base_dir = test.workpath('fake_vswhere')
-        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in  vswhere_dirs]
+        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
 
         SCons.Tool.MSCommon.vc.VSWHERE_PATHS = test_vswhere_dirs
         for vsw in test_vswhere_dirs:
             VswhereTestCase._createVSWhere(vsw)
             find_path = SCons.Tool.MSCommon.vc.msvc_find_vswhere()
-            self.assertTrue(vsw == find_path, "Didn't find vswhere in %s found in %s"%(vsw, find_path))
+            self.assertTrue(vsw == find_path, "Didn't find vswhere in %s found in %s" % (vsw, find_path))
             os.remove(vsw)
 
     # def specifiedVswherePathTest(self):
@@ -132,7 +132,7 @@ class MSVcTestCase(unittest.TestCase):
             with open(tools_version_file, 'w') as tf:
                 tf.write(MS_TOOLS_VERSION)
         except IOError as e:
-            print("Failed trying to write :%s :%s"%(tools_version_file, e))
+            print("Failed trying to write :%s :%s" % (tools_version_file, e))
 
 
         # Now walk all the valid combinations of host/target for 14.1 (VS2017) and later
@@ -158,7 +158,7 @@ class MSVcTestCase(unittest.TestCase):
         except MSVCUnsupportedHostArch:
             pass
         else:
-            self.fail('Did not fail when HOST_ARCH specified as: %s'%env['HOST_ARCH'])
+            self.fail('Did not fail when HOST_ARCH specified as: %s' % env['HOST_ARCH'])
 
         # Now test bogus value for TARGET_ARCH
         env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
@@ -189,7 +189,7 @@ class MSVcTestCase(unittest.TestCase):
         try:
             result=check(env, '.', '9.0')
             # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s"%(env['HOST_ARCH'], env['TARGET_ARCH']))
+            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedHostArch:
             pass
         else:
@@ -200,7 +200,7 @@ class MSVcTestCase(unittest.TestCase):
         try:
             result=check(env, '.', '9.0')
             # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s"%(env['HOST_ARCH'], env['TARGET_ARCH']))
+            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedTargetArch:
             pass
         else:

@@ -34,7 +34,6 @@ test.skip_if_not_msvc()
 import unittest
 
 from SCons.Tool.MSCommon.vc import _VCVER
-from SCons.Tool.MSCommon.vc import msvc_default_version
 from SCons.Tool.MSCommon import msvc_version_components
 from SCons.Tool.MSCommon import msvc_extended_version_components
 from SCons.Tool.MSCommon import msvc_toolset_versions

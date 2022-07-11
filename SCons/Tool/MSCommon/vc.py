@@ -423,7 +423,7 @@ def get_msvc_version_numeric(msvc_version):
         str: the value converted to a numeric only string
 
     """
-    return ''.join([x for  x in msvc_version if x in string_digits + '.'])
+    return ''.join([x for x in msvc_version if x in string_digits + '.'])
 
 def get_host_platform(host_platform):
 
@@ -621,11 +621,11 @@ def msvc_version_to_maj_min(msvc_version):
         maj = int(t[0])
         min = int(t[1])
         return maj, min
-    except ValueError as e:
+    except ValueError:
         raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric)) from None
 
 
-VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in  [
+VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in [
     os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"),
     os.path.expandvars(r"%ProgramFiles%\Microsoft Visual Studio\Installer"),
     os.path.expandvars(r"%ChocolateyInstall%\bin"),
@@ -1082,9 +1082,9 @@ def get_default_version(env):
         if not msvc_version == msvs_version:
             SCons.Warnings.warn(
                     SCons.Warnings.VisualVersionMismatch,
-                    "Requested msvc version (%s) and msvs version (%s) do " \
-                    "not match: please use MSVC_VERSION only to request a " \
-                    "visual studio version, MSVS_VERSION is deprecated" \
+                    "Requested msvc version (%s) and msvs version (%s) do "
+                    "not match: please use MSVC_VERSION only to request a "
+                    "visual studio version, MSVS_VERSION is deprecated"
                     % (msvc_version, msvs_version))
         return msvs_version
 
@@ -1102,7 +1102,7 @@ def get_default_version(env):
 
 def msvc_setup_env_once(env, tool=None):
     try:
-        has_run  = env["MSVC_SETUP_RUN"]
+        has_run = env["MSVC_SETUP_RUN"]
     except KeyError:
         has_run = False
 

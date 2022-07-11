@@ -28,11 +28,14 @@ Common functions for Microsoft Visual Studio and Visual C/C++.
 
 import SCons.Errors
 import SCons.Platform.win32
-import SCons.Util
+import SCons.Util  # noqa: F401
 
-from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
+from SCons.Tool.MSCommon.sdk import (  # noqa: F401
+    mssdk_exists, 
+    mssdk_setup_env,
+)
 
-from SCons.Tool.MSCommon.vc import (
+from SCons.Tool.MSCommon.vc import (  # noqa: F401
     msvc_exists,
     msvc_setup_env_tool,
     msvc_setup_env_once,
@@ -43,7 +46,7 @@ from SCons.Tool.MSCommon.vc import (
     msvc_query_version_toolset,
 )
 
-from SCons.Tool.MSCommon.vs import (
+from SCons.Tool.MSCommon.vs import (  # noqa: F401
     get_default_version,
     get_vs_by_version,
     merge_default_version,
@@ -51,28 +54,36 @@ from SCons.Tool.MSCommon.vs import (
     query_versions,
 )
 
-from .MSVC.Policy import msvc_set_notfound_policy  # noqa: F401
-from .MSVC.Policy import msvc_get_notfound_policy  # noqa: F401
-from .MSVC.Policy import msvc_set_scripterror_policy  # noqa: F401
-from .MSVC.Policy import msvc_get_scripterror_policy  # noqa: F401
+from .MSVC.Policy import (  # noqa: F401
+    msvc_set_notfound_policy,
+    msvc_get_notfound_policy,
+    msvc_set_scripterror_policy,
+    msvc_get_scripterror_policy,
+)
 
-from .MSVC.Exceptions import VisualCException  # noqa: F401
-from .MSVC.Exceptions import MSVCInternalError  # noqa: F401
-from .MSVC.Exceptions import MSVCUserError  # noqa: F401
-from .MSVC.Exceptions import MSVCScriptExecutionError  # noqa: F401
-from .MSVC.Exceptions import MSVCVersionNotFound  # noqa: F401
-from .MSVC.Exceptions import MSVCSDKVersionNotFound  # noqa: F401
-from .MSVC.Exceptions import MSVCToolsetVersionNotFound  # noqa: F401
-from .MSVC.Exceptions import MSVCSpectreLibsNotFound  # noqa: F401
-from .MSVC.Exceptions import MSVCArgumentError  # noqa: F401
+from .MSVC.Exceptions import (  # noqa: F401
+    VisualCException,
+    MSVCInternalError,
+    MSVCUserError,
+    MSVCScriptExecutionError,
+    MSVCVersionNotFound,
+    MSVCSDKVersionNotFound,
+    MSVCToolsetVersionNotFound,
+    MSVCSpectreLibsNotFound,
+    MSVCArgumentError,
+)
 
-from .vc import MSVCUnsupportedHostArch  # noqa: F401
-from .vc import MSVCUnsupportedTargetArch  # noqa: F401
-from .vc import MSVCScriptNotFound  # noqa: F401
-from .vc import MSVCUseSettingsError  # noqa: F401
+from .vc import (  # noqa: F401
+    MSVCUnsupportedHostArch,
+    MSVCUnsupportedTargetArch,
+    MSVCScriptNotFound,
+    MSVCUseSettingsError,
+)
 
-from .MSVC.Util import msvc_version_components  # noqa: F401
-from .MSVC.Util import msvc_extended_version_components  # noqa: F401
+from .MSVC.Util import (  # noqa: F401
+    msvc_version_components,
+    msvc_extended_version_components,
+) 
 
 # Local Variables:
 # tab-width:4
