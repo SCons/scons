@@ -43,25 +43,18 @@ from SCons.Tool.MSCommon.MSVC.Warnings import (
 
 class PolicyTests(unittest.TestCase):
 
-    _prev_warnstate = None
-    _enabled = None
-    _warningAsException = None
+    def setUp(self):
+        self.warnstack = []
 
     def push_warning_as_exception(self, Warning):
-        self._enabled = SCons.Warnings._enabled
-        self._warningAsException = SCons.Warnings._warningAsException
-        SCons.Warnings._enabled = []
-        SCons.Warnings._warningAsException = 0
         SCons.Warnings.enableWarningClass(Warning)
-        self._prev_warnstate = SCons.Warnings.warningAsException()
+        prev_state = SCons.Warnings.warningAsException()
+        self.warnstack.append((Warning, prev_state))
 
     def pop_warning_as_exception(self):
-        _ = SCons.Warnings.warningAsException(self._prev_warnstate)
-        SCons.Warnings._enabled = self._enabled
-        SCons.Warnings._warningAsException = self._warningAsException
-        self._prev_warnstate = None
-        self._ebabled = None
-        self._warningAsException = None
+        Warning, prev_state = self.warnstack.pop()
+        SCons.Warnings.warningAsException(prev_state)
+        SCons.Warnings.suppressWarningClass(Warning)
 
     # msvc_set_notfound_policy, msvc_get_notfound_policy, and MSVC_NOTFOUND_POLICY
 
@@ -71,10 +64,14 @@ class PolicyTests(unittest.TestCase):
         for notfound_def in Policy.MSVC_NOTFOUND_DEFINITION_LIST:
             for symbol in [notfound_def.symbol, notfound_def.symbol.lower(), notfound_def.symbol.upper()]:
                 prev_policy = Policy.msvc_set_notfound_policy(symbol)
-                self.assertTrue(prev_policy == last_policy, "prev_policy != last_policy")
+                self.assertTrue(prev_policy == last_policy, "notfound policy: {} != {}".format(
+                    repr(prev_policy), repr(last_policy)
+                ))
                 cur_set_policy = Policy.msvc_set_notfound_policy()
                 cur_get_policy = Policy.msvc_get_notfound_policy()
-                self.assertTrue(cur_set_policy == cur_get_policy, "cur_set_policy != cur_get_policy")
+                self.assertTrue(cur_set_policy == cur_get_policy, "notfound policy: {} != {}".format(
+                    repr(cur_set_policy), repr(cur_get_policy)
+                ))
                 last_policy = cur_get_policy
         Policy.msvc_set_notfound_policy(def_policy)
 
@@ -121,10 +118,14 @@ class PolicyTests(unittest.TestCase):
         for scripterror_def in Policy.MSVC_SCRIPTERROR_DEFINITION_LIST:
             for symbol in [scripterror_def.symbol, scripterror_def.symbol.lower(), scripterror_def.symbol.upper()]:
                 prev_policy = Policy.msvc_set_scripterror_policy(symbol)
-                self.assertTrue(prev_policy == last_policy, "prev_policy != last_policy")
+                self.assertTrue(prev_policy == last_policy, "scripterror policy: {} != {}".format(
+                    repr(prev_policy), repr(last_policy)
+                ))
                 cur_set_policy = Policy.msvc_set_scripterror_policy()
                 cur_get_policy = Policy.msvc_get_scripterror_policy()
-                self.assertTrue(cur_set_policy == cur_get_policy, "cur_set_policy != cur_get_policy")
+                self.assertTrue(cur_set_policy == cur_get_policy, "scripterror policy: {} != {}".format(
+                    repr(cur_set_policy), repr(cur_get_policy)
+                ))
                 last_policy = cur_get_policy
         Policy.msvc_set_scripterror_policy(def_policy)
 

@@ -40,7 +40,6 @@ def listdir_dirs(p):
     """
     Return a list of tuples for each subdirectory of the given directory path.
     Each tuple is comprised of the subdirectory name and the qualified subdirectory path.
-    Assumes the given directory path exists and is a directory.
 
     Args:
         p: str
@@ -51,10 +50,11 @@ def listdir_dirs(p):
 
     """
     dirs = []
-    for dir_name in os.listdir(p):
-        dir_path = os.path.join(p, dir_name)
-        if os.path.isdir(dir_path):
-            dirs.append((dir_name, dir_path))
+    if p and os.path.exists(p) and os.path.isdir(p):
+        for dir_name in os.listdir(p):
+            dir_path = os.path.join(p, dir_name)
+            if os.path.isdir(dir_path):
+                dirs.append((dir_name, dir_path))
     return dirs
 
 def process_path(p):
@@ -77,7 +77,7 @@ def process_path(p):
 
 # msvc version and msvc toolset version regexes
 
-re_version_prefix = re.compile(r'^(?P<version>[0-9.]+).*$')
+re_version_prefix = re.compile('^(?P<version>[0-9]+(?:[.][0-9]+)*)(?![.]).*$')
 
 re_msvc_version_prefix = re.compile(r'^(?P<version>[1-9][0-9]?[.][0-9]).*$')
 
@@ -120,11 +120,11 @@ def get_version_prefix(version):
         str: the version number prefix
 
     """
-    m = re_version_prefix.match(version)
-    if m:
-        rval = m.group('version')
-    else:
-        rval = ''
+    rval = ''
+    if version:
+        m = re_version_prefix.match(version)
+        if m:
+            rval = m.group('version')
     return rval
 
 def get_msvc_version_prefix(version):
@@ -139,29 +139,35 @@ def get_msvc_version_prefix(version):
         str: the msvc version number prefix
 
     """
-    m = re_msvc_version_prefix.match(version)
-    if m:
-        rval = m.group('version')
-    else:
-        rval = ''
+    rval = ''
+    if version:
+        m = re_msvc_version_prefix.match(version)
+        if m:
+            rval = m.group('version')
     return rval
 
 # toolset version query utilities
 
 def is_toolset_full(toolset_version):
-    if re_toolset_full.match(toolset_version):
-        return True
-    return False
+    rval = False
+    if toolset_version:
+        if re_toolset_full.match(toolset_version):
+            rval = True
+    return rval
 
 def is_toolset_140(toolset_version):
-    if re_toolset_140.match(toolset_version):
-        return True
-    return False
+    rval = False
+    if toolset_version:
+        if re_toolset_140.match(toolset_version):
+            rval = True
+    return rval
 
 def is_toolset_sxs(toolset_version):
-    if re_toolset_sxs.match(toolset_version):
-        return True
-    return False
+    rval = False
+    if toolset_version:
+        if re_toolset_sxs.match(toolset_version):
+            rval = True
+    return rval
 
 # msvc version and msvc toolset version decomposition utilties
 
@@ -193,6 +199,9 @@ def msvc_version_components(vcver):
     Returns:
         None or MSVCVersionComponents namedtuple:
     """
+
+    if not vcver:
+        return None
 
     m = re_msvc_version.match(vcver)
     if not m:
@@ -242,6 +251,9 @@ def msvc_extended_version_components(version):
     Returns:
         None or MSVCExtendedVersionComponents namedtuple:
     """
+
+    if not version:
+        return None
 
     m = re_extended_version.match(version)
     if not m:
