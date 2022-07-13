@@ -30,11 +30,11 @@ import os
 from SCons.Util import (
     HKEY_LOCAL_MACHINE,
     HKEY_CURRENT_USER,
+    RegGetValue,
 )
 
 from .. common import (
     debug,
-    read_reg,
 )
 
 from . import Util
@@ -43,21 +43,24 @@ from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
 
-def read_value(hkey, subkey_valname):
+# A null-terminated string that contains unexpanded references to environment variables.
+REG_EXPAND_SZ = 2
+
+def read_value(hkey, subkey_valname, expand=True):
     try:
-        rval = read_reg(subkey_valname, hkroot=hkey)
+        rval_t = RegGetValue(hkey, subkey_valname)
     except OSError:
         debug('OSError: hkey=%s, subkey=%s', repr(hkey), repr(subkey_valname))
         return None
-    except IndexError:
-        debug('IndexError: hkey=%s, subkey=%s', repr(hkey), repr(subkey_valname))
-        return None
+    rval, regtype = rval_t
+    if regtype == REG_EXPAND_SZ and expand:
+        rval = os.path.expandvars(rval)
     debug('hkey=%s, subkey=%s, rval=%s', repr(hkey), repr(subkey_valname), repr(rval))
     return rval
 
-def registry_query_path(key, val, suffix):
+def registry_query_path(key, val, suffix, expand=True):
     extval = val + '\\' + suffix if suffix else val
-    qpath = read_value(key, extval)
+    qpath = read_value(key, extval, expand=expand)
     if qpath and os.path.exists(qpath):
         qpath = Util.process_path(qpath)
     else:
@@ -71,12 +74,12 @@ REG_SOFTWARE_MICROSOFT = [
     (HKEY_CURRENT_USER,  r'Software\Microsoft'),
 ]
 
-def microsoft_query_paths(suffix, usrval=None):
+def microsoft_query_paths(suffix, usrval=None, expand=True):
     paths = []
     records = []
     for key, val in REG_SOFTWARE_MICROSOFT:
         extval = val + '\\' + suffix if suffix else val
-        qpath = read_value(key, extval)
+        qpath = read_value(key, extval, expand=expand)
         if qpath and os.path.exists(qpath):
             qpath = Util.process_path(qpath)
             if qpath not in paths:
@@ -84,13 +87,13 @@ def microsoft_query_paths(suffix, usrval=None):
                 records.append((qpath, key, val, extval, usrval))
     return records
 
-def microsoft_query_keys(suffix, usrval=None):
+def microsoft_query_keys(suffix, usrval=None, expand=True):
     records = []
     for key, val in REG_SOFTWARE_MICROSOFT:
         extval = val + '\\' + suffix if suffix else val
-        rval = read_value(key, extval)
+        rval = read_value(key, extval, expand=expand)
         if rval:
-            records.append((key, val, extval, usrval))
+            records.append((rval, key, val, extval, usrval))
     return records
 
 def microsoft_sdks(version):
@@ -109,4 +112,7 @@ def windows_kit_query_paths(version):
 
 def vstudio_sxs_vc7(version):
     return '\\'.join([r'VisualStudio\SxS\VC7', version])
+
+def devdiv_vs_servicing_component(version, component):
+    return '\\'.join([r'DevDiv\VS\Servicing', version, component, 'Install'])
 
