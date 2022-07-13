@@ -47,6 +47,7 @@ expected_stderr = r"""scons: \*\*\* \[foo.out\] Exception : func exception
 Traceback \(most recent call last\):
 (  File ".+", line \d+, in \S+
     [^\n]+
+    [^\n]+
 )*(  File ".+", line \d+, in \S+
 )*(  File ".+", line \d+, in \S+
     [^\n]+
