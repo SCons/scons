@@ -24,6 +24,7 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
+import sys
 import os
 import os.path
 import unittest
@@ -239,6 +240,7 @@ class MSVcTestCase(unittest.TestCase):
             self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
 
 
+@unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
 class MsvcSdkVersionsTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
@@ -288,9 +290,17 @@ class MsvcSdkVersionsTests(unittest.TestCase):
                     _ = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
 
 
-installed_vcs_components = MSCommon.vc.get_installed_vcs_components()
-
+@unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
 class MsvcToolsetVersionsTests(unittest.TestCase):
+
+    _installed_vcs_components = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls._installed_vcs_components = MSCommon.vc.get_installed_vcs_components()
+
+    def setUp(self):
+        self.installed_vcs_components = self.__class__._installed_vcs_components
 
     def test_valid_default_msvc(self):
         symbol = MSCommon.vc.msvc_default_version()
@@ -299,7 +309,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
         toolset_full_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=False)
         toolset_sxs_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=False, sxs=True)
         toolset_all_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=True)
-        if version_def in installed_vcs_components and version_def.msvc_vernum >= 14.1:
+        if version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
             # sxs list could be empty
             self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(None)))
             self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(None)))
@@ -316,7 +326,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             toolset_full_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=False)
             toolset_sxs_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=False, sxs=True)
             toolset_all_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=True)
-            if version_def in installed_vcs_components and version_def.msvc_vernum >= 14.1:
+            if version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
                 # sxs list could be empty
                 self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(symbol)))
                 self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(symbol)))
@@ -332,6 +342,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
                 _ = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol)
 
 
+@unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
