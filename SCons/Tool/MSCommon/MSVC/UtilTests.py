@@ -29,6 +29,7 @@ import unittest
 import os
 import re
 
+from SCons.Tool.MSCommon.MSVC import Config
 from SCons.Tool.MSCommon.MSVC import Util
 
 util_parent_dir = os.path.join(os.path.dirname(Util.__file__), os.pardir)
@@ -135,6 +136,11 @@ class UtilTests(unittest.TestCase):
             self.assertTrue((comps_def is not None) == expect, "{}({}): {}".format(
                 func.__name__, repr(vcver), repr(msg)
             ))
+        for vcver in Config.MSVC_VERSION_SUFFIX.keys():
+            comps_def = func(vcver)
+            self.assertNotEqual(comps_def, None, "{}({}) is None".format(
+                func.__name__, repr(vcver)
+            ))
 
     def test_msvc_extended_version_components(self):
         func = Util.msvc_extended_version_components
@@ -156,6 +162,11 @@ class UtilTests(unittest.TestCase):
             msg = 'msvc extended version components definition is None' if expect else 'msvc extended version components definition is not None'
             self.assertTrue((comps_def is not None) == expect, "{}({}): {}".format(
                 func.__name__, repr(vcver), repr(msg)
+            ))
+        for vcver in Config.MSVC_VERSION_SUFFIX.keys():
+            comps_def = func(vcver)
+            self.assertNotEqual(comps_def, None, "{}({}) is None".format(
+                func.__name__, repr(vcver)
             ))
         # force 'just in case' guard code path
         save_re = Util.re_extended_version
