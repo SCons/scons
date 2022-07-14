@@ -82,10 +82,11 @@ class WinSDKTests(unittest.TestCase):
         self.assertTrue(WinSDK._sdk_cache, "WinSDK._sdk_cache is empty")
 
     def test_get_msvc_sdk_version_list_empty(self):
+        func = WinSDK.get_msvc_sdk_version_list
         for vcver in [None, '', '99', '99.9']:
-            sdk_versions = WinSDK.get_msvc_sdk_version_list(vcver)
-            self.assertFalse(sdk_versions, "sdk_versions list was not empty for msvc version {}".format(
-                repr(vcver)
+            sdk_versions = func(vcver)
+            self.assertFalse(sdk_versions, "{}: sdk versions list was not empty for msvc version {}".format(
+                func.__name__, repr(vcver)
             ))
 
     def test_reset(self):

@@ -104,6 +104,9 @@ _MSVC_FORCE_DEFAULT_SDK = False
 # Force default toolset argument
 _MSVC_FORCE_DEFAULT_TOOLSET = False
 
+# Force default arguments
+_MSVC_FORCE_DEFAULT_ARGUMENTS = False
+
 def _msvc_force_default_sdk(force=True):
     global _MSVC_FORCE_DEFAULT_SDK
     _MSVC_FORCE_DEFAULT_SDK = force
@@ -115,8 +118,12 @@ def _msvc_force_default_toolset(force=True):
     debug('_MSVC_FORCE_DEFAULT_TOOLSET=%s', repr(force))
 
 def msvc_force_default_arguments(force=True):
+    global _MSVC_FORCE_DEFAULT_ARGUMENTS
+    prev_policy = _MSVC_FORCE_DEFAULT_ARGUMENTS
+    _MSVC_FORCE_DEFAULT_ARGUMENTS = force
     _msvc_force_default_sdk(force)
     _msvc_force_default_toolset(force)
+    return prev_policy
 
 if CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS:
     msvc_force_default_arguments(force=True)

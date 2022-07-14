@@ -751,6 +751,9 @@ def find_vc_pdir(env, msvc_version):
         except OSError:
             debug('no VC registry key %s', repr(key))
         else:
+            if msvc_version == '9.0' and key.lower().endswith('\\vcforpython\\9.0\\installdir'):
+                # Visual C++ for Python registry key is installdir (root) not productdir (vc)
+                comps = os.path.join(comps, 'VC')
             debug('found VC in registry: %s', comps)
             if os.path.exists(comps):
                 return comps
@@ -790,6 +793,9 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
         # 14.0 (VS2015) to 8.0 (VS2005)
         arg, _ = _LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(pdir, "vcvarsall.bat")
+        if msvc_version == '9.0' and not os.path.exists(batfilename):
+            # Visual C++ for Python batch file is in installdir (root) not productdir (vc)
+            batfilename = os.path.normpath(os.path.join(pdir, os.pardir, "vcvarsall.bat"))
     else:
         # 7.1 (VS2003) and earlier
         pdir = os.path.join(pdir, "Bin")
@@ -884,11 +890,6 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
     elif 14 >= vernum >= 8:
         # 14.0 (VS2015) to 8.0 (VS2005)
 
-        cl_path_prefixes = [None]
-        if msvc_version == '9.0':
-            # Visual C++ for Python registry key is installdir (root) not productdir (vc)
-            cl_path_prefixes.append(('VC',))
-
         for host_platform, target_platform in host_target_list:
 
             debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
@@ -899,15 +900,12 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
                 continue
 
             _, cl_path_comps = batcharg_clpathcomps
-            for cl_path_prefix in cl_path_prefixes:
+            cl_path = os.path.join(vc_dir, *cl_path_comps, _CL_EXE_NAME)
+            debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
 
-                cl_path_comps_adj = cl_path_prefix + cl_path_comps if cl_path_prefix else cl_path_comps
-                cl_path = os.path.join(vc_dir, *cl_path_comps_adj, _CL_EXE_NAME)
-                debug('checking for %s at %s', _CL_EXE_NAME, cl_path)
-
-                if os.path.exists(cl_path):
-                    debug('found %s', _CL_EXE_NAME)
-                    return True
+            if os.path.exists(cl_path):
+                debug('found %s', _CL_EXE_NAME)
+                return True
 
     elif 8 > vernum >= 6:
         # 7.1 (VS2003) to 6.0 (VS6)

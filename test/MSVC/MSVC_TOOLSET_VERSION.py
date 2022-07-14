@@ -175,51 +175,6 @@ if GE_VS2017_versions:
         )
         test.must_contain_all(test.stderr(), expect)
 
-        if supported == default_version:
-            msvc_version_list = ['None', repr(supported.msvc_version)]
-        else:
-            msvc_version_list = [repr(supported.msvc_version)]
-
-        for test_version in msvc_version_list:
-
-            # msvc toolsets detected
-            test.write('SConstruct', textwrap.dedent(
-                """
-                from SCons.Tool.MSCommon import msvc_toolset_versions
-                DefaultEnvironment(tools=[])
-                for full in (True, False):
-                    for sxs in (True, False):
-                        toolsets = msvc_toolset_versions(msvc_version={}, full=full, sxs=sxs)
-                """.format(test_version)
-            ))
-            test.run(arguments='-Q -s', stdout='')
-
-            # msvc query version toolset
-            test.write('SConstruct', textwrap.dedent(
-                """
-                from SCons.Tool.MSCommon import msvc_query_version_toolset
-                DefaultEnvironment(tools=[])
-                for prefer_newest in (True, False):
-                    msvc_version, msvc_toolset_version = msvc_query_version_toolset(version={}, prefer_newest=prefer_newest)
-                """.format(test_version)
-            ))
-            test.run(arguments='-Q -s', stdout='')
-
-    # msvc_version is invalid
-    invalid_msvc_version = '12.9'
-    test.write('SConstruct', textwrap.dedent(
-        """
-        from SCons.Tool.MSCommon import msvc_toolset_versions
-        DefaultEnvironment(tools=[])
-        toolsets = msvc_toolset_versions(msvc_version={}, full=True, sxs=True)
-        """.format(repr(invalid_msvc_version))
-    ))
-    test.run(arguments='-Q -s', status=2, stderr=None)
-    expect = "MSVCArgumentError: Unsupported msvc version {}:".format(
-        repr(invalid_msvc_version)
-    )
-    test.must_contain_all(test.stderr(), expect)
-
 if LT_VS2017_versions:
     # VS2015 and earlier for toolset argument error
 
@@ -237,18 +192,6 @@ if LT_VS2017_versions:
             repr(unsupported.msvc_verstr), repr(unsupported.msvc_version)
         )
         test.must_contain_all(test.stderr(), expect)
-
-        # msvc_toolset_versions returns None for versions that don't support toolsets
-        test.write('SConstruct', textwrap.dedent(
-            """
-            from SCons.Tool.MSCommon import msvc_toolset_versions
-            DefaultEnvironment(tools=[])
-            toolsets = msvc_toolset_versions(msvc_version={}, full=True, sxs=True)
-            if toolsets is not None:
-                raise RuntimeError("Expected toolsets==None")
-            """.format(repr(unsupported.msvc_version))
-        ))
-        test.run(arguments='-Q -s', stdout='')
 
 if LT_VS2015_versions:
     # VS2013 and earlier for script argument error

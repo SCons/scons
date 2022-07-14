@@ -337,7 +337,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             self.assertFalse(toolset_none_list, "Toolset none list is not empty for msvc version {}".format(repr(symbol)))
 
     def test_invalid_vcver(self):
-        for symbol in ['6.0Exp', '14.3Exp', '99', '14.1Bug']:
+        for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                 _ = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol)
 
@@ -394,7 +394,7 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                         ))
 
     def test_invalid_vcver(self):
-        for symbol in ['6.0Exp', '14.3Exp', '99', '14.1Bug']:
+        for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             for prefer_newest in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                     _ = MSCommon.vc.msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
