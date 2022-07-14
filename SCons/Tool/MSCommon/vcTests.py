@@ -24,7 +24,6 @@
 
 __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
-import sys
 import os
 import os.path
 import unittest
@@ -240,7 +239,9 @@ class MSVcTestCase(unittest.TestCase):
             self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
 
 
-@unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
+_HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
+
+
 class MsvcSdkVersionsTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
@@ -248,7 +249,7 @@ class MsvcSdkVersionsTests(unittest.TestCase):
         version_def = MSCommon.msvc_version_components(symbol)
         for msvc_uwp_app in (True, False):
             sdk_list = MSCommon.vc.msvc_sdk_versions(version=None, msvc_uwp_app=msvc_uwp_app)
-            if version_def.msvc_vernum >= 14.0:
+            if _HAVE_MSVC and version_def.msvc_vernum >= 14.0:
                 self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(None)))
             else:
                 self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(None)))
@@ -258,7 +259,7 @@ class MsvcSdkVersionsTests(unittest.TestCase):
             version_def = MSCommon.msvc_version_components(symbol)
             for msvc_uwp_app in (True, False):
                 sdk_list = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-                if version_def.msvc_vernum >= 14.0:
+                if _HAVE_MSVC and version_def.msvc_vernum >= 14.0:
                     self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
                 else:
                     self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
@@ -290,7 +291,6 @@ class MsvcSdkVersionsTests(unittest.TestCase):
                     _ = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
 
 
-@unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
 class MsvcToolsetVersionsTests(unittest.TestCase):
 
     _installed_vcs_components = None
@@ -309,7 +309,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
         toolset_full_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=False)
         toolset_sxs_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=False, sxs=True)
         toolset_all_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=True)
-        if version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
+        if _HAVE_MSVC and version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
             # sxs list could be empty
             self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(None)))
             self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(None)))
@@ -342,7 +342,6 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
                 _ = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol)
 
 
-@unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
 
     def test_valid_default_msvc(self):
@@ -350,9 +349,12 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
             msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
                 version=None, prefer_newest=prefer_newest
             )
-            self.assertTrue(msvc_version, "msvc_version is undefined for msvc version {}".format(repr(None)))
+            expect = (_HAVE_MSVC and msvc_version) or (not _HAVE_MSVC and not msvc_version)
+            self.assertTrue(expect, "unexpected msvc_version {} for for msvc version {}".format(
+                repr(msvc_version), repr(None)
+            ))
             version_def = MSCommon.msvc_version_components(msvc_version)
-            if version_def.msvc_vernum > 14.0:
+            if _HAVE_MSVC and version_def.msvc_vernum > 14.0:
                 # VS2017 and later for toolset version
                 self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc version {}".format(
                     repr(None)
