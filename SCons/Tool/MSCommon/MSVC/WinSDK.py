@@ -199,7 +199,6 @@ def _verify_sdk_dispatch_map():
     return None
 
 def _version_list_sdk_map(version_list):
-
     sdk_map_list = []
     for version in version_list:
         func, reg_version = _sdk_dispatch_map[version]
@@ -237,6 +236,10 @@ def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
     sdk_versions = []
 
     verstr = Util.get_msvc_version_prefix(msvc_version)
+    if not verstr:
+        debug('msvc_version is not defined')
+        return sdk_versions
+
     vs_def = Config.MSVC_VERSION_EXTERNAL.get(verstr, None)
     if not vs_def:
         debug('vs_def is not defined')
