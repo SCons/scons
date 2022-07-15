@@ -241,18 +241,36 @@ class MSVcTestCase(unittest.TestCase):
 
 _HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
 
+_orig_msvc_default_version = MSCommon.vc.msvc_default_version
+
+def _msvc_default_version_none():
+    return None
+
+def _enable_msvc_default_version_none():
+    MSCommon.vc.msvc_default_version = _msvc_default_version_none
+
+def _restore_msvc_default_version():
+    MSCommon.vc.msvc_default_version = _orig_msvc_default_version
 
 class MsvcSdkVersionsTests(unittest.TestCase):
+    """Test msvc_sdk_versions"""
 
-    def test_valid_default_msvc(self):
+    def run_valid_default_msvc(self):
         symbol = MSCommon.vc.msvc_default_version()
         version_def = MSCommon.msvc_version_components(symbol)
         for msvc_uwp_app in (True, False):
             sdk_list = MSCommon.vc.msvc_sdk_versions(version=None, msvc_uwp_app=msvc_uwp_app)
-            if _HAVE_MSVC and version_def.msvc_vernum >= 14.0:
+            if symbol and version_def.msvc_vernum >= 14.0:
                 self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(None)))
             else:
                 self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(None)))
+
+    def test_valid_default_msvc(self):
+        if _HAVE_MSVC:
+            _enable_msvc_default_version_none()
+            self.run_valid_default_msvc()
+            _restore_msvc_default_version()
+        self.run_valid_default_msvc()
 
     def test_valid_vcver(self):
         for symbol in MSCommon.vc._VCVER:
@@ -292,6 +310,7 @@ class MsvcSdkVersionsTests(unittest.TestCase):
 
 
 class MsvcToolsetVersionsTests(unittest.TestCase):
+    """Test msvc_toolset_versions"""
 
     _installed_vcs_components = None
 
@@ -302,14 +321,14 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
     def setUp(self):
         self.installed_vcs_components = self.__class__._installed_vcs_components
 
-    def test_valid_default_msvc(self):
+    def run_valid_default_msvc(self):
         symbol = MSCommon.vc.msvc_default_version()
         version_def = MSCommon.msvc_version_components(symbol)
         toolset_none_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=False, sxs=False)
         toolset_full_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=False)
         toolset_sxs_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=False, sxs=True)
         toolset_all_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=True)
-        if _HAVE_MSVC and version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
+        if symbol and version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
             # sxs list could be empty
             self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(None)))
             self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(None)))
@@ -318,6 +337,13 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             self.assertFalse(toolset_sxs_list, "Toolset sxs list is not empty for msvc version {}".format(repr(None)))
             self.assertFalse(toolset_all_list, "Toolset all list is not empty for msvc version {}".format(repr(None)))
         self.assertFalse(toolset_none_list, "Toolset none list is not empty for msvc version {}".format(repr(None)))
+
+    def test_valid_default_msvc(self):
+        if _HAVE_MSVC:
+            _enable_msvc_default_version_none()
+            self.run_valid_default_msvc()
+            _restore_msvc_default_version()
+        self.run_valid_default_msvc()
 
     def test_valid_vcver(self):
         for symbol in MSCommon.vc._VCVER:
@@ -343,22 +369,30 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
 
 
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
+    """Test msvc_query_toolset_version"""
 
-    def test_valid_default_msvc(self):
+    def run_valid_default_msvc(self, have_msvc):
         for prefer_newest in (True, False):
             msvc_version, msvc_toolset_version = MSCommon.vc.msvc_query_version_toolset(
                 version=None, prefer_newest=prefer_newest
             )
-            expect = (_HAVE_MSVC and msvc_version) or (not _HAVE_MSVC and not msvc_version)
+            expect = (have_msvc and msvc_version) or (not have_msvc and not msvc_version)
             self.assertTrue(expect, "unexpected msvc_version {} for for msvc version {}".format(
                 repr(msvc_version), repr(None)
             ))
             version_def = MSCommon.msvc_version_components(msvc_version)
-            if _HAVE_MSVC and version_def.msvc_vernum > 14.0:
+            if have_msvc and version_def.msvc_vernum > 14.0:
                 # VS2017 and later for toolset version
                 self.assertTrue(msvc_toolset_version, "msvc_toolset_version is undefined for msvc version {}".format(
                     repr(None)
                 ))
+
+    def test_valid_default_msvc(self):
+        if _HAVE_MSVC:
+            _enable_msvc_default_version_none()
+            self.run_valid_default_msvc(have_msvc=False)
+            _restore_msvc_default_version()
+        self.run_valid_default_msvc(have_msvc=_HAVE_MSVC)
 
     def test_valid_vcver(self):
         for symbol in MSCommon.vc._VCVER:
@@ -393,6 +427,46 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                             repr(toolset)
                         ))
 
+    def notfound_toolset_list(self, toolset_seen, toolset_list):
+        new_toolset_list = []
+        if not toolset_list:
+            return new_toolset_list
+        for toolset_version in toolset_list:
+            version = toolset_version
+            comps = version.split('.')
+            if len(comps) != 3:
+                continue
+            # full versions only
+            nloop = 0
+            while nloop < 10:
+                ival = int(comps[-1])
+                if ival == 0:
+                    ival = 1000000
+                ival -= 1
+                version = '{}.{}.{:05d}'.format(comps[0], comps[1], ival)
+                if version not in toolset_seen:
+                    toolset_seen.add(version)
+                    new_toolset_list.append(version)
+                    break
+                nloop += 1
+        return new_toolset_list
+
+    def test_toolset_not_found(self):
+        toolset_seen = set()
+        toolset_lists = []
+        for symbol in MSCommon.vc._VCVER:
+            toolset_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=False)
+            if toolset_list is None:
+                continue
+            toolset_seen.update(toolset_list)
+            toolset_lists.append(toolset_list)
+        for toolset_list in toolset_lists:
+            notfound_toolset_list = self.notfound_toolset_list(toolset_seen, toolset_list)
+            for toolset in notfound_toolset_list:
+                for prefer_newest in (True, False):
+                    with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
+                        _ = MSCommon.vc.msvc_query_version_toolset(version=toolset, prefer_newest=prefer_newest)
+
     def test_invalid_vcver(self):
         for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             for prefer_newest in (True, False):
@@ -400,7 +474,7 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                     _ = MSCommon.vc.msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
 
     def test_invalid_vcver_toolsets(self):
-        for symbol in ['14.31.123456', '14.31.1.1']:
+        for symbol in ['14.16.00000Exp', '14.00.00001', '14.31.123456', '14.31.1.1']:
             for prefer_newest in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                     _ = MSCommon.vc.msvc_query_version_toolset(version=symbol, prefer_newest=prefer_newest)
