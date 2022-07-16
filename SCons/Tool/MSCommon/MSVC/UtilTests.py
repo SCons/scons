@@ -32,7 +32,9 @@ import re
 from SCons.Tool.MSCommon.MSVC import Config
 from SCons.Tool.MSCommon.MSVC import Util
 
-util_parent_dir = os.path.join(os.path.dirname(Util.__file__), os.pardir)
+class Data:
+
+    UTIL_PARENT_DIR = os.path.join(os.path.dirname(Util.__file__), os.pardir)
 
 class UtilTests(unittest.TestCase):
 
@@ -40,7 +42,7 @@ class UtilTests(unittest.TestCase):
         func = Util.listdir_dirs
         for dirname, expect in [
             (None, False), ('', False), ('doesnotexist.xyz.abc', False),
-            (util_parent_dir, True),
+            (Data.UTIL_PARENT_DIR, True),
         ]:
             dirs = func(dirname)
             self.assertTrue((len(dirs) > 0) == expect, "{}({}): {}".format(
@@ -51,7 +53,7 @@ class UtilTests(unittest.TestCase):
         func = Util.process_path
         for p, expect in [
             (None, True), ('', True),
-            ('doesnotexist.xyz.abc', False), (util_parent_dir, False),
+            ('doesnotexist.xyz.abc', False), (Data.UTIL_PARENT_DIR, False),
         ]:
             rval = func(p)
             self.assertTrue((p == rval) == expect, "{}({}): {}".format(

@@ -45,43 +45,55 @@ def Environment(**kwargs):
         del kwargs[tools_key]
     return SCons.Environment.Base(tools=tools, **kwargs)
 
-class ScriptArgumentsTests(unittest.TestCase):
+class Data:
 
     # all versions
-    _all_versions_list = []
+    ALL_VERSIONS_PAIRS = []
 
     # installed versions
-    _vcdir_list = []
+    INSTALLED_VERSIONS_PAIRS = []
 
-    @classmethod
-    def setUpClass(cls):
-        for vcver in Config.MSVC_VERSION_SUFFIX.keys():
-            version_def = Util.msvc_version_components(vcver)
-            vc_dir = vc.find_vc_pdir(None, vcver)
-            t = (version_def, vc_dir)
-            cls._all_versions_list.append(t)
-            if vc_dir:
-                cls._vcdir_list.append(t)
+    for vcver in Config.MSVC_VERSION_SUFFIX.keys():
+        version_def = Util.msvc_version_components(vcver)
+        vc_dir = vc.find_vc_pdir(None, vcver)
+        t = (version_def, vc_dir)
+        ALL_VERSIONS_PAIRS.append(t)
+        if vc_dir:
+            INSTALLED_VERSIONS_PAIRS.append(t)
 
-    def setUp(self):
-        self.all_versions_list = self.__class__._all_versions_list
-        self.vcdir_list = self.__class__._vcdir_list
+class Patch:
+
+    class Config:
+
+        class MSVC_SDK_VERSIONS:
+
+            MSVC_SDK_VERSIONS = Config.MSVC_SDK_VERSIONS
+
+            @classmethod
+            def enable_copy(cls):
+                hook = set(cls.MSVC_SDK_VERSIONS)
+                Config.MSVC_SDK_VERSIONS = hook
+                return hook
+
+            @classmethod
+            def restore(cls):
+                Config.MSVC_SDK_VERSIONS = cls.MSVC_SDK_VERSIONS
+
+class ScriptArgumentsTests(unittest.TestCase):
 
     def test_verify(self):
-        _MSVC_SDK_VERSIONS = Config.MSVC_SDK_VERSIONS
-        msvc_sdk_versions = set(Config.MSVC_SDK_VERSIONS)
-        msvc_sdk_versions.add('99.0')
-        Config.MSVC_SDK_VERSIONS = msvc_sdk_versions
+        MSVC_SDK_VERSIONS = Patch.Config.MSVC_SDK_VERSIONS.enable_copy()
+        MSVC_SDK_VERSIONS.add('99.0')
         with self.assertRaises(MSVCInternalError):
             ScriptArguments.verify()
-        Config.MSVC_SDK_VERSIONS = _MSVC_SDK_VERSIONS
+        Patch.Config.MSVC_SDK_VERSIONS.restore()
 
     def test_msvc_script_arguments_defaults(self):
-        env = Environment()
         func = ScriptArguments.msvc_script_arguments
+        env = Environment()
         # disable forcing sdk and toolset versions as arguments
         force = ScriptArguments.msvc_force_default_arguments(force=False)
-        for version_def, vc_dir in self.vcdir_list:
+        for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for arg in ('', 'arch'):
                 scriptargs = func(env, version_def.msvc_version, vc_dir, arg)
                 self.assertTrue(scriptargs == arg, "{}({},{}) != {} [force=False]".format(
@@ -89,7 +101,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                 ))
         # enable forcing sdk and toolset versions as arguments
         force = ScriptArguments.msvc_force_default_arguments(force=True)
-        for version_def, vc_dir in self.vcdir_list:
+        for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             scriptargs = func(env, version_def.msvc_version, vc_dir, '')
             for arg in ('', 'arch'):
                 scriptargs = func(env, version_def.msvc_version, vc_dir, arg)
@@ -110,7 +122,7 @@ class ScriptArgumentsTests(unittest.TestCase):
 
     def test_msvc_toolset_versions_internal(self):
         func = ScriptArguments._msvc_toolset_versions_internal
-        for version_def, vc_dir in self.vcdir_list:
+        for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for full in (True, False):
                 for sxs in (True, False):
                     toolset_versions = func(version_def.msvc_version, vc_dir, full=full, sxs=sxs)
@@ -133,7 +145,7 @@ class ScriptArgumentsTests(unittest.TestCase):
 
     def test_msvc_toolset_internal(self):
         func = ScriptArguments._msvc_toolset_internal
-        for version_def, vc_dir in self.vcdir_list:
+        for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             toolset_versions = ScriptArguments._msvc_toolset_versions_internal(version_def.msvc_version, vc_dir, full=True, sxs=True)
             if not toolset_versions:
                 continue

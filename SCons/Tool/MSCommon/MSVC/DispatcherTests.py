@@ -30,58 +30,52 @@ import unittest
 from SCons.Tool.MSCommon import MSVC
 MSVC.Dispatcher.register_modulename(__name__)
 
+class Data:
+
+    reset_count = 0
+    verify_count = 0
+
 # current module - not callable
 _reset = None
 reset = None
 _verify = None
 verify = None
 
-reset_count = 0
-verify_count = 0
-
 class StaticMethods:
 
     @staticmethod
     def _reset():
-        global reset_count
-        reset_count += 1
+        Data.reset_count += 1
 
     @staticmethod
     def reset():
-        global reset_count
-        reset_count += 1
+        Data.reset_count += 1
 
     @staticmethod
     def _verify():
-        global verify_count
-        verify_count += 1
+        Data.verify_count += 1
 
     @staticmethod
     def verify():
-        global verify_count
-        verify_count += 1
+        Data.verify_count += 1
 
 class ClassMethods:
 
     @classmethod
     def _reset(cls):
-        global reset_count
-        reset_count += 1
+        Data.reset_count += 1
 
     @classmethod
     def reset(cls):
-        global reset_count
-        reset_count += 1
+        Data.reset_count += 1
 
     @classmethod
     def _verify(cls):
-        global verify_count
-        verify_count += 1
+        Data.verify_count += 1
 
     @classmethod
     def verify(cls):
-        global verify_count
-        verify_count += 1
+        Data.verify_count += 1
 
 class NotCallable:
 
@@ -98,28 +92,24 @@ MSVC.Dispatcher.register_class(NotCallable)
 class DispatcherTests(unittest.TestCase):
 
     def test_dispatcher_reset(self):
-        global reset_count
         MSVC.Dispatcher.reset()
-        self.assertTrue(reset_count == 4, "MSVC.Dispatcher.reset() count failed")
-        reset_count = 0
+        self.assertTrue(Data.reset_count == 4, "MSVC.Dispatcher.reset() count failed")
+        Data.reset_count = 0
 
     def test_dispatcher_verify(self):
-        global verify_count
         MSVC.Dispatcher.verify()
-        self.assertTrue(verify_count == 4, "MSVC.Dispatcher.verify() count failed")
-        verify_count = 0
+        self.assertTrue(Data.verify_count == 4, "MSVC.Dispatcher.verify() count failed")
+        Data.verify_count = 0
 
     def test_msvc_reset(self):
-        global reset_count
         MSVC._reset()
-        self.assertTrue(reset_count == 4, "MSVC._reset() count failed")
-        reset_count = 0
+        self.assertTrue(Data.reset_count == 4, "MSVC._reset() count failed")
+        Data.reset_count = 0
 
     def test_msvc_verify(self):
-        global verify_count
         MSVC._verify()
-        self.assertTrue(verify_count == 4, "MSVC._verify() count failed")
-        verify_count = 0
+        self.assertTrue(Data.verify_count == 4, "MSVC._verify() count failed")
+        Data.verify_count = 0
 
 if __name__ == "__main__":
     unittest.main()

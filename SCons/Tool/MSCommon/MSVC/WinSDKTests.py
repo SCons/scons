@@ -32,27 +32,62 @@ from SCons.Tool.MSCommon.MSVC import WinSDK
 from SCons.Tool.MSCommon.MSVC import Registry
 from SCons.Tool.MSCommon.MSVC.Exceptions import MSVCInternalError
 
-_REGISTRY_SDK_QUERY_PATHS = Registry.sdk_query_paths
+class Patch:
 
-def registry_sdk_query_paths(version):
-    # return duplicate sdk version roots
-    sdk_roots = _REGISTRY_SDK_QUERY_PATHS(version)
-    if sdk_roots:
-        sdk_roots = sdk_roots + sdk_roots
-    return sdk_roots
+    class Config:
 
-Registry.sdk_query_paths = registry_sdk_query_paths
+        class MSVC_SDK_VERSIONS:
+
+            MSVC_SDK_VERSIONS = Config.MSVC_SDK_VERSIONS
+
+            @classmethod
+            def enable_copy(cls):
+                hook = set(cls.MSVC_SDK_VERSIONS)
+                Config.MSVC_SDK_VERSIONS = hook
+                return hook
+
+            @classmethod
+            def restore(cls):
+                Config.MSVC_SDK_VERSIONS = cls.MSVC_SDK_VERSIONS
+
+    class Registry:
+
+        class sdk_query_paths:
+
+            sdk_query_paths = Registry.sdk_query_paths
+
+            @classmethod
+            def sdk_query_paths_duplicate(cls, version):
+                sdk_roots = cls.sdk_query_paths(version)
+                sdk_roots = sdk_roots + sdk_roots if sdk_roots else sdk_roots
+                return sdk_roots
+
+            @classmethod
+            def enable_duplicate(cls):
+                hook = cls.sdk_query_paths_duplicate
+                Registry.sdk_query_paths = hook
+                return hook
+
+            @classmethod
+            def restore(cls):
+                Registry.sdk_query_paths = cls.sdk_query_paths
 
 class WinSDKTests(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        Patch.Registry.sdk_query_paths.enable_duplicate()
+
+    @classmethod
+    def tearDownClass(cls):
+        Patch.Registry.sdk_query_paths.restore()
+
     def test_verify(self):
-        _MSVC_SDK_VERSIONS = Config.MSVC_SDK_VERSIONS
-        msvc_sdk_versions = set(Config.MSVC_SDK_VERSIONS)
-        msvc_sdk_versions.add('99.0')
-        Config.MSVC_SDK_VERSIONS = msvc_sdk_versions
+        MSVC_SDK_VERSIONS = Patch.Config.MSVC_SDK_VERSIONS.enable_copy()
+        MSVC_SDK_VERSIONS.add('99.0')
         with self.assertRaises(MSVCInternalError):
             WinSDK.verify()
-        Config.MSVC_SDK_VERSIONS = _MSVC_SDK_VERSIONS
+        Patch.Config.MSVC_SDK_VERSIONS.restore()
 
     def _run_reset(self):
         WinSDK.reset()

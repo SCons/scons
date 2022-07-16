@@ -94,14 +94,14 @@ class MSVcTestCase(unittest.TestCase):
             create_path = path
         if create_path and not os.path.isdir(create_path):
             os.makedirs(create_path)
-        
+
         create_this = os.path.join(create_path,'cl.exe')
 
         # print("Creating: %s"%create_this)
         with open(create_this,'w') as ct:
             ct.write('created')
 
-        
+
     def runTest(self):
         """
         Check that all proper HOST_PLATFORM and TARGET_PLATFORM are handled.
@@ -115,7 +115,7 @@ class MSVcTestCase(unittest.TestCase):
         _, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[('x86','x86')]
         path = os.path.join('.', *clpathcomps)
         MSVcTestCase._createDummyCl(path, add_bin=False)
- 
+
         # print("retval:%s"%check(env, '.', '8.0'))
 
 
@@ -239,18 +239,33 @@ class MSVcTestCase(unittest.TestCase):
             self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
 
 
-_HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
+class Data:
 
-_orig_msvc_default_version = MSCommon.vc.msvc_default_version
+    HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
 
-def _msvc_default_version_none():
-    return None
+class Patch:
 
-def _enable_msvc_default_version_none():
-    MSCommon.vc.msvc_default_version = _msvc_default_version_none
+    class MSCommon:
 
-def _restore_msvc_default_version():
-    MSCommon.vc.msvc_default_version = _orig_msvc_default_version
+        class vc:
+
+            class msvc_default_version:
+
+                msvc_default_version = MSCommon.vc.msvc_default_version
+
+                @classmethod
+                def msvc_default_version_none(cls):
+                    return None
+
+                @classmethod
+                def enable_none(cls):
+                    hook = cls.msvc_default_version_none
+                    MSCommon.vc.msvc_default_version = hook
+                    return hook
+
+                @classmethod
+                def restore(cls):
+                    MSCommon.vc.msvc_default_version = cls.msvc_default_version
 
 class MsvcSdkVersionsTests(unittest.TestCase):
     """Test msvc_sdk_versions"""
@@ -266,10 +281,10 @@ class MsvcSdkVersionsTests(unittest.TestCase):
                 self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(None)))
 
     def test_valid_default_msvc(self):
-        if _HAVE_MSVC:
-            _enable_msvc_default_version_none()
+        if Data.HAVE_MSVC:
+            Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc()
-            _restore_msvc_default_version()
+            Patch.MSCommon.vc.msvc_default_version.restore()
         self.run_valid_default_msvc()
 
     def test_valid_vcver(self):
@@ -277,7 +292,7 @@ class MsvcSdkVersionsTests(unittest.TestCase):
             version_def = MSCommon.msvc_version_components(symbol)
             for msvc_uwp_app in (True, False):
                 sdk_list = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-                if _HAVE_MSVC and version_def.msvc_vernum >= 14.0:
+                if Data.HAVE_MSVC and version_def.msvc_vernum >= 14.0:
                     self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
                 else:
                     self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
@@ -307,7 +322,6 @@ class MsvcSdkVersionsTests(unittest.TestCase):
             for msvc_uwp_app in (True, False):
                 with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                     _ = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-
 
 class MsvcToolsetVersionsTests(unittest.TestCase):
     """Test msvc_toolset_versions"""
@@ -339,10 +353,10 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
         self.assertFalse(toolset_none_list, "Toolset none list is not empty for msvc version {}".format(repr(None)))
 
     def test_valid_default_msvc(self):
-        if _HAVE_MSVC:
-            _enable_msvc_default_version_none()
+        if Data.HAVE_MSVC:
+            Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc()
-            _restore_msvc_default_version()
+            Patch.MSCommon.vc.msvc_default_version.restore()
         self.run_valid_default_msvc()
 
     def test_valid_vcver(self):
@@ -367,7 +381,6 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                 _ = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol)
 
-
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
     """Test msvc_query_toolset_version"""
 
@@ -388,11 +401,11 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                 ))
 
     def test_valid_default_msvc(self):
-        if _HAVE_MSVC:
-            _enable_msvc_default_version_none()
+        if Data.HAVE_MSVC:
+            Patch.MSCommon.vc.msvc_default_version.enable_none()
             self.run_valid_default_msvc(have_msvc=False)
-            _restore_msvc_default_version()
-        self.run_valid_default_msvc(have_msvc=_HAVE_MSVC)
+            Patch.MSCommon.vc.msvc_default_version.restore()
+        self.run_valid_default_msvc(have_msvc=Data.HAVE_MSVC)
 
     def test_valid_vcver(self):
         for symbol in MSCommon.vc._VCVER:
