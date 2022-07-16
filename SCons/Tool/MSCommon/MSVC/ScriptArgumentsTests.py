@@ -232,7 +232,7 @@ class ScriptArgumentsTests(unittest.TestCase):
 
     def run_msvc_script_args_none(self):
         func = ScriptArguments.msvc_script_arguments
-        for version_def, vc_dir in Data.ALL_VERSIONS_PAIRS:
+        for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for kwargs in [
                 {'MSVC_SCRIPT_ARGS': None},
                 {'MSVC_SCRIPT_ARGS': None, 'MSVC_UWP_APP': None},
@@ -245,7 +245,7 @@ class ScriptArgumentsTests(unittest.TestCase):
 
     def run_msvc_script_args(self):
         func = ScriptArguments.msvc_script_arguments
-        for version_def, vc_dir in Data.ALL_VERSIONS_PAIRS:
+        for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             if version_def.msvc_vernum >= 14.1:
                 # VS2017 and later
 
