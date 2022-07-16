@@ -117,12 +117,13 @@ def _msvc_force_default_toolset(force=True):
     _MSVC_FORCE_DEFAULT_TOOLSET = force
     debug('_MSVC_FORCE_DEFAULT_TOOLSET=%s', repr(force))
 
-def msvc_force_default_arguments(force=True):
+def msvc_force_default_arguments(force=None):
     global _MSVC_FORCE_DEFAULT_ARGUMENTS
     prev_policy = _MSVC_FORCE_DEFAULT_ARGUMENTS
-    _MSVC_FORCE_DEFAULT_ARGUMENTS = force
-    _msvc_force_default_sdk(force)
-    _msvc_force_default_toolset(force)
+    if force is not None:
+        _MSVC_FORCE_DEFAULT_ARGUMENTS = force
+        _msvc_force_default_sdk(force)
+        _msvc_force_default_toolset(force)
     return prev_policy
 
 if CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS:

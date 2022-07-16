@@ -243,6 +243,48 @@ class Data:
 
     HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
 
+    @classmethod
+    def _msvc_toolset_notfound_list(cls, toolset_seen, toolset_list):
+        new_toolset_list = []
+        if not toolset_list:
+            return new_toolset_list
+        for toolset_version in toolset_list:
+            version = toolset_version
+            comps = version.split('.')
+            if len(comps) != 3:
+                continue
+            # full versions only
+            nloop = 0
+            while nloop < 10:
+                ival = int(comps[-1])
+                if ival == 0:
+                    ival = 1000000
+                ival -= 1
+                version = '{}.{}.{:05d}'.format(comps[0], comps[1], ival)
+                if version not in toolset_seen:
+                    new_toolset_list.append(version)
+                    break
+                nloop += 1
+        return new_toolset_list
+
+    _msvc_toolset_notfound_dict = None
+
+    @classmethod
+    def msvc_toolset_notfound_dict(cls):
+        if cls._msvc_toolset_notfound_dict is None:
+            toolset_seen = set()
+            toolset_dict = {}
+            for symbol in MSCommon.vc._VCVER:
+                toolset_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=False)
+                if not toolset_list:
+                    continue
+                toolset_seen.update(toolset_list)
+                toolset_dict[symbol] = toolset_list
+            for key, val in toolset_dict.items():
+                toolset_dict[key] = cls._msvc_toolset_notfound_list(toolset_seen, val)
+            cls._msvc_toolset_notfound_dict = toolset_dict
+        return cls._msvc_toolset_notfound_dict
+
 class Patch:
 
     class MSCommon:
@@ -440,42 +482,10 @@ class MsvcQueryVersionToolsetTests(unittest.TestCase):
                             repr(toolset)
                         ))
 
-    def notfound_toolset_list(self, toolset_seen, toolset_list):
-        new_toolset_list = []
-        if not toolset_list:
-            return new_toolset_list
-        for toolset_version in toolset_list:
-            version = toolset_version
-            comps = version.split('.')
-            if len(comps) != 3:
-                continue
-            # full versions only
-            nloop = 0
-            while nloop < 10:
-                ival = int(comps[-1])
-                if ival == 0:
-                    ival = 1000000
-                ival -= 1
-                version = '{}.{}.{:05d}'.format(comps[0], comps[1], ival)
-                if version not in toolset_seen:
-                    toolset_seen.add(version)
-                    new_toolset_list.append(version)
-                    break
-                nloop += 1
-        return new_toolset_list
-
-    def test_toolset_not_found(self):
-        toolset_seen = set()
-        toolset_lists = []
-        for symbol in MSCommon.vc._VCVER:
-            toolset_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=False)
-            if toolset_list is None:
-                continue
-            toolset_seen.update(toolset_list)
-            toolset_lists.append(toolset_list)
-        for toolset_list in toolset_lists:
-            notfound_toolset_list = self.notfound_toolset_list(toolset_seen, toolset_list)
-            for toolset in notfound_toolset_list:
+    def test_msvc_query_version_toolset_notfound(self):
+        toolset_notfound_dict = Data.msvc_toolset_notfound_dict()
+        for toolset_notfound_list in toolset_notfound_dict.values():
+            for toolset in toolset_notfound_list[:1]:
                 for prefer_newest in (True, False):
                     with self.assertRaises(MSCommon.vc.MSVCToolsetVersionNotFound):
                         _ = MSCommon.vc.msvc_query_version_toolset(version=toolset, prefer_newest=prefer_newest)
