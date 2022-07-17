@@ -56,15 +56,34 @@ if GE_VS2017_versions:
         toolset_sxs_version = toolset_sxs_versions[0] if toolset_sxs_versions else None
 
         if toolset_full_version:
+
+            # toolset version using construction variable
             test.write('SConstruct', textwrap.dedent(
                 """
                 DefaultEnvironment(tools=[])
-                env = Environment(MSVC_VERSION={}, MSVC_TOOLSET_VERSION={}, tools=['msvc'])
-                """.format(repr(supported.msvc_version), repr(toolset_full_version))
+                env = Environment(MSVC_VERSION={0}, MSVC_TOOLSET_VERSION={1}, tools=['msvc'])
+                lib_path = env['ENV']['LIB']
+                if '\\\\{2}\\\\' not in lib_path:
+                    raise RuntimeError("{1} not found in lib_path " + lib_path)
+                """.format(repr(supported.msvc_version), repr(toolset_full_version), toolset_full_version)
+            ))
+            test.run(arguments='-Q -s', stdout='')
+
+            # toolset version using script argument
+            test.write('SConstruct', textwrap.dedent(
+                """
+                DefaultEnvironment(tools=[])
+                env = Environment(MSVC_VERSION={0}, MSVC_SCRIPT_ARGS='-vcvars_ver={1}', tools=['msvc'])
+                lib_path = env['ENV']['LIB']
+                if '\\\\{1}\\\\' not in lib_path:
+                    raise RuntimeError("'{1}' not found in lib_path " + lib_path)
+                """.format(repr(supported.msvc_version), toolset_full_version)
             ))
             test.run(arguments='-Q -s', stdout='')
 
         if toolset_sxs_version:
+
+            # sxs toolset version using construction variable
             test.write('SConstruct', textwrap.dedent(
                 """
                 DefaultEnvironment(tools=[])
