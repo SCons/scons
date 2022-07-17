@@ -106,6 +106,15 @@ re_toolset_sxs = re.compile(
     r'^[1-9][0-9][.][0-9]{2}[.][0-9]{2}[.][0-9]{1,2}$' # MM.mm.VV.vv format
 )
 
+# msvc sdk version regexes
+
+re_msvc_sdk_version = re.compile(r'''^
+    (?P<version>(?:
+        ([1-9][0-9]?[.][0-9])|                           # XX.Y
+        ([1-9][0-9][.][0-9]{1}[.][0-9]{5}[.][0-9]{1,2})  # XX.Y.ZZZZZ.A - XX.Y.ZZZZZ.AA
+    ))
+$''', re.IGNORECASE | re.VERBOSE)
+
 # version prefix utilities
 
 def get_version_prefix(version):
@@ -298,4 +307,60 @@ def msvc_extended_version_components(version):
     )
 
     return msvc_extended_version_components_def
+
+# msvc sdk version decomposition utilties
+
+_MSVC_SDK_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCSDKVersionComponentsDefinition', [
+    'sdk_version', # sdk version (e.g., '10.0.20348.0')
+    'sdk_verstr',  # sdk version numeric string (e.g., '10.0')
+    'sdk_vernum',  # sdk version floating point number (e.g, 10.0)
+    'sdk_major',   # sdk major version integer number (e.g., 10)
+    'sdk_minor',   # sdk minor version integer number (e.g., 0)
+    'sdk_comps',   # sdk version components tuple (e.g., ('10', '0', '20348', '0'))
+])
+
+def msvc_sdk_version_components(version):
+    """
+    Decompose an msvc sdk version into components.
+
+    Tuple fields:
+        sdk_version: sdk version (e.g., '10.0.20348.0')
+        sdk_verstr:  sdk version numeric string (e.g., '10.0')
+        sdk_vernum:  sdk version floating point number (e.g., 10.0)
+        sdk_major:   sdk major version integer number (e.g., 10)
+        sdk_minor:   sdk minor version integer number (e.g., 0)
+        sdk_comps:   sdk version components tuple (e.g., ('10', '0', '20348', '0'))
+
+    Args:
+        version: str
+            sdk version specification
+
+    Returns:
+        None or MSVCSDKVersionComponents namedtuple:
+    """
+
+    if not version:
+        return None
+
+    m = re_msvc_sdk_version.match(version)
+    if not m:
+        return None
+
+    sdk_version = version
+    sdk_comps = tuple(sdk_version.split('.'))
+    sdk_verstr = '.'.join(sdk_comps[:2])
+    sdk_vernum = float(sdk_verstr)
+
+    sdk_major, sdk_minor = [int(x) for x in sdk_comps[:2]]
+
+    msvc_sdk_version_components_def = _MSVC_SDK_VERSION_COMPONENTS_DEFINITION(
+        sdk_version = sdk_version,
+        sdk_verstr = sdk_verstr,
+        sdk_vernum = sdk_vernum,
+        sdk_major = sdk_major,
+        sdk_minor = sdk_minor,
+        sdk_comps = sdk_comps,
+    )
+
+    return msvc_sdk_version_components_def
 

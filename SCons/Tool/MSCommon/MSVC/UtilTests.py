@@ -31,6 +31,7 @@ import re
 
 from SCons.Tool.MSCommon.MSVC import Config
 from SCons.Tool.MSCommon.MSVC import Util
+from SCons.Tool.MSCommon.MSVC import WinSDK
 
 class Data:
 
@@ -182,6 +183,26 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(vcver), repr(msg)
             ))
         Util.re_extended_version = save_re
+
+    def test_msvc_sdk_version_components(self):
+        func = Util.msvc_sdk_version_components
+        for vcver, expect in [
+            (None, False), ('', False), ('ABC', False), ('14', False), ('14.1.', False), ('14.16', False),
+            ('8.1', True), ('10.0', True), ('10.0.20348.0', True),
+        ]:
+            comps_def = func(vcver)
+            msg = 'msvc sdk version components definition is None' if expect else 'msvc sdk version components definition is not None'
+            self.assertTrue((comps_def is not None) == expect, "{}({}): {}".format(
+                func.__name__, repr(vcver), repr(msg)
+            ))
+        for vcver in Config.MSVC_VERSION_SUFFIX.keys():
+            comps_def = func(vcver)
+            sdk_list = WinSDK.get_msvc_sdk_version_list(vcver, msvc_uwp_app=False)
+            for sdk_version in sdk_list:
+                comps_def = func(sdk_version)
+                self.assertNotEqual(comps_def, None, "{}({}) is None".format(
+                    func.__name__, repr(vcver)
+                ))
 
 if __name__ == "__main__":
     unittest.main()

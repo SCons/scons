@@ -83,6 +83,7 @@ from .vc import (  # noqa: F401
 from .MSVC.Util import (  # noqa: F401
     msvc_version_components,
     msvc_extended_version_components,
+    msvc_sdk_version_components,
 )
 
 # Local Variables:
