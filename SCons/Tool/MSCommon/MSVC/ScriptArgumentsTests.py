@@ -54,7 +54,6 @@ def Environment(**kwargs):
         del kwargs[tools_key]
     return SCons.Environment.Base(tools=tools, **kwargs)
 
-
 def _sdk_versions_comps_dict_seen(installed_version_pairs):
 
     sdk_versions_comps_dict = {}
@@ -228,7 +227,6 @@ class ScriptArgumentsTests(unittest.TestCase):
         # enable forcing sdk and toolset versions as arguments
         ScriptArguments.msvc_force_default_arguments(force=True)
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
-            scriptargs = func(env, version_def.msvc_version, vc_dir, '')
             for arg in ('', 'arch'):
                 scriptargs = func(env, version_def.msvc_version, vc_dir, arg)
                 if version_def.msvc_vernum >= 14.0:
