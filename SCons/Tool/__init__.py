@@ -208,13 +208,20 @@ class Tool:
         except KeyError:
             try:
                 import zipimport
+
                 parent = sys.modules['SCons.Tool'].__path__[0]
                 tryname = os.path.join(parent, self.name + '.zip')
                 importer = zipimport.zipimporter(tryname)
-                spec = importer.find_spec(full_name)
-                module = importlib.util.module_from_spec(spec)
+                if not hasattr(importer, 'find_spec'):
+                    # zipimport only added find_spec, exec_module in 3.10,
+                    # unlike importlib, where they've been around since 3.4.
+                    # If we don't have 'em, use the old way.
+                    module = importer.load_module(full_name)
+                else:
+                    spec = importer.find_spec(full_name)
+                    module = importlib.util.module_from_spec(spec)
+                    importer.exec_module(module)
                 sys.modules[full_name] = module
-                importer.exec_module(module)
                 setattr(SCons.Tool, self.name, module)
                 return module
             except zipimport.ZipImportError as e:

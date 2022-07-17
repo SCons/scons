@@ -106,10 +106,16 @@ def platform_module(name=platform_default()):
                 parent = sys.modules['SCons.Platform'].__path__[0]
                 tryname = os.path.join(parent, name + '.zip')
                 importer = zipimport.zipimporter(tryname)
-                spec = importer.find_spec(full_name)
-                mod = importlib.util.module_from_spec(spec)
+                if not hasattr(importer, 'find_spec'):
+                    # zipimport only added find_spec, exec_module in 3.10,
+                    # unlike importlib, where they've been around since 3.4.
+                    # If we don't have 'em, use the old way.
+                    mod = importer.load_module(full_name)
+                else:
+                    spec = importer.find_spec(full_name)
+                    mod = importlib.util.module_from_spec(spec)
+                    importer.exec_module(mod)
                 sys.modules[full_name] = mod
-                importer.exec_module(mod)
             except zipimport.ZipImportError:
                 raise SCons.Errors.UserError("No platform named '%s'" % name)
 
