@@ -83,7 +83,7 @@ def platform_default():
         return sys.platform
 
 
-def platform_module(name = platform_default()):
+def platform_module(name=platform_default()):
     """Return the imported module for the platform.
 
     This looks for a module name that matches the specified argument.
@@ -91,27 +91,34 @@ def platform_module(name = platform_default()):
     our execution environment.
     """
     full_name = 'SCons.Platform.' + name
-    if full_name not in sys.modules:
-        if os.name == 'java':
-            eval(full_name)
-        else:
+    try:
+        return sys.modules[full_name]
+    except KeyError:
+        try:
+            # the specific platform module is a relative import
+            mod = importlib.import_module("." + name, __name__)
+        except ModuleNotFoundError:
             try:
-                # the specific platform module is a relative import
-                mod = importlib.import_module("." + name, __name__)
-            except ImportError:
-                try:
-                    import zipimport
-                    importer = zipimport.zipimporter( sys.modules['SCons.Platform'].__path__[0] )
-                    mod = importer.load_module(full_name)
-                except ImportError:
-                    raise SCons.Errors.UserError("No platform named '%s'" % name)
-            setattr(SCons.Platform, name, mod)
-    return sys.modules[full_name]
+                # because we don't do this import using sys.path,
+                # need to try zipimport explicitly.
+                import zipimport
+
+                parent = sys.modules['SCons.Platform'].__path__[0]
+                tryname = os.path.join(parent, name + '.zip')
+                importer = zipimport.zipimporter(tryname)
+                spec = importer.find_spec(full_name)
+                mod = importlib.util.module_from_spec(spec)
+                sys.modules[full_name] = mod
+                importer.exec_module(mod)
+            except zipimport.ZipImportError:
+                raise SCons.Errors.UserError("No platform named '%s'" % name)
+
+        setattr(SCons.Platform, name, mod)
+        return mod
 
 
 def DefaultToolList(platform, env):
-    """Select a default tool list for the specified platform.
-    """
+    """Select a default tool list for the specified platform."""
     return SCons.Tool.tool_list(platform, env)
 
 
@@ -328,8 +335,8 @@ class TempFileMunge:
 
 
 def Platform(name = platform_default()):
-    """Select a canned Platform specification.
-    """
+    """Select a canned Platform specification."""
+
     module = platform_module(name)
     spec = PlatformSpec(name, module.generate)
     return spec

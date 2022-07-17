@@ -112,6 +112,13 @@ class PlatformTestCase(unittest.TestCase):
         assert env['HOST_OS'] == 'hpux', env
         assert env['HOST_ARCH'] != '', env
 
+        p = SCons.Platform.Platform('testzip')
+        assert str(p) == 'testzip', p
+        env = Environment()
+        p(env)
+        assert env['HOST_OS'] == 'zippy', env
+        assert env['TESTDUMMY'] == 1866, env
+
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
         env = Environment()
@@ -157,10 +164,6 @@ class PlatformTestCase(unittest.TestCase):
 
         assert p.arch != '', 'SCons.Platform.win32.get_architecture() not setting arch'
         assert p.synonyms != '', 'SCons.Platform.win32.get_architecture() not setting synonyms'
-
-
-
-
 
 
 class TempFileMungeTestCase(unittest.TestCase):

@@ -51,13 +51,18 @@ def my_whichdb(filename):
 
 
 def my_import(mname):
+    """Import database module.
+
+    This was used if the module was *not* SCons.dblite, to allow
+    for programmatic importing.  It is no longer used, in favor of
+    importlib.import_module, and will be removed eventually.
+    """
     import imp
 
     if '.' in mname:
         i = mname.rfind('.')
         parent = my_import(mname[:i])
-        fp, pathname, description = imp.find_module(mname[i+1:],
-                                                    parent.__path__)
+        fp, pathname, description = imp.find_module(mname[i+1:], parent.__path__)
     else:
         fp, pathname, description = imp.find_module(mname)
     return imp.load_module(mname, fp, pathname, description)
@@ -371,36 +376,50 @@ def Do_SConsignDir(name):
 
 ##############################################################################
 def main():
-    global  Do_Call
+    global Do_Call
     global nodeinfo_string
     global args
     global Verbose
     global Readable
 
     helpstr = """\
-    Usage: sconsign [OPTIONS] [FILE ...]
-    Options:
-      -a, --act, --action         Print build action information.
-      -c, --csig                  Print content signature information.
-      -d DIR, --dir=DIR           Print only info about DIR.
-      -e ENTRY, --entry=ENTRY     Print only info about ENTRY.
-      -f FORMAT, --format=FORMAT  FILE is in the specified FORMAT.
-      -h, --help                  Print this message and exit.
-      -i, --implicit              Print implicit dependency information.
-      -r, --readable              Print timestamps in human-readable form.
-      --raw                       Print raw Python object representations.
-      -s, --size                  Print file sizes.
-      -t, --timestamp             Print timestamp information.
-      -v, --verbose               Verbose, describe each field.
-    """
+Usage: sconsign [OPTIONS] [FILE ...]
+
+Options:
+  -a, --act, --action         Print build action information.
+  -c, --csig                  Print content signature information.
+  -d DIR, --dir=DIR           Print only info about DIR.
+  -e ENTRY, --entry=ENTRY     Print only info about ENTRY.
+  -f FORMAT, --format=FORMAT  FILE is in the specified FORMAT.
+  -h, --help                  Print this message and exit.
+  -i, --implicit              Print implicit dependency information.
+  -r, --readable              Print timestamps in human-readable form.
+  --raw                       Print raw Python object representations.
+  -s, --size                  Print file sizes.
+  -t, --timestamp             Print timestamp information.
+  -v, --verbose               Verbose, describe each field.
+"""
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "acd:e:f:hirstv",
-                                   ['act', 'action',
-                                    'csig', 'dir=', 'entry=',
-                                    'format=', 'help', 'implicit',
-                                    'raw', 'readable',
-                                    'size', 'timestamp', 'verbose'])
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            'acd:e:f:hirstv',
+            [
+                'act',
+                'action',
+                'csig',
+                'dir=',
+                'entry=',
+                'format=',
+                'help',
+                'implicit',
+                'raw',
+                'readable',
+                'size',
+                'timestamp',
+                'verbose',
+            ],
+        )
     except getopt.GetoptError as err:
         sys.stderr.write(str(err) + '\n')
         print(helpstr)
@@ -423,7 +442,7 @@ def main():
             if dbm_name:
                 try:
                     if dbm_name != "SCons.dblite":
-                        dbm = my_import(dbm_name)
+                        dbm = importlib.import_module(dbm_name)
                     else:
                         import SCons.dblite
 
@@ -466,7 +485,7 @@ def main():
             if dbm_name:
                 Map_Module = {'SCons.dblite': 'dblite'}
                 if dbm_name != "SCons.dblite":
-                    dbm = my_import(dbm_name)
+                    dbm = importlib.import_module(dbm_name)
                 else:
                     import SCons.dblite
 
