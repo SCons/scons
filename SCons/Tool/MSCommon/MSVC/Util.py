@@ -178,6 +178,7 @@ _MSVC_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCVersionComponentsDefinitio
     'msvc_vernum',  # msvc version floating point number (e.g, 14.1)
     'msvc_major',   # msvc major version integer number (e.g., 14)
     'msvc_minor',   # msvc minor version integer number (e.g., 1)
+    'msvc_comps',   # msvc version components tuple (e.g., ('14', '1'))
 ])
 
 def msvc_version_components(vcver):
@@ -191,6 +192,7 @@ def msvc_version_components(vcver):
         msvc_vernum:  msvc version floating point number (e.g., 14.1)
         msvc_major:   msvc major version integer number (e.g., 14)
         msvc_minor:   msvc minor version integer number (e.g., 1)
+        msvc_comps:   msvc version components tuple (e.g., ('14', '1'))
 
     Args:
         vcver: str
@@ -216,7 +218,8 @@ def msvc_version_components(vcver):
     msvc_suffix = m.group('suffix') if m.group('suffix') else ''
     msvc_vernum = float(msvc_verstr)
 
-    msvc_major, msvc_minor = [int(x) for x in msvc_verstr.split('.')]
+    msvc_comps = tuple(msvc_verstr.split('.'))
+    msvc_major, msvc_minor = [int(x) for x in msvc_comps]
 
     msvc_version_components_def = _MSVC_VERSION_COMPONENTS_DEFINITION(
         msvc_version = msvc_version,
@@ -225,6 +228,7 @@ def msvc_version_components(vcver):
         msvc_vernum = msvc_vernum,
         msvc_major = msvc_major,
         msvc_minor = msvc_minor,
+        msvc_comps = msvc_comps,
     )
 
     return msvc_version_components_def
@@ -236,8 +240,10 @@ _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION = namedtuple('MSVCExtendedVersionCo
     'msvc_vernum',  # msvc version floating point number (e.g, 14.1)
     'msvc_major',   # msvc major version integer number (e.g., 14)
     'msvc_minor',   # msvc minor version integer number (e.g., 1)
-    'msvc_toolset_version', # msvc toolset version
-    'version',              # msvc version or msvc toolset version
+    'msvc_comps',   # msvc version components tuple (e.g., ('14', '1'))
+    'msvc_toolset_version',  # msvc toolset version
+    'msvc_toolset_comps',    # msvc toolset version components
+    'version',               # msvc version or msvc toolset version
 ])
 
 def msvc_extended_version_components(version):
@@ -260,6 +266,7 @@ def msvc_extended_version_components(version):
         return None
 
     msvc_toolset_version = m.group('version')
+    msvc_toolset_comps = tuple(msvc_toolset_version.split('.'))
 
     msvc_verstr = get_msvc_version_prefix(msvc_toolset_version)
     if not msvc_verstr:
@@ -274,7 +281,8 @@ def msvc_extended_version_components(version):
 
     msvc_vernum = float(msvc_verstr)
 
-    msvc_major, msvc_minor = [int(x) for x in msvc_verstr.split('.')]
+    msvc_comps = tuple(msvc_verstr.split('.'))
+    msvc_major, msvc_minor = [int(x) for x in msvc_comps]
 
     msvc_extended_version_components_def = _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION(
         msvc_version = msvc_version,
@@ -283,7 +291,9 @@ def msvc_extended_version_components(version):
         msvc_vernum = msvc_vernum,
         msvc_major = msvc_major,
         msvc_minor = msvc_minor,
+        msvc_comps = msvc_comps,
         msvc_toolset_version = msvc_toolset_version,
+        msvc_toolset_comps = msvc_toolset_comps,
         version = version,
     )
 

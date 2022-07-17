@@ -421,7 +421,6 @@ class ScriptArgumentsTests(unittest.TestCase):
             self.run_msvc_script_args_none()
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    @unittest.skipUnless(Data.HAVE_MSVC, "requires msvc")
     def test_msvc_script_args(self):
         force = ScriptArguments.msvc_force_default_arguments(force=False)
         self.run_msvc_script_args()
