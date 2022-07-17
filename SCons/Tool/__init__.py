@@ -209,7 +209,7 @@ class Tool:
             try:
                 import zipimport
                 parent = sys.modules['SCons.Tool'].__path__[0]
-                tryname = os.path.join(parent, name + '.zip')
+                tryname = os.path.join(parent, self.name + '.zip')
                 importer = zipimport.zipimporter(tryname)
                 spec = importer.find_spec(full_name)
                 module = importlib.util.module_from_spec(spec)
@@ -217,7 +217,7 @@ class Tool:
                 importer.exec_module(module)
                 setattr(SCons.Tool, self.name, module)
                 return module
-            except zipimporter.ZipImportError as e:
+            except zipimport.ZipImportError as e:
                 m = "No tool named '%s': %s" % (self.name, e)
                 raise SCons.Errors.SConsEnvironmentError(m)
 

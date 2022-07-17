@@ -28,6 +28,7 @@
 """Utility script to dump information from SCons signature database."""
 
 import getopt
+import importlib
 import os
 import sys
 from dbm import whichdb

@@ -202,6 +202,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       but was not applied to other dialects, and e2e tests explicitly checked
       that FORTRANFLAGS did not propagate outside the FORTRAN dialect,
       so the conclusion is that behavior is intentional (issue #2257)
+    - SCons programmatic importing (tool modules and platform modules)
+      no longer uses the deprecated (since Py 3.10) importlib.load_module
+      routine, shifting to the preferred exec_module.  Old Python 2 compatible
+      import fallback (using the imp module) in tool module loading is dropped.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
