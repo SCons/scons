@@ -410,7 +410,6 @@ class ScriptArgumentsTests(unittest.TestCase):
                         _ = func(env, version_def.msvc_version, vc_dir, '')
 
                 have_spectre = toolset_def.msvc_toolset_version in Data.SPECTRE_TOOLSET_VERSIONS.get(version_def.msvc_version,[])
-                print("HAVE_SPECTRE", have_spectre, version_def.msvc_version, toolset_def.msvc_toolset_version)
                 env = Environment(MSVC_SPECTRE_LIBS=True, MSVC_TOOLSET_VERSION=toolset_def.msvc_toolset_version)
                 if not have_spectre:
                     with self.assertRaises(MSVCSpectreLibsNotFound):
