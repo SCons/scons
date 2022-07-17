@@ -43,6 +43,7 @@ from SCons.Tool.MSCommon.vc import (  # noqa: F401
     msvc_find_vswhere,
     msvc_sdk_versions,
     msvc_toolset_versions,
+    msvc_toolset_versions_spectre,
     msvc_query_version_toolset,
 )
 

@@ -1384,6 +1384,31 @@ def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_version, vc_dir, full=full, sxs=sxs)
     return rval
 
+def msvc_toolset_versions_spectre(msvc_version=None):
+    debug('msvc_version=%s', repr(msvc_version))
+
+    env = None
+    rval = []
+
+    if not msvc_version:
+        msvc_version = msvc_default_version()
+
+    if not msvc_version:
+        debug('no msvc versions detected')
+        return rval
+
+    if msvc_version not in _VCVER:
+        msg = 'Unsupported msvc version {}'.format(repr(msvc_version))
+        raise MSVCArgumentError(msg)
+
+    vc_dir = find_vc_pdir(env, msvc_version)
+    if not vc_dir:
+        debug('VC folder not found for version %s', repr(msvc_version))
+        return rval
+
+    rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_version, vc_dir)
+    return rval
+
 def msvc_query_version_toolset(version=None, prefer_newest=True):
     """
     Returns an msvc version and a toolset version given a version

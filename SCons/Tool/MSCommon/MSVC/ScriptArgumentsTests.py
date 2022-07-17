@@ -136,6 +136,11 @@ class Data:
 
     HAVE_MSVC = True if len(INSTALLED_VERSIONS_PAIRS) else False
 
+    SPECTRE_TOOLSET_VERSIONS = {
+        version_def.msvc_version: vc.msvc_toolset_versions_spectre(version_def.msvc_version)
+        for version_def, _ in INSTALLED_VERSIONS_PAIRS
+    }
+
     SDK_VERSIONS_COMPS_DICT, SDK_VERSIONS_SEEN = _sdk_versions_comps_dict_seen(INSTALLED_VERSIONS_PAIRS)
 
     SDK_VERSIONS_NOTFOUND_DICT = _sdk_versions_notfound(
@@ -405,6 +410,15 @@ class ScriptArgumentsTests(unittest.TestCase):
                     env = Environment(**kwargs)
                     with self.assertRaises(MSVCSDKVersionNotFound):
                         _ = func(env, version_def.msvc_version, vc_dir, '')
+
+                have_spectre = toolset_def.msvc_toolset_version in Data.SPECTRE_TOOLSET_VERSIONS.get(version_def.msvc_version,[])
+                print("HAVE_SPECTRE", have_spectre, version_def.msvc_version, toolset_def.msvc_toolset_version)
+                env = Environment(MSVC_SPECTRE_LIBS=True, MSVC_TOOLSET_VERSION=toolset_def.msvc_toolset_version)
+                if not have_spectre:
+                    with self.assertRaises(MSVCSpectreLibsNotFound):
+                        _ = func(env, version_def.msvc_version, vc_dir, '')
+                else:
+                    _ = func(env, version_def.msvc_version, vc_dir, '')
 
                 msvc_sdk_version = Data.msvc_sdk_version(version_def.msvc_version)
 

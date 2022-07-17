@@ -764,6 +764,10 @@ def _msvc_script_argument_spectre_constraints(msvc, toolset, spectre_libs, platf
 
     return None
 
+def _msvc_toolset_version_spectre_path(vc_dir, toolset_version):
+    spectre_dir = os.path.join(vc_dir, "Tools", "MSVC", toolset_version, "lib", "spectre")
+    return spectre_dir
+
 def _msvc_script_argument_spectre(env, msvc, vc_dir, toolset, platform_def, arglist):
 
     spectre_libs = env['MSVC_SPECTRE_LIBS']
@@ -780,7 +784,7 @@ def _msvc_script_argument_spectre(env, msvc, vc_dir, toolset, platform_def, argl
         raise MSVCArgumentError(err_msg)
 
     if toolset:
-        spectre_dir = os.path.join(vc_dir, "Tools", "MSVC", toolset.version, "lib", "spectre")
+        spectre_dir = _msvc_toolset_version_spectre_path(vc_dir, toolset.version)
         if not os.path.exists(spectre_dir):
             debug(
                 'spectre libs: msvc_version=%s, toolset_version=%s, spectre_dir=%s',
@@ -991,6 +995,23 @@ def _msvc_toolset_versions_internal(msvc_version, vc_dir, full=True, sxs=False):
         toolset_versions.extend(toolsets_full)
 
     return toolset_versions
+
+def _msvc_toolset_versions_spectre_internal(msvc_version, vc_dir):
+
+    msvc = _msvc_version(msvc_version)
+
+    if len(msvc.vs_def.vc_buildtools_all) <= 1:
+        return None
+
+    _, toolsets_full = _msvc_version_toolsets(msvc, vc_dir)
+
+    spectre_toolset_versions = [
+        toolset_version
+        for toolset_version in toolsets_full
+        if os.path.exists(_msvc_toolset_version_spectre_path(vc_dir, toolset_version))
+    ]
+
+    return spectre_toolset_versions
 
 def reset():
     debug('')

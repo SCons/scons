@@ -243,6 +243,8 @@ class Data:
 
     HAVE_MSVC = True if MSCommon.vc.msvc_default_version() else False
 
+    INSTALLED_VCS_COMPONENTS = MSCommon.vc.get_installed_vcs_components()
+
     @classmethod
     def _msvc_toolset_notfound_list(cls, toolset_seen, toolset_list):
         new_toolset_list = []
@@ -368,15 +370,6 @@ class MsvcSdkVersionsTests(unittest.TestCase):
 class MsvcToolsetVersionsTests(unittest.TestCase):
     """Test msvc_toolset_versions"""
 
-    _installed_vcs_components = None
-
-    @classmethod
-    def setUpClass(cls):
-        cls._installed_vcs_components = MSCommon.vc.get_installed_vcs_components()
-
-    def setUp(self):
-        self.installed_vcs_components = self.__class__._installed_vcs_components
-
     def run_valid_default_msvc(self):
         symbol = MSCommon.vc.msvc_default_version()
         version_def = MSCommon.msvc_version_components(symbol)
@@ -384,7 +377,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
         toolset_full_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=False)
         toolset_sxs_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=False, sxs=True)
         toolset_all_list = MSCommon.vc.msvc_toolset_versions(msvc_version=None, full=True, sxs=True)
-        if symbol and version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
+        if symbol and version_def in Data.INSTALLED_VCS_COMPONENTS and version_def.msvc_vernum >= 14.1:
             # sxs list could be empty
             self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(None)))
             self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(None)))
@@ -408,7 +401,7 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
             toolset_full_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=False)
             toolset_sxs_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=False, sxs=True)
             toolset_all_list = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol, full=True, sxs=True)
-            if version_def in self.installed_vcs_components and version_def.msvc_vernum >= 14.1:
+            if version_def in Data.INSTALLED_VCS_COMPONENTS and version_def.msvc_vernum >= 14.1:
                 # sxs list could be empty
                 self.assertTrue(toolset_full_list, "Toolset full list is empty for msvc version {}".format(repr(symbol)))
                 self.assertTrue(toolset_all_list, "Toolset all list is empty for msvc version {}".format(repr(symbol)))
@@ -422,6 +415,40 @@ class MsvcToolsetVersionsTests(unittest.TestCase):
         for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
             with self.assertRaises(MSCommon.vc.MSVCArgumentError):
                 _ = MSCommon.vc.msvc_toolset_versions(msvc_version=symbol)
+
+class MsvcToolsetVersionsSpectreTests(unittest.TestCase):
+
+    def run_valid_default_msvc(self):
+        symbol = MSCommon.vc.msvc_default_version()
+        version_def = MSCommon.msvc_version_components(symbol)
+        spectre_toolset_list = MSCommon.vc.msvc_toolset_versions_spectre(msvc_version=None)
+        if symbol and version_def in Data.INSTALLED_VCS_COMPONENTS and version_def.msvc_vernum >= 14.1:
+            # spectre toolset list can empty (may not be installed)
+            pass
+        else:
+            self.assertFalse(spectre_toolset_list, "Toolset spectre list is not empty for msvc version {}".format(repr(None)))
+
+    def test_valid_default_msvc(self):
+        if Data.HAVE_MSVC:
+            Patch.MSCommon.vc.msvc_default_version.enable_none()
+            self.run_valid_default_msvc()
+            Patch.MSCommon.vc.msvc_default_version.restore()
+        self.run_valid_default_msvc()
+
+    def test_valid_vcver(self):
+        for symbol in MSCommon.vc._VCVER:
+            version_def = MSCommon.msvc_version_components(symbol)
+            spectre_toolset_list = MSCommon.vc.msvc_toolset_versions_spectre(msvc_version=symbol)
+            if version_def in Data.INSTALLED_VCS_COMPONENTS and version_def.msvc_vernum >= 14.1:
+                # spectre toolset list can empty (may not be installed)
+                pass
+            else:
+                self.assertFalse(spectre_toolset_list, "Toolset spectre list is not empty for msvc version {}".format(repr(symbol)))
+
+    def test_invalid_vcver(self):
+        for symbol in ['12.9', '6.0Exp', '14.3Exp', '99', '14.1Bug']:
+            with self.assertRaises(MSCommon.vc.MSVCArgumentError):
+                _ = MSCommon.vc.msvc_toolset_versions_spectre(msvc_version=symbol)
 
 class MsvcQueryVersionToolsetTests(unittest.TestCase):
     """Test msvc_query_toolset_version"""
