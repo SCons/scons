@@ -157,7 +157,6 @@ if CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS:
 
 @enum.unique
 class SortOrder(enum.IntEnum):
-    ARCH = 0     # arch
     UWP = 1      # MSVC_UWP_APP
     SDK = 2      # MSVC_SDK_VERSION
     TOOLSET = 3  # MSVC_TOOLSET_VERSION
@@ -232,7 +231,7 @@ def _user_script_argument_uwp(env, uwp, user_argstr):
 
     matches = [m for m in re_vcvars_uwp.finditer(user_argstr)]
     if not matches:
-        return None
+        return False
 
     if len(matches) > 1:
         debug('multiple uwp declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
@@ -240,7 +239,7 @@ def _user_script_argument_uwp(env, uwp, user_argstr):
         raise MSVCArgumentError(err_msg)
 
     if not uwp:
-        return None
+        return True
 
     env_argstr = env.get('MSVC_UWP_APP','')
     debug('multiple uwp declarations: MSVC_UWP_APP=%s, MSVC_SCRIPT_ARGS=%s', repr(env_argstr), repr(user_argstr))
@@ -686,7 +685,7 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
 
     return toolset_vcvars
 
-def _msvc_script_default_toolset(env, msvc, vc_dir, arglist):
+def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
         return None
@@ -697,8 +696,9 @@ def _msvc_script_default_toolset(env, msvc, vc_dir, arglist):
 
     debug('MSVC_VERSION=%s, toolset_default=%s', repr(msvc.version), repr(toolset_default))
 
-    argpair = (SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_default))
-    arglist.append(argpair)
+    if force_toolset:
+        argpair = (SortOrder.TOOLSET, '-vcvars_ver={}'.format(toolset_default))
+        arglist.append(argpair)
 
     return toolset_default
 
@@ -874,11 +874,10 @@ def _msvc_process_construction_variables(env):
 
 def msvc_script_arguments(env, version, vc_dir, arg):
 
-    arglist = []
+    arguments = [arg] if arg else []
 
-    if arg:
-        argpair = (SortOrder.ARCH, arg)
-        arglist.append(argpair)
+    arglist = []
+    arglist_reverse = False
 
     msvc = _msvc_version(version)
 
@@ -897,7 +896,9 @@ def msvc_script_arguments(env, version, vc_dir, arg):
             uwp = None
 
         if user_argstr:
-            _user_script_argument_uwp(env, uwp, user_argstr)
+            user_uwp = _user_script_argument_uwp(env, uwp, user_argstr)
+        else:
+            user_uwp = None
 
         is_uwp = True if uwp else False
         platform_def = WinSDK.get_msvc_platform(is_uwp)
@@ -915,13 +916,9 @@ def msvc_script_arguments(env, version, vc_dir, arg):
             user_toolset = None
 
         if not toolset_version and not user_toolset:
-            default_toolset = _msvc_script_default_toolset(env, msvc, vc_dir, arglist)
+            default_toolset = _msvc_script_default_toolset(env, msvc, vc_dir, arglist, _MSVC_FORCE_DEFAULT_TOOLSET)
         else:
             default_toolset = None
-
-        if _MSVC_FORCE_DEFAULT_TOOLSET:
-            if default_toolset:
-                toolset_version = default_toolset
 
         if user_toolset:
             toolset = None
@@ -958,11 +955,18 @@ def msvc_script_arguments(env, version, vc_dir, arg):
         if user_argstr:
             _user_script_argument_spectre(env, spectre, user_argstr)
 
-    if arglist:
+        if msvc.vs_def.vc_buildtools_def.vc_version == '14.0':
+            if user_uwp and sdk_version and len(arglist) == 2:
+                # VS2015 toolset argument order issue: SDK store => store SDK
+                arglist_reverse = True
+
+    if len(arglist) > 1:
         arglist.sort()
-        argstr = ' '.join([argpair[-1] for argpair in arglist]).strip()
-    else:
-        argstr = ''
+        if arglist_reverse:
+            arglist.reverse()
+    
+    arguments.extend([argpair[-1] for argpair in arglist])
+    argstr = ' '.join(arguments).strip()
 
     debug('arguments: %s', repr(argstr))
     return argstr

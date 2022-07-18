@@ -58,7 +58,7 @@ if GE_VS2017_versions:
                 env = Environment(MSVC_VERSION={}, MSVC_SPECTRE_LIBS=True, tools=['msvc'])
                 lib_path = env['ENV']['LIB']
                 if '\\\\lib\\\\spectre\\\\' not in lib_path.lower():
-                    raise RuntimeError("'spectre' not found in lib_path " + lib_path)
+                    raise RuntimeError("'spectre' not found in lib path " + lib_path)
                 """.format(repr(supported.msvc_version))
             ))
             test.run(arguments='-Q -s', stdout='')
@@ -70,7 +70,7 @@ if GE_VS2017_versions:
                 env = Environment(MSVC_VERSION={}, MSVC_SCRIPT_ARGS='-vcvars_spectre_libs=spectre', tools=['msvc'])
                 lib_path = env['ENV']['LIB']
                 if '\\\\lib\\\\spectre\\\\' not in lib_path.lower():
-                    raise RuntimeError("'spectre' not found in lib_path " + lib_path)
+                    raise RuntimeError("'spectre' not found in lib path " + lib_path)
                 """.format(repr(supported.msvc_version))
             ))
             test.run(arguments='-Q -s', stdout='')
@@ -117,7 +117,7 @@ if GE_VS2017_versions:
             env = Environment(MSVC_VERSION={}, MSVC_SPECTRE_LIBS=False, tools=['msvc'])
             lib_path = env['ENV']['LIB']
             if '\\\\lib\\\\spectre\\\\' in lib_path.lower():
-                raise RuntimeError("'spectre' found in lib_path " + lib_path)
+                raise RuntimeError("'spectre' found in lib path " + lib_path)
             """.format(repr(supported.msvc_version))
         ))
         test.run(arguments='-Q -s', stdout='')

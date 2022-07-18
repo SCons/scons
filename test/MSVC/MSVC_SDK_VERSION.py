@@ -87,7 +87,7 @@ if GE_VS2015_versions:
                 env = Environment(MSVC_VERSION={0}, MSVC_SDK_VERSION={1}, tools=['msvc'])
                 lib_path = env['ENV']['LIB']
                 if '\\\\{2}\\\\' not in lib_path:
-                    raise RuntimeError("{1} not found in lib_path " + lib_path)
+                    raise RuntimeError("{1} not found in lib path " + lib_path)
                 """.format(repr(supported.msvc_version), repr(sdk_version), sdk_version)
             ))
             test.run(arguments='-Q -s', stdout='')
@@ -99,7 +99,7 @@ if GE_VS2015_versions:
                 env = Environment(MSVC_VERSION={0}, MSVC_SCRIPT_ARGS={1}, tools=['msvc'])
                 lib_path = env['ENV']['LIB']
                 if '\\\\{2}\\\\' not in lib_path:
-                    raise RuntimeError("{1} not found in lib_path " + lib_path)
+                    raise RuntimeError("{1} not found in lib path " + lib_path)
                 """.format(repr(supported.msvc_version), repr(sdk_version), sdk_version)
             ))
             test.run(arguments='-Q -s', stdout='')
