@@ -1,3 +1,8 @@
+####################################################################################
+# WARNING: The compiler detection logic documentation below is likely out-of-date. #
+#          The content of this file is transitioning to README.rst.                #
+####################################################################################
+
 This is the flow of the compiler detection logic:
 
 External to MSCommon:
