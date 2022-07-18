@@ -6,9 +6,6 @@ Compiler Detection Logic
 
 **WARNING: the compiler detection logic documentation below is likely out-of-date.**
 
-The verbatim content below is taken in its entirety from the existing ``MSCommom/README``
-file.
-
 In the future, the compiler detection logic documentation will be updated and integrated
 into the current document format as appropriate.
 
