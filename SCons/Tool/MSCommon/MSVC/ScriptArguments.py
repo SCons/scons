@@ -331,7 +331,7 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
 
     return sdk_version
 
-def _msvc_script_default_sdk(env, msvc, platform_def, arglist):
+def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
         return None
@@ -347,8 +347,9 @@ def _msvc_script_default_sdk(env, msvc, platform_def, arglist):
         repr(msvc.version), repr(sdk_default), repr(platform_def.vc_platform)
     )
 
-    argpair = (SortOrder.SDK, sdk_default)
-    arglist.append(argpair)
+    if force_sdk:
+        argpair = (SortOrder.SDK, sdk_default)
+        arglist.append(argpair)
 
     return sdk_default
 
@@ -685,7 +686,7 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
 
     return toolset_vcvars
 
-def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset):
+def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
         return None
@@ -917,6 +918,8 @@ def msvc_script_arguments(env, version, vc_dir, arg):
 
         if not toolset_version and not user_toolset:
             default_toolset = _msvc_script_default_toolset(env, msvc, vc_dir, arglist, _MSVC_FORCE_DEFAULT_TOOLSET)
+            if _MSVC_FORCE_DEFAULT_TOOLSET:
+                toolset_version = default_toolset
         else:
             default_toolset = None
 
@@ -943,7 +946,7 @@ def msvc_script_arguments(env, version, vc_dir, arg):
 
         if _MSVC_FORCE_DEFAULT_SDK:
             if not sdk_version and not user_sdk:
-                sdk_version = _msvc_script_default_sdk(env, msvc, platform_def, arglist)
+                sdk_version = _msvc_script_default_sdk(env, msvc, platform_def, arglist, _MSVC_FORCE_DEFAULT_SDK)
 
         # MSVC_SPECTRE_LIBS
 
@@ -964,7 +967,7 @@ def msvc_script_arguments(env, version, vc_dir, arg):
         arglist.sort()
         if arglist_reverse:
             arglist.reverse()
-    
+
     arguments.extend([argpair[-1] for argpair in arglist])
     argstr = ' '.join(arguments).strip()
 
