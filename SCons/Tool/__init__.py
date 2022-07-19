@@ -36,6 +36,7 @@ tool specifications.
 import sys
 import os
 import importlib.util
+from typing import Optional
 
 import SCons.Builder
 import SCons.Errors
@@ -829,7 +830,7 @@ def tool_list(platform, env):
     return [x for x in tools if x]
 
 
-def find_program_path(env, key_program, default_paths=None, add_path=False) -> str:
+def find_program_path(env, key_program, default_paths=None, add_path=False) -> Optional[str]:
     """
     Find the location of a tool using various means.
 
@@ -849,6 +850,8 @@ def find_program_path(env, key_program, default_paths=None, add_path=False) -> s
     # Then in the OS path
     path = SCons.Util.WhereIs(key_program)
     if path:
+        if add_path:
+            env.AppendENVPath('PATH', os.path.dirname(path))
         return path
 
     # Finally, add the defaults and check again.
@@ -864,8 +867,7 @@ def find_program_path(env, key_program, default_paths=None, add_path=False) -> s
     # leave that to the caller, unless add_path is true.
     env['ENV']['PATH'] = save_path
     if path and add_path:
-        bin_dir = os.path.dirname(path)
-        env.AppendENVPath('PATH', bin_dir)
+        env.AppendENVPath('PATH', os.path.dirname(path))
 
     return path
 

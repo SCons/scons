@@ -33,6 +33,7 @@ test = TestSCons.TestSCons()
 test.file_fixture('mylex.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 env = Environment(LEX=r'%(_python_)s mylex.py', tools=['default', 'lex'])
 env.CFile(target='aaa', source='aaa.l')
 env.CFile(target='bbb', source='bbb.lex')
