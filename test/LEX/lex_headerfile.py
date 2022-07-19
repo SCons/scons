@@ -31,6 +31,10 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
+lex = test.where_is('win_flex') or test.where_is('lex') or test.where_is('flex')
+if not lex:
+    test.skip_test('No lex or flex found; skipping test.\n')
+
 test.dir_fixture('lex_headerfile')
 
 test.run(chdir='spaced path', arguments='.')

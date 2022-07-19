@@ -251,25 +251,42 @@ may be suppressed using the
 <link linkend="opt-Q"><option>-Q</option></link>
 option.</para>
 
-<para>&scons;
-does not automatically propagate
-the external environment used to execute
-&scons;
-to the commands used to build target files.
-This is so that builds will be guaranteed
-repeatable regardless of the environment
-variables set at the time
-&scons;
-is invoked.
-This also means that if the compiler or other commands
+<para>
+To assure reproducible builds,
+&SCons;
+uses a restricted <firstterm>execution environment</firstterm>
+for running external commands used to build targets,
+rather then propagating the full environment
+in effect at the time &scons; was called.
+This helps avoid problems like picking up accidental settings,
+temporary debug values that are no longer needed,
+or one developer having different settings than another
+(or than the CI/CD pipeline).
+Environment variables that are needed for proper
+operation of such commands need to be set explicitly,
+which can be done either by assigning the desired values,
+or by picking values individually out of environment variables
+using the &Python; <systemitem>os.environ</systemitem> dictionary.
+The execution environment for a given &consenv; is
+contained in its &cv-link-ENV; &consvar;.
+A few environment variables are picked up automatically -
+see <xref linkend="environment"/>).
+</para>
+
+<para>
+In particular, if the compiler or other commands
 that you want to use to build your target files
 are not in standard system locations,
 &scons;
 will not find them unless
 you explicitly include the locations into the
-execution environment by setting the path in the
-<varname>ENV</varname> &consvar; in the
-internal &consenv;:</para>
+<varname>PATH</varname> element of the
+execution environment.
+One example approach is to
+extract the entire <envar>PATH</envar>
+environment variable and set that into the
+execution environment:
+</para>
 
 <programlisting language="python">
 import os
@@ -2945,7 +2962,7 @@ SharedLibrary('word', 'word.cpp')
 has determined are appropriate for the local system.</para>
 
 <para>Builder methods that can be called without an explicit
-environment (indicated in the listing of builders below 
+environment (indicated in the listing of builders below
 without a leading <varname>env.</varname>)
 may be called from custom &Python; modules that you
 import into an SConscript file by adding the following

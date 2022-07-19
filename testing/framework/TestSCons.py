@@ -422,20 +422,35 @@ class TestSCons(TestCommon):
 
         return None
 
-    def wrap_stdout(self, build_str="", read_str="", error=0, cleaning=0):
-        """Wraps standard output string(s) in the normal
-        "Reading ... done" and "Building ... done" strings
+    def wrap_stdout(self, build_str="", read_str="", error=0, cleaning=0) -> str:
+        """Wraps "expect" strings in SCons boilerplate.
+
+        Given strings of expected output specific to a test,
+        returns a string which includes the SCons wrapping such as
+        "Reading ... done", etc.: that is, adds the text that would
+        be left out by running SCons in quiet mode;
+        Makes a complete message to match against.
+
+        Args:
+            read_str: the message for the execution part of the output.
+                If non-empty, needs to be newline-terminated.
+            read_str: the message for the reading-sconscript part of
+                the output. If non-empty, needs to be newline-terminated.
+            error: if true, expect a fail message rather than a done message.
+            cleaning (int): index into type messages, if 0 selects
+                build messages, if 1 selects clean messages.
         """
         cap, lc = [('Build', 'build'),
                    ('Clean', 'clean')][cleaning]
         if error:
-            term = "scons: %sing terminated because of errors.\n" % lc
+            term = f"scons: {lc}ing terminated because of errors.\n"
         else:
-            term = "scons: done %sing targets.\n" % lc
+            term = f"scons: done {lc}ing targets.\n"
+
         return "scons: Reading SConscript files ...\n" + \
                read_str + \
                "scons: done reading SConscript files.\n" + \
-               "scons: %sing targets ...\n" % cap + \
+               f"scons: {cap}ing targets ...\n" + \
                build_str + \
                term
 
@@ -718,12 +733,12 @@ class TestSCons(TestCommon):
         for p in patterns:
             result.extend(sorted(glob.glob(p)))
         return result
-    
+
     def get_sconsignname(self):
         """Get the scons database name used, and return both the prefix and full filename.
         if the user left the options defaulted AND the default algorithm set by
         SCons is md5, then set the database name to be the special default name
-        
+
         otherwise, if it defaults to something like 'sha1' or the user explicitly
         set 'md5' as the hash format, set the database name to .sconsign_<algorithm>
         eg .sconsign_sha1, etc.
@@ -857,7 +872,7 @@ class TestSCons(TestCommon):
         Args:
             version: if set, match only that version
 
-        Returns: 
+        Returns:
             path where JDK components live
             Bails out of the entire test (skip) if not found.
         """

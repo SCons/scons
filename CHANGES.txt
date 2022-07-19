@@ -208,10 +208,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       import fallback (using the imp module) in tool module loading is dropped.
       Tool module loading no longer special-cases Jython, which is a dead
       project as far as SCons (no timeline in sight for Python 3 support).
+    - Improvements to lex and yacc tools: better documentation of
+      extra-file options, add test for extra-file behavior.
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
     - Added Configure.CheckMember() checker to check if struct/class has the specified member.
+
+  From Ivan Kravets, PlatformIO:
+    - Conditional C/C++ Preprocessor: Strip shell's backslashes from the computed include (-DFOO_H=\"foo.h\")
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
