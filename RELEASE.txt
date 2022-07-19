@@ -113,6 +113,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   if scons can determine the ninja file doesnot need to be regenerated, which will also
   skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
   if scons Glob or scons generated files are used in ninja build target's command lines.
+- Tool loading used to have a special case for Jython, it no longer does. This effectively
+  means SCons doesn't work with Jython, which has in reality been the case ever since
+  SCons dropped Python 2 support - there is still no timeline for Jython switching to
+  Python 3 compatibility.
+
 
 FIXES
 -----

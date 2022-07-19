@@ -136,6 +136,12 @@ class Tool:
         spec = None
         found_name = self.name
         add_to_scons_tools_namespace = False
+
+
+        # Search for the tool module, but don't import it, yet.
+        #
+        # First look in the toolpath: these take priority.
+        # TODO: any reason to not just use find_spec here?
         for path in self.toolpath:
             sepname = self.name.replace('.', os.path.sep)
             file_path = os.path.join(path, "%s.py" % sepname)
@@ -156,6 +162,7 @@ class Tool:
             else:
                 continue
 
+        # Now look in the builtin tools (SCons.Tool package)
         if spec is None:
             if debug: sys.stderr.write("NO SPEC :%s\n" % self.name)
             spec = importlib.util.find_spec("." + self.name, package='SCons.Tool')
@@ -165,12 +172,14 @@ class Tool:
             if debug: sys.stderr.write("Spec Found? .%s :%s\n" % (self.name, spec))
 
         if spec is None:
+            # we are going to bail out here, format up stuff for the msg
             sconstools = os.path.normpath(sys.modules['SCons.Tool'].__path__[0])
             if self.toolpath:
                 sconstools = ", ".join(self.toolpath) + ", " + sconstools
             error_string = "No tool module '%s' found in %s" % (self.name, sconstools)
             raise SCons.Errors.UserError(error_string)
 
+        # We have a module spec, so we're good to go.
         module = importlib.util.module_from_spec(spec)
         if module is None:
             if debug: print("MODULE IS NONE:%s" % self.name)
@@ -198,20 +207,23 @@ class Tool:
             sys.path = oldpythonpath
             return found_module
 
-        # we didn't find the module, go back and try some other things
-        # was this name previously imported? Is there a zipfile?
         sys.path = oldpythonpath
 
+        # We try some other things here, but this is essentially dead code,
+        # because we bailed out above if we didn't find a module spec.
         full_name = 'SCons.Tool.' + self.name
         try:
             return sys.modules[full_name]
         except KeyError:
             try:
+                # This support was added to enable running inside
+                # a py2exe bundle a long time ago - unclear if it's
+                # still needed. It is *not* intended to load individual
+                # tool modules stored in a zipfile.
                 import zipimport
 
-                parent = sys.modules['SCons.Tool'].__path__[0]
-                tryname = os.path.join(parent, self.name + '.zip')
-                importer = zipimport.zipimporter(tryname)
+                tooldir = sys.modules['SCons.Tool'].__path__[0]
+                importer = zipimport.zipimporter(tooldir)
                 if not hasattr(importer, 'find_spec'):
                     # zipimport only added find_spec, exec_module in 3.10,
                     # unlike importlib, where they've been around since 3.4.

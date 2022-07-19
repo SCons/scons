@@ -206,6 +206,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       no longer uses the deprecated (since Py 3.10) importlib.load_module
       routine, shifting to the preferred exec_module.  Old Python 2 compatible
       import fallback (using the imp module) in tool module loading is dropped.
+      Tool module loading no longer special-cases Jython, which is a dead
+      project as far as SCons (no timeline in sight for Python 3 support).
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.

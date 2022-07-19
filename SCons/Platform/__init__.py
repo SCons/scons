@@ -99,13 +99,14 @@ def platform_module(name=platform_default()):
             mod = importlib.import_module("." + name, __name__)
         except ModuleNotFoundError:
             try:
-                # because we don't do this import using sys.path,
-                # need to try zipimport explicitly.
+                # This support was added to enable running inside
+                # a py2exe bundle a long time ago - unclear if it's
+                # still needed. It is *not* intended to load individual
+                # platform modules stored in a zipfile.
                 import zipimport
 
-                parent = sys.modules['SCons.Platform'].__path__[0]
-                tryname = os.path.join(parent, name + '.zip')
-                importer = zipimport.zipimporter(tryname)
+                platform = sys.modules['SCons.Platform'].__path__[0]
+                importer = zipimport.zipimporter(platform)
                 if not hasattr(importer, 'find_spec'):
                     # zipimport only added find_spec, exec_module in 3.10,
                     # unlike importlib, where they've been around since 3.4.

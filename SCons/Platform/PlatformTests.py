@@ -112,13 +112,6 @@ class PlatformTestCase(unittest.TestCase):
         assert env['HOST_OS'] == 'hpux', env
         assert env['HOST_ARCH'] != '', env
 
-        p = SCons.Platform.Platform('testzip')
-        assert str(p) == 'testzip', p
-        env = Environment()
-        p(env)
-        assert env['HOST_OS'] == 'zippy', env
-        assert env['TESTDUMMY'] == 1866, env
-
         p = SCons.Platform.Platform('win32')
         assert str(p) == 'win32', p
         env = Environment()
