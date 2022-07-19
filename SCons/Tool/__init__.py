@@ -121,38 +121,28 @@ class Tool:
         if hasattr(module, 'options'):
             self.options = module.options
 
-    def _load_dotted_module_py2(self, short_name, full_name, searchpaths=None):
-        import imp
-
-        splitname = short_name.split('.')
-        index = 0
-        srchpths = searchpaths
-        for item in splitname:
-            file, path, desc = imp.find_module(item, srchpths)
-            mod = imp.load_module(full_name, file, path, desc)
-            srchpths = [path]
-        return mod, file
-
     def _tool_module(self):
+        """Try to load a tool module.
+
+        This will hunt in the toolpath for both a Python file (toolname.py)
+        and a Python module (toolname directory), then try the regular
+        import machinery, then fallback to try a zipfile.
+        """
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
-        # sys.stderr.write("Tool:%s\nPATH:%s\n"%(self.name,sys.path))
-
-        # From: http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path/67692#67692
-        # import importlib.util
-        # spec = importlib.util.spec_from_file_location("module.name", "/path/to/file.py")
-        # foo = importlib.util.module_from_spec(spec)
-        # spec.loader.exec_module(foo)
-        # foo.MyClass()
-        # Py 3 code
-
-
+        # sys.stderr.write("Tool:%s\nPATH:%s\n" % (self.name,sys.path))
         # sys.stderr.write("toolpath:%s\n" % self.toolpath)
         # sys.stderr.write("SCONS.TOOL path:%s\n" % sys.modules['SCons.Tool'].__path__)
         debug = False
         spec = None
         found_name = self.name
         add_to_scons_tools_namespace = False
+
+
+        # Search for the tool module, but don't import it, yet.
+        #
+        # First look in the toolpath: these take priority.
+        # TODO: any reason to not just use find_spec here?
         for path in self.toolpath:
             sepname = self.name.replace('.', os.path.sep)
             file_path = os.path.join(path, "%s.py" % sepname)
@@ -173,6 +163,7 @@ class Tool:
             else:
                 continue
 
+        # Now look in the builtin tools (SCons.Tool package)
         if spec is None:
             if debug: sys.stderr.write("NO SPEC :%s\n" % self.name)
             spec = importlib.util.find_spec("." + self.name, package='SCons.Tool')
@@ -182,12 +173,14 @@ class Tool:
             if debug: sys.stderr.write("Spec Found? .%s :%s\n" % (self.name, spec))
 
         if spec is None:
+            # we are going to bail out here, format up stuff for the msg
             sconstools = os.path.normpath(sys.modules['SCons.Tool'].__path__[0])
             if self.toolpath:
                 sconstools = ", ".join(self.toolpath) + ", " + sconstools
             error_string = "No tool module '%s' found in %s" % (self.name, sconstools)
             raise SCons.Errors.UserError(error_string)
 
+        # We have a module spec, so we're good to go.
         module = importlib.util.module_from_spec(spec)
         if module is None:
             if debug: print("MODULE IS NONE:%s" % self.name)
@@ -204,13 +197,11 @@ class Tool:
             # Not sure what to do in the case that there already
             # exists sys.modules[self.name] but the source file is
             # different.. ?
-            module = spec.loader.load_module(spec.name)
-
             sys.modules[found_name] = module
+            spec.loader.exec_module(module)
             if add_to_scons_tools_namespace:
                 # If we found it in SCons.Tool, then add it to the module
                 setattr(SCons.Tool, self.name, module)
-
             found_module = module
 
         if found_module is not None:
@@ -219,31 +210,34 @@ class Tool:
 
         sys.path = oldpythonpath
 
+        # We try some other things here, but this is essentially dead code,
+        # because we bailed out above if we didn't find a module spec.
         full_name = 'SCons.Tool.' + self.name
         try:
             return sys.modules[full_name]
         except KeyError:
             try:
-                smpath = sys.modules['SCons.Tool'].__path__
-                try:
-                    module, file = self._load_dotted_module_py2(self.name, full_name, smpath)
-                    setattr(SCons.Tool, self.name, module)
-                    if file:
-                        file.close()
-                    return module
-                except ImportError as e:
-                    if str(e) != "No module named %s" % self.name:
-                        raise SCons.Errors.SConsEnvironmentError(e)
-                    try:
-                        import zipimport
-                        importer = zipimport.zipimporter(sys.modules['SCons.Tool'].__path__[0])
-                        module = importer.load_module(full_name)
-                        setattr(SCons.Tool, self.name, module)
-                        return module
-                    except ImportError as e:
-                        m = "No tool named '%s': %s" % (self.name, e)
-                        raise SCons.Errors.SConsEnvironmentError(m)
-            except ImportError as e:
+                # This support was added to enable running inside
+                # a py2exe bundle a long time ago - unclear if it's
+                # still needed. It is *not* intended to load individual
+                # tool modules stored in a zipfile.
+                import zipimport
+
+                tooldir = sys.modules['SCons.Tool'].__path__[0]
+                importer = zipimport.zipimporter(tooldir)
+                if not hasattr(importer, 'find_spec'):
+                    # zipimport only added find_spec, exec_module in 3.10,
+                    # unlike importlib, where they've been around since 3.4.
+                    # If we don't have 'em, use the old way.
+                    module = importer.load_module(full_name)
+                else:
+                    spec = importer.find_spec(full_name)
+                    module = importlib.util.module_from_spec(spec)
+                    importer.exec_module(module)
+                sys.modules[full_name] = module
+                setattr(SCons.Tool, self.name, module)
+                return module
+            except zipimport.ZipImportError as e:
                 m = "No tool named '%s': %s" % (self.name, e)
                 raise SCons.Errors.SConsEnvironmentError(m)
 

@@ -202,6 +202,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       but was not applied to other dialects, and e2e tests explicitly checked
       that FORTRANFLAGS did not propagate outside the FORTRAN dialect,
       so the conclusion is that behavior is intentional (issue #2257)
+    - SCons programmatic importing (tool modules and platform modules)
+      no longer uses the deprecated (since Py 3.10) importlib.load_module
+      routine, shifting to the preferred exec_module.  Old Python 2 compatible
+      import fallback (using the imp module) in tool module loading is dropped.
+      Tool module loading no longer special-cases Jython, which is a dead
+      project as far as SCons (no timeline in sight for Python 3 support).
     - Improvements to lex and yacc tools: better documentation of
       extra-file options, add test for extra-file behavior.
 

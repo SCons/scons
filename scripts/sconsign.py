@@ -2,7 +2,9 @@
 #
 # SCons - a Software Constructor
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -39,7 +41,7 @@ import os
 import sys
 
 # python compatibility check
-if sys.version_info < (3, 5, 0):
+if sys.version_info < (3, 6, 0):
     msg = "scons: *** SCons version %s does not run under Python version %s.\n\
 Python >= 3.5 is required.\n"
     sys.stderr.write(msg % (__version__, sys.version.split()[0]))
