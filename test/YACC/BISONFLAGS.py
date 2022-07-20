@@ -84,8 +84,8 @@ env = Environment(
 env.CFile(
     target='aaa',
     source='aaa.y',
-    YACCHEADERFILE='header.h',
-    YACCGRAPHFILE='graph.g',
+    YACC_HEADER_FILE='header.h',
+    YACC_GRAPH_FILE='graph.g',
 )
 """ % locals())
 test.write(['sub2', 'aaa.y'], "aaa.y\nYACCFLAGS\n")

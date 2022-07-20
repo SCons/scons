@@ -80,17 +80,17 @@ def lexEmitter(target, source, env) -> tuple:
                 file_name = option[l:].strip()
                 target.append(file_name)
 
-    lexheaderfile = env.subst("$LEXHEADERFILE", target=target, source=source)
+    lexheaderfile = env.subst("$LEX_HEADER_FILE", target=target, source=source)
     if lexheaderfile:
         target.append(lexheaderfile)
         # rewrite user-supplied file string with a node, we need later
-        env.Replace(LEXHEADERFILE=env.File(lexheaderfile))
+        env.Replace(LEX_HEADER_FILE=env.File(lexheaderfile))
 
-    lextablesfile = env.subst("$LEXTABLESFILE", target=target, source=source)
+    lextablesfile = env.subst("$LEX_TABLE_FILE", target=target, source=source)
     if lextablesfile:
         target.append(lextablesfile)
         # rewrite user-supplied file string with a node, we need later
-        env.Replace(LEXTABLESFILE=env.File(lextablesfile))
+        env.Replace(LEX_TABLE_FILE=env.File(lextablesfile))
 
     return target, source
 
@@ -148,18 +148,18 @@ def generate(env) -> None:
     env.SetDefault(
         LEX=env.Detect(BINS),
         LEXFLAGS=CLVar(""),
-        LEXHEADERFILE="",
-        LEXTABLESFILE="",
+        LEX_HEADER_FILE="",
+        LEX_TABLE_FILE="",
     )
 
     if sys.platform == 'win32':
         env.SetDefault(LEXUNISTD=CLVar(""))
-        env["LEXCOM"] = "$LEX $LEXUNISTD $LEXFLAGS $_LEXHEADER $_LEXTABLES -t $SOURCES > $TARGET"
+        env["LEXCOM"] = "$LEX $LEXUNISTD $LEXFLAGS $_LEX_HEADER $_LEX_TABLES -t $SOURCES > $TARGET"
     else:
-        env["LEXCOM"] = "$LEX $LEXFLAGS $_LEXHEADER $_LEXTABLES -t $SOURCES > $TARGET"
+        env["LEXCOM"] = "$LEX $LEXFLAGS $_LEX_HEADER $_LEX_TABLES -t $SOURCES > $TARGET"
 
-    env['_LEXHEADER'] = '${LEXHEADERFILE and "--header-file=" + str(LEXHEADERFILE)}'
-    env['_LEXTABLES'] = '${LEXTABLESFILE and "--tables-file=" + str(LEXTABLESFILE)}'
+    env['_LEX_HEADER'] = '${LEX_HEADER_FILE and "--header-file=" + str(LEX_HEADER_FILE)}'
+    env['_LEX_TABLES'] = '${LEX_TABLE_FILE and "--tables-file=" + str(LEX_TABLE_FILE)}'
 
 
 def exists(env) -> Optional[str]:

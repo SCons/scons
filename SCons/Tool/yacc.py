@@ -98,17 +98,17 @@ def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
                 fileName = option[l:].strip()
                 target.append(fileName)
 
-    yaccheaderfile = env.subst("$YACCHEADERFILE", target=target, source=source)
+    yaccheaderfile = env.subst("$YACC_HEADER_FILE", target=target, source=source)
     if yaccheaderfile:
         target.append(yaccheaderfile)
         # rewrite user-supplied file string with a node, we need later
-        env.Replace(YACCHEADERFILE=env.File(yaccheaderfile))
+        env.Replace(YACC_HEADER_FILE=env.File(yaccheaderfile))
 
-    yaccgraphfile = env.subst("$YACCGRAPHFILE", target=target, source=source)
+    yaccgraphfile = env.subst("$YACC_GRAPH_FILE", target=target, source=source)
     if yaccgraphfile:
         target.append(yaccgraphfile)
         # rewrite user-supplied file string with a node, we need later
-        env.Replace(YACCGRAPHFILE=env.File(yaccgraphfile))
+        env.Replace(YACC_GRAPH_FILE=env.File(yaccgraphfile))
 
     return target, source
 
@@ -178,16 +178,16 @@ def generate(env) -> None:
     env.SetDefault(
         YACC=env.Detect(BINS),
         YACCFLAGS=CLVar(""),
-        YACCHEADERFILE="",
-        YACCGRAPHSFILE="",
+        YACC_HEADER_FILE="",
+        YACC_GRAPH_FILE="",
     )
 
-    env['YACCCOM'] = '$YACC $YACCFLAGS $_YACCHEADER $_YACCGRAPH -o $TARGET $SOURCES'
+    env['YACCCOM'] = '$YACC $YACCFLAGS $_YACC_HEADER $_YACC_GRAPH -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
     env['YACCHXXFILESUFFIX'] = '.hpp'
     env['YACCVCGFILESUFFIX'] = '.vcg'
-    env['_YACCHEADER'] = '${YACCHEADERFILE and "--header=" + str(YACCHEADERFILE)}'
-    env['_YACCGRAPH'] = '${YACCGRAPHFILE and "--graph=" + str(YACCGRAPHFILE)}'
+    env['_YACC_HEADER'] = '${YACC_HEADER_FILE and "--header=" + str(YACC_HEADER_FILE)}'
+    env['_YACC_GRAPH'] = '${YACC_GRAPH_FILE and "--graph=" + str(YACC_GRAPH_FILE)}'
 
 
 def exists(env) -> Optional[str]:

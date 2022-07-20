@@ -62,8 +62,8 @@ Sets construction variables for the &yacc; parse generator.
 <uses>
 <item>YACCCOMSTR</item>
 <item>YACCFLAGS</item>
-<item>YACCHEADERFILE</item>
-<item>YACCGRAPHFILE</item>
+<item>YACC_HEADER_FILE</item>
+<item>YACC_GRAPH_FILE</item>
 </uses>
 </tool>
 
@@ -146,12 +146,12 @@ but the output filename is named by the option argument.
 Note that files specified by <option>--header=</option> and
 <option>--graph=</option> may not be properly handled
 by &SCons; in all situations. Consider using
-&cv-link-YACCHEADERFILE; and &cv-link-YACCGRAPHFILE; instead.
+&cv-link-YACC_HEADER_FILE; and &cv-link-YACC_GRAPH_FILE; instead.
 </para>
 </summary>
 </cvar>
 
-<cvar name="YACCHEADERFILE">
+<cvar name="YACC_HEADER_FILE">
 <summary>
 <para>
 If supplied, generate a header file with the name taken from this variable.
@@ -162,7 +162,7 @@ command-line option. Use this in preference to including
 </summary>
 </cvar>
 
-<cvar name="YACCGRAPHFILE">
+<cvar name="YACC_GRAPH_FILE">
 <summary>
 <para>
 If supplied, write a graph of the automaton to a file with the name

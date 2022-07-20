@@ -45,11 +45,11 @@ NEW FUNCTIONALITY
   option may be added in a future enhancement.
 - Fortran: a new construction variable FORTRANCOMMONFLAGS is added which is
   applied to all Fortran dialects, to enable global (all-dialect) settings.
-- lex: two new construction variables are introduced (LEXHEADERFILE
-  and LEXTABLEFILE) as the preferred way of specifying extra files that
+- lex: two new construction variables are introduced (LEX_HEADER_ILE
+  and LEX_TABLE_FILE) as the preferred way of specifying extra files that
   the tool can generate.
-- yacc: two new construction variables are introduced (YACCHEADERFILE
-  and YACCGRAPHFILE) as the preferred way of specifying extra files that
+- yacc: two new construction variables are introduced (YACC_HEADER_FILE
+  and YACC_GRAPH_FILE) as the preferred way of specifying extra files that
   the tool can generate (applies only when using GNU flex and GNU bison).
 
 

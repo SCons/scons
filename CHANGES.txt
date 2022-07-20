@@ -209,11 +209,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Tool module loading no longer special-cases Jython, which is a dead
       project as far as SCons (no timeline in sight for Python 3 support).
     - Improvements to lex and yacc tools: better documentation of
-      extra-file options, add test for extra-file behavior.  Two new
-      construction variables are introduced for lex (LEXHEADERFILE and
-      LEXTABLEFILE) as the preferred way of specifying these extra-file
-      options. Two new construction variables are introduced for yacc
-      (YACCHEADERFILE and YACCGRAPHFILE) as the preferred way of
+      extra-file options, add test for extra-file behavior.
+      -  Two new construction variables are introduced for lex (LEX_HEADER_FILE
+      and LEX_TABLE_FILE) as the preferred way of specifying these extra-file
+      options.
+      -  Two new construction variables are introduced for yacc
+      (YACC_HEADER_FILE and YACC_GRAPH_FILE) as the preferred way of
       specifying these extra-file options.
 
 

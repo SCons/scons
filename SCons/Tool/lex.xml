@@ -60,8 +60,8 @@ Sets construction variables for the &lex; lexical analyser.
 <uses>
 <item>LEXCOMSTR</item>
 <item>LEXFLAGS</item>
-<item>LEXHEADERFILE</item>
-<item>LEXTABLESFILE</item>
+<item>LEX_HEADER_FILE</item>
+<item>LEX_TABLE_FILE</item>
 </uses>
 </tool>
 
@@ -113,12 +113,12 @@ the output file is named by the option argument.
 Note that files specified by <option>--header-file=</option> and
 <option>--tables-file=</option> may not be properly handled
 by &SCons; in all situations. Consider using
-&cv-link-LEXHEADERFILE; and &cv-link-LEXTABLESFILE; instead.
+&cv-link-LEX_HEADER_FILE; and &cv-link-LEX_TABLE_FILE; instead.
 </para>
 </summary>
 </cvar>
 
-<cvar name="LEXHEADERFILE">
+<cvar name="LEX_HEADER_FILE">
 <summary>
 <para>
 If supplied, generate a C header file with the name taken from this variable.
@@ -129,7 +129,7 @@ command-line option. Use this in preference to including
 </summary>
 </cvar>
 
-<cvar name="LEXTABLESFILE">
+<cvar name="LEX_TABLE_FILE">
 <summary>
 <para>
 If supplied, write the lex tables to a file with the name
