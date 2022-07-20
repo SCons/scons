@@ -6,7 +6,7 @@ from pathlib import Path
 def make_side_effect(path, text):
     p = Path(path)
     if str(p.parent) != '.':
-        p.mkdir(parents=True, exist_ok=True)
+        p.parent.mkdir(parents=True, exist_ok=True)
     with p.open(mode="wb") as f:
         f.write(text)
 

@@ -210,6 +210,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       project as far as SCons (no timeline in sight for Python 3 support).
     - Improvements to lex and yacc tools: better documentation of
       extra-file options, add test for extra-file behavior.
+      -  Two new construction variables are introduced for lex (LEX_HEADER_FILE
+      and LEX_TABLES_FILE) as the preferred way of specifying these extra-file
+      options.
+      -  Two new construction variables are introduced for yacc
+      (YACC_HEADER_FILE and YACC_GRAPH_FILE) as the preferred way of
+      specifying these extra-file options.
+
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
