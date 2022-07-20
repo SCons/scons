@@ -86,11 +86,11 @@ def lexEmitter(target, source, env) -> tuple:
         # rewrite user-supplied file string with a node, we need later
         env.Replace(LEX_HEADER_FILE=env.File(lexheaderfile))
 
-    lextablesfile = env.subst("$LEX_TABLE_FILE", target=target, source=source)
+    lextablesfile = env.subst("$LEX_TABLES_FILE", target=target, source=source)
     if lextablesfile:
         target.append(lextablesfile)
         # rewrite user-supplied file string with a node, we need later
-        env.Replace(LEX_TABLE_FILE=env.File(lextablesfile))
+        env.Replace(LEX_TABLES_FILE=env.File(lextablesfile))
 
     return target, source
 
@@ -149,7 +149,7 @@ def generate(env) -> None:
         LEX=env.Detect(BINS),
         LEXFLAGS=CLVar(""),
         LEX_HEADER_FILE="",
-        LEX_TABLE_FILE="",
+        LEX_TABLES_FILE="",
     )
 
     if sys.platform == 'win32':
@@ -159,7 +159,7 @@ def generate(env) -> None:
         env["LEXCOM"] = "$LEX $LEXFLAGS $_LEX_HEADER $_LEX_TABLES -t $SOURCES > $TARGET"
 
     env['_LEX_HEADER'] = '${LEX_HEADER_FILE and "--header-file=" + str(LEX_HEADER_FILE)}'
-    env['_LEX_TABLES'] = '${LEX_TABLE_FILE and "--tables-file=" + str(LEX_TABLE_FILE)}'
+    env['_LEX_TABLES'] = '${LEX_TABLES_FILE and "--tables-file=" + str(LEX_TABLES_FILE)}'
 
 
 def exists(env) -> Optional[str]:

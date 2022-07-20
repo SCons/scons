@@ -79,7 +79,7 @@ env.CFile(
     target='aaa',
     source='aaa.l',
     LEX_HEADER_FILE='header.h',
-    LEX_TABLE_FILE='tables.t',
+    LEX_TABLES_FILE='tables.t',
 )
 """)
 test.write(['sub2', 'aaa.l'], "aaa.l\nLEXFLAGS\n")

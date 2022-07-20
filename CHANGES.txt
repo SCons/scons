@@ -211,7 +211,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Improvements to lex and yacc tools: better documentation of
       extra-file options, add test for extra-file behavior.
       -  Two new construction variables are introduced for lex (LEX_HEADER_FILE
-      and LEX_TABLE_FILE) as the preferred way of specifying these extra-file
+      and LEX_TABLES_FILE) as the preferred way of specifying these extra-file
       options.
       -  Two new construction variables are introduced for yacc
       (YACC_HEADER_FILE and YACC_GRAPH_FILE) as the preferred way of
