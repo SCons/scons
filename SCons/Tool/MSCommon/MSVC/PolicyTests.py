@@ -46,15 +46,15 @@ class PolicyTests(unittest.TestCase):
     def setUp(self):
         self.warnstack = []
 
-    def push_warning_as_exception(self, Warning):
-        SCons.Warnings.enableWarningClass(Warning)
+    def push_warning_as_exception(self, warning_class):
+        SCons.Warnings.enableWarningClass(warning_class)
         prev_state = SCons.Warnings.warningAsException()
-        self.warnstack.append((Warning, prev_state))
+        self.warnstack.append((warning_class, prev_state))
 
     def pop_warning_as_exception(self):
-        Warning, prev_state = self.warnstack.pop()
+        warning_class, prev_state = self.warnstack.pop()
         SCons.Warnings.warningAsException(prev_state)
-        SCons.Warnings.suppressWarningClass(Warning)
+        SCons.Warnings.suppressWarningClass(warning_class)
 
     # msvc_set_notfound_policy, msvc_get_notfound_policy, and MSVC_NOTFOUND_POLICY
 
