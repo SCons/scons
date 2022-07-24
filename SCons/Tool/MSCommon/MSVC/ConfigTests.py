@@ -31,12 +31,10 @@ from SCons.Tool.MSCommon import vc
 from SCons.Tool.MSCommon.MSVC import Config
 from SCons.Tool.MSCommon.MSVC.Exceptions import MSVCInternalError
 
+
 class Patch:
-
     class vc:
-
         class _VCVER:
-
             _VCVER = vc._VCVER
 
             @classmethod
@@ -50,9 +48,7 @@ class Patch:
                 vc._VCVER = cls._VCVER
 
     class Config:
-
         class MSVC_VERSION_INTERNAL:
-
             MSVC_VERSION_INTERNAL = Config.MSVC_VERSION_INTERNAL
 
             @classmethod
@@ -64,6 +60,7 @@ class Patch:
             @classmethod
             def restore(cls):
                 Config.MSVC_VERSION_INTERNAL = cls.MSVC_VERSION_INTERNAL
+
 
 class ConfigTests(unittest.TestCase):
 
@@ -86,6 +83,6 @@ class ConfigTests(unittest.TestCase):
     def test_verify(self):
         Config.verify()
 
+
 if __name__ == "__main__":
     unittest.main()
-
