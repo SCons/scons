@@ -50,15 +50,17 @@ from ..common import (
     debug,
 )
 
-
 _refs = []
+
 
 def register_modulename(modname):
     module = sys.modules[modname]
     _refs.append(module)
 
+
 def register_class(ref):
     _refs.append(ref)
+
 
 def reset():
     debug('')
@@ -70,6 +72,7 @@ def reset():
             func = getattr(ref, method)
             func()
 
+
 def verify():
     debug('')
     for ref in _refs:
@@ -79,4 +82,3 @@ def verify():
             debug('call %s.%s()', ref.__name__, method)
             func = getattr(ref, method)
             func()
-
