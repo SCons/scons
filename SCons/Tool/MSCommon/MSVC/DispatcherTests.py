@@ -28,12 +28,14 @@ Test internal method dispatcher for Microsoft Visual C/C++.
 import unittest
 
 from SCons.Tool.MSCommon import MSVC
+
 MSVC.Dispatcher.register_modulename(__name__)
 
-class Data:
 
+class Data:
     reset_count = 0
     verify_count = 0
+
 
 # current module - not callable
 _reset = None
@@ -41,8 +43,8 @@ reset = None
 _verify = None
 verify = None
 
-class StaticMethods:
 
+class StaticMethods:
     @staticmethod
     def _reset():
         Data.reset_count += 1
@@ -59,8 +61,8 @@ class StaticMethods:
     def verify():
         Data.verify_count += 1
 
-class ClassMethods:
 
+class ClassMethods:
     @classmethod
     def _reset(cls):
         Data.reset_count += 1
@@ -77,20 +79,21 @@ class ClassMethods:
     def verify(cls):
         Data.verify_count += 1
 
-class NotCallable:
 
+class NotCallable:
     _reset = None
     reset = None
 
     _verify = None
     _verify = None
 
+
 MSVC.Dispatcher.register_class(StaticMethods)
 MSVC.Dispatcher.register_class(ClassMethods)
 MSVC.Dispatcher.register_class(NotCallable)
 
-class DispatcherTests(unittest.TestCase):
 
+class DispatcherTests(unittest.TestCase):
     def test_dispatcher_reset(self):
         MSVC.Dispatcher.reset()
         self.assertTrue(Data.reset_count == 4, "MSVC.Dispatcher.reset() count failed")
@@ -111,6 +114,6 @@ class DispatcherTests(unittest.TestCase):
         self.assertTrue(Data.verify_count == 4, "MSVC._verify() count failed")
         Data.verify_count = 0
 
+
 if __name__ == "__main__":
     unittest.main()
-
