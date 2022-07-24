@@ -44,16 +44,16 @@ UNDEFINED = object()
 BOOLEAN_SYMBOLS = {}
 BOOLEAN_EXTERNAL = {}
 
-for bool, symbol_list, symbol_case_list in [
+for bool_val, symbol_list, symbol_case_list in [
     (False, (False, 0, '0', None, ''), ('False', 'No',  'F', 'N')),
     (True,  (True,  1, '1'),           ('True',  'Yes', 'T', 'Y')),
 ]:
-    BOOLEAN_SYMBOLS[bool] = list(symbol_list)
+    BOOLEAN_SYMBOLS[bool_val] = list(symbol_list)
     for symbol in symbol_case_list:
-        BOOLEAN_SYMBOLS[bool].extend([symbol, symbol.lower(), symbol.upper()])
+        BOOLEAN_SYMBOLS[bool_val].extend([symbol, symbol.lower(), symbol.upper()])
 
-    for symbol in BOOLEAN_SYMBOLS[bool]:
-        BOOLEAN_EXTERNAL[symbol] = bool
+    for symbol in BOOLEAN_SYMBOLS[bool_val]:
+        BOOLEAN_EXTERNAL[symbol] = bool_val
 
 MSVC_PLATFORM_DEFINITION = namedtuple('MSVCPlatform', [
     'vc_platform',
