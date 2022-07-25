@@ -24,17 +24,16 @@
 """
 Test the MSVC_UWP_APP construction variable.
 """
+import textwrap
+import re
 
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
 
-import textwrap
-import re
-
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 
 installed_versions = get_installed_vcs_components()
 
@@ -54,6 +53,7 @@ re_lib_eq2015_2 = re.compile(r'\\vc\\lib\\store', re.IGNORECASE)
 re_lib_ge2017_1 = re.compile(r'\\lib\\x86\\store\\references', re.IGNORECASE)
 re_lib_ge2017_2 = re.compile(r'\\lib\\x64\\store', re.IGNORECASE)
 
+
 def check_libpath(msvc, active, output):
 
     def _check_libpath(msvc, output):
@@ -65,13 +65,13 @@ def check_libpath(msvc, active, output):
             for regex in (re_lib_eq2015_1, re_lib_eq2015_2):
                 if regex.search(libpath):
                     n_matches += 1
-            return (n_matches >= 2, 'store', libpath)
+            return n_matches >= 2, 'store', libpath
         elif platform == 'UWP':
             for regex in (re_lib_ge2017_1, re_lib_ge2017_2):
                 if regex.search(libpath):
                     n_matches += 1
-            return (n_matches > 0, 'uwp', libpath)
-        return (False, 'uwp', libpath)
+            return n_matches > 0, 'uwp', libpath
+        return False, 'uwp', libpath
 
     found, kind, libpath = _check_libpath(msvc, output)
 

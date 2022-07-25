@@ -25,15 +25,14 @@
 Test SCONS_CACHE_MSVC_FORCE_DEFAULTS system environment variable.
 """
 
+import textwrap
+
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
-
-import textwrap
-
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 
 installed_versions = get_installed_vcs_components()
 

@@ -24,18 +24,17 @@
 """
 Test the MSVC_SDK_VERSION construction variable.
 """
+import textwrap
 
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon import msvc_sdk_versions
+from SCons.Tool.MSCommon import msvc_toolset_versions
 import TestSCons
 
 test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
 
-import textwrap
-
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
-from SCons.Tool.MSCommon import msvc_sdk_versions
-from SCons.Tool.MSCommon import msvc_toolset_versions
 
 installed_versions = get_installed_vcs_components()
 

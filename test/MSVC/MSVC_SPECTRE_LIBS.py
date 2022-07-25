@@ -26,15 +26,14 @@ Test the MSVC_SPECTRE_LIBS construction variable.
 """
 
 import TestSCons
-
-test = TestSCons.TestSCons()
-
-test.skip_if_not_msvc()
-
 import textwrap
 
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon import msvc_toolset_versions_spectre
+
+test = TestSCons.TestSCons()
+
+test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
 
