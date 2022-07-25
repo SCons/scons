@@ -146,6 +146,23 @@ Now while this virtualenv is activated, the command ``scons`` will refer
 to this editable version, and you don't have to be "in" this tree
 to run it.
 
+You can also arrange to execute ``scons.py`` from the command line
+by adding it to the ``PATH``, like::
+
+    # on Linux/Mac
+    $ export PATH=$PATH:`pwd`/scripts
+
+    # on Windows
+    C:\> set PATH="%PATH%;C:\path\to\scripts"
+
+Be careful on Windows, the path has a limit of 1024 characters which
+is pretty easy to exceed, and it will just truncate.
+
+You may first need to make ``scons.py`` executable (it should be
+by default, but sometimes things happen)::
+
+    $ chmod +x scripts/scons.py
+
 
 Other Required Software
 =======================
