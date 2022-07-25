@@ -31,8 +31,30 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       determination when configuring the build environment.  This could lead to build failures when
       only an MSVC Express instance is installed and the MSVC version is not explicitly specified
       (issue #2668 and issue #2697).
-    - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
+    - Added MSVC_USE_SETTINGS construction variable to pass a dictionary to configure the msvc compiler
       system environment as an alternative to bypassing Visual Studio autodetection entirely.
+    - Added MSVC_SDK_VERSION construction variable which allows building with a specific Microsoft
+      SDK version. This variable is used with the msvc batch file determined via autodetection subject
+      to validation constraints.  Refer to the documentation for additional requirements and validation
+      details.
+    - Added MSVC_TOOLSET_VERSION construction variable which allows building with a specific toolset
+      version. This variable is used with the msvc batch file determined via autodetection subject to
+      validation constraints. This variable does not affect the autodetection and selection of msvc
+      instances. The toolset version is applied after an msvc instance is selected. This could be the
+      default version of msvc. Refer to the documentation for additional requirements and validation
+      details.  Addresses issue #3265, issue #3664, and pull request #4149.
+    - Added MSVC_SPECTRE_LIBS construction variable which allows building with spectre-mitigated
+      Visual C++ libraries. This variable is used with the msvc batch file determined via autodetection
+      subject to validation constraints. Refer to the documentation for additional requirements and
+      validation details.
+    - Added MSVC_SCRIPT_ARGS construction variable which specifies command line arguments that are
+      passed to the msvc batch file determined via autodetection subject to validation constraints.
+      Refer to the documentation for additional requirements and validation details.  Addresses
+      enhancement issue #4106.
+    - An exception is raised when MSVC_UWP_APP is enabled for Visual Studio 2013 and earlier.
+      Previous behavior was to silently ignore MSVC_UWP_APP when enabled for Visual Studio 2013
+      and earlier. Refer to the documentation for additional requirements and validation details.
+      MSVC_UWP_APP was extended to accept True, False, and None in addition to '1' and '0'.
     - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
       names set by their respective installers.  Prior to this change, bypassing MSVC detection by
       specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment
@@ -54,12 +76,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       present, there is no easy way to detect during msvc initialization if the default environment
       will be used later to build a program and/or library. There is no error/warning issued for the
       default tools as there are legitimate SCons uses that do not require a c compiler.
-    - Added a global policy setting and an environment policy variable for specifying the action to
-      be taken when an msvc request cannot be satisfied. The available options are "error",
+    - Added a global policy setting and an environment construction variable for specifying the
+      action to be taken when an msvc request cannot be satisfied. The available options are "error",
       "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
-      set and retrieved via the functions set_msvc_notfound_policy and get_msvc_notfound_policy,
-      respectively.  These two methods may be imported from SCons.Tool.MSCommon.  The environment
-      policy variable introduced is MSVC_NOTFOUND_POLICY.  When defined, the environment policy
+      set and retrieved via the functions msvc_set_notfound_policy and msvc_get_notfound_policy,
+      respectively.  These two methods may be imported from SCons.Tool.MSCommon. The environment
+      construction variable is MSVC_NOTFOUND_POLICY.  When defined, the environment construction
       variable overrides the global policy setting for a given environment. When the active policy
       is "error" or "exception", an MSVCVersionNotFound exception is raised.  When the active policy
       is "warning" or "warn", a VisualCMissingWarning warning is issued and the constructed
@@ -67,6 +89,33 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       is taken and the constructed environment is likely incomplete.  As implemented, the default
       global policy is "warning".  The ability to set the global policy via an SCons command-line
       option may be added in a future enhancement.
+    - Added a global policy setting and an environment construction variable for specifying the
+      action to be taken when msvc script errors are detected. The available options are "error",
+      "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
+      set and retrieved via the functions msvc_set_scripterror_policy and msvc_get_scripterror_policy,
+      respectively.  These two methods may be imported from SCons.Tool.MSCommon. The environment
+      construction variable is MSVC_SCRIPTERROR_POLICY.  When defined, the environment construction
+      variable overrides the global policy setting for a given environment. When the active policy
+      is "error" or "exception", an MSVCScriptExecutionError exception is raised when msvc batch file
+      errors are detected.  When the active policy is "warning" or "warn", an MSVCScriptExecutionWarning
+      warning is issued when msvc batch file errors are detected. When the active policy is "ignore" or
+      "suppress", msvc batch error messages are suppressed.  As implemented, the default global policy
+      is "ignore".  The ability to set the global policy via an SCons command-line option may be added
+      in a future enhancement.
+    - Added experimental function msvc_query_version_toolset to SCons.Tool.MSCommon. Given a version
+      specification, this function will return an msvc version and an msvc toolset version.  The msvc
+      toolset version may be None.  The msvc version and msvc toolset version can be used in the
+      environment construction variables MSVC_VERSION and MSVC_TOOLSET_VERSION, respectively.  The
+      version specification may be an msvc version or an msvc toolset version. This is a proxy for
+      using an msvc toolset version to select an msvc instance. This function may be removed when an
+      msvc toolset version is used during msvc instance selection.
+    - Modify the MSCommon logger configuration to be independent of the root logger. This fixes an issue
+      when multiple loggers are created and the MSCommon logger added computed fields to the root logger
+      that are not present in other logging instances.
+    - Modify the MSVC_USE_SCRIPT_ARGS test fixture to disable the msvc cache. This fixes an issue where
+      the MSVC_USE_SCRIPT_ARGS test for success relied on a debug log message that was not produced when
+      the msvc cache file exists and the test keys are already in the cache as the msvc script invocation
+      was bypassed.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message

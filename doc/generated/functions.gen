@@ -1611,45 +1611,49 @@ See the manpage section "Construction Environments" for more details.
 </listitem>
   </varlistentry>
   <varlistentry id="f-Execute">
-    <term><function>Execute</function>(<parameter>action, [strfunction, varlist]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Execute</methodname>(<parameter>action, [strfunction, varlist]</parameter>)</term>
+    <term><function>Execute</function>(<parameter>action, [actionargs ...]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Execute</methodname>(<parameter>action, [actionargs ...]</parameter>)</term>
     <listitem><para>
-Executes an Action object.
-The specified
+Executes an Action.
 <parameter>action</parameter>
 may be an Action object
-(see manpage section "Action Objects"
-for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
 or executable &Python; function,
-each of which will be converted
+each of which will first be converted
 into an Action object
 and then executed.
 Any additional arguments to &f-Execute;
-(<parameter>strfunction</parameter>, <parameter>varlist</parameter>)
 are passed on to the &f-link-Action; factory function
-which actually creates the Action object.
-The exit value of the command
-or return value of the &Python; function
-will be returned.
+which actually creates the Action object
+(see the manpage section <link linkend="action_objects">Action Objects</link>
+for a description). Example:
+</para>
+
+<example_commands>
+Execute(Copy('file.out', 'file.in'))
+</example_commands>
+
+<para>&f-Execute; performs its action immediately,
+as part of the SConscript-reading phase.
+There are no sources or targets declared in an
+&f-Execute; call, so any objects it manipulates
+will not be tracked as part of the &SCons; dependency graph.
+In the example above, neither
+<filename>file.out</filename> nor
+<filename>file.in</filename> will be tracked objects.
 </para>
 
 <para>
-Note that
+&f-Execute; returns the exit value of the command
+or return value of the &Python; function.
 &scons;
-will print an error message if the executed
+prints an error message if the executed
 <parameter>action</parameter>
-fails--that is,
-exits with or returns a non-zero value.
-&scons;
-will
+fails (exits with or returns a non-zero value),
+however it does
 <emphasis>not</emphasis>,
-however,
-automatically terminate the build
-if the specified
-<parameter>action</parameter>
-fails.
+automatically terminate the build for such a failure.
 If you want the build to stop in response to a failed
 &f-Execute;
 call,
@@ -1657,8 +1661,6 @@ you must explicitly check for a non-zero return value:
 </para>
 
 <example_commands>
-Execute(Copy('file.out', 'file.in'))
-
 if Execute("mkdir sub/dir/ectory"):
     # The mkdir failed, don't try to build.
     Exit(1)
