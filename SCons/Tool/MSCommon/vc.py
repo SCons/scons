@@ -518,7 +518,7 @@ def get_host_target(env, msvc_version, all_host_targets=False):
             msg = "Unrecognized host architecture %s for version %s"
             raise MSVCUnsupportedHostArch(msg % (repr(host_platform), msvc_version)) from None
 
-    return (host_platform, target_platform, host_target_list)
+    return host_platform, target_platform, host_target_list
 
 # If you update this, update SupportedVSList in Tool/MSCommon/vs.py, and the
 # MSVC_VERSION documentation in Tool/msvc.xml.
@@ -681,7 +681,8 @@ def find_vc_pdir_vswhere(msvc_version, env=None):
 
         debug("running: %s", vswhere_cmd)
 
-        #cp = subprocess.run(vswhere_cmd, capture_output=True, check=True)  # 3.7+ only
+        # TODO: Python 3.7
+        #  cp = subprocess.run(vswhere_cmd, capture_output=True, check=True)  # 3.7+ only
         cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE, check=True)
 
         if cp.stdout:
@@ -814,9 +815,9 @@ def find_batch_file(env, msvc_version, host_arch, target_arch):
             sdk_bat_file_path = os.path.join(pdir, sdk_bat_file)
             if os.path.exists(sdk_bat_file_path):
                 debug('sdk_bat_file_path:%s', sdk_bat_file_path)
-                return (batfilename, arg, vcdir, sdk_bat_file_path)
+                return batfilename, arg, vcdir, sdk_bat_file_path
 
-    return (batfilename, arg, vcdir, None)
+    return batfilename, arg, vcdir, None
 
 __INSTALLED_VCS_RUN = None
 _VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
@@ -858,7 +859,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
         # 2017 and newer allowed multiple versions of the VC toolset to be
         # installed at the same time. This changes the layout.
         # Just get the default tool version for now
-        #TODO: support setting a specific minor VC version
+        # TODO: support setting a specific minor VC version
         default_toolset_file = os.path.join(vc_dir, _VC_TOOLS_VERSION_FILE)
         try:
             with open(default_toolset_file) as f:
@@ -1220,17 +1221,17 @@ def get_use_script_use_settings(env):
 
     if use_script != _UNDEFINED:
         # use_script defined, use_settings ignored (not type checked)
-        return (use_script, None)
+        return use_script, None
 
     # undefined or None: use_settings ignored
     use_settings = env.get('MSVC_USE_SETTINGS', None)
 
     if use_settings is not None:
         # use script undefined, use_settings defined and not None (type checked)
-        return (False, use_settings)
+        return False, use_settings
 
     # use script undefined, use_settings undefined or None
-    return (True, None)
+    return True, None
 
 def msvc_setup_env(env):
     debug('called')
