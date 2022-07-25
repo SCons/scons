@@ -54,7 +54,7 @@ workarounds for the problem you've run into::
 About the Development Tree
 ==========================
 
-This tree contains a lot mroe than just the SCons engine itself.
+This tree contains a lot more than just the SCons engine itself.
 Some of it has to do with packaging it in a couple
 of forms: a Python-installable package (source distribution
 and installable wheel file, which get uploaded to the Python
