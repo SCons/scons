@@ -129,13 +129,13 @@
 
         <scons_example name="external_cdb_ex1">
             <file name="SConstruct" printme="1">
-                env = Environment(COMPILATIONDB_USE_ABSPATH=True)
-                env.Tool('compilation_db')
-                env.CompilationDatabase()
-                env.Program('hello.c')
+env = Environment(COMPILATIONDB_USE_ABSPATH=True)
+env.Tool('compilation_db')
+env.CompilationDatabase()
+env.Program('hello.c')
             </file>
             <file name="hello.c">
-                int main( int argc, char* argv[] )
+                int main(int argc, char* argv[])
                 {
                 return 0;
                 }
@@ -152,14 +152,14 @@
         </para>
 
         <programlisting language="json">
-            [
-            {
-            "command": "gcc -o hello.o -c hello.c",
-            "directory": "/home/user/sandbox",
-            "file": "/home/user/sandbox/hello.c",
-            "output": "/home/user/sandbox/hello.o"
-            }
-            ]
+[
+    {
+        "command": "gcc -o hello.o -c hello.c",
+        "directory": "/home/user/sandbox",
+        "file": "/home/user/sandbox/hello.c",
+        "output": "/home/user/sandbox/hello.o"
+    }
+]
         </programlisting>
 
         <para>
@@ -202,15 +202,15 @@
 
         <scons_example name="external_cdb_ex2">
             <file name="SConstruct" printme="1">
-                env = Environment()
-                env.Tool('compilation_db')
-                cdb = env.CompilationDatabase('compile_database.json')
-                Alias('cdb', cdb)
-                env.Program('test_main.c')
+env = Environment()
+env.Tool('compilation_db')
+cdb = env.CompilationDatabase('compile_database.json')
+Alias('cdb', cdb)
+env.Program('test_main.c')
             </file>
             <file name="test_main.c">
                 #include "test_main.h"
-                int main( int argc, char* argv[] )
+                int main(int argc, char* argv[])
                 {
                 return 0;
                 }
@@ -225,23 +225,21 @@
         </scons_output>
 
         <para>
-            <filename>compile_database.json</filename>
-            contains:
+            <filename>compile_database.json</filename> contains:
         </para>
 
         <programlisting language="json">
-            [
-            {
-            "command": "gcc -o test_main.o -c test_main.c",
-            "directory": "/home/user/sandbox",
-            "file": "test_main.c",
-            "output": "test_main.o"
-            }
-            ]
+[
+    {
+        "command": "gcc -o test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "output": "test_main.o"
+    }
+]
         </programlisting>
 
         <para>
-
             The following (incomplete) example shows using filtering
             to separate build variants.
             In the case of using variants,
@@ -251,20 +249,19 @@
             and 64-bit build hinted at here.
             For simplicity of presentation,
             the example omits the setup details of the variant directories:
-
         </para>
 
         <sconstruct>
-            env = Environment()
-            env.Tool('compilation_db')
+env = Environment()
+env.Tool("compilation_db")
 
-            env1 = env.Clone()
-            env1['COMPILATIONDB_PATH_FILTER'] = 'build/linux32/*'
-            env1.CompilationDatabase('compile_commands-linux32.json')
+env1 = env.Clone()
+env1["COMPILATIONDB_PATH_FILTER"] = "build/linux32/*"
+env1.CompilationDatabase("compile_commands-linux32.json")
 
-            env2 = env.Clone()
-            env2['COMPILATIONDB_PATH_FILTER'] = 'build/linux64/*'
-            env2.CompilationDatabase('compile_commands-linux64.json')
+env2 = env.Clone()
+env2["COMPILATIONDB_PATH_FILTER"] = "build/linux64/*"
+env2.CompilationDatabase('compile_commands-linux64.json')
         </sconstruct>
 
         <para>
@@ -273,30 +270,29 @@
         </para>
 
         <programlisting language="json">
-            [
-            {
-            "command": "gcc -m32 -o build/linux32/test_main.o -c test_main.c",
-            "directory": "/home/user/sandbox",
-            "file": "test_main.c",
-            "output": "build/linux32/test_main.o"
-            }
-            ]
+[
+    {
+        "command": "gcc -o hello.o -c hello.c",
+        "directory": "/home/mats/github/scons/exp/compdb",
+        "file": "hello.c",
+        "output": "hello.o"
+    }
+]
         </programlisting>
 
         <para>
-            <filename>compile_commands-linux64.json</filename>
-            contains:
+            <filename>compile_commands-linux64.json</filename> contains:
         </para>
 
         <programlisting language="json">
-            [
-            {
-            "command": "gcc -m64 -o build/linux64/test_main.o -c test_main.c",
-            "directory": "/home/user/sandbox",
-            "file": "test_main.c",
-            "output": "build/linux64/test_main.o"
-            }
-            ]
+[
+    {
+        "command": "gcc -m64 -o build/linux64/test_main.o -c test_main.c",
+        "directory": "/home/user/sandbox",
+        "file": "test_main.c",
+        "output": "build/linux64/test_main.o"
+    }
+]
         </programlisting>
 
     </section>
@@ -308,8 +304,6 @@
                 This is an experimental new feature.
                 It is subject to change and/or removal without a depreciation cycle.
     </para>
-
-
 
     <para>
             Loading the &t-link-ninja; tool into SCons will make significant changes
@@ -340,8 +334,6 @@
 SetOption('experimental', 'ninja')
     </example_commands>
 </note>
-
-
 
         <para>
             Ninja is a small build system that tries to be fast
