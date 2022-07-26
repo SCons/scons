@@ -4,7 +4,8 @@
 # Can be used with twinecheck
 # See: https://github.com/pypa/readme_renderer
 readme-renderer
-sphinx<=5.0.0
+#sphinx<=5.0.0
+sphinx>=5.1.1
 sphinx_rtd_theme
 rst2pdf
 # for now keep pinning "known working" lxml,
