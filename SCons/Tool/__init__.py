@@ -130,14 +130,15 @@ class Tool:
         """
         oldpythonpath = sys.path
         sys.path = self.toolpath + sys.path
-        # sys.stderr.write("Tool:%s\nPATH:%s\n" % (self.name,sys.path))
-        # sys.stderr.write("toolpath:%s\n" % self.toolpath)
-        # sys.stderr.write("SCONS.TOOL path:%s\n" % sys.modules['SCons.Tool'].__path__)
+        # These could be enabled under "if debug:"
+        # sys.stderr.write(f"Tool: {self.name}\n")
+        # sys.stderr.write(f"PATH: {sys.path}\n")
+        # sys.stderr.write(f"toolpath: {self.toolpath}\n")
+        # sys.stderr.write(f"SCONS.TOOL path: {sys.modules['SCons.Tool'].__path__}\n")
         debug = False
         spec = None
         found_name = self.name
         add_to_scons_tools_namespace = False
-
 
         # Search for the tool module, but don't import it, yet.
         #
@@ -145,47 +146,46 @@ class Tool:
         # TODO: any reason to not just use find_spec here?
         for path in self.toolpath:
             sepname = self.name.replace('.', os.path.sep)
-            file_path = os.path.join(path, "%s.py" % sepname)
+            file_path = os.path.join(path, sepname + ".py")
             file_package = os.path.join(path, sepname)
 
-            if debug: sys.stderr.write("Trying:%s %s\n" % (file_path, file_package))
+            if debug: sys.stderr.write(f"Trying: {file_path} {file_package}\n")
 
             if os.path.isfile(file_path):
                 spec = importlib.util.spec_from_file_location(self.name, file_path)
-                if debug: print("file_Path:%s FOUND" % file_path)
+                if debug: sys.stderr.write(f"file_Path: {file_path} FOUND\n")
                 break
             elif os.path.isdir(file_package):
                 file_package = os.path.join(file_package, '__init__.py')
                 spec = importlib.util.spec_from_file_location(self.name, file_package)
-                if debug: print("PACKAGE:%s Found" % file_package)
+                if debug: sys.stderr.write(f"PACKAGE: {file_package} Found\n")
                 break
-
             else:
                 continue
 
         # Now look in the builtin tools (SCons.Tool package)
         if spec is None:
-            if debug: sys.stderr.write("NO SPEC :%s\n" % self.name)
+            if debug: sys.stderr.write(f"NO SPEC: {self.name}\n")
             spec = importlib.util.find_spec("." + self.name, package='SCons.Tool')
             if spec:
                 found_name = 'SCons.Tool.' + self.name
                 add_to_scons_tools_namespace = True
-            if debug: sys.stderr.write("Spec Found? .%s :%s\n" % (self.name, spec))
+            if debug: sys.stderr.write(f"Spec Found? .{self.name}: {spec}\n")
 
         if spec is None:
             # we are going to bail out here, format up stuff for the msg
             sconstools = os.path.normpath(sys.modules['SCons.Tool'].__path__[0])
             if self.toolpath:
                 sconstools = ", ".join(self.toolpath) + ", " + sconstools
-            error_string = "No tool module '%s' found in %s" % (self.name, sconstools)
-            raise SCons.Errors.UserError(error_string)
+            msg = f"No tool module '{self.name}' found in {sconstools}"
+            raise SCons.Errors.UserError(msg)
 
         # We have a module spec, so we're good to go.
         module = importlib.util.module_from_spec(spec)
         if module is None:
-            if debug: print("MODULE IS NONE:%s" % self.name)
-            error_string = "Tool module '%s' failed import" % self.name
-            raise SCons.Errors.SConsEnvironmentError(error_string)
+            if debug: sys.stderr.write(f"MODULE IS NONE: {self.name}\n")
+            msg = f"Tool module '{self.name}' failed import"
+            raise SCons.Errors.SConsEnvironmentError(msg)
 
         # Don't reload a tool we already loaded.
         sys_modules_value = sys.modules.get(found_name, False)
@@ -200,7 +200,7 @@ class Tool:
             sys.modules[found_name] = module
             spec.loader.exec_module(module)
             if add_to_scons_tools_namespace:
-                # If we found it in SCons.Tool, then add it to the module
+                # If we found it in SCons.Tool, add it to the module
                 setattr(SCons.Tool, self.name, module)
             found_module = module
 
@@ -238,8 +238,8 @@ class Tool:
                 setattr(SCons.Tool, self.name, module)
                 return module
             except zipimport.ZipImportError as e:
-                m = "No tool named '%s': %s" % (self.name, e)
-                raise SCons.Errors.SConsEnvironmentError(m)
+                msg = "No tool named '{self.name}': {e}"
+                raise SCons.Errors.SConsEnvironmentError(msg)
 
     def __call__(self, env, *args, **kw):
         if self.init_kw is not None:
