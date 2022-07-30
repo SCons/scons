@@ -1,9 +1,14 @@
+scons (4.4.0) unstable; urgency=low
+
+  * Feature release
+
+ -- William Deegan <bill@baddogconsulting.com>  Sat, 30 Jul 2022 14:08:29 -0700
+
 scons (4.3.0) unstable; urgency=low
 
   * Feature release
 
  -- William Deegan <bill@baddogconsulting.com>  Tue, 16 Nov 2021 18:12:46 -0700
-
 
 scons (4.2.0) unstable; urgency=low
 
