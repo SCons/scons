@@ -1,10 +1,9 @@
-A new SCons release, 4.3.1, is now available
+A new SCons release, 4.4.0, is now available
 on the SCons download page:
 
       https://scons.org/pages/download.html
 
-
-Here is a summary of the changes since 4.3.1:
+Here is a summary of the changes since 4.3.0:
 
 NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
       see unexpected rebuilds. This is due to Python internals changing which changed
@@ -87,11 +86,6 @@ NEW FUNCTIONALITY
   and YACC_GRAPH_FILE) as the preferred way of specifying extra files that
   the tool can generate (applies only when using GNU flex and GNU bison).
 
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -251,20 +245,20 @@ PACKAGING
 - Added project_url for mailing lists and Discord
 - Updated setup.cfg to remove Python 3.5 and add Python 3.10
 
-DOCUMENTATION
--------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
-
-DEVELOPMENT
------------
-
-- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
     git shortlog --no-merges -ns 4.3.0..HEAD
+    git shortlog --no-merges -ns 4.3.0..HEAD
+    174  Joseph Brill
+    126  Mats Wichmann
+      93  William Deegan
+      64  Daniel Moody
+      4  SergBobrovsky
+      2  dependabot[bot]
+      1  djh
+      1  Ivan Kravets
+      1  Vishwajith-K
+      1  Zhichang Yu

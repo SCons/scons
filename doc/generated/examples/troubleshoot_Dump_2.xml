@@ -10,6 +10,7 @@ scons: Reading SConscript files ...
                 '_InternalInstallVersionedLib': &lt;function InstallVersionedBuilderWrapper at 0x700000&gt;},
   'CC': 'cl',
   'CCCOM': &lt;SCons.Action.FunctionAction object at 0x700000&gt;,
+  'CCDEPFLAGS': '/showIncludes',
   'CCFLAGS': ['/nologo'],
   'CCPCHFLAGS': &lt;function gen_ccpchflags at 0x700000&gt;,
   'CCPDBFLAGS': ['${(PDB and "/Z7") or ""}'],
@@ -52,7 +53,7 @@ scons: Reading SConscript files ...
            'SystemRoot': 'C:\\WINDOWS'},
   'ESCAPE': &lt;function escape at 0x700000&gt;,
   'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-  'HOST_ARCH': 'x86_64',
+  'HOST_ARCH': 'arm64',
   'HOST_OS': 'win32',
   'IDLSUFFIXES': ['.idl', '.IDL'],
   'INCPREFIX': '/I',
@@ -66,6 +67,7 @@ scons: Reading SConscript files ...
   'LIBSUFFIXES': ['$LIBSUFFIX'],
   'MAXLINELENGTH': 2048,
   'MSVC_SETUP_RUN': True,
+  'NINJA_DEPFILE_PARSE_FORMAT': 'msvc',
   'OBJPREFIX': '',
   'OBJSUFFIX': '.obj',
   'PCHCOM': '$CXX /Fo${TARGETS[1]} $CXXFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS '
@@ -90,7 +92,7 @@ scons: Reading SConscript files ...
   'SHCXXCOM': '${TEMPFILE("$SHCXX $_MSVC_OUTPUT_FLAG /c $CHANGED_SOURCES '
               '$SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM","$SHCXXCOMSTR")}',
   'SHCXXFLAGS': ['$CXXFLAGS'],
-  'SHELL': None,
+  'SHELL': 'command',
   'SHLIBPREFIX': '',
   'SHLIBSUFFIX': '.dll',
   'SHOBJPREFIX': '$OBJPREFIX',

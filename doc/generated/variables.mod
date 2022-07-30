@@ -267,6 +267,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_LDMODULEVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_LDMODULEVERSIONFLAGS</envar>">
 <!ENTITY cv-LDMODULEVERSIONFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LDMODULEVERSIONFLAGS</envar>">
 <!ENTITY cv-LEX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEX</envar>">
+<!ENTITY cv-LEX_HEADER_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEX_HEADER_FILE</envar>">
+<!ENTITY cv-LEX_TABLES_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEX_TABLES_FILE</envar>">
 <!ENTITY cv-LEXCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXCOM</envar>">
 <!ENTITY cv-LEXCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXCOMSTR</envar>">
 <!ENTITY cv-LEXFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LEXFLAGS</envar>">
@@ -657,6 +659,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-XGETTEXTPATHPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$XGETTEXTPATHPREFIX</envar>">
 <!ENTITY cv-XGETTEXTPATHSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$XGETTEXTPATHSUFFIX</envar>">
 <!ENTITY cv-YACC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC</envar>">
+<!ENTITY cv-YACC_GRAPH_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_GRAPH_FILE</envar>">
+<!ENTITY cv-YACC_HEADER_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_HEADER_FILE</envar>">
 <!ENTITY cv-YACCCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCCOM</envar>">
 <!ENTITY cv-YACCCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCCOMSTR</envar>">
 <!ENTITY cv-YACCFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCFLAGS</envar>">
@@ -937,6 +941,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_LDMODULEVERSIONFLAGS "<link linkend='cv-_LDMODULEVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_LDMODULEVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-LDMODULEVERSIONFLAGS "<link linkend='cv-LDMODULEVERSIONFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LDMODULEVERSIONFLAGS</envar></link>">
 <!ENTITY cv-link-LEX "<link linkend='cv-LEX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEX</envar></link>">
+<!ENTITY cv-link-LEX_HEADER_FILE "<link linkend='cv-LEX_HEADER_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEX_HEADER_FILE</envar></link>">
+<!ENTITY cv-link-LEX_TABLES_FILE "<link linkend='cv-LEX_TABLES_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEX_TABLES_FILE</envar></link>">
 <!ENTITY cv-link-LEXCOM "<link linkend='cv-LEXCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXCOM</envar></link>">
 <!ENTITY cv-link-LEXCOMSTR "<link linkend='cv-LEXCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXCOMSTR</envar></link>">
 <!ENTITY cv-link-LEXFLAGS "<link linkend='cv-LEXFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LEXFLAGS</envar></link>">
@@ -1327,6 +1333,8 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-XGETTEXTPATHPREFIX "<link linkend='cv-XGETTEXTPATHPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$XGETTEXTPATHPREFIX</envar></link>">
 <!ENTITY cv-link-XGETTEXTPATHSUFFIX "<link linkend='cv-XGETTEXTPATHSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$XGETTEXTPATHSUFFIX</envar></link>">
 <!ENTITY cv-link-YACC "<link linkend='cv-YACC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC</envar></link>">
+<!ENTITY cv-link-YACC_GRAPH_FILE "<link linkend='cv-YACC_GRAPH_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_GRAPH_FILE</envar></link>">
+<!ENTITY cv-link-YACC_HEADER_FILE "<link linkend='cv-YACC_HEADER_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_HEADER_FILE</envar></link>">
 <!ENTITY cv-link-YACCCOM "<link linkend='cv-YACCCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCCOM</envar></link>">
 <!ENTITY cv-link-YACCCOMSTR "<link linkend='cv-YACCCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCCOMSTR</envar></link>">
 <!ENTITY cv-link-YACCFLAGS "<link linkend='cv-YACCFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCFLAGS</envar></link>">
