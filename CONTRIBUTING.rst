@@ -2,7 +2,7 @@ Contributing to SCons
 #####################
 
 Introduction
-===========
+============
 
 Thanks for taking the time to contribute to SCons!
 
@@ -106,7 +106,7 @@ Documentation is written in a markup language which is a
 light extension of Docbook-XML, and the doc build consists
 of translating to pure docbook, then using standard tools to
 generate HTML and PDF outputs from that. There's lots more
-on the documentation process at the Documentation Toolchain page::
+on the documentation process at the Documentation Toolchain page:
 
     https://github.com/SCons/scons/blob/master/doc/overview.rst
 
@@ -132,7 +132,7 @@ can do that with the ``C`` (change directory) option::
 
 There is another approach that kind of reverses that order:
 construct a Python virtualenv and install the development tree in it.
-If you're not familiar with virtualenvs, there's an example here::
+If you're not familiar with virtualenvs, there's an example here:
 
     https://scons-cookbook.readthedocs.io/en/latest/#setting-up-a-python-virtualenv-for-scons
 
@@ -172,7 +172,22 @@ of Python. The tools which will be used to to actually construct the
 project, such as compilers, documentation production tools, etc.
 should of course be installed by the appropriate means.  In order
 to develop SCons and run its test suite, there are some dependencies,
-listed in the ``requirements.txt`` file.
+listed in the ``requirements-dev.txt`` file. Install these with::
+
+    $ python -m pip install -r requirements-dev.txt
+
+For building the SCons packages and documentation there are some further
+requirements, you can get these with::
+
+    $ python -m pip install -r requirements-pkg.txt
+
+The requirements are inclusive so you only need the latter to get
+everything installed.
+
+There are other, non-Python requirements to do a doc build. These
+are system-specific. See bin/scons_dev_master.py for the set up that
+works for Ubuntu systems.
+
 
 Making Changes
 ==============
@@ -180,15 +195,15 @@ Making Changes
 Virtually all of the SCons functionality exists in the "build engine," the
 ``SCons`` subdirectory hierarchy that contains all of the modules that
 make up SCons.  The ``scripts/scons.py`` wrapper script exists mainly to find
-the appropriate build engine library and then execute it.
+the appropriate build engine module and execute it.
 
 In order to make your own changes locally and test them by hand, simply edit
 modules in the local ``SCons`` subdirectory tree and then run
-(see the section above about `Executing SCons Without Installing`_)::
+(see the section `Executing SCons Without Installing`_)::
 
     $ python scripts/scons.py [arguments]
 
-(or, if using the virtualenv/editable approach, ``scons [arguents]``)
+Or, if using the virtualenv/editable approach: ``scons [arguments]``
 
 Note that the regular SCons development process makes heavy use of automated
 testing.  See the `Testing`_ and `Typical Development Workflow`_ sections below for more
@@ -320,7 +335,8 @@ subdirectory, and do not require that a build be performed first.
 Typical Development Workflow
 ============================
 
-    Caveat: The point of this section isn't to describe one dogmatic workflow.
+.. hint::
+    The point of this section is not to describe one dogmatic workflow.
     Just running the test suite can be time-consuming, and getting a patch to
     pass all of the tests can be more so.  If you're genuinely blocked, it may
     make more sense to submit a patch with a note about which tests still
@@ -357,7 +373,9 @@ platform, Windows users can translate as appropriate)):
 
       $ python runtest.py -a -o test.log
 
-  Be patient, there are more than 1100 test scripts in the whole suite!
+  Be patient, there are more than 1100 test scripts in the whole suite
+  (using a ``-j`` option pretty much always helps. For example, if you have
+  an 8-core processor, try ``runtest.py -j 8```).
 
   If any test scripts fail, they will be listed in a summary at the end of the
   log file.  Some test scripts may also report NO RESULT because (for example)
@@ -392,11 +410,21 @@ example, if you're making a change to just the Java support, you might start
 looking for regressions by just running the ``test/Java/\*.py`` tests instead of
 running all tests with ``runtest.py -a``.
 
+- To actually submit the fix and any test work as a Pull Request,
+  there will be some version control steps. For example::
+
+      $ git checkout -b fix-1387
+      $ git modified     # check that this reports your expected list
+      $ git add `git modified`
+      $ git commit -s    # fill in a good description of your changes
+
+  And proceed to push the change as a PR.
+
 
 Building Packages
 =================
 
-We use SCons (version 3.1.2 or later) to build its own packages.  If you
+We use SCons (since version 3.1.2) to build its own packages.  If you
 already have an appropriate version of SCons installed on your system,
 you can build everything by simply running it::
 
@@ -411,12 +439,12 @@ you can run the build directly from the source tree
 Those are full builds: depending on the utilities installed on your system,
 any or all of the following packages will be built::
 
-    SCons-4.3.0-py3-none-any.whl
-    SCons-4.3.0ayyyymmdd.tar.gz
-    SCons-4.3.0ayyyymmdd.zip
-    scons-doc-4.3.0ayyyymmdd.tar.gz
-    scons-local-4.3.0ayyyymmdd.tar.gz
-    scons-local-4.3.0ayyyymmdd.zip
+    SCons-4.4.0-py3-none-any.whl
+    SCons-4.4.0ayyyymmdd.tar.gz
+    SCons-4.4.0ayyyymmdd.zip
+    scons-doc-4.4.0ayyyymmdd.tar.gz
+    scons-local-4.4.0ayyyymmdd.tar.gz
+    scons-local-4.4.0ayyyymmdd.zip
 
 The ``SConstruct`` file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
@@ -465,14 +493,14 @@ bootstrap.py
     Obsolete packaging logic - ignore this.
 
 debian/
-    Files needed to construct a Debian package. The contents of this directory
-    are dictated by the
+    Files needed to construct a Debian package.
+    The contents of this directory are dictated by the
     `Debian Policy Manual <https://www.debian.org/doc/debian-policy>`).
     The package will not be accepted into the Debian distribution unless
     the contents of this directory satisfy the relevant Debian policies.
-    At this point, this is a sample; SCons is packaged in the Debian
-    project (and thus inherited by projects which derive from it, if
-    they haven't made their own packages). See:
+    At this point, this is a sample; SCons is packaged for Debian by the
+    Debian project itself (and thus inherited by projects which derive from it,
+    if they haven't made their own packages). See:
 
     - `Debian scons packages <https://packages.debian.org/search?keywords=scons&searchon=names&suite=all&section=all>`_
     - `Ubuntu scons packages <https://packages.ubuntu.com/search?keywords=scons&searchon=names&suite=all&section=all>`_
@@ -528,8 +556,8 @@ SCons/
     documentation stubs kept together with pieces of the engine.
 
 test/
-    End-to-end tests of the SCons utility itself.  These are separate from the
-    individual module unit tests.
+    End-to-end tests of the SCons utility itself.
+    These are separate from the individual module unit tests.
 
 testing/
     SCons testing framework.

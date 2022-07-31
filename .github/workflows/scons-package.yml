@@ -23,10 +23,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         #python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-pkg.txt ]; then pip install -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install -r requirements.txt; else; fi
         sudo apt-get update
         sudo apt-get -y install docbook-xml docbook-xsl xsltproc fop docbook-xsl-doc-pdf
-        # try to keeo the texlive install as small as we can to save some time/space
+        # try to keep the texlive install as small as we can to save some time/space
         sudo apt-get -y --no-install-recommends install texlive biber texmaker ghostscript texlive-latex-base texlive-latex-extra texlive-bibtex-extra texlive-font-utils latexmk
     # This is disabled until the run can be configured to only
     # check the code that matters, else we fail on non-essentials

@@ -1,10 +1,17 @@
-A new SCons release, 4.4.1, is now available
-on the SCons download page:
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
 
-      https://scons.org/pages/download.html
+    https://scons.org/tag/releases.html
+
+==================================================================
+
+A new SCons release, 4.4.1, is now available on the SCons download page:
+
+    https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.4.1:
+Here is a summary of the changes since 4.4.0:
 
 NEW FUNCTIONALITY
 -----------------
