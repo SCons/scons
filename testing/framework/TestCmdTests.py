@@ -2208,7 +2208,8 @@ sys.stderr.write("run2 STDERR second line\\n")
         except IndexError:
             pass
         else:
-            raise IndexError("got unexpected output:\n" + output)
+            if output is not None:
+                raise IndexError("got unexpected output:\n" + output)
         test.program_set('run1')
         test.run(arguments = 'foo bar')
         test.program_set('run2')
