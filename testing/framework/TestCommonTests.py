@@ -27,6 +27,7 @@ import re
 import signal
 import sys
 import unittest
+from textwrap import dedent
 
 # Strip the current directory so we get the right TestCommon.py module.
 sys.path = sys.path[1:]
@@ -34,15 +35,9 @@ sys.path = sys.path[1:]
 import TestCmd
 import TestCommon
 
+# this used to be a custom function, now use the stdlib equivalent
 def lstrip(s):
-    lines = [ _.expandtabs() for _ in s.split('\n') ]
-    if lines[0] == '':
-        lines = lines[1:]
-    spaces = len(re.match('^( *).*', lines[0]).group(1))
-    if spaces:
-        lines = [ l[spaces:] for l in lines ]
-    return '\n'.join(lines)
-
+    return dedent(s)
 
 expected_newline = '\\n'
 
@@ -52,17 +47,16 @@ def assert_display(expect, result, error=None):
         expect = expect.pattern
     except AttributeError:
         pass
-    result = [
+    display = [
         '\n',
-        'EXPECTED'+('*'*80) + '\n',
+        f'{"EXPECTED: " :*<80}' + '\n',
         expect,
-        'GOT'+('*'*80) + '\n',
+        f'{"GOT: " :*<80}' + '\n',
         result,
+        error if error else '',
         ('*'*80) + '\n',
     ]
-    if error:
-        result.append(error)
-    return ''.join(result)
+    return ''.join(display)
 
 
 class TestCommonTestCase(unittest.TestCase):

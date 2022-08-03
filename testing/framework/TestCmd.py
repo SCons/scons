@@ -1088,7 +1088,7 @@ class TestCmd:
     def banner(self, s, width=None):
         if width is None:
             width = self.banner_width
-        return s + self.banner_char * (width - len(s))
+        return f"{s:{self.banner_char}<{width}}"
 
     escape = staticmethod(escape)
 
