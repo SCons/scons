@@ -302,7 +302,12 @@ import errno
 import hashlib
 import os
 import re
-import psutil
+try:
+    import psutil
+except ImportError:
+    HAVE_PSUTIL = False
+else:
+    HAVE_PSUTIL = True
 import shutil
 import signal
 import stat
@@ -387,35 +392,39 @@ def _caller(tblist, skip):
     return string
 
 
-def clean_up_ninja_daemon(self, result_type):
+def clean_up_ninja_daemon(self, result_type) -> None:
     """
-    Kill any running scons daemon started by ninja and clean up it's working dir and
-    temp files.
+    Kill any running scons daemon started by ninja and clean up
+
+    Working directory and temp files are removed.
+    Skipped if this platform doesn't have psutil (e.g. msys2 on Windows)
     """
-    if self:
-        for path in Path(self.workdir).rglob('.ninja'):
-            daemon_dir = Path(tempfile.gettempdir()) / (
-                "scons_daemon_" + str(hashlib.md5(str(path.resolve()).encode()).hexdigest())
-            )
-            pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
-            for pidfile in pidfiles:
-                if pidfile.exists():
-                    with open(pidfile) as f:
-                        try:
-                            pid = int(f.read())
-                            os.kill(pid, signal.SIGINT)
-                        except OSError:
-                            pass
-                    
-                        while True:
-                            if pid not in [proc.pid for proc in psutil.process_iter()]:
-                                break
-                            else:
-                                time.sleep(0.1)
-                
-            if not self._preserve[result_type]:
-                if daemon_dir.exists():
-                    shutil.rmtree(daemon_dir)
+    if not self or not HAVE_PSUTIL:
+        return
+
+    for path in Path(self.workdir).rglob('.ninja'):
+        daemon_dir = Path(tempfile.gettempdir()) / (
+            "scons_daemon_" + str(hashlib.md5(str(path.resolve()).encode()).hexdigest())
+        )
+        pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
+        for pidfile in pidfiles:
+            if pidfile.exists():
+                with open(pidfile) as f:
+                    try:
+                        pid = int(f.read())
+                        os.kill(pid, signal.SIGINT)
+                    except OSError:
+                        pass
+
+                    while True:
+                        if pid not in [proc.pid for proc in psutil.process_iter()]:
+                            break
+                        else:
+                            time.sleep(0.1)
+
+        if not self._preserve[result_type]:
+            if daemon_dir.exists():
+                shutil.rmtree(daemon_dir)
 
 
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
