@@ -399,7 +399,7 @@ def clean_up_ninja_daemon(self, result_type) -> None:
     Working directory and temp files are removed.
     Skipped if this platform doesn't have psutil (e.g. msys2 on Windows)
     """
-    if not self or not HAVE_PSUTIL:
+    if not self:
         return
 
     for path in Path(self.workdir).rglob('.ninja'):
@@ -416,7 +416,7 @@ def clean_up_ninja_daemon(self, result_type) -> None:
                     except OSError:
                         pass
 
-                    while True:
+                    while HAVE_PSUTIL:
                         if pid not in [proc.pid for proc in psutil.process_iter()]:
                             break
                         else:
