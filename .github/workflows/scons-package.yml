@@ -23,7 +23,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         #python -m pip install flake8 pytest
-        if [ -f requirements-pkg.txt ]; then pip install -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install -r requirements.txt; else; fi
+        if [ -f requirements-pkg.txt ]; then pip install -r requirements-pkg.txt; elif [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         sudo apt-get update
         sudo apt-get -y install docbook-xml docbook-xsl xsltproc fop docbook-xsl-doc-pdf
         # try to keep the texlive install as small as we can to save some time/space
