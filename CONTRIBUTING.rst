@@ -424,7 +424,7 @@ running all tests with ``runtest.py -a``.
 Building Packages
 =================
 
-We use SCons (since version 3.1.2) to build its own packages.  If you
+We use SCons (version 3.1.2 or newer) to build its own packages.  If you
 already have an appropriate version of SCons installed on your system,
 you can build everything by simply running it::
 
