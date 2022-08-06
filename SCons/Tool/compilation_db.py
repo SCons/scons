@@ -163,6 +163,7 @@ def write_compilation_db(target, source, env):
         json.dump(
             entries, output_file, sort_keys=True, indent=4, separators=(",", ": ")
         )
+        output_file.write("\n")
 
 
 def scan_compilation_db(node, env, path):
