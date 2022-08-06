@@ -461,7 +461,7 @@ class TestSCons(TestCommon):
         """
         sconsflags = initialize_sconsflags(self.ignore_python_version)
         try:
-            TestCommon.run(self, *args, **kw)
+            super().run(*args, **kw)
         finally:
             restore_sconsflags(sconsflags)
 
@@ -1636,7 +1636,7 @@ else:
             kw['stdin'] = True
         sconsflags = initialize_sconsflags(self.ignore_python_version)
         try:
-            p = TestCommon.start(self, *args, **kw)
+            p = super().start(*args, **kw)
         finally:
             restore_sconsflags(sconsflags)
         return p

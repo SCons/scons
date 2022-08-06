@@ -2848,7 +2848,7 @@ sys.exit(0)
 
 class timeout_TestCase(TestCmdTestCase):
     def test_initialization(self):
-        """Test initialization timeout"""
+        """Test initializating a TestCmd with a timeout"""
         test = TestCmd.TestCmd(workdir='', timeout=2)
         test.write('sleep.py', timeout_script)
 
@@ -2882,40 +2882,39 @@ class timeout_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(workdir='', timeout=8)
         test.write('sleep.py', timeout_script)
 
-        test.run([sys.executable, test.workpath('sleep.py'), '2'],
-                 timeout=4)
+        test.run([sys.executable, test.workpath('sleep.py'), '2'], timeout=4)
         assert test.stderr() == '', test.stderr()
         assert test.stdout() == 'sleeping 2\nslept 2\n', test.stdout()
 
-        test.run([sys.executable, test.workpath('sleep.py'), '6'],
-                 timeout=4)
+        test.run([sys.executable, test.workpath('sleep.py'), '6'], timeout=4)
         assert test.stderr() == '', test.stderr()
         assert test.stdout() == 'sleeping 6\n', test.stdout()
 
-    def test_set_timeout(self):
-        """Test set_timeout()"""
-        test = TestCmd.TestCmd(workdir='', timeout=2)
-        test.write('sleep.py', timeout_script)
-
-        test.run([sys.executable, test.workpath('sleep.py'), '4'])
-        assert test.stderr() == '', test.stderr()
-        assert test.stdout() == 'sleeping 4\n', test.stdout()
-
-        test.set_timeout(None)
-
-        test.run([sys.executable, test.workpath('sleep.py'), '4'])
-        assert test.stderr() == '', test.stderr()
-        assert test.stdout() == 'sleeping 4\nslept 4\n', test.stdout()
-
-        test.set_timeout(6)
-
-        test.run([sys.executable, test.workpath('sleep.py'), '4'])
-        assert test.stderr() == '', test.stderr()
-        assert test.stdout() == 'sleeping 4\nslept 4\n', test.stdout()
-
-        test.run([sys.executable, test.workpath('sleep.py'), '8'])
-        assert test.stderr() == '', test.stderr()
-        assert test.stdout() == 'sleeping 8\n', test.stdout()
+    # This method has been removed
+    #def test_set_timeout(self):
+    #    """Test set_timeout()"""
+    #    test = TestCmd.TestCmd(workdir='', timeout=2)
+    #    test.write('sleep.py', timeout_script)
+    #
+    #    test.run([sys.executable, test.workpath('sleep.py'), '4'])
+    #    assert test.stderr() == '', test.stderr()
+    #    assert test.stdout() == 'sleeping 4\n', test.stdout()
+    #
+    #    test.set_timeout(None)
+    #
+    #    test.run([sys.executable, test.workpath('sleep.py'), '4'])
+    #    assert test.stderr() == '', test.stderr()
+    #    assert test.stdout() == 'sleeping 4\nslept 4\n', test.stdout()
+    #
+    #    test.set_timeout(6)
+    #
+    #    test.run([sys.executable, test.workpath('sleep.py'), '4'])
+    #    assert test.stderr() == '', test.stderr()
+    #    assert test.stdout() == 'sleeping 4\nslept 4\n', test.stdout()
+    #
+    #    test.run([sys.executable, test.workpath('sleep.py'), '8'])
+    #    assert test.stderr() == '', test.stderr()
+    #    assert test.stdout() == 'sleeping 8\n', test.stdout()
 
 
 
