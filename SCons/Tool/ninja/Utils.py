@@ -23,11 +23,15 @@
 import os
 import shutil
 from os.path import join as joinpath
+from collections import OrderedDict
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
+
+class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
+    pass
 
 
 def ninja_add_command_line_options():
@@ -48,6 +52,15 @@ def ninja_add_command_line_options():
               default=False,
               help='Disable ninja generation and build with scons even if tool is loaded. '+
                    'Also used by ninja to build targets which only scons can build.')
+
+    AddOption('--skip-ninja-regen',
+              dest='skip_ninja_regen',
+              metavar='BOOL',
+              action="store_true",
+              default=False,
+              help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
+                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' + 
+                    'command lines.')
 
 
 def is_valid_dependent_node(node):
@@ -258,8 +271,21 @@ def ninja_noop(*_args, **_kwargs):
     """
     return None
 
+def ninja_recursive_sorted_dict(build):
+    sorted_dict = OrderedDict()
+    for key, val in sorted(build.items()):
+        if isinstance(val, dict):
+            sorted_dict[key] = ninja_recursive_sorted_dict(val)
+        else:
+            sorted_dict[key] = val
+    return sorted_dict
 
-def get_command_env(env):
+
+def ninja_sorted_build(ninja, **build):
+    sorted_dict = ninja_recursive_sorted_dict(build)
+    ninja.build(**sorted_dict)
+
+def get_command_env(env, target, source):
     """
     Return a string that sets the environment for any environment variables that
     differ between the OS environment and the SCons command ENV.
@@ -275,7 +301,7 @@ def get_command_env(env):
     # os.environ or differ from it. We assume if it's a new or
     # differing key from the process environment then it's
     # important to pass down to commands in the Ninja file.
-    ENV = get_default_ENV(env)
+    ENV = SCons.Action._resolve_shell_env(env, target, source)
     scons_specified_env = {
         key: value
         for key, value in ENV.items()
@@ -370,7 +396,7 @@ def ninja_contents(original):
     """Return a dummy content without doing IO"""
 
     def wrapper(self):
-        if isinstance(self, SCons.Node.Node) and self.is_sconscript():
+        if isinstance(self, SCons.Node.Node) and (self.is_sconscript() or self.is_conftest()):
             return original(self)
         return bytes("dummy_ninja_contents", encoding="utf-8")
 

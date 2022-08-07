@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test LEX and LEXFLAGS with a live lex.
@@ -36,19 +35,18 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 
 lex = test.where_is('win_flex') or test.where_is('lex') or test.where_is('flex')
-
 if not lex:
     test.skip_test('No lex or flex found; skipping test.\n')
 
 test.file_fixture('wrapper.py')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])
 foo = Environment()
 lex = foo.Dictionary('LEX')
-bar = Environment(LEX = r'%(_python_)s wrapper.py ' + lex,
-                  LEXFLAGS = '-b')
-foo.Program(target = 'foo', source = 'foo.l')
-bar.Program(target = 'bar', source = 'bar.l')
+bar = Environment(LEX=r'%(_python_)s wrapper.py ' + lex, LEXFLAGS='-b')
+foo.Program(target='foo', source='foo.l')
+bar.Program(target='bar', source='bar.l')
 """ % locals())
 
 lex = r"""
@@ -70,22 +68,18 @@ main()
 """
 
 test.write('foo.l', lex % ('foo.l', 'foo.l'))
-
 test.write('bar.l', lex % ('bar.l', 'bar.l'))
 
-test.run(arguments = 'foo' + _exe, stderr = None)
-
+test.run(arguments='foo' + _exe, stderr=None)
 test.must_not_exist(test.workpath('wrapper.out'))
 test.must_not_exist(test.workpath('lex.backup'))
 
-test.run(program = test.workpath('foo'), stdin = "a\n", stdout = "Afoo.lA\n")
-
-test.run(arguments = 'bar' + _exe)
-
+test.run(program=test.workpath('foo'), stdin="a\n", stdout="Afoo.lA\n")
+test.run(arguments='bar' + _exe)
 test.must_match(test.workpath('wrapper.out'), "wrapper.py\n")
 test.must_exist(test.workpath('lex.backup'))
 
-test.run(program = test.workpath('bar'), stdin = "b\n", stdout = "Bbar.lB\n")
+test.run(program=test.workpath('bar'), stdin="b\n", stdout="Bbar.lB\n")
 
 test.pass_test()
 

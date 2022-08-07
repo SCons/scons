@@ -199,7 +199,7 @@ class TestSCons_time(TestCommon):
         if 'workdir' not in kw:
             kw['workdir'] = ''
 
-        TestCommon.__init__(self, **kw)
+        super().__init__(**kw)
 
     def archive_split(self, path):
         if path[-7:] == '.tar.gz':

@@ -57,6 +57,10 @@ def generate(env):
     if version:
         env['CCVERSION'] = version
 
+    env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
+    env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
+
+
 
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)

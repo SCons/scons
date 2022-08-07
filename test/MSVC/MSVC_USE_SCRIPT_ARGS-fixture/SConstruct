@@ -1,0 +1,9 @@
+import os
+
+if 'SCONS_CACHE_MSVC_CONFIG' in os.environ:
+    del os.environ['SCONS_CACHE_MSVC_CONFIG']
+
+os.environ['SCONS_MSCOMMON_DEBUG']='MSDEBUG_OUTPUT.log'
+
+DefaultEnvironment(tools=[])
+env = Environment(tools=['msvc'], MSVC_USE_SCRIPT='fake_script.bat', MSVC_USE_SCRIPT_ARGS=['one','two'])

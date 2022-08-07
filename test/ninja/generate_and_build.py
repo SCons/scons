@@ -49,11 +49,16 @@ test.dir_fixture('ninja-fixture')
 test.file_fixture('ninja_test_sconscripts/sconstruct_generate_and_build', 'SConstruct')
 
 # generate simple build
-test.run(stdout=None)
+test.run(stdout=None, arguments='NINJA_CMD_ARGS=-v')
 test.must_contain_all_lines(test.stdout(), ['Generating: build.ninja'])
 test.must_contain_all(test.stdout(), 'Executing:')
 test.must_contain_all(test.stdout(), 'ninja%(_exe)s -f' % locals())
+test.must_contain_all(test.stdout(), ' -j1 -v')
 test.run(program=test.workpath('foo' + _exe), stdout="foo.c")
+
+# Test multiple args for NINJA_CMD_ARGS
+test.run(stdout=None, arguments={'NINJA_CMD_ARGS':"-v -j3"})
+test.must_contain_all(test.stdout(), ' -v -j3')
 
 # clean build and ninja files
 test.run(arguments='-c', stdout=None)

@@ -66,6 +66,18 @@ re_manvolnum = re.compile(r"<manvolnum>([^<]*)</manvolnum>")
 re_refname = re.compile(r"<refname>([^<]*)</refname>")
 
 #
+# lxml etree XSLT global max traversal depth
+#
+
+lmxl_xslt_global_max_depth = 3100
+
+if has_lxml and lmxl_xslt_global_max_depth:
+    def __lxml_xslt_set_global_max_depth(max_depth):
+        from lxml import etree
+        etree.XSLT.set_global_max_depth(max_depth)
+    __lxml_xslt_set_global_max_depth(lmxl_xslt_global_max_depth)
+
+#
 # Helper functions
 #
 def __extend_targets_sources(target, source):
@@ -223,6 +235,7 @@ def __xml_scan(node, env, path, arg):
         # Try to call xsltproc
         xsltproc = env.subst("$DOCBOOK_XSLTPROC")
         if xsltproc and xsltproc.endswith('xsltproc'):
+            # TODO: switch to _subproc or subprocess.run call
             result = env.backtick(' '.join([xsltproc, xsl_file, str(node)]))
             depfiles = [x.strip() for x in str(result).splitlines() if x.strip() != "" and not x.startswith("<?xml ")]
             return depfiles

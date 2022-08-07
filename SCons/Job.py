@@ -238,7 +238,7 @@ else:
         and a boolean indicating whether the task executed successfully. """
 
         def __init__(self, requestQueue, resultsQueue, interrupted):
-            threading.Thread.__init__(self)
+            super().__init__()
             self.daemon = True
             self.requestQueue = requestQueue
             self.resultsQueue = resultsQueue

@@ -25,17 +25,21 @@ install:
 # split builds into sets of four jobs due to appveyor per-job time limit
 environment:
   matrix:
-    - WINPYTHON: "Python36"
-      COVERAGE: 1
+
+    - WINPYTHON: "Python310"
+      COVERAGE: 0
 
     - WINPYTHON: "Python37"
       COVERAGE: 0
 
     - WINPYTHON: "Python38"
       COVERAGE: 0
+          
+    - WINPYTHON: "Python36"
+      COVERAGE: 1
 
-    - WINPYTHON: "Python310"
-      COVERAGE: 0
+
+
 
 
 # remove sets of build jobs based on criteria below

@@ -1,6 +1,28 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+ MIT License
+
+ Copyright The SCons Foundation
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -30,6 +52,7 @@ Sets construction variables for the Microsoft Visual C/C++ compiler.
 </para>
 </summary>
 <sets>
+<item>CCDEPFLAGS</item>
 <item>CCPDBFLAGS</item>
 <item>CCPCHFLAGS</item>
 <item><!--CCCOMFLAGS--></item>
@@ -73,6 +96,7 @@ Sets construction variables for the Microsoft Visual C/C++ compiler.
 <item>PCH</item>
 <item>PCHSTOP</item>
 <item>PDB</item>
+<item>MSVC_NOTFOUND_POLICY</item>
 </uses>
 </tool>
 
@@ -347,8 +371,15 @@ Sets the preferred  version of Microsoft Visual C/C++ to use.
 If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
 latest version of Visual C/C++ installed on your system.  If the
 specified version isn't installed, tool initialization will fail.
-This variable must be passed as an argument to the &f-link-Environment;
-constructor; setting it later has no effect.
+</para>
+
+<para>
+&cv-MSVC_VERSION; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_VERSION; must be set before the first msvc tool is
+loaded into the environment.
 </para>
 
 <para>
@@ -395,6 +426,7 @@ and extract the relevant variables from the result (typically
 <envar>%PATH%</envar>) for supplying to the build.
 This can be useful to force the use of a compiler version that
 &SCons; does not detect.
+&cv-link-MSVC_USE_SCRIPT_ARGS; provides arguments passed to this script.
 </para>
 
 <para>
@@ -407,8 +439,101 @@ is, if you are sure everything is set correctly already and
 you don't want &SCons; to change anything.
 </para>
 <para>
-&cv-MSVC_USE_SCRIPT; overrides &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
+&cv-MSVC_USE_SCRIPT; ignores &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
 </para>
+</summary>
+</cvar>
+
+<cvar name="MSVC_USE_SCRIPT_ARGS">
+<summary>
+<para>
+Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
+</para>
+</summary>
+</cvar>
+
+<cvar name="MSVC_USE_SETTINGS">
+<summary>
+<para>
+Use a dictionary to set up the Microsoft Visual C++ compiler.
+</para>
+
+<para>
+&cv-MSVC_USE_SETTINGS; is ignored when &cv-link-MSVC_USE_SCRIPT; is defined
+and/or when &cv-MSVC_USE_SETTINGS; is set to <constant>None</constant>.
+</para>
+
+<para>
+The dictionary is used to populate the environment with the relevant variables
+(typically <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
+for supplying to the build. This can be useful to force the use of a compiler environment
+that &SCons; does not configure correctly. This is an alternative to manually configuring
+the environment when bypassing Visual Studio autodetection entirely by setting
+&cv-link-MSVC_USE_SCRIPT; to <constant>None</constant>.
+</para>
+
+<para>
+Here is an example of configuring a build environment using the Microsoft Visual C/C++ compiler
+included in the Microsoft SDK on a 64-bit host and building for a 64-bit architecture:
+<programlisting>
+# Microsoft SDK 6.0 (MSVC 8.0): 64-bit host and 64-bit target
+msvc_use_settings = {
+    "PATH": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Bin\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Bin\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Bin",
+        "C:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727",
+        "C:\\Windows\\system32",
+        "C:\\Windows",
+        "C:\\Windows\\System32\\Wbem",
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\"
+    ],
+    "INCLUDE": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Include",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Include\\Sys",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Include",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Include\\gl",
+    ],
+    "LIB": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Lib\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Lib\\x64",
+    ],
+    "LIBPATH": [],
+    "VSCMD_ARG_app_plat": [],
+    "VCINSTALLDIR": [],
+    "VCToolsInstallDir": []
+}
+
+# Specifying MSVC_VERSION is recommended
+env = Environment(MSVC_VERSION='8.0', MSVC_USE_SETTINGS=msvc_use_settings)
+</programlisting>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_USE_SETTINGS; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_USE_SETTINGS; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The dictionary content requirements are based on the internal msvc implementation and
+therefore may change at any time.
+</emphasis>
+The burden is on the user to ensure the dictionary contents are minimally sufficient to
+ensure successful builds.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
 </summary>
 </cvar>
 
@@ -433,21 +558,69 @@ you don't want &SCons; to change anything.
 <cvar name="MSVC_UWP_APP">
 <summary>
 <para>
-Build libraries for a Universal Windows Platform (UWP) Application.
+Build with the Universal Windows Platform (UWP) application Visual C++ libraries.
 </para>
 
 <para>
-If &cv-MSVC_UWP_APP; is set, the Visual C++ environment will be set up to point
+The valid values for &cv-MSVC_UWP_APP; are: <literal>True</literal>,
+<literal>'1'</literal>, <literal>False</literal>, <literal>'0'</literal>,
+or <literal>None</literal>.
+</para>
+
+<para>
+When &cv-MSVC_UWP_APP; is enabled (i.e., <literal>True</literal> or
+<literal>'1'</literal>), the Visual C++ environment will be set up to point
 to the Windows Store compatible libraries and Visual C++ runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
-This flag will only have an effect with Visual Studio 2015 or later.
-This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect.
+<!-- This flag will only have an effect with Visual Studio 2015 or later. -->
+<!-- This variable must be passed as an argument to the Environment()
+constructor; setting it later has no effect. -->
 </para>
 
 <para>
-Valid values are '1' or '0'
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_UWP_APP; is enabled for Visual Studio 2013 and earlier.
+</para></listitem>
+<listitem><para>
+&cv-MSVC_UWP_APP; is enabled and a UWP argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple UWP declarations via &cv-MSVC_UWP_APP;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+Example - A Visual Studio 2022 build for the Universal Windows Platform:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_UWP_APP=True)
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_UWP_APP; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_UWP_APP; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The existence of the UWP libraries is not verified when &cv-MSVC_UWP_APP; is enabled
+which could result in build failures.
+</emphasis>
+The burden is on the user to ensure the requisite UWP libraries are installed.
+</para></listitem>
+
+</itemizedlist>
 </para>
 
 </summary>
@@ -502,5 +675,741 @@ and also before &f-link-env-Tool; is called to ininitialize any of those tools:
 </summary>
 </cvar>
 
+<cvar name="MSVC_NOTFOUND_POLICY">
+<summary>
+<para>
+Specify the &scons; behavior when the Microsoft Visual C/C++ compiler is not detected.
+</para>
+
+<para>
+    The &cv-MSVC_NOTFOUND_POLICY; specifies the &scons; behavior when no msvc versions are detected or
+    when the requested msvc version is not detected.
+</para>
+
+<para>
+The valid values for &cv-MSVC_NOTFOUND_POLICY; and the corresponding &scons; behavior are:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'Error' or 'Exception'</parameter></term>
+<listitem>
+<para>
+Raise an exception when no msvc versions are detected or when the requested msvc version is not detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
+<listitem>
+<para>
+Issue a warning and continue when no msvc versions are detected or when the requested msvc version is not detected.
+Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
+<listitem>
+<para>
+Take no action and continue when no msvc versions are detected or when the requested msvc version is not detected.
+Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+The &cv-MSVC_NOTFOUND_POLICY; is applied when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_VERSION; is specified, the default tools list is implicitly defined (i.e., the tools list is not specified),
+and the default tools list contains one or more of the msvc tools.
+</para></listitem>
+<listitem><para>
+&cv-MSVC_VERSION; is specified, the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>),
+and the default tools list contains one or more of the msvc tools.
+</para></listitem>
+<listitem><para>
+A non-default tools list is specified that contains one or more of the msvc tools (e.g., <literal>tools=['msvc', 'mslink']</literal>).
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The &cv-MSVC_NOTFOUND_POLICY; is ignored when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_VERSION; is not specified and the default tools list is implicitly defined (i.e., the tools list is not specified).
+</para></listitem>
+<listitem><para>
+&cv-MSVC_VERSION; is not specified and the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>).
+</para></listitem>
+<listitem><para>
+A non-default tool list is specified that does not contain any of the msvc tools (e.g., <literal>tools=['mingw']</literal>).
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_NOTFOUND_POLICY; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_NOTFOUND_POLICY; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+When &cv-MSVC_NOTFOUND_POLICY; is not specified, the default &scons; behavior is to issue a warning and continue
+subject to the conditions listed above. The default &scons; behavior may change in the future.
+</para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_SCRIPTERROR_POLICY">
+<summary>
+<para>
+Specify the &scons; behavior when Microsoft Visual C/C++ batch file errors are detected.
+</para>
+
+<para>
+The &cv-MSVC_SCRIPTERROR_POLICY; specifies the &scons; behavior when msvc batch file errors are
+detected.
+When &cv-MSVC_SCRIPTERROR_POLICY; is not specified, the default &scons; behavior is to suppress
+msvc batch file error messages.
+</para>
+<para>
+The root cause of msvc build failures may be difficult to diagnose. In these situations, setting
+the &scons; behavior to issue a warning when msvc batch file errors are detected <emphasis>may</emphasis>
+produce additional diagnostic information.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SCRIPTERROR_POLICY; and the corresponding &scons; behavior are:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'Error' or 'Exception'</parameter></term>
+<listitem>
+<para>
+Raise an exception when msvc batch file errors are detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
+<listitem>
+<para>
+Issue a warning when msvc batch file errors are detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
+<listitem>
+<para>
+Suppress msvc batch file error messages.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with user-defined script arguments:
+<example_commands>
+env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'])
+env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
+</example_commands>
+</para>
+
+<para>
+Example 1 - Output fragment:
+<example_commands>
+...
+link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
+LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
+...
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with user-defined script arguments and the script error policy set
+to issue a warning when msvc batch file errors are detected:
+<example_commands>
+env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'], MSVC_SCRIPTERROR_POLICY='warn')
+env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
+</example_commands>
+</para>
+
+<para>
+Example 2 - Output fragment:
+<example_commands>
+...
+scons: warning: vc script errors detected:
+[ERROR:vcvars.bat] The UWP Application Platform requires a Windows 10 SDK.
+[ERROR:vcvars.bat] WindowsSdkDir = "C:\Program Files (x86)\Windows Kits\8.1\"
+[ERROR:vcvars.bat] host/target architecture is not supported : { x64 , x64 }
+...
+link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
+LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPTERROR_POLICY; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SCRIPTERROR_POLICY; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Due to &scons; implementation details, not all Windows system environment variables are propagated
+to the environment in which the msvc batch file is executed.  Depending on Visual Studio version
+and installation options, non-fatal msvc batch file error messages may be generated for ancillary
+tools which may not affect builds with the msvc compiler.  For this reason, caution is recommended
+when setting the script error policy to raise an exception (e.g., <literal>'Error'</literal>).
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_SCRIPT_ARGS">
+<summary>
+<para>
+Pass user-defined arguments to the Visual C++ batch file determined via autodetection.
+</para>
+
+<para>
+&cv-MSVC_SCRIPT_ARGS; is available for msvc batch file arguments that do not have first-class support
+via construction variables or when there is an issue with the appropriate construction variable validation.
+When available, it is recommended to use the appropriate construction variables (e.g., &cv-link-MSVC_TOOLSET_VERSION;)
+rather than &cv-MSVC_SCRIPT_ARGS; arguments.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SCRIPT_ARGS; are: <literal>None</literal>, a string,
+or a list of strings.
+</para>
+
+<para>
+The &cv-MSVC_SCRIPT_ARGS; value is converted to a scalar string (i.e., "flattened").
+The resulting scalar string, if not empty, is passed as an argument to the msvc batch file determined
+via autodetection subject to the validation conditions listed below.
+</para>
+
+<para>
+&cv-MSVC_SCRIPT_ARGS; is ignored when the value is <literal>None</literal> and when the
+result from argument conversion is an empty string.  The validation conditions below do not apply.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPT_ARGS; is specified for Visual Studio 2013 and earlier.
+</para></listitem>
+
+<listitem><para>
+Multiple SDK version arguments (e.g., <literal>'10.0.20348.0'</literal>) are specified
+in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_SDK_VERSION; is specified and an SDK version argument
+(e.g., <literal>'10.0.20348.0'</literal>) is specified in &cv-MSVC_SCRIPT_ARGS;.
+Multiple SDK version declarations via &cv-link-MSVC_SDK_VERSION; and &cv-MSVC_SCRIPT_ARGS;
+are not allowed.
+</para></listitem>
+
+<listitem><para>
+Multiple toolset version arguments (e.g., <literal>'-vcvars_ver=14.29'</literal>)
+are specified in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_TOOLSET_VERSION; is specified and a toolset version argument
+(e.g., <literal>'-vcvars_ver=14.29'</literal>) is specified in &cv-MSVC_SCRIPT_ARGS;.
+Multiple toolset version declarations via &cv-link-MSVC_TOOLSET_VERSION; and
+&cv-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+Multiple spectre library arguments (e.g., <literal>'-vcvars_spectre_libs=spectre'</literal>)
+are specified in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_SPECTRE_LIBS; is enabled and a spectre library argument
+(e.g., <literal>'-vcvars_spectre_libs=spectre'</literal>) is specified in
+&cv-MSVC_SCRIPT_ARGS;. Multiple spectre library declarations via &cv-link-MSVC_SPECTRE_LIBS;
+and &cv-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+Multiple UWP arguments (e.g., <literal>uwp</literal> or <literal>store</literal>) are specified
+in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_UWP_APP; is enabled and a UWP argument (e.g., <literal>uwp</literal> or
+<literal>store</literal>) is specified in &cv-MSVC_SCRIPT_ARGS;. Multiple UWP declarations
+via &cv-link-MSVC_UWP_APP; and &cv-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with an SDK version and a toolset version
+specified with a string argument:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS='10.0.20348.0 -vcvars_ver=14.29.30133')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with an SDK version and a toolset version
+specified with a list argument:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['10.0.20348.0', '-vcvars_ver=14.29.30133'])
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPT_ARGS; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SCRIPT_ARGS; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Other than checking for multiple declarations as described above, &cv-MSVC_SCRIPT_ARGS; arguments
+are not validated.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+Erroneous, inconsistent, and/or version incompatible &cv-MSVC_SCRIPT_ARGS; arguments are likely
+to result in build failures for reasons that are not readily apparent and may be difficult to diagnose.
+</emphasis>
+The burden is on the user to ensure that the arguments provided to the msvc batch file are valid, consistent
+and compatible with the version of msvc selected.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_SDK_VERSION">
+<summary>
+<para>
+Build with a specific version of the Microsoft Software Development Kit (SDK).
+</para>
+
+<para>
+The valid values for &cv-MSVC_SDK_VERSION; are: <literal>None</literal>
+or a string containing the requested SDK version (e.g., <literal>'10.0.20348.0'</literal>).
+</para>
+
+<para>
+&cv-MSVC_SDK_VERSION; is ignored when the value is <literal>None</literal> and when
+the value is an empty string.  The validation conditions below do not apply.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SDK_VERSION; is specified for Visual Studio 2013 and earlier.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_SDK_VERSION; is specified and an SDK version argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple SDK version declarations via &cv-MSVC_SDK_VERSION;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; specified does not match any of the supported formats:
+<itemizedlist>
+<listitem><para>
+<literal>'10.0.XXXXX.Y'</literal> [SDK 10.0]
+</para></listitem>
+<listitem><para>
+<literal>'8.1'</literal> [SDK 8.1]
+</para></listitem>
+</itemizedlist>
+</para></listitem>
+
+<listitem><para>
+The system folder for the corresponding &cv-MSVC_SDK_VERSION; version is not found.
+The requested SDK version does not appear to be installed.
+</para></listitem>
+
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; version does not appear to support the requested platform
+type (i.e., <literal>UWP</literal> or <literal>Desktop</literal>).  The requested SDK version
+platform type components do not appear to be installed.
+</para></listitem>
+
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; version is <literal>8.1</literal>, the platform type is
+<literal>UWP</literal>, and the build tools selected are from Visual Studio 2017
+and later (i.e., &cv-link-MSVC_VERSION; must be '14.0' or &cv-link-MSVC_TOOLSET_VERSION;
+must be '14.0').
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with a specific Windows SDK version:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SDK_VERSION='10.0.20348.0')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with a specific SDK version for the Universal Windows Platform:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SDK_VERSION='10.0.20348.0', MSVC_UWP_APP=True)
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SDK_VERSION; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SDK_VERSION; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem>
+<para><emphasis>
+Should a SDK 10.0 version be installed that does not follow the naming scheme above, the
+SDK version will need to be specified via &cv-link-MSVC_SCRIPT_ARGS; until the version number
+validation format can be extended.
+</emphasis></para>
+</listitem>
+
+<listitem><para>
+Should an exception be raised indicating that the SDK version is not found, verify that
+the requested SDK version is installed with the necessary platform type components.
+</para></listitem>
+
+<listitem><para>
+There is a known issue with the Microsoft libraries when the target architecture is
+<literal>ARM64</literal> and a Windows 11 SDK (version <literal>'10.0.22000.0'</literal> and later) is used
+with the <literal>v141</literal> build tools and older <literal>v142</literal> toolsets
+(versions <literal>'14.28.29333'</literal> and earlier). Should build failures arise with these combinations
+of settings due to unresolved symbols in the Microsoft libraries, &cv-MSVC_SDK_VERSION; may be employed to
+specify a Windows 10 SDK (e.g., <literal>'10.0.20348.0'</literal>) for the build.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_TOOLSET_VERSION">
+<summary>
+<para>
+Build with a specific Visual C++ toolset version.
+</para>
+
+<para><emphasis>
+Specifying &cv-MSVC_TOOLSET_VERSION; does not affect the autodetection and selection
+of msvc instances. The &cv-MSVC_TOOLSET_VERSION; is applied <emphasis>after</emphasis>
+an msvc instance is selected. This could be the default version of msvc if &cv-link-MSVC_VERSION;
+is not specified.
+</emphasis></para>
+
+<para>
+The valid values for &cv-MSVC_TOOLSET_VERSION; are: <literal>None</literal>
+or a string containing the requested toolset version (e.g., <literal>'14.29'</literal>).
+</para>
+
+<para>
+&cv-MSVC_TOOLSET_VERSION; is ignored when the value is <literal>None</literal> and when
+the value is an empty string.  The validation conditions below do not apply.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_TOOLSET_VERSION; is specified for Visual Studio 2015 and earlier.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_TOOLSET_VERSION; is specified and a toolset version argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple toolset version declarations via &cv-MSVC_TOOLSET_VERSION;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem>
+<para>
+The &cv-MSVC_TOOLSET_VERSION; specified does not match any of the supported formats:
+</para>
+
+<itemizedlist>
+
+<listitem><para>
+<literal>'XX.Y'</literal>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY'</literal>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.ZZZZZ'</literal>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.Z'</literal> to <literal>'XX.YY.ZZZZ'</literal>
+<emphasis>
+[&scons; extension not directly supported by the msvc batch files and may be removed in the future]
+</emphasis>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.ZZ.N'</literal> [SxS format]
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.ZZ.NN'</literal> [SxS format]
+</para></listitem>
+
+</itemizedlist>
+
+</listitem>
+
+<listitem><para>
+The major msvc version prefix (i.e., <literal>'XX.Y'</literal>) of the &cv-MSVC_TOOLSET_VERSION; specified
+is for Visual Studio 2013 and earlier (e.g., <literal>'12.0'</literal>).
+</para></listitem>
+
+<listitem><para>
+The major msvc version prefix (i.e., <literal>'XX.Y'</literal>) of the &cv-MSVC_TOOLSET_VERSION; specified
+is greater than the msvc version selected (e.g., <literal>'99.0'</literal>).
+</para></listitem>
+
+<listitem><para>
+A system folder for the corresponding &cv-MSVC_TOOLSET_VERSION; version is not found.
+The requested toolset version does not appear to be installed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Toolset selection details:
+<itemizedlist>
+
+<listitem><para>
+When &cv-MSVC_TOOLSET_VERSION; is not an SxS version number or a full toolset version number:
+the first toolset version, ranked in descending order, that matches the &cv-MSVC_TOOLSET_VERSION;
+prefix is selected.
+</para></listitem>
+
+<listitem><para>
+When &cv-MSVC_TOOLSET_VERSION; is specified using the major msvc version prefix
+(i.e., <literal>'XX.Y'</literal>) and the major msvc version is that of the latest release of
+Visual Studio, the selected toolset version may not be the same as the default Visual C++ toolset version.
+</para><para>
+In the latest release of Visual Studio, the default Visual C++ toolset version is not necessarily the
+toolset with the largest version number.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example 1 - A default Visual Studio build with a partial toolset version specified:
+<example_commands>
+env = Environment(MSVC_TOOLSET_VERSION='14.2')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A default Visual Studio build with a partial toolset version specified:
+<example_commands>
+env = Environment(MSVC_TOOLSET_VERSION='14.29')
+</example_commands>
+</para>
+
+<para>
+Example 3 - A Visual Studio 2022 build with a full toolset version specified:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.30133')
+</example_commands>
+</para>
+
+<para>
+Example 4 - A Visual Studio 2022 build with an SxS toolset version specified:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.16.11')
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_TOOLSET_VERSION; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_TOOLSET_VERSION; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The existence of the toolset host architecture and target architecture folders are not verified
+when &cv-MSVC_TOOLSET_VERSION; is specified which could result in build failures.
+</emphasis>
+The burden is on the user to ensure the requisite toolset target architecture build tools are installed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</summary>
+</cvar>
+
+<cvar name="MSVC_SPECTRE_LIBS">
+<summary>
+<para>
+Build with the spectre-mitigated Visual C++ libraries.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SPECTRE_LIBS; are: <literal>True</literal>,
+<literal>False</literal>, or <literal>None</literal>.
+</para>
+
+<para>
+When &cv-MSVC_SPECTRE_LIBS; is enabled (i.e., <literal>True</literal>),
+the Visual C++ environment will include the paths to the spectre-mitigated implementations
+of the Microsoft Visual C++ libraries.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled for Visual Studio 2015 and earlier.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled and a spectre library argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple spectre library declarations via &cv-MSVC_SPECTRE_LIBS;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled and the platform type is <literal>UWP</literal>. There
+are no spectre-mitigated libraries for Universal Windows Platform (UWP) applications or
+components.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example - A Visual Studio 2022 build with spectre mitigated Visual C++ libraries:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SPECTRE_LIBS=True)
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SPECTRE_LIBS; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Additional compiler switches (e.g., <literal>/Qspectre</literal>) are necessary for including
+spectre mitigations when building user artifacts. Refer to the Visual Studio documentation for
+details.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The existence of the spectre libraries host architecture and target architecture folders are not
+verified when &cv-MSVC_SPECTRE_LIBS; is enabled which could result in build failures.
+</emphasis>
+The burden is on the user to ensure the requisite libraries with spectre mitigations are installed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</summary>
+</cvar>
 
 </sconsdoc>

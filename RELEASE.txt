@@ -1,15 +1,17 @@
-A new SCons release, 4.3.1, is now available
-on the SCons download page:
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
 
-      https://scons.org/pages/download.html
+    https://scons.org/tag/releases.html
+
+==================================================================
+
+A new SCons release, 4.4.1, is now available on the SCons download page:
+
+    https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.3.1:
-
-NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
-      see unexpected rebuilds. This is due to Python internals changing which changed 
-      the signature of a Python Action Function.
-
+Here is a summary of the changes since 4.4.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -24,30 +26,20 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- On Windows, %AllUsersProfile%\scons\site_scons is now the default "system"
-  location for a site_scons. %AllUsersProfile%\Application Data\scons\site_scons
-  will continue to work. There does not seem to be any convention to use
-  an "Application Data" subdirectory here.
-- Action._subproc() can now be used as a python context manager to ensure that the
-  POpen object is properly closed.
-- SCons help (-H) no longer prints the "ignored for compatibility" options,
-  which are still listed in the manpage.
-- Help is now sensitive to the size of the terminal window: the width of the
-  help text will scale to wider (or narrower) terminals than 80 characters.
-
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- Fix a number of Python ResourceWarnings which are issued when running SCons and/or it's tests
-  with python 3.9 (or higher)
+- List fixes of outright bugs
 
 IMPROVEMENTS
 ------------
 
-- Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an
-  exception immediately when the user specified msvc script does not exist.
-- Add cache-debug messages for push failures.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
 PACKAGING
 ---------

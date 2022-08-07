@@ -63,7 +63,7 @@ Added methods propagate through &f-env-Clone; calls.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>
@@ -472,7 +472,7 @@ and/or suffix,
 so the contents are treated as a list of strings, that is,
 adding a string will result in a separate string entry,
 not a combined string. For &cv-CPPDEFINES; as well as
-for &cv-link-LIBS;, and the various <varname>*PATH</varname>
+for &cv-link-LIBS;, and the various <literal>*PATH</literal>;
 variables, &SCons; will supply the compiler-specific
 syntax (e.g. adding a <literal>-D</literal> or <literal>/D</literal>
 prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
@@ -550,7 +550,7 @@ do not make sense and a &Python; exception will be raised.
 <para>
 When using &f-env-Append; to modify &consvars;
 which are path specifications (conventionally,
-the names of such end in <varname>PATH</varname>),
+the names of such end in <literal>PATH</literal>),
 it is recommended to add the values as a list of strings,
 even if there is only a single string to add.
 The same goes for adding library names to &cv-LIBS;.
@@ -570,26 +570,26 @@ See also &f-link-env-AppendUnique;,
   <varlistentry id="f-AppendENVPath">
     <term><replaceable>env</replaceable>.<methodname>AppendENVPath</methodname>(<parameter>name, newpath, [envname, sep, delete_existing=False]</parameter>)</term>
     <listitem><para>
-Append new path elements to the given path in the
-specified external environment (&cv-link-ENV; by default).
-This will only add
-any particular path once (leaving the last one it encounters and
-ignoring the rest, to preserve path order),
-and to help assure this,
-will normalize all paths (using
-<function>os.path.normpath</function>
+Append path elements specified by <parameter>newpath</parameter>
+to the given search path string or list <parameter>name</parameter>
+in mapping <parameter>envname</parameter> in the &consenv;.
+Supplying <parameter>envname</parameter> is optional:
+the default is the execution environment &cv-link-ENV;.
+Optional <parameter>sep</parameter> is used as the search path separator,
+the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
+A path element will only appear once.
+Any duplicates in <parameter>newpath</parameter> are dropped,
+keeping the last appearing (to preserve path order).
+If <parameter>delete_existing</parameter>
+is <constant>False</constant> (the default)
+any addition duplicating an existing path element is ignored;
+if <parameter>delete_existing</parameter>
+is <constant>True</constant> the existing value will
+be dropped and the path element will be added at the end.
+To help maintain uniqueness all paths are normalized (using
+<systemitem>os.path.normpath</systemitem>
 and
-<function>os.path.normcase</function>).
-This can also handle the
-case where the given old path variable is a list instead of a
-string, in which case a list will be returned instead of a string.
-</para>
-
-<para>
-If
-<parameter>delete_existing</parameter>
-is <constant>False</constant>, then adding a path that already exists
-will not move it to the end; it will stay where it is in the list.
+<systemitem>os.path.normcase</systemitem>).
 </para>
 
 <para>
@@ -608,6 +608,11 @@ print('after:', env['ENV']['INCLUDE'])
 before: /foo:/biz
 after: /biz:/foo/bar:/foo
 </screen>
+
+<para>
+See also &f-link-env-PrependENVPath;.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-AppendUnique">
@@ -718,7 +723,7 @@ is being used and
 &scons;
 finds a derived file that needs to be rebuilt,
 it will first look in the cache to see if a
-file with matching build signature exists
+file with matching &buildsig; exists
 (indicating the input file(s) and build action(s)
 were identical to those for the current target),
 and if so, will retrieve the file from the cache.
@@ -730,7 +735,7 @@ If the derived file is not present in the cache,
 &scons;
 will build it and
 then place a copy of the built file in the cache,
-identified by its build signature, for future use.
+identified by its &buildsig;, for future use.
 </para>
 
 <para>
@@ -787,6 +792,13 @@ method can be used to disable caching of specific files.  This can be
 useful if inputs and/or outputs of some tool are impossible to
 predict or prohibitively large.
 </para>
+
+<para>
+Note that (at this time) &SCons; provides no facilities
+for managing the derived-file cache. It is up to the developer
+to arrange for cache pruning, expiry, etc. if needed.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-Clean">
@@ -1194,7 +1206,7 @@ was built.
 This can be consulted to match various
 file characteristics
 such as the timestamp,
-size, or content signature.
+size, or &contentsig;.
 </para>
 </listitem>
 </varlistentry>
@@ -1390,10 +1402,11 @@ Find an executable from one or more choices:
 <parameter>progs</parameter> may be a string or a list of strings.
 Returns the first value from <parameter>progs</parameter>
 that was found, or <constant>None</constant>.
-Executable is searched by checking the paths specified
-by <varname>env</varname><literal>['ENV']['PATH']</literal>.
+Executable is searched by checking the paths in the execution environment
+(<varname>env</varname><literal>['ENV']['PATH']</literal>).
 On Windows systems, additionally applies the filename suffixes found in
-<varname>env</varname><literal>['ENV']['PATHEXT']</literal>
+the execution environment
+(<varname>env</varname><literal>['ENV']['PATHEXT']</literal>)
 but will not include any such extension in the return value.
 &f-env-Detect; is a wrapper around &f-link-env-WhereIs;.
 </para>
@@ -1598,45 +1611,49 @@ See the manpage section "Construction Environments" for more details.
 </listitem>
   </varlistentry>
   <varlistentry id="f-Execute">
-    <term><function>Execute</function>(<parameter>action, [strfunction, varlist]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Execute</methodname>(<parameter>action, [strfunction, varlist]</parameter>)</term>
+    <term><function>Execute</function>(<parameter>action, [actionargs ...]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Execute</methodname>(<parameter>action, [actionargs ...]</parameter>)</term>
     <listitem><para>
-Executes an Action object.
-The specified
+Executes an Action.
 <parameter>action</parameter>
 may be an Action object
-(see manpage section "Action Objects"
-for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
 or executable &Python; function,
-each of which will be converted
+each of which will first be converted
 into an Action object
 and then executed.
 Any additional arguments to &f-Execute;
-(<parameter>strfunction</parameter>, <parameter>varlist</parameter>)
 are passed on to the &f-link-Action; factory function
-which actually creates the Action object.
-The exit value of the command
-or return value of the &Python; function
-will be returned.
+which actually creates the Action object
+(see the manpage section <link linkend="action_objects">Action Objects</link>
+for a description). Example:
+</para>
+
+<example_commands>
+Execute(Copy('file.out', 'file.in'))
+</example_commands>
+
+<para>&f-Execute; performs its action immediately,
+as part of the SConscript-reading phase.
+There are no sources or targets declared in an
+&f-Execute; call, so any objects it manipulates
+will not be tracked as part of the &SCons; dependency graph.
+In the example above, neither
+<filename>file.out</filename> nor
+<filename>file.in</filename> will be tracked objects.
 </para>
 
 <para>
-Note that
+&f-Execute; returns the exit value of the command
+or return value of the &Python; function.
 &scons;
-will print an error message if the executed
+prints an error message if the executed
 <parameter>action</parameter>
-fails--that is,
-exits with or returns a non-zero value.
-&scons;
-will
+fails (exits with or returns a non-zero value),
+however it does
 <emphasis>not</emphasis>,
-however,
-automatically terminate the build
-if the specified
-<parameter>action</parameter>
-fails.
+automatically terminate the build for such a failure.
 If you want the build to stop in response to a failed
 &f-Execute;
 call,
@@ -1644,8 +1661,6 @@ you must explicitly check for a non-zero return value:
 </para>
 
 <example_commands>
-Execute(Copy('file.out', 'file.in'))
-
 if Execute("mkdir sub/dir/ectory"):
     # The mkdir failed, don't try to build.
     Exit(1)
@@ -2640,12 +2655,8 @@ not as separate arguments to
 </para>
 
 <para>
-By default,
-duplicate values are eliminated;
-you can, however, specify
-<literal>unique=False</literal>
-to allow duplicate
-values to be added.
+If <literal>unique</literal> is true (the default),
+duplicate values are not stored.
 When eliminating duplicate values,
 any &consvars; that end with
 the string
@@ -2653,6 +2664,8 @@ the string
 keep the left-most unique value.
 All other &consvars; keep
 the right-most unique value.
+If <literal>unique</literal> is false,
+values are added even if they are duplicates.
 </para>
 
 <para>
@@ -2669,9 +2682,13 @@ env.MergeFlags(['!pkg-config gtk+-2.0 --cflags', '-O3'])
 
 # Combine an optimization flag with the flags returned from running pkg-config
 # twice and merge the result into the construction variables.
-env.MergeFlags(['-O3',
-               '!pkg-config gtk+-2.0 --cflags --libs',
-               '!pkg-config libpng12 --cflags --libs'])
+env.MergeFlags(
+    [
+        '-O3',
+        '!pkg-config gtk+-2.0 --cflags --libs',
+        '!pkg-config libpng12 --cflags --libs',
+    ]
+)
 </example_commands>
 </listitem>
   </varlistentry>
@@ -2773,15 +2790,13 @@ NoClean(env.Program('hello', 'hello.c'))
     <term><replaceable>env</replaceable>.<methodname>ParseConfig</methodname>(<parameter>command, [function, unique]</parameter>)</term>
     <listitem><para>
 Updates the current &consenv; with the values extracted
-from the output from running external <parameter>command</parameter>,
-by calling a helper function <parameter>function</parameter>
-which understands
-the output of <parameter>command</parameter>.
+from the output of running external <parameter>command</parameter>,
+by passing it to a helper <parameter>function</parameter>.
 <parameter>command</parameter> may be a string
 or a list of strings representing the command and
 its arguments.
 If <parameter>function</parameter>
-is not given,
+is omitted or <constant>None</constant>,
 &f-link-env-MergeFlags; is used.
 By default,
 duplicate values are not
@@ -2792,33 +2807,32 @@ to allow duplicate values to be added.
 </para>
 
 <para>
-If &f-env-MergeFlags; is used,
-it expects a response in the style of a
-<command>*-config</command>
-command typical of the POSIX programming environment
-(for example,
-<application>gtk-config</application>)
-and adds the options
-to the appropriate construction variables.
-Interpreted options
-and the construction variables they affect
-are as specified for the
-&f-link-env-ParseFlags;
-method (which
-&f-env-MergeFlags; calls).
-See that method's description
-for a table of options and corresponding construction variables.
+<parameter>command</parameter> is executed using the
+SCons execution environment (that is, the &consvar;
+&cv-link-ENV; in the current &consenv;).
+If <parameter>command</parameter> needs additional information
+to operate properly, that needs to be set in the execution environment.
+For example, <command>pkg-config</command>
+may need a custom value set in the <envar>PKG_CONFIG_PATH</envar>
+environment variable.
 </para>
 
 <para>
-If &f-env-MergeFlags; cannot interpret the results of
+&f-env-MergeFlags; needs to understand
+the output produced by <parameter>command</parameter>
+in order to distribute it to appropriate &consvars;.
+&f-env-MergeFlags; uses a separate function to
+do that processing -
+see &f-link-env-ParseFlags; for the details, including a
+a table of options and corresponding construction variables.
+To provide alternative processing of the output of
 <parameter>command</parameter>,
 you can suppply a custom
-<parameter>function</parameter> to do so.
-<parameter>function</parameter>
-must accept three arguments:
-the &consenv; to modify, the string returned
-by running <parameter>command</parameter>,
+<parameter>function</parameter>,
+which must accept three arguments:
+the &consenv; to modify,
+a string argument containing the output from running
+<parameter>command</parameter>,
 and the optional
 <parameter>unique</parameter> flag.
 </para>
@@ -2828,8 +2842,7 @@ and the optional
     <term><function>ParseDepends</function>(<parameter>filename, [must_exist, only_one]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>ParseDepends</methodname>(<parameter>filename, [must_exist, only_one]</parameter>)</term>
     <listitem><para>
-Parses the contents of the specified
-<parameter>filename</parameter>
+Parses the contents of <parameter>filename</parameter>
 as a list of dependencies in the style of
 &Make;
 or
@@ -2840,27 +2853,21 @@ and explicitly establishes all of the listed dependencies.
 <para>
 By default,
 it is not an error
-if the specified
-<parameter>filename</parameter>
+if <parameter>filename</parameter>
 does not exist.
 The optional
 <parameter>must_exist</parameter>
-argument may be set to a non-zero
-value to have
-scons
-throw an exception and
-generate an error if the file does not exist,
+argument may be set to <constant>True</constant>
+to have &SCons;
+raise an exception if the file does not exist,
 or is otherwise inaccessible.
 </para>
 
 <para>
 The optional
 <parameter>only_one</parameter>
-argument may be set to a non-zero
-value to have
-scons
-thrown an exception and
-generate an error
+argument may be set to <constant>True</constant>
+to have &SCons; raise an exception
 if the file contains dependency
 information for more than one target.
 This can provide a small sanity check
@@ -2876,7 +2883,6 @@ file.
 </para>
 
 <para>
-The
 <parameter>filename</parameter>
 and all of the files listed therein
 will be interpreted relative to
@@ -2892,10 +2898,10 @@ function.
     <term><replaceable>env</replaceable>.<methodname>ParseFlags</methodname>(<parameter>flags, ...</parameter>)</term>
     <listitem><para>
 Parses one or more strings containing
-typical command-line flags for GCC tool chains
+typical command-line flags for GCC-style tool chains
 and returns a dictionary with the flag values
 separated into the appropriate SCons construction variables.
-This is intended as a companion to the
+Intended as a companion to the
 &f-link-env-MergeFlags;
 method, but allows for the values in the returned dictionary
 to be modified, if necessary,
@@ -2910,11 +2916,20 @@ directly unless you want to manipulate the values.)
 
 <para>
 If the first character in any string is
-an exclamation mark (!),
+an exclamation mark (<literal>!</literal>),
 the rest of the string is executed as a command,
 and the output from the command is
 parsed as GCC tool chain command-line flags
 and added to the resulting dictionary.
+This can be used to call a <filename>*-config</filename>
+command typical of the POSIX programming environment
+(for example,
+<command>pkg-config</command>).
+Note that such a comamnd is executed using the
+SCons execution environment;
+if the command needs additional information,
+that information needs to be explcitly provided.
+See &f-link-ParseConfig; for more details.
 </para>
 
 <para>
@@ -3051,30 +3066,28 @@ and &f-link-env-PrependUnique;.
 </listitem>
   </varlistentry>
   <varlistentry id="f-PrependENVPath">
-    <term><replaceable>env</replaceable>.<methodname>PrependENVPath</methodname>(<parameter>name, newpath, [envname, sep, delete_existing]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>PrependENVPath</methodname>(<parameter>name, newpath, [envname, sep, delete_existing=True]</parameter>)</term>
     <listitem><para>
-Prepend new path elements to the given path in the
-specified external environment (&cv-link-ENV; by default).
-This will only add
-any particular path once (leaving the first one it encounters and
-ignoring the rest, to preserve path order),
-and to help assure this,
-will normalize all paths (using
+Prepend path elements specified by <parameter>newpath</parameter>
+to the given search path string or list <parameter>name</parameter>
+in mapping <parameter>envname</parameter> in the &consenv;.
+Supplying <parameter>envname</parameter> is optional:
+the default is the execution environment &cv-link-ENV;.
+Optional <parameter>sep</parameter> is used as the search path separator,
+the default is the platform's separator (<systemitem>os.pathsep</systemitem>).
+A path element will only appear once.
+Any duplicates in <parameter>newpath</parameter> are dropped,
+keeping the first appearing (to preserve path order).
+If <parameter>delete_existing</parameter>
+is <constant>False</constant>
+any addition duplicating an existing path element is ignored;
+if <parameter>delete_existing</parameter>
+is <constant>True</constant> (the default) the existing value will
+be dropped and the path element will be inserted at the beginning.
+To help maintain uniqueness all paths are normalized (using
 <systemitem>os.path.normpath</systemitem>
 and
 <systemitem>os.path.normcase</systemitem>).
-This can also handle the
-case where the given old path variable is a list instead of a
-string, in which case a list will be returned instead of a string.
-</para>
-
-<para>
-If
-<parameter>delete_existing</parameter>
-is <constant>False</constant>,
-then adding a path that already exists
-will not move it to the beginning;
-it will stay where it is in the list.
 </para>
 
 <para>
@@ -3094,6 +3107,11 @@ print('after:', env['ENV']['INCLUDE'])
 before: /biz:/foo
 after: /foo/bar:/foo:/biz
 </screen>
+
+<para>
+See also &f-link-env-AppendENVPath;.
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-PrependUnique">
@@ -3103,7 +3121,7 @@ Prepend values to &consvars; in the current &consenv;,
 maintaining uniqueness.
 Works like &f-link-env-Append; (see for details),
 except that values are added to the front,
-rather than the end, of any existing value of the the &consvar;,
+rather than the end, of any existing value of the &consvar;,
 and values already present in the &consvar;
 will not be added again.
 If <parameter>delete_existing</parameter>
@@ -3461,40 +3479,36 @@ for a complete explanation of the arguments and behavior.
   <varlistentry id="f-SConscript">
     <term><function>SConscript</function>(<parameter>scripts, [exports, variant_dir, duplicate, must_exist]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>SConscript</methodname>(<parameter>scripts, [exports, variant_dir, duplicate, must_exist]</parameter>)</term>
-    <term><function>SConscript</function>(<parameter>dirs=subdirs, [name=script, exports, variant_dir, duplicate, must_exist]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>SConscript</methodname>(<parameter>dirs=subdirs, [name=script, exports, variant_dir, duplicate, must_exist]</parameter>)</term>
+    <term><function>SConscript</function>(<parameter>dirs=subdirs, [name=scriptname, exports, variant_dir, duplicate, must_exist]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>SConscript</methodname>(<parameter>dirs=subdirs, [name=scriptname, exports, variant_dir, duplicate, must_exist]</parameter>)</term>
     <listitem><para>
-Execute one or more subsidiary SConscript (configuration) files.
+Executes one or more subsidiary SConscript (configuration) files.
 There are two ways to call the
 &f-SConscript; function.
 </para>
 
 <para>
-The first calling style
-is to explicitly specify one or more
-<varname>scripts</varname>
-as the first argument.
+The first calling style is to supply
+one or more SConscript file names
+as the first (positional) argument.
 A single script may be specified as a string;
-multiple scripts must be specified as a list
+multiple scripts must be specified as a list of strings
 (either explicitly or as created by
 a function like
 &f-link-Split;).
 Examples:
 </para>
 <example_commands>
-SConscript('SConscript')      # run SConscript in the current directory
+SConscript('SConscript')  # run SConscript in the current directory
 SConscript('src/SConscript')  # run SConscript in the src directory
 SConscript(['src/SConscript', 'doc/SConscript'])
 config = SConscript('MyConfig.py')
 </example_commands>
 
 <para>
-The second way to call
-&f-SConscript;
-is to specify a list of (sub)directory names
-as a
-<varname>dirs</varname>=<replaceable>subdirs</replaceable>
-keyword argument.
+The other calling style is to omit the positional argument naming
+scripts and instead specify a list of directory names using the
+<varname>dirs</varname> keyword argument.
 In this case,
 &scons;
 will
@@ -3504,14 +3518,14 @@ in each of the specified directories.
 You may specify a name other than
 &SConscript;
 by supplying an optional
-<varname>name</varname>=<replaceable>script</replaceable>
+<varname>name</varname>=<replaceable>scriptname</replaceable>
 keyword argument.
 The first three examples below have the same effect
 as the first three examples above:
 </para>
 <example_commands>
-SConscript(dirs='.')      # run SConscript in the current directory
-SConscript(dirs='src')    # run SConscript in the src directory
+SConscript(dirs='.')  # run SConscript in the current directory
+SConscript(dirs='src')  # run SConscript in the src directory
 SConscript(dirs=['src', 'doc'])
 SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 </example_commands>
@@ -3519,8 +3533,12 @@ SConscript(dirs=['sub1', 'sub2'], name='MySConscript')
 <para>
 The optional
 <varname>exports</varname>
-argument provides a string or list of strings representing
+keyword argument provides a string or list of strings representing
 variable names, or a dictionary of named values, to export.
+For the first calling style only, a second positional argument
+will be interpreted as <varname>exports</varname>; the
+second calling style must use the keyword argument form
+for <varname>exports</varname>.
 These variables are locally exported only to the called
 SConscript file(s)
 and do not affect the global pool of variables managed by the
@@ -3544,38 +3562,24 @@ SConscript(dirs=['one', 'two', 'three'], exports='shared_info')
 If the optional
 <varname>variant_dir</varname>
 argument is present, it causes an effect equivalent to the
-&f-link-VariantDir; function.
+&f-link-VariantDir; function,
+but in effect only within the scope of the &f-SConscript; call.
 The <varname>variant_dir</varname>
-argument is interpreted relative to the directory of the calling
-SConscript file.
-The optional
-<varname>duplicate</varname> argument is
-interpreted as for &f-link-VariantDir;.
-If <varname>variant_dir</varname>
-is omitted, the <varname>duplicate</varname> argument is ignored.
-See the description of
-&f-link-VariantDir;
-below for additional details and restrictions.
-</para>
-
-<para>
-If
-<varname>variant_dir</varname>
-is present,
-the source directory is the directory in which the
-SConscript
-file resides and the
-SConscript
+argument is interpreted relative to the directory of the
+<emphasis>calling</emphasis> SConscript file.
+The source directory is the directory in which the
+<emphasis>called</emphasis> SConscript
+file resides and the SConscript
 file is evaluated as if it were in the
 <varname>variant_dir</varname>
-directory:
+directory. Thus:
 </para>
 <example_commands>
 SConscript('src/SConscript', variant_dir='build')
 </example_commands>
 
 <para>
-is equivalent to
+is equivalent to:
 </para>
 
 <example_commands>
@@ -3584,9 +3588,8 @@ SConscript('build/SConscript')
 </example_commands>
 
 <para>
-This later paradigm is often used when the sources are
-in the same directory as the
-&SConstruct;:
+If the sources are in the same directory as the
+&SConstruct;,
 </para>
 
 <example_commands>
@@ -3594,13 +3597,24 @@ SConscript('SConscript', variant_dir='build')
 </example_commands>
 
 <para>
-is equivalent to
+is equivalent to:
 </para>
 
 <example_commands>
 VariantDir('build', '.')
 SConscript('build/SConscript')
 </example_commands>
+
+<para>
+The optional
+<varname>duplicate</varname> argument is
+interpreted as for &f-link-VariantDir;.
+If the <varname>variant_dir</varname> argument
+is omitted, the <varname>duplicate</varname> argument is ignored.
+See the description of
+&f-link-VariantDir;
+for additional details and restrictions.
+</para>
 
 <para>
 <!--
@@ -3685,11 +3699,11 @@ SConscript('src/SConscript', variant_dir='build/ppc', duplicate=0)
 
 <para>
 &f-SConscript; returns the values of any variables
-named by the executed SConscript(s) in arguments
-to the &f-link-Return; function (see above for details).
+named by the executed SConscript file(s) in arguments
+to the &f-link-Return; function.
 If a single &f-SConscript; call causes multiple scripts to
 be executed, the return value is a tuple containing
-the returns of all of the scripts. If an executed
+the returns of each of the scripts. If an executed
 script does not explicitly call &Return;, it returns
 <constant>None</constant>.
 </para>
@@ -3724,7 +3738,7 @@ when all the directories in which SConscript files may be found
 don't necessarily exist locally.)
 You may enable and disable
 this ability by calling
-SConscriptChdir()
+&f-SConscriptChdir;
 multiple times.
 </para>
 
@@ -4159,9 +4173,16 @@ files = Split("""
   <varlistentry id="f-subst">
     <term><replaceable>env</replaceable>.<methodname>subst</methodname>(<parameter>input, [raw, target, source, conv]</parameter>)</term>
     <listitem><para>
-Performs construction variable interpolation
+Performs &consvar; interpolation
+(<firstterm>substitution</firstterm>)
 on <parameter>input</parameter>,
 which can be a string or a sequence.
+Substitutable elements take the form
+<literal>${<replaceable>expression</replaceable>}</literal>,
+although if there is no ambiguity in recognizing the element,
+the braces can be omitted.
+A literal <emphasis role="bold">$</emphasis> can be entered by
+using <emphasis role="bold">$$</emphasis>.
 </para>
 
 <para>
@@ -4196,7 +4217,7 @@ pairs
 </para>
 
 <para>
-If the input is a sequence
+If <parameter>input</parameter> is a sequence
 (list or tuple),
 the individual elements of
 the sequence will be expanded,
@@ -4424,7 +4445,7 @@ env.Config(target = 'package-config', source = Value(prefix))
 
 def build_value(target, source, env):
     # A function that "builds" a Python Value by updating
-    # the the Python value with the contents of the file
+    # the Python value with the contents of the file
     # specified as the source of the Builder call ($SOURCE).
     target[0].write(source[0].get_contents())
 
@@ -4442,42 +4463,41 @@ env.UpdateValue(target = Value(output), source = Value(input))
     <term><function>VariantDir</function>(<parameter>variant_dir, src_dir, [duplicate]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>VariantDir</methodname>(<parameter>variant_dir, src_dir, [duplicate]</parameter>)</term>
     <listitem><para>
-Sets up an alternate build location.
-When building in the <parameter>variant_dir</parameter>,
-&SCons; backfills as needed with files from <parameter>src_dir</parameter>
-to create a complete build directory.
+Sets up a mapping to define a variant build directory in
+<parameter>variant_dir</parameter>.
+<parameter>src_dir</parameter> may not be underneath
+<parameter>variant_dir</parameter>.
+A &f-VariantDir; mapping is global, even if called using the
+&f-env-VariantDir; form.
 &f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
-to set up multiple builds with different options
-(<emphasis>variants</emphasis>).
+to set up multiple variant builds with different options.
 </para>
 
 <para>
-The
-<parameter>variant</parameter>
-location must be in or underneath the project top directory,
-and <parameter>src_dir</parameter>
-may not be underneath
-<parameter>variant_dir</parameter>.
+Note if <parameter>variant_dir</parameter>
+is not under the project top directory,
+target selection rules will not pick targets in the
+variant directory unless they are explicitly specified.
 </para>
 
 <para>
+When files in <parameter>variant_dir</parameter> are referenced,
+&SCons; backfills as needed with files from <parameter>src_dir</parameter>
+to create a complete build directory.
 By default, &SCons;
-physically duplicates the source files and SConscript files
-as needed into the variant tree.
-Thus, a build performed in the variant tree is guaranteed to be identical
-to a build performed in the source tree even if
+physically duplicates the source files, SConscript files,
+and directory structure as needed into the variant directory.
+Thus, a build performed in the variant directory is guaranteed to be identical
+to a build performed in the source directory even if
 intermediate source files are generated during the build,
 or if preprocessors or other scanners search for included files
-relative to the source file,
+using paths relative to the source file,
 or if individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
 Only the files &SCons; calculates are needed for the build are
 duplicated into <parameter>variant_dir</parameter>.
-</para>
-
-<para>
 If possible on the platform,
 the duplication is performed by linking rather than copying.
 This behavior is affected by the
@@ -4496,44 +4516,46 @@ to invoke Builders using the path names of source files in
 <parameter>src_dir</parameter>
 and the path names of derived files within
 <parameter>variant_dir</parameter>.
-This is more efficient than
-<literal>duplicate=True</literal>,
+This is more efficient than duplicating,
 and is safe for most builds;
-revert to <constant>True</constant>
+revert to <literal>duplicate=True</literal>
 if it causes problems.
 </para>
 
 <para>
 &f-VariantDir;
-works most naturally with used with a subsidiary SConscript file.
-The subsidiary SConscript file is called as if it
-were in
+works most naturally when used with a subsidiary SConscript file.
+The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
-This is how you tell
-&scons;
-which variant of a source tree to build:
+When calling an SConscript file, you can use the 
+<parameter>exports</parameter> keyword argument
+to pass parameters (individually or as an appropriately set up environment)
+so the SConscript can pick up the right settings for that variant build.
+The SConscript must &f-link-Import; these to use them. Example:
 </para>
 
 <example_commands>
+env1 = Environment(...settings for variant1...)
+env2 = Environment(...settings for variant2...)
+
 # run src/SConscript in two variant directories
 VariantDir('build/variant1', 'src')
-SConscript('build/variant1/SConscript')
+SConscript('build/variant1/SConscript', exports={"env": env1})
 VariantDir('build/variant2', 'src')
-SConscript('build/variant2/SConscript')
+SConscript('build/variant2/SConscript', exports={"env": env2})
 </example_commands>
 
 <para>
 See also the
-&f-link-SConscript;
-function, described above,
+&f-link-SConscript; function
 for another way to specify a variant directory
 in conjunction with calling a subsidiary SConscript file.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>

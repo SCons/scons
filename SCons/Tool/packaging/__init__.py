@@ -217,10 +217,11 @@ def generate(env):
         env['BUILDERS']['Package'] = Package
         env['BUILDERS']['Tag'] = Tag
 
+
 def exists(env):
     return 1
 
-# XXX
+
 def options(opts):
     opts.AddVariables(
         EnumVariable('PACKAGETYPE',

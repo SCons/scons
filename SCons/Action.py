@@ -755,6 +755,29 @@ def get_default_ENV(env):
         return default_ENV
 
 
+def _resolve_shell_env(env, target, source):
+    """
+    First get default environment.
+    Then if SHELL_ENV_GENERATORS is set and is iterable,
+    call each callable in that list to allow it to alter
+    the created execution environment.
+    """
+    ENV = get_default_ENV(env)
+    shell_gen = env.get('SHELL_ENV_GENERATORS')
+    if shell_gen:
+        try:
+            shell_gens = iter(shell_gen)
+        except TypeError:
+            raise SCons.Errors.UserError("SHELL_ENV_GENERATORS must be iteratable.")
+        else:
+            ENV = ENV.copy()
+            for generator in shell_gens:
+                ENV = generator(env, target, source, ENV)
+                if not isinstance(ENV, dict):
+                    raise SCons.Errors.UserError(f"SHELL_ENV_GENERATORS function: {generator} must return a dict.")
+    return ENV
+
+
 def _subproc(scons_env, cmd, error='ignore', **kw):
     """Wrapper for subprocess which pulls from construction env.
 
@@ -799,25 +822,25 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
         class dummyPopen:
-            def __init__(self, e): 
+            def __init__(self, e):
                 self.exception = e
             # Add the following two to enable using the return value as a context manager
-            # for example 
+            # for example
             #    with Action._subproc(...) as po:
             #       logic here which uses po
 
-            def __enter__(self): 
+            def __enter__(self):
                 return self
 
-            def __exit__(self, *args): 
+            def __exit__(self, *args):
                 pass
 
-            def communicate(self, input=None): 
+            def communicate(self, input=None):
                 return ('', '')
 
-            def wait(self): 
+            def wait(self):
                 return -self.exception.errno
-                
+
             stdin = None
             class f:
                 def read(self): return ''
@@ -848,7 +871,7 @@ class CommandAction(_ActionAction):
         # variables.
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Action.CommandAction')
 
-        _ActionAction.__init__(self, **kw)
+        super().__init__(**kw)
         if is_List(cmd):
             if [c for c in cmd if is_List(c)]:
                 raise TypeError("CommandAction should be given only "
@@ -924,7 +947,7 @@ class CommandAction(_ActionAction):
 
         escape = env.get('ESCAPE', lambda x: x)
 
-        ENV = get_default_ENV(env)
+        ENV = _resolve_shell_env(env, target, source)
 
         # Ensure that the ENV values are all strings:
         for key, value in ENV.items():
@@ -1231,7 +1254,7 @@ class FunctionAction(_ActionAction):
                 # This is weird, just do the best we can.
                 self.funccontents = _object_contents(execfunction)
 
-        _ActionAction.__init__(self, **kw)
+        super().__init__(**kw)
 
     def function_name(self):
         try:

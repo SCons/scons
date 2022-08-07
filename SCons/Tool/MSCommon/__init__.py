@@ -28,24 +28,63 @@ Common functions for Microsoft Visual Studio and Visual C/C++.
 
 import SCons.Errors
 import SCons.Platform.win32
-import SCons.Util
+import SCons.Util  # noqa: F401
 
-from SCons.Tool.MSCommon.sdk import mssdk_exists, mssdk_setup_env
+from SCons.Tool.MSCommon.sdk import (  # noqa: F401
+    mssdk_exists,
+    mssdk_setup_env,
+)
 
-from SCons.Tool.MSCommon.vc import (
+from SCons.Tool.MSCommon.vc import (  # noqa: F401
     msvc_exists,
-    msvc_setup_env,
+    msvc_setup_env_tool,
     msvc_setup_env_once,
     msvc_version_to_maj_min,
     msvc_find_vswhere,
+    msvc_sdk_versions,
+    msvc_toolset_versions,
+    msvc_toolset_versions_spectre,
+    msvc_query_version_toolset,
 )
 
-from SCons.Tool.MSCommon.vs import (
+from SCons.Tool.MSCommon.vs import (  # noqa: F401
     get_default_version,
     get_vs_by_version,
     merge_default_version,
     msvs_exists,
     query_versions,
+)
+
+from .MSVC.Policy import (  # noqa: F401
+    msvc_set_notfound_policy,
+    msvc_get_notfound_policy,
+    msvc_set_scripterror_policy,
+    msvc_get_scripterror_policy,
+)
+
+from .MSVC.Exceptions import (  # noqa: F401
+    VisualCException,
+    MSVCInternalError,
+    MSVCUserError,
+    MSVCScriptExecutionError,
+    MSVCVersionNotFound,
+    MSVCSDKVersionNotFound,
+    MSVCToolsetVersionNotFound,
+    MSVCSpectreLibsNotFound,
+    MSVCArgumentError,
+)
+
+from .vc import (  # noqa: F401
+    MSVCUnsupportedHostArch,
+    MSVCUnsupportedTargetArch,
+    MSVCScriptNotFound,
+    MSVCUseSettingsError,
+)
+
+from .MSVC.Util import (  # noqa: F401
+    msvc_version_components,
+    msvc_extended_version_components,
+    msvc_sdk_version_components,
 )
 
 # Local Variables:

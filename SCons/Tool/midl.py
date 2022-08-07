@@ -1,15 +1,6 @@
-"""SCons.Tool.midl
-
-Tool-specific initialization for midl (Microsoft IDL compiler).
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,9 +20,16 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""SCons.Tool.midl
+
+Tool-specific initialization for midl (Microsoft IDL compiler).
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+
+"""
 
 import SCons.Action
 import SCons.Builder
@@ -39,7 +37,10 @@ import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
 
-from .MSCommon import msvc_exists
+from .MSCommon import msvc_setup_env_tool
+
+tool_name = 'midl'
+
 
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
@@ -58,28 +59,31 @@ def midl_emitter(target, source, env):
         dlldata = base + '_data.c'
         targets.append(dlldata)
 
-    return (targets, source)
+    return targets, source
+
 
 idl_scanner = SCons.Scanner.IDL.IDLScan()
 
 midl_action = SCons.Action.Action('$MIDLCOM', '$MIDLCOMSTR')
 
-midl_builder = SCons.Builder.Builder(action = midl_action,
-                                     src_suffix = '.idl',
+midl_builder = SCons.Builder.Builder(action=midl_action,
+                                     src_suffix='.idl',
                                      suffix='.tlb',
-                                     emitter = midl_emitter,
-                                     source_scanner = idl_scanner)
+                                     emitter=midl_emitter,
+                                     source_scanner=idl_scanner)
+
 
 def generate(env):
     """Add Builders and construction variables for midl to an Environment."""
 
-    env['MIDL']          = 'MIDL.EXE'
-    env['MIDLFLAGS']     = SCons.Util.CLVar('/nologo')
-    env['MIDLCOM']       = '$MIDL $MIDLFLAGS /tlb ${TARGETS[0]} /h ${TARGETS[1]} /iid ${TARGETS[2]} /proxy ${TARGETS[3]} /dlldata ${TARGETS[4]} $SOURCE 2> NUL'
+    env['MIDL'] = 'MIDL.EXE'
+    env['MIDLFLAGS'] = SCons.Util.CLVar('/nologo')
+    env['MIDLCOM'] = '$MIDL $MIDLFLAGS /tlb ${TARGETS[0]} /h ${TARGETS[1]} /iid ${TARGETS[2]} /proxy ${TARGETS[3]} /dlldata ${TARGETS[4]} $SOURCE 2> NUL'
     env['BUILDERS']['TypeLibrary'] = midl_builder
 
+
 def exists(env):
-    return msvc_exists(env)
+    return msvc_setup_env_tool(env, tool=tool_name)
 
 # Local Variables:
 # tab-width:4

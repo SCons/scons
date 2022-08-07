@@ -899,7 +899,7 @@ class HashTestCase(unittest.TestCase):
 
 class FIPSHashTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(FIPSHashTestCase, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         ###############################
         # algorithm mocks, can check if we called with usedforsecurity=False for python >= 3.9

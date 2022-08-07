@@ -59,10 +59,10 @@
 <!ENTITY Cons           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Cons</application>">
 <!ENTITY cp             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>cp</application>">
 <!ENTITY csh            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>csh</application>">
-<!ENTITY flex            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>flex</application>">
 <!ENTITY f77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f77</application>">
 <!ENTITY f90            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f90</application>">
 <!ENTITY f95            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f95</application>">
+<!ENTITY flex           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>flex</application>">
 <!ENTITY gas            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gas</application>">
 <!ENTITY gcc            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>gcc</application>">
 <!ENTITY g77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>g77</application>">
@@ -84,7 +84,7 @@
 <!ENTITY rmic           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>rmic</application>">
 <!ENTITY ScCons         "<application xmlns='http://www.scons.org/dbxsd/v1.0'>ScCons</application>">
 <!ENTITY sleep          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>sleep</application>">
-<!ENTITY swig           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>swig</application>">
+<!ENTITY swig           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>SWIG</application>">
 <!ENTITY tar            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>tar</application>">
 <!ENTITY tex            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>tex</application>">
 <!ENTITY touch          "<application xmlns='http://www.scons.org/dbxsd/v1.0'>touch</application>">
@@ -440,18 +440,19 @@
 
 <!ENTITY Dictionary "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Dictionary</literal>">
 
-<!ENTITY Emitter "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Emitter</literal>">
-<!ENTITY emitter "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>emitter</literal>">
+<!ENTITY Emitter "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Emitter</phrase>">
+<!ENTITY emitter "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>emitter</phrase>">
 
-<!ENTITY factory "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>factory</literal>">
+<!ENTITY factory "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>factory</phrase>">
 
-<!ENTITY Generator "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Generator</literal>">
-<!ENTITY generator "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>generator</literal>">
+<!ENTITY Generator "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Generator</phrase>">
+<!ENTITY generator "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>generator</phrase>">
 
-<!ENTITY Nodes "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>Nodes</literal>">
+<!ENTITY Nodes "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>Nodes</phrase>">
 
-<!ENTITY signature "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>signature</literal>">
-<!ENTITY buildsignature "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</literal>">
+<!ENTITY contentsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signature</phrase>">
+<!ENTITY contentsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signatures</phrase>">
+<!ENTITY buildsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</phrase>">
 
 <!ENTITY true "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>true</literal>">
 <!ENTITY false "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>false</literal>">
@@ -461,12 +462,12 @@
 
 <!-- Python keyword arguments -->
 
-<!ENTITY action "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>action=</literal>">
-<!ENTITY batch_key "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>batch_key=</literal>">
-<!ENTITY cmdstr "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>cmdstr=</literal>">
-<!ENTITY exitstatfunc "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>exitstatfunc=</literal>">
-<!ENTITY strfunction "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>strfunction=</literal>">
-<!ENTITY varlist "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>varlist=</literal>">
+<!ENTITY action "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>action=</parameter>">
+<!ENTITY batch_key "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>batch_key=</parameter>">
+<!ENTITY cmdstr "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>cmdstr=</parameter>">
+<!ENTITY exitstatfunc "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>exitstatfunc=</parameter>">
+<!ENTITY strfunction "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>strfunction=</parameter>">
+<!ENTITY varlist "<parameter xmlns='http://www.scons.org/dbxsd/v1.0'>varlist=</parameter>">
 
 
 <!-- File and program names used in examples.  -->

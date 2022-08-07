@@ -29,7 +29,7 @@
 # of its own, which might or might not be a good thing.  Nevertheless,
 # here are some enhancements that will probably be requested some day
 # and are worth keeping in mind (assuming this takes off):
-# 
+#
 # - A command to re-read / re-load the SConscript files.  This may
 #   involve allowing people to specify command-line options (e.g. -f,
 #   -I, --no-site-dir) that affect how the SConscript files are read.
@@ -257,7 +257,12 @@ version                 Prints SCons version information.
             #    from SCons.Debug import Trace
             #    Trace('node %s, ref_count %s !!!\n' % (node, node.ref_count))
 
-        SCons.SConsign.Reset()
+        # TODO: REMOVE WPD DEBUG 02/14/2022
+        # This call was clearing the list of sconsign files to be written, so it would
+        # only write the results of the first build command. All others wouldn't be written
+        # to .SConsign.
+        # Pretty sure commenting this out is the correct fix.
+        # SCons.SConsign.Reset()
         SCons.Script.Main.progress_display("scons: done clearing node information.")
 
     def do_clean(self, argv):

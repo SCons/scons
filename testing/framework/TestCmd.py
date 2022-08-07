@@ -299,9 +299,17 @@ __version__ = "1.3"
 import atexit
 import difflib
 import errno
+import hashlib
 import os
 import re
+try:
+    import psutil
+except ImportError:
+    HAVE_PSUTIL = False
+else:
+    HAVE_PSUTIL = True
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -310,7 +318,9 @@ import threading
 import time
 import traceback
 from collections import UserList, UserString
+from pathlib import Path
 from subprocess import PIPE, STDOUT
+from typing import Optional
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
@@ -382,6 +392,41 @@ def _caller(tblist, skip):
     return string
 
 
+def clean_up_ninja_daemon(self, result_type) -> None:
+    """
+    Kill any running scons daemon started by ninja and clean up
+
+    Working directory and temp files are removed.
+    Skipped if this platform doesn't have psutil (e.g. msys2 on Windows)
+    """
+    if not self:
+        return
+
+    for path in Path(self.workdir).rglob('.ninja'):
+        daemon_dir = Path(tempfile.gettempdir()) / (
+            "scons_daemon_" + str(hashlib.md5(str(path.resolve()).encode()).hexdigest())
+        )
+        pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
+        for pidfile in pidfiles:
+            if pidfile.exists():
+                with open(pidfile) as f:
+                    try:
+                        pid = int(f.read())
+                        os.kill(pid, signal.SIGINT)
+                    except OSError:
+                        pass
+
+                    while HAVE_PSUTIL:
+                        if pid not in [proc.pid for proc in psutil.process_iter()]:
+                            break
+                        else:
+                            time.sleep(0.1)
+
+        if not self._preserve[result_type]:
+            if daemon_dir.exists():
+                shutil.rmtree(daemon_dir)
+
+
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     """Causes a test to exit with a fail.
 
@@ -401,6 +446,7 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'fail_test')
     of = ""
     desc = ""
     sep = " "
@@ -446,6 +492,7 @@ def no_result(self=None, condition=True, function=None, skip=0):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'no_result')
     of = ""
     desc = ""
     sep = " "
@@ -482,6 +529,7 @@ def pass_test(self=None, condition=True, function=None):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'pass_test')
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 
@@ -966,8 +1014,7 @@ def _clean():
 
 
 class TestCmd:
-    """Class TestCmd
-    """
+    """Class TestCmd"""
 
     def __init__(
         self,
@@ -1001,7 +1048,10 @@ class TestCmd:
         self.combine = combine
         self.universal_newlines = universal_newlines
         self.process = None
-        self.set_timeout(timeout)
+        # Two layers of timeout: one at the test class instance level,
+        # one set on an individual start() call (usually via a run() call)
+        self.timeout = timeout
+        self.start_timeout = None
         self.set_match_function(match, match_stdout, match_stderr)
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
@@ -1049,7 +1099,7 @@ class TestCmd:
     def banner(self, s, width=None):
         if width is None:
             width = self.banner_width
-        return s + self.banner_char * (width - len(s))
+        return f"{s:{self.banner_char}<{width}}"
 
     escape = staticmethod(escape)
 
@@ -1124,6 +1174,9 @@ class TestCmd:
                 interpreter = [interpreter]
             cmd = list(interpreter) + cmd
         if arguments:
+            if isinstance(arguments, dict):
+                cmd.extend(["%s=%s" % (k, v) for k, v in arguments.items()])
+                return cmd
             if isinstance(arguments, str):
                 arguments = arguments.split()
             cmd.extend(arguments)
@@ -1323,14 +1376,6 @@ class TestCmd:
         dir = self.canonicalize(dir)
         os.rmdir(dir)
 
-    def _timeout(self):
-        self.process.terminate()
-        self.timer.cancel()
-        self.timer = None
-
-    def set_timeout(self, timeout):
-        self.timeout = timeout
-        self.timer = None
 
     def parse_path(self, path, suppress_current=False):
         """Return a list with the single path components of path."""
@@ -1457,7 +1502,7 @@ class TestCmd:
               interpreter=None,
               arguments=None,
               universal_newlines=None,
-              timeout=_Null,
+              timeout=None,
               **kw):
         """ Starts a program or script for the test environment.
 
@@ -1485,11 +1530,8 @@ class TestCmd:
         else:
             stderr_value = PIPE
 
-        if timeout is _Null:
-            timeout = self.timeout
         if timeout:
-            self.timer = threading.Timer(float(timeout), self._timeout)
-            self.timer.start()
+            self.start_timeout = timeout
 
         if sys.platform == 'win32':
             # Set this otherwist stdout/stderr pipes default to
@@ -1541,14 +1583,32 @@ class TestCmd:
         """
         if popen is None:
             popen = self.process
-        stdout, stderr = popen.communicate()
+        if self.start_timeout:
+            timeout = self.start_timeout
+            # we're using a timeout from start, now reset it to default
+            self.start_timeout = None
+        else:
+            timeout = self.timeout
+        try:
+            stdout, stderr = popen.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            popen.terminate()
+            stdout, stderr = popen.communicate()
+
+        # this is instead of using Popen as a context manager:
+        if popen.stdout:
+            popen.stdout.close()
+        if popen.stderr:
+            popen.stderr.close()
+        try:
+            if popen.stdin:
+                popen.stdin.close()
+        finally:
+            popen.wait()
 
         stdout = self.fix_binary_stream(stdout)
         stderr = self.fix_binary_stream(stderr)
 
-        if self.timer:
-            self.timer.cancel()
-            self.timer = None
         self.status = popen.returncode
         self.process = None
         self._stdout.append(stdout or '')
@@ -1560,7 +1620,7 @@ class TestCmd:
             chdir=None,
             stdin=None,
             universal_newlines=None,
-            timeout=_Null):
+            timeout=None):
         """Runs a test of the program or script for the test environment.
 
         Output and error output are saved for future retrieval via
@@ -1568,6 +1628,9 @@ class TestCmd:
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
+
+        argument: If this is a dict() then will create arguments with KEY+VALUE for
+                  each entry in the dict.
         """
         if self.external:
             if not program:
@@ -1585,6 +1648,8 @@ class TestCmd:
             if self.verbose:
                 sys.stderr.write("chdir(" + chdir + ")\n")
             os.chdir(chdir)
+        if not timeout:
+            timeout = self.timeout
         p = self.start(program=program,
                        interpreter=interpreter,
                        arguments=arguments,
@@ -1602,16 +1667,28 @@ class TestCmd:
         # subclasses that redefine .finish().  We could abstract this
         # into Yet Another common method called both here and by .finish(),
         # but that seems ill-thought-out.
-        stdout, stderr = p.communicate(input=stdin)
-        if self.timer:
-            self.timer.cancel()
-            self.timer = None
+        try:
+            stdout, stderr = p.communicate(input=stdin, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            p.terminate()
+            stdout, stderr = p.communicate()
+        
+        # this is instead of using Popen as a context manager:
+        if p.stdout:
+            p.stdout.close()
+        if p.stderr:
+            p.stderr.close()
+        try:
+            if p.stdin:
+                p.stdin.close()
+        finally:
+            p.wait()
+       
         self.status = p.returncode
         self.process = None
 
         stdout = self.fix_binary_stream(stdout)
         stderr = self.fix_binary_stream(stderr)
-
 
         self._stdout.append(stdout or '')
         self._stderr.append(stderr or '')
@@ -1641,39 +1718,45 @@ class TestCmd:
         """
         time.sleep(seconds)
 
-    def stderr(self, run=None):
-        """Returns the error output from the specified run number.
+    def stderr(self, run=None) -> Optional[str]:
+        """Returns the stored standard error output from a given run.
 
-        If there is no specified run number, then returns the error
-        output of the last run.  If the run number is less than zero,
-        then returns the error output from that many runs back from the
-        current run.
+        Args:
+            run: run number to select.  If run number is omitted,
+                return the standard error of the most recent run.
+                If negative, use as a relative offset, e.g. -2
+                means the run two prior to the most recent.
+
+        Returns:
+            selected sterr string or None if there are no stored runs.
         """
         if not run:
             run = len(self._stderr)
         elif run < 0:
             run = len(self._stderr) + run
-        run = run - 1
-        return self._stderr[run]
+        run -= 1
+        try:
+            return self._stderr[run]
+        except IndexError:
+            return None
 
-    def stdout(self, run=None):
+    def stdout(self, run=None) -> Optional[str]:
         """Returns the stored standard output from a given run.
 
         Args:
             run: run number to select.  If run number is omitted,
-            return the standard output of the most recent run.
-            If negative, use as a relative offset, so that -2
-            means the run two prior to the most recent.
+                return the standard output of the most recent run.
+                If negative, use as a relative offset, e.g. -2
+                means the run two prior to the most recent.
 
         Returns:
-            selected stdout string or None if there are no
-            stored runs.
+            selected stdout string or None if there are no stored runs.
         """
         if not run:
             run = len(self._stdout)
         elif run < 0:
             run = len(self._stdout) + run
-        run = run - 1
+        run -= 1
         try:
             return self._stdout[run]
         except IndexError:
