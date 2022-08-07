@@ -2325,6 +2325,13 @@ with open(r'%s', 'wb') as logfp:
         os.chmod(t.recv_script_path, 0o644)  # XXX UNIX-specific
         return t
 
+    def _cleanup(self, popen):
+        """Quiet Python ResourceWarning after wait()"""
+        if popen.stdout:
+            popen.stdout.close()
+        if popen.stderr:
+            popen.stderr.close()
+
     def test_start(self):
         """Test start()"""
 
@@ -2344,6 +2351,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.script, "STDERR", t.workdir,
                            repr([]))
             p.wait()
+            self._cleanup(p)
 
             p = test.start(arguments='arg1 arg2 arg3')
             self.run_match(p.stdout.read(), t.script, "STDOUT", t.workdir,
@@ -2351,6 +2359,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.script, "STDERR", t.workdir,
                            repr(['arg1', 'arg2', 'arg3']))
             p.wait()
+            self._cleanup(p)
 
             p = test.start(program=t.scriptx, arguments='foo')
             self.run_match(p.stdout.read(), t.scriptx, "STDOUT", t.workdir,
@@ -2358,6 +2367,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.scriptx, "STDERR", t.workdir,
                            repr(['foo']))
             p.wait()
+            self._cleanup(p)
 
             p = test.start(program=t.script1, interpreter=['python', '-x'])
             self.run_match(p.stdout.read(), t.script1, "STDOUT", t.workdir,
@@ -2365,9 +2375,11 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.script1, "STDERR", t.workdir,
                            repr([]))
             p.wait()
+            self._cleanup(p)
 
             p = test.start(program='no_script', interpreter='python')
             status = p.wait()
+            self._cleanup(p)
             assert status is not None, status
 
             try:
@@ -2379,6 +2391,7 @@ with open(r'%s', 'wb') as logfp:
                 pass
             else:
                 status = p.wait()
+                self._cleanup(p)
                 # Python versions that use os.popen3() or the Popen3
                 # class run things through the shell, which just returns
                 # a non-zero exit status.
@@ -2394,6 +2407,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.scriptx, "STDERR", t.workdir,
                            repr([]))
             p.wait()
+            self._cleanup(p)
 
             p = testx.start(arguments='foo bar')
             self.run_match(p.stdout.read(), t.scriptx, "STDOUT", t.workdir,
@@ -2401,6 +2415,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.scriptx, "STDERR", t.workdir,
                            repr(['foo', 'bar']))
             p.wait()
+            self._cleanup(p)
 
             p = testx.start(program=t.script, interpreter='python', arguments='bar')
             self.run_match(p.stdout.read(), t.script, "STDOUT", t.workdir,
@@ -2408,6 +2423,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.script, "STDERR", t.workdir,
                            repr(['bar']))
             p.wait()
+            self._cleanup(p)
 
             p = testx.start(program=t.script1, interpreter=('python', '-x'))
             self.run_match(p.stdout.read(), t.script1, "STDOUT", t.workdir,
@@ -2415,6 +2431,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.script1, "STDERR", t.workdir,
                            repr([]))
             p.wait()
+            self._cleanup(p)
 
             s = os.path.join('.', t.scriptx)
             p = testx.start(program=[s])
@@ -2423,6 +2440,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.scriptx, "STDERR", t.workdir,
                            repr([]))
             p.wait()
+            self._cleanup(p)
 
             try:
                 testx.start(program='no_program')
@@ -2438,6 +2456,7 @@ with open(r'%s', 'wb') as logfp:
                 # we can wait() for it.
                 try:
                     p = p.wait()
+                    self._cleanup(p)
                 except OSError:
                     pass
 
@@ -2451,6 +2470,7 @@ with open(r'%s', 'wb') as logfp:
             self.run_match(p.stderr.read(), t.script1, "STDERR", t.workdir,
                            repr([]))
             p.wait()
+            self._cleanup(p)
 
         finally:
             os.chdir(t.orig_cwd)
