@@ -13,6 +13,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
         - Whatever John Doe did.
 
+  From Dan Mezhiborsky:
+    - Add newline to end of compilation db (compile_commands.json).
+
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 
