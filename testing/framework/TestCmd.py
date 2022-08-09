@@ -369,7 +369,7 @@ def is_String(e):
 
 testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
-    testprefix += "%s." % str(os.getpid())
+    testprefix += f"{os.getpid()}."
 
 re_space = re.compile(r'\s')
 
@@ -386,7 +386,7 @@ def _caller(tblist, skip):
         if name in ("?", "<module>"):
             name = ""
         else:
-            name = " (" + name + ")"
+            name = f" ({name})"
         string = string + ("%s line %d of %s%s\n" % (atfrom, line, file, name))
         atfrom = "\tfrom"
     return string
@@ -404,7 +404,7 @@ def clean_up_ninja_daemon(self, result_type) -> None:
 
     for path in Path(self.workdir).rglob('.ninja'):
         daemon_dir = Path(tempfile.gettempdir()) / (
-            "scons_daemon_" + str(hashlib.md5(str(path.resolve()).encode()).hexdigest())
+            f"scons_daemon_{str(hashlib.md5(str(path.resolve()).encode()).hexdigest())}"
         )
         pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
         for pidfile in pidfiles:
@@ -452,18 +452,18 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
     sep = " "
     if self is not None:
         if self.program:
-            of = " of " + self.program
+            of = f" of {self.program}"
             sep = "\n\t"
         if self.description:
-            desc = " [" + self.description + "]"
+            desc = f" [{self.description}]"
             sep = "\n\t"
 
     at = _caller(traceback.extract_stack(), skip)
     if message:
-        msg = "\t%s\n" % message
+        msg = f"\t{message}\n"
     else:
         msg = ""
-    sys.stderr.write("FAILED test" + of + desc + sep + at + msg)
+    sys.stderr.write(f"FAILED test{of}{desc}{sep}{at}{msg}")
 
     sys.exit(1)
 
@@ -498,14 +498,14 @@ def no_result(self=None, condition=True, function=None, skip=0):
     sep = " "
     if self is not None:
         if self.program:
-            of = " of " + self.program
+            of = f" of {self.program}"
             sep = "\n\t"
         if self.description:
-            desc = " [" + self.description + "]"
+            desc = f" [{self.description}]"
             sep = "\n\t"
 
     at = _caller(traceback.extract_stack(), skip)
-    sys.stderr.write("NO RESULT for test" + of + desc + sep + at)
+    sys.stderr.write(f"NO RESULT for test{of}{desc}{sep}{at}")
 
     sys.exit(2)
 
@@ -602,7 +602,7 @@ def match_re(lines=None, res=None):
     if not is_List(res):
         res = res.split("\n")
     if len(lines) != len(res):
-        print("match_re: expected %d lines, found %d" % (len(res), len(lines)))
+        print(f"match_re: expected {len(res)} lines, found {len(lines)}")
         return None
     for i, (line, regex) in enumerate(zip(lines, res)):
         s = r"^{}$".format(regex)
@@ -674,24 +674,24 @@ def simple_diff(a, b, fromfile='', tofile='',
     sm = difflib.SequenceMatcher(None, a, b)
 
     def comma(x1, x2):
-        return x1 + 1 == x2 and str(x2) or '%s,%s' % (x1 + 1, x2)
+        return x1 + 1 == x2 and str(x2) or f'{x1 + 1},{x2}'
 
     for op, a1, a2, b1, b2 in sm.get_opcodes():
         if op == 'delete':
-            yield "{}d{}{}".format(comma(a1, a2), b1, lineterm)
+            yield f"{comma(a1, a2)}d{b1}{lineterm}"
             for l in a[a1:a2]:
-                yield '< ' + l
+                yield f"< {l}"
         elif op == 'insert':
-            yield "{}a{}{}".format(a1, comma(b1, b2), lineterm)
+            yield f"{a1}a{comma(b1, b2)}{lineterm}"
             for l in b[b1:b2]:
-                yield '> ' + l
+                yield f"> {l}"
         elif op == 'replace':
-            yield "{}c{}{}".format(comma(a1, a2), comma(b1, b2), lineterm)
+            yield f"{comma(a1, a2)}c{comma(b1, b2)}{lineterm}"
             for l in a[a1:a2]:
-                yield '< ' + l
-            yield '---{}'.format(lineterm)
+                yield f"< {l}"
+            yield f'---{lineterm}'
             for l in b[b1:b2]:
-                yield '> ' + l
+                yield f"> {l}"
 
 
 def diff_re(a, b, fromfile='', tofile='',
@@ -721,10 +721,10 @@ def diff_re(a, b, fromfile='', tofile='',
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(bline):
-            result.append("%sc%s" % (i + 1, i + 1))
-            result.append('< ' + repr(a[i]))
+            result.append(f"{i + 1}c{i + 1}")
+            result.append(f"< {repr(a[i])}")
             result.append('---')
-            result.append('> ' + repr(b[i]))
+            result.append(f"> {repr(b[i])}")
     return result
 
 
@@ -737,7 +737,7 @@ if os.name == 'posix':
         for c in special:
             arg = arg.replace(c, slash + c)
         if re_space.search(arg):
-            arg = '"' + arg + '"'
+            arg = f"\"{arg}\""
         return arg
 else:
     # Windows does not allow special characters in file names
@@ -745,7 +745,7 @@ else:
     # the arg.
     def escape(arg):
         if re_space.search(arg):
-            arg = '"' + arg + '"'
+            arg = f"\"{arg}\""
         return arg
 
 if os.name == 'java':
@@ -1091,7 +1091,7 @@ class TestCmd:
         self.cleanup()
 
     def __repr__(self):
-        return "%x" % id(self)
+        return f"{id(self):x}"
 
     banner_char = '='
     banner_width = 80
@@ -1139,7 +1139,7 @@ class TestCmd:
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print("Preserved directory " + dir)
+                print(f"Preserved directory {dir}")
         else:
             list = self._dirlist[:]
             list.reverse()
@@ -1175,7 +1175,7 @@ class TestCmd:
             cmd = list(interpreter) + cmd
         if arguments:
             if isinstance(arguments, dict):
-                cmd.extend(["%s=%s" % (k, v) for k, v in arguments.items()])
+                cmd.extend([f"{k}={v}" for k, v in arguments.items()])
                 return cmd
             if isinstance(arguments, str):
                 arguments = arguments.split()
@@ -1646,7 +1646,7 @@ class TestCmd:
             if not os.path.isabs(chdir):
                 chdir = os.path.join(self.workpath(chdir))
             if self.verbose:
-                sys.stderr.write("chdir(" + chdir + ")\n")
+                sys.stderr.write(f"chdir({chdir})\n")
             os.chdir(chdir)
         if not timeout:
             timeout = self.timeout
@@ -1700,12 +1700,12 @@ class TestCmd:
             write('============ STATUS: %d\n' % self.status)
             out = self.stdout()
             if out or self.verbose >= 3:
-                write('============ BEGIN STDOUT (len=%d):\n' % len(out))
+                write(f'============ BEGIN STDOUT (len={len(out)}):\n')
                 write(out)
                 write('============ END STDOUT\n')
             err = self.stderr()
             if err or self.verbose >= 3:
-                write('============ BEGIN STDERR (len=%d)\n' % len(err))
+                write(f'============ BEGIN STDERR (len={len(err)})\n')
                 write(err)
                 write('============ END STDERR\n')
 

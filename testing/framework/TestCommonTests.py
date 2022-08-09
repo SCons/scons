@@ -49,12 +49,12 @@ def assert_display(expect, result, error=None):
         pass
     display = [
         '\n',
-        f'{"EXPECTED: " :*<80}' + '\n',
+        f"{'EXPECTED: ':*<80}\n",
         expect,
-        f'{"GOT: " :*<80}' + '\n',
+        f"{'GOT: ':*<80}\n",
         result,
-        error if error else '',
-        ('*'*80) + '\n',
+        '' if error is None else error,
+        f"{'':*<80}\n",
     ]
     return ''.join(display)
 
@@ -349,7 +349,7 @@ class must_contain_TestCase(TestCommonTestCase):
         """)
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
-        assert stdout == expect, "got:\n%s\nexpected:\n%s"%(stdout, expect)
+        assert stdout == expect, f"got:\n{stdout}\nexpected:\n{expect}"
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
 
@@ -1328,7 +1328,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         """)
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
-        assert stdout == expect, "\ngot:\n%s\nexpected:\n%s" % (stdout, expect)
+        assert stdout == expect, f"\ngot:\n{stdout}\nexpected:\n{expect}"
 
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
@@ -1353,7 +1353,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         """)
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
-        assert stdout == expect, "\ngot:\n%s\nexpected:\n%s" % (stdout, expect)
+        assert stdout == expect, f"\ngot:\n{stdout}\nexpected:\n{expect}"
 
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
@@ -2384,13 +2384,13 @@ class variables_TestCase(TestCommonTestCase):
         ]
 
         script = "import TestCommon\n" + \
-                 '\n'.join([ "print(TestCommon.%s)\n" % v for v in variables ])
+                 '\n'.join([ f"print(TestCommon.{v})\n" for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
         script = "from TestCommon import *\n" + \
-                 '\n'.join([ "print(%s)" % v for v in variables ])
+                 '\n'.join([ f"print({v})" for v in variables ])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr

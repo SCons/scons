@@ -690,7 +690,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         orig = 'sys.path = [ join(sys'
 
         enginepath = repr(os.path.join(self._cwd, '..', 'engine'))
-        replace = 'sys.path = [ %s, join(sys' % enginepath
+        replace = f'sys.path = [ {enginepath}, join(sys'
 
         contents = self.read(fname, mode='r')
         contents = contents.replace(orig, replace)
@@ -719,9 +719,9 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
             project_guid = "{B0CC4EE9-0174-51CD-A06A-41D0713E928A}"
 
         if 'SCONS_LIB_DIR' in os.environ:
-            exec_script_main = "from os.path import join; import sys; sys.path = [ r'%s' ] + sys.path; import SCons.Script; SCons.Script.main()" % os.environ['SCONS_LIB_DIR']
+            exec_script_main = f"from os.path import join; import sys; sys.path = [ r'{os.environ['SCONS_LIB_DIR']}' ] + sys.path; import SCons.Script; SCons.Script.main()"
         else:
-            exec_script_main = "from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-%s'), join(sys.prefix, 'scons-%s'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()" % (self.scons_version, self.scons_version)
+            exec_script_main = f"from os.path import join; import sys; sys.path = [ join(sys.prefix, 'Lib', 'site-packages', 'scons-{self.scons_version}'), join(sys.prefix, 'scons-{self.scons_version}'), join(sys.prefix, 'Lib', 'site-packages', 'scons'), join(sys.prefix, 'scons') ] + sys.path; import SCons.Script; SCons.Script.main()"
         exec_script_main_xml = exec_script_main.replace("'", "&apos;")
 
         result = input.replace(r'<WORKPATH>', workpath)
@@ -823,7 +823,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         elif major > 10:
             return '12.00'
         else:
-            raise SCons.Errors.UserError('Received unexpected VC version %s' % vc_version)
+            raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
     def _get_solution_file_vs_number(self, vc_version):
         """
@@ -846,7 +846,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         elif major == 14 and minor == 2:
             return '16'
         else:
-            raise SCons.Errors.UserError('Received unexpected VC version %s' % vc_version)
+            raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
     def _get_vcxproj_file_tools_version(self, vc_version):
         """
@@ -877,7 +877,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
             # ToolsVersion='17'
             return '17.0'
         else:
-            raise SCons.Errors.UserError('Received unexpected VC version %s' % vc_version)
+            raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
     def _get_vcxproj_file_cpp_path(self, dirs):
         """Returns the include paths expected in the .vcxproj file"""
