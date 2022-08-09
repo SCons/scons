@@ -13,8 +13,6 @@ TODO:
   * ensure Linux works
   * unit tests
   * verify that feature supersetting works
-  * debug libs
-  * install/symlink built dlls into variant dir
   * parallel builds?
   * can we ensure granular detection, and fail on undetected dependencies?
   * batch depend-info calls to vcpkg for better perf?
@@ -304,6 +302,7 @@ def _get_package_deps(env, spec, static):
     raise InternalError('Failed to parse output from vcpkg ' + ' '.join(params) + '\n' + output)
 
 
+# CHECKIN: move to env?
 # Global mapping of previously-computed package-name -> list-file targets. This exists because we may discover
 # additional packages that we need to build, based on running :vcpkg depend-info"), and these packages may or
 # may not have been explicitly requested by calls to VCPkg.
@@ -311,6 +310,8 @@ _package_descriptors_map = {}
 _package_targets_map = {}
 
 class PackageDescriptor(SCons.Node.Python.Value):
+    """PackageDescriptor is the 'source' node for the VCPkg builder. A PackageDescriptor instance includes the package
+       name, version and linkage (static or dynamic), and a list of other packages that it depends on."""
 
     def __init__(self, env, spec, static = False):
         _bootstrap_vcpkg(env)
@@ -319,10 +320,8 @@ class PackageDescriptor(SCons.Node.Python.Value):
         env.AppendUnique(CPPPATH = ['$VCPKGROOT/installed/' + triplet + '/include/'])
         if env.subst('$VCPKGDEBUG') == 'True':
             env.AppendUnique(LIBPATH = '$VCPKGROOT/installed/' + triplet + '/debug/lib/')
-            env.AppendUnique(PATH = '$VCPKGROOT/installed/' + triplet + '/debug/bin/')
         else:
             env.AppendUnique(LIBPATH = '$VCPKGROOT/installed/' + triplet + '/lib/')
-            env.AppendUnique(PATH = '$VCPKGROOT/installed/' + triplet + '/bin/')
 
         if spec is None or spec == '':
             raise ValueError('VCPkg: Package spec must not be empty')
@@ -340,17 +339,21 @@ class PackageDescriptor(SCons.Node.Python.Value):
             'features': features,
             'static':   static,
             'version':  version,
+            'triplet':  triplet
         }
 
         super(PackageDescriptor, self).__init__(value)
         self.env = env
-        self.package_deps = depends
+        self.package_deps = list(map(lambda p: get_package_descriptor(env, p), depends))
+
+    def get_triplet(self):
+        return self.value['triplet']
 
     def get_package_string(self):
         s = self.value['name']
         if self.value['features'] is not None:
             s += '[' + self.value['features'] + ']'
-        s += ':' + _get_vcpkg_triplet(self.env, self.value['static'])
+        s += ':' + self.value['triplet']
         return s
 
     def get_listfile_basename(self):
@@ -359,13 +362,12 @@ class PackageDescriptor(SCons.Node.Python.Value):
         hash_pos = version.find('#')
         if hash_pos != -1:
             version = version[0:hash_pos]
-        return self.value['name'] + '_' + version + '_' + _get_vcpkg_triplet(self.env, self.value['static'])
+        return self.value['name'] + '_' + version + '_' + self.value['triplet']
 
     def __str__(self):
         return self.get_package_string()
 
     def is_mismatched_version_installed(self):
-        triplet = _get_vcpkg_triplet(self.env, self.value['static'])
         _vcpkg_print(Debug, 'Checking for mismatched version of "' + str(self) + '"')
         output = _call_vcpkg(self.env, ['update'], check_output = True)
         for line in output.split('\n'):
@@ -378,7 +380,7 @@ class PackageDescriptor(SCons.Node.Python.Value):
     def target_from_source(self, pre, suf, splitext):
         _bootstrap_vcpkg(self.env)
 
-        target = self.env.File('$VCPKGROOT/installed/vcpkg/info/' + self.get_listfile_basename() + suf)
+        target = PackageContents(self.env, self)
         target.state = SCons.Node.up_to_date
 
         for pkg in self.package_deps:
@@ -411,10 +413,79 @@ class PackageDescriptor(SCons.Node.Python.Value):
         target.noclean = True
 
         _vcpkg_print(Debug, "Caching target for package: " + self.value['name'])
-        _package_targets_map[self.value['name']] = target
+        _package_targets_map[self] = target
 
         return target
 
+
+class PackageContents(SCons.Node.FS.File):
+    """PackageContents is a File node (referring to the installed package's .list file) and is the 'target' node of
+       the VCPkg builder (though currently, it doesn't actually get built during SCons's normal build phase, since
+       vcpkg currently can't tell us what files will be installed without actually doing the work).
+
+       It includes functionality for enumerating the different kinds of files (headers, libraries, etc.) produced by
+       installing the package."""
+
+    def __init__(self, env, descriptor):
+        super().__init__( descriptor.get_listfile_basename() + ".list", env.Dir('$VCPKGROOT/installed/vcpkg/info/'), env.fs)
+        self.descriptor = descriptor
+        self.loaded = False
+
+    def Headers(self, transitive = False):
+        """Returns the list of C/C++ header files belonging to the package.
+           If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
+        _vcpkg_print(Debug, str(self.descriptor) + ': headers')
+        files = self.FilesUnderSubPath('include/', transitive)
+        return self.FilesUnderSubPath('include/', transitive)
+
+    def StaticLibraries(self, transitive = False):
+        """Returns the list of static libraries belonging to the package.
+           If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
+        _vcpkg_print(Debug, str(self.descriptor) + ': static libraries')
+        if self.env.subst('$VCPKGDEBUG') == 'True':
+            return self.FilesUnderSubPath('debug/lib/', transitive)
+        else:
+            return self.FilesUnderSubPath('lib/', transitive)
+
+    def SharedLibraries(self, transitive = False):
+        """Returns the list of shared libraries belonging to the package.
+           If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
+        _vcpkg_print(Debug, str(self.descriptor) + ': shared libraries')
+        if self.env.subst('$VCPKGDEBUG') == 'True':
+            return self.FilesUnderSubPath('debug/bin/', transitive)
+        else:
+            return self.FilesUnderSubPath('bin/', transitive)
+
+    def FilesUnderSubPath(self, subpath, transitive):
+        """Returns a (possibly empty) list of File nodes belonging to this package that are located under the
+           relative path `subpath` underneath the triplet install directory.
+           If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
+
+        # Load the listfile contents, if we haven't already. This returns a list of File nodes.
+        if not self.loaded:
+            if not self.exists():
+                raise InternalError(self.get_path() + ' does not exist')
+            _vcpkg_print(Debug, 'Loading ' + str(self.descriptor) + ' listfile: ' + self.get_path())
+            self.files = _read_vcpkg_file_list(self.env, self)
+            self.loaded = True
+
+        triplet = self.descriptor.get_triplet()
+        prefix = self.env.Dir(self.env.subst('$VCPKGROOT/installed/' + self.descriptor.get_triplet() + "/" + subpath))
+        _vcpkg_print(Debug, 'Looking for files under ' + str(prefix))
+        matching_files = []
+        for file in self.files:
+            if file.is_under(prefix):
+                _vcpkg_print(Debug, 'Matching file ' + file.get_abspath())
+                matching_files += [file]
+
+        if transitive:
+            for dep in self.descriptor.package_deps:
+                matching_files += _package_targets_map[dep].FilesUnderSubPath(subpath, transitive)
+
+        return SCons.Util.NodeList(matching_files)
+
+    def __str__(self):
+        return "Package: " + super(PackageContents, self).__str__()
 
 def get_package_descriptor(env, spec):
     if spec in _package_descriptors_map:
@@ -449,6 +520,7 @@ vcpkg_source_scanner = SCons.Script.Scanner(function = get_vcpkg_deps,
                                             argument = None)
 
 
+# TODO: do we need the emitter at all?
 def vcpkg_emitter(target, source, env):
     _bootstrap_vcpkg(env)
 
@@ -458,8 +530,8 @@ def vcpkg_emitter(target, source, env):
             break
 
     built = []
-    for t in target:
-        built += _read_vcpkg_file_list(env, t)
+#     for t in target:
+#         built += _read_vcpkg_file_list(env, t)
 
     for f in built:
         f.precious = True
@@ -486,7 +558,7 @@ def generate(env):
 
     VCPkgBuilder = SCons.Builder.Builder(action = vcpkg_action,
                                          source_factory = lambda spec: get_package_descriptor(env, spec),
-                                         target_factory = SCons.Node.FS.File,
+                                         target_factory = lambda desc: PackageContents(env, desc),
                                          source_scanner = vcpkg_source_scanner,
                                          suffix = '.list',
                                          emitter = vcpkg_emitter)
