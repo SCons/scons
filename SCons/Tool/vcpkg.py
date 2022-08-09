@@ -319,9 +319,9 @@ class PackageDescriptor(SCons.Node.Python.Value):
         triplet = _get_vcpkg_triplet(env, static)
         env.AppendUnique(CPPPATH = ['$VCPKGROOT/installed/' + triplet + '/include/'])
         if env.subst('$VCPKGDEBUG') == 'True':
-            env.AppendUnique(LIBPATH = '$VCPKGROOT/installed/' + triplet + '/debug/lib/')
+            env.AppendUnique(LIBPATH = ['$VCPKGROOT/installed/' + triplet + '/debug/lib/'])
         else:
-            env.AppendUnique(LIBPATH = '$VCPKGROOT/installed/' + triplet + '/lib/')
+            env.AppendUnique(LIBPATH = ['$VCPKGROOT/installed/' + triplet + '/lib/'])
 
         if spec is None or spec == '':
             raise ValueError('VCPkg: Package spec must not be empty')
