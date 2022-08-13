@@ -26,8 +26,7 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
 
 FIXES
 -----

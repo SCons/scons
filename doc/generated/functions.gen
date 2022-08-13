@@ -2925,15 +2925,15 @@ This can be used to call a <filename>*-config</filename>
 command typical of the POSIX programming environment
 (for example,
 <command>pkg-config</command>).
-Note that such a comamnd is executed using the
+Note that such a command is executed using the
 SCons execution environment;
 if the command needs additional information,
-that information needs to be explcitly provided.
+that information needs to be explicitly provided.
 See &f-link-ParseConfig; for more details.
 </para>
 
 <para>
-Flag values are translated accordig to the prefix found,
+Flag values are translated according to the prefix found,
 and added to the following construction variables:
 </para>
 
@@ -2944,6 +2944,7 @@ and added to the following construction variables:
 -frameworkdir=          FRAMEWORKPATH
 -fmerge-all-constants   CCFLAGS, LINKFLAGS
 -fopenmp                CCFLAGS, LINKFLAGS
+-fsanitize              CCFLAGS, LINKFLAGS
 -include                CCFLAGS
 -imacros                CCFLAGS
 -isysroot               CCFLAGS, LINKFLAGS
