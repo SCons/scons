@@ -802,7 +802,7 @@ class SubstitutionEnvironment:
                     '-openmp',
                     '-fmerge-all-constants',
                     '-fopenmp',
-                ):
+                ) or arg.startswith('-fsanitize'):
                     mapping['CCFLAGS'].append(arg)
                     mapping['LINKFLAGS'].append(arg)
                 elif arg == '-mwindows':

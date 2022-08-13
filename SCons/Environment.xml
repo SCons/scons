@@ -2512,6 +2512,7 @@ and added to the following construction variables:
 -frameworkdir=          FRAMEWORKPATH
 -fmerge-all-constants   CCFLAGS, LINKFLAGS
 -fopenmp                CCFLAGS, LINKFLAGS
+-fsanitize              CCFLAGS, LINKFLAGS
 -include                CCFLAGS
 -imacros                CCFLAGS
 -isysroot               CCFLAGS, LINKFLAGS
