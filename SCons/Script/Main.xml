@@ -740,6 +740,7 @@ Multiple targets can be passed in to a single call to
 </para>
 </summary>
 </scons_function>
+
 <scons_function name="SetOption">
 <arguments>
 (name, value)
@@ -943,6 +944,25 @@ Example:
 SetOption('max_drift', 0)
 </example_commands>
 </summary>
+
+
 </scons_function>
+    <scons_function name="ValidateOptions">
+        <summary>
+            <para>
+                Check that all the options provided by the user on the command line are either defined by SCons itself
+                or
+                defined by &f-link-AddOption;.
+            </para>
+            <para>
+                If there are any command line options not defined.
+                Calling this function will cause SCons to issue an error message and then exit with and error exit
+                status.
+            </para>
+            <para>
+                This function should only be called after the last &f-link-AddOption; call in your &SConscript; logic.
+            </para>
+        </summary>
+    </scons_function>
 
 </sconsdoc>

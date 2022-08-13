@@ -1,0 +1,9 @@
+
+AddOption(
+    '--testing',
+    help='Test arg',
+)
+
+ValidateOptions()
+
+print("This is in SConstruct")

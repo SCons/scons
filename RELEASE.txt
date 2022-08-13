@@ -16,7 +16,9 @@ Here is a summary of the changes since 4.4.0:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- Added ValidateOptions() which will check that all command line options are in either
+  those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
+  not be called until all AddOption() calls are completed. Resolves Issue #4187
 
 DEPRECATED FUNCTIONALITY
 ------------------------

@@ -4384,6 +4384,24 @@ the tool object, previously it did not return
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="f-ValidateOptions">
+    <term><function>ValidateOptions</function>()</term>
+    <term><replaceable>env</replaceable>.<methodname>ValidateOptions</methodname>()</term>
+    <listitem><para>
+                Check that all the options provided by the user on the command line are either defined by SCons itself
+                or
+                defined by &f-link-AddOption;.
+            </para>
+            <para>
+                If there are any command line options not defined.
+                Calling this function will cause SCons to issue an error message and then exit with and error exit
+                status.
+            </para>
+            <para>
+                This function should only be called after the last &f-link-AddOption; call in your &SConscript; logic.
+            </para>
+        </listitem>
+  </varlistentry>
   <varlistentry id="f-Value">
     <term><function>Value</function>(<parameter>value, [built_value], [name]</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Value</methodname>(<parameter>value, [built_value], [name]</parameter>)</term>

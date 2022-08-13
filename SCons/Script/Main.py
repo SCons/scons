@@ -492,6 +492,16 @@ def GetOption(name):
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
 
+def ValidateOptions():
+    """
+    If you call this after you set all your command line options with AddOption(),
+    it will verify that all command line options are valid.
+    So if you added an option --xyz and you call SCons with --xyy you can cause
+    SCons to issue an error message and exit by calling this function.
+    """
+    OptionsParser.preserve_unknown_options = False
+    OptionsParser.parse_args(OptionsParser.largs, OptionsParser.values)
+
 def PrintHelp(file=None):
     OptionsParser.print_help(file=file)
 
@@ -1363,6 +1373,7 @@ def _exec_main(parser, values):
             prof.dump_stats(options.profile_file)
     else:
         _main(parser)
+
 
 def main():
     global OptionsParser
