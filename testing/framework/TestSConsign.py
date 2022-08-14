@@ -64,7 +64,7 @@ class TestSConsign(TestSCons):
             os.chdir(script_dir)
         self.script_dir = os.getcwd()
 
-        TestSCons.__init__(self, *args, **kw)
+        super().__init__(*args, **kw)
 
         self.my_kw = {
             'interpreter' : python,     # imported from TestSCons

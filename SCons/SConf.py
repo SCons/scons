@@ -142,7 +142,7 @@ SCons.Warnings.enableWarningClass(SConfWarning)
 # some error definitions
 class SConfError(SCons.Errors.UserError):
     def __init__(self,msg):
-        SCons.Errors.UserError.__init__(self,msg)
+        super().__init__(msg)
 
 class ConfigureDryRunError(SConfError):
     """Raised when a file or directory needs to be updated during a Configure
@@ -152,13 +152,13 @@ class ConfigureDryRunError(SConfError):
             msg = 'Cannot create configure directory "%s" within a dry-run.' % str(target)
         else:
             msg = 'Cannot update configure test "%s" within a dry-run.' % str(target)
-        SConfError.__init__(self,msg)
+        super().__init__(msg)
 
 class ConfigureCacheError(SConfError):
     """Raised when a use explicitely requested the cache feature, but the test
     is run the first time."""
     def __init__(self,target):
-        SConfError.__init__(self, '"%s" is not yet built and cache is forced.' % str(target))
+        super().__init__('"%s" is not yet built and cache is forced.' % str(target))
 
 
 # define actions for building text files
@@ -450,6 +450,7 @@ class SConfBase:
                  'CheckFunc'          : CheckFunc,
                  'CheckType'          : CheckType,
                  'CheckTypeSize'      : CheckTypeSize,
+                 'CheckMember'        : CheckMember,
                  'CheckDeclaration'   : CheckDeclaration,
                  'CheckHeader'        : CheckHeader,
                  'CheckCHeader'       : CheckCHeader,
@@ -991,6 +992,13 @@ def CheckDeclaration(context, declaration, includes = "", language = None):
                                           language = language)
     context.did_show_result = 1
     return not res
+
+def CheckMember(context, aggregate_member, header = None, language = None):
+    '''Returns the status (False : failed, True : ok).'''
+    res = SCons.Conftest.CheckMember(context, aggregate_member, header=header, language=language)
+    context.did_show_result = 1
+    return not res
+
 
 def createIncludesFromHeaders(headers, leaveLast, include_quotes = '""'):
     # used by CheckHeader and CheckLibWithHeader to produce C - #include

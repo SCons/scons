@@ -3,7 +3,7 @@ scons: *** [prog.o] Source `prog.c' not found, needed by target `prog.o'.
 scons: internal stack trace:
   File "SCons/Job.py", line 203, in start
     task.prepare()
-  File "SCons/Script/Main.py", line 178, in prepare
+  File "SCons/Script/Main.py", line 180, in prepare
     return SCons.Taskmaster.OutOfDateTask.prepare(self)
   File "SCons/Taskmaster.py", line 186, in prepare
     executor.prepare()

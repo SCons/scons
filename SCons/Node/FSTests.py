@@ -408,8 +408,8 @@ class VariantDirTestCase(unittest.TestCase):
                            None)
         os.chmod(test.workpath('src/foo'), stat.S_IRUSR | stat.S_IWRITE)
         st = os.stat(test.workpath('build/foo'))
-        assert (stat.S_IMODE(st[stat.ST_MODE]) & stat.S_IWRITE), \
-            stat.S_IMODE(st[stat.ST_MODE])
+        assert (stat.S_IMODE(st.st_mode) & stat.S_IWRITE), \
+            stat.S_IMODE(st.st_mode)
 
         # This used to generate a UserError when we forbid the source
         # directory from being outside the top-level SConstruct dir.
@@ -771,7 +771,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         mtime = st[stat.ST_MTIME]
         assert ni.timestamp == mtime, (ni.timestamp, mtime)
-        size = st[stat.ST_SIZE]
+        size = st.st_size
         assert ni.size == size, (ni.size, size)
 
         import time
@@ -783,7 +783,7 @@ class FileNodeInfoTestCase(_tempdirTestCase):
 
         mtime = st[stat.ST_MTIME]
         assert ni.timestamp != mtime, (ni.timestamp, mtime)
-        size = st[stat.ST_SIZE]
+        size = st.st_size
         assert ni.size != size, (ni.size, size)
 
 
@@ -2568,7 +2568,7 @@ class FileTestCase(_tempdirTestCase):
 
         class ChangedNode(SCons.Node.FS.File):
             def __init__(self, name, directory=None, fs=None):
-                SCons.Node.FS.File.__init__(self, name, directory, fs)
+                super().__init__(name, directory, fs)
                 self.name = name
                 self.Tag('found_includes', [])
                 self.stored_info = None
@@ -2608,7 +2608,7 @@ class FileTestCase(_tempdirTestCase):
         class ChangedEnvironment(SCons.Environment.Base):
 
             def __init__(self):
-                SCons.Environment.Base.__init__(self)
+                super().__init__()
                 self.decide_source = self._changed_timestamp_then_content
 
         class FakeNodeInfo:

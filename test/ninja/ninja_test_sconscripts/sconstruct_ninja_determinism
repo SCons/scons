@@ -1,0 +1,19 @@
+import random
+
+SetOption('experimental', 'ninja')
+SetOption('skip_ninja_regen', True)
+DefaultEnvironment(tools=[])
+
+env = Environment(tools=[])
+
+env.Tool('ninja')
+
+# make the dependency list vary in order. Ninja tool should sort them to be deterministic.
+for i in range(1, 10):
+    node = env.Command(f'out{i}.txt', 'foo.c', 'echo test > $TARGET')
+    deps = list(range(1, i))
+    random.shuffle(deps)
+    for j in deps:
+        if j == i:
+            continue
+        env.Depends(node, f'out{j}.txt')

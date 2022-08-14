@@ -1,0 +1,13 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "wheel"]
+
+# for black and mypy, set the lowest Python version supported
+[tool.black]
+quiet = true
+target-version = ['py36']
+skip-string-normalization = true
+
+[mypy]
+python_version = 3.6
+

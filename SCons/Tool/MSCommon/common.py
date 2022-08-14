@@ -31,21 +31,21 @@ import os
 import re
 import subprocess
 import sys
+from contextlib import suppress
+from pathlib import Path
 
 import SCons.Util
+import SCons.Warnings
+
+class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
+    pass
 
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
-if LOGFILE == '-':
-    def debug(message, *args):
-        if args:
-            print(message % args)
-        else:
-            print(message)
-
-elif LOGFILE:
+if LOGFILE:
     import logging
+
     modulelist = (
         # root module and parent/root module
         'MSCommon', 'Tool',
@@ -54,6 +54,7 @@ elif LOGFILE:
         # scons modules
         'SCons', 'test', 'scons'
     )
+
     def get_relative_filename(filename, module_list):
         if not filename:
             return filename
@@ -64,6 +65,7 @@ elif LOGFILE:
             except ValueError:
                 pass
         return filename
+
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
         def filter(self, record):
@@ -71,19 +73,27 @@ elif LOGFILE:
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
-    logging.basicConfig(
-        # This looks like:
-        #   00109ms:MSCommon/vc.py:find_vc_pdir#447:VC found '14.3'
-        format=(
-            '%(relativeCreated)05dms'
-            ':%(relfilename)s'
-            ':%(funcName)s'
-            '#%(lineno)s'
-            ':%(message)s'
-        ),
-        filename=LOGFILE,
-        level=logging.DEBUG)
+
+    # Log format looks like:
+    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
+    #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
+    log_format=(
+        '%(relativeCreated)05dms'
+        ':%(relfilename)s'
+        ':%(funcName)s'
+        '#%(lineno)s'
+        ': %(message)s'
+    )
+    if LOGFILE == '-':
+        log_format = 'debug: ' + log_format
+        log_handler = logging.StreamHandler(sys.stdout)
+    else:
+        log_handler = logging.FileHandler(filename=LOGFILE)
+    log_formatter = logging.Formatter(log_format)
+    log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
+    logger.setLevel(level=logging.DEBUG)
+    logger.addHandler(log_handler)
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
 else:
@@ -94,16 +104,34 @@ else:
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
-    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), '.scons_msvc_cache')
+    CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
+# SCONS_CACHE_MSVC_FORCE_DEFAULTS is internal-use so undocumented.
+CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = False
+if CONFIG_CACHE:
+    if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
+        CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
 def read_script_env_cache():
     """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_CACHE, 'r') as f:
-                envcache = json.load(f)
+            p = Path(CONFIG_CACHE)
+            with p.open('r') as f:
+                # Convert the list of cache entry dictionaries read from
+                # json to the cache dictionary. Reconstruct the cache key
+                # tuple from the key list written to json.
+                envcache_list = json.load(f)
+                if isinstance(envcache_list, list):
+                    envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                else:
+                    # don't fail if incompatible format, just proceed without it
+                    warn_msg = "Incompatible format for msvc cache file {}: file may be overwritten.".format(
+                        repr(CONFIG_CACHE)
+                    )
+                    SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
+                    debug(warn_msg)
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass
@@ -114,11 +142,17 @@ def write_script_env_cache(cache):
     """ write out cache of msvc env vars if requested """
     if CONFIG_CACHE:
         try:
-            with open(CONFIG_CACHE, 'w') as f:
-                json.dump(cache, f, indent=2)
+            p = Path(CONFIG_CACHE)
+            with p.open('w') as f:
+                # Convert the cache dictionary to a list of cache entry
+                # dictionaries. The cache key is converted from a tuple to
+                # a list for compatibility with json.
+                envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
+                json.dump(envcache_list, f, indent=2)
         except TypeError:
             # data can't serialize to json, don't leave partial file
-            os.remove(CONFIG_CACHE)
+            with suppress(FileNotFoundError):
+                p.unlink()
         except IOError:
             # can't write the file, just skip
             pass
@@ -201,7 +235,7 @@ def normalize_env(env, keys, force=False):
     # should include it, but keep this here to be safe (needed for reg.exe)
     sys32_dir = os.path.join(
         os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
-)
+    )
     if sys32_dir not in normenv["PATH"]:
         normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
 
@@ -243,6 +277,7 @@ def get_output(vcbat, args=None, env=None):
     # or synced with the the common_tools_var # settings in vs.py.
     vs_vc_vars = [
         'COMSPEC',  # path to "shell"
+        'OS', # name of OS family: Windows_NT or undefined (95/98/ME)
         'VS170COMNTOOLS',  # path to common tools for given version
         'VS160COMNTOOLS',
         'VS150COMNTOOLS',
@@ -253,10 +288,11 @@ def get_output(vcbat, args=None, env=None):
         'VS90COMNTOOLS',
         'VS80COMNTOOLS',
         'VS71COMNTOOLS',
-        'VS70COMNTOOLS',
-        'VS60COMNTOOLS',
+        'VSCOMNTOOLS',
+        'MSDevDir',
         'VSCMD_DEBUG',   # enable logging and other debug aids
         'VSCMD_SKIP_SENDTELEMETRY',
+        'windir', # windows directory (SystemRoot not available in 95/98/ME)
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 

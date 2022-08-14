@@ -82,7 +82,7 @@ class EntryProxyAttributeError(AttributeError):
     of the underlying Entry involved in an AttributeError exception.
     """
     def __init__(self, entry_proxy, attribute):
-        AttributeError.__init__(self)
+        super().__init__()
         self.entry_proxy = entry_proxy
         self.attribute = attribute
     def __str__(self):
@@ -255,7 +255,7 @@ else:
 def _copy_func(fs, src, dest):
     shutil.copy2(src, dest)
     st = fs.stat(src)
-    fs.chmod(dest, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
+    fs.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
 
 
 Valid_Duplicates = ['hard-soft-copy', 'soft-hard-copy',
@@ -579,7 +579,7 @@ class Base(SCons.Node.Node):
         signatures."""
 
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Base')
-        SCons.Node.Node.__init__(self)
+        super().__init__()
 
         # Filenames and paths are probably reused and are intern'ed to save some memory.
         # Filename with extension as it was specified when the object was
@@ -733,10 +733,7 @@ class Base(SCons.Node.Node):
         return SCons.Node._rexists_map[self._func_rexists](self)
 
     def getmtime(self):
-        if self.islink():
-            st = self.lstat()
-        else:
-            st = self.stat()
+        st = self.stat()
 
         if st:
             return st[stat.ST_MTIME]
@@ -744,28 +741,25 @@ class Base(SCons.Node.Node):
             return None
 
     def getsize(self):
-        if self.islink():
-            st = self.lstat()
-        else:
-            st = self.stat()
+        st = self.stat()
 
         if st:
-            return st[stat.ST_SIZE]
+            return st.st_size
         else:
             return None
 
     def isdir(self):
         st = self.stat()
-        return st is not None and stat.S_ISDIR(st[stat.ST_MODE])
+        return st is not None and stat.S_ISDIR(st.st_mode)
 
     def isfile(self):
         st = self.stat()
-        return st is not None and stat.S_ISREG(st[stat.ST_MODE])
+        return st is not None and stat.S_ISREG(st.st_mode)
 
     if hasattr(os, 'symlink'):
         def islink(self):
             st = self.lstat()
-            return st is not None and stat.S_ISLNK(st[stat.ST_MODE])
+            return st is not None and stat.S_ISLNK(st.st_mode)
     else:
         def islink(self):
             return False                    # no symlinks
@@ -982,7 +976,7 @@ class Entry(Base):
                  'contentsig']
 
     def __init__(self, name, directory, fs):
-        Base.__init__(self, name, directory, fs)
+        super().__init__(name, directory, fs)
         self._func_exists = 3
         self._func_get_contents = 1
 
@@ -1574,7 +1568,7 @@ class Dir(Base):
 
     def __init__(self, name, directory, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Dir')
-        Base.__init__(self, name, directory, fs)
+        super().__init__(name, directory, fs)
         self._morph()
 
     def _morph(self):
@@ -1939,7 +1933,7 @@ class Dir(Base):
             return self.srcdir
         return Base.srcnode(self)
 
-    def get_timestamp(self):
+    def get_timestamp(self) -> int:
         """Return the latest timestamp from among our children"""
         stamp = 0
         for kid in self.children():
@@ -1947,11 +1941,11 @@ class Dir(Base):
                 stamp = kid.get_timestamp()
         return stamp
 
-    def get_abspath(self):
+    def get_abspath(self) -> str:
         """Get the absolute path of the file."""
         return self._abspath
 
-    def get_labspath(self):
+    def get_labspath(self) -> str:
         """Get the absolute path of the file."""
         return self._labspath
 
@@ -2563,7 +2557,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         if key != 'dependency_map' and hasattr(self, 'dependency_map'):
             del self.dependency_map
 
-        return super(FileBuildInfo, self).__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def convert_to_sconsign(self):
         """
@@ -2674,7 +2668,7 @@ class File(Base):
 
     def __init__(self, name, directory, fs):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
-        Base.__init__(self, name, directory, fs)
+        super().__init__(name, directory, fs)
         self._morph()
 
     def Entry(self, name):

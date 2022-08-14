@@ -591,6 +591,9 @@ class PreProcessor:
         while not s[0] in '<"':
             try:
                 s = self.cpp_namespace[s]
+                # strip backslashes from the computed include (-DFOO_H=\"foo.h\")
+                for c in '<">':
+                    s = s.replace(f"\\{c}", c)
             except KeyError:
                 m = function_name.search(s)
 

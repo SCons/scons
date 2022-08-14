@@ -22,16 +22,6 @@ if &cv-link-LDMODULEVERSION; is set. Othervise it evaluates to an empty string.
 </para>
 </listitem>
   </varlistentry>
-  <varlistentry id="cv-__NINJA_NO">
-    <term>
-      <envar>__NINJA_NO</envar>
-    </term>
-    <listitem><para>
-                Internal flag. Used to tell SCons whether or not to try to import pypi's ninja python package.
-                This is set to True when being called by Ninja?
-            </para>
-        </listitem>
-  </varlistentry>
   <varlistentry id="cv-__SHLIBVERSIONFLAGS">
     <term>
       <envar>__SHLIBVERSIONFLAGS</envar>
@@ -425,6 +415,18 @@ See also &cv-link-SHCCCOMSTR; for compiling to shared objects.
 <example_commands>
 env = Environment(CCCOMSTR = "Compiling static object $TARGET")
 </example_commands>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-CCDEPFLAGS">
+    <term>
+      <envar>CCDEPFLAGS</envar>
+    </term>
+    <listitem><para>
+Options to pass to C or C++ compiler to generate list of dependency files.
+</para>
+ <para>
+  This is set only by compilers which support this functionality. (&t-link-gcc;, &t-link-clang;, and &t-link-msvc; currently)
+ </para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-CCFLAGS">
@@ -1641,49 +1643,40 @@ General options passed to the TeX DVI file to PostScript converter.
       <envar>ENV</envar>
     </term>
     <listitem><para>
-A dictionary of environment variables
-to use when invoking commands. When
-&cv-ENV; is used in a command all list
-values will be joined using the path separator and any other non-string
-values will simply be coerced to a string.
-Note that, by default,
-&scons;
+The <firstterm>execution environment</firstterm> -
+a dictionary of environment variables
+used when &SCons; invokes external commands
+to build targets defined in this &consenv;.
+When &cv-ENV; is passed to a command,
+all list values are assumed to be path lists and
+are joined using the search path separator.
+Any other non-string values are coerced to a string.
+</para>
+
+<para>
+Note that by default
+&SCons;
 does
 <emphasis>not</emphasis>
-propagate the environment in effect when you
-execute
-&scons;
-to the commands used to build target files.
+propagate the environment in effect when you execute
+&scons; (the "shell environment")
+to the execution environment.
 This is so that builds will be guaranteed
 repeatable regardless of the environment
 variables set at the time
 &scons;
 is invoked.
-</para>
-
-<para>
-If you want to propagate your
-environment variables
+If you want to propagate a
+shell environment variable
 to the commands executed
 to build target files,
-you must do so explicitly:
-</para>
-
-<example_commands>
-import os
-env = Environment(ENV=os.environ.copy())
-</example_commands>
-
-<para>
-Note that you can choose only to propagate
-certain environment variables.
+you must do so explicitly.
 A common example is
-the system
-<envar>PATH</envar>
+the system &PATH;
 environment variable,
 so that
 &scons;
-uses the same utilities
+will find utilities the same way
 as the invoking shell (or other process):
 </para>
 
@@ -1691,6 +1684,18 @@ as the invoking shell (or other process):
 import os
 env = Environment(ENV={'PATH': os.environ['PATH']})
 </example_commands>
+
+<para>
+Although it is usually not recommended,
+you can propagate the entire shell environment
+in one go:
+</para>
+
+<example_commands>
+import os
+env = Environment(ENV=os.environ.copy())
+</example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-ESCAPE">
@@ -2671,11 +2676,20 @@ for all versions of Fortran.
 The command line used to compile a Fortran source file to an object file.
 By default, any options specified
 in the &cv-link-FORTRANFLAGS;,
-&cv-link-CPPFLAGS;,
-&cv-link-_CPPDEFFLAGS;,
 &cv-link-_FORTRANMODFLAG;, and
-&cv-link-_FORTRANINCFLAGS; construction variables
-are included on this command line.
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-FORTRANCOMMONFLAGS">
+    <term>
+      <envar>FORTRANCOMMONFLAGS</envar>
+    </term>
+    <listitem><para>
+General user-specified options that are passed to the Fortran compiler.
+Similar to &cv-link-FORTRANFLAGS;,
+but this variable is applied to all dialects.
 </para>
 </listitem>
   </varlistentry>
@@ -2706,7 +2720,8 @@ default, this is <literal>['.f', '.for', '.ftn']</literal>
       <envar>FORTRANFLAGS</envar>
     </term>
     <listitem><para>
-General user-specified options that are passed to the Fortran compiler.
+General user-specified options for the FORTRAN dialect
+that are passed to the Fortran compiler.
 Note that this variable does
 <emphasis>not</emphasis>
 contain
@@ -2725,7 +2740,7 @@ for the variables that expand those options.
       <envar>_FORTRANINCFLAGS</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran compiler command-line options
 for specifying directories to be searched for include
 files and module files.
@@ -2757,7 +2772,7 @@ for module files, as well.
 The prefix used to specify a module directory on the Fortran compiler command
 line.
 This will be prepended to the beginning of the directory
-in the &cv-link-FORTRANMODDIR; construction variables
+in the &cv-link-FORTRANMODDIR; &consvars;
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
 </listitem>
@@ -2770,7 +2785,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 The suffix used to specify a module directory on the Fortran compiler command
 line.
 This will be appended to the end of the directory
-in the &cv-link-FORTRANMODDIR; construction variables
+in the &cv-link-FORTRANMODDIR; &consvars;
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
 </listitem>
@@ -2780,7 +2795,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
       <envar>_FORTRANMODFLAG</envar>
     </term>
     <listitem><para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran compiler command-line option
 for specifying the directory location where the Fortran
 compiler should place any module files that happen to get
@@ -2861,11 +2876,11 @@ env = Environment(FORTRANPATH=include)
 The directory list will be added to command lines
 through the automatically-generated
 &cv-link-_FORTRANINCFLAGS;
-construction variable,
+&consvar;,
 which is constructed by
 respectively prepending and appending the values of the
 &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
-construction variables
+&consvars;
 to the beginning and end
 of each directory in &cv-link-FORTRANPATH;.
 Any command lines you define that need
@@ -2890,7 +2905,7 @@ By default, any options specified in the &cv-link-FORTRANFLAGS;,
 &cv-link-_CPPDEFFLAGS;,
 &cv-link-_FORTRANMODFLAG;, and
 &cv-link-_FORTRANINCFLAGS;
-construction variables are included on this command line.
+&consvars; are included on this command line.
 </para>
 </listitem>
   </varlistentry>
@@ -3551,15 +3566,6 @@ env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
                 <filename>;</filename>
                 on Windows).
             </para>
-
-            <para>
-                Note that this currently just adds the specified
-                directory via the <option>-classpath</option> option.
-                &SCons; does not currently search the
-                &cv-JAVACLASSPATH; directories for dependency
-                <filename>.class</filename>
-                files.
-            </para>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-JAVACLASSSUFFIX">
@@ -3920,6 +3926,31 @@ The lexical analyzer generator.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-LEX_HEADER_FILE">
+    <term>
+      <envar>LEX_HEADER_FILE</envar>
+    </term>
+    <listitem><para>
+If supplied, generate a C header file with the name taken from this variable.
+Will be emitted as a <option>--header-file=</option>
+command-line option. Use this in preference to including
+<option>--header-file=</option> in &cv-link-LEXFLAGS; directly.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-LEX_TABLES_FILE">
+    <term>
+      <envar>LEX_TABLES_FILE</envar>
+    </term>
+    <listitem><para>
+If supplied, write the lex tables to a file with the name
+taken from this variable.
+Will be emitted as a <option>--tables-file=</option>
+command-line option. Use this in preference to including
+<option>--tables-file=</option> in &cv-link-LEXFLAGS; directly.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LEXCOM">
     <term>
       <envar>LEXCOM</envar>
@@ -3941,7 +3972,7 @@ If this is not set, then &cv-link-LEXCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
+env = Environment(LEXCOMSTR="Lex'ing $TARGET from $SOURCES")
 </example_commands>
 </listitem>
   </varlistentry>
@@ -3951,6 +3982,20 @@ env = Environment(LEXCOMSTR = "Lex'ing $TARGET from $SOURCES")
     </term>
     <listitem><para>
 General options passed to the lexical analyzer generator.
+In addition to passing the value on during invocation,
+the &t-link-lex; tool also examines this &consvar; for options
+which cause additional output files to be generated,
+and adds those to the target list.
+Recognized for this purpose are GNU &flex; options
+<option>--header-file=</option> and
+<option>--tables-file=</option>;
+the output file is named by the option argument.
+</para>
+<para>
+Note that files specified by <option>--header-file=</option> and
+<option>--tables-file=</option> may not be properly handled
+by &SCons; in all situations. Consider using
+&cv-link-LEX_HEADER_FILE; and &cv-link-LEX_TABLES_FILE; instead.
 </para>
 </listitem>
   </varlistentry>
@@ -4687,6 +4732,749 @@ will be compiled separately.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-MSVC_NOTFOUND_POLICY">
+    <term>
+      <envar>MSVC_NOTFOUND_POLICY</envar>
+    </term>
+    <listitem><para>
+Specify the &scons; behavior when the Microsoft Visual C/C++ compiler is not detected.
+</para>
+
+<para>
+    The &cv-MSVC_NOTFOUND_POLICY; specifies the &scons; behavior when no msvc versions are detected or
+    when the requested msvc version is not detected.
+</para>
+
+<para>
+The valid values for &cv-MSVC_NOTFOUND_POLICY; and the corresponding &scons; behavior are:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'Error' or 'Exception'</parameter></term>
+<listitem>
+<para>
+Raise an exception when no msvc versions are detected or when the requested msvc version is not detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
+<listitem>
+<para>
+Issue a warning and continue when no msvc versions are detected or when the requested msvc version is not detected.
+Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
+<listitem>
+<para>
+Take no action and continue when no msvc versions are detected or when the requested msvc version is not detected.
+Depending on usage, this could result in build failure(s).
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+The &cv-MSVC_NOTFOUND_POLICY; is applied when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_VERSION; is specified, the default tools list is implicitly defined (i.e., the tools list is not specified),
+and the default tools list contains one or more of the msvc tools.
+</para></listitem>
+<listitem><para>
+&cv-MSVC_VERSION; is specified, the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>),
+and the default tools list contains one or more of the msvc tools.
+</para></listitem>
+<listitem><para>
+A non-default tools list is specified that contains one or more of the msvc tools (e.g., <literal>tools=['msvc', 'mslink']</literal>).
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+The &cv-MSVC_NOTFOUND_POLICY; is ignored when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_VERSION; is not specified and the default tools list is implicitly defined (i.e., the tools list is not specified).
+</para></listitem>
+<listitem><para>
+&cv-MSVC_VERSION; is not specified and the default tools list is explicitly specified (e.g., <literal>tools=['default']</literal>).
+</para></listitem>
+<listitem><para>
+A non-default tool list is specified that does not contain any of the msvc tools (e.g., <literal>tools=['mingw']</literal>).
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_NOTFOUND_POLICY; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_NOTFOUND_POLICY; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+When &cv-MSVC_NOTFOUND_POLICY; is not specified, the default &scons; behavior is to issue a warning and continue
+subject to the conditions listed above. The default &scons; behavior may change in the future.
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_SCRIPT_ARGS">
+    <term>
+      <envar>MSVC_SCRIPT_ARGS</envar>
+    </term>
+    <listitem><para>
+Pass user-defined arguments to the Visual C++ batch file determined via autodetection.
+</para>
+
+<para>
+&cv-MSVC_SCRIPT_ARGS; is available for msvc batch file arguments that do not have first-class support
+via construction variables or when there is an issue with the appropriate construction variable validation.
+When available, it is recommended to use the appropriate construction variables (e.g., &cv-link-MSVC_TOOLSET_VERSION;)
+rather than &cv-MSVC_SCRIPT_ARGS; arguments.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SCRIPT_ARGS; are: <literal>None</literal>, a string,
+or a list of strings.
+</para>
+
+<para>
+The &cv-MSVC_SCRIPT_ARGS; value is converted to a scalar string (i.e., "flattened").
+The resulting scalar string, if not empty, is passed as an argument to the msvc batch file determined
+via autodetection subject to the validation conditions listed below.
+</para>
+
+<para>
+&cv-MSVC_SCRIPT_ARGS; is ignored when the value is <literal>None</literal> and when the
+result from argument conversion is an empty string.  The validation conditions below do not apply.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPT_ARGS; is specified for Visual Studio 2013 and earlier.
+</para></listitem>
+
+<listitem><para>
+Multiple SDK version arguments (e.g., <literal>'10.0.20348.0'</literal>) are specified
+in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_SDK_VERSION; is specified and an SDK version argument
+(e.g., <literal>'10.0.20348.0'</literal>) is specified in &cv-MSVC_SCRIPT_ARGS;.
+Multiple SDK version declarations via &cv-link-MSVC_SDK_VERSION; and &cv-MSVC_SCRIPT_ARGS;
+are not allowed.
+</para></listitem>
+
+<listitem><para>
+Multiple toolset version arguments (e.g., <literal>'-vcvars_ver=14.29'</literal>)
+are specified in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_TOOLSET_VERSION; is specified and a toolset version argument
+(e.g., <literal>'-vcvars_ver=14.29'</literal>) is specified in &cv-MSVC_SCRIPT_ARGS;.
+Multiple toolset version declarations via &cv-link-MSVC_TOOLSET_VERSION; and
+&cv-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+Multiple spectre library arguments (e.g., <literal>'-vcvars_spectre_libs=spectre'</literal>)
+are specified in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_SPECTRE_LIBS; is enabled and a spectre library argument
+(e.g., <literal>'-vcvars_spectre_libs=spectre'</literal>) is specified in
+&cv-MSVC_SCRIPT_ARGS;. Multiple spectre library declarations via &cv-link-MSVC_SPECTRE_LIBS;
+and &cv-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+Multiple UWP arguments (e.g., <literal>uwp</literal> or <literal>store</literal>) are specified
+in &cv-MSVC_SCRIPT_ARGS;.
+</para></listitem>
+
+<listitem><para>
+&cv-link-MSVC_UWP_APP; is enabled and a UWP argument (e.g., <literal>uwp</literal> or
+<literal>store</literal>) is specified in &cv-MSVC_SCRIPT_ARGS;. Multiple UWP declarations
+via &cv-link-MSVC_UWP_APP; and &cv-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with an SDK version and a toolset version
+specified with a string argument:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS='10.0.20348.0 -vcvars_ver=14.29.30133')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with an SDK version and a toolset version
+specified with a list argument:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['10.0.20348.0', '-vcvars_ver=14.29.30133'])
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPT_ARGS; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SCRIPT_ARGS; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Other than checking for multiple declarations as described above, &cv-MSVC_SCRIPT_ARGS; arguments
+are not validated.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+Erroneous, inconsistent, and/or version incompatible &cv-MSVC_SCRIPT_ARGS; arguments are likely
+to result in build failures for reasons that are not readily apparent and may be difficult to diagnose.
+</emphasis>
+The burden is on the user to ensure that the arguments provided to the msvc batch file are valid, consistent
+and compatible with the version of msvc selected.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_SCRIPTERROR_POLICY">
+    <term>
+      <envar>MSVC_SCRIPTERROR_POLICY</envar>
+    </term>
+    <listitem><para>
+Specify the &scons; behavior when Microsoft Visual C/C++ batch file errors are detected.
+</para>
+
+<para>
+The &cv-MSVC_SCRIPTERROR_POLICY; specifies the &scons; behavior when msvc batch file errors are
+detected.
+When &cv-MSVC_SCRIPTERROR_POLICY; is not specified, the default &scons; behavior is to suppress
+msvc batch file error messages.
+</para>
+<para>
+The root cause of msvc build failures may be difficult to diagnose. In these situations, setting
+the &scons; behavior to issue a warning when msvc batch file errors are detected <emphasis>may</emphasis>
+produce additional diagnostic information.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SCRIPTERROR_POLICY; and the corresponding &scons; behavior are:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term><parameter>'Error' or 'Exception'</parameter></term>
+<listitem>
+<para>
+Raise an exception when msvc batch file errors are detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Warning' or 'Warn'</parameter></term>
+<listitem>
+<para>
+Issue a warning when msvc batch file errors are detected.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><parameter>'Ignore' or 'Suppress'</parameter></term>
+<listitem>
+<para>
+Suppress msvc batch file error messages.
+</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>
+Note: in addition to the camel case values shown above, lower case and upper case values are accepted as well.
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with user-defined script arguments:
+<example_commands>
+env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'])
+env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
+</example_commands>
+</para>
+
+<para>
+Example 1 - Output fragment:
+<example_commands>
+...
+link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
+LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
+...
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with user-defined script arguments and the script error policy set
+to issue a warning when msvc batch file errors are detected:
+<example_commands>
+env = environment(MSVC_VERSION='14.3', MSVC_SCRIPT_ARGS=['8.1', 'store', '-vcvars_ver=14.1'], MSVC_SCRIPTERROR_POLICY='warn')
+env.Program('hello', ['hello.c'], CCFLAGS='/MD', LIBS=['kernel32', 'user32', 'runtimeobject'])
+</example_commands>
+</para>
+
+<para>
+Example 2 - Output fragment:
+<example_commands>
+...
+scons: warning: vc script errors detected:
+[ERROR:vcvars.bat] The UWP Application Platform requires a Windows 10 SDK.
+[ERROR:vcvars.bat] WindowsSdkDir = "C:\Program Files (x86)\Windows Kits\8.1\"
+[ERROR:vcvars.bat] host/target architecture is not supported : { x64 , x64 }
+...
+link /nologo /OUT:_build001\hello.exe kernel32.lib user32.lib runtimeobject.lib _build001\hello.obj
+LINK : fatal error LNK1104: cannot open file 'MSVCRT.lib'
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SCRIPTERROR_POLICY; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SCRIPTERROR_POLICY; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Due to &scons; implementation details, not all Windows system environment variables are propagated
+to the environment in which the msvc batch file is executed.  Depending on Visual Studio version
+and installation options, non-fatal msvc batch file error messages may be generated for ancillary
+tools which may not affect builds with the msvc compiler.  For this reason, caution is recommended
+when setting the script error policy to raise an exception (e.g., <literal>'Error'</literal>).
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_SDK_VERSION">
+    <term>
+      <envar>MSVC_SDK_VERSION</envar>
+    </term>
+    <listitem><para>
+Build with a specific version of the Microsoft Software Development Kit (SDK).
+</para>
+
+<para>
+The valid values for &cv-MSVC_SDK_VERSION; are: <literal>None</literal>
+or a string containing the requested SDK version (e.g., <literal>'10.0.20348.0'</literal>).
+</para>
+
+<para>
+&cv-MSVC_SDK_VERSION; is ignored when the value is <literal>None</literal> and when
+the value is an empty string.  The validation conditions below do not apply.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SDK_VERSION; is specified for Visual Studio 2013 and earlier.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_SDK_VERSION; is specified and an SDK version argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple SDK version declarations via &cv-MSVC_SDK_VERSION;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; specified does not match any of the supported formats:
+<itemizedlist>
+<listitem><para>
+<literal>'10.0.XXXXX.Y'</literal> [SDK 10.0]
+</para></listitem>
+<listitem><para>
+<literal>'8.1'</literal> [SDK 8.1]
+</para></listitem>
+</itemizedlist>
+</para></listitem>
+
+<listitem><para>
+The system folder for the corresponding &cv-MSVC_SDK_VERSION; version is not found.
+The requested SDK version does not appear to be installed.
+</para></listitem>
+
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; version does not appear to support the requested platform
+type (i.e., <literal>UWP</literal> or <literal>Desktop</literal>).  The requested SDK version
+platform type components do not appear to be installed.
+</para></listitem>
+
+<listitem><para>
+The &cv-MSVC_SDK_VERSION; version is <literal>8.1</literal>, the platform type is
+<literal>UWP</literal>, and the build tools selected are from Visual Studio 2017
+and later (i.e., &cv-link-MSVC_VERSION; must be '14.0' or &cv-link-MSVC_TOOLSET_VERSION;
+must be '14.0').
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example 1 - A Visual Studio 2022 build with a specific Windows SDK version:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SDK_VERSION='10.0.20348.0')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A Visual Studio 2022 build with a specific SDK version for the Universal Windows Platform:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SDK_VERSION='10.0.20348.0', MSVC_UWP_APP=True)
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SDK_VERSION; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SDK_VERSION; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem>
+<para><emphasis>
+Should a SDK 10.0 version be installed that does not follow the naming scheme above, the
+SDK version will need to be specified via &cv-link-MSVC_SCRIPT_ARGS; until the version number
+validation format can be extended.
+</emphasis></para>
+</listitem>
+
+<listitem><para>
+Should an exception be raised indicating that the SDK version is not found, verify that
+the requested SDK version is installed with the necessary platform type components.
+</para></listitem>
+
+<listitem><para>
+There is a known issue with the Microsoft libraries when the target architecture is
+<literal>ARM64</literal> and a Windows 11 SDK (version <literal>'10.0.22000.0'</literal> and later) is used
+with the <literal>v141</literal> build tools and older <literal>v142</literal> toolsets
+(versions <literal>'14.28.29333'</literal> and earlier). Should build failures arise with these combinations
+of settings due to unresolved symbols in the Microsoft libraries, &cv-MSVC_SDK_VERSION; may be employed to
+specify a Windows 10 SDK (e.g., <literal>'10.0.20348.0'</literal>) for the build.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_SPECTRE_LIBS">
+    <term>
+      <envar>MSVC_SPECTRE_LIBS</envar>
+    </term>
+    <listitem><para>
+Build with the spectre-mitigated Visual C++ libraries.
+</para>
+
+<para>
+The valid values for &cv-MSVC_SPECTRE_LIBS; are: <literal>True</literal>,
+<literal>False</literal>, or <literal>None</literal>.
+</para>
+
+<para>
+When &cv-MSVC_SPECTRE_LIBS; is enabled (i.e., <literal>True</literal>),
+the Visual C++ environment will include the paths to the spectre-mitigated implementations
+of the Microsoft Visual C++ libraries.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled for Visual Studio 2015 and earlier.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled and a spectre library argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple spectre library declarations via &cv-MSVC_SPECTRE_LIBS;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; is enabled and the platform type is <literal>UWP</literal>. There
+are no spectre-mitigated libraries for Universal Windows Platform (UWP) applications or
+components.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example - A Visual Studio 2022 build with spectre mitigated Visual C++ libraries:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_SPECTRE_LIBS=True)
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_SPECTRE_LIBS; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_SPECTRE_LIBS; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+Additional compiler switches (e.g., <literal>/Qspectre</literal>) are necessary for including
+spectre mitigations when building user artifacts. Refer to the Visual Studio documentation for
+details.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The existence of the spectre libraries host architecture and target architecture folders are not
+verified when &cv-MSVC_SPECTRE_LIBS; is enabled which could result in build failures.
+</emphasis>
+The burden is on the user to ensure the requisite libraries with spectre mitigations are installed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_TOOLSET_VERSION">
+    <term>
+      <envar>MSVC_TOOLSET_VERSION</envar>
+    </term>
+    <listitem><para>
+Build with a specific Visual C++ toolset version.
+</para>
+
+<para><emphasis>
+Specifying &cv-MSVC_TOOLSET_VERSION; does not affect the autodetection and selection
+of msvc instances. The &cv-MSVC_TOOLSET_VERSION; is applied <emphasis>after</emphasis>
+an msvc instance is selected. This could be the default version of msvc if &cv-link-MSVC_VERSION;
+is not specified.
+</emphasis></para>
+
+<para>
+The valid values for &cv-MSVC_TOOLSET_VERSION; are: <literal>None</literal>
+or a string containing the requested toolset version (e.g., <literal>'14.29'</literal>).
+</para>
+
+<para>
+&cv-MSVC_TOOLSET_VERSION; is ignored when the value is <literal>None</literal> and when
+the value is an empty string.  The validation conditions below do not apply.
+</para>
+
+<para>
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_TOOLSET_VERSION; is specified for Visual Studio 2015 and earlier.
+</para></listitem>
+
+<listitem><para>
+&cv-MSVC_TOOLSET_VERSION; is specified and a toolset version argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple toolset version declarations via &cv-MSVC_TOOLSET_VERSION;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+
+<listitem>
+<para>
+The &cv-MSVC_TOOLSET_VERSION; specified does not match any of the supported formats:
+</para>
+
+<itemizedlist>
+
+<listitem><para>
+<literal>'XX.Y'</literal>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY'</literal>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.ZZZZZ'</literal>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.Z'</literal> to <literal>'XX.YY.ZZZZ'</literal>
+<emphasis>
+[&scons; extension not directly supported by the msvc batch files and may be removed in the future]
+</emphasis>
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.ZZ.N'</literal> [SxS format]
+</para></listitem>
+
+<listitem><para>
+<literal>'XX.YY.ZZ.NN'</literal> [SxS format]
+</para></listitem>
+
+</itemizedlist>
+
+</listitem>
+
+<listitem><para>
+The major msvc version prefix (i.e., <literal>'XX.Y'</literal>) of the &cv-MSVC_TOOLSET_VERSION; specified
+is for Visual Studio 2013 and earlier (e.g., <literal>'12.0'</literal>).
+</para></listitem>
+
+<listitem><para>
+The major msvc version prefix (i.e., <literal>'XX.Y'</literal>) of the &cv-MSVC_TOOLSET_VERSION; specified
+is greater than the msvc version selected (e.g., <literal>'99.0'</literal>).
+</para></listitem>
+
+<listitem><para>
+A system folder for the corresponding &cv-MSVC_TOOLSET_VERSION; version is not found.
+The requested toolset version does not appear to be installed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Toolset selection details:
+<itemizedlist>
+
+<listitem><para>
+When &cv-MSVC_TOOLSET_VERSION; is not an SxS version number or a full toolset version number:
+the first toolset version, ranked in descending order, that matches the &cv-MSVC_TOOLSET_VERSION;
+prefix is selected.
+</para></listitem>
+
+<listitem><para>
+When &cv-MSVC_TOOLSET_VERSION; is specified using the major msvc version prefix
+(i.e., <literal>'XX.Y'</literal>) and the major msvc version is that of the latest release of
+Visual Studio, the selected toolset version may not be the same as the default Visual C++ toolset version.
+</para><para>
+In the latest release of Visual Studio, the default Visual C++ toolset version is not necessarily the
+toolset with the largest version number.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+<para>
+Example 1 - A default Visual Studio build with a partial toolset version specified:
+<example_commands>
+env = Environment(MSVC_TOOLSET_VERSION='14.2')
+</example_commands>
+</para>
+
+<para>
+Example 2 - A default Visual Studio build with a partial toolset version specified:
+<example_commands>
+env = Environment(MSVC_TOOLSET_VERSION='14.29')
+</example_commands>
+</para>
+
+<para>
+Example 3 - A Visual Studio 2022 build with a full toolset version specified:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.30133')
+</example_commands>
+</para>
+
+<para>
+Example 4 - A Visual Studio 2022 build with an SxS toolset version specified:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_TOOLSET_VERSION='14.29.16.11')
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_TOOLSET_VERSION; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_TOOLSET_VERSION; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The existence of the toolset host architecture and target architecture folders are not verified
+when &cv-MSVC_TOOLSET_VERSION; is specified which could result in build failures.
+</emphasis>
+The burden is on the user to ensure the requisite toolset target architecture build tools are installed.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-MSVC_USE_SCRIPT">
     <term>
       <envar>MSVC_USE_SCRIPT</envar>
@@ -4705,6 +5493,7 @@ and extract the relevant variables from the result (typically
 <envar>%PATH%</envar>) for supplying to the build.
 This can be useful to force the use of a compiler version that
 &SCons; does not detect.
+&cv-link-MSVC_USE_SCRIPT_ARGS; provides arguments passed to this script.
 </para>
 
 <para>
@@ -4717,8 +5506,103 @@ is, if you are sure everything is set correctly already and
 you don't want &SCons; to change anything.
 </para>
 <para>
-&cv-MSVC_USE_SCRIPT; overrides &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
+&cv-MSVC_USE_SCRIPT; ignores &cv-link-MSVC_VERSION; and &cv-link-TARGET_ARCH;.
 </para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_USE_SCRIPT_ARGS">
+    <term>
+      <envar>MSVC_USE_SCRIPT_ARGS</envar>
+    </term>
+    <listitem><para>
+Provides arguments passed to the script &cv-link-MSVC_USE_SCRIPT;.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-MSVC_USE_SETTINGS">
+    <term>
+      <envar>MSVC_USE_SETTINGS</envar>
+    </term>
+    <listitem><para>
+Use a dictionary to set up the Microsoft Visual C++ compiler.
+</para>
+
+<para>
+&cv-MSVC_USE_SETTINGS; is ignored when &cv-link-MSVC_USE_SCRIPT; is defined
+and/or when &cv-MSVC_USE_SETTINGS; is set to <constant>None</constant>.
+</para>
+
+<para>
+The dictionary is used to populate the environment with the relevant variables
+(typically <envar>%INCLUDE%</envar>, <envar>%LIB%</envar>, and <envar>%PATH%</envar>)
+for supplying to the build. This can be useful to force the use of a compiler environment
+that &SCons; does not configure correctly. This is an alternative to manually configuring
+the environment when bypassing Visual Studio autodetection entirely by setting
+&cv-link-MSVC_USE_SCRIPT; to <constant>None</constant>.
+</para>
+
+<para>
+Here is an example of configuring a build environment using the Microsoft Visual C/C++ compiler
+included in the Microsoft SDK on a 64-bit host and building for a 64-bit architecture:
+<programlisting>
+# Microsoft SDK 6.0 (MSVC 8.0): 64-bit host and 64-bit target
+msvc_use_settings = {
+    "PATH": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Bin\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Bin\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Bin",
+        "C:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727",
+        "C:\\Windows\\system32",
+        "C:\\Windows",
+        "C:\\Windows\\System32\\Wbem",
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\"
+    ],
+    "INCLUDE": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Include",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Include\\Sys",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Include",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Include\\gl",
+    ],
+    "LIB": [
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\VC\\Lib\\x64",
+        "C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0\\Lib\\x64",
+    ],
+    "LIBPATH": [],
+    "VSCMD_ARG_app_plat": [],
+    "VCINSTALLDIR": [],
+    "VCToolsInstallDir": []
+}
+
+# Specifying MSVC_VERSION is recommended
+env = Environment(MSVC_VERSION='8.0', MSVC_USE_SETTINGS=msvc_use_settings)
+</programlisting>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_USE_SETTINGS; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_USE_SETTINGS; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The dictionary content requirements are based on the internal msvc implementation and
+therefore may change at any time.
+</emphasis>
+The burden is on the user to ensure the dictionary contents are minimally sufficient to
+ensure successful builds.
+</para></listitem>
+
+</itemizedlist>
+</para>
+
 </listitem>
   </varlistentry>
   <varlistentry id="cv-MSVC_UWP_APP">
@@ -4726,21 +5610,69 @@ you don't want &SCons; to change anything.
       <envar>MSVC_UWP_APP</envar>
     </term>
     <listitem><para>
-Build libraries for a Universal Windows Platform (UWP) Application.
+Build with the Universal Windows Platform (UWP) application Visual C++ libraries.
 </para>
 
 <para>
-If &cv-MSVC_UWP_APP; is set, the Visual C++ environment will be set up to point
+The valid values for &cv-MSVC_UWP_APP; are: <literal>True</literal>,
+<literal>'1'</literal>, <literal>False</literal>, <literal>'0'</literal>,
+or <literal>None</literal>.
+</para>
+
+<para>
+When &cv-MSVC_UWP_APP; is enabled (i.e., <literal>True</literal> or
+<literal>'1'</literal>), the Visual C++ environment will be set up to point
 to the Windows Store compatible libraries and Visual C++ runtimes. In doing so,
 any libraries that are built will be able to be used in a UWP App and published
 to the Windows Store.
-This flag will only have an effect with Visual Studio 2015 or later.
-This variable must be passed as an argument to the Environment()
-constructor; setting it later has no effect.
+<!-- This flag will only have an effect with Visual Studio 2015 or later. -->
+<!-- This variable must be passed as an argument to the Environment()
+constructor; setting it later has no effect. -->
 </para>
 
 <para>
-Valid values are '1' or '0'
+An exception is raised when any of the following conditions are satisfied:
+<itemizedlist>
+<listitem><para>
+&cv-MSVC_UWP_APP; is enabled for Visual Studio 2013 and earlier.
+</para></listitem>
+<listitem><para>
+&cv-MSVC_UWP_APP; is enabled and a UWP argument is specified in
+&cv-link-MSVC_SCRIPT_ARGS;. Multiple UWP declarations via &cv-MSVC_UWP_APP;
+and &cv-link-MSVC_SCRIPT_ARGS; are not allowed.
+</para></listitem>
+</itemizedlist>
+</para>
+
+<para>
+Example - A Visual Studio 2022 build for the Universal Windows Platform:
+<example_commands>
+env = Environment(MSVC_VERSION='14.3', MSVC_UWP_APP=True)
+</example_commands>
+</para>
+
+<para>
+Important usage details:
+<itemizedlist>
+
+<listitem><para>
+&cv-MSVC_UWP_APP; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_UWP_APP; must be set before the first msvc tool is
+loaded into the environment.
+</para></listitem>
+
+<listitem><para>
+<emphasis>
+The existence of the UWP libraries is not verified when &cv-MSVC_UWP_APP; is enabled
+which could result in build failures.
+</emphasis>
+The burden is on the user to ensure the requisite UWP libraries are installed.
+</para></listitem>
+
+</itemizedlist>
 </para>
 
 </listitem>
@@ -4757,8 +5689,15 @@ Sets the preferred  version of Microsoft Visual C/C++ to use.
 If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
 latest version of Visual C/C++ installed on your system.  If the
 specified version isn't installed, tool initialization will fail.
-This variable must be passed as an argument to the &f-link-Environment;
-constructor; setting it later has no effect.
+</para>
+
+<para>
+&cv-MSVC_VERSION; must be passed as an argument to the &f-link-Environment;
+constructor when an msvc tool (e.g., &t-link-msvc;, &t-link-msvs;, etc.) is
+loaded via the default tools list or via a tools list passed to the
+&f-link-Environment; constructor.
+Otherwise, &cv-MSVC_VERSION; must be set before the first msvc tool is
+loaded into the environment.
 </para>
 
 <para>
@@ -5190,9 +6129,28 @@ Specfies the name of the project to package.
       <envar>NINJA_ALIAS_NAME</envar>
     </term>
     <listitem><para>
-                Name of the Alias() which is will cause SCons to create the <filename>ninja.build</filename> file, and
-                then (optionally) run ninja.
+                The name of the alias target which will cause &SCons; to create the &ninja; build file,
+                and then (optionally) run &ninja;.
+                The default value is <literal>generate-ninja</literal>.
             </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_CMD_ARGS">
+    <term>
+      <envar>NINJA_CMD_ARGS</envar>
+    </term>
+    <listitem><para>
+                A string which will pass arguments through SCons to the ninja command when scons executes ninja.
+                Has no effect if &cv-NINJA_DISABLE_AUTO_RUN; is set.
+            </para>
+            <para>
+                This value can also be passed on the command line:
+            </para>
+            <example_commands>
+scons NINJA_CMD_ARGS=-v
+or
+scons NINJA_CMD_ARGS="-v -j 3"
+            </example_commands>
         </listitem>
   </varlistentry>
   <varlistentry id="cv-NINJA_COMPDB_EXPAND">
@@ -5200,13 +6158,26 @@ Specfies the name of the project to package.
       <envar>NINJA_COMPDB_EXPAND</envar>
     </term>
     <listitem><para>
-                Boolean value (True|False) to instruct ninja to expand the command line arguments normally put into
+                Boolean value to instruct &ninja; to expand the command line arguments normally put into
                 response files.
-                This prevents lines in the compilation database like <quote>gcc @rsp_file</quote> and instead yields
-                <quote>gcc -c -o myfile.o myfile.c -Ia -DXYZ</quote>
+                If true, prevents unexpanded lines in the compilation database like
+                <quote><literal>gcc @rsp_file</literal></quote> and instead yields expanded lines like
+                <quote><literal>gcc -c -o myfile.o myfile.c -Ia -DXYZ</literal></quote>.
             </para>
             <para>
-                Ninja's compdb tool added the <quote>-x</quote> flag in Ninja V1.9.0
+                Ninja's compdb tool added the <option>-x</option> flag in Ninja V1.9.0
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_DEPFILE_PARSE_FORMAT">
+    <term>
+      <envar>NINJA_DEPFILE_PARSE_FORMAT</envar>
+    </term>
+    <listitem><para>
+                Determines the type of format ninja should expect when parsing header
+                include depfiles. Can be <option>msvc</option>, <option>gcc</option>, or <option>clang</option>.
+                The <option>msvc</option> option corresponds to <option>/showIncludes</option> format, and 
+                <option>gcc</option> or <option>clang</option> correspond to <option>-MMD -MF</option>.
             </para>
         </listitem>
   </varlistentry>
@@ -5215,15 +6186,14 @@ Specfies the name of the project to package.
       <envar>NINJA_DIR</envar>
     </term>
     <listitem><para>
-                This propagates directly into the generated <filename>ninja.build</filename> file.
+                The <parameter>builddir</parameter> value.
+                Propagates directly into the generated &ninja; build file.
                 From Ninja's docs:
-                <blockquote>
-                    <para>
-                        builddir
-                        A directory for some Ninja output files. ... (You can also store other build output in this
-                        directory.)
-                    </para>
-                </blockquote>
+                <quote>
+                    A directory for some Ninja output files. ... (You can also store other build output in this
+                    directory.)
+                </quote>
+            The default value is <filename>.ninja</filename>.
             </para>
         </listitem>
   </varlistentry>
@@ -5232,11 +6202,14 @@ Specfies the name of the project to package.
       <envar>NINJA_DISABLE_AUTO_RUN</envar>
     </term>
     <listitem><para>
-                Boolean (True|False). Default: False
-                When True, SCons will not run ninja automatically after creating the <filename>ninja.build</filename> file.
+                Boolean. Default: <constant>False</constant>.
+                If true, &SCons; will not run &ninja; automatically after creating the &ninja; build file.
+            </para>
 
-                If not set, this will be set to True if <quote>--disable_execute_ninja</quote> or
-                <code>SetOption('disable_execute_ninja', True)</code>
+            <para>
+                If not explicitly set, this will be set to <constant>True</constant>
+                if <option>--disable_execute_ninja</option> or
+                <code>SetOption('disable_execute_ninja', True)</code> is seen.
             </para>
         </listitem>
   </varlistentry>
@@ -5246,12 +6219,17 @@ Specfies the name of the project to package.
     </term>
     <listitem><para>
                 A string that sets the environment for any environment variables that
-                differ between the OS environment and the SCons command ENV.
+                differ between the OS environment and the &SCons; execution environment.
+            </para>
 
+            <para>
                 It will be compatible with the default shell of the operating system.
+            </para>
 
-                If not explicitly specified, SCons will generate this dynamically from the Environment()'s 'ENV'
-                <quote>env['ENV']</quote>
+            <para>
+                If not explicitly set, &SCons; will generate this dynamically from the
+                execution environment stored in the current &consenv;
+                (e.g. <literal>env['ENV']</literal>)
                 where those values differ from the existing shell..
             </para>
         </listitem>
@@ -5261,8 +6239,8 @@ Specfies the name of the project to package.
       <envar>NINJA_FILE_NAME</envar>
     </term>
     <listitem><para>
-                The filename for the generated Ninja build file defaults to
-                <filename>ninja.build</filename>
+                The filename for the generated Ninja build file.
+                The default is <filename>ninja.build</filename>.
             </para>
         </listitem>
   </varlistentry>
@@ -5271,9 +6249,21 @@ Specfies the name of the project to package.
       <envar>NINJA_FORCE_SCONS_BUILD</envar>
     </term>
     <listitem><para>
-                When NINJA_FORCE_SCONS_BUILD is True, this will cause the build nodes to callback to scons instead of using
-                ninja to build them. This is intended to be passed to the environment on the builder invocation.
-                It is useful if you have a build node which does something which is not easily translated into ninja.
+                If true, causes the build nodes to callback to scons instead of using
+                &ninja; to build them. This is intended to be passed to the environment on the builder invocation.
+                It is useful if you have a build node which does something which is not easily translated into &ninja;.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_GENERATED_SOURCE_ALIAS_NAME">
+    <term>
+      <envar>NINJA_GENERATED_SOURCE_ALIAS_NAME</envar>
+    </term>
+    <listitem><para>
+                A string matching the name of a user defined alias which represents a list of all generated sources.
+                This will prevent the auto-detection of generated sources from &cv-NINJA_GENERATED_SOURCE_SUFFIXES;.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
+                generated sources to be built first.
             </para>
         </listitem>
   </varlistentry>
@@ -5282,10 +6272,10 @@ Specfies the name of the project to package.
       <envar>NINJA_GENERATED_SOURCE_SUFFIXES</envar>
     </term>
     <listitem><para>
-                The list of source file suffixes which are generated by SCons build steps.
+                The list of source file suffixes which are generated by &SCons; build steps.
                 All source files which match these suffixes will be added to the _generated_sources alias in the output
-                <filename>ninja.build</filename> file.
-                Then all other source files will be made to depend on this in the <filename>ninja.build</filename> file, forcing the
+                &ninja; build file.
+                Then all other source files will be made to depend on this in the &ninja; build file, forcing the
                 generated sources to be built first.
             </para>
         </listitem>
@@ -5295,9 +6285,10 @@ Specfies the name of the project to package.
       <envar>NINJA_MSVC_DEPS_PREFIX</envar>
     </term>
     <listitem><para>
-                This propagates directly into the generated <filename>ninja.build</filename> file.
-                From Ninja's docs
-                <quote>defines the string which should be stripped from msvc’s /showIncludes output</quote>
+                The <parameter>msvc_deps_prefix</parameter> string.
+                Propagates directly into the generated &ninja; build file.
+                From Ninja's docs:
+                <quote>defines the string which should be stripped from msvc's <option>/showIncludes</option> output</quote>
             </para>
         </listitem>
   </varlistentry>
@@ -5306,7 +6297,7 @@ Specfies the name of the project to package.
       <envar>NINJA_POOL</envar>
     </term>
     <listitem><para>
-                Set the <quote>ninja_pool</quote> for this or all targets in scope for this env var.
+                Set the <parameter>ninja_pool</parameter> for this or all targets in scope for this env var.
             </para>
         </listitem>
   </varlistentry>
@@ -5315,8 +6306,9 @@ Specfies the name of the project to package.
       <envar>NINJA_REGENERATE_DEPS</envar>
     </term>
     <listitem><para>
-                A generator function used to create a ninja depsfile which includes all the files which would require
-                SCons to be invoked if they change.
+                A generator function used to create a &ninja; depfile which
+                includes all the files which would require
+                &SCons; to be invoked if they change.
                 Or a list of said files.
             </para>
         </listitem>
@@ -5327,7 +6319,28 @@ Specfies the name of the project to package.
     </term>
     <listitem><para>
                 Internal value used to specify the function to call with argument env to generate the list of files
-                which if changed would require the ninja file to be regenerated.
+                which if changed would require the &ninja; build file to be regenerated.
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_SCONS_DAEMON_KEEP_ALIVE">
+    <term>
+      <envar>NINJA_SCONS_DAEMON_KEEP_ALIVE</envar>
+    </term>
+    <listitem><para>
+                The number of seconds for the SCons deamon launched by ninja to stay alive.
+                (Default: 180000)
+            </para>
+        </listitem>
+  </varlistentry>
+  <varlistentry id="cv-NINJA_SCONS_DAEMON_PORT">
+    <term>
+      <envar>NINJA_SCONS_DAEMON_PORT</envar>
+    </term>
+    <listitem><para>
+                The TCP/IP port for the SCons daemon to listen on.
+                <emphasis>NOTE: You cannot use a port already being listened to on your build machine.</emphasis>
+                (Default: random number between 10000,60000)
             </para>
         </listitem>
   </varlistentry>
@@ -5336,9 +6349,9 @@ Specfies the name of the project to package.
       <envar>NINJA_SYNTAX</envar>
     </term>
     <listitem><para>
-                Theres also NINJA_SYNTAX which is the path to a custom ninja_syntax.py file which is used in generation.
-                The tool currently assumes you have ninja installed through pip, and grabs the syntax file from that
-                installation if none specified.
+                The path to a custom <filename>ninja_syntax.py</filename> file which is used in generation.
+                The tool currently assumes you have &ninja; installed as a &Python; module and grabs the syntax file from that
+                installation if &cv-NINJA_SYNTAX; is not explicitly set.
             </para>
         </listitem>
   </varlistentry>
@@ -5766,44 +6779,65 @@ A Python function used to print the command lines as they are executed
 or
 <option>-s</option>
 options or their equivalents).
-The function should take four arguments:
+The function must accept four arguments:
 <varname>s</varname>,
-the command being executed (a string),
 <varname>target</varname>,
-the target being built (file node, list, or string name(s)),
+<varname>source</varname> and
+<varname>env</varname>.
+<varname>s</varname>
+is a string showing the command being executed,
+<varname>target</varname>,
+is the target being built (file node, list, or string name(s)),
 <varname>source</varname>,
-the source(s) used (file node, list, or string name(s)), and
-<varname>env</varname>,
-the environment being used.
+is the source(s) used (file node, list, or string name(s)),
+and <varname>env</varname>
+is the environment being used.
 </para>
 
 <para>
-The function must do the printing itself.  The default implementation,
-used if this variable is not set or is None, is:
+The function must do the printing itself.
+The default implementation,
+used if this variable is not set or is <constant>None</constant>,
+is to just print the string, as in:
 </para>
 <example_commands>
 def print_cmd_line(s, target, source, env):
-  sys.stdout.write(s + "\n")
+    sys.stdout.write(s + "\n")
 </example_commands>
 
 <para>
-Here's an example of a more interesting function:
+Here is an example of a more interesting function:
 </para>
 
 <example_commands>
 def print_cmd_line(s, target, source, env):
-   sys.stdout.write("Building %s -&gt; %s...\n" %
-    (' and '.join([str(x) for x in source]),
-     ' and '.join([str(x) for x in target])))
-env=Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
-env.Program('foo', 'foo.c')
+    sys.stdout.write(
+        "Building %s -&gt; %s...\n"
+        % (
+            ' and '.join([str(x) for x in source]),
+            ' and '.join([str(x) for x in target]),
+        )
+    )
+
+env = Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
+env.Program('foo', ['foo.c', 'bar.c'])
 </example_commands>
 
 <para>
-This just prints "Building <varname>targetname</varname> from <varname>sourcename</varname>..." instead
-of the actual commands.
-Such a function could also log the actual commands to a log file,
-for example.
+This prints:
+</para>
+
+<screen>
+...
+scons: Building targets ...
+Building bar.c -&gt; bar.o...
+Building foo.c -&gt; foo.o...
+Building foo.o and bar.o -&gt; foo...
+scons: done building targets.
+</screen>
+
+<para>
+Another example could be a function that logs the actual commands to a file.
 </para>
 </listitem>
   </varlistentry>
@@ -6751,6 +7785,56 @@ construction variable for more information.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-SHELL_ENV_GENERATORS">
+    <term>
+      <envar>SHELL_ENV_GENERATORS</envar>
+    </term>
+    <listitem><para>
+Must be a list (or an iterable) containing functions where each function generates or
+alters the environment dictionary which will be used
+when executing the &cv-link-SPAWN; function. The functions will initially 
+be passed a reference of the current execution environment (e.g. env['ENV']), 
+and each called while iterating the list. Each function must return a dictionary
+which will then be passed to the next function iterated. The return dictionary 
+should contain keys which represent the environment variables and their respective
+values.
+
+This primary purpose of this construction variable is to give the user the ability
+to substitute execution environment variables based on env, targets, and sources. 
+If desired, the user can completely customize the execution environment for particular
+targets.
+    </para>
+
+    <example_commands>
+def custom_shell_env(env, target, source, shell_env):
+    """customize shell_env if desired"""
+    if str(target[0]) == 'special_target':
+        shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
+    return shell_env
+
+env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
+    </example_commands>
+
+    <para>
+      <varname>env</varname>
+The SCons construction environment from which the
+execution environment can be derived from.
+    </para>
+    <para>
+    <varname>target</varname>
+The list of targets associated with this action.
+    </para>
+    <para>
+    <varname>source</varname>
+The list of sources associated with this action.
+    </para>
+    <para>
+    <varname>shell_env</varname>
+The current shell_env after iterating other SHELL_ENV_GENERATORS functions. This can be compared
+to the passed env['ENV'] to detect any changes.
+    </para>
+  </listitem>
+  </varlistentry>
   <varlistentry id="cv-SHF03">
     <term>
       <envar>SHF03</envar>
@@ -6801,7 +7885,7 @@ Options that are passed to the Fortran 03 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF03FLAGS; if you need to define specific
 user options for Fortran 03 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -6889,7 +7973,7 @@ Options that are passed to the Fortran 08 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF08FLAGS; if you need to define specific
 user options for Fortran 08 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -6977,7 +8061,7 @@ Options that are passed to the Fortran 77 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF77FLAGS; if you need to define specific
 user options for Fortran 77 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -7065,7 +8149,7 @@ Options that are passed to the Fortran 90 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF90FLAGS; if you need to define specific
 user options for Fortran 90 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -7153,7 +8237,7 @@ Options that are passed to the Fortran 95 compiler
 to generated shared-library objects.
 You only need to set &cv-link-SHF95FLAGS; if you need to define specific
 user options for Fortran 95 files.
-You should normally set the &cv-link-SHFORTRANFLAGS; variable,
+You should normally set the &cv-link-FORTRANCOMMONFLAGS; variable,
 which specifies the user-specified options
 passed to the default Fortran compiler
 for all Fortran versions.
@@ -7207,6 +8291,12 @@ The default Fortran compiler used for generating shared-library objects.
     <listitem><para>
 The command line used to compile a Fortran source file
 to a shared-library object file.
+By default, any options specified
+in the &cv-link-SHFORTRANFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+See also &cv-link-FORTRANCOM;.
 </para>
 </listitem>
   </varlistentry>
@@ -7240,10 +8330,13 @@ to generate shared-library objects.
 The command line used to compile a Fortran source file to a
 shared-library object file
 after first running the file through the C preprocessor.
-Any options specified
-in the &cv-link-SHFORTRANFLAGS; and
-&cv-link-CPPFLAGS; construction variables
-are included on this command line.
+By default, any options specified in the &cv-link-SHFORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+See also &cv-link-SHFORTRANCOM;.
 </para>
 </listitem>
   </varlistentry>
@@ -7518,7 +8611,7 @@ which would be a symlink and point to <filename>libtest.so.0.1.2</filename>
     </term>
     <listitem><para>
 A command interpreter function that will be called to execute command line
-strings. The function must expect the following arguments:
+strings. The function must accept five arguments:
 </para>
 
 <example_commands>
@@ -7526,18 +8619,18 @@ def spawn(shell, escape, cmd, args, env):
 </example_commands>
 
 <para>
-<varname>sh</varname>
-is a string naming the shell program to use.
+<varname>shell</varname>
+is a string naming the shell program to use,
 <varname>escape</varname>
 is a function that can be called to escape shell special characters in
-the command line.
+the command line,
 <varname>cmd</varname>
-is the path to the command to be executed.
+is the path to the command to be executed,
 <varname>args</varname>
-is the arguments to the command.
+holds the arguments to the command and
 <varname>env</varname>
-is a dictionary of the environment variables
-in which the command should be executed.
+is a dictionary of environment variables
+defining the execution environment in which the command should be executed.
 </para>
 </listitem>
   </varlistentry>
@@ -7604,7 +8697,7 @@ field in MSI packages.
       <envar>SWIG</envar>
     </term>
     <listitem><para>
-The scripting language wrapper and interface generator.
+The name of the &swig; compiler to use.
 </para>
 </listitem>
   </varlistentry>
@@ -7614,10 +8707,11 @@ The scripting language wrapper and interface generator.
     </term>
     <listitem><para>
 The suffix that will be used for intermediate C
-source files generated by
-the scripting language wrapper and interface generator.
-The default value is
-<filename>_wrap</filename>&cv-link-CFILESUFFIX;.
+source files generated by &swig;.
+The default value is <literal>'_wrap$CFILESUFFIX'</literal> -
+that is, the concatenation of the string
+<literal>_wrap</literal>
+and the current C suffix &cv-link-CFILESUFFIX;.
 By default, this value is used whenever the
 <option>-c++</option>
 option is
@@ -7633,8 +8727,7 @@ construction variable.
       <envar>SWIGCOM</envar>
     </term>
     <listitem><para>
-The command line used to call
-the scripting language wrapper and interface generator.
+The command line used to call &swig;.
 </para>
 </listitem>
   </varlistentry>
@@ -7643,8 +8736,7 @@ the scripting language wrapper and interface generator.
       <envar>SWIGCOMSTR</envar>
     </term>
     <listitem><para>
-The string displayed when calling
-the scripting language wrapper and interface generator.
+The string displayed when calling &swig;.
 If this is not set, then &cv-link-SWIGCOM; (the command line) is displayed.
 </para>
 </listitem>
@@ -7655,12 +8747,13 @@ If this is not set, then &cv-link-SWIGCOM; (the command line) is displayed.
     </term>
     <listitem><para>
 The suffix that will be used for intermediate C++
-source files generated by
-the scripting language wrapper and interface generator.
-The default value is
-<filename>_wrap</filename>&cv-link-CFILESUFFIX;.
+source files generated by &swig;.
+The default value is <literal>'_wrap$CXXFILESUFFIX'</literal> -
+that is, the concatenation of the string
+<literal>_wrap</literal>
+and the current C++ suffix &cv-link-CXXFILESUFFIX;.
 By default, this value is used whenever the
-<filename>-c++</filename>
+<option>-c++</option>
 option is specified as part of the
 &cv-link-SWIGFLAGS;
 construction variable.
@@ -7673,8 +8766,8 @@ construction variable.
     </term>
     <listitem><para>
 The suffix that will be used for intermediate C++ header
-files generated by the scripting language wrapper and interface generator.
-These are only generated for C++ code when the SWIG 'directors' feature is
+files generated by &swig;.
+These are only generated for C++ code when the &swig; 'directors' feature is
 turned on.
 The default value is
 <filename>_wrap.h</filename>.
@@ -7686,22 +8779,14 @@ The default value is
       <envar>SWIGFLAGS</envar>
     </term>
     <listitem><para>
-General options passed to
-the scripting language wrapper and interface generator.
-This is where you should set
-<option>-python</option>,
+General options passed to &swig;.
+This is where you should set the target language
+(<option>-python</option>,
 <option>-perl5</option>,
-<option>-tcl</option>,
-or whatever other options you want to specify to SWIG.
-If you set the
-<option>-c++</option>
-option in this variable,
-&scons;
-will, by default,
-generate a C++ intermediate source file
-with the extension that is specified as the
-&cv-link-CXXFILESUFFIX;
-variable.
+<option>-tcl</option>, etc.)
+and whatever other options you want to specify to &swig;,
+such as the <option>-c++</option> to generate C++ code
+instead of C Code.
 </para>
 </listitem>
   </varlistentry>
@@ -7711,7 +8796,7 @@ variable.
     </term>
     <listitem><para>
 An automatically-generated construction variable
-containing the SWIG command-line options
+containing the &swig; command-line options
 for specifying directories to be searched for included files.
 The value of &cv-_SWIGINCFLAGS; is created
 by respectively prepending and appending
@@ -7726,7 +8811,7 @@ of each directory in &cv-SWIGPATH;.
       <envar>SWIGINCPREFIX</envar>
     </term>
     <listitem><para>
-The prefix used to specify an include directory on the SWIG command line.
+The prefix used to specify an include directory on the &swig; command line.
 This will be prepended to the beginning of each directory
 in the &cv-SWIGPATH; construction variable
 when the &cv-_SWIGINCFLAGS; variable is automatically generated.
@@ -7738,7 +8823,7 @@ when the &cv-_SWIGINCFLAGS; variable is automatically generated.
       <envar>SWIGINCSUFFIX</envar>
     </term>
     <listitem><para>
-The suffix used to specify an include directory on the SWIG command line.
+The suffix used to specify an include directory on the &swig; command line.
 This will be appended to the end of each directory
 in the &cv-SWIGPATH; construction variable
 when the &cv-_SWIGINCFLAGS; variable is automatically generated.
@@ -7750,8 +8835,7 @@ when the &cv-_SWIGINCFLAGS; variable is automatically generated.
       <envar>SWIGOUTDIR</envar>
     </term>
     <listitem><para>
-Specifies the output directory in which
-the scripting language wrapper and interface generator
+Specifies the output directory in which &swig;
 should place generated language-specific files.
 This will be used by SCons to identify
 the files that will be generated by the &swig; call,
@@ -7765,22 +8849,24 @@ and translated into the
       <envar>SWIGPATH</envar>
     </term>
     <listitem><para>
-The list of directories that the scripting language wrapper
-and interface generate will search for included files.
-The SWIG implicit dependency scanner will search these
+The list of directories that &swig;
+will search for included files.
+&SCons;' SWIG implicit dependency scanner will search these
 directories for include files. The default value is an empty list.
 </para>
 
 <para>
 Don't explicitly put include directory
-arguments in SWIGFLAGS;
+arguments in &cv-link-SWIGFLAGS;
 the result will be non-portable
 and the directories will not be searched by the dependency scanner.
-Note: directory names in SWIGPATH will be looked-up relative to the SConscript
+Note: directory names in &cv-link-SWIGPATH;
+will be looked-up relative to the SConscript
 directory when they are used in a command.
 To force
 &scons;
-to look-up a directory relative to the root of the source tree use #:
+to look-up a directory relative to the root of the source tree use
+a top-relative path (<literal>#</literal>):
 </para>
 
 <example_commands>
@@ -7824,7 +8910,7 @@ env = Environment(SWIGCOM="my_swig -o $TARGET $_SWIGINCFLAGS $SOURCES")
       <envar>SWIGVERSION</envar>
     </term>
     <listitem><para>
-The version number of the SWIG tool.
+The detected version string of the &swig; tool.
 </para>
 </listitem>
   </varlistentry>
@@ -8985,6 +10071,31 @@ The parser generator.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-YACC_GRAPH_FILE">
+    <term>
+      <envar>YACC_GRAPH_FILE</envar>
+    </term>
+    <listitem><para>
+If supplied, write a graph of the automaton to a file with the name
+taken from this variable.
+Will be emitted as a <option>--graph=</option>
+command-line option. Use this in preference to including
+<option>--graph=</option> in &cv-link-YACCFLAGS; directly.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-YACC_HEADER_FILE">
+    <term>
+      <envar>YACC_HEADER_FILE</envar>
+    </term>
+    <listitem><para>
+If supplied, generate a header file with the name taken from this variable.
+Will be emitted as a <option>--header=</option>
+command-line option. Use this in preference to including
+<option>--header=</option> in &cv-link-YACCFLAGS; directly.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-YACCCOM">
     <term>
       <envar>YACCCOM</envar>
@@ -9006,7 +10117,7 @@ If this is not set, then &cv-link-YACCCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
+env = Environment(YACCCOMSTR="Yacc'ing $TARGET from $SOURCES")
 </example_commands>
 </listitem>
   </varlistentry>
@@ -9016,11 +10127,51 @@ env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
     </term>
     <listitem><para>
 General options passed to the parser generator.
-If &cv-link-YACCFLAGS; contains a <option>-d</option> option,
-SCons assumes that the call will also create a .h file
-(if the yacc source file ends in a .y suffix)
-or a .hpp file
-(if the yacc source file ends in a .yy suffix)
+In addition to passing the value on during invocation,
+the &t-link-yacc; tool also examines this &consvar; for options
+which cause additional output files to be generated,
+and adds those to the target list.
+</para>
+
+<para>
+If a <option>-d</option> option is present,
+&scons; assumes that the call will also create a header file
+with the suffix defined by &cv-link-YACCHFILESUFFIX;
+if the yacc source file ends in a <filename>.y</filename> suffix,
+or a file with the suffix defined by &cv-link-YACCHXXFILESUFFIX;
+if the yacc source file ends in a <filename>.yy</filename> suffix.
+</para>
+
+<para>
+If a <option>-g</option> option is present,
+&scons; assumes that the call will also create a graph file
+with the suffix defined by &cv-link-YACCVCGFILESUFFIX;.
+</para>
+
+<para>
+If a <option>-v</option> option is present,
+&scons; assumes that the call will also create an output debug file
+with the suffix <filename>.output</filename>.
+</para>
+
+<para>
+Also recognized are GNU &bison; options
+<option>--header=</option> and its deprecated synonym
+<option>--defines=</option>,
+which is similar to
+<option>-d</option>
+but the output filename is named by the option argument;
+and <option>--graph=</option>,
+which is similar to
+<option>-g</option>
+but the output filename is named by the option argument.
+</para>
+
+<para>
+Note that files specified by <option>--header=</option> and
+<option>--graph=</option> may not be properly handled
+by &SCons; in all situations. Consider using
+&cv-link-YACC_HEADER_FILE; and &cv-link-YACC_GRAPH_FILE; instead.
 </para>
 </listitem>
   </varlistentry>

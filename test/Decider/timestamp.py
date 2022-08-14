@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify various interactions of the timestamp-match and timestamp-newer
@@ -54,27 +53,21 @@ test.write('newer1.in', "newer1.in\n")
 test.write('newer2.in', "newer2.in\n")
 
 test.run(arguments = '.')
-
 test.up_to_date(arguments = '.')
 
 time_match = os.stat('match2.out')[stat.ST_MTIME]
 time_newer = os.stat('newer2.out')[stat.ST_MTIME]
 
-
-
 # Now make all the source files newer than (different timestamps from)
 # the last time the targets were built, and touch the target files
 # of match1.out and newer1.out to see the different effects.
-
-test.sleep()
-
+test.sleep()  # delay for timestamps
 test.touch('match1.in')
 test.touch('newer1.in')
 test.touch('match2.in')
 test.touch('newer2.in')
 
-test.sleep()
-
+test.sleep()  # delay for timestamps
 test.touch('match1.out')
 test.touch('newer1.out')
 
@@ -90,7 +83,7 @@ Copy("match2.out", "match2.in")
 Copy("newer2.out", "newer2.in")
 """)
 
-test.run(arguments = '.', stdout=expect)
+test.run(arguments='.', stdout=expect)
 
 # Now, for the somewhat pathological case, reset the match2.out and
 # newer2.out timestamps to the older timestamp when the targets were
@@ -107,9 +100,7 @@ expect = test.wrap_stdout("""\
 Copy("newer2.out", "newer2.in")
 """)
 
-test.run(arguments = '.', stdout=expect)
-
-
+test.run(arguments='.', stdout=expect)
 
 test.pass_test()
 

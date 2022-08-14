@@ -15,7 +15,7 @@ os:
 
 install:
   # needed for Docbook tests, must be in virtualenv context
-  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   # do the rest of the image setup
   - ./.travis/install.sh
 

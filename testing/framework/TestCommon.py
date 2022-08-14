@@ -261,7 +261,7 @@ class TestCommon(TestCmd):
         calling the base class initialization, and then changing directory
         to the workdir.
         """
-        TestCmd.__init__(self, **kw)
+        super().__init__(**kw)
         os.chdir(self.workdir)
 
     def options_arguments(self, options, arguments):
@@ -676,7 +676,7 @@ class TestCommon(TestCmd):
         """
         arguments = self.options_arguments(options, arguments)
         try:
-            return TestCmd.start(self, program, interpreter, arguments,
+            return super().start(program, interpreter, arguments,
                                  universal_newlines, **kw)
         except KeyboardInterrupt:
             raise
@@ -713,7 +713,7 @@ class TestCommon(TestCmd):
                         command.  A value of None means don't
                         test exit status.
         """
-        TestCmd.finish(self, popen, **kw)
+        super().finish(popen, **kw)
         match = kw.get('match', self.match)
         self._complete(self.stdout(), stdout,
                        self.stderr(), stderr, status, match)
@@ -750,7 +750,7 @@ class TestCommon(TestCmd):
             del kw['match']
         except KeyError:
             match = self.match
-        TestCmd.run(self, **kw)
+        super().run(**kw)
         self._complete(self.stdout(), stdout,
                        self.stderr(), stderr, status, match)
 
@@ -782,6 +782,8 @@ class TestCommon(TestCmd):
         """
         if message:
             sys.stdout.write(message)
+            if not message.endswith('\n'):
+                sys.stdout.write('\n')
             sys.stdout.flush()
         pass_skips = os.environ.get('TESTCOMMON_PASS_SKIPS')
         if pass_skips in [None, 0, '0']:

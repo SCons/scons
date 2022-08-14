@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
@@ -59,6 +58,7 @@ options.AddVariables(
     ('literal_in_listcomp', 'Literal inside list comprehension', '2'),
 )
 
+DefaultEnvironment(tools=[])
 optEnv = Environment(options=options, tools=[])
 
 r = re.compile(optEnv['regexp'])
@@ -67,25 +67,24 @@ withClosure = \
 r'''
 def toto(header='%(header)s', trailer='%(trailer)s'):
     xxx = %(closure_cell_value)s
-    def writeDeps(target, source, env, b=%(b)s, r=r %(extraarg)s ,
-                  header=header, trailer=trailer):
+    def writeDeps(target, source, env, b=%(b)s, r=r %(extraarg)s , header=header, trailer=trailer):
         """+'"""%(docstring)s"""'+"""
         def foo(b=b):
             return %(nestedfuncexp)s
-        f = open(str(target[0]),'wb')
-        f.write(bytearray(header,'utf-8'))
-        for d in env['ENVDEPS']:
-            f.write(bytearray(d+'%(separator)s','utf-8'))
-        f.write(bytearray(trailer+'\\n','utf-8'))
-        f.write(bytearray(str(foo())+'\\n','utf-8'))
-        f.write(bytearray(r.match('aaaa').group(1)+'\\n','utf-8'))
-        f.write(bytearray(str(sum([x*%(literal_in_listcomp)s for x in [1,2]]))+'\\n', 'utf-8'))
-        %(extracode)s
-        try:
-           f.write(bytearray(str(xarg),'utf-8')+b'\\n')
-        except NameError:
-           pass
-        f.close()
+
+        with open(str(target[0]), 'wb') as f:
+            f.write(bytearray(header, 'utf-8'))
+            for d in env['ENVDEPS']:
+                f.write(bytearray(d+'%(separator)s', 'utf-8'))
+            f.write(bytearray(trailer+'\\n', 'utf-8'))
+            f.write(bytearray(str(foo())+'\\n', 'utf-8'))
+            f.write(bytearray(r.match('aaaa').group(1)+'\\n', 'utf-8'))
+            f.write(bytearray(str(sum([x*%(literal_in_listcomp)s for x in [1, 2]]))+'\\n', 'utf-8'))
+            %(extracode)s
+            try:
+               f.write(bytearray(str(xarg), 'utf-8')+b'\\n')
+            except NameError:
+               pass
 
     return writeDeps
 '''
@@ -93,13 +92,9 @@ def toto(header='%(header)s', trailer='%(trailer)s'):
 exec(withClosure % optEnv)
 
 genHeaderBld = SCons.Builder.Builder(
-    action = SCons.Action.Action(
-        toto(),
-        'Generating $TARGET',
-        varlist=['ENVDEPS']
-        ),
-    suffix = '.gen.h'
-    )
+    action=SCons.Action.Action(toto(), 'Generating $TARGET', varlist=['ENVDEPS']),
+    suffix='.gen.h',
+)
 
 DefaultEnvironment(tools=[])
 env = Environment(tools=[])
@@ -128,22 +123,21 @@ scons: done building targets.
 """
 
 def runtest(arguments, expectedOutFile, expectedRebuild=True, stderr=""):
-    test.run(arguments=arguments,
-             stdout=expectedRebuild and rebuildstr or nobuildstr,
-             stderr="")
+    test.run(
+        arguments=arguments,
+        stdout=expectedRebuild and rebuildstr or nobuildstr,
+        stderr="",
+    )
 
     sys.stdout.write('First Build.\n')
 
     test.must_match('Out.gen.h', expectedOutFile, message="First Build")
 
-    # Should not be rebuild when run a second time with the same
-    # arguments.
-
+    # Should not be rebuild when run a second time with the same arguments.
     sys.stdout.write('Rebuild.\n')
 
-    test.run(arguments = arguments, stdout=nobuildstr, stderr="")
+    test.run(arguments=arguments, stdout=nobuildstr, stderr="")
     test.must_match('Out.gen.h', expectedOutFile, message="Should not rebuild")
-
 
 # We're making this script chatty to prevent timeouts on really really
 # slow buildbot slaves (*cough* Solaris *cough*).

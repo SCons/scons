@@ -81,7 +81,7 @@ def get_generic_shell_command(env, node, action, targets, sources, executor=None
         "GENERATED_CMD",
         {
             "cmd": generate_command(env, node, action, targets, sources, executor=executor),
-            "env": get_command_env(env),
+            "env": get_command_env(env, targets, sources),
         },
         # Since this function is a rule mapping provider, it must return a list of dependencies,
         # and usually this would be the path to a tool, such as a compiler, used for this rule.
@@ -134,7 +134,9 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
 
     variables = {}
 
-    comstr = get_comstr(sub_env, action, tlist, slist)
+    # since we will check the ninja rule map for this command str, we must make sure
+    # its string so its hashable.
+    comstr = str(get_comstr(sub_env, action, tlist, slist))
     if not comstr:
         return None
 
@@ -255,22 +257,29 @@ def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom
             )
 
         cmd, rsp_content = cmd_list[:tool_idx], cmd_list[tool_idx:]
+
+        # Canonicalize the path to have forward (posix style) dir sep characters.
+        if os.altsep:
+            rsp_content = [rsp_content_item.replace(os.sep, os.altsep) for rsp_content_item in rsp_content]
         rsp_content = ['"' + rsp_content_item + '"' for rsp_content_item in rsp_content]
         rsp_content = " ".join(rsp_content)
 
         variables = {"rspc": rsp_content, rule: cmd}
         if use_command_env:
-            variables["env"] = get_command_env(env)
+            variables["env"] = get_command_env(env, targets, sources)
 
             for key, value in custom_env.items():
                 variables["env"] += env.subst(
                     "export %s=%s;" % (key, value), target=targets, source=sources, executor=executor
                 ) + " "
-                
+
         if node.get_env().get('NINJA_FORCE_SCONS_BUILD'):
             ret_rule = 'TEMPLATE'
         else:
-            ret_rule = rule
+            if len(' '.join(cmd_list)) < env.get('MAXLINELENGTH', 2048):
+                ret_rule = rule
+            else:
+                ret_rule = rule + '_RSP'
 
         return ret_rule, variables, [tool_command]
 

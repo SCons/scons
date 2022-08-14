@@ -1,0 +1,38 @@
+import sys
+
+def custom_environment_expansion1(env, target, source, shell_env):
+    ENV = shell_env.copy()
+    ENV['EXPANDED_SHELL_VAR1'] = env.subst(env['ENV']['EXPANDED_SHELL_VAR1'], target=target, source=source)
+    return ENV
+
+def custom_environment_expansion2(env, target, source, shell_env):
+    ENV = shell_env.copy()
+    ENV['EXPANDED_SHELL_VAR2'] = env.subst(env['ENV']['EXPANDED_SHELL_VAR2'], target=target, source=source)
+    return ENV
+
+def expand_this_generator(env, target, source, for_signature):
+    return "I_got_expanded_to_" + str(target[0])
+
+def expand_that_generator(env, target, source, for_signature):
+    return str(target[0]) + "_is_from_expansion"
+
+env = Environment(tools=['textfile'])
+
+env['SHELL_ENV_GENERATORS'] = [custom_environment_expansion1, custom_environment_expansion2]
+
+env['EXPAND_THIS'] = expand_this_generator
+env['EXPAND_THAT'] = expand_that_generator
+
+env['ENV']['EXPANDED_SHELL_VAR1'] = "$EXPAND_THIS"
+env['ENV']['EXPANDED_SHELL_VAR2'] = "$EXPAND_THAT"
+env['ENV']['NON_EXPANDED_SHELL_VAR'] = "$EXPAND_THIS"
+
+env.Textfile('expand_script.py', [
+    'import os',
+    'print(os.environ["EXPANDED_SHELL_VAR1"])',
+    'print(os.environ["EXPANDED_SHELL_VAR2"])',
+    'print(os.environ["NON_EXPANDED_SHELL_VAR"])',
+])
+env.Command('out.txt', 'expand_script.py', fr'{sys.executable} $SOURCE > $TARGET')
+
+env.Depends('out.txt', env.Command('out2.txt', 'expand_script.py', fr'{sys.executable} $SOURCE > $TARGET'))

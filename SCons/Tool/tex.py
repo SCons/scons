@@ -492,21 +492,23 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
     return result
 
-def LaTeXAuxAction(target = None, source= None, env=None):
-    result = InternalLaTeXAuxAction( LaTeXAction, target, source, env )
+def LaTeXAuxAction(target=None, source=None, env=None):
+    result = InternalLaTeXAuxAction(LaTeXAction, target, source, env)
     return result
+
 
 LaTeX_re = re.compile("\\\\document(style|class)")
 
-def is_LaTeX(flist,env,abspath):
+
+def is_LaTeX(flist, env, abspath) -> bool:
     """Scan a file list to decide if it's TeX- or LaTeX-flavored."""
 
     # We need to scan files that are included in case the
     # \documentclass command is in them.
 
     # get path list from both env['TEXINPUTS'] and env['ENV']['TEXINPUTS']
-    savedpath = modify_env_var(env, 'TEXINPUTS', abspath)
-    paths = env['ENV']['TEXINPUTS']
+    savedpath = modify_env_var(env, "TEXINPUTS", abspath)
+    paths = env["ENV"]["TEXINPUTS"]
     if SCons.Util.is_List(paths):
         pass
     else:
@@ -516,54 +518,58 @@ def is_LaTeX(flist,env,abspath):
     # now that we have the path list restore the env
     if savedpath is _null:
         try:
-            del env['ENV']['TEXINPUTS']
+            del env["ENV"]["TEXINPUTS"]
         except KeyError:
-            pass # was never set
+            pass  # was never set
     else:
-        env['ENV']['TEXINPUTS'] = savedpath
+        env["ENV"]["TEXINPUTS"] = savedpath
     if Verbose:
-        print("is_LaTeX search path ",paths)
-        print("files to search :",flist)
+        print("is_LaTeX search path ", paths)
+        print("files to search: ", flist)
 
     # Now that we have the search path and file list, check each one
+    file_test = False
     for f in flist:
         if Verbose:
-            print(" checking for Latex source ",str(f))
+            print(f" checking for Latex source {f}")
 
         content = f.get_text_contents()
         if LaTeX_re.search(content):
             if Verbose:
-                print("file %s is a LaTeX file" % str(f))
-            return 1
+                print(f"file {f} is a LaTeX file")
+            return True
         if Verbose:
-            print("file %s is not a LaTeX file" % str(f))
+            print(f"file {f} is not a LaTeX file")
 
         # now find included files
-        inc_files = [ ]
-        inc_files.extend( include_re.findall(content) )
+        inc_files = []
+        inc_files.extend(include_re.findall(content))
         if Verbose:
-            print("files included by '%s': "%str(f),inc_files)
+            print(f"files included by '{f}': ", inc_files)
         # inc_files is list of file names as given. need to find them
         # using TEXINPUTS paths.
 
         # search the included files
         for src in inc_files:
-            srcNode = FindFile(src,['.tex','.ltx','.latex'],paths,env,requireExt=False)
+            srcNode = FindFile(
+                src, [".tex", ".ltx", ".latex"], paths, env, requireExt=False
+            )
             # make this a list since is_LaTeX takes a list.
-            fileList = [srcNode,]
+            fileList = [srcNode]
             if Verbose:
-                print("FindFile found ",srcNode)
+                print("FindFile found ", srcNode)
             if srcNode is not None:
                 file_test = is_LaTeX(fileList, env, abspath)
 
             # return on first file that finds latex is needed.
             if file_test:
-                return file_test
+                return True
 
         if Verbose:
-            print(" done scanning ",str(f))
+            print(f" done scanning {f}")
 
-    return 0
+    return False
+
 
 def TeXLaTeXFunction(target = None, source= None, env=None):
     """A builder for TeX and LaTeX that scans the source file to

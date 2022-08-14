@@ -48,4 +48,39 @@ test.run(arguments='-Q -s')
 if 'MSVC_VERSION=None' not in test.stdout():
     test.fail_test()
 
+# test msvc version number request with no msvc's
+test.file_fixture('no_msvc/no_msvcs_sconstruct_version.py', 'SConstruct')
+test.run(arguments='-Q -s', status=2, stderr=r"^.*MSVCVersionNotFound.+", match=TestSCons.match_re_dotall)
+
+# test that MSVCVersionNotFound is not raised for default msvc tools
+# when a non-msvc tool list is used
+test.subdir('site_scons', ['site_scons', 'site_tools'])
+
+test.write(['site_scons', 'site_tools', 'myignoredefaultmsvctool.py'], """
+import SCons.Tool
+def generate(env):
+    env['MYIGNOREDEFAULTMSVCTOOL']='myignoredefaultmsvctool'
+def exists(env):
+    return 1
+""")
+
+test.file_fixture('no_msvc/no_msvcs_sconstruct_tools.py', 'SConstruct')
+test.run(arguments='-Q -s')
+
+# test no msvc's and msvc_sdk_version() call
+test.file_fixture('no_msvc/no_msvcs_sconstruct_msvc_sdk_versions.py', 'SConstruct')
+test.run(arguments='-Q -s')
+test.must_contain_all(test.stdout(), 'sdk_version_list=[]')
+
+# test no msvc's and msvc_sdk_version() call
+test.file_fixture('no_msvc/no_msvcs_sconstruct_msvc_toolset_versions.py', 'SConstruct')
+test.run(arguments='-Q -s')
+test.must_contain_all(test.stdout(), 'toolset_version_list=[]')
+
+# test no msvc's and msvc_query_version_toolset() call
+test.file_fixture('no_msvc/no_msvcs_sconstruct_msvc_query_toolset_version.py', 'SConstruct')
+test.run(arguments='-Q -s')
+test.must_contain_all(test.stdout(), 'msvc_version=None, msvc_toolset_version=None')
+
 test.pass_test()
+

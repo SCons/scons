@@ -42,15 +42,16 @@ test.subdir('tstamp', [ 'tstamp', 'subdir' ],
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
+
 def writeTarget(target, source, env):
-    f=open(str(target[0]), 'w')
+    f = open(str(target[0]), 'w')
     f.write("stuff\\n")
     f.close()
     return 0
 
-test_bld_dir = Builder(action=writeTarget,
-                       source_factory=Dir,
-                       source_scanner=DirScanner)
+test_bld_dir = Builder(
+    action=writeTarget, source_factory=Dir, source_scanner=DirScanner
+)
 test_bld_file = Builder(action=writeTarget)
 env = Environment(tools=[])
 env['BUILDERS']['TestDir'] = test_bld_dir
@@ -61,34 +62,36 @@ env_tstamp.Decider('timestamp-newer')
 env_tstamp.TestFile(source='junk.txt', target='tstamp/junk.out')
 env_tstamp.TestDir(source='tstamp', target='tstamp.out')
 env_tstamp.Command('cmd-tstamp-noscan.out', 'cmd-tstamp', writeTarget)
-env_tstamp.Command('cmd-tstamp.out', 'cmd-tstamp', writeTarget,
-                 source_scanner=DirScanner)
+env_tstamp.Command(
+    'cmd-tstamp.out', 'cmd-tstamp', writeTarget, source_scanner=DirScanner
+)
 
 env_content = env.Clone()
 env_content.Decider('content')
 env_content.TestFile(source='junk.txt', target='content/junk.out')
 env_content.TestDir(source='content', target='content.out')
 env_content.Command('cmd-content-noscan.out', 'cmd-content', writeTarget)
-env_content.Command('cmd-content.out', 'cmd-content', writeTarget,
-                 source_scanner=DirScanner)
+env_content.Command(
+    'cmd-content.out', 'cmd-content', writeTarget, source_scanner=DirScanner
+)
 """)
 
-test.write([ 'tstamp', 'foo.txt' ], 'foo.txt 1\n')
-test.write([ 'tstamp', '#hash.txt' ], 'hash.txt 1\n')
-test.write([ 'tstamp', 'subdir', 'bar.txt'], 'bar.txt 1\n')
-test.write([ 'tstamp', 'subdir', '#hash.txt'], 'hash.txt 1\n')
-test.write([ 'content', 'foo.txt' ], 'foo.txt 1\n')
-test.write([ 'content', '#hash.txt' ], 'hash.txt 1\n')
-test.write([ 'content', 'subdir', 'bar.txt' ], 'bar.txt 1\n')
-test.write([ 'content', 'subdir', '#hash.txt' ], 'hash.txt 1\n')
-test.write([ 'cmd-tstamp', 'foo.txt' ], 'foo.txt 1\n')
-test.write([ 'cmd-tstamp', '#hash.txt' ], 'hash.txt 1\n')
-test.write([ 'cmd-tstamp', 'subdir', 'bar.txt' ], 'bar.txt 1\n')
-test.write([ 'cmd-tstamp', 'subdir', '#hash.txt' ], 'hash.txt 1\n')
-test.write([ 'cmd-content', 'foo.txt' ], 'foo.txt 1\n')
-test.write([ 'cmd-content', '#hash.txt' ], '#hash.txt 1\n')
-test.write([ 'cmd-content', 'subdir', 'bar.txt' ], 'bar.txt 1\n')
-test.write([ 'cmd-content', 'subdir', '#hash.txt' ], 'hash.txt 1\n')
+test.write(['tstamp', 'foo.txt'], 'foo.txt 1\n')
+test.write(['tstamp', '#hash.txt'], 'hash.txt 1\n')
+test.write(['tstamp', 'subdir', 'bar.txt'], 'bar.txt 1\n')
+test.write(['tstamp', 'subdir', '#hash.txt'], 'hash.txt 1\n')
+test.write(['content', 'foo.txt'], 'foo.txt 1\n')
+test.write(['content', '#hash.txt'], 'hash.txt 1\n')
+test.write(['content', 'subdir', 'bar.txt'], 'bar.txt 1\n')
+test.write(['content', 'subdir', '#hash.txt'], 'hash.txt 1\n')
+test.write(['cmd-tstamp', 'foo.txt'], 'foo.txt 1\n')
+test.write(['cmd-tstamp', '#hash.txt'], 'hash.txt 1\n')
+test.write(['cmd-tstamp', 'subdir', 'bar.txt'], 'bar.txt 1\n')
+test.write(['cmd-tstamp', 'subdir', '#hash.txt'], 'hash.txt 1\n')
+test.write(['cmd-content', 'foo.txt'], 'foo.txt 1\n')
+test.write(['cmd-content', '#hash.txt'], '#hash.txt 1\n')
+test.write(['cmd-content', 'subdir', 'bar.txt'], 'bar.txt 1\n')
+test.write(['cmd-content', 'subdir', '#hash.txt'], 'hash.txt 1\n')
 test.write('junk.txt', 'junk.txt\n')
 
 test.run(arguments=".", stderr=None)
@@ -106,59 +109,61 @@ test.up_to_date(arguments='cmd-content.out')
 test.up_to_date(arguments='cmd-tstamp-noscan.out')
 test.up_to_date(arguments='cmd-content-noscan.out')
 
-test.write([ 'tstamp', 'foo.txt' ], 'foo.txt 2\n')
+test.sleep()  # delay for timestamps
+
+test.write(['tstamp', 'foo.txt'], 'foo.txt 2\n')
 test.not_up_to_date(arguments='tstamp.out')
 
-test.write([ 'tstamp', 'new.txt' ], 'new.txt\n')
+test.write(['tstamp', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='tstamp.out')
 
-test.write([ 'content', 'foo.txt' ], 'foo.txt 2\n')
+test.write(['content', 'foo.txt'], 'foo.txt 2\n')
 test.not_up_to_date(arguments='content.out')
 
-test.write([ 'content', 'new.txt' ], 'new.txt\n')
+test.write(['content', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='content.out')
 
-test.write([ 'cmd-tstamp', 'foo.txt' ], 'foo.txt 2\n')
+test.write(['cmd-tstamp', 'foo.txt'], 'foo.txt 2\n')
 test.not_up_to_date(arguments='cmd-tstamp.out')
 test.up_to_date(arguments='cmd-tstamp-noscan.out')
 
-test.write([ 'cmd-tstamp', 'new.txt' ], 'new.txt\n')
+test.write(['cmd-tstamp', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='cmd-tstamp.out')
 test.up_to_date(arguments='cmd-tstamp-noscan.out')
 
-test.write([ 'cmd-content', 'foo.txt' ], 'foo.txt 2\n')
+test.write(['cmd-content', 'foo.txt'], 'foo.txt 2\n')
 test.not_up_to_date(arguments='cmd-content.out')
 test.up_to_date(arguments='cmd-content-noscan.out')
 
-test.write([ 'cmd-content', 'new.txt' ], 'new.txt\n')
+test.write(['cmd-content', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='cmd-content.out')
 test.up_to_date(arguments='cmd-content-noscan.out')
 
-test.write([ 'tstamp', 'subdir', 'bar.txt' ], 'bar.txt 2\n')
+test.write(['tstamp', 'subdir', 'bar.txt'], 'bar.txt 2\n')
 test.not_up_to_date(arguments='tstamp.out')
 
-test.write([ 'tstamp', 'subdir', 'new.txt' ], 'new.txt\n')
+test.write(['tstamp', 'subdir', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='tstamp.out')
 
-test.write([ 'content', 'subdir', 'bar.txt' ], 'bar.txt 2\n')
+test.write(['content', 'subdir', 'bar.txt'], 'bar.txt 2\n')
 test.not_up_to_date(arguments='content.out')
 
-test.write([ 'content', 'subdir', 'new.txt' ], 'new.txt\n')
+test.write(['content', 'subdir', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='content.out')
 
-test.write([ 'cmd-tstamp', 'subdir', 'bar.txt' ], 'bar.txt 2\n')
+test.write(['cmd-tstamp', 'subdir', 'bar.txt'], 'bar.txt 2\n')
 test.not_up_to_date(arguments='cmd-tstamp.out')
 test.up_to_date(arguments='cmd-tstamp-noscan.out')
 
-test.write([ 'cmd-tstamp', 'subdir', 'new.txt' ], 'new.txt\n')
+test.write(['cmd-tstamp', 'subdir', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='cmd-tstamp.out')
 test.up_to_date(arguments='cmd-tstamp-noscan.out')
 
-test.write([ 'cmd-content', 'subdir', 'bar.txt' ], 'bar.txt 2\n')
+test.write(['cmd-content', 'subdir', 'bar.txt'], 'bar.txt 2\n')
 test.not_up_to_date(arguments='cmd-content.out')
 test.up_to_date(arguments='cmd-content-noscan.out')
 
-test.write([ 'cmd-content', 'subdir', 'new.txt' ], 'new.txt\n')
+test.write(['cmd-content', 'subdir', 'new.txt'], 'new.txt\n')
 test.not_up_to_date(arguments='cmd-content.out')
 test.up_to_date(arguments='cmd-content-noscan.out')
 

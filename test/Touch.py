@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that the Touch() Action works.
@@ -34,30 +33,29 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 Execute(Touch('f1'))
 Execute(Touch(File('f1-File')))
+
 def cat(env, source, target):
     target = str(target[0])
     with open(target, "wb") as f:
         for src in source:
             with open(str(src), "rb") as ifp:
                 f.write(ifp.read())
+
 Cat = Action(cat)
 env = Environment()
 env.Command('f2.out', 'f2.in', [Cat, Touch("f3")])
 env = Environment(FILE='f4')
 env.Command('f5.out', 'f5.in', [Touch("$FILE"), Cat])
-env.Command('f6.out', 'f6.in', [Cat,
-                                Touch("Touch-$SOURCE"),
-                                Touch("$TARGET-Touch")])
+env.Command('f6.out', 'f6.in', [Cat, Touch("Touch-$SOURCE"), Touch("$TARGET-Touch")])
 
 # Make sure Touch works with a list of arguments
 env = Environment()
-env.Command('f7.out', 'f7.in', [Cat,
-                                Touch(["Touch-$SOURCE",
-                                       "$TARGET-Touch",
-                                       File("f8")])])
+env.Command(
+    'f7.out', 'f7.in', [Cat, Touch(["Touch-$SOURCE", "$TARGET-Touch", File("f8")])]
+)
 """)
 
 test.write('f1', "f1\n")
@@ -70,11 +68,12 @@ test.write('f7.in', "f7.in\n")
 old_f1_time = os.path.getmtime(test.workpath('f1'))
 old_f1_File_time = os.path.getmtime(test.workpath('f1-File'))
 
-expect = test.wrap_stdout(read_str = """\
+expect = test.wrap_stdout(
+    read_str="""\
 Touch("f1")
 Touch("f1-File")
 """,
-                          build_str = """\
+    build_str="""\
 cat(["f2.out"], ["f2.in"])
 Touch("f3")
 Touch("f4")
@@ -84,11 +83,11 @@ Touch("Touch-f6.in")
 Touch("f6.out-Touch")
 cat(["f7.out"], ["f7.in"])
 Touch(["Touch-f7.in", "f7.out-Touch", "f8"])
-""")
-test.run(options = '-n', arguments = '.', stdout = expect)
+""",
+)
+test.run(options='-n', arguments='.', stdout=expect)
 
-test.sleep(2)
-
+test.sleep()  # delay for timestamps
 new_f1_time = os.path.getmtime(test.workpath('f1'))
 test.fail_test(old_f1_time != new_f1_time)
 new_f1_File_time = os.path.getmtime(test.workpath('f1-File'))

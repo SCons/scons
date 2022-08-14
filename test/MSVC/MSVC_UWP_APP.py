@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,190 +20,148 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
-Test the ability to configure the $MSVC_UWP_APP construction variable with
-the desired effect.
+Test the MSVC_UWP_APP construction variable.
 """
+import textwrap
+import re
 
+from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 import TestSCons
-import SCons.Tool.MSCommon.vc as msvc
-from SCons.Tool.MSCommon.vc import get_msvc_version_numeric
-
-def AreVCStoreLibPathsInLIBPATH(output):
-    libpath = None
-    msvc_version = None
-    UWP_APP = None
-    lines = output.splitlines()
-    for line in lines:
-        if 'env[ENV][LIBPATH]=' in line:
-            libpath = line.split('=')[1]
-        elif 'env[MSVC_VERSION]=' in line:
-            msvc_version = line.split('=')[1]
-        elif 'env[ENV][VSCMD_ARG_app_plat]=' in line:
-            UWP_APP = line.split('=')[1]
-
-    if not libpath or not msvc_version:
-        # Couldn't find the libpath or msvc version in the output
-        return (False, False, None)
-
-    libpaths = libpath.lower().split(';')
-    msvc_num = float(get_msvc_version_numeric(msvc_version))
-    
-    (vclibstore_path_present, vclibstorerefs_path_present) = (False, False)
-    for path in libpaths:
-        # Look for the Store VC Lib paths in the LIBPATH:
-        # [VS install path]\VC\LIB\store[\arch] and 
-        # [VS install path]\VC\LIB\store\references
-        # For example,
-        # C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\LIB\store\amd64
-        # C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\LIB\store\references
-        
-        if msvc_num <= 14:
-            if r'vc\lib\store\references' in path:
-                vclibstorerefs_path_present = True
-            elif r'vc\lib\store' in path:
-                vclibstore_path_present = True
-        elif msvc_num > 14:
-            if UWP_APP == "UWP":
-                if(r'\lib\x86\store\references' in path
-                or r'\lib\x64\store' in path):
-                    vclibstorerefs_path_present = True
-                    vclibstore_path_present = True
-
-    return (vclibstore_path_present, vclibstorerefs_path_present, msvc_version)
-
-_python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
 test.skip_if_not_msvc()
 
-installed_msvc_versions = msvc.get_installed_vcs()
-# MSVC guaranteed to be at least one version on the system or else
-# skip_if_not_msvc() function would have skipped the test
 
-msvc_140 = '14.0' in installed_msvc_versions
-msvc_141 = '14.1' in installed_msvc_versions
-msvc_142 = '14.2' in installed_msvc_versions
-msvc_143 = '14.3' in installed_msvc_versions
+installed_versions = get_installed_vcs_components()
 
-if not any((msvc_140, msvc_141, msvc_142, msvc_143)):
-    test.skip_test("Available MSVC doesn't support App store\n")
+GE_VS2015_versions = [v for v in installed_versions if v.msvc_vernum >= 14.0]
+LT_VS2015_versions = [v for v in installed_versions if v.msvc_vernum < 14.0]
 
-if msvc_140:
-    test.write('SConstruct', """\
-if ARGUMENTS.get('MSVC_UWP_APP'):
-    help_vars = Variables()
-    help_vars.Add(EnumVariable(
-                'MSVC_UWP_APP',
-                'Build a Universal Windows Platform (UWP) Application',
-                '0',
-                allowed_values=('0', '1')))
-else:
-    help_vars = None
-env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='14.0')
-# Print the ENV LIBPATH to stdout
-print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
-print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
-""")
+# Look for the Store VC Lib paths in the LIBPATH:
+# [VS install path]\VC\LIB\store[\arch] and
+# [VS install path]\VC\LIB\store\references
+# For example,
+# C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\LIB\store\amd64
+# C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\LIB\store\references
 
-    # Test setting MSVC_UWP_APP is '1' (True)
-    test.run(arguments = "MSVC_UWP_APP=1")
-    (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-    test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False),
-                message='VC Store LIBPATHs NOT present when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
+re_lib_eq2015_1 = re.compile(r'\\vc\\lib\\store\\references', re.IGNORECASE)
+re_lib_eq2015_2 = re.compile(r'\\vc\\lib\\store', re.IGNORECASE)
 
-    # Test setting MSVC_UWP_APP is '0' (False)
-    test.run(arguments = "MSVC_UWP_APP=0")
-    (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-    test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                message='VC Store LIBPATHs present when MSVC_UWP_APP=0 (msvc_version=%s)' % msvc_version)
+re_lib_ge2017_1 = re.compile(r'\\lib\\x86\\store\\references', re.IGNORECASE)
+re_lib_ge2017_2 = re.compile(r'\\lib\\x64\\store', re.IGNORECASE)
 
-    # Test not setting MSVC_UWP_APP
-    test.run(arguments = "")
-    (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-    test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                message='VC Store LIBPATHs present when MSVC_UWP_APP not set (msvc_version=%s)' % msvc_version)
 
-if msvc_141 or msvc_142 or msvc_143:
-    if msvc_143:
-        test.write('SConstruct', """\
-if ARGUMENTS.get('MSVC_UWP_APP'):
-    help_vars = Variables()
-    help_vars.Add(EnumVariable(
-                'MSVC_UWP_APP',
-                'Build a Universal Windows Platform (UWP) Application',
-                '0',
-                allowed_values=('0', '1')))
-else:
-    help_vars = None
-env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='14.3')
-# Print the ENV LIBPATH to stdout
-print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
-print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
-print('env[ENV][VSCMD_ARG_app_plat]=%s' % env.get('ENV').get('VSCMD_ARG_app_plat'))
-""")
-    elif msvc_142:
-        test.write('SConstruct', """\
-if ARGUMENTS.get('MSVC_UWP_APP'):
-    help_vars = Variables()
-    help_vars.Add(EnumVariable(
-                'MSVC_UWP_APP',
-                'Build a Universal Windows Platform (UWP) Application',
-                '0',
-                allowed_values=('0', '1')))
-else:
-    help_vars = None
-env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='14.2')
-# Print the ENV LIBPATH to stdout
-print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
-print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
-print('env[ENV][VSCMD_ARG_app_plat]=%s' % env.get('ENV').get('VSCMD_ARG_app_plat'))
-""")
-    elif msvc_141:
-        test.write('SConstruct', """\
-if ARGUMENTS.get('MSVC_UWP_APP'):
-    help_vars = Variables()
-    help_vars.Add(EnumVariable(
-                'MSVC_UWP_APP',
-                'Build a Universal Windows Platform (UWP) Application',
-                '0',
-                allowed_values=('0', '1')))
-else:
-    help_vars = None
-env = Environment(tools=['default', 'msvc'], variables=help_vars, MSVC_VERSION='14.1')
-# Print the ENV LIBPATH to stdout
-print('env[ENV][LIBPATH]=%s' % env.get('ENV').get('LIBPATH'))
-print('env[MSVC_VERSION]=%s' % env.get('MSVC_VERSION'))
-print('env[ENV][VSCMD_ARG_app_plat]=%s' % env.get('ENV').get('VSCMD_ARG_app_plat'))
-""")
+def check_libpath(msvc, active, output):
 
-    # Test setting MSVC_UWP_APP is '1' (True)
-    test.run(arguments = "MSVC_UWP_APP=1")
-    (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-    test.fail_test((vclibstore_path_present is False) or (vclibstorerefs_path_present is False),
-                message='VC Store LIBPATHs NOT present when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
+    def _check_libpath(msvc, output):
+        outdict = {key.strip(): val.strip() for key, val in [line.split('|') for line in output.splitlines()]}
+        platform = outdict.get('PLATFORM', '')
+        libpath = outdict.get('LIBPATH', '')
+        n_matches = 0
+        if msvc.msvc_verstr == '14.0':
+            for regex in (re_lib_eq2015_1, re_lib_eq2015_2):
+                if regex.search(libpath):
+                    n_matches += 1
+            return n_matches >= 2, 'store', libpath
+        elif platform == 'UWP':
+            for regex in (re_lib_ge2017_1, re_lib_ge2017_2):
+                if regex.search(libpath):
+                    n_matches += 1
+            return n_matches > 0, 'uwp', libpath
+        return False, 'uwp', libpath
 
-    # Test setting MSVC_UWP_APP is '0' (False)
-    test.run(arguments = "MSVC_UWP_APP=0")
-    (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-    test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                    message='VC Store LIBPATHs NOT present when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
+    found, kind, libpath = _check_libpath(msvc, output)
 
-    # Test not setting MSVC_UWP_APP
-    test.run(arguments = "")
-    (vclibstore_path_present, vclibstorerefs_path_present, msvc_version) = AreVCStoreLibPathsInLIBPATH(test.stdout())
-    test.fail_test((vclibstore_path_present is True) or (vclibstorerefs_path_present is True),
-                    message='VC Store LIBPATHs NOT present when MSVC_UWP_APP=1 (msvc_version=%s)' % msvc_version)
+    failmsg = None
+
+    if active and not found:
+        failmsg = 'msvc version {} {} paths not found in lib path {}'.format(
+            repr(msvc.msvc_version), repr(kind), repr(libpath)
+        )
+    elif not active and found:
+        failmsg = 'msvc version {} {} paths found in lib path {}'.format(
+            repr(msvc.msvc_version), repr(kind), repr(libpath)
+        )
+
+    return failmsg
+
+if GE_VS2015_versions:
+    # VS2015 and later for uwp/store argument
+
+    for supported in GE_VS2015_versions:
+
+        for msvc_uwp_app in (True, '1', False, '0', None):
+
+            active = msvc_uwp_app in (True, '1')
+
+            # uwp using construction variable
+            test.write('SConstruct', textwrap.dedent(
+                """
+                DefaultEnvironment(tools=[])
+                env = Environment(MSVC_VERSION={}, MSVC_UWP_APP={}, tools=['msvc'])
+                print('LIBPATH|' + env['ENV'].get('LIBPATH', ''))
+                print('PLATFORM|' + env['ENV'].get('VSCMD_ARG_app_plat',''))
+                """.format(repr(supported.msvc_version), repr(msvc_uwp_app))
+            ))
+            test.run(arguments='-Q -s', stdout=None)
+            failmsg = check_libpath(supported, active, test.stdout())
+            if failmsg:
+                test.fail_test(message=failmsg)
+
+            if not active:
+                continue
+
+            # error construction variable and script argument
+            test.write('SConstruct', textwrap.dedent(
+                """
+                DefaultEnvironment(tools=[])
+                env = Environment(MSVC_VERSION={}, MSVC_UWP_APP={}, MSVC_SCRIPT_ARGS='store', tools=['msvc'])
+                """.format(repr(supported.msvc_version), repr(msvc_uwp_app))
+            ))
+            test.run(arguments='-Q -s', status=2, stderr=None)
+            if not test.stderr().strip().startswith("MSVCArgumentError: multiple uwp declarations:"):
+                test.fail_test(message='Expected MSVCArgumentError')
+
+        # uwp using script argument
+        test.write('SConstruct', textwrap.dedent(
+            """
+            DefaultEnvironment(tools=[])
+            env = Environment(MSVC_VERSION={}, MSVC_SCRIPT_ARGS='store', tools=['msvc'])
+            print('LIBPATH|' + env['ENV'].get('LIBPATH', ''))
+            print('PLATFORM|' + env['ENV'].get('VSCMD_ARG_app_plat',''))
+            """.format(repr(supported.msvc_version))
+        ))
+        test.run(arguments='-Q -s', stdout=None)
+        failmsg = check_libpath(supported, True, test.stdout())
+        if failmsg:
+            test.fail_test(message=failmsg)
+
+if LT_VS2015_versions:
+    # VS2013 and earlier for uwp/store error
+
+    for unsupported in LT_VS2015_versions:
+
+        for msvc_uwp_app in (True, '1', False, '0', None):
+
+            active = msvc_uwp_app in (True, '1')
+
+            # uwp using construction variable
+            test.write('SConstruct', textwrap.dedent(
+                """
+                DefaultEnvironment(tools=[])
+                env = Environment(MSVC_VERSION={0}, MSVC_UWP_APP={1}, tools=['msvc'])
+                """.format(repr(unsupported.msvc_version), repr(msvc_uwp_app))
+            ))
+            if not active:
+                test.run(arguments='-Q -s', stdout=None)
+            else:
+                test.run(arguments='-Q -s', status=2, stderr=None)
+                expect = 'MSVCArgumentError: MSVC_UWP_APP ({}) constraint violation:'.format(repr(msvc_uwp_app))
+                if not test.stderr().strip().startswith(expect):
+                    test.fail_test(message='Expected MSVCArgumentError')
 
 test.pass_test()
 
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

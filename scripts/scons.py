@@ -41,9 +41,8 @@ __developer__ = "__DEVELOPER__"
 import os
 import sys
 
-
 # Python compatibility check
-if sys.version_info < (3, 5, 0):
+if sys.version_info < (3, 6, 0):
     msg = "scons: *** SCons version %s does not run under Python version %s.\n\
 Python >= 3.5 is required.\n"
     sys.stderr.write(msg % (__version__, sys.version.split()[0]))

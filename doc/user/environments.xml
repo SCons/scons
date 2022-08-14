@@ -1618,7 +1618,7 @@ env.PrependUnique(CCFLAGS=['-g'])
 
       <para>
 
-      Rather than creating a cloned environmant for specific tasks,
+      Rather than creating a cloned &consenv; for specific tasks,
       you can <firstterm>override</firstterm> or add construction variables
       when calling a builder method by passing them as keyword arguments.
       The values of these overridden or added variables will only be in

@@ -206,7 +206,7 @@ class _POFileBuilder(BuilderBase):
             del kw['target_alias']
         if 'target_factory' not in kw:
             kw['target_factory'] = _POTargetFactory(env, alias=alias).File
-        BuilderBase.__init__(self, **kw)
+        super().__init__(**kw)
 
     def _execute(self, env, target, source, *args, **kw):
         """ Execute builder's actions.

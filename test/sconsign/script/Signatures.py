@@ -44,8 +44,8 @@ if NEED_HELPER:
 # in the expected output because paths in the .sconsign files are
 # canonicalized to use / as the separator.
 
-sub1_hello_c    = 'sub1/hello.c'
-sub1_hello_obj  = 'sub1/hello.obj'
+sub1_hello_c = 'sub1/hello.c'
+sub1_hello_obj = 'sub1/hello.obj'
 
 test.subdir('sub1', 'sub2')
 
@@ -135,7 +135,7 @@ env2.Program('sub2/hello.c')
 """,
 )
 # TODO in the above, we would normally want to run a python program
-# using "our python" like this:
+# using "our Python" like this:
 #    CCCOM=[[r'{_python_}', r'{fake_cc_py}', 'sub2', '$TARGET', '$SOURCE']],
 #    LINKCOM=[[r'{_python_}', r'{fake_link_py}', '$TARGET', '$SOURCE']],
 # however we're looking at dependencies with sconsign, so that breaks things.
@@ -160,17 +160,16 @@ test.write(['sub2', 'inc2.h'], r"""\
 #define STRING2 "inc2.h"
 """)
 
-test.sleep()
-
+test.sleep()  # delay for timestamps
 test.run(arguments = '. --max-drift=1')
 
 sig_re = r'[0-9a-fA-F]{32,64}'
 date_re = r'\S+ \S+ [ \d]\d \d\d:\d\d:\d\d \d\d\d\d'
-
 database_name = test.get_sconsignname()
 
-test.run_sconsign(arguments = f"-e hello.exe -e hello.obj sub1/{database_name}",
-         stdout = r"""hello.exe: %(sig_re)s \d+ \d+
+test.run_sconsign(
+    arguments=f"-e hello.exe -e hello.obj sub1/{database_name}",
+    stdout=r"""hello.exe: %(sig_re)s \d+ \d+
         %(sub1_hello_obj)s: %(sig_re)s \d+ \d+
         fake_link\.py: None \d+ \d+
         %(sig_re)s \[.*\]
@@ -178,10 +177,12 @@ hello.obj: %(sig_re)s \d+ \d+
         %(sub1_hello_c)s: None \d+ \d+
         fake_cc\.py: None \d+ \d+
         %(sig_re)s \[.*\]
-""" % locals())
+""" % locals(),
+)
 
-test.run_sconsign(arguments = f"-e hello.exe -e hello.obj -r sub1/{database_name}",
-         stdout = r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
+test.run_sconsign(
+    arguments=f"-e hello.exe -e hello.obj -r sub1/{database_name}",
+    stdout=r"""hello.exe: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_obj)s: %(sig_re)s '%(date_re)s' \d+
         fake_link\.py: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
@@ -189,7 +190,8 @@ hello.obj: %(sig_re)s '%(date_re)s' \d+
         %(sub1_hello_c)s: None '%(date_re)s' \d+
         fake_cc\.py: None '%(date_re)s' \d+
         %(sig_re)s \[.*\]
-""" % locals())
+""" % locals(),
+)
 
 test.pass_test()
 
