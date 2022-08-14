@@ -22,7 +22,6 @@ performs test discovery and processes tests according to options.
 import argparse
 import glob
 import os
-import re
 import stat
 import subprocess
 import sys
@@ -309,15 +308,6 @@ if sys.platform == 'win32':
                 continue
             break
         return buf.value
-
-
-_ws = re.compile(r'\s')
-
-def escape(s):
-    if _ws.search(s):
-        s = '"' + s + '"'
-    s = s.replace('\\', '\\\\')
-    return s
 
 
 if not catch_output:
@@ -784,7 +774,7 @@ def run_test(t, io_lock=None, run_async=True):
     if args.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
         command_args.append('--runner ' + args.runner)
-    t.command_args = [escape(args.python)] + command_args
+    t.command_args = [args.python] + command_args
     t.command_str = " ".join(t.command_args)
     if args.printcommand:
         if args.print_progress:
