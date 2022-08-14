@@ -57,10 +57,42 @@ class VCPkgTestCase(unittest.TestCase):
         return vcpkg_root
 
 
+    def run_with_mocks(payload,
+                       call_vcpkg = None,
+                       get_package_version = None,
+                       read_vcpkg_file_list = None):
+        """Runs `payload` with one or more low-level VCPkg functions mocked"""
+
+        # Save original functions to restore later
+        orig_call_vcpkg = SCons.Tool.vcpkg._call_vcpkg
+        orig_get_package_version = SCons.Tool.vcpkg._get_package_version
+        orig_read_vcpkg_file_list = SCons.Tool.vcpkg._read_vcpkg_file_list
+
+        try:
+            # Override any functions for which mocks were supplied
+            if call_vcpkg is not None:
+                SCons.Tool.vcpkg._call_vcpkg = call_vcpkg
+            if get_package_version is not None:
+                SCons.Tool.vcpkg._get_package_version = get_package_version
+            if read_vcpkg_file_list is not None:
+                SCons.Tool.vcpkg._read_vcpkg_file_list = read_vcpkg_file_list
+
+            # Run the payload
+            result = payload()
+
+        finally:
+            # Restore original functions
+            SCons.Tool.vcpkg._call_vcpkg = orig_call_vcpkg
+            SCons.Tool.vcpkg._get_pacakge_version = orig_get_package_version
+            SCons.Tool.vcpkg._get_pacakge_version = orig_read_vcpkg_file_list
+
+        return result
+
+
     def test_VCPKGROOT(self):
         """Test that VCPkg() fails with an exception if the VCPKGROOT environment variable is unset or invalid"""
 
-        env = Environment(tools=['default','vcpkg'])
+        env = Environment(tools=['vcpkg'])
 
         # VCPKGROOT unset (should fail)
         exc_caught = None
@@ -95,11 +127,11 @@ class VCPkgTestCase(unittest.TestCase):
 
         # VCPKGROOT pointing to a mock vcpkg instance (should succeed)
         env['VCPKGROOT'] = self.make_mock_vcpkg_dir(include_vcpkg_exe = True)
-        orig_call_vcpkg = SCons.Tool.vcpkg._call_vcpkg
-        orig_get_package_version = SCons.Tool.vcpkg._get_package_version
-        orig_read_vcpkg_file_list = SCons.Tool.vcpkg._read_vcpkg_file_list
+#         orig_call_vcpkg = SCons.Tool.vcpkg._call_vcpkg
+#         orig_get_package_version = SCons.Tool.vcpkg._get_package_version
+#         orig_read_vcpkg_file_list = SCons.Tool.vcpkg._read_vcpkg_file_list
         installed_package = False
-        def mock_call_vcpkg_exe(env, params, check_output = False):
+        def mock_call_vcpkg(env, params, check_output = False):
             if 'install' in params and 'pretend_package' in params:
                 installed_pacakge = True
                 return 0
@@ -115,17 +147,52 @@ class VCPkgTestCase(unittest.TestCase):
             return '1.0.0'
         def mock_read_vcpkg_file_list(env, list_file):
             return [env.File('$VCPKGROOT/installed/x64-windows/lib/pretend_package.lib')]
-            
-        SCons.Tool.vcpkg._call_vcpkg = mock_call_vcpkg_exe
-        SCons.Tool.vcpkg._get_package_version = mock_get_package_version
-        SCons.Tool.vcpkg._read_vcpkg_file_list = mock_read_vcpkg_file_list
-        try:
-            env.VCPkg('pretend_package')
-        finally:
-            rmtree(env['VCPKGROOT'])
-            SCons.Tool.vcpkg._call_vcpkg = orig_call_vcpkg
-            SCons.Tool.vcpkg._get_pacakge_version = orig_get_package_version
-            SCons.Tool.vcpkg._get_pacakge_version = orig_read_vcpkg_file_list
+
+        VCPkgTestCase.run_with_mocks(lambda: env.VCPkg('pretend_package'),
+                       call_vcpkg = mock_call_vcpkg,
+                       get_package_version = mock_get_package_version,
+                       read_vcpkg_file_list = mock_read_vcpkg_file_list)
+#         SCons.Tool.vcpkg._call_vcpkg = mock_call_vcpkg_exe
+#         SCons.Tool.vcpkg._get_package_version = mock_get_package_version
+#         SCons.Tool.vcpkg._read_vcpkg_file_list = mock_read_vcpkg_file_list
+#         try:
+#             env.VCPkg('pretend_package')
+#         finally:
+#             rmtree(env['VCPKGROOT'])
+#             SCons.Tool.vcpkg._call_vcpkg = orig_call_vcpkg
+#             SCons.Tool.vcpkg._get_pacakge_version = orig_get_package_version
+#             SCons.Tool.vcpkg._get_pacakge_version = orig_read_vcpkg_file_list
+
+
+    def test_bootstrap(self):
+        """Test that the VCPkg builder correctly bootstraps the vcpkg executable"""
+        # upgrade, downgrade
+        pass
+
+
+    def test_depend_info(self):
+        """Test that the VCPkg builder correctly parses package dependencies"""
+        # multiple levels, conflicting feature sets, ignore extra packages
+        pass
+
+
+    def test_install(self):
+        """Test that the VCPkg builder installs missing packages"""
+        # Multiple installs, dependencies
+        pass
+
+
+    def test_upgrade(self):
+        """Test that the VCPkg builder correctly upgrades/downgrades existing packages to match the vcpkg configuration"""
+        pass
+
+
+    def test_PackageContents(self):
+        """Test that the VCPkg builder returns a PackageContents object that can reports the files contained in the package"""
+
+        env = Environment(tools=['vcpkg'])
+
+        pass
 
 
 if __name__ == "__main__":

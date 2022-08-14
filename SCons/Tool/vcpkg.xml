@@ -31,14 +31,15 @@ See its __doc__ string for a discussion of the format.
         </summary>
         <uses>
             <item>VCPKGROOT</item>
+            <item>VCPKGDEBUG</item>
         </uses>
     </tool>
 
     <builder name="VCPkg">
         <summary>
             <para>
-                Downloads and builds one or more software packages via the &vcpkg; package manager (plus
-                any dependencies of those packages), making the built artifcats available for other builders.
+                Downloads and builds one or more software packages (plus any dependencies of those packages) via the
+                &vcpkg; package manager, making the built artifcats available for other builders.
             </para>
 
             <example_commands>
@@ -47,16 +48,16 @@ env.VCPkg('freeimage')
             </example_commands>
 
             <para>
-                &vcpkg; is distributed as a Git repository, containing the &vcpkg; executable and a
-                "snapshot" of the current versions of all available packages. A typical usage pattern is
-                for your project to incorporate &vcpkg; as a Git submodule underneath your project (run
-                'git submodule --help'), though system-wide installation is also supported.
+                &vcpkg; is distributed as a Git repository, containing the &vcpkg; executable (or a script to build it)
+                and a "snapshot" of the current versions of all available packages. A typical usage pattern is for your
+                project to incorporate &vcpkg; as a Git submodule underneath your project (run 'git submodule --help'),
+                though system-wide installation is also supported.
             </para>
 
             <para>
-                Packages built with &vcpkg; may produce header files, static libraries and
-                <filename>.dll</filename>/<filename>.so</filename> files. The &vcpkg;-internal directores
-                containing these built artifacts are added to &cv-link-CPPPATH;, &cv-link-LIBPATH; and
+                Packages built with &vcpkg; may produce header files, static libraries and shared libraries
+                (<filename>.dll</filename>/<filename>.so</filename> files). The &vcpkg;-internal directores
+                containing these built artifacts are added to &cv-link-CPPPATH; and &cv-link-LIBPATH; and
                 &cv-link-PATH;, respectively.
             </para>
 
@@ -66,9 +67,10 @@ env.VCPkg('freeimage')
     <cvar name="VCPKGROOT">
         <summary>
             <para>
-                Specifies the path to the root directory of the &vcpkg; installation.
-                This must be set in the SConstruct/SConscript file, and is typically
-                specified relative to the project root.
+                Specifies the path to the root directory of the &vcpkg; installation. This must be set in the
+                SConstruct/SConscript file, and must point to an existing &vcpkg; installation. Often, this directory
+                will be a Git sub-module of your project, in which case VCPKGROOT will be specified relative to the
+                project root.
             </para>
 
             <example_commands>
@@ -81,10 +83,13 @@ env['VCPKGROOT'] = '#/vcpkg'
     <cvar name="VCPKGDEBUG">
         <summary>
             <para>
-                Specifies whether &vcpkg; should build debug or optimized versions of packages.
-                If True, then "debug" packages will be built, with full debugging information
-                and most optimizations disabled. If False (or unset), then packages will be
-                built using optimized settings.
+                Specifies whether &vcpkg; should build debug or optimized versions of packages. If True, then "debug"
+                packages will be built, with full debugging information and most optimizations disabled. If False (or
+                unset), then packages will be built using optimized settings.
+            </para>
+            <para>
+                Note that, while you may choose to set this to match the optimization settings of your project's build,
+                this is not required: it's perfectly fine to use optimized packages with a "debug" build of your project.
             </para>
         </summary>
     </cvar>
