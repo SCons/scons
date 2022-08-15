@@ -422,8 +422,7 @@ class PopenExecutor(RuntestBase):
 
     A bit of a misnomer as the Popen call is now wrapped
     by calling subprocess.run (behind the covers uses Popen.
-    Very similar to SystemExecutor, but uses command_str
-    instead of command_args, and doesn't allow for not catching
+    Very similar to SystemExecutor, but doesn't allow for not catching
     the output).
     """
     # For an explanation of the following 'if ... else'
@@ -437,7 +436,7 @@ class PopenExecutor(RuntestBase):
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
             cp = subprocess.run(
-                self.command_str.split(),
+                self.command_args,
                 stdout=tmp_stdout,
                 stderr=tmp_stderr,
                 shell=False,
@@ -460,7 +459,7 @@ class PopenExecutor(RuntestBase):
 
         def execute(self, env):
             cp = subprocess.run(
-                self.command_str.split(),
+                self.command_args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=False,
