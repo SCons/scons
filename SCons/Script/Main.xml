@@ -950,13 +950,13 @@ SetOption('max_drift', 0)
     <scons_function name="ValidateOptions">
         <summary>
             <para>
-                Check that all the options provided by the user on the command line are either defined by SCons itself
+                Check that all the options specified on the command line are either defined by SCons itself
                 or
                 defined by &f-link-AddOption;.
             </para>
             <para>
                 If there are any command line options not defined.
-                Calling this function will cause SCons to issue an error message and then exit with and error exit
+                Calling this function will cause SCons to issue an error message and then exit with an error exit
                 status.
             </para>
             <para>
