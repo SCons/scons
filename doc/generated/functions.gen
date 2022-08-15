@@ -4385,11 +4385,15 @@ the tool object, previously it did not return
 </listitem>
   </varlistentry>
   <varlistentry id="f-ValidateOptions">
-    <term><function>ValidateOptions</function>()</term>
-    <term><replaceable>env</replaceable>.<methodname>ValidateOptions</methodname>()</term>
+    <term><function>ValidateOptions</function>(<parameter>[throw_exception=False]</parameter>)</term>
     <listitem><para>
                 Check that all the options specified on the command line are either defined by SCons itself
                 or defined by &f-link-AddOption;.
+            </para>
+            <para>
+                If <parameter>throw_exception</parameter> is True, &f-ValidateOptions; will raise a
+                <literal>SConsBadOptionError</literal>
+                exception instead of printing an error message and exiting with an error status.
             </para>
             <para>
                 If there are any command line options not defined.
@@ -4404,6 +4408,18 @@ the tool object, previously it did not return
                 Be aware that some tools call &f-link-AddOption;, if you are getting error messages for arguments
                 that they add, you will need to ensure that you load those tools before you call &f-ValidateOptions;.
             </para>
+
+            <para>
+                Example:
+            </para>
+
+<example_commands>
+except SConsBadOptionError as e:
+    print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
+    print("Message is :%s" % e.opt_str)
+    Exit(3)
+</example_commands>
+
         </listitem>
   </varlistentry>
   <varlistentry id="f-Value">

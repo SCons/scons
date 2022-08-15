@@ -47,6 +47,20 @@ test.run(arguments="--garbage=xyz", status=2, stderr=".*SCons Error: no such opt
 test.fail_test(("This is in SConstruct" in test.stdout()),
                message='"This is in SConstruct" should not be output. This means ValidateOptions() did not error out before this was printed')
 
+# Now we'll test having ValidateOptions raise a SConsBadOptionError exception
+test.run(arguments="--garbage=xyz raise=1", status=2,
+         stderr=".*SConsBadOptionError: no such option: no such option: --garbage.*",
+         match=TestSCons.match_re_dotall)
+test.fail_test(("This is in SConstruct" in test.stdout()),
+               message='"This is in SConstruct" should not be output. This means ValidateOptions() did not error out before this was printed')
+
+# Now we'll test having ValidateOptions raise a SConsBadOptionError exception and catching that exception
+test.run(arguments="--garbage=xyz raise=2", status=3,
+         stdout=".*Parser is SConsOptionParser:True.*Message is .no such option. --garbage.*",
+         match=TestSCons.match_re_dotall)
+test.fail_test(("This is in SConstruct" in test.stdout()),
+               message='"This is in SConstruct" should not be output. This means ValidateOptions() did not error out before this was printed')
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

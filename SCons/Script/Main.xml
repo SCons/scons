@@ -949,10 +949,19 @@ SetOption('max_drift', 0)
 </scons_function>
 
     <scons_function name="ValidateOptions">
+        <arguments signature="global">
+            ([throw_exception=False])
+        </arguments>
+
         <summary>
             <para>
                 Check that all the options specified on the command line are either defined by SCons itself
                 or defined by &f-link-AddOption;.
+            </para>
+            <para>
+                If <parameter>throw_exception</parameter> is True, &f-ValidateOptions; will raise a
+                <literal>SConsBadOptionError</literal>
+                exception instead of printing an error message and exiting with an error status.
             </para>
             <para>
                 If there are any command line options not defined.
@@ -967,6 +976,18 @@ SetOption('max_drift', 0)
                 Be aware that some tools call &f-link-AddOption;, if you are getting error messages for arguments
                 that they add, you will need to ensure that you load those tools before you call &f-ValidateOptions;.
             </para>
+
+            <para>
+                Example:
+            </para>
+
+<example_commands>
+except SConsBadOptionError as e:
+    print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
+    print("Message is :%s" % e.opt_str)
+    Exit(3)
+</example_commands>
+
         </summary>
     </scons_function>
 

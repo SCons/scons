@@ -289,14 +289,37 @@ class SConsOptionGroup(optparse.OptionGroup):
         return result
 
 
+class SConsBadOptionError(optparse.BadOptionError):
+    """
+    Instance attributes:
+      opt_str : str
+        The offending option specified on command line which is not recognized
+      parser : OptionParser
+        the active argument parser
+    """
+
+    def __init__(self, opt_str, parser=None):
+        self.opt_str = opt_str
+        self.parser = parser
+
+    def __str__(self):
+        return _("no such option: %s") % self.opt_str
+
+
 class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
+    raise_exception_on_error = False
 
     def error(self, msg):
-        # overridden OptionValueError exception handler
-        self.print_usage(sys.stderr)
-        sys.stderr.write("SCons Error: %s\n" % msg)
-        sys.exit(2)
+        """
+        overridden OptionValueError exception handler
+        """
+        if self.raise_exception_on_error:
+            raise SConsBadOptionError(msg, self)
+        else:
+            self.print_usage(sys.stderr)
+            sys.stderr.write("SCons Error: %s\n" % msg)
+            sys.exit(2)
 
     def _process_long_opt(self, rargs, values):
         """ SCons-specific processing of long options.
