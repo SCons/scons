@@ -4389,8 +4389,7 @@ the tool object, previously it did not return
     <term><replaceable>env</replaceable>.<methodname>ValidateOptions</methodname>()</term>
     <listitem><para>
                 Check that all the options specified on the command line are either defined by SCons itself
-                or
-                defined by &f-link-AddOption;.
+                or defined by &f-link-AddOption;.
             </para>
             <para>
                 If there are any command line options not defined.
@@ -4398,7 +4397,12 @@ the tool object, previously it did not return
                 status.
             </para>
             <para>
-                This function should only be called after the last &f-link-AddOption; call in your &SConscript; logic.
+                This function should only be called after the last &f-link-AddOption; call in your &SConscript;
+                logic.
+            </para>
+            <para>
+                Be aware that some tools call &f-link-AddOption;, if you are getting error messages for arguments
+                that they add, you will need to ensure that you load those tools before you call &f-ValidateOptions;.
             </para>
         </listitem>
   </varlistentry>
