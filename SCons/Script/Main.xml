@@ -956,18 +956,20 @@ SetOption('max_drift', 0)
         <summary>
             <para>
                 Check that all the options specified on the command line are either defined by SCons itself
-                or defined by &f-link-AddOption;.
-            </para>
-            <para>
-                If <parameter>throw_exception</parameter> is True, &f-ValidateOptions; will raise a
-                <literal>SConsBadOptionError</literal>
-                exception instead of printing an error message and exiting with an error status.
+                or defined by calls to &f-link-AddOption;.
             </para>
             <para>
                 If there are any command line options not defined.
                 Calling this function will cause SCons to issue an error message and then exit with an error exit
                 status.
             </para>
+            <para>
+                If optional <parameter>throw_exception</parameter> is True, &f-ValidateOptions; will raise a
+                <exceptionname>SConsBadOptionError</exceptionname>
+                exception instead of printing an error message and exiting with an error status.  Then the calling
+                &SConscript; logic can catch that exception and handle invalid options itself.
+            </para>
+
             <para>
                 This function should only be called after the last &f-link-AddOption; call in your &SConscript;
                 logic.
@@ -982,6 +984,8 @@ SetOption('max_drift', 0)
             </para>
 
 <example_commands>
+try:
+    ValidateOptions(throw_exception=True)
 except SConsBadOptionError as e:
     print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
     print("Message is :%s" % e.opt_str)

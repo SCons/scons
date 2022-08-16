@@ -494,11 +494,19 @@ def SetOption(name, value):
 
 
 def ValidateOptions(throw_exception=False):
-    """
+    """Validate options passed to SCons on the command line.
+
     If you call this after you set all your command line options with AddOption(),
     it will verify that all command line options are valid.
     So if you added an option --xyz and you call SCons with --xyy you can cause
     SCons to issue an error message and exit by calling this function.
+
+    args:
+        throw_exception (bool): Should this function raise an error if there's an
+                                invalid option, or issue a message and exit with error status.
+
+    Raises:
+            SConsBadOptionError
     """
 
     OptionsParser.raise_exception_on_error = throw_exception
