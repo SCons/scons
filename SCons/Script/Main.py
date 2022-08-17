@@ -492,6 +492,26 @@ def GetOption(name):
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
 
+
+def ValidateOptions(throw_exception=False) -> None:
+    """Validate options passed to SCons on the command line.
+
+    If you call this after you set all your command line options with AddOption(),
+    it will verify that all command line options are valid.
+    So if you added an option --xyz and you call SCons with --xyy you can cause
+    SCons to issue an error message and exit by calling this function.
+
+    :param bool throw_exception: (Optional) Should this function raise an error if there's an invalid option on the command line, or issue a message and exit with error status.
+
+    :raises SConsBadOptionError: If throw_exception is True and there are invalid options on command line.
+
+    .. versionadded:: 4.4.1
+    """
+
+    OptionsParser.raise_exception_on_error = throw_exception
+    OptionsParser.preserve_unknown_options = False
+    OptionsParser.parse_args(OptionsParser.largs, OptionsParser.values)
+
 def PrintHelp(file=None):
     OptionsParser.print_help(file=file)
 
@@ -1363,6 +1383,7 @@ def _exec_main(parser, values):
             prof.dump_stats(options.profile_file)
     else:
         _main(parser)
+
 
 def main():
     global OptionsParser
