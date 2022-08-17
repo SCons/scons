@@ -290,12 +290,11 @@ class SConsOptionGroup(optparse.OptionGroup):
 
 
 class SConsBadOptionError(optparse.BadOptionError):
-    """
-    Instance attributes:
-      opt_str : str
-        The offending option specified on command line which is not recognized
-      parser : OptionParser
-        the active argument parser
+    """Exception used to indicate that invalid command line options were specified
+
+    :ivar str opt_str: The offending option specified on command line which is not recognized
+    :ivar OptionParser parser: The active argument parser
+
     """
 
     def __init__(self, opt_str, parser=None):

@@ -988,7 +988,7 @@ except SConsBadOptionError as e:
     print("Message is :%s" % e.opt_str)
     Exit(3)
             </example_commands>
-            
+
             <para>
                 This function is useful to force SCons to fail fast before you execute any expensive logic later in your
                 build logic.
