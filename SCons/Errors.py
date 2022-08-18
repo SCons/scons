@@ -24,60 +24,49 @@
 """SCons exception classes.
 
 Used to handle internal and user errors in SCons.
-
 """
 
 import shutil
 import SCons.Util
 
+# Note that not all Errors are defined here, some are at the point of use
+
 
 class BuildError(Exception):
     """SCons Errors that can occur while building.
 
+    A :class:`BuildError` exception contains information both
+    about the erorr itself, and what caused the error.
+
     Attributes:
-      Information about the cause of the build error :
-
-      errstr: a description of the error message
-
-      status: the return code of the action that caused the build error.
-        Must be set to a non-zero value even if the build error is not due
-        to an action returning a non-zero returned code.
-
-      exitstatus: SCons exit status due to this build error.
-        Must be nonzero unless due to an explicit Exit()
-        call.  Not always the same as status, since
-        actions return a status code that should be
-        respected, but SCons typically exits with 2
-        irrespective of the return value of the failed
-        action.
-
-      filename: The name of the file or directory that caused the
-        build error. Set to None if no files are associated with
-        this error. This might be different from the target
-        being built. For example, failure to create the
-        directory in which the target file will appear. It
-        can be None if the error is not due to a particular
-        filename.
-
-      exc_info: Info about exception that caused the build
-        error. Set to (None, None, None) if this build
-        error is not due to an exception.
-
-      Information about the what caused the build error :
-
-      node: the error occurred while building this target node(s)
-
-      executor: the executor that caused the build to fail (might
-        be None if the build failures is not due to the
-        executor failing)
-
-      action: the action that caused the build to fail (might be
-        None if the build failures is not due to the an
-        action failure)
-
-      command: the command line for the action that caused the
-        build to fail (might be None if the build failures
-        is not due to the an action failure)
+       node: (*cause*) the error occurred while building this target node(s)
+       errstr: (*info*) a description of the error message
+       status: (*info*) the return code of the action that caused the build error.
+          Must be set to a non-zero value even if the build error is not due
+          to an action returning a non-zero returned code.
+       exitstatus: (*info*) SCons exit status due to this build error.
+          Must be nonzero unless due to an explicit :meth:`Exit` call.
+          Not always the same as ``status``, since actions return a status
+          code that should be respected, but SCons typically exits with 2
+          irrespective of the return value of the failed action.
+       filename: (*info*) The name of the file or directory that caused the
+          build error. Set to ``None`` if no files are associated with
+          this error. This might be different from the target
+          being built. For example, failure to create the
+          directory in which the target file will appear. It
+          can be ``None`` if the error is not due to a particular
+          filename.
+       executor: (*cause*) the executor that caused the build to fail (might
+          be ``None`` if the build failures is not due to the executor failing)
+       action: (*cause*) the action that caused the build to fail (might be
+          ``None`` if the build failures is not due to the an
+          action failure)
+       command: (*cause*) the command line for the action that caused the
+          build to fail (might be ``None`` if the build failures
+          is not due to the an action failure)
+       exc_info: (*info*) Info about exception that caused the build
+          error. Set to ``(None, None, None)`` if this build
+          error is not due to an exception.
 
     """
 
