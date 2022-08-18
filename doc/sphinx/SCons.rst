@@ -83,11 +83,13 @@ SCons.Environment module
 
 SCons.Errors module
 -------------------
+.. Turn off inherited members to quiet fluff from the Python base Exception
 
 .. automodule:: SCons.Errors
     :members:
     :undoc-members:
     :show-inheritance:
+    :no-inherited-members:
 
 SCons.Executor module
 ---------------------
