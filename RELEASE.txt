@@ -33,9 +33,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
-
-- Added missing newline to generated compilation database (compile_commands.json)
+- Fix for github issue #2908, this updates taskmaster to queue up srcnodes of nodes which
+  are in a variantdir if the srcnode has a builder. For the executors prepare, it also
+  checks the srcnode if the node has a srcnode.
+  
 
 IMPROVEMENTS
 ------------

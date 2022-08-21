@@ -14,6 +14,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
       not be called until all AddOption() calls are completed. Resolves Issue #4187
 
+  From Daniel Moody:
+    - Fix for github issue #2908, this updates taskmaster to queue up srcnodes of nodes which
+      are in a variantdir if the srcnode has a builder. For the executors prepare, it also
+      checks the srcnode if the node has a srcnode.
+
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
 
