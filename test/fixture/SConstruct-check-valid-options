@@ -1,0 +1,21 @@
+import sys
+from SCons.Script.SConsOptions import SConsOptionParser, SConsBadOptionError
+
+AddOption(
+    '--testing',
+    help='Test arg',
+)
+
+if ARGUMENTS.get('raise', 0) == '1':
+    ValidateOptions(throw_exception=True)
+elif ARGUMENTS.get('raise', 0) == '2':
+    try:
+        ValidateOptions(throw_exception=True)
+    except SConsBadOptionError as e:
+        print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
+        print("Message is :%s" % e.opt_str)
+        Exit(3)
+else:
+    ValidateOptions()
+
+print("This is in SConstruct")

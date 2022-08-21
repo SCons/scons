@@ -1,0 +1,12 @@
+# Dependencies for development - mainly for running tests
+
+-r requirements.txt
+
+# for now keep pinning "known working" lxml,
+# it's been a troublesome component in the past.
+lxml==4.9.1
+ninja
+
+# Needed for test/Parallel/failed-build/failed-build.py
+# Also for test/ninja/shutdown_scons_daemon.py
+psutil

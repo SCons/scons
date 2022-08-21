@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,9 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import unittest
@@ -99,14 +97,14 @@ class ToolTestCase(unittest.TestCase):
 
 
     def test_pathfind(self):
-        """Test that find_program_path() does not alter PATH"""
+        """Test that find_program_path() alters PATH only if add_path is true"""
 
         env = DummyEnvironment()
         PHONY_PATHS = [
             r'C:\cygwin64\bin',
             r'C:\cygwin\bin',
             '/usr/local/dummy/bin',
-            env.PHONY_PATH,     # will be recognized by dummy WhereIs
+            env.PHONY_PATH,  # will be recognized by dummy WhereIs
         ]
         env['ENV'] = {}
         env['ENV']['PATH'] = '/usr/local/bin:/opt/bin:/bin:/usr/bin'
@@ -114,9 +112,14 @@ class ToolTestCase(unittest.TestCase):
         _ = SCons.Tool.find_program_path(env, 'no_tool', default_paths=PHONY_PATHS)
         assert env['ENV']['PATH'] == pre_path, env['ENV']['PATH']
 
+        _ = SCons.Tool.find_program_path(env, 'no_tool', default_paths=PHONY_PATHS, add_path=True)
+        assert env.PHONY_PATH in env['ENV']['PATH'], env['ENV']['PATH']
+
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(ToolTestCase, 'test_')
+    loader = unittest.TestLoader()
+    loader.testMethodPrefix = 'test_'
+    suite = loader.loadTestsFromTestCase(ToolTestCase)
     TestUnit.run(suite)
 
 # Local Variables:

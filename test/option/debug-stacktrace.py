@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the --debug=stacktrace option.
@@ -34,36 +33,26 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
 DefaultEnvironment(tools=[])
+
 def kfile_scan(node, env, target):
     raise Exception("kfile_scan error")
 
-kscan = Scanner(name = 'kfile',
-                function = kfile_scan,
-                skeys = ['.k'])
-
+kscan = Scanner(name='kfile', function=kfile_scan, skeys=['.k'])
 env = Environment(tools=[])
 env.Append(SCANNERS = [kscan])
 
 env.Command('foo', 'foo.k', Copy('$TARGET', '$SOURCE'))
 """)
-
 test.write('foo.k', "foo.k\n")
 
 test.run(status = 2, stderr = "scons: *** [foo] Exception : kfile_scan error\n")
-
-test.run(arguments = "--debug=stacktrace",
-         status = 2,
-         stderr = None)
-
+test.run(arguments="--debug=stacktrace", status=2, stderr=None)
 lines = [
     "scons: *** [foo] Exception : kfile_scan error",
     "scons: internal stack trace:",
     'raise Exception("kfile_scan error")',
 ]
-
 test.must_contain_all_lines(test.stderr(), lines)
-
-
 
 # Test that --debug=stacktrace works for UserError exceptions,
 # which are handled by different code than other exceptions.
@@ -73,25 +62,14 @@ import SCons.Errors
 raise SCons.Errors.UserError("explicit UserError!")
 """)
 
-test.run(arguments = '--debug=stacktrace',
-         status = 2,
-         stderr = None)
-
+test.run(arguments='--debug=stacktrace', status=2, stderr=None)
 user_error_lines = [
     'UserError: explicit UserError!',
     'scons: *** explicit UserError!',
 ]
-
-# The "(most recent call last)" message is used by more recent Python
-# versions than the "(innermost last)" message, so that's the one
-# we report if neither matches.
-traceback_lines = [
-    "Traceback (most recent call last)",
-    "Traceback (innermost last)",
-]
-
+traceback_lines = ["Traceback (most recent call last)",]
 test.must_contain_all_lines(test.stderr(), user_error_lines)
-test.must_contain_any_line(test.stderr(), traceback_lines)
+test.must_contain_all_lines(test.stderr(), traceback_lines)
 
 # Test that full path names to SConscript files show up in stack traces.
 
@@ -99,17 +77,9 @@ test.write('SConstruct', """\
 1/0
 """)
 
-test.run(arguments = '--debug=stacktrace',
-         status = 2,
-         stderr = None)
-
-lines = [
-    '  File "%s", line 1:' % test.workpath('SConstruct'),
-]
-
+test.run(arguments='--debug=stacktrace', status=2, stderr=None)
+lines = ['  File "%s", line 1:' % test.workpath('SConstruct'),]
 test.must_contain_all_lines(test.stderr(), lines)
-
-
 
 test.pass_test()
 

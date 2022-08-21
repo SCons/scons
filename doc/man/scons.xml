@@ -12,10 +12,10 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
-#
+
 The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
-#
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -145,16 +145,16 @@ to support additional input file types.
 
 <para>Information about files involved in the build,
 including a cryptographic hash of the contents,
-is cached for later reuse,
-By default content hashes are used to determine if a file
-has changed since the last build,
+is cached for later reuse.
+By default this hash (the <firstterm>&contentsig;</firstterm>)
+is used to determine if a file has changed since the last build,
 but this can be controlled by selecting an appropriate
 <firstterm>&f-link-Decider;</firstterm> function.
 Implicit dependency files are also part of out-of-date computation.
 The scanned implicit dependency information can optionally be
 cached and used to speed up future builds.
-A hash of each executed build action is cached,
-so that changes to build instructions (changing flags, etc.)
+A hash of each executed build action (the <firstterm>&buildsig;</firstterm>
+is cached, so that changes to build instructions (changing flags, etc.)
 or to the build tools themselves (new version)
 can also trigger a rebuild.
 </para>
@@ -251,25 +251,42 @@ may be suppressed using the
 <link linkend="opt-Q"><option>-Q</option></link>
 option.</para>
 
-<para>&scons;
-does not automatically propagate
-the external environment used to execute
-&scons;
-to the commands used to build target files.
-This is so that builds will be guaranteed
-repeatable regardless of the environment
-variables set at the time
-&scons;
-is invoked.
-This also means that if the compiler or other commands
+<para>
+To assure reproducible builds,
+&SCons;
+uses a restricted <firstterm>execution environment</firstterm>
+for running external commands used to build targets,
+rather then propagating the full environment
+in effect at the time &scons; was called.
+This helps avoid problems like picking up accidental settings,
+temporary debug values that are no longer needed,
+or one developer having different settings than another
+(or than the CI/CD pipeline).
+Environment variables that are needed for proper
+operation of such commands need to be set explicitly,
+which can be done either by assigning the desired values,
+or by picking values individually out of environment variables
+using the &Python; <systemitem>os.environ</systemitem> dictionary.
+The execution environment for a given &consenv; is
+contained in its &cv-link-ENV; &consvar;.
+A few environment variables are picked up automatically -
+see <xref linkend="environment"/>).
+</para>
+
+<para>
+In particular, if the compiler or other commands
 that you want to use to build your target files
 are not in standard system locations,
 &scons;
 will not find them unless
 you explicitly include the locations into the
-execution environment by setting the path in the
-<varname>ENV</varname> &consvar; in the
-internal &consenv;:</para>
+<varname>PATH</varname> element of the
+execution environment.
+One example approach is to
+extract the entire <envar>PATH</envar>
+environment variable and set that into the
+execution environment:
+</para>
 
 <programlisting language="python">
 import os
@@ -2612,28 +2629,35 @@ and specifically <link linkend='tool_modules'>Tool Modules</link>.
 <refsect2 id='builder_methods'>
 <title>Builder Methods</title>
 
-<para>You tell &scons; what to build
+<para>You tell &SCons; what to build
 by calling <firstterm>Builders</firstterm>,
-functions which take
-particular action(s) to produce a particular result type
-(conventionally described by the builder name such as &b-Program;)
-when given source files of a particular type.
-Calling a builder defines one or more targets to the build system;
-whether the targets are actually built on a given
-invocation is determined by command-line options,
-target selection rules, and whether &SCons;
-determines the target(s) are out of date.
+functions which take particular action(s)
+to produce target(s) of a particular type
+(conventionally hinted at by the builder name, e.g. &Program;)
+from the specified source files.
+A builder call is a declaration: &SCons; enters the
+specified relationship into its internal dependency node graph,
+and only later makes the decision on whether anything is actually built,
+since this depends on command-line options,
+target selection rules, and whether the target(s) are
+out of date with respect to the sources.
 </para>
 
 <para>
 &SCons;
-defines a number of builders, and you can also write your own.
-Builders are attached to a &consenv; as methods,
-and the available builder methods are listed as
+provides a number of builders, and you can also write your own
+(see <link linkend='builder_objects'>Builder Objects</link>).
+Builders are created dynamically at run-time,
+often (though not always) by tools which determine
+whether the external dependencies for the builder are satisfied,
+and which perform the necessary setup
+(see <link linkend='tools'>Tools</link>).
+Builders are attached to a &consenv; as methods.
+The available builder methods are registered as
 key-value pairs in the
-<varname>BUILDERS</varname> attribute of the &consenv;.
-The available builders can be displayed like this
-for debugging purposes:
+&cv-link-BUILDERS; attribute of the &consenv;,
+so the available builders can be examined.
+This example displays them for debugging purposes:
 </para>
 
 <programlisting language="python">
@@ -2646,7 +2670,6 @@ Builder methods take two required arguments:
 <parameter>target</parameter>
 and
 <parameter>source</parameter>.
-Either can be passed as a scalar or as a list.
 The <parameter>target</parameter> and
 <parameter>source</parameter> arguments
 can be specified either as positional arguments,
@@ -2660,24 +2683,17 @@ Builder methods also take a variety of
 keyword arguments, described below.
 </para>
 
-<para>
-The builder <emphasis>may</emphasis> add other targets
-beyond those requested if indicated by an <firstterm>Emitter</firstterm>
-(see <xref linkend="builder_objects"/> and, for example,
-&cv-link-PROGEMITTER; for more information).
-</para>
-
 <para>Because long lists of file names
-can lead to a lot of quoting,
-&scons;
+can lead to a lot of quoting in a builder call,
+&SCons;
 supplies a &f-link-Split;
 global function
 and a same-named environment method
 that splits a single string
 into a list, using
-strings of white-space characters as the delimiter.
-(similar to the Python string <function>split</function>
-method, but succeeds even if the input isn't a string.)</para>
+strings of white-space characters as the delimiter
+(similar to the &Python; string <function>split</function>
+method, but succeeds even if the input isn't a string).</para>
 
 <para>
 The following are equivalent examples of calling the
@@ -2695,9 +2711,12 @@ env.Program('bar', source='bar.c foo.c'.split())
 </programlisting>
 
 <para>
-Python follows the POSIX pathname convention for path
-strings: if a string begins with the operating system pathname separator
-(on Windows both the slash and backslash separator work,
+Sources and targets can be specified as a scalar or as a list,
+composed of either strings or nodes (more on nodes below).
+When specifying path strings,
+&Python; follows the POSIX pathname convention:
+if a string begins with the operating system pathname separator
+(on Windows both the slash and backslash separator are accepted,
 and any leading drive specifier is ignored for
 the determination) it is considered an absolute path,
 otherwise it is a relative path.
@@ -2706,30 +2725,24 @@ it is searched for as a file in the current directory. If it
 contains separator characters, the search follows down
 from the starting point, which is the top of the directory tree for
 an absolute path and the current directory for a relative path.
+The "current directory" in this context is the directory
+of the SConscript file currently being processed.
 </para>
 
 <para>
-&scons; recognizes a third way to specify
+&SCons; also recognizes a third way to specify
 path strings: if the string begins with
 the <emphasis role="bold">#</emphasis> character it is
 <firstterm>top-relative</firstterm> - it works like a relative path but the
 search follows down from the directory containing the top-level
 &SConstruct; rather than
-from the current directory. The <emphasis role="bold">#</emphasis> is allowed
-to be followed by a pathname separator, which is ignored if
-found in that position.
+from the current directory. The <emphasis role="bold">#</emphasis>
+can optionally be followed by a pathname separator,
+which is ignored if found in that position.
 Top-relative paths only work in places where &scons; will
 interpret the path (see some examples below).  To be
 used in other contexts the string will need to be converted
 to a relative or absolute path first.
-</para>
-
-<para>
-<parameter>target</parameter> and <parameter>source</parameter>
-can be absolute, relative, or
-top-relative. Relative pathnames are searched considering the
-directory of the SConscript
-file currently being processed as the "current directory".
 </para>
 
 <para>Examples:</para>
@@ -2786,14 +2799,12 @@ env.Program(source='bar.c')
 env.Program('bar.c')
 </programlisting>
 
-<para>As a convenience, a
+<para>The optional
 <parameter>srcdir</parameter>
-keyword argument may be specified
-when calling a Builder.
-When specified,
+keyword argument specifies that
 all source file strings that are not absolute paths
 or top-relative paths
-will be interpreted relative to the specified
+shall be interpreted relative to the specified
 <parameter>srcdir</parameter>.
 The following example will build the
 <filename>build/prog</filename>
@@ -2809,6 +2820,99 @@ and
 <programlisting language="python">
 env.Program('build/prog', ['f1.c', 'f2.c'], srcdir='src')
 </programlisting>
+
+<para>The optional
+<parameter>parse_flags</parameter>
+keyword argument causes behavior similar to the
+&f-link-env-MergeFlags; method, where the argument value is
+broken into individual settings and merged into the appropriate &consvars;.
+</para>
+
+<programlisting language="python">
+env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
+</programlisting>
+
+<para>This example adds 'include' to
+the &cv-link-CPPPATH; &consvar;,
+'EBUG' to
+&cv-link-CPPDEFINES;,
+and 'm' to
+&cv-link-LIBS;.
+</para>
+
+<para>The optional
+<parameter>chdir</parameter>
+keyword argument
+specifies that the Builder's action(s)
+should be executed
+after changing directory.
+If the
+<parameter>chdir</parameter>
+argument is
+a path string or a directory Node,
+scons will change to the specified directory.
+If the
+<parameter>chdir</parameter>
+is not a string or Node
+and evaluates true,
+then &scons; will change to the
+target file's directory.</para>
+
+<warning>
+<para>
+Python only keeps one current directory
+location even if there are multiple threads.
+This means that use of the
+<parameter>chdir</parameter>
+argument
+will
+<emphasis>not</emphasis>
+work with the SCons
+<option>-j</option>
+option,
+because individual worker threads spawned
+by SCons interfere with each other
+when they start changing directory.</para>
+</warning>
+
+<programlisting language="python">
+# scons will change to the "sub" subdirectory
+# before executing the "cp" command.
+env.Command(
+    target='sub/dir/foo.out',
+    source='sub/dir/foo.in',
+    action="cp dir/foo.in dir/foo.out",
+    chdir='sub',
+)
+
+# Because chdir is not a string, scons will change to the
+# target's directory ("sub/dir") before executing the
+# "cp" command.
+env.Command('sub/dir/foo.out', 'sub/dir/foo.in', "cp foo.in foo.out", chdir=True)
+</programlisting>
+
+<para>Note that &SCons; will
+<emphasis>not</emphasis>
+automatically modify
+its expansion of
+&consvars; like &cv-link-TARGET;
+and &cv-link-SOURCE;
+when using the <parameter>chdir</parameter>
+keyword argument--that is,
+the expanded file names
+will still be relative to
+the top-level directory where the &SConstruct; was found,
+and consequently incorrect
+relative to the chdir directory.
+If you use the <parameter>chdir</parameter> keyword argument,
+you will typically need to supply a different
+command line using
+expansions like
+<literal>${TARGET.file}</literal>
+and
+<literal>${SOURCE.file}</literal>
+to use just the filename portion of the
+target and source.</para>
 
 <para>Keyword arguments that are not specifically
 recognized are treated as &consvar;
@@ -2837,29 +2941,9 @@ env.SharedLibrary(
 
 <para>Note that both the &cv-link-SHLIBSUFFIX;
 and &cv-link-LIBSUFFIXES;
-variables must be set if you want &scons; to search automatically
+&consvars; must be set if you want &scons; to search automatically
 for dependencies on the non-standard library names;
-see the descriptions below of these variables for more information.</para>
-
-<para>The optional
-<parameter>parse_flags</parameter>
-keyword argument is recognized by builders.
-This works similarly to the
-&f-link-env-MergeFlags; method, where the argument value is
-broken into individual settings and merged into the appropriate &consvars;.
-</para>
-
-<programlisting language="python">
-env.Program('hello', 'hello.c', parse_flags='-Iinclude -DEBUG -lm')
-</programlisting>
-
-<para>This example adds 'include' to
-the &cv-link-CPPPATH; &consvar;,
-'EBUG' to
-&cv-link-CPPDEFINES;,
-and 'm' to
-&cv-link-LIBS;.
-</para>
+see the descriptions of these variables for more information.</para>
 
 <para>Although the builder methods defined by
 &scons;
@@ -2872,30 +2956,47 @@ Program('hello', 'hello.c')
 SharedLibrary('word', 'word.cpp')
 </programlisting>
 
-<para>If called this way, methods will internally use the
-&defenv; that consists of the tools and values that
+<para>If called this way, the builder will internally use the
+&DefEnv; that consists of the tools and values that
 &scons;
 has determined are appropriate for the local system.</para>
 
 <para>Builder methods that can be called without an explicit
-environment (indicated in the listing of builders without
-a leading <varname>env.</varname>)
-may be called from custom Python modules that you
+environment (indicated in the listing of builders below
+without a leading <varname>env.</varname>)
+may be called from custom &Python; modules that you
 import into an SConscript file by adding the following
-to the Python module:</para>
+to the &Python; module:</para>
 
 <programlisting language="python">
 from SCons.Script import *
 </programlisting>
 
-<para>Builder methods return a <classname>NodeList</classname>,
-a list-like object whose elements are Nodes,
-&SCons;' internal representation of build targets or sources.
-See <xref linkend="node_objects"/> for more information.
+<para>
+A builder <emphasis>may</emphasis> add additional targets
+beyond those requested
+if an attached <firstterm>Emitter</firstterm> chooses to do so
+(see <xref linkend="builder_objects"/> for more information.
+&cv-link-PROGEMITTER; is an example).
+For example, the GNU linker takes a command-line argument
+<option>-Map=<replaceable>mapfile</replaceable></option>,
+which causes it to produce a linker map file in addition
+to the executable file actually being linked.
+If the &b-link-Program; builder's emitter is configured
+to add this mapfile if the option is set,
+then two targets will be returned when you only provided for one.
+</para>
+
+<para>
+For this reason,
+builder methods always return a <classname>NodeList</classname>,
+a list-like object whose elements are Nodes.
+Nodes are the internal representation of build targets or sources
+(see <xref linkend="node_objects"/> for more information).
 The returned <classname>NodeList</classname> object
 can be passed to other builder methods as source(s)
-or passed to any &SCons; function or method
-where a filename would normally be accepted.
+or to other &SCons; functions or methods
+where a path string would normally be accepted.
 </para>
 
 <para> For example,
@@ -2912,7 +3013,7 @@ env.Program("prog", ['foo.c', bar_obj_list, 'main.c'])
 makes for a more portable build
 by avoiding having to specify
 a platform-specific object suffix
-when calling the &Program; builder method.
+when calling the &b-link-Program; builder method.
 </para>
 
 <para>The <classname>NodeList</classname> object
@@ -2929,9 +3030,9 @@ Default(tgt)
 lists passed as source and target, so they are free to
 contain elements which are themselves lists, such as
 <varname>bar_obj_list</varname>
-returned by the &StaticObject; call above.
+returned by the &b-link-StaticObject; call.
 If you need to manipulate a list of lists returned by builders
-directly in Python code,
+directly in &Python; code,
 you can either build a new list by hand:</para>
 
 <programlisting language="python">
@@ -2943,7 +3044,7 @@ for obj in objects:
 </programlisting>
 
 <para>Or you can use the &f-link-Flatten;
-function supplied by &scons;
+function supplied by &SCons;
 to create a list containing just the Nodes,
 which may be more convenient:</para>
 
@@ -2955,20 +3056,20 @@ for obj in objects:
     print(str(obj))
 </programlisting>
 
-<para>&SCons; builder calls return
-a list-like object, not an actual Python list,
-so it is not appropriate to use the Python add
+<para>Since builder calls return
+a list-like object, not an actual &Python; list,
+it is not appropriate to use the &Python; add
 operator (<literal>+</literal> or <literal>+=</literal>)
-to append builder results to a Python list.
+to append builder results to a &Python; list.
 Because the list and the object are different types,
-Python will not update the original list in place,
+&Python; will not update the original list in place,
 but will instead create a new <classname>NodeList</classname> object
 containing the concatenation of the list
 elements and the builder results.
-This will cause problems for any other Python variables
+This will cause problems for any other &Python; variables
 in your SCons configuration
 that still hold on to a reference to the original list.
-Instead, use the Python list
+Instead, use the &Python; list
 <function>extend</function>
 method to make sure the list is updated in-place.
 Example:</para>
@@ -2986,7 +3087,7 @@ object_files.extend(Object('bar.c'))
 </programlisting>
 
 <para>The path name for a Node's file may be used
-by passing the Node to Python's builtin
+by passing the Node to &Python;'s builtin
 <function>str</function>
 function:</para>
 
@@ -2997,68 +3098,10 @@ print("The path to bar_obj is:", str(bar_obj_list[0]))
 
 <para>Note that because the Builder call returns a
 <classname>NodeList</classname>,
-you have to access the first element in the list,
+you have to access the first element in the list
 (<literal>bar_obj_list[0]</literal> in the example)
 to get at the Node that actually represents
 the object file.</para>
-
-<para>Builder calls support a
-<parameter>chdir</parameter>
-keyword argument that
-specifies that the Builder's action(s)
-should be executed
-after changing directory.
-If the
-<parameter>chdir</parameter>
-argument is
-a string or a directory Node,
-scons will change to the specified directory.
-If the
-<parameter>chdir</parameter>
-is not a string or Node
-and is non-zero,
-then scons will change to the
-target file's directory.</para>
-
-<programlisting language="python">
-# scons will change to the "sub" subdirectory
-# before executing the "cp" command.
-env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
-            "cp dir/foo.in dir/foo.out",
-            chdir='sub')
-
-# Because chdir is not a string, scons will change to the
-# target's directory ("sub/dir") before executing the
-# "cp" command.
-env.Command('sub/dir/foo.out', 'sub/dir/foo.in',
-            "cp foo.in foo.out",
-            chdir=1)
-</programlisting>
-
-<para>Note that &SCons; will
-<emphasis>not</emphasis>
-automatically modify
-its expansion of
-&consvars; like
-<envar>$TARGET</envar>
-and
-<envar>$SOURCE</envar>
-when using the <parameter>chdir</parameter>
-keyword argument--that is,
-the expanded file names
-will still be relative to
-the top-level directory where &SConstruct; was found,
-and consequently incorrect
-relative to the chdir directory.
-If you use the <parameter>chdir</parameter> keyword argument,
-you will typically need to supply a different
-command line using
-expansions like
-<literal>${TARGET.file}</literal>
-and
-<literal>${SOURCE.file}</literal>
-to use just the filename portion of the
-targets and source.</para>
 
 <para>
 When trying to handle errors that may occur in a builder method,
@@ -3073,13 +3116,22 @@ a useful exception message indicating the problem in the SConscript files -
 programmatically recovering from build errors is rarely useful.
 </para>
 
-<para>&scons;
-predefines the following builder methods.
+<para>
+The following builder methods are predefined in the
+&SCons; core software distribution.
 Depending on the setup of a particular
 &consenv; and on the type and software
 installation status of the underlying system,
-not all builders may be available to that
-&consenv;.</para>
+not all builders may be available in that
+&consenv;.
+Since the function calling signature is the same for all builders:
+</para>
+<programlisting language="python">
+<function>Buildername</function>(<parameter>target, source, [key=val, ...]</parameter>)
+</programlisting>
+<para>
+it is omitted in this listing for brevity.
+</para>
 
 <!-- '\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" -->
 <!-- '\" BEGIN GENERATED BUILDER DESCRIPTIONS -->
@@ -4968,20 +5020,51 @@ vars.AddVariables(
 </refsect2>
 
 <refsect2 id='node_objects'>
-<title>File and Directory Nodes</title>
+<title>Node Objects</title>
+
+<para>
+&SCons; represents objects that are the sources or targets of
+build operations as <firstterm>Nodes</firstterm>,
+which are internal data structures.
+There are a number of user-visible types of nodes:
+File Nodes, Directory Nodes, Value Nodes and Alias Nodes.
+Some of the node types have public attributes and methods,
+described below. Each of the node types has a global function
+and a matching environment method to create instances:
+&f-link-File;, &f-link-Dir;, &f-link-Value; and &f-link-Alias;.
+</para>
+
+<refsect3 id='file_and_directory_nodes'>
+<title>Filesystem Nodes</title>
 
 <para>
 The &f-link-File; and &f-link-Dir;
 functions/methods return
 File and Directory Nodes, respectively.
-Such nodes are Python objects with
-several user-visible attributes
-and methods that are often useful to access
-in SConscript files:</para>
+File and Directory Nodes
+(collectively, Filesystem Nodes)
+represent build components that correspond to an entry
+in the computer's filesystem,
+whether or not such an entry exists at the time the Node is created.
+You do not usually need to explicitly create filesystem Nodes,
+since when you supply a string as a target or source of a Builder,
+&SCons; will create the Nodes as needed to populate the
+dependency graph.
+Builders return the target Node(s) in the form of a list,
+which you can then make use of.
+However, since filesystem Nodes have some useful
+public attributes and methods
+that you can use in SConscript files,
+it is sometimes appropriate to create them manually,
+outside the regular context of a Builder call.
+</para>
+<para>
+The following attributes provide information about a Node:
+</para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>path</varname></term>
+  <term><replaceable>node</replaceable>.<varname>path</varname></term>
   <listitem>
 <para>The build path
 of the given
@@ -4995,21 +5078,21 @@ is not being used.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>abspath</varname></term>
+  <term><replaceable>node</replaceable>.<varname>abspath</varname></term>
   <listitem>
 <para>The absolute build path of the given file or directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<varname>relpath</varname></term>
+  <term><replaceable>node</replaceable>.<varname>relpath</varname></term>
   <listitem>
 <para>The build path of the given file or directory relative to the root SConstruct file's directory.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>n</replaceable>.<function>srcnode</function>()</term>
+  <term><replaceable>node</replaceable>.<function>srcnode</function>()</term>
   <listitem>
 <para>The
 <function>srcnode</function>
@@ -5022,101 +5105,116 @@ File or Directory Node.
   </varlistentry>
 </variablelist>
 
-<para>For example:</para>
+<para>Examples:</para>
 
 <programlisting language="python">
 # Get the current build dir's path, relative to top.
 Dir('.').path
+
 # Current dir's absolute path
 Dir('.').abspath
+
 # Current dir's path relative to the root SConstruct file's directory
 Dir('.').relpath
+
 # Next line is always '.', because it is the top dir's path relative to itself.
 Dir('#.').path
-File('foo.c').srcnode().path   # source path of the given source file.
 
-# Builders also return File objects:
+# Source path of the given source file.
+File('foo.c').srcnode().path
+
+# Builders return lists of File objects:
 foo = env.Program('foo.c')
-print("foo will be built in", foo.path)
+print("foo will be built in", foo[0].path)
 </programlisting>
 
 <para>
-File and Directory Node objects have methods to create
+Filesystem Node objects have methods to create new
 File and Directory Nodes relative to the original Node.
+There are also times when you may need to refer to an entry
+in a filesystem without knowing in advance whether it's a
+file or a directory.
+For those situations,
+there is an <function>Entry</function> method of filesystem node objects,
+which returns a Node that can represent either a file or a directory.
 </para>
 
 <para>
-If the object is a Directory Node,
-these methods will place the the new Node within the directory
-the Node represents:
+If the original Node is a Directory Node,
+these methods will place the new Node within the directory
+the original Node represents:
 </para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a directory Node for a subdirectory of
-<replaceable>d</replaceable>
-named
-<parameter>name</parameter>.</para>
+<para>Returns a directory Node
+<parameter>name</parameter>
+which is a subdirectory of
+the directory represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a file Node for a file within
-<replaceable>d</replaceable>
-named
-<parameter>name</parameter>.</para>
+<para>Returns a file Node
+<parameter>name</parameter>
+in the directory represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>d</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns an unresolved Node within
-<replaceable>d</replaceable>
-named
-<parameter>name</parameter>.</para>
+<para>Returns an unresolved Node
+<parameter>name</parameter>
+in the directory represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
 <para>
-If the object is a File Node,
+If the original Node is a File Node,
 these methods will place the the new Node in the same
-directory as the one the Node represents:
+directory as the one the original Node represents:
 </para>
 
 <variablelist>
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Dir</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a directory named
+<para>Returns a Node
 <parameter>name</parameter>
-within the parent directory of
-<replaceable>f</replaceable>.</para>
+for a directory in the parent directory of
+the file represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>File</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns a file named
+<para>Returns a Node
 <parameter>name</parameter>
-within the parent directory of
-<replaceable>f</replaceable>.</para>
+for a file in the parent directory of
+the file represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>f</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
+  <term><replaceable>node</replaceable>.<function>Entry</function>(<parameter>name</parameter>)</term>
   <listitem>
-<para>Returns an unresolved Node named
+<para>Returns an unresolved Node
 <parameter>name</parameter>
-within the parent directory of
-<replaceable>f</replaceable>.</para>
+in the parent directory of
+the file represented by
+<replaceable>node</replaceable>.</para>
   </listitem>
   </varlistentry>
 </variablelist>
@@ -5142,6 +5240,56 @@ html = docs.Dir('html')
 index = html.File('index.html')
 css = index.File('app.css')
 </programlisting>
+</refsect3>
+
+<refsect3 id='value_and_alias_nodes'>
+<title>Value and Alias Nodes</title>
+
+<para>
+&SCons; provides two other Node types to represent
+object that will not have an equivalent filesystem entry.
+Such Nodes always need to be created explicitly.
+</para>
+
+<para>
+The &f-link-Alias; method returns an Alias Node.
+Aliases are virtual objects - they will not themselves result
+in physical objects being constructed, but are entered into
+the dependency graph related to their sources.
+An alias is checked for up to date by checking if
+its sources are up to date.
+An alias is built by making sure its sources have been built,
+and if any building took place,
+applying any Actions that are defined as part of the alias.
+</para>
+
+<para>
+An &f-link-Alias; call creates an entry in the alias namespace,
+which is used for disambiguation.
+If an alias source has a string valued name,
+it will be resolved to a filesystem entry Node,
+unless it is found in the alias namespace,
+in which case it it resolved to the matching alias Node.
+As a result, the order of &f-Alias; calls is significant.
+An alias can refer to another alias, but only if the
+other alias has previously been created.
+</para>
+
+<para>
+The &f-link-Value; method returns a Value Node.
+Value nodes are often used for generated data that
+will not have any corresponding filesystem entry,
+but will be used to determine whether a build target is out of date,
+or to include as part of a build Action.
+Common examples are timestamp strings,
+revision control version strings
+and other run-time generated strings.
+</para>
+
+<para>
+A Value Node can also be the target of a builder.
+</para>
+</refsect3>
 
 </refsect2>
 </refsect1>
@@ -5156,13 +5304,14 @@ to customize its behavior.
 A number of the main operations use callable objects
 which can be supplemented by writing your own.
 Builders, Scanners and Tools each use a kind of plugin system,
-allowing you to seamlessly drop in new ones.
+allowing you to easily drop in new ones.
 Information about creating
 <link linkend='builder_objects'>Builder Objects</link> and
 <link linkend='scanner_objects'>Scanner Objects</link>
 appear in the following sections.
-The instructions &SCons; actually uses to make things are called
-Actions, and it is easy to create Action Objects and hand them
+The instructions &SCons; actually uses to
+construct things are called Actions,
+and it is easy to create Action Objects and hand them
 to the objects that need to know about those actions
 (besides Builders, see &f-link-AddPostAction;,
 &f-link-AddPreAction; and &f-link-Alias; for some examples
@@ -5488,38 +5637,37 @@ and the list of sources for this builder.</para>
 
 <programlisting language="python">
 def e(target, source, env):
-    return (target + ['foo.foo'], source + ['foo.src'])
+    return target + ['foo.foo'], source + ['foo.src']
 
 # Simple association of an emitter function with a Builder.
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = e)
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter=e)
 
 def e2(target, source, env):
-    return (target + ['bar.foo'], source + ['bar.src'])
+    return target + ['bar.foo'], source + ['bar.src']
 
 # Simple association of a list of emitter functions with a Builder.
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter = [e, e2])
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter=[e, e2])
 
-# Calling an emitter function through a &consvar;.
+# Calling an emitter function through a construction variable.
 env = Environment(MY_EMITTER=e)
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter='$MY_EMITTER')
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter='$MY_EMITTER')
 
-# Calling a list of emitter functions through a &consvar;.
+# Calling a list of emitter functions through a construction variable.
 env = Environment(EMITTER_LIST=[e, e2])
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter='$EMITTER_LIST')
+b = Builder("my_build &lt; $TARGET &gt; $SOURCE", emitter='$EMITTER_LIST')
 
 # Associating multiple emitters with different file
 # suffixes using a dictionary.
 def e_suf1(target, source, env):
-    return (target + ['another_target_file'], source)
+    return target + ['another_target_file'], source
+
 def e_suf2(target, source, env):
-    return (target, source + ['another_source_file'])
-b = Builder("my_build &lt; $TARGET &gt; $SOURCE",
-            emitter={'.suf1' : e_suf1,
-                     '.suf2' : e_suf2})
+    return target, source + ['another_source_file']
+
+b = Builder(
+    action="my_build &lt; $TARGET &gt; $SOURCE",
+    emitter={'.suf1': e_suf1, '.suf2': e_suf2}
+)
 </programlisting>
   </listitem>
   </varlistentry>
@@ -5762,14 +5910,13 @@ The canonical example here would be
 to set a &consvar; to
 the repository of a source code system.</para>
 
-<para>Any additional keyword arguments supplied
+<para>Any such keyword arguments supplied
 when a Builder object is called
 will only be associated with the target
 created by that particular &f-Builder; call
 (and any other files built as a
-result of the call).</para>
-
-<para>These extra keyword arguments are passed to the
+result of the call).
+These extra keyword arguments are passed to the
 following functions:
 <link linkend='generator_function'>command generator functions</link>,
 <link linkend='miscellaneous_action_functions'>function Actions</link>,
@@ -5808,7 +5955,7 @@ you need to create the action object using &f-Action;.
 returns an appropriate object for the action
 represented by the type of the
 <parameter>action</parameter> argument
-(the first positional parmeter):</para>
+(the first positional parameter):</para>
 
 <itemizedlist>
   <listitem>
@@ -5938,19 +6085,22 @@ The following argument types are accepted:
 
 <itemizedlist>
   <listitem>
-<para>If <parameter>output</parameter> is a string,
-substitution is performed on the string before it is printed.
-The string typically contains variables, notably
+<para>If the second argument is a string,
+or if the <parameter>cmdstr</parameter> keyword argument is supplied,
+the string defines what is printed.
+Substitution is performed on the string before it is printed.
+The string typically contains substitutable variables, notably
 <literal>$TARGET(S)</literal> and <literal>$SOURCE(S)</literal>,
-or consists of just a single
-variable, which is optionally defined somewhere else.
+or consists of just a single variable
+which is optionally defined somewhere else.
 &SCons; itself heavily uses the latter variant.</para>
   </listitem>
 
   <listitem>
-<para>If <parameter>output</parameter> is a function,
-the function will be called to obtain a string
-describing the action being executed.
+<para>If the second argument is a function,
+or if the <parameter>strfunction</parameter> keyword argument is supplied,
+the function will be called to obtain the string
+to be printed when the action is performed.
 The function
 must accept three keyword arguments:
 <parameter>target</parameter>,
@@ -5958,22 +6108,26 @@ must accept three keyword arguments:
 <parameter>env</parameter>,
 with the same interpretation as for a callable
 <parameter>action</parameter> argument above.
+The function is responsible for handling any required substitutions.
 </para>
   </listitem>
 
   <listitem>
-<para>If <parameter>output</parameter>is <constant>None</constant>,
+<para>If the second argument is <constant>None</constant>,
+or if <literal>cmdstr=None</literal> is supplied,
 output is suppressed entirely.</para>
   </listitem>
 </itemizedlist>
 
 <para>
-Instead of using a positional argument,
-the <parameter>cmdstr</parameter>
-keyword argument may be used to specify the output string,
-or the <parameter>strfunction</parameter> keyword argument
-may be used to specify a function to return the output string.
-<literal>cmdstr=None</literal> suppresses output entirely.
+The <parameter>cmdstr</parameter> and
+<parameter>strfunction</parameter>
+keyword arguments may not both be supplied in a single call to &f-Action;
+</para>
+
+<para>
+Printing of action strings is affected by the setting of
+&cv-link-PRINT_CMD_LINE_FUNC;.
 </para>
 
 <para>Examples:</para>
@@ -7249,7 +7403,7 @@ A tool specification module must include two functions:
     <listitem>
 <para>Modify the &consenv; <parameter>env</parameter>
 to set up necessary &consvars;, Builders, Emitters, etc.,
-so the facilities represented by the tool can be executed. 
+so the facilities represented by the tool can be executed.
 Care should be taken not to overwrite &consvars; intended
 to be settable by the user. For example:
 </para>
@@ -7374,7 +7528,7 @@ There are, however, a few portability
 issues waiting to trap the unwary.</para>
 
 <refsect2 id='c_file_suffix'>
-<title>.C file suffix</title>
+<title>.C File Suffix</title>
 
 <para>&scons; handles the upper-case
 <filename>.C</filename>
@@ -7394,50 +7548,125 @@ suffix as a C source file.</para>
 </refsect2>
 
 <refsect2 id='f_file_suffix'>
-<title>Fortran file suffixes</title>
+<title>Fortran File Suffixes</title>
 
-<para>&scons; handles upper-case
-Fortran file suffixes differently
-depending on the capabilities of
-the underlying system.
-On a case-sensitive system
-such as Linux or UNIX,
-&scons; treats a file with a
-<filename>.F</filename>
-as a Fortran source file
-that is to be first run through
-the standard C preprocessor,
-while the lower-case version is not.
-This matches the convention of <command>gfortran</command>,
-which may also be followed by other Fortran compilers.
-This also applies to other naming variants,
+<para>
+There are several ways source file suffixes impact the
+behavior of &SCons; when working with Fortran language code
+(not all are system-specific, but they are included here
+for completeness).
+</para>
+
+<para>
+As the Fortran language has evolved through multiple
+standards editions, projects might have a need to handle
+files from different language generations differently.
+To this end, &SCons; dispatches to  a different compiler
+dialect setup (expressed as a set of &consvars;)
+depending on the file suffix.
+By default, all of these setups start out the same,
+but individual &consvars; can be modified as needed to tune a given dialect.
+Each of these dialacts has a tool specification module
+whose documentation describes the &consvars; associated
+with that dialect: <filename>.f</filename>
+(as well as <filename>.for</filename> and <filename>.ftn</filename>)
+in &t-link-fortran;; (&consvars; start with <literal>FORTRAN</literal>)
+<filename>.f77</filename> in &t-link-f77;;
+(&consvars; start with <literal>F77</literal>)
+<filename>.f90</filename> in &t-link-f90;;
+(&consvars; start with <literal>F90</literal>)
+<filename>.f95</filename> in &t-link-f95;;
+(&consvars; start with <literal>F95</literal>)
+<filename>.f03</filename> in &t-link-f03;;
+(&consvars; start with <literal>F03</literal>)
+<filename>.f08</filename> in &t-link-f08;
+(&consvars; start with <literal>F08</literal>).
+</para>
+
+<para>
+While &SCons; recognizes multiple internal dialects
+based on filename suffixes,
+the convention of various available Fortran compilers is
+to assign an actual meaning to only two of these suffixes:
+<filename>.f</filename>
+(as well as <filename>.for</filename> and <filename>.ftn</filename>)
+refers to the fixed-format source
+code that was the only available option in FORTRAN 77 and earlier,
+and <filename>.f90</filename> refers to free-format source code
+which became available as of the Fortran 90 standard.
+Some compilers recognize suffixes which correspond to Fortran
+specifications later then F90 as equivalent to
+<filename>.f90</filename> for this purpose,
+while some do not - check the documentation for your compiler.
+An occasionally suggested policy suggestion is to use only
+<filename>.f</filename> and <filename>.f90</filename>
+as Fortran filename suffixes.
+The fixed/free form determination can usually be controlled
+explicitly with compiler flags
+(e.g. <option>-ffixed-form</option> for gfortran),
+overriding any assumption that may be made based on the source file suffix.
+</para>
+
+<para>
+The source file suffix does not imply conformance
+with the similarly-named Fortran standard - a suffix of
+<filename>.f08</filename> does not mean you are compiling
+specifically for Fortran 2008.  Normally, compilers
+provide command-line options for making this selection
+(e.g. <option>-std=f2008</option> for gfortran).
+</para>
+
+<para>
+For dialects from F90 on (including the generic FORTRAN dialect),
+a suffix of <filename>.mod</filename> is recognized for Fortran modules.
+These files are a side effect of compiling a Fortran
+source file containing module declarations,
+and must be available when other code which declares
+that it uses the module is processed.
+&SCons; does not currently have integrated support for submodules,
+introduced in the Fortran 2008 standard -
+the invoked compiler will produce results,
+but &SCons; will not recognize
+<filename>.smod</filename> files as tracked objects.
+</para>
+
+<para>
+On a case-sensitive system such as Linux or UNIX,
+a file with a an upper-cased suffix from the set
+<filename>.F</filename>,
 <filename>.FOR</filename>,
 <filename>.FTN</filename>,
 <filename>.F90</filename>,
 <filename>.F95</filename>,
 <filename>.F03</filename> and
-<filename>.F08</filename>;
-files suffixed with
+<filename>.F08</filename>
+is treated as a Fortran source file
+which shall first be run through
+the standard C preprocessor.
+The lower-cased versions of these suffixes do not
+trigger this behavior.
+On systems which do not distinguish between uppper
+and lower case in filenames,
+this behavior is not available,
+but files suffixed with either
 <filename>.FPP</filename>
-and <filename>.fpp</filename>
-are both run through the preprocessor,
-as indicated by the <literal>pp</literal>
-part of the name.
-On a case-insensitive system
-such as Windows,
-&scons; treats a file with a
-<filename>.F</filename>
-suffix as a Fortran source file that should
-<emphasis>not</emphasis>
-be run through the C preprocessor.</para>
+or <filename>.fpp</filename>
+are always passed to the preprocessor first.
+This matches the convention of <command>gfortran</command>
+from the GNU Compiler Collection,
+and also followed by certain other Fortran compilers.
+For these two suffixes,
+the generic <emphasis>FORTRAN</emphasis> dialect will be selected.
+</para>
+
 <para>
-<emphasis>Run through the C preprocessor</emphasis>
-here means that a different set of &consvars; will
-be applied in constructed commands, for example
+&SCons; itself does not invoke the preprocessor,
+that is handled by the compiler,
+but it adds &consvars; which are applicable to the preprocessor run.
+You can see this difference by examining
 &cv-link-FORTRANPPCOM; and &cv-link-FORTRANPPCOMSTR;
-instead of
-&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR;.
-See the Fortran-related &consvars; for more details.
+which are used instead of
+&cv-link-FORTRANCOM; and &cv-link-FORTRANCOMSTR; for that dialect.
 </para>
 </refsect2>
 
@@ -7446,10 +7675,10 @@ See the Fortran-related &consvars; for more details.
 
 <para>Cygwin supplies a set of tools and utilities
 that let users work on a
-Windows system using a more POSIX-like environment.
-The Cygwin tools, including Cygwin Python,
+Windows system using a POSIX-like environment.
+The Cygwin tools, including Cygwin &Python;,
 do this, in part,
-by sharing an ability to interpret UNIX-like path names.
+by sharing an ability to interpret POSIX-style path names.
 For example, the Cygwin tools
 will internally translate a Cygwin path name
 like <filename>/cygdrive/c/mydir</filename>
@@ -7457,11 +7686,11 @@ to an equivalent Windows pathname
 of <filename>C:/mydir</filename> (equivalent to <filename>C:\mydir</filename>).
 </para>
 
-<para>Versions of Python
+<para>Versions of &Python;
 that are built for native Windows execution,
 such as the python.org and ActiveState versions,
-do not have the Cygwin path name semantics.
-This means that using a native Windows version of Python
+do not understand the Cygwin path name semantics.
+This means that using a native Windows version of &Python;
 to build compiled programs using Cygwin tools
 (such as &gcc;, &bison; and &flex;)
 may yield unpredictable results.
@@ -7471,14 +7700,22 @@ but it requires careful attention to the use of path names
 in your SConscript files.</para>
 
 <para>In practice, users can sidestep
-the issue by adopting the following rules:
+the issue by adopting the following guidelines:
 When using Cygwin's &gcc; for compiling,
-use the Cygwin-supplied Python interpreter
+use the Cygwin-supplied &Python; interpreter
 to run &scons;;
 when using Microsoft Visual C/C++
-(or some other Windows compiler)
-use the python.org or Microsoft Store or ActiveState version of Python
-to run &scons;.</para>
+(or some other "native" Windows compiler)
+use the python.org, Microsoft Store, ActiveState or other
+native version of &Python; to run &scons;.
+</para>
+
+<para>
+This discussion largely applies to the msys2 environment
+as well (with the use of the mingw compiler toolchain),
+in particular the recommendation to use the msys2 version of
+&Python; if running &scons; from inside an msys2 shell.
+</para>
 </refsect2>
 
 <refsect2 id='windows_sconsbat_file'>
@@ -7488,7 +7725,7 @@ to run &scons;.</para>
 <filename>scons.bat</filename> batch file,
 there are (at least) two ramifications.
 Note this is no longer the default - &scons; installed
-via Python's <command>pip</command> installer
+via &Python;''s <command>pip</command> installer
 will have an <command>scons.exe</command> which does
 not have these limitations:
 </para>
@@ -7506,8 +7743,8 @@ arguments to itself, not to &scons;:</para>
 </screen>
 
 <para>Second, the Cygwin shell does not
-reognize typing <userinput>scons</userinput>
-at the command line prompt as referring to this weapper.
+recognize typing <userinput>scons</userinput>
+at the command line prompt as referring to this wrapper.
 You can work around this either by executing
 <userinput>scons.bat</userinput>
 (including the extension)
@@ -7528,7 +7765,7 @@ directory must be in your <envar>PATH</envar>
 environment variable or the
 <varname>['ENV']['PATH']</varname> &consvar; for &scons;
 to detect and use the MinGW tools. When running under the native Windows
-Python interpreter, &scons; will prefer the MinGW tools over the Cygwin
+Python; interpreter, &scons; will prefer the MinGW tools over the Cygwin
 tools, if they are both installed, regardless of the order of the bin
 directories in the <envar>PATH</envar> variable.
 If you have both MSVC and MinGW

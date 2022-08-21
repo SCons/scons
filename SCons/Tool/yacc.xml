@@ -1,6 +1,28 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+ MIT License
+
+ Copyright The SCons Foundation
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -39,6 +61,9 @@ Sets construction variables for the &yacc; parse generator.
 </sets>
 <uses>
 <item>YACCCOMSTR</item>
+<item>YACCFLAGS</item>
+<item>YACC_HEADER_FILE</item>
+<item>YACC_GRAPH_FILE</item>
 </uses>
 </tool>
 
@@ -68,7 +93,7 @@ If this is not set, then &cv-link-YACCCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
+env = Environment(YACCCOMSTR="Yacc'ing $TARGET from $SOURCES")
 </example_commands>
 </summary>
 </cvar>
@@ -77,11 +102,74 @@ env = Environment(YACCCOMSTR = "Yacc'ing $TARGET from $SOURCES")
 <summary>
 <para>
 General options passed to the parser generator.
-If &cv-link-YACCFLAGS; contains a <option>-d</option> option,
-SCons assumes that the call will also create a .h file
-(if the yacc source file ends in a .y suffix)
-or a .hpp file
-(if the yacc source file ends in a .yy suffix)
+In addition to passing the value on during invocation,
+the &t-link-yacc; tool also examines this &consvar; for options
+which cause additional output files to be generated,
+and adds those to the target list.
+</para>
+
+<para>
+If a <option>-d</option> option is present,
+&scons; assumes that the call will also create a header file
+with the suffix defined by &cv-link-YACCHFILESUFFIX;
+if the yacc source file ends in a <filename>.y</filename> suffix,
+or a file with the suffix defined by &cv-link-YACCHXXFILESUFFIX;
+if the yacc source file ends in a <filename>.yy</filename> suffix.
+</para>
+
+<para>
+If a <option>-g</option> option is present,
+&scons; assumes that the call will also create a graph file
+with the suffix defined by &cv-link-YACCVCGFILESUFFIX;.
+</para>
+
+<para>
+If a <option>-v</option> option is present,
+&scons; assumes that the call will also create an output debug file
+with the suffix <filename>.output</filename>.
+</para>
+
+<para>
+Also recognized are GNU &bison; options
+<option>--header=</option> and its deprecated synonym
+<option>--defines=</option>,
+which is similar to
+<option>-d</option>
+but the output filename is named by the option argument;
+and <option>--graph=</option>,
+which is similar to
+<option>-g</option>
+but the output filename is named by the option argument.
+</para>
+
+<para>
+Note that files specified by <option>--header=</option> and
+<option>--graph=</option> may not be properly handled
+by &SCons; in all situations. Consider using
+&cv-link-YACC_HEADER_FILE; and &cv-link-YACC_GRAPH_FILE; instead.
+</para>
+</summary>
+</cvar>
+
+<cvar name="YACC_HEADER_FILE">
+<summary>
+<para>
+If supplied, generate a header file with the name taken from this variable.
+Will be emitted as a <option>--header=</option>
+command-line option. Use this in preference to including
+<option>--header=</option> in &cv-link-YACCFLAGS; directly.
+</para>
+</summary>
+</cvar>
+
+<cvar name="YACC_GRAPH_FILE">
+<summary>
+<para>
+If supplied, write a graph of the automaton to a file with the name
+taken from this variable.
+Will be emitted as a <option>--graph=</option>
+command-line option. Use this in preference to including
+<option>--graph=</option> in &cv-link-YACCFLAGS; directly.
 </para>
 </summary>
 </cvar>

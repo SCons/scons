@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test setting the YACCVCGFILESUFFIX variable.
@@ -34,12 +33,11 @@ _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
 
-
-
 test.write('myyacc.py', """\
 import getopt
 import os.path
 import sys
+
 vcg = None
 opts, args = getopt.getopt(sys.argv[1:], 'go:')
 for o, a in opts:
@@ -54,23 +52,26 @@ for f in args:
 outfile.close()
 if vcg:
     base, ext = os.path.splitext(args[0])
-    with open(base+'.vcgsuffix', 'wb') as outfile:
-        outfile.write((" ".join(sys.argv)+'\\n').encode())
+    with open(base + '.vcgsuffix', 'wb') as outfile:
+        outfile.write((" ".join(sys.argv) + '\\n').encode())
 sys.exit(0)
 """)
 
 test.write('SConstruct', """
-env = Environment(tools=['default', 'yacc'],
-                  YACC = r'%(_python_)s myyacc.py',
-                  YACCVCGFILESUFFIX = '.vcgsuffix')
-env.CXXFile(target = 'aaa', source = 'aaa.yy')
-env.CXXFile(target = 'bbb', source = 'bbb.yy', YACCFLAGS = '-g')
+DefaultEnvironment(tools=[])
+env = Environment(
+    tools=['default', 'yacc'],
+    YACC=r'%(_python_)s myyacc.py',
+    YACCVCGFILESUFFIX='.vcgsuffix',
+)
+env.CXXFile(target='aaa', source='aaa.yy')
+env.CXXFile(target='bbb', source='bbb.yy', YACCFLAGS='-g')
 """ % locals())
 
 test.write('aaa.yy', "aaa.yy\n/*yacc*/\n")
 test.write('bbb.yy', "bbb.yy\n/*yacc*/\n")
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
 test.must_match('aaa.cc', "aaa.yy\n")
 test.must_not_exist('aaa.vcg')
@@ -80,9 +81,7 @@ test.must_match('bbb.cc', "bbb.yy\n")
 test.must_not_exist('bbb.vcg')
 test.must_contain('bbb.vcgsuffix', "myyacc.py -g -o bbb.cc bbb.yy\n")
 
-test.up_to_date(arguments = '.')
-
-
+test.up_to_date(arguments='.')
 
 test.pass_test()
 

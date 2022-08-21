@@ -63,7 +63,8 @@ example_rel_file = """[
         "file": "test_main.c",
         "output": "test_main.o"
     }
-]""" % (sys.executable, test.workdir)
+]
+""" % (sys.executable, test.workdir)
 
 if sys.platform == 'win32':
     example_rel_file = example_rel_file.replace('\\', '\\\\')
@@ -80,7 +81,8 @@ example_abs_file = """[
         "file": "%s",
         "output": "%s"
     }
-]""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
+]
+""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
 
 if sys.platform == 'win32':
     example_abs_file = example_abs_file.replace('\\', '\\\\')

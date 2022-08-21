@@ -27,6 +27,7 @@ import sys
 import sysconfig
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
 _exe   = TestSCons._exe
@@ -37,7 +38,8 @@ test.subdir('in')
 
 test.file_fixture('mylex.py')
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment(
     LEX=r'%(_python_)s mylex.py',
     LEXFLAGS='-x -I${TARGET.dir} -I${SOURCE.dir}',
@@ -48,12 +50,12 @@ env.CFile(target='out/aaa', source='in/aaa.l')
 
 test.write(['in', 'aaa.l'], "aaa.l\nLEXFLAGS\nI_ARGS\n")
 
-test.run('.', stderr = None)
+test.run('.', stderr=None)
 
 lexflags = ' -x -t'
-if sys.platform == 'win32' and not sysconfig.get_platform() in ("mingw",):
+if IS_WINDOWS and not sysconfig.get_platform() in ("mingw",):
     lexflags = ' --nounistd' + lexflags
-# Read in with mode='r' because mylex.py implicitley wrote to stdout
+# Read in with mode='r' because mylex.py implicitly wrote to stdout
 # with mode='w'.
 test.must_match(['out', 'aaa.c'], "aaa.l\n%s\n out in\n" % lexflags, mode='r')
 

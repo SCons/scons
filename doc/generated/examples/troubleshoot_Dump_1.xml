@@ -31,7 +31,7 @@ scons: Reading SConscript files ...
   'ENV': {'PATH': '/usr/local/bin:/opt/bin:/bin:/usr/bin:/snap/bin'},
   'ESCAPE': &lt;function escape at 0x700000&gt;,
   'File': &lt;SCons.Defaults.Variable_Method_Caller object at 0x700000&gt;,
-  'HOST_ARCH': 'x86_64',
+  'HOST_ARCH': 'arm64',
   'HOST_OS': 'posix',
   'IDLSUFFIXES': ['.idl', '.IDL'],
   'INSTALL': &lt;function copyFunc at 0x700000&gt;,

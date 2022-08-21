@@ -35,12 +35,17 @@ from contextlib import suppress
 from pathlib import Path
 
 import SCons.Util
+import SCons.Warnings
+
+class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
+    pass
 
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE:
     import logging
+
     modulelist = (
         # root module and parent/root module
         'MSCommon', 'Tool',
@@ -49,6 +54,7 @@ if LOGFILE:
         # scons modules
         'SCons', 'test', 'scons'
     )
+
     def get_relative_filename(filename, module_list):
         if not filename:
             return filename
@@ -59,6 +65,7 @@ if LOGFILE:
             except ValueError:
                 pass
         return filename
+
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
         def filter(self, record):
@@ -66,6 +73,7 @@ if LOGFILE:
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
+
     # Log format looks like:
     #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
     #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
@@ -81,11 +89,11 @@ if LOGFILE:
         log_handler = logging.StreamHandler(sys.stdout)
     else:
         log_handler = logging.FileHandler(filename=LOGFILE)
-    logging.basicConfig(
-        format=log_format,
-        handlers=[log_handler],
-        level=logging.DEBUG)
+    log_formatter = logging.Formatter(log_format)
+    log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
+    logger.setLevel(level=logging.DEBUG)
+    logger.addHandler(log_handler)
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
 else:
@@ -98,6 +106,11 @@ CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
+# SCONS_CACHE_MSVC_FORCE_DEFAULTS is internal-use so undocumented.
+CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = False
+if CONFIG_CACHE:
+    if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
+        CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
 def read_script_env_cache():
     """ fetch cached msvc env vars if requested, else return empty dict """
@@ -110,7 +123,15 @@ def read_script_env_cache():
                 # json to the cache dictionary. Reconstruct the cache key
                 # tuple from the key list written to json.
                 envcache_list = json.load(f)
-                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                if isinstance(envcache_list, list):
+                    envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+                else:
+                    # don't fail if incompatible format, just proceed without it
+                    warn_msg = "Incompatible format for msvc cache file {}: file may be overwritten.".format(
+                        repr(CONFIG_CACHE)
+                    )
+                    SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
+                    debug(warn_msg)
         except FileNotFoundError:
             # don't fail if no cache file, just proceed without it
             pass
@@ -214,7 +235,7 @@ def normalize_env(env, keys, force=False):
     # should include it, but keep this here to be safe (needed for reg.exe)
     sys32_dir = os.path.join(
         os.environ.get("SystemRoot", os.environ.get("windir", r"C:\Windows")), "System32"
-)
+    )
     if sys32_dir not in normenv["PATH"]:
         normenv["PATH"] = normenv["PATH"] + os.pathsep + sys32_dir
 

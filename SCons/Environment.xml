@@ -318,7 +318,7 @@ Added methods propagate through &f-env-Clone; calls.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>
@@ -1630,46 +1630,50 @@ See the manpage section "Construction Environments" for more details.
 
 <scons_function name="Execute">
 <arguments>
-(action, [strfunction, varlist])
+(action, [actionargs ...])
 </arguments>
 <summary>
 <para>
-Executes an Action object.
-The specified
+Executes an Action.
 <parameter>action</parameter>
 may be an Action object
-(see manpage section "Action Objects"
-for an explanation of behavior),
 or it may be a command-line string,
 list of commands,
 or executable &Python; function,
-each of which will be converted
+each of which will first be converted
 into an Action object
 and then executed.
 Any additional arguments to &f-Execute;
-(<parameter>strfunction</parameter>, <parameter>varlist</parameter>)
 are passed on to the &f-link-Action; factory function
-which actually creates the Action object.
-The exit value of the command
-or return value of the &Python; function
-will be returned.
+which actually creates the Action object
+(see the manpage section <link linkend="action_objects">Action Objects</link>
+for a description). Example:
+</para>
+
+<example_commands>
+Execute(Copy('file.out', 'file.in'))
+</example_commands>
+
+<para>&f-Execute; performs its action immediately,
+as part of the SConscript-reading phase.
+There are no sources or targets declared in an
+&f-Execute; call, so any objects it manipulates
+will not be tracked as part of the &SCons; dependency graph.
+In the example above, neither
+<filename>file.out</filename> nor
+<filename>file.in</filename> will be tracked objects.
 </para>
 
 <para>
-Note that
+&f-Execute; returns the exit value of the command
+or return value of the &Python; function.
 &scons;
-will print an error message if the executed
+prints an error message if the executed
 <parameter>action</parameter>
-fails--that is,
-exits with or returns a non-zero value.
-&scons;
-will
+fails (exits with or returns a non-zero value),
+however it does
 <emphasis>not</emphasis>,
-however,
-automatically terminate the build
-if the specified
-<parameter>action</parameter>
-fails.
+automatically terminate the build for such a failure.
 If you want the build to stop in response to a failed
 &f-Execute;
 call,
@@ -1677,8 +1681,6 @@ you must explicitly check for a non-zero return value:
 </para>
 
 <example_commands>
-Execute(Copy('file.out', 'file.in'))
-
 if Execute("mkdir sub/dir/ectory"):
     # The mkdir failed, don't try to build.
     Exit(1)
@@ -2491,15 +2493,15 @@ This can be used to call a <filename>*-config</filename>
 command typical of the POSIX programming environment
 (for example,
 <command>pkg-config</command>).
-Note that such a comamnd is executed using the
+Note that such a command is executed using the
 SCons execution environment;
 if the command needs additional information,
-that information needs to be explcitly provided.
+that information needs to be explicitly provided.
 See &f-link-ParseConfig; for more details.
 </para>
 
 <para>
-Flag values are translated accordig to the prefix found,
+Flag values are translated according to the prefix found,
 and added to the following construction variables:
 </para>
 
@@ -2510,6 +2512,7 @@ and added to the following construction variables:
 -frameworkdir=          FRAMEWORKPATH
 -fmerge-all-constants   CCFLAGS, LINKFLAGS
 -fopenmp                CCFLAGS, LINKFLAGS
+-fsanitize              CCFLAGS, LINKFLAGS
 -include                CCFLAGS
 -imacros                CCFLAGS
 -isysroot               CCFLAGS, LINKFLAGS
@@ -3416,42 +3419,41 @@ env.UpdateValue(target = Value(output), source = Value(input))
 </arguments>
 <summary>
 <para>
-Sets up an alternate build location.
-When building in the <parameter>variant_dir</parameter>,
-&SCons; backfills as needed with files from <parameter>src_dir</parameter>
-to create a complete build directory.
+Sets up a mapping to define a variant build directory in
+<parameter>variant_dir</parameter>.
+<parameter>src_dir</parameter> may not be underneath
+<parameter>variant_dir</parameter>.
+A &f-VariantDir; mapping is global, even if called using the
+&f-env-VariantDir; form.
 &f-VariantDir;
 can be called multiple times with the same
 <parameter>src_dir</parameter>
-to set up multiple builds with different options
-(<emphasis>variants</emphasis>).
+to set up multiple variant builds with different options.
 </para>
 
 <para>
-The
-<parameter>variant</parameter>
-location must be in or underneath the project top directory,
-and <parameter>src_dir</parameter>
-may not be underneath
-<parameter>variant_dir</parameter>.
+Note if <parameter>variant_dir</parameter>
+is not under the project top directory,
+target selection rules will not pick targets in the
+variant directory unless they are explicitly specified.
 </para>
 
 <para>
+When files in <parameter>variant_dir</parameter> are referenced,
+&SCons; backfills as needed with files from <parameter>src_dir</parameter>
+to create a complete build directory.
 By default, &SCons;
-physically duplicates the source files and SConscript files
-as needed into the variant tree.
-Thus, a build performed in the variant tree is guaranteed to be identical
-to a build performed in the source tree even if
+physically duplicates the source files, SConscript files,
+and directory structure as needed into the variant directory.
+Thus, a build performed in the variant directory is guaranteed to be identical
+to a build performed in the source directory even if
 intermediate source files are generated during the build,
 or if preprocessors or other scanners search for included files
-relative to the source file,
+using paths relative to the source file,
 or if individual compilers or other invoked tools are hard-coded
 to put derived files in the same directory as source files.
 Only the files &SCons; calculates are needed for the build are
 duplicated into <parameter>variant_dir</parameter>.
-</para>
-
-<para>
 If possible on the platform,
 the duplication is performed by linking rather than copying.
 This behavior is affected by the
@@ -3470,44 +3472,46 @@ to invoke Builders using the path names of source files in
 <parameter>src_dir</parameter>
 and the path names of derived files within
 <parameter>variant_dir</parameter>.
-This is more efficient than
-<literal>duplicate=True</literal>,
+This is more efficient than duplicating,
 and is safe for most builds;
-revert to <constant>True</constant>
+revert to <literal>duplicate=True</literal>
 if it causes problems.
 </para>
 
 <para>
 &f-VariantDir;
-works most naturally with used with a subsidiary SConscript file.
-The subsidiary SConscript file is called as if it
-were in
+works most naturally when used with a subsidiary SConscript file.
+The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
-This is how you tell
-&scons;
-which variant of a source tree to build:
+When calling an SConscript file, you can use the 
+<parameter>exports</parameter> keyword argument
+to pass parameters (individually or as an appropriately set up environment)
+so the SConscript can pick up the right settings for that variant build.
+The SConscript must &f-link-Import; these to use them. Example:
 </para>
 
 <example_commands>
+env1 = Environment(...settings for variant1...)
+env2 = Environment(...settings for variant2...)
+
 # run src/SConscript in two variant directories
 VariantDir('build/variant1', 'src')
-SConscript('build/variant1/SConscript')
+SConscript('build/variant1/SConscript', exports={"env": env1})
 VariantDir('build/variant2', 'src')
-SConscript('build/variant2/SConscript')
+SConscript('build/variant2/SConscript', exports={"env": env2})
 </example_commands>
 
 <para>
 See also the
-&f-link-SConscript;
-function, described above,
+&f-link-SConscript; function
 for another way to specify a variant directory
 in conjunction with calling a subsidiary SConscript file.
 </para>
 
 <para>
-Examples:
+More examples:
 </para>
 
 <example_commands>

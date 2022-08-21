@@ -32,6 +32,7 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_fortran_to_env
 
 compilers = ['f95', 'f90', 'f77']
 
+
 def generate(env):
     add_all_to_env(env)
     add_fortran_to_env(env)
@@ -40,6 +41,7 @@ def generate(env):
         env['FORTRAN'] = env.Detect(compilers) or 'f77'
     if 'SHFORTRAN' not in env:
         env['SHFORTRAN'] = '$FORTRAN'
+
 
 def exists(env):
     return env.Detect(compilers)

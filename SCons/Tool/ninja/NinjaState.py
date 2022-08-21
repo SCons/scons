@@ -29,6 +29,8 @@ import signal
 import tempfile
 import shutil
 import sys
+import random
+import filecmp
 from os.path import splitext
 from tempfile import NamedTemporaryFile
 import ninja
@@ -36,13 +38,13 @@ import hashlib
 
 import SCons
 from SCons.Script import COMMAND_LINE_TARGETS
-from SCons.Util import is_List
+from SCons.Util import wait_for_process_to_die
 from SCons.Errors import InternalError
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
-    NINJA_CUSTOM_HANDLERS
+    NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
 from .Utils import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
-    get_outputs, get_inputs, get_dependencies, get_rule, get_command_env, to_escaped_list
+    get_outputs, get_inputs, get_dependencies, get_rule, get_command_env, to_escaped_list, ninja_sorted_build
 from .Methods import get_command
 
 
@@ -68,7 +70,7 @@ class NinjaState:
                 # couldn't find it, just give the bin name and hope
                 # its in the path later
                 self.ninja_bin_path = ninja_bin
-
+        self.ninja_syntax = ninja_syntax
         self.writer_class = ninja_syntax.Writer
         self.__generated = False
         self.translator = SConsToNinjaTranslator(env)
@@ -77,17 +79,31 @@ class NinjaState:
         # List of generated builds that will be written at a later stage
         self.builds = dict()
 
-        # List of targets for which we have generated a build. This
-        # allows us to take multiple Alias nodes as sources and to not
-        # fail to build if they have overlapping targets.
-        self.built = set()
-
         # SCons sets this variable to a function which knows how to do
         # shell quoting on whatever platform it's run on. Here we use it
         # to make the SCONS_INVOCATION variable properly quoted for things
         # like CCFLAGS
         scons_escape = env.get("ESCAPE", lambda x: x)
-        scons_daemon_port = int(env.get('NINJA_SCONS_DAEMON_PORT',-1))
+
+        # The daemon port should be the same across runs, unless explicitly set
+        # or if the portfile is deleted. This ensures the ninja file is deterministic
+        # across regen's if nothings changed. The construction var should take preference,
+        # then portfile is next, and then otherwise create a new random port to persist in
+        # use.
+        scons_daemon_port = None
+        os.makedirs(get_path(self.env.get("NINJA_DIR")), exist_ok=True)
+        scons_daemon_port_file = str(pathlib.Path(get_path(self.env.get("NINJA_DIR"))) / "scons_daemon_portfile")
+
+        if env.get('NINJA_SCONS_DAEMON_PORT') is not None:
+            scons_daemon_port = int(env.get('NINJA_SCONS_DAEMON_PORT'))
+        elif os.path.exists(scons_daemon_port_file):
+            with open(scons_daemon_port_file) as f:
+                scons_daemon_port = int(f.read())
+        else:
+            scons_daemon_port = random.randint(10000, 60000)
+
+        with open(scons_daemon_port_file, 'w') as f:
+            f.write(str(scons_daemon_port))
 
         # if SCons was invoked from python, we expect the first arg to be the scons.py
         # script, otherwise scons was invoked from the scons script
@@ -96,6 +112,11 @@ class NinjaState:
             python_bin = ninja_syntax.escape(scons_escape(sys.executable))
         self.variables = {
             "COPY": "cmd.exe /c 1>NUL copy" if sys.platform == "win32" else "cp",
+            'PORT': scons_daemon_port,
+            'NINJA_DIR_PATH': env.get('NINJA_DIR').abspath,
+            'PYTHON_BIN': sys.executable,
+            'NINJA_TOOL_DIR': pathlib.Path(__file__).parent,
+            'NINJA_SCONS_DAEMON_KEEP_ALIVE': str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE')),
             "SCONS_INVOCATION": '{} {} --disable-ninja __NINJA_NO=1 $out'.format(
                 python_bin,
                 " ".join(
@@ -209,8 +230,14 @@ class NinjaState:
                 "restat": 1,
             },
             "TEMPLATE": {
-                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_daemon_build.py'} {scons_daemon_port} {get_path(env.get('NINJA_DIR'))} $out",
+                "command": "$PYTHON_BIN $NINJA_TOOL_DIR/ninja_daemon_build.py $PORT $NINJA_DIR_PATH $out",
                 "description": "Defer to SCons to build $out",
+                "pool": "local_pool",
+                "restat": 1
+            },
+            "EXIT_SCONS_DAEMON": {
+                "command": "$PYTHON_BIN $NINJA_TOOL_DIR/ninja_daemon_build.py $PORT $NINJA_DIR_PATH --exit",
+                "description": "Shutting down ninja scons daemon server",
                 "pool": "local_pool",
                 "restat": 1
             },
@@ -238,7 +265,7 @@ class NinjaState:
             },
 
             "SCONS_DAEMON": {
-                "command": f"{sys.executable} {pathlib.Path(__file__).parent / 'ninja_run_daemon.py'} {scons_daemon_port} {env.get('NINJA_DIR').abspath} {str(env.get('NINJA_SCONS_DAEMON_KEEP_ALIVE'))} $SCONS_INVOCATION",
+                "command": "$PYTHON_BIN $NINJA_TOOL_DIR/ninja_run_daemon.py $PORT $NINJA_DIR_PATH $NINJA_SCONS_DAEMON_KEEP_ALIVE $SCONS_INVOCATION",
                 "description": "Starting scons daemon...",
                 "pool": "local_pool",
                 # restat
@@ -317,7 +344,6 @@ class NinjaState:
             else:
                 raise InternalError("Node {} added to ninja build state more than once".format(node_string))
         self.builds[node_string] = build
-        self.built.update(build["outputs"])
         return True
 
     # TODO: rely on SCons to tell us what is generated source
@@ -361,8 +387,7 @@ class NinjaState:
                 self.rules[rule]["depfile"] = "$out.d"
             else:
                 raise Exception(f"Unknown 'NINJA_DEPFILE_PARSE_FORMAT'={self.env['NINJA_DEPFILE_PARSE_FORMAT']}, use 'mvsc', 'gcc', or 'clang'.")
-        
-        
+
         for key, rule in self.env.get(NINJA_RULES, {}).items():
             # make a non response file rule for users custom response file rules.
             if rule.get('rspfile') is not None:
@@ -374,7 +399,6 @@ class NinjaState:
             else:
                 self.rules.update({key: rule})
         
-        self.rules.update(self.env.get(NINJA_RULES, {}))
         self.pools.update(self.env.get(NINJA_POOLS, {}))
 
         content = io.StringIO()
@@ -384,13 +408,13 @@ class NinjaState:
 
         ninja.variable("builddir", get_path(self.env.Dir(self.env['NINJA_DIR']).path))
 
-        for pool_name, size in self.pools.items():
+        for pool_name, size in sorted(self.pools.items()):
             ninja.pool(pool_name, min(self.env.get('NINJA_MAX_JOBS', size), size))
 
-        for var, val in self.variables.items():
+        for var, val in sorted(self.variables.items()):
             ninja.variable(var, val)
 
-        for rule, kwargs in self.rules.items():
+        for rule, kwargs in sorted(self.rules.items()):
             if self.env.get('NINJA_MAX_JOBS') is not None and 'pool' not in kwargs:
                 kwargs['pool'] = 'local_pool'
             ninja.rule(rule, **kwargs)
@@ -451,9 +475,19 @@ class NinjaState:
         template_builders = []
         scons_compiledb = False
 
+        if SCons.Script._Get_Default_Targets == SCons.Script._Set_Default_Targets_Has_Not_Been_Called:
+            all_targets = set()
+        else:
+            all_targets = None
+
         for build in [self.builds[key] for key in sorted(self.builds.keys())]:
             if "compile_commands.json" in build["outputs"]:
                 scons_compiledb = True
+
+            # this is for the no command line targets, no SCons default case. We want this default
+            # to just be all real files in the build.
+            if all_targets is not None and build['rule'] != 'phony':
+                all_targets = all_targets | set(build["outputs"])
 
             if build["rule"] == "TEMPLATE":
                 template_builders.append(build)
@@ -522,8 +556,9 @@ class NinjaState:
                 )
 
                 if remaining_outputs:
-                    ninja.build(
-                        outputs=sorted(remaining_outputs), rule="phony", implicit=first_output,
+                    ninja_sorted_build(
+                        ninja,
+                        outputs=remaining_outputs, rule="phony", implicit=first_output,
                     )
 
                 build["outputs"] = first_output
@@ -541,12 +576,18 @@ class NinjaState:
             if "inputs" in build:
                 build["inputs"].sort()
 
-            ninja.build(**build)
+            ninja_sorted_build(
+                ninja,
+                **build
+            )
 
         scons_daemon_dirty = str(pathlib.Path(get_path(self.env.get("NINJA_DIR"))) / "scons_daemon_dirty")
         for template_builder in template_builders:
             template_builder["implicit"] += [scons_daemon_dirty]
-            ninja.build(**template_builder)
+            ninja_sorted_build(
+                ninja,
+                **template_builder
+            )
 
         # We have to glob the SCons files here to teach the ninja file
         # how to regenerate itself. We'll never see ourselves in the
@@ -556,17 +597,19 @@ class NinjaState:
         ninja_file_path = self.env.File(self.ninja_file).path
         regenerate_deps = to_escaped_list(self.env, self.env['NINJA_REGENERATE_DEPS'])
 
-        ninja.build(
-            ninja_file_path,
+        ninja_sorted_build(
+            ninja,
+            outputs=ninja_file_path,
             rule="REGENERATE",
             implicit=regenerate_deps,
             variables={
-                "self": ninja_file_path,
+                "self": ninja_file_path
             }
         )
 
-        ninja.build(
-            regenerate_deps,
+        ninja_sorted_build(
+            ninja,
+            outputs=regenerate_deps,
             rule="phony",
             variables={
                 "self": ninja_file_path,
@@ -577,8 +620,9 @@ class NinjaState:
             # If we ever change the name/s of the rules that include
             # compile commands (i.e. something like CC) we will need to
             # update this build to reflect that complete list.
-            ninja.build(
-                "compile_commands.json",
+            ninja_sorted_build(
+                ninja,
+                outputs="compile_commands.json",
                 rule="CMD",
                 pool="console",
                 implicit=[str(self.ninja_file)],
@@ -594,52 +638,71 @@ class NinjaState:
                 },
             )
 
-            ninja.build(
-                "compiledb", rule="phony", implicit=["compile_commands.json"],
+            ninja_sorted_build(
+                ninja,
+                outputs="compiledb", rule="phony", implicit=["compile_commands.json"],
             )
 
-        ninja.build(
-            ["run_ninja_scons_daemon_phony", scons_daemon_dirty],
+        ninja_sorted_build(
+            ninja,
+            outputs=["run_ninja_scons_daemon_phony", scons_daemon_dirty],
             rule="SCONS_DAEMON",
         )
 
-
-        daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
-        pidfile = None
-        if os.path.exists(scons_daemon_dirty):
-            pidfile = scons_daemon_dirty
-        elif os.path.exists(daemon_dir / 'pidfile'):
-            pidfile = daemon_dir / 'pidfile'
-
-        if pidfile:
-            with open(pidfile) as f:
-                pid = int(f.readline())
-                try:
-                    os.kill(pid, signal.SIGINT)
-                except OSError:
-                    pass
-
-        if os.path.exists(scons_daemon_dirty):
-            os.unlink(scons_daemon_dirty)
+        ninja.build(
+            "shutdown_ninja_scons_daemon_phony",
+            rule="EXIT_SCONS_DAEMON",
+        )
 
 
-        # Look in SCons's list of DEFAULT_TARGETS, find the ones that
-        # we generated a ninja build rule for.
-        scons_default_targets = [
-            get_path(tgt)
-            for tgt in SCons.Script.DEFAULT_TARGETS
-            if get_path(tgt) in self.built
-        ]
-
-        # If we found an overlap between SCons's list of default
-        # targets and the targets we created ninja builds for then use
-        # those as ninja's default as well.
-        if scons_default_targets:
-            ninja.default(" ".join(scons_default_targets))
+        if all_targets is None:
+            # Look in SCons's list of DEFAULT_TARGETS, find the ones that
+            # we generated a ninja build rule for.
+            all_targets = [str(node) for node in NINJA_DEFAULT_TARGETS]
+        else:
+            all_targets = list(all_targets)
+        
+        if len(all_targets) == 0:
+            all_targets = ["phony_default"]
+            ninja_sorted_build(
+                ninja,
+                outputs=all_targets,
+                rule="phony",
+            )
+        
+        ninja.default([self.ninja_syntax.escape_path(path) for path in sorted(all_targets)])
 
         with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
             temp_ninja_file.write(content.getvalue())
-        shutil.move(temp_ninja_file.name, ninja_file_path)
+
+        if self.env.GetOption('skip_ninja_regen') and os.path.exists(ninja_file_path) and filecmp.cmp(temp_ninja_file.name, ninja_file_path):
+            os.unlink(temp_ninja_file.name)
+        else:
+
+            daemon_dir = pathlib.Path(tempfile.gettempdir()) / ('scons_daemon_' + str(hashlib.md5(str(get_path(self.env["NINJA_DIR"])).encode()).hexdigest()))
+            pidfile = None
+            if os.path.exists(scons_daemon_dirty):
+                pidfile = scons_daemon_dirty
+            elif os.path.exists(daemon_dir / 'pidfile'):
+                pidfile = daemon_dir / 'pidfile'
+
+            if pidfile:
+                with open(pidfile) as f:
+                    pid = int(f.readline())
+                    try:
+                        os.kill(pid, signal.SIGINT)
+                    except OSError:
+                        pass
+
+                # wait for the server process to fully killed
+                # TODO: update wait_for_process_to_die() to handle timeout and then catch exception
+                #       here and do something smart.
+                wait_for_process_to_die(pid)
+
+            if os.path.exists(scons_daemon_dirty):
+                os.unlink(scons_daemon_dirty)
+
+            shutil.move(temp_ninja_file.name, ninja_file_path)
 
         self.__generated = True
 
@@ -809,6 +872,15 @@ class SConsToNinjaTranslator:
 
             # Remove all preceding and proceeding whitespace
             cmdline = cmdline.strip()
+            env = node.env if node.env else self.env
+            executor = node.get_executor()
+            if executor is not None:
+                targets = executor.get_all_targets()
+            else:
+                if hasattr(node, "target_peers"):
+                    targets = node.target_peers
+                else:
+                    targets = [node]
 
             # Make sure we didn't generate an empty cmdline
             if cmdline:
@@ -817,7 +889,7 @@ class SConsToNinjaTranslator:
                     "rule": get_rule(node, "GENERATED_CMD"),
                     "variables": {
                         "cmd": cmdline,
-                        "env": get_command_env(node.env if node.env else self.env),
+                        "env": get_command_env(env, targets, node.sources),
                     },
                     "implicit": dependencies,
                 }

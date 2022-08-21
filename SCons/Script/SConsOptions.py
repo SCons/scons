@@ -147,11 +147,12 @@ class SConsValues(optparse.Values):
         'warn',
 
         # TODO: Remove these once we update the AddOption() API to allow setting
-        #       added flag as setable.
-        # Requested setable flag in : https://github.com/SCons/scons/issues/3983
+        #       added flag as settable.
+        # Requested settable flag in : https://github.com/SCons/scons/issues/3983
         # From experimental ninja
         'disable_execute_ninja',
-        'disable_ninja'
+        'disable_ninja',
+        'skip_ninja_regen'
     ]
 
     def set_option(self, name, value):
@@ -288,14 +289,36 @@ class SConsOptionGroup(optparse.OptionGroup):
         return result
 
 
+class SConsBadOptionError(optparse.BadOptionError):
+    """Exception used to indicate that invalid command line options were specified
+
+    :ivar str opt_str: The offending option specified on command line which is not recognized
+    :ivar OptionParser parser: The active argument parser
+
+    """
+
+    def __init__(self, opt_str, parser=None):
+        self.opt_str = opt_str
+        self.parser = parser
+
+    def __str__(self):
+        return _("no such option: %s") % self.opt_str
+
+
 class SConsOptionParser(optparse.OptionParser):
     preserve_unknown_options = False
+    raise_exception_on_error = False
 
     def error(self, msg):
-        # overridden OptionValueError exception handler
-        self.print_usage(sys.stderr)
-        sys.stderr.write("SCons Error: %s\n" % msg)
-        sys.exit(2)
+        """
+        overridden OptionValueError exception handler
+        """
+        if self.raise_exception_on_error:
+            raise SConsBadOptionError(msg, self)
+        else:
+            self.print_usage(sys.stderr)
+            sys.stderr.write("SCons Error: %s\n" % msg)
+            sys.exit(2)
 
     def _process_long_opt(self, rargs, values):
         """ SCons-specific processing of long options.

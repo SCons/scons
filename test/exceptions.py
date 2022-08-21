@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
 
@@ -37,16 +36,17 @@ SConstruct_path = test.workpath('SConstruct')
 test.write(SConstruct_path, """\
 def func(source = None, target = None, env = None):
     raise Exception("func exception")
-B = Builder(action = func)
-env = Environment(BUILDERS = { 'B' : B })
-env.B(target = 'foo.out', source = 'foo.in')
+B = Builder(action=func)
+env = Environment(BUILDERS={'B': B})
+env.B(target='foo.out', source='foo.in')
 """)
 
 test.write('foo.in', "foo.in\n")
 
 expected_stderr = r"""scons: \*\*\* \[foo.out\] Exception : func exception
-Traceback \((most recent call|innermost) last\):
+Traceback \(most recent call last\):
 (  File ".+", line \d+, in \S+
+    [^\n]+
     [^\n]+
 )*(  File ".+", line \d+, in \S+
 )*(  File ".+", line \d+, in \S+
@@ -56,10 +56,8 @@ Traceback \((most recent call|innermost) last\):
 Exception: func exception
 """ % re.escape(SConstruct_path)
 
-test.run(arguments = "foo.out", stderr = expected_stderr, status = 2)
-
-test.run(arguments = "-j2 foo.out", stderr = expected_stderr, status = 2)
-
+test.run(arguments="foo.out", stderr=expected_stderr, status=2)
+test.run(arguments="-j2 foo.out", stderr=expected_stderr, status=2)
 
 # Verify that exceptions caused by exit values of builder actions are
 # correctly signalled, for both Serial and Parallel jobs.
@@ -70,29 +68,28 @@ sys.exit(1)
 """)
 
 test.write(SConstruct_path, """
-Fail = Builder(action = r'%(_python_)s myfail.py $TARGETS $SOURCE')
-env = Environment(BUILDERS = { 'Fail' : Fail })
-env.Fail(target = 'out.f1', source = 'in.f1')
+Fail = Builder(action=r'%(_python_)s myfail.py $TARGETS $SOURCE')
+env = Environment(BUILDERS={'Fail': Fail})
+env.Fail(target='out.f1', source='in.f1')
 """ % locals())
 
 test.write('in.f1', "in.f1\n")
 
 expected_stderr = "scons: \\*\\*\\* \\[out.f1\\] Error 1\n"
 
-test.run(arguments = '.', status = 2, stderr = expected_stderr)
-test.run(arguments = '-j2 .', status = 2, stderr = expected_stderr)
-
+test.run(arguments='.', status=2, stderr=expected_stderr)
+test.run(arguments='-j2 .', status=2, stderr=expected_stderr)
 
 # Verify that all exceptions from simultaneous tasks are reported,
 # even if the exception is raised during the Task.prepare()
 # [Node.prepare()]
 
 test.write(SConstruct_path, """
-Fail = Builder(action = r'%(_python_)s myfail.py $TARGETS $SOURCE')
-env = Environment(BUILDERS = { 'Fail' : Fail })
-env.Fail(target = 'out.f1', source = 'in.f1')
-env.Fail(target = 'out.f2', source = 'in.f2')
-env.Fail(target = 'out.f3', source = 'in.f3')
+Fail = Builder(action=r'%(_python_)s myfail.py $TARGETS $SOURCE')
+env = Environment(BUILDERS={'Fail': Fail})
+env.Fail(target='out.f1', source='in.f1')
+env.Fail(target='out.f2', source='in.f2')
+env.Fail(target='out.f3', source='in.f3')
 """ % locals())
 
 # in.f2 is not created to cause a Task.prepare exception
@@ -100,7 +97,7 @@ test.write('in.f1', 'in.f1\n')
 test.write('in.f3', 'in.f3\n')
 
 # In Serial task mode, get the first exception and stop
-test.run(arguments = '.', status = 2, stderr = expected_stderr)
+test.run(arguments='.', status=2, stderr=expected_stderr)
 
 # In Parallel task mode, we will get all three exceptions.
 
@@ -117,10 +114,8 @@ expected_stderr_list = [
 # walk of '.' and are already considered up-to-date when we kick off the
 # "simultaneous" builds of the output (target) files.
 
-test.run(arguments = '-j7 -k .', status = 2, stderr = None)
-
+test.run(arguments='-j7 -k .', status=2, stderr=None)
 test.must_contain_all_lines(test.stderr(), expected_stderr_list)
-
 
 test.pass_test()
 

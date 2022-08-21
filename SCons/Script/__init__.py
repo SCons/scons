@@ -107,6 +107,7 @@ AddOption               = Main.AddOption
 PrintHelp               = Main.PrintHelp
 GetOption               = Main.GetOption
 SetOption               = Main.SetOption
+ValidateOptions         = Main.ValidateOptions
 Progress                = Main.Progress
 GetBuildFailures        = Main.GetBuildFailures
 

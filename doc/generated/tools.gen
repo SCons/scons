@@ -82,14 +82,14 @@ Sets construction variables for the bcc32 compiler.
     <listitem><para>
 Sets construction variables for generic POSIX C compilers.
 </para>
-<para>Sets: &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-PLATFORM;, &cv-link-SHCCCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-FRAMEWORKPATH;, &cv-link-FRAMEWORKS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-PLATFORM;, &cv-link-SHCCCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-clang">
     <term>clang</term>
     <listitem><para>
 Set construction variables for the Clang C compiler.
 </para>
-<para>Sets: &cv-link-CC;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
+<para>Sets: &cv-link-CC;, &cv-link-CCDEPFLAGS;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-clangxx">
     <term>clangxx</term>
@@ -389,42 +389,42 @@ Sets construction variables for the dvips utility.
     <listitem><para>
 Set construction variables for generic POSIX Fortran 03 compilers.
 </para>
-<para>Sets: &cv-link-F03;, &cv-link-F03COM;, &cv-link-F03FLAGS;, &cv-link-F03PPCOM;, &cv-link-SHF03;, &cv-link-SHF03COM;, &cv-link-SHF03FLAGS;, &cv-link-SHF03PPCOM;, &cv-link-_F03INCFLAGS;.</para><para>Uses: &cv-link-F03COMSTR;, &cv-link-F03PPCOMSTR;, &cv-link-SHF03COMSTR;, &cv-link-SHF03PPCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-F03;, &cv-link-F03COM;, &cv-link-F03FLAGS;, &cv-link-F03PPCOM;, &cv-link-SHF03;, &cv-link-SHF03COM;, &cv-link-SHF03FLAGS;, &cv-link-SHF03PPCOM;, &cv-link-_F03INCFLAGS;.</para><para>Uses: &cv-link-F03COMSTR;, &cv-link-F03PPCOMSTR;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-SHF03COMSTR;, &cv-link-SHF03PPCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-f08">
     <term>f08</term>
     <listitem><para>
 Set construction variables for generic POSIX Fortran 08 compilers.
 </para>
-<para>Sets: &cv-link-F08;, &cv-link-F08COM;, &cv-link-F08FLAGS;, &cv-link-F08PPCOM;, &cv-link-SHF08;, &cv-link-SHF08COM;, &cv-link-SHF08FLAGS;, &cv-link-SHF08PPCOM;, &cv-link-_F08INCFLAGS;.</para><para>Uses: &cv-link-F08COMSTR;, &cv-link-F08PPCOMSTR;, &cv-link-SHF08COMSTR;, &cv-link-SHF08PPCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-F08;, &cv-link-F08COM;, &cv-link-F08FLAGS;, &cv-link-F08PPCOM;, &cv-link-SHF08;, &cv-link-SHF08COM;, &cv-link-SHF08FLAGS;, &cv-link-SHF08PPCOM;, &cv-link-_F08INCFLAGS;.</para><para>Uses: &cv-link-F08COMSTR;, &cv-link-F08PPCOMSTR;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-SHF08COMSTR;, &cv-link-SHF08PPCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-f77">
     <term>f77</term>
     <listitem><para>
 Set construction variables for generic POSIX Fortran 77 compilers.
 </para>
-<para>Sets: &cv-link-F77;, &cv-link-F77COM;, &cv-link-F77FILESUFFIXES;, &cv-link-F77FLAGS;, &cv-link-F77PPCOM;, &cv-link-F77PPFILESUFFIXES;, &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHF77;, &cv-link-SHF77COM;, &cv-link-SHF77FLAGS;, &cv-link-SHF77PPCOM;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;, &cv-link-_F77INCFLAGS;.</para><para>Uses: &cv-link-F77COMSTR;, &cv-link-F77PPCOMSTR;, &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHF77COMSTR;, &cv-link-SHF77PPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANPPCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-F77;, &cv-link-F77COM;, &cv-link-F77FILESUFFIXES;, &cv-link-F77FLAGS;, &cv-link-F77PPCOM;, &cv-link-F77PPFILESUFFIXES;, &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHF77;, &cv-link-SHF77COM;, &cv-link-SHF77FLAGS;, &cv-link-SHF77PPCOM;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;, &cv-link-_F77INCFLAGS;.</para><para>Uses: &cv-link-F77COMSTR;, &cv-link-F77PPCOMSTR;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANFLAGS;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHF77COMSTR;, &cv-link-SHF77PPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-f90">
     <term>f90</term>
     <listitem><para>
 Set construction variables for generic POSIX Fortran 90 compilers.
 </para>
-<para>Sets: &cv-link-F90;, &cv-link-F90COM;, &cv-link-F90FLAGS;, &cv-link-F90PPCOM;, &cv-link-SHF90;, &cv-link-SHF90COM;, &cv-link-SHF90FLAGS;, &cv-link-SHF90PPCOM;, &cv-link-_F90INCFLAGS;.</para><para>Uses: &cv-link-F90COMSTR;, &cv-link-F90PPCOMSTR;, &cv-link-SHF90COMSTR;, &cv-link-SHF90PPCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-F90;, &cv-link-F90COM;, &cv-link-F90FLAGS;, &cv-link-F90PPCOM;, &cv-link-SHF90;, &cv-link-SHF90COM;, &cv-link-SHF90FLAGS;, &cv-link-SHF90PPCOM;, &cv-link-_F90INCFLAGS;.</para><para>Uses: &cv-link-F90COMSTR;, &cv-link-F90PPCOMSTR;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-SHF90COMSTR;, &cv-link-SHF90PPCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-f95">
     <term>f95</term>
     <listitem><para>
 Set construction variables for generic POSIX Fortran 95 compilers.
 </para>
-<para>Sets: &cv-link-F95;, &cv-link-F95COM;, &cv-link-F95FLAGS;, &cv-link-F95PPCOM;, &cv-link-SHF95;, &cv-link-SHF95COM;, &cv-link-SHF95FLAGS;, &cv-link-SHF95PPCOM;, &cv-link-_F95INCFLAGS;.</para><para>Uses: &cv-link-F95COMSTR;, &cv-link-F95PPCOMSTR;, &cv-link-SHF95COMSTR;, &cv-link-SHF95PPCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-F95;, &cv-link-F95COM;, &cv-link-F95FLAGS;, &cv-link-F95PPCOM;, &cv-link-SHF95;, &cv-link-SHF95COM;, &cv-link-SHF95FLAGS;, &cv-link-SHF95PPCOM;, &cv-link-_F95INCFLAGS;.</para><para>Uses: &cv-link-F95COMSTR;, &cv-link-F95PPCOMSTR;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-SHF95COMSTR;, &cv-link-SHF95PPCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-fortran">
     <term>fortran</term>
     <listitem><para>
-Set construction variables for generic POSIX Fortran compilers.
+Set &consvars; for generic POSIX Fortran compilers.
 </para>
-<para>Sets: &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses: &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANPPCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANFLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses: &cv-link-CPPFLAGS;, &cv-link-FORTRANCOMSTR;, &cv-link-FORTRANPPCOMSTR;, &cv-link-SHFORTRANCOMSTR;, &cv-link-SHFORTRANPPCOMSTR;, &cv-link-_CPPDEFFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gXX">
     <term>g++</term>
@@ -437,10 +437,8 @@ Set construction variables for the &gXX; C++ compiler.
     <term>g77</term>
     <listitem><para>
 Set construction variables for the &g77; Fortran compiler.
-Calls the &t-f77; Tool module
-to set variables.
 </para>
-</listitem>
+<para>Sets: &cv-link-F77;, &cv-link-F77COM;, &cv-link-F77FILESUFFIXES;, &cv-link-F77PPCOM;, &cv-link-F77PPFILESUFFIXES;, &cv-link-FORTRAN;, &cv-link-FORTRANCOM;, &cv-link-FORTRANPPCOM;, &cv-link-SHF77;, &cv-link-SHF77COM;, &cv-link-SHF77FLAGS;, &cv-link-SHF77PPCOM;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANCOM;, &cv-link-SHFORTRANFLAGS;, &cv-link-SHFORTRANPPCOM;.</para><para>Uses: &cv-link-F77FLAGS;, &cv-link-FORTRANCOMMONFLAGS;, &cv-link-FORTRANFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gas">
     <term>gas</term>
@@ -455,7 +453,7 @@ Calls the &t-link-as; tool.
     <listitem><para>
 Set construction variables for the &gcc; C compiler.
 </para>
-<para>Sets: &cv-link-CC;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
+<para>Sets: &cv-link-CC;, &cv-link-CCDEPFLAGS;, &cv-link-CCVERSION;, &cv-link-SHCCFLAGS;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-gdc">
     <term>gdc</term>
@@ -516,7 +514,8 @@ environment:
   <varlistentry id="t-gfortran">
     <term>gfortran</term>
     <listitem><para>
-Sets construction variables for the GNU F95/F2003 GNU compiler.
+Sets construction variables for the GNU Fortran compiler.
+Calls the &t-link-fortran; Tool module to set variables.
 </para>
 <para>Sets: &cv-link-F77;, &cv-link-F90;, &cv-link-F95;, &cv-link-FORTRAN;, &cv-link-SHF77;, &cv-link-SHF77FLAGS;, &cv-link-SHF90;, &cv-link-SHF90FLAGS;, &cv-link-SHF95;, &cv-link-SHF95FLAGS;, &cv-link-SHFORTRAN;, &cv-link-SHFORTRANFLAGS;.</para></listitem>
   </varlistentry>
@@ -668,7 +667,7 @@ Sets construction variables for the D language compiler LDC2.
     <listitem><para>
 Sets construction variables for the &lex; lexical analyser.
 </para>
-<para>Sets: &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;, &cv-link-LEXUNISTD;.</para><para>Uses: &cv-link-LEXCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-LEX;, &cv-link-LEXCOM;, &cv-link-LEXFLAGS;, &cv-link-LEXUNISTD;.</para><para>Uses: &cv-link-LEXCOMSTR;, &cv-link-LEXFLAGS;, &cv-link-LEX_HEADER_FILE;, &cv-link-LEX_TABLES_FILE;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-link">
     <term>link</term>
@@ -782,7 +781,7 @@ the Microsoft toolchain:
     <listitem><para>
 Sets construction variables for the Microsoft Visual C/C++ compiler.
 </para>
-<para>Sets: &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-MSVC_NOTFOUND_POLICY;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msvs">
     <term>msvs</term>
@@ -814,15 +813,15 @@ Sets construction variables for the
   <varlistentry id="t-ninja">
     <term>ninja</term>
     <listitem><para>
-                Sets up &b-link-Ninja; builder which generates a ninja build file, and then optionally runs &ninja;.
+                Sets up the &b-link-Ninja; builder, which generates a &ninja; build file, and then optionally runs &ninja;.
             </para>
             <note>
                 <para>This is an experimental feature.
+                    This functionality is subject to change and/or removal without a deprecation cycle.
                 </para>
-                <para>This functionality is subject to change and/or removal without deprecation cycle.</para>
             </note>
 
-        <para>Sets: &cv-link-IMPLICIT_COMMAND_DEPENDENCIES;, &cv-link-NINJA_ALIAS_NAME;, &cv-link-NINJA_COMPDB_EXPAND;, &cv-link-NINJA_DIR;, &cv-link-NINJA_DISABLE_AUTO_RUN;, &cv-link-NINJA_ENV_VAR_CACHE;, &cv-link-NINJA_FILE_NAME;, &cv-link-NINJA_FORCE_SCONS_BUILD;, &cv-link-NINJA_GENERATED_SOURCE_SUFFIXES;, &cv-link-NINJA_MSVC_DEPS_PREFIX;, &cv-link-NINJA_POOL;, &cv-link-NINJA_REGENERATE_DEPS;, &cv-link-NINJA_SYNTAX;, &cv-link-_NINJA_REGENERATE_DEPS_FUNC;, &cv-link-__NINJA_NO;.</para><para>Uses: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCFLAGS;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-ESCAPE;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-PLATFORM;, &cv-link-PRINT_CMD_LINE_FUNC;, &cv-link-PROGSUFFIX;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-SHCCCOM;, &cv-link-SHCXXCOM;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;.</para></listitem>
+        <para>Sets: &cv-link-IMPLICIT_COMMAND_DEPENDENCIES;, &cv-link-NINJA_ALIAS_NAME;, &cv-link-NINJA_CMD_ARGS;, &cv-link-NINJA_COMPDB_EXPAND;, &cv-link-NINJA_DEPFILE_PARSE_FORMAT;, &cv-link-NINJA_DIR;, &cv-link-NINJA_DISABLE_AUTO_RUN;, &cv-link-NINJA_ENV_VAR_CACHE;, &cv-link-NINJA_FILE_NAME;, &cv-link-NINJA_FORCE_SCONS_BUILD;, &cv-link-NINJA_GENERATED_SOURCE_ALIAS_NAME;, &cv-link-NINJA_GENERATED_SOURCE_SUFFIXES;, &cv-link-NINJA_MSVC_DEPS_PREFIX;, &cv-link-NINJA_POOL;, &cv-link-NINJA_REGENERATE_DEPS;, &cv-link-NINJA_SCONS_DAEMON_KEEP_ALIVE;, &cv-link-NINJA_SCONS_DAEMON_PORT;, &cv-link-NINJA_SYNTAX;, &cv-link-_NINJA_REGENERATE_DEPS_FUNC;.</para><para>Uses: &cv-link-AR;, &cv-link-ARCOM;, &cv-link-ARFLAGS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-ESCAPE;, &cv-link-LINK;, &cv-link-LINKCOM;, &cv-link-PLATFORM;, &cv-link-PRINT_CMD_LINE_FUNC;, &cv-link-PROGSUFFIX;, &cv-link-RANLIB;, &cv-link-RANLIBCOM;, &cv-link-SHCCCOM;, &cv-link-SHCXXCOM;, &cv-link-SHLINK;, &cv-link-SHLINKCOM;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-packaging">
     <term>packaging</term>
@@ -1049,7 +1048,7 @@ Sets construction variables for the Sun linker.
   <varlistentry id="t-swig">
     <term>swig</term>
     <listitem><para>
-Sets construction variables for the SWIG interface generator.
+Sets construction variables for the &swig; interface compiler.
 </para>
 <para>Sets: &cv-link-SWIG;, &cv-link-SWIGCFILESUFFIX;, &cv-link-SWIGCOM;, &cv-link-SWIGCXXFILESUFFIX;, &cv-link-SWIGDIRECTORSUFFIX;, &cv-link-SWIGFLAGS;, &cv-link-SWIGINCPREFIX;, &cv-link-SWIGINCSUFFIX;, &cv-link-SWIGPATH;, &cv-link-SWIGVERSION;, &cv-link-_SWIGINCFLAGS;.</para><para>Uses: &cv-link-SWIGCOMSTR;.</para></listitem>
   </varlistentry>
@@ -1098,7 +1097,7 @@ provides &b-POTUpdate; builder to make  <literal>PO</literal>
     <listitem><para>
 Sets construction variables for the &yacc; parse generator.
 </para>
-<para>Sets: &cv-link-YACC;, &cv-link-YACCCOM;, &cv-link-YACCFLAGS;, &cv-link-YACCHFILESUFFIX;, &cv-link-YACCHXXFILESUFFIX;, &cv-link-YACCVCGFILESUFFIX;.</para><para>Uses: &cv-link-YACCCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-YACC;, &cv-link-YACCCOM;, &cv-link-YACCFLAGS;, &cv-link-YACCHFILESUFFIX;, &cv-link-YACCHXXFILESUFFIX;, &cv-link-YACCVCGFILESUFFIX;.</para><para>Uses: &cv-link-YACCCOMSTR;, &cv-link-YACCFLAGS;, &cv-link-YACC_GRAPH_FILE;, &cv-link-YACC_HEADER_FILE;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-zip">
     <term>zip</term>

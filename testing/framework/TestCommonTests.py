@@ -27,6 +27,7 @@ import re
 import signal
 import sys
 import unittest
+from textwrap import dedent
 
 # Strip the current directory so we get the right TestCommon.py module.
 sys.path = sys.path[1:]
@@ -34,15 +35,9 @@ sys.path = sys.path[1:]
 import TestCmd
 import TestCommon
 
+# this used to be a custom function, now use the stdlib equivalent
 def lstrip(s):
-    lines = [ _.expandtabs() for _ in s.split('\n') ]
-    if lines[0] == '':
-        lines = lines[1:]
-    spaces = len(re.match('^( *).*', lines[0]).group(1))
-    if spaces:
-        lines = [ l[spaces:] for l in lines ]
-    return '\n'.join(lines)
-
+    return dedent(s)
 
 expected_newline = '\\n'
 
@@ -52,17 +47,16 @@ def assert_display(expect, result, error=None):
         expect = expect.pattern
     except AttributeError:
         pass
-    result = [
+    display = [
         '\n',
-        'EXPECTED'+('*'*80) + '\n',
+        f'{"EXPECTED: " :*<80}' + '\n',
         expect,
-        'GOT'+('*'*80) + '\n',
+        f'{"GOT: " :*<80}' + '\n',
         result,
+        error if error else '',
         ('*'*80) + '\n',
     ]
-    if error:
-        result.append(error)
-    return ''.join(result)
+    return ''.join(display)
 
 
 class TestCommonTestCase(unittest.TestCase):
@@ -1840,7 +1834,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -1868,7 +1862,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1897,7 +1891,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1929,8 +1923,8 @@ class run_TestCase(TestCommonTestCase):
         def raise_exception(*args, **kw):
             raise TypeError("forced TypeError")
         TestCmd.TestCmd.start = raise_exception
-        tc = TestCommon(program='%(pass_script)s',
-                        interpreter='%(python)s',
+        tc = TestCommon(program=r'%(pass_script)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1943,7 +1937,7 @@ class run_TestCase(TestCommonTestCase):
 
         expect_stderr = lstrip("""\
         Exception trying to execute: \\[%s, '[^']*pass'\\]
-        Traceback \\((innermost|most recent call) last\\):
+        Traceback \\(most recent call last\\):
           File "<stdin>", line \\d+, in (\\?|<module>)
           File "[^"]+TestCommon.py", line \\d+, in run
             TestCmd.run\\(self, \\*\\*kw\\)
@@ -1966,7 +1960,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stderr = None)
         """)
@@ -1980,7 +1974,7 @@ class run_TestCase(TestCommonTestCase):
         def my_match_exact(actual, expect): return actual == expect
         from TestCommon import TestCommon, match_re_dotall
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_re_dotall)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -1997,7 +1991,7 @@ class run_TestCase(TestCommonTestCase):
         def my_match_exact(actual, expect): return actual == expect
         from TestCommon import TestCommon, match_re_dotall
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_re_dotall)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -2013,7 +2007,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 1)
         """)
@@ -2026,7 +2020,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(stdout = r"%(pass_script)s:  STDOUT:  []" + "\\n")
@@ -2040,7 +2034,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(stderr = r"%(stderr_script)s:  STDERR:  []" + "\\n")
@@ -2054,7 +2048,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 1)
         """)
@@ -2084,7 +2078,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 2)
         """)
@@ -2114,7 +2108,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stdout = "Not found\\n")
         """)
@@ -2146,7 +2140,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stderr = "Not found\\n")
         """)
@@ -2180,7 +2174,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(options = "opt1 opt2 opt3",
@@ -2195,7 +2189,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(options = "opt1 opt2 opt3",
@@ -2217,7 +2211,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(signal_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -2249,7 +2243,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(stdin_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='',
                         match=match_exact)
         expect_stdout = r"%(stdin_script)s:  STDOUT:  'input'" + "\\n"
@@ -2277,7 +2271,7 @@ class start_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         p = tc.start(options = "opt1 opt2 opt3")
@@ -2293,7 +2287,7 @@ class start_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         p = tc.start(options = "opt1 opt2 opt3",
@@ -2429,8 +2423,10 @@ if __name__ == "__main__":
     ]
     suite = unittest.TestSuite()
     for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests([ tclass(n) for n in names ])
+        loader = unittest.TestLoader()
+        loader.testMethodPrefix = 'test_'
+        names = loader.getTestCaseNames(tclass)
+        suite.addTests([tclass(n) for n in names])
     if not unittest.TextTestRunner().run(suite).wasSuccessful():
         sys.exit(1)
 
