@@ -38,7 +38,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    #'sphinx_rtd_theme',
     'rst2pdf.pdfbuilder',
 ]
 
