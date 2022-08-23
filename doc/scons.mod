@@ -453,6 +453,7 @@
 <!ENTITY contentsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signature</phrase>">
 <!ENTITY contentsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signatures</phrase>">
 <!ENTITY buildsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</phrase>">
+<!ENTITY buildsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build signatures</phrase>">
 
 <!ENTITY true "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>true</literal>">
 <!ENTITY false "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>false</literal>">
