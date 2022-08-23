@@ -1218,18 +1218,18 @@ to use the specified algorithm.</para>
 <para>If this option is omitted,
 the first supported hash format found is selected.
 Typically this is MD5, however, on a FIPS-compliant system
-using a version of Python less than 3.9,
-SHA1 or SHA256 will be chosen as the default.
-Python 3.9 and onwards clients will always default to MD5, even in FIPS mode.
+using a version of Python older than 3.9,
+SHA1 or SHA256 is chosen as the default.
+Python 3.9 and onwards clients always default to MD5, even in FIPS mode.
 </para>
 
 <para>Specifying this option changes the name of the SConsign database.
-The default database is <filename>.sconsign.dblite</filename>;
-in the presence of this option,
-<replaceable>ALGORITHM</replaceable> will
+The default database is <filename>.sconsign.dblite</filename>.
+In the presence of this option,
+<replaceable>ALGORITHM</replaceable> is
 be included in the name to indicate the difference,
 even if the argument is <parameter>md5</parameter>.
-For example, <option>--hash-format=sha256</option> will create a SConsign
+For example, <option>--hash-format=sha256</option> uses a SConsign
 database named <filename>.sconsign_sha256.dblite</filename>.
 </para>
 
