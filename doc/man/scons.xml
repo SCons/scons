@@ -1227,7 +1227,7 @@ Python 3.9 and onwards clients always default to MD5, even in FIPS mode.
 The default database is <filename>.sconsign.dblite</filename>.
 In the presence of this option,
 <replaceable>ALGORITHM</replaceable> is
-be included in the name to indicate the difference,
+included in the name to indicate the difference,
 even if the argument is <parameter>md5</parameter>.
 For example, <option>--hash-format=sha256</option> uses a SConsign
 database named <filename>.sconsign_sha256.dblite</filename>.
