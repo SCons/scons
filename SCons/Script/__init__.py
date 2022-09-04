@@ -126,8 +126,7 @@ GetBuildFailures        = Main.GetBuildFailures
 #profiling               = Main.profiling
 #repositories            = Main.repositories
 
-from . import SConscript
-_SConscript = SConscript
+from . import SConscript as _SConscript
 
 call_stack              = _SConscript.call_stack
 
