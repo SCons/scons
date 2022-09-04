@@ -507,7 +507,8 @@ class SConsEnvironment(SCons.Environment.Base):
                   (scons_ver_string, SCons.__version__))
             sys.exit(2)
 
-    def EnsurePythonVersion(self, major, minor):
+    @staticmethod
+    def EnsurePythonVersion(major, minor):
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]

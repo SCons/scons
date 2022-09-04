@@ -291,13 +291,13 @@ def Variables(files=None, args=ARGUMENTS):
 #
 # Static functions that do not use state in DefaultEnvironment().
 EnsureSConsVersion = _SConscript.SConsEnvironment.EnsureSConsVersion
+EnsurePythonVersion = _SConscript.SConsEnvironment.EnsurePythonVersion
 
 # Functions that end up calling methods or Builders in the
 # DefaultEnvironment().
 GlobalDefaultEnvironmentFunctions = [
     # Methods from the SConsEnvironment class, above.
     'Default',
-    'EnsurePythonVersion',
     'Exit',
     'Export',
     'GetLaunchDir',
