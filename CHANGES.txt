@@ -9,7 +9,7 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Anatoli Babenia
+  From Anatoli Babenia:
     - Do not initialize DefaultEnvironment when calling EnsureSConsVersion() and
       EnsurePythonVersion().
 
@@ -21,10 +21,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
 
-  From Flaviu Tamas
+  From Flaviu Tamas:
     - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
 
-  From Ryan Saunders
+  From Ryan Saunders:
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
