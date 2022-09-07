@@ -29,6 +29,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
 - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
+- Calling EnsureSConsVersion() and EnsurePythonVersion() won't initialize
+  DefaultEnvironment anymore.
 
 FIXES
 -----
