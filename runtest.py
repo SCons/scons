@@ -22,7 +22,6 @@ performs test discovery and processes tests according to options.
 import argparse
 import glob
 import os
-import re
 import stat
 import subprocess
 import sys
@@ -311,15 +310,6 @@ if sys.platform == 'win32':
         return buf.value
 
 
-_ws = re.compile(r'\s')
-
-def escape(s):
-    if _ws.search(s):
-        s = '"' + s + '"'
-    s = s.replace('\\', '\\\\')
-    return s
-
-
 if not catch_output:
     # Without any output suppressed, we let the subprocess
     # write its stuff freely to stdout/stderr.
@@ -432,8 +422,7 @@ class PopenExecutor(RuntestBase):
 
     A bit of a misnomer as the Popen call is now wrapped
     by calling subprocess.run (behind the covers uses Popen.
-    Very similar to SystemExecutor, but uses command_str
-    instead of command_args, and doesn't allow for not catching
+    Very similar to SystemExecutor, but doesn't allow for not catching
     the output).
     """
     # For an explanation of the following 'if ... else'
@@ -447,7 +436,7 @@ class PopenExecutor(RuntestBase):
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
             # Start subprocess...
             cp = subprocess.run(
-                self.command_str.split(),
+                self.command_args,
                 stdout=tmp_stdout,
                 stderr=tmp_stderr,
                 shell=False,
@@ -470,7 +459,7 @@ class PopenExecutor(RuntestBase):
 
         def execute(self, env):
             cp = subprocess.run(
-                self.command_str.split(),
+                self.command_args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=False,
@@ -784,7 +773,7 @@ def run_test(t, io_lock=None, run_async=True):
     if args.runner and t.path in unittests:
         # For example --runner TestUnit.TAPTestRunner
         command_args.append('--runner ' + args.runner)
-    t.command_args = [escape(args.python)] + command_args
+    t.command_args = [args.python] + command_args
     t.command_str = " ".join(t.command_args)
     if args.printcommand:
         if args.print_progress:
