@@ -84,6 +84,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>subst</function>">
 <!ENTITY f-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tag</function>">
 <!ENTITY f-Tool "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Tool</function>">
+<!ENTITY f-ValidateOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>ValidateOptions</function>">
 <!ENTITY f-Value "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Value</function>">
 <!ENTITY f-VariantDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>VariantDir</function>">
 <!ENTITY f-WhereIs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>WhereIs</function>">
@@ -164,6 +165,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-subst "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.subst</function>">
 <!ENTITY f-env-Tag "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Tag</function>">
 <!ENTITY f-env-Tool "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Tool</function>">
+<!ENTITY f-env-ValidateOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.ValidateOptions</function>">
 <!ENTITY f-env-Value "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Value</function>">
 <!ENTITY f-env-VariantDir "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.VariantDir</function>">
 <!ENTITY f-env-WhereIs "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.WhereIs</function>">
@@ -250,6 +252,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>subst</function></link>">
 <!ENTITY f-link-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Tag</function></link>">
 <!ENTITY f-link-Tool "<link linkend='f-Tool' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Tool</function></link>">
+<!ENTITY f-link-ValidateOptions "<link linkend='f-ValidateOptions' xmlns='http://www.scons.org/dbxsd/v1.0'><function>ValidateOptions</function></link>">
 <!ENTITY f-link-Value "<link linkend='f-Value' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Value</function></link>">
 <!ENTITY f-link-VariantDir "<link linkend='f-VariantDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>VariantDir</function></link>">
 <!ENTITY f-link-WhereIs "<link linkend='f-WhereIs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>WhereIs</function></link>">
@@ -330,6 +333,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-subst "<link linkend='f-subst' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.subst</function></link>">
 <!ENTITY f-link-env-Tag "<link linkend='f-Tag' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Tag</function></link>">
 <!ENTITY f-link-env-Tool "<link linkend='f-Tool' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Tool</function></link>">
+<!ENTITY f-link-env-ValidateOptions "<link linkend='f-ValidateOptions' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.ValidateOptions</function></link>">
 <!ENTITY f-link-env-Value "<link linkend='f-Value' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Value</function></link>">
 <!ENTITY f-link-env-VariantDir "<link linkend='f-VariantDir' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.VariantDir</function></link>">
 <!ENTITY f-link-env-WhereIs "<link linkend='f-WhereIs' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.WhereIs</function></link>">

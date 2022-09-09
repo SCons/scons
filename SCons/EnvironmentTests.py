@@ -820,6 +820,8 @@ sys.exit(0)
             "--param l1-cache-size=32 --param l2-cache-size=6144 "
             "+DD64 "
             "-DFOO -DBAR=value -D BAZ "
+            "-fsanitize=memory "
+            "-fsanitize-address-use-after-return "
         )
 
         d = env.ParseFlags(s)
@@ -836,7 +838,9 @@ sys.exit(0)
                                 ('-imacros', env.fs.File('/usr/include/foo4')),
                                 ('-include', env.fs.File('/usr/include/foo5')),
                                 ('--param', 'l1-cache-size=32'), ('--param', 'l2-cache-size=6144'),
-                                '+DD64'], repr(d['CCFLAGS'])
+                                '+DD64',
+                                '-fsanitize=memory',
+                                '-fsanitize-address-use-after-return'], repr(d['CCFLAGS'])
         assert d['CXXFLAGS'] == ['-std=c++0x'], repr(d['CXXFLAGS'])
         assert d['CPPDEFINES'] == ['FOO', ['BAR', 'value'], 'BAZ'], d['CPPDEFINES']
         assert d['CPPFLAGS'] == ['-Wp,-cpp'], d['CPPFLAGS']
@@ -856,7 +860,9 @@ sys.exit(0)
                                   '-mno-cygwin', '-mwindows',
                                   ('-arch', 'i386'),
                                   ('-isysroot', '/tmp'),
-                                  '+DD64'], repr(d['LINKFLAGS'])
+                                  '+DD64',
+                                  '-fsanitize=memory',
+                                  '-fsanitize-address-use-after-return'], repr(d['LINKFLAGS'])
         assert d['RPATH'] == ['rpath1', 'rpath2', 'rpath3'], d['RPATH']
 
 

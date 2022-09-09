@@ -740,6 +740,7 @@ Multiple targets can be passed in to a single call to
 </para>
 </summary>
 </scons_function>
+
 <scons_function name="SetOption">
 <arguments>
 (name, value)
@@ -943,6 +944,68 @@ Example:
 SetOption('max_drift', 0)
 </example_commands>
 </summary>
+
+
 </scons_function>
+
+    <scons_function name="ValidateOptions">
+        <arguments signature="global">
+            ([throw_exception=False])
+        </arguments>
+
+        <summary>
+            <para>
+                Check that all the options specified on the command line are either defined by SCons itself
+                or defined by calls to &f-link-AddOption;.
+            </para>
+            <para>
+                This function should only be called after the last &f-link-AddOption; call in your &SConscript;
+                logic.
+            </para>
+            <para>
+                Be aware that some tools call &f-link-AddOption;, if you are getting error messages for arguments
+                that they add, you will need to ensure that you load those tools before you call &f-ValidateOptions;.
+            </para>
+            <para>
+                If there are any command line options not defined, calling this function will cause SCons to issue an
+                error message and then exit with an error exit
+                status.</para>
+            <para>If the optional <parameter>throw_exception</parameter> is <literal>True</literal>, &f-ValidateOptions; will raise a
+                <exceptionname>SConsBadOptionError</exceptionname>
+                exception. This would allow the calling
+                &SConscript; logic can catch that exception and handle invalid options itself.
+            </para>
+
+            <para>
+                Example:
+            </para>
+
+            <example_commands>
+try:
+    ValidateOptions(throw_exception=True)
+except SConsBadOptionError as e:
+    print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
+    print("Message is :%s" % e.opt_str)
+    Exit(3)
+            </example_commands>
+
+            <para>
+                This function is useful to force SCons to fail fast before you execute any expensive logic later in your
+                build logic.
+                For example if you specify build options via any flags, a simple typo could yield the incorrect build
+                option throughout your entire build.
+            </para>
+            <example_commands>
+scons --compilers=mingw (the correct flag is --compiler)
+            </example_commands>
+            <para>
+                Could cause SCons to run configure steps with the incorrect compiler. Costing developer time trying to
+                track down why the configure logic failed with a compiler which should work.
+            </para>
+
+
+
+        </summary>
+    </scons_function>
 
 </sconsdoc>

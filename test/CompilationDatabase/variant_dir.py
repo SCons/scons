@@ -77,7 +77,8 @@ example_rel_file = """[
         "file": "%(src_file)s",
         "output": "%(output2_file)s"
     }
-]""" % {'exe': sys.executable,
+]
+""" % {'exe': sys.executable,
         'workdir': test.workdir,
         'src_file': os.path.join('src', 'test_main.c'),
         'output_file': os.path.join('build', 'test_main.o'),
@@ -106,7 +107,8 @@ example_abs_file = """[
         "file": "%(abs_src_file)s",
         "output": "%(abs_output2_file)s"
     }
-]""" % {'exe': sys.executable,
+]
+""" % {'exe': sys.executable,
         'workdir': test.workdir,
         'src_file': os.path.join('src', 'test_main.c'),
         'abs_src_file': os.path.join(test.workdir, 'src', 'test_main.c'),
@@ -130,7 +132,8 @@ example_filter_build_file = """[
         "file": "%(src_file)s",
         "output": "%(output_file)s"
     }
-]""" % {'exe': sys.executable,
+]
+""" % {'exe': sys.executable,
         'workdir': test.workdir,
         'src_file': os.path.join('src', 'test_main.c'),
         'output_file': os.path.join('build', 'test_main.o'),
@@ -151,7 +154,8 @@ example_filter_build2_file = """[
         "file": "%(src_file)s",
         "output": "%(output2_file)s"
     }
-]""" % {'exe': sys.executable,
+]
+""" % {'exe': sys.executable,
         'workdir': test.workdir,
         'src_file': os.path.join('src', 'test_main.c'),
         'output2_file': os.path.join('build2', 'test_main.o'),

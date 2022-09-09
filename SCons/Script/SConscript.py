@@ -390,7 +390,8 @@ class SConsEnvironment(SCons.Environment.Base):
         in 'v_major' and 'v_minor', and 0 otherwise."""
         return (major > v_major or (major == v_major and minor > v_minor))
 
-    def _get_major_minor_revision(self, version_string):
+    @staticmethod
+    def _get_major_minor_revision(version_string):
         """Split a version string into major, minor and (optionally)
         revision parts.
 
@@ -488,14 +489,15 @@ class SConsEnvironment(SCons.Environment.Base):
     def Default(self, *targets):
         SCons.Script._Set_Default_Targets(self, targets)
 
-    def EnsureSConsVersion(self, major, minor, revision=0):
+    @staticmethod
+    def EnsureSConsVersion(major, minor, revision=0):
         """Exit abnormally if the SCons version is not late enough."""
         # split string to avoid replacement during build process
         if SCons.__version__ == '__' + 'VERSION__':
             SCons.Warnings.warn(SCons.Warnings.DevelopmentVersionWarning,
                 "EnsureSConsVersion is ignored for development version")
             return
-        scons_ver = self._get_major_minor_revision(SCons.__version__)
+        scons_ver = SConsEnvironment._get_major_minor_revision(SCons.__version__)
         if scons_ver < (major, minor, revision):
             if revision:
                 scons_ver_string = '%d.%d.%d' % (major, minor, revision)
@@ -505,7 +507,8 @@ class SConsEnvironment(SCons.Environment.Base):
                   (scons_ver_string, SCons.__version__))
             sys.exit(2)
 
-    def EnsurePythonVersion(self, major, minor):
+    @staticmethod
+    def EnsurePythonVersion(major, minor):
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]
@@ -527,6 +530,7 @@ class SConsEnvironment(SCons.Environment.Base):
     def GetOption(self, name):
         name = self.subst(name)
         return SCons.Script.Main.GetOption(name)
+
 
     def Help(self, text, append=False):
         text = self.subst(text, raw=1)

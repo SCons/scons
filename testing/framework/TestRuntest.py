@@ -51,11 +51,7 @@ __all__.extend(
     ]
 )
 
-if re.search(r'\s', python):
-    pythonstring = _python_
-else:
-    pythonstring = python
-pythonstring = pythonstring.replace('\\', '\\\\')
+pythonstring = python
 pythonflags = ''
 
 failing_test_template = """\

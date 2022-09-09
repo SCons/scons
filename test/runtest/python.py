@@ -50,20 +50,12 @@ pythonflags = TestRuntest.pythonflags
 # getting called with "/bin/../bin/python" as first argument, e.g. Fedora 17 Desktop.
 mypython = os.path.normpath(os.path.join(head, dir, os.path.pardir, dir, python))
 
-def escape(s):
-    return s.replace('\\', '\\\\')
-
-if re.search(r'\s', mypython):
-    mypythonstring = '"%s"' % escape(mypython)
-else:
-    mypythonstring = escape(mypython)
-
 test.subdir('test')
 
 test.write_passing_test(['test', 'pass.py'])
 
 expect_stdout = """\
-%(mypythonstring)s%(pythonflags)s %(test_pass_py)s
+%(mypython)s%(pythonflags)s %(test_pass_py)s
 PASSING TEST STDOUT
 """ % locals()
 

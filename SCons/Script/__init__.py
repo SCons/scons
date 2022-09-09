@@ -107,6 +107,7 @@ AddOption               = Main.AddOption
 PrintHelp               = Main.PrintHelp
 GetOption               = Main.GetOption
 SetOption               = Main.SetOption
+ValidateOptions         = Main.ValidateOptions
 Progress                = Main.Progress
 GetBuildFailures        = Main.GetBuildFailures
 
@@ -125,8 +126,7 @@ GetBuildFailures        = Main.GetBuildFailures
 #profiling               = Main.profiling
 #repositories            = Main.repositories
 
-from . import SConscript
-_SConscript = SConscript
+from . import SConscript as _SConscript
 
 call_stack              = _SConscript.call_stack
 
@@ -287,14 +287,17 @@ def Variables(files=None, args=ARGUMENTS):
     return SCons.Variables.Variables(files, args)
 
 
-# The list of global functions to add to the SConscript name space
-# that end up calling corresponding methods or Builders in the
+# Adding global functions to the SConscript name space.
+#
+# Static functions that do not use state in DefaultEnvironment().
+EnsureSConsVersion = _SConscript.SConsEnvironment.EnsureSConsVersion
+EnsurePythonVersion = _SConscript.SConsEnvironment.EnsurePythonVersion
+
+# Functions that end up calling methods or Builders in the
 # DefaultEnvironment().
 GlobalDefaultEnvironmentFunctions = [
     # Methods from the SConsEnvironment class, above.
     'Default',
-    'EnsurePythonVersion',
-    'EnsureSConsVersion',
     'Exit',
     'Export',
     'GetLaunchDir',
