@@ -203,6 +203,10 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
+    The &f-link-Glob; function understands about repositories,
+    and will use the same matching algorithm as described for
+    explicitly-listed sources.
+
     </para>
 
   </section>

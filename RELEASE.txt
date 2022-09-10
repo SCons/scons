@@ -72,6 +72,7 @@ DOCUMENTATION
 - Updated the --hash-format manpage entry.
 - EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
   SConscriptChdir are now listed as Global functions only.
+- Updated the docs for Glob.
 
 DEVELOPMENT
 -----------

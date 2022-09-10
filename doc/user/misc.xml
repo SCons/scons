@@ -256,11 +256,11 @@ hello.c
 
     <para>
 
-     The &FindFile; function searches for a file in a list of directories.
+     The &f-link-FindFile; function searches for a file in a list of directories.
      If there is only one directory, it can be given as a simple string.
      The function returns a File node if a matching file exists,
      or None if no file is found.
-     (See the documentation for the &Glob; function for an alternative way
+     (See the documentation for the &f-link-Glob; function for an alternative way
      of searching for entries in a directory.)
 
     </para>
