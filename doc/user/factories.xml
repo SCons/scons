@@ -190,10 +190,10 @@ touch $*
     <scons_example name="factories_SymlinkCopy">
       <file name ="SymlinkCopy" printme="1">
 # Symbolic link shallow copied as a new symbolic link:
-Command("LinkIn", "LinkOut", Copy("$TARGET", "$SOURCE"[, True]))
+Command("LinkIn", "LinkOut", Copy("$TARGET", "$SOURCE", symlinks=True))
 
 # Symbolic link target copied as a file or directory:
-Command("LinkIn", "FileOrDirectoryOut", Copy("$TARGET", "$SOURCE", False))
+Command("LinkIn", "FileOrDirectoryOut", Copy("$TARGET", "$SOURCE", symlinks=False))
       </file>
     </scons_example>
 

@@ -41,10 +41,12 @@ import SCons.Action
 import SCons.Builder
 import SCons.CacheDir
 import SCons.Environment
+import SCons.Errors
 import SCons.PathList
 import SCons.Scanner.Dir
 import SCons.Subst
 import SCons.Tool
+import SCons.Util
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -79,7 +81,6 @@ def DefaultEnvironment(*args, **kw):
     """
     global _default_env
     if not _default_env:
-        import SCons.Util
         _default_env = SCons.Environment.Environment(*args, **kw)
         _default_env.Decider('content')
         global DefaultEnvironment
@@ -157,15 +158,19 @@ LdModuleLinkAction = SCons.Action.Action("$LDMODULECOM", "$LDMODULECOMSTR")
 ActionFactory = SCons.Action.ActionFactory
 
 
-def get_paths_str(dest):
-    # If dest is a list, we need to manually call str() on each element
+def get_paths_str(dest) -> str:
+    """Generates a string from *dest* for use in a strfunction.
+
+    If *dest* is a list, manually converts each elem to a string.
+    """
+    def quote(arg):
+        return f'"{arg}"'
+
     if SCons.Util.is_List(dest):
-        elem_strs = []
-        for element in dest:
-            elem_strs.append('"' + str(element) + '"')
-        return '[' + ', '.join(elem_strs) + ']'
+        elem_strs = [quote(d) for d in dest]
+        return f'[{", ".join(elem_strs)}]'
     else:
-        return '"' + str(dest) + '"'
+        return quote(dest)
 
 
 permission_dic = {
@@ -187,8 +192,14 @@ permission_dic = {
 }
 
 
-def chmod_func(dest, mode):
-    import SCons.Util
+def chmod_func(dest, mode) -> None:
+    """Implementation of the Chmod action function.
+
+    *mode* can be either an integer (normally expressed in octal mode,
+    as in 0o755) or a string following the syntax of the POSIX chmod
+    command (for example "ugo+w"). The latter must be converted, since
+    the underlying Python only takes the numeric form.
+    """
     from string import digits
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
@@ -231,41 +242,63 @@ def chmod_func(dest, mode):
                     os.chmod(str(element), curr_perm & ~new_perm)
 
 
-def chmod_strfunc(dest, mode):
-    import SCons.Util
+def chmod_strfunc(dest, mode) -> str:
+    """strfunction for the Chmod action function."""
     if not SCons.Util.is_String(mode):
-        return 'Chmod(%s, 0%o)' % (get_paths_str(dest), mode)
+        return f'Chmod({get_paths_str(dest)}, {mode:#o})'
     else:
-        return 'Chmod(%s, "%s")' % (get_paths_str(dest), str(mode))
+        return f'Chmod({get_paths_str(dest)}, "{mode}")'
+
 
 
 Chmod = ActionFactory(chmod_func, chmod_strfunc)
 
 
-def copy_func(dest, src, symlinks=True):
-    """
-    If symlinks (is true), then a symbolic link will be
+
+def copy_func(dest, src, symlinks=True) -> int:
+    """Implementation of the Copy action function.
+
+    Copies *src* to *dest*.  If *src* is a list, *dest* must be
+    a directory, or not exist (will be created).
+
+    Since Python :mod:`shutil` methods, which know nothing about
+    SCons Nodes, will be called to perform the actual copying,
+    args are converted to strings first.
+
+    If *symlinks* evaluates true, then a symbolic link will be
     shallow copied and recreated as a symbolic link; otherwise, copying
     a symbolic link will be equivalent to copying the symbolic link's
     final target regardless of symbolic link depth.
     """
 
     dest = str(dest)
-    src = str(src)
+    src = [str(n) for n in src] if SCons.Util.is_List(src) else str(src)
 
     SCons.Node.FS.invalidate_node_memos(dest)
-    if SCons.Util.is_List(src) and os.path.isdir(dest):
+    if SCons.Util.is_List(src):
+        if not os.path.exists(dest):
+            os.makedirs(dest, exist_ok=True)
+        elif not os.path.isdir(dest):
+            # is Python's NotADirectoryError more appropriate?
+            raise SCons.Errors.UserError(
+                f'Copy() called with list src but dest "{dest}" is not a directory'
+            )
+
         for file in src:
             shutil.copy2(file, dest)
         return 0
+
     elif os.path.islink(src):
         if symlinks:
-            return os.symlink(os.readlink(src), dest)
-        else:
-            return copy_func(dest, os.path.realpath(src))
+            os.symlink(os.readlink(src), dest)
+            return 0
+
+        return copy_func(dest, os.path.realpath(src))
+
     elif os.path.isfile(src):
         shutil.copy2(src, dest)
         return 0
+
     else:
         shutil.copytree(src, dest, symlinks)
         # copytree returns None in python2 and destination string in python3
@@ -273,13 +306,20 @@ def copy_func(dest, src, symlinks=True):
         return 0
 
 
-Copy = ActionFactory(
-    copy_func,
-    lambda dest, src, symlinks=True: 'Copy("%s", "%s")' % (dest, src)
-)
+def copy_strfunc(dest, src, symlinks=True) -> str:
+    """strfunction for the Copy action function."""
+    return f'Copy({get_paths_str(dest)}, {get_paths_str(src)})'
 
 
-def delete_func(dest, must_exist=0):
+Copy = ActionFactory(copy_func, copy_strfunc)
+
+
+def delete_func(dest, must_exist=False) -> None:
+    """Implementation of the Delete action function.
+
+    Lets the Python :func:`os.unlink` raise an error if *dest* does not exist,
+    unless *must_exist* evaluates false (the default).
+    """
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
@@ -296,14 +336,16 @@ def delete_func(dest, must_exist=0):
         os.unlink(entry)
 
 
-def delete_strfunc(dest, must_exist=0):
-    return 'Delete(%s)' % get_paths_str(dest)
+def delete_strfunc(dest, must_exist=False) -> str:
+    """strfunction for the Delete action function."""
+    return f'Delete({get_paths_str(dest)})'
 
 
 Delete = ActionFactory(delete_func, delete_strfunc)
 
 
-def mkdir_func(dest):
+def mkdir_func(dest) -> None:
+    """Implementation of the Mkdir action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
@@ -311,22 +353,23 @@ def mkdir_func(dest):
         os.makedirs(str(entry), exist_ok=True)
 
 
-Mkdir = ActionFactory(mkdir_func,
-                      lambda _dir: 'Mkdir(%s)' % get_paths_str(_dir))
+Mkdir = ActionFactory(mkdir_func, lambda _dir: f'Mkdir({get_paths_str(_dir)})')
 
 
-def move_func(dest, src):
+def move_func(dest, src) -> None:
+    """Implementation of the Move action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
     SCons.Node.FS.invalidate_node_memos(src)
     shutil.move(src, dest)
 
 
-Move = ActionFactory(move_func,
-                     lambda dest, src: 'Move("%s", "%s")' % (dest, src),
-                     convert=str)
+Move = ActionFactory(
+    move_func, lambda dest, src: f'Move("{dest}", "{src}")', convert=str
+)
 
 
-def touch_func(dest):
+def touch_func(dest) -> None:
+    """Implementation of the Touch action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
     if not SCons.Util.is_List(dest):
         dest = [dest]
@@ -341,8 +384,7 @@ def touch_func(dest):
         os.utime(file, (atime, mtime))
 
 
-Touch = ActionFactory(touch_func,
-                      lambda file: 'Touch(%s)' % get_paths_str(file))
+Touch = ActionFactory(touch_func, lambda file: f'Touch({get_paths_str(file)})')
 
 
 # Internal utility functions

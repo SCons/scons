@@ -27,6 +27,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Ryan Saunders:
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
 
+  From Mats Wichmann:
+    - A list argument as the source to the Copy() action function is now
+      correctly handled by converting elements to string. Copy bails if
+      asked to copy a list to an existing non-directory destination.
+      Both the implementation and the strfunction which prints the progress
+      message were adjusted. Fixes #3009.
+
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 
   From Joseph Brill:
