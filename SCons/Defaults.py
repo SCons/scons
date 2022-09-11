@@ -276,14 +276,13 @@ def copy_func(dest, src, symlinks=True) -> int:
 
     SCons.Node.FS.invalidate_node_memos(dest)
     if SCons.Util.is_List(src):
-        if not os.path.exists(dest):
+        # this fails only if dest exists and is not a dir
+        try:
             os.makedirs(dest, exist_ok=True)
-        elif not os.path.isdir(dest):
-            # is Python's NotADirectoryError more appropriate?
-            raise SCons.Errors.UserError(
-                f'Copy() called with list src but dest "{dest}" is not a directory'
+        except FileExistsError:
+            raise SCons.Errors.BuildError(
+                errstr=f'Error: Copy() called with list src but "{dest}" is not a directory'
             )
-
         for file in src:
             shutil.copy2(file, dest)
         return 0

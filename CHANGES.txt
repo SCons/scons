@@ -29,8 +29,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Mats Wichmann:
     - A list argument as the source to the Copy() action function is now
-      correctly handled by converting elements to string. Copy bails if
-      asked to copy a list to an existing non-directory destination.
+      correctly handled by converting elements to string. Copy errors out
+      if asked to copy a list to an existing non-directory destination.
       Both the implementation and the strfunction which prints the progress
       message were adjusted. Fixes #3009.
 

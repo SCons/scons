@@ -41,6 +41,8 @@ Execute(Copy('f1.out', 'f1.in'))
 Execute(Copy(File('d2.out'), 'd2.in'))
 Execute(Copy('d3.out', File('f3.in')))
 # Issue #3009: make sure it's not mangled if src is a list.
+# make sure both list-of-str and list-of-Node work
+Execute(Copy('d7.out', ['f10.in', 'f11.in']))
 Execute(Copy('d7.out', Glob('f?.in')))
 
 def cat(env, source, target):
@@ -104,6 +106,7 @@ expect = test.wrap_stdout(
 Copy("f1.out", "f1.in")
 Copy("d2.out", "d2.in")
 Copy("d3.out", "f3.in")
+Copy("d7.out", ["f10.in", "f11.in"])
 Copy("d7.out", ["f1.in", "f3.in", "f4.in", "f6.in", "f7.in", "f8.in", "f9.in"])
 """,
     build_str="""\
@@ -128,6 +131,7 @@ test.must_not_exist('f1.out')
 test.must_not_exist('d2.out')
 test.must_not_exist(os.path.join('d3.out', 'f3.in'))
 test.must_not_exist(os.path.join('d7.out', 'f7.in'))
+test.must_not_exist(os.path.join('d7.out', 'f11.in'))
 test.must_not_exist('f4.out')
 test.must_not_exist('d5.out')
 test.must_not_exist(os.path.join('d6.out', 'f6.in'))
@@ -147,6 +151,7 @@ test.must_match('f1.out', "f1.in\n", mode='r')
 test.must_match(['d2.out', 'file'], "d2.in/file\n", mode='r')
 test.must_match(['d3.out', 'f3.in'], "f3.in\n", mode='r')
 test.must_match(['d7.out', 'f7.in'], "f7.in\n", mode='r')
+test.must_match(['d7.out', 'f11.in'], "f11.in\n", mode='r')
 test.must_match('f4.out', "f4.in\n", mode='r')
 test.must_match(['d5.out', 'file'], "d5.in/file\n", mode='r')
 test.must_match(['d6.out', 'f6.in'], "f6.in\n", mode='r')
