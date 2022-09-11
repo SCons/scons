@@ -25,6 +25,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
 
   From Ryan Saunders:
+    - Added VCPkg() builder, enabling cross-platform acquisition and building of 3rd party C/C++
+      libraries.
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
