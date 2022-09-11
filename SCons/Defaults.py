@@ -281,7 +281,11 @@ def copy_func(dest, src, symlinks=True) -> int:
             os.makedirs(dest, exist_ok=True)
         except FileExistsError:
             raise SCons.Errors.BuildError(
-                errstr=f'Error: Copy() called with list src but "{dest}" is not a directory'
+                errstr=(
+                    'Error: Copy() called with a list of sources, '
+                    'which requires target to be a directory, '
+                    f'but "{dest}" is not a directory.'
+                )
             )
         for file in src:
             shutil.copy2(file, dest)
@@ -300,8 +304,6 @@ def copy_func(dest, src, symlinks=True) -> int:
 
     else:
         shutil.copytree(src, dest, symlinks)
-        # copytree returns None in python2 and destination string in python3
-        # A error is raised in both cases, so we can just return 0 for success
         return 0
 
 
