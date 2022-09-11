@@ -10,13 +10,14 @@ selection method.
 
 
 TODO:
+  * find a way to push package build into SCons's normal build phase
   * ensure Linux works
-  * unit tests
-  * verify that feature supersetting works
+  * handle complex feature supersetting scenarios
   * parallel builds?
   * can we ensure granular detection, and fail on undetected dependencies?
   * batch depend-info calls to vcpkg for better perf?
   * Make "vcpkg search" faster by supporting a strict match option
+  * Is there a way to make vcpkg build only dgb/rel libs?
 
 """
 
@@ -213,11 +214,30 @@ def _call_vcpkg(env, params, check_output = False, check = True):
             return ex.returncode
 
 
+def _install_packages(env, packages):
+    packages_args = list(map(lambda p: str(p), packages))
+    _vcpkg_print(Silent, ' '.join(packages_args) + ' (install)')
+    result = _call_vcpkg(env, ['install'] + packages_args)
+    if result != 0:
+        _vcpkg_print(Silent, "Failed to install package(s) " + ' '.join(packages_args))
+    return result
+
+
+def _upgrade_packages(env, packages):
+    packages_args = list(map(lambda p: str(p), packages))
+    _vcpkg_print(Silent, ' '.join(packages_args) + ' (upgrade)')
+    result = _call_vcpkg(env, ['upgrade', '--no-dry-run'] + packages_args)
+    if result != 0:
+        _vcpkg_print(Silent, "Failed to upgrade package(s) " + ' '.join(packages_args))
+    return result
+
+
 def _get_vcpkg_triplet(env, static):
     """Computes the appropriate VCPkg 'triplet' for the current build environment"""
 
     platform = env['PLATFORM']
 
+    # TODO: this relies on having a C++ compiler tool enabled. Is there a better way to compute this?
     if 'TARGET_ARCH' in env:
         arch = env['TARGET_ARCH']
     else:
@@ -250,6 +270,17 @@ def _read_vcpkg_file_list(env, list_file):
         if not line.rstrip().endswith('/'):
             files.append(env.File('$VCPKGROOT/installed/' + line))
     return files
+
+
+def is_mismatched_version_installed(env, spec):
+    _vcpkg_print(Debug, 'Checking for mismatched version of "' + spec + '"')
+    output = _call_vcpkg(env, ['update'], check_output = True)
+    for line in output.split('\n'):
+        match = re.match(r'^\s*(\S+)\s*(\S+) -> (\S+)', line)
+        if match and match.group(1) == spec:
+            _vcpkg_print(Debug, 'Package "' + spec + '" can be updated (' + match.group(2) + ' -> ' + match.group(3) + ')')
+            return True
+    return False
 
 
 def _get_package_version(env, spec):
@@ -302,12 +333,23 @@ def _get_package_deps(env, spec, static):
     raise InternalError('Failed to parse output from vcpkg ' + ' '.join(params) + '\n' + output)
 
 
-# CHECKIN: move to env?
-# Global mapping of previously-computed package-name -> list-file targets. This exists because we may discover
-# additional packages that we need to build, based on running :vcpkg depend-info"), and these packages may or
-# may not have been explicitly requested by calls to VCPkg.
-_package_descriptors_map = {}
-_package_targets_map = {}
+def get_package_descriptors_map(env):
+    """Returns an Environment-global mapping of previously-seen package name -> PackageDescriptor, ensuring a 1:1
+       correspondence between a package and its PackageDescriptor. This global mapping is needed because a package
+       may need to be built due to being a dependency of a user-requested package, and a given package may be a
+       dependency of multiple user-requested packages, or may be a dependency of a user-requested package via multiple
+       paths in the package dependency graph."""
+    if not hasattr(env, '_vcpkg_package_descriptors_map'):
+        env._vcpkg_package_descriptors_map = {}
+    return env._vcpkg_package_descriptors_map
+
+def get_package_targets_map(env):
+    """Returns an Environment-global mapping of previously-seen package name -> PackageContents. This global mapping
+       is needed because the contents-enumeration methods of PackageContents need to be able to access the contents
+       of their dependencies when transitive = True is specified."""
+    if not hasattr(env, '_vcpkg_package_targets_map'):
+        env._vcpkg_package_targets_map = {}
+    return env._vcpkg_package_targets_map
 
 class PackageDescriptor(SCons.Node.Python.Value):
     """PackageDescriptor is the 'source' node for the VCPkg builder. A PackageDescriptor instance includes the package
@@ -346,6 +388,12 @@ class PackageDescriptor(SCons.Node.Python.Value):
         self.env = env
         self.package_deps = list(map(lambda p: get_package_descriptor(env, p), depends))
 
+    def get_name(self):
+        return self.value['name']
+
+    def get_static(self):
+        return self.value['static']
+
     def get_triplet(self):
         return self.value['triplet']
 
@@ -367,26 +415,18 @@ class PackageDescriptor(SCons.Node.Python.Value):
     def __str__(self):
         return self.get_package_string()
 
-    def is_mismatched_version_installed(self):
-        _vcpkg_print(Debug, 'Checking for mismatched version of "' + str(self) + '"')
-        output = _call_vcpkg(self.env, ['update'], check_output = True)
-        for line in output.split('\n'):
-            match = re.match(r'^\s*(\S+)\s*(\S+) -> (\S+)', line)
-            if match and match.group(1) == str(self):
-                _vcpkg_print(Debug, 'Package "' + str(self) + '" can be updated (' + match.group(2) + ' -> ' + match.group(3))
-                return True
-        return False
-
     def target_from_source(self, pre, suf, splitext):
         _bootstrap_vcpkg(self.env)
 
         target = PackageContents(self.env, self)
         target.state = SCons.Node.up_to_date
 
+        package_targets_map = get_package_targets_map(self.env)
+
         for pkg in self.package_deps:
-            if pkg in _package_targets_map:
-                _vcpkg_print(Debug, 'Reused dep: ' + str(_package_targets_map[pkg]))
-                self.env.Depends(target, _package_targets_map[pkg])
+            if pkg in package_targets_map:
+                _vcpkg_print(Debug, 'Reused dep: ' + str(package_targets_map[pkg]))
+                self.env.Depends(target, package_targets_map[pkg])
             else:
                 _vcpkg_print(Debug, "New dep: " + str(pkg))
                 dep = self.env.VCPkg(pkg)
@@ -394,15 +434,11 @@ class PackageDescriptor(SCons.Node.Python.Value):
 
         if not SCons.Script.GetOption('help'):
             if not target.exists():
-                if self.is_mismatched_version_installed():
-                    _vcpkg_print(Silent, str(self) + ' (upgrade)')
-                    if _call_vcpkg(self.env, ['upgrade', '--no-dry-run', str(self)]) != 0:
-                        _vcpkg_print(Silent, "Failed to upgrade package " + str(self))
+                if is_mismatched_version_installed(self.env, str(self)):
+                    if _upgrade_packages(self.env, [self]) != 0:
                         target.state = SCons.Node.failed
                 else:
-                    _vcpkg_print(Silent, str(self) + ' (install)')
-                    if _call_vcpkg(self.env, ['install', str(self)]) != 0:
-                        _vcpkg_print(Silent, "Failed to install package " + str(self))
+                    if _install_packages(self.env, [self]) != 0:
                         target.state = SCons.Node.failed
                 target.clear_memoized_values()
                 if not target.exists():
@@ -413,7 +449,7 @@ class PackageDescriptor(SCons.Node.Python.Value):
         target.noclean = True
 
         _vcpkg_print(Debug, "Caching target for package: " + self.value['name'])
-        _package_targets_map[self] = target
+        package_targets_map[self] = target
 
         return target
 
@@ -479,8 +515,9 @@ class PackageContents(SCons.Node.FS.File):
                 matching_files += [file]
 
         if transitive:
+            package_targets_map = get_package_targets_map(self.env)
             for dep in self.descriptor.package_deps:
-                matching_files += _package_targets_map[dep].FilesUnderSubPath(subpath, transitive)
+                matching_files += package_targets_map[dep].FilesUnderSubPath(subpath, transitive)
 
         return SCons.Util.NodeList(matching_files)
 
@@ -488,10 +525,11 @@ class PackageContents(SCons.Node.FS.File):
         return "Package: " + super(PackageContents, self).__str__()
 
 def get_package_descriptor(env, spec):
-    if spec in _package_descriptors_map:
-        return _package_descriptors_map[spec]
+    package_descriptors_map = get_package_descriptors_map(env)
+    if spec in package_descriptors_map:
+        return package_descriptors_map[spec]
     desc = PackageDescriptor(env, spec)
-    _package_descriptors_map[spec] = desc
+    package_descriptors_map[spec] = desc
     return desc
 
 
