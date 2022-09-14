@@ -33,6 +33,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if asked to copy a list to an existing non-directory destination.
       Both the implementation and the strfunction which prints the progress
       message were adjusted. Fixes #3009.
+    - doc: EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
+      SConscriptChdir are now listed as Global functions only; the
+      Environment versions still work but are not documented.
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 

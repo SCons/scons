@@ -1822,7 +1822,7 @@ class FSTestCase(_tempdirTestCase):
         test.write(['subdir', 'build'], "subdir/build\n")
 
         subdir = fs.Dir('subdir')
-        fs.chdir(subdir, change_os_dir=1)
+        fs.chdir(subdir, change_os_dir=True)
         self.fs._lookup('#build/file', subdir, SCons.Node.FS.File)
 
     def test_above_root(self):

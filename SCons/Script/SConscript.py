@@ -57,7 +57,7 @@ GlobalDict = None
 global_exports = {}
 
 # chdir flag
-sconscript_chdir = 1
+sconscript_chdir: bool = True
 
 def get_calling_namespaces():
     """Return the locals and globals for the function that called
@@ -205,7 +205,7 @@ def _SConscript(fs, *files, **kw):
                 # Change directory to the top of the source
                 # tree to make sure the os's cwd and the cwd of
                 # fs match so we can open the SConscript.
-                fs.chdir(top, change_os_dir=1)
+                fs.chdir(top, change_os_dir=True)
                 if f.rexists():
                     actual = f.rfile()
                     _file_ = open(actual.get_abspath(), "rb")
@@ -254,7 +254,7 @@ def _SConscript(fs, *files, **kw):
                         # fs.chdir(), because we still need to
                         # interpret the stuff within the SConscript file
                         # relative to where we are logically.
-                        fs.chdir(ldir, change_os_dir=0)
+                        fs.chdir(ldir, change_os_dir=False)
                         os.chdir(actual.dir.get_abspath())
 
                     # Append the SConscript directory to the beginning
@@ -292,7 +292,7 @@ def _SConscript(fs, *files, **kw):
 
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
-                            
+
                 else:
                     handle_missing_SConscript(f, kw.get('must_exist', None))
 
@@ -306,7 +306,7 @@ def _SConscript(fs, *files, **kw):
                 # There was no local directory, so chdir to the
                 # Repository directory.  Like above, we do this
                 # directly.
-                fs.chdir(frame.prev_dir, change_os_dir=0)
+                fs.chdir(frame.prev_dir, change_os_dir=False)
                 rdir = frame.prev_dir.rdir()
                 rdir._create()  # Make sure there's a directory there.
                 try:
@@ -600,7 +600,7 @@ class SConsEnvironment(SCons.Environment.Base):
         subst_kw['exports'] = exports
         return _SConscript(self.fs, *files, **subst_kw)
 
-    def SConscriptChdir(self, flag):
+    def SConscriptChdir(self, flag: bool) -> None:
         global sconscript_chdir
         sconscript_chdir = flag
 

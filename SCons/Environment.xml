@@ -2862,7 +2862,7 @@ for a complete explanation of the arguments and behavior.
 </scons_function>
 
 <scons_function name="SConscriptChdir">
-<arguments>
+<arguments signature="global">
 (value)
 </arguments>
 <summary>
@@ -2871,18 +2871,11 @@ By default,
 &scons;
 changes its working directory
 to the directory in which each
-subsidiary SConscript file lives.
+subsidiary SConscript file lives
+while reading and processing that script.
 This behavior may be disabled
-by specifying either:
-</para>
-
-<example_commands>
-SConscriptChdir(0)
-env.SConscriptChdir(0)
-</example_commands>
-
-<para>
-in which case
+by specifying an argument which
+evaluates false, in which case
 &scons;
 will stay in the top-level directory
 while reading all SConscript files.
@@ -2900,10 +2893,9 @@ Example:
 </para>
 
 <example_commands>
-env = Environment()
-SConscriptChdir(0)
+SConscriptChdir(False)
 SConscript('foo/SConscript')	# will not chdir to foo
-env.SConscriptChdir(1)
+SConscriptChdir(True)
 SConscript('bar/SConscript')	# will chdir to bar
 </example_commands>
 </summary>
@@ -3485,7 +3477,7 @@ The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
-When calling an SConscript file, you can use the 
+When calling an SConscript file, you can use the
 <parameter>exports</parameter> keyword argument
 to pass parameters (individually or as an appropriately set up environment)
 so the SConscript can pick up the right settings for that variant build.
