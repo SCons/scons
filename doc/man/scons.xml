@@ -6438,21 +6438,26 @@ changes the permissions on the specified
 <parameter>dest</parameter>
 file or directory to the specified
 <parameter>mode</parameter>
-which can be octal or string, similar to the bash command.
+which can be octal or string, similar to the POSIX
+<command>chmod</command> command.
 Examples:</para>
 
 <programlisting language="python">
 Execute(Chmod('file', 0o755))
 
-env.Command('foo.out', 'foo.in',
-            [Copy('$TARGET', '$SOURCE'),
-             Chmod('$TARGET', 0o755)])
+env.Command(
+    'foo.out',
+    'foo.in',
+    [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', 0o755)],
+)
 
 Execute(Chmod('file', "ugo+w"))
 
-env.Command('foo.out', 'foo.in',
-            [Copy('$TARGET', '$SOURCE'),
-             Chmod('$TARGET', "ugo+w")])
+env.Command(
+    'foo.out',
+    'foo.in',
+    [Copy('$TARGET', '$SOURCE'), Chmod('$TARGET', "ugo+w")],
+)
 </programlisting>
 
 <para>
@@ -6473,6 +6478,9 @@ that will copy the
 source file or directory to the
 <parameter>dest</parameter>
 destination file or directory.
+If <parameter>src</parameter> is a list,
+<parameter>dest</parameter> must be a directory
+if it already exists.
 Examples:</para>
 
 <programlisting language="python">
