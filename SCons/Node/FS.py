@@ -1239,7 +1239,7 @@ class FS(LocalFS):
         else:
             return "<no cwd>"
 
-    def chdir(self, dir, change_os_dir=0):
+    def chdir(self, dir, change_os_dir=False):
         """Change the current working directory for lookups.
         If change_os_dir is true, we will also change the "real" cwd
         to match.
