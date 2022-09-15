@@ -385,11 +385,6 @@ class SConsEnvironment(SCons.Environment.Base):
     #
     # Private methods of an SConsEnvironment.
     #
-    def _exceeds_version(self, major, minor, v_major, v_minor):
-        """Return 1 if 'major' and 'minor' are greater than the version
-        in 'v_major' and 'v_minor', and 0 otherwise."""
-        return (major > v_major or (major == v_major and minor > v_minor))
-
     @staticmethod
     def _get_major_minor_revision(version_string):
         """Split a version string into major, minor and (optionally)
@@ -515,7 +510,8 @@ class SConsEnvironment(SCons.Environment.Base):
             print("Python %d.%d or greater required, but you have Python %s" %(major,minor,v))
             sys.exit(2)
 
-    def Exit(self, value=0):
+    @staticmethod
+    def Exit(value=0):
         sys.exit(value)
 
     def Export(self, *vars, **kw):
@@ -523,7 +519,8 @@ class SConsEnvironment(SCons.Environment.Base):
             global_exports.update(compute_exports(self.Split(var)))
         global_exports.update(kw)
 
-    def GetLaunchDir(self):
+    @staticmethod
+    def GetLaunchDir():
         global launch_dir
         return launch_dir
 
@@ -600,7 +597,8 @@ class SConsEnvironment(SCons.Environment.Base):
         subst_kw['exports'] = exports
         return _SConscript(self.fs, *files, **subst_kw)
 
-    def SConscriptChdir(self, flag: bool) -> None:
+    @staticmethod
+    def SConscriptChdir(flag: bool) -> None:
         global sconscript_chdir
         sconscript_chdir = flag
 
