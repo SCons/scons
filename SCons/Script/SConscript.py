@@ -510,7 +510,8 @@ class SConsEnvironment(SCons.Environment.Base):
             print("Python %d.%d or greater required, but you have Python %s" %(major,minor,v))
             sys.exit(2)
 
-    def Exit(self, value=0):
+    @staticmethod
+    def Exit(value=0):
         sys.exit(value)
 
     def Export(self, *vars, **kw):
@@ -518,7 +519,8 @@ class SConsEnvironment(SCons.Environment.Base):
             global_exports.update(compute_exports(self.Split(var)))
         global_exports.update(kw)
 
-    def GetLaunchDir(self):
+    @staticmethod
+    def GetLaunchDir():
         global launch_dir
         return launch_dir
 
@@ -595,7 +597,8 @@ class SConsEnvironment(SCons.Environment.Base):
         subst_kw['exports'] = exports
         return _SConscript(self.fs, *files, **subst_kw)
 
-    def SConscriptChdir(self, flag: bool) -> None:
+    @staticmethod
+    def SConscriptChdir(flag: bool) -> None:
         global sconscript_chdir
         sconscript_chdir = flag
 

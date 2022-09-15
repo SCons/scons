@@ -10,8 +10,8 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Anatoli Babenia:
-    - Do not initialize DefaultEnvironment when calling EnsureSConsVersion() and
-      EnsurePythonVersion().
+    - Do not initialize DefaultEnvironment when calling EnsureSConsVersion(),
+      EnsurePythonVersion(), Exit(), GetLaunchDir() and SConscriptChdir().
     - Remove unused private method SConsEnvironment._exceeds_version().
 
   From William Deegan:
