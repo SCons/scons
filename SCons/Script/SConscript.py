@@ -385,11 +385,6 @@ class SConsEnvironment(SCons.Environment.Base):
     #
     # Private methods of an SConsEnvironment.
     #
-    def _exceeds_version(self, major, minor, v_major, v_minor):
-        """Return 1 if 'major' and 'minor' are greater than the version
-        in 'v_major' and 'v_minor', and 0 otherwise."""
-        return (major > v_major or (major == v_major and minor > v_minor))
-
     @staticmethod
     def _get_major_minor_revision(version_string):
         """Split a version string into major, minor and (optionally)
