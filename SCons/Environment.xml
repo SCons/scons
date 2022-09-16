@@ -538,7 +538,7 @@ combinined with the existing value into an appropriate type
 which can hold the expanded contents.
 There are a few special cases to be aware of.
 Normally, when two strings are combined,
-the result is a new string containg their concatenation,
+the result is a new string containing their concatenation,
 so you are responsible for supplying any needed separation.
 The main exception to this is &cv-link-CPPDEFINES;,
 where, before it is actually added to the command line,
