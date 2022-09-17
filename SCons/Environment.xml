@@ -507,11 +507,11 @@ The &consvars; and values to add to them are passed as
 without having to think about the data type of an existing &consvar;.
 Regular &Python; syntax can also be used to manipulate the &consvar;,
 but for that you may need to know the types involved,
-for example pure Python lets you directly "add" two lists of strings,
+for example pure &Python; does let you directly "add" two lists of strings,
 but adding a string to a list or a list to a string requires
 different syntax - things &f-Append; takes care of.
 Some pre-defined &consvars; do have type expectations
-based on how &SCons; will use them,
+based on how &SCons; will use them:
 for example &cv-link-CPPDEFINES; is normally a string or a list of strings,
 but can also be a list of tuples or a dictionary;
 while &cv-link-LIBEMITTER;
@@ -532,9 +532,11 @@ and whether duplication is allowed.
 <parameter>val</parameter> can be almost any type.
 If <varname>env</varname> does not have a &consvar;
 named <parameter>key</parameter>,
-it is simply stored with a value of <parameter>val</parameter> as-is.
+then <parameter>key</parameter> is simply
+stored with a value of <parameter>val</parameter>.
 Otherwise, <parameter>val</parameter> is
-combinined with the existing value into an appropriate type
+combinined with the existing value
+possibly converting into an appropriate type
 which can hold the expanded contents.
 There are a few special cases to be aware of.
 Normally, when two strings are combined,
@@ -547,9 +549,9 @@ thus the contents are forced to a collection type.
 As a result, appending a string will result in a separate string entry,
 not a combined string. For &cv-CPPDEFINES; as well as
 for &cv-link-LIBS;, and the various <literal>*PATH</literal>;
-variables, &SCons; will supply the compiler-specific
+variables, &SCons; will amend the variable by supplying the compiler-specific
 syntax (e.g. prepending a <literal>-D</literal> or <literal>/D</literal>
-prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
+prefix for &cv-CPPDEFINES;), so you should omit this syntax when
 adding values to these variables.
 Examples (gcc syntax shown in the expansion of &CPPDEFINES;):
 </para>
@@ -575,35 +577,35 @@ scons: `.' is up to date.
 Because &cv-link-CPPDEFINES; is intended for command-line
 specification of C/C++ preprocessor macros,
 it accepts additional syntax.
-A preprocessor macro can predefine a name by itself as
-<computeroutput>-DFOO</computeroutput>
-(which gives it an implicit value)
-or with a replacement value, as
-<computeroutput>-DBAR=1</computeroutput>.
+A preprocessor macro can predefine a name by itself
+(example: <computeroutput>-DFOO</computeroutput>),
+which gives it an implicit value,
+or with a replacement value
+(example: <computeroutput>-DBAR=1</computeroutput>).
 &SCons; allows you to specify a macro with a value
-as a <literal>name=value</literal> string,
-or as a tuple <literal>(name, value)</literal>,
-or as a dictionary <literal>{name: value}</literal>.
+by using a <literal>name=value</literal> string,
+or a tuple <literal>(name, value)</literal>,
+or a dictionary <literal>{name: value}</literal>.
 </para>
 
 <example_commands>
 env = Environment(CPPDEFINES="FOO")
-print(f"CPPDEFINES={env['CPPDEFINES']}")
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES="BAR=1")
-print(f"CPPDEFINES={env['CPPDEFINES']}")
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES=("OTHER", 2))
-print(f"CPPDEFINES={env['CPPDEFINES']}")
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES={"EXTRA": "arg"})
-print(f"CPPDEFINES={env['CPPDEFINES']}")
-print(f"CPPDEFINES will expand to {env.subst('$_CPPDEFFLAGS')}")
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to ", env.subst('$_CPPDEFFLAGS'))
 </example_commands>
 
 <screen>
 $ scons -Q
-CPPDEFINES=FOO
-CPPDEFINES=['FOO', 'BAR=1']
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2)]
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
+CPPDEFINES = FOO
+CPPDEFINES = ['FOO', 'BAR=1']
+CPPDEFINES = ['FOO', 'BAR=1', ('OTHER', 2)]
+CPPDEFINES = ['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
 CPPDEFINES will expand to -DFOO -DBAR=1 -DOTHER=2 -DEXTRA=arg
 scons: `.' is up to date.
 </screen>
@@ -617,21 +619,22 @@ for the dictionary form,
 specify the value as <constant>None</constant>.
 </para>
 
-<example_commands>
+<!--TODO: at last check, this newly created example blew up SConsDoc/lxml -->
+<!--example_commands>
 env = Environment()
-env.Append(CPPDEFINES=[("ONE", 1), ("TWO", )])
-print(f"CPPDEFINES={env['CPPDEFINES']}")
-env.Append(CPPDEFINES={"THREE": 3, "FOUR": None})
-print(f"CPPDEFINES={env['CPPDEFINES']}")
-print(f"CPPDEFINES will expand to {env.subst('$_CPPDEFFLAGS')}")
-</example_commands>
+env.Append(CPPDEFINES =[("ONE", 1), ("TWO", )])
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES ={"THREE": 3, "FOUR": None})
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to ", env.subst('$_CPPDEFFLAGS'))
+</example_commands-->
 
-<screen>
-CPPDEFINES=[('ONE', 1), ('TWO',)]
-CPPDEFINES=[('ONE', 1), ('TWO',), {'THREE': 3, 'FOUR': None}]
-CPPDEFINES will expand to -DONE=1 -DTWO -DTHREE=3 -DFOUR
+<!--screen>
+CPPDEFINES = [('ONE', 1), ('TWO',)]
+CPPDEFINES = [('ONE', 1), ('TWO',), {'THREE': 3, 'FOUR': None}]
+CPPDEFINES will expand to  -DONE=1 -DTWO -DTHREE=3 -DFOUR
 scons: `.' is up to date.
-</screen>
+</screen-->
 
 <para>
 See &cv-link-CPPDEFINES; for more details.
@@ -734,14 +737,14 @@ See also &f-link-env-PrependENVPath;.
 <para>
 Append values to &consvars; in the current &consenv;,
 maintaining uniqueness.
-Works like &f-link-env-Append;
-except that values that would be duplicates
-will not be added again.
+Works like &f-link-env-Append;,
+except that values that would become duplicates
+are not added.
 If <parameter>delete_existing</parameter>
-is set to <constant>True</constant>)
-the existing matching value is first removed,
-and the requested value is added,
-having the effect of moving such values to the end.
+is set to a true value, then for any duplicate,
+the existing instance of <parameter>val</parameter> is first removed,
+then <parameter>val</parameter> is appended,
+having the effect of moving it to the end.
 </para>
 
 <para>
@@ -2754,16 +2757,16 @@ See also &f-link-env-AppendENVPath;.
 <para>
 Prepend values to &consvars; in the current &consenv;,
 maintaining uniqueness.
-Works like &f-link-env-Append; (see for details),
+Works like &f-link-env-Append;,
 except that values are added to the front,
-rather than the end, of any existing value of the &consvar;,
-and values that would be duplicates
-will not be added again.
+rather than the end, of the &consvar;,
+and values that would become duplicates
+are not added.
 If <parameter>delete_existing</parameter>
-is set to <constant>True</constant>,
-the existing matching value is first removed,
-then the requested value is inserted,
-having the effect of moving such values to the front.
+is set to a true value, then for any duplicate,
+the existing instance of <parameter>val</parameter> is first removed,
+then <parameter>val</parameter> is inserted,
+having the effect of moving it to the front.
 </para>
 
 <para>
