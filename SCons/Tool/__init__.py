@@ -696,7 +696,7 @@ def tool_list(platform, env):
         assemblers = ['masm', 'nasm', 'gas', '386asm']
         fortran_compilers = ['gfortran', 'g77', 'ifl', 'cvf', 'f95', 'f90', 'fortran']
         ars = ['mslib', 'ar', 'tlib']
-        other_plat_tools = ['msvs', 'midl', 'wix']
+        other_plat_tools = ['msvs', 'midl', 'vcpkg', 'wix']
     elif str(platform) == 'os2':
         "prefer IBM tools on OS/2"
         linkers = ['ilink', 'gnulink', ]  # 'mslink']
@@ -746,6 +746,7 @@ def tool_list(platform, env):
         assemblers = ['as']
         fortran_compilers = ['gfortran', 'f95', 'f90', 'g77']
         ars = ['ar']
+        other_plat_tools += ['vcpkg']
     elif str(platform) == 'cygwin':
         "prefer GNU tools on Cygwin, except for a platform-specific linker"
         linkers = ['cyglink', 'mslink', 'ilink']
@@ -762,6 +763,9 @@ def tool_list(platform, env):
         assemblers = ['gas', 'nasm', 'masm']
         fortran_compilers = ['gfortran', 'g77', 'ifort', 'ifl', 'f95', 'f90', 'f77']
         ars = ['ar', ]
+        # VCPkg is supported on Linux; no official support for other *nix variants
+        if str(platform) == 'posix':
+            other_plat_tools += ['vcpkg']
 
     if not str(platform) == 'win32':
         other_plat_tools += ['m4', 'rpm']
@@ -809,8 +813,6 @@ def tool_list(platform, env):
         'tar', 'zip',
         # File builders (text)
         'textfile',
-        # Package management
-        'vcpkg',
     ], env)
 
     tools = [
