@@ -45,7 +45,6 @@ from SCons.Environment import Environment
 #  * Test parsing of real vcpkg.exe output
 #  * Test feature super-setting
 #  * Test "static" installs
-#  * Test transitive dependencies only listing files once
 
 class MockPackage:
     def __init__(self, name, version, dependencies, files):
@@ -493,6 +492,15 @@ class VCPkgTestCase(unittest.TestCase):
              AvailablePackage("frobotz", "1.2.3"), \
              ExpectInstall(["frobotz"]):
             env.VCPkg("frobotz")
+
+    # This doesn't work right now
+    def broken_test_install_multiple(self):
+        """Test that the VCPkg builder installs multiple missing packages specified in a single VCPkg() call"""
+        with MakeVCPkgEnv() as env, \
+             AvailablePackage("abcd", "0.1"), \
+             AvailablePackage("efgh", "1.2.3"), \
+             ExpectInstall(["abcd", "efgh"]):
+            env.VCPkg(["abcd", "efgh"])
 
     def test_duplicate_install(self):
         """Test that duplicate invocations of the VCPkg builder installs a package only once"""
