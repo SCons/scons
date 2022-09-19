@@ -430,13 +430,14 @@ def assert_package_files(env, static, actual_files, expected_subpaths):
         subpath_used[s] = False
     for f in actual_files:
         path = f.get_abspath()
-        used_subpath = None
+        matched_subpath = None
         for s in expected_subpaths:
             if path == env.File(prefix + s).get_abspath():
-                assert used_subpath is None, f"Used file subpath '{s}' more than once"
-                used_subpath = s
+                assert matched_subpath is None, f"File '{path}' matched more than one subpath ('{s}' and '{used_subpath}')"
+                assert subpath_used[s] is False, f"Subpath '{s}' matched more than one file"
+                matched_subpath = s
                 subpath_used[s] = True
-        assert used_subpath is not None, f"File '{path}' does not match any expected subpath"
+        assert matched_subpath is not None, f"File '{path}' does not match any expected subpath"
     for s in expected_subpaths:
         assert subpath_used[s] is True, f"Suffix '{s}' did not match any file"
 
@@ -616,6 +617,16 @@ class VCPkgTestCase(unittest.TestCase):
                       'lib/xyzzy.lib',
                       'lib/pkgconfig/xyzzy.pc',
                       'shared/xyzzy/copyright']
+        swordFiles = ['bin/sword.dll',
+                      'bin/sword.pdb',
+                      'debug/bin/sword.dll',
+                      'debug/bin/sword.pdb',
+                      'debug/lib/sword.lib',
+                      'debug/lib/pkgconfig/sword.pc',
+                      'include/sword.h',
+                      'lib/sword.lib',
+                      'lib/pkgconfig/sword.pc',
+                      'shared/sword/copyright']
         frobotzFiles = ['bin/frobotz.dll',
                         'bin/frobotz.pdb',
                         'debug/bin/frobotz.dll',
@@ -629,7 +640,8 @@ class VCPkgTestCase(unittest.TestCase):
         # By default, we should get libraries under bin/ and lib/
         with MakeVCPkgEnv() as env, \
              AvailablePackage("xyzzy", "0.1", files = xyzzyFiles), \
-             AvailablePackage("frobotz", "1.2.3", files = frobotzFiles, dependencies = ["xyzzy"]):
+             AvailablePackage("glowing_sword", "0.1", files = swordFiles, dependencies = ["xyzzy"]), \
+             AvailablePackage("frobotz", "1.2.3", files = frobotzFiles, dependencies = ["xyzzy", "glowing_sword"]):
             # For simplicity, override the platform-specific naming for static and shared libraries so that we don't
             # have to modify the file lists to make the test pass on all platforms
             env['SHLIBPREFIX'] = ''
@@ -638,16 +650,17 @@ class VCPkgTestCase(unittest.TestCase):
             env['LIBSUFFIX'] = '.lib'
             for pkg in env.VCPkg("frobotz"):
                 assert_package_files(env, False, pkg.Headers(), ['include/frobotz.h'])
-                assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/xyzzy.h'])
+                assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/sword.h', 'include/xyzzy.h'])
                 assert_package_files(env, False, pkg.SharedLibraries(), ['bin/frobotz.dll'])
-                assert_package_files(env, False, pkg.SharedLibraries(transitive = True), ['bin/frobotz.dll', 'bin/xyzzy.dll'])
+                assert_package_files(env, False, pkg.SharedLibraries(transitive = True), ['bin/frobotz.dll', 'bin/sword.dll', 'bin/xyzzy.dll'])
                 assert_package_files(env, False, pkg.StaticLibraries(), ['lib/frobotz.lib'])
-                assert_package_files(env, False, pkg.StaticLibraries(transitive = True), ['lib/frobotz.lib', 'lib/xyzzy.lib'])
+                assert_package_files(env, False, pkg.StaticLibraries(transitive = True), ['lib/frobotz.lib', 'lib/sword.lib', 'lib/xyzzy.lib'])
 
         # with $VCPKGDEBUG = True, we should get libraries under debug/bin/ and debug/lib/
         with MakeVCPkgEnv(debug = True) as env, \
              AvailablePackage("xyzzy", "0.1", files = xyzzyFiles), \
-             AvailablePackage("frobotz", "1.2.3", files = frobotzFiles, dependencies = ["xyzzy"]):
+             AvailablePackage("glowing_sword", "0.1", files = swordFiles, dependencies = ["xyzzy"]), \
+             AvailablePackage("frobotz", "1.2.3", files = frobotzFiles, dependencies = ["xyzzy", "glowing_sword"]):
             # For simplicity, override the platform-specific naming for static and shared libraries so that we don't
             # have to modify the file lists to make the test pass on all platforms
             env['SHLIBPREFIX'] = ''
@@ -656,11 +669,11 @@ class VCPkgTestCase(unittest.TestCase):
             env['LIBSUFFIX'] = '.lib'
             for pkg in env.VCPkg("frobotz"):
                 assert_package_files(env, False, pkg.Headers(), ['include/frobotz.h'])
-                assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/xyzzy.h'])
+                assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/sword.h', 'include/xyzzy.h'])
                 assert_package_files(env, False, pkg.SharedLibraries(), ['debug/bin/frobotz.dll'])
-                assert_package_files(env, False, pkg.SharedLibraries(transitive = True), ['debug/bin/frobotz.dll', 'debug/bin/xyzzy.dll'])
+                assert_package_files(env, False, pkg.SharedLibraries(transitive = True), ['debug/bin/frobotz.dll', 'debug/bin/sword.dll', 'debug/bin/xyzzy.dll'])
                 assert_package_files(env, False, pkg.StaticLibraries(), ['debug/lib/frobotz.lib'])
-                assert_package_files(env, False, pkg.StaticLibraries(transitive = True), ['debug/lib/frobotz.lib', 'debug/lib/xyzzy.lib'])
+                assert_package_files(env, False, pkg.StaticLibraries(transitive = True), ['debug/lib/frobotz.lib', 'debug/lib/sword.lib', 'debug/lib/xyzzy.lib'])
 
 
 if __name__ == "__main__":

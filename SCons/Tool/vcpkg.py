@@ -508,7 +508,7 @@ class PackageContents(SCons.Node.FS.File):
         else:
             return self.FilesUnderSubPath('bin/', transitive, self.env['SHLIBSUFFIX'])
 
-    def FilesUnderSubPath(self, subpath, transitive, suffix_filters = None):
+    def FilesUnderSubPath(self, subpath, transitive, suffix_filters = None, packages_visited = None):
         """Returns a (possibly empty) list of File nodes belonging to this package that are located under the
            relative path `subpath` underneath the triplet install directory.
            If `transitive` is True, then files belonging to upstream dependencies of this package are also included.
@@ -539,10 +539,17 @@ class PackageContents(SCons.Node.FS.File):
                 _vcpkg_print(Debug, 'Matching file ' + file.get_abspath())
                 matching_files += [file]
 
+        # If the caller requested us to also recurse into dependencies, do that now. However, don't visit the same
+        # package more than once (i.e., if it's reachable via multiple paths in the dependency graph)
         if transitive:
+            if packages_visited is None:
+                packages_visited = []
             package_targets_map = get_package_targets_map(self.env)
             for dep in self.descriptor.package_deps:
-                matching_files += package_targets_map[dep].FilesUnderSubPath(subpath, transitive, suffix_filters)
+                dep_pkg = package_targets_map[dep]
+                if dep_pkg not in packages_visited:
+                    matching_files += dep_pkg.FilesUnderSubPath(subpath, transitive, suffix_filters, packages_visited)
+            packages_visited.append(self)
 
         return SCons.Util.NodeList(matching_files)
 
