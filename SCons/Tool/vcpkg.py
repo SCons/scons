@@ -77,7 +77,7 @@ from SCons.Errors import UserError, InternalError, BuildError
 # Named constants for verbosity levels supported by _vcpkg_print
 Silent = 0
 Normal = 1
-Debug  = 2
+Debug = 2
 
 _max_verbosity = Normal # Can be changed with --silent or --vcpkg-debug
 
@@ -258,7 +258,7 @@ def _get_vcpkg_triplet(env, static):
     platform = env['PLATFORM']
 
     # TODO: this relies on having a C++ compiler tool enabled. Is there a better way to compute this?
-    if 'TARGET_ARCH' in env:
+    if 'TARGET_ARCH' in env and env['TARGET_ARCH'] is not None:
         arch = env['TARGET_ARCH']
     else:
         arch = env['HOST_ARCH']
@@ -276,8 +276,8 @@ def _get_vcpkg_triplet(env, static):
         if arch == 'x86_64':
             return 'x64-osx'
     elif platform == 'posix':
-#         if arch == 'x86_64':
-        return 'x64-linux'
+        if arch == 'x86_64':
+            return 'x64-linux'
 
     raise UserError('This architecture/platform (%s/%s) is currently unsupported with VCPkg' % (arch, platform))
 
@@ -483,39 +483,37 @@ class PackageContents(SCons.Node.FS.File):
        installing the package."""
 
     def __init__(self, env, descriptor):
-        super().__init__( descriptor.get_listfile_basename() + ".list", env.Dir('$VCPKGROOT/installed/vcpkg/info/'), env.fs)
+        super().__init__(descriptor.get_listfile_basename() + ".list", env.Dir('$VCPKGROOT/installed/vcpkg/info/'), env.fs)
         self.descriptor = descriptor
         self.loaded = False
 
     def Headers(self, transitive = False):
         """Returns the list of C/C++ header files belonging to the package.
            If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
-        _vcpkg_print(Debug, str(self.descriptor) + ': headers')
-        files = self.FilesUnderSubPath('include/', transitive)
         return self.FilesUnderSubPath('include/', transitive)
 
     def StaticLibraries(self, transitive = False):
         """Returns the list of static libraries belonging to the package.
            If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
-        _vcpkg_print(Debug, str(self.descriptor) + ': static libraries')
         if self.env.subst('$VCPKGDEBUG') == 'True':
-            return self.FilesUnderSubPath('debug/lib/', transitive)
+            return self.FilesUnderSubPath('debug/lib/', transitive, self.env['LIBSUFFIX'])
         else:
-            return self.FilesUnderSubPath('lib/', transitive)
+            return self.FilesUnderSubPath('lib/', transitive, self.env['LIBSUFFIX'])
 
     def SharedLibraries(self, transitive = False):
         """Returns the list of shared libraries belonging to the package.
            If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
-        _vcpkg_print(Debug, str(self.descriptor) + ': shared libraries')
         if self.env.subst('$VCPKGDEBUG') == 'True':
-            return self.FilesUnderSubPath('debug/bin/', transitive)
+            return self.FilesUnderSubPath('debug/bin/', transitive, self.env['SHLIBSUFFIX'])
         else:
-            return self.FilesUnderSubPath('bin/', transitive)
+            return self.FilesUnderSubPath('bin/', transitive, self.env['SHLIBSUFFIX'])
 
-    def FilesUnderSubPath(self, subpath, transitive):
+    def FilesUnderSubPath(self, subpath, transitive, suffix_filters = None):
         """Returns a (possibly empty) list of File nodes belonging to this package that are located under the
            relative path `subpath` underneath the triplet install directory.
-           If `transitive` is True, then files belonging to upstream dependencies of this package are also included."""
+           If `transitive` is True, then files belonging to upstream dependencies of this package are also included.
+           If 'suffix_filters is not None, but instead a string or a list, then only files ending in the substring(s)
+           listed therein will be included."""
 
         # Load the listfile contents, if we haven't already. This returns a list of File nodes.
         if not self.loaded:
@@ -525,24 +523,32 @@ class PackageContents(SCons.Node.FS.File):
             self.files = _read_vcpkg_file_list(self.env, self)
             self.loaded = True
 
-        triplet = self.descriptor.get_triplet()
+        # Compute the appropriate filter check based on 'suffix_filters'
+        if suffix_filters is None:
+            matches_filters = lambda f: True
+        elif type(suffix_filters) is str:
+            matches_filters = lambda f: f.endswith(suffix_filters)
+        elif type(suffix_filters) is list:
+            matches_filters = lambda f: len(filter(lambda s: f.endswith(s), suffix_filters)) > 0
+
         prefix = self.env.Dir(self.env.subst('$VCPKGROOT/installed/' + self.descriptor.get_triplet() + "/" + subpath))
         _vcpkg_print(Debug, 'Looking for files under ' + str(prefix))
         matching_files = []
         for file in self.files:
-            if file.is_under(prefix):
+            if file.is_under(prefix) and matches_filters(file.get_abspath()):
                 _vcpkg_print(Debug, 'Matching file ' + file.get_abspath())
                 matching_files += [file]
 
         if transitive:
             package_targets_map = get_package_targets_map(self.env)
             for dep in self.descriptor.package_deps:
-                matching_files += package_targets_map[dep].FilesUnderSubPath(subpath, transitive)
+                matching_files += package_targets_map[dep].FilesUnderSubPath(subpath, transitive, suffix_filters)
 
         return SCons.Util.NodeList(matching_files)
 
     def __str__(self):
         return "Package: " + super(PackageContents, self).__str__()
+
 
 def get_package_descriptor(env, spec):
     package_descriptors_map = get_package_descriptors_map(env)
@@ -566,7 +572,7 @@ def vcpkg_action(target, source, env):
 
 def get_vcpkg_deps(node, env, path, arg):
     deps = []
-    if not node.package_deps is None:
+    if node.package_deps is not None:
         for pkg in node.package_deps:
             target = env.VCPkg(pkg)
             deps += target[0]

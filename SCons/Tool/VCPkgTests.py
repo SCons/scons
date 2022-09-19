@@ -45,21 +45,28 @@ from SCons.Environment import Environment
 #  * Test parsing of real vcpkg.exe output
 #  * Test feature super-setting
 #  * Test "static" installs
-#  * Test "debug" installs
-#  * Test enumerating package contents
+#  * Test transitive dependencies only listing files once
 
 class MockPackage:
-    def __init__(self, name, version, dependencies):
+    def __init__(self, name, version, dependencies, files):
         self.name = name
         self.version = version
         self.dependencies = dependencies
         self._installedFiles = []
+        self._packageFiles = files
+
+    def get_list_file(self, env, static):
+        version = self.version
+        hash_pos = version.find('#')
+        if hash_pos != -1:
+            version = version[0:hash_pos]
+        return env.File(f"$VCPKGROOT/installed/vcpkg/info/{self.name}_{version}_{SCons.Tool.vcpkg._get_vcpkg_triplet(env, static)}.list")
 
     def install(self, env, static):
         assert not self._installedFiles, f"Trying to install package '{self.name}' more than once!"
-        listfile = f"{env['VCPKGROOT']}/installed/vcpkg/info/{self.name}_{self.version}_{SCons.Tool.vcpkg._get_vcpkg_triplet(env, static)}.list"
-        Path(listfile).touch()
-        self._installedFiles = [listfile]
+        listfile = self.get_list_file(env, static)
+        Path(listfile.get_abspath()).touch()
+        self._installedFiles = [listfile.get_abspath()]
 
     def clean_up(self):
         for file in self._installedFiles:
@@ -148,9 +155,9 @@ class MockVCPkg:
     # State modification functions used by contextmanager functions below
     #
 
-    def addAvailablePackage(self, name, version, dependencies):
+    def addAvailablePackage(self, name, version, dependencies, files):
         assert name not in self._availablePackages, f"Already have an AvailablePackage with name '{name}' (version {self._availablePackages[name].version})"
-        pkg = MockPackage(name, version, dependencies)
+        pkg = MockPackage(name, version, dependencies, files)
         self._availablePackages[name] = pkg
         return pkg
 
@@ -158,9 +165,9 @@ class MockVCPkg:
         pkg.clean_up()
         assert self._availablePackages.pop(pkg.name), f"Trying to remove AvailablePackage with name '{pkg.name}' that is not currently registered"
 
-    def addInstalledPackage(self, env, name, version, dependencies, static):
+    def addInstalledPackage(self, env, name, version, dependencies, files, static):
         assert name not in self._installedPackages, f"Already have an InstalledPackage with name '{name}' (version {self._availablePackages[name].version})"
-        pkg = MockPackage(name, version, dependencies)
+        pkg = MockPackage(name, version, dependencies, files)
         pkg.install(env, static)
         self._installedPackages[name] = pkg
         return pkg
@@ -226,7 +233,38 @@ class MockVCPkg:
         return MockVCPkg.__instance._availablePackages[name].dependencies
 
     def _read_vcpkg_file_list(env, list_file):
-        return []
+        # Find the correct package. It could be in either 'available' or 'installed'
+        instance = MockVCPkg.__instance
+        package = None
+        static = False
+        for name in instance._installedPackages:
+            p = instance._installedPackages[name]
+            for s in [False, True]:
+                if p.get_list_file(env, s).get_abspath() == list_file.get_abspath():
+                    package = p
+                    static = s
+                    break
+            if package is not None:
+                break
+        if package is None:
+            for name in instance._availablePackages:
+                p = instance._availablePackages[name]
+                for s in [False, True]:
+                    if p.get_list_file(env, s).get_abspath() == list_file.get_abspath():
+                        package = p
+                        static = s
+                        break
+                if package is not None:
+                    break
+
+        if package is not None:
+            prefix = f"$VCPKGROOT/installed/{SCons.Tool.vcpkg._get_vcpkg_triplet(env, static)}/"
+            files = []
+            for f in package._packageFiles:
+                files.append(env.File(prefix + f))
+            return files
+
+        assert False, f"Did not find a package matching list_file '{list_file}'"
 
 
 class InstallExpectation:
@@ -239,7 +277,7 @@ class InstallExpectation:
         for p in packages:
             name = p.get_name()
             assert name in self._packageInstalled, f"Installing unexpected package '{name}'" 
-            assert self._packageInstalled[name] == False, f"Installing package '{name}' more than once!"
+            assert self._packageInstalled[name] is False, f"Installing package '{name}' more than once!"
             self._packageInstalled[name] = True
 
     def onUpgrade(self, env, packages):
@@ -265,7 +303,7 @@ class UpgradeExpectation:
         for p in packages:
             name = p.get_name()
             assert name in self._packageUpgraded, f"Upgrading unexpected package '{name}'" 
-            assert self._packageUpgraded[name] == False, f"Upgrading package '{name}' more than once!"
+            assert self._packageUpgraded[name] is False, f"Upgrading package '{name}' more than once!"
             self._packageUpgraded[name] = True
 
     def finalize(self):
@@ -295,10 +333,10 @@ def MockVCPkgUser():
 
 
 @contextmanager
-def AvailablePackage(name, version, dependencies = []):
+def AvailablePackage(name, version, dependencies = [], files = []):
     """ContextManager temporarily adding an 'available' package to the MockVCPkg during its 'with' scope"""
     with MockVCPkgUser() as vcpkg:
-        pkg = vcpkg.addAvailablePackage(name, version, dependencies)
+        pkg = vcpkg.addAvailablePackage(name, version, dependencies, files)
         try:
             yield pkg
         finally:
@@ -306,10 +344,10 @@ def AvailablePackage(name, version, dependencies = []):
 
 
 @contextmanager
-def InstalledPackage(env, name, version, dependencies = [], static = False):
+def InstalledPackage(env, name, version, dependencies = [], files = [], static = False):
     """ContextManager temporarily adding an 'installed' package to the MockVCPkg during its 'with' scope"""
     with MockVCPkgUser() as vcpkg:
-        pkg = vcpkg.addInstalledPackage(env, name, version, dependencies, static)
+        pkg = vcpkg.addInstalledPackage(env, name, version, dependencies, files, static)
         try:
             yield pkg
         finally:
@@ -369,7 +407,7 @@ def ExpectNoChange():
 
 
 @contextmanager
-def MakeVCPkgEnv():
+def MakeVCPkgEnv(debug = False):
     """Returns an Environment suitable for testing VCPkg"""
     with tempfile.TemporaryDirectory() as vcpkg_root:
         # Ensure that the .vcpkg-root sentinel file and directory structure exists
@@ -378,7 +416,29 @@ def MakeVCPkgEnv():
 
         env = Environment(tools=['default', 'vcpkg'])
         env['VCPKGROOT'] = vcpkg_root
+        if debug:
+            env['VCPKGDEBUG'] = True
         yield env
+
+
+def assert_package_files(env, static, actual_files, expected_subpaths):
+    """Verify that 'actual_files' contains exactly the list in 'expected_subpaths' (after prepending the path to the
+       vcpkg triplet subdirectory containing installed files)"""
+    prefix = env.subst(f"$VCPKGROOT/installed/{SCons.Tool.vcpkg._get_vcpkg_triplet(env, static)}/")
+    subpath_used = {}
+    for s in expected_subpaths:
+        subpath_used[s] = False
+    for f in actual_files:
+        path = f.get_abspath()
+        used_subpath = None
+        for s in expected_subpaths:
+            if path == env.File(prefix + s).get_abspath():
+                assert used_subpath is None, f"Used file subpath '{s}' more than once"
+                used_subpath = s
+                subpath_used[s] = True
+        assert used_subpath is not None, f"File '{path}' does not match any expected subpath"
+    for s in expected_subpaths:
+        assert subpath_used[s] is True, f"Suffix '{s}' did not match any file"
 
 
 class VCPkgTestCase(unittest.TestCase):
@@ -429,7 +489,7 @@ class VCPkgTestCase(unittest.TestCase):
     def test_install_with_no_dependency(self):
         """Test that the VCPkg builder installs missing packages"""
         with MakeVCPkgEnv() as env, \
-             AvailablePackage( "frobotz", "1.2.3"), \
+             AvailablePackage("frobotz", "1.2.3"), \
              ExpectInstall(["frobotz"]):
             env.VCPkg("frobotz")
 
@@ -481,6 +541,17 @@ class VCPkgTestCase(unittest.TestCase):
              ExpectNoUpgrade():
             env.VCPkg("frobotz")
 
+    def test_install_with_dependency_reached_by_multiple_paths(self):
+        """Test that installing a package depending on a not-installed package also installs that package"""
+        with MakeVCPkgEnv() as env, \
+             AvailablePackage("xyzzy", "0.1"), \
+             AvailablePackage("glowing_sword", "0.1", dependencies = ["xyzzy"]), \
+             AvailablePackage("battered_lantern", "0.2", dependencies = ["xyzzy"]), \
+             AvailablePackage("frobotz", "1.2.1", dependencies = ["glowing_sword", "battered_lantern"]), \
+             ExpectInstall(["xyzzy", "glowing_sword", "battered_lantern", "frobotz"]), \
+             ExpectNoUpgrade():
+            env.VCPkg("frobotz")
+
     def test_upgrade(self):
         """Test that the VCPkg builder correctly upgrades existing packages to match the vcpkg configuration"""
         with MakeVCPkgEnv() as env, \
@@ -519,6 +590,77 @@ class VCPkgTestCase(unittest.TestCase):
              ExpectInstall(["glowing_sword"]), \
              ExpectUpgrade(["frobotz"]):
             env.VCPkg("frobotz")
+
+    def test_empty_package_spec_is_rejected(self):
+        """Test that the VCPkg builder rejects package names that are the empty string"""
+        with MakeVCPkgEnv() as env, \
+             MockVCPkgUser(), \
+             self.assertRaises(ValueError):
+            env.VCPkg('')
+
+    def test_package_version_with_hash_suffix_is_trimmed(self):
+        """Ensure that package versions with #n suffix get trimmed off"""
+        with MakeVCPkgEnv() as env, \
+             AvailablePackage("frobotz", "1.2.3#4"):
+            assert str(env.VCPkg("frobotz")).__contains__("1.2.3_"), "#4 suffix should've been trimmed"
+
+    def test_enumerating_package_contents(self):
+        """Ensure that we can enumerate the contents of a package (and, optionally, its transitive dependency set)"""
+        xyzzyFiles = ['bin/xyzzy.dll',
+                      'bin/xyzzy.pdb',
+                      'debug/bin/xyzzy.dll',
+                      'debug/bin/xyzzy.pdb',
+                      'debug/lib/xyzzy.lib',
+                      'debug/lib/pkgconfig/xyzzy.pc',
+                      'include/xyzzy.h',
+                      'lib/xyzzy.lib',
+                      'lib/pkgconfig/xyzzy.pc',
+                      'shared/xyzzy/copyright']
+        frobotzFiles = ['bin/frobotz.dll',
+                        'bin/frobotz.pdb',
+                        'debug/bin/frobotz.dll',
+                        'debug/bin/frobotz.pdb',
+                        'debug/lib/frobotz.lib',
+                        'debug/lib/pkgconfig/frobotz.pc',
+                        'include/frobotz.h',
+                        'lib/frobotz.lib',
+                        'lib/pkgconfig/frobotz.pc',
+                        'shared/frobotz/copyright']
+        # By default, we should get libraries under bin/ and lib/
+        with MakeVCPkgEnv() as env, \
+             AvailablePackage("xyzzy", "0.1", files = xyzzyFiles), \
+             AvailablePackage("frobotz", "1.2.3", files = frobotzFiles, dependencies = ["xyzzy"]):
+            # For simplicity, override the platform-specific naming for static and shared libraries so that we don't
+            # have to modify the file lists to make the test pass on all platforms
+            env['SHLIBPREFIX'] = ''
+            env['LIBPREFIX'] = ''
+            env['SHLIBSUFFIX'] = '.dll'
+            env['LIBSUFFIX'] = '.lib'
+            for pkg in env.VCPkg("frobotz"):
+                assert_package_files(env, False, pkg.Headers(), ['include/frobotz.h'])
+                assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/xyzzy.h'])
+                assert_package_files(env, False, pkg.SharedLibraries(), ['bin/frobotz.dll'])
+                assert_package_files(env, False, pkg.SharedLibraries(transitive = True), ['bin/frobotz.dll', 'bin/xyzzy.dll'])
+                assert_package_files(env, False, pkg.StaticLibraries(), ['lib/frobotz.lib'])
+                assert_package_files(env, False, pkg.StaticLibraries(transitive = True), ['lib/frobotz.lib', 'lib/xyzzy.lib'])
+
+        # with $VCPKGDEBUG = True, we should get libraries under debug/bin/ and debug/lib/
+        with MakeVCPkgEnv(debug = True) as env, \
+             AvailablePackage("xyzzy", "0.1", files = xyzzyFiles), \
+             AvailablePackage("frobotz", "1.2.3", files = frobotzFiles, dependencies = ["xyzzy"]):
+            # For simplicity, override the platform-specific naming for static and shared libraries so that we don't
+            # have to modify the file lists to make the test pass on all platforms
+            env['SHLIBPREFIX'] = ''
+            env['LIBPREFIX'] = ''
+            env['SHLIBSUFFIX'] = '.dll'
+            env['LIBSUFFIX'] = '.lib'
+            for pkg in env.VCPkg("frobotz"):
+                assert_package_files(env, False, pkg.Headers(), ['include/frobotz.h'])
+                assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/xyzzy.h'])
+                assert_package_files(env, False, pkg.SharedLibraries(), ['debug/bin/frobotz.dll'])
+                assert_package_files(env, False, pkg.SharedLibraries(transitive = True), ['debug/bin/frobotz.dll', 'debug/bin/xyzzy.dll'])
+                assert_package_files(env, False, pkg.StaticLibraries(), ['debug/lib/frobotz.lib'])
+                assert_package_files(env, False, pkg.StaticLibraries(transitive = True), ['debug/lib/frobotz.lib', 'debug/lib/xyzzy.lib'])
 
 
 if __name__ == "__main__":
