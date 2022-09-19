@@ -493,8 +493,7 @@ class VCPkgTestCase(unittest.TestCase):
              ExpectInstall(["frobotz"]):
             env.VCPkg("frobotz")
 
-    # This doesn't work right now
-    def broken_test_install_multiple(self):
+    def test_install_multiple(self):
         """Test that the VCPkg builder installs multiple missing packages specified in a single VCPkg() call"""
         with MakeVCPkgEnv() as env, \
              AvailablePackage("abcd", "0.1"), \
@@ -657,6 +656,7 @@ class VCPkgTestCase(unittest.TestCase):
             env['SHLIBSUFFIX'] = '.dll'
             env['LIBSUFFIX'] = '.lib'
             for pkg in env.VCPkg("frobotz"):
+                assert_package_files(env, False, pkg.FilesUnderSubPath(''), frobotzFiles)
                 assert_package_files(env, False, pkg.Headers(), ['include/frobotz.h'])
                 assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/sword.h', 'include/xyzzy.h'])
                 assert_package_files(env, False, pkg.SharedLibraries(), ['bin/frobotz.dll'])
@@ -676,6 +676,7 @@ class VCPkgTestCase(unittest.TestCase):
             env['SHLIBSUFFIX'] = '.dll'
             env['LIBSUFFIX'] = '.lib'
             for pkg in env.VCPkg("frobotz"):
+                assert_package_files(env, False, pkg.FilesUnderSubPath(''), frobotzFiles)
                 assert_package_files(env, False, pkg.Headers(), ['include/frobotz.h'])
                 assert_package_files(env, False, pkg.Headers(transitive = True), ['include/frobotz.h', 'include/sword.h', 'include/xyzzy.h'])
                 assert_package_files(env, False, pkg.SharedLibraries(), ['debug/bin/frobotz.dll'])

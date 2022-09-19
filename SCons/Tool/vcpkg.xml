@@ -26,49 +26,104 @@ See its __doc__ string for a discussion of the format.
     <tool name="vcpkg">
         <summary>
             <para>
-                Sets construction variables for the &vcpkg; package manager
+                Integrates the <link xlink:href="http://vcpkg.io/">vcpkg</link> package manager into SCons.
+                If the <option>--vcpkg-debug</option> is given on the command line, lots of extra information will be
+                emitted, indicating what the vcpkg tool is doing and why.
             </para>
         </summary>
-        <uses>
-            <item>VCPKGROOT</item>
-            <item>VCPKGDEBUG</item>
-        </uses>
     </tool>
 
     <builder name="VCPkg">
         <summary>
             <para>
                 Downloads and builds one or more software packages (plus any dependencies of those packages) via the
-                &vcpkg; package manager, making the built artifcats available for other builders.
+                <link xlink:href="http://vcpkg.io/">vcpkg</link> package manager, making the built artifacts available
+                for other builders.
             </para>
 
             <example_commands>
-# Install FreeImage, plus any of its dependencies
+# Download and build FreeImage, plus all of its dependencies
 env.VCPkg('freeimage')
             </example_commands>
 
             <para>
-                &vcpkg; is distributed as a Git repository, containing the &vcpkg; executable (or a script to build it)
+                vcpkg is distributed as a Git repository, containing the vcpkg executable (or a script to build it)
                 and a "snapshot" of the current versions of all available packages. A typical usage pattern is for your
-                project to incorporate &vcpkg; as a Git submodule underneath your project (run 'git submodule --help'),
+                project to incorporate vcpkg as a Git submodule underneath your project (run 'git submodule --help'),
                 though system-wide installation is also supported.
             </para>
 
             <para>
-                Packages built with &vcpkg; may produce header files, static libraries and shared libraries
-                (<filename>.dll</filename>/<filename>.so</filename> files). The &vcpkg;-internal directores
-                containing these built artifacts are added to &cv-link-CPPPATH; and &cv-link-LIBPATH; and
-                &cv-link-PATH;, respectively.
+                Packages built with vcpkg may produce header files, static libraries and shared libraries
+                (<filename>.dll</filename>/<filename>.so</filename> files), organized in directories underneath
+                &cv-vcpkg-VCPKGROOT;. The VCPkg builder makes these artifacts available to the SCons build as
+                straightforwardly as possible:
+                <itemizedlist mark='opencircle'>
+                    <listitem>
+                        <para>The directory containing header files is automatically added to &cv-link-CPPPATH;.</para>
+                    </listitem>
+                    <listitem>
+                        <para>The directory containing static libraries is automatically added to &cv-link-LIBPATH;.</para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            The object returned by invoking the VCPkg builder provides methods for enumerating the
+                            files produced by the package (and optionally, any of its upstream dependencies), allowing
+                            your SConstruct file to do arbitrary, further processing on them.
+                        </para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+
+            <para>
+                Since the operating system needs to be able to find any shared libraries that your program depends on,
+                you will need to ensure that these libraries end up somewhere in the library search path. One way to do
+                this is to manually add the path to where these shared libraries to the search path, but this has the
+                downsides of being "manual", and also of potentially breaking if vcpkg ever alters its directory
+                structure. A better way is to enumerate the shared libraries and &t-install; them into the same
+                directory as your program builds into:
+            </para>
+
+            <example_commands>
+# Ensure that the 'freeimage' and 'fftw3' packages are built, and then install all shared libraries produced by them
+# or any of their dependencies into myVariantDir
+for pkg in env.VCPkg(['freeimage', 'fftw3']):
+    env.Install(myVariantDir, pkg.SharedLibraries(transitive = True))
+
+    # Of course, packages contain more than shared libraries. While a typical project likely won't need to do this,
+    # you can enumerate other artifacts from the package by calling other functions:
+    print("Header files: " + ' '.join(pkg.Headers()))
+    print("Static libs (incl. dependencies): " + ' '.join(pkg.StaticLibraries(transitive = True)))
+    print("Everything: " + ' '.join(pkg.FilesUnderSubPath('')))
+    print(".txt files under share: " + ' '.join(pkg.FilesUnderSubPath('share/', suffix_filters = '.txt')
+            </example_commands>
+
+            <para>
+                An additional benefit of this approach is that it works better with multiple variants: let's say
+                that you have "debug" and "release" build configurations, building into different variant directories.
+                By installing the shared libraries into these directories, you can use the corresponding "debug" and
+                "release" builds of the VCPkg-built libraries without conflict.
+            </para>
+
+            <para>
+                Note that the return value from invoking the VCPkg builder is always a list, even if you only specify
+                a single package to build, as SCons always returns a list from invoking a Builder. Thus, the "for"
+                loop iterating over the packages is still necessary, even in the single-package case.
             </para>
 
         </summary>
+
+        <uses>
+            <item>VCPKGROOT</item>
+            <item>VCPKGDEBUG</item>
+        </uses>
     </builder>
 
     <cvar name="VCPKGROOT">
         <summary>
             <para>
-                Specifies the path to the root directory of the &vcpkg; installation. This must be set in the
-                SConstruct/SConscript file, and must point to an existing &vcpkg; installation. Often, this directory
+                Specifies the path to the root directory of the vcpkg installation. This must be set in the
+                SConstruct/SConscript file, and must point to an existing vcpkg installation. Often, this directory
                 will be a Git sub-module of your project, in which case VCPKGROOT will be specified relative to the
                 project root.
             </para>
@@ -83,9 +138,9 @@ env['VCPKGROOT'] = '#/vcpkg'
     <cvar name="VCPKGDEBUG">
         <summary>
             <para>
-                Specifies whether &vcpkg; should build debug or optimized versions of packages. If True, then "debug"
-                packages will be built, with full debugging information and most optimizations disabled. If False (or
-                unset), then packages will be built using optimized settings.
+                Specifies whether vcpkg should build debug or optimized versions of packages. If True, then "debug"
+                packages will be built and used, with full debugging information and most optimizations disabled. If
+                False (or unset), then packages will be built using optimized settings.
             </para>
             <para>
                 Note that, while you may choose to set this to match the optimization settings of your project's build,
