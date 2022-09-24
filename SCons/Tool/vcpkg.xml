@@ -57,7 +57,7 @@ env.VCPkg('freeimage')
             <para>
                 Packages built with vcpkg may produce header files, static libraries and shared libraries
                 (<filename>.dll</filename>/<filename>.so</filename> files), organized in directories underneath
-                &cv-vcpkg-VCPKGROOT;. The VCPkg builder makes these artifacts available to the SCons build as
+                &cv-link-VCPKGROOT;. The VCPkg builder makes these artifacts available to the SCons build as
                 straightforwardly as possible:
                 <itemizedlist mark='opencircle'>
                     <listitem>
