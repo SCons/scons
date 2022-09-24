@@ -614,6 +614,25 @@ def vcpkg_emitter(target, source, env):
     return target, source
 
 
+class VCPkgBuilder(SCons.Builder.BuilderBase):
+    def __init__(self, env):
+        # single_source = True shouldn't be required, as VCPkgBuilder is capable of handling lists of inputs.
+        # However, there are appears to be a bug in how Builder._createNodes processes lists of nodes, and
+        # the result is that VCPkgBuilder only gets the first item in the list.
+        super().__init__(action = SCons.Action.Action(vcpkg_action),
+                         source_factory = lambda spec: get_package_descriptor(env, spec),
+                         target_factory = lambda desc: PackageContents(env, desc),
+                         source_scanner = vcpkg_source_scanner,
+                         single_source = True,
+                         suffix = '.list',
+                         emitter = vcpkg_emitter)
+
+    # Need to override operator ==, since a VCPkgBuilder is bound to a specific instance of Environment, but
+    # Environment unit tests expect to be able to compare the BUILDERS dictionaries between two Environments.
+    def __eq__(self, other):
+        return type(self) == type(other)
+
+
 # TODO: static?
 def generate(env):
     """Add Builders and construction variables for vcpkg to an Environment."""
@@ -627,18 +646,7 @@ def generate(env):
     else:
         _max_verbosity = Normal
 
-    # single_source = True shouldn't be required, as VCPkgBuilder is capable of handling lists of inputs.
-    # However, there are appears to be a bug in how Builder._createNodes processes lists of nodes, and
-    # the result is that VCPkgBuilder only gets the first item in the list.
-    VCPkgBuilder = SCons.Builder.Builder(action = vcpkg_action,
-                                         source_factory = lambda spec: get_package_descriptor(env, spec),
-                                         target_factory = lambda desc: PackageContents(env, desc),
-                                         source_scanner = vcpkg_source_scanner,
-                                         single_source = True,
-                                         suffix = '.list',
-                                         emitter = vcpkg_emitter)
-
-    env['BUILDERS']['VCPkg'] = VCPkgBuilder
+    env['BUILDERS']['VCPkg'] = VCPkgBuilder(env)
 
 def exists(env):
     return 1
