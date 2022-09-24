@@ -432,7 +432,7 @@ def assert_package_files(env, static, actual_files, expected_subpaths):
         matched_subpath = None
         for s in expected_subpaths:
             if path == env.File(prefix + s).get_abspath():
-                assert matched_subpath is None, f"File '{path}' matched more than one subpath ('{s}' and '{used_subpath}')"
+                assert matched_subpath is None, f"File '{path}' matched more than one subpath ('{s}' and '{matched_subpath}')"
                 assert subpath_used[s] is False, f"Subpath '{s}' matched more than one file"
                 matched_subpath = s
                 subpath_used[s] = True
