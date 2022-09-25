@@ -1034,6 +1034,8 @@ class Base(SubstitutionEnvironment):
         # should override any values set by the tools.
         for key, val in save.items():
             self._dict[key] = val
+        if 'SOURCE_DATE_EPOCH' in os.environ:
+            self._dict['ENV']['SOURCE_DATE_EPOCH'] = os.environ['SOURCE_DATE_EPOCH']
 
         # Finally, apply any flags to be merged in
         if parse_flags:

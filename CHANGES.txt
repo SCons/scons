@@ -14,6 +14,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       EnsurePythonVersion(), Exit(), GetLaunchDir() and SConscriptChdir().
     - Remove unused private method SConsEnvironment._exceeds_version().
 
+  From Bernhard M. Wiedemann:
+    - Preserve SOURCE_DATE_EPOCH for reproducible builds
+
   From William Deegan:
     - Added ValidateOptions() which will check that all command line options are in either
       those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
