@@ -1948,7 +1948,7 @@ can contain POSIX-style shell metacharacters for matching:
   <row>
       <entry><literal>[seq]</literal></entry>
       <entry>matches any character in <emphasis>seq</emphasis>
-      (can be a list or a ranage).</entry>
+      (can be a list or a range).</entry>
   </row>
   <row>
       <entry><literal>[!seq]</literal></entry>
@@ -1997,6 +1997,8 @@ argument evaluates false,
 the search for matches on disk is disabled,
 and only matches from
 already-configured File or Dir Nodes are returned.
+The default is to return Nodes for
+matches on disk as well.
 </para>
 
 <para>
