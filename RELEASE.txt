@@ -73,6 +73,7 @@ DOCUMENTATION
 - EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
   SConscriptChdir are now listed as Global functions only.
 - Updated the docs for Glob.
+- Updated SHELL_ENV_GENERATORS description and added versionadded indicator.
 
 DEVELOPMENT
 -----------
@@ -83,4 +84,4 @@ Thanks to the following contributors listed below for their contributions to thi
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.4.0..HEAD
