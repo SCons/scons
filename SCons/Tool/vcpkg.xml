@@ -21,13 +21,12 @@ See its __doc__ string for a discussion of the format.
 
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
           xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 
     <tool name="vcpkg">
         <summary>
             <para>
-                Integrates the <link xlink:href="http://vcpkg.io/">vcpkg</link> package manager into SCons.
+                Integrates the <ulink url="http://vcpkg.io/">vcpkg</ulink> package manager into SCons.
                 If the <option>--vcpkg-debug</option> is given on the command line, lots of extra information will be
                 emitted, indicating what the vcpkg tool is doing and why.
             </para>
@@ -38,7 +37,7 @@ See its __doc__ string for a discussion of the format.
         <summary>
             <para>
                 Downloads and builds one or more software packages (plus any dependencies of those packages) via the
-                <link xlink:href="http://vcpkg.io/">vcpkg</link> package manager, making the built artifacts available
+                <ulink url="http://vcpkg.io/">vcpkg</ulink> package manager, making the built artifacts available
                 for other builders.
             </para>
 
