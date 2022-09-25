@@ -26,14 +26,13 @@ See its __doc__ string for a discussion of the format.
 <cvar name="IMPLICIT_COMMAND_DEPENDENCIES">
 <summary>
 <para>
-Controls whether or not SCons will
+Controls whether or not &SCons; will
 add implicit dependencies for the commands
 executed to build targets.
 </para>
 
 <para>
-By default, SCons will add
-to each target
+By default, &SCons; will add to each target
 an implicit dependency on the command
 represented by the first argument of any
 command line it executes (which is typically
@@ -224,21 +223,39 @@ defining the execution environment in which the command should be executed.
 <cvar name="SHELL_ENV_GENERATORS">
   <summary>
     <para>
-Must be a list (or an iterable) containing functions where each function generates or
-alters the environment dictionary which will be used
-when executing the &cv-link-SPAWN; function. The functions will initially 
-be passed a reference of the current execution environment (e.g. env['ENV']), 
-and each called while iterating the list. Each function must return a dictionary
-which will then be passed to the next function iterated. The return dictionary 
-should contain keys which represent the environment variables and their respective
-values.
-
-This primary purpose of this construction variable is to give the user the ability
-to substitute execution environment variables based on env, targets, and sources. 
-If desired, the user can completely customize the execution environment for particular
-targets.
+A hook allowing the execution environment to be modified prior
+to the actual execution of a command line from an action
+via the spawner function defined by &cv-link-SPAWN;.
+Allows substitution based on targets and sources,
+as well as values from the &consenv;,
+adding extra environment variables, etc.
     </para>
 
+    <para>
+The value must be a list (or other iterable)
+of functions which each generate or
+alter the execution environment dictionary.
+The first function will be passed a copy of the initial execution environment
+(&cv-link-ENV; in the current &consenv;);
+the dictionary returned by that function is passed to the next,
+until the iterable is exhausted and the result returned
+for use by the command spawner.
+The original execution environment is not modified.
+    </para>
+
+    <para>
+Each function provided in &cv-SHELL_ENV_GENERATORS; must accept four
+arguments and return a dictionary:
+<varname>env</varname> is the &consenv; for this action;
+<varname>target</varname> is the list of targets associated with this action;
+<varname>source</varname> is the list of sources associated with this action;
+and <varname>shell_env</varname> is the current dictionary after iterating
+any previous &cv-SHELL_ENV_GENERATORS; functions
+(this can be compared to the original execution environment,
+which is available as <literal>env['ENV']</literal>, to detect any changes).
+    </para>
+
+    <para>Example:</para>
     <example_commands>
 def custom_shell_env(env, target, source, shell_env):
     """customize shell_env if desired"""
@@ -249,24 +266,7 @@ def custom_shell_env(env, target, source, shell_env):
 env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
     </example_commands>
 
-    <para>
-      <varname>env</varname>
-The SCons construction environment from which the
-execution environment can be derived from.
-    </para>
-    <para>
-    <varname>target</varname>
-The list of targets associated with this action.
-    </para>
-    <para>
-    <varname>source</varname>
-The list of sources associated with this action.
-    </para>
-    <para>
-    <varname>shell_env</varname>
-The current shell_env after iterating other SHELL_ENV_GENERATORS functions. This can be compared
-to the passed env['ENV'] to detect any changes.
-    </para>
+  <para><emphasis>Available since 4.4</emphasis></para>
   </summary>
 </cvar>
 
