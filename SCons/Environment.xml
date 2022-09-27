@@ -620,21 +620,22 @@ specify the value as <constant>None</constant>.
 </para>
 
 <!--TODO: at last check, this newly created example blew up SConsDoc/lxml -->
-<!--example_commands>
+<example_commands>
 env = Environment()
 env.Append(CPPDEFINES =[("ONE", 1), ("TWO", )])
 print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES ={"THREE": 3, "FOUR": None})
 print("CPPDEFINES =", env['CPPDEFINES'])
 print("CPPDEFINES will expand to ", env.subst('$_CPPDEFFLAGS'))
-</example_commands-->
+</example_commands>
 
-<!--screen>
+<screen>
+$ scons -Q
 CPPDEFINES = [('ONE', 1), ('TWO',)]
 CPPDEFINES = [('ONE', 1), ('TWO',), {'THREE': 3, 'FOUR': None}]
 CPPDEFINES will expand to  -DONE=1 -DTWO -DTHREE=3 -DFOUR
 scons: `.' is up to date.
-</screen-->
+</screen>
 
 <para>
 See &cv-link-CPPDEFINES; for more details.
