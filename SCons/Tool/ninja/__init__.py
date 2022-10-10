@@ -416,7 +416,7 @@ def generate(env):
     # The Serial job class is SIGNIFICANTLY (almost twice as) faster
     # than the Parallel job class for generating Ninja files. So we
     # monkey the Jobs constructor to only use the Serial Job class.
-    SCons.Job.Jobs.__init__ = ninja_always_serial
+    SCons.Taskmaster.Job.Jobs.__init__ = ninja_always_serial
 
     ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
 

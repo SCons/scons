@@ -99,14 +99,6 @@ SCons.Executor module
     :undoc-members:
     :show-inheritance:
 
-SCons.Job module
-----------------
-
-.. automodule:: SCons.Job
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 SCons.Memoize module
 --------------------
 
