@@ -52,7 +52,7 @@ import SCons.Debug
 import SCons.Defaults
 import SCons.Environment
 import SCons.Errors
-import SCons.Job
+import SCons.Taskmaster.Job
 import SCons.Node
 import SCons.Node.FS
 import SCons.Platform
@@ -1134,7 +1134,7 @@ def _main(parser):
     SCons.Node.FS.set_duplicate(options.duplicate)
     fs.set_max_drift(options.max_drift)
 
-    SCons.Job.explicit_stack_size = options.stack_size
+    SCons.Taskmaster.Job.explicit_stack_size = options.stack_size
 
     # Hash format and chunksize are set late to support SetOption being called
     # in a SConscript or SConstruct file.
@@ -1321,7 +1321,7 @@ def _build_targets(fs, options, targets, target_top):
     # to check if python configured with threads.
     global num_jobs
     num_jobs = options.num_jobs
-    jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+    jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
     if num_jobs > 1:
         msg = None
         if jobs.num_jobs == 1 or not python_has_threads:

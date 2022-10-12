@@ -78,7 +78,8 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
+  NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

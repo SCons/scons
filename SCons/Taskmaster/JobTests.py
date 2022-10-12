@@ -25,12 +25,11 @@ import unittest
 import random
 import math
 import sys
-import time
 import os
 
 import TestUnit
 
-import SCons.Job
+import SCons.Taskmaster.Job
 
 
 def get_cpu_nums():
@@ -258,7 +257,7 @@ class ParallelTestCase(unittest.TestCase):
             raise NoThreadsException()
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
         jobs.run()
 
         self.assertTrue(not taskmaster.tasks_were_serial(),
@@ -284,7 +283,7 @@ class ParallelTestCase(unittest.TestCase):
                 time.sleep(0.01)
 
         global SaveThreadPool
-        SaveThreadPool = SCons.Job.ThreadPool
+        SaveThreadPool = SCons.Taskmaster.Job.ThreadPool
 
         class WaitThreadPool(SaveThreadPool):
             def put(self, task):
@@ -296,11 +295,11 @@ class ParallelTestCase(unittest.TestCase):
                 ThreadPoolCallList.append('get(%s)' % result[0].i)
                 return result
 
-        SCons.Job.ThreadPool = WaitThreadPool
+        SCons.Taskmaster.Job.ThreadPool = WaitThreadPool
 
         try:
             taskmaster = Taskmaster(3, self, SleepTask)
-            jobs = SCons.Job.Jobs(2, taskmaster)
+            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
             jobs.run()
 
             # The key here is that we get(1) and get(2) from the
@@ -314,14 +313,14 @@ class ParallelTestCase(unittest.TestCase):
             assert ThreadPoolCallList in expect, ThreadPoolCallList
 
         finally:
-            SCons.Job.ThreadPool = SaveThreadPool
+            SCons.Taskmaster.Job.ThreadPool = SaveThreadPool
 
 class SerialTestCase(unittest.TestCase):
     def runTest(self):
         """test a serial job"""
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)
-        jobs = SCons.Job.Jobs(1, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(1, taskmaster)
         jobs.run()
 
         self.assertTrue(taskmaster.tasks_were_serial(),
@@ -340,11 +339,11 @@ class NoParallelTestCase(unittest.TestCase):
         """test handling lack of parallel support"""
         def NoParallel(tm, num, stack_size):
             raise NameError
-        save_Parallel = SCons.Job.Parallel
-        SCons.Job.Parallel = NoParallel
+        save_Parallel = SCons.Taskmaster.Job.Parallel
+        SCons.Taskmaster.Job.Parallel = NoParallel
         try:
             taskmaster = Taskmaster(num_tasks, self, RandomTask)
-            jobs = SCons.Job.Jobs(2, taskmaster)
+            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
             self.assertTrue(jobs.num_jobs == 1,
                             "unexpected number of jobs %d" % jobs.num_jobs)
             jobs.run()
@@ -359,7 +358,7 @@ class NoParallelTestCase(unittest.TestCase):
             self.assertFalse(taskmaster.num_failed,
                         "some task(s) failed to execute")
         finally:
-            SCons.Job.Parallel = save_Parallel
+            SCons.Taskmaster.Job.Parallel = save_Parallel
 
 
 class SerialExceptionTestCase(unittest.TestCase):
@@ -367,7 +366,7 @@ class SerialExceptionTestCase(unittest.TestCase):
         """test a serial job with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
-        jobs = SCons.Job.Jobs(1, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(1, taskmaster)
         jobs.run()
 
         self.assertFalse(taskmaster.num_executed,
@@ -384,7 +383,7 @@ class ParallelExceptionTestCase(unittest.TestCase):
         """test parallel jobs with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
         jobs.run()
 
         self.assertFalse(taskmaster.num_executed,
@@ -476,7 +475,7 @@ class _SConsTaskTest(unittest.TestCase):
         taskmaster = SCons.Taskmaster.Taskmaster(testnodes,
                                                  tasker=SCons.Taskmaster.AlwaysTask)
 
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
 
         # Exceptions thrown by tasks are not actually propagated to
         # this level, but are instead stored in the Taskmaster.
