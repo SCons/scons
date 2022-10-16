@@ -43,6 +43,10 @@ FIXES
 - A list argument as the source to the Copy() action function is now handled.
   Both the implementation and the strfunction which prints the progress
   message were adjusted.
+- The Java scanner processing of JAVACLASSPATH for dependencies (introduced
+  in 4.4.0) is adjusted to split on the system's search path separator
+  instead of on space - the latter disallowed passing a completed search
+  string as a scalar value, and broke on paths with embedded spaces.
 
 IMPROVEMENTS
 ------------
@@ -74,6 +78,12 @@ DOCUMENTATION
   SConscriptChdir are now listed as Global functions only.
 - Updated the docs for Glob.
 - Updated SHELL_ENV_GENERATORS description and added versionadded indicator.
+- JAVABOOTCLASSPATH, JAVACLASSPATH and JAVASOURCEPATH better document the
+  acceptable syntax for values, and how they will be interpreted,
+  including that JAVACLASSPATH will be scanned for dependencies.
+  Added note on the possibly surprising feature that SCons always passes
+  -sourcepath when calling javac, which affects how the class path is
+  used when finding sources.
 
 DEVELOPMENT
 -----------

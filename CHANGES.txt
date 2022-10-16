@@ -40,6 +40,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - doc: EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
       SConscriptChdir are now listed as Global functions only; the
       Environment versions still work but are not documented.
+    - The Java scanner processing of JAVACLASSPATH for dependencies was
+      changed to split on os.pathsep instead of space, to match usage of
+      passing a path string like "xxx:yyy:zzz". This is not portable -
+      passing a POSIX-style path string (with ':') won't work on Windows
+      (';') - which is now documented with a hint to use a list instead
+      to be portable. Splitting on space broke paths with embedded spaces.
+      Fixes #4243.
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 
