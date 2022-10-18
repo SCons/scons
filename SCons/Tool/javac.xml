@@ -140,10 +140,10 @@ env['ENV']['LANG'] = 'en_GB.UTF-8'
                 search path separator characters
                 (<literal>:</literal> for POSIX systems or
                 <literal>;</literal> for Windows), it will not be modified;
+                and so is inherently system-specific;
                 to supply the path in a system-independent manner,
                 give &cv-JAVABOOTCLASSPATH; as a list of paths instead.
             </para>
-
             <note>
                 <para>
                     Can only be used when compiling for releases prior to JDK 9.
@@ -239,12 +239,13 @@ env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
                 If &cv-JAVACLASSPATH; is a single string containing
                 search path separator characters
                 (<literal>:</literal> for POSIX systems or
-                <literal>;</literal> for Windows), it will not be modified;
+                <literal>;</literal> for Windows), 
+                it will be split on the separator into a list of individual
+                paths for dependency scanning purposes.
+                It will not be modified for JDK command-line usage,
+                so such a string is inherently system-specific;
                 to supply the path in a system-independent manner,
                 give &cv-JAVACLASSPATH; as a list of paths instead.
-                Such a string <emphasis>will</emphasis>, however,
-                be split on the separator into a list of individual paths
-                for dependency scanning purposes.
             </para>
             <note>
               <para>
@@ -289,24 +290,24 @@ env = Environment(JAVACCOMSTR="Compiling class files $TARGETS from $SOURCES")
             </para>
             <para>
                 The value will be added to the JDK command lines
-                via the <option>-sourcepath</option> option.
-                The JDK <option>-sourcepath</option> option requires a
-                system-specific search path separator,
-                which will be supplied by &SCons; as needed when it
+                via the <option>-sourcepath</option> option,
+                which requires a system-specific search path separator,
+                This will be supplied by &SCons; as needed when it
                 constructs the command line if &cv-JAVASOURCEPATH; is
                 provided in list form.
                 If &cv-JAVASOURCEPATH; is a single string containing
                 search path separator characters
                 (<literal>:</literal> for POSIX systems or
-                <literal>;</literal> for Windows), it will not be modified;
+                <literal>;</literal> for Windows), it will not be modified,
+                and so is inherently system-specific;
                 to supply the path in a system-independent manner,
                 give &cv-JAVASOURCEPATH; as a list of paths instead.
             </para>
             <para>
-                Note that this currently just adds the specified
-                directories via the <option>-sourcepath</option> option.
+                Note that the specified directories are only added to
+                the command line via the <option>-sourcepath</option> option.
                 &SCons; does not currently search the
-                &cv-JAVASOURCEPATH; directories for dependency
+                &cv-JAVASOURCEPATH; directories for dependent
                 <filename>.java</filename>
                 files.
             </para>

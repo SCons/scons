@@ -33,7 +33,7 @@ def _subst_paths(env, paths) -> list:
     """Return a list of substituted path elements.
 
     If *paths* is a string, it is split on the search-path separator
-    (this makes the interpretation system-specitic - this is warned about
+    (this makes the interpretation system-specific - this is warned about
     in the manpage).  This helps support behavior like pulling in the
     external ``CLASSPATH`` and setting it directly into ``JAVACLASSPATH``.
     Otherwise, substitution is done on string-valued list elements
@@ -44,6 +44,7 @@ def _subst_paths(env, paths) -> list:
         if SCons.Util.is_String(paths):
             paths = paths.split(os.pathsep)
     else:
+        # TODO: may want to revisit splitting list-element strings if requested
         paths = flatten(paths)
         paths = [env.subst(path) if is_String(path) else path for path in paths]
     return paths
@@ -73,6 +74,9 @@ def scan(node, env, libpath=()) -> list:
     result = []
     for path in classpath:
         if is_String(path) and "*" in path:
+            # This matches more than the Java docs describe: a '*' only
+            # matches jar files. The filter later should trim this down.
+            # TODO: should we filter here? use .endswith('*') rather than "in"?
             libs = env.Glob(path)
         else:
             libs = [path]
@@ -91,6 +95,10 @@ def scan(node, env, libpath=()) -> list:
 
 
 def JavaScanner():
+    """Scanner for .java files.
+
+    .. versionadded:: 4.4
+    """
     return SCons.Scanner.Base(scan, 'JavaScanner', skeys=['.java'])
 
 # Local Variables:

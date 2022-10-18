@@ -43,10 +43,15 @@ FIXES
 - A list argument as the source to the Copy() action function is now handled.
   Both the implementation and the strfunction which prints the progress
   message were adjusted.
-- The Java scanner processing of JAVACLASSPATH for dependencies (introduced
-  in 4.4.0) is adjusted to split on the system's search path separator
-  instead of on space - the latter disallowed passing a completed search
-  string as a scalar value, and broke on paths with embedded spaces.
+- The Java Scanner processing of JAVACLASSPATH for dependencies (behavior
+  that was introduced in SCons 4.4.0) is adjusted to split on the system's
+  search path separator instead of on a space. The previous behavior meant
+  that a path containing spaces (e.g. r"C:\somepath\My Classes") would
+  lead to unexpected errors. If the split-on-space behavior is desired,
+  pre-split the value: instead of: env["JAVACLASSPATH"] = "foo bar baz"
+  use: env["JAVACLASSPATH"] = env.Split("foo bar baz")
+  There is no change in how JAVACLASSPATH gets turned into the -classpath
+  argument passed to the JDK tools.
 
 IMPROVEMENTS
 ------------
