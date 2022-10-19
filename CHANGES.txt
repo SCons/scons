@@ -41,6 +41,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       SConscriptChdir are now listed as Global functions only; the
       Environment versions still work but are not documented.
 
+  From Andrew Morrow
+    - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
+      iterates more slowly than the builtin types. Also simplify uniquer_hashables to
+      use an faster implementation under the assumption of ordered dictionaries.
+
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 
   From Joseph Brill:

@@ -1363,44 +1363,11 @@ def unique(seq):
             u.append(x)
     return u
 
-
-# From Alex Martelli,
-# https://code.activestate.com/recipes/52560
-# ASPN: Python Cookbook: Remove duplicates from a sequence
-# First comment, dated 2001/10/13.
-# (Also in the printed Python Cookbook.)
-# This not currently used, in favor of the next function...
-
-def uniquer(seq, idfun=None):
-    def default_idfun(x):
-        return x
-    if not idfun:
-        idfun = default_idfun
-    seen = {}
-    result = []
-    result_append = result.append  # perf: avoid repeated method lookups
-    for item in seq:
-        marker = idfun(item)
-        if marker in seen:
-            continue
-        seen[marker] = 1
-        result_append(item)
-    return result
-
-# A more efficient implementation of Alex's uniquer(), this avoids the
-# idfun() argument and function-call overhead by assuming that all
-# items in the sequence are hashable.  Order-preserving.
-
+# Best way (assuming Python 3.7, but effectively 3.6) to remove
+# duplicates from a list in while preserving order, according to
+# https://discord.com/channels/@me/627187920079421471/1032001231952027648
 def uniquer_hashables(seq):
-    seen = {}
-    result = []
-    result_append = result.append  # perf: avoid repeated method lookups
-    for item in seq:
-        if item not in seen:
-            seen[item] = 1
-            result_append(item)
-    return result
-
+    return list(dict.fromkeys(seq))
 
 # Recipe 19.11 "Reading Lines with Continuation Characters",
 # by Alex Martelli, straight from the Python CookBook (2nd edition).
