@@ -32,12 +32,14 @@ from SCons.Util import flatten, is_String
 def _subst_paths(env, paths) -> list:
     """Return a list of substituted path elements.
 
-    If *paths* is a string, it is split on the search-path separator
-    (this makes the interpretation system-specific - this is warned about
-    in the manpage).  This helps support behavior like pulling in the
-    external ``CLASSPATH`` and setting it directly into ``JAVACLASSPATH``.
-    Otherwise, substitution is done on string-valued list elements
-    but not splitting.
+    If *paths* is a string, it is split on the search-path separator.
+    Otherwise, substitution is done on string-valued list elements but
+    they are not split.
+
+    Note helps support behavior like pulling in the external ``CLASSPATH``
+    and setting it directly into ``JAVACLASSPATH``, however splitting on
+    ``os.pathsep`` makes the interpretation system-specific (this is
+    warned about in the manpage entry for ``JAVACLASSPATH``).
     """
     if is_String(paths):
         paths = env.subst(paths)

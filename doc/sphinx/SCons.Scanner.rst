@@ -44,6 +44,14 @@ SCons.Scanner.IDL module
     :undoc-members:
     :show-inheritance:
 
+SCons.Scanner.Java module
+-------------------------
+
+.. automodule:: SCons.Scanner.Java
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 SCons.Scanner.LaTeX module
 --------------------------
 
