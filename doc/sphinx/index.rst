@@ -31,6 +31,7 @@ SCons API Documentation
    SCons.Platform
    SCons.Scanner
    SCons.Script
+   SCons.Taskmaster
    SCons.Tool
    SCons.Variables
 
