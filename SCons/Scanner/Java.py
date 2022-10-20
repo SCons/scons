@@ -21,56 +21,64 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os 
+import os
 
 import SCons.Node
 import SCons.Node.FS
 import SCons.Scanner
-import SCons.Util
+from SCons.Util import flatten, is_String
 
 
-def _subst_libs(env, libs):
+def _subst_paths(env, paths) -> list:
+    """Return a list of substituted path elements.
+
+    If *paths* is a string, it is split on the search-path separator.
+    Otherwise, substitution is done on string-valued list elements but
+    they are not split.
+
+    Note helps support behavior like pulling in the external ``CLASSPATH``
+    and setting it directly into ``JAVACLASSPATH``, however splitting on
+    ``os.pathsep`` makes the interpretation system-specific (this is
+    warned about in the manpage entry for ``JAVACLASSPATH``).
     """
-    Substitute environment variables and split into list.
-    """
-    if SCons.Util.is_String(libs):
-        libs = env.subst(libs)
-        if SCons.Util.is_String(libs):
-            libs = libs.split()
-    elif SCons.Util.is_Sequence(libs):
-        _libs = []
-        for lib in libs:
-            _libs += _subst_libs(env, lib)
-        libs = _libs
+    if is_String(paths):
+        paths = env.subst(paths)
+        if SCons.Util.is_String(paths):
+            paths = paths.split(os.pathsep)
     else:
-        # libs is an object (Node, for example)
-        libs = [libs]
-    return libs
+        # TODO: may want to revisit splitting list-element strings if requested
+        paths = flatten(paths)
+        paths = [env.subst(path) if is_String(path) else path for path in paths]
+    return paths
 
 
-def _collect_classes(list, dirname, files):
+def _collect_classes(classlist, dirname, files):
     for fname in files:
-        if os.path.splitext(fname)[1] == ".class":
-            list.append(os.path.join(str(dirname), fname))
+        if fname.endswith(".class"):
+            classlist.append(os.path.join(str(dirname), fname))
 
 
-def scan(node, env, libpath=()):
+def scan(node, env, libpath=()) -> list:
     """Scan for files on the JAVACLASSPATH.
 
-    The classpath can contain:
+    JAVACLASSPATH path can contain:
      - Explicit paths to JAR/Zip files
      - Wildcards (*)
      - Directories which contain classes in an unnamed package
      - Parent directories of the root package for classes in a named package
 
-     Class path entries that are neither directories nor archives (.zip or JAR files) nor the asterisk (*) wildcard character are ignored.
-     """
+    Class path entries that are neither directories nor archives (.zip
+    or JAR files) nor the asterisk (*) wildcard character are ignored.
+    """
     classpath = env.get('JAVACLASSPATH', [])
-    classpath = _subst_libs(env, classpath)
+    classpath = _subst_paths(env, classpath)
 
     result = []
     for path in classpath:
-        if SCons.Util.is_String(path) and "*" in path:
+        if is_String(path) and "*" in path:
+            # This matches more than the Java docs describe: a '*' only
+            # matches jar files. The filter later should trim this down.
+            # TODO: should we filter here? use .endswith('*') rather than "in"?
             libs = env.Glob(path)
         else:
             libs = [path]
@@ -89,8 +97,11 @@ def scan(node, env, libpath=()):
 
 
 def JavaScanner():
-    return SCons.Scanner.Base(scan, 'JavaScanner',
-                              skeys=['.java'])
+    """Scanner for .java files.
+
+    .. versionadded:: 4.4
+    """
+    return SCons.Scanner.Base(scan, 'JavaScanner', skeys=['.java'])
 
 # Local Variables:
 # tab-width:4
