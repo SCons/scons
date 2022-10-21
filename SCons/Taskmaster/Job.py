@@ -145,7 +145,7 @@ class Jobs:
             else:
                 os._exit(2)  # pylint: disable=protected-access
 
-        self.old_sigint  = signal.signal(signal.SIGINT, handler)
+        self.old_sigint = signal.signal(signal.SIGINT, handler)
         self.old_sigterm = signal.signal(signal.SIGTERM, handler)
         try:
             self.old_sighup = signal.signal(signal.SIGHUP, handler)
@@ -169,6 +169,7 @@ class Jobs:
             signal.signal(signal.SIGHUP, sigterm_to_use)
         except AttributeError:
             pass
+
 
 class Serial:
     """This class is used to execute tasks in series, and is more efficient
@@ -211,7 +212,7 @@ class Serial:
                     try:
                         raise SCons.Errors.BuildError(
                             task.targets[0], errstr=interrupt_msg)
-                    except:
+                    except Exception:
                         task.exception_set()
                 else:
                     task.exception_set()
@@ -263,7 +264,7 @@ else:
                         raise SCons.Errors.BuildError(
                             task.targets[0], errstr=interrupt_msg)
                     task.execute()
-                except:
+                except Exception:
                     task.exception_set()
                     ok = False
                 else:
@@ -284,7 +285,7 @@ else:
             self.resultsQueue = queue.Queue(0)
 
             try:
-                prev_size = threading.stack_size(stack_size*1024)
+                prev_size = threading.stack_size(stack_size * 1024)
             except AttributeError as e:
                 # Only print a warning if the stack size has been
                 # explicitly set.
@@ -392,7 +393,7 @@ else:
                     try:
                         # prepare task for execution
                         task.prepare()
-                    except:
+                    except Exception:
                         task.exception_set()
                         task.failed()
                         task.postprocess()
@@ -405,7 +406,8 @@ else:
                             task.executed()
                             task.postprocess()
 
-                if not task and not jobs: break
+                if not task and not jobs:
+                    break
 
                 # Let any/all completed tasks finish up before we go
                 # back and put the next batch of tasks on the queue.
@@ -420,7 +422,7 @@ else:
                             try:
                                 raise SCons.Errors.BuildError(
                                     task.targets[0], errstr=interrupt_msg)
-                            except:
+                            except Exception:
                                 task.exception_set()
 
                         # Let the failed() callback function arrange
@@ -434,7 +436,6 @@ else:
 
             self.tp.cleanup()
             self.taskmaster.cleanup()
-
 
     # An experimental new parallel scheduler that uses a leaders/followers pattern.
     class ExperimentalParallel:
@@ -498,7 +499,7 @@ else:
 
         def _adjust_stack_size(self):
             try:
-                prev_size = threading.stack_size(self.stack_size*1024)
+                prev_size = threading.stack_size(self.stack_size * 1024)
                 return prev_size
             except AttributeError as e:
                 # Only print a warning if the stack size has been
@@ -585,7 +586,7 @@ else:
                                 try:
                                     raise SCons.Errors.BuildError(
                                         rtask.targets[0], errstr=interrupt_msg)
-                                except:
+                                except Exception:
                                     rtask.exception_set()
 
                             # Let the failed() callback function arrange
@@ -619,7 +620,7 @@ else:
                             # another thread in to search.
                             try:
                                 task.prepare()
-                            except:
+                            except Exception:
                                 task.exception_set()
                                 task.failed()
                                 task.postprocess()
@@ -676,7 +677,7 @@ else:
                             raise SCons.Errors.BuildError(
                                 task.targets[0], errstr=interrupt_msg)
                         task.execute()
-                    except:
+                    except Exception:
                         ok = False
                         task.exception_set()
 
