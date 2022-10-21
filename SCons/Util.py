@@ -1365,7 +1365,7 @@ def unique(seq):
 
 # Best way (assuming Python 3.7, but effectively 3.6) to remove
 # duplicates from a list in while preserving order, according to
-# https://discord.com/channels/@me/627187920079421471/1032001231952027648
+# https://stackoverflow.com/questions/480214/how-do-i-remove-duplicates-from-a-list-while-preserving-order/17016257#17016257
 def uniquer_hashables(seq):
     return list(dict.fromkeys(seq))
 
