@@ -50,6 +50,29 @@ def iscplusplus(source):
                 return 1
     return 0
 
+def gen_module_map_file(root, module_map):
+    module_map_text = '$$root ' + str(root) + '\n'
+    for module, file in module_map.items():
+        module_map_text += str(module) + ' ' + str(file) + '\n'
+    return module_map_text
+
+def module_emitter(target, source, env):
+    import SCons.Defaults
+    if("CXXMODULEPATH" in env):
+        if("CXXMAPFILE" not in env):
+            env["CXXMAPFILE"] = env.Textfile("$CXXMODULEPATH/module.map", gen_module_map_file(env["CXXMODULEPATH"], env.get("CXXMODULEMAP", {})))
+
+        env.Depends(target, env["CXXMAPFILE"])
+    return (target, source, env)
+
+def module_emitter_static(target, source, env):
+    import SCons.Defaults
+    return SCons.Defaults.StaticObjectEmitter(*module_emitter(target, source, env))
+
+def module_emitter_shared(target, source, env):
+    import SCons.Defaults
+    return SCons.Defaults.SharedObjectEmitter(*module_emitter(target, source, env))
+
 def generate(env):
     """
     Add Builders and construction variables for Visual Age C++ compilers
@@ -62,18 +85,18 @@ def generate(env):
     for suffix in CXXSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
-        static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
-        shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
+        static_obj.add_emitter(suffix, module_emitter_static)
+        shared_obj.add_emitter(suffix, module_emitter_shared)
 
     SCons.Tool.cc.add_common_cc_variables(env)
 
     if 'CXX' not in env:
         env['CXX']    = env.Detect(compilers) or compilers[0]
     env['CXXFLAGS']   = SCons.Util.CLVar('')
-    env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
+    env['CXXCOM']     = '$CXX -o $TARGET -c ${ CXXMODULEFLAGS if CXXMODULEPATH else "" } $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    env['SHCXXCOM']   = '$SHCXX -o $TARGET -c $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCXXCOM']   = '$SHCXX -o $TARGET -c ${ CXXMODULEFLAGS if CXXMODULEPATH else "" } $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
     env['CPPDEFPREFIX']  = '-D'
     env['CPPDEFSUFFIX']  = ''

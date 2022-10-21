@@ -60,7 +60,7 @@ def generate(env):
     env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
-
+    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper=${CXXMAPFILE}'
 
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)
