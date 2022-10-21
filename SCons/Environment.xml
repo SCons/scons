@@ -3311,6 +3311,12 @@ appended to the &cv-link-TOOLS;
 </para>
 
 <para>
+<emphasis>Changed in version  4.2:</emphasis>
+&f-env-Tool; now returns the tool object,
+previously it did not return (i.e. returned <constant>None</constant>).
+</para>
+
+<para>
 Examples:
 </para>
 
@@ -3347,12 +3353,6 @@ msvctool(env)  # adds 'msvc' to the TOOLS variable
 gltool = Tool('opengl', toolpath = ['tools'])
 gltool(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
-
-<para>
-<emphasis>Changed in &SCons; 4.2: &f-env-Tool; now returns
-the tool object, previously it did not return
-(i.e. returned <constant>None</constant>).</emphasis>
-</para>
 </summary>
 </scons_function>
 
@@ -3373,10 +3373,6 @@ will be rebuilt.
 files are up-to-date.)
 When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
-<parameter>name</parameter> can be provided as an alternative name
-for the resulting <literal>Value</literal> node; this is advised
-if the <parameter>value</parameter> parameter can't be converted to
-a string.
 </para>
 
 <para>
@@ -3393,6 +3389,18 @@ to indicate the Node should already be considered
 There is a corresponding
 <function>read</function>()
 method that will return the built value of the Node.
+</para>
+
+<para>
+The optional <parameter>name</parameter> parameter can be provided as an
+alternative name for the resulting <literal>Value</literal> node;
+this is advised if the <parameter>value</parameter> parameter
+cannot be converted to a string.
+</para>
+
+<para>
+<emphasis>Changed in version 4.0:</emphasis>
+the <parameter>name</parameter> parameter was added.
 </para>
 
 <para>
@@ -3415,8 +3423,8 @@ prefix = ARGUMENTS.get('prefix', '/usr/local')
 
 # Attach a .Config() builder for the above function action
 # to the construction environment.
-env['BUILDERS']['Config'] = Builder(action = create)
-env.Config(target = 'package-config', source = Value(prefix))
+env['BUILDERS']['Config'] = Builder(action=create)
+env.Config(target='package-config', source=Value(prefix))
 
 def build_value(target, source, env):
     # A function that "builds" a Python Value by updating
@@ -3429,8 +3437,8 @@ input = env.Value('after')
 
 # Attach a .UpdateValue() builder for the above function
 # action to the construction environment.
-env['BUILDERS']['UpdateValue'] = Builder(action = build_value)
-env.UpdateValue(target = Value(output), source = Value(input))
+env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
+env.UpdateValue(target=Value(output), source=Value(input))
 </example_commands>
 </summary>
 </scons_function>
