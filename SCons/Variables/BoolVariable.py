@@ -26,10 +26,10 @@
 Usage example::
 
     opts = Variables()
-    opts.Add(BoolVariable('embedded', 'build for an embedded system', 0))
+    opts.Add(BoolVariable('embedded', 'build for an embedded system', False))
     ...
-    if env['embedded'] == 1:
-    ...
+    if env['embedded']:
+        ...
 """
 
 from typing import Tuple, Callable
@@ -42,17 +42,17 @@ TRUE_STRINGS = ('y', 'yes', 'true', 't', '1', 'on' , 'all')
 FALSE_STRINGS = ('n', 'no', 'false', 'f', '0', 'off', 'none')
 
 
-def _text2bool(val) -> bool:
-    """Converts strings to True/False.
+def _text2bool(val: str) -> bool:
+    """Convert boolean-like string to boolean.
 
     If *val* looks like it expresses a bool-like value, based on
-    the :data:`TRUE_STRINGS` and :data:`FALSE_STRINGS` tuples,
+    the :const:`TRUE_STRINGS` and :const:`FALSE_STRINGS` tuples,
     return the appropriate value.
 
     This is usable as a converter function for SCons Variables.
 
     Raises:
-        ValueError: if the string cannot be converted.
+        ValueError: if *val* cannot be converted to boolean.
     """
 
     lval = val.lower()
@@ -64,13 +64,15 @@ def _text2bool(val) -> bool:
 
 
 def _validator(key, val, env) -> None:
-    """Validates the given value to be either true or false.
+    """Validate that the value of *key* in *env* is a boolean.
 
-    This is usable as a validator function for SCons Variables.
+    Parmaeter *val* is not used in the check.
+
+    Usable as a validator function for SCons Variables.
 
     Raises:
-        KeyError: if key is not set in env
-        UserError: if key does not validate.
+        KeyError: if *key* is not set in *env*
+        UserError: if the value of *key* is not ``True`` or ``False``.
     """
     if not env[key] in (True, False):
         raise SCons.Errors.UserError(
