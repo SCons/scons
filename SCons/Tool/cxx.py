@@ -29,6 +29,7 @@ selection method.
 #
 
 import os.path
+import re
 
 import SCons.Defaults
 import SCons.Util
@@ -56,13 +57,22 @@ def gen_module_map_file(root, module_map):
         module_map_text += str(module) + ' ' + str(file) + '\n'
     return module_map_text
 
+#TODO filter out C++ whitespace and comments
+module_decl_re = re.compile("(module;)?(.|\n)*export module (.*);");
+
 def module_emitter(target, source, env):
-    import SCons.Defaults
     if("CXXMODULEPATH" in env):
         if("CXXMAPFILE" not in env):
             env["CXXMAPFILE"] = env.Textfile("$CXXMODULEPATH/module.map", gen_module_map_file(env["CXXMODULEPATH"], env.get("CXXMODULEMAP", {})))
 
         env.Depends(target, env["CXXMAPFILE"])
+
+        export = module_decl_re.match(source[0].get_text_contents())
+        if export:
+            modulename = export[3].strip()
+            if modulename not in env["CXXMODULEMAP"]:
+                env["CXXMODULEMAP"][modulename] = modulename + env["CXXMODULESUFFIX"]
+            target.append(env.File("$CXXMODULEPATH/" + env["CXXMODULEMAP"][modulename]))
     return (target, source, env)
 
 def module_emitter_static(target, source, env):

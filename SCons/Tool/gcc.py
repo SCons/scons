@@ -61,6 +61,7 @@ def generate(env):
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
     env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper=${CXXMAPFILE}'
+    env['CXXMODULESUFFIX'] = '.gcm'
 
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)
