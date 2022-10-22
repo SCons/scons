@@ -1241,10 +1241,19 @@ Task.postprocess():  node <executing  0   'n3'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
-
 """
-        assert value == expect, value
+        v_split=value.split('\n')
+        e_split=expect.split('\n')
+        if len(v_split) != len(e_split):
+            print("different number of lines:%d %d"%(len(v_split), len(e_split)))
 
+        # breakpoint()
+        for v, e in zip(v_split, e_split):
+            # print("%s:%s"%(v,e))
+            if v != e:
+                print("\n[%s]\n[%s]" % (v, e))
+
+        assert value == expect, "Expected:\n%s\nGot:\n%s"%(expect, value)
 
 
 if __name__ == "__main__":

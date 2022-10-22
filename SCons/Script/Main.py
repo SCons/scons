@@ -1291,22 +1291,11 @@ def _build_targets(fs, options, targets, target_top):
             """Leave the order of dependencies alone."""
             return dependencies
 
-    def tmtrace_cleanup(tfile):
-        tfile.close()
-
-    if options.taskmastertrace_file == '-':
-        tmtrace = sys.stdout
-    elif options.taskmastertrace_file:
-        tmtrace = open(options.taskmastertrace_file, 'w')
-        atexit.register(tmtrace_cleanup, tmtrace)
-    else:
-        tmtrace = None
-    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, tmtrace)
+    taskmaster = SCons.Taskmaster.Taskmaster(nodes, task_class, order, options.taskmastertrace_file)
 
     # Let the BuildTask objects get at the options to respond to the
     # various print_* settings, tree_printer list, etc.
     BuildTask.options = options
-
 
     is_pypy = platform.python_implementation() == 'PyPy'
     # As of 3.7, python removed support for threadless platforms.

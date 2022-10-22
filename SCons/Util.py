@@ -35,6 +35,7 @@ from collections.abc import MappingView
 from contextlib import suppress
 from types import MethodType, FunctionType
 from typing import Optional, Union
+from logging import Formatter
 
 # Note: Util module cannot import other bits of SCons globally without getting
 # into import loops. Both the below modules import SCons.Util early on.
@@ -2158,6 +2159,17 @@ def wait_for_process_to_die(pid):
                     break
                 else:
                     time.sleep(0.1)
+
+# From: https://stackoverflow.com/questions/1741972/how-to-use-different-formatters-with-the-same-logging-handler-in-python
+class DispatchingFormatter(Formatter):
+
+    def __init__(self, formatters, default_formatter):
+        self._formatters = formatters
+        self._default_formatter = default_formatter
+
+    def format(self, record):
+        formatter = self._formatters.get(record.name, self._default_formatter)
+        return formatter.format(record)
 
 # Local Variables:
 # tab-width:4
