@@ -50,6 +50,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (';') - which is now documented with a hint to use a list instead
       to be portable. Splitting on space broke paths with embedded spaces.
       Fixes #4243.
+    - Cleanup: make sure BoolVariable usage in tests and examples uses Python
+      boolean values instead of 0/1.
 
   From Andrew Morrow
     - Avoid returning UniqueList for `children` and other `Executor` APIs. This type

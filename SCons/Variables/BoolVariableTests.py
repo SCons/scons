@@ -30,7 +30,7 @@ class BoolVariableTestCase(unittest.TestCase):
     def test_BoolVariable(self):
         """Test BoolVariable creation"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', 0))
+        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
 
         o = opts.options[0]
         assert o.key == 'test', o.key
@@ -42,7 +42,7 @@ class BoolVariableTestCase(unittest.TestCase):
     def test_converter(self):
         """Test the BoolVariable converter"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', 0))
+        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
 
         o = opts.options[0]
 
@@ -73,17 +73,17 @@ class BoolVariableTestCase(unittest.TestCase):
             x = o.converter(f)
             assert not x, "converter returned true for '%s'" % f
 
-        caught = None
+        caught = False
         try:
             o.converter('x')
         except ValueError:
-            caught = 1
-        assert caught, "did not catch expected ValueError"
+            caught = True
+        assert caught, "did not catch expected ValueError for 'x'"
 
     def test_validator(self):
         """Test the BoolVariable validator"""
         opts = SCons.Variables.Variables()
-        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', 0))
+        opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
 
         o = opts.options[0]
 
@@ -93,23 +93,24 @@ class BoolVariableTestCase(unittest.TestCase):
             'N' : 'xyzzy',
         }
 
+        # positive checks
         o.validator('T', 0, env)
-
         o.validator('F', 0, env)
 
-        caught = None
+        # negative checks
+        caught = False
         try:
             o.validator('N', 0, env)
         except SCons.Errors.UserError:
-            caught = 1
-        assert caught, "did not catch expected UserError for N"
+            caught = True
+        assert caught, "did not catch expected UserError for value %s" % env['N']
 
-        caught = None
+        caught = False
         try:
             o.validator('NOSUCHKEY', 0, env)
         except KeyError:
-            caught = 1
-        assert caught, "did not catch expected KeyError for NOSUCHKEY"
+            caught = True
+        assert caught, "did not catch expected KeyError for 'NOSUCHKEY'"
 
 
 if __name__ == "__main__":

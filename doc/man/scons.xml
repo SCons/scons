@@ -4737,7 +4737,7 @@ the &Add; or &AddVariables; method:</para>
   <varlistentry id="v-BoolVariable">
   <term><function>BoolVariable</function>(<parameter>key, help, default</parameter>)</term>
   <listitem>
-<para>Returns a tuple of arguments
+<para>Return a tuple of arguments
 to set up a Boolean option.
 The option will use
 the specified name
@@ -4746,7 +4746,7 @@ have a default value of
 <parameter>default</parameter>,
 and <parameter>help</parameter>
 will form the descriptive part of the help text.
-The option will interpret the values
+The option will interpret the command-line values
 <userinput>y</userinput>,
 <userinput>yes</userinput>,
 <userinput>t</userinput>,
@@ -4756,7 +4756,7 @@ The option will interpret the values
 and
 <userinput>all</userinput>
 as true,
-and the values
+and the command-line values
 <userinput>n</userinput>,
 <userinput>no</userinput>,
 <userinput>f</userinput>,
@@ -4990,7 +4990,7 @@ vars.AddVariables(
     BoolVariable(
         "warnings",
         help="compilation with -Wall and similar",
-        default=1,
+        default=True,
     ),
     EnumVariable(
         "debug",

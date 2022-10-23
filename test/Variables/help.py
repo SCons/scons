@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the Variables help messages.
@@ -46,37 +45,52 @@ test.subdir(qtpath)
 test.subdir(libpath)
          
 test.write('SConstruct', """
-from SCons.Variables import BoolVariable, EnumVariable, ListVariable, \
-   PackageVariable, PathVariable
+from SCons.Variables import (
+    BoolVariable,
+    EnumVariable,
+    ListVariable,
+    PackageVariable,
+    PathVariable,
+)
 
 list_of_libs = Split('x11 gl qt ical')
 qtdir = r'%(qtpath)s'
 
 opts = Variables(args=ARGUMENTS)
 opts.AddVariables(
-    BoolVariable('warnings', 'compilation with -Wall and similiar', 1),
-    BoolVariable('profile', 'create profiling informations', 0),
-    EnumVariable('debug', 'debug output and symbols', 'no',
-               allowed_values=('yes', 'no', 'full'),
-               map={}, ignorecase=0),  # case sensitive
-    EnumVariable('guilib', 'gui lib to use', 'gtk',
-               allowed_values=('motif', 'gtk', 'kde'),
-               map={}, ignorecase=1), # case insensitive
-    EnumVariable('some', 'some option', 'xaver',
-               allowed_values=('xaver', 'eins'),
-               map={}, ignorecase=2), # make lowercase
-    ListVariable('shared',
-               'libraries to build as shared libraries',
-               'all',
-               names = list_of_libs),
-    PackageVariable('x11',
-                  'use X11 installed here (yes = search some places)',
-                  'yes'),
+    BoolVariable('warnings', 'compilation with -Wall and similiar', True),
+    BoolVariable('profile', 'create profiling informations', False),
+    EnumVariable(
+        'debug',
+        'debug output and symbols',
+        'no',
+        allowed_values=('yes', 'no', 'full'),
+        map={},
+        ignorecase=0,
+    ),  # case sensitive
+    EnumVariable(
+        'guilib',
+        'gui lib to use',
+        'gtk',
+        allowed_values=('motif', 'gtk', 'kde'),
+        map={},
+        ignorecase=1,
+    ),  # case insensitive
+    EnumVariable(
+        'some',
+        'some option',
+        'xaver',
+        allowed_values=('xaver', 'eins'),
+        map={},
+        ignorecase=2,
+    ),  # make lowercase
+    ListVariable(
+        'shared', 'libraries to build as shared libraries', 'all', names=list_of_libs
+    ),
+    PackageVariable('x11', 'use X11 installed here (yes = search some places)', 'yes'),
     PathVariable('qtdir', 'where the root of Qt is installed', qtdir),
-    PathVariable('qt_libraries',
-               'where the Qt library is installed',
-               r'%(libdirvar)s'),
-    )
+    PathVariable('qt_libraries', 'where the Qt library is installed', r'%(libdirvar)s'),
+)
 
 env = Environment(variables=opts)
 Help(opts.GenerateHelpText(env))
@@ -96,11 +110,11 @@ scons: Reading SConscript files ...
 scons: done reading SConscript files.
 
 warnings: compilation with -Wall and similiar (yes|no)
-    default: 1
+    default: True
     actual: %(str_True)s
 
 profile: create profiling informations (yes|no)
-    default: 0
+    default: False
     actual: %(str_False)s
 
 debug: debug output and symbols (yes|no|full)
