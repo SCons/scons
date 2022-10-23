@@ -667,9 +667,9 @@ class Taskmaster:
 
         log_handler.setFormatter(DispatchingFormatter(
             formatters={
-            'Taskmaster': tm_formatter,
-            'Task': task_formatter,
-        },
+                'Taskmaster': tm_formatter,
+                'Task': task_formatter,
+            },
             default_formatter=logging.Formatter('%(message)s')
         ))
 
