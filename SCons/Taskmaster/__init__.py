@@ -893,7 +893,7 @@ class Taskmaster:
                 self.ready_exc = sys.exc_info()
                 if S: S.problem = S.problem + 1
                 if T:
-                    elf.trace.debug('       exception %s while scanning children.' % e)
+                    self.trace.debug('       exception %s while scanning children.' % e)
                 return node
 
             children_not_visited = []
