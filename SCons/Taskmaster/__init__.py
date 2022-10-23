@@ -168,7 +168,8 @@ class Task(ABC):
         """
         global print_prepare
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         # Now that it's the appropriate time, give the TaskMaster a
         # chance to raise any exceptions it encountered while preparing
@@ -222,7 +223,8 @@ class Task(ABC):
         prepare(), executed() or failed().
         """
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         try:
             cached_targets = []
@@ -265,7 +267,8 @@ class Task(ABC):
         the Node's callback methods.
         """
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         for t in self.targets:
             if t.get_state() == NODE_EXECUTING:
@@ -288,7 +291,8 @@ class Task(ABC):
         """
         global print_prepare
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         for t in self.targets:
             if t.get_state() == NODE_EXECUTING:
@@ -329,7 +333,8 @@ class Task(ABC):
         nodes when using Configure().
         """
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         # Invoke will_not_build() to clean-up the pending children
         # list.
@@ -356,7 +361,8 @@ class Task(ABC):
         nodes when using Configure().
         """
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         self.tm.will_not_build(self.targets, lambda n: n.set_state(NODE_FAILED))
 
@@ -368,7 +374,8 @@ class Task(ABC):
         visited--the canonical example being the "scons -c" option.
         """
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         self.out_of_date = self.targets[:]
         for t in self.targets:
@@ -435,7 +442,8 @@ class Task(ABC):
         that can be put back on the candidates list.
         """
         T = self.tm.trace
-        if T: self.trace_message(self.node)
+        if T:
+            self.trace_message(self.node)
 
         # We may have built multiple targets, some of which may have
         # common parents waiting for this build.  Count up how many
@@ -452,7 +460,8 @@ class Task(ABC):
             # A node can only be in the pending_children set if it has
             # some waiting_parents.
             if t.waiting_parents:
-                if T: self.trace_message(t, 'removing')
+                if T:
+                    self.trace_message(t, 'removing')
                 pending_children.discard(t)
             for p in t.waiting_parents:
                 parents[p] = parents.get(p, 0) + 1
@@ -479,7 +488,8 @@ class Task(ABC):
 
         for p, subtract in parents.items():
             p.ref_count = p.ref_count - subtract
-            if T: self.trace_message(p, 'adjusted parent ref count')
+            if T:
+                self.trace_message(p, 'adjusted parent ref count')
             if p.ref_count == 0:
                 self.tm.candidates.append(p)
 
@@ -789,9 +799,6 @@ class Taskmaster:
             for p in n.waiting_parents:
                 assert p.ref_count > 0, (str(n), str(p), p.ref_count)
 
-    def tm_trace_message(self, message):
-        return 'Taskmaster: %s' % message
-
     def tm_trace_node(self, node):
         return('<%-10s %-3s %s>' % (StateString[node.get_state()],
                                     node.ref_count,
@@ -829,7 +836,8 @@ class Taskmaster:
         while True:
             node = self.next_candidate()
             if node is None:
-                if T: self.trace.debug('No candidate anymore.')
+                if T:
+                    self.trace.debug('No candidate anymore.')
                 return None
 
             node = node.disambiguate()
@@ -852,7 +860,8 @@ class Taskmaster:
             else:
                 S = None
 
-            if T: self.trace.debug('    Considering node %s and its children:' % self.tm_trace_node(node))
+            if T:
+                self.trace.debug('    Considering node %s and its children:' % self.tm_trace_node(node))
 
             if state == NODE_NO_STATE:
                 # Mark this node as being on the execution stack:
@@ -860,7 +869,8 @@ class Taskmaster:
             elif state > NODE_PENDING:
                 # Skip this node if it has already been evaluated:
                 if S: S.already_handled = S.already_handled + 1
-                if T: self.trace.debug('       already handled (executed)')
+                if T:
+                    self.trace.debug('       already handled (executed)')
                 continue
 
             executor = node.get_executor()
@@ -871,7 +881,8 @@ class Taskmaster:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
-                if T: self.trace.debug('       SystemExit')
+                if T:
+                    self.trace.debug('       SystemExit')
                 return node
             except Exception as e:
                 # We had a problem just trying to figure out the
@@ -880,7 +891,8 @@ class Taskmaster:
                 # raise the exception when the Task is "executed."
                 self.ready_exc = sys.exc_info()
                 if S: S.problem = S.problem + 1
-                if T: self.trace.debug('       exception %s while scanning children.' % e)
+                if T:
+                    elf.trace.debug('       exception %s while scanning children.' % e)
                 return node
 
             children_not_visited = []
@@ -891,7 +903,8 @@ class Taskmaster:
             for child in chain(executor.get_all_prerequisites(), children):
                 childstate = child.get_state()
 
-                if T: self.trace.debug('       ' + self.tm_trace_node(child))
+                if T:
+                    self.trace.debug('       ' + self.tm_trace_node(child))
 
                 if childstate == NODE_NO_STATE:
                     children_not_visited.append(child)
@@ -938,7 +951,8 @@ class Taskmaster:
                     n.set_state(NODE_FAILED)
 
                 if S: S.child_failed = S.child_failed + 1
-                if T: self.trace.debug('****** %s' % self.tm_trace_node(node))
+                if T:
+                    self.trace.debug('****** %s' % self.tm_trace_node(node))
                 continue
 
             if children_not_ready:
@@ -952,7 +966,8 @@ class Taskmaster:
                     # count so we can be put back on the list for
                     # re-evaluation when they've all finished.
                     node.ref_count =  node.ref_count + child.add_to_waiting_parents(node)
-                    if T: self.trace.debug('     adjusted ref count: %s, child %s' %
+                    if T:
+                        self.trace.debug('     adjusted ref count: %s, child %s' %
                                                 (self.tm_trace_node(node), repr(str(child))))
 
                 if T:
@@ -978,7 +993,8 @@ class Taskmaster:
             # The default when we've gotten through all of the checks above:
             # this node is ready to be built.
             if S: S.build = S.build + 1
-            if T: self.trace.debug('Evaluating %s' % self.tm_trace_node(node))
+            if T:
+                self.trace.debug('Evaluating %s' % self.tm_trace_node(node))
 
             # For debugging only:
             #
@@ -1060,7 +1076,8 @@ class Taskmaster:
 
                 for p in parents:
                     p.ref_count = p.ref_count - 1
-                    if T: self.trace.debug('       removing parent %s from the pending children set\n' %
+                    if T:
+                        self.trace.debug('       removing parent %s from the pending children set\n' %
                                                 self.tm_trace_node(p))
         except KeyError:
             # The container to_visit has been emptied.
