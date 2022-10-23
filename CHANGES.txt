@@ -20,6 +20,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not be called until all AddOption() calls are completed. Resolves Issue #4187
     - Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
       NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
+    - Changed the Taskmaster trace logic to use python's logging module. The output formatting
+      should remain (mostly) the same. Minor update to unittest for this to adjust for 1 less newline.
+
 
 
   From Dan Mezhiborsky:

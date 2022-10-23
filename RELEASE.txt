@@ -37,8 +37,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
-
 - Added missing newline to generated compilation database (compile_commands.json)
 - A list argument as the source to the Copy() action function is now handled.
   Both the implementation and the strfunction which prints the progress
@@ -47,14 +45,10 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Changed the Taskmaster trace logic to use python's logging module.
 
 PACKAGING
 ---------
-
-- List changes in the way SCons is packaged and/or released
 
 - SCons now has three requirements files: requirements.txt describes
   requirements to run scons; requirements-dev.txt requirements to
@@ -64,10 +58,6 @@ PACKAGING
 
 DOCUMENTATION
 -------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
 
 - Updated the --hash-format manpage entry.
 - EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
