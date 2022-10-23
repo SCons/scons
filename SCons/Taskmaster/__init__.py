@@ -665,11 +665,12 @@ class Taskmaster:
         task_formatter = logging.Formatter('%(name)s.%(message)s')
         Task.LOGGER = tl
 
-        log_handler.setFormatter(DispatchingFormatter({
+        log_handler.setFormatter(DispatchingFormatter(
+            formatters={
             'Taskmaster': tm_formatter,
             'Task': task_formatter,
         },
-            logging.Formatter('%(message)s')
+            default_formatter=logging.Formatter('%(message)s')
         ))
 
     def find_next_candidate(self):
