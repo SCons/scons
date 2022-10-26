@@ -92,23 +92,24 @@ to each definition in &cv-link-CPPDEFINES;.
 <summary>
 <para>
 A platform independent specification of C preprocessor macro definitions.
-The definitions will be added to command lines
+The definitions are added to command lines
 through the automatically-generated
-&cv-link-_CPPDEFFLAGS; &consvar; (see above),
+&cv-link-_CPPDEFFLAGS; &consvar;,
 which is constructed according to
-the type of value of &cv-CPPDEFINES;:
+the contents of &cv-CPPDEFINES;:
 </para>
 
 <para>
 If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
-each definition in &cv-CPPDEFINES;.
+are respectively prepended and appended to 
+each definition in &cv-CPPDEFINES;,
+split on whitespace.
 </para>
 
 <example_commands>
-# Will add -Dxyz to POSIX compiler command lines,
+# Adds -Dxyz to POSIX compiler command lines,
 # and /Dxyz to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES='xyz')
 </example_commands>
@@ -117,15 +118,19 @@ env = Environment(CPPDEFINES='xyz')
 If &cv-CPPDEFINES; is a list,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
+are respectively prepended and appended to 
 each element in the list.
 If any element is a list or tuple,
-then the first item is the name being
-defined and the second item is its value:
+then the first item is the macro name
+and the second item is the definition.
+If the definition is not omitted,
+these are combined into a
+<literal>name=definition</literal> item
+before the preending/appending.
 </para>
 
 <example_commands>
-# Will add -DB=2 -DA to POSIX compiler command lines,
+# Adds -DB=2 -DA to POSIX compiler command lines,
 # and /DB=2 /DA to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES=[('B', 2), 'A'])
 </example_commands>
@@ -134,25 +139,24 @@ env = Environment(CPPDEFINES=[('B', 2), 'A'])
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to
-each item from the dictionary.
-The key of each dictionary item
-is a name being defined
-to the dictionary item's corresponding value;
-if the value is
-<literal>None</literal>,
-then the name is defined without an explicit value.
-Note that to ensure build order will be stable,
+are respectively prepended and appended to
+each key from the dictionary.
+If the value for a key is not <literal>None</literal>,
+then the key is the macro name and the value
+is the definition and these are combined into a
+<literal>name=definition</literal> item
+before the prepending/appending.
+Note that to ensure a stable build order,
 &SCons; sorts the flags generated from the dictionary,
 since a changed command line triggers a rebuild
 (older &Python; interpreters did
-not guarantee to preserve dictionary keys in insert order),
+not guarantee to preserve dictionary keys in insert order).
 This precaution may be removed in a future version.
 </para>
 
 <example_commands>
-# Will add -DA -DB=2 to POSIX compiler command lines,
-# and /DA /DB=2 to Microsoft Visual C++ command lines.
+# Adds -DA -DB=2 to POSIX compiler command lines,
+# or /DA /DB=2 to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES={'B':2, 'A':None})
 </example_commands>
 
@@ -160,22 +164,18 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 Depending on how contents are added to &cv-CPPDEFINES;,
 it may end up as a compound type,
 for example a list containing strings, tuples and/or dictionaries.
-&SCons; will still expand this correctly.
+&SCons; expands this correctly.
 </para>
 
 <para>
-Note that if a value contains spaces (or other syntax that
-will be meaningful to the shell that calls the compiler)
-it needs to be quoted:
+Note that &SCons; may call the compiler via a shell.
+If a macro definition contains characters such as spaces that
+have meaning to the shell, you may need to use the shell's
+quoting syntax to avoid interpretation before the 
+preprocessor sees it. In particular, function-like macros
+may be supported (see the documentation for the compiler in question),
+but parentheses frequently have meaning to shells.
 </para>
-
-<example_commands>
-# SPACED will just get the string 'spaced', arg will be a separate arg
-env = Environment(CPPDEFINES={'SPACED': 'spaced arg'})
-# SPACED will get the full value
-env = Environment(CPPDEFINES={'SPACED': '"spaced arg"'})
-</example_commands>
-
 </summary>
 </cvar>
 

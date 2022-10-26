@@ -613,13 +613,12 @@ scons: `.' is up to date.
 <para>
 Multiple &cv-CPPDEFINES; macros can be supplied in a sequence of tuples,
 or using the dictionary form.
-If a given macro should not have a value,
+If a given macro name should not have a definition,
 the value can be omitted from the given tuple;
-for the dictionary form,
+if using the dictionary form,
 specify the value as <constant>None</constant>.
 </para>
 
-<!--TODO: at last check, this newly created example blew up SConsDoc/lxml -->
 <example_commands>
 env = Environment()
 env.Append(CPPDEFINES =[("ONE", 1), ("TWO", )])
@@ -643,18 +642,18 @@ See &cv-link-CPPDEFINES; for more details.
 
 <para>
 Adding a string <parameter>val</parameter>
-to a dictonary &consvar; will enter
-<parameter>val</parameter> as the key in the dict,
+to a dictonary-typed &consvar; enters
+<parameter>val</parameter> as the key in the dictionary,
 and <literal>None</literal> as its value.
-Using a tuple type to supply a key + value only works
-for the special case of &cv-CPPDEFINES;
+Using a tuple type to supply a <literal>key, value</literal>
+only works for the special case of &cv-CPPDEFINES;
 described above.
 </para>
 
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a &Python; exception will be raised.
+do not make sense and &Python; raises an exception.
 </para>
 
 <para>
