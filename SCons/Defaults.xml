@@ -120,8 +120,8 @@ the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
 are respectively prepended and appended to 
 each element in the list.
-If any element is a list or tuple,
-then the first item is the macro name
+If any element is a tuple (or list)
+then the first item of the tuple is the macro name
 and the second item is the definition.
 If the definition is not omitted,
 these are combined into a
@@ -162,19 +162,21 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 
 <para>
 Depending on how contents are added to &cv-CPPDEFINES;,
-it may end up as a compound type,
+it may be transformed into a compound type,
 for example a list containing strings, tuples and/or dictionaries.
-&SCons; expands this correctly.
+&SCons; can correctly expand such a compount type.
 </para>
 
 <para>
 Note that &SCons; may call the compiler via a shell.
 If a macro definition contains characters such as spaces that
 have meaning to the shell, you may need to use the shell's
-quoting syntax to avoid interpretation before the 
-preprocessor sees it. In particular, function-like macros
-may be supported (see the documentation for the compiler in question),
-but parentheses frequently have meaning to shells.
+quoting syntax to avoid interpretation before the preprocessor sees it.
+Function-like macros may be supported,
+depending on the compiler (see the respective documentation),
+in which case the <emphasis>name</emphasis>
+may also have quoting considerations,
+as parentheses frequently have meaning to shells.
 </para>
 </summary>
 </cvar>
