@@ -796,6 +796,22 @@ class TestCommon(TestCmd):
             # so this is an Aegis invocation; pass the test (exit 0).
             self.pass_test()
 
+    @staticmethod
+    def detailed_diff(value, expect):
+        v_split = value.split('\n')
+        e_split = expect.split('\n')
+        if len(v_split) != len(e_split):
+            print("different number of lines:%d %d" % (len(v_split), len(e_split)))
+
+        # breakpoint()
+        for v, e in zip(v_split, e_split):
+            # print("%s:%s"%(v,e))
+            if v != e:
+                print("\n[%s]\n[%s]" % (v, e))
+
+        return "Expected:\n%s\nGot:\n%s" % (expect, value)
+
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
