@@ -665,10 +665,13 @@ class Taskmaster:
         task_formatter = logging.Formatter('%(name)s.%(message)s')
         Task.LOGGER = tl
 
+        self.trace.log_handler = log_handler
+
         log_handler.setFormatter(DispatchingFormatter(
             formatters={
                 'Taskmaster': tm_formatter,
                 'Task': task_formatter,
+                'Job': task_formatter,
             },
             default_formatter=logging.Formatter('%(message)s')
         ))
