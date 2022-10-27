@@ -577,14 +577,16 @@ scons: `.' is up to date.
 Because &cv-link-CPPDEFINES; is intended for command-line
 specification of C/C++ preprocessor macros,
 it accepts additional syntax.
-A preprocessor macro can predefine a name by itself
-(example: <computeroutput>-DFOO</computeroutput>),
+A command-line preprocessor macro can predefine a name by itself
+(<computeroutput>-DFOO</computeroutput>),
 which gives it an implicit value,
-or with a replacement value
-(example: <computeroutput>-DBAR=1</computeroutput>).
-&SCons; allows you to specify a macro with a value
+or be given with a macro definition
+(<computeroutput>-DBAR=1</computeroutput>).
+&SCons; allows you to specify a macro with a definition
 by using a <literal>name=value</literal> string,
-or a tuple <literal>(name, value)</literal>,
+or a tuple <literal>(name, value)</literal>
+(it is usually best to include the tuple as an element
+of a list even if there is only one tuple),
 or a dictionary <literal>{name: value}</literal>.
 </para>
 
@@ -593,7 +595,7 @@ env = Environment(CPPDEFINES="FOO")
 print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES="BAR=1")
 print("CPPDEFINES =", env['CPPDEFINES'])
-env.Append(CPPDEFINES=("OTHER", 2))
+env.Append(CPPDEFINES=[("OTHER", 2)])
 print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES={"EXTRA": "arg"})
 print("CPPDEFINES =", env['CPPDEFINES'])
@@ -614,8 +616,8 @@ scons: `.' is up to date.
 Multiple &cv-CPPDEFINES; macros can be supplied in a sequence of tuples,
 or using the dictionary form.
 If a given macro name should not have a definition,
-the value can be omitted from the given tuple;
-if using the dictionary form,
+the value can be omitted from that tuple,
+or if using the dictionary form,
 specify the value as <constant>None</constant>.
 </para>
 

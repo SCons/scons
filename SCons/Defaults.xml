@@ -156,7 +156,7 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 
 <para>
 To ensure stable build order,
-&SCons; sorts the flags generated from any dictionary,
+&SCons; sorts the flags generated from any dictionary.
 Older &Python; interpreters did
 not guarantee to preserve dictionary keys in insert order.
 &Python; since version 3.7 does preserve order,
@@ -173,14 +173,22 @@ for example a list containing strings, tuples and/or dictionaries.
 <para>
 Note that &SCons; may call the compiler via a shell.
 If a macro definition contains characters such as spaces that
-have meaning to the shell, you may need to use the shell's
-quoting syntax to avoid interpretation before the preprocessor sees it.
-Function-like macros may be supported,
-depending on the compiler (see the respective documentation),
-in which case the <emphasis>name</emphasis>
-may also have quoting considerations,
-as parentheses frequently have meaning to shells.
+have meaning to the shell, or is intended to be a string value,
+you may need to use the shell's quoting syntax to avoid
+interpretation by the shell before the preprocessor sees it.
+Function-like macros are not supported via this mechanism
+(and some compilers do not even implement that functionality
+via the command lines).
+When quoting, note that
+one set of quote characters are used to define a &Python; string,
+then quotes embedded inside that would be consumed by the shell
+unless escaped.  These examples may help illustrate:
 </para>
+
+<example_commands>
+env = Environment(CPPDEFINES=['USE_ALT_HEADER=\\"foo_alt.h\\"'])
+env = Environment(CPPDEFINES=[('USE_ALT_HEADER', '\\"foo_alt.h\\"')])
+</example_commands>
 </summary>
 </cvar>
 
