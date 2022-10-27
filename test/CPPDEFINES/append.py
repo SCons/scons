@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify appending to CPPPDEFINES with various data types.
@@ -39,16 +38,16 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """\
 env_1738_2 = Environment(CPPDEFPREFIX='-D')
 env_1738_2['CPPDEFINES'] = ['FOO']
-env_1738_2.Append(CPPDEFINES={'value' : '1'})
+env_1738_2.Append(CPPDEFINES={'value': '1'})
 print(env_1738_2.subst('$_CPPDEFFLAGS'))
-#env_1738_2.Object('test_1738_2', 'main.c')
+# env_1738_2.Object('test_1738_2', 'main.c')
 
 # https://github.com/SCons/scons/issues/2300
-env_2300_1 = Environment(CPPDEFINES = 'foo', CPPDEFPREFIX='-D')
+env_2300_1 = Environment(CPPDEFINES='foo', CPPDEFPREFIX='-D')
 env_2300_1.Append(CPPDEFINES='bar')
 print(env_2300_1.subst('$_CPPDEFFLAGS'))
 
-env_2300_2 = Environment(CPPDEFINES = ['foo'], CPPDEFPREFIX='-D') # note the list
+env_2300_2 = Environment(CPPDEFINES=['foo'], CPPDEFPREFIX='-D')  # note the list
 env_2300_2.Append(CPPDEFINES='bar')
 print(env_2300_2.subst('$_CPPDEFFLAGS'))
 
@@ -57,9 +56,10 @@ print(env_2300_2.subst('$_CPPDEFFLAGS'))
 # Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
 # whose __str__ and __repr__ act like a normal dict.
 from collections import OrderedDict
+
 class OrderedPrintingDict(OrderedDict):
     def __repr__(self):
-        return '{' + ', '.join(['%r: %r'%(k, v) for (k, v) in self.items()]) + '}'
+        return '{' + ', '.join(['%r: %r' % (k, v) for (k, v) in self.items()]) + '}'
 
     __str__ = __repr__
 
@@ -68,23 +68,24 @@ class OrderedPrintingDict(OrderedDict):
     def __semi_deepcopy__(self):
         return self.copy()
 
-cases=[('string', 'FOO'),
-       ('list', ['NAME1', 'NAME2']),
-       ('list-of-2lists', [('NAME1','VAL1'), ['NAME2','VAL2']]),
-       ('dict', OrderedPrintingDict([('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]))
-       ]
+cases = [
+    ('string', 'FOO'),
+    ('list', ['NAME1', 'NAME2']),
+    ('list-of-2lists', [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]),
+    ('dict', OrderedPrintingDict([('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')])),
+]
 
 for (t1, c1) in cases:
     for (t2, c2) in cases:
         print("==== Testing CPPDEFINES, appending a %s to a %s"%(t2, t1))
         print("   orig = %s, append = %s"%(c1, c2))
-        env=Environment(CPPDEFINES = c1, CPPDEFPREFIX='-D')
-        env.Append(CPPDEFINES = c2)
+        env=Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
+        env.Append(CPPDEFINES=c2)
         final=env.subst('$_CPPDEFFLAGS',source="src", target="tgt")
         print('Append:\\n\\tresult=%s\\n\\tfinal=%s'%\\
               (env['CPPDEFINES'], final))
-        env=Environment(CPPDEFINES = c1, CPPDEFPREFIX='-D')
-        env.AppendUnique(CPPDEFINES = c2)
+        env=Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
+        env.AppendUnique(CPPDEFINES=c2)
         final=env.subst('$_CPPDEFFLAGS',source="src", target="tgt")
         print('AppendUnique:\\n\\tresult=%s\\n\\tfinal=%s'%\\
               (env['CPPDEFINES'], final))
@@ -225,11 +226,10 @@ AppendUnique:
 	final=-DNAME1=VAL1 -DNAME2=VAL2 -DNAME3
 """
 
-build_output="scons: `.' is up to date.\n"
+build_output = "scons: `.' is up to date.\n"
 
-expect = test.wrap_stdout(build_str=build_output,
-                          read_str = expect_print_output)
-test.run(arguments = '.', stdout=expect)
+expect = test.wrap_stdout(build_str=build_output, read_str=expect_print_output)
+test.run(arguments='.', stdout=expect)
 test.pass_test()
 
 # Local Variables:
