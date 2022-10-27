@@ -122,9 +122,9 @@ are respectively prepended and appended to
 each element in the list.
 If any element is a tuple (or list)
 then the first item of the tuple is the macro name
-and the second item is the definition.
+and the second is the definition.
 If the definition is not omitted,
-these are combined into a
+the name and definition are combined into a single
 <literal>name=definition</literal> item
 before the preending/appending.
 </para>
@@ -142,16 +142,10 @@ the values of the
 are respectively prepended and appended to
 each key from the dictionary.
 If the value for a key is not <literal>None</literal>,
-then the key is the macro name and the value
-is the definition and these are combined into a
+then the key (macro name) and the value
+(macros definition) are combined into a single
 <literal>name=definition</literal> item
 before the prepending/appending.
-Note that to ensure a stable build order,
-&SCons; sorts the flags generated from the dictionary,
-since a changed command line triggers a rebuild
-(older &Python; interpreters did
-not guarantee to preserve dictionary keys in insert order).
-This precaution may be removed in a future version.
 </para>
 
 <example_commands>
@@ -161,10 +155,19 @@ env = Environment(CPPDEFINES={'B':2, 'A':None})
 </example_commands>
 
 <para>
+To ensure stable build order,
+&SCons; sorts the flags generated from any dictionary,
+Older &Python; interpreters did
+not guarantee to preserve dictionary keys in insert order.
+&Python; since version 3.7 does preserve order,
+so this precaution may be removed in a future version.
+</para>
+
+<para>
 Depending on how contents are added to &cv-CPPDEFINES;,
 it may be transformed into a compound type,
 for example a list containing strings, tuples and/or dictionaries.
-&SCons; can correctly expand such a compount type.
+&SCons; can correctly expand such a compound type.
 </para>
 
 <para>
