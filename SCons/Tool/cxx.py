@@ -33,6 +33,7 @@ import re
 
 import SCons.Defaults
 import SCons.Util
+import SCons.Scanner
 
 compilers = ['CC', 'c++']
 
@@ -83,6 +84,28 @@ def module_emitter_shared(target, source, env):
     import SCons.Defaults
     return SCons.Defaults.SharedObjectEmitter(*module_emitter(target, source, env))
 
+#TODO filter out C++ whitespace and comments
+module_import_re = re.compile(r"\s*(?:export)?\s*import\s*(\S*)\s*;")
+
+class CxxModuleScanner(SCons.Scanner.Current):
+    def scan(self, node, env, path):
+        result = self.c_scanner(node, env, path)
+
+        if not env.get("CXXMODULEPATH"):
+            return result
+
+        imports = module_import_re.findall(node.get_text_contents())
+        for module in imports:
+            if(module[0] == "<" or module[0] == '"'):
+                continue
+            cmi = env["CXXMODULEMAP"].get(module, module+"$CXXMODULESUFFIX")
+            result.append(env.File("$CXXMODULEPATH/" + cmi))
+        return result
+    def __init__(self, *args, **kwargs):
+        super().__init__(self.scan, *args, **kwargs)
+        from SCons.Tool import CScanner
+        self.c_scanner = CScanner
+
 def generate(env):
     """
     Add Builders and construction variables for Visual Age C++ compilers
@@ -91,12 +114,14 @@ def generate(env):
     import SCons.Tool
     import SCons.Tool.cc
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
+    from SCons.Tool import SourceFileScanner
 
     for suffix in CXXSuffixes:
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
         static_obj.add_emitter(suffix, module_emitter_static)
         shared_obj.add_emitter(suffix, module_emitter_shared)
+        SourceFileScanner.add_scanner(suffix, CxxModuleScanner())
 
     SCons.Tool.cc.add_common_cc_variables(env)
 
