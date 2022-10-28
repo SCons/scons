@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,11 +23,13 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+
 
 import os
+import subprocess
 
 import TestSCons
+import TestCmd
 
 _python_ = TestSCons._python_
 
@@ -114,7 +118,19 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 
 # Test ETOOLONG (arg list too long).  This is not in exitvalmap,
 # but that shouldn't cause a scons traceback.
-long_cmd = 'xyz ' + "foobarxyz" * 100000
+# For Posix systems should use: getconf ARG_MAX to find max line length and ensure the
+# command line generated is longer than that to force failure.
+if TestCmd.IS_MACOS:
+    max_length = subprocess.check_output(['getconf', 'ARG_MAX'])
+    max_length = int(max_length)
+else:
+    # Previous value
+    max_length = 900004
+
+arg_1 = 'foobarxyz'
+arg_mult = (max_length // len(arg_1)) + 1
+
+long_cmd = 'xyz ' + "foobarxyz" * arg_mult
 test.write('SConstruct', """
 env=Environment()
 env.Command(target='longcmd.out', source=[], action='echo %s')
