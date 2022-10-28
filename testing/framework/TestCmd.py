@@ -2069,7 +2069,7 @@ class TestCmd:
         The file is created under the temporary working directory.
         Any subdirectories in the path must already exist. The
         write is converted to the required type rather than failing
-        if there is a str/bytes mistmatch.
+        if there is a str/bytes mismatch.
 
         :param file: name of file to write to. If a list, treated
             as components of a path and concatenated into a path.
@@ -2087,6 +2087,9 @@ class TestCmd:
                 f.write(content)
             except TypeError as e:
                 f.write(bytes(content, 'utf-8'))
+            finally:
+                time.sleep(0.03)
+
 
 # Local Variables:
 # tab-width:4
