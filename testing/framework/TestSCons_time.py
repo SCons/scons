@@ -42,6 +42,7 @@ from TestCommon import *
 from TestCommon import __all__
 # some of the scons_time tests may need regex-based matching:
 from TestSCons import search_re, search_re_in_list
+from TestCmd import IS_MACOS
 
 __all__.extend(['TestSCons_time',])
 
@@ -238,13 +239,27 @@ class TestSCons_time(TestCommon):
         except AttributeError:
             pass
         else:
-            tempdir = realpath(tempdir)
+            tempdir_r = realpath(tempdir)
+
+        # On MacOS for some reason tests are not consistently getting the realpath
+        # So create an regex with realpath and the path we get from tempdir
+        if not IS_MACOS:
+            tempdir = tempdir_r
+        else:
+            args_r = (tempdir_r, 'scons-time-',) + args
+            y = os.path.join(*args_r)
+            y = re.escape(y)
+            y = y.replace('time\\-', 'time\\-[^%s]*' % sep)
 
         args = (tempdir, 'scons-time-',) + args
         x = os.path.join(*args)
         x = re.escape(x)
         x = x.replace('time\\-', 'time\\-[^%s]*' % sep)
-        return x
+
+        if not IS_MACOS:
+            return x
+        else:
+            return "%s|%s"%(x,y)
 
     def write_fake_scons_py(self):
         self.subdir('scripts')
