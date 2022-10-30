@@ -259,7 +259,7 @@ class TestSCons_time(TestCommon):
         if not IS_MACOS:
             return x
         else:
-            return "%s|%s"%(x,y)
+            return "%s|%s" % (x, y)
 
     def write_fake_scons_py(self):
         self.subdir('scripts')
