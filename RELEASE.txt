@@ -51,7 +51,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   which controls whether to add the library if it is already in the $LIBS
   list. This brings the library-adding functionality in Configure in line
   with the regular Append, AppendUnique, Prepend and PrependUnique methods.
-
+- CPPDEFINES values added via a dictionary type are longer sorted by
+  key. This used to be required to maintain a consistent order of
+  commandline arguments between SCons runs, but meant macros were not
+  always emitted in the order entered. Sorting is no longer required
+  after Python interpreter improvements.  There might be a one-time 
+  rebuild of targets that involved such sorted keys in their actions.
 
 FIXES
 -----
@@ -90,7 +95,17 @@ FIXES
   actual build would not see the file as modified. Leading to incorrect incremental builds.
   Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
   the real taskmaster run when the build commences.
-
+- Inconsistent behavior of adding CPPDEFINES values via tuple arguments
+  has been cleaned up (problems described in issue #4254). In order to
+  achieve consistency, a rule for for adding macros-with-values via a
+  tuple (or list) is now enforced: they need to be entered as members
+  of a containing sequence. ["NAME", "VALUE"] and ("NAME", "VALUE")
+  are now treated the same (two individual macro names), rather than
+  the latter sometimes, but not always, being handled as a single
+  NAME=VALUE macro. Use a construct like [("NAME", "VALUE")] to get the
+  macro-with-value behavior.
+- Handling of CPPDEFINES macros via Prepend and PrependUnique now works
+  (previously this was special-cased only for Append and AppendUnique).
 
 IMPROVEMENTS
 ------------
@@ -133,12 +148,17 @@ DOCUMENTATION
 - Updated the User Guide chapter on installation: modernized the notes
   on Python installs, SCons installs, and having multiple SCons versions
   present on a single system.
+<<<<<<< HEAD
 - Updated the User Guide chapter on variant directories with more
   explanation, and the introduction of terms like "out of tree" that
   may help in forming a mental model.
 - Additional explanations for MSVSProject and MSVSSolution builders.
 - Updated MSVC documentation - adds "version added" annotations on recently
   added construction variables and provides a version-mapping table.
+=======
+- Added further details in the documentation of Append and related methods
+  on the special handling of CPPDEFINES.
+>>>>>>> d9a82d681 (Split out CPPDEFINES handling in Append methods)
 
 DEVELOPMENT
 -----------

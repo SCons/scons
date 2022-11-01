@@ -133,6 +133,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Also added "unique" keyword, to control whether a library is added
       or not if it is already in the $LIBS construction var in the
       configure context. (issue #2768).
+    - Special-case handling for CPPDEFINES in the Append/Prepend routines
+      split out into its own function to simplify the remaining code and
+      fix problems. The e2e test test/CPPDEFINES/append.py is expanded
+      to cover missed cases, and AppendUnique no longer mismatches with
+      what Append does (#3876).  Inconsistent handling of tuples to specify
+      macro=value outputs is also cleaned up (#4254). The special handling
+      now also works for Prepend/PrependUnique, and a corresponding test
+      test/CPPDEFINES/prepend.py was added to verify the behavior.
+      SCons used to sort keys set or appended via a dict type, in order to
+      assure order of commandline flags did not change across runs. This
+      behavior has been dropped since Python now assures consistent dict order.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
@@ -295,16 +306,16 @@ RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
     - Ninja:Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
-    - Ninja: Made ninja tool force the ninja file as the only target. 
+    - Ninja: Made ninja tool force the ninja file as the only target.
     - Ninja: Improved the default targets setup and made sure there is always a default target for
       the ninja file, which excludes targets that start and stop the daemon.
     - Ninja: Update ninja tool so targets passed to SCons are propagated to ninja when scons
       automatically executes ninja.
-    - Small refactor of scons daemons using a shared StateInfo class for communication 
+    - Small refactor of scons daemons using a shared StateInfo class for communication
       between the scons interactive thread and the http server thread. Added error handling
       for scons interactive failing to startup.
     - Ninja: Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
-    - Ninja: Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+    - Ninja: Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry
     - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
       (or an iterable) which contains functions to be called in order
       when constructing the execution environment (Generally this is the shell environment
@@ -546,7 +557,7 @@ RELEASE 4.2.0 - Sat, 31 Jul 2021 18:12:46 -0700
     - Fix Issue #3906 - `IMPLICIT_COMMAND_DEPENDENCIES` was not properly disabled when
       set to any string value (For example ['none','false','no','off'])
       Also previously 'All' wouldn't have the desired affect.
-      
+
   From Ivan Kravets:
     - Provide a custom argument escape function for `TempFileMunge` using a new
       `TEMPFILEARGESCFUNC` variable. Useful if you need to apply extra operations on

@@ -36,6 +36,7 @@ import shutil
 import stat
 import sys
 import time
+from collections import deque
 
 import SCons.Action
 import SCons.Builder
@@ -46,7 +47,7 @@ import SCons.PathList
 import SCons.Scanner.Dir
 import SCons.Subst
 import SCons.Tool
-import SCons.Util
+from SCons.Util import is_List, is_String, is_Tuple, is_Dict, flatten
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -166,7 +167,7 @@ def get_paths_str(dest) -> str:
     def quote(arg):
         return f'"{arg}"'
 
-    if SCons.Util.is_List(dest):
+    if is_List(dest):
         elem_strs = [quote(d) for d in dest]
         return f'[{", ".join(elem_strs)}]'
     else:
@@ -202,11 +203,11 @@ def chmod_func(dest, mode) -> None:
     """
     from string import digits
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
-    if SCons.Util.is_String(mode) and 0 not in [i in digits for i in mode]:
+    if is_String(mode) and 0 not in [i in digits for i in mode]:
         mode = int(mode, 8)
-    if not SCons.Util.is_String(mode):
+    if not is_String(mode):
         for element in dest:
             os.chmod(str(element), mode)
     else:
@@ -244,7 +245,7 @@ def chmod_func(dest, mode) -> None:
 
 def chmod_strfunc(dest, mode) -> str:
     """strfunction for the Chmod action function."""
-    if not SCons.Util.is_String(mode):
+    if not is_String(mode):
         return f'Chmod({get_paths_str(dest)}, {mode:#o})'
     else:
         return f'Chmod({get_paths_str(dest)}, "{mode}")'
@@ -272,10 +273,10 @@ def copy_func(dest, src, symlinks=True) -> int:
     """
 
     dest = str(dest)
-    src = [str(n) for n in src] if SCons.Util.is_List(src) else str(src)
+    src = [str(n) for n in src] if is_List(src) else str(src)
 
     SCons.Node.FS.invalidate_node_memos(dest)
-    if SCons.Util.is_List(src):
+    if is_List(src):
         # this fails only if dest exists and is not a dir
         try:
             os.makedirs(dest, exist_ok=True)
@@ -322,7 +323,7 @@ def delete_func(dest, must_exist=False) -> None:
     unless *must_exist* evaluates false (the default).
     """
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
     for entry in dest:
         entry = str(entry)
@@ -348,7 +349,7 @@ Delete = ActionFactory(delete_func, delete_strfunc)
 def mkdir_func(dest) -> None:
     """Implementation of the Mkdir action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
     for entry in dest:
         os.makedirs(str(entry), exist_ok=True)
@@ -372,7 +373,7 @@ Move = ActionFactory(
 def touch_func(dest) -> None:
     """Implementation of the Touch action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
     for file in dest:
         file = str(file)
@@ -433,7 +434,7 @@ def _concat_ixes(prefix, items_iter, suffix, env):
     prefix = str(env.subst(prefix, SCons.Subst.SUBST_RAW))
     suffix = str(env.subst(suffix, SCons.Subst.SUBST_RAW))
 
-    for x in SCons.Util.flatten(items_iter):
+    for x in flatten(items_iter):
         if isinstance(x, SCons.Node.FS.File):
             result.append(x)
             continue
@@ -479,8 +480,8 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
         else:
             c = _concat_ixes
 
-    stripprefixes = list(map(env.subst, SCons.Util.flatten(stripprefixes)))
-    stripsuffixes = list(map(env.subst, SCons.Util.flatten(stripsuffixes)))
+    stripprefixes = list(map(env.subst, flatten(stripprefixes)))
+    stripsuffixes = list(map(env.subst, flatten(stripsuffixes)))
 
     stripped = []
     for l in SCons.PathList.PathList(itms).subst_path(env, None, None):
@@ -488,7 +489,7 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
             stripped.append(l)
             continue
 
-        if not SCons.Util.is_String(l):
+        if not is_String(l):
             l = str(l)
 
         for stripprefix in stripprefixes:
@@ -511,49 +512,49 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
 
 
 def processDefines(defs):
-    """process defines, resolving strings, lists, dictionaries, into a list of
-    strings
+    """Return list of strings for preprocessor defines from *defs*.
+
+    Resolves all the different forms CPPDEFINES can be assembled in.
+    Any prefix/suffix is handled elsewhere (usually :func:`_concat_ixes`).
     """
-    if SCons.Util.is_List(defs):
-        l = []
-        for d in defs:
-            if d is None:
+    dlist = []
+    if is_List(defs):
+        for define in defs:
+            if define is None:
                 continue
-            elif SCons.Util.is_List(d) or isinstance(d, tuple):
-                if len(d) >= 2:
-                    l.append(str(d[0]) + '=' + str(d[1]))
+            elif is_List(define) or is_Tuple(define):
+                if len(define) >= 2 and define[1] is not None:
+                    # TODO: do we need to quote define[1] if it contains space?
+                    dlist.append(str(define[0]) + '=' + str(define[1]))
                 else:
-                    l.append(str(d[0]))
-            elif SCons.Util.is_Dict(d):
-                for macro, value in d.items():
+                    dlist.append(str(define[0]))
+            elif is_Dict(define):
+                for macro, value in define.items():
                     if value is not None:
-                        l.append(str(macro) + '=' + str(value))
+                        # TODO: do we need to quote value if it contains space?
+                        dlist.append(str(macro) + '=' + str(value))
                     else:
-                        l.append(str(macro))
-            elif SCons.Util.is_String(d):
-                l.append(str(d))
+                        dlist.append(str(macro))
+            elif is_String(define):
+                dlist.append(str(define))
             else:
-                raise SCons.Errors.UserError("DEFINE %s is not a list, dict, string or None." % repr(d))
-    elif SCons.Util.is_Dict(defs):
-        # The items in a dictionary are stored in random order, but
-        # if the order of the command-line options changes from
-        # invocation to invocation, then the signature of the command
-        # line will change and we'll get random unnecessary rebuilds.
-        # Consequently, we have to sort the keys to ensure a
-        # consistent order...
-        l = []
-        for k, v in sorted(defs.items()):
-            if v is None:
-                l.append(str(k))
+                raise SCons.Errors.UserError(
+                    f"DEFINE {d!r} is not a list, dict, string or None."
+                )
+    elif is_Dict(defs):
+        for macro, value in defs.items():
+            if value is None:
+                dlist.append(str(macro))
             else:
-                l.append(str(k) + '=' + str(v))
+                dlist.append(str(macro) + '=' + str(value))
     else:
-        l = [str(defs)]
-    return l
+        dlist.append(str(defs))
+
+    return dlist
 
 
 def _defines(prefix, defs, suffix, env, target=None, source=None, c=_concat_ixes):
-    """A wrapper around _concat_ixes that turns a list or string
+    """A wrapper around :func:`_concat_ixes` that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
 
