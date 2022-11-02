@@ -63,10 +63,7 @@ module_decl_re = re.compile("(module;)?(.|\n)*export module (.*);");
 
 def module_emitter(target, source, env):
     if("CXXMODULEPATH" in env):
-        if("CXXMAPFILE" not in env):
-            env["CXXMAPFILE"] = env.Textfile("$CXXMODULEPATH/module.map", gen_module_map_file(env["CXXMODULEPATH"], env.get("CXXMODULEMAP", {})))
-
-        env.Depends(target, env["CXXMAPFILE"])
+        env["__CXXMODULEINIT__"](env)
 
         export = module_decl_re.match(source[0].get_text_contents())
         if export:

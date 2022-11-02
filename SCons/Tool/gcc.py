@@ -33,12 +33,101 @@ selection method.
 
 from . import cc
 import re
+import threading
+import asyncio
 import subprocess
 
 import SCons.Util
 
 compilers = ['gcc', 'cc']
 
+
+class module_mapper(threading.Thread):
+    def __init__(self, env, *args, **kw):
+        super().__init__(*args, **kw)
+        self.daemon = True
+        self.loop = asyncio.new_event_loop()
+
+        self.env = env
+
+        self.request_dispatch = {}
+        self.request_dispatch["HELLO"] = self.hello_response
+        self.request_dispatch["INCLUDE-TRANSLATE"] = self.include_translate_response
+        self.request_dispatch["MODULE-REPO"] = self.module_repo_response
+        self.request_dispatch["MODULE-EXPORT"] = self.module_export_response
+        self.request_dispatch["MODULE-COMPILED"] = self.module_compiled_response
+        self.request_dispatch["MODULE-IMPORT"] = self.module_import_response
+
+    def run(self):
+        self.loop.run_forever()
+
+    def hello_response(self, request, sourcefile):
+        if(sourcefile != ""):
+            return ("ERROR", "'Unexpected handshake'")
+        if len(request) == 4 and request[1] == "1":
+            return (request[3], "HELLO", "1", "SCONS", "''")
+        else:
+            return ("ERROR", "'Invalid handshake'")
+
+    def module_repo_response(self, request, sourcefile):
+        return ("PATHNAME", self.env["CXXMODULEPATH"])
+
+    def include_translate_response(self, request, sourcefile):
+        return ("BOOL", "TRUE")
+
+    def module_export_response(self, request, sourcefile):
+        return ("PATHNAME", self.env["CXXMODULEMAP"].get(request[1], self.env.subst("$CXXMODULEPATH/" + request[1] + "$CXXMODULESUFFIX")))
+
+    def module_compiled_response(self, request, sourcefile):
+        return ("OK")
+
+    def module_import_response(self, request, sourcefile):
+        return ("PATHNAME", self.env["CXXMODULEMAP"].get(request[1], self.env.subst("$CXXMODULEPATH/" + request[1] + "$CXXMODULESUFFIX")))
+
+    def default_response(self, request, sourcefile):
+        return ("ERROR", "'Unknown CODY request {}'".format(request[0]))
+
+    async def handle_connect(self, reader, writer):
+        sourcefile = ""
+        while True:
+            try:
+                request = await reader.readuntil()
+            except:
+                return
+
+            request = request.decode("utf-8")
+
+            separator = ''
+            request = request.rstrip('\n')
+            if request[-1] == ';':
+                request = request.rstrip(';')
+                separator = ' ;'
+
+            request = request.split()
+
+            response = self.request_dispatch.get(request[0], self.default_response)(request, sourcefile)
+            if(request[0] == "HELLO" and response[0] != "ERROR"):
+                sourcefile = response[0]
+                response = response[1:]
+            response = " ".join(response) + separator + "\n"
+
+            writer.write(response.encode())
+            await writer.drain()
+
+    async def listen(self, path):
+        await asyncio.start_unix_server(self.handle_connect, path=path)
+
+
+def init_mapper(env):
+    if env.get("__GCCMODULEMAPPER__"):
+        return
+
+    mapper = module_mapper(env)
+    mapper.start()
+    asyncio.run_coroutine_threadsafe(mapper.listen(
+        env.subst("$CXXMODULEPATH/socket")), mapper.loop)
+
+    env["__GCCMODULEMAPPER__"] = mapper
 
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
@@ -60,7 +149,8 @@ def generate(env):
     env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
-    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper=${CXXMAPFILE}'
+    env['__CXXMODULEINIT__'] = init_mapper
+    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper==$CXXMODULEPATH/socket?$SOURCE'
     env['CXXMODULESUFFIX'] = '.gcm'
 
 def exists(env):
