@@ -64,7 +64,9 @@ class module_mapper(threading.Thread):
 
     def save_map(self):
         save = open(self.env.subst("$CXXMODULEPATH/module.map"), "w")
+
         save.writelines(
+            [self.env.subst("$$root $CXXMODULEPATH") + '\n'] +
             [' '.join(pair) + '\n' for pair in self.env["CXXMODULEMAP"].items()])
 
     def load_map(self):
@@ -74,7 +76,7 @@ class module_mapper(threading.Thread):
             return
 
         saved_map = dict([tuple(line.rstrip("\n").split(maxsplit=1))
-                         for line in load.readlines()])
+                         for line in load.readlines() if not line[0] == '$'])
         saved_map.update(self.env["CXXMODULEMAP"])
         self.env["CXXMODULEMAP"] = saved_map
 
