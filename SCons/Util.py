@@ -2139,16 +2139,16 @@ class DispatchingFormatter(Formatter):
         return formatter.format(record)
 
 
-def sanitize_shell_env(env):
+def sanitize_shell_env(execution_env):
     """
-    Sanitize all values from env['ENV'] which will be propagated to the shell
-    :param env: The shell environment variables to be propagated to spawned shell
+    Sanitize all values in execution_env (typically this is env['ENV']) which will be propagated to the shell
+    :param execution_env: The shell environment variables to be propagated to spawned shell
     :return: sanitize dictionary of env variables (similar to what you'd get from os.environ)
     """
 
     # Ensure that the ENV values are all strings:
     new_env = {}
-    for key, value in env.items():
+    for key, value in execution_env.items():
         if is_List(value):
             # If the value is a list, then we assume it is a path list,
             # because that's a pretty common list-like value to stick
