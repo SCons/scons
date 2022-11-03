@@ -22,6 +22,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
     - Changed the Taskmaster trace logic to use python's logging module. The output formatting
       should remain (mostly) the same. Minor update to unittest for this to adjust for 1 less newline.
+    - Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
+      execution environment variable set to a python list it would crash. Now it
+      will create a string joining the list with os.pathsep
+    - Move execution environment sanitation from Action._subproc() to
+      SCons.Util.sanitize_shell_env(ENV)
 
 
 

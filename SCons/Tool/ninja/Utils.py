@@ -285,6 +285,7 @@ def ninja_sorted_build(ninja, **build):
     sorted_dict = ninja_recursive_sorted_dict(build)
     ninja.build(**sorted_dict)
 
+
 def get_command_env(env, target, source):
     """
     Return a string that sets the environment for any environment variables that
@@ -311,21 +312,8 @@ def get_command_env(env, target, source):
 
     windows = env["PLATFORM"] == "win32"
     command_env = ""
+    scons_specified_env = SCons.Util.sanitize_shell_env(scons_specified_env)
     for key, value in scons_specified_env.items():
-        # Ensure that the ENV values are all strings:
-        if is_List(value):
-            # If the value is a list, then we assume it is a
-            # path list, because that's a pretty common list-like
-            # value to stick in an environment variable:
-            value = flatten_sequence(value)
-            value = joinpath(map(str, value))
-        else:
-            # If it isn't a string or a list, then we just coerce
-            # it to a string, which is the proper way to handle
-            # Dir and File instances and will produce something
-            # reasonable for just about everything else:
-            value = str(value)
-
         if windows:
             command_env += "set '{}={}' && ".format(key, value)
         else:

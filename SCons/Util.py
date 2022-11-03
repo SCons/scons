@@ -2138,6 +2138,33 @@ class DispatchingFormatter(Formatter):
         formatter = self._formatters.get(record.name, self._default_formatter)
         return formatter.format(record)
 
+
+def sanitize_shell_env(env):
+    """
+    Sanitize all values from env['ENV'] which will be propagated to the shell
+    :param env: The shell environment variables to be propagated to spawned shell
+    :return: sanitize dictionary of env variables (similar to what you'd get from os.environ)
+    """
+
+    # Ensure that the ENV values are all strings:
+    new_env = {}
+    for key, value in env.items():
+        if is_List(value):
+            # If the value is a list, then we assume it is a path list,
+            # because that's a pretty common list-like value to stick
+            # in an environment variable:
+            value = flatten_sequence(value)
+            new_env[key] = os.pathsep.join(map(str, value))
+        else:
+            # It's either a string or something else.  If it's a string,
+            # we still want to call str() because it might be a *Unicode*
+            # string, which makes subprocess.Popen() gag.  If it isn't a
+            # string or a list, then we just coerce it to a string, which
+            # is the proper way to handle Dir and File instances and will
+            # produce something reasonable for just about everything else:
+            new_env[key] = str(value)
+    return new_env
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

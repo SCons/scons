@@ -40,6 +40,7 @@ def generate(env):
     # env['ENV']['PATH'] = '/opt/local/bin:/opt/local/sbin:' + env['ENV']['PATH'] + ':/sw/bin'
     
     # Store extra system paths in env['ENV']['PATHOSX']
+    env['ENV']['PATHOSX'] = '/opt/local/bin'
     
     filelist = ['/etc/paths',]
     # make sure this works on Macs with Tiger or earlier
