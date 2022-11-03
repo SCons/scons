@@ -32,9 +32,11 @@ selection method.
 """
 
 from . import cc
+import os
 import re
 import threading
 import asyncio
+import atexit
 import subprocess
 
 import SCons.Util
@@ -49,6 +51,8 @@ class module_mapper(threading.Thread):
         self.loop = asyncio.new_event_loop()
 
         self.env = env
+        self.load_map()
+        atexit.register(self.save_map)
 
         self.request_dispatch = {}
         self.request_dispatch["HELLO"] = self.hello_response
@@ -57,6 +61,22 @@ class module_mapper(threading.Thread):
         self.request_dispatch["MODULE-EXPORT"] = self.module_export_response
         self.request_dispatch["MODULE-COMPILED"] = self.module_compiled_response
         self.request_dispatch["MODULE-IMPORT"] = self.module_import_response
+
+    def save_map(self):
+        save = open(self.env.subst("$CXXMODULEPATH/module.map"), "w")
+        save.writelines(
+            [' '.join(pair) + '\n' for pair in self.env["CXXMODULEMAP"].items()])
+
+    def load_map(self):
+        try:
+            load = open(self.env.subst("$CXXMODULEPATH/module.map"), "r")
+        except:
+            return
+
+        saved_map = dict([tuple(line.rstrip("\n").split(maxsplit=1))
+                         for line in load.readlines()])
+        saved_map.update(self.env["CXXMODULEMAP"])
+        self.env["CXXMODULEMAP"] = saved_map
 
     def run(self):
         self.loop.run_forever()
@@ -76,13 +96,18 @@ class module_mapper(threading.Thread):
         return ("BOOL", "TRUE")
 
     def module_export_response(self, request, sourcefile):
-        return ("PATHNAME", self.env["CXXMODULEMAP"].get(request[1], self.env.subst("$CXXMODULEPATH/" + request[1] + "$CXXMODULESUFFIX")))
+        if sourcefile[1] == '@':
+            cmi = self.env.subst(sourcefile + "$CXXMODULESUFFIX")
+            self.env["CXXMODULEMAP"][request[1]] = cmi
+            return ("PATHNAME", cmi)
+        else:
+            return ("PATHNAME", self.env["CXXMODULEMAP"].get(request[1], self.env.subst(request[1] + "$CXXMODULESUFFIX")))
 
     def module_compiled_response(self, request, sourcefile):
         return ("OK")
 
     def module_import_response(self, request, sourcefile):
-        return ("PATHNAME", self.env["CXXMODULEMAP"].get(request[1], self.env.subst("$CXXMODULEPATH/" + request[1] + "$CXXMODULESUFFIX")))
+        return ("PATHNAME", self.env["CXXMODULEMAP"].get(request[1], self.env.subst(request[1] + "$CXXMODULESUFFIX")))
 
     def default_response(self, request, sourcefile):
         return ("ERROR", "'Unknown CODY request {}'".format(request[0]))
@@ -117,13 +142,13 @@ class module_mapper(threading.Thread):
     async def listen(self, path):
         await asyncio.start_unix_server(self.handle_connect, path=path)
 
-
 def init_mapper(env):
     if env.get("__GCCMODULEMAPPER__"):
         return
 
     mapper = module_mapper(env)
     mapper.start()
+    os.makedirs(env.subst("$CXXMODULEPATH"), exist_ok=True)
     asyncio.run_coroutine_threadsafe(mapper.listen(
         env.subst("$CXXMODULEPATH/socket")), mapper.loop)
 
@@ -150,8 +175,10 @@ def generate(env):
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
     env['__CXXMODULEINIT__'] = init_mapper
-    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper==$CXXMODULEPATH/socket?$SOURCE'
+    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper==$CXXMODULEPATH/socket?$CXXMODULEIDPREFIX$SOURCE'
     env['CXXMODULESUFFIX'] = '.gcm'
+    env['CXXUSERHEADERFLAGS']    = '-x c++-user-header'
+    env['CXXSYSTEMHEADERFLAGS']  = '-x c++-system-header'
 
 def exists(env):
     # is executable, and is a GNU compiler (or accepts '--version' at least)

@@ -84,6 +84,7 @@ def module_emitter_shared(target, source, env):
 #TODO filter out C++ whitespace and comments
 module_import_re = re.compile(r"\s*(?:export)?\s*import\s*(\S*)\s*;")
 
+
 class CxxModuleScanner(SCons.Scanner.Current):
     def scan(self, node, env, path):
         result = self.c_scanner(node, env, path)
@@ -93,11 +94,28 @@ class CxxModuleScanner(SCons.Scanner.Current):
 
         imports = module_import_re.findall(node.get_text_contents())
         for module in imports:
+            is_header_unit = False
             if(module[0] == "<" or module[0] == '"'):
-                continue
-            cmi = env["CXXMODULEMAP"].get(module, module+"$CXXMODULESUFFIX")
-            result.append(env.File("$CXXMODULEPATH/" + cmi))
+                module_id_prefix = "@system-header/" if module[0] == "<" else "@header/"
+                cmi = module_id_prefix + module[1:-1] + "$CXXMODULESUFFIX"
+                is_header_unit = True
+            else:
+                cmi = env["CXXMODULEMAP"].get(
+                    module, module+"$CXXMODULESUFFIX")
+            cmi = env.File("$CXXMODULEPATH/" + cmi)
+
+            if(is_header_unit and not cmi.has_builder()):
+                # TODO: add proper builder for header imports
+                # as it is this is only good for system headers because sources
+                # are not scanned
+                env.Command(
+                    cmi, env.Value(module[1:-1]), "$CXXCOM",
+                    CXXCOMOUTPUTSPEC="$CXXSYSTEMHEADERFLAGS" if module[0] == "<" else "$CXXUSERHEADERFLAGS",
+                    CXXMODULEIDPREFIX=module_id_prefix
+                )
+            result.append(cmi)
         return result
+
     def __init__(self, *args, **kwargs):
         super().__init__(self.scan, *args, **kwargs)
         from SCons.Tool import CScanner
@@ -125,7 +143,9 @@ def generate(env):
     if 'CXX' not in env:
         env['CXX']    = env.Detect(compilers) or compilers[0]
     env['CXXFLAGS']   = SCons.Util.CLVar('')
-    env['CXXCOM']     = '$CXX -o $TARGET -c ${ CXXMODULEFLAGS if CXXMODULEPATH else "" } $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
+    env['CXXCOMOUTPUTSPEC'] = '-o $TARGET'
+    env['CXXCOM']     = '$CXX $CXXCOMOUTPUTSPEC -c ${ CXXMODULEFLAGS if CXXMODULEPATH else "" } $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
+    env['CXXMODULEMAP'] = {}
     env['SHCXX']      = '$CXX'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHCXXCOM']   = '$SHCXX -o $TARGET -c ${ CXXMODULEFLAGS if CXXMODULEPATH else "" } $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
