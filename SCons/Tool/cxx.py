@@ -117,7 +117,8 @@ class CxxModuleScanner(SCons.Scanner.Current):
         return result
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self.scan, recursive = True, *args, **kwargs)
+        from SCons.Scanner import FindPathDirs
+        super().__init__(self.scan, recursive = True, path_function = FindPathDirs("CPPPATH"), *args, **kwargs)
         from SCons.Tool import CScanner
         self.c_scanner = CScanner
 
