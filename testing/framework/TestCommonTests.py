@@ -1880,7 +1880,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*fail
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -1940,13 +1940,13 @@ class run_TestCase(TestCommonTestCase):
         Traceback \\(most recent call last\\):
           File "<stdin>", line \\d+, in (\\?|<module>)
           File "[^"]+TestCommon.py", line \\d+, in run
-            TestCmd.run\\(self, \\*\\*kw\\)
+            super().run\\(\\*\\*kw\\)
           File "[^"]+TestCmd.py", line \\d+, in run
-            .*
+            p = self.start(program=program,
           File "[^"]+TestCommon.py", line \\d+, in start
             raise e
           File "[^"]+TestCommon.py", line \\d+, in start
-            return TestCmd.start\\(self, program, interpreter, arguments,
+            return super().start\\(program, interpreter, arguments,
           File "<stdin>", line \\d+, in raise_exception
         TypeError: forced TypeError
         """ % re.escape(repr(sys.executable)))
@@ -2066,7 +2066,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*pass
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2096,7 +2096,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*fail
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2128,7 +2128,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*pass
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2162,7 +2162,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*stderr
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
