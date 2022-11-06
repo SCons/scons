@@ -59,7 +59,7 @@ def gen_module_map_file(root, module_map):
     return module_map_text
 
 #TODO filter out C++ whitespace and comments
-module_decl_re = re.compile("(module;)?(.|\n)*export module (.*);");
+module_decl_re = re.compile("(module;)?(.|\n)*export module (.*);")
 
 def module_emitter(target, source, env):
     if("CXXMODULEPATH" in env):
