@@ -1,0 +1,5 @@
+env = Environment()
+
+env.Append(CXXFLAGS = ["-std=c++20"])
+env['CXXMODULEPATH'] = "cxx-scons-modules"
+env.Program("scons-module-test", ["itest.cpp", "test.cpp", "main.cpp"])
