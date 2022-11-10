@@ -72,7 +72,7 @@ class module_mapper(threading.Thread):
     def load_map(self):
         try:
             load = open(self.env.subst("$CXXMODULEPATH/module.map"), "r")
-        except:
+        except FileNotFoundError:
             return
 
         saved_map = dict([tuple(line.rstrip("\n").split(maxsplit=1))
@@ -119,7 +119,7 @@ class module_mapper(threading.Thread):
         while True:
             try:
                 request = await reader.readuntil()
-            except:
+            except EOFError:
                 return
 
             request = request.decode("utf-8")
