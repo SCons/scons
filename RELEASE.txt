@@ -79,6 +79,9 @@ DOCUMENTATION
   Added note on the possibly surprising feature that SCons always passes
   -sourcepath when calling javac, which affects how the class path is
   used when finding sources.
+- Updated the User Guide chapter on installation: modernized the notes
+  on Python installs, SCons installs, and having multiple SCons versions
+  present on a single system.
 
 DEVELOPMENT
 -----------
