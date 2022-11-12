@@ -44,6 +44,40 @@ import SCons.Util
 compilers = ['gcc', 'cc']
 
 
+def CODY_decode(input):
+    quoted = False
+    backslashed = False
+    result = []
+    output = ""
+
+    for c in input:
+        if quoted:
+            if backslashed:
+                output.append(c)
+                backslashed = False
+                continue
+            if c == "'":
+                quoted = False
+                continue
+            if c == "\\":
+                backslashed = True
+                continue
+            output += c
+            continue
+
+        if c == "'":
+            quoted = True
+            continue
+        if c == ' ' and output:
+            result.append(output)
+            output = ""
+            continue
+        output += c
+    if output:
+        result.append(output)
+
+    return result
+
 class module_mapper(threading.Thread):
     def __init__(self, env, *args, **kw):
         super().__init__(*args, **kw)
@@ -98,7 +132,7 @@ class module_mapper(threading.Thread):
         return ("BOOL", "TRUE")
 
     def module_export_response(self, request, sourcefile):
-        if sourcefile[1] == '@':
+        if sourcefile[0] == '@':
             cmi = self.env.subst(sourcefile + "$CXXMODULESUFFIX")
             self.env["CXXMODULEMAP"][request[1]] = cmi
             return ("PATHNAME", cmi)
@@ -130,7 +164,7 @@ class module_mapper(threading.Thread):
                 request = request.rstrip(';')
                 separator = ' ;'
 
-            request = request.split()
+            request = CODY_decode(request)
 
             response = self.request_dispatch.get(request[0], self.default_response)(request, sourcefile)
             if(request[0] == "HELLO" and response[0] != "ERROR"):
