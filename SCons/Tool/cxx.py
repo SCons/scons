@@ -82,7 +82,7 @@ def module_emitter_shared(target, source, env):
     return SCons.Defaults.SharedObjectEmitter(*module_emitter(target, source, env))
 
 #TODO filter out C++ whitespace and comments
-module_import_re = re.compile(r"\s*(?:export)?\s*import\s*(\S*)\s*;")
+module_import_re = re.compile(r"\s*(?:(?:export)?\s*import\s*(\S*)\s*;)|(?:(export)?\s*module\s*(\S*)\s*;)")
 
 
 class CxxModuleScanner(SCons.Scanner.Current):
@@ -93,7 +93,12 @@ class CxxModuleScanner(SCons.Scanner.Current):
             return result
 
         imports = module_import_re.findall(node.get_text_contents())
-        for module in imports:
+        for module, export, impl in imports:
+            if not module:
+                if not export and impl: # module implementation unit depends on module interface
+                    module = impl
+                else:
+                    continue
             is_header_unit = False
             if(module[0] == "<" or module[0] == '"'):
                 module_id_prefix = "@system-header/" if module[0] == "<" else "@header/"
