@@ -52,6 +52,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #4243.
     - Cleanup: make sure BoolVariable usage in tests and examples uses Python
       boolean values instead of 0/1.
+    - Stop telling people to run "python setup.py install" in the User Guide.
+      Adds new content on using virtualenvs to be able to have multiple
+      different SCons versions available on one system.
+
 
   From Andrew Morrow
     - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
