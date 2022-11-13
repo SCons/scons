@@ -806,24 +806,7 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
     ENV = kw.get('env', None)
     if ENV is None: ENV = get_default_ENV(scons_env)
 
-    # Ensure that the ENV values are all strings:
-    new_env = {}
-    for key, value in ENV.items():
-        if is_List(value):
-            # If the value is a list, then we assume it is a path list,
-            # because that's a pretty common list-like value to stick
-            # in an environment variable:
-            value = SCons.Util.flatten_sequence(value)
-            new_env[key] = os.pathsep.join(map(str, value))
-        else:
-            # It's either a string or something else.  If it's a string,
-            # we still want to call str() because it might be a *Unicode*
-            # string, which makes subprocess.Popen() gag.  If it isn't a
-            # string or a list, then we just coerce it to a string, which
-            # is the proper way to handle Dir and File instances and will
-            # produce something reasonable for just about everything else:
-            new_env[key] = str(value)
-    kw['env'] = new_env
+    kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
     try:
         pobj = subprocess.Popen(cmd, **kw)

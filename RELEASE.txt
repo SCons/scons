@@ -50,6 +50,9 @@ FIXES
   use: env["JAVACLASSPATH"] = env.Split("foo bar baz")
   There is no change in how JAVACLASSPATH gets turned into the -classpath
   argument passed to the JDK tools.
+- Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
+  execution environment variable set to a python list it would crash. Now it
+  will create a string joining the list with os.pathsep
 
 IMPROVEMENTS
 ------------
