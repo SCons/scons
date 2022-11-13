@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+TARGET_FILE=~/.scons/site_scons/site_init.py
 
-mkdir -p ~/.site_scons
+mkdir -p ~/.scons/site_scons
 
-if [ ! -f "~/.site_scons/site_init.py" ]
+if [ ! -f "${TARGET_FILE}" ]
 then
-    echo "File ~/.site_scons/site_init.py does not exist"
+    echo "File ${TARGET_FILE} does not exist"
     echo "We will add one which supports reproducible builds"
-    cp ${SCRIPT_DIR}/site_init.py ~/.site_scons/site_init.py
+    cp ${SCRIPT_DIR}/reproducible_site_init.py ${TARGET_FILE}
 else
-    echo "File ~/.site_scons/site_init.py already exists"
+    echo "File ${TARGET_FILE} already exists"
     echo "We will not overwrite it. Please copy the content"
-    echo "from ${SCRIPT_DIR}/site_init.py"
+    echo "from ${SCRIPT_DIR}/reproducible_site_init.py"
 fi
