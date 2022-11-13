@@ -2156,9 +2156,7 @@ def sanitize_shell_env(execution_env):
             value = flatten_sequence(value)
             new_env[key] = os.pathsep.join(map(str, value))
         else:
-            # It's either a string or something else.  If it's a string,
-            # we still want to call str() because it might be a *Unicode*
-            # string, which makes subprocess.Popen() gag.  If it isn't a
+            # It's either a string or something else.  If it isn't a
             # string or a list, then we just coerce it to a string, which
             # is the proper way to handle Dir and File instances and will
             # produce something reasonable for just about everything else:
