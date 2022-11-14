@@ -263,8 +263,8 @@ def _add_cppdefines(
 
         item = _macro_conv(item)
         for define in defines:
-           if item == _macro_conv(define):
-               return define
+            if item == _macro_conv(define):
+                return define
 
         return False
 

@@ -36,7 +36,6 @@ import shutil
 import stat
 import sys
 import time
-from collections import deque
 
 import SCons.Action
 import SCons.Builder
@@ -539,7 +538,7 @@ def processDefines(defs):
                 dlist.append(str(define))
             else:
                 raise SCons.Errors.UserError(
-                    f"DEFINE {d!r} is not a list, dict, string or None."
+                    f"DEFINE {define!r} is not a list, dict, string or None."
                 )
     elif is_Dict(defs):
         for macro, value in defs.items():
