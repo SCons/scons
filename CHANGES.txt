@@ -27,6 +27,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       will create a string joining the list with os.pathsep
     - Move execution environment sanitation from Action._subproc() to
       SCons.Util.sanitize_shell_env(ENV)
+    - Moved rpm and debian directories under packaging
+    - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
+      read packaging/etc/README.txt if you are interested.
 
 
 
