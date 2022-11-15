@@ -77,6 +77,7 @@ opts = "-Y " + test.workpath('repository')
 test.write(['repository', 'SConstruct'], r"""
 OS = ARGUMENTS.get('OS', '')
 build1_os = "#build1/" + OS
+DefaultEnvironment(tools=[])  # test speedup
 default = Environment()
 ccflags = {
     '': '',

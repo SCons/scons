@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,8 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -56,7 +56,6 @@ bar52 = test.workpath('build', 'var5', 'bar2' + _exe)
 test.subdir('work1', 'work2', 'work3')
 
 test.write(['work1', 'SConstruct'], """
-DefaultEnvironment(tools=[])
 src = Dir('src')
 var2 = Dir('build/var2')
 var3 = Dir('build/var3')
@@ -64,6 +63,7 @@ var4 = Dir('build/var4')
 var5 = Dir('../build/var5')
 var6 = Dir('../build/var6')
 
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILD = 'build', SRC = 'src')
 
 VariantDir('build/var1', src)
@@ -119,7 +119,7 @@ except:
 
 if fortran and env.Detect(fortran):
     if sys.platform =='win32':
-        env_prog=Environment(tools=['mingw'], 
+        env_prog = Environment(tools=['mingw'], 
         # BUILD = env['BUILD'], SRC = ENV['src'],
         CPPPATH=env['CPPPATH'], FORTRANPATH=env['FORTRANPATH'] )
     else:
@@ -333,6 +333,7 @@ scons: `%s' is up to date.
 
 #
 test.write(['work2', 'SConstruct'], """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env.Program('prog.c')
 """)
@@ -356,6 +357,7 @@ test.up_to_date(chdir='work2', arguments='.')
 
 #
 test.write(['work2', 'SConstruct'], """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 VariantDir('build', '.')
 Export('env')

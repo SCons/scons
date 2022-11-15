@@ -51,6 +51,7 @@ foo5_exe = test.workpath('foo5' + _exe)
 slprog_exe = test.workpath('slprog' + _exe)
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(LIBS=['bar'], LIBPATH = '.')
 env.Program(target='foo1', source='foo1.c')
 env2 = Environment(LIBS=[File(r'%s')], LIBPATH = '.')
@@ -161,6 +162,7 @@ test.run(program=slprog_exe, stdout='sl.c\nslprog.c\n')
 
 #
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(LIBS=['baz'])
 env.Program(target='foo1', source='foo1.c', LIBS=['$LIBS', 'bar'], LIBPATH = '.')
 SConscript('sub1/SConscript', 'env')
@@ -173,6 +175,7 @@ test.run(program=foo1_exe, stdout='sub1/bar.c\nsub2/baz.c\n')
 
 #
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(LIBS=['bar', 'baz'], LIBPATH = '.')
 env.Program(target='foo1', source='foo1.c')
 SConscript('sub1/SConscript', 'env')
@@ -191,6 +194,7 @@ test.run(program=foo1_exe, stdout='sub1/bar.c\nsub1/baz.c\n')
 
 #
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env.Program(target='foo1', source='foo1.c', LIBS=['bar', 'baz'], LIBPATH = '.')
 SConscript('sub1/SConscript', 'env')
