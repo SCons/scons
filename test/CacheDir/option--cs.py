@@ -54,7 +54,6 @@ with open(sys.argv[1], 'w') as f:
 cache = test.workpath('cache')
 
 test.write(['src1', 'SConstruct'], """
-DefaultEnvironment(tools=[])
 def cat(env, source, target):
     target = str(target[0])
     with open('cat.out', 'a') as f:
@@ -63,6 +62,8 @@ def cat(env, source, target):
         for src in source:
             with open(str(src), "r") as f2:
                 f.write(f2.read())
+
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(tools=[], 
                   BUILDERS={'Internal':Builder(action=cat),
                             'External':Builder(action=r'%(_python_)s build.py $TARGET $SOURCES')})
@@ -156,6 +157,7 @@ hello_obj = 'hello' + _obj
 src2_hello = test.workpath('src2', hello_exe)
 
 test.write(['src2', 'SConstruct'], """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env.Program('hello.c')
 CacheDir(r'%s')

@@ -46,6 +46,7 @@ if not test.detect_tool(fc):
 test.subdir('include', 'subdir', ['subdir', 'include'], 'foobar', 'inc2')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     F77='%s',
     F77PATH=['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
@@ -226,6 +227,7 @@ test.up_to_date(arguments = args)
 
 # Change F77PATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     F77='%s',
     F77PATH=Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
@@ -285,6 +287,7 @@ test.up_to_date(arguments = args)
 
 # Check that a null-string F77PATH doesn't blow up.
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(tools=['%s'], F77PATH='', F77FLAGS='-x f77')
 env.Object('foo', source='empty.f77')
 """ % fc)

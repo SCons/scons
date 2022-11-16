@@ -246,6 +246,7 @@ test.up_to_date(arguments = args)
 
 # Change CPPPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(CPPPATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'))
 obj = env.Object(target='foobar/prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)
