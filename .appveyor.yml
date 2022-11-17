@@ -26,45 +26,43 @@ install:
 environment:
   matrix:
 
-    - WINPYTHON: "Python310"
+    - WINPYTHON: "Python311"
       COVERAGE: 0
 
-    - WINPYTHON: "Python37"
-      COVERAGE: 0
+    - WINPYTHON: "Python310"
+      COVERAGE: 1
 
     - WINPYTHON: "Python38"
       COVERAGE: 0
           
     - WINPYTHON: "Python36"
-      COVERAGE: 1
+      COVERAGE: 0
 
-
-
-
+    # skipping 3.7 and 3.9 at this time
 
 # remove sets of build jobs based on criteria below
 # to fine tune the number and platforms tested
 matrix:
   exclude:
-    # test python 3.8 on Visual Studio 2017 image
+    # test python 3.6 on Visual Studio 2017 image
+    - image: Visual Studio 2017
+      WINPYTHON: "Python311"
     - image: Visual Studio 2017
       WINPYTHON: "Python310"
-    - image: Visual Studio 2017
-      WINPYTHON: "Python37"
     - image: Visual Studio 2017
       WINPYTHON: "Python38"
 
-    # test python 3.7 on Visual Studio 2019 image
+    # test python 3.8 on Visual Studio 2019 image
+    - image: Visual Studio 2019
+      WINPYTHON: "Python311"
     - image: Visual Studio 2019
       WINPYTHON: "Python310"
     - image: Visual Studio 2019
       WINPYTHON: "Python36"
 
-    # test python 3.10 on Visual Studio 2022 image
+    # test python 3.10 and 3.11 on Visual Studio 2022 image
     - image: Visual Studio 2022
       WINPYTHON: "Python36"
-    - image: Visual Studio 2022
-      WINPYTHON: "Python37"
     - image: Visual Studio 2022
       WINPYTHON: "Python38"
 
