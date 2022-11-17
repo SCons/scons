@@ -339,8 +339,8 @@ class NoParallelTestCase(unittest.TestCase):
         """test handling lack of parallel support"""
         def NoParallel(tm, num, stack_size):
             raise NameError
-        save_Parallel = SCons.Taskmaster.Job.Parallel
-        SCons.Taskmaster.Job.Parallel = NoParallel
+        save_Parallel = SCons.Taskmaster.Job.LegacyParallel
+        SCons.Taskmaster.Job.LegacyParallel = NoParallel
         try:
             taskmaster = Taskmaster(num_tasks, self, RandomTask)
             jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
@@ -358,7 +358,7 @@ class NoParallelTestCase(unittest.TestCase):
             self.assertFalse(taskmaster.num_failed,
                         "some task(s) failed to execute")
         finally:
-            SCons.Taskmaster.Job.Parallel = save_Parallel
+            SCons.Taskmaster.Job.LegacyParallel = save_Parallel
 
 
 class SerialExceptionTestCase(unittest.TestCase):
