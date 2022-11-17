@@ -95,7 +95,7 @@ class CxxModuleScanner(SCons.Scanner.Current):
         imports = module_import_re.findall(node.get_text_contents())
         for module, export, impl in imports:
             if not module:
-                if not export and impl: # module implementation unit depends on module interface
+                if not export and impl:  # module implementation unit depends on module interface
                     module = impl
                 else:
                     continue
@@ -110,12 +110,16 @@ class CxxModuleScanner(SCons.Scanner.Current):
             cmi = env.File("$CXXMODULEPATH/" + cmi)
 
             if(is_header_unit and not cmi.has_builder()):
-                # TODO: add proper builder for header imports
-                # as it is this is only good for system headers because sources
-                # are not scanned
-                env.Command(
-                    cmi, env.Value(module[1:-1]), "$CXXCOM",
+                source = self.c_scanner.find_include(
+                    (module[0], module[1:-1]), node.dir, path)
+                if source[0]:
+                    source = source[0]
+                else:
+                    source = env.Value(module[1:-1])
+                env.CxxHeaderUnit(
+                    cmi, source,
                     CXXCOMOUTPUTSPEC="$CXXSYSTEMHEADERFLAGS" if module[0] == "<" else "$CXXUSERHEADERFLAGS",
+                    CPPPATH = [node.dir, "$CPPPATH"] if module[0] == '"' else "$CPPPATH",
                     CXXMODULEIDPREFIX=module_id_prefix
                 )
             result.append(cmi)
@@ -143,6 +147,10 @@ def generate(env):
         static_obj.add_emitter(suffix, module_emitter_static)
         shared_obj.add_emitter(suffix, module_emitter_shared)
         SourceFileScanner.add_scanner(suffix, CxxModuleScanner())
+
+    header_unit = SCons.Builder.Builder(action="$CXXCOM",
+                                        source_scanner=CxxModuleScanner())
+    env["BUILDERS"]["CxxHeaderUnit"] = header_unit
 
     SCons.Tool.cc.add_common_cc_variables(env)
 
