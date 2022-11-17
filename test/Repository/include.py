@@ -37,6 +37,7 @@ work_foo_h = test.workpath('work', 'foo.h')
 
 test.write(['work', 'SConstruct'], """
 Repository(r'%s')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(CPPPATH = ['.'])
 env.Program(target = 'foo', source = 'foo.c')
 """ % repository)

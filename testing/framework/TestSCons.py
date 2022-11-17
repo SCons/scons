@@ -1159,6 +1159,7 @@ void my_qt_symbol(const char *arg) {
 
         self.write([dir, 'lib', 'SConstruct'], r"""
 import sys
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 if sys.platform == 'win32':
     env.StaticLibrary('myqt', 'my_qobject.cpp')
@@ -1185,6 +1186,7 @@ if ARGUMENTS.get('noqtdir', 0):
     QTDIR = None
 else:
     QTDIR = r'%s'
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     QTDIR=QTDIR, QT_LIB=r'%s', QT_MOC=r'%s', QT_UIC=r'%s', tools=['default', 'qt']
 )
