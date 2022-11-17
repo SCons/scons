@@ -63,6 +63,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Stop telling people to run "python setup.py install" in the User Guide.
       Adds new content on using virtualenvs to be able to have multiple
       different SCons versions available on one system.
+    - Added the "DefaultEnvironment(tools=[])" stanza to a number of tests
+      that are known to be particularly slow.  It's still just a tiny
+      speedup, but the Windows CI had been occasionally timing out,
+      so maybe this helps a bit.
+    - Remove an extra existence check in one ninja test that caused it
+      to be skipped on some otherwise-valid Windows installations.
 
 
   From Andrew Morrow
