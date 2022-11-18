@@ -39,10 +39,11 @@ def generate(env):
     # put macports paths at front to override Apple's versions, fink path is after
     # For now let people who want Macports or Fink tools specify it!
     # env['ENV']['PATH'] = '/opt/local/bin:/opt/local/sbin:' + env['ENV']['PATH'] + ':/sw/bin'
-    
-    # Store extra system paths in env['ENV']['PATHOSX']
 
-    filelist = ['/etc/paths',]
+    # Store extra system paths in env['ENV']['PATHOSX']
+    env['ENV']['PATHOSX'] = ['/opt/local/bin/']
+
+    filelist = ['/etc/paths', ]
     # make sure this works on Macs with Tiger or earlier
     try:
         dirlist = os.listdir('/etc/paths.d')
@@ -62,7 +63,7 @@ def generate(env):
 
     # Not sure why this wasn't the case all along?
     if env['ENV'].get('PATHOSX', False) and os.environ.get('SCONS_USE_MAC_PATHS', False):
-        env.AppendENVPath('PATH',env['ENV']['PATHOSX'])
+        env.AppendENVPath('PATH', env['ENV']['PATHOSX'])
 
 # Local Variables:
 # tab-width:4

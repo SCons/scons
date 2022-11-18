@@ -22,7 +22,6 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 import shutil
-from os.path import join as joinpath
 from collections import OrderedDict
 
 import SCons
@@ -314,6 +313,22 @@ def get_command_env(env, target, source):
     command_env = ""
     scons_specified_env = SCons.Util.sanitize_shell_env(scons_specified_env)
     for key, value in scons_specified_env.items():
+        print("KEY:%s -> %s"%(key, value))
+        # Ensure that the ENV values are all strings:
+        if is_List(value):
+            # If the value is a list, then we assume it is a
+            # path list, because that's a pretty common list-like
+            # value to stick in an environment variable:
+            value = flatten_sequence(value)
+            value = os.pathsep.join(map(str, value))
+        else:
+            # If it isn't a string or a list, then we just coerce
+            # it to a string, which is the proper way to handle
+            # Dir and File instances and will produce something
+            # reasonable for just about everything else:
+            value = str(value)
+
+        print("VALUE is:%s"%value)
         if windows:
             command_env += "set '{}={}' && ".format(key, value)
         else:
