@@ -23,6 +23,8 @@ install:
 # build matrix will be number of images multiplied by each '-' below,
 # less any exclusions.
 # split builds into sets of four jobs due to appveyor per-job time limit
+# Leaving the Coverage build on VS2017 for build-time reasons (1hr time limit)
+# Maybe move this one somewhere else in future to restore some flexibility.
 environment:
   matrix:
 
@@ -30,13 +32,13 @@ environment:
       COVERAGE: 0
 
     - WINPYTHON: "Python310"
-      COVERAGE: 1
+      COVERAGE: 0
 
     - WINPYTHON: "Python38"
       COVERAGE: 0
           
     - WINPYTHON: "Python36"
-      COVERAGE: 0
+      COVERAGE: 1
 
     # skipping 3.7 and 3.9 at this time
 
