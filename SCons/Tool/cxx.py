@@ -131,6 +131,11 @@ class CxxModuleScanner(SCons.Scanner.Current):
         from SCons.Tool import CScanner
         self.c_scanner = CScanner
 
+
+header_unit = SCons.Builder.Builder(action="$CXXCOM",
+                                    source_scanner=CxxModuleScanner())
+
+
 def generate(env):
     """
     Add Builders and construction variables for Visual Age C++ compilers
@@ -148,9 +153,7 @@ def generate(env):
         shared_obj.add_emitter(suffix, module_emitter_shared)
         SourceFileScanner.add_scanner(suffix, CxxModuleScanner())
 
-    header_unit = SCons.Builder.Builder(action="$CXXCOM",
-                                        source_scanner=CxxModuleScanner())
-    env["BUILDERS"]["CxxHeaderUnit"] = header_unit
+    env['BUILDERS']['CxxHeaderUnit'] = header_unit
 
     SCons.Tool.cc.add_common_cc_variables(env)
 
