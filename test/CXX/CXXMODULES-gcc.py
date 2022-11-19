@@ -4,7 +4,7 @@ test = TestSCons.TestSCons()
 
 test.dir_fixture("CXX-modules-fixture")
 
-test.run(arguments = ".")
+test.run(arguments = ". toolset=g++")
 
 test.pass_test()
 
