@@ -32,7 +32,7 @@ selection method.
 """
 
 from . import cc
-import os
+import os, sys
 import re
 import threading
 import asyncio
@@ -176,7 +176,11 @@ class module_mapper(threading.Thread):
             await writer.drain()
 
     async def listen(self, path):
-        await asyncio.start_unix_server(self.handle_connect, path=path)
+        if self.env["__GCCMAPPERMODE__"] == "domain_socket":
+            await asyncio.start_unix_server(self.handle_connect, path=path)
+        else:
+            srv = await asyncio.start_server(self.handle_connect, host="::1", port = 0)
+            self.env["__GCCMAPPERPORT__"] = srv.sockets[0].getsockname()[1]
 
 def init_mapper(env):
     if env.get("__GCCMODULEMAPPER__"):
@@ -211,7 +215,13 @@ def generate(env):
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'gcc'
 
     env['__CXXMODULEINIT__'] = init_mapper
-    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper==$CXXMODULEPATH/socket?$CXXMODULEIDPREFIX$SOURCE'
+    if sys.platform != "win32":
+        env['__GCCMAPPERMODE__'] = "domain_socket"
+        env['__GCCMAPPERFLAGS__'] = "=$CXXMODULEPATH/socket"
+    else:
+        env['__GCCMAPPERMODE__'] = "tcp"
+        env['__GCCMAPPERFLAGS__'] = "::1:$($__GCCMAPPERPORT__$)"
+    env['CXXMODULEFLAGS'] = '-fmodules-ts -fmodule-mapper=$__GCCMAPPERFLAGS__?$CXXMODULEIDPREFIX$SOURCE'
     env['CXXMODULESUFFIX'] = '.gcm'
     env['CXXUSERHEADERFLAGS']    = '-x c++-user-header'
     env['CXXSYSTEMHEADERFLAGS']  = '-x c++-system-header'
