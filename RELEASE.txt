@@ -33,6 +33,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   DefaultEnvironment anymore.
 - The console message from the Chmod() action function now displays
   octal modes using the modern Python syntax (0o755 rather than 0755).
+- Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
+  to NewParallel Job class (Andrew Morrow's new parallel job implementation)
+
 
 FIXES
 -----

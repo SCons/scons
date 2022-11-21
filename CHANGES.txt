@@ -22,6 +22,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
     - Changed the Taskmaster trace logic to use python's logging module. The output formatting
       should remain (mostly) the same. Minor update to unittest for this to adjust for 1 less newline.
+    - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
+      to NewParallel Job class (Andrew Morrow's new parallel job implementation)
 
 
 
