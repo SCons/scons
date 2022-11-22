@@ -1,4 +1,4 @@
-env = Environment()
+env = Environment(tools = ["link"])
 try:
     env.Tool(ARGUMENTS["toolset"])
 except KeyError:
