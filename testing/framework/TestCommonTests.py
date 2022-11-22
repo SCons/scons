@@ -1933,6 +1933,7 @@ class run_TestCase(TestCommonTestCase):
         STDOUT =========================================================================
         None
         STDERR =========================================================================
+        None
         """)
 
         expect_stderr = lstrip("""\
@@ -1940,13 +1941,13 @@ class run_TestCase(TestCommonTestCase):
         Traceback \\(most recent call last\\):
           File "<stdin>", line \\d+, in (\\?|<module>)
           File "[^"]+TestCommon.py", line \\d+, in run
-            super().run\\(\\*\\*kw\\)
+            super\\(\\).run\\(\\*\\*kw\\)
           File "[^"]+TestCmd.py", line \\d+, in run
-            p = self.start(program=program,
+            p = self.start\\(program=program,
           File "[^"]+TestCommon.py", line \\d+, in start
             raise e
           File "[^"]+TestCommon.py", line \\d+, in start
-            return super().start\\(program, interpreter, arguments,
+            return super\\(\\).start\\(program, interpreter, arguments,
           File "<stdin>", line \\d+, in raise_exception
         TypeError: forced TypeError
         """ % re.escape(repr(sys.executable)))
