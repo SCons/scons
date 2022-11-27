@@ -1936,21 +1936,21 @@ class run_TestCase(TestCommonTestCase):
         None
         """)
 
-        expect_stderr = lstrip("""\
-        Exception trying to execute: \\[%s, '[^']*pass'\\]
-        Traceback \\(most recent call last\\):
-          File "<stdin>", line \\d+, in (\\?|<module>)
-          File "[^"]+TestCommon.py", line \\d+, in run
-            super\\(\\).run\\(\\*\\*kw\\)
-          File "[^"]+TestCmd.py", line \\d+, in run
-            p = self.start\\(program=program,
-          File "[^"]+TestCommon.py", line \\d+, in start
-            raise e
-          File "[^"]+TestCommon.py", line \\d+, in start
-            return super\\(\\).start\\(program, interpreter, arguments,
-          File "<stdin>", line \\d+, in raise_exception
-        TypeError: forced TypeError
-        """ % re.escape(repr(sys.executable)))
+        expect_stderr = lstrip(\
+fr"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
+Traceback \(most recent call last\):
+  File "<stdin>", line \d+, in (\?|<module>)
+  File "[^"]+TestCommon.py", line \d+, in run
+    super\(\).run\(\*\*kw\)
+  File "[^"]+TestCmd.py", line \d+, in run
+    p = self.start\(program=program,
+(?:\s*\^*\s)?  File \"[^\"]+TestCommon.py\", line \d+, in start
+    raise e
+  File "[^"]+TestCommon.py", line \d+, in start
+    return super\(\).start\(program, interpreter, arguments,
+(?:\s*\^*\s)?  File \"<stdin>\", line \d+, in raise_exception
+TypeError: forced TypeError
+""")
         expect_stderr = re.compile(expect_stderr, re.M)
 
         self.run_execution_test(script, expect_stdout, expect_stderr)
