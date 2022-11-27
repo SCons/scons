@@ -2305,8 +2305,8 @@ sys.stderr = Unbuffered(sys.stderr)
 
 sys.stdout.write('script_recv:  STDOUT\\n')
 sys.stderr.write('script_recv:  STDERR\\n')
-with open(r'{t.recv_out_path}', 'wb') as logfp:
-    while 1:
+with open(r'{t.recv_out_path}', 'w') as logfp:
+    while True:
         line = sys.stdin.readline()
         if not line:
             break
