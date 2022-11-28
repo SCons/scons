@@ -2217,11 +2217,11 @@ TypeError: forced TypeError
         tc.run()
         """)
 
-        self.SIGTERM = int(signal.SIGTERM)
+        self.SIGTERM = f"{'' if sys.platform == 'win32' else '-'}{signal.SIGTERM}"
 
         # Script returns the signal value as a negative number.
         expect_stdout = lstrip("""\
-        %(signal_script)s returned -%(SIGTERM)s
+        %(signal_script)s returned %(SIGTERM)s
         STDOUT =========================================================================
 
         STDERR =========================================================================
