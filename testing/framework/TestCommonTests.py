@@ -19,9 +19,6 @@ Unit tests for the TestCommon.py module.
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-__author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommonTests.py 1.3.D001 2010/06/03 12:58:27 knight"
-
 import os
 import re
 import signal
@@ -983,6 +980,9 @@ class must_exist_TestCase(TestCommonTestCase):
 
     def test_broken_link(self) :
         """Test must_exist():  exists but it is a broken link"""
+        if sys.platform == 'win32':
+            return
+
         run_env = self.run_env
 
         script = lstrip("""\
@@ -1656,6 +1656,11 @@ class must_not_exist_TestCase(TestCommonTestCase):
 
     def test_existing_broken_link(self):
         """Test must_not_exist():  exists but it is a broken link"""
+
+        # symlinks don't really work on win32
+        if sys.platform == 'win32':
+            return
+
         run_env = self.run_env
 
         script = lstrip("""\
@@ -2398,38 +2403,8 @@ class variables_TestCase(TestCommonTestCase):
 
 
 if __name__ == "__main__":
-    tclasses = [
-        __init__TestCase,
-        banner_TestCase,
-        must_be_writable_TestCase,
-        must_contain_TestCase,
-        must_contain_all_lines_TestCase,
-        must_contain_any_line_TestCase,
-        must_contain_exactly_lines_TestCase,
-        must_contain_lines_TestCase,
-        must_exist_TestCase,
-        must_exist_one_of_TestCase,
-        must_match_TestCase,
-        must_not_be_writable_TestCase,
-        must_not_contain_TestCase,
-        must_not_contain_any_line_TestCase,
-        must_not_contain_lines_TestCase,
-        must_not_exist_TestCase,
-        must_not_exist_any_of_TestCase,
-        must_not_be_empty_TestCase,
-        run_TestCase,
-        start_TestCase,
-        skip_test_TestCase,
-        variables_TestCase,
-    ]
-    suite = unittest.TestSuite()
-    for tclass in tclasses:
-        loader = unittest.TestLoader()
-        loader.testMethodPrefix = 'test_'
-        names = loader.getTestCaseNames(tclass)
-        suite.addTests([tclass(n) for n in names])
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    unittest.main()
+
 
 # Local Variables:
 # tab-width:4

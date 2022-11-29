@@ -19,8 +19,6 @@ Unit tests for the TestCmd.py module.
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-__author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmdTests.py 1.3.D001 2010/06/03 12:58:27 knight"
 
 import os
 import shutil
@@ -2602,7 +2600,7 @@ script_recv:  STDERR:  input
             p.stdin.write(to_bytes(input))
             p.stdin.close()
             p.wait()
-            with open(t.recv_out_path, 'rb') as f:
+            with open(t.recv_out_path, 'r') as f:
                 result = to_str(f.read())
             expect = f"script_recv:  {input}"
             assert result == expect, f"Result:[{result}] should match\nExpected:[{expect}]"
@@ -2612,7 +2610,7 @@ script_recv:  STDERR:  input
             p.send(input)
             p.stdin.close()
             p.wait()
-            with open(t.recv_out_path, 'rb') as f:
+            with open(t.recv_out_path, 'r') as f:
                 result = to_str(f.read())
             expect = f"script_recv:  {input}"
             assert result == expect, repr(result)
@@ -2790,6 +2788,11 @@ class subdir_TestCase(TestCmdTestCase):
 class symlink_TestCase(TestCmdTestCase):
     def test_symlink(self):
         """Test symlink()"""
+        
+        #symlinks don't work well on windows
+        if sys.platform == 'win32':
+            return
+
         try: os.symlink
         except AttributeError: return
 
@@ -3173,9 +3176,10 @@ class writable_TestCase(TestCmdTestCase):
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
 
-        try: symlink = os.symlink
-        except AttributeError: pass
-        else: symlink('no_such_file', test.workpath('dangling_symlink'))
+        if sys.platform != 'win32':
+            try: symlink = os.symlink
+            except AttributeError: pass
+            else: symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.writable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
