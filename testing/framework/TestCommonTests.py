@@ -133,6 +133,7 @@ class TestCommonTestCase(unittest.TestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
 
+        breakpoint()
         expect_stdout = expect_stdout % self.__dict__
         assert stdout == expect_stdout, assert_display(expect_stdout,
                                                        stdout,
@@ -1941,8 +1942,8 @@ class run_TestCase(TestCommonTestCase):
         None
         """)
 
-        expect_stderr = lstrip(\
-fr"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
+        expect_stderr = lstrip(
+            fr"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
 Traceback \(most recent call last\):
   File "<stdin>", line \d+, in (\?|<module>)
   File "[^"]+TestCommon.py", line \d+, in run
@@ -2389,13 +2390,13 @@ class variables_TestCase(TestCommonTestCase):
         ]
 
         script = "import TestCommon\n" + \
-                 '\n'.join([ f"print(TestCommon.{v})\n" for v in variables ])
+                 '\n'.join([f"print(TestCommon.{v})\n" for v in variables])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
         script = "from TestCommon import *\n" + \
-                 '\n'.join([ f"print({v})" for v in variables ])
+                 '\n'.join([f"print({v})" for v in variables])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr

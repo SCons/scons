@@ -3177,9 +3177,12 @@ class writable_TestCase(TestCmdTestCase):
         test.write(['foo', 'file2'], "Test file #2\n")
 
         if sys.platform != 'win32':
-            try: symlink = os.symlink
-            except AttributeError: pass
-            else: symlink('no_such_file', test.workpath('dangling_symlink'))
+            try:
+                symlink = os.symlink
+            except AttributeError:
+                pass
+            else:
+                symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.writable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
