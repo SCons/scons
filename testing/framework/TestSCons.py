@@ -44,7 +44,7 @@ import zipfile
 from collections import namedtuple
 
 from TestCommon import *
-from TestCommon import __all__
+from TestCommon import __all__, _python_
 from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 
 from TestCmd import Popen
@@ -62,13 +62,7 @@ python_version_unsupported = (3, 6, 0)
 python_version_deprecated = (3, 6, 0)
 python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
 
-# In the checked-in source, the value of SConsVersion in the following
-# line must remain "__ VERSION __" (without the spaces) so the built
-# version in build/testing/framework/TestSCons.py contains the actual version
-# string of the packages that have been built.
-SConsVersion = '__VERSION__'
-if SConsVersion == f"__VERSION__":
-    SConsVersion = default_version
+SConsVersion = default_version
 
 __all__.extend([
     'TestSCons',
