@@ -40,6 +40,7 @@ from SCons.Util import to_bytes, to_str
 sys.path = sys.path[1:]
 
 import TestCmd
+from TestCmd import _python_
 
 def _is_readable(path):
     # XXX this doesn't take into account UID, it assumes it's our file
@@ -95,9 +96,9 @@ class TestCmdTestCase(unittest.TestCase):
         textx = fmt % (t.scriptx, t.scriptx)
         if sys.platform == 'win32':
             textx = textx.replace('%', '%%')
-            textx = f"@python -c \"{textx}\" %1 %2 %3 %4 %5 %6 %7 %8 %9\n"
+            textx = f"@{_python_} -c \"{textx}\" %1 %2 %3 %4 %5 %6 %7 %8 %9\n"
         else:
-            textx = f"#! /usr/bin/env python\n{textx}\n"
+            textx = f"#!{_python_}\n{textx}\n"
         text1 = f"A first line to be ignored!\n{fmt % (t.script1, t.script1)}"
         textout = fmtout % t.scriptout
         texterr = fmterr % t.scripterr
