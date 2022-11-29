@@ -133,7 +133,6 @@ class TestCommonTestCase(unittest.TestCase):
         stdout = run_env.stdout()
         stderr = run_env.stderr()
 
-        breakpoint()
         expect_stdout = expect_stdout % self.__dict__
         assert stdout == expect_stdout, assert_display(expect_stdout,
                                                        stdout,
@@ -979,11 +978,9 @@ class must_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
     def test_broken_link(self) :
         """Test must_exist():  exists but it is a broken link"""
-        if sys.platform == 'win32':
-            return
-
         run_env = self.run_env
 
         script = lstrip("""\
@@ -1655,13 +1652,9 @@ class must_not_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
     def test_existing_broken_link(self):
         """Test must_not_exist():  exists but it is a broken link"""
-
-        # symlinks don't really work on win32
-        if sys.platform == 'win32':
-            return
-
         run_env = self.run_env
 
         script = lstrip("""\

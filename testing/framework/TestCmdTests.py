@@ -2786,16 +2786,9 @@ class subdir_TestCase(TestCmdTestCase):
 
 
 class symlink_TestCase(TestCmdTestCase):
+    @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
     def test_symlink(self):
         """Test symlink()"""
-        
-        #symlinks don't work well on windows
-        if sys.platform == 'win32':
-            return
-
-        try: os.symlink
-        except AttributeError: return
-
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         wdir_file1 = os.path.join(test.workdir, 'file1')
         wdir_target1 = os.path.join(test.workdir, 'target1')
@@ -3127,17 +3120,14 @@ class workpath_TestCase(TestCmdTestCase):
         assert wpath == os.path.join(test.workdir, 'foo', 'bar')
 
 
-@unittest.skipIf(sys.platform == 'win32', "Don't run on win32")
 class readable_TestCase(TestCmdTestCase):
     def test_readable(self):
         """Test readable()"""
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
-
-        try: symlink = os.symlink
-        except AttributeError: pass
-        else: symlink('no_such_file', test.workpath('dangling_symlink'))
+        if hasattr(os, 'symlink') and sys.platform != 'win32':
+            symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.readable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
@@ -3175,14 +3165,8 @@ class writable_TestCase(TestCmdTestCase):
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
-
-        if sys.platform != 'win32':
-            try:
-                symlink = os.symlink
-            except AttributeError:
-                pass
-            else:
-                symlink('no_such_file', test.workpath('dangling_symlink'))
+        if hasattr(os, 'symlink') and sys.platform != 'win32':
+            symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.writable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
