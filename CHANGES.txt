@@ -69,6 +69,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       so maybe this helps a bit.
     - Remove an extra existence check in one ninja test that caused it
       to be skipped on some otherwise-valid Windows installations.
+    - test framework tests now pass on Linux and Windows (the latter can
+      still run into problems on some configurations), and automated
+      tests are now run on changes in this area so future problems can
+      be spotted.
 
 
   From Andrew Morrow
