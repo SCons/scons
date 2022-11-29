@@ -3127,7 +3127,7 @@ class readable_TestCase(TestCmdTestCase):
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
         if hasattr(os, 'symlink') and sys.platform != 'win32':
-            symlink('no_such_file', test.workpath('dangling_symlink'))
+            os.symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.readable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
@@ -3166,7 +3166,7 @@ class writable_TestCase(TestCmdTestCase):
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
         if hasattr(os, 'symlink') and sys.platform != 'win32':
-            symlink('no_such_file', test.workpath('dangling_symlink'))
+            os.symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.writable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
