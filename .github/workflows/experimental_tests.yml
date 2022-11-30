@@ -19,6 +19,7 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
         # note: in the 2nd half of 2022 the setup-mingw was often failing on
         # windows-latest. revisit someday (perhaps when there's an @v3)
