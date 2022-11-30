@@ -19,8 +19,11 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        # note: in the 2nd half of 2022 the setup-mingw was often failing on
+        # windows-latest. revisit someday (perhaps when there's an @v3)
+        os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -32,7 +35,7 @@ jobs:
 
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         with:
           platform: x64
 
