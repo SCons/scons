@@ -66,7 +66,7 @@ IMPROVEMENTS
 - Add cache-debug messages for push failures.
 - Added error message to handle the case when SCons attempts to retrieve all the targets
   for a specified builder from the CacheDir, fails to do so, and then runs into an error
-  when deleting the files which were retrieved. Previously if this happened there was no
+  when deleting the files which were retrieved. Previously if this happened there were no
   errors or warnings.
 
 PACKAGING
