@@ -46,6 +46,9 @@ class CacheVersionWarning(WarningOnByDefault):
 class CacheWriteErrorWarning(SConsWarning):
     pass
 
+class CacheCleanupErrorWarning(SConsWarning):
+    pass
+
 class CorruptSConsignWarning(WarningOnByDefault):
     pass
 

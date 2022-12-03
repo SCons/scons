@@ -31,7 +31,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
       read packaging/etc/README.txt if you are interested.
 
-
+  From Daniel Moody:
+    - Added error message to handle the case when SCons attempts to retrieve all the targets
+      for a specified builder from the CacheDir, fails to do so, and then runs into an error
+      when deleting the files which were retrieved. Previously if this happened there was no
+      errors or warnings.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
