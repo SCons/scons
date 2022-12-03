@@ -23,7 +23,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 import os.path
 import time
 
@@ -41,6 +40,7 @@ prog1 = test.workpath('prog') + _exe
 prog2 = test.workpath(dll_ + 'shlib') + _dll
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env1 = Environment(LIBS=['foo1'], LIBPATH=['$FOO'], FOO='./lib1')
 
 f1 = env1.SharedObject('f1', 'f1.c')
@@ -118,6 +118,7 @@ test.fail_test(oldtime2 == os.path.getmtime(prog2))
 #test.up_to_date(arguments = '.')
 # Change LIBPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env1 = Environment(LIBS=['foo1'], LIBPATH=['./lib1', './lib2'])
 
 f1 = env1.SharedObject('f1', 'f1.c')
@@ -153,6 +154,7 @@ test.write('empty.c', 'int a=0;\n')
 
 # Check that a null-string LIBPATH doesn't blow up.
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(LIBPATH='')
 env.Library('foo', source='empty.c')
 """)

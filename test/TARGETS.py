@@ -66,6 +66,7 @@ test.run(arguments = 'bbb ccc=xyz -n aaa', stdout = expect)
 
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 print(list(map(str, DEFAULT_TARGETS)))
 print(list(map(str, BUILD_TARGETS)))

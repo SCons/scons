@@ -46,6 +46,7 @@ if not test.detect_tool(fc):
 test.subdir('include', 'subdir', ['subdir', 'include'], 'foobar', 'inc2')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     F90=r'%s',
     F90PATH=['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
@@ -228,6 +229,7 @@ test.up_to_date(arguments = args)
 
 # Change F90PATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     F90=r'%s',
     F90PATH=Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),

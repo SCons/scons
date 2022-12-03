@@ -53,6 +53,12 @@ SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])
 
 env = Environment()
+
+# Added to verify that SCons Ninja tool is sanitizing the shell environment
+# before it spawns a new shell
+env['ENV']['ZPATH']=['/a/b/c','/c/d/e']
+
+
 env.Tool('ninja')
 prog = env.Program(target = 'foo', source = 'foo.c')
 env.Command('foo.out', prog, '%(shell)sfoo%(_exe)s > foo.out')

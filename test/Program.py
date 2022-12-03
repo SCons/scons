@@ -40,12 +40,13 @@ foo5 = test.workpath('foo5' + _exe)
 foo_args = 'foo1%s foo2%s foo3%s foo4%s foo5%s' % (_exe, _exe, _exe, _exe, _exe)
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env.Program(target='foo1', source='f1.c')
 env.Program(target='foo2', source=Split('f2a.c f2b.c f2c.c'))
 f3a = File('f3a.c')
 f3b = File('f3b.c')
-Program(target='foo3', source=[f3a, [f3b, 'f3c.c']])
+env.Program(target='foo3', source=[f3a, [f3b, 'f3c.c']])
 env.Program('foo4', 'f4.c')
 env.Program('foo5.c')
 """)

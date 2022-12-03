@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 #
+# MIT License
+#
 # Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -33,10 +35,6 @@ try:
     import ninja
 except ImportError:
     test.skip_test("Could not find ninja module. Skipping test.\n")
-
-ninja_binary = test.where_is('ninja')
-if not ninja_binary:
-    test.skip_test("Could not find ninja executable. Skipping test.\n")
 
 ninja_bin = os.path.abspath(os.path.join(
     ninja.__file__,
