@@ -25,7 +25,7 @@ NEW FUNCTIONALITY
   those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
   not be called until all AddOption() calls are completed. Resolves Issue #4187
 - Added --experimental=tm_v2, which enables Andrew Morrow's NewParallel Job implementation.
-  This should scale much better for highly parallel builds.
+  This should scale much better for highly parallel builds.  You can also enable this via SetOption().
 
 
 DEPRECATED FUNCTIONALITY

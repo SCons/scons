@@ -33,7 +33,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
       read packaging/etc/README.txt if you are interested.
     - Added --experimental=tm_v2, which enables Andrew Morrow's new NewParallel Job implementation.
-      This should scale much better for highly parallel builds.
+      This should scale much better for highly parallel builds. You can also enable this via SetOption().
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
