@@ -24,12 +24,10 @@
 import unittest
 import random
 import math
-import sys
 import os
 
-import TestUnit
-
 import SCons.Taskmaster.Job
+from SCons.Script.Main import OptionsParser
 
 
 def get_cpu_nums():
@@ -244,10 +242,25 @@ class Taskmaster:
     def cleanup(self):
         pass
 
+
 SaveThreadPool = None
 ThreadPoolCallList = []
 
-class ParallelTestCase(unittest.TestCase):
+
+class JobTestCase(unittest.TestCase):
+    """
+    Setup common items needed for many Job test cases
+    """
+    def setUp(self) -> None:
+        """
+        Simulating real options parser experimental value.
+        Since we're in a unit test we're actually using FakeOptionParser()
+        Which has no values and no defaults.
+        """
+        OptionsParser.values.experimental = []
+
+
+class ParallelTestCase(JobTestCase):
     def runTest(self):
         """test parallel jobs"""
 
@@ -334,7 +347,9 @@ class SerialTestCase(unittest.TestCase):
         self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
 
-class NoParallelTestCase(unittest.TestCase):
+
+class NoParallelTestCase(JobTestCase):
+
     def runTest(self):
         """test handling lack of parallel support"""
         def NoParallel(tm, num, stack_size):
@@ -378,7 +393,9 @@ class SerialExceptionTestCase(unittest.TestCase):
         self.assertTrue(taskmaster.num_postprocessed == 1,
                     "exactly one task should have been postprocessed")
 
-class ParallelExceptionTestCase(unittest.TestCase):
+
+class ParallelExceptionTestCase(JobTestCase):
+
     def runTest(self):
         """test parallel jobs with tasks that raise exceptions"""
 
@@ -447,7 +464,8 @@ class badpreparenode (badnode):
     def prepare(self):
         raise Exception('badpreparenode exception')
 
-class _SConsTaskTest(unittest.TestCase):
+
+class _SConsTaskTest(JobTestCase):
 
     def _test_seq(self, num_jobs):
         for node_seq in [
@@ -541,31 +559,18 @@ class ParallelTaskTest(_SConsTaskTest):
         """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 
+        OptionsParser.values.experimental=['tm_v2']
+        self._test_seq(num_jobs)
+
+
 
 
 #---------------------------------------------------------------------
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(ParallelTestCase())
-    suite.addTest(SerialTestCase())
-    suite.addTest(NoParallelTestCase())
-    suite.addTest(SerialExceptionTestCase())
-    suite.addTest(ParallelExceptionTestCase())
-    suite.addTest(SerialTaskTest())
-    suite.addTest(ParallelTaskTest())
-    return suite
-
 if __name__ == "__main__":
-    runner = TestUnit.cli.get_runner()
-    result = runner().run(suite())
-    if (len(result.failures) == 0
-        and len(result.errors) == 1
-        and isinstance(result.errors[0][0], SerialTestCase)
-        and isinstance(result.errors[0][1][0], NoThreadsException)):
-        sys.exit(2)
-    elif not result.wasSuccessful():
-        sys.exit(1)
+    unittest.main()
+
+
 
 # Local Variables:
 # tab-width:4

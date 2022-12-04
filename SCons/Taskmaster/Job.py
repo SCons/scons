@@ -92,7 +92,8 @@ class Jobs:
                 stack_size = default_stack_size
 
             try:
-                if 'tm_v2' in GetOption('experimental'):
+                experimental_option = GetOption('experimental')
+                if 'tm_v2' in experimental_option:
                     self.job = NewParallel(taskmaster, num, stack_size)
                 else:
                     self.job = LegacyParallel(taskmaster, num, stack_size)
