@@ -79,6 +79,7 @@ opts = '-Y ' + test.workpath('rep1')
 
 #
 test.write(['rep1', 'SConstruct'], """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(tools=['javac', 'javah'], JAVAC=r'"%s"', JAVAH=r'"%s"')
 classes = env.Java(target='classes', source='src')
 env.JavaH(target='outdir', source=classes)

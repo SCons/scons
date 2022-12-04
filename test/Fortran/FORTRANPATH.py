@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -45,6 +46,7 @@ if not test.detect_tool(fc):
 test.subdir('include', 'subdir', ['subdir', 'include'], 'foobar', 'inc2')
 
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     FORTRAN='%s',
     FORTRANPATH=['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
@@ -241,6 +243,7 @@ test.up_to_date(arguments = args)
 
 # Change FORTRANPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
     FORTRAN='%s',
     FORTRANPATH=Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'),
@@ -304,6 +307,7 @@ test.up_to_date(arguments = args)
 
 # Check that a null-string FORTRANPATH doesn't blow up.
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(FORTRANPATH = '')
 env.Object('foo', source = 'empty.f')
 """)

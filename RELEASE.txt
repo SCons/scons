@@ -13,6 +13,11 @@ A new SCons release, 4.4.1, is now available on the SCons download page:
 
 Here is a summary of the changes since 4.4.0:
 
+NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
+      see unexpected rebuilds. This is due to Python internals changing which changed
+      the signature of a Python Action Function.
+
+
 NEW FUNCTIONALITY
 -----------------
 
@@ -53,11 +58,19 @@ FIXES
   use: env["JAVACLASSPATH"] = env.Split("foo bar baz")
   There is no change in how JAVACLASSPATH gets turned into the -classpath
   argument passed to the JDK tools.
+- Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
+  execution environment variable set to a python list it would crash. Now it
+  will create a string joining the list with os.pathsep
 
 IMPROVEMENTS
 ------------
 
 - Changed the Taskmaster trace logic to use python's logging module.
+- Add cache-debug messages for push failures.
+- Added error message to handle the case when SCons attempts to retrieve all the targets
+  for a specified builder from the CacheDir, fails to do so, and then runs into an error
+  when deleting the files which were retrieved. Previously if this happened there were no
+  errors or warnings.
 
 PACKAGING
 ---------
@@ -67,6 +80,10 @@ PACKAGING
   develop it - mainly things needed to run the testsuite;
   requirements_pkg.txt are the requirements to do a full build
   (including docs build) with an intent to create the packages.
+- Moved rpm and debian directories under packaging
+- Added logic to help packagers enable reproducible builds into packaging/etc/. Please
+  read packaging/etc/README.txt if you are interested.
+
 
 DOCUMENTATION
 -------------
@@ -82,6 +99,9 @@ DOCUMENTATION
   Added note on the possibly surprising feature that SCons always passes
   -sourcepath when calling javac, which affects how the class path is
   used when finding sources.
+- Updated the User Guide chapter on installation: modernized the notes
+  on Python installs, SCons installs, and having multiple SCons versions
+  present on a single system.
 
 DEVELOPMENT
 -----------

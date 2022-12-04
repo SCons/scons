@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
 #
+# Copyright The SCons Foundation
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -20,9 +21,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -47,8 +45,8 @@ with open(sys.argv[1], 'wb') as f, open(sys.argv[2], 'rb') as infp:
 
 
 test.write(['work1', 'SConstruct'], """
-DefaultEnvironment(tools=[])
 B = Builder(action = r'%(_python_)s ../build.py $TARGETS $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(tools=[], BUILDERS = { 'B' : B })
 f1 = env.B(target = 'f1.out', source = 'f1.in')
 f2 = env.B(target = 'f2.out', source = 'f2.in')
@@ -62,6 +60,7 @@ test.write(['work1', 'f2.in'], "f2.in\n")
 test.write(['work2', 'SConstruct'], """
 SetOption('stack_size', 128)
 B = Builder(action = r'%(_python_)s ../build.py $TARGETS $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 f1 = env.B(target = 'f1.out', source = 'f1.in')
 f2 = env.B(target = 'f2.out', source = 'f2.in')

@@ -58,6 +58,7 @@ test = TestSCons.TestSCons()
 test.write('SConstruct', """
 vars = Variables()
 vars.Add(BoolVariable('interrupt', 'Interrupt the build.', False))
+DefaultEnvironment(tools=[])  # test speedup
 varEnv = Environment(variables=vars)
 
 def fail_action(target=None, source=None, env=None):

@@ -22,19 +22,34 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
     - Changed the Taskmaster trace logic to use python's logging module. The output formatting
       should remain (mostly) the same. Minor update to unittest for this to adjust for 1 less newline.
-    - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
-      to NewParallel Job class (Andrew Morrow's new parallel job implementation)
-
-
+    - Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
+      execution environment variable set to a python list it would crash. Now it
+      will create a string joining the list with os.pathsep
+    - Move execution environment sanitation from Action._subproc() to
+      SCons.Util.sanitize_shell_env(ENV)
+    - Moved rpm and debian directories under packaging
+    - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
+      read packaging/etc/README.txt if you are interested.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
 
-  From Flaviu Tamas:
-    - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
+  From Daniel Moody:
+    - Added error message to handle the case when SCons attempts to retrieve all the targets
+      for a specified builder from the CacheDir, fails to do so, and then runs into an error
+      when deleting the files which were retrieved. Previously if this happened there was no
+      errors or warnings.
+
+  From Andrew Morrow
+    - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
+      iterates more slowly than the builtin types. Also simplify uniquer_hashables to
+      use an faster implementation under the assumption of ordered dictionaries.
 
   From Ryan Saunders:
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
+
+  From Flaviu Tamas:
+    - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
 
   From Mats Wichmann:
     - A list argument as the source to the Copy() action function is now
@@ -54,11 +69,21 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #4243.
     - Cleanup: make sure BoolVariable usage in tests and examples uses Python
       boolean values instead of 0/1.
+    - Stop telling people to run "python setup.py install" in the User Guide.
+      Adds new content on using virtualenvs to be able to have multiple
+      different SCons versions available on one system.
+    - Added the "DefaultEnvironment(tools=[])" stanza to a number of tests
+      that are known to be particularly slow.  It's still just a tiny
+      speedup, but the Windows CI had been occasionally timing out,
+      so maybe this helps a bit.
+    - Remove an extra existence check in one ninja test that caused it
+      to be skipped on some otherwise-valid Windows installations.
+    - test framework tests now pass on Linux and Windows (the latter can
+      still run into problems on some configurations), and automated
+      tests are now run on changes in this area so future problems can
+      be spotted.
 
-  From Andrew Morrow
-    - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
-      iterates more slowly than the builtin types. Also simplify uniquer_hashables to
-      use an faster implementation under the assumption of ordered dictionaries.
+
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 

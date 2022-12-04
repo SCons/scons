@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,8 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import re
 
@@ -49,6 +49,7 @@ def create(target, source, env):
     with open(str(target[0]), 'wb') as f:
         f.write(source[0].get_contents())
 
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env['BUILDERS']['B'] = Builder(action = create)
 env['BUILDERS']['S'] = Builder(action = r'%(_python_)s put.py $SOURCES into $TARGET')

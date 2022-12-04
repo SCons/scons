@@ -169,6 +169,7 @@ workpath_r_OLD = test.workpath('r.OLD')
 work2_foo = test.workpath('work2', 'foo' + _exe)
 
 SConstruct = """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env.Program(target = 'foo', source = 'foo.c')
 """

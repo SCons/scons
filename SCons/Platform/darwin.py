@@ -31,6 +31,7 @@ selection method.
 from . import posix
 import os
 
+
 def generate(env):
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
@@ -40,7 +41,7 @@ def generate(env):
     # env['ENV']['PATH'] = '/opt/local/bin:/opt/local/sbin:' + env['ENV']['PATH'] + ':/sw/bin'
     
     # Store extra system paths in env['ENV']['PATHOSX']
-    
+
     filelist = ['/etc/paths',]
     # make sure this works on Macs with Tiger or earlier
     try:
