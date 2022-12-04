@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.file_fixture('fixture/SConstruct__taskmastertrace.py', 'SConstruct')
+test.file_fixture('fixture/SConstruct__taskmastertrace', 'SConstruct')
 test.file_fixture('fixture/taskmaster_expected_stdout_1.txt', 'taskmaster_expected_stdout_1.txt')
 test.file_fixture('fixture/taskmaster_expected_file_1.txt', 'taskmaster_expected_file_1.txt')
 test.file_fixture('fixture/taskmaster_expected_new_parallel.txt', 'taskmaster_expected_new_parallel.txt')
