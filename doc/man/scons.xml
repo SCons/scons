@@ -1125,11 +1125,12 @@ the mechanisms in the specified order.</para>
         the special tokens <literal>all</literal> or <literal>none</literal>.
         A comma-separated string can be used to select multiple features.
         The default setting is <literal>none</literal>.</para>
-      <para>Current available features are: <literal>ninja</literal>.</para>
+      <para>Current available features are: <literal>ninja</literal>, <literal>tm_v2</literal>.</para>
       <caution><para>
         No Support offered for any features or tools enabled by this flag.
       </para></caution>
-      <para><emphasis>Available since &scons; 4.2.</emphasis></para>
+        <para><emphasis><literal>ninja</literal>Available since &scons; 4.2.</emphasis></para>
+        <para><emphasis><literal>tm_v2</literal>Available since &scons; 4.4.1</emphasis></para>
     </listitem>
   </varlistentry>
 
