@@ -559,6 +559,7 @@ class ParallelTaskTest(_SConsTaskTest):
         """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 
+        # Now run test with NewParallel() instead of LegacyParallel
         OptionsParser.values.experimental=['tm_v2']
         self._test_seq(num_jobs)
 

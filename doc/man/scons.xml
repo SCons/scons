@@ -1129,8 +1129,8 @@ the mechanisms in the specified order.</para>
       <caution><para>
         No Support offered for any features or tools enabled by this flag.
       </para></caution>
-        <para><emphasis><literal>ninja</literal>Available since &scons; 4.2.</emphasis></para>
-        <para><emphasis><literal>tm_v2</literal>Available since &scons; 4.4.1</emphasis></para>
+        <para><emphasis><literal>ninja</literal> Available since &scons; 4.2.</emphasis></para>
+        <para><emphasis><literal>tm_v2</literal> Available since &scons; 4.4.1</emphasis></para>
     </listitem>
   </varlistentry>
 
