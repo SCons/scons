@@ -33,20 +33,25 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
       read packaging/etc/README.txt if you are interested.
 
+  From Dan Mezhiborsky:
+    - Add newline to end of compilation db (compile_commands.json).
+
   From Daniel Moody:
     - Added error message to handle the case when SCons attempts to retrieve all the targets
       for a specified builder from the CacheDir, fails to do so, and then runs into an error
       when deleting the files which were retrieved. Previously if this happened there was no
       errors or warnings.
 
-  From Dan Mezhiborsky:
-    - Add newline to end of compilation db (compile_commands.json).
-
-  From Flaviu Tamas:
-    - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
+  From Andrew Morrow
+    - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
+      iterates more slowly than the builtin types. Also simplify uniquer_hashables to
+      use an faster implementation under the assumption of ordered dictionaries.
 
   From Ryan Saunders:
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
+
+  From Flaviu Tamas:
+    - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
 
   From Mats Wichmann:
     - A list argument as the source to the Copy() action function is now
@@ -81,10 +86,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       be spotted.
 
 
-  From Andrew Morrow
-    - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
-      iterates more slowly than the builtin types. Also simplify uniquer_hashables to
-      use an faster implementation under the assumption of ordered dictionaries.
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
 

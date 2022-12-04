@@ -504,7 +504,8 @@ else:
         def trace_message(self, message):
             # This grabs the name of the function which calls trace_message()
             method_name = sys._getframe(1).f_code.co_name + "():"
-            self.trace.debug('%s.%s %s' % (type(self).__name__, method_name, message))
+            thread_id=threading.get_ident()
+            self.trace.debug('%s.%s [Thread:%s] %s' % (type(self).__name__, method_name, thread_id, message))
             # print('%-15s %s' % (method_name, message))
 
         def start(self):
@@ -551,7 +552,7 @@ else:
                 with self.can_search_cv:
 
                     if self.trace:
-                        self.trace_message(f"{threading.get_ident()} Gained exclusive access")
+                        self.trace_message("Gained exclusive access")
 
                     # Capture whether we got here with `task` set,
                     # then drop our reference to the task as we are no
@@ -572,19 +573,19 @@ else:
                     # here with a completed task.
                     if self.state == NewParallel.State.STALLED and completed_task:
                         if self.trace:
-                            self.trace_message(f"{threading.get_ident()} Detected stall with completed task, bypassing wait")
+                            self.trace_message("Detected stall with completed task, bypassing wait")
                         self.state = NewParallel.State.READY
 
                     # Wait until we are neither searching nor stalled.
                     while self.state == NewParallel.State.SEARCHING or self.state == NewParallel.State.STALLED:
                         if self.trace:
-                            self.trace_message(f"{threading.get_ident()} Search already in progress, waiting")
+                            self.trace_message("Search already in progress, waiting")
                         self.can_search_cv.wait()
 
                     # If someone set the completed flag, bail.
                     if self.state == NewParallel.State.COMPLETED:
                         if self.trace:
-                            self.trace_message(f"{threading.get_ident()} Completion detected, breaking from main loop")
+                            self.trace_message("Completion detected, breaking from main loop")
                         break
 
                     # Set the searching flag to indicate that a thread
@@ -592,7 +593,7 @@ else:
                     # taskmaster work.
                     #
                     if self.trace:
-                        self.trace_message(f"{threading.get_ident()} Starting search")
+                        self.trace_message("Starting search")
                     self.state = NewParallel.State.SEARCHING
 
                     # Bulk acquire the tasks in the results queue
@@ -606,7 +607,7 @@ else:
                         results_queue, self.results_queue = self.results_queue, results_queue
 
                     if self.trace:
-                        self.trace_message(f"{threading.get_ident()} Found {len(results_queue)} completed tasks to process")
+                        self.trace_message("Found {len(results_queue)} completed tasks to process")
                     for (rtask, rresult) in results_queue:
                         if rresult:
                             rtask.executed()
@@ -636,7 +637,7 @@ else:
                     # mark the walk as complete if not.
                     while self.state == NewParallel.State.SEARCHING:
                         if self.trace:
-                            self.trace_message(f"{threading.get_ident()} Searching for new tasks")
+                            self.trace_message("Searching for new tasks")
                         task = self.taskmaster.next_task()
 
                         if task:
@@ -657,13 +658,13 @@ else:
                             else:
                                 if not task.needs_execute():
                                     if self.trace:
-                                        self.trace_message(f"{threading.get_ident()} Found internal task")
+                                        self.trace_message("Found internal task")
                                     task.executed()
                                     task.postprocess()
                                 else:
                                     self.jobs += 1
                                     if self.trace:
-                                        self.trace_message(f"{threading.get_ident()} Found task requiring execution")
+                                        self.trace_message("Found task requiring execution")
                                     self.state = NewParallel.State.READY
                                     self.can_search_cv.notify()
 
@@ -682,7 +683,7 @@ else:
                                 # loop.
                                 #
                                 if self.trace:
-                                    self.trace_message(f"{threading.get_ident()} Found no task requiring execution, but have jobs: marking stalled")
+                                    self.trace_message("Found no task requiring execution, but have jobs: marking stalled")
                                 self.state = NewParallel.State.STALLED
                             else:
                                 # We didn't find a task and there are
@@ -695,7 +696,7 @@ else:
                                 # sleeping on the condvar.
                                 #
                                 if self.trace:
-                                    self.trace_message(f"{threading.get_ident()} Found no task requiring execution, and have no jobs: marking complete")
+                                    self.trace_message("Found no task requiring execution, and have no jobs: marking complete")
                                 self.state = NewParallel.State.COMPLETED
                                 self.can_search_cv.notify_all()
 
@@ -705,7 +706,7 @@ else:
                 # taskmaster crank in NewParallel.
                 if task:
                     if self.trace:
-                        self.trace_message(f"{threading.get_ident()} Executing task")
+                        self.trace_message("Executing task")
                     ok = True
                     try:
                         if self.interrupted():
@@ -722,7 +723,7 @@ else:
                     # postprocessing work under the taskmaster lock.
                     #
                     if self.trace:
-                        self.trace_message(f"{threading.get_ident()} Enqueueing executed task results")
+                        self.trace_message("Enqueueing executed task results")
                     with self.results_queue_lock:
                         self.results_queue.append((task, ok))
 
