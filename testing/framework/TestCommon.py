@@ -527,6 +527,27 @@ class TestCommon(TestCmd):
             self.diff(expect, file_contents, 'contents ')
             raise
 
+    def must_match_file(self, file, golden_file, mode='rb', match=None, message=None, newline=None):
+        """Matches the contents of the specified file (first argument)
+        against the expected contents (second argument).  The expected
+        contents are a list of lines or a string which will be split
+        on newlines.
+        """
+        file_contents = self.read(file, mode, newline)
+        golden_file_contents = self.read(golden_file, mode, newline)
+
+        if not match:
+            match = self.match
+
+        try:
+            self.fail_test(not match(to_str(file_contents), to_str(golden_file_contents)), message=message)
+        except KeyboardInterrupt:
+            raise
+        except:
+            print("Unexpected contents of `%s'" % file)
+            self.diff(golden_file_contents, file_contents, 'contents ')
+            raise
+
     def must_not_contain(self, file, banned, mode = 'rb', find = None):
         """Ensures that the specified file doesn't contain the banned text.
         """
