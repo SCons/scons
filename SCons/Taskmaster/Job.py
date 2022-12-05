@@ -83,6 +83,10 @@ class Jobs:
         class can't do it, it gets reset to 1.  Wrapping interfaces that
         care should check the value of 'num_jobs' after initialization.
         """
+
+        # Importing GetOption here instead of at top of file to avoid
+        # circular imports
+        # pylint: disable=import-outside-toplevel
         from SCons.Script import GetOption
 
         self.job = None
