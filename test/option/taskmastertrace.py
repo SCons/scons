@@ -33,7 +33,7 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.file_fixture('fixture/SConstruct__taskmastertrace.py', 'SConstruct')
+test.file_fixture('fixture/SConstruct__taskmastertrace', 'SConstruct')
 test.file_fixture('fixture/taskmaster_expected_stdout_1.txt', 'taskmaster_expected_stdout_1.txt')
 test.file_fixture('fixture/taskmaster_expected_file_1.txt', 'taskmaster_expected_file_1.txt')
 test.file_fixture('fixture/taskmaster_expected_new_parallel.txt', 'taskmaster_expected_new_parallel.txt')
@@ -55,8 +55,7 @@ test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
 test.must_match_file('trace.out', 'taskmaster_expected_file_1.txt', mode='r')
 
 # Test NewParallel Job implementation
-os.environ['SCONS_NEW_PARALLEL'] = "1"
-test.run(arguments='-j 2 --taskmastertrace=new_parallel_trace.out .')
+test.run(arguments='-j 2 --experimental=tm_v2 --taskmastertrace=new_parallel_trace.out .')
 
 new_trace = test.read('new_parallel_trace.out', mode='r')
 thread_id = re.compile(r'\[Thread:\d+\]')

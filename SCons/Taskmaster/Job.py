@@ -40,6 +40,7 @@ from enum import Enum
 import SCons.Errors
 import SCons.Warnings
 
+
 # The default stack size (in kilobytes) of the threads used to execute
 # jobs in parallel.
 #
@@ -52,8 +53,6 @@ explicit_stack_size = None
 default_stack_size = 256
 
 interrupt_msg = 'Build interrupted.'
-
-USE_NEW_PARALLEL = os.environ.get('SCONS_NEW_PARALLEL', False)
 
 class InterruptState:
     def __init__(self):
@@ -85,6 +84,11 @@ class Jobs:
         care should check the value of 'num_jobs' after initialization.
         """
 
+        # Importing GetOption here instead of at top of file to avoid
+        # circular imports
+        # pylint: disable=import-outside-toplevel
+        from SCons.Script import GetOption
+
         self.job = None
         if num > 1:
             stack_size = explicit_stack_size
@@ -92,10 +96,12 @@ class Jobs:
                 stack_size = default_stack_size
 
             try:
-                if USE_NEW_PARALLEL:
+                experimental_option = GetOption('experimental')
+                if 'tm_v2' in experimental_option:
                     self.job = NewParallel(taskmaster, num, stack_size)
                 else:
                     self.job = LegacyParallel(taskmaster, num, stack_size)
+
                 self.num_jobs = num
             except NameError:
                 pass
