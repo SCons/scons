@@ -106,15 +106,16 @@ and a database of information about previous builds so
 details do not have to be recalculated each run.
 </para>
 
-<para>&scons; requires Python 3.6 or later to run;
-there should be no other dependencies or requirements.
+<para>&scons; requires &Python; 3.6 or later to run;
+there should be no other dependencies or requirements,
 unless the experimental Ninja tool is used.
-<emphasis>
-Support for Python 3.5 is removed since
-&SCons; 4.3.0.
-The CPython project has retired 3.5:
+</para>
+<para>
+<emphasis>Changed in version 4.3.0:</emphasis>
+support for &Python; 3.5 is removed;
+the CPython project has retired 3.5:
 <ulink url="https://www.python.org/dev/peps/pep-0478"/>.
-</emphasis></para>
+</para>
 
 <para>You set up an &SCons;
 build system by writing a script
@@ -176,14 +177,14 @@ these subsidiary files are named
 &SConscript;,
 although any name may be used.
 As a result of this naming convention,
-the term <firstterm>SConscript files</firstterm>
+the term <firstterm>&SConscript; files</firstterm>
 is used to refer
 generically to the complete set of
 configuration files for a project
 (including the &SConstruct; file),
 regardless of the actual file names or number of such files.</para>
 
-<para>Before reading the SConscript files,
+<para>Before reading the &SConscript; files,
 &scons;
 looks for a directory named
 <filename>site_scons</filename>
@@ -193,9 +194,9 @@ or, if specified, the
 directory from the
 <link linkend="opt-site-dir"><option>--site-dir</option></link>
 option instead, and prepends the ones it
-finds to the Python module search path (<varname>sys.path</varname>),
+finds to the &Python; module search path (<varname>sys.path</varname>),
 thus allowing modules in such directories to be imported in
-the normal Python way in SConscript files.
+the normal &Python; way in &SConscript; files.
 For each found site directory,
 (1) if it contains a file <filename>site_init.py</filename>
 that file is evaluated,
@@ -211,24 +212,24 @@ controlling the site directories.
 </para>
 
 <para>
-SConscript files are written in the
-<firstterm>Python</firstterm> programming language,
-although it is normally not necessary to be a Python
+&SConscript; files are written in the
+<firstterm>&Python;</firstterm> programming language,
+although it is normally not necessary to be a &Python;
 programmer to use &scons; effectively.
-SConscript files are invoked in a context that makes
+&SConscript; files are invoked in a context that makes
 the facilities described in this manual page available
 in their local namespace without any special steps.
-Standard Python scripting capabilities
-such as flow control, data manipulation, and imported Python libraries
+Standard &Python; scripting capabilities
+such as flow control, data manipulation, and imported &Python; libraries
 are available to use to handle complicated build situations.
-Other Python files can be made a part of the build system,
+Other &Python; files can be made a part of the build system,
 but they do not automatically have the &SCons; context and
 need to import it if they need access (described later).
 </para>
 
 <para>
 &scons;
-reads and executes all of the included SConscript files
+reads and executes all of the included &SConscript; files
 <emphasis>before</emphasis>
 it begins building any targets.
 To make this clear,
@@ -338,7 +339,7 @@ Command-line options (see <xref linkend="options"/>) are consumed.
 Any variable argument assignments are collected, and
 remaining arguments are taken as targets to build.</para>
 
-<para>Values of variables to be passed to the SConscript files
+<para>Values of variables to be passed to the &SConscript; files
 may be specified on the command line:</para>
 
 <screen>
@@ -347,7 +348,7 @@ may be specified on the command line:</para>
 
 <para>These variables are available through the
 <link linkend="v-ARGUMENTS">&ARGUMENTS;</link> dictionary,
-and can be used in the SConscript files to modify
+and can be used in the &SConscript; files to modify
 the build in any way:</para>
 
 <programlisting language="python">
@@ -373,7 +374,7 @@ for more information.
 <para>&scons;
 can maintain a cache of target (derived) files that can
 be shared between multiple builds.  When derived-file caching is enabled in an
-SConscript file, any target files built by
+&SConscript; file, any target files built by
 &scons;
 will be copied
 to the cache.  If an up-to-date target file is found in the cache, it
@@ -449,7 +450,7 @@ The targets listed on the command line are made available in the
 <listitem>
 <para>If no targets are specified on the command line,
 &scons; will select those targets
-specified in the SConscript files via calls
+specified in the &SConscript; files via calls
 to the &f-link-Default; function. These are
 known as the <firstterm>default targets</firstterm>,
 and are made available in the
@@ -460,11 +461,11 @@ and are made available in the
 <para>
 If no targets are selected by the previous steps,
 &scons; selects the current directory for scanning,
-unless command-line options which affect the target
-scan are detected
-(<link linkend="opt-C"><option>-C</option></link>,
+unless command-line options which affect the directory
+for target scanning are present
+(<link linkend="opt-directory"><option>-C</option></link>,
 <link linkend="opt-D"><option>-D</option></link>,
-<link linkend="opt-u"><option>-u</option></link>,
+<link linkend="opt-up"><option>-u</option></link>,
 <link linkend="opt-U"><option>-U</option></link>).
 Since targets thus selected were not the result of
 user instructions, this target list is not made available
@@ -521,7 +522,7 @@ build:</para>
 </screen>
 
 <para>or by changing directory and invoking scons with the
-<link linkend="opt-u"><option>-u</option></link>
+<link linkend="opt-up"><option>-u</option></link>
 option, which traverses up the directory
 hierarchy until it finds the
 &SConstruct;
@@ -542,7 +543,7 @@ options):</para>
 requested, as &scons; needs to make
 sure any dependent files are built.</para>
 
-<para>Specifying "cleanup" targets in SConscript files is
+<para>Specifying "cleanup" targets in &SConscript; files is
 usually not necessary.
 The
 <link linkend="opt-clean"><option>-c</option></link>
@@ -564,7 +565,7 @@ and <filename>export</filename>.</para>
 
 <para>
 Additional files or directories to remove can be specified using the
-&f-link-Clean; function in the SConscript files.
+&f-link-Clean; function in the &SConscript; files.
 Conversely, targets that would normally be removed by the
 <option>-c</option>
 invocation can be retained by calling the
@@ -572,7 +573,7 @@ invocation can be retained by calling the
 
 <para>&scons;
 supports building multiple targets in parallel via a
-<link linkend="opt-j"><option>-j</option></link>
+<link linkend="opt-jobs"><option>-j</option></link>
 option that takes, as its argument, the number
 of simultaneous tasks that may be spawned:</para>
 
@@ -627,10 +628,10 @@ preservation through calls to the &f-link-NoClean; function.
 </para>
 <para>
 While clean mode removes targets rather than building them,
-work which is done directly in Python code in SConscript files
+work which is done directly in &Python; code in &SConscript; files
 will still be carried out.  If it is important to avoid some
 such work from taking place in clean mode, it should be protected.
-An SConscript file can determine which mode
+An &SConscript; file can determine which mode
 is active by querying &f-link-GetOption;, as in the call
 <code>if GetOption("clean"):</code>
 </para>
@@ -638,7 +639,7 @@ is active by querying &f-link-GetOption;, as in the call
   </varlistentry>
 
   <varlistentry id="opt-cache-debug">
-  <term>-<option>-cache-debug=<replaceable>file</replaceable></option></term>
+  <term><option>--cache-debug=<replaceable>file</replaceable></option></term>
   <listitem>
 <para>Write debug information about
 derived-file caching to the specified
@@ -699,7 +700,7 @@ built during this invocation.
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-show">
+  <varlistentry id="opt-cache-show">
   <term><option>--cache-show</option></term>
   <listitem>
 <para>When using a derived-file cache show the command
@@ -770,7 +771,7 @@ have any results in the cache.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-C">
+  <varlistentry id="opt-directory">
   <term>
     <option>-C <replaceable>directory</replaceable></option>,
     <option>--directory=<replaceable>directory</replaceable></option>
@@ -794,12 +795,12 @@ options are given, each subsequent non-absolute
 <option>-C</option> <replaceable>directory</replaceable>
 is interpreted relative to the preceding one.
 This option is similar to using
-<link linkend="opt-f"><option>-f <replaceable>directory</replaceable>/SConstruct</option></link>,
+<link linkend="opt-sconstruct"><option>-f <replaceable>directory</replaceable>/SConstruct</option></link>,
 but <option>-f</option> does not search for any of the
 predefined &SConstruct; names
 in the specified directory.
 See also options
-<link linkend="opt-u"><option>-u</option></link>,
+<link linkend="opt-up"><option>-u</option></link>,
 <link linkend="opt-U"><option>-U</option></link>
 and
 <link linkend="opt-D"><option>-D</option></link>
@@ -818,7 +819,7 @@ to change the &SConstruct; search behavior when this option is used.
   <term><option>-D</option></term>
   <listitem>
 <para>Works exactly the same way as the
-<link linkend="opt-u"><option>-u</option></link>
+<link linkend="opt-up"><option>-u</option></link>
 option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
 all default targets are built, whether or not they are below the current
@@ -844,7 +845,7 @@ each command, shows the absolute start and end times.
 This may be useful in debugging parallel builds.
 Implies the <option>--debug=time</option> option.
 </para>
-<para><emphasis>Available since &scons; 3.1.</emphasis></para>
+<para><emphasis>New in version 3.1.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -853,9 +854,9 @@ Implies the <option>--debug=time</option> option.
   <listitem>
 <para>Print how many objects are created
 of the various classes used internally by SCons
-before and after reading the SConscript files
+before and after reading the &SConscript; files
 and before and after building targets.
-This is not supported when SCons is executed with the Python
+This is not supported when SCons is executed with the &Python;
 <option>-O</option>
 (optimized) option
 or when the SCons modules
@@ -923,7 +924,7 @@ instead of recomputing them each time they're needed.</para>
   <term><emphasis role="bold">memory</emphasis></term>
   <listitem>
 <para>Prints how much memory SCons uses
-before and after reading the SConscript files
+before and after reading the &SConscript; files
 and before and after building targets.</para>
   </listitem>
   </varlistentry>
@@ -940,8 +941,8 @@ of the various classes used internally by SCons.</para>
   <term><emphasis role="bold">pdb</emphasis></term>
   <listitem>
 <para>Re-run &scons; under the control of the
-<command>pdb</command>
-Python debugger.</para>
+<systemitem>pdb</systemitem>
+&Python; debugger.</para>
   </listitem>
   </varlistentry>
 
@@ -980,7 +981,7 @@ Building myprog.o with action(s):
   <varlistentry>
   <term><emphasis role="bold">stacktrace</emphasis></term>
   <listitem>
-<para>Prints an internal Python stack trace
+<para>Prints an internal &Python; stack trace
 when encountering an otherwise unexplained error.</para>
   </listitem>
   </varlistentry>
@@ -997,11 +998,11 @@ when encountering an otherwise unexplained error.</para>
 <para>The total build time (time SCons ran from beginning to end)</para>
       </listitem>
       <listitem>
-<para>The total time spent reading and executing SConscript files</para>
+<para>The total time spent reading and executing &SConscript; files</para>
       </listitem>
       <listitem>
 <para>The total time SCons itself spent running
-(that is, not counting reading and executing SConscript files)</para>
+(that is, not counting reading and executing &SConscript; files)</para>
       </listitem>
       <listitem>
 <para>The total time spent executing all build commands</para></listitem>
@@ -1009,7 +1010,7 @@ when encountering an otherwise unexplained error.</para>
 <para>The elapsed wall-clock time spent executing those build commands</para>
       </listitem>
       <listitem>
-<para>The time spent processing each file passed to the &SConscriptFunc; function</para>
+<para>The time spent processing each file passed to the &f-link-SConscript; function</para>
       </listitem>
     </itemizedlist>
 <para>
@@ -1125,16 +1126,18 @@ the mechanisms in the specified order.</para>
         the special tokens <literal>all</literal> or <literal>none</literal>.
         A comma-separated string can be used to select multiple features.
         The default setting is <literal>none</literal>.</para>
-      <para>Current available features are: <literal>ninja</literal>, <literal>tm_v2</literal>.</para>
+      <para>Current available features are:
+        <literal>ninja</literal> (<emphasis>added in version 4.2</emphasis>),
+        <literal>tm_v2</literal> (<emphasis>added in version 4.4.1</emphasis>).
+      </para>
       <caution><para>
         No Support offered for any features or tools enabled by this flag.
       </para></caution>
-        <para><emphasis><literal>ninja</literal> Available since &scons; 4.2.</emphasis></para>
-        <para><emphasis><literal>tm_v2</literal> Available since &scons; 4.4.1</emphasis></para>
+      <para><emphasis>New in version 4.2 (experimental).</emphasis></para>
     </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-f">
+  <varlistentry id="opt-sconstruct">
     <term>
       <option>-f <replaceable>file</replaceable></option>,
       <option>--file=<replaceable>file</replaceable></option>,
@@ -1144,7 +1147,7 @@ the mechanisms in the specified order.</para>
     <listitem>
       <para>Use
         <replaceable>file</replaceable>
-        as the initial SConscript file.
+        as the initial &SConscript; file.
         Multiple
         <option>-f</option>
         options may be specified,
@@ -1155,14 +1158,14 @@ the mechanisms in the specified order.</para>
     </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-h">
+  <varlistentry id="opt-help">
   <term>
     <option>-h</option>,
     <option>--help</option>
   </term>
   <listitem>
 <para>Print a local help message for this project,
-if one is defined in the SConscript files
+if one is defined in the &SConscript; files
 (see the &f-link-Help; function),
 plus a line that refers to the standard &SCons; help message.
 If no local help message is defined,
@@ -1172,7 +1175,7 @@ plus help for any local options defined through &f-link-AddOption;.
 Exits after displaying the appropriate message.</para>
 <para>
 Note that use of this option requires &SCons; to process
-the SConscript files, so syntax errors may cause
+the &SConscript; files, so syntax errors may cause
 the help message not to be displayed.
 </para>
   </listitem>
@@ -1194,7 +1197,7 @@ small block-size slows down the build considerably.</para>
 <para>The default value is to use a chunk size of 64 kilobytes, which should
 be appropriate for most uses.</para>
 
-<para><emphasis>Available since &scons; 4.2.</emphasis></para>
+<para><emphasis>New in version 4.2.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1212,16 +1215,16 @@ This value determines the hashing algorithm used in generating
 <parameter>md5</parameter>,
 <parameter>sha1</parameter>
 and <parameter>sha256</parameter>.
-However, the Python interpreter used to run SCons must have the corresponding
+However, the &Python; interpreter used to run &scons; must have the corresponding
 support available in the <systemitem>hashlib</systemitem> module
 to use the specified algorithm.</para>
 
 <para>If this option is omitted,
 the first supported hash format found is selected.
 Typically this is MD5, however, on a FIPS-compliant system
-using a version of Python older than 3.9,
+using a version of &Python; older than 3.9,
 SHA1 or SHA256 is chosen as the default.
-Python 3.9 and onwards clients always default to MD5, even in FIPS mode.
+&Python; 3.9 and onwards clients always default to MD5, even in FIPS mode.
 </para>
 
 <para>Specifying this option changes the name of the SConsign database.
@@ -1234,7 +1237,7 @@ For example, <option>--hash-format=sha256</option> uses a SConsign
 database named <filename>.sconsign_sha256.dblite</filename>.
 </para>
 
-<para><emphasis>Available since &scons; 4.2.</emphasis></para>
+<para><emphasis>New in version 4.2.</emphasis></para>
   </listitem>
 </varlistentry>
 
@@ -1249,7 +1252,7 @@ command-line options and exit.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-i">
+  <varlistentry id="opt-ignore-errors">
   <term>
     <option>-i</option>,
     <option>--ignore-errors</option>
@@ -1260,7 +1263,7 @@ command-line options and exit.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-I">
+  <varlistentry id="opt-include-dir">
   <term>
     <option>-I <replaceable>directory</replaceable></option>,
     <option>--include-dir=<replaceable>directory</replaceable></option>
@@ -1269,7 +1272,7 @@ command-line options and exit.</para>
 <para>Specifies a
 <replaceable>directory</replaceable>
 to search for
-imported Python modules.  If several
+imported &Python; modules.  If several
 <option>-I</option>
 options
 are used, the directories are searched in the order specified.</para>
@@ -1329,7 +1332,7 @@ This implies
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-install-sandbos">
+  <varlistentry id="opt-install-sandbox">
   <term><option>--install-sandbox=<replaceable>sandbox_path</replaceable></option></term>
   <listitem>
 <para>
@@ -1338,7 +1341,7 @@ When using the &Install; builders, prepend
 to the installation paths such that all installed files will be placed
 under that directory. This option is unavailable if
 one of &b-link-Install;, &b-link-InstallAs; or
-&b-link-InstallVersionedLib; is not used in the SConscript files.
+&b-link-InstallVersionedLib; is not used in the &SConscript; files.
 </para>
   </listitem>
   </varlistentry>
@@ -1347,11 +1350,11 @@ one of &b-link-Install;, &b-link-InstallAs; or
   <term><option>--interactive</option></term>
   <listitem>
 <para>Starts SCons in interactive mode.
-The SConscript files are read once and a
+The &SConscript; files are read once and a
 <computeroutput>scons&gt;&gt;&gt;</computeroutput>
 prompt is printed.
 Targets may now be rebuilt by typing commands at interactive prompt
-without having to re-read the SConscript files
+without having to re-read the &SConscript; files
 and re-initialize the dependency graph from scratch.</para>
 
 <para>SCons interactive mode supports the following commands:</para>
@@ -1399,7 +1402,7 @@ do not cause errors
 but have no effect on the
 <emphasis role="bold">build</emphasis>
 command
-(mainly because they affect how the SConscript files are read,
+(mainly because they affect how the &SConscript; files are read,
 which only happens once at the beginning of interactive mode).</para>
       </listitem>
       </varlistentry>
@@ -1500,7 +1503,7 @@ scons&gt;&gt;&gt; exit
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-j">
+  <varlistentry id="opt-jobs">
   <term>
     <option>-j <replaceable>N</replaceable></option>,
     <option>--jobs=<replaceable>N</replaceable></option>
@@ -1520,7 +1523,7 @@ option, the last one is effective.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-k">
+  <varlistentry id="opt-keep-going">
   <term>
     <option>-k</option>,
     <option>--keep-going</option>
@@ -1595,11 +1598,11 @@ no matter how old the file is.</para>
 <link linkend="opt-hash-chunksize"><option>--hash-chunksize</option></link>.
 </para>
 
-<para><emphasis>Deprecated since &scons; 4.2.</emphasis></para>
+<para><emphasis>Changed in version 4.2:</emphasis> deprecated.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-n">
+  <varlistentry id="opt-no-exec">
   <term>
     <option>-n</option>,
     <option>--no-exec</option>,
@@ -1619,11 +1622,11 @@ that file is not available to scan for dependencies on an unbuilt tree,
 or may contain out of date information in a built tree.
 </para>
 <para>
-Work which is done directly in Python code in SConscript files,
+Work which is done directly in &Python; code in &SConscript; files,
 as opposed to work done by builder actions during the build phase,
 will still be carried out.  If it is important to avoid some
 such work from taking place in no execute mode, it should be protected.
-An SConscript file can determine which mode
+An &SConscript; file can determine which mode
 is active by querying &f-link-GetOption;, as in the call
 <code>if GetOption("no_exec"):</code>
 </para>
@@ -1635,13 +1638,13 @@ is active by querying &f-link-GetOption;, as in the call
   <listitem>
 <para>Prevents the automatic addition of the standard
 <filename>site_scons</filename>
-dirs to
+directories to
 <varname>sys.path</varname>.
 Also prevents loading the
 <filename>site_scons/site_init.py</filename>
 modules if they exist, and prevents adding their
 <filename>site_scons/site_tools</filename>
-dirs to the toolpath.</para>
+directories to the toolpath.</para>
   </listitem>
   </varlistentry>
 
@@ -1679,11 +1682,10 @@ dirs to the toolpath.</para>
   <varlistentry id="opt-package-type">
   <term><option>--package-type=<replaceable>type</replaceable></option></term>
   <listitem>
-<para>The type or types
+<para>The type 
 of package to create when using the &b-link-Package; builder.
-In the case of multiple types, <replaceable>type</replaceable>
-should be a comma-separated string; &SCons; will try to build
-for all of those packages.
+Multiple types can be specified by using a comma-separated string,
+in which case &SCons; will try to build for all of those package types.
 Note this option is only available if the &t-link-packaging; tool
 has been enabled.
 </para>
@@ -1693,15 +1695,14 @@ has been enabled.
   <varlistentry id="opt-profile">
   <term><option>--profile=<replaceable>file</replaceable></option></term>
   <listitem>
-<para>Run SCons under the Python profiler
-and save the results in the specified
-<replaceable>file</replaceable>.
-The results may be analyzed using the Python
-pstats module.</para>
+<para>Run &SCons; under the &Python; profiler
+and save the results to <replaceable>file</replaceable>.
+The results may be analyzed using the &Python;
+<systemitem>pstats</systemitem> module.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-q">
+  <varlistentry id="opt-question">
   <term>
     <option>-q</option>,
     <option>--question</option></term>
@@ -1715,8 +1716,8 @@ date, non-zero otherwise.</para>
   <varlistentry id="opt-Q">
   <term><option>-Q</option></term>
   <listitem>
-<para>Quiets SCons status messages about
-reading SConscript files,
+<para>Suppress status messages about
+reading &SConscript; files,
 building targets
 and entering directories.
 Commands that are executed
@@ -1739,7 +1740,7 @@ or retrieve the same target files.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-s">
+  <varlistentry id="opt-silent">
   <term>
     <option>-s</option>,
     <option>--silent</option>,
@@ -1752,7 +1753,7 @@ Also suppresses SCons status messages.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-S">
+  <varlistentry id="opt-no-keep-going">
   <term>
     <option>-S</option>,
     <option>--no-keep-going</option>,
@@ -1876,7 +1877,7 @@ unless you encounter stack overflow errors.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-t">
+  <varlistentry id="opt-touch">
   <term>
     <option>-t</option>,
     <option>--touch</option>
@@ -1941,7 +1942,7 @@ specified alone, without any <replaceable>type</replaceable>,
 it behaves as if <emphasis role="bold">all</emphasis>
 had been specified.
 </para>
-<para><emphasis>Available since &scons; 4.0.</emphasis></para>
+<para><emphasis>New in version 4.0.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1981,7 +1982,7 @@ choices may be specified, separated by commas:</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-u">
+  <varlistentry id="opt-up">
   <term>
     <option>-u</option>,
     <option>--up</option>,
@@ -2006,13 +2007,13 @@ current directory will be built.</para>
 <option>-u</option>
 option except for the way default targets are handled.
 When this option is used and no targets are specified on the command line,
-all default targets that are defined in the SConscript(s) in the current
+all default targets that are defined in the &SConscript; file(s) in the current
 directory are built, regardless of what directory the resultant targets end
 up in.</para>
   </listitem>
   </varlistentry>
 
-  <varlistentry id="opt-v">
+  <varlistentry id="opt-version">
   <term>
     <option>-v</option>,
     <option>--version</option>
@@ -2183,7 +2184,7 @@ can themselves refer to lists of names or nodes.</para>
 These warnings are disabled by default for the first
 phase of deprecation. Enable to be reminded about use
 of this tool module.
-<emphasis>Available since &SCons; 4.3.</emphasis>
+<emphasis>New in version 4.3.</emphasis>
 </para>
   </listitem>
   </varlistentry>
@@ -2191,7 +2192,7 @@ of this tool module.
   <varlistentry>
   <term><emphasis role="bold">missing-sconscript</emphasis></term>
   <listitem>
-<para>Warnings about missing SConscript files.
+<para>Warnings about missing &SConscript; files.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
@@ -2203,16 +2204,16 @@ These warnings are enabled by default.</para>
 <option>--debug=object</option>
 feature not working when
 &scons;
-is run with the Python
+is run with the &Python;
 <option>-O</option>
-option or from optimized Python (.pyo) modules.</para>
+option or from optimized &Python; (<filename>.pyo</filename>) modules.</para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
   <term><emphasis role="bold">no-parallel-support</emphasis></term>
   <listitem>
-<para>Warnings about the version of Python
+<para>Warnings about the version of &Python;
 not being able to support parallel builds when the
 <option>-j</option>
 option is used.
@@ -2224,7 +2225,7 @@ These warnings are enabled by default.</para>
   <term><emphasis role="bold">python-version</emphasis></term>
   <listitem>
 <para>Warnings about running
-SCons with a deprecated version of Python.
+&SCons; using a version of &Python; that has been deprecated.
 These warnings are enabled by default.</para>
   </listitem>
   </varlistentry>
@@ -2289,7 +2290,7 @@ These warnings are enabled by default.</para>
 <!--  .B \-n -->
 <!--  ... what? XXX -->
 
-  <varlistentry id="opt-Y">
+  <varlistentry id="opt-repository">
   <term>
     <option>-Y <replaceable>repository</replaceable></option>,
     <option>--repository=<replaceable>repository</replaceable></option>,
@@ -2314,7 +2315,7 @@ repositories are searched in the order specified.</para>
 <title>SConscript Files</title>
 <para>
 The build configuration is described by one or more files,
-known as SConscript files.
+known as &SConscript; files.
 There must be at least one file for a valid build
 (&scons; will quit if it does not find one).
 &scons; by default looks for this file by the name
@@ -2334,20 +2335,20 @@ included or excluded at run-time depending on how &scons; is invoked.
 </para>
 
 <para>
-Each SConscript file in a build configuration is invoked
+Each &SConscript; file in a build configuration is invoked
 independently in a separate context.
 This provides necessary isolation so that different parts of
 the build don't accidentally step on each other.
 You have to be explicit about sharing information,
 by using the &f-link-Export; function or the &exports; argument
-to the &SConscript; function, as well as the &f-link-Return; function
-in a called SConscript file, and comsume shared information by using the
+to the &f-link-SConscript; function, as well as the &f-link-Return; function
+in a called &SConscript; file, and comsume shared information by using the
 &f-link-Import; function.
 </para>
 
 <para>
 The following sections describe the various &SCons; facilities
-that can be used in SConscript files.  Quick links:
+that can be used in &SConscript; files.  Quick links:
 </para>
 
 <simplelist type="vert">
@@ -2546,7 +2547,7 @@ See <xref linkend="commandline_construction_variables"/> for details.
 (more properly, <firstterm>tool specification modules</firstterm>)
 which are used to help initialize the &consenv;.
 An &SCons; tool is only responsible for setup.
-For example, if an SConscript file declares
+For example, if an &SConscript; file declares
 the need to construct an object file from
 a C-language source file by calling the
 &b-link-Object; builder, then a tool representing
@@ -2734,7 +2735,7 @@ contains separator characters, the search follows down
 from the starting point, which is the top of the directory tree for
 an absolute path and the current directory for a relative path.
 The "current directory" in this context is the directory
-of the SConscript file currently being processed.
+of the &SConscript; file currently being processed.
 </para>
 
 <para>
@@ -2868,7 +2869,7 @@ target file's directory.</para>
 
 <warning>
 <para>
-Python only keeps one current directory
+&Python; only keeps one current directory
 location even if there are multiple threads.
 This means that use of the
 <parameter>chdir</parameter>
@@ -2879,7 +2880,7 @@ work with the SCons
 <option>-j</option>
 option,
 because individual worker threads spawned
-by SCons interfere with each other
+by &SCons; interfere with each other
 when they start changing directory.</para>
 </warning>
 
@@ -2973,7 +2974,7 @@ has determined are appropriate for the local system.</para>
 environment (indicated in the listing of builders below
 without a leading <varname>env.</varname>)
 may be called from custom &Python; modules that you
-import into an SConscript file by adding the following
+import into an &SConscript; file by adding the following
 to the &Python; module:</para>
 
 <programlisting language="python">
@@ -3114,13 +3115,13 @@ the object file.</para>
 <para>
 When trying to handle errors that may occur in a builder method,
 consider that the corresponding Action is executed at a different
-time than the SConscript file statement calling the builder.
+time than the &SConscript; file statement calling the builder.
 It is not useful to wrap a builder call in a
 <systemitem>try</systemitem> block,
 since success in the builder call is not the same as
 the builder itself succeeding.
 If necessary, a Builder's Action should be coded to exit with
-a useful exception message indicating the problem in the SConscript files -
+a useful exception message indicating the problem in the &SConscript; files -
 programmatically recovering from build errors is rarely useful.
 </para>
 
@@ -3276,7 +3277,7 @@ see the next section on
 &consvars;.</para>
 
 <para>Global functions may be called from custom Python modules that you
-import into an SConscript file by adding the following import
+import into an &SConscript; file by adding the following import
 to the Python module:</para>
 
 <programlisting language="python">
@@ -3316,7 +3317,7 @@ include:</para>
 <para>In addition to the global functions and methods,
 &scons;
 supports a number of variables
-that can be used in SConscript files
+that can be used in &SConscript; files
 to affect how you want the build to be performed.</para>
 
 <variablelist>
@@ -3489,7 +3490,7 @@ print([str(t) for t in DEFAULT_TARGETS])   # back to []
 only after you've made all of your
 &Default;() calls,
 or else simply be careful of the order
-of these statements in your SConscript files
+of these statements in your &SConscript; files
 so that you don't look for a specific
 default target before it's actually been added to the list.</para>
   </listitem>
@@ -3498,7 +3499,7 @@ default target before it's actually been added to the list.</para>
 
 <para>
 These variables may be accessed from custom Python modules that you
-import into an SConscript file by adding the following
+import into an &SConscript; file by adding the following
 to the Python module:</para>
 
 <programlisting language="python">
@@ -3654,13 +3655,15 @@ discovered while running tests. The context includes a local &consenv;
 which is used when running the tests and
 which can be updated with the check results.
 Only one context may be active
-at a time (<emphasis>since 4.0, &scons; will raise an exception
-on an attempt to create a new context when there is
-an active context</emphasis>), but a new context can be created
+at a time, but a new context can be created
 after the active one is completed.
 For the global function form, the required <parameter>env</parameter>
 describes the initial values for the context's local &consenv;;
 for the &consenv; method form the instance provides the values.
+</para>
+<para>
+<emphasis>Changed in version 4.0</emphasis>: raises an exception
+on an attempt to create a new context when there is an active context.
 </para>
 <para><parameter>custom_tests</parameter>
 specifies a dictionary containing custom tests
@@ -4426,7 +4429,8 @@ from various sources, often from the command line:</para>
 <userinput>scons VARIABLE=foo</userinput>
 </screen>
 
-<para>The variable values can also be specified in a configuration file or an SConscript file.</para>
+<para>The variable values can also be specified in a configuration file
+or an &SConscript; file.</para>
 
 <para>To obtain the object for manipulating values,
 call the &Variables; function:</para>
@@ -5062,7 +5066,7 @@ Builders return the target Node(s) in the form of a list,
 which you can then make use of.
 However, since filesystem Nodes have some useful
 public attributes and methods
-that you can use in SConscript files,
+that you can use in &SConscript; files,
 it is sometimes appropriate to create them manually,
 outside the regular context of a Builder call.
 </para>
@@ -6394,7 +6398,7 @@ are intended to be used.</para>
 <para>First,
 if you need
 to perform the action
-at the time the SConscript
+at the time the &SConscript;
 file is being read,
 you can use the
 &f-link-Execute;
@@ -6763,8 +6767,8 @@ builder action.  The value of <literal>env['BAR']</literal>
 will be exactly as it was set: <literal>"$FOO baz"</literal>.
 This can make debugging tricky,
 as the substituted result is not available at the time
-the SConscript files are being interpreted and
-thus not available to <systemitem>print()</systemitem>.
+the &SConscript; files are being interpreted and
+thus not available to the <systemitem>print</systemitem> function.
 However, you can perform the substitution on demand
 by calling the &f-link-env-subst; method for this purpose.
 </para>
@@ -7041,9 +7045,9 @@ echo BAR &gt; foo.out
 <para>according to the current value of <literal>env['COND']</literal>
 when the command is executed.
 The evaluation takes place when the target is being
-built, not when the SConscript is being read.  So if
+built, not when the &SConscript; is being read.  So if
 <literal>env['COND']</literal> is changed
-later in the SConscript, the final value will be used.</para>
+later in the &SConscript;, the final value will be used.</para>
 
 <para>Here's a more complete example.  Note that all of
 <envar>COND</envar>,
@@ -7078,7 +7082,7 @@ which &SCons; passes to <function>eval</function> which
 returns the value.
 </para>
 
-<note><para>
+<caution><para>
 Use of the Python <function>eval</function> function
 is considered to have security implications, since,
 depending on input sources,
@@ -7086,7 +7090,7 @@ arbitrary unchecked strings of code can be executed by the Python interpreter.
 Although &SCons; makes use of it in a somewhat restricted context,
 you should be aware of this issue when using the
 <literal>${python-expression-for-subst}</literal> form.
-</para></note>
+</para></caution>
 </refsect3>
 </refsect2>
 
@@ -7229,7 +7233,7 @@ it will be expanded into a list by the current environment.
 <para>A Python function that takes four or five arguments:
 a &consenv;,
 a Node for the directory containing
-the SConscript file in which
+the &SConscript; file in which
 the first target was defined,
 a list of target nodes,
 a list of source nodes,
@@ -7713,7 +7717,7 @@ may yield unpredictable results.
 "Mixing and matching" in this way
 can be made to work,
 but it requires careful attention to the use of path names
-in your SConscript files.</para>
+in your &SConscript; files.</para>
 
 <para>In practice, users can sidestep
 the issue by adopting the following guidelines:
@@ -8092,7 +8096,7 @@ scanner = Scanner(
 <title>Creating a Hierarchical Build</title>
 
 <para>Notice that the file names specified in a subdirectory's
-SConscript file are relative to that subdirectory.</para>
+&SConscript; file are relative to that subdirectory.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
@@ -8128,7 +8132,7 @@ env.Program(target='foo', source='foo.c')
 
 <para>You must explicitly call &f-link-Export; and &f-link-Import;
 for variables that
-you want to share between SConscript files.</para>
+you want to share between &SConscript; files.</para>
 
 <para><filename>SConstruct</filename>:</para>
 
@@ -8179,7 +8183,7 @@ env.Program(target='src', source='src.c')
 
 <para>Note the use of the &f-link-Export; method
 to set the <varname>cppdefines</varname> variable to a different
-value each time we call the &SConscriptFunc; function.</para>
+value each time we call the &f-link-SConscript; function.</para>
 
 </refsect2>
 
@@ -8362,7 +8366,7 @@ env.Program('MyApp', ['Foo.cpp', 'Bar.cpp'])
 
 <para>In general, &scons; is not controlled by environment
 variables set in the shell used to invoke it, leaving it
-up to the SConscript file author to import those if desired.
+up to the &SConscript; file author to import those if desired.
 However the following variables are imported by
 &scons; itself if set:
 </para>
