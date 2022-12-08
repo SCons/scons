@@ -1,4 +1,10 @@
 <?xml version='1.0'?>
+<!--
+SPDX-License-Identifier: MIT
+
+Copyright The SCons Foundation
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -18,32 +24,8 @@
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
 <title>Hierarchical Builds</title>
-
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
 <!--
 
@@ -193,11 +175,11 @@ make no difference to the build.
   hierarchy of directories.
   Organizing a large software build using &SCons;
   involves creating a hierarchy of build scripts
-  using the &SConscript; function.
+  which are connected together using the &f-link-SConscript; function.
 
   </para>
 
-  <section>
+  <section id="sect-sconscript-files">
   <title>&SConscript; Files</title>
 
     <para>
@@ -219,10 +201,14 @@ make no difference to the build.
     </para>
 
     <sconstruct>
-SConscript(['drivers/display/SConscript',
-            'drivers/mouse/SConscript',
-            'parser/SConscript',
-            'utilities/SConscript'])
+SConscript(
+    [
+        'drivers/display/SConscript',
+        'drivers/mouse/SConscript',
+        'parser/SConscript',
+        'utilities/SConscript',
+    ]
+)
     </sconstruct>
 
     <para>
@@ -241,9 +227,7 @@ SConscript(['drivers/display/SConscript',
     </para>
 
     <sconstruct>
-SConscript(['drivers/SConscript',
-            'parser/SConscript',
-            'utilities/SConscript'])
+SConscript(['drivers/SConscript', 'parser/SConscript', 'utilities/SConscript'])
     </sconstruct>
 
     <para>
@@ -255,8 +239,7 @@ SConscript(['drivers/SConscript',
     </para>
 
     <sconstruct>
-SConscript(['display/SConscript',
-            'mouse/SConscript'])
+SConscript(['display/SConscript', 'mouse/SConscript'])
     </sconstruct>
 
     <para>
@@ -272,7 +255,7 @@ SConscript(['display/SConscript',
 
   </section>
 
-  <section>
+  <section id="sect-sconscript-relative-paths">
   <title>Path Names Are Relative to the &SConscript; Directory</title>
 
     <para>
@@ -280,7 +263,7 @@ SConscript(['display/SConscript',
     Subsidiary &SConscript; files make it easy to create a build
     hierarchy because all of the file and directory names
     in a subsidiary &SConscript; files are interpreted
-    relative to the directory in which the &SConscript; file lives.
+    relative to the directory in which that &SConscript; file lives.
     Typically, this allows the &SConscript; file containing the
     instructions to build a target file
     to live in the same directory as the source files
@@ -288,6 +271,8 @@ SConscript(['display/SConscript',
     making it easy to update how the software is built
     whenever files are added or deleted
     (or other changes are made).
+    It also tends to keep scripts more readable as they don't
+    need to be filled with complex paths.
 
     </para>
 
@@ -369,20 +354,27 @@ x
     Notice the following:
 
     First, you can have files with the same names
-    in multiple directories, like main.c in the above example.
+    in multiple directories, like <filename>main.c</filename>
+    in the above example.
 
-    Second, unlike standard recursive use of &Make;,
+    Second, when building,
     &SCons; stays in the top-level directory
     (where the &SConstruct; file lives)
     and issues commands that use the path names
     from the top-level directory to the
     target and source files within the hierarchy.
+    This works because &SCons; reads all the SConscript files
+    in one pass, interpreting each in its local context,
+    building up a tree of information, before starting to
+    execute the needed builds in a second pass.
+    This is quite different than some other build tools
+    which implement a heirarcical build by recursing.
 
     </para>
 
   </section>
 
-  <section>
+  <section id="sect-sconscript-top-relative-paths">
   <title>Top-Relative Path Names in Subsidiary &SConscript; Files</title>
 
     <para>
@@ -465,7 +457,8 @@ x
         understand about it.  This becomes immediately obvious
         if you like to use <function>print</function> for debugging,
         or write a Python function that wants to evaluate a path.
-        You can force &SCons; to evaluate a top-relative path by
+        You can force &SCons; to evaluate a top-relative path 
+        and produce a string that can be used by &Python; code by
         creating a Node object from it:
 
         </para>
@@ -492,7 +485,7 @@ print("force-interpreted path =", Entry(path))
 
   </section>
 
-  <section>
+  <section id="sect-sconscript-absolute-paths">
   <title>Absolute Path Names</title>
 
     <para>
@@ -544,7 +537,7 @@ x
 
   </section>
 
-  <section>
+  <section id="sect-sconscript-sharing">
   <title>Sharing Environments (and Other Variables) Between &SConscript; Files</title>
 
     <para>
@@ -573,7 +566,7 @@ x
 
     </para>
 
-    <section>
+    <section id="sect-sconscript-export">
     <title>Exporting Variables</title>
 
       <para>
@@ -701,8 +694,7 @@ SConscript('src/SConscript', exports='env')
       </para>
 
       <sconstruct>
-SConscript(['src1/SConscript',
-            'src2/SConscript'], exports='env')
+SConscript(['src1/SConscript', 'src2/SConscript'], exports='env')
       </sconstruct>
 
       <para>
@@ -716,7 +708,7 @@ SConscript(['src1/SConscript',
 
     </section>
 
-    <section>
+    <section id="sect-sconscript-import">
     <title>Importing Variables</title>
 
       <para>
@@ -818,7 +810,7 @@ env.Program('prog', ['prog.c'])
 
     </section>
 
-    <section>
+    <section id="sect-sconscript-return">
     <title>Returning Values From an &SConscript; File</title>
 
       <para>
