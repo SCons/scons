@@ -1611,24 +1611,29 @@ no matter how old the file is.</para>
     <option>--recon</option>
   </term>
   <listitem>
-<para>Set <firstterm>no execute</firstterm> mode.
+<para>Set <firstterm>no-exec</firstterm> mode.
 Print the commands that would be executed to build
-any out-of-date target files, but do not execute the commands.</para>
+any out-of-date targets, but do not execute those commands.
+</para>
+
+<para>
+Only target building is suppressed - any work in the build
+system that is done directly (in regular &Python; code)
+will still be carried out. You can add guards around
+code which should not be executed in no-exec mode by
+checking the value of the option at run time with &f-link-GetOption;:
+</para>
+<programlisting language="python">
+if not GetOption("no_exec"):
+    # run regular instructions
+</programlisting>
 
 <para>The output is a best effort, as &SCons; cannot always precisely
-determine what would be built.  For example, if a file is generated
-by a builder action that is later used in the build,
-that file is not available to scan for dependencies on an unbuilt tree,
-or may contain out of date information in a built tree.
-</para>
-<para>
-Work which is done directly in &Python; code in &SConscript; files,
-as opposed to work done by builder actions during the build phase,
-will still be carried out.  If it is important to avoid some
-such work from taking place in no execute mode, it should be protected.
-An &SConscript; file can determine which mode
-is active by querying &f-link-GetOption;, as in the call
-<code>if GetOption("no_exec"):</code>
+determine what would be built.  For example, if a file generated
+by a builder action is also used as a source in the build,
+that file is not available to scan for dependencies at all
+in an unbuilt tree, and may contain out of date information in a
+previously built tree.
 </para>
   </listitem>
   </varlistentry>
@@ -1682,7 +1687,7 @@ directories to the toolpath.</para>
   <varlistentry id="opt-package-type">
   <term><option>--package-type=<replaceable>type</replaceable></option></term>
   <listitem>
-<para>The type 
+<para>The type
 of package to create when using the &b-link-Package; builder.
 Multiple types can be specified by using a comma-separated string,
 in which case &SCons; will try to build for all of those package types.
