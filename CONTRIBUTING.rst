@@ -40,7 +40,7 @@ One of the easiest ways to contribute is by filing bugs.
 The SCons project welcomes bug reports and feature requests,
 but we *do* have a preference for having talked about them first -
 we request you send an email to the
-`SCons Users Mailing List <https://two.pairlist.net/mailman/listinfo/scons-users>`_
+`SCons Users Mailing List <https://pairlist4.pair.net/mailman/listinfo/scons-users>`_
 or hop on the Discord channel (see link above), and if so
 instructed, then proceed to an issue report.
 

@@ -35,6 +35,7 @@ from collections.abc import MappingView
 from contextlib import suppress
 from types import MethodType, FunctionType
 from typing import Optional, Union
+from logging import Formatter
 
 # Note: Util module cannot import other bits of SCons globally without getting
 # into import loops. Both the below modules import SCons.Util early on.
@@ -1363,44 +1364,11 @@ def unique(seq):
             u.append(x)
     return u
 
-
-# From Alex Martelli,
-# https://code.activestate.com/recipes/52560
-# ASPN: Python Cookbook: Remove duplicates from a sequence
-# First comment, dated 2001/10/13.
-# (Also in the printed Python Cookbook.)
-# This not currently used, in favor of the next function...
-
-def uniquer(seq, idfun=None):
-    def default_idfun(x):
-        return x
-    if not idfun:
-        idfun = default_idfun
-    seen = {}
-    result = []
-    result_append = result.append  # perf: avoid repeated method lookups
-    for item in seq:
-        marker = idfun(item)
-        if marker in seen:
-            continue
-        seen[marker] = 1
-        result_append(item)
-    return result
-
-# A more efficient implementation of Alex's uniquer(), this avoids the
-# idfun() argument and function-call overhead by assuming that all
-# items in the sequence are hashable.  Order-preserving.
-
+# Best way (assuming Python 3.7, but effectively 3.6) to remove
+# duplicates from a list in while preserving order, according to
+# https://stackoverflow.com/questions/480214/how-do-i-remove-duplicates-from-a-list-while-preserving-order/17016257#17016257
 def uniquer_hashables(seq):
-    seen = {}
-    result = []
-    result_append = result.append  # perf: avoid repeated method lookups
-    for item in seq:
-        if item not in seen:
-            seen[item] = 1
-            result_append(item)
-    return result
-
+    return list(dict.fromkeys(seq))
 
 # Recipe 19.11 "Reading Lines with Continuation Characters",
 # by Alex Martelli, straight from the Python CookBook (2nd edition).
@@ -2158,6 +2126,42 @@ def wait_for_process_to_die(pid):
                     break
                 else:
                     time.sleep(0.1)
+
+# From: https://stackoverflow.com/questions/1741972/how-to-use-different-formatters-with-the-same-logging-handler-in-python
+class DispatchingFormatter(Formatter):
+
+    def __init__(self, formatters, default_formatter):
+        self._formatters = formatters
+        self._default_formatter = default_formatter
+
+    def format(self, record):
+        formatter = self._formatters.get(record.name, self._default_formatter)
+        return formatter.format(record)
+
+
+def sanitize_shell_env(execution_env):
+    """
+    Sanitize all values in execution_env (typically this is env['ENV']) which will be propagated to the shell
+    :param execution_env: The shell environment variables to be propagated to spawned shell
+    :return: sanitize dictionary of env variables (similar to what you'd get from os.environ)
+    """
+
+    # Ensure that the ENV values are all strings:
+    new_env = {}
+    for key, value in execution_env.items():
+        if is_List(value):
+            # If the value is a list, then we assume it is a path list,
+            # because that's a pretty common list-like value to stick
+            # in an environment variable:
+            value = flatten_sequence(value)
+            new_env[key] = os.pathsep.join(map(str, value))
+        else:
+            # It's either a string or something else.  If it isn't a
+            # string or a list, then we just coerce it to a string, which
+            # is the proper way to handle Dir and File instances and will
+            # produce something reasonable for just about everything else:
+            new_env[key] = str(value)
+    return new_env
 
 # Local Variables:
 # tab-width:4

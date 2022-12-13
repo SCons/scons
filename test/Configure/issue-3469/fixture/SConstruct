@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 """
 This tests if we add/remove a test in between other tests if a rerun will properly cache the results.
 Github issue #3469
@@ -6,7 +10,7 @@ Github issue #3469
 DefaultEnvironment(tools=[])
 
 vars = Variables()
-vars.Add(BoolVariable('SKIP', 'Skip Middle Conf test', 0))
+vars.Add(BoolVariable('SKIP', 'Skip Middle Conf test', False))
 env = Environment(variables=vars)
 
 conf = Configure(env)

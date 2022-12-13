@@ -1281,7 +1281,7 @@ vars = Variables('custom.py', ARGUMENTS)
         <scons_example name="commandline_BoolVariable">
           <file name="SConstruct" printme="1">
 vars = Variables('custom.py')
-vars.Add(BoolVariable('RELEASE', help='Set to build for release', default=0))
+vars.Add(BoolVariable('RELEASE', help='Set to build for release', default=False))
 env = Environment(variables=vars, CPPDEFINES={'RELEASE_BUILD': '${RELEASE}'})
 env.Program('foo.c')
           </file>
@@ -1964,7 +1964,7 @@ vars = Variables()
 vars.AddVariables(
     ('RELEASE', 'Set to 1 to build for release', 0),
     ('CONFIG', 'Configuration file', '/etc/my_config'),
-    BoolVariable('warnings', help='compilation with -Wall and similiar', default=1),
+    BoolVariable('warnings', help='compilation with -Wall and similiar', default=True),
     EnumVariable(
         'debug',
         help='debug output and symbols',

@@ -40,7 +40,7 @@ SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_features = {'warp_speed', 'transporter', 'ninja'}
+experimental_features = {'warp_speed', 'transporter', 'ninja', 'tm_v2'}
 
 
 def diskcheck_convert(value):
@@ -65,7 +65,7 @@ def diskcheck_convert(value):
 class SConsValues(optparse.Values):
     """
     Holder class for uniform access to SCons options, regardless
-    of whether or not they can be set on the command line or in the
+    of whether they can be set on the command line or in the
     SConscript files (using the SetOption() function).
 
     A SCons option value can originate three different ways:

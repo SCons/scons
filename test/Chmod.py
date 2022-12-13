@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that the Chmod() Action works.
@@ -43,26 +42,36 @@ Execute(Chmod('f1', 0o666))
 Execute(Chmod(('f1-File'), 0o666))
 Execute(Chmod('d2', 0o777))
 Execute(Chmod(Dir('d2-Dir'), 0o777))
+
 def cat(env, source, target):
     target = str(target[0])
     with open(target, "wb") as f:
         for src in source:
             with open(str(src), "rb") as infp:
                 f.write(infp.read())
+
 Cat = Action(cat)
 env = Environment()
-env.Command('bar.out', 'bar.in', [Cat,
-                                  Chmod("f3", 0o666),
-                                  Chmod("d4", 0o777)])
-env = Environment(FILE = 'f5')
+env.Command(
+    'bar.out',
+    'bar.in',
+    [Cat, Chmod("f3", 0o666), Chmod("d4", 0o777)],
+)
+env = Environment(FILE='f5')
 env.Command('f6.out', 'f6.in', [Chmod('$FILE', 0o666), Cat])
-env.Command('f7.out', 'f7.in', [Cat,
-                                Chmod('Chmod-$SOURCE', 0o666),
-                                Chmod('${TARGET}-Chmod', 0o666)])
+env.Command(
+    'f7.out',
+    'f7.in',
+    [Cat, Chmod('Chmod-$SOURCE', 0o666), Chmod('${TARGET}-Chmod', 0o666)],
+)
 
 # Make sure Chmod works with a list of arguments
-env = Environment(FILE = 'f9')
-env.Command('f8.out', 'f8.in', [Chmod(['$FILE', File('f10')], 0o666), Cat])
+env = Environment(FILE='f9')
+env.Command(
+    'f8.out',
+    'f8.in',
+    [Chmod(['$FILE', File('f10')], 0o666), Cat],
+)
 Execute(Chmod(['d11', Dir('d12')], 0o777))
 Execute(Chmod('f13', "a=r"))
 Execute(Chmod('f14', "ogu+w"))
@@ -117,28 +126,30 @@ os.chmod(test.workpath('f15'), 0o444)
 os.chmod(test.workpath('d16'), 0o555)
 os.chmod(test.workpath('d17'), 0o555)
 os.chmod(test.workpath('d18'), 0o555)
-expect = test.wrap_stdout(read_str = """\
-Chmod("f1", 0666)
-Chmod("f1-File", 0666)
-Chmod("d2", 0777)
-Chmod("d2-Dir", 0777)
-Chmod(["d11", "d12"], 0777)
+
+expect = test.wrap_stdout(
+    read_str = """\
+Chmod("f1", 0o666)
+Chmod("f1-File", 0o666)
+Chmod("d2", 0o777)
+Chmod("d2-Dir", 0o777)
+Chmod(["d11", "d12"], 0o777)
 Chmod("f13", "a=r")
 Chmod("f14", "ogu+w")
 Chmod("f15", "ug=rw, go+ rw")
 Chmod("d16", "0777")
 Chmod(["d17", "d18"], "ogu = rwx")
 """,
-                          build_str = """\
+    build_str = """\
 cat(["bar.out"], ["bar.in"])
-Chmod("f3", 0666)
-Chmod("d4", 0777)
-Chmod("f5", 0666)
+Chmod("f3", 0o666)
+Chmod("d4", 0o777)
+Chmod("f5", 0o666)
 cat(["f6.out"], ["f6.in"])
 cat(["f7.out"], ["f7.in"])
-Chmod("Chmod-f7.in", 0666)
-Chmod("f7.out-Chmod", 0666)
-Chmod(["f9", "f10"], 0666)
+Chmod("Chmod-f7.in", 0o666)
+Chmod("f7.out-Chmod", 0o666)
+Chmod(["f9", "f10"], 0o666)
 cat(["f8.out"], ["f8.in"])
 """)
 test.run(options = '-n', arguments = '.', stdout = expect)

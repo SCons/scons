@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,111 +22,25 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Simple tests of the --taskmastertrace= option.
 """
+import os
+import re
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
-DefaultEnvironment(tools=[])
-env = Environment(tools=[])
-
-# We name the files 'Tfile' so that they will sort after the SConstruct
-# file regardless of whether the test is being run on a case-sensitive
-# or case-insensitive system.
-
-env.Command('Tfile.out', 'Tfile.mid', Copy('$TARGET', '$SOURCE'))
-env.Command('Tfile.mid', 'Tfile.in', Copy('$TARGET', '$SOURCE'))
-""")
+test.file_fixture('fixture/SConstruct__taskmastertrace', 'SConstruct')
+test.file_fixture('fixture/taskmaster_expected_stdout_1.txt', 'taskmaster_expected_stdout_1.txt')
+test.file_fixture('fixture/taskmaster_expected_file_1.txt', 'taskmaster_expected_file_1.txt')
+test.file_fixture('fixture/taskmaster_expected_new_parallel.txt', 'taskmaster_expected_new_parallel.txt')
 
 test.write('Tfile.in', "Tfile.in\n")
 
-expect_stdout = test.wrap_stdout("""\
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   '.'> and its children:
-Taskmaster:        <no_state   0   'SConstruct'>
-Taskmaster:        <no_state   0   'Tfile.in'>
-Taskmaster:        <no_state   0   'Tfile.mid'>
-Taskmaster:        <no_state   0   'Tfile.out'>
-Taskmaster:      adjusted ref count: <pending    1   '.'>, child 'SConstruct'
-Taskmaster:      adjusted ref count: <pending    2   '.'>, child 'Tfile.in'
-Taskmaster:      adjusted ref count: <pending    3   '.'>, child 'Tfile.mid'
-Taskmaster:      adjusted ref count: <pending    4   '.'>, child 'Tfile.out'
-Taskmaster:     Considering node <no_state   0   'SConstruct'> and its children:
-Taskmaster: Evaluating <pending    0   'SConstruct'>
-
-Task.make_ready_current(): node <pending    0   'SConstruct'>
-Task.prepare():      node <up_to_date 0   'SConstruct'>
-Task.executed_with_callbacks(): node <up_to_date 0   'SConstruct'>
-Task.postprocess():  node <up_to_date 0   'SConstruct'>
-Task.postprocess():  removing <up_to_date 0   'SConstruct'>
-Task.postprocess():  adjusted parent ref count <pending    3   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
-Taskmaster: Evaluating <pending    0   'Tfile.in'>
-
-Task.make_ready_current(): node <pending    0   'Tfile.in'>
-Task.prepare():      node <up_to_date 0   'Tfile.in'>
-Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.in'>
-Task.postprocess():  node <up_to_date 0   'Tfile.in'>
-Task.postprocess():  removing <up_to_date 0   'Tfile.in'>
-Task.postprocess():  adjusted parent ref count <pending    2   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
-Taskmaster:        <up_to_date 0   'Tfile.in'>
-Taskmaster: Evaluating <pending    0   'Tfile.mid'>
-
-Task.make_ready_current(): node <pending    0   'Tfile.mid'>
-Task.prepare():      node <executing  0   'Tfile.mid'>
-Task.execute():      node <executing  0   'Tfile.mid'>
-Copy("Tfile.mid", "Tfile.in")
-Task.executed_with_callbacks(): node <executing  0   'Tfile.mid'>
-Task.postprocess():  node <executed   0   'Tfile.mid'>
-Task.postprocess():  removing <executed   0   'Tfile.mid'>
-Task.postprocess():  adjusted parent ref count <pending    1   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
-Taskmaster:        <executed   0   'Tfile.mid'>
-Taskmaster: Evaluating <pending    0   'Tfile.out'>
-
-Task.make_ready_current(): node <pending    0   'Tfile.out'>
-Task.prepare():      node <executing  0   'Tfile.out'>
-Task.execute():      node <executing  0   'Tfile.out'>
-Copy("Tfile.out", "Tfile.mid")
-Task.executed_with_callbacks(): node <executing  0   'Tfile.out'>
-Task.postprocess():  node <executed   0   'Tfile.out'>
-Task.postprocess():  removing <executed   0   'Tfile.out'>
-Task.postprocess():  adjusted parent ref count <pending    0   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <pending    0   '.'> and its children:
-Taskmaster:        <up_to_date 0   'SConstruct'>
-Taskmaster:        <up_to_date 0   'Tfile.in'>
-Taskmaster:        <executed   0   'Tfile.mid'>
-Taskmaster:        <executed   0   'Tfile.out'>
-Taskmaster: Evaluating <pending    0   '.'>
-
-Task.make_ready_current(): node <pending    0   '.'>
-Task.prepare():      node <executing  0   '.'>
-Task.execute():      node <executing  0   '.'>
-Task.executed_with_callbacks(): node <executing  0   '.'>
-Task.postprocess():  node <executed   0   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster: No candidate anymore.
-
-""")
+expect_stdout = test.wrap_stdout(test.read('taskmaster_expected_stdout_1.txt', mode='r'))
 
 test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
 
@@ -136,86 +52,15 @@ Copy("Tfile.out", "Tfile.mid")
 """)
 
 test.run(arguments='--taskmastertrace=trace.out .', stdout=expect_stdout)
+test.must_match_file('trace.out', 'taskmaster_expected_file_1.txt', mode='r')
 
-expect_trace = """\
+# Test NewParallel Job implementation
+test.run(arguments='-j 2 --experimental=tm_v2 --taskmastertrace=new_parallel_trace.out .')
 
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   '.'> and its children:
-Taskmaster:        <no_state   0   'SConstruct'>
-Taskmaster:        <no_state   0   'Tfile.in'>
-Taskmaster:        <no_state   0   'Tfile.mid'>
-Taskmaster:        <no_state   0   'Tfile.out'>
-Taskmaster:      adjusted ref count: <pending    1   '.'>, child 'SConstruct'
-Taskmaster:      adjusted ref count: <pending    2   '.'>, child 'Tfile.in'
-Taskmaster:      adjusted ref count: <pending    3   '.'>, child 'Tfile.mid'
-Taskmaster:      adjusted ref count: <pending    4   '.'>, child 'Tfile.out'
-Taskmaster:     Considering node <no_state   0   'SConstruct'> and its children:
-Taskmaster: Evaluating <pending    0   'SConstruct'>
-
-Task.make_ready_current(): node <pending    0   'SConstruct'>
-Task.prepare():      node <up_to_date 0   'SConstruct'>
-Task.executed_with_callbacks(): node <up_to_date 0   'SConstruct'>
-Task.postprocess():  node <up_to_date 0   'SConstruct'>
-Task.postprocess():  removing <up_to_date 0   'SConstruct'>
-Task.postprocess():  adjusted parent ref count <pending    3   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   'Tfile.in'> and its children:
-Taskmaster: Evaluating <pending    0   'Tfile.in'>
-
-Task.make_ready_current(): node <pending    0   'Tfile.in'>
-Task.prepare():      node <up_to_date 0   'Tfile.in'>
-Task.executed_with_callbacks(): node <up_to_date 0   'Tfile.in'>
-Task.postprocess():  node <up_to_date 0   'Tfile.in'>
-Task.postprocess():  removing <up_to_date 0   'Tfile.in'>
-Task.postprocess():  adjusted parent ref count <pending    2   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   'Tfile.mid'> and its children:
-Taskmaster:        <up_to_date 0   'Tfile.in'>
-Taskmaster: Evaluating <pending    0   'Tfile.mid'>
-
-Task.make_ready_current(): node <pending    0   'Tfile.mid'>
-Task.prepare():      node <executing  0   'Tfile.mid'>
-Task.execute():      node <executing  0   'Tfile.mid'>
-Task.executed_with_callbacks(): node <executing  0   'Tfile.mid'>
-Task.postprocess():  node <executed   0   'Tfile.mid'>
-Task.postprocess():  removing <executed   0   'Tfile.mid'>
-Task.postprocess():  adjusted parent ref count <pending    1   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <no_state   0   'Tfile.out'> and its children:
-Taskmaster:        <executed   0   'Tfile.mid'>
-Taskmaster: Evaluating <pending    0   'Tfile.out'>
-
-Task.make_ready_current(): node <pending    0   'Tfile.out'>
-Task.prepare():      node <executing  0   'Tfile.out'>
-Task.execute():      node <executing  0   'Tfile.out'>
-Task.executed_with_callbacks(): node <executing  0   'Tfile.out'>
-Task.postprocess():  node <executed   0   'Tfile.out'>
-Task.postprocess():  removing <executed   0   'Tfile.out'>
-Task.postprocess():  adjusted parent ref count <pending    0   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster:     Considering node <pending    0   '.'> and its children:
-Taskmaster:        <up_to_date 0   'SConstruct'>
-Taskmaster:        <up_to_date 0   'Tfile.in'>
-Taskmaster:        <executed   0   'Tfile.mid'>
-Taskmaster:        <executed   0   'Tfile.out'>
-Taskmaster: Evaluating <pending    0   '.'>
-
-Task.make_ready_current(): node <pending    0   '.'>
-Task.prepare():      node <executing  0   '.'>
-Task.execute():      node <executing  0   '.'>
-Task.executed_with_callbacks(): node <executing  0   '.'>
-Task.postprocess():  node <executed   0   '.'>
-
-Taskmaster: Looking for a node to evaluate
-Taskmaster: No candidate anymore.
-
-"""
-
-test.must_match('trace.out', expect_trace, mode='r')
+new_trace = test.read('new_parallel_trace.out', mode='r')
+thread_id = re.compile(r'\[Thread:\d+\]')
+new_trace=thread_id.sub('[Thread:XXXXX]', new_trace)
+test.must_match('taskmaster_expected_new_parallel.txt', new_trace,  mode='r')
 
 test.pass_test()
 

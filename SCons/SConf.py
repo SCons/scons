@@ -43,7 +43,7 @@ import traceback
 import SCons.Action
 import SCons.Builder
 import SCons.Errors
-import SCons.Job
+import SCons.Taskmaster.Job
 import SCons.Node.FS
 import SCons.Taskmaster
 import SCons.Util
@@ -515,7 +515,7 @@ class SConfBase:
         # the engine assumes the current path is the SConstruct directory ...
         old_fs_dir = SConfFS.getcwd()
         old_os_dir = os.getcwd()
-        SConfFS.chdir(SConfFS.Top, change_os_dir=1)
+        SConfFS.chdir(SConfFS.Top, change_os_dir=True)
 
         # Because we take responsibility here for writing out our
         # own .sconsign info (see SConfBuildTask.execute(), above),
@@ -551,7 +551,7 @@ class SConfBase:
             SConfFS.set_max_drift(0)
             tm = SCons.Taskmaster.Taskmaster(nodes, SConfBuildTask)
             # we don't want to build tests in parallel
-            jobs = SCons.Job.Jobs(1, tm )
+            jobs = SCons.Taskmaster.Job.Jobs(1, tm)
             jobs.run()
             for n in nodes:
                 state = n.get_state()
@@ -562,7 +562,7 @@ class SConfBase:
         finally:
             SConfFS.set_max_drift(save_max_drift)
             os.chdir(old_os_dir)
-            SConfFS.chdir(old_fs_dir, change_os_dir=0)
+            SConfFS.chdir(old_fs_dir, change_os_dir=False)
             if self.logstream is not None:
                 # restore stdout / stderr
                 sys.stdout = oldStdout
@@ -772,7 +772,7 @@ class SConfBase:
 
             tb = traceback.extract_stack()[-3-self.depth]
             old_fs_dir = SConfFS.getcwd()
-            SConfFS.chdir(SConfFS.Top, change_os_dir=0)
+            SConfFS.chdir(SConfFS.Top, change_os_dir=False)
             self.logstream.write('file %s,line %d:\n\tConfigure(confdir = %s)\n' %
                                  (tb[0], tb[1], str(self.confdir)) )
             SConfFS.chdir(old_fs_dir)

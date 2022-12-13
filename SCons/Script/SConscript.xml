@@ -84,7 +84,7 @@ env.Default(hello)
 </scons_function>
 
 <scons_function name="EnsurePythonVersion">
-<arguments>
+<arguments signature="global">
 (major, minor)
 </arguments>
 <summary>
@@ -107,7 +107,7 @@ EnsurePythonVersion(2,2)
 </scons_function>
 
 <scons_function name="EnsureSConsVersion">
-<arguments>
+<arguments signature="global">
 (major, minor, [revision])
 </arguments>
 <summary>
@@ -137,7 +137,7 @@ EnsureSConsVersion(0,96,90)
 </scons_function>
 
 <scons_function name="Exit">
-<arguments>
+<arguments signature="global">
 ([value])
 </arguments>
 <summary>
@@ -215,7 +215,7 @@ See the description below.
 </scons_function>
 
 <scons_function name="GetLaunchDir">
-<arguments>
+<arguments signature="global">
 ()
 </arguments>
 <summary>

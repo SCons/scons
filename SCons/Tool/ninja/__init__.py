@@ -34,6 +34,7 @@ import SCons
 import SCons.Script
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
+from SCons.Util import sanitize_shell_env
 
 from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS, NINJA_CMDLINE_TARGETS
 from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
@@ -100,11 +101,16 @@ def ninja_builder(env, target, source):
         # reproduce the output like a ninja build would
         def execute_ninja():
 
+            if env['PLATFORM'] == 'win32':
+                spawn_env = os.environ
+            else:
+                spawn_env = sanitize_shell_env(env['ENV'])
+
             proc = subprocess.Popen(cmd,
                                     stderr=sys.stderr,
                                     stdout=subprocess.PIPE,
                                     universal_newlines=True,
-                                    env=os.environ if env["PLATFORM"] == "win32" else env['ENV']
+                                    env=spawn_env
                                     )
             for stdout_line in iter(proc.stdout.readline, ""):
                 yield stdout_line
@@ -416,7 +422,7 @@ def generate(env):
     # The Serial job class is SIGNIFICANTLY (almost twice as) faster
     # than the Parallel job class for generating Ninja files. So we
     # monkey the Jobs constructor to only use the Serial Job class.
-    SCons.Job.Jobs.__init__ = ninja_always_serial
+    SCons.Taskmaster.Job.Jobs.__init__ = ninja_always_serial
 
     ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
 

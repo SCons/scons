@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,13 +22,10 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 Verify that a failed build action with -j works as expected.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import sys
 
@@ -58,67 +57,77 @@ test = TestSCons.TestSCons()
 
 test.write('SConstruct', """
 vars = Variables()
-vars.Add( BoolVariable('interrupt', 'Interrupt the build.', 0 ) )
+vars.Add(BoolVariable('interrupt', 'Interrupt the build.', False))
+DefaultEnvironment(tools=[])  # test speedup
 varEnv = Environment(variables=vars)
 
-def fail_action(target = None, source = None, env = None):
+def fail_action(target=None, source=None, env=None):
     return 2
 
-def simulate_keyboard_interrupt(target = None, source = None, env = None):
+def simulate_keyboard_interrupt(target=None, source=None, env=None):
     # Directly invoked the SIGINT handler to simulate a
     # KeyboardInterrupt. This hack is necessary because there is no
     # easy way to get access to the current Job/Taskmaster object.
     import signal
+
     handler = signal.getsignal(signal.SIGINT)
     handler(signal.SIGINT, None)
     return 0
 
-interrupt = Command(target='interrupt',  source='', action=simulate_keyboard_interrupt)
+interrupt = Command(target='interrupt', source='', action=simulate_keyboard_interrupt)
 
 touch0 = Touch('${TARGETS[0]}')
 touch1 = Touch('${TARGETS[1]}')
 touch2 = Touch('${TARGETS[2]}')
 
-failed0  = Command(target='failed00',  source='', action=fail_action)
-ok0      = Command(target=['ok00a', 'ok00b', 'ok00c'], 
-                   source='', 
-                   action=[touch0, touch1, touch2])
-prereq0  = Command(target='prereq00',  source='', action=touch0)
-ignore0  = Command(target='ignore00',  source='', action=touch0)
-igreq0   = Command(target='igreq00',   source='', action=touch0)
+failed0 = Command(target='failed00', source='', action=fail_action)
+ok0 = Command(
+    target=['ok00a', 'ok00b', 'ok00c'],
+    source='',
+    action=[touch0, touch1, touch2],
+)
+prereq0 = Command(target='prereq00', source='', action=touch0)
+ignore0 = Command(target='ignore00', source='', action=touch0)
+igreq0 = Command(target='igreq00', source='', action=touch0)
 missing0 = Command(target='missing00', source='MissingSrc', action=touch0)
-withSE0  = Command(target=['withSE00a', 'withSE00b', 'withSE00c'], 
-                   source='', 
-                   action=[touch0, touch1, touch2, Touch('side_effect')])
-SideEffect('side_effect', withSE0) 
+withSE0 = Command(
+    target=['withSE00a', 'withSE00b', 'withSE00c'],
+    source='',
+    action=[touch0, touch1, touch2, Touch('side_effect')],
+)
+SideEffect('side_effect', withSE0)
 
-prev_level  = failed0 + ok0 + ignore0 + missing0 + withSE0
+prev_level = failed0 + ok0 + ignore0 + missing0 + withSE0
 prev_prereq = prereq0
 prev_ignore = ignore0
-prev_igreq  = igreq0
+prev_igreq = igreq0
 
 if varEnv['interrupt']:
     prev_level = prev_level + interrupt
 
-for i in range(1,20):
-    
-    failed = Command(target='failed%02d' % i,  source='', action=fail_action)
-    ok     = Command(target=['ok%02da' % i, 'ok%02db' % i, 'ok%02dc' % i], 
-                     source='',
-                     action=[touch0, touch1, touch2])
-    prereq = Command(target='prereq%02d' % i,  source='', action=touch0)
-    ignore = Command(target='ignore%02d' % i,  source='', action=touch0)
-    igreq  = Command(target='igreq%02d' % i,   source='', action=touch0)
-    missing = Command(target='missing%02d' %i, source='MissingSrc', action=touch0)
-    withSE  = Command(target=['withSE%02da' % i, 'withSE%02db' % i, 'withSE%02dc' % i], 
-                       source='', 
-                       action=[touch0, touch1, touch2, Touch('side_effect')])
-    SideEffect('side_effect', withSE) 
+for i in range(1, 20):
+
+    failed = Command(target='failed%02d' % i, source='', action=fail_action)
+    ok = Command(
+        target=['ok%02da' % i, 'ok%02db' % i, 'ok%02dc' % i],
+        source='',
+        action=[touch0, touch1, touch2],
+    )
+    prereq = Command(target='prereq%02d' % i, source='', action=touch0)
+    ignore = Command(target='ignore%02d' % i, source='', action=touch0)
+    igreq = Command(target='igreq%02d' % i, source='', action=touch0)
+    missing = Command(target='missing%02d' % i, source='MissingSrc', action=touch0)
+    withSE = Command(
+        target=['withSE%02da' % i, 'withSE%02db' % i, 'withSE%02dc' % i],
+        source='',
+        action=[touch0, touch1, touch2, Touch('side_effect')],
+    )
+    SideEffect('side_effect', withSE)
 
     next_level = failed + ok + ignore + igreq + missing + withSE
 
-    for j in range(1,10):
-        a = Alias('a%02d%02d' % (i,j), prev_level)
+    for j in range(1, 10):
+        a = Alias('a%02d%02d' % (i, j), prev_level)
 
         Requires(a, prev_prereq)
         Ignore(a, prev_ignore)
@@ -128,18 +137,18 @@ for i in range(1,20):
 
         next_level = next_level + a
 
-    prev_level  = next_level
+    prev_level = next_level
     prev_prereq = prereq
     prev_ignore = ignore
-    prev_igreq  = igreq
+    prev_igreq = igreq
 
 all = Alias('all', prev_level)
 
 Requires(all, prev_prereq)
-Ignore(all,  prev_ignore)
+Ignore(all, prev_ignore)
 
 Requires(all, prev_igreq)
-Ignore(all,  prev_igreq)
+Ignore(all, prev_igreq)
 
 Default(all)
 """)

@@ -84,7 +84,7 @@ def ninja_always_serial(self, num, taskmaster):
     # builds. So here we lie so the Main.py will not give a false
     # warning to users.
     self.num_jobs = num
-    self.job = SCons.Job.Serial(taskmaster)
+    self.job = SCons.Taskmaster.Job.Serial(taskmaster)
 
 
 # pylint: disable=too-few-public-methods

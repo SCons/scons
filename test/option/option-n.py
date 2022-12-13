@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -58,8 +60,8 @@ with open(sys.argv[1], 'w') as ofp:
 """)
 
 test.write('SConstruct', """
-DefaultEnvironment(tools=[])
 MyBuild = Builder(action=r'%(_python_)s build.py $TARGETS')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS={'MyBuild': MyBuild}, tools=[])
 env.Tool('install')
 env.MyBuild(target='f1.out', source='f1.in')
@@ -172,7 +174,6 @@ test.subdir('configure')
 test.set_match_function(TestSCons.match_re_dotall)
 test.set_diff_function(TestSCons.diff_re)
 test.write('configure/SConstruct', """\
-DefaultEnvironment(tools=[])
 def CustomTest(context):
     def userAction(target,source,env):
         import shutil
@@ -185,6 +186,7 @@ def CustomTest(context):
     context.Result(ok)
     return ok
 
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(tools=[])
 conf = Configure(env,
                  custom_tests={'CustomTest':CustomTest},

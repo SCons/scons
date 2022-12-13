@@ -1897,6 +1897,11 @@ class Base(SubstitutionEnvironment):
         return self.fs.Dir(self.subst(tp)).srcnode().get_abspath()
 
     def Tool(self, tool, toolpath=None, **kwargs) -> SCons.Tool.Tool:
+        """Find and run tool module *tool*.
+
+        .. versionchanged:: 4.2
+           returns the tool module rather than ``None``.
+        """
         if is_String(tool):
             tool = self.subst(tool)
             if toolpath is None:
@@ -2335,7 +2340,10 @@ class Base(SubstitutionEnvironment):
             return [self.subst(arg)]
 
     def Value(self, value, built_value=None, name=None):
-        """
+        """Return a Value (Python expression) node.
+
+        .. versionchanged:: 4.0
+           the *name* parameter was added.
         """
         return SCons.Node.Python.ValueWithMemo(value, built_value, name)
 
@@ -2344,9 +2352,8 @@ class Base(SubstitutionEnvironment):
         src_dir = self.arg2nodes(src_dir, self.fs.Dir)[0]
         self.fs.VariantDir(variant_dir, src_dir, duplicate)
 
-    def FindSourceFiles(self, node='.'):
-        """ returns a list of all source files.
-        """
+    def FindSourceFiles(self, node='.') -> list:
+        """Return a list of all source files."""
         node = self.arg2nodes(node, self.fs.Entry)[0]
 
         sources = []

@@ -18,6 +18,7 @@ Subpackages
     SCons.Platform
     SCons.Scanner
     SCons.Script
+    SCons.Taskmaster
     SCons.Tool
     SCons.Variables
     SCons.compat
@@ -83,24 +84,18 @@ SCons.Environment module
 
 SCons.Errors module
 -------------------
+.. Turn off inherited members to quiet fluff from the Python base Exception
 
 .. automodule:: SCons.Errors
     :members:
     :undoc-members:
     :show-inheritance:
+    :no-inherited-members:
 
 SCons.Executor module
 ---------------------
 
 .. automodule:: SCons.Executor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-SCons.Job module
-----------------
-
-.. automodule:: SCons.Job
     :members:
     :undoc-members:
     :show-inheritance:
@@ -141,14 +136,6 @@ SCons.Subst module
 ------------------
 
 .. automodule:: SCons.Subst
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-SCons.Taskmaster module
------------------------
-
-.. automodule:: SCons.Taskmaster
     :members:
     :undoc-members:
     :show-inheritance:

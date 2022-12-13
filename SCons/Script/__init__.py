@@ -289,22 +289,23 @@ def Variables(files=None, args=ARGUMENTS):
 
 # Adding global functions to the SConscript name space.
 #
-# Static functions that do not use state in DefaultEnvironment().
+# Static functions that do not trigger initialization of
+# DefaultEnvironment() and don't use its state.
 EnsureSConsVersion = _SConscript.SConsEnvironment.EnsureSConsVersion
 EnsurePythonVersion = _SConscript.SConsEnvironment.EnsurePythonVersion
+Exit = _SConscript.SConsEnvironment.Exit
+GetLaunchDir = _SConscript.SConsEnvironment.GetLaunchDir
+SConscriptChdir = _SConscript.SConsEnvironment.SConscriptChdir
 
 # Functions that end up calling methods or Builders in the
 # DefaultEnvironment().
 GlobalDefaultEnvironmentFunctions = [
     # Methods from the SConsEnvironment class, above.
     'Default',
-    'Exit',
     'Export',
-    'GetLaunchDir',
     'Help',
     'Import',
     #'SConscript', is handled separately, below.
-    'SConscriptChdir',
 
     # Methods from the Environment.Base class.
     'AddPostAction',
@@ -378,6 +379,8 @@ GlobalDefaultBuilders = [
     'Package',
 ]
 
+# DefaultEnvironmentCall() initializes DefaultEnvironment() if it is not
+# created yet.
 for name in GlobalDefaultEnvironmentFunctions + GlobalDefaultBuilders:
     exec ("%s = _SConscript.DefaultEnvironmentCall(%s)" % (name, repr(name)))
 del name

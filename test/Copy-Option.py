@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test that setting Variables in an Environment doesn't prevent the
@@ -37,20 +36,22 @@ test.write('SConstruct', """
 gpib_options = ['NI_GPIB', 'NI_ENET']
 gpib_include = '/'
 
-#0.96 broke copying  ListVariables ???
+# 0.96 broke copying  ListVariables ???
 opts = Variables('config.py', ARGUMENTS)
 opts.AddVariables(
-    BoolVariable('gpib', 'enable gpib support', 1),
-    ListVariable('gpib_options',
+    BoolVariable('gpib', 'enable gpib support', True),
+    ListVariable(
+        'gpib_options',
         'whether and what kind of gpib support shall be enabled',
         'all',
-        gpib_options),
-    )
-env = Environment(options = opts, CPPPATH = ['#/'])
-new_env=env.Clone()
+        gpib_options,
+    ),
+)
+env = Environment(options=opts, CPPPATH=['#/'])
+new_env = env.Clone()
 """)
 
-test.run(arguments = '.')
+test.run(arguments='.')
 
 test.pass_test()
 

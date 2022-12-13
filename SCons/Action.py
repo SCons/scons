@@ -110,6 +110,7 @@ import inspect
 from collections import OrderedDict
 
 import SCons.Debug
+import SCons.Util
 from SCons.Debug import logInstanceCreation
 import SCons.Errors
 import SCons.Util
@@ -733,34 +734,42 @@ default_ENV = None
 
 
 def get_default_ENV(env):
-    """
-    A fiddlin' little function that has an 'import SCons.Environment' which
-    can't be moved to the top level without creating an import loop.  Since
-    this import creates a local variable named 'SCons', it blocks access to
-    the global variable, so we move it here to prevent complaints about local
-    variables being used uninitialized.
+    """Returns an execution environment.
+
+    If there is one in *env*, just use it, else return the Default
+    Environment, insantiated if necessary.
+
+    A fiddlin' little function that has an ``import SCons.Environment``
+    which cannot be moved to the top level without creating an import
+    loop.  Since this import creates a local variable named ``SCons``,
+    it blocks access to the global variable, so we move it here to
+    prevent complaints about local variables being used uninitialized.
     """
     global default_ENV
+
     try:
         return env['ENV']
     except KeyError:
         if not default_ENV:
             import SCons.Environment
-            # This is a hideously expensive way to get a default shell
+            # This is a hideously expensive way to get a default execution
             # environment.  What it really should do is run the platform
             # setup to get the default ENV.  Fortunately, it's incredibly
-            # rare for an Environment not to have a shell environment, so
-            # we're not going to worry about it overmuch.
+            # rare for an Environment not to have an execution environment,
+            # so we're not going to worry about it overmuch.
             default_ENV = SCons.Environment.Environment()['ENV']
         return default_ENV
 
 
 def _resolve_shell_env(env, target, source):
-    """
-    First get default environment.
-    Then if SHELL_ENV_GENERATORS is set and is iterable,
-    call each callable in that list to allow it to alter
-    the created execution environment.
+    """Returns a resolved execution environment.
+
+    First get the execution environment.  Then if ``SHELL_ENV_GENERATORS``
+    is set and is iterable, call each function to allow it to alter the
+    created execution environment, passing each the returned execution
+    environment from the previous call.
+
+    .. versionadded:: 4.4
     """
     ENV = get_default_ENV(env)
     shell_gen = env.get('SHELL_ENV_GENERATORS')
@@ -793,28 +802,11 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
         if is_String(io) and io == 'devnull':
             kw[stream] = DEVNULL
 
-    # Figure out what shell environment to use
+    # Figure out what execution environment to use
     ENV = kw.get('env', None)
     if ENV is None: ENV = get_default_ENV(scons_env)
 
-    # Ensure that the ENV values are all strings:
-    new_env = {}
-    for key, value in ENV.items():
-        if is_List(value):
-            # If the value is a list, then we assume it is a path list,
-            # because that's a pretty common list-like value to stick
-            # in an environment variable:
-            value = SCons.Util.flatten_sequence(value)
-            new_env[key] = os.pathsep.join(map(str, value))
-        else:
-            # It's either a string or something else.  If it's a string,
-            # we still want to call str() because it might be a *Unicode*
-            # string, which makes subprocess.Popen() gag.  If it isn't a
-            # string or a list, then we just coerce it to a string, which
-            # is the proper way to handle Dir and File instances and will
-            # produce something reasonable for just about everything else:
-            new_env[key] = str(value)
-    kw['env'] = new_env
+    kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
     try:
         pobj = subprocess.Popen(cmd, **kw)
