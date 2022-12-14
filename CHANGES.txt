@@ -86,6 +86,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       still run into problems on some configurations), and automated
       tests are now run on changes in this area so future problems can
       be spotted.
+    - The single-file Util module was split into a package with a few
+      functional areas getting their own files - Util.py had grown to
+      over 2100 lines.
 
 
 
