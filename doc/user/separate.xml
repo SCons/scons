@@ -61,7 +61,7 @@ Copyright The SCons Foundation
 
   <para>
 
-  Having a separated build also helps you keep your source tree clean -
+  Having a separated build tree also helps you keep your source tree clean -
   there is less chance of accidentally checking in build products
   to version control that were not intended to be checked in.
   You can add a separated build directory to your
