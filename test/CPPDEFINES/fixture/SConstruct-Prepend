@@ -91,10 +91,10 @@ for (t1, c1) in cases:
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
         env.Prepend(CPPDEFINES=c2)
         final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
-        print(f"Prepend:\n\tresult={dlist(env['CPPDEFINES'])}\n\tfinal={final}")
+        print(f"Prepend:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
         env.PrependUnique(CPPDEFINES=c2)
         final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
         print(
-            f"PrependUnique:\n\tresult={dlist(env['CPPDEFINES'])}\n\tfinal={final}"
+            f"PrependUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
         )

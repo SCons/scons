@@ -47,203 +47,203 @@ expect_print_output="""\
 ==== Testing CPPDEFINES, prepending a string to a string
    orig = 'FOO', prepend = 'FOO'
 Prepend:
-	result=['FOO', 'FOO']
-	final=-DFOO -DFOO
+    result=['FOO', 'FOO']
+    final=-DFOO -DFOO
 PrependUnique:
-	result=['FOO']
-	final=-DFOO
+    result=['FOO']
+    final=-DFOO
 ==== Testing CPPDEFINES, prepending a valuestring to a string
    orig = 'FOO', prepend = 'NAME1=VAL1'
 Prepend:
-	result=['NAME1=VAL1', 'FOO']
-	final=-DNAME1=VAL1 -DFOO
+    result=['NAME1=VAL1', 'FOO']
+    final=-DNAME1=VAL1 -DFOO
 PrependUnique:
-	result=['NAME1=VAL1', 'FOO']
-	final=-DNAME1=VAL1 -DFOO
+    result=['NAME1=VAL1', 'FOO']
+    final=-DNAME1=VAL1 -DFOO
 ==== Testing CPPDEFINES, prepending a list to a string
    orig = 'FOO', prepend = ['NAME1', 'NAME2']
 Prepend:
-	result=['NAME2', 'NAME1', 'FOO']
-	final=-DNAME2 -DNAME1 -DFOO
+    result=['NAME2', 'NAME1', 'FOO']
+    final=-DNAME2 -DNAME1 -DFOO
 PrependUnique:
-	result=['NAME2', 'NAME1', 'FOO']
-	final=-DNAME2 -DNAME1 -DFOO
+    result=['NAME2', 'NAME1', 'FOO']
+    final=-DNAME2 -DNAME1 -DFOO
 ==== Testing CPPDEFINES, prepending a list-of-2lists to a string
    orig = 'FOO', prepend = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Prepend:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'FOO']
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DFOO
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'FOO']
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DFOO
 PrependUnique:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'FOO']
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DFOO
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'FOO']
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DFOO
 ==== Testing CPPDEFINES, prepending a dict to a string
    orig = 'FOO', prepend = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
 Prepend:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'FOO']
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DFOO
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'FOO']
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DFOO
 PrependUnique:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'FOO']
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DFOO
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'FOO']
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DFOO
 ==== Testing CPPDEFINES, prepending a string to a valuestring
    orig = 'NAME1=VAL1', prepend = 'FOO'
 Prepend:
-	result=['FOO', 'NAME1=VAL1']
-	final=-DFOO -DNAME1=VAL1
+    result=['FOO', 'NAME1=VAL1']
+    final=-DFOO -DNAME1=VAL1
 PrependUnique:
-	result=['FOO', 'NAME1=VAL1']
-	final=-DFOO -DNAME1=VAL1
+    result=['FOO', 'NAME1=VAL1']
+    final=-DFOO -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a valuestring to a valuestring
    orig = 'NAME1=VAL1', prepend = 'NAME1=VAL1'
 Prepend:
-	result=['NAME1=VAL1', 'NAME1=VAL1']
-	final=-DNAME1=VAL1 -DNAME1=VAL1
+    result=['NAME1=VAL1', 'NAME1=VAL1']
+    final=-DNAME1=VAL1 -DNAME1=VAL1
 PrependUnique:
-	result=['NAME1=VAL1']
-	final=-DNAME1=VAL1
+    result=['NAME1=VAL1']
+    final=-DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a list to a valuestring
    orig = 'NAME1=VAL1', prepend = ['NAME1', 'NAME2']
 Prepend:
-	result=['NAME2', 'NAME1', 'NAME1=VAL1']
-	final=-DNAME2 -DNAME1 -DNAME1=VAL1
+    result=['NAME2', 'NAME1', 'NAME1=VAL1']
+    final=-DNAME2 -DNAME1 -DNAME1=VAL1
 PrependUnique:
-	result=['NAME2', 'NAME1', 'NAME1=VAL1']
-	final=-DNAME2 -DNAME1 -DNAME1=VAL1
+    result=['NAME2', 'NAME1', 'NAME1=VAL1']
+    final=-DNAME2 -DNAME1 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a list-of-2lists to a valuestring
    orig = 'NAME1=VAL1', prepend = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Prepend:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'NAME1=VAL1']
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1=VAL1
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'NAME1=VAL1']
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1=VAL1
 PrependUnique:
-	result=[['NAME2', 'VAL2'], 'NAME1=VAL1']
-	final=-DNAME2=VAL2 -DNAME1=VAL1
+    result=[['NAME2', 'VAL2'], 'NAME1=VAL1']
+    final=-DNAME2=VAL2 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a dict to a valuestring
    orig = 'NAME1=VAL1', prepend = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
 Prepend:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'NAME1=VAL1']
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1=VAL1
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'NAME1=VAL1']
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1=VAL1
 PrependUnique:
-	result=[('NAME3', None), ('NAME2', 'VAL2'), 'NAME1=VAL1']
-	final=-DNAME3 -DNAME2=VAL2 -DNAME1=VAL1
+    result=[('NAME3', None), ('NAME2', 'VAL2'), 'NAME1=VAL1']
+    final=-DNAME3 -DNAME2=VAL2 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a string to a list
    orig = ['NAME1', 'NAME2'], prepend = 'FOO'
 Prepend:
-	result=['FOO', 'NAME1', 'NAME2']
-	final=-DFOO -DNAME1 -DNAME2
+    result=['FOO', 'NAME1', 'NAME2']
+    final=-DFOO -DNAME1 -DNAME2
 PrependUnique:
-	result=['FOO', 'NAME1', 'NAME2']
-	final=-DFOO -DNAME1 -DNAME2
+    result=['FOO', 'NAME1', 'NAME2']
+    final=-DFOO -DNAME1 -DNAME2
 ==== Testing CPPDEFINES, prepending a valuestring to a list
    orig = ['NAME1', 'NAME2'], prepend = 'NAME1=VAL1'
 Prepend:
-	result=['NAME1=VAL1', 'NAME1', 'NAME2']
-	final=-DNAME1=VAL1 -DNAME1 -DNAME2
+    result=['NAME1=VAL1', 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME1 -DNAME2
 PrependUnique:
-	result=['NAME1=VAL1', 'NAME1', 'NAME2']
-	final=-DNAME1=VAL1 -DNAME1 -DNAME2
+    result=['NAME1=VAL1', 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME1 -DNAME2
 ==== Testing CPPDEFINES, prepending a list to a list
    orig = ['NAME1', 'NAME2'], prepend = ['NAME1', 'NAME2']
 Prepend:
-	result=['NAME2', 'NAME1', 'NAME1', 'NAME2']
-	final=-DNAME2 -DNAME1 -DNAME1 -DNAME2
+    result=['NAME2', 'NAME1', 'NAME1', 'NAME2']
+    final=-DNAME2 -DNAME1 -DNAME1 -DNAME2
 PrependUnique:
-	result=['NAME1', 'NAME2']
-	final=-DNAME1 -DNAME2
+    result=['NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2
 ==== Testing CPPDEFINES, prepending a list-of-2lists to a list
    orig = ['NAME1', 'NAME2'], prepend = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Prepend:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1 -DNAME2
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1 -DNAME2
 PrependUnique:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1 -DNAME2
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1 -DNAME2
 ==== Testing CPPDEFINES, prepending a dict to a list
    orig = ['NAME1', 'NAME2'], prepend = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
 Prepend:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'NAME1', 'NAME2']
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1 -DNAME2
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1 -DNAME2
 PrependUnique:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'NAME1', 'NAME2']
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1 -DNAME2
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1 -DNAME2
 ==== Testing CPPDEFINES, prepending a string to a list-of-2lists
    orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], prepend = 'FOO'
 Prepend:
-	result=['FOO', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DFOO -DNAME1=VAL1 -DNAME2=VAL2
+    result=['FOO', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DFOO -DNAME1=VAL1 -DNAME2=VAL2
 PrependUnique:
-	result=['FOO', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DFOO -DNAME1=VAL1 -DNAME2=VAL2
+    result=['FOO', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DFOO -DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, prepending a valuestring to a list-of-2lists
    orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], prepend = 'NAME1=VAL1'
 Prepend:
-	result=['NAME1=VAL1', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME1=VAL1 -DNAME1=VAL1 -DNAME2=VAL2
+    result=['NAME1=VAL1', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME1=VAL1 -DNAME1=VAL1 -DNAME2=VAL2
 PrependUnique:
-	result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME1=VAL1 -DNAME2=VAL2
+    result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, prepending a list to a list-of-2lists
    orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], prepend = ['NAME1', 'NAME2']
 Prepend:
-	result=['NAME2', 'NAME1', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME2 -DNAME1 -DNAME1=VAL1 -DNAME2=VAL2
+    result=['NAME2', 'NAME1', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME2 -DNAME1 -DNAME1=VAL1 -DNAME2=VAL2
 PrependUnique:
-	result=['NAME2', 'NAME1', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME2 -DNAME1 -DNAME1=VAL1 -DNAME2=VAL2
+    result=['NAME2', 'NAME1', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME2 -DNAME1 -DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, prepending a list-of-2lists to a list-of-2lists
    orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], prepend = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Prepend:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1=VAL1 -DNAME2=VAL2
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME1=VAL1 -DNAME2=VAL2
 PrependUnique:
-	result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME1=VAL1 -DNAME2=VAL2
+    result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, prepending a dict to a list-of-2lists
    orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], prepend = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
 Prepend:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1=VAL1 -DNAME2=VAL2
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME1=VAL1 -DNAME2=VAL2
 PrependUnique:
-	result=[('NAME3', None), ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
-	final=-DNAME3 -DNAME1=VAL1 -DNAME2=VAL2
+    result=[('NAME3', None), ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME3 -DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, prepending a string to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, prepend = 'FOO'
 Prepend:
-	result=['FOO', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DFOO -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=['FOO', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DFOO -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 PrependUnique:
-	result=['FOO', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DFOO -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=['FOO', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DFOO -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a valuestring to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, prepend = 'NAME1=VAL1'
 Prepend:
-	result=['NAME1=VAL1', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME1=VAL1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=['NAME1=VAL1', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME1=VAL1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 PrependUnique:
-	result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a list to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, prepend = ['NAME1', 'NAME2']
 Prepend:
-	result=['NAME2', 'NAME1', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME2 -DNAME1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=['NAME2', 'NAME1', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME2 -DNAME1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 PrependUnique:
-	result=['NAME2', 'NAME1', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME2 -DNAME1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=['NAME2', 'NAME1', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME2 -DNAME1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a list-of-2lists to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, prepend = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Prepend:
-	result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=[['NAME2', 'VAL2'], ('NAME1', 'VAL1'), ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME2=VAL2 -DNAME1=VAL1 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 PrependUnique:
-	result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 ==== Testing CPPDEFINES, prepending a dict to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, prepend = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
 Prepend:
-	result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=[('NAME1', 'VAL1'), ('NAME3', None), ('NAME2', 'VAL2'), ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME1=VAL1 -DNAME3 -DNAME2=VAL2 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 PrependUnique:
-	result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
-	final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+    result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 """
 
 build_output="scons: `.' is up to date.\n"

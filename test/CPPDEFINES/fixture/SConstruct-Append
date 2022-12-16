@@ -90,10 +90,10 @@ for (t1, c1) in cases:
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
         env.Append(CPPDEFINES=c2)
         final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
-        print(f"Append:\n\tresult={dlist(env['CPPDEFINES'])}\n\tfinal={final}")
+        print(f"Append:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
         env.AppendUnique(CPPDEFINES=c2)
         final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
         print(
-            f"AppendUnique:\n\tresult={dlist(env['CPPDEFINES'])}\n\tfinal={final}"
+            f"AppendUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
         )
