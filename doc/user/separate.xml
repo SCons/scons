@@ -35,7 +35,7 @@ Copyright The SCons Foundation
 
   </para>
 
-  <para> 
+  <para>
 
   Consider if you have a project to build an embedded
   software system for a variety of different controller hardware.
@@ -78,7 +78,7 @@ Copyright The SCons Foundation
   than the sources being built.
   You set up out of tree builds by establishing what &SCons;
   calls a <firstterm>variant directory</firstterm>,
-  a place where you can build a single variant of your software 
+  a place where you can build a single variant of your software
   (of course you can define more than one of these if you need to).
   Since &SCons; tracks targets by their path, it is able to distinguish
   build products like <filename>build/A/network.obj</filename>
@@ -98,7 +98,7 @@ Copyright The SCons Foundation
   </para>
 
   <para>
-  
+
   The variant directory mechanism does support doing multiple builds
   in one invocation of &SCons;, but the remainder of this chapter
   will focus on setting up a single build. You can combine these
@@ -173,7 +173,7 @@ int main() { printf("Hello, world!\n"); }
     <filename>build/hello.c</filename> file
     to create the object file,
     and that file is now seen in &build;.
-    
+
     </para>
 
     <para>
@@ -217,7 +217,7 @@ int main() { printf("Hello, world!\n"); }
     <para>
 
     When you set up a variant directory &SCons; conceptually behaves as
-    if you requested a build in that directory. 
+    if you requested a build in that directory.
     As noted in the previous chapter,
     all builds actually happen from the top level directory,
     but as an aid to understanding how &SCons; operates, think
@@ -357,8 +357,8 @@ hello.o
 
     <para>
 
-    Use the &f-link-VariantDir; function to establish that target
-    files should be built in a separate directory
+    You can also use the &f-link-VariantDir; function to establish
+    that target files should be built in a separate directory tree
     from the source files:
 
     </para>
@@ -376,13 +376,18 @@ int main() { printf("Hello, world!\n"); }
 
     <para>
 
-    Note that when you are not using
-    an &SConscript; file in the &src; directory,
-    you must actually specify that
-    the program must be built from
-    the <filename>build/hello.c</filename>
-    file that &SCons; will duplicate in the
-    &build; subdirectory.
+    When using this form, you have to tell &SCons; that
+    sources and targets are in the variant directory,
+    and those references will trigger the remapping,
+    necessary file copying, etc. for an already established
+    variant directory.  Here is the same example in a more
+    spelled out form to show this more clearly:
+
+    <programlisting language="python">
+VariantDir('build', 'src')
+env = Environment()
+env.Program(target='build/hello', source=['build/hello.c'])
+    </programlisting>
 
     </para>
 
@@ -439,7 +444,7 @@ int main() { printf("Hello, world!\n"); }
     <para>
 
     Even when using the &f-link-VariantDir; function,
-    it's more natural to use it with
+    it is more natural to use it with
     a subsidiary &SConscript; file,
     because then you don't have to adjust your individual
     build instructions to use the variant directory path.
@@ -492,7 +497,7 @@ int main() { printf("Hello, world!\n"); }
     from earlier in this chapter,
     but did require callng the SConscript using the already established
     variant directory path to trigger that behavior.
-    If you use <userinput>SConscript('src/SConscript')</userinput>
+    If you call <userinput>SConscript('src/SConscript')</userinput>
     you would get a normal in-place build in &src;.
 
     </para>
