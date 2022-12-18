@@ -4,7 +4,7 @@
 
 """Various SCons utility functions
 
-Routines for working with environemnts and construction variables
+Routines for working with environments and construction variables
 that don't need the specifics of Environment.
 """
 
