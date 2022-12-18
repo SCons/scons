@@ -383,7 +383,7 @@ def print_tree(
         cross = BOX_VERT_RIGHT + BOX_HORIZ   # sign used to point to the leaf.
         # check if this is the last leaf of the branch
         if lastChild:
-            #if this if the last leaf, then terminate:
+            # if this if the last leaf, then terminate:
             cross = BOX_UP_RIGHT + BOX_HORIZ  # sign for the last leaf
 
         # if this branch has children then split it
@@ -395,7 +395,7 @@ def print_tree(
                 cross += BOX_HORIZ_DOWN
 
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + [cross, '[', rname, ']']) + '\n')
         return
 
     sys.stdout.write(''.join(tags + margins + [cross, rname]) + '\n')
@@ -892,7 +892,7 @@ class Selector(OrderedDict):
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
-            for (k,v) in self.items():
+            for (k, v) in self.items():
                 if k is not None:
                     s_k = env.subst(k)
                     if s_k in s_dict:
@@ -901,7 +901,7 @@ class Selector(OrderedDict):
                         # and a variable suffix contains this literal,
                         # the literal wins and we don't raise an error.
                         raise KeyError(s_dict[s_k][0], k, s_k)
-                    s_dict[s_k] = (k,v)
+                    s_dict[s_k] = (k, v)
             try:
                 return s_dict[ext][1]
             except KeyError:
@@ -945,7 +945,6 @@ def adjustixes(fname, pre, suf, ensure_suffix=False) -> str:
             (ensure_suffix or not splitext(fname)[1]):
         fname = fname + suf
     return fname
-
 
 
 # From Tim Peters,
@@ -1212,9 +1211,9 @@ def make_path_relative(path) -> str:
         drive_s, path = os.path.splitdrive(path)
 
         if not drive_s:
-            path=re.compile(r"/*(.*)").findall(path)[0]
+            path = re.compile(r"/*(.*)").findall(path)[0]
         else:
-            path=path[1:]
+            path = path[1:]
 
     assert not os.path.isabs(path), path
     return path
@@ -1263,7 +1262,7 @@ def wait_for_process_to_die(pid):
             if sys.platform == 'win32':
                 import ctypes  # pylint: disable=import-outside-toplevel
                 PROCESS_QUERY_INFORMATION = 0x1000
-                processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0,pid)
+                processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0, pid)
                 if processHandle == 0:
                     break
                 ctypes.windll.kernel32.CloseHandle(processHandle)
@@ -1290,7 +1289,7 @@ class DispatchingFormatter(Formatter):
 def sanitize_shell_env(execution_env: dict) -> dict:
     """Sanitize all values in *execution_env*
 
-    The execution environment (typically comes from (env['ENV']) is 
+    The execution environment (typically comes from (env['ENV']) is
     propagated to the shell, and may need to be cleaned first.
 
     Args:

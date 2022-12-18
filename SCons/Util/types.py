@@ -230,8 +230,9 @@ def to_String_for_signature(  # pylint: disable=redefined-outer-name,redefined-b
     except AttributeError:
         if isinstance(obj, dict):
             # pprint will output dictionary in key sorted order
-            # with py3.5 the order was randomized. In general depending on dictionary order
-            # which was undefined until py3.6 (where it's by insertion order) was not wise.
+            # with py3.5 the order was randomized. Depending on dict order
+            # which was undefined until py3.6 (where it's by insertion order)
+            # was not wise.
             # TODO: Change code when floor is raised to PY36
             return pprint.pformat(obj, width=1000000)
         return to_String_for_subst(obj)

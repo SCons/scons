@@ -212,9 +212,9 @@ def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
             )  # pylint: disable=import-outside-toplevel
 
             raise UserError(
-                'Hash format "%s" is not available in your Python interpreter. '
-                'Expected to be supported algorithm by set_allowed_viable_default_hashes, '
-                'Assertion error in SCons.' % hash_format_lower
+                f'Hash format "{hash_format_lower}" is not available in your '
+                'Python interpreter. Expected to be supported algorithm by '
+                'set_allowed_viable_default_hashes. Assertion error in SCons.'
             )
     else:
         # Set the default hash format based on what is available, defaulting
