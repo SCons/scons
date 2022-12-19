@@ -114,6 +114,13 @@ DEVELOPMENT
 
 - Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
   NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
+- Refactored SCons.Util, which had grown quite large, to be a package,
+  not a single-file module. Change should be transparent: the same import
+  of SCons.Util and public symbols from it will continue to work, however
+  code which reaches directly in to grab private symbols (starting with
+  underscore) which moved to a submodule, that code will have to be adjusted,
+  as those are not imported to the package level (new SCons.Util.hashes has
+  some of these, which are used by existing unit tests).
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

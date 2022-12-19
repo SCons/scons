@@ -46,10 +46,6 @@ from SCons.Util import (
     Proxy,
     Selector,
     WhereIs,
-    _attempt_init_of_python_3_9_hash_object,
-    _attempt_get_hash_function,
-    _get_hash_object,
-    _set_allowed_viable_default_hashes,
     adjustixes,
     containsAll,
     containsAny,
@@ -75,6 +71,12 @@ from SCons.Util import (
     to_String,
     to_bytes,
     to_str,
+)
+from SCons.Util.hashes import (
+    _attempt_init_of_python_3_9_hash_object,
+    _attempt_get_hash_function,
+    _get_hash_object,
+    _set_allowed_viable_default_hashes,
 )
 
 # These Util classes have no unit tests. Some don't make sense to test?
