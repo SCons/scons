@@ -145,19 +145,26 @@ to support additional input file types.
 </para>
 
 <para>Information about files involved in the build,
-including a cryptographic hash of the contents,
+including a cryptographic hash of the contents of source files,
 is cached for later reuse.
 By default this hash (the <firstterm>&contentsig;</firstterm>)
 is used to determine if a file has changed since the last build,
-but this can be controlled by selecting an appropriate
+although this can be controlled by selecting an appropriate
 <firstterm>&f-link-Decider;</firstterm> function.
 Implicit dependency files are also part of out-of-date computation.
 The scanned implicit dependency information can optionally be
 cached and used to speed up future builds.
-A hash of each executed build action (the <firstterm>&buildsig;</firstterm>
+A hash of each executed build action (the <firstterm>&buildsig;</firstterm>)
 is cached, so that changes to build instructions (changing flags, etc.)
 or to the build tools themselves (new version)
 can also trigger a rebuild.
+</para>
+
+<para>
+&SCons; supports the concept of separated source and build
+directories through the definition of
+<firstterm>variant directories</firstterm>
+(see the &f-link-VariantDir; function).
 </para>
 
 <para>
@@ -167,11 +174,15 @@ looks for a file named
 in the current directory and reads the
 build configuration from that file
 (other names are allowed,
-see <xref linkend="sconscript_files"/> for more information).
-The &SConstruct;
+see <xref linkend="sconscript_files"/> 
+and the <link linkend="opt-f"><option>-f</option></link> option
+for more information).
+The build may be structured in a hierarchical manner:
+the &SConstruct;
 file may specify subsidiary
 configuration files by calling the
-&f-link-SConscript; function.
+&f-link-SConscript; function, 
+and these may, in turn, do the same.
 By convention,
 these subsidiary files are named
 &SConscript;,
@@ -182,7 +193,14 @@ is used to refer
 generically to the complete set of
 configuration files for a project
 (including the &SConstruct; file),
-regardless of the actual file names or number of such files.</para>
+regardless of the actual file names or number of such files.
+A hierarchical build is not recursive - all of
+the SConscript files are processed in a single pass,
+although each is processed in a separate context so
+as not to interfere with one another. &SCons; provides
+mechanisms for information to be shared between
+SConscript files when needed.
+</para>
 
 <para>Before reading the &SConscript; files,
 &scons;
@@ -870,9 +888,10 @@ files).</para>
   <varlistentry>
   <term><emphasis role="bold">duplicate</emphasis></term>
   <listitem>
-<para>Print a line for each unlink/relink (or copy) of a variant file from
-its source file.  Includes debugging info for unlinking stale variant
-files, as well as unlinking old targets before building them.</para>
+<para>Print a line for each unlink/relink (or copy) of a file in
+a variant directory from its source file.
+Includes debugging info for unlinking stale variant directory files,
+as well as unlinking old targets before building them.</para>
   </listitem>
   </varlistentry>
 
@@ -3686,9 +3705,9 @@ The default value is
 specifies a file which collects the output from commands
 that are executed to check for the existence of header files, libraries, etc.
 The default is <quote><filename>#/config.log</filename></quote>.
-If you are using the
-&VariantDir; function,
-you may want to specify a subdirectory under your variant directory.</para>
+If you are using variant directories,
+you may want to place the log file for a given build
+under that build's variant directory.</para>
 <para>
 <parameter>config_h</parameter>
 specifies a C header file where the results of tests
@@ -6720,7 +6739,7 @@ For example, the command line string:</para>
 echo Last build occurred $TODAY. &gt; $TARGET
 </screen>
 
-<para>but the build signature added to any target files would be computed from:</para>
+<para>but the &buildsig; added to any target files would be computed from:</para>
 
 <screen>
 echo Last build occurred  . &gt; $TARGET
@@ -6741,8 +6760,8 @@ The callable must accept four arguments:
 <parameter>env</parameter> is the &consenv; to use for context,
 and <parameter>for_signature</parameter> is
 a boolean value that tells the callable
-if it is being called for the purpose of generating a build signature.
-Since the build signature is used for rebuild determination,
+if it is being called for the purpose of generating a &buildsig;.
+Since the &buildsig; is used for rebuild determination,
 variable elements that do not affect whether
 a rebuild should be triggered
 should be omitted from the returned string

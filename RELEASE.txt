@@ -105,6 +105,9 @@ DOCUMENTATION
 - Updated the User Guide chapter on installation: modernized the notes
   on Python installs, SCons installs, and having multiple SCons versions
   present on a single system.
+- Updated the User Guide chapter on variant directories with more
+  explanation, and the introduction of terms like "out of tree" that
+  may help in forming a mental model.
 
 DEVELOPMENT
 -----------
