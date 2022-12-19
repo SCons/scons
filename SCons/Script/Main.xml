@@ -316,18 +316,22 @@ atexit.register(print_build_failures)
 </arguments>
 <summary>
 <para>
-This function provides a way to query the value of
-options which can be set via the command line or using the
-&f-link-SetOption; function.
+Query the value of settable options which may have been set
+on the command line, or by using the &f-link-SetOption; function.
+The value of the option is returned in a type matching how the
+option was declared - see the documentation for the
+corresponding command line option for information about each specific
+option.
 </para>
+
 <para>
 <parameter>name</parameter> can be an entry from the following table,
 which shows the corresponding command line arguments
 that could affect the value.
 <parameter>name</parameter> can be also be the destination
 variable name from a project-specific option added using the
-&f-link-AddOption; function, as long as the addition
-happens prior to the &f-GetOption; call in the SConscript files.
+&f-link-AddOption; function, as long as that addition has been
+processed prior to the &f-GetOption; call in the &SConscript; files.
 </para>
 
 <informaltable rowsep="1" colsep="1" frame="topbot">
@@ -552,12 +556,6 @@ happens prior to the &f-GetOption; call in the SConscript files.
 </tbody>
 </tgroup>
 </informaltable>
-
-<para>
-See the documentation for the
-corresponding command line option for information about each specific
-option.
-</para>
 </summary>
 </scons_function>
 
