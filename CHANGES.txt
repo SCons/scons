@@ -34,6 +34,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       read packaging/etc/README.txt if you are interested.
     - Added --experimental=tm_v2, which enables Andrew Morrow's new NewParallel Job implementation.
       This should scale much better for highly parallel builds. You can also enable this via SetOption().
+    - Fixed setting diskcheck to 'none' via command line works --diskcheck=none. Apparently it has never worked
+      even though SetOption('diskcheck','none') did work.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
