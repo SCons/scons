@@ -93,7 +93,7 @@ class EntryProxyAttributeError(AttributeError):
                       repr(self.attribute))
 
 
-class FileWhereDirectoryExpectedError(TypeError):
+class FileWhereDirectoryExpectedError(SCons.Errors.BuildError):
     def __init__(self, node_path):
         super().__init__()
         self.node_path = node_path
@@ -103,7 +103,7 @@ class FileWhereDirectoryExpectedError(TypeError):
         return fmt % self.node_path
 
 
-class DirWhereFileExpectedError(TypeError):
+class DirWhereFileExpectedError(SCons.Errors.BuildError):
     def __init__(self, node_path):
         super().__init__()
         self.node_path = node_path
