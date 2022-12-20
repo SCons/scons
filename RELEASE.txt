@@ -64,6 +64,8 @@ FIXES
 - Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
   execution environment variable set to a python list it would crash. Now it
   will create a string joining the list with os.pathsep
+- Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
+  SetOption('diskcheck','none') is unaffected, as it did not have the problem.
 
 IMPROVEMENTS
 ------------
