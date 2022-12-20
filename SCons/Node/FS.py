@@ -380,8 +380,10 @@ else:
 
 class DiskChecker:
     """
-    This Class will hold various types of logic for checking if a file/dir on disk matches
-    the type which is expected. And allow Options to decide to enable or disable said check
+    Implement disk check variation.
+
+    This Class will hold functions to determine what this particular disk
+    checking implementation should do when enabled or disabled.
     """
     def __init__(self, disk_check_type, do_check_function, ignore_check_function):
         self.disk_check_type = disk_check_type
@@ -392,7 +394,12 @@ class DiskChecker:
     def __call__(self, *args, **kw):
         return self.func(*args, **kw)
 
-    def set(self, disk_check_type_list):
+    def enable(self, disk_check_type_list):
+        """
+        If the current object's disk_check_type matches any in the list passed
+        :param disk_check_type_list: List of disk checks to enable
+        :return:
+        """
         if self.disk_check_type in disk_check_type_list:
             self.func = self.do_check_function
         else:
@@ -429,7 +436,7 @@ diskcheckers = [
 
 def set_diskcheck(enabled_checkers):
     for dc in diskcheckers:
-        dc.set(enabled_checkers)
+        dc.enable(enabled_checkers)
 
 
 def diskcheck_types():
