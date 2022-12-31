@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,10 +22,10 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
 """
-Test CompilationDatabase and several variations of ways to call it
-and values of COMPILATIONDB_USE_ABSPATH
+Test that CompilationDatabase works when TEMPFILE is being used to handle long
+commandlines for compilers/linkers/etc
 """
 
 import sys
@@ -33,27 +35,14 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.file_fixture('mylink.py')
 test.file_fixture('mygcc.py')
-
-test.verbose_set(1)
-test.file_fixture('fixture/SConstruct_tempfile', 'SConstruct')
 test.file_fixture('test_main.c')
+test.file_fixture('fixture/SConstruct_tempfile', 'SConstruct')
+
 test.run()
 
 rel_files = [
     'compile_commands_only_arg.json',
-    'compile_commands_target.json',
-    'compile_commands.json',
-    'compile_commands_over_rel.json',
-    'compile_commands_over_abs_0.json'
-]
-
-abs_files = [
-    'compile_commands_clone_abs.json',
-    'compile_commands_over_abs.json',
-    'compile_commands_target_over_abs.json',
-    'compile_commands_over_abs_1.json',
 ]
 
 example_rel_file = """[
@@ -73,24 +62,5 @@ for f in rel_files:
     # print("Checking:%s" % f)
     test.must_exist(f)
     test.must_match(f, example_rel_file, mode='r')
-
-example_abs_file = """[
-    {
-        "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
-        "directory": "%s",
-        "file": "%s",
-        "output": "%s"
-    }
-]
-""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
-
-if sys.platform == 'win32':
-    example_abs_file = example_abs_file.replace('\\', '\\\\')
-
-
-for f in abs_files:
-    test.must_exist(f)
-    test.must_match(f, example_abs_file, mode='r')
-
 
 test.pass_test()
