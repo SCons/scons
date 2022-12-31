@@ -36,6 +36,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       This should scale much better for highly parallel builds. You can also enable this via SetOption().
     - Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
       SetOption('diskcheck','none') is unaffected, as it did not have the problem.
+    - Added overrides argument to SCons.Subst.scons_subst(), subst_list(), subst(), and Action's process(),
+      strfunction(). This allows passing a dictionary of envvars to override when evaluating subst()'d strings/lists
+    - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
+      command lines using the generated tempfile for long command lines, instead of the full command line for
+      the compilation step for the source/target pair.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
