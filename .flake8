@@ -1,0 +1,22 @@
+[flake8]
+show-source = True
+# don't complain about work black has done
+max-line-length = 88
+extend-exclude =
+    bin,
+    bench,
+    doc,
+    src,
+    template,
+    testing,
+    test,
+    timings,
+    SCons/Tool/docbook/docbook-xsl-1.76.1,
+    bootstrap.py,
+    runtest.py
+extend-ignore = 
+    E302,
+    E305
+per-file-ignores =
+    # module symbols made available for compat - ignore "unused" warns
+    SCons/Util/__init__.py: F401

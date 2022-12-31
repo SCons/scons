@@ -378,20 +378,33 @@ else:
         return x.upper()
 
 
-
 class DiskChecker:
-    def __init__(self, type, do, ignore):
-        self.type = type
-        self.do = do
-        self.ignore = ignore
-        self.func = do
+    """
+    Implement disk check variation.
+
+    This Class will hold functions to determine what this particular disk
+    checking implementation should do when enabled or disabled.
+    """
+    def __init__(self, disk_check_type, do_check_function, ignore_check_function):
+        self.disk_check_type = disk_check_type
+        self.do_check_function = do_check_function
+        self.ignore_check_function = ignore_check_function
+        self.func = do_check_function
+
     def __call__(self, *args, **kw):
         return self.func(*args, **kw)
-    def set(self, list):
-        if self.type in list:
-            self.func = self.do
+
+    def enable(self, disk_check_type_list):
+        """
+        If the current object's disk_check_type matches any in the list passed
+        :param disk_check_type_list: List of disk checks to enable
+        :return:
+        """
+        if self.disk_check_type in disk_check_type_list:
+            self.func = self.do_check_function
         else:
-            self.func = self.ignore
+            self.func = self.ignore_check_function
+
 
 def do_diskcheck_match(node, predicate, errorfmt):
     result = predicate()
@@ -409,9 +422,9 @@ def do_diskcheck_match(node, predicate, errorfmt):
     if result:
         raise TypeError(errorfmt % node.get_abspath())
 
+
 def ignore_diskcheck_match(node, predicate, errorfmt):
     pass
-
 
 
 diskcheck_match = DiskChecker('match', do_diskcheck_match, ignore_diskcheck_match)
@@ -420,13 +433,14 @@ diskcheckers = [
     diskcheck_match,
 ]
 
-def set_diskcheck(list):
+
+def set_diskcheck(enabled_checkers):
     for dc in diskcheckers:
-        dc.set(list)
+        dc.enable(enabled_checkers)
+
 
 def diskcheck_types():
-    return [dc.type for dc in diskcheckers]
-
+    return [dc.disk_check_type for dc in diskcheckers]
 
 
 class EntryProxy(SCons.Util.Proxy):
@@ -2403,7 +2417,7 @@ class RootDir(Dir):
             return
         Base.must_be_same(self, klass)
 
-    def _lookup_abs(self, p, klass, create=1):
+    def _lookup_abs(self, p, klass, create=True):
         """
         Fast (?) lookup of a *normalized* absolute path.
 
@@ -2428,7 +2442,7 @@ class RootDir(Dir):
                 raise SCons.Errors.UserError(msg)
             # There is no Node for this path name, and we're allowed
             # to create it.
-            dir_name, file_name = p.rsplit('/',1)
+            dir_name, file_name = p.rsplit('/', 1)
             dir_node = self._lookup_abs(dir_name, Dir)
             result = klass(file_name, dir_node, self.fs)
 

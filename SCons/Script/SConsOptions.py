@@ -54,7 +54,10 @@ def diskcheck_convert(value):
         if v == 'all':
             result = diskcheck_all
         elif v == 'none':
-            result = []
+            # Don't use an empty list here as that fails the normal check
+            # to see if an optparse parser of if parser.argname:
+            # Changed to ['none'] as diskcheck expects a list value
+            result = ['none']
         elif v in diskcheck_all:
             result.append(v)
         else:

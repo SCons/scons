@@ -117,7 +117,7 @@ Installation Requirements
 =========================
 
 SCons has no installation dependencies beyond a compatible version
-of Python. The tools which will be used to to actually construct the
+of Python. The tools which will be used to actually construct the
 project, such as compilers, documentation production tools, etc.
 should of course be installed by the appropriate means.
 
