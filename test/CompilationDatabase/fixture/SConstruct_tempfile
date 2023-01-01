@@ -8,6 +8,7 @@ env = Environment(
     CC='$PYTHON mygcc.py cc',
     tools=['gcc'],
     MAXLINELENGTH=10,
+    OBJSUFFIX='.o',
 )
 
 # make sure TempFileMunge is used
