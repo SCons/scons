@@ -50,6 +50,7 @@ test = TestSCons.TestSCons()
 test.subdir('bld', 'src', ['src', 'subsrcdir'])
 
 sconstruct = r"""
+DefaultEnvironment(tools=[])  # test speedup
 foo = Environment(SHOBJPREFIX='', WINDOWS_INSERT_DEF=1)
 foo.Append(SHCXXFLAGS = '-DFOO')
 bar = Environment(SHOBJPREFIX='', WINDOWS_INSERT_DEF=1)

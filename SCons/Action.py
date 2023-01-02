@@ -806,24 +806,7 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
     ENV = kw.get('env', None)
     if ENV is None: ENV = get_default_ENV(scons_env)
 
-    # Ensure that the ENV values are all strings:
-    new_env = {}
-    for key, value in ENV.items():
-        if is_List(value):
-            # If the value is a list, then we assume it is a path list,
-            # because that's a pretty common list-like value to stick
-            # in an environment variable:
-            value = SCons.Util.flatten_sequence(value)
-            new_env[key] = os.pathsep.join(map(str, value))
-        else:
-            # It's either a string or something else.  If it's a string,
-            # we still want to call str() because it might be a *Unicode*
-            # string, which makes subprocess.Popen() gag.  If it isn't a
-            # string or a list, then we just coerce it to a string, which
-            # is the proper way to handle Dir and File instances and will
-            # produce something reasonable for just about everything else:
-            new_env[key] = str(value)
-    kw['env'] = new_env
+    kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
     try:
         pobj = subprocess.Popen(cmd, **kw)
@@ -892,11 +875,11 @@ class CommandAction(_ActionAction):
             return ' '.join(map(str, self.cmd_list))
         return str(self.cmd_list)
 
-    def process(self, target, source, env, executor=None):
+    def process(self, target, source, env, executor=None, overrides=False):
         if executor:
-            result = env.subst_list(self.cmd_list, 0, executor=executor)
+            result = env.subst_list(self.cmd_list, 0, executor=executor, overrides=overrides)
         else:
-            result = env.subst_list(self.cmd_list, 0, target, source)
+            result = env.subst_list(self.cmd_list, 0, target, source, overrides=overrides)
         silent = None
         ignore = None
         while True:
@@ -913,18 +896,18 @@ class CommandAction(_ActionAction):
             pass
         return result, ignore, silent
 
-    def strfunction(self, target, source, env, executor=None):
+    def strfunction(self, target, source, env, executor=None, overrides=False):
         if self.cmdstr is None:
             return None
         if self.cmdstr is not _null:
             from SCons.Subst import SUBST_RAW
             if executor:
-                c = env.subst(self.cmdstr, SUBST_RAW, executor=executor)
+                c = env.subst(self.cmdstr, SUBST_RAW, executor=executor, overrides=overrides)
             else:
-                c = env.subst(self.cmdstr, SUBST_RAW, target, source)
+                c = env.subst(self.cmdstr, SUBST_RAW, target, source, overrides=overrides)
             if c:
                 return c
-        cmd_list, ignore, silent = self.process(target, source, env, executor)
+        cmd_list, ignore, silent = self.process(target, source, env, executor, overrides=overrides)
         if silent:
             return ''
         return _string_from_cmd_list(cmd_list[0])

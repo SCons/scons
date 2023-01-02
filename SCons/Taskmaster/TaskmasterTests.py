@@ -244,6 +244,12 @@ class Node:
             self.executor.targets = self.targets
         return self.executor
 
+    def get_internal_path(self):
+        """
+        Should only be used (currently) by TaskmasterTestCase.test_cached_execute_target_unlink_fails
+        """
+        return str(self)
+
 
 class OtherError(Exception):
     pass
@@ -1071,7 +1077,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         n1 = Node("n1")
         # Mark the node as being cached
-        n1.cached = 1
+        n1.cached = True
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
         t.prepare()
@@ -1080,6 +1086,55 @@ class TaskmasterTestCase(unittest.TestCase):
         # If no binfo exists anymore, something has gone wrong...
         has_binfo = hasattr(n1, 'binfo')
         assert has_binfo, has_binfo
+
+    def test_cached_execute_target_unlink_fails(self):
+        """Test executing a task with cached targets where unlinking one of the targets fail
+        """
+        global cache_text
+        import SCons.Warnings
+
+        cache_text = []
+        n1 = Node("n1")
+        n2 = Node("not-cached")
+
+        class DummyFS:
+            def unlink(self, _):
+                raise IOError
+
+        n1.fs = DummyFS()
+
+        # Mark the node as being cached
+        n1.cached = True
+        # Add n2 as a target for n1
+        n1.targets.append(n2)
+        # Explicitly mark n2 as not cached
+        n2.cached = False
+
+        # Save SCons.Warnings.warn so we can mock it and catch it being called for unlink failures
+        _save_warn = SCons.Warnings.warn
+        issued_warnings = []
+
+        def fake_warnings_warn(clz, message):
+            nonlocal issued_warnings
+            issued_warnings.append((clz, message))
+        SCons.Warnings.warn = fake_warnings_warn
+
+        tm = SCons.Taskmaster.Taskmaster([n1, n2])
+        t = tm.next_task()
+        t.prepare()
+        t.execute()
+
+        # Restore saved warn
+        SCons.Warnings.warn = _save_warn
+
+        self.assertTrue(len(issued_warnings) == 1,
+                        msg='More than expected warnings (1) were issued %d' % len(issued_warnings))
+        self.assertEqual(issued_warnings[0][0], SCons.Warnings.CacheCleanupErrorWarning,
+                         msg='Incorrect warning class')
+        self.assertEqual(issued_warnings[0][1],
+                         'Failed copying all target files from cache, Error while attempting to remove file n1 retrieved from cache: ')
+        self.assertEqual(cache_text, ["n1 retrieved"], msg=cache_text)
+
 
     def test_exception(self):
         """Test generic Taskmaster exception handling
@@ -1103,8 +1158,6 @@ class TaskmasterTestCase(unittest.TestCase):
             # Moved from below
             t.exception_set(None)
             # pass
-
-        #        import pdb; pdb.set_trace()
 
         # Having this here works for python 2.x,
         # but it is a tuple (None, None, None) when called outside

@@ -23,8 +23,6 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-
 import os
 import subprocess
 
@@ -49,6 +47,7 @@ sys.exit(exitval)
 test.write(['one', 'SConstruct'], """
 B0 = Builder(action = r'%(_python_)s ../build.py 0 $TARGET $SOURCES')
 B1 = Builder(action = r'%(_python_)s ../build.py 1 $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B0' : B0, 'B1' : B1 })
 env.B1(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
@@ -69,6 +68,7 @@ test.fail_test(os.path.exists(test.workpath('f3.out')))
 test.write(['two', 'SConstruct'], """
 B0 = Builder(action = r'%(_python_)s ../build.py 0 $TARGET $SOURCES')
 B1 = Builder(action = r'%(_python_)s ../build.py 1 $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B0': B0, 'B1' : B1 })
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B1(target = 'f2.out', source = 'f2.in')
@@ -89,6 +89,7 @@ test.fail_test(os.path.exists(test.workpath('f3.out')))
 test.write(['three', 'SConstruct'], """
 B0 = Builder(action = r'%(_python_)s ../build.py 0 $TARGET $SOURCES')
 B1 = Builder(action = r'%(_python_)s ../build.py 1 $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B0' : B0, 'B1': B1 })
 env.B0(target = 'f1.out', source = 'f1.in')
 env.B0(target = 'f2.out', source = 'f2.in')
@@ -107,6 +108,7 @@ test.must_match(['three', 'f2.out'], "three/f2.in\n", mode='r')
 test.fail_test(os.path.exists(test.workpath('f3.out')))
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env=Environment()
 env['ENV']['PATH'] = ''
 env.Command(target='foo.out', source=[], action='not_a_program')
@@ -132,6 +134,7 @@ arg_mult = (max_length // len(arg_1)) + 1
 
 long_cmd = 'xyz ' + "foobarxyz" * arg_mult
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env=Environment()
 env.Command(target='longcmd.out', source=[], action='echo %s')
 """%long_cmd)
@@ -153,6 +156,7 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 # This will also give an exit status not in exitvalmap,
 # with error "Permission denied" or "No such file or directory".
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env=Environment()
 env['SHELL'] = 'one'
 env.Command(target='badshell.out', source=[], action='foo')
@@ -172,6 +176,7 @@ test.must_contain_any_line(test.stderr(), expect)
 # Should not give traceback.
 test.write('SConstruct', """
 import os
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(ENV = os.environ)
 env.Command('dummy.txt', None, ['python -c "import sys; sys.exit(-1)"'])
 """)
@@ -186,6 +191,7 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 test.write('SConstruct', """
 import atexit
 
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env2 = env.Clone()
 
@@ -206,6 +212,7 @@ test.must_not_contain_any_line(test.stderr(), ['Exception', 'Traceback'])
 
 # Bug #1053: Alias is called "all", but default is the File "all"
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment()
 env.Default("all")
 env.Alias("all", env.Install("dir", "file.txt"))

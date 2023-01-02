@@ -29,14 +29,17 @@ stop, and wait on jobs.
 
 import SCons.compat
 
+import logging
 import os
 import signal
+import sys
 import threading
 
 from enum import Enum
 
 import SCons.Errors
 import SCons.Warnings
+
 
 # The default stack size (in kilobytes) of the threads used to execute
 # jobs in parallel.
@@ -50,7 +53,6 @@ explicit_stack_size = None
 default_stack_size = 256
 
 interrupt_msg = 'Build interrupted.'
-
 
 class InterruptState:
     def __init__(self):
@@ -82,6 +84,11 @@ class Jobs:
         care should check the value of 'num_jobs' after initialization.
         """
 
+        # Importing GetOption here instead of at top of file to avoid
+        # circular imports
+        # pylint: disable=import-outside-toplevel
+        from SCons.Script import GetOption
+
         self.job = None
         if num > 1:
             stack_size = explicit_stack_size
@@ -89,7 +96,12 @@ class Jobs:
                 stack_size = default_stack_size
 
             try:
-                self.job = Parallel(taskmaster, num, stack_size)
+                experimental_option = GetOption('experimental')
+                if 'tm_v2' in experimental_option:
+                    self.job = NewParallel(taskmaster, num, stack_size)
+                else:
+                    self.job = LegacyParallel(taskmaster, num, stack_size)
+
                 self.num_jobs = num
             except NameError:
                 pass
@@ -346,7 +358,7 @@ else:
                 worker.join(1.0)
             self.workers = []
 
-    class Parallel:
+    class LegacyParallel:
         """This class is used to execute tasks in parallel, and is somewhat
         less efficient than Serial, but is appropriate for parallel builds.
 
@@ -438,7 +450,7 @@ else:
             self.taskmaster.cleanup()
 
     # An experimental new parallel scheduler that uses a leaders/followers pattern.
-    class ExperimentalParallel:
+    class NewParallel:
 
         class State(Enum):
             READY = 0
@@ -472,7 +484,7 @@ else:
 
             # Guarded under `tm_lock`.
             self.jobs = 0
-            self.state = ExperimentalParallel.State.READY
+            self.state = NewParallel.State.READY
 
             # The `can_search_cv` is used to manage a leader /
             # follower pattern for access to the taskmaster, and to
@@ -484,6 +496,24 @@ else:
             self.results_queue_lock = threading.Lock()
             self.results_queue = []
 
+            if self.taskmaster.trace:
+                self.trace = self._setup_logging()
+            else:
+                self.trace = False
+
+        def _setup_logging(self):
+            jl = logging.getLogger("Job")
+            jl.setLevel(level=logging.DEBUG)
+            jl.addHandler(self.taskmaster.trace.log_handler)
+            return jl
+
+        def trace_message(self, message):
+            # This grabs the name of the function which calls trace_message()
+            method_name = sys._getframe(1).f_code.co_name + "():"
+            thread_id=threading.get_ident()
+            self.trace.debug('%s.%s [Thread:%s] %s' % (type(self).__name__, method_name, thread_id, message))
+            # print('%-15s %s' % (method_name, message))
+
         def start(self):
             self._start_workers()
             for worker in self.workers:
@@ -494,7 +524,7 @@ else:
         def _start_workers(self):
             prev_size = self._adjust_stack_size()
             for _ in range(self.num_workers):
-                self.workers.append(ExperimentalParallel.Worker(self))
+                self.workers.append(NewParallel.Worker(self))
             self._restore_stack_size(prev_size)
 
         def _adjust_stack_size(self):
@@ -527,7 +557,8 @@ else:
                 # Obtain `tm_lock`, granting exclusive access to the taskmaster.
                 with self.can_search_cv:
 
-                    # print(f"XXX {threading.get_ident()} Gained exclusive access")
+                    if self.trace:
+                        self.trace_message("Gained exclusive access")
 
                     # Capture whether we got here with `task` set,
                     # then drop our reference to the task as we are no
@@ -546,26 +577,30 @@ else:
                     # work. Otherwise, stay stalled, and we will wait
                     # in the condvar. Some other thread will come back
                     # here with a completed task.
-                    if self.state == ExperimentalParallel.State.STALLED and completed_task:
-                        # print(f"XXX {threading.get_ident()} Detected stall with completed task, bypassing wait")
-                        self.state = ExperimentalParallel.State.READY
+                    if self.state == NewParallel.State.STALLED and completed_task:
+                        if self.trace:
+                            self.trace_message("Detected stall with completed task, bypassing wait")
+                        self.state = NewParallel.State.READY
 
                     # Wait until we are neither searching nor stalled.
-                    while self.state == ExperimentalParallel.State.SEARCHING or self.state == ExperimentalParallel.State.STALLED:
-                        # print(f"XXX {threading.get_ident()} Search already in progress, waiting")
+                    while self.state == NewParallel.State.SEARCHING or self.state == NewParallel.State.STALLED:
+                        if self.trace:
+                            self.trace_message("Search already in progress, waiting")
                         self.can_search_cv.wait()
 
                     # If someone set the completed flag, bail.
-                    if self.state == ExperimentalParallel.State.COMPLETED:
-                        # print(f"XXX {threading.get_ident()} Completion detected, breaking from main loop")
+                    if self.state == NewParallel.State.COMPLETED:
+                        if self.trace:
+                            self.trace_message("Completion detected, breaking from main loop")
                         break
 
                     # Set the searching flag to indicate that a thread
                     # is currently in the critical section for
                     # taskmaster work.
                     #
-                    # print(f"XXX {threading.get_ident()} Starting search")
-                    self.state = ExperimentalParallel.State.SEARCHING
+                    if self.trace:
+                        self.trace_message("Starting search")
+                    self.state = NewParallel.State.SEARCHING
 
                     # Bulk acquire the tasks in the results queue
                     # under the result queue lock, then process them
@@ -577,7 +612,8 @@ else:
                     with self.results_queue_lock:
                         results_queue, self.results_queue = self.results_queue, results_queue
 
-                    # print(f"XXX {threading.get_ident()} Found {len(results_queue)} completed tasks to process")
+                    if self.trace:
+                        self.trace_message("Found {len(results_queue)} completed tasks to process")
                     for (rtask, rresult) in results_queue:
                         if rresult:
                             rtask.executed()
@@ -605,8 +641,9 @@ else:
                     # needs execution. If we run out of tasks, go idle
                     # until results arrive if jobs are pending, or
                     # mark the walk as complete if not.
-                    while self.state == ExperimentalParallel.State.SEARCHING:
-                        # print(f"XXX {threading.get_ident()} Searching for new tasks")
+                    while self.state == NewParallel.State.SEARCHING:
+                        if self.trace:
+                            self.trace_message("Searching for new tasks")
                         task = self.taskmaster.next_task()
 
                         if task:
@@ -626,13 +663,15 @@ else:
                                 task.postprocess()
                             else:
                                 if not task.needs_execute():
-                                    # print(f"XXX {threading.get_ident()} Found internal task")
+                                    if self.trace:
+                                        self.trace_message("Found internal task")
                                     task.executed()
                                     task.postprocess()
                                 else:
                                     self.jobs += 1
-                                    # print(f"XXX {threading.get_ident()} Found task requiring execution")
-                                    self.state = ExperimentalParallel.State.READY
+                                    if self.trace:
+                                        self.trace_message("Found task requiring execution")
+                                    self.state = NewParallel.State.READY
                                     self.can_search_cv.notify()
 
                         else:
@@ -649,8 +688,9 @@ else:
                                 # outstanding that will re-enter the
                                 # loop.
                                 #
-                                # print(f"XXX {threading.get_ident()} Found no task requiring execution, but have jobs: marking stalled")
-                                self.state = ExperimentalParallel.State.STALLED
+                                if self.trace:
+                                    self.trace_message("Found no task requiring execution, but have jobs: marking stalled")
+                                self.state = NewParallel.State.STALLED
                             else:
                                 # We didn't find a task and there are
                                 # no jobs outstanding, so there is
@@ -661,16 +701,18 @@ else:
                                 # note completion and awaken anyone
                                 # sleeping on the condvar.
                                 #
-                                # print(f"XXX {threading.get_ident()} Found no task requiring execution, and have no jobs: marking complete")
-                                self.state = ExperimentalParallel.State.COMPLETED
+                                if self.trace:
+                                    self.trace_message("Found no task requiring execution, and have no jobs: marking complete")
+                                self.state = NewParallel.State.COMPLETED
                                 self.can_search_cv.notify_all()
 
                 # We no longer hold `tm_lock` here. If we have a task,
                 # we can now execute it. If there are threads waiting
                 # to search, one of them can now begin turning the
-                # taskmaster crank in parallel.
+                # taskmaster crank in NewParallel.
                 if task:
-                    # print(f"XXX {threading.get_ident()} Executing task")
+                    if self.trace:
+                        self.trace_message("Executing task")
                     ok = True
                     try:
                         if self.interrupted():
@@ -686,7 +728,8 @@ else:
                     # the searching loop will complete the
                     # postprocessing work under the taskmaster lock.
                     #
-                    # print(f"XXX {threading.get_ident()} Enqueueing executed task results")
+                    if self.trace:
+                        self.trace_message("Enqueueing executed task results")
                     with self.results_queue_lock:
                         self.results_queue.append((task, ok))
 

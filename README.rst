@@ -117,7 +117,7 @@ Installation Requirements
 =========================
 
 SCons has no installation dependencies beyond a compatible version
-of Python. The tools which will be used to to actually construct the
+of Python. The tools which will be used to actually construct the
 project, such as compilers, documentation production tools, etc.
 should of course be installed by the appropriate means.
 
@@ -258,6 +258,14 @@ software, or hardware) to support continued work on the project.  Information
 is available at https://www.scons.org/donate.html
 or the GitHub Sponsors button on https://github.com/scons/scons.
 
+Reproducible Builds
+===================
+In order to suppor those users who which to produce reproducible builds
+(https://reproducible-builds.org/specs/source-date-epoch/) we're now including
+logic to force SCons to propagate SOURCE_DATE_EPOCH from your shell environment for
+all SCons builds to support reproducible builds we're now providing an example
+site_init.py and a script to install it in your ~/.scons. See packaging/etc/README.txt
+for more info
 
 For More Information
 ====================

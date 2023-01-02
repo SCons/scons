@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os.path
 
@@ -45,6 +44,7 @@ test.subdir('foobar',
             'inc2')
 
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(CPPPATH = ['$FOO', '${TARGET.dir}', '${SOURCE.dir}'],
                   FOO='include')
 obj = env.Object(target='foobar/prog', source='subdir/prog.c')
@@ -246,6 +246,7 @@ test.up_to_date(arguments = args)
 
 # Change CPPPATH and make sure we don't rebuild because of it.
 test.write('SConstruct', """
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(CPPPATH = Split('inc2 include ${TARGET.dir} ${SOURCE.dir}'))
 obj = env.Object(target='foobar/prog', source='subdir/prog.c')
 env.Program(target='prog', source=obj)

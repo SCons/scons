@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify various combinations of arguments to Default() work properly.
@@ -50,6 +49,7 @@ with open(sys.argv[1], 'w') as f, open(sys.argv[2], 'r') as ifp:
 #
 test.write(['one', 'SConstruct'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
@@ -58,6 +58,7 @@ Default('foo.out')
 
 test.write(['two', 'SConstruct'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
@@ -66,6 +67,7 @@ Default('foo.out', 'bar.out')
 
 test.write(['three', 'SConstruct'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')
@@ -74,6 +76,7 @@ Default(Split('foo.out bar.out'))
 
 test.write(['four', 'SConstruct'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = ['foo bar'], source = 'foo.in')
 env.B(target = 'foo', source = 'foo.in')
@@ -83,6 +86,7 @@ Default(['foo bar'])
 
 test.write(['five', 'SConstruct'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 Default(env.B(target = 'foo.out', source = 'foo.in'))
 Default(env.B(target = 'bar.out', source = 'bar.in'))
@@ -112,6 +116,7 @@ test.must_match(test.workpath('five', 'bar.out'), "five/bar.in\n", mode='r')
 # Test how a None Default() argument works to disable/reset default targets.
 test.write(['six', 'SConstruct'], """\
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 foo = env.B(target = 'foo.out', source = 'foo.in')
 bar = env.B(target = 'bar.out', source = 'bar.in')
@@ -123,6 +128,7 @@ test.run(chdir='six', status=2,
 
 test.write(['seven', 'SConstruct'], """\
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 foo = env.B(target = 'foo.out', source = 'foo.in')
 bar = env.B(target = 'bar.out', source = 'bar.in')
@@ -134,6 +140,7 @@ test.run(chdir='seven', status=2,
 
 test.write(['eight', 'SConstruct'], """\
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 foo = env.B(target = 'foo.out', source = 'foo.in')
 bar = env.B(target = 'bar.out', source = 'bar.in')
@@ -150,6 +157,7 @@ test.subdir('nine', ['nine', 'sub1'])
 
 test.write(['nine', 'SConstruct'], """\
 B = Builder(action = r'%(_python_)s build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 SConscript('sub1/SConscript')
@@ -159,6 +167,7 @@ test.write(['nine', 'xxx.in'], "xxx.in\n")
 
 test.write(['nine', 'sub1', 'SConscript'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 Default('xxx.out')
@@ -177,6 +186,7 @@ test.subdir('ten', ['ten', 'sub2'])
 test.write(['ten', 'SConstruct'], """\
 Default('sub2')
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 SConscript('sub2/SConscript')
@@ -186,6 +196,7 @@ test.write(['ten', 'xxx.in'], "xxx.in\n")
 
 test.write(['ten', 'sub2', 'SConscript'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B })
 env.B(target = 'xxx.out', source = 'xxx.in')
 """ % locals())
@@ -202,6 +213,7 @@ test.subdir('eleven')
 
 test.write(['eleven', 'SConstruct'], """
 B = Builder(action = r'%(_python_)s ../build.py $TARGET $SOURCES')
+DefaultEnvironment(tools=[])  # test speedup
 env = Environment(BUILDERS = { 'B' : B }, XXX = 'foo.out')
 env.B(target = 'foo.out', source = 'foo.in')
 env.B(target = 'bar.out', source = 'bar.in')

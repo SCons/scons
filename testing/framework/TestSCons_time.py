@@ -74,8 +74,7 @@ with open('SConstruct', 'r') as f:
 exec(script)
 """
 
-svn_py = """\
-#!/usr/bin/env python
+svn_py = f"""#!/usr/bin/env python
 import os
 import sys
 
@@ -83,12 +82,11 @@ dir = sys.argv[-1]
 script_dir = dir + '/scripts'
 os.makedirs(script_dir)
 with open(script_dir + '/scons.py', 'w') as f:
-    f.write(r'''%s''')
-""" % scons_py
+    f.write(r'''{scons_py}''')
+"""
 
 
-git_py = """\
-#!/usr/bin/env python
+git_py = f"""#!/usr/bin/env python
 import os
 import sys
 
@@ -96,8 +94,8 @@ dir = sys.argv[-1]
 script_dir = dir + '/scripts'
 os.makedirs(script_dir)
 with open(script_dir + '/scons.py', 'w') as f:
-    f.write(r'''%s''')
-""" % scons_py
+    f.write(r'''{scons_py}''')
+"""
 
 
 logfile_contents = """\
@@ -254,12 +252,13 @@ class TestSCons_time(TestCommon):
         args = (tempdir, 'scons-time-',) + args
         x = os.path.join(*args)
         x = re.escape(x)
-        x = x.replace('time\\-', 'time\\-[^%s]*' % sep)
+        x = x.replace('time\\-', f'time\\-[^{sep}]*')
 
         if not IS_MACOS:
             return x
         else:
             return "%s|%s" % (x, y)
+
 
     def write_fake_scons_py(self):
         self.subdir('scripts')

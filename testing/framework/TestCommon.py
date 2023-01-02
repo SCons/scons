@@ -319,10 +319,10 @@ class TestCommon(TestCmd):
         file_contents = self.read(file, mode)
 
         if not contains(file_contents, required, find):
-            print("File `%s' does not contain required string." % file)
+            print(f"File `{file}' does not contain required string.")
             print(self.banner('Required string '))
             print(required)
-            print(self.banner('%s contents ' % file))
+            print(self.banner(f'{file} contents '))
             print(file_contents)
             self.fail_test()
 
@@ -343,9 +343,9 @@ class TestCommon(TestCmd):
         if not contains(output, input, find):
             if title is None:
                 title = 'output'
-            print('Missing expected input from {}:'.format(title))
+            print(f'Missing expected input from {title}:')
             print(input)
-            print(self.banner(title + ' '))
+            print(self.banner(f"{title} "))
             print(output)
             self.fail_test()
 
@@ -367,10 +367,10 @@ class TestCommon(TestCmd):
         if missing:
             if title is None:
                 title = 'output'
-            sys.stdout.write("Missing expected lines from %s:\n" % title)
+            sys.stdout.write(f"Missing expected lines from {title}:\n")
             for line in missing:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner(title + ' ') + '\n')
+                sys.stdout.write(f"    {repr(line)}\n")
+            sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
 
@@ -394,10 +394,10 @@ class TestCommon(TestCmd):
         if counts:
             if title is None:
                 title = 'output'
-            sys.stdout.write("Unexpected number of lines from %s:\n" % title)
+            sys.stdout.write(f"Unexpected number of lines from {title}:\n")
             for line in counts:
-                sys.stdout.write('    ' + repr(line) + ": found " + str(counts[line]) + '\n')
-            sys.stdout.write(self.banner(title + ' ') + '\n')
+                sys.stdout.write(f"    {repr(line)}: found {str(counts[line])}\n")
+            sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
 
@@ -418,10 +418,10 @@ class TestCommon(TestCmd):
 
         if title is None:
             title = 'output'
-        sys.stdout.write("Missing any expected line from %s:\n" % title)
+        sys.stdout.write(f"Missing any expected line from {title}:\n")
         for line in lines:
-            sys.stdout.write('    ' + repr(line) + '\n')
-        sys.stdout.write(self.banner(title + ' ') + '\n')
+            sys.stdout.write(f"    {repr(line)}\n")
+        sys.stdout.write(f"{self.banner(f'{title} ')}\n")
         sys.stdout.write(output)
         self.fail_test()
 
@@ -461,15 +461,15 @@ class TestCommon(TestCmd):
         if title is None:
             title = 'output'
         if missing:
-            sys.stdout.write("Missing expected lines from %s:\n" % title)
+            sys.stdout.write(f"Missing expected lines from {title}:\n")
             for line in missing:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner('Missing %s ' % title) + '\n')
+                sys.stdout.write(f"    {repr(line)}\n")
+            sys.stdout.write(f"{self.banner(f'Missing {title} ')}\n")
         if out:
-            sys.stdout.write("Extra unexpected lines from %s:\n" % title)
+            sys.stdout.write(f"Extra unexpected lines from {title}:\n")
             for line in out:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner('Extra %s ' % title) + '\n')
+                sys.stdout.write(f"    {repr(line)}\n")
+            sys.stdout.write(f"{self.banner(f'Extra {title} ')}\n")
         sys.stdout.flush()
         self.fail_test()
 
@@ -523,8 +523,29 @@ class TestCommon(TestCmd):
         except KeyboardInterrupt:
             raise
         except:
-            print("Unexpected contents of `%s'" % file)
+            print(f"Unexpected contents of `{file}'")
             self.diff(expect, file_contents, 'contents ')
+            raise
+
+    def must_match_file(self, file, golden_file, mode='rb', match=None, message=None, newline=None):
+        """Matches the contents of the specified file (first argument)
+        against the expected contents (second argument).  The expected
+        contents are a list of lines or a string which will be split
+        on newlines.
+        """
+        file_contents = self.read(file, mode, newline)
+        golden_file_contents = self.read(golden_file, mode, newline)
+
+        if not match:
+            match = self.match
+
+        try:
+            self.fail_test(not match(to_str(file_contents), to_str(golden_file_contents)), message=message)
+        except KeyboardInterrupt:
+            raise
+        except:
+            print("Unexpected contents of `%s'" % file)
+            self.diff(golden_file_contents, file_contents, 'contents ')
             raise
 
     def must_not_contain(self, file, banned, mode = 'rb', find = None):
@@ -533,10 +554,10 @@ class TestCommon(TestCmd):
         file_contents = self.read(file, mode)
 
         if contains(file_contents, banned, find):
-            print("File `%s' contains banned string." % file)
+            print(f"File `{file}' contains banned string.")
             print(self.banner('Banned string '))
             print(banned)
-            print(self.banner('%s contents ' % file))
+            print(self.banner(f'{file} contents '))
             print(file_contents)
             self.fail_test()
 
@@ -559,10 +580,10 @@ class TestCommon(TestCmd):
         if unexpected:
             if title is None:
                 title = 'output'
-            sys.stdout.write("Unexpected lines in %s:\n" % title)
+            sys.stdout.write(f"Unexpected lines in {title}:\n")
             for line in unexpected:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner(title + ' ') + '\n')
+                sys.stdout.write(f"    {repr(line)}\n")
+            sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
 
@@ -606,7 +627,7 @@ class TestCommon(TestCmd):
         Exits FAILED if the file doesn't exist or is empty.
         """
         if not (os.path.exists(file) or os.path.islink(file)):
-            print("File doesn't exist: `%s'" % file)
+            print(f"File doesn't exist: `{file}'")
             self.fail_test(file)
 
         try:
@@ -615,7 +636,7 @@ class TestCommon(TestCmd):
             fsize = 0
 
         if fsize == 0:
-            print("File is empty: `%s'" % file)
+            print(f"File is empty: `{file}'")
             self.fail_test(file)
 
     def must_not_be_writable(self, *files):
@@ -643,8 +664,8 @@ class TestCommon(TestCmd):
         if _failed(self, status):
             expect = ''
             if status != 0:
-                expect = " (expected %s)" % str(status)
-            print("%s returned %s%s" % (self.program, _status(self), expect))
+                expect = f" (expected {str(status)})"
+            print(f"{self.program} returned {_status(self)}{expect}")
             print(self.banner('STDOUT '))
             print(actual_stdout)
             print(self.banner('STDERR '))
@@ -692,7 +713,7 @@ class TestCommon(TestCmd):
             except IndexError:
                 pass
             cmd_args = self.command_args(program, interpreter, arguments)
-            sys.stderr.write('Exception trying to execute: %s\n' % cmd_args)
+            sys.stderr.write(f'Exception trying to execute: {cmd_args}\n')
             raise e
 
     def finish(self, popen, stdout = None, stderr = '', status = 0, **kw):
@@ -801,15 +822,15 @@ class TestCommon(TestCmd):
         v_split = value.split('\n')
         e_split = expect.split('\n')
         if len(v_split) != len(e_split):
-            print("different number of lines:%d %d" % (len(v_split), len(e_split)))
+            print(f"different number of lines:{len(v_split)} {len(e_split)}")
 
         # breakpoint()
         for v, e in zip(v_split, e_split):
             # print("%s:%s"%(v,e))
             if v != e:
-                print("\n[%s]\n[%s]" % (v, e))
+                print(f"\n[{v}]\n[{e}]")
 
-        return "Expected:\n%s\nGot:\n%s" % (expect, value)
+        return f"Expected:\n{expect}\nGot:\n{value}"
 
 
 # Local Variables:
