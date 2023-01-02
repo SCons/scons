@@ -34,6 +34,8 @@ import itertools
 import fnmatch
 import SCons
 
+from SCons.Platform import TempFileMunge
+
 from .cxx import CXXSuffixes
 from .cc import CSuffixes
 from .asm import ASSuffixes, ASPPSuffixes
@@ -52,6 +54,7 @@ class __CompilationDbNode(SCons.Node.Python.Value):
     def __init__(self, value):
         SCons.Node.Python.Value.__init__(self, value)
         self.Decider(changed_since_last_build_node)
+
 
 def changed_since_last_build_node(child, target, prev_ni, node):
     """ Dummy decider to force always building"""
@@ -103,6 +106,11 @@ def make_emit_compilation_DB_entry(comstr):
     return emit_compilation_db_entry
 
 
+class CompDBTEMPFILE(TempFileMunge):
+    def __call__(self, target, source, env, for_signature):
+        return self.cmd
+
+
 def compilation_db_entry_action(target, source, env, **kw):
     """
     Create a dictionary with evaluated command line, target, source
@@ -119,6 +127,7 @@ def compilation_db_entry_action(target, source, env, **kw):
         target=env["__COMPILATIONDB_UOUTPUT"],
         source=env["__COMPILATIONDB_USOURCE"],
         env=env["__COMPILATIONDB_ENV"],
+        overrides={'TEMPFILE': CompDBTEMPFILE}
     )
 
     entry = {
