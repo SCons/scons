@@ -50,11 +50,11 @@ if test.javac_is_gcj:
 test.write(
     'SConstruct',
     """
+DefaultEnvironment(tools=[])
 env = Environment()
 env.CacheDir("cache")
 env.Java("classes", "source")
-"""
-    % locals(),
+""",
 )
 
 test.subdir('source')
