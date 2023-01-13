@@ -59,9 +59,9 @@ def _collect_classes(classlist, dirname, files):
 
 
 def scan(node, env, libpath=()) -> list:
-    """Scan for files on the JAVACLASSPATH.
+    """Scan for files both on JAVACLASSPATH and JAVAPROCESSORPATH.
 
-    JAVACLASSPATH path can contain:
+    JAVACLASSPATH/JAVAPROCESSORPATH path can contain:
      - Explicit paths to JAR/Zip files
      - Wildcards (*)
      - Directories which contain classes in an unnamed package
@@ -70,8 +70,9 @@ def scan(node, env, libpath=()) -> list:
     Class path entries that are neither directories nor archives (.zip
     or JAR files) nor the asterisk (*) wildcard character are ignored.
     """
-    classpath = env.get('JAVACLASSPATH', [])
-    classpath = _subst_paths(env, classpath)
+    classpath = []
+    for var in ['JAVACLASSPATH', 'JAVAPROCESSORPATH']:
+        classpath += _subst_paths(env, env.get(var, []))
 
     result = []
     for path in classpath:

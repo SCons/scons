@@ -152,6 +152,31 @@ env['ENV']['LANG'] = 'en_GB.UTF-8'
         </summary>
     </cvar>
 
+    <cvar name="JAVAPROCESSORPATH">
+        <summary>
+            <para>
+                Specifies the location of the annotation processor class files.
+                Can be specified as a string or Node object,
+                or as a list of strings or Node objects.
+            </para>
+            <para>
+                The value will be added to the JDK command lines
+                via the <option>-processorpath</option> option,
+                which requires a system-specific search path separator.
+                This will be supplied by &SCons; as needed when it
+                constructs the command line if &cv-JAVAPROCESSORPATH; is
+                provided in list form.
+                If &cv-JAVAPROCESSORPATH; is a single string containing
+                search path separator characters
+                (<literal>:</literal> for POSIX systems or
+                <literal>;</literal> for Windows), it will not be modified;
+                and so is inherently system-specific;
+                to supply the path in a system-independent manner,
+                give &cv-JAVAPROCESSORPATH; as a list of paths instead.
+            </para>
+        </summary>
+    </cvar>
+
     <cvar name="JAVAINCLUDES">
         <summary>
             <para>

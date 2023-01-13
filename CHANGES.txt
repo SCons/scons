@@ -42,6 +42,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       command lines using the generated tempfile for long command lines, instead of the full command line for
       the compilation step for the source/target pair.
 
+  From David H:
+    - Added JAVAPROCESSORPATH construction variable which populates -processorpath.
+    - Updated JavaScanner to scan JAVAPROCESSORPATH.
+
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
 
