@@ -69,6 +69,8 @@ FIXES
 - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
   command lines using the generated tempfile for long command lines, instead of the full command line for
   the compilation step for the source/target pair.
+- A refactor in the caching logic for version 4.4 left Java inner classes
+  failing with an exception when a CacheDir was enabled. This is now corrected.
 
 
 IMPROVEMENTS
