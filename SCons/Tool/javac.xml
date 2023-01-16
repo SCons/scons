@@ -174,6 +174,9 @@ env['ENV']['LANG'] = 'en_GB.UTF-8'
                 to supply the path in a system-independent manner,
                 give &cv-JAVAPROCESSORPATH; as a list of paths instead.
             </para>
+            <para>
+                <emphasis>New in version 4.5.0</emphasis>
+            </para>
         </summary>
     </cvar>
 
