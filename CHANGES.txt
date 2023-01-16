@@ -34,6 +34,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       read packaging/etc/README.txt if you are interested.
     - Added --experimental=tm_v2, which enables Andrew Morrow's new NewParallel Job implementation.
       This should scale much better for highly parallel builds. You can also enable this via SetOption().
+    - Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
+      SetOption('diskcheck','none') is unaffected, as it did not have the problem.
+    - Added overrides argument to SCons.Subst.scons_subst(), subst_list(), subst(), and Action's process(),
+      strfunction(). This allows passing a dictionary of envvars to override when evaluating subst()'d strings/lists
+    - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
+      command lines using the generated tempfile for long command lines, instead of the full command line for
+      the compilation step for the source/target pair.
 
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
@@ -89,6 +96,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       still run into problems on some configurations), and automated
       tests are now run on changes in this area so future problems can
       be spotted.
+    - The single-file Util module was split into a package with a few
+      functional areas getting their own files - Util.py had grown to
+      over 2100 lines.
+    - Add a zipapp package of scons-local: can use SCons from a local
+      file which does not need unpacking.
 
 
 

@@ -713,6 +713,14 @@ class CLVar_TestCase(unittest.TestCase):
         assert cmd_list[0][3] == "call", cmd_list[0][3]
         assert cmd_list[0][4] == "test", cmd_list[0][4]
 
+
+    def test_subst_overriding_lvars_overrides(self):
+        """Test that optional passed arg overrides overrides gvars, and existing lvars."""
+        env=DummyEnv({'XXX' : 'xxx'})
+        result = scons_subst('$XXX', env, gvars=env.Dictionary(), overrides={'XXX': 'yyz'})
+        assert result == 'yyz', result
+
+
 class scons_subst_list_TestCase(SubstTestCase):
 
     basic_cases = [
@@ -1101,6 +1109,13 @@ class scons_subst_list_TestCase(SubstTestCase):
         assert result == [['xxx']], result
         result = scons_subst_list('$XXX', env, gvars={'XXX' : 'yyy'})
         assert result == [['yyy']], result
+
+    def test_subst_list_overriding_lvars_overrides(self):
+        """Test that optional passed arg overrides overrides gvars, and existing lvars."""
+        env = DummyEnv({'XXX':'xxx'})
+        result = scons_subst_list('$XXX', env, gvars=env.Dictionary(), overrides={'XXX': 'yyy'})
+        assert result == [['yyy']], result
+
 
 class scons_subst_once_TestCase(unittest.TestCase):
 

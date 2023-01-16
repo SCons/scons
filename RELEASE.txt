@@ -67,6 +67,12 @@ FIXES
 - Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
   execution environment variable set to a python list it would crash. Now it
   will create a string joining the list with os.pathsep
+- Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
+  SetOption('diskcheck','none') is unaffected, as it did not have the problem.
+- Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
+  command lines using the generated tempfile for long command lines, instead of the full command line for
+  the compilation step for the source/target pair.
+
 
 IMPROVEMENTS
 ------------
@@ -87,8 +93,9 @@ PACKAGING
   requirements_pkg.txt are the requirements to do a full build
   (including docs build) with an intent to create the packages.
 - Moved rpm and debian directories under packaging
-- Added logic to help packagers enable reproducible builds into packaging/etc/. Please
-  read packaging/etc/README.txt if you are interested.
+- Added logic to help packagers enable reproducible builds into packaging/etc/.
+  Please read packaging/etc/README.txt if you are interested.
+- A zipapp of scons-local is now also built.
 
 
 DOCUMENTATION
@@ -108,12 +115,25 @@ DOCUMENTATION
 - Updated the User Guide chapter on installation: modernized the notes
   on Python installs, SCons installs, and having multiple SCons versions
   present on a single system.
+- Updated the User Guide chapter on variant directories with more
+  explanation, and the introduction of terms like "out of tree" that
+  may help in forming a mental model.
 
 DEVELOPMENT
 -----------
 
 - Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
   NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
+- Refactored SCons.Util, which had grown quite large, to be a package,
+  not a single-file module. Change should be transparent: the same import
+  of SCons.Util and public symbols from it will continue to work, however
+  code which reaches directly in to grab private symbols (starting with
+  underscore) which moved to a submodule, that code will have to be adjusted,
+  as those are not imported to the package level (new SCons.Util.hashes has
+  some of these, which are used by existing unit tests).
+- Added overrides argument to SCons.Subst.scons_subst(), subst_list(), subst(), and Action's process(),
+  strfunction(). This allows passing a dictionary of envvars to override when evaluating subst()'d strings/lists
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
