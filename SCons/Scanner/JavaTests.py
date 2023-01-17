@@ -179,6 +179,70 @@ class JavaScannerSearchPathClasspath(unittest.TestCase):
         deps_match(self, deps, expected)
 
 
+class JavaScannerEmptyProcessorpath(unittest.TestCase):
+    def runTest(self):
+        path = []
+        env = DummyEnvironment(JAVASUFFIXES=['.java'], JAVAPROCESSORPATH=path)
+        s = SCons.Scanner.Java.JavaScanner()
+        deps = s(DummyNode('dummy'), env)
+        expected = []
+        deps_match(self, deps, expected)
+
+
+class JavaScannerProcessorpath(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(JAVASUFFIXES=['.java'],
+                               JAVAPROCESSORPATH=[test.workpath('classpath.jar')])
+        s = SCons.Scanner.Java.JavaScanner()
+        deps = s(DummyNode('dummy'), env)
+        expected = ['classpath.jar']
+        deps_match(self, deps, expected)
+
+
+class JavaScannerWildcardProcessorpath(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(JAVASUFFIXES=['.java'],
+                               JAVAPROCESSORPATH=[test.workpath('*')])
+        s = SCons.Scanner.Java.JavaScanner()
+        deps = s(DummyNode('dummy'), env)
+        expected = ['bootclasspath.jar', 'classpath.jar', 'Test.class']
+        deps_match(self, deps, expected)
+
+
+class JavaScannerDirProcessorpath(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(JAVASUFFIXES=['.java'],
+                               JAVAPROCESSORPATH=[test.workpath()])
+        s = SCons.Scanner.Java.JavaScanner()
+        deps = s(DummyNode('dummy'), env)
+        expected = ['Test.class', 'com/Test.class', 'java space/Test.class']
+        deps_match(self, deps, expected)
+
+
+class JavaScannerNamedDirProcessorpath(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(
+            JAVASUFFIXES=['.java'],
+            JAVAPROCESSORPATH=[test.workpath('com'), test.workpath('java space')],
+        )
+        s = SCons.Scanner.Java.JavaScanner()
+        deps = s(DummyNode('dummy'), env)
+        expected = ['com/Test.class', 'java space/Test.class']
+        deps_match(self, deps, expected)
+
+
+class JavaScannerSearchPathProcessorpath(unittest.TestCase):
+    def runTest(self):
+        env = DummyEnvironment(
+            JAVASUFFIXES=['.java'],
+            JAVAPROCESSORPATH=os.pathsep.join([test.workpath('com'), test.workpath('java space')]),
+        )
+        s = SCons.Scanner.Java.JavaScanner()
+        deps = s(DummyNode('dummy'), env)
+        expected = ['com/Test.class', 'java space/Test.class']
+        deps_match(self, deps, expected)
+
+
 if __name__ == "__main__":
     unittest.main()
 
