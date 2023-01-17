@@ -26,6 +26,9 @@ NEW FUNCTIONALITY
   not be called until all AddOption() calls are completed. Resolves Issue #4187
 - Added --experimental=tm_v2, which enables Andrew Morrow's NewParallel Job implementation.
   This should scale much better for highly parallel builds.  You can also enable this via SetOption().
+- Added VCPkg() builder, integrating the vcpkg cross-platform package management tool for
+  3rd-party C/C++ libraries (http://vcpkg.io). A project using SCons can use the VCPkg()
+  builder to to download and build any package known to vcpkg. Works on Windows, Linux and MacOS.
 
 
 DEPRECATED FUNCTIONALITY
