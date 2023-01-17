@@ -111,9 +111,8 @@ contain
 (or similar) include or module search path options
 that scons generates automatically from &cv-link-FORTRANPATH;.
 See
-&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
-below,
-for the variables that expand those options.
+&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;
+for the &consvars; that expand those options.
 </para>
 </summary>
 </cvar>
@@ -123,8 +122,9 @@ for the variables that expand those options.
 <para>
 General user-specified options that are passed to the Fortran compiler.
 Similar to &cv-link-FORTRANFLAGS;,
-but this variable is applied to all dialects.
+but is &consvar; is applied to all dialects.
 </para>
+<para><emphasis>New in version 4.4.</emphasis></para>
 </summary>
 </cvar>
 

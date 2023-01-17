@@ -106,6 +106,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not be cached because the emitted filename contained a '$' and when
       looked up through a node ended up generating a Python SyntaxError
       because it was passed through scons_subst().
+    - Have the gfortran tool do a better job of honoring user preferences
+      for the dialect tools (F95, SHF95, etc.). Previously set those
+      unconditionally to 'gfortran'. Cleaned a few Fortran tests -
+      behavior does not change.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify the smart_link() warning messages used when attempting to link
@@ -41,6 +40,7 @@ test = TestSCons.TestSCons(match = TestSCons.match_re)
 
 test.write('test_linker.py', """\
 import sys
+
 if sys.argv[1] == '-o':
     with open(sys.argv[2], 'wb') as ofp:
         for infile in sys.argv[3:]:
@@ -54,9 +54,9 @@ elif sys.argv[1][:5] == '/OUT:':
 sys.exit(0)
 """)
 
-
 test.write('test_fortran.py', """\
 import sys
+
 with open(sys.argv[2], 'wb') as ofp:
     for infile in sys.argv[4:]:
         with open(infile, 'rb') as ifp:
@@ -64,35 +64,35 @@ with open(sys.argv[2], 'wb') as ofp:
 sys.exit(0)
 """)
 
-
 test.write('SConstruct', """
 import SCons.Tool.link
+
 def copier(target, source, env):
     s = str(source[0])
     t = str(target[0])
     with open(t, 'wb') as ofp, open(s, 'rb') as ifp:
         ofp.write(ifp.read())
 
-env = Environment(CXX = r'%(_python_)s test_linker.py',
-                  CXXCOM = Action(copier),
-                  SMARTLINK = SCons.Tool.link.smart_link,
-                  LINK = r'$SMARTLINK',
-                  LINKFLAGS = '',
-                  # We want to re-define this as follows (so as to
-                  # not rely on a real Fortran compiler) but can't
-                  # because $FORTRANCOM is defined with an extra space
-                  # so it ends up as a CommandAction, not a LazyAction.
-                  # Must look into changing that after 1.0 is out.
-                  #FORTRANCOM = Action(copier))
-                  FORTRAN = r'%(_python_)s test_fortran.py')
+env = Environment(
+    CXX=r'%(_python_)s test_linker.py',
+    CXXCOM=Action(copier),
+    SMARTLINK=SCons.Tool.link.smart_link,
+    LINK=r'$SMARTLINK',
+    LINKFLAGS='',
+    # We want to re-define this as follows (so as to
+    # not rely on a real Fortran compiler) but can't
+    # because $FORTRANCOM is defined with an extra space
+    # so it ends up as a CommandAction, not a LazyAction.
+    # Must look into changing that after 1.0 is out.
+    # FORTRANCOM = Action(copier))
+    FORTRAN=r'%(_python_)s test_fortran.py',
+)
 env.Program('prog1.exe', ['f1.cpp', 'f2.f'])
 env.Program('prog2.exe', ['f1.cpp', 'f2.f'])
 if ARGUMENTS.get('NO_LINK'):
-    # Can remove no-deprecated when we drop Python1.5
-    SetOption('warn', ['no-link', 'no-deprecated'])
+    SetOption('warn', ['no-link'])
 if ARGUMENTS.get('NO_MIX'):
-    # Can remove no-deprecated when we drop Python1.5
-    SetOption('warn', ['no-fortran-cxx-mix', 'no-deprecated'])
+    SetOption('warn', ['no-fortran-cxx-mix'])
 """ % locals())
 
 test.write('f1.cpp', "f1.cpp\n")
@@ -100,52 +100,43 @@ test.write('f2.f', "f2.f\n")
 
 expect = ("""
 scons: warning: Using \\$CXX to link Fortran and C\\+\\+ code together.
-\tThis may generate a buggy executable if the '%s test_linker.py'
-\tcompiler does not know how to deal with Fortran runtimes.
+    This may generate a buggy executable if the '%s test_linker.py'
+    compiler does not know how to deal with Fortran runtimes.
 """ % re.escape(_python_)) + TestSCons.file_expr
 
 test.run(arguments = '.', stderr=expect)
-
 test.must_match('prog1.exe', "f1.cpp\nf2.f\n")
 test.must_match('prog2.exe', "f1.cpp\nf2.f\n")
 
 test.run(arguments = '-c .', stderr=expect)
-
 test.must_not_exist('prog1.exe')
 test.must_not_exist('prog2.exe')
 
 test.run(arguments = '--warning=no-link .')
-
 test.must_match('prog1.exe', "f1.cpp\nf2.f\n")
 test.must_match('prog2.exe', "f1.cpp\nf2.f\n")
 
 test.run(arguments = '-c .', stderr=expect)
-
 test.must_not_exist('prog1.exe')
 test.must_not_exist('prog2.exe')
 
 test.run(arguments = '--warning=no-fortran-cxx-mix .')
-
 test.must_match('prog1.exe', "f1.cpp\nf2.f\n")
 test.must_match('prog2.exe', "f1.cpp\nf2.f\n")
 
 test.run(arguments = '-c .', stderr=expect)
-
 test.must_not_exist('prog1.exe')
 test.must_not_exist('prog2.exe')
 
 test.run(arguments = 'NO_LINK=1 .')
-
 test.must_match('prog1.exe', "f1.cpp\nf2.f\n")
 test.must_match('prog2.exe', "f1.cpp\nf2.f\n")
 
 test.run(arguments = '-c .', stderr=expect)
-
 test.must_not_exist('prog1.exe')
 test.must_not_exist('prog2.exe')
 
 test.run(arguments = 'NO_MIX=1 .')
-
 test.must_match('prog1.exe', "f1.cpp\nf2.f\n")
 test.must_match('prog2.exe', "f1.cpp\nf2.f\n")
 
