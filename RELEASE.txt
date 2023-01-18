@@ -117,6 +117,8 @@ DOCUMENTATION
 - Updated the User Guide chapter on variant directories with more
   explanation, and the introduction of terms like "out of tree" that
   may help in forming a mental model.
+- Updated MSVC documentation - adds "version added" annotations on recently
+  added construction variables and provides a version-mapping table.
 
 DEVELOPMENT
 -----------
