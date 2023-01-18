@@ -122,7 +122,7 @@ for the &consvars; that expand those options.
 <para>
 General user-specified options that are passed to the Fortran compiler.
 Similar to &cv-link-FORTRANFLAGS;,
-but is &consvar; is applied to all dialects.
+but this &consvar; is applied to all dialects.
 </para>
 <para><emphasis>New in version 4.4.</emphasis></para>
 </summary>
