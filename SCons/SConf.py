@@ -1067,7 +1067,7 @@ def CheckCXXHeader(context, header, include_quotes = '""'):
 
 
 def CheckLib(context, library = None, symbol = "main",
-             header = None, language = None, autoadd = 1):
+             header = None, language = None, autoadd=True, append=True,) -> bool:
     """
     A test for a library. See also CheckLibWithHeader.
     Note that library may also be None to test whether the given symbol
@@ -1082,15 +1082,16 @@ def CheckLib(context, library = None, symbol = "main",
 
     # ToDo: accept path for the library
     res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
-                                        language = language, autoadd = autoadd)
-    context.did_show_result = 1
+                                        language = language, autoadd = autoadd,
+                                        append=append)
+    context.did_show_result = True
     return not res
 
 # XXX
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
 def CheckLibWithHeader(context, libs, header, language,
-                       call = None, autoadd = 1):
+                       call = None, autoadd=True, append=True) -> bool:
     # ToDo: accept path for library. Support system header files.
     """
     Another (more sophisticated) test for a library.
@@ -1099,8 +1100,7 @@ def CheckLibWithHeader(context, libs, header, language,
     As in CheckLib, we support library=None, to test if the call compiles
     without extra link flags.
     """
-    prog_prefix, dummy = \
-                 createIncludesFromHeaders(header, 0)
+    prog_prefix, dummy = createIncludesFromHeaders(header, 0)
     if not libs:
         libs = [None]
 
@@ -1108,7 +1108,7 @@ def CheckLibWithHeader(context, libs, header, language,
         libs = [libs]
 
     res = SCons.Conftest.CheckLib(context, libs, None, prog_prefix,
-            call = call, language = language, autoadd = autoadd)
+            call = call, language = language, autoadd=autoadd, append=append)
     context.did_show_result = 1
     return not res
 

@@ -174,14 +174,14 @@ looks for a file named
 in the current directory and reads the
 build configuration from that file
 (other names are allowed,
-see <xref linkend="sconscript_files"/> 
+see <xref linkend="sconscript_files"/>
 and the <link linkend="opt-f"><option>-f</option></link> option
 for more information).
 The build may be structured in a hierarchical manner:
 the &SConstruct;
 file may specify subsidiary
 configuration files by calling the
-&f-link-SConscript; function, 
+&f-link-SConscript; function,
 and these may, in turn, do the same.
 By convention,
 these subsidiary files are named
@@ -3665,7 +3665,7 @@ does not maintain an explicit cache of the tested values
 (this is different than &Autoconf;),
 but uses its normal dependency tracking to keep the checked values
 up to date. However, users may override this behaviour with the
-<option>--config</option>
+<link linkend="opt-config"><option>--config</option></link>
 command line option.</para>
 
 <variablelist>
@@ -3795,13 +3795,16 @@ env = conf.Finish()
 <para>A &configure_context;
 has the following predefined methods which
 can be used to perform checks. Where
-<parameter>language</parameter> is a required or
-optional parameter, the choice can currently
-be C or C++. The spellings accepted for
+<parameter>language</parameter> is an optional parameter,
+it specifies the compiler to use for the check,
+currently a choice of C or C++.
+The spellings accepted for
 C are <quote>C</quote> or <quote>c</quote>;
 for C++ the value can be
 <quote>CXX</quote>, <quote>cxx</quote>, <quote>C++</quote>
 or <quote>c++</quote>.
+If <parameter>language</parameter> is omitted,
+<quote>C</quote> is assumed.
 </para>
 
 <variablelist>
@@ -3810,7 +3813,7 @@ or <quote>c++</quote>.
   <listitem>
 <para>Checks if
 <parameter>header</parameter>
-is usable in the specified language.
+is usable in the specified <parameter>language</parameter>.
 <parameter>header</parameter>
 may be a list,
 in which case the last item in the list
@@ -3826,14 +3829,8 @@ must be
 a two character string, where the first character denotes the opening
 quote and the second character denotes the closing quote.
 By default, both characters  are <markup>"</markup> (double quote).
-The optional argument
-<parameter>language</parameter>
-should be either
-<emphasis role="bold">C</emphasis>
-or
-<emphasis role="bold">C++</emphasis>
-and selects the compiler to be used for the check.
-Returns a boolean indicating success or failure.</para>
+</para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -3894,25 +3891,23 @@ Returns a boolean indicating success or failure.</para>
   <varlistentry>
   <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language]</parameter>)</term>
   <listitem>
-<para>Checks if the specified
-C or C++ library function is available based on the
-context's local environment settings (that is, using
-the values of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;, &cv-link-LIBS;
-or other relevant &consvars;).
+<para>Checks if <parameter>function_name</parameter> is usable
+in the context's local environment using the compiler
+specified by <parameter>language</parameter> - that is,
+can a check referencing it be compiled using the current values
+of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;,
+&cv-link-LIBS; or other relevant &consvars;.
 </para>
 
 <para>
-<parameter>function_name</parameter>
-is the name of the function to check for.
 The optional
 <parameter>header</parameter>
-argument is a string
-that will be
-placed at the top
-of the test file
-that will be compiled
-to check if the function exists;
-the default is:</para>
+argument is a string representing a code fragment
+to place at the top of the test program
+that will be compiled to check if the function exists.
+If omitted, the default stanza will be
+(with <parameter>function_name</parameter> appropriately substituted):
+</para>
 
 <programlisting language="C">
 #ifdef __cplusplus
@@ -3922,61 +3917,79 @@ char function_name();
 </programlisting>
 
 <para>
-Returns an empty string on success, a string containing
-an error message on failure.
+Note: do not use <parameter>header</parameter>
+to include the standard header file that declares
+<parameter>function_name</parameter> - successful
+compilation of the test program depends on using
+a dummy prototype for it,
+to avoid probems with compilers which object to
+function signature mismatches.
+</para>
+
+<para>Returns a boolean indicating success or failure.</para>
+  </listitem>
+  </varlistentry>
+
+  <varlistentry>
+  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True, append=True]</parameter>) </term>
+  <listitem>
+<para>Checks if
+<parameter>library</parameter>
+provides
+<parameter>symbol</parameter> by compiling a simple stub program
+with the compiler selected by <parameter>language</parameter>,
+and optionally adds that library to the context.
+If supplied, the text of <parameter>header</parameter> is included at the
+top of the stub.
+If <parameter>autoadd</parameter> is true (the default),
+and the library provides the specified
+<parameter>symbol</parameter> (as defined by successfully
+linking the stub program),
+it is added to the &cv-link-LIBS; &consvar; in the context.
+if <parameter>append</parameter> is true (the default),
+the library is appended, otherwise it is prepended.
+</para>
+<para>
+<parameter>library</parameter> can be a list of library names,
+or <constant>None</constant> (the default if the argument is omitted).
+If the former, <parameter>symbol</parameter> is checked against
+each library name in order, returning on the first
+successful test; if the latter,
+it is checked with the current value of &cv-LIBS;
+(in this case no library name would be added).
+If <parameter>symbol</parameter>
+is omitted or <constant>None</constant>,
+then <function>CheckLib</function>
+just checks if
+you can link against the specified
+<parameter>library</parameter>,
+Note though it is legal syntax, it would
+not be very useful to call this method
+with <parameter>library</parameter>
+and <parameter>symbol</parameter> both
+omitted or <constant>None</constant> -
+at least one should be supplied.
+</para>
+<para>Returns a boolean indicating success or failure.</para>
+<para>
+<emphasis>Changed in version 4.5.0: added the
+<parameter>append</parameter> parameter.</emphasis>
 </para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True]</parameter>) </term>
-  <listitem>
-<para>Checks if
-<parameter>library</parameter>
-provides
-<parameter>symbol</parameter>.
-If
-<parameter>autoadd</parameter>
-is true (the default) and the library provides the specified
-<parameter>symbol</parameter>,
-appends the library to the <varname>LIBS</varname> &consvar;
-<parameter>library</parameter>
-may also be <constant>None</constant> (the default),
-in which case
-<parameter>symbol</parameter>
-is checked with the current <varname>LIBS</varname> variable,
-or a list of library names,
-in which case each library in the list
-will be checked for
-<parameter>symbol</parameter>.
-If
-<parameter>symbol</parameter>
-is not set or is
-<constant>None</constant>,
-then
-<function>CheckLib</function>
-just checks if
-you can link against the specified
-<parameter>library</parameter>.
-Note though it is legal syntax, it would
-not be very useful to call this method
-with <parameter>library</parameter>
-and <parameter>symbol</parameter> both
-omitted or <constant>None</constant>.
-Returns a boolean indicating success or failure.</para>
-  </listitem>
-  </varlistentry>
-
-  <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, language, [call, autoadd=True]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, [language, call, autoadd=True, append=True]</parameter>)</term>
   <listitem>
 
-<para>Provides a more sophisticated way to check against libraries then the
-<function>CheckLib</function> call.
+<para>Provides an alternative to the
+<methodname>CheckLib</methodname> method
+for checking for libraries usable in a build.
 <parameter>library</parameter>
-specifies the library or a list of libraries to check.
+specifies a library or list of libraries to check.
 <parameter>header</parameter>
-specifies a header to check for.
+specifies a header to include in the test program,
+and <parameter>language</parameter> indicates the compiler to use.
 <parameter>header</parameter>
 may be a list,
 in which case the last item in the list
@@ -3986,18 +3999,25 @@ header files whose
 <literal>#include</literal>
 lines should precede the
 header line being checked for.
-<parameter>call</parameter>
-can be any valid expression (with a trailing ';').
-If
-<parameter>call</parameter>
-is not set,
-the default simply checks that you
-can link against the specified
+A code fragment
+(must be a a valid expression, including a trailing semicolon)
+to serve as the test can be supplied in
+<parameter>call</parameter>;
+if not supplied,
+the default checks the ability to link against the specified
 <parameter>library</parameter>.
-<parameter>autoadd</parameter> (default true)
-specifies whether to add the library to the environment if the check
-succeeds.
-Returns a boolean indicating success or failure.</para>
+If <parameter>autoadd</parameter> is true (the default),
+the first library that passes the check
+is added to the &cv-link-LIBS; &consvar; in the context
+and the method returns.
+If <parameter>append</parameter> is true (the default),
+the library is appended, otherwise prepended.
+</para>
+<para>Returns a boolean indicating success or failure.</para>
+<para>
+<emphasis>Changed in version 4.5.0: added the
+<parameter>append</parameter> parameter.</emphasis>
+</para>
   </listitem>
   </varlistentry>
 
@@ -4019,11 +4039,7 @@ Example:</para>
 sconf.CheckType('foo_type', '#include "my_types.h"', 'C++')
 </programlisting>
 
-<para>
-Returns an empty string on success, a string containing
-an error message on failure.
-</para>
-
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4050,7 +4066,7 @@ is supplied, it should be an integer size;
 <parameter>type_name</parameter> is actually
 that size.
 Returns the size in bytes, or zero if the type was not found
-(or if the size did not match <parameter>expect</parameter>).</para>
+(or if the size did not match optional <parameter>expect</parameter>).</para>
 
 <para>
 For example,</para>
@@ -4081,6 +4097,7 @@ for C source files, so by setting relevant &consvars;
 it can be used to detect if particular compiler flags will
 be accepted or rejected by the compiler.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4101,6 +4118,7 @@ for C++ source files, so by setting relevant &consvars;
 it can be used to detect if particular compiler flags will
 be accepted or rejected by the compiler.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4123,6 +4141,7 @@ be accepted or rejected by the compiler.
 Note this does not check whether a shared library/dll can
 be created.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4145,6 +4164,7 @@ be accepted or rejected by the compiler.
 Note this does not check whether a shared library/dll can
 be created.
 </para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
@@ -4171,7 +4191,8 @@ is a string containing one or more
 <literal>#include</literal>
 lines that will be inserted into the program
 that will be run to test for the existence of the symbol.
-Returns a boolean indicating success or failure.</para>
+</para>
+<para>Returns a boolean indicating success or failure.</para>
   </listitem>
   </varlistentry>
 
