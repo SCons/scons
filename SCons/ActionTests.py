@@ -1541,6 +1541,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
+            (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -1719,6 +1720,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
+            (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
 
         }
 
@@ -1730,6 +1732,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 9): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
+            (3, 12): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1974,6 +1977,7 @@ class LazyActionTestCase(unittest.TestCase):
             (3, 9): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
+            (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
         }
 
         meth_matches = [
@@ -2039,6 +2043,7 @@ class ActionCallerTestCase(unittest.TestCase):
             (3, 9): b'd\x00S\x00',
             (3, 10): b'd\x00S\x00',
             (3, 11): b'\x97\x00d\x00S\x00',
+            (3, 12): b'\x97\x00d\x00S\x00',
         }
 
         af = SCons.Action.ActionFactory(GlobalFunc, strfunc)
@@ -2250,6 +2255,7 @@ class ObjectContentsTestCase(unittest.TestCase):
                 bytearray(b'3, 3, 0, 0,(),(),(|\x00S\x00),(),()'),
             ),  # 3.10.1, 3.10.2
             (3, 11): bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),
+            (3, 12): bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2288,7 +2294,11 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(d\x01|\x00_\x00d\x02|\x00_\x01d\x00S\x00),(),(),2, 2, 0, 0,(),(),(d\x00S\x00),(),()}}{{{a=a,b=b}}}"
             ),
             (3, 11): bytearray(
-                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00d\x00S\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()}}{{{a=a,b=b}}}"),
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00d\x00S\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+            ),
+            (3, 12): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00d\x00S\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()}}{{{a=a,b=b}}}"
+            ),
         }
 
         assert c == expected[sys.version_info[:2]], f"Got\n{c!r}\nExpected\n" + repr(
@@ -2322,7 +2332,11 @@ class ObjectContentsTestCase(unittest.TestCase):
                 b'0, 0, 0, 0,(Hello, World!),(print),(e\x00d\x00\x83\x01\x01\x00d\x01S\x00)'
             ),
             (3, 11): bytearray(
-                b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xa6\x01\x00\x00\xab\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00d\x01S\x00)'),
+                b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xa6\x01\x00\x00\xab\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00d\x01S\x00)'
+            ),
+            (3, 12): bytearray(
+                b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xab\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00d\x01S\x00)'
+            ),
         }
 
         assert c == expected[sys.version_info[:2]], f"Got\n{c!r}\nExpected\n" + repr(

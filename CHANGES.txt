@@ -106,6 +106,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not be cached because the emitted filename contained a '$' and when
       looked up through a node ended up generating a Python SyntaxError
       because it was passed through scons_subst().
+    - Add Python 3.12 support, and indicate 3.11/3.12 support in package.
+      3.12 is in alpha for this SCons release, the bytecode sequences 
+      embedded in SCons/ActionTests.py may need to change later, but
+      based on what is known now, 3.12 itself should work with this release.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
