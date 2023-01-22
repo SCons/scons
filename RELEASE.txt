@@ -71,6 +71,12 @@ FIXES
   the compilation step for the source/target pair.
 - A refactor in the caching logic for version 4.4.0 left Java inner classes
   failing with an exception when a CacheDir was enabled. This is now corrected.
+- When using the gfortran tool (the default on most platforms as long as a GNU
+  toolchain is installed), the user setting of the "dialect" compilers
+  (F77, F90, F03 and F09, as well as the shared-library complements SHF77,
+  SHF90, SHF03, SHF09) is now honored; previously the tool forced the 
+  settings to 'gfortran', which made it difficult reference a cross-compile
+  version for dialects.
 
 
 IMPROVEMENTS
