@@ -102,6 +102,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       over 2100 lines.
     - Add a zipapp package of scons-local: can use SCons from a local
       file which does not need unpacking.
+    - Additional explanations for MSVSProject and MSVSSolution builders.
     - Fix a problem (present in 4.4.0 only) where a Java inner class could
       not be cached because the emitted filename contained a '$' and when
       looked up through a node ended up generating a Python SyntaxError
