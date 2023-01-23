@@ -106,6 +106,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not be cached because the emitted filename contained a '$' and when
       looked up through a node ended up generating a Python SyntaxError
       because it was passed through scons_subst().
+    - Have the gfortran tool do a better job of honoring user preferences
+      for the dialect tools (F77, F90, F03 and F09, as well as the shared-library
+      equivalents SHF77,  SHF90, SHF03, SHF09). Previously these were
+      unconditionally overwritten to 'gfortran'; the change should be more
+      in line with expectations of how these variables should work.
+      Also cleaned a few Fortran tests - test behavior does not change.
     - Updated MSVC documentation - adds "version added" annotations on recently
       added construction variables and provides a version-mapping table.
     - Add Python 3.12 support, and indicate 3.11/3.12 support in package.

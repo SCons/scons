@@ -137,11 +137,14 @@ def smart_link(source, target, env, for_signature):
     if has_cplusplus and has_fortran and not has_d:
         global issued_mixed_link_warning
         if not issued_mixed_link_warning:
-            msg = "Using $CXX to link Fortran and C++ code together.\n\t" + \
-                  "This may generate a buggy executable if the '%s'\n\t" + \
-                  "compiler does not know how to deal with Fortran runtimes."
-            SCons.Warnings.warn(SCons.Warnings.FortranCxxMixWarning,
-                                msg % env.subst('$CXX'))
+            msg = (
+                "Using $CXX to link Fortran and C++ code together.\n"
+                "    This may generate a buggy executable if the '%s'\n"
+                "    compiler does not know how to deal with Fortran runtimes."
+            )
+            SCons.Warnings.warn(
+                SCons.Warnings.FortranCxxMixWarning, msg % env.subst('$CXX')
+            )
             issued_mixed_link_warning = True
         return '$CXX'
     elif has_d:
