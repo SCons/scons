@@ -98,6 +98,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       over 2100 lines.
     - Add a zipapp package of scons-local: can use SCons from a local
       file which does not need unpacking.
+    - Additional explanations for MSVSProject and MSVSSolution builders.
 
 
 
