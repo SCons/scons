@@ -42,6 +42,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       command lines using the generated tempfile for long command lines, instead of the full command line for
       the compilation step for the source/target pair.
 
+  From David H:
+    - Added JAVAPROCESSORPATH construction variable which populates -processorpath.
+    - Updated JavaScanner to scan JAVAPROCESSORPATH.
+
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
 
@@ -98,7 +102,22 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       over 2100 lines.
     - Add a zipapp package of scons-local: can use SCons from a local
       file which does not need unpacking.
-
+    - Fix a problem (present in 4.4.0 only) where a Java inner class could
+      not be cached because the emitted filename contained a '$' and when
+      looked up through a node ended up generating a Python SyntaxError
+      because it was passed through scons_subst().
+    - Have the gfortran tool do a better job of honoring user preferences
+      for the dialect tools (F77, F90, F03 and F09, as well as the shared-library
+      equivalents SHF77,  SHF90, SHF03, SHF09). Previously these were
+      unconditionally overwritten to 'gfortran'; the change should be more
+      in line with expectations of how these variables should work.
+      Also cleaned a few Fortran tests - test behavior does not change.
+    - Updated MSVC documentation - adds "version added" annotations on recently
+      added construction variables and provides a version-mapping table.
+    - Add Python 3.12 support, and indicate 3.11/3.12 support in package.
+      3.12 is in alpha for this SCons release, the bytecode sequences 
+      embedded in SCons/ActionTests.py may need to change later, but
+      based on what is known now, 3.12 itself should work with this release.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

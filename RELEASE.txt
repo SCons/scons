@@ -43,6 +43,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   octal modes using the modern Python syntax (0o755 rather than 0755).
 - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
   to NewParallel Job class (Andrew Morrow's new parallel job implementation)
+- Preliminary support for Python 3.12.
 
 
 FIXES
@@ -69,6 +70,14 @@ FIXES
 - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
   command lines using the generated tempfile for long command lines, instead of the full command line for
   the compilation step for the source/target pair.
+- A refactor in the caching logic for version 4.4.0 left Java inner classes
+  failing with an exception when a CacheDir was enabled. This is now corrected.
+- When using the gfortran tool (the default on most platforms as long as a GNU
+  toolchain is installed), the user setting of the "dialect" compilers
+  (F77, F90, F03 and F09, as well as the shared-library equivalents SHF77,
+  SHF90, SHF03, SHF09) is now honored; previously the tool overwrote the
+  settings to 'gfortran', which made it difficult reference a cross-compile
+  version for dialects.
 
 
 IMPROVEMENTS
@@ -116,6 +125,8 @@ DOCUMENTATION
   explanation, and the introduction of terms like "out of tree" that
   may help in forming a mental model.
 - Additional explanations for MSVSProject and MSVSSolution builders.
+- Updated MSVC documentation - adds "version added" annotations on recently
+  added construction variables and provides a version-mapping table.
 
 DEVELOPMENT
 -----------
