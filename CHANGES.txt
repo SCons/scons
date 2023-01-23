@@ -106,6 +106,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not be cached because the emitted filename contained a '$' and when
       looked up through a node ended up generating a Python SyntaxError
       because it was passed through scons_subst().
+    - Updated MSVC documentation - adds "version added" annotations on recently
+      added construction variables and provides a version-mapping table.
+
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
