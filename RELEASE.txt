@@ -43,6 +43,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   octal modes using the modern Python syntax (0o755 rather than 0755).
 - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
   to NewParallel Job class (Andrew Morrow's new parallel job implementation)
+- Preliminary support for Python 3.12.
 
 
 FIXES
