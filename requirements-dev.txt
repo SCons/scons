@@ -4,7 +4,9 @@
 
 # for now keep pinning "known working" lxml,
 # it's been a troublesome component in the past.
-lxml==4.9.1
+# Skip  lxml for win32 as no tests which require it currently pass on win32
+lxml==4.9.2; python_version < '3.12' and sys_platform != 'win32'
+
 ninja
 
 # Needed for test/Parallel/failed-build/failed-build.py
