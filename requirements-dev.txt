@@ -4,9 +4,8 @@
 
 # for now keep pinning "known working" lxml,
 # it's been a troublesome component in the past.
-# Skip  lxml for python 3.11+ on win32 as there's no binary wheel as of 01/22/2023
-lxml==4.9.2 ; python_version < '3.12' and sys_platform == 'win32'
-lxml==4.9.2 ; sys_platform != 'win32'
+# Skip  lxml for win32 as no tests which require it currently pass on win32
+lxml==4.9.2; python_version < 3.12 and sys_platform != 'win32'
 
 ninja
 
