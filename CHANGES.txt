@@ -107,8 +107,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       looked up through a node ended up generating a Python SyntaxError
       because it was passed through scons_subst().
     - Have the gfortran tool do a better job of honoring user preferences
-      for the dialect tools (F95, SHF95, etc.). Previously these were
-      unconditionally forced to 'gfortran'; the change should be more
+      for the dialect tools (F77, F90, F03 and F09, as well as the shared-library
+      equivalents SHF77,  SHF90, SHF03, SHF09). Previously these were
+      unconditionally overwritten to 'gfortran'; the change should be more
       in line with expectations of how these variables should work.
       Also cleaned a few Fortran tests - test behavior does not change.
 
