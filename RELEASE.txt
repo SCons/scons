@@ -44,6 +44,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
   to NewParallel Job class (Andrew Morrow's new parallel job implementation)
 - Preliminary support for Python 3.12.
+- Run LaTeX after biber/bibtex only if necessary
 
 
 FIXES
@@ -53,7 +54,7 @@ FIXES
 - A list argument as the source to the Copy() action function is now handled.
   Both the implementation and the strfunction which prints the progress
   message were adjusted.
-- The Java Scanner processing of JAVACLASSPATH for dependencies (behavior
+- The Java Scanner processing of JAVACLASSPATH for dep qendencies (behavior
   that was introduced in SCons 4.4.0) is adjusted to split on the system's
   search path separator instead of on a space. The previous behavior meant
   that a path containing spaces (e.g. r"C:\somepath\My Classes") would
