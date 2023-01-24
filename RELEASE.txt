@@ -44,6 +44,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
   to NewParallel Job class (Andrew Morrow's new parallel job implementation)
 - Preliminary support for Python 3.12.
+- Run LaTeX after biber/bibtex only if necessary
 
 
 FIXES

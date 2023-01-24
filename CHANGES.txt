@@ -63,6 +63,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Ryan Saunders:
     - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
 
+  From Lukas Schrangl:
+    - Run LaTeX after biber/bibtex only if necessary
+
   From Flaviu Tamas:
     - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
 
@@ -1065,7 +1068,6 @@ RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
         - CacheDir not write-able
         - JSON encoding errors for CacheDir config
         - JSON decoding errors for CacheDir config
-
 
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 
