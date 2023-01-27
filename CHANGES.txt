@@ -124,6 +124,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       based on what is known now, 3.12 itself should work with this release.
     - Add "append" keyword argument to Configure context's CheckLib and
       CheckLibWithHeader to control whether to append or prepend (issue #2767)
+      Also added "unique" keyword, to control whether a library is added
+      or not if it is already in the $LIBS construction var in the
+      configure context. (issue #2768).
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

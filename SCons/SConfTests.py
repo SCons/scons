@@ -32,6 +32,7 @@ import TestCmd
 
 sys.stdout = io.StringIO()
 
+# a library that is sure to exist on the platform
 if sys.platform == 'win32':
     existing_lib = "msvcrt"
 else:
@@ -78,9 +79,13 @@ class SConfTestCase(unittest.TestCase):
         #    - cygwin on Windows (using cmd.exe, not bash)
         #    - posix
         #    - msvc on Windows (hopefully)
-        if (not self.scons_env.Detect( self.scons_env.subst('$CXX') ) or
-            not self.scons_env.Detect( self.scons_env.subst('$CC') ) or
-            not self.scons_env.Detect( self.scons_env.subst('$LINK') )):
+        if not all(
+            (
+                self.scons_env.Detect(self.scons_env.subst('$CXX')),
+                self.scons_env.Detect(self.scons_env.subst('$CC')),
+                self.scons_env.Detect(self.scons_env.subst('$LINK')),
+            )
+        ):
             raise Exception("This test needs an installed compiler!")
         if self.scons_env['CXX'] == 'g++':
             global existing_lib
@@ -502,27 +507,59 @@ int main(void) {
             r = sconf.CheckLib( ["hopefullynolib",existing_lib], "main", autoadd=0 )
             assert r, "did not find %s " % existing_lib
 
-            # CheckLib() with autoadd
             def libs(env):
                 return env.get('LIBS', [])
 
-            env = sconf.env.Clone()
-
+            # CheckLib() with combinations of autoadd, append
             try:
-                r = sconf.CheckLib( existing_lib, "main", autoadd=1 )
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(existing_lib, "main", autoadd=True, append=True)
                 assert r, "did not find main in %s" % existing_lib
                 expect = libs(env) + [existing_lib]
                 got = libs(sconf.env)
                 assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
 
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(existing_lib, "main", autoadd=True, append=False)
+                assert r, "did not find main in %s" % existing_lib
+                expect = [existing_lib] + libs(env)
+                got = libs(sconf.env)
+                assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
+
                 sconf.env = env.Clone()
-                r = sconf.CheckLib( existing_lib, "main", autoadd=0 )
+                r = sconf.CheckLib(existing_lib, "main", autoadd=False)
                 assert r, "did not find main in %s" % existing_lib
                 expect = libs(env)
                 got = libs(sconf.env)
                 assert got == expect, "before and after LIBS were not the same"
             finally:
                 sconf.env = env
+
+            # CheckLib() with unique
+            sconf.env.Append(LIBS=existing_lib)
+            try:
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(
+                    existing_lib, "main", autoadd=True, append=True, unique=False
+                )
+                assert r, f"did not find main in {existing_lib}"
+
+                expect = libs(env) + [existing_lib]
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(
+                    existing_lib, "main", autoadd=True, append=True, unique=True
+                )
+                assert r, f"did not find main in {existing_lib}"
+
+                expect = libs(env)
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+            finally:
+                sconf.env = env
+
         finally:
             sconf.Finish()
 
@@ -565,13 +602,12 @@ int main(void) {
             r = sconf.CheckLibWithHeader( [existing_lib,"hopefullynolib"], ["stdio.h", "math.h"], "C", autoadd=0 )
             assert r, "did not find %s, #include stdio.h first" % existing_lib
 
-            # CheckLibWithHeader with autoadd
             def libs(env):
                 return env.get('LIBS', [])
 
-            env = sconf.env.Clone()
-
+            # CheckLibWithHeader with combinations of autoadd, append
             try:
+                env = sconf.env.Clone()
                 r = sconf.CheckLibWithHeader(
                     existing_lib, "math.h", "C", autoadd=True, append=True
                 )
@@ -597,6 +633,29 @@ int main(void) {
                 expect = libs(env)
                 got = libs(sconf.env)
                 assert got == expect, "before and after LIBS were not the same"
+            finally:
+                sconf.env = env
+
+            # CheckLibWithHeader() with unique
+            sconf.env.Append(LIBS=existing_lib)
+            try:
+                env = sconf.env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=True, unique=False
+                )
+                assert r, f"did not find main in {existing_lib}"
+                expect = libs(env) + [existing_lib]
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+
+                env = sconf.env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=True, unique=True
+                )
+                assert r, f"did not find main in {existing_lib}"
+                expect = libs(env)
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
             finally:
                 sconf.env = env
 

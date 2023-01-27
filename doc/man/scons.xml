@@ -3892,7 +3892,7 @@ Returns a boolean indicating success or failure.</para>
   <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language]</parameter>)</term>
   <listitem>
 <para>Checks if <parameter>function_name</parameter> is usable
-in the context's local environment using the compiler
+in the context's local environment, using the compiler
 specified by <parameter>language</parameter> - that is,
 can a check referencing it be compiled using the current values
 of &cv-link-CFLAGS;, &cv-link-CPPFLAGS;,
@@ -3913,17 +3913,21 @@ If omitted, the default stanza will be
 #ifdef __cplusplus
 extern "C"
 #endif
-char function_name();
+char function_name(void);
 </programlisting>
 
 <para>
-Note: do not use <parameter>header</parameter>
-to include the standard header file that declares
-<parameter>function_name</parameter> - successful
-compilation of the test program depends on using
-a dummy prototype for it,
-to avoid probems with compilers which object to
-function signature mismatches.
+Note: if <parameter>header</parameter> is supplied,
+it should <emphasis>not</emphasis>
+include the standard header file that declares
+<parameter>function_name</parameter>,
+and it <emphasis>should</emphasis> include a
+dummy prototype similar to the default case.
+Compilers reject builds where a function call does
+not match the declared prototype as happens
+if the "real" header is included,
+and modern compilers are now rejecting
+implicit function declarations.
 </para>
 
 <para>Returns a boolean indicating success or failure.</para>
@@ -3931,7 +3935,7 @@ function signature mismatches.
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True, append=True]</parameter>) </term>
+  <term><replaceable>context</replaceable>.<methodname>CheckLib</methodname>(<parameter>[library, symbol, header, language, autoadd=True, append=True, unique=False]</parameter>) </term>
   <listitem>
 <para>Checks if
 <parameter>library</parameter>
@@ -3948,12 +3952,17 @@ linking the stub program),
 it is added to the &cv-link-LIBS; &consvar; in the context.
 if <parameter>append</parameter> is true (the default),
 the library is appended, otherwise it is prepended.
+If <parameter>unique</parameter> is true,
+and the library would otherwise be added but is
+already present in &cv-link-LIBS; in the configure context,
+it will not be added again. The default is <literal>False</literal>.
 </para>
 <para>
 <parameter>library</parameter> can be a list of library names,
 or <constant>None</constant> (the default if the argument is omitted).
 If the former, <parameter>symbol</parameter> is checked against
-each library name in order, returning on the first
+each library name in order, returning 
+(and reporting success) on the first
 successful test; if the latter,
 it is checked with the current value of &cv-LIBS;
 (in this case no library name would be added).
@@ -3973,13 +3982,14 @@ at least one should be supplied.
 <para>Returns a boolean indicating success or failure.</para>
 <para>
 <emphasis>Changed in version 4.5.0: added the
-<parameter>append</parameter> parameter.</emphasis>
+<parameter>append</parameter> and <parameter>unique</parameter>
+parameters.</emphasis>
 </para>
   </listitem>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, [language, call, autoadd=True, append=True]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckLibWithHeader</methodname>(<parameter>library, header, [language, call, autoadd=True, append=True, unique=False]</parameter>)</term>
   <listitem>
 
 <para>Provides an alternative to the
@@ -4012,11 +4022,16 @@ is added to the &cv-link-LIBS; &consvar; in the context
 and the method returns.
 If <parameter>append</parameter> is true (the default),
 the library is appended, otherwise prepended.
+If <parameter>unique</parameter> is true,
+and the library would otherwise be added but is
+already present in &cv-link-LIBS; in the configure context,
+it will not be added again. The default is <literal>False</literal>.
 </para>
 <para>Returns a boolean indicating success or failure.</para>
 <para>
 <emphasis>Changed in version 4.5.0: added the
-<parameter>append</parameter> parameter.</emphasis>
+<parameter>append</parameter> and <parameter>unique</parameter>
+parameters.</emphasis>
 </para>
   </listitem>
   </varlistentry>

@@ -267,7 +267,7 @@ def CheckFunc(context, function_name, header = None, language = None):
 #ifdef __cplusplus
 extern "C"
 #endif
-char %s();""" % function_name
+char %s(void);""" % function_name
 
     lang, suffix, msg = _lang2suffix(language)
     if msg:
@@ -285,7 +285,7 @@ char %s();""" % function_name
 
 int main(void) {
 #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
-  fail fail fail
+  #error "%(name)s has a GNU stub, cannot check"
 #else
   %(name)s();
 #endif
@@ -627,7 +627,7 @@ int main(void) {
 
 def CheckLib(context, libs, func_name = None, header = None,
              extra_libs = None, call = None, language = None, autoadd = 1,
-             append = True):
+             append=True, unique=False):
     """
     Configure check for a C or C++ libraries "libs".  Searches through
     the list of libraries, until one is found where the test succeeds.
@@ -713,9 +713,9 @@ return 0;
             if extra_libs:
                 l.extend(extra_libs)
             if append:
-                oldLIBS = context.AppendLIBS(l)
+                oldLIBS = context.AppendLIBS(l, unique)
             else:
-                oldLIBS = context.PrependLIBS(l)
+                oldLIBS = context.PrependLIBS(l, unique)
             sym = "HAVE_LIB" + lib_name
         else:
             oldLIBS = -1
