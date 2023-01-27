@@ -45,6 +45,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   to NewParallel Job class (Andrew Morrow's new parallel job implementation)
 - Preliminary support for Python 3.12.
 - Run LaTeX after biber/bibtex only if necessary
+- Configure context methods CheckLib and CheckLibWithHeader now expose
+  an additional keyword argument 'append' which controls whether to append
+  (the default) or prepend discovered libraries to $LIBS.  The functionality
+  was always present but prepending could not be requested via the offical API.
 
 
 FIXES
