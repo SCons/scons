@@ -379,11 +379,20 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
                     sconsign.merge()
 
     def make_ready_current(self):
+        # We're overriding make_ready_current() call to add to the list
+        # of nodes used by this task, filtering out any nodes created
+        # by the checker for it's own purpose.
         self.non_sconf_nodes.update([t for t in self.targets if not t.is_conftest()])
         super().make_ready_current()
     make_ready = make_ready_current
 
     def postprocess(self):
+        # We're done executing this task, so now we'll go through all the
+        # nodes used by this task which aren't nodes created for
+        # Configure checkers, but rather are existing or built files
+        # and reset their node info.
+        # If we do not reset their node info, any changes in these
+        # nodes will not trigger builds in the normal build process
         for node in self.non_sconf_nodes:
             node.ninfo = node.new_ninfo()
         super().postprocess()

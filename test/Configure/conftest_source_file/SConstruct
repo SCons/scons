@@ -1,3 +1,4 @@
+DefaultEnvironment(tools=[])
 env = Environment()
 env.Append(CPPPATH=['.'])
 conf1 = Configure(env)
