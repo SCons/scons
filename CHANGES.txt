@@ -54,12 +54,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       for a specified builder from the CacheDir, fails to do so, and then runs into an error
       when deleting the files which were retrieved. Previously if this happened there was no
       errors or warnings.
-    - Fix for issue #2757, configure checks now clear node info for non conftest nodes, so they
-      will be re-evaluated for the real taskmaster run when the build commences. Fix issue where
-      a Configure() checker uses a source file in their processing, which then
-      causes SCons to ignore any changes to those source files during the regular build. This
-      would then prevent SCons from rebuilding any files which depend on those source files from
-      rebuilding.
     - Fix issue #2757, where Configure checks that perform a check which reads a modified source
       (including program, source or header file(s)) would incorrectly mark that file "up to date" so the
       actual build would not see the file as modified. Leading to incorrect incremental builds.
