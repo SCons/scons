@@ -570,7 +570,7 @@ print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
 $ scons -Q
 CXXFLAGS = -std=c11, CPPDEFINES = RELEASE
 CXXFLAGS = -std=c11 -O, CPPDEFINES = deque(['RELEASE', 'EXTRA'])
-CPPDEFINES will expand to  -DRELEASE -DEXTRA
+CPPDEFINES will expand to -DRELEASE -DEXTRA
 scons: `.' is up to date.
 </screen>
 
@@ -581,13 +581,16 @@ it accepts additional syntax.
 A command-line preprocessor macro can predefine a name by itself
 (<computeroutput>-DFOO</computeroutput>),
 which gives it an implicit value,
-or be given with a macro definition
+or be given with a replacement value
 (<computeroutput>-DBAR=1</computeroutput>).
-&SCons; allows you to specify a macro with a definition
-using a <literal>name=value</literal> string,
-or a tuple <literal>(name, value)</literal>
-(which must be supplied inside a sequence type),
-or a dictionary <literal>{name: value}</literal>.
+&SCons; allows you to specify a macro with replacement
+three different ways:
+using a string, like
+<quote><literal>macro=replacement</literal></quote>;
+as a (non-string) sequence inside a (non-string) sequence,
+like <literal>[(macro, replacement)]</literal>
+or as a key/value pair in a dictionary
+<literal>{macro: replacement}</literal>. Examples:
 </para>
 
 <example_commands>
@@ -613,29 +616,31 @@ scons: `.' is up to date.
 </screen>
 
 <para>
-Multiple &cv-CPPDEFINES; macros can be supplied in a sequence of tuples,
+Multiple &cv-CPPDEFINES; macros can be added in a single call
+using a (non-string) sequence,
 or using the dictionary form.
-If a given macro name should not have a definition,
-omit the value from tuple or give it as
+If a given macro name should not have a replacement value,
+supply that macro as a string,
+or either omit the replacement value or give it as
 <constant>None</constant>;
 if using the dictionary form,
-specify the value as <constant>None</constant>.
+specify the value as <constant>None</constant>. Examples:
 </para>
 
 <example_commands>
 env = Environment()
-env.Append(CPPDEFINES=[("ONE", 1), ("TWO", )])
+env.Append(CPPDEFINES=[("ONE", 1), "TWO", ("THREE", )])
 print("CPPDEFINES =", env['CPPDEFINES'])
-env.Append(CPPDEFINES={"THREE": 3, "FOUR": None})
+env.Append(CPPDEFINES={"FOUR": 4, "FIVE": None})
 print("CPPDEFINES =", env['CPPDEFINES'])
 print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
 </example_commands>
 
 <screen>
 $ scons -Q
-CPPDEFINES = [('ONE', 1), ('TWO',)]
-CPPDEFINES = [('ONE', 1), ('TWO',), {'THREE': 3, 'FOUR': None}]
-CPPDEFINES will expand to -DONE=1 -DTWO -DTHREE=3 -DFOUR
+CPPDEFINES = [('ONE', 1), 'TWO', ('THREE',)]
+CPPDEFINES = deque([('ONE', 1), 'TWO', ('THREE',), ('FOUR', 4), ('FIVE', None)])
+CPPDEFINES will expand to -DONE=1 -DTWO -DTHREE -DFOUR=4 -DFIVE
 scons: `.' is up to date.
 </screen>
 

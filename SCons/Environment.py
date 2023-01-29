@@ -235,12 +235,13 @@ def _add_cppdefines(
     def _is_in(item, defines: deque):
         """Returns match for *item* if found in *defines*.
 
-        Accounts for type differences: ("FOO", "BAR"), ["FOO", "BAR"]
-        "FOO=BAR" and {"FOO": "BAR"} all iffer as far as Python equality
-        comparison is concerned, but are the same for purposes of creating
-        the preprocessor macro.  Since the caller may wish to remove a
-        matched entry, we need to return it - cannot remove *item*
-        itself unless it happened to be an exact (type) match.
+        Accounts for type differences: tuple ("FOO", "BAR"), list
+        ["FOO", "BAR"], string "FOO=BAR" and dict {"FOO": "BAR"} all
+        differ as far as Python equality comparison is concerned, but
+        are the same for purposes of creating the preprocessor macro.
+        Since the caller may wish to remove a matched entry, we need to
+        return it - cannot remove *item* itself unless it happened to
+        be an exact (type) match.
 
         Called from a place we know *defines* is always a deque, and
         *item* will not be a dict, so don't need do much type checking.
