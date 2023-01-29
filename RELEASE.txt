@@ -46,9 +46,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - Preliminary support for Python 3.12.
 - Run LaTeX after biber/bibtex only if necessary
 - Configure context methods CheckLib and CheckLibWithHeader now expose
-  an additional keyword argument 'append' which controls whether to append
-  (the default) or prepend discovered libraries to $LIBS.  The functionality
-  was always present but prepending could not be requested via the offical API.
+  two additional keyword arguments: 'append', which controls whether to append
+  (the default) or prepend discovered libraries to $LIBS, and 'unique',
+  which controls whether to add the library if it is already in the $LIBS
+  list. This brings the library-adding functionality in Configure in line
+  with the regular Append, AppendUnique, Prepend and PrependUnique methods.
 
 
 FIXES
