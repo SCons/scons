@@ -159,10 +159,6 @@ class PlatformTestCase(unittest.TestCase):
         assert p.synonyms != '', 'SCons.Platform.win32.get_architecture() not setting synonyms'
 
 
-
-
-
-
 class TempFileMungeTestCase(unittest.TestCase):
     def test_MAXLINELENGTH(self):
         """ Test different values for MAXLINELENGTH with the same

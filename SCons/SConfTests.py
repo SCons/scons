@@ -574,14 +574,27 @@ int main(void) {
             env = sconf.env.Clone()
 
             try:
-                r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=1 )
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=True
+                )
                 assert r, "did not find math.h with %s" % existing_lib
                 expect = libs(env) + [existing_lib]
                 got = libs(sconf.env)
                 assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
 
                 sconf.env = env.Clone()
-                r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=False
+                )
+                assert r, "did not find math.h with %s" % existing_lib
+                expect = [existing_lib] + libs(env)
+                got = libs(sconf.env)
+                assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
+
+                sconf.env = env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=False
+                )
                 assert r, "did not find math.h with %s" % existing_lib
                 expect = libs(env)
                 got = libs(sconf.env)

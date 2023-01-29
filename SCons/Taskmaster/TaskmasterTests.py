@@ -26,10 +26,10 @@ import SCons.compat
 import sys
 import unittest
 
-
 import SCons.Taskmaster
 import SCons.Errors
 
+import TestCommon
 
 built_text = None
 cache_text = []
@@ -37,8 +37,9 @@ visited_nodes = []
 executed = None
 scan_called = 0
 
+
 class Node:
-    def __init__(self, name, kids = [], scans = []):
+    def __init__(self, name, kids=[], scans=[]):
         self.name = name
         self.kids = kids
         self.scans = scans
@@ -47,9 +48,11 @@ class Node:
         self.scanner = None
         self.targets = [self]
         self.prerequisites = None
+
         class Builder:
             def targets(self, node):
                 return node.targets
+
         self.builder = Builder()
         self.bsig = None
         self.csig = None
@@ -83,7 +86,7 @@ class Node:
 
     def prepare(self):
         self.prepared = 1
-        self.get_binfo()        
+        self.get_binfo()
 
     def build(self):
         global built_text
@@ -119,7 +122,7 @@ class Node:
         self.binfo = binfo
 
         return binfo
-    
+
     def clear(self):
         # The del_binfo() call here isn't necessary for normal execution,
         # but is for interactive mode, where we might rebuild the same
@@ -130,14 +133,14 @@ class Node:
         global built_text
         if not self.cached:
             built_text = built_text + " really"
-            
+
         # Clear the implicit dependency caches of any Nodes
         # waiting for this Node to be built.
         for parent in self.waiting_parents:
             parent.implicit = None
 
         self.clear()
-        
+
     def release_target_info(self):
         pass
 
@@ -199,7 +202,7 @@ class Node:
 
     def is_up_to_date(self):
         return self._current_val
-    
+
     def depends_on(self, nodes):
         for node in nodes:
             if node in self.kids:
@@ -218,25 +221,39 @@ class Node:
             class Executor:
                 def prepare(self):
                     pass
+
                 def get_action_targets(self):
                     return self.targets
+
                 def get_all_targets(self):
                     return self.targets
+
                 def get_all_children(self):
                     result = []
                     for node in self.targets:
                         result.extend(node.children())
                     return result
+
                 def get_all_prerequisites(self):
                     return []
+
                 def get_action_side_effects(self):
                     return []
+
             self.executor = Executor()
             self.executor.targets = self.targets
         return self.executor
 
+    def get_internal_path(self):
+        """
+        Should only be used (currently) by TaskmasterTestCase.test_cached_execute_target_unlink_fails
+        """
+        return str(self)
+
+
 class OtherError(Exception):
     pass
+
 
 class MyException(Exception):
     pass
@@ -306,7 +323,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n2._current_val = 1
         n3.set_state(SCons.Node.no_state)
         n3._current_val = 1
-        tm = SCons.Taskmaster.Taskmaster(targets = [n3], tasker = MyTask)
+        tm = SCons.Taskmaster.Taskmaster(targets=[n3], tasker=MyTask)
 
         t = tm.next_task()
         t.prepare()
@@ -330,7 +347,6 @@ class TaskmasterTestCase(unittest.TestCase):
         t.postprocess()
 
         assert tm.next_task() is None
-
 
         n1 = Node("n1")
         n2 = Node("n2")
@@ -366,7 +382,6 @@ class TaskmasterTestCase(unittest.TestCase):
 
         assert tm.next_task() is None
 
-
         n4 = Node("n4")
         n4.set_state(SCons.Node.executed)
         tm = SCons.Taskmaster.Taskmaster([n4])
@@ -374,13 +389,12 @@ class TaskmasterTestCase(unittest.TestCase):
 
         n1 = Node("n1")
         n2 = Node("n2", [n1])
-        tm = SCons.Taskmaster.Taskmaster([n2,n2])
+        tm = SCons.Taskmaster.Taskmaster([n2, n2])
         t = tm.next_task()
         t.executed()
         t.postprocess()
         t = tm.next_task()
         assert tm.next_task() is None
-
 
         n1 = Node("n1")
         n2 = Node("n2")
@@ -440,11 +454,11 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         n2 = Node("n2")
         n3 = Node("n3")
-        n4 = Node("n4", [n1,n2,n3])
+        n4 = Node("n4", [n1, n2, n3])
         n5 = Node("n5", [n4])
         n3.side_effect = 1
         n1.side_effects = n2.side_effects = n3.side_effects = [n4]
-        tm = SCons.Taskmaster.Taskmaster([n1,n2,n3,n4,n5])
+        tm = SCons.Taskmaster.Taskmaster([n1, n2, n3, n4, n5])
         t = tm.next_task()
         assert t.get_target() == n1
         assert n4.state == SCons.Node.executing, n4.state
@@ -471,10 +485,12 @@ class TaskmasterTestCase(unittest.TestCase):
         n1 = Node("n1")
         n2 = Node("n2")
         n3 = Node("n3")
-        n4 = Node("n4", [n1,n2,n3])
+        n4 = Node("n4", [n1, n2, n3])
+
         def reverse(dependencies):
             dependencies.reverse()
             return dependencies
+
         tm = SCons.Taskmaster.Taskmaster([n4], order=reverse)
         t = tm.next_task()
         assert t.get_target() == n3, t.get_target()
@@ -534,11 +550,11 @@ class TaskmasterTestCase(unittest.TestCase):
         s = n2.get_state()
         assert s == SCons.Node.executed, s
 
-
     def test_make_ready_out_of_date(self):
         """Test the Task.make_ready() method's list of out-of-date Nodes
         """
         ood = []
+
         def TaskGen(tm, targets, top, node, ood=ood):
             class MyTask(SCons.Taskmaster.AlwaysTask):
                 def make_ready(self):
@@ -558,8 +574,8 @@ class TaskmasterTestCase(unittest.TestCase):
         a5 = Node("a5")
         a5._current_val = 1
         a5.always_build = 1
-        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4, a5],
-                                         tasker = TaskGen)
+        tm = SCons.Taskmaster.Taskmaster(targets=[n1, c2, n3, c4, a5],
+                                         tasker=TaskGen)
 
         del ood[:]
         t = tm.next_task()
@@ -584,12 +600,13 @@ class TaskmasterTestCase(unittest.TestCase):
     def test_make_ready_exception(self):
         """Test handling exceptions from Task.make_ready()
         """
+
         class MyTask(SCons.Taskmaster.AlwaysTask):
             def make_ready(self):
                 raise MyException("from make_ready()")
 
         n1 = Node("n1")
-        tm = SCons.Taskmaster.Taskmaster(targets = [n1], tasker = MyTask)
+        tm = SCons.Taskmaster.Taskmaster(targets=[n1], tasker=MyTask)
         t = tm.next_task()
         exc_type, exc_value, exc_tb = t.exception
         assert exc_type == MyException, repr(exc_type)
@@ -601,6 +618,7 @@ class TaskmasterTestCase(unittest.TestCase):
         We should be getting:
           TypeError: Can't instantiate abstract class MyTask with abstract methods needs_execute
         """
+
         class MyTask(SCons.Taskmaster.Task):
             pass
 
@@ -611,6 +629,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
     def test_make_ready_all(self):
         """Test the make_ready_all() method"""
+
         class MyTask(SCons.Taskmaster.AlwaysTask):
             make_ready = SCons.Taskmaster.Task.make_ready_all
 
@@ -621,7 +640,7 @@ class TaskmasterTestCase(unittest.TestCase):
         c4 = Node("c4")
         c4._current_val = 1
 
-        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4])
+        tm = SCons.Taskmaster.Taskmaster(targets=[n1, c2, n3, c4])
 
         t = tm.next_task()
         target = t.get_target()
@@ -647,8 +666,8 @@ class TaskmasterTestCase(unittest.TestCase):
         n3 = Node("n3")
         c4 = Node("c4")
 
-        tm = SCons.Taskmaster.Taskmaster(targets = [n1, c2, n3, c4],
-                                         tasker = MyTask)
+        tm = SCons.Taskmaster.Taskmaster(targets=[n1, c2, n3, c4],
+                                         tasker=MyTask)
 
         t = tm.next_task()
         target = t.get_target()
@@ -669,13 +688,14 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert t is None
 
-
     def test_children_errors(self):
         """Test errors when fetching the children of a node.
         """
+
         class StopNode(Node):
             def children(self):
                 raise SCons.Errors.StopError("stop!")
+
         class ExitNode(Node):
             def children(self):
                 sys.exit(77)
@@ -879,8 +899,8 @@ class TaskmasterTestCase(unittest.TestCase):
         n9 = Node("n9")
         n10 = Node("n10")
 
-        n6.side_effects = [ n8 ]
-        n7.side_effects = [ n9, n10 ]
+        n6.side_effects = [n8]
+        n7.side_effects = [n9, n10]
 
         tm = SCons.Taskmaster.Taskmaster([n6, n7])
         t = tm.next_task()
@@ -897,15 +917,19 @@ class TaskmasterTestCase(unittest.TestCase):
         class ExceptionExecutor:
             def prepare(self):
                 raise Exception("Executor.prepare() exception")
+
             def get_all_targets(self):
                 return self.nodes
+
             def get_all_children(self):
                 result = []
                 for node in self.nodes:
                     result.extend(node.children())
                 return result
+
             def get_all_prerequisites(self):
                 return []
+
             def get_action_side_effects(self):
                 return []
 
@@ -935,6 +959,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         def raise_UserError():
             raise SCons.Errors.UserError
+
         n2 = Node("n2")
         n2.build = raise_UserError
         tm = SCons.Taskmaster.Taskmaster([n2])
@@ -948,6 +973,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         def raise_BuildError():
             raise SCons.Errors.BuildError
+
         n3 = Node("n3")
         n3.build = raise_BuildError
         tm = SCons.Taskmaster.Taskmaster([n3])
@@ -964,6 +990,7 @@ class TaskmasterTestCase(unittest.TestCase):
         # args set to the exception value, instance, and traceback.
         def raise_OtherError():
             raise OtherError
+
         n4 = Node("n4")
         n4.build = raise_OtherError
         tm = SCons.Taskmaster.Taskmaster([n4])
@@ -1050,7 +1077,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         n1 = Node("n1")
         # Mark the node as being cached
-        n1.cached = 1
+        n1.cached = True
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
         t.prepare()
@@ -1060,13 +1087,62 @@ class TaskmasterTestCase(unittest.TestCase):
         has_binfo = hasattr(n1, 'binfo')
         assert has_binfo, has_binfo
 
+    def test_cached_execute_target_unlink_fails(self):
+        """Test executing a task with cached targets where unlinking one of the targets fail
+        """
+        global cache_text
+        import SCons.Warnings
+
+        cache_text = []
+        n1 = Node("n1")
+        n2 = Node("not-cached")
+
+        class DummyFS:
+            def unlink(self, _):
+                raise IOError
+
+        n1.fs = DummyFS()
+
+        # Mark the node as being cached
+        n1.cached = True
+        # Add n2 as a target for n1
+        n1.targets.append(n2)
+        # Explicitly mark n2 as not cached
+        n2.cached = False
+
+        # Save SCons.Warnings.warn so we can mock it and catch it being called for unlink failures
+        _save_warn = SCons.Warnings.warn
+        issued_warnings = []
+
+        def fake_warnings_warn(clz, message):
+            nonlocal issued_warnings
+            issued_warnings.append((clz, message))
+        SCons.Warnings.warn = fake_warnings_warn
+
+        tm = SCons.Taskmaster.Taskmaster([n1, n2])
+        t = tm.next_task()
+        t.prepare()
+        t.execute()
+
+        # Restore saved warn
+        SCons.Warnings.warn = _save_warn
+
+        self.assertTrue(len(issued_warnings) == 1,
+                        msg='More than expected warnings (1) were issued %d' % len(issued_warnings))
+        self.assertEqual(issued_warnings[0][0], SCons.Warnings.CacheCleanupErrorWarning,
+                         msg='Incorrect warning class')
+        self.assertEqual(issued_warnings[0][1],
+                         'Failed copying all target files from cache, Error while attempting to remove file n1 retrieved from cache: ')
+        self.assertEqual(cache_text, ["n1 retrieved"], msg=cache_text)
+
+
     def test_exception(self):
         """Test generic Taskmaster exception handling
 
         """
         n1 = Node("n1")
         tm = SCons.Taskmaster.Taskmaster([n1])
-        t  = tm.next_task()
+        t = tm.next_task()
 
         t.exception_set((1, 2))
         exc_type, exc_value = t.exception
@@ -1076,25 +1152,24 @@ class TaskmasterTestCase(unittest.TestCase):
         t.exception_set(3)
         assert t.exception == 3
 
-        try: 1//0
+        try:
+            1 // 0
         except:
             # Moved from below
             t.exception_set(None)
-            #pass
-
-#        import pdb; pdb.set_trace()
+            # pass
 
         # Having this here works for python 2.x,
         # but it is a tuple (None, None, None) when called outside
         # an except statement
         # t.exception_set(None)
-        
+
         exc_type, exc_value, exc_tb = t.exception
-        assert exc_type is ZeroDivisionError, "Expecting ZeroDevisionError got:%s"%exc_type
+        assert exc_type is ZeroDivisionError, "Expecting ZeroDevisionError got:%s" % exc_type
         exception_values = [
             "integer division or modulo",
             "integer division or modulo by zero",
-            "integer division by zero",    # PyPy2
+            "integer division by zero",  # PyPy2
         ]
         assert str(exc_value) in exception_values, exc_value
 
@@ -1108,7 +1183,7 @@ class TaskmasterTestCase(unittest.TestCase):
         except:
             exc_type, exc_value = sys.exc_info()[:2]
             assert exc_type == Exception1, exc_type
-            assert str(exc_value) == '', "Expecting empty string got:%s (type %s)"%(exc_value,type(exc_value))
+            assert str(exc_value) == '', "Expecting empty string got:%s (type %s)" % (exc_value, type(exc_value))
         else:
             assert 0, "did not catch expected exception"
 
@@ -1129,7 +1204,7 @@ class TaskmasterTestCase(unittest.TestCase):
             pass
 
         try:
-            1//0
+            1 // 0
         except:
             tb = sys.exc_info()[2]
         t.exception_set((Exception3, "arg", tb))
@@ -1241,10 +1316,12 @@ Task.postprocess():  node <executing  0   'n3'>
 
 Taskmaster: Looking for a node to evaluate
 Taskmaster: No candidate anymore.
-
 """
-        assert value == expect, value
 
+        if value != expect:
+            TestCommon.TestCommon.detailed_diff(value, expect)
+
+        assert value == expect, "Expected taskmaster trace contents didn't match. See above"
 
 
 if __name__ == "__main__":

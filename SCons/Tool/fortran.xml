@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+Copyright The SCons Foundation
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="fortran">
 <summary>
 <para>
-Set construction variables for generic POSIX Fortran compilers.
+Set &consvars; for generic POSIX Fortran compilers.
 </para>
 </summary>
 <sets>
@@ -43,6 +43,8 @@ Set construction variables for generic POSIX Fortran compilers.
 <item>FORTRANPPCOMSTR</item>
 <item>SHFORTRANCOMSTR</item>
 <item>SHFORTRANPPCOMSTR</item>
+<item>CPPFLAGS</item>
+<item>_CPPDEFFLAGS</item>
 </uses>
 </tool>
 
@@ -61,11 +63,9 @@ for all versions of Fortran.
 The command line used to compile a Fortran source file to an object file.
 By default, any options specified
 in the &cv-link-FORTRANFLAGS;,
-&cv-link-CPPFLAGS;,
-&cv-link-_CPPDEFFLAGS;,
 &cv-link-_FORTRANMODFLAG;, and
-&cv-link-_FORTRANINCFLAGS; construction variables
-are included on this command line.
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
 </para>
 </summary>
 </cvar>
@@ -102,7 +102,8 @@ FORTRAN dialect will be used. By default, this is <literal>['.fpp', '.FPP']</lit
 <cvar name="FORTRANFLAGS">
 <summary>
 <para>
-General user-specified options that are passed to the Fortran compiler.
+General user-specified options for the FORTRAN dialect
+that are passed to the Fortran compiler.
 Note that this variable does
 <emphasis>not</emphasis>
 contain
@@ -110,17 +111,27 @@ contain
 (or similar) include or module search path options
 that scons generates automatically from &cv-link-FORTRANPATH;.
 See
-&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;,
-below,
-for the variables that expand those options.
+&cv-link-_FORTRANINCFLAGS; and &cv-link-_FORTRANMODFLAG;
+for the &consvars; that expand those options.
 </para>
+</summary>
+</cvar>
+
+<cvar name="FORTRANCOMMONFLAGS">
+<summary>
+<para>
+General user-specified options that are passed to the Fortran compiler.
+Similar to &cv-link-FORTRANFLAGS;,
+but this &consvar; is applied to all dialects.
+</para>
+<para><emphasis>New in version 4.4.</emphasis></para>
 </summary>
 </cvar>
 
 <cvar name="_FORTRANINCFLAGS">
 <summary>
 <para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran compiler command-line options
 for specifying directories to be searched for include
 files and module files.
@@ -150,7 +161,7 @@ for module files, as well.
 The prefix used to specify a module directory on the Fortran compiler command
 line.
 This will be prepended to the beginning of the directory
-in the &cv-link-FORTRANMODDIR; construction variables
+in the &cv-link-FORTRANMODDIR; &consvars;
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
 </summary>
@@ -162,7 +173,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 The suffix used to specify a module directory on the Fortran compiler command
 line.
 This will be appended to the end of the directory
-in the &cv-link-FORTRANMODDIR; construction variables
+in the &cv-link-FORTRANMODDIR; &consvars;
 when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 </para>
 </summary>
@@ -171,7 +182,7 @@ when the &cv-link-_FORTRANMODFLAG; variables is automatically generated.
 <cvar name="_FORTRANMODFLAG">
 <summary>
 <para>
-An automatically-generated construction variable
+An automatically-generated &consvar;
 containing the Fortran compiler command-line option
 for specifying the directory location where the Fortran
 compiler should place any module files that happen to get
@@ -249,11 +260,11 @@ env = Environment(FORTRANPATH=include)
 The directory list will be added to command lines
 through the automatically-generated
 &cv-link-_FORTRANINCFLAGS;
-construction variable,
+&consvar;,
 which is constructed by
 respectively prepending and appending the values of the
 &cv-link-INCPREFIX; and &cv-link-INCSUFFIX;
-construction variables
+&consvars;
 to the beginning and end
 of each directory in &cv-link-FORTRANPATH;.
 Any command lines you define that need
@@ -277,7 +288,7 @@ By default, any options specified in the &cv-link-FORTRANFLAGS;,
 &cv-link-_CPPDEFFLAGS;,
 &cv-link-_FORTRANMODFLAG;, and
 &cv-link-_FORTRANINCFLAGS;
-construction variables are included on this command line.
+&consvars; are included on this command line.
 </para>
 </summary>
 </cvar>
@@ -323,6 +334,12 @@ The default Fortran compiler used for generating shared-library objects.
 <para>
 The command line used to compile a Fortran source file
 to a shared-library object file.
+By default, any options specified
+in the &cv-link-SHFORTRANFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+See also &cv-link-FORTRANCOM;.
 </para>
 </summary>
 </cvar>
@@ -353,10 +370,13 @@ to generate shared-library objects.
 The command line used to compile a Fortran source file to a
 shared-library object file
 after first running the file through the C preprocessor.
-Any options specified
-in the &cv-link-SHFORTRANFLAGS; and
-&cv-link-CPPFLAGS; construction variables
-are included on this command line.
+By default, any options specified in the &cv-link-SHFORTRANFLAGS;,
+&cv-link-CPPFLAGS;,
+&cv-link-_CPPDEFFLAGS;,
+&cv-link-_FORTRANMODFLAG;, and
+&cv-link-_FORTRANINCFLAGS;
+&consvars; are included on this command line.
+See also &cv-link-SHFORTRANCOM;.
 </para>
 </summary>
 </cvar>

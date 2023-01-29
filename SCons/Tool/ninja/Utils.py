@@ -23,11 +23,15 @@
 import os
 import shutil
 from os.path import join as joinpath
+from collections import OrderedDict
 
 import SCons
 from SCons.Action import get_default_ENV, _string_from_cmd_list
 from SCons.Script import AddOption
 from SCons.Util import is_List, flatten_sequence
+
+class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
+    pass
 
 
 def ninja_add_command_line_options():
@@ -48,6 +52,15 @@ def ninja_add_command_line_options():
               default=False,
               help='Disable ninja generation and build with scons even if tool is loaded. '+
                    'Also used by ninja to build targets which only scons can build.')
+
+    AddOption('--skip-ninja-regen',
+              dest='skip_ninja_regen',
+              metavar='BOOL',
+              action="store_true",
+              default=False,
+              help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
+                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' + 
+                    'command lines.')
 
 
 def is_valid_dependent_node(node):
@@ -123,7 +136,7 @@ def get_dependencies(node, skip_sources=False):
             get_path(src_file(child))
             for child in filter_ninja_nodes(node.children())
             if child not in node.sources
-        ]    
+        ]
     return [get_path(src_file(child)) for child in filter_ninja_nodes(node.children())]
 
 
@@ -258,8 +271,22 @@ def ninja_noop(*_args, **_kwargs):
     """
     return None
 
+def ninja_recursive_sorted_dict(build):
+    sorted_dict = OrderedDict()
+    for key, val in sorted(build.items()):
+        if isinstance(val, dict):
+            sorted_dict[key] = ninja_recursive_sorted_dict(val)
+        else:
+            sorted_dict[key] = val
+    return sorted_dict
 
-def get_command_env(env):
+
+def ninja_sorted_build(ninja, **build):
+    sorted_dict = ninja_recursive_sorted_dict(build)
+    ninja.build(**sorted_dict)
+
+
+def get_command_env(env, target, source):
     """
     Return a string that sets the environment for any environment variables that
     differ between the OS environment and the SCons command ENV.
@@ -275,7 +302,7 @@ def get_command_env(env):
     # os.environ or differ from it. We assume if it's a new or
     # differing key from the process environment then it's
     # important to pass down to commands in the Ninja file.
-    ENV = get_default_ENV(env)
+    ENV = SCons.Action._resolve_shell_env(env, target, source)
     scons_specified_env = {
         key: value
         for key, value in ENV.items()
@@ -285,21 +312,8 @@ def get_command_env(env):
 
     windows = env["PLATFORM"] == "win32"
     command_env = ""
+    scons_specified_env = SCons.Util.sanitize_shell_env(scons_specified_env)
     for key, value in scons_specified_env.items():
-        # Ensure that the ENV values are all strings:
-        if is_List(value):
-            # If the value is a list, then we assume it is a
-            # path list, because that's a pretty common list-like
-            # value to stick in an environment variable:
-            value = flatten_sequence(value)
-            value = joinpath(map(str, value))
-        else:
-            # If it isn't a string or a list, then we just coerce
-            # it to a string, which is the proper way to handle
-            # Dir and File instances and will produce something
-            # reasonable for just about everything else:
-            value = str(value)
-
         if windows:
             command_env += "set '{}={}' && ".format(key, value)
         else:

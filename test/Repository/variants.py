@@ -31,20 +31,22 @@ from TestSCons import TestSCons, _exe, _obj
 
 test = TestSCons()
 
-test.subdir('repository',
-            ['repository', 'src1'],
-            ['repository', 'src2'],
-            ['repository', 'src2', 'include'],
-            ['repository', 'src2', 'xxx'],
-            ['repository', 'build2'],
-            ['repository', 'build2', 'foo'],
-            ['repository', 'build2', 'bar'],
-            'work1',
-            ['work1', 'src1'],
-            'work2',
-            ['work2', 'src2'],
-            ['work2', 'src2', 'include'],
-            ['work2', 'src2', 'xxx'])
+test.subdir(
+    'repository',
+    ['repository', 'src1'],
+    ['repository', 'src2'],
+    ['repository', 'src2', 'include'],
+    ['repository', 'src2', 'xxx'],
+    ['repository', 'build2'],
+    ['repository', 'build2', 'foo'],
+    ['repository', 'build2', 'bar'],
+    'work1',
+    ['work1', 'src1'],
+    'work2',
+    ['work2', 'src2'],
+    ['work2', 'src2', 'include'],
+    ['work2', 'src2', 'xxx'],
+)
 
 aaa_obj = 'aaa' + _obj
 bbb_obj = 'bbb' + _obj
@@ -56,14 +58,18 @@ repository_build1_foo_xxx = test.workpath('repository', 'build1', 'foo', 'xxx')
 work1_build1_foo_xxx = test.workpath('work1', 'build1', 'foo', 'xxx')
 work1_build1_bar_xxx = test.workpath('work1', 'build1', 'bar', 'xxx')
 
-repository_build2_foo_src2_xxx_xxx = test.workpath('repository', 'build2',
-                                                   'foo', 'src2', 'xxx', 'xxx')
-repository_build2_bar_src2_xxx_xxx = test.workpath('repository', 'build2',
-                                                   'bar', 'src2', 'xxx', 'xxx')
-work2_build2_foo_src2_xxx_xxx = test.workpath('work2', 'build2',
-                                              'foo', 'src2', 'xxx', 'xxx')
-work2_build2_bar_src2_xxx_xxx = test.workpath('work2', 'build2',
-                                              'bar', 'src2', 'xxx', 'xxx')
+repository_build2_foo_src2_xxx_xxx = test.workpath(
+    'repository', 'build2', 'foo', 'src2', 'xxx', 'xxx'
+)
+repository_build2_bar_src2_xxx_xxx = test.workpath(
+    'repository', 'build2', 'bar', 'src2', 'xxx', 'xxx'
+)
+work2_build2_foo_src2_xxx_xxx = test.workpath(
+    'work2', 'build2', 'foo', 'src2', 'xxx', 'xxx'
+)
+work2_build2_bar_src2_xxx_xxx = test.workpath(
+    'work2', 'build2', 'bar', 'src2', 'xxx', 'xxx'
+)
 
 opts = "-Y " + test.workpath('repository')
 
@@ -71,14 +77,16 @@ opts = "-Y " + test.workpath('repository')
 test.write(['repository', 'SConstruct'], r"""
 OS = ARGUMENTS.get('OS', '')
 build1_os = "#build1/" + OS
+DefaultEnvironment(tools=[])  # test speedup
 default = Environment()
 ccflags = {
-    ''    : '',
-    'foo' : '-DFOO',
-    'bar' : '-DBAR',
+    '': '',
+    'foo': '-DFOO',
+    'bar': '-DBAR',
 }
-env1 = Environment(CCFLAGS = default.subst('$CCFLAGS %s' % ccflags[OS]),
-                   CPPPATH = build1_os)
+env1 = Environment(
+    CCFLAGS=default.subst('$CCFLAGS %s' % ccflags[OS]), CPPPATH=build1_os
+)
 VariantDir(build1_os, 'src1')
 SConscript(build1_os + '/SConscript', "env1")
 
@@ -95,8 +103,9 @@ test.write(['repository', 'build2', 'foo', 'SConscript'], r"""
 VariantDir('src2', '#src2')
 
 default = Environment()
-env2 = Environment(CCFLAGS = default.subst('$CCFLAGS -DFOO'),
-                   CPPPATH = ['#src2/xxx', '#src2/include'])
+env2 = Environment(
+    CCFLAGS=default.subst('$CCFLAGS -DFOO'), CPPPATH=['#src2/xxx', '#src2/include']
+)
 
 SConscript('src2/xxx/SConscript', "env2")
 """)
@@ -105,8 +114,9 @@ test.write(['repository', 'build2', 'bar', 'SConscript'], r"""
 VariantDir('src2', '#src2')
 
 default = Environment()
-env2 = Environment(CCFLAGS = default.subst('$CCFLAGS -DBAR'),
-                   CPPPATH = ['#src2/xxx', '#src2/include'])
+env2 = Environment(
+    CCFLAGS=default.subst('$CCFLAGS -DBAR'), CPPPATH=['#src2/xxx', '#src2/include']
+)
 
 SConscript('src2/xxx/SConscript', "env2")
 """)
@@ -216,12 +226,9 @@ repository/src1/bbb.c:  REPOSITORY_FOO
 repository/src1/main.c:  REPOSITORY_FOO
 """)
 
-database_name=test.get_sconsignname()
-
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+database_name = test.get_sconsignname()
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
@@ -237,10 +244,8 @@ repository/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
@@ -251,15 +256,10 @@ test.writable('repository', 0)
 #
 test.up_to_date(chdir='work1', options=opts + " OS=foo", arguments='build1')
 
-test.fail_test(os.path.exists(
-    test.workpath('work1', 'build1', 'foo', aaa_obj)))
-test.fail_test(os.path.exists(
-    test.workpath('work1', 'build1', 'foo', bbb_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work1', 'build1', 'foo', main_obj)))
-
-test.fail_test(os.path.exists(
-    test.workpath('work1', 'build1', 'foo', xxx_exe)))
+test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', aaa_obj)))
+test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', bbb_obj)))
+test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', main_obj)))
+test.fail_test(os.path.exists(test.workpath('work1', 'build1', 'foo', xxx_exe)))
 
 #
 test.run(chdir='work1', options=opts, arguments='OS=bar .')
@@ -271,18 +271,13 @@ repository/src1/bbb.c:  REPOSITORY_BAR
 repository/src1/main.c:  REPOSITORY_BAR
 """)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
-
 test.up_to_date(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
-# Ensure file time stamps will be newer.
-time.sleep(2)
-
+test.sleep()  # delay for timestamps
 test.write(['work1', 'src1', 'iii.h'], r"""
 #ifdef  FOO
 #define STRING  "WORK_FOO"
@@ -302,13 +297,10 @@ repository/src1/bbb.c:  WORK_BAR
 repository/src1/main.c:  WORK_BAR
 """)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
-
 test.up_to_date(chdir='work1', options=opts + " OS=bar", arguments='build1')
 
 #
@@ -320,38 +312,39 @@ repository/src1/bbb.c:  WORK_FOO
 repository/src1/main.c:  WORK_FOO
 """)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
-
 test.up_to_date(chdir='work1', options=opts + " OS=foo", arguments='build1')
-
-#
 test.up_to_date(chdir='work2', options=opts, arguments='build2')
 
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'foo', 'src2', 'xxx', aaa_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'foo', 'src2', 'xxx', bbb_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'foo', 'src2', 'xxx', main_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'foo', 'src2', 'xxx', xxx_exe)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'bar', 'src2', 'xxx', aaa_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'bar', 'src2', 'xxx', bbb_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'bar', 'src2', 'xxx', main_obj)))
-test.fail_test(os.path.exists(test.workpath(
-    'work2', 'build2', 'bar', 'src2', 'xxx', xxx_exe)))
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', aaa_obj))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', bbb_obj))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', main_obj))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'foo', 'src2', 'xxx', xxx_exe))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', aaa_obj))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', bbb_obj))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', main_obj))
+)
+test.fail_test(
+    os.path.exists(test.workpath('work2', 'build2', 'bar', 'src2', 'xxx', xxx_exe))
+)
 
-# Ensure file time stamps will be newer.
-time.sleep(2)
-
+test.sleep()  # delay for timestamps
 test.write(['work2', 'src2', 'include', 'my_string.h'], r"""
 #ifdef  FOO
 #define INCLUDE_OS      "FOO"
@@ -362,7 +355,6 @@ test.write(['work2', 'src2', 'include', 'my_string.h'], r"""
 #define INCLUDE_STRING  "work2/src2/include/my_string.h:  %s\n"
 """)
 
-#
 test.run(chdir='work2', options=opts, arguments='build2')
 
 test.run(program=work2_build2_foo_src2_xxx_xxx, stdout="""\
@@ -377,16 +369,12 @@ repository/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
-# Ensure file time stamps will be newer.
-time.sleep(2)
-
+test.sleep()  # delay for timestamps
 test.write(['work2', 'src2', 'xxx', 'include.h'], r"""
 #include <my_string.h>
 #ifdef  FOO
@@ -412,38 +400,37 @@ work2/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
 """)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
-#
 test.unlink(['work2', 'src2', 'include', 'my_string.h'])
-
 test.run(chdir='work2', options=opts, arguments='build2')
 
-test.run(program=work2_build2_foo_src2_xxx_xxx, stdout="""\
+test.run(
+    program=work2_build2_foo_src2_xxx_xxx,
+    stdout="""\
 repository/src2/include/my_string.h:  FOO
 work2/src2/xxx/include.h:  FOO
 repository/src2/xxx/main.c:  FOO
-""")
+""",
+)
 
-test.run(program=work2_build2_bar_src2_xxx_xxx, stdout="""\
+test.run(
+    program=work2_build2_bar_src2_xxx_xxx,
+    stdout="""\
 repository/src2/include/my_string.h:  BAR
 work2/src2/xxx/include.h:  BAR
 repository/src2/xxx/main.c:  BAR
-""")
+""",
+)
 
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src1', database_name)))
-test.fail_test(os.path.exists(
-    test.workpath('repository', 'src2', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src1', database_name)))
+test.fail_test(os.path.exists(test.workpath('repository', 'src2', database_name)))
 test.fail_test(os.path.exists(test.workpath('work1', 'src1', database_name)))
 test.fail_test(os.path.exists(test.workpath('work2', 'src2', database_name)))
 
-#
 test.pass_test()
 
 # Local Variables:

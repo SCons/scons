@@ -43,7 +43,7 @@ import traceback
 import SCons.Action
 import SCons.Builder
 import SCons.Errors
-import SCons.Job
+import SCons.Taskmaster.Job
 import SCons.Node.FS
 import SCons.Taskmaster
 import SCons.Util
@@ -536,7 +536,7 @@ class SConfBase:
         # the engine assumes the current path is the SConstruct directory ...
         old_fs_dir = SConfFS.getcwd()
         old_os_dir = os.getcwd()
-        SConfFS.chdir(SConfFS.Top, change_os_dir=1)
+        SConfFS.chdir(SConfFS.Top, change_os_dir=True)
 
         # Because we take responsibility here for writing out our
         # own .sconsign info (see SConfBuildTask.execute(), above),
@@ -572,7 +572,7 @@ class SConfBase:
             SConfFS.set_max_drift(0)
             tm = SCons.Taskmaster.Taskmaster(nodes, SConfBuildTask)
             # we don't want to build tests in parallel
-            jobs = SCons.Job.Jobs(1, tm )
+            jobs = SCons.Taskmaster.Job.Jobs(1, tm)
             jobs.run()
             for n in nodes:
                 state = n.get_state()
@@ -583,7 +583,7 @@ class SConfBase:
         finally:
             SConfFS.set_max_drift(save_max_drift)
             os.chdir(old_os_dir)
-            SConfFS.chdir(old_fs_dir, change_os_dir=0)
+            SConfFS.chdir(old_fs_dir, change_os_dir=False)
             if self.logstream is not None:
                 # restore stdout / stderr
                 sys.stdout = oldStdout
@@ -793,7 +793,7 @@ class SConfBase:
 
             tb = traceback.extract_stack()[-3-self.depth]
             old_fs_dir = SConfFS.getcwd()
-            SConfFS.chdir(SConfFS.Top, change_os_dir=0)
+            SConfFS.chdir(SConfFS.Top, change_os_dir=False)
             self.logstream.write('file %s,line %d:\n\tConfigure(confdir = %s)\n' %
                                  (tb[0], tb[1], str(self.confdir)) )
             SConfFS.chdir(old_fs_dir)
@@ -1088,7 +1088,7 @@ def CheckCXXHeader(context, header, include_quotes = '""'):
 
 
 def CheckLib(context, library = None, symbol = "main",
-             header = None, language = None, autoadd = 1):
+             header = None, language = None, autoadd=True, append=True,) -> bool:
     """
     A test for a library. See also CheckLibWithHeader.
     Note that library may also be None to test whether the given symbol
@@ -1103,15 +1103,16 @@ def CheckLib(context, library = None, symbol = "main",
 
     # ToDo: accept path for the library
     res = SCons.Conftest.CheckLib(context, library, symbol, header = header,
-                                        language = language, autoadd = autoadd)
-    context.did_show_result = 1
+                                        language = language, autoadd = autoadd,
+                                        append=append)
+    context.did_show_result = True
     return not res
 
 # XXX
 # Bram: Can only include one header and can't use #ifdef HAVE_HEADER_H.
 
 def CheckLibWithHeader(context, libs, header, language,
-                       call = None, autoadd = 1):
+                       call = None, autoadd=True, append=True) -> bool:
     # ToDo: accept path for library. Support system header files.
     """
     Another (more sophisticated) test for a library.
@@ -1120,8 +1121,7 @@ def CheckLibWithHeader(context, libs, header, language,
     As in CheckLib, we support library=None, to test if the call compiles
     without extra link flags.
     """
-    prog_prefix, dummy = \
-                 createIncludesFromHeaders(header, 0)
+    prog_prefix, dummy = createIncludesFromHeaders(header, 0)
     if not libs:
         libs = [None]
 
@@ -1129,7 +1129,7 @@ def CheckLibWithHeader(context, libs, header, language,
         libs = [libs]
 
     res = SCons.Conftest.CheckLib(context, libs, None, prog_prefix,
-            call = call, language = language, autoadd = autoadd)
+            call = call, language = language, autoadd=autoadd, append=append)
     context.did_show_result = 1
     return not res
 

@@ -21,26 +21,84 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Various SCons utility functions."""
+"""SCons utility functions
+
+This package contains routines for use by other parts of SCons.
+"""
 
 import copy
 import hashlib
 import os
-import pprint
 import re
 import sys
-from collections import UserDict, UserList, UserString, OrderedDict
-from collections.abc import MappingView
+import time
+from collections import UserDict, UserList, OrderedDict
 from contextlib import suppress
 from types import MethodType, FunctionType
 from typing import Optional, Union
+from logging import Formatter
 
-# Note: Util module cannot import other bits of SCons globally without getting
-# into import loops. Both the below modules import SCons.Util early on.
+from .types import (
+    DictTypes,
+    ListTypes,
+    SequenceTypes,
+    StringTypes,
+    BaseStringTypes,
+    Null,
+    NullSeq,
+    is_Dict,
+    is_List,
+    is_Sequence,
+    is_Tuple,
+    is_String,
+    is_Scalar,
+    to_String,
+    to_String_for_subst,
+    to_String_for_signature,
+    to_bytes,
+    to_str,
+    get_env_bool,
+    get_os_env_bool,
+    get_environment_var,
+)
+from .hashes import (
+    ALLOWED_HASH_FORMATS,
+    DEFAULT_HASH_FORMATS,
+    get_hash_format,
+    set_hash_format,
+    get_current_hash_algorithm_used,
+    hash_signature,
+    hash_file_signature,
+    hash_collect,
+    MD5signature,
+    MD5filesignature,
+    MD5collect,
+)
+from .envs import (
+    MethodWrapper,
+    PrependPath,
+    AppendPath,
+    AddPathIfNotExists,
+    AddMethod,
+)
+
+
+# Note: the Util package cannot import other parts of SCons globally without
+# hitting import loops. Both of these modules import SCons.Util early on,
+# and are imported in many other modules:
 # --> SCons.Warnings
 # --> SCons.Errors
-# Thus the local imports, which are annotated for pylint to show we mean it.
-
+# If you run into places that have to do local imports for this reason,
+# annotate them for pylint and for human readers to know why:
+#   pylint: disable=import-outside-toplevel
+# Be aware that Black can break this if the annotated line is too
+# long and it wants to split:
+#       from SCons.Errors import (
+#           SConsEnvironmentError,
+#       )  # pylint: disable=import-outside-toplevel
+# That's syntactically valid, but pylint won't recorgnize it with the
+# annotation at the end, it would have to be on the first line
+# (issues filed upstream, for now just be aware)
 
 PYPY = hasattr(sys, 'pypy_translation_info')
 
@@ -120,8 +178,6 @@ class NodeList(UserList):
     for example getting the content signature of each node.  The term
     "attribute" here includes the string representation.
 
-    Example:
-
     >>> someList = NodeList(['  foo  ', '  bar  '])
     >>> someList.strip()
     ['foo', 'bar']
@@ -153,27 +209,6 @@ class NodeList(UserList):
         return self.data[index]
 
 
-_get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
-
-def get_environment_var(varstr) -> Optional[str]:
-    """Return undecorated construction variable string.
-
-    Determine if `varstr` looks like a reference
-    to a single environment variable, like `"$FOO"` or `"${FOO}"`.
-    If so, return that variable with no decorations, like `"FOO"`.
-    If not, return `None`.
-    """
-
-    mo = _get_env_var.match(to_String(varstr))
-    if mo:
-        var = mo.group(1)
-        if var[0] == '{':
-            return var[1:-1]
-        return var
-
-    return None
-
-
 class DisplayEngine:
     """A callable class used to display SCons messages."""
 
@@ -186,24 +221,24 @@ class DisplayEngine:
         if append_newline:
             text = text + '\n'
 
-        try:
+        # Stdout might be connected to a pipe that has been closed
+        # by now. The most likely reason for the pipe being closed
+        # is that the user has press ctrl-c. It this is the case,
+        # then SCons is currently shutdown. We therefore ignore
+        # IOError's here so that SCons can continue and shutdown
+        # properly so that the .sconsign is correctly written
+        # before SCons exits.
+        with suppress(IOError):
             sys.stdout.write(str(text))
-        except IOError:
-            # Stdout might be connected to a pipe that has been closed
-            # by now. The most likely reason for the pipe being closed
-            # is that the user has press ctrl-c. It this is the case,
-            # then SCons is currently shutdown. We therefore ignore
-            # IOError's here so that SCons can continue and shutdown
-            # properly so that the .sconsign is correctly written
-            # before SCons exits.
-            pass
 
     def set_mode(self, mode):
         self.print_it = mode
 
+display = DisplayEngine()
+
 
 # TODO: W0102: Dangerous default value [] as argument (dangerous-default-value)
-def render_tree(root, child_func, prune=0, margin=[0], visited=None):
+def render_tree(root, child_func, prune=0, margin=[0], visited=None) -> str:
     """Render a tree of nodes into an ASCII tree view.
 
     Args:
@@ -271,9 +306,9 @@ def print_tree(
     showtags=False,
     margin=[0],
     visited=None,
-    lastChild=False,
-    singleLineDraw=False,
-):
+    lastChild: bool = False,
+    singleLineDraw: bool = False,
+) -> None:
     """Print a tree of nodes.
 
     This is like func:`render_tree`, except it prints lines directly instead
@@ -285,10 +320,11 @@ def print_tree(
         child_func: the function called to get the children of a node
         prune: don't visit the same node twice
         showtags: print status information to the left of each node line
-        margin: the format of the left margin to use for children of `root`.
+        margin: the format of the left margin to use for children of *root*.
           1 results in a pipe, and 0 results in no pipe.
         visited: a dictionary of visited nodes in the current branch if
-          prune` is 0, or in the whole tree if `prune` is 1.
+          *prune* is 0, or in the whole tree if *prune* is 1.
+        lastChild: this is the last leaf of a branch
         singleLineDraw: use line-drawing characters rather than ASCII.
     """
 
@@ -347,7 +383,7 @@ def print_tree(
         cross = BOX_VERT_RIGHT + BOX_HORIZ   # sign used to point to the leaf.
         # check if this is the last leaf of the branch
         if lastChild:
-            #if this if the last leaf, then terminate:
+            # if this if the last leaf, then terminate:
             cross = BOX_UP_RIGHT + BOX_HORIZ  # sign for the last leaf
 
         # if this branch has children then split it
@@ -359,7 +395,7 @@ def print_tree(
                 cross += BOX_HORIZ_DOWN
 
     if prune and rname in visited and children:
-        sys.stdout.write(''.join(tags + margins + [cross,'[', rname, ']']) + '\n')
+        sys.stdout.write(''.join(tags + margins + [cross, '[', rname, ']']) + '\n')
         return
 
     sys.stdout.write(''.join(tags + margins + [cross, rname]) + '\n')
@@ -388,81 +424,6 @@ def print_tree(
         # for this call child and nr of children needs to be set 0, to signal the second phase.
         print_tree(children[-1], child_func, prune, idx, margin, visited, True, singleLineDraw)
         margin.pop()  # destroy the last margin added
-
-
-# Functions for deciding if things are like various types, mainly to
-# handle UserDict, UserList and UserString like their underlying types.
-#
-# Yes, all of this manual testing breaks polymorphism, and the real
-# Pythonic way to do all of this would be to just try it and handle the
-# exception, but handling the exception when it's not the right type is
-# often too slow.
-
-# We are using the following trick to speed up these
-# functions. Default arguments are used to take a snapshot of
-# the global functions and constants used by these functions. This
-# transforms accesses to global variable into local variables
-# accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
-# Since checkers dislike this, it's now annotated for pylint to flag
-# (mostly for other readers of this code) we're doing this intentionally.
-# TODO: PY3 check these are still valid choices for all of these funcs.
-
-DictTypes = (dict, UserDict)
-ListTypes = (list, UserList)
-
-# Handle getting dictionary views.
-SequenceTypes = (list, tuple, UserList, MappingView)
-
-# Note that profiling data shows a speed-up when comparing
-# explicitly with str instead of simply comparing
-# with basestring. (at least on Python 2.5.1)
-# TODO: PY3 check this benchmarking is still correct.
-StringTypes = (str, UserString)
-
-# Empirically, it is faster to check explicitly for str than for basestring.
-BaseStringTypes = str
-
-def is_Dict(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, DictTypes=DictTypes
-) -> bool:
-    return isinstance(obj, DictTypes)
-
-
-def is_List(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, ListTypes=ListTypes
-) -> bool:
-    return isinstance(obj, ListTypes)
-
-
-def is_Sequence(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, SequenceTypes=SequenceTypes
-) -> bool:
-    return isinstance(obj, SequenceTypes)
-
-
-def is_Tuple(  # pylint: disable=redefined-builtin
-    obj, isinstance=isinstance, tuple=tuple
-) -> bool:
-    return isinstance(obj, tuple)
-
-
-def is_String(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, StringTypes=StringTypes
-) -> bool:
-    return isinstance(obj, StringTypes)
-
-
-def is_Scalar(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes
-) -> bool:
-
-    # Profiling shows that there is an impressive speed-up of 2x
-    # when explicitly checking for strings instead of just not
-    # sequence when the argument (i.e. obj) is already a string.
-    # But, if obj is a not string then it is twice as fast to
-    # check only for 'not sequence'. The following code therefore
-    # assumes that the obj argument is a string most of the time.
-    return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
 
 
 def do_flatten(
@@ -523,74 +484,6 @@ def flatten_sequence(  # pylint: disable=redefined-outer-name,redefined-builtin
         else:
             do_flatten(item, result)
     return result
-
-# Generic convert-to-string functions.  The wrapper
-# to_String_for_signature() will use a for_signature() method if the
-# specified object has one.
-
-def to_String(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj,
-    isinstance=isinstance,
-    str=str,
-    UserString=UserString,
-    BaseStringTypes=BaseStringTypes,
-) -> str:
-    """Return a string version of obj."""
-
-    if isinstance(obj, BaseStringTypes):
-        # Early out when already a string!
-        return obj
-
-    if isinstance(obj, UserString):
-        # obj.data can only be a regular string. Please see the UserString initializer.
-        return obj.data
-
-    return str(obj)
-
-def to_String_for_subst(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj,
-    isinstance=isinstance,
-    str=str,
-    BaseStringTypes=BaseStringTypes,
-    SequenceTypes=SequenceTypes,
-    UserString=UserString,
-) -> str:
-    """Return a string version of obj for subst usage."""
-
-    # Note that the test cases are sorted by order of probability.
-    if isinstance(obj, BaseStringTypes):
-        return obj
-
-    if isinstance(obj, SequenceTypes):
-        return ' '.join([to_String_for_subst(e) for e in obj])
-
-    if isinstance(obj, UserString):
-        # obj.data can only a regular string. Please see the UserString initializer.
-        return obj.data
-
-    return str(obj)
-
-def to_String_for_signature(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, to_String_for_subst=to_String_for_subst, AttributeError=AttributeError
-) -> str:
-    """Return a string version of obj for signature usage.
-
-    Like :func:`to_String_for_subst` but has special handling for
-    scons objects that have a :meth:`for_signature` method, and for dicts.
-    """
-
-    try:
-        f = obj.for_signature
-    except AttributeError:
-        if isinstance(obj, dict):
-            # pprint will output dictionary in key sorted order
-            # with py3.5 the order was randomized. In general depending on dictionary order
-            # which was undefined until py3.6 (where it's by insertion order) was not wise.
-            # TODO: Change code when floor is raised to PY36
-            return pprint.pformat(obj, width=1000000)
-        return to_String_for_subst(obj)
-    else:
-        return f()
 
 
 # The SCons "semi-deep" copy.
@@ -707,40 +600,6 @@ class Delegate:
             return getattr(obj._subject, self.attribute)
 
         return self
-
-
-class MethodWrapper:
-    """A generic Wrapper class that associates a method with an object.
-
-    As part of creating this MethodWrapper object an attribute with the
-    specified name (by default, the name of the supplied method) is added
-    to the underlying object.  When that new "method" is called, our
-    :meth:`__call__` method adds the object as the first argument, simulating
-    the Python behavior of supplying "self" on method calls.
-
-    We hang on to the name by which the method was added to the underlying
-    base class so that we can provide a method to "clone" ourselves onto
-    a new underlying object being copied (without which we wouldn't need
-    to save that info).
-    """
-    def __init__(self, obj, method, name=None):
-        if name is None:
-            name = method.__name__
-        self.object = obj
-        self.method = method
-        self.name = name
-        setattr(self.object, name, self)
-
-    def __call__(self, *args, **kwargs):
-        nargs = (self.object,) + args
-        return self.method(*nargs, **kwargs)
-
-    def clone(self, new_object):
-        """
-        Returns an object that re-binds the underlying "method" to
-        the specified new object.
-        """
-        return self.__class__(new_object, self.method, self.name)
 
 
 # attempt to load the windows registry module:
@@ -927,206 +786,6 @@ is used. Will not select any path name or names in the optional
 `reject` list.
 """
 
-def PrependPath(
-    oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
-) -> Union[list, str]:
-    """Prepends `newpath` path elements to `oldpath`.
-
-    Will only add any particular path once (leaving the first one it
-    encounters and ignoring the rest, to preserve path order), and will
-    :mod:`os.path.normpath` and :mod:`os.path.normcase` all paths to help
-    assure this.  This can also handle the case where `oldpath`
-    is a list instead of a string, in which case a list will be returned
-    instead of a string. For example:
-
-    >>> p = PrependPath("/foo/bar:/foo", "/biz/boom:/foo")
-    >>> print(p)
-    /biz/boom:/foo:/foo/bar
-
-    If `delete_existing` is ``False``, then adding a path that exists will
-    not move it to the beginning; it will stay where it is in the list.
-
-    >>> p = PrependPath("/foo/bar:/foo", "/biz/boom:/foo", delete_existing=False)
-    >>> print(p)
-    /biz/boom:/foo/bar:/foo
-
-    If `canonicalize` is not ``None``, it is applied to each element of
-    `newpath` before use.
-    """
-
-    orig = oldpath
-    is_list = True
-    paths = orig
-    if not is_List(orig) and not is_Tuple(orig):
-        paths = paths.split(sep)
-        is_list = False
-
-    if is_String(newpath):
-        newpaths = newpath.split(sep)
-    elif not is_List(newpath) and not is_Tuple(newpath):
-        newpaths = [ newpath ]  # might be a Dir
-    else:
-        newpaths = newpath
-
-    if canonicalize:
-        newpaths=list(map(canonicalize, newpaths))
-
-    if not delete_existing:
-        # First uniquify the old paths, making sure to
-        # preserve the first instance (in Unix/Linux,
-        # the first one wins), and remembering them in normpaths.
-        # Then insert the new paths at the head of the list
-        # if they're not already in the normpaths list.
-        result = []
-        normpaths = []
-        for path in paths:
-            if not path:
-                continue
-            normpath = os.path.normpath(os.path.normcase(path))
-            if normpath not in normpaths:
-                result.append(path)
-                normpaths.append(normpath)
-        newpaths.reverse()      # since we're inserting at the head
-        for path in newpaths:
-            if not path:
-                continue
-            normpath = os.path.normpath(os.path.normcase(path))
-            if normpath not in normpaths:
-                result.insert(0, path)
-                normpaths.append(normpath)
-        paths = result
-
-    else:
-        newpaths = newpaths + paths # prepend new paths
-
-        normpaths = []
-        paths = []
-        # now we add them only if they are unique
-        for path in newpaths:
-            normpath = os.path.normpath(os.path.normcase(path))
-            if path and normpath not in normpaths:
-                paths.append(path)
-                normpaths.append(normpath)
-
-    if is_list:
-        return paths
-
-    return sep.join(paths)
-
-def AppendPath(
-    oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
-) -> Union[list, str]:
-    """Appends `newpath` path elements to `oldpath`.
-
-    Will only add any particular path once (leaving the last one it
-    encounters and ignoring the rest, to preserve path order), and will
-    :mod:`os.path.normpath` and :mod:`os.path.normcase` all paths to help
-    assure this.  This can also handle the case where `oldpath`
-    is a list instead of a string, in which case a list will be returned
-    instead of a string. For example:
-
-    >>> p = AppendPath("/foo/bar:/foo", "/biz/boom:/foo")
-    >>> print(p)
-    /foo/bar:/biz/boom:/foo
-
-    If `delete_existing` is ``False``, then adding a path that exists
-    will not move it to the end; it will stay where it is in the list.
-
-    >>> p = AppendPath("/foo/bar:/foo", "/biz/boom:/foo", delete_existing=False)
-    >>> print(p)
-    /foo/bar:/foo:/biz/boom
-
-    If `canonicalize` is not ``None``, it is applied to each element of
-    `newpath` before use.
-    """
-
-    orig = oldpath
-    is_list = True
-    paths = orig
-    if not is_List(orig) and not is_Tuple(orig):
-        paths = paths.split(sep)
-        is_list = False
-
-    if is_String(newpath):
-        newpaths = newpath.split(sep)
-    elif not is_List(newpath) and not is_Tuple(newpath):
-        newpaths = [newpath]  # might be a Dir
-    else:
-        newpaths = newpath
-
-    if canonicalize:
-        newpaths=list(map(canonicalize, newpaths))
-
-    if not delete_existing:
-        # add old paths to result, then
-        # add new paths if not already present
-        # (I thought about using a dict for normpaths for speed,
-        # but it's not clear hashing the strings would be faster
-        # than linear searching these typically short lists.)
-        result = []
-        normpaths = []
-        for path in paths:
-            if not path:
-                continue
-            result.append(path)
-            normpaths.append(os.path.normpath(os.path.normcase(path)))
-        for path in newpaths:
-            if not path:
-                continue
-            normpath = os.path.normpath(os.path.normcase(path))
-            if normpath not in normpaths:
-                result.append(path)
-                normpaths.append(normpath)
-        paths = result
-    else:
-        # start w/ new paths, add old ones if not present,
-        # then reverse.
-        newpaths = paths + newpaths # append new paths
-        newpaths.reverse()
-
-        normpaths = []
-        paths = []
-        # now we add them only if they are unique
-        for path in newpaths:
-            normpath = os.path.normpath(os.path.normcase(path))
-            if path and normpath not in normpaths:
-                paths.append(path)
-                normpaths.append(normpath)
-        paths.reverse()
-
-    if is_list:
-        return paths
-
-    return sep.join(paths)
-
-def AddPathIfNotExists(env_dict, key, path, sep=os.pathsep):
-    """Add a path element to a construction variable.
-
-    `key` is looked up in `env_dict`, and `path` is added to it if it
-    is not already present. `env_dict[key]` is assumed to be in the
-    format of a PATH variable: a list of paths separated by `sep` tokens.
-    Example:
-
-    >>> env = {'PATH': '/bin:/usr/bin:/usr/local/bin'}
-    >>> AddPathIfNotExists(env, 'PATH', '/opt/bin')
-    >>> print(env['PATH'])
-    /opt/bin:/bin:/usr/bin:/usr/local/bin
-    """
-
-    try:
-        is_list = True
-        paths = env_dict[key]
-        if not is_List(env_dict[key]):
-            paths = paths.split(sep)
-            is_list = False
-        if os.path.normcase(path) not in list(map(os.path.normcase, paths)):
-            paths = [ path ] + paths
-        if is_list:
-            env_dict[key] = paths
-        else:
-            env_dict[key] = sep.join(paths)
-    except KeyError:
-        env_dict[key] = path
 
 if sys.platform == 'cygwin':
     import subprocess  # pylint: disable=import-outside-toplevel
@@ -1146,8 +805,6 @@ without regard to whether `path` refers to an existing file
 system object.  For other platforms, `path` is unchanged.
 """
 
-
-display = DisplayEngine()
 
 def Split(arg) -> list:
     """Returns a list of file names or other objects.
@@ -1235,7 +892,7 @@ class Selector(OrderedDict):
             # Try to perform Environment substitution on the keys of
             # the dictionary before giving up.
             s_dict = {}
-            for (k,v) in self.items():
+            for (k, v) in self.items():
                 if k is not None:
                     s_k = env.subst(k)
                     if s_k in s_dict:
@@ -1244,7 +901,7 @@ class Selector(OrderedDict):
                         # and a variable suffix contains this literal,
                         # the literal wins and we don't raise an error.
                         raise KeyError(s_dict[s_k][0], k, s_k)
-                    s_dict[s_k] = (k,v)
+                    s_dict[s_k] = (k, v)
             try:
                 return s_dict[ext][1]
             except KeyError:
@@ -1288,7 +945,6 @@ def adjustixes(fname, pre, suf, ensure_suffix=False) -> str:
             (ensure_suffix or not splitext(fname)[1]):
         fname = fname + suf
     return fname
-
 
 
 # From Tim Peters,
@@ -1362,44 +1018,11 @@ def unique(seq):
             u.append(x)
     return u
 
-
-# From Alex Martelli,
-# https://code.activestate.com/recipes/52560
-# ASPN: Python Cookbook: Remove duplicates from a sequence
-# First comment, dated 2001/10/13.
-# (Also in the printed Python Cookbook.)
-# This not currently used, in favor of the next function...
-
-def uniquer(seq, idfun=None):
-    def default_idfun(x):
-        return x
-    if not idfun:
-        idfun = default_idfun
-    seen = {}
-    result = []
-    result_append = result.append  # perf: avoid repeated method lookups
-    for item in seq:
-        marker = idfun(item)
-        if marker in seen:
-            continue
-        seen[marker] = 1
-        result_append(item)
-    return result
-
-# A more efficient implementation of Alex's uniquer(), this avoids the
-# idfun() argument and function-call overhead by assuming that all
-# items in the sequence are hashable.  Order-preserving.
-
+# Best way (assuming Python 3.7, but effectively 3.6) to remove
+# duplicates from a list in while preserving order, according to
+# https://stackoverflow.com/questions/480214/how-do-i-remove-duplicates-from-a-list-while-preserving-order/17016257#17016257
 def uniquer_hashables(seq):
-    seen = {}
-    result = []
-    result_append = result.append  # perf: avoid repeated method lookups
-    for item in seq:
-        if item not in seen:
-            seen[item] = 1
-            result_append(item)
-    return result
-
+    return list(dict.fromkeys(seq))
 
 # Recipe 19.11 "Reading Lines with Continuation Characters",
 # by Alex Martelli, straight from the Python CookBook (2nd edition).
@@ -1437,7 +1060,7 @@ class UniqueList(UserList):
     """A list which maintains uniqueness.
 
     Uniquing is lazy: rather than being assured on list changes, it is fixed
-    up on access by those methods which need to act on a uniqe list to be
+    up on access by those methods which need to act on a unique list to be
     correct. That means things like "in" don't have to eat the uniquing time.
     """
     def __init__(self, initlist=None):
@@ -1588,416 +1211,12 @@ def make_path_relative(path) -> str:
         drive_s, path = os.path.splitdrive(path)
 
         if not drive_s:
-            path=re.compile(r"/*(.*)").findall(path)[0]
+            path = re.compile(r"/*(.*)").findall(path)[0]
         else:
-            path=path[1:]
+            path = path[1:]
 
     assert not os.path.isabs(path), path
     return path
-
-
-# The original idea for AddMethod() came from the
-# following post to the ActiveState Python Cookbook:
-#
-# ASPN: Python Cookbook : Install bound methods in an instance
-# https://code.activestate.com/recipes/223613
-#
-# Changed as follows:
-# * Switched the installmethod() "object" and "function" arguments,
-#   so the order reflects that the left-hand side is the thing being
-#   "assigned to" and the right-hand side is the value being assigned.
-# * The instance/class detection is changed a bit, as it's all
-#   new-style classes now with Py3.
-# * The by-hand construction of the function object from renamefunction()
-#   is not needed, the remaining bit is now used inline in AddMethod.
-
-def AddMethod(obj, function, name=None):
-    """Adds a method to an object.
-
-    Adds `function` to `obj` if `obj` is a class object.
-    Adds `function` as a bound method if `obj` is an instance object.
-    If `obj` looks like an environment instance, use `MethodWrapper`
-    to add it.  If `name` is supplied it is used as the name of `function`.
-
-    Although this works for any class object, the intent as a public
-    API is to be used on Environment, to be able to add a method to all
-    construction environments; it is preferred to use env.AddMethod
-    to add to an individual environment.
-
-    >>> class A:
-    ...    ...
-
-    >>> a = A()
-
-    >>> def f(self, x, y):
-    ...    self.z = x + y
-
-    >>> AddMethod(A, f, "add")
-    >>> a.add(2, 4)
-    >>> print(a.z)
-    6
-    >>> a.data = ['a', 'b', 'c', 'd', 'e', 'f']
-    >>> AddMethod(a, lambda self, i: self.data[i], "listIndex")
-    >>> print(a.listIndex(3))
-    d
-
-    """
-    if name is None:
-        name = function.__name__
-    else:
-        # "rename"
-        function = FunctionType(
-            function.__code__, function.__globals__, name, function.__defaults__
-        )
-
-    if hasattr(obj, '__class__') and obj.__class__ is not type:
-        # obj is an instance, so it gets a bound method.
-        if hasattr(obj, "added_methods"):
-            method = MethodWrapper(obj, function, name)
-            obj.added_methods.append(method)
-        else:
-            method = MethodType(function, obj)
-    else:
-        # obj is a class
-        method = function
-
-    setattr(obj, name, method)
-
-
-# Default hash function and format. SCons-internal.
-DEFAULT_HASH_FORMATS = ['md5', 'sha1', 'sha256']
-ALLOWED_HASH_FORMATS = []
-_HASH_FUNCTION = None
-_HASH_FORMAT = None
-
-def _attempt_init_of_python_3_9_hash_object(hash_function_object, sys_used=sys):
-    """Python 3.9 and onwards lets us initialize the hash function object with the
-    key "usedforsecurity"=false. This lets us continue to use algorithms that have
-    been deprecated either by FIPS or by Python itself, as the MD5 algorithm SCons
-    prefers is not being used for security purposes as much as a short, 32 char
-    hash that is resistant to accidental collisions.
-
-    In prior versions of python, hashlib returns a native function wrapper, which
-    errors out when it's queried for the optional parameter, so this function
-    wraps that call.
-
-    It can still throw a ValueError if the initialization fails due to FIPS
-    compliance issues, but that is assumed to be the responsibility of the caller.
-    """
-    if hash_function_object is None:
-        return None
-
-    # https://stackoverflow.com/a/11887885 details how to check versions with the "packaging" library.
-    # however, for our purposes checking the version is greater than or equal to 3.9 is good enough, as
-    # the API is guaranteed to have support for the 'usedforsecurity' flag in 3.9. See
-    # https://docs.python.org/3/library/hashlib.html#:~:text=usedforsecurity for the version support notes.
-    if (sys_used.version_info.major > 3) or (sys_used.version_info.major == 3 and sys_used.version_info.minor >= 9):
-        return hash_function_object(usedforsecurity=False)
-
-    # note that this can throw a ValueError in FIPS-enabled versions of Linux prior to 3.9
-    # the OpenSSL hashlib will throw on first init here, but that is assumed to be responsibility of
-    # the caller to diagnose the ValueError & potentially display the error to screen.
-    return hash_function_object()
-
-def _set_allowed_viable_default_hashes(hashlib_used, sys_used=sys):
-    """Checks if SCons has ability to call the default algorithms normally supported.
-
-    This util class is sometimes called prior to setting the user-selected hash algorithm,
-    meaning that on FIPS-compliant systems the library would default-initialize MD5
-    and throw an exception in set_hash_format. A common case is using the SConf options,
-    which can run prior to main, and thus ignore the options.hash_format variable.
-
-    This function checks the DEFAULT_HASH_FORMATS and sets the ALLOWED_HASH_FORMATS
-    to only the ones that can be called. In Python >= 3.9 this will always default to
-    MD5 as in Python 3.9 there is an optional attribute "usedforsecurity" set for the method.
-
-    Throws if no allowed hash formats are detected.
-    """
-    global ALLOWED_HASH_FORMATS
-    _last_error = None
-    # note: if you call this method repeatedly, example using timeout, this is needed.
-    # otherwise it keeps appending valid formats to the string
-    ALLOWED_HASH_FORMATS = []
-
-    for test_algorithm in DEFAULT_HASH_FORMATS:
-        _test_hash = getattr(hashlib_used, test_algorithm, None)
-        # we know hashlib claims to support it... check to see if we can call it.
-        if _test_hash is not None:
-            # the hashing library will throw an exception on initialization in FIPS mode,
-            # meaning if we call the default algorithm returned with no parameters, it'll
-            # throw if it's a bad algorithm, otherwise it will append it to the known
-            # good formats.
-            try:
-                _attempt_init_of_python_3_9_hash_object(_test_hash, sys_used)
-                ALLOWED_HASH_FORMATS.append(test_algorithm)
-            except ValueError as e:
-                _last_error = e
-                continue
-
-    if len(ALLOWED_HASH_FORMATS) == 0:
-        from SCons.Errors import SConsEnvironmentError  # pylint: disable=import-outside-toplevel
-        # chain the exception thrown with the most recent error from hashlib.
-        raise SConsEnvironmentError(
-            'No usable hash algorithms found.'
-            'Most recent error from hashlib attached in trace.'
-        ) from _last_error
-    return
-
-_set_allowed_viable_default_hashes(hashlib)
-
-
-def get_hash_format():
-    """Retrieves the hash format or ``None`` if not overridden.
-
-    A return value of ``None``
-    does not guarantee that MD5 is being used; instead, it means that the
-    default precedence order documented in :func:`SCons.Util.set_hash_format`
-    is respected.
-    """
-    return _HASH_FORMAT
-
-def _attempt_get_hash_function(hash_name, hashlib_used=hashlib, sys_used=sys):
-    """Wrapper used to try to initialize a hash function given.
-
-    If successful, returns the name of the hash function back to the user.
-
-    Otherwise returns None.
-    """
-    try:
-        _fetch_hash = getattr(hashlib_used, hash_name, None)
-        if _fetch_hash is None:
-            return None
-        _attempt_init_of_python_3_9_hash_object(_fetch_hash, sys_used)
-        return hash_name
-    except ValueError:
-        # if attempt_init_of_python_3_9 throws, this is typically due to FIPS being enabled
-        # however, if we get to this point, the viable hash function check has either been
-        # bypassed or otherwise failed to properly restrict the user to only the supported
-        # functions. As such throw the UserError as an internal assertion-like error.
-        return None
-
-def set_hash_format(hash_format, hashlib_used=hashlib, sys_used=sys):
-    """Sets the default hash format used by SCons.
-
-    If `hash_format` is ``None`` or
-    an empty string, the default is determined by this function.
-
-    Currently the default behavior is to use the first available format of
-    the following options: MD5, SHA1, SHA256.
-    """
-    global _HASH_FORMAT, _HASH_FUNCTION
-
-    _HASH_FORMAT = hash_format
-    if hash_format:
-        hash_format_lower = hash_format.lower()
-        if hash_format_lower not in ALLOWED_HASH_FORMATS:
-            from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
-
-            # user can select something not supported by their OS but normally supported by
-            # SCons, example, selecting MD5 in an OS with FIPS-mode turned on. Therefore we first
-            # check if SCons supports it, and then if their local OS supports it.
-            if hash_format_lower in DEFAULT_HASH_FORMATS:
-                raise UserError('While hash format "%s" is supported by SCons, the '
-                        'local system indicates only the following hash '
-                        'formats are supported by the hashlib library: %s' %
-                        (hash_format_lower,
-                        ', '.join(ALLOWED_HASH_FORMATS))
-                )
-            else:
-                # the hash format isn't supported by SCons in any case. Warn the user, and
-                # if we detect that SCons supports more algorithms than their local system
-                # supports, warn the user about that too.
-                if ALLOWED_HASH_FORMATS == DEFAULT_HASH_FORMATS:
-                    raise UserError('Hash format "%s" is not supported by SCons. Only '
-                            'the following hash formats are supported: %s' %
-                            (hash_format_lower,
-                             ', '.join(ALLOWED_HASH_FORMATS))
-                    )
-                else:
-                    raise UserError('Hash format "%s" is not supported by SCons. '
-                            'SCons supports more hash formats than your local system '
-                            'is reporting; SCons supports: %s. Your local system only '
-                            'supports: %s' %
-                            (hash_format_lower,
-                             ', '.join(DEFAULT_HASH_FORMATS),
-                             ', '.join(ALLOWED_HASH_FORMATS))
-                    )
-
-        # this is not expected to fail. If this fails it means the set_allowed_viable_default_hashes
-        # function did not throw, or when it threw, the exception was caught and ignored, or
-        # the global ALLOWED_HASH_FORMATS was changed by an external user.
-        _HASH_FUNCTION = _attempt_get_hash_function(hash_format_lower, hashlib_used, sys_used)
-
-        if _HASH_FUNCTION is None:
-            from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
-
-            raise UserError(
-                'Hash format "%s" is not available in your Python interpreter. '
-                'Expected to be supported algorithm by set_allowed_viable_default_hashes, '
-                'Assertion error in SCons.'
-                % hash_format_lower
-            )
-    else:
-        # Set the default hash format based on what is available, defaulting
-        # to the first supported hash algorithm (usually md5) for backwards compatibility.
-        # in FIPS-compliant systems this usually defaults to SHA1, unless that too has been
-        # disabled.
-        for choice in ALLOWED_HASH_FORMATS:
-            _HASH_FUNCTION = _attempt_get_hash_function(choice, hashlib_used, sys_used)
-
-            if _HASH_FUNCTION is not None:
-                break
-        else:
-            # This is not expected to happen in practice.
-            from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
-
-            raise UserError(
-                'Your Python interpreter does not have MD5, SHA1, or SHA256. '
-                'SCons requires at least one. Expected to support one or more '
-                'during set_allowed_viable_default_hashes.'
-            )
-
-# Ensure that this is initialized in case either:
-#    1. This code is running in a unit test.
-#    2. This code is running in a consumer that does hash operations while
-#       SConscript files are being loaded.
-set_hash_format(None)
-
-
-def get_current_hash_algorithm_used():
-    """Returns the current hash algorithm name used.
-
-    Where the python version >= 3.9, this is expected to return md5.
-    If python's version is <= 3.8, this returns md5 on non-FIPS-mode platforms, and
-    sha1 or sha256 on FIPS-mode Linux platforms.
-
-    This function is primarily useful for testing, where one expects a value to be
-    one of N distinct hashes, and therefore the test needs to know which hash to select.
-    """
-    return _HASH_FUNCTION
-
-def _get_hash_object(hash_format, hashlib_used=hashlib, sys_used=sys):
-    """Allocates a hash object using the requested hash format.
-
-    Args:
-        hash_format: Hash format to use.
-
-    Returns:
-        hashlib object.
-    """
-    if hash_format is None:
-        if _HASH_FUNCTION is None:
-            from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
-
-            raise UserError('There is no default hash function. Did you call '
-                            'a hashing function before SCons was initialized?')
-        return _attempt_init_of_python_3_9_hash_object(getattr(hashlib_used, _HASH_FUNCTION, None), sys_used)
-
-    if not hasattr(hashlib, hash_format):
-        from SCons.Errors import UserError  # pylint: disable=import-outside-toplevel
-
-        raise UserError(
-            'Hash format "%s" is not available in your Python interpreter.' %
-            hash_format)
-
-    return _attempt_init_of_python_3_9_hash_object(getattr(hashlib, hash_format), sys_used)
-
-
-def hash_signature(s, hash_format=None):
-    """
-    Generate hash signature of a string
-
-    Args:
-        s: either string or bytes. Normally should be bytes
-        hash_format: Specify to override default hash format
-
-    Returns:
-        String of hex digits representing the signature
-    """
-    m = _get_hash_object(hash_format)
-    try:
-        m.update(to_bytes(s))
-    except TypeError:
-        m.update(to_bytes(str(s)))
-
-    return m.hexdigest()
-
-
-def hash_file_signature(fname, chunksize=65536, hash_format=None):
-    """
-    Generate the md5 signature of a file
-
-    Args:
-        fname: file to hash
-        chunksize: chunk size to read
-        hash_format: Specify to override default hash format
-
-    Returns:
-        String of Hex digits representing the signature
-    """
-
-    m = _get_hash_object(hash_format)
-    with open(fname, "rb") as f:
-        while True:
-            blck = f.read(chunksize)
-            if not blck:
-                break
-            m.update(to_bytes(blck))
-    return m.hexdigest()
-
-
-def hash_collect(signatures, hash_format=None):
-    """
-    Collects a list of signatures into an aggregate signature.
-
-    Args:
-        signatures: a list of signatures
-        hash_format: Specify to override default hash format
-
-    Returns:
-        the aggregate signature
-    """
-
-    if len(signatures) == 1:
-        return signatures[0]
-
-    return hash_signature(', '.join(signatures), hash_format)
-
-
-_MD5_WARNING_SHOWN = False
-
-def _show_md5_warning(function_name):
-    """Shows a deprecation warning for various MD5 functions."""
-
-    global _MD5_WARNING_SHOWN
-
-    if not _MD5_WARNING_SHOWN:
-        import SCons.Warnings  # pylint: disable=import-outside-toplevel
-
-        SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
-                            "Function %s is deprecated" % function_name)
-        _MD5_WARNING_SHOWN = True
-
-
-def MD5signature(s):
-    """Deprecated. Use :func:`hash_signature` instead."""
-
-    _show_md5_warning("MD5signature")
-    return hash_signature(s)
-
-
-def MD5filesignature(fname, chunksize=65536):
-    """Deprecated. Use :func:`hash_file_signature` instead."""
-
-    _show_md5_warning("MD5filesignature")
-    return hash_file_signature(fname, chunksize)
-
-
-def MD5collect(signatures):
-    """Deprecated. Use :func:`hash_collect` instead."""
-
-    _show_md5_warning("MD5collect")
-    return hash_collect(signatures)
 
 
 def silent_intern(x):
@@ -2012,109 +1231,9 @@ def silent_intern(x):
         return x
 
 
-# From Dinu C. Gherman,
-# Python Cookbook, second edition, recipe 6.17, p. 277.
-# Also: https://code.activestate.com/recipes/68205
-# ASPN: Python Cookbook: Null Object Design Pattern
-
-class Null:
-    """ Null objects always and reliably "do nothing." """
-    def __new__(cls, *args, **kwargs):
-        if '_instance' not in vars(cls):
-            cls._instance = super(Null, cls).__new__(cls, *args, **kwargs)
-        return cls._instance
-    def __init__(self, *args, **kwargs):
-        pass
-    def __call__(self, *args, **kwargs):
-        return self
-    def __repr__(self):
-        return "Null(0x%08X)" % id(self)
-    def __bool__(self):
-        return False
-    def __getattr__(self, name):
-        return self
-    def __setattr__(self, name, value):
-        return self
-    def __delattr__(self, name):
-        return self
-
-
-class NullSeq(Null):
-    """ A Null object that can also be iterated over. """
-    def __len__(self):
-        return 0
-    def __iter__(self):
-        return iter(())
-    def __getitem__(self, i):
-        return self
-    def __delitem__(self, i):
-        return self
-    def __setitem__(self, i, v):
-        return self
-
-
-def to_bytes(s) -> bytes:
-    if s is None:
-        return b'None'
-    if isinstance(s, (bytes, bytearray)):
-        # if already bytes return.
-        return s
-    return bytes(s, 'utf-8')
-
-
-def to_str(s) -> str:
-    if s is None:
-        return 'None'
-    if is_String(s):
-        return s
-    return str(s, 'utf-8')
-
-
 def cmp(a, b) -> bool:
     """A cmp function because one is no longer available in python3."""
     return (a > b) - (a < b)
-
-
-def get_env_bool(env, name, default=False) -> bool:
-    """Convert a construction variable to bool.
-
-    If the value of `name` in `env` is 'true', 'yes', 'y', 'on' (case
-    insensitive) or anything convertible to int that yields non-zero then
-    return ``True``; if 'false', 'no', 'n', 'off' (case insensitive)
-    or a number that converts to integer zero return ``False``.
-    Otherwise, return `default`.
-
-    Args:
-        env: construction environment, or any dict-like object
-        name: name of the variable
-        default: value to return if `name` not in `env` or cannot
-          be converted (default: False)
-
-    Returns:
-        the "truthiness" of `name`
-    """
-    try:
-        var = env[name]
-    except KeyError:
-        return default
-    try:
-        return bool(int(var))
-    except ValueError:
-        if str(var).lower() in ('true', 'yes', 'y', 'on'):
-            return True
-
-        if str(var).lower() in ('false', 'no', 'n', 'off'):
-            return False
-
-        return default
-
-
-def get_os_env_bool(name, default=False) -> bool:
-    """Convert an environment variable to bool.
-
-    Conversion is the same as for :func:`get_env_bool`.
-    """
-    return get_env_bool(os.environ, name, default)
 
 
 def print_time():
@@ -2122,6 +1241,81 @@ def print_time():
     # pylint: disable=redefined-outer-name,import-outside-toplevel
     from SCons.Script.Main import print_time
     return print_time
+
+
+def wait_for_process_to_die(pid):
+    """
+    Wait for specified process to die, or alternatively kill it
+    NOTE: This function operates best with psutil pypi package
+    TODO: Add timeout which raises exception
+    """
+    # wait for the process to fully killed
+    try:
+        import psutil  # pylint: disable=import-outside-toplevel
+        while True:
+            if pid not in [proc.pid for proc in psutil.process_iter()]:
+                break
+            time.sleep(0.1)
+    except ImportError:
+        # if psutil is not installed we can do this the hard way
+        while True:
+            if sys.platform == 'win32':
+                import ctypes  # pylint: disable=import-outside-toplevel
+                PROCESS_QUERY_INFORMATION = 0x1000
+                processHandle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION, 0, pid)
+                if processHandle == 0:
+                    break
+                ctypes.windll.kernel32.CloseHandle(processHandle)
+                time.sleep(0.1)
+            else:
+                try:
+                    os.kill(pid, 0)
+                except OSError:
+                    break
+                time.sleep(0.1)
+
+# From: https://stackoverflow.com/questions/1741972/how-to-use-different-formatters-with-the-same-logging-handler-in-python
+class DispatchingFormatter(Formatter):
+
+    def __init__(self, formatters, default_formatter):
+        self._formatters = formatters
+        self._default_formatter = default_formatter
+
+    def format(self, record):
+        formatter = self._formatters.get(record.name, self._default_formatter)
+        return formatter.format(record)
+
+
+def sanitize_shell_env(execution_env: dict) -> dict:
+    """Sanitize all values in *execution_env*
+
+    The execution environment (typically comes from (env['ENV']) is
+    propagated to the shell, and may need to be cleaned first.
+
+    Args:
+        execution_env: The shell environment variables to be propagated
+        to the spawned shell.
+
+    Returns:
+        sanitized dictionary of env variables (similar to what you'd get
+        from :data:`os.environ`)
+    """
+    # Ensure that the ENV values are all strings:
+    new_env = {}
+    for key, value in execution_env.items():
+        if is_List(value):
+            # If the value is a list, then we assume it is a path list,
+            # because that's a pretty common list-like value to stick
+            # in an environment variable:
+            value = flatten_sequence(value)
+            new_env[key] = os.pathsep.join(map(str, value))
+        else:
+            # It's either a string or something else.  If it isn't a
+            # string or a list, then we just coerce it to a string, which
+            # is the proper way to handle Dir and File instances and will
+            # produce something reasonable for just about everything else:
+            new_env[key] = str(value)
+    return new_env
 
 # Local Variables:
 # tab-width:4

@@ -1,15 +1,6 @@
-"""SCons.Tool.g77
-
-Tool-specific initialization for g77.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -29,14 +20,20 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Tool-specific initialization for g77.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import SCons.Util
 from SCons.Tool.FortranCommon import add_all_to_env, add_f77_to_env
 
 compilers = ['g77', 'f77']
+
 
 def generate(env):
     """Add Builders and construction variables for g77 to an Environment."""
@@ -62,6 +59,7 @@ def generate(env):
 
     env['INCF77PREFIX'] = "-I"
     env['INCF77SUFFIX'] = ""
+
 
 def exists(env):
     return env.Detect(compilers)

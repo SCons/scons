@@ -26,14 +26,13 @@ See its __doc__ string for a discussion of the format.
 <cvar name="IMPLICIT_COMMAND_DEPENDENCIES">
 <summary>
 <para>
-Controls whether or not SCons will
+Controls whether or not &SCons; will
 add implicit dependencies for the commands
 executed to build targets.
 </para>
 
 <para>
-By default, SCons will add
-to each target
+By default, &SCons; will add to each target
 an implicit dependency on the command
 represented by the first argument of any
 command line it executes (which is typically
@@ -130,44 +129,65 @@ A Python function used to print the command lines as they are executed
 or
 <option>-s</option>
 options or their equivalents).
-The function should take four arguments:
+The function must accept four arguments:
 <varname>s</varname>,
-the command being executed (a string),
 <varname>target</varname>,
-the target being built (file node, list, or string name(s)),
+<varname>source</varname> and
+<varname>env</varname>.
+<varname>s</varname>
+is a string showing the command being executed,
+<varname>target</varname>,
+is the target being built (file node, list, or string name(s)),
 <varname>source</varname>,
-the source(s) used (file node, list, or string name(s)), and
-<varname>env</varname>,
-the environment being used.
+is the source(s) used (file node, list, or string name(s)),
+and <varname>env</varname>
+is the environment being used.
 </para>
 
 <para>
-The function must do the printing itself.  The default implementation,
-used if this variable is not set or is None, is:
+The function must do the printing itself.
+The default implementation,
+used if this variable is not set or is <constant>None</constant>,
+is to just print the string, as in:
 </para>
 <example_commands>
 def print_cmd_line(s, target, source, env):
-  sys.stdout.write(s + "\n")
+    sys.stdout.write(s + "\n")
 </example_commands>
 
 <para>
-Here's an example of a more interesting function:
+Here is an example of a more interesting function:
 </para>
 
 <example_commands>
 def print_cmd_line(s, target, source, env):
-   sys.stdout.write("Building %s -> %s...\n" %
-    (' and '.join([str(x) for x in source]),
-     ' and '.join([str(x) for x in target])))
-env=Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
-env.Program('foo', 'foo.c')
+    sys.stdout.write(
+        "Building %s -> %s...\n"
+        % (
+            ' and '.join([str(x) for x in source]),
+            ' and '.join([str(x) for x in target]),
+        )
+    )
+
+env = Environment(PRINT_CMD_LINE_FUNC=print_cmd_line)
+env.Program('foo', ['foo.c', 'bar.c'])
 </example_commands>
 
 <para>
-This just prints "Building <varname>targetname</varname> from <varname>sourcename</varname>..." instead
-of the actual commands.
-Such a function could also log the actual commands to a log file,
-for example.
+This prints:
+</para>
+
+<screen>
+...
+scons: Building targets ...
+Building bar.c -> bar.o...
+Building foo.c -> foo.o...
+Building foo.o and bar.o -> foo...
+scons: done building targets.
+</screen>
+
+<para>
+Another example could be a function that logs the actual commands to a file.
 </para>
 </summary>
 </cvar>
@@ -176,7 +196,7 @@ for example.
 <summary>
 <para>
 A command interpreter function that will be called to execute command line
-strings. The function must expect the following arguments:
+strings. The function must accept five arguments:
 </para>
 
 <example_commands>
@@ -184,49 +204,69 @@ def spawn(shell, escape, cmd, args, env):
 </example_commands>
 
 <para>
-<varname>sh</varname>
-is a string naming the shell program to use.
+<varname>shell</varname>
+is a string naming the shell program to use,
 <varname>escape</varname>
 is a function that can be called to escape shell special characters in
-the command line.
+the command line,
 <varname>cmd</varname>
-is the path to the command to be executed.
+is the path to the command to be executed,
 <varname>args</varname>
-is the arguments to the command.
+holds the arguments to the command and
 <varname>env</varname>
-is a dictionary of the environment variables
-in which the command should be executed.
+is a dictionary of environment variables
+defining the execution environment in which the command should be executed.
 </para>
 </summary>
 </cvar>
 
-<cvar name="SHELL_ENV_GENERATOR">
+<cvar name="SHELL_ENV_GENERATORS">
   <summary>
     <para>
-A function to generate or alter the environment dictionary which will be used
-when executing the &cv-link-SPAWN; function. This primarily give the
-user a chance to customize the execution environment for particular Actions.
-It must return a dictionary containing the environment variables as
-keys and the values as values.
+A hook allowing the execution environment to be modified prior
+to the actual execution of a command line from an action
+via the spawner function defined by &cv-link-SPAWN;.
+Allows substitution based on targets and sources,
+as well as values from the &consenv;,
+adding extra environment variables, etc.
     </para>
 
+    <para>
+The value must be a list (or other iterable)
+of functions which each generate or
+alter the execution environment dictionary.
+The first function will be passed a copy of the initial execution environment
+(&cv-link-ENV; in the current &consenv;);
+the dictionary returned by that function is passed to the next,
+until the iterable is exhausted and the result returned
+for use by the command spawner.
+The original execution environment is not modified.
+    </para>
+
+    <para>
+Each function provided in &cv-SHELL_ENV_GENERATORS; must accept four
+arguments and return a dictionary:
+<varname>env</varname> is the &consenv; for this action;
+<varname>target</varname> is the list of targets associated with this action;
+<varname>source</varname> is the list of sources associated with this action;
+and <varname>shell_env</varname> is the current dictionary after iterating
+any previous &cv-SHELL_ENV_GENERATORS; functions
+(this can be compared to the original execution environment,
+which is available as <literal>env['ENV']</literal>, to detect any changes).
+    </para>
+
+    <para>Example:</para>
     <example_commands>
-def custom_shell_env(env, target, source):
+def custom_shell_env(env, target, source, shell_env):
+    """customize shell_env if desired"""
+    if str(target[0]) == 'special_target':
+        shell_env['SPECIAL_VAR'] = env.subst('SOME_VAR', target=target, source=source)
+    return shell_env
+
+env["SHELL_ENV_GENERATORS"] = [custom_shell_env]
     </example_commands>
 
-    <para>
-      <varname>env</varname>
-The SCons construction environment from which the
-execution environment can be derived from.
-    </para>
-    <para>
-    <varname>target</varname>
-The list of targets associated with this action.
-    </para>
-        <para>
-    <varname>source</varname>
-The list of sources associated with this action.
-    </para>
+  <para><emphasis>Available since 4.4</emphasis></para>
   </summary>
 </cvar>
 

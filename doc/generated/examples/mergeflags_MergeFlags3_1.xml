@@ -1,5 +1,5 @@
 <screen xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">% <userinput>scons -Q</userinput>
-['-option', '-O1', '-whatever', '-O3']
-['/include', '/usr/local/include', '/usr/include', '/usr/opt/include']
+CCFLAGS: ['-option', '-O1', '-whatever', '-O3']
+CPPPATH: ['/include', '/usr/local/include', '/usr/include', '/usr/opt/include']
 scons: `.' is up to date.
 </screen>

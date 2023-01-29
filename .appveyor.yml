@@ -17,68 +17,76 @@ cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 
 install:
-  # add python and python user-base to path for pip installs
+  # direct choco install supposed to work, but not? still doing in install.bat
+  #- cinst: dmd ldc swig vswhere ixsltproc winflexbison3
   - cmd: .\.appveyor\install.bat
+  - cmd: if %COVERAGE% equ 1 .\.appveyor\install-cov.bat
 
-# build matrix will be number of images multiplied by each '-' below,
-# less any exclusions.
-# split builds into sets of four jobs due to appveyor per-job time limit
+# Build matrix will be number of images multiplied by #entries in matrix:,
+# less any excludes.
+#
+# "Build" is kind of a misnomer - we are actually running the test suite,
+# and this is slow on Windows, so keep the matrix as small as possible.
+# Leaving the Coverage build on VS2017 for build-time reasons (1hr time limit).
+# maybe move coverage to github in future to restore some flexibility?
 environment:
+  COVERAGE: 0
+  SCONS_CACHE_MSVC_CONFIG: "true"
   matrix:
-    - WINPYTHON: "Python36"
-      COVERAGE: 1
-
-    - WINPYTHON: "Python37"
-      COVERAGE: 0
-
-    - WINPYTHON: "Python38"
-      COVERAGE: 0
+    # Test oldest and newest supported Pythons, and a subset in between.
+    # Skipping 3.7 and 3.9 at this time
+    - WINPYTHON: "Python311"
 
     - WINPYTHON: "Python310"
-      COVERAGE: 0
 
+    - WINPYTHON: "Python38"
+
+    - WINPYTHON: "Python36"
+      COVERAGE: 1
 
 # remove sets of build jobs based on criteria below
 # to fine tune the number and platforms tested
 matrix:
   exclude:
-    # test python 3.8 on Visual Studio 2017 image
+    # test python 3.6 on Visual Studio 2017 image
+    - image: Visual Studio 2017
+      WINPYTHON: "Python311"
     - image: Visual Studio 2017
       WINPYTHON: "Python310"
     - image: Visual Studio 2017
-      WINPYTHON: "Python37"
-    - image: Visual Studio 2017
       WINPYTHON: "Python38"
 
-    # test python 3.7 on Visual Studio 2019 image
+    # test python 3.8 on Visual Studio 2019 image
+    - image: Visual Studio 2019
+      WINPYTHON: "Python311"
     - image: Visual Studio 2019
       WINPYTHON: "Python310"
     - image: Visual Studio 2019
       WINPYTHON: "Python36"
 
-    # test python 3.10 on Visual Studio 2022 image
+    # test python 3.10 and 3.11 on Visual Studio 2022 image
     - image: Visual Studio 2022
       WINPYTHON: "Python36"
     - image: Visual Studio 2022
-      WINPYTHON: "Python37"
-    - image: Visual Studio 2022
       WINPYTHON: "Python38"
 
-# remove some binaries we don't want to be found
+# Remove some binaries we don't want to be found
+# Note this is no longer needed, git-windows bin/ is quite minimal now.
 before_build:
     - ps: .\.appveyor\ignore_git_bins.ps1
 
 build: off
 
 build_script:
-
-  # exclude VS 10.0 because it hangs the testing until this is resolved:
-  # https://help.appveyor.com/discussions/problems/19283-visual-studio-2010-trial-license-has-expired
-  - ps: .\.appveyor\disable_msvc_10.ps1
+  # Image version-based excludes:
+  # No excludes at the moment, but the exclude script generates the
+  # (possibly empty) exclude_list.txt which is used in the following step,
+  # so leave the scheme in place in case we need to put back excludes later.
+  - ps: .\.appveyor\exclude_tests.ps1
 
   # setup coverage by creating the coverage config file, and adding coverage
   # to the sitecustomize so that all python processes start with coverage
-  - ps: .\.appveyor\coverage_setup.ps1
+  - ps: if ($env:COVERAGE -eq 1) { .\.appveyor\coverage_setup.ps1 }
 
   # NOTE: running powershell from cmd is intended because
   # it formats the output correctly
@@ -86,8 +94,7 @@ build_script:
 
 # run coverage even if there was a test failure
 on_finish:
-  - ps: .\.appveyor\coverage_report.ps1
-  # running codecov in powershell causes an error so running in platform
-  # shells
+  - ps: if ($env:COVERAGE -eq 1) { .\.appveyor\coverage_report.ps1 }
+  # running codecov in powershell causes an error so running in cmd
   - cmd: if %COVERAGE% equ 1 codecov -X gcov --file coverage_xml.xml
 

@@ -685,8 +685,8 @@ class Node(object, metaclass=NoSlotsPyPy):
         """Try to retrieve the node's content from a cache
 
         This method is called from multiple threads in a parallel build,
-        so only do thread safe stuff here. Do thread unsafe stuff in
-        built().
+        so only do thread safe stuff here. Do thread unsafe stuff
+        in :meth:`built`.
 
         Returns true if the node was successfully retrieved.
         """
@@ -743,12 +743,12 @@ class Node(object, metaclass=NoSlotsPyPy):
         """Actually build the node.
 
         This is called by the Taskmaster after it's decided that the
-        Node is out-of-date and must be rebuilt, and after the prepare()
-        method has gotten everything, uh, prepared.
+        Node is out-of-date and must be rebuilt, and after the
+        :meth:`prepare` method has gotten everything, uh, prepared.
 
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff
-        in built().
+        in :meth:`built`.
 
         """
         try:

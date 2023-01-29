@@ -26,21 +26,23 @@
 
 import importlib
 import os
-import random
+import traceback
 import subprocess
 import sys
 
 import SCons
+import SCons.Script
 import SCons.Tool.ninja.Globals
 from SCons.Script import GetOption
+from SCons.Util import sanitize_shell_env
 
-from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS
+from .Globals import NINJA_RULES, NINJA_POOLS, NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS, NINJA_CMDLINE_TARGETS
 from .Methods import register_custom_handler, register_custom_rule_mapping, register_custom_rule, register_custom_pool, \
     set_build_node_callback, get_generic_shell_command, CheckNinjaCompdbExpand, get_command, \
     gen_get_response_file_command
 from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFiles, ninja_always_serial, AlwaysExecAction
 from .Utils import ninja_add_command_line_options, \
-    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis
+    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis, NinjaExperimentalWarning
 
 try:
     import ninja
@@ -65,7 +67,12 @@ def ninja_builder(env, target, source):
     print("Generating:", str(target[0]))
 
     generated_build_ninja = target[0].get_abspath()
-    NINJA_STATE.generate()
+    try:
+        NINJA_STATE.generate()
+    except Exception:
+        raise SCons.Errors.BuildError(
+            errstr=f"ERROR: an exception occurred while generating the ninja file:\n{traceback.format_exc()}",
+            node=target)
 
     if env["PLATFORM"] == "win32":
         # TODO: Is this necessary as you set env variable in the ninja build file per target?
@@ -84,18 +91,26 @@ def ninja_builder(env, target, source):
     else:
         cmd = [NINJA_STATE.ninja_bin_path, '-f', generated_build_ninja]
 
-    if not env.get("NINJA_DISABLE_AUTO_RUN"):
+    if str(env.get("NINJA_DISABLE_AUTO_RUN")).lower() not in ['1', 'true']:
+        num_jobs = env.get('NINJA_MAX_JOBS', env.GetOption("num_jobs"))
+        cmd += ['-j' + str(num_jobs)] + env.get('NINJA_CMD_ARGS', '').split() + NINJA_CMDLINE_TARGETS
+        print(f"ninja will be run with command line targets: {' '.join(NINJA_CMDLINE_TARGETS)}")
         print("Executing:", str(' '.join(cmd)))
 
         # execute the ninja build at the end of SCons, trying to
         # reproduce the output like a ninja build would
         def execute_ninja():
 
+            if env['PLATFORM'] == 'win32':
+                spawn_env = os.environ
+            else:
+                spawn_env = sanitize_shell_env(env['ENV'])
+
             proc = subprocess.Popen(cmd,
                                     stderr=sys.stderr,
                                     stdout=subprocess.PIPE,
                                     universal_newlines=True,
-                                    env=os.environ if env["PLATFORM"] == "win32" else env['ENV']
+                                    env=spawn_env
                                     )
             for stdout_line in iter(proc.stdout.readline, ""):
                 yield stdout_line
@@ -118,7 +133,16 @@ def ninja_builder(env, target, source):
             # leaving warnings and other output, seems a bit
             # prone to failure with such a simple check
             erase_previous = output.startswith('[')
+        sys.stdout.write("\n")
 
+
+def options(opts):
+    """
+    Add command line Variables for Ninja builder.
+    """
+    opts.AddVariables(
+        ("NINJA_CMD_ARGS", "Arguments to pass to ninja"),
+    )
 
 def exists(env):
     """Enable if called."""
@@ -164,7 +188,7 @@ def ninja_emitter(target, source, env):
 
 def generate(env):
     """Generate the NINJA builders."""
-    global NINJA_STATE
+    global NINJA_STATE, NINJA_CMDLINE_TARGETS
 
     if 'ninja' not in GetOption('experimental'):
         return
@@ -189,10 +213,9 @@ def generate(env):
     env["NINJA_ALIAS_NAME"] = env.get("NINJA_ALIAS_NAME", "generate-ninja")
     env['NINJA_DIR'] = env.Dir(env.get("NINJA_DIR", '#/.ninja'))
     env["NINJA_SCONS_DAEMON_KEEP_ALIVE"] = env.get("NINJA_SCONS_DAEMON_KEEP_ALIVE", 180000)
-    env["NINJA_SCONS_DAEMON_PORT"] = env.get('NINJA_SCONS_DAEMON_PORT', random.randint(10000, 60000))
 
     if GetOption("disable_ninja"):
-        env.SConsignFile(os.path.join(str(env['NINJA_DIR']),'.ninja.sconsign'))
+        env.SConsignFile(os.path.join(str(env['NINJA_DIR']), '.ninja.sconsign'))
 
     # here we allow multiple environments to construct rules and builds
     # into the same ninja file
@@ -200,7 +223,14 @@ def generate(env):
         ninja_file = env.Ninja()
         env['NINJA_FILE'] = ninja_file[0]
         env.AlwaysBuild(ninja_file)
-        env.Alias("$NINJA_ALIAS_NAME", ninja_file)
+
+        # We need to force SCons to only build the ninja target when ninja tool is loaded.
+        # The ninja tool is going to 'rip the guts out' of scons and make it basically unable
+        # to do anything in terms of building, so any targets besides the ninja target will
+        # end up doing nothing besides causing confusion. We save the targets however, so that
+        # SCons and invoke ninja to build them in lieu of the user.
+        NINJA_CMDLINE_TARGETS = SCons.Script.BUILD_TARGETS
+        SCons.Script.BUILD_TARGETS = SCons.Script.TargetList(env.Alias("$NINJA_ALIAS_NAME", ninja_file))
     else:
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
             SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
@@ -305,8 +335,8 @@ def generate(env):
     if GetOption('disable_ninja'):
         return env
 
-    SCons.Warnings.SConsWarning("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
-
+    print("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
+    print(f"SCons running in ninja mode. {env['NINJA_FILE']} will be generated.")
     # This is the point of no return, anything after this comment
     # makes changes to SCons that are irreversible and incompatible
     # with a normal SCons build. We return early if __NINJA_NO=1 has
@@ -392,7 +422,7 @@ def generate(env):
     # The Serial job class is SIGNIFICANTLY (almost twice as) faster
     # than the Parallel job class for generating Ninja files. So we
     # monkey the Jobs constructor to only use the Serial Job class.
-    SCons.Job.Jobs.__init__ = ninja_always_serial
+    SCons.Taskmaster.Job.Jobs.__init__ = ninja_always_serial
 
     ninja_syntax = importlib.import_module(".ninja_syntax", package='ninja')
 
@@ -445,6 +475,22 @@ def generate(env):
     # date-ness.
     SCons.Script.Main.BuildTask.needs_execute = lambda x: True
 
+    def ninja_Set_Default_Targets(env, tlist):
+        """
+            Record the default targets if they were ever set by the user. Ninja
+            will need to write the default targets and make sure not to include
+            the scons daemon shutdown target.
+        """
+        SCons.Script._Get_Default_Targets = SCons.Script._Set_Default_Targets_Has_Been_Called
+        SCons.Script.DEFAULT_TARGETS = ninja_file
+        for t in tlist:
+            if isinstance(t, SCons.Node.Node):
+                NINJA_DEFAULT_TARGETS.append(t)
+            else:
+                nodes = env.arg2nodes(t, env.fs.Entry)
+                NINJA_DEFAULT_TARGETS.extend(nodes)
+    SCons.Script._Set_Default_Targets = ninja_Set_Default_Targets
+
     # We will eventually need to overwrite TempFileMunge to make it
     # handle persistent tempfiles or get an upstreamed change to add
     # some configurability to it's behavior in regards to tempfiles.
@@ -464,5 +510,5 @@ def generate(env):
     env['TEMPFILEDIR'] = "$NINJA_DIR/.response_files"
     env["TEMPFILE"] = NinjaNoResponseFiles
 
-
     env.Alias('run-ninja-scons-daemon', 'run_ninja_scons_daemon_phony')
+    env.Alias('shutdown-ninja-scons-daemon', 'shutdown_ninja_scons_daemon_phony')

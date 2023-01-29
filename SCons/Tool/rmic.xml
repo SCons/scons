@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-License-Identifier: MIT
+
+Copyright The SCons Foundation
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -69,15 +71,17 @@ file names.
 </para>
 
 <example_commands>
-classes = env.Java(target = 'classdir', source = 'src')
-env.RMIC(target = 'outdir1', source = classes)
-
-env.RMIC(target = 'outdir2',
-         source = ['package/foo.class', 'package/bar.class'])
-
-env.RMIC(target = 'outdir3',
-         source = ['classes/foo.class', 'classes/bar.class'],
-         JAVACLASSDIR = 'classes')
+classes = env.Java(target='classdir', source='src')
+env.RMIC(target='outdir1', source=classes)
+env.RMIC(
+    target='outdir2',
+    source=['package/foo.class', 'package/bar.class'],
+)
+env.RMIC(
+    target='outdir3',
+    source=['classes/foo.class', 'classes/bar.class'],
+    JAVACLASSDIR='classes',
+)
 </example_commands>
 </summary>
 </builder>
@@ -112,7 +116,9 @@ If this is not set, then &cv-link-RMICCOM; (the command line) is displayed.
 </para>
 
 <example_commands>
-env = Environment(RMICCOMSTR = "Generating stub/skeleton class files $TARGETS from $SOURCES")
+env = Environment(
+    RMICCOMSTR="Generating stub/skeleton class files $TARGETS from $SOURCES"
+)
 </example_commands>
 </summary>
 </cvar>

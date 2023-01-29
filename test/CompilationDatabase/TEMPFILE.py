@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,37 +22,45 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test that CompilationDatabase works when TEMPFILE is being used to handle long
+commandlines for compilers/linkers/etc
+"""
 
 import sys
+import os
+import os.path
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-
-test.write('SConstruct', """\
-print('python 3 style statement')
-Exit(0)
-""")
+test.file_fixture('mygcc.py')
+test.file_fixture('test_main.c')
+test.file_fixture('fixture/SConstruct_tempfile', 'SConstruct')
 
 test.run()
 
-test.write('SConstruct', """\
-print 'python 2 style statement'
-Exit(0)
-""")
+rel_files = [
+    'compile_commands_only_arg.json',
+]
 
-if sys.version_info >= (3,0):
-    test.skip_test('Python 2 print statement test, skipping on Python 3.\n')
-else:
-    test.run()
+example_rel_file = """[
+    {
+        "command": "%s mygcc.py cc -o test_main.o -c test_main.c",
+        "directory": "%s",
+        "file": "test_main.c",
+        "output": "test_main.o"
+    }
+]
+""" % (sys.executable, test.workdir)
+
+if sys.platform == 'win32':
+    example_rel_file = example_rel_file.replace('\\', '\\\\')
+
+for f in rel_files:
+    # print("Checking:%s" % f)
+    test.must_exist(f)
+    test.must_match(f, example_rel_file, mode='r')
 
 test.pass_test()
-
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:

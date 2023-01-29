@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,7 +22,7 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
 """
 Test CompilationDatabase and several variations of ways to call it
 and values of COMPILATIONDB_USE_ABSPATH
@@ -46,7 +48,7 @@ rel_files = [
     'compile_commands_target.json',
     'compile_commands.json',
     'compile_commands_over_rel.json',
-    'compile_commands_over_abs_0.json'
+    'compile_commands_over_abs_0.json',
 ]
 
 abs_files = [
@@ -63,7 +65,8 @@ example_rel_file = """[
         "file": "test_main.c",
         "output": "test_main.o"
     }
-]""" % (sys.executable, test.workdir)
+]
+""" % (sys.executable, test.workdir)
 
 if sys.platform == 'win32':
     example_rel_file = example_rel_file.replace('\\', '\\\\')
@@ -80,7 +83,8 @@ example_abs_file = """[
         "file": "%s",
         "output": "%s"
     }
-]""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
+]
+""" % (sys.executable, test.workdir, os.path.join(test.workdir, 'test_main.c'), os.path.join(test.workdir, 'test_main.o'))
 
 if sys.platform == 'win32':
     example_abs_file = example_abs_file.replace('\\', '\\\\')

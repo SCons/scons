@@ -24,13 +24,10 @@
 import unittest
 import random
 import math
-import sys
-import time
 import os
 
-import TestUnit
-
-import SCons.Job
+import SCons.Taskmaster.Job
+from SCons.Script.Main import OptionsParser
 
 
 def get_cpu_nums():
@@ -245,10 +242,25 @@ class Taskmaster:
     def cleanup(self):
         pass
 
+
 SaveThreadPool = None
 ThreadPoolCallList = []
 
-class ParallelTestCase(unittest.TestCase):
+
+class JobTestCase(unittest.TestCase):
+    """
+    Setup common items needed for many Job test cases
+    """
+    def setUp(self) -> None:
+        """
+        Simulating real options parser experimental value.
+        Since we're in a unit test we're actually using FakeOptionParser()
+        Which has no values and no defaults.
+        """
+        OptionsParser.values.experimental = []
+
+
+class ParallelTestCase(JobTestCase):
     def runTest(self):
         """test parallel jobs"""
 
@@ -258,7 +270,7 @@ class ParallelTestCase(unittest.TestCase):
             raise NoThreadsException()
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
         jobs.run()
 
         self.assertTrue(not taskmaster.tasks_were_serial(),
@@ -284,7 +296,7 @@ class ParallelTestCase(unittest.TestCase):
                 time.sleep(0.01)
 
         global SaveThreadPool
-        SaveThreadPool = SCons.Job.ThreadPool
+        SaveThreadPool = SCons.Taskmaster.Job.ThreadPool
 
         class WaitThreadPool(SaveThreadPool):
             def put(self, task):
@@ -296,11 +308,11 @@ class ParallelTestCase(unittest.TestCase):
                 ThreadPoolCallList.append('get(%s)' % result[0].i)
                 return result
 
-        SCons.Job.ThreadPool = WaitThreadPool
+        SCons.Taskmaster.Job.ThreadPool = WaitThreadPool
 
         try:
             taskmaster = Taskmaster(3, self, SleepTask)
-            jobs = SCons.Job.Jobs(2, taskmaster)
+            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
             jobs.run()
 
             # The key here is that we get(1) and get(2) from the
@@ -314,14 +326,14 @@ class ParallelTestCase(unittest.TestCase):
             assert ThreadPoolCallList in expect, ThreadPoolCallList
 
         finally:
-            SCons.Job.ThreadPool = SaveThreadPool
+            SCons.Taskmaster.Job.ThreadPool = SaveThreadPool
 
 class SerialTestCase(unittest.TestCase):
     def runTest(self):
         """test a serial job"""
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)
-        jobs = SCons.Job.Jobs(1, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(1, taskmaster)
         jobs.run()
 
         self.assertTrue(taskmaster.tasks_were_serial(),
@@ -335,16 +347,18 @@ class SerialTestCase(unittest.TestCase):
         self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
 
-class NoParallelTestCase(unittest.TestCase):
+
+class NoParallelTestCase(JobTestCase):
+
     def runTest(self):
         """test handling lack of parallel support"""
         def NoParallel(tm, num, stack_size):
             raise NameError
-        save_Parallel = SCons.Job.Parallel
-        SCons.Job.Parallel = NoParallel
+        save_Parallel = SCons.Taskmaster.Job.LegacyParallel
+        SCons.Taskmaster.Job.LegacyParallel = NoParallel
         try:
             taskmaster = Taskmaster(num_tasks, self, RandomTask)
-            jobs = SCons.Job.Jobs(2, taskmaster)
+            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
             self.assertTrue(jobs.num_jobs == 1,
                             "unexpected number of jobs %d" % jobs.num_jobs)
             jobs.run()
@@ -359,7 +373,7 @@ class NoParallelTestCase(unittest.TestCase):
             self.assertFalse(taskmaster.num_failed,
                         "some task(s) failed to execute")
         finally:
-            SCons.Job.Parallel = save_Parallel
+            SCons.Taskmaster.Job.LegacyParallel = save_Parallel
 
 
 class SerialExceptionTestCase(unittest.TestCase):
@@ -367,7 +381,7 @@ class SerialExceptionTestCase(unittest.TestCase):
         """test a serial job with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
-        jobs = SCons.Job.Jobs(1, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(1, taskmaster)
         jobs.run()
 
         self.assertFalse(taskmaster.num_executed,
@@ -379,12 +393,14 @@ class SerialExceptionTestCase(unittest.TestCase):
         self.assertTrue(taskmaster.num_postprocessed == 1,
                     "exactly one task should have been postprocessed")
 
-class ParallelExceptionTestCase(unittest.TestCase):
+
+class ParallelExceptionTestCase(JobTestCase):
+
     def runTest(self):
         """test parallel jobs with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
         jobs.run()
 
         self.assertFalse(taskmaster.num_executed,
@@ -448,7 +464,8 @@ class badpreparenode (badnode):
     def prepare(self):
         raise Exception('badpreparenode exception')
 
-class _SConsTaskTest(unittest.TestCase):
+
+class _SConsTaskTest(JobTestCase):
 
     def _test_seq(self, num_jobs):
         for node_seq in [
@@ -476,7 +493,7 @@ class _SConsTaskTest(unittest.TestCase):
         taskmaster = SCons.Taskmaster.Taskmaster(testnodes,
                                                  tasker=SCons.Taskmaster.AlwaysTask)
 
-        jobs = SCons.Job.Jobs(num_jobs, taskmaster)
+        jobs = SCons.Taskmaster.Job.Jobs(num_jobs, taskmaster)
 
         # Exceptions thrown by tasks are not actually propagated to
         # this level, but are instead stored in the Taskmaster.
@@ -542,31 +559,19 @@ class ParallelTaskTest(_SConsTaskTest):
         """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 
+        # Now run test with NewParallel() instead of LegacyParallel
+        OptionsParser.values.experimental=['tm_v2']
+        self._test_seq(num_jobs)
+
+
 
 
 #---------------------------------------------------------------------
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(ParallelTestCase())
-    suite.addTest(SerialTestCase())
-    suite.addTest(NoParallelTestCase())
-    suite.addTest(SerialExceptionTestCase())
-    suite.addTest(ParallelExceptionTestCase())
-    suite.addTest(SerialTaskTest())
-    suite.addTest(ParallelTaskTest())
-    return suite
-
 if __name__ == "__main__":
-    runner = TestUnit.cli.get_runner()
-    result = runner().run(suite())
-    if (len(result.failures) == 0
-        and len(result.errors) == 1
-        and isinstance(result.errors[0][0], SerialTestCase)
-        and isinstance(result.errors[0][1][0], NoThreadsException)):
-        sys.exit(2)
-    elif not result.wasSuccessful():
-        sys.exit(1)
+    unittest.main()
+
+
 
 # Local Variables:
 # tab-width:4

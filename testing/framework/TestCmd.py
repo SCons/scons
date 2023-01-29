@@ -299,9 +299,17 @@ __version__ = "1.3"
 import atexit
 import difflib
 import errno
+import hashlib
 import os
 import re
+try:
+    import psutil
+except ImportError:
+    HAVE_PSUTIL = False
+else:
+    HAVE_PSUTIL = True
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -310,6 +318,7 @@ import threading
 import time
 import traceback
 from collections import UserList, UserString
+from pathlib import Path
 from subprocess import PIPE, STDOUT
 from typing import Optional
 
@@ -360,7 +369,7 @@ def is_String(e):
 
 testprefix = 'testcmd.'
 if os.name in ('posix', 'nt'):
-    testprefix += "%s." % str(os.getpid())
+    testprefix += f"{os.getpid()}."
 
 re_space = re.compile(r'\s')
 
@@ -377,10 +386,45 @@ def _caller(tblist, skip):
         if name in ("?", "<module>"):
             name = ""
         else:
-            name = " (" + name + ")"
+            name = f" ({name})"
         string = string + ("%s line %d of %s%s\n" % (atfrom, line, file, name))
         atfrom = "\tfrom"
     return string
+
+
+def clean_up_ninja_daemon(self, result_type) -> None:
+    """
+    Kill any running scons daemon started by ninja and clean up
+
+    Working directory and temp files are removed.
+    Skipped if this platform doesn't have psutil (e.g. msys2 on Windows)
+    """
+    if not self:
+        return
+
+    for path in Path(self.workdir).rglob('.ninja'):
+        daemon_dir = Path(tempfile.gettempdir()) / (
+            f"scons_daemon_{str(hashlib.md5(str(path.resolve()).encode()).hexdigest())}"
+        )
+        pidfiles = [daemon_dir / 'pidfile', path / 'scons_daemon_dirty']
+        for pidfile in pidfiles:
+            if pidfile.exists():
+                with open(pidfile) as f:
+                    try:
+                        pid = int(f.read())
+                        os.kill(pid, signal.SIGINT)
+                    except OSError:
+                        pass
+
+                    while HAVE_PSUTIL:
+                        if pid not in [proc.pid for proc in psutil.process_iter()]:
+                            break
+                        else:
+                            time.sleep(0.1)
+
+        if not self._preserve[result_type]:
+            if daemon_dir.exists():
+                shutil.rmtree(daemon_dir)
 
 
 def fail_test(self=None, condition=True, function=None, skip=0, message=None):
@@ -402,23 +446,24 @@ def fail_test(self=None, condition=True, function=None, skip=0, message=None):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'fail_test')
     of = ""
     desc = ""
     sep = " "
     if self is not None:
         if self.program:
-            of = " of " + self.program
+            of = f" of {self.program}"
             sep = "\n\t"
         if self.description:
-            desc = " [" + self.description + "]"
+            desc = f" [{self.description}]"
             sep = "\n\t"
 
     at = _caller(traceback.extract_stack(), skip)
     if message:
-        msg = "\t%s\n" % message
+        msg = f"\t{message}\n"
     else:
         msg = ""
-    sys.stderr.write("FAILED test" + of + desc + sep + at + msg)
+    sys.stderr.write(f"FAILED test{of}{desc}{sep}{at}{msg}")
 
     sys.exit(1)
 
@@ -447,19 +492,20 @@ def no_result(self=None, condition=True, function=None, skip=0):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'no_result')
     of = ""
     desc = ""
     sep = " "
     if self is not None:
         if self.program:
-            of = " of " + self.program
+            of = f" of {self.program}"
             sep = "\n\t"
         if self.description:
-            desc = " [" + self.description + "]"
+            desc = f" [{self.description}]"
             sep = "\n\t"
 
     at = _caller(traceback.extract_stack(), skip)
-    sys.stderr.write("NO RESULT for test" + of + desc + sep + at)
+    sys.stderr.write(f"NO RESULT for test{of}{desc}{sep}{at}")
 
     sys.exit(2)
 
@@ -483,6 +529,7 @@ def pass_test(self=None, condition=True, function=None):
         return
     if function is not None:
         function()
+    clean_up_ninja_daemon(self, 'pass_test')
     sys.stderr.write("PASSED\n")
     sys.exit(0)
 
@@ -555,7 +602,7 @@ def match_re(lines=None, res=None):
     if not is_List(res):
         res = res.split("\n")
     if len(lines) != len(res):
-        print("match_re: expected %d lines, found %d" % (len(res), len(lines)))
+        print(f"match_re: expected {len(res)} lines, found {len(lines)}")
         return None
     for i, (line, regex) in enumerate(zip(lines, res)):
         s = r"^{}$".format(regex)
@@ -627,24 +674,24 @@ def simple_diff(a, b, fromfile='', tofile='',
     sm = difflib.SequenceMatcher(None, a, b)
 
     def comma(x1, x2):
-        return x1 + 1 == x2 and str(x2) or '%s,%s' % (x1 + 1, x2)
+        return x1 + 1 == x2 and str(x2) or f'{x1 + 1},{x2}'
 
     for op, a1, a2, b1, b2 in sm.get_opcodes():
         if op == 'delete':
-            yield "{}d{}{}".format(comma(a1, a2), b1, lineterm)
+            yield f"{comma(a1, a2)}d{b1}{lineterm}"
             for l in a[a1:a2]:
-                yield '< ' + l
+                yield f"< {l}"
         elif op == 'insert':
-            yield "{}a{}{}".format(a1, comma(b1, b2), lineterm)
+            yield f"{a1}a{comma(b1, b2)}{lineterm}"
             for l in b[b1:b2]:
-                yield '> ' + l
+                yield f"> {l}"
         elif op == 'replace':
-            yield "{}c{}{}".format(comma(a1, a2), comma(b1, b2), lineterm)
+            yield f"{comma(a1, a2)}c{comma(b1, b2)}{lineterm}"
             for l in a[a1:a2]:
-                yield '< ' + l
-            yield '---{}'.format(lineterm)
+                yield f"< {l}"
+            yield f'---{lineterm}'
             for l in b[b1:b2]:
-                yield '> ' + l
+                yield f"> {l}"
 
 
 def diff_re(a, b, fromfile='', tofile='',
@@ -674,10 +721,10 @@ def diff_re(a, b, fromfile='', tofile='',
             msg = "Regular expression error in %s: %s"
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(bline):
-            result.append("%sc%s" % (i + 1, i + 1))
-            result.append('< ' + repr(a[i]))
+            result.append(f"{i + 1}c{i + 1}")
+            result.append(f"< {repr(a[i])}")
             result.append('---')
-            result.append('> ' + repr(b[i]))
+            result.append(f"> {repr(b[i])}")
     return result
 
 
@@ -690,7 +737,7 @@ if os.name == 'posix':
         for c in special:
             arg = arg.replace(c, slash + c)
         if re_space.search(arg):
-            arg = '"' + arg + '"'
+            arg = f"\"{arg}\""
         return arg
 else:
     # Windows does not allow special characters in file names
@@ -698,7 +745,7 @@ else:
     # the arg.
     def escape(arg):
         if re_space.search(arg):
-            arg = '"' + arg + '"'
+            arg = f"\"{arg}\""
         return arg
 
 if os.name == 'java':
@@ -967,8 +1014,7 @@ def _clean():
 
 
 class TestCmd:
-    """Class TestCmd
-    """
+    """Class TestCmd"""
 
     def __init__(
         self,
@@ -1002,7 +1048,10 @@ class TestCmd:
         self.combine = combine
         self.universal_newlines = universal_newlines
         self.process = None
-        self.set_timeout(timeout)
+        # Two layers of timeout: one at the test class instance level,
+        # one set on an individual start() call (usually via a run() call)
+        self.timeout = timeout
+        self.start_timeout = None
         self.set_match_function(match, match_stdout, match_stderr)
         self.set_diff_function(diff, diff_stdout, diff_stderr)
         self._dirlist = []
@@ -1042,7 +1091,7 @@ class TestCmd:
         self.cleanup()
 
     def __repr__(self):
-        return "%x" % id(self)
+        return f"{id(self):x}"
 
     banner_char = '='
     banner_width = 80
@@ -1050,7 +1099,7 @@ class TestCmd:
     def banner(self, s, width=None):
         if width is None:
             width = self.banner_width
-        return s + self.banner_char * (width - len(s))
+        return f"{s:{self.banner_char}<{width}}"
 
     escape = staticmethod(escape)
 
@@ -1090,7 +1139,7 @@ class TestCmd:
             condition = self.condition
         if self._preserve[condition]:
             for dir in self._dirlist:
-                print("Preserved directory " + dir)
+                print(f"Preserved directory {dir}")
         else:
             list = self._dirlist[:]
             list.reverse()
@@ -1125,6 +1174,9 @@ class TestCmd:
                 interpreter = [interpreter]
             cmd = list(interpreter) + cmd
         if arguments:
+            if isinstance(arguments, dict):
+                cmd.extend([f"{k}={v}" for k, v in arguments.items()])
+                return cmd
             if isinstance(arguments, str):
                 arguments = arguments.split()
             cmd.extend(arguments)
@@ -1324,14 +1376,6 @@ class TestCmd:
         dir = self.canonicalize(dir)
         os.rmdir(dir)
 
-    def _timeout(self):
-        self.process.terminate()
-        self.timer.cancel()
-        self.timer = None
-
-    def set_timeout(self, timeout):
-        self.timeout = timeout
-        self.timer = None
 
     def parse_path(self, path, suppress_current=False):
         """Return a list with the single path components of path."""
@@ -1458,7 +1502,7 @@ class TestCmd:
               interpreter=None,
               arguments=None,
               universal_newlines=None,
-              timeout=_Null,
+              timeout=None,
               **kw):
         """ Starts a program or script for the test environment.
 
@@ -1486,11 +1530,8 @@ class TestCmd:
         else:
             stderr_value = PIPE
 
-        if timeout is _Null:
-            timeout = self.timeout
         if timeout:
-            self.timer = threading.Timer(float(timeout), self._timeout)
-            self.timer.start()
+            self.start_timeout = timeout
 
         if sys.platform == 'win32':
             # Set this otherwist stdout/stderr pipes default to
@@ -1542,14 +1583,32 @@ class TestCmd:
         """
         if popen is None:
             popen = self.process
-        stdout, stderr = popen.communicate()
+        if self.start_timeout:
+            timeout = self.start_timeout
+            # we're using a timeout from start, now reset it to default
+            self.start_timeout = None
+        else:
+            timeout = self.timeout
+        try:
+            stdout, stderr = popen.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            popen.terminate()
+            stdout, stderr = popen.communicate()
+
+        # this is instead of using Popen as a context manager:
+        if popen.stdout:
+            popen.stdout.close()
+        if popen.stderr:
+            popen.stderr.close()
+        try:
+            if popen.stdin:
+                popen.stdin.close()
+        finally:
+            popen.wait()
 
         stdout = self.fix_binary_stream(stdout)
         stderr = self.fix_binary_stream(stderr)
 
-        if self.timer:
-            self.timer.cancel()
-            self.timer = None
         self.status = popen.returncode
         self.process = None
         self._stdout.append(stdout or '')
@@ -1561,7 +1620,7 @@ class TestCmd:
             chdir=None,
             stdin=None,
             universal_newlines=None,
-            timeout=_Null):
+            timeout=None):
         """Runs a test of the program or script for the test environment.
 
         Output and error output are saved for future retrieval via
@@ -1569,6 +1628,9 @@ class TestCmd:
 
         The specified program will have the original directory
         prepended unless it is enclosed in a [list].
+
+        argument: If this is a dict() then will create arguments with KEY+VALUE for
+                  each entry in the dict.
         """
         if self.external:
             if not program:
@@ -1584,8 +1646,10 @@ class TestCmd:
             if not os.path.isabs(chdir):
                 chdir = os.path.join(self.workpath(chdir))
             if self.verbose:
-                sys.stderr.write("chdir(" + chdir + ")\n")
+                sys.stderr.write(f"chdir({chdir})\n")
             os.chdir(chdir)
+        if not timeout:
+            timeout = self.timeout
         p = self.start(program=program,
                        interpreter=interpreter,
                        arguments=arguments,
@@ -1603,16 +1667,28 @@ class TestCmd:
         # subclasses that redefine .finish().  We could abstract this
         # into Yet Another common method called both here and by .finish(),
         # but that seems ill-thought-out.
-        stdout, stderr = p.communicate(input=stdin)
-        if self.timer:
-            self.timer.cancel()
-            self.timer = None
+        try:
+            stdout, stderr = p.communicate(input=stdin, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            p.terminate()
+            stdout, stderr = p.communicate()
+        
+        # this is instead of using Popen as a context manager:
+        if p.stdout:
+            p.stdout.close()
+        if p.stderr:
+            p.stderr.close()
+        try:
+            if p.stdin:
+                p.stdin.close()
+        finally:
+            p.wait()
+       
         self.status = p.returncode
         self.process = None
 
         stdout = self.fix_binary_stream(stdout)
         stderr = self.fix_binary_stream(stderr)
-
 
         self._stdout.append(stdout or '')
         self._stderr.append(stderr or '')
@@ -1624,12 +1700,12 @@ class TestCmd:
             write('============ STATUS: %d\n' % self.status)
             out = self.stdout()
             if out or self.verbose >= 3:
-                write('============ BEGIN STDOUT (len=%d):\n' % len(out))
+                write(f'============ BEGIN STDOUT (len={len(out)}):\n')
                 write(out)
                 write('============ END STDOUT\n')
             err = self.stderr()
             if err or self.verbose >= 3:
-                write('============ BEGIN STDERR (len=%d)\n' % len(err))
+                write(f'============ BEGIN STDERR (len={len(err)})\n')
                 write(err)
                 write('============ END STDERR\n')
 
@@ -1643,12 +1719,16 @@ class TestCmd:
         time.sleep(seconds)
 
     def stderr(self, run=None) -> Optional[str]:
-        """Returns the error output from the specified run number.
+        """Returns the stored standard error output from a given run.
 
-        If there is no specified run number, then returns the error
-        output of the last run.  If the run number is less than zero,
-        then returns the error output from that many runs back from the
-        current run.
+        Args:
+            run: run number to select.  If run number is omitted,
+                return the standard error of the most recent run.
+                If negative, use as a relative offset, e.g. -2
+                means the run two prior to the most recent.
+
+        Returns:
+            selected sterr string or None if there are no stored runs.
         """
         if not run:
             run = len(self._stderr)
@@ -1665,13 +1745,12 @@ class TestCmd:
 
         Args:
             run: run number to select.  If run number is omitted,
-            return the standard output of the most recent run.
-            If negative, use as a relative offset, so that -2
-            means the run two prior to the most recent.
+                return the standard output of the most recent run.
+                If negative, use as a relative offset, e.g. -2
+                means the run two prior to the most recent.
 
         Returns:
-            selected stdout string or None if there are no
-            stored runs.
+            selected stdout string or None if there are no stored runs.
         """
         if not run:
             run = len(self._stdout)

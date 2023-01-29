@@ -804,7 +804,8 @@ _separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 # space characters in the string result from the scons_subst() function.
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
+
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides=False):
     """Expand a string or list containing construction variable
     substitutions.
 
@@ -833,6 +834,10 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
         if d:
             lvars = lvars.copy()
             lvars.update(d)
+
+    # Allow last ditch chance to override lvars
+    if overrides:
+        lvars.update(overrides)
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),
@@ -882,7 +887,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None,overrides=False):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 
@@ -907,6 +912,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
         if d:
             lvars = lvars.copy()
             lvars.update(d)
+
+    # Allow caller to specify last ditch override of lvars
+    if overrides:
+        lvars.update(overrides)
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),

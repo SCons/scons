@@ -59,7 +59,6 @@
 <!ENTITY Cons           "<application xmlns='http://www.scons.org/dbxsd/v1.0'>Cons</application>">
 <!ENTITY cp             "<application xmlns='http://www.scons.org/dbxsd/v1.0'>cp</application>">
 <!ENTITY csh            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>csh</application>">
-<!ENTITY flex            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>flex</application>">
 <!ENTITY f77            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f77</application>">
 <!ENTITY f90            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f90</application>">
 <!ENTITY f95            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>f95</application>">
@@ -454,6 +453,7 @@
 <!ENTITY contentsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signature</phrase>">
 <!ENTITY contentsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>content signatures</phrase>">
 <!ENTITY buildsig "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build signature</phrase>">
+<!ENTITY buildsigs "<phrase xmlns='http://www.scons.org/dbxsd/v1.0'>build signatures</phrase>">
 
 <!ENTITY true "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>true</literal>">
 <!ENTITY false "<literal xmlns='http://www.scons.org/dbxsd/v1.0'>false</literal>">

@@ -36,7 +36,7 @@ for implicit_deps in ['0', '1', '2', '\"all\"']:
     work1_foo_c = test.workpath('work1', 'foo.c')
 
     test.write(['work1', 'SConstruct'], r"""
-DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])  # test speedup
 Repository(r'%s')
 env = Environment(IMPLICIT_COMMAND_DEPENDENCIES=%s)
 env.Program(target= 'foo', source = Split('aaa.c bbb.c foo.c'))
@@ -179,7 +179,7 @@ repository/foo.c
     work2_foo = test.workpath('work2', 'foo' + _exe)
 
     test.write(['work2', 'SConstruct'], r"""
-DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])  # test speedup
 Repository(r'%s')
 Repository(r'%s')
 env = Environment()

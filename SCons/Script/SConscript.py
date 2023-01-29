@@ -57,7 +57,7 @@ GlobalDict = None
 global_exports = {}
 
 # chdir flag
-sconscript_chdir = 1
+sconscript_chdir: bool = True
 
 def get_calling_namespaces():
     """Return the locals and globals for the function that called
@@ -205,7 +205,7 @@ def _SConscript(fs, *files, **kw):
                 # Change directory to the top of the source
                 # tree to make sure the os's cwd and the cwd of
                 # fs match so we can open the SConscript.
-                fs.chdir(top, change_os_dir=1)
+                fs.chdir(top, change_os_dir=True)
                 if f.rexists():
                     actual = f.rfile()
                     _file_ = open(actual.get_abspath(), "rb")
@@ -254,7 +254,7 @@ def _SConscript(fs, *files, **kw):
                         # fs.chdir(), because we still need to
                         # interpret the stuff within the SConscript file
                         # relative to where we are logically.
-                        fs.chdir(ldir, change_os_dir=0)
+                        fs.chdir(ldir, change_os_dir=False)
                         os.chdir(actual.dir.get_abspath())
 
                     # Append the SConscript directory to the beginning
@@ -292,7 +292,7 @@ def _SConscript(fs, *files, **kw):
 
                         if old_file is not None:
                             call_stack[-1].globals.update({__file__:old_file})
-                            
+
                 else:
                     handle_missing_SConscript(f, kw.get('must_exist', None))
 
@@ -306,7 +306,7 @@ def _SConscript(fs, *files, **kw):
                 # There was no local directory, so chdir to the
                 # Repository directory.  Like above, we do this
                 # directly.
-                fs.chdir(frame.prev_dir, change_os_dir=0)
+                fs.chdir(frame.prev_dir, change_os_dir=False)
                 rdir = frame.prev_dir.rdir()
                 rdir._create()  # Make sure there's a directory there.
                 try:
@@ -385,12 +385,8 @@ class SConsEnvironment(SCons.Environment.Base):
     #
     # Private methods of an SConsEnvironment.
     #
-    def _exceeds_version(self, major, minor, v_major, v_minor):
-        """Return 1 if 'major' and 'minor' are greater than the version
-        in 'v_major' and 'v_minor', and 0 otherwise."""
-        return (major > v_major or (major == v_major and minor > v_minor))
-
-    def _get_major_minor_revision(self, version_string):
+    @staticmethod
+    def _get_major_minor_revision(version_string):
         """Split a version string into major, minor and (optionally)
         revision parts.
 
@@ -488,14 +484,15 @@ class SConsEnvironment(SCons.Environment.Base):
     def Default(self, *targets):
         SCons.Script._Set_Default_Targets(self, targets)
 
-    def EnsureSConsVersion(self, major, minor, revision=0):
+    @staticmethod
+    def EnsureSConsVersion(major, minor, revision=0):
         """Exit abnormally if the SCons version is not late enough."""
         # split string to avoid replacement during build process
         if SCons.__version__ == '__' + 'VERSION__':
             SCons.Warnings.warn(SCons.Warnings.DevelopmentVersionWarning,
                 "EnsureSConsVersion is ignored for development version")
             return
-        scons_ver = self._get_major_minor_revision(SCons.__version__)
+        scons_ver = SConsEnvironment._get_major_minor_revision(SCons.__version__)
         if scons_ver < (major, minor, revision):
             if revision:
                 scons_ver_string = '%d.%d.%d' % (major, minor, revision)
@@ -505,14 +502,16 @@ class SConsEnvironment(SCons.Environment.Base):
                   (scons_ver_string, SCons.__version__))
             sys.exit(2)
 
-    def EnsurePythonVersion(self, major, minor):
+    @staticmethod
+    def EnsurePythonVersion(major, minor):
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]
             print("Python %d.%d or greater required, but you have Python %s" %(major,minor,v))
             sys.exit(2)
 
-    def Exit(self, value=0):
+    @staticmethod
+    def Exit(value=0):
         sys.exit(value)
 
     def Export(self, *vars, **kw):
@@ -520,13 +519,15 @@ class SConsEnvironment(SCons.Environment.Base):
             global_exports.update(compute_exports(self.Split(var)))
         global_exports.update(kw)
 
-    def GetLaunchDir(self):
+    @staticmethod
+    def GetLaunchDir():
         global launch_dir
         return launch_dir
 
     def GetOption(self, name):
         name = self.subst(name)
         return SCons.Script.Main.GetOption(name)
+
 
     def Help(self, text, append=False):
         text = self.subst(text, raw=1)
@@ -596,7 +597,8 @@ class SConsEnvironment(SCons.Environment.Base):
         subst_kw['exports'] = exports
         return _SConscript(self.fs, *files, **subst_kw)
 
-    def SConscriptChdir(self, flag):
+    @staticmethod
+    def SConscriptChdir(flag: bool) -> None:
         global sconscript_chdir
         sconscript_chdir = flag
 

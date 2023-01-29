@@ -2,11 +2,11 @@ Contributing to SCons
 #####################
 
 Introduction
-===========
+============
 
-Thanks for taking the time to contribute!
+Thanks for taking the time to contribute to SCons!
 
-This page will talk a bit about the development process,
+This will give a brief overview of the development process,
 and about the SCons tree (right here, if you're reading this
 in Github, or in a cloned repository).
 
@@ -24,7 +24,7 @@ there is a web interface.
 Resources
 =========
 
-Here are some important pointers:
+Here are some important pointers to other resources:
 
   * `SCons Home Page <https://scons.org>`_
   * `Github Project Page <https://github.com/scons/scons>`_
@@ -38,9 +38,9 @@ Reporting Bugs
 
 One of the easiest ways to contribute is by filing bugs.
 The SCons project welcomes bug reports and feature requests,
-but we have do a preference for having talked about it first -
-we request you send an email to the 
-`SCons Users Mailing List <https://two.pairlist.net/mailman/listinfo/scons-users>`_
+but we *do* have a preference for having talked about them first -
+we request you send an email to the
+`SCons Users Mailing List <https://pairlist4.pair.net/mailman/listinfo/scons-users>`_
 or hop on the Discord channel (see link above), and if so
 instructed, then proceed to an issue report.
 
@@ -54,23 +54,29 @@ workarounds for the problem you've run into::
 About the Development Tree
 ==========================
 
-This tree has more logic than just the SCons code itself -
-there's quite a bit to do with packaging it in a couple
+This tree contains a lot more than just the SCons engine itself.
+Some of it has to do with packaging it in a couple
 of forms: a Python-installable package (source distribution
-and installable wheel file), a portable zip (or tar) distribution
+and installable wheel file, which get uploaded to the Python
+Package Index), a portable zip (or tar) distribution
 called "scons-local", and a full source bundle.  You usually
-don't need to worry about the packaging methods when working
-on a source or doc contribution.
+don't need to worry about the packaging parts when working
+on a source or doc contribution - unless you're adding an entirely
+new file, then the packaging bits may need to know about it. The
+project maintainers can usually help with that part.
+There are also tests and tools in the tree.
 
-To the extent that this tree is about building SCons packages, the *full*
-development cycle is not just to test the code directly, but to package SCons,
-unpack the package, "install" SCons in a test subdirectory, and then to run
-the tests against the unpacked and installed software.  This helps eliminate
-problems caused by, for example, failure to update the list of files to be
-packaged.
+The *full* development cycle is not just to test code changes directly,
+but also to package SCons, unpack the package, install SCons in a test
+location, and then run the tests against the unpacked and installed
+software.  This helps eliminate problems caused by the development
+tree being different than the tree anyone else would see (files
+not checked in to git, files not added to package manifest, etc.)
+Most of that is handled by the CI setup driven through GitHub,
+which runs checks for each update to a Pull Request.
 
 For just working on making an individual change to the SCons source, however,
-you don't actually need to build or install SCons; you *can* actually edit and
+you don't actually need to build or install SCons; you just edit and
 execute SCons in-place.  See the following sections below for more
 information:
 
@@ -91,16 +97,16 @@ information:
 Executing SCons Without Installing
 ==================================
 
-Being a project written in Python, you don't have to "build"
-SCons to run it, "build" actually refers to the steps taken to prepare
+Since SCons is written entirely in Python, you don't have to "build"
+SCons to run it. "Building" refers to the steps taken to prepare
 for constructing packages, the most time-consuing of which is
-building the documentation.  
+building the documentation.
 
 Documentation is written in a markup language which is a
 light extension of Docbook-XML, and the doc build consists
 of translating to pure docbook, then using standard tools to
 generate HTML and PDF outputs from that. There's lots more
-on the documentation process at the Documentation Toolchain page::
+on the documentation process at the Documentation Toolchain page:
 
     https://github.com/SCons/scons/blob/master/doc/overview.rst
 
@@ -119,10 +125,44 @@ unless you are doing development that relates to the packaging.
 
 Often when doing SCons development, you have a sample project that
 isn't working right, and it's useful to be able to build that
-project from place you're working on changes to SCons. You
+project from the place you're working on changes to SCons. You
 can do that with the ``C`` (change directory) option::
 
     $ python scripts/scons.py -C /some/other/location [arguments]
+
+There is another approach that kind of reverses that order:
+construct a Python virtualenv and install the development tree in it.
+If you're not familiar with virtualenvs, there's an example here:
+
+    https://scons-cookbook.readthedocs.io/en/latest/#setting-up-a-python-virtualenv-for-scons
+
+Follow the initial steps, except omit installing ``scons`` as a package.
+When the virtualenv is contructed and activated, go to your working SCons
+git tree and perform a development install instead::
+
+    (myvenv) $ pip install --editable .
+
+Now while this virtualenv is activated, the command ``scons`` will refer
+to this editable version, and you don't have to be "in" this tree
+to run it.
+
+You can also arrange to execute ``scons.py`` from the command line
+by adding it to the ``PATH``, like::
+
+    # on Linux/Mac
+    $ export PATH=$PATH:`pwd`/scripts
+
+    # on Windows
+    C:\> set PATH="%PATH%;C:\path\to\scripts"
+
+Be careful on Windows, the path has a limit of 1024 characters which
+is pretty easy to exceed, and it will just truncate.
+
+You may first need to make ``scons.py`` executable (it should be
+by default, but sometimes things happen)::
+
+    $ chmod +x scripts/scons.py
+
 
 Other Required Software
 =======================
@@ -132,7 +172,22 @@ of Python. The tools which will be used to to actually construct the
 project, such as compilers, documentation production tools, etc.
 should of course be installed by the appropriate means.  In order
 to develop SCons and run its test suite, there are some dependencies,
-listed in the ``requirements.txt`` file.
+listed in the ``requirements-dev.txt`` file. Install these with::
+
+    $ python -m pip install -r requirements-dev.txt
+
+For building the SCons packages and documentation there are some further
+requirements, you can get these with::
+
+    $ python -m pip install -r requirements-pkg.txt
+
+The requirements are inclusive so you only need the latter to get
+everything installed.
+
+There are other, non-Python requirements to do a doc build. These
+are system-specific. See bin/scons_dev_master.py for the set up that
+works for Ubuntu systems.
+
 
 Making Changes
 ==============
@@ -140,23 +195,15 @@ Making Changes
 Virtually all of the SCons functionality exists in the "build engine," the
 ``SCons`` subdirectory hierarchy that contains all of the modules that
 make up SCons.  The ``scripts/scons.py`` wrapper script exists mainly to find
-the appropriate build engine library and then execute it.
+the appropriate build engine module and execute it.
 
 In order to make your own changes locally and test them by hand, simply edit
 modules in the local ``SCons`` subdirectory tree and then run
-(see the section above about `Executing SCons Without Installing`_)::
+(see the section `Executing SCons Without Installing`_)::
 
     $ python scripts/scons.py [arguments]
 
-If you want to be able to just execute your modified version of SCons from the
-command line, you can make it executable and add its directory to your $PATH
-like so::
-
-    $ chmod 755 scripts/scons.py
-    $ export PATH=$PATH:`pwd`/scripts
-
-You should then be able to run this version of SCons by just typing ``scons.py``
-at your UNIX or Linux command line.
+Or, if using the virtualenv/editable approach: ``scons [arguments]``
 
 Note that the regular SCons development process makes heavy use of automated
 testing.  See the `Testing`_ and `Typical Development Workflow`_ sections below for more
@@ -170,7 +217,7 @@ Debugging
 
 Python comes with a good interactive debugger.  When debugging changes by hand
 (i.e., when not using the automated tests), you can invoke SCons under control
-of the Python debugger by specifying the --debug=pdb option::
+of the Python debugger by specifying the ``--debug=pdb`` option::
 
     $ scons --debug=pdb [arguments]
     > /home/knight/scons/SCons/Script/Main.py(927)_main()
@@ -191,20 +238,21 @@ the debugger at that point.
 The debugger supports single stepping, stepping into functions, printing
 variables, etc.
 
-Trying to debug problems found by running the automated tests (see the
-`Testing`_ section, below) is more difficult, because the test automation
-harness re-invokes SCons and captures output. Consequently, there isn't an
-easy way to invoke the Python debugger in a useful way on any particular SCons
-call within a test script.
+When debugging unexpected behavior when running the test suite
+(see the `Testing`_ section, below), it can get a bit more complicated.
+For the Unit Tests, you will be running in-process, and so the
+``runtest.py`` script's debug option is helpful in getting things set up.
 
-The most effective technique for debugging problems that occur during an
-automated test is to use the good old tried-and-true technique of adding
-statements to print tracing information.  But note that you can't just use
-the ``print`` function, or even ``sys.stdout.write()`` because those change the
-SCons output, and the automated tests usually look for matches of specific
-output strings to decide if a given SCons invocation passes the test -
-so these additions may cause apparent failures different than the one you
-are trying to debug.
+Trying to debug problems found by running the end-to-end tests is
+more difficult, because the test automation harness re-invokes SCons and
+captures output - essentially, an instance of SCons is being runs as
+a "black box", and so it is considerably harder to interact with it
+effectively. The way forward is usually to add statements to trace progress.
+You can't just use the ``print`` function directly, or even ``sys.stdout.write()``
+because those change the SCons output, and the end-to-end tests usually
+look for matches of specific output strings to decide if a given SCons
+invocation has behaved as expected - so interleaving your trace information
+would cause lots of mismatches, and often obscure what you are trying to debug.
 
 To deal with this, SCons supports a ``Trace()`` function that (by default) will
 print messages to your console screen (``/dev/tty`` on UNIX or Linux, ``con`` on
@@ -287,7 +335,8 @@ subdirectory, and do not require that a build be performed first.
 Typical Development Workflow
 ============================
 
-    Caveat: The point of this section isn't to describe one dogmatic workflow.
+.. hint::
+    The point of this section is not to describe one dogmatic workflow.
     Just running the test suite can be time-consuming, and getting a patch to
     pass all of the tests can be more so.  If you're genuinely blocked, it may
     make more sense to submit a patch with a note about which tests still
@@ -324,7 +373,9 @@ platform, Windows users can translate as appropriate)):
 
       $ python runtest.py -a -o test.log
 
-  Be patient, there are more than 1100 test scripts in the whole suite!
+  Be patient, there are more than 1100 test scripts in the whole suite
+  (using a ``-j`` option pretty much always helps. For example, if you have
+  an 8-core processor, try ``runtest.py -j 8```).
 
   If any test scripts fail, they will be listed in a summary at the end of the
   log file.  Some test scripts may also report NO RESULT because (for example)
@@ -359,11 +410,21 @@ example, if you're making a change to just the Java support, you might start
 looking for regressions by just running the ``test/Java/\*.py`` tests instead of
 running all tests with ``runtest.py -a``.
 
+- To actually submit the fix and any test work as a Pull Request,
+  there will be some version control steps. For example::
+
+      $ git checkout -b fix-1387
+      $ git modified     # check that this reports your expected list
+      $ git add `git modified`
+      $ git commit -s    # fill in a good description of your changes
+
+  And proceed to push the change as a PR.
+
 
 Building Packages
 =================
 
-We use SCons (version 3.1.2 or later) to build its own packages.  If you
+We use SCons (version 3.1.2 or newer) to build its own packages.  If you
 already have an appropriate version of SCons installed on your system,
 you can build everything by simply running it::
 
@@ -378,12 +439,12 @@ you can run the build directly from the source tree
 Those are full builds: depending on the utilities installed on your system,
 any or all of the following packages will be built::
 
-    SCons-4.3.0-py3-none-any.whl
-    SCons-4.3.0ayyyymmdd.tar.gz
-    SCons-4.3.0ayyyymmdd.zip
-    scons-doc-4.3.0ayyyymmdd.tar.gz
-    scons-local-4.3.0ayyyymmdd.tar.gz
-    scons-local-4.3.0ayyyymmdd.zip
+    SCons-4.4.0-py3-none-any.whl
+    SCons-4.4.0ayyyymmdd.tar.gz
+    SCons-4.4.0ayyyymmdd.zip
+    scons-doc-4.4.0ayyyymmdd.tar.gz
+    scons-local-4.4.0ayyyymmdd.tar.gz
+    scons-local-4.4.0ayyyymmdd.zip
 
 The ``SConstruct`` file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
@@ -432,17 +493,17 @@ bootstrap.py
     Obsolete packaging logic - ignore this.
 
 debian/
-    Files needed to construct a Debian package. The contents of this directory
-    are dictated by the
+    Files needed to construct a Debian package.
+    The contents of this directory are dictated by the
     `Debian Policy Manual <https://www.debian.org/doc/debian-policy>`).
     The package will not be accepted into the Debian distribution unless
     the contents of this directory satisfy the relevant Debian policies.
-    At this point, this is a sample; SCons is packaged in the Debian
-    project (and thus inherited by projects which derive from it, if
-    they haven't made their own packages). See:
+    At this point, this is a sample; SCons is packaged for Debian by the
+    Debian project itself (and thus inherited by projects which derive from it,
+    if they haven't made their own packages). See:
 
-    - <https://packages.debian.org/bullseye/scons>_
-    - <https://packages.ubuntu.com/impish/scons>_
+    - `Debian scons packages <https://packages.debian.org/search?keywords=scons&searchon=names&suite=all&section=all>`_
+    - `Ubuntu scons packages <https://packages.ubuntu.com/search?keywords=scons&searchon=names&suite=all&section=all>`_
 
 doc/
     SCons documentation.  A variety of things here, in various stages of
@@ -491,12 +552,12 @@ SConstruct
     software.)
 
 SCons/
-    Where the actual source code is kept, of course.
+    This is the source code of the engine, plus unit tests and
+    documentation stubs kept together with pieces of the engine.
 
 test/
-    End-to-end tests of the SCons utility itself.  These are separate from the
-    individual module unit tests, which live side-by-side with the modules
-    under SCons.
+    End-to-end tests of the SCons utility itself.
+    These are separate from the individual module unit tests.
 
 testing/
     SCons testing framework.

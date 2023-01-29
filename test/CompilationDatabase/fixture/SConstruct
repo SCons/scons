@@ -7,7 +7,7 @@ env = Environment(
     LINKFLAGS=[],
     CC='$PYTHON mygcc.py cc',
     CXX='$PYTHON mygcc.py c++',
-    tools=['gcc','g++','gnulink'],
+    tools=['gcc', 'g++', 'gnulink'],
 )
 env.Tool('compilation_db')
 

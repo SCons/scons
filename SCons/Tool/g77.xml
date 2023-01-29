@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+Copyright The SCons Foundation
 
 This file is processed by the bin/SConsDoc.py module.
 See its __doc__ string for a discussion of the format.
@@ -27,10 +27,31 @@ See its __doc__ string for a discussion of the format.
 <summary>
 <para>
 Set construction variables for the &g77; Fortran compiler.
-Calls the &t-f77; Tool module
-to set variables.
 </para>
 </summary>
+<sets>
+<item>F77</item>
+<item>F77COM</item>
+<item>F77PPCOM</item>
+<item>F77FILESUFFIXES</item>
+<item>F77PPFILESUFFIXES</item>
+<item>FORTRAN</item>
+<item>FORTRANCOM</item>
+<item>FORTRANPPCOM</item>
+<item>SHF77</item>
+<item>SHF77COM</item>
+<item>SHF77PPCOM</item>
+<item>SHF77FLAGS</item>
+<item>SHFORTRAN</item>
+<item>SHFORTRANCOM</item>
+<item>SHFORTRANPPCOM</item>
+<item>SHFORTRANFLAGS</item>
+</sets>
+<uses>
+<item>F77FLAGS</item>
+<item>FORTRANFLAGS</item>
+<item>FORTRANCOMMONFLAGS</item>
+</uses>
 </tool>
 
 </sconsdoc>

@@ -231,13 +231,15 @@ def generate(env):
         JAVABOOTCLASSPATH=[],
         JAVACLASSPATH=[],
         JAVASOURCEPATH=[],
+        JAVAPROCESSORPATH=[],
     )
     env['_javapathopt'] = pathopt
     env['_JAVABOOTCLASSPATH'] = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
+    env['_JAVAPROCESSORPATH'] = '${_javapathopt("-processorpath", "JAVAPROCESSORPATH")} '
     env['_JAVACLASSPATH'] = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
     env['_JAVASOURCEPATH'] = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
     env['_JAVASOURCEPATHDEFAULT'] = '${TARGET.attributes.java_sourcedir}'
-    env['_JAVACCOM'] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
+    env['_JAVACCOM'] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVAPROCESSORPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
     env['JAVACCOM'] = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
 
 def exists(env):

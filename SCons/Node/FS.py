@@ -378,20 +378,33 @@ else:
         return x.upper()
 
 
-
 class DiskChecker:
-    def __init__(self, type, do, ignore):
-        self.type = type
-        self.do = do
-        self.ignore = ignore
-        self.func = do
+    """
+    Implement disk check variation.
+
+    This Class will hold functions to determine what this particular disk
+    checking implementation should do when enabled or disabled.
+    """
+    def __init__(self, disk_check_type, do_check_function, ignore_check_function):
+        self.disk_check_type = disk_check_type
+        self.do_check_function = do_check_function
+        self.ignore_check_function = ignore_check_function
+        self.func = do_check_function
+
     def __call__(self, *args, **kw):
         return self.func(*args, **kw)
-    def set(self, list):
-        if self.type in list:
-            self.func = self.do
+
+    def enable(self, disk_check_type_list):
+        """
+        If the current object's disk_check_type matches any in the list passed
+        :param disk_check_type_list: List of disk checks to enable
+        :return:
+        """
+        if self.disk_check_type in disk_check_type_list:
+            self.func = self.do_check_function
         else:
-            self.func = self.ignore
+            self.func = self.ignore_check_function
+
 
 def do_diskcheck_match(node, predicate, errorfmt):
     result = predicate()
@@ -409,9 +422,9 @@ def do_diskcheck_match(node, predicate, errorfmt):
     if result:
         raise TypeError(errorfmt % node.get_abspath())
 
+
 def ignore_diskcheck_match(node, predicate, errorfmt):
     pass
-
 
 
 diskcheck_match = DiskChecker('match', do_diskcheck_match, ignore_diskcheck_match)
@@ -420,13 +433,14 @@ diskcheckers = [
     diskcheck_match,
 ]
 
-def set_diskcheck(list):
+
+def set_diskcheck(enabled_checkers):
     for dc in diskcheckers:
-        dc.set(list)
+        dc.enable(enabled_checkers)
+
 
 def diskcheck_types():
-    return [dc.type for dc in diskcheckers]
-
+    return [dc.disk_check_type for dc in diskcheckers]
 
 
 class EntryProxy(SCons.Util.Proxy):
@@ -1239,7 +1253,7 @@ class FS(LocalFS):
         else:
             return "<no cwd>"
 
-    def chdir(self, dir, change_os_dir=0):
+    def chdir(self, dir, change_os_dir=False):
         """Change the current working directory for lookups.
         If change_os_dir is true, we will also change the "real" cwd
         to match.
@@ -2157,49 +2171,52 @@ class Dir(Base):
         for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
-    def glob(self, pathname, ondisk=True, source=False, strings=False, exclude=None):
-        """
-        Returns a list of Nodes (or strings) matching a specified
-        pathname pattern.
+    def glob(self, pathname, ondisk=True, source=False, strings=False, exclude=None) -> list:
+        """Returns a list of Nodes (or strings) matching a pathname pattern.
 
-        Pathname patterns follow UNIX shell semantics:  * matches
-        any-length strings of any characters, ? matches any character,
-        and [] can enclose lists or ranges of characters.  Matches do
-        not span directory separators.
+        Pathname patterns follow POSIX shell syntax::
 
-        The matches take into account Repositories, returning local
-        Nodes if a corresponding entry exists in a Repository (either
+          *      matches everything
+          ?      matches any single character
+          [seq]  matches any character in seq (ranges allowed)
+          [!seq] matches any char not in seq
+
+        The wildcard characters can be escaped by enclosing in brackets.
+        A leading dot is not matched by a wildcard, and needs to be
+        explicitly included in the pattern to be matched.  Matches also
+        do not span directory separators.
+
+        The matches take into account Repositories, returning a local
+        Node if a corresponding entry exists in a Repository (either
         an in-memory Node or something on disk).
 
-        By defafult, the glob() function matches entries that exist
-        on-disk, in addition to in-memory Nodes.  Setting the "ondisk"
-        argument to False (or some other non-true value) causes the glob()
-        function to only match in-memory Nodes.  The default behavior is
-        to return both the on-disk and in-memory Nodes.
+        The underlying algorithm is adapted from a rather old version
+        of :func:`glob.glob` function in the Python standard library
+        (heavily modified), and uses :func:`fnmatch.fnmatch` under the covers.
 
-        The "source" argument, when true, specifies that corresponding
-        source Nodes must be returned if you're globbing in a build
-        directory (initialized with VariantDir()).  The default behavior
-        is to return Nodes local to the VariantDir().
+        This is the internal implementation of the external Glob API.
 
-        The "strings" argument, when true, returns the matches as strings,
-        not Nodes.  The strings are path names relative to this directory.
+        Args:
+          pattern: pathname pattern to match.
+          ondisk: if false, restricts matches to in-memory Nodes.
+            By defafult, matches entries that exist on-disk in addition
+            to in-memory Nodes.
+          source: if true, corresponding source Nodes are returned if
+            globbing in a variant directory.  The default behavior
+            is to return Nodes local to the variant directory.
+          strings: if true, returns the matches as strings instead of
+            Nodes. The strings are path names relative to this directory.
+          exclude: if not ``None``, must be a pattern or a list of patterns
+            following the same POSIX shell semantics.  Elements matching at
+            least one pattern from *exclude* will be excluded from the result.
 
-        The "exclude" argument, if not None, must be a pattern or a list
-        of patterns following the same UNIX shell semantics.
-        Elements matching a least one pattern of this list will be excluded
-        from the result.
-
-        The underlying algorithm is adapted from the glob.glob() function
-        in the Python library (but heavily modified), and uses fnmatch()
-        under the covers.
         """
         dirname, basename = os.path.split(pathname)
         if not dirname:
             result = self._glob1(basename, ondisk, source, strings)
         else:
             if has_glob_magic(dirname):
-                list = self.glob(dirname, ondisk, source, False, exclude)
+                list = self.glob(dirname, ondisk, source, strings=False, exclude=exclude)
             else:
                 list = [self.Dir(dirname, create=True)]
             result = []
@@ -2226,7 +2243,8 @@ class Dir(Base):
         corresponding entries and returns a Node (or string) relative
         to the current directory if an entry is found anywhere.
 
-        TODO: handle pattern with no wildcard
+        TODO: handle pattern with no wildcard. Python's glob.glob uses
+        a separate _glob0 function to do this.
         """
         search_dir_list = self.get_all_rdirs()
         for srcdir in self.srcdir_list():
@@ -2399,7 +2417,7 @@ class RootDir(Dir):
             return
         Base.must_be_same(self, klass)
 
-    def _lookup_abs(self, p, klass, create=1):
+    def _lookup_abs(self, p, klass, create=True):
         """
         Fast (?) lookup of a *normalized* absolute path.
 
@@ -2424,7 +2442,7 @@ class RootDir(Dir):
                 raise SCons.Errors.UserError(msg)
             # There is no Node for this path name, and we're allowed
             # to create it.
-            dir_name, file_name = p.rsplit('/',1)
+            dir_name, file_name = p.rsplit('/', 1)
             dir_node = self._lookup_abs(dir_name, Dir)
             result = klass(file_name, dir_node, self.fs)
 

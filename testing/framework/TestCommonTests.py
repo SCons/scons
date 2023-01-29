@@ -19,14 +19,12 @@ Unit tests for the TestCommon.py module.
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-__author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCommonTests.py 1.3.D001 2010/06/03 12:58:27 knight"
-
 import os
 import re
 import signal
 import sys
 import unittest
+from textwrap import dedent
 
 # Strip the current directory so we get the right TestCommon.py module.
 sys.path = sys.path[1:]
@@ -34,15 +32,9 @@ sys.path = sys.path[1:]
 import TestCmd
 import TestCommon
 
+# this used to be a custom function, now use the stdlib equivalent
 def lstrip(s):
-    lines = [ _.expandtabs() for _ in s.split('\n') ]
-    if lines[0] == '':
-        lines = lines[1:]
-    spaces = len(re.match('^( *).*', lines[0]).group(1))
-    if spaces:
-        lines = [ l[spaces:] for l in lines ]
-    return '\n'.join(lines)
-
+    return dedent(s)
 
 expected_newline = '\\n'
 
@@ -52,17 +44,16 @@ def assert_display(expect, result, error=None):
         expect = expect.pattern
     except AttributeError:
         pass
-    result = [
+    display = [
         '\n',
-        'EXPECTED'+('*'*80) + '\n',
+        f"{'EXPECTED: ':*<80}\n",
         expect,
-        'GOT'+('*'*80) + '\n',
+        f"{'GOT: ':*<80}\n",
         result,
-        ('*'*80) + '\n',
+        '' if error is None else error,
+        f"{'':*<80}\n",
     ]
-    if error:
-        result.append(error)
-    return ''.join(result)
+    return ''.join(display)
 
 
 class TestCommonTestCase(unittest.TestCase):
@@ -355,7 +346,7 @@ class must_contain_TestCase(TestCommonTestCase):
         """)
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
-        assert stdout == expect, "got:\n%s\nexpected:\n%s"%(stdout, expect)
+        assert stdout == expect, f"got:\n{stdout}\nexpected:\n{expect}"
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
 
@@ -987,6 +978,7 @@ class must_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
     def test_broken_link(self) :
         """Test must_exist():  exists but it is a broken link"""
         run_env = self.run_env
@@ -1334,7 +1326,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         """)
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
-        assert stdout == expect, "\ngot:\n%s\nexpected:\n%s" % (stdout, expect)
+        assert stdout == expect, f"\ngot:\n{stdout}\nexpected:\n{expect}"
 
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
@@ -1359,7 +1351,7 @@ class must_not_contain_TestCase(TestCommonTestCase):
         """)
         run_env.run(program=sys.executable, stdin=script)
         stdout = run_env.stdout()
-        assert stdout == expect, "\ngot:\n%s\nexpected:\n%s" % (stdout, expect)
+        assert stdout == expect, f"\ngot:\n{stdout}\nexpected:\n{expect}"
 
         stderr = run_env.stderr()
         assert stderr.find("FAILED") != -1, stderr
@@ -1660,6 +1652,7 @@ class must_not_exist_TestCase(TestCommonTestCase):
         stderr = run_env.stderr()
         assert stderr == "PASSED\n", stderr
 
+    @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
     def test_existing_broken_link(self):
         """Test must_not_exist():  exists but it is a broken link"""
         run_env = self.run_env
@@ -1840,7 +1833,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -1868,7 +1861,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1886,7 +1879,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*fail
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -1897,7 +1890,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1929,8 +1922,8 @@ class run_TestCase(TestCommonTestCase):
         def raise_exception(*args, **kw):
             raise TypeError("forced TypeError")
         TestCmd.TestCmd.start = raise_exception
-        tc = TestCommon(program='%(pass_script)s',
-                        interpreter='%(python)s',
+        tc = TestCommon(program=r'%(pass_script)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
@@ -1939,23 +1932,24 @@ class run_TestCase(TestCommonTestCase):
         STDOUT =========================================================================
         None
         STDERR =========================================================================
+        None
         """)
 
-        expect_stderr = lstrip("""\
-        Exception trying to execute: \\[%s, '[^']*pass'\\]
-        Traceback \\((innermost|most recent call) last\\):
-          File "<stdin>", line \\d+, in (\\?|<module>)
-          File "[^"]+TestCommon.py", line \\d+, in run
-            TestCmd.run\\(self, \\*\\*kw\\)
-          File "[^"]+TestCmd.py", line \\d+, in run
-            .*
-          File "[^"]+TestCommon.py", line \\d+, in start
-            raise e
-          File "[^"]+TestCommon.py", line \\d+, in start
-            return TestCmd.start\\(self, program, interpreter, arguments,
-          File "<stdin>", line \\d+, in raise_exception
-        TypeError: forced TypeError
-        """ % re.escape(repr(sys.executable)))
+        expect_stderr = lstrip(
+            fr"""Exception trying to execute: \[{re.escape(repr(sys.executable))}, '[^']*pass'\]
+Traceback \(most recent call last\):
+  File "<stdin>", line \d+, in (\?|<module>)
+  File "[^"]+TestCommon.py", line \d+, in run
+    super\(\).run\(\*\*kw\)
+  File "[^"]+TestCmd.py", line \d+, in run
+    p = self.start\(program=program,
+(?:\s*\^*\s)?  File \"[^\"]+TestCommon.py\", line \d+, in start
+    raise e
+  File "[^"]+TestCommon.py", line \d+, in start
+    return super\(\).start\(program, interpreter, arguments,
+(?:\s*\^*\s)?  File \"<stdin>\", line \d+, in raise_exception
+TypeError: forced TypeError
+""")
         expect_stderr = re.compile(expect_stderr, re.M)
 
         self.run_execution_test(script, expect_stdout, expect_stderr)
@@ -1966,7 +1960,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stderr = None)
         """)
@@ -1980,7 +1974,7 @@ class run_TestCase(TestCommonTestCase):
         def my_match_exact(actual, expect): return actual == expect
         from TestCommon import TestCommon, match_re_dotall
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_re_dotall)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -1997,7 +1991,7 @@ class run_TestCase(TestCommonTestCase):
         def my_match_exact(actual, expect): return actual == expect
         from TestCommon import TestCommon, match_re_dotall
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_re_dotall)
         tc.run(arguments = "arg1 arg2 arg3",
@@ -2013,7 +2007,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 1)
         """)
@@ -2026,7 +2020,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(stdout = r"%(pass_script)s:  STDOUT:  []" + "\\n")
@@ -2040,7 +2034,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(stderr = r"%(stderr_script)s:  STDERR:  []" + "\\n")
@@ -2054,7 +2048,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 1)
         """)
@@ -2072,7 +2066,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*pass
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2084,7 +2078,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(fail_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(status = 2)
         """)
@@ -2102,7 +2096,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*fail
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2114,7 +2108,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stdout = "Not found\\n")
         """)
@@ -2134,7 +2128,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*pass
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2146,7 +2140,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(stderr_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run(stderr = "Not found\\n")
         """)
@@ -2168,7 +2162,7 @@ class run_TestCase(TestCommonTestCase):
         FAILED test of .*stderr
         \\tat line \\d+ of .*TestCommon\\.py \\(_complete\\)
         \\tfrom line \\d+ of .*TestCommon\\.py \\(run\\)
-        \\tfrom line \\d+ of <stdin>( \(<module>\))?
+        \\tfrom line \\d+ of <stdin>( \\(<module>\\))?
         """)
         expect_stderr = re.compile(expect_stderr, re.M)
 
@@ -2180,7 +2174,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(options = "opt1 opt2 opt3",
@@ -2195,7 +2189,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         tc.run(options = "opt1 opt2 opt3",
@@ -2217,16 +2211,16 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon
         tc = TestCommon(program=r'%(signal_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='')
         tc.run()
         """)
 
-        self.SIGTERM = int(signal.SIGTERM)
+        self.SIGTERM = f"{'' if sys.platform == 'win32' else '-'}{signal.SIGTERM}"
 
         # Script returns the signal value as a negative number.
         expect_stdout = lstrip("""\
-        %(signal_script)s returned -%(SIGTERM)s
+        %(signal_script)s returned %(SIGTERM)s
         STDOUT =========================================================================
 
         STDERR =========================================================================
@@ -2249,7 +2243,7 @@ class run_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(stdin_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir='',
                         match=match_exact)
         expect_stdout = r"%(stdin_script)s:  STDOUT:  'input'" + "\\n"
@@ -2277,7 +2271,7 @@ class start_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         p = tc.start(options = "opt1 opt2 opt3")
@@ -2293,7 +2287,7 @@ class start_TestCase(TestCommonTestCase):
         script = lstrip("""\
         from TestCommon import TestCommon, match_exact
         tc = TestCommon(program=r'%(pass_script)s',
-                        interpreter='%(python)s',
+                        interpreter=r'%(python)s',
                         workdir="",
                         match=match_exact)
         p = tc.start(options = "opt1 opt2 opt3",
@@ -2389,13 +2383,13 @@ class variables_TestCase(TestCommonTestCase):
         ]
 
         script = "import TestCommon\n" + \
-                 '\n'.join([ "print(TestCommon.%s)\n" % v for v in variables ])
+                 '\n'.join([f"print(TestCommon.{v})\n" for v in variables])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
 
         script = "from TestCommon import *\n" + \
-                 '\n'.join([ "print(%s)" % v for v in variables ])
+                 '\n'.join([f"print({v})" for v in variables])
         run_env.run(program=sys.executable, stdin=script)
         stderr = run_env.stderr()
         assert stderr == "", stderr
@@ -2403,36 +2397,8 @@ class variables_TestCase(TestCommonTestCase):
 
 
 if __name__ == "__main__":
-    tclasses = [
-        __init__TestCase,
-        banner_TestCase,
-        must_be_writable_TestCase,
-        must_contain_TestCase,
-        must_contain_all_lines_TestCase,
-        must_contain_any_line_TestCase,
-        must_contain_exactly_lines_TestCase,
-        must_contain_lines_TestCase,
-        must_exist_TestCase,
-        must_exist_one_of_TestCase,
-        must_match_TestCase,
-        must_not_be_writable_TestCase,
-        must_not_contain_TestCase,
-        must_not_contain_any_line_TestCase,
-        must_not_contain_lines_TestCase,
-        must_not_exist_TestCase,
-        must_not_exist_any_of_TestCase,
-        must_not_be_empty_TestCase,
-        run_TestCase,
-        start_TestCase,
-        skip_test_TestCase,
-        variables_TestCase,
-    ]
-    suite = unittest.TestSuite()
-    for tclass in tclasses:
-        names = unittest.getTestCaseNames(tclass, 'test_')
-        suite.addTests([ tclass(n) for n in names ])
-    if not unittest.TextTestRunner().run(suite).wasSuccessful():
-        sys.exit(1)
+    unittest.main()
+
 
 # Local Variables:
 # tab-width:4

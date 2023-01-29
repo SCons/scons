@@ -43,8 +43,10 @@ import SCons.Tool.msvc
 import SCons.Tool.msvs
 import SCons.Util
 
-from .MSCommon import msvc_setup_env_once, msvc_exists
+from .MSCommon import msvc_setup_env_once, msvc_setup_env_tool
 from .MSCommon.common import get_pch_node
+
+tool_name = 'mslink'
 
 def pdbGenerator(env, target, source, for_signature):
     try:
@@ -307,7 +309,7 @@ def generate(env):
     env['_MANIFEST_SOURCES'] = None  # _windowsManifestSources
 
     # Set-up ms tools paths
-    msvc_setup_env_once(env)
+    msvc_setup_env_once(env, tool=tool_name)
 
     # Loadable modules are on Windows the same as shared libraries, but they
     # are subject to different build parameters (LDMODULE* variables).
@@ -330,7 +332,7 @@ def generate(env):
     env['TEMPFILEARGJOIN'] = os.linesep
 
 def exists(env):
-    return msvc_exists(env)
+    return msvc_setup_env_tool(env, tool=tool_name)
 
 # Local Variables:
 # tab-width:4

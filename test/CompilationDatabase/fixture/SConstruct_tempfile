@@ -1,0 +1,29 @@
+import sys
+
+DefaultEnvironment(tools=[])
+env = Environment(
+    PYTHON=sys.executable,
+    LINK='$PYTHON mylink.py',
+    LINKFLAGS=[],
+    CC='$PYTHON mygcc.py cc',
+    tools=['gcc'],
+    MAXLINELENGTH=10,
+    OBJSUFFIX='.o',
+)
+
+# make sure TempFileMunge is used
+if 'TEMPFILE' not in env['CCCOM']:
+    env['CCCOM'] = '${TEMPFILE("%s")}' % (env['CCCOM'])
+
+env.Tool('compilation_db')
+
+outputs = []
+
+# Should be relative paths
+outputs += env.CompilationDatabase('compile_commands_only_arg.json')
+
+env.Object('test_main.c')
+
+# Prevent actual call of $PYTHON @tempfile since "mygcc.py cc ..." is not a proper python statement
+# Interesting outputs are json databases
+env.Default(outputs)

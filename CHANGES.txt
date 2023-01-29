@@ -9,6 +9,137 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Anatoli Babenia:
+    - Do not initialize DefaultEnvironment when calling EnsureSConsVersion(),
+      EnsurePythonVersion(), Exit(), GetLaunchDir() and SConscriptChdir().
+    - Remove unused private method SConsEnvironment._exceeds_version().
+
+  From William Deegan:
+    - Added ValidateOptions() which will check that all command line options are in either
+      those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
+      not be called until all AddOption() calls are completed. Resolves Issue #4187
+    - Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
+      NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
+    - Changed the Taskmaster trace logic to use python's logging module. The output formatting
+      should remain (mostly) the same. Minor update to unittest for this to adjust for 1 less newline.
+    - Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
+      to NewParallel Job class (Andrew Morrow's new parallel job implementation)
+    - Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
+      execution environment variable set to a python list it would crash. Now it
+      will create a string joining the list with os.pathsep
+    - Move execution environment sanitation from Action._subproc() to
+      SCons.Util.sanitize_shell_env(ENV)
+    - Moved rpm and debian directories under packaging
+    - Added logic to help packagers enable reproducible builds into packaging/etc/. Please
+      read packaging/etc/README.txt if you are interested.
+    - Added --experimental=tm_v2, which enables Andrew Morrow's new NewParallel Job implementation.
+      This should scale much better for highly parallel builds. You can also enable this via SetOption().
+    - Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
+      SetOption('diskcheck','none') is unaffected, as it did not have the problem.
+    - Added overrides argument to SCons.Subst.scons_subst(), subst_list(), subst(), and Action's process(),
+      strfunction(). This allows passing a dictionary of envvars to override when evaluating subst()'d strings/lists
+    - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
+      command lines using the generated tempfile for long command lines, instead of the full command line for
+      the compilation step for the source/target pair.
+
+  From David H:
+    - Added JAVAPROCESSORPATH construction variable which populates -processorpath.
+    - Updated JavaScanner to scan JAVAPROCESSORPATH.
+
+  From Dan Mezhiborsky:
+    - Add newline to end of compilation db (compile_commands.json).
+
+  From Daniel Moody:
+    - Added error message to handle the case when SCons attempts to retrieve all the targets
+      for a specified builder from the CacheDir, fails to do so, and then runs into an error
+      when deleting the files which were retrieved. Previously if this happened there was no
+      errors or warnings.
+    - Fix for issue #2757, configure checks now clear node info for non conftest nodes, so they
+      will be re-evaluated for the real taskmaster run when the build commences. Fix issue where
+      a Configure() checker uses a source file in their processing, which then
+      causes SCons to ignore any changes to those source files during the regular build. This
+      would then prevent SCons from rebuilding any files which depend on those source files from
+      rebuilding.
+    - Fix issue #2757, where Configure checks that perform a check which reads a modified source
+      (including program, source or header file(s)) would incorrectly mark that file "up to date" so the
+      actual build would not see the file as modified. Leading to incorrect incremental builds.
+      Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
+      the real taskmaster run when the build commences.
+
+
+  From Andrew Morrow
+    - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
+      iterates more slowly than the builtin types. Also simplify uniquer_hashables to
+      use an faster implementation under the assumption of ordered dictionaries.
+
+  From Ryan Saunders:
+    - Fixed runtest.py failure on Windows caused by excessive escaping of the path to python.exe.
+
+  From Lukas Schrangl:
+    - Run LaTeX after biber/bibtex only if necessary
+
+  From Flaviu Tamas:
+    - Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
+
+  From Mats Wichmann:
+    - A list argument as the source to the Copy() action function is now
+      correctly handled by converting elements to string. Copy errors out
+      if asked to copy a list to an existing non-directory destination.
+      Both the implementation and the strfunction which prints the progress
+      message were adjusted. Fixes #3009.
+    - doc: EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
+      SConscriptChdir are now listed as Global functions only; the
+      Environment versions still work but are not documented.
+    - The Java scanner processing of JAVACLASSPATH for dependencies was
+      changed to split on os.pathsep instead of space, to match usage of
+      passing a path string like "xxx:yyy:zzz". This is not portable -
+      passing a POSIX-style path string (with ':') won't work on Windows
+      (';') - which is now documented with a hint to use a list instead
+      to be portable. Splitting on space broke paths with embedded spaces.
+      Fixes #4243.
+    - Cleanup: make sure BoolVariable usage in tests and examples uses Python
+      boolean values instead of 0/1.
+    - Stop telling people to run "python setup.py install" in the User Guide.
+      Adds new content on using virtualenvs to be able to have multiple
+      different SCons versions available on one system.
+    - Added the "DefaultEnvironment(tools=[])" stanza to a number of tests
+      that are known to be particularly slow.  It's still just a tiny
+      speedup, but the Windows CI had been occasionally timing out,
+      so maybe this helps a bit.
+    - Remove an extra existence check in one ninja test that caused it
+      to be skipped on some otherwise-valid Windows installations.
+    - test framework tests now pass on Linux and Windows (the latter can
+      still run into problems on some configurations), and automated
+      tests are now run on changes in this area so future problems can
+      be spotted.
+    - The single-file Util module was split into a package with a few
+      functional areas getting their own files - Util.py had grown to
+      over 2100 lines.
+    - Add a zipapp package of scons-local: can use SCons from a local
+      file which does not need unpacking.
+    - Additional explanations for MSVSProject and MSVSSolution builders.
+    - Fix a problem (present in 4.4.0 only) where a Java inner class could
+      not be cached because the emitted filename contained a '$' and when
+      looked up through a node ended up generating a Python SyntaxError
+      because it was passed through scons_subst().
+    - Have the gfortran tool do a better job of honoring user preferences
+      for the dialect tools (F77, F90, F03 and F09, as well as the shared-library
+      equivalents SHF77,  SHF90, SHF03, SHF09). Previously these were
+      unconditionally overwritten to 'gfortran'; the change should be more
+      in line with expectations of how these variables should work.
+      Also cleaned a few Fortran tests - test behavior does not change.
+    - Updated MSVC documentation - adds "version added" annotations on recently
+      added construction variables and provides a version-mapping table.
+    - Add Python 3.12 support, and indicate 3.11/3.12 support in package.
+      3.12 is in alpha for this SCons release, the bytecode sequences 
+      embedded in SCons/ActionTests.py may need to change later, but
+      based on what is known now, 3.12 itself should work with this release.
+    - Add "append" keyword argument to Configure context's CheckLib and
+      CheckLibWithHeader to control whether to append or prepend (issue #2767)
+
+
+RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
+
   From Joseph Brill:
     - Verify that a user specified msvc script (via MSVC_USE_SCRIPT) exists and raise an exception
       when the user specified msvc script does not exist.
@@ -31,8 +162,30 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       determination when configuring the build environment.  This could lead to build failures when
       only an MSVC Express instance is installed and the MSVC version is not explicitly specified
       (issue #2668 and issue #2697).
-    - Added MSVC_USE_SETTINGS variable to pass a dictionary to configure the msvc compiler
+    - Added MSVC_USE_SETTINGS construction variable to pass a dictionary to configure the msvc compiler
       system environment as an alternative to bypassing Visual Studio autodetection entirely.
+    - Added MSVC_SDK_VERSION construction variable which allows building with a specific Microsoft
+      SDK version. This variable is used with the msvc batch file determined via autodetection subject
+      to validation constraints.  Refer to the documentation for additional requirements and validation
+      details.
+    - Added MSVC_TOOLSET_VERSION construction variable which allows building with a specific toolset
+      version. This variable is used with the msvc batch file determined via autodetection subject to
+      validation constraints. This variable does not affect the autodetection and selection of msvc
+      instances. The toolset version is applied after an msvc instance is selected. This could be the
+      default version of msvc. Refer to the documentation for additional requirements and validation
+      details.  Addresses issue #3265, issue #3664, and pull request #4149.
+    - Added MSVC_SPECTRE_LIBS construction variable which allows building with spectre-mitigated
+      Visual C++ libraries. This variable is used with the msvc batch file determined via autodetection
+      subject to validation constraints. Refer to the documentation for additional requirements and
+      validation details.
+    - Added MSVC_SCRIPT_ARGS construction variable which specifies command line arguments that are
+      passed to the msvc batch file determined via autodetection subject to validation constraints.
+      Refer to the documentation for additional requirements and validation details.  Addresses
+      enhancement issue #4106.
+    - An exception is raised when MSVC_UWP_APP is enabled for Visual Studio 2013 and earlier.
+      Previous behavior was to silently ignore MSVC_UWP_APP when enabled for Visual Studio 2013
+      and earlier. Refer to the documentation for additional requirements and validation details.
+      MSVC_UWP_APP was extended to accept True, False, and None in addition to '1' and '0'.
     - The imported system environment variable names for MSVC 7.0 and 6.0 have been changed to the
       names set by their respective installers.  Prior to this change, bypassing MSVC detection by
       specifying the MSVC 7.0 batch file directly would fail due to using an erroneous environment
@@ -48,6 +201,52 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
             require delayed expansion to be enabled which is currently not supported and is
             typically not enabled by default on the host system. The batch files may also require
             environment variables that are not included by default in the msvc environment.
+    - Suppress issuing a warning when there are no installed Visual Studio instances for the default
+      tools configuration (issue #2813).  When msvc is the default compiler because there are no
+      compilers installed, a build may fail due to the cl.exe command not being recognized.  At
+      present, there is no easy way to detect during msvc initialization if the default environment
+      will be used later to build a program and/or library. There is no error/warning issued for the
+      default tools as there are legitimate SCons uses that do not require a c compiler.
+    - Added a global policy setting and an environment construction variable for specifying the
+      action to be taken when an msvc request cannot be satisfied. The available options are "error",
+      "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
+      set and retrieved via the functions msvc_set_notfound_policy and msvc_get_notfound_policy,
+      respectively.  These two methods may be imported from SCons.Tool.MSCommon. The environment
+      construction variable is MSVC_NOTFOUND_POLICY.  When defined, the environment construction
+      variable overrides the global policy setting for a given environment. When the active policy
+      is "error" or "exception", an MSVCVersionNotFound exception is raised.  When the active policy
+      is "warning" or "warn", a VisualCMissingWarning warning is issued and the constructed
+      environment is likely incomplete. When the active policy is "ignore" or "suppress", no action
+      is taken and the constructed environment is likely incomplete.  As implemented, the default
+      global policy is "warning".  The ability to set the global policy via an SCons command-line
+      option may be added in a future enhancement.
+    - Added a global policy setting and an environment construction variable for specifying the
+      action to be taken when msvc script errors are detected. The available options are "error",
+      "exception", "warning", "warn", "ignore", and "suppress".  The global policy variable may be
+      set and retrieved via the functions msvc_set_scripterror_policy and msvc_get_scripterror_policy,
+      respectively.  These two methods may be imported from SCons.Tool.MSCommon. The environment
+      construction variable is MSVC_SCRIPTERROR_POLICY.  When defined, the environment construction
+      variable overrides the global policy setting for a given environment. When the active policy
+      is "error" or "exception", an MSVCScriptExecutionError exception is raised when msvc batch file
+      errors are detected.  When the active policy is "warning" or "warn", an MSVCScriptExecutionWarning
+      warning is issued when msvc batch file errors are detected. When the active policy is "ignore" or
+      "suppress", msvc batch error messages are suppressed.  As implemented, the default global policy
+      is "ignore".  The ability to set the global policy via an SCons command-line option may be added
+      in a future enhancement.
+    - Added experimental function msvc_query_version_toolset to SCons.Tool.MSCommon. Given a version
+      specification, this function will return an msvc version and an msvc toolset version.  The msvc
+      toolset version may be None.  The msvc version and msvc toolset version can be used in the
+      environment construction variables MSVC_VERSION and MSVC_TOOLSET_VERSION, respectively.  The
+      version specification may be an msvc version or an msvc toolset version. This is a proxy for
+      using an msvc toolset version to select an msvc instance. This function may be removed when an
+      msvc toolset version is used during msvc instance selection.
+    - Modify the MSCommon logger configuration to be independent of the root logger. This fixes an issue
+      when multiple loggers are created and the MSCommon logger added computed fields to the root logger
+      that are not present in other logging instances.
+    - Modify the MSVC_USE_SCRIPT_ARGS test fixture to disable the msvc cache. This fixes an issue where
+      the MSVC_USE_SCRIPT_ARGS test for success relied on a debug log message that was not produced when
+      the msvc cache file exists and the test keys are already in the cache as the msvc script invocation
+      was bypassed.
 
   From William Deegan:
     - Fix check for unsupported Python version. It was broken. Also now the error message
@@ -81,8 +280,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       only used for ninja)
     - Ninja: Fix issue where Configure files weren't being properly processed when build run
       via ninja.
-    - Added ninja mingw support and improved ninja CommandGeneratorAction support.
-    - Update ninja file generation to only create response files for build commands
+    - Ninja: Added ninja mingw support and improved ninja CommandGeneratorAction support.
+    - Ninja: Update ninja file generation to only create response files for build commands
       which exceed MAXLINELENGTH
     - Ninja: Added NINJA_GENERATED_SOURCE_ALIAS_NAME which allows user to specify an
       Alias() which the ninja tool can use to determine which files are generated sources.
@@ -93,20 +292,40 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       required by other build targets. Code contributed by MongoDB
       The downstream commit is here:
       https://github.com/mongodb/mongo/commit/2fef432fa6e7cf3fd4f22ba3b193222c2887f14f
-    - Added special case for ninja scons daemon to work in win32 python3.6 environments.
+    - Ninja: Added special case for ninja scons daemon to work in win32 python3.6 environments.
       This particular environment does a bad job managing popen standard file handles, so
       some special workarounds are needed.
-    - Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
+    - Ninja:Added user configurable setting of ninja depfile format via NINJA_DEPFILE_PARSE_FORMAT.
       Now setting NINJA_DEPFILE_PARSE_FORMAT to [msvc,gcc,clang] can force the ninja expected
       format. Compiler tools will also configure the variable automatically.
-    - Added SHELL_ENV_GENERATOR construction variables. This variable allows the user to Define
-      a function which will be called to generate or alter the execution environment which will
-      be used in the shell command of some Action.
-    - Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
-    - Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+    - Ninja: Made ninja tool force the ninja file as the only target. 
+    - Ninja: Improved the default targets setup and made sure there is always a default target for
+      the ninja file, which excludes targets that start and stop the daemon.
+    - Ninja: Update ninja tool so targets passed to SCons are propagated to ninja when scons
+      automatically executes ninja.
+    - Small refactor of scons daemons using a shared StateInfo class for communication 
+      between the scons interactive thread and the http server thread. Added error handling
+      for scons interactive failing to startup.
+    - Ninja: Updated ninja scons daemon scripts to output errors to stderr as well as the daemon log.
+    - Ninja: Fix typo in ninja scons daemon startup which causes ConnectionRefusedError to not retry 
+    - Added SHELL_ENV_GENERATORS construction variable. This variable should be set to a list
+      (or an iterable) which contains functions to be called in order
+      when constructing the execution environment (Generally this is the shell environment
+      variables). This allows the user to customize how (for example) PATH is constructed.
+      Note that these are called for every build command run by SCons. It could have considerable
+      performance impact if not used carefully.
       to connect to the server during start up.
-    - Fix for issue #2757, configure checks now clear node info for non conftest nodes, so they 
-      will be re-evaluated for the real taskmaster run when the build commences.
+    - lex: Fixed an issue with the lex tool where file arguments specified to either "--header-file="
+      or "--tables-file=" which included a space in the path to the file would be processed incorrectly
+    - Ninja: added option "--skip-ninja-regen" to enable skipping regeneration of the ninja file
+      if scons can determine the ninja file doesnot need to be regenerated, which will also
+      skip restarting the scons daemon. Note this option is could result in incorrect rebuilds
+      if scons Glob or scons generated files are used in ninja build target's command lines.
+    - Ninja: Added new alias "shutdown-ninja-scons-daemon" to allow ninja to shutdown the daemon.
+      Also added cleanup to test framework to kill ninja scons daemons and clean ip daemon logs.
+      NOTE: Test for this requires python psutil module. It will be skipped if not present.
+    - Ninja: Added command line variable NINJA_CMD_ARGS that allows to pass through ninja command line args.
+      This can also be set in your Environment().
 
   From Mats Wichmann:
     - Tweak the way default site_scons paths on Windows are expressed to
@@ -151,10 +370,40 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Restore the ability of the content-timestamp decider to see that a
       a source which is a symlink has changed if the file-system target of
       that link has been modified (issue #3880)
+    - Modernize a few tests that use now-deprecated unittest.getTestCaseNames
+      and unittest.makeSuite - Python itself suggests the replacements.
+    - SCons.Tool.find_program_path now takes an optional add_path argument
+      to add a path to the execution environment if it was discovered in
+      default_paths. Previously, the routine, called by many tool modules,
+      never altered the execution environment, leaving it to the tools.
+    - A new construction variable FORTRANCOMMONFLAGS is added which is
+      applied to all Fortran dialects, in case someone needs to set some
+      flags globally. FORTRANFLAGS looked like it was intended for that,
+      but was not applied to other dialects, and e2e tests explicitly checked
+      that FORTRANFLAGS did not propagate outside the FORTRAN dialect,
+      so the conclusion is that behavior is intentional (issue #2257)
+    - SCons programmatic importing (tool modules and platform modules)
+      no longer uses the deprecated (since Py 3.10) importlib.load_module
+      routine, shifting to the preferred exec_module.  Old Python 2 compatible
+      import fallback (using the imp module) in tool module loading is dropped.
+      Tool module loading no longer special-cases Jython, which is a dead
+      project as far as SCons (no timeline in sight for Python 3 support).
+    - Improvements to lex and yacc tools: better documentation of
+      extra-file options, add test for extra-file behavior.
+      -  Two new construction variables are introduced for lex (LEX_HEADER_FILE
+      and LEX_TABLES_FILE) as the preferred way of specifying these extra-file
+      options.
+      -  Two new construction variables are introduced for yacc
+      (YACC_HEADER_FILE and YACC_GRAPH_FILE) as the preferred way of
+      specifying these extra-file options.
+
 
   From Zhichang Yu:
     - Added MSVC_USE_SCRIPT_ARGS variable to pass arguments to MSVC_USE_SCRIPT.
     - Added Configure.CheckMember() checker to check if struct/class has the specified member.
+
+  From Ivan Kravets, PlatformIO:
+    - Conditional C/C++ Preprocessor: Strip shell's backslashes from the computed include (-DFOO_H=\"foo.h\")
 
 RELEASE 4.3.0 - Tue, 16 Nov 2021 18:12:46 -0700
 
@@ -833,7 +1082,6 @@ RELEASE 3.1.1 - Mon, 07 Aug 2019 20:09:12 -0500
         - CacheDir not write-able
         - JSON encoding errors for CacheDir config
         - JSON decoding errors for CacheDir config
-
 
 RELEASE 3.1.0 - Mon, 20 Jul 2019 16:59:23 -0700
 

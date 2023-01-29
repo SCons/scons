@@ -38,7 +38,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    #'sphinx_rtd_theme',
     'rst2pdf.pdfbuilder',
 ]
 
@@ -46,15 +46,30 @@ autosummary_generate = True
 
 autodoc_default_options = {
     "members": True,
-    #"special-members": True,
+    "special-members": False,
     "private-members": True,
     "inherited-members": True,
     "undoc-members": True,
     "exclude-members": '__weakref__',
 }
 autodoc_exclude_members = ['*Tests']
-napoleon_include_special_with_doc = False
+
+# Napoleon settings.  Nearly all defaults, listed explicitly to be safe.
+# See: https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#configuration
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = True
+napoleon_include_special_with_doc = True  # not default
+napoleon_use_admonition_for_examples = True  # not default
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = True  # not default
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_preprocess_types = False
+napoleon_type_aliases = None
+napoleon_attr_annotations = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -73,7 +88,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SCons'
-copyright = '2021, SCons Project'
+copyright = '2022, SCons Project'
 author = 'SCons Project Team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -92,7 +107,7 @@ version = '.'.join([major, minor])
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -111,7 +126,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+#html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -212,4 +228,4 @@ texinfo_documents = [
 # -- for PDF
 # Grouping the document tree into PDF files. List of tuples
 # (source start file, target name, title, author, options).
-pdf_documents = [('index', u'scons-api', u'SCons API Docs', u'SCons Project'),]
+pdf_documents = [('index', 'scons-api', 'SCons API Docs', 'SCons Project'),]

@@ -80,7 +80,7 @@ test.must_match("out2.txt", "test2.cpp" + os.linesep)
 # only generate the ninja file with specific NINJA_SCONS_DAEMON_PORT
 test.run(arguments="PORT=9999 --disable-execute-ninja", stdout=None)
 # Verify that port # propagates to call to ninja_run_daemon.py
-test.must_contain(test.workpath("build.ninja"), "ninja_run_daemon.py 9999")
+test.must_contain(test.workpath("build.ninja"), "PORT = 9999")
 
 test.pass_test()
 

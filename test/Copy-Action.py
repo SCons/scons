@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that the Copy() Action works, and preserves file modification
@@ -37,29 +36,36 @@ import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.write('SConstruct', """
+test.write('SConstruct', """\
 Execute(Copy('f1.out', 'f1.in'))
 Execute(Copy(File('d2.out'), 'd2.in'))
 Execute(Copy('d3.out', File('f3.in')))
+# Issue #3009: make sure it's not mangled if src is a list.
+# make sure both list-of-str and list-of-Node work
+Execute(Copy('d7.out', ['f10.in', 'f11.in']))
+Execute(Copy('d7.out', Glob('f?.in')))
+
 def cat(env, source, target):
     target = str(target[0])
     with open(target, "w") as f:
         for src in source:
             with open(str(src), "r") as ifp:
                 f.write(ifp.read())
+
 Cat = Action(cat)
 env = Environment()
-env.Command('bar.out', 'bar.in', [Cat,
-                                  Copy("f4.out", "f4.in"),
-                                  Copy("d5.out", "d5.in"),
-                                  Copy("d6.out", "f6.in")])
-env = Environment(OUTPUT = 'f7.out', INPUT = 'f7.in')
+env.Command(
+    'bar.out',
+    'bar.in',
+    [Cat, Copy("f4.out", "f4.in"), Copy("d5.out", "d5.in"), Copy("d6.out", "f6.in")],
+)
+env = Environment(OUTPUT='f7.out', INPUT='f7.in')
 env.Command('f8.out', 'f8.in', [Copy('$OUTPUT', '$INPUT'), Cat])
 env.Command('f9.out', 'f9.in', [Cat, Copy('${TARGET}-Copy', '$SOURCE')])
 
-env.CopyTo( 'd4', 'f10.in' )
-env.CopyAs( 'd4/f11.out', 'f11.in')
-env.CopyAs( 'd4/f12.out', 'd5/f12.in')
+env.CopyTo('d4', 'f10.in')
+env.CopyAs('d4/f11.out', 'f11.in')
+env.CopyAs('d4/f12.out', 'd5/f12.in')
 
 env.Command('f   13.out', 'f   13.in', Copy('$TARGET', '$SOURCE'))
 """)
@@ -69,6 +75,7 @@ test.subdir('d2.in')
 test.write(['d2.in', 'file'], "d2.in/file\n")
 test.write('f3.in', "f3.in\n")
 test.subdir('d3.out')
+test.subdir('d7.out')
 test.write('bar.in', "bar.in\n")
 test.write('f4.in', "f4.in\n")
 test.subdir('d5.in')
@@ -87,19 +94,22 @@ test.write('f   13.in', "f   13.in\n")
 os.chmod('f1.in', 0o646)
 os.chmod('f4.in', 0o644)
 
-test.sleep()
+test.sleep()  # delay for timestamps
 
 d4_f10_in   = os.path.join('d4', 'f10.in')
 d4_f11_out  = os.path.join('d4', 'f11.out')
 d4_f12_out  = os.path.join('d4', 'f12.out')
 d5_f12_in   = os.path.join('d5', 'f12.in')
 
-expect = test.wrap_stdout(read_str = """\
+expect = test.wrap_stdout(
+    read_str="""\
 Copy("f1.out", "f1.in")
 Copy("d2.out", "d2.in")
 Copy("d3.out", "f3.in")
+Copy("d7.out", ["f10.in", "f11.in"])
+Copy("d7.out", ["f1.in", "f3.in", "f4.in", "f6.in", "f7.in", "f8.in", "f9.in"])
 """,
-                          build_str = """\
+    build_str="""\
 cat(["bar.out"], ["bar.in"])
 Copy("f4.out", "f4.in")
 Copy("d5.out", "d5.in")
@@ -112,13 +122,16 @@ Copy("f7.out", "f7.in")
 cat(["f8.out"], ["f8.in"])
 cat(["f9.out"], ["f9.in"])
 Copy("f9.out-Copy", "f9.in")
-""" % locals())
+""" % locals(),
+)
 
-test.run(options = '-n', arguments = '.', stdout = expect)
+test.run(options='-n', arguments='.', stdout=expect)
 
 test.must_not_exist('f1.out')
 test.must_not_exist('d2.out')
 test.must_not_exist(os.path.join('d3.out', 'f3.in'))
+test.must_not_exist(os.path.join('d7.out', 'f7.in'))
+test.must_not_exist(os.path.join('d7.out', 'f11.in'))
 test.must_not_exist('f4.out')
 test.must_not_exist('d5.out')
 test.must_not_exist(os.path.join('d6.out', 'f6.in'))
@@ -137,6 +150,8 @@ test.run()
 test.must_match('f1.out', "f1.in\n", mode='r')
 test.must_match(['d2.out', 'file'], "d2.in/file\n", mode='r')
 test.must_match(['d3.out', 'f3.in'], "f3.in\n", mode='r')
+test.must_match(['d7.out', 'f7.in'], "f7.in\n", mode='r')
+test.must_match(['d7.out', 'f11.in'], "f11.in\n", mode='r')
 test.must_match('f4.out', "f4.in\n", mode='r')
 test.must_match(['d5.out', 'file'], "d5.in/file\n", mode='r')
 test.must_match(['d6.out', 'f6.in'], "f6.in\n", mode='r')
@@ -162,23 +177,21 @@ def must_be_same(f1, f2):
     for value in ['ST_MODE', 'ST_MTIME']:
         v = getattr(stat, value)
         if s1[v] != s2[v]:
-            msg = '%s[%s] %s != %s[%s] %s\n' % \
-                  (repr(f1), value, s1[v],
-                   repr(f2), value, s2[v],)
+            msg = f"{f1!r}[{value}] {s1[v]} != {f2!r}[{value}] {s2[v]}\n"
             sys.stderr.write(msg)
-            errors = errors + 1
+            errors += 1
 
-must_be_same('f1.out',                  'f1.in')
-must_be_same(['d2.out', 'file'],        ['d2.in', 'file'])
-must_be_same(['d3.out', 'f3.in'],       'f3.in')
-must_be_same('f4.out',                  'f4.in')
-must_be_same(['d5.out', 'file'],        ['d5.in', 'file'])
-must_be_same(['d6.out', 'f6.in'],       'f6.in')
-must_be_same('f7.out',                  'f7.in')
-must_be_same(['d4', 'f10.in'],          'f10.in')
-must_be_same(['d4', 'f11.out'],         'f11.in')
-must_be_same(['d4', 'f12.out'],         ['d5', 'f12.in'])
-must_be_same('f   13.out',              'f   13.in')
+must_be_same('f1.out', 'f1.in')
+must_be_same(['d2.out', 'file'], ['d2.in', 'file'])
+must_be_same(['d3.out', 'f3.in'], 'f3.in')
+must_be_same('f4.out', 'f4.in')
+must_be_same(['d5.out', 'file'], ['d5.in', 'file'])
+must_be_same(['d6.out', 'f6.in'], 'f6.in')
+must_be_same('f7.out', 'f7.in')
+must_be_same(['d4', 'f10.in'], 'f10.in')
+must_be_same(['d4', 'f11.out'], 'f11.in')
+must_be_same(['d4', 'f12.out'], ['d5', 'f12.in'])
+must_be_same('f   13.out', 'f   13.in')
 
 if errors:
     test.fail_test()
