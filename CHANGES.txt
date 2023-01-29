@@ -54,6 +54,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       for a specified builder from the CacheDir, fails to do so, and then runs into an error
       when deleting the files which were retrieved. Previously if this happened there was no
       errors or warnings.
+    - Fix issue #2757, where Configure checks that perform a check which reads a modified source
+      (including program, source or header file(s)) would incorrectly mark that file "up to date" so the
+      actual build would not see the file as modified. Leading to incorrect incremental builds.
+      Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
+      the real taskmaster run when the build commences.
+
 
   From Andrew Morrow
     - Avoid returning UniqueList for `children` and other `Executor` APIs. This type

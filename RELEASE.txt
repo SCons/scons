@@ -83,6 +83,11 @@ FIXES
   SHF90, SHF03, SHF09) is now honored; previously the tool overwrote the
   settings to 'gfortran', which made it difficult reference a cross-compile
   version for dialects.
+- Fix issue #2757, where Configure checks that perform a check which reads a modified source
+  (including program, source or header file(s)) would incorrectly mark that file "up to date" so the
+  actual build would not see the file as modified. Leading to incorrect incremental builds.
+  Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
+  the real taskmaster run when the build commences.
 
 
 IMPROVEMENTS
