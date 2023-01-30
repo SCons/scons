@@ -39,6 +39,10 @@ env_multi.PrependUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
 env_multi.PrependUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
 print(env_multi.subst('$_CPPDEFFLAGS'))
 
+# a lone tuple
+env_tuple = Environment(CPPDEFPREFIX='-D', CPPDEFINES=("Macro1", "Value1"))
+print(env_tuple.subst('$_CPPDEFFLAGS'))
+
 # https://github.com/SCons/scons/issues/1152
 # https://github.com/SCons/scons/issues/2900
 # Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
@@ -64,6 +68,7 @@ cases = [
     ('string', 'FOO'),
     ('valuestring', 'NAME1=VAL1'),
     ('list', ['NAME1', 'NAME2']),
+    ('tuple', ('NAME1', 'NAME2')),
     ('list-of-2lists', [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]),
     (
         'dict',

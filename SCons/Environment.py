@@ -330,7 +330,7 @@ def _add_cppdefines(
         else:
             _add_define(val, defines, prepend)
 
-    elif is_List(val):
+    elif is_Sequence(val):
         tmp = []
         for item in val:
             if unique:

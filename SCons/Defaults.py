@@ -46,7 +46,7 @@ import SCons.PathList
 import SCons.Scanner.Dir
 import SCons.Subst
 import SCons.Tool
-from SCons.Util import is_List, is_String, is_Tuple, is_Dict, flatten
+from SCons.Util import is_List, is_String, is_Sequence, is_Dict, flatten
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -517,11 +517,11 @@ def processDefines(defs):
     Any prefix/suffix is handled elsewhere (usually :func:`_concat_ixes`).
     """
     dlist = []
-    if is_List(defs):
+    if is_Sequence(defs):
         for define in defs:
             if define is None:
                 continue
-            elif is_List(define) or is_Tuple(define):
+            elif is_Sequence(define):
                 if len(define) >= 2 and define[1] is not None:
                     # TODO: do we need to quote define[1] if it contains space?
                     dlist.append(str(define[0]) + '=' + str(define[1]))

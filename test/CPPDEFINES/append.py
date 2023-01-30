@@ -45,6 +45,7 @@ expect_print_output="""\
 -Dfoo bar -Dbaz
 -Dfoo -Dbar baz
 -DMacro2=Value2 -DMacro3=Value3 -DMacro1=Value1
+-DMacro1 -DValue1
 ==== Testing CPPDEFINES, appending a string to a string
    orig = 'FOO', append = 'FOO'
 Append:
@@ -63,6 +64,14 @@ AppendUnique:
     final=-DFOO -DNAME1=VAL1
 ==== Testing CPPDEFINES, appending a list to a string
    orig = 'FOO', append = ['NAME1', 'NAME2']
+Append:
+    result=['FOO', 'NAME1', 'NAME2']
+    final=-DFOO -DNAME1 -DNAME2
+AppendUnique:
+    result=['FOO', 'NAME1', 'NAME2']
+    final=-DFOO -DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a tuple to a string
+   orig = 'FOO', append = ('NAME1', 'NAME2')
 Append:
     result=['FOO', 'NAME1', 'NAME2']
     final=-DFOO -DNAME1 -DNAME2
@@ -109,6 +118,14 @@ Append:
 AppendUnique:
     result=['NAME1=VAL1', 'NAME1', 'NAME2']
     final=-DNAME1=VAL1 -DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a tuple to a valuestring
+   orig = 'NAME1=VAL1', append = ('NAME1', 'NAME2')
+Append:
+    result=['NAME1=VAL1', 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME1 -DNAME2
+AppendUnique:
+    result=['NAME1=VAL1', 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME1 -DNAME2
 ==== Testing CPPDEFINES, appending a list-of-2lists to a valuestring
    orig = 'NAME1=VAL1', append = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Append:
@@ -149,6 +166,14 @@ Append:
 AppendUnique:
     result=['NAME1', 'NAME2']
     final=-DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a tuple to a list
+   orig = ['NAME1', 'NAME2'], append = ('NAME1', 'NAME2')
+Append:
+    result=['NAME1', 'NAME2', 'NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2 -DNAME1 -DNAME2
+AppendUnique:
+    result=['NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2
 ==== Testing CPPDEFINES, appending a list-of-2lists to a list
    orig = ['NAME1', 'NAME2'], append = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
 Append:
@@ -159,6 +184,54 @@ AppendUnique:
     final=-DNAME1 -DNAME2 -DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, appending a dict to a list
    orig = ['NAME1', 'NAME2'], append = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
+Append:
+    result=['NAME1', 'NAME2', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME1 -DNAME2 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+AppendUnique:
+    result=['NAME1', 'NAME2', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
+    final=-DNAME1 -DNAME2 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
+==== Testing CPPDEFINES, appending a string to a tuple
+   orig = ('NAME1', 'NAME2'), append = 'FOO'
+Append:
+    result=['NAME1', 'NAME2', 'FOO']
+    final=-DNAME1 -DNAME2 -DFOO
+AppendUnique:
+    result=['NAME1', 'NAME2', 'FOO']
+    final=-DNAME1 -DNAME2 -DFOO
+==== Testing CPPDEFINES, appending a valuestring to a tuple
+   orig = ('NAME1', 'NAME2'), append = 'NAME1=VAL1'
+Append:
+    result=['NAME1', 'NAME2', 'NAME1=VAL1']
+    final=-DNAME1 -DNAME2 -DNAME1=VAL1
+AppendUnique:
+    result=['NAME1', 'NAME2', 'NAME1=VAL1']
+    final=-DNAME1 -DNAME2 -DNAME1=VAL1
+==== Testing CPPDEFINES, appending a list to a tuple
+   orig = ('NAME1', 'NAME2'), append = ['NAME1', 'NAME2']
+Append:
+    result=['NAME1', 'NAME2', 'NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2 -DNAME1 -DNAME2
+AppendUnique:
+    result=['NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a tuple to a tuple
+   orig = ('NAME1', 'NAME2'), append = ('NAME1', 'NAME2')
+Append:
+    result=['NAME1', 'NAME2', 'NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2 -DNAME1 -DNAME2
+AppendUnique:
+    result=['NAME1', 'NAME2']
+    final=-DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a list-of-2lists to a tuple
+   orig = ('NAME1', 'NAME2'), append = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+Append:
+    result=['NAME1', 'NAME2', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME1 -DNAME2 -DNAME1=VAL1 -DNAME2=VAL2
+AppendUnique:
+    result=['NAME1', 'NAME2', ('NAME1', 'VAL1'), ['NAME2', 'VAL2']]
+    final=-DNAME1 -DNAME2 -DNAME1=VAL1 -DNAME2=VAL2
+==== Testing CPPDEFINES, appending a dict to a tuple
+   orig = ('NAME1', 'NAME2'), append = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}
 Append:
     result=['NAME1', 'NAME2', ('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]
     final=-DNAME1 -DNAME2 -DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
@@ -183,6 +256,14 @@ AppendUnique:
     final=-DNAME1=VAL1 -DNAME2=VAL2
 ==== Testing CPPDEFINES, appending a list to a list-of-2lists
    orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], append = ['NAME1', 'NAME2']
+Append:
+    result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2'], 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME2=VAL2 -DNAME1 -DNAME2
+AppendUnique:
+    result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2'], 'NAME1', 'NAME2']
+    final=-DNAME1=VAL1 -DNAME2=VAL2 -DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a tuple to a list-of-2lists
+   orig = [('NAME1', 'VAL1'), ['NAME2', 'VAL2']], append = ('NAME1', 'NAME2')
 Append:
     result=[('NAME1', 'VAL1'), ['NAME2', 'VAL2'], 'NAME1', 'NAME2']
     final=-DNAME1=VAL1 -DNAME2=VAL2 -DNAME1 -DNAME2
@@ -223,6 +304,14 @@ AppendUnique:
     final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1
 ==== Testing CPPDEFINES, appending a list to a dict
    orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, append = ['NAME1', 'NAME2']
+Append:
+    result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
+    final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1 -DNAME1 -DNAME2
+AppendUnique:
+    result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
+    final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1 -DNAME1 -DNAME2
+==== Testing CPPDEFINES, appending a tuple to a dict
+   orig = {'NAME2': 'VAL2', 'NAME3': None, 'NAME1': 'VAL1'}, append = ('NAME1', 'NAME2')
 Append:
     result=[('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1'), 'NAME1', 'NAME2']
     final=-DNAME2=VAL2 -DNAME3 -DNAME1=VAL1 -DNAME1 -DNAME2
