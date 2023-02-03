@@ -269,7 +269,6 @@ def _add_cppdefines(
 
         return False
 
-
     key = 'CPPDEFINES'
     try:
         defines = env_dict[key]
@@ -329,6 +328,19 @@ def _add_cppdefines(
                 _add_define(val, defines, prepend)
         else:
             _add_define(val, defines, prepend)
+
+    # A tuple appended to anything should yield -Dkey=value
+    elif is_Tuple(val):
+        item = (val[0], val[1])
+        if unique:
+            match = _is_in(item, defines)
+            if match and delete_existing:
+                defines.remove(match)
+                _add_define(item, defines, prepend)
+            elif not match:
+                _add_define(item, defines, prepend)
+        else:
+            _add_define(item, defines, prepend)
 
     elif is_Sequence(val):
         tmp = []
