@@ -17,6 +17,9 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
       see unexpected rebuilds. This is due to Python internals changing which changed
       the signature of a Python Action Function.
 
+NOTE: If you use dictionaries to specify your CPPDEFINES, most likely the order of the CPPDEFINES
+      on the generated command line will change causing a rebuild.
+
 
 NEW FUNCTIONALITY
 -----------------
