@@ -148,17 +148,14 @@ DOCUMENTATION
 - Updated the User Guide chapter on installation: modernized the notes
   on Python installs, SCons installs, and having multiple SCons versions
   present on a single system.
-<<<<<<< HEAD
 - Updated the User Guide chapter on variant directories with more
   explanation, and the introduction of terms like "out of tree" that
   may help in forming a mental model.
 - Additional explanations for MSVSProject and MSVSSolution builders.
 - Updated MSVC documentation - adds "version added" annotations on recently
   added construction variables and provides a version-mapping table.
-=======
 - Added further details in the documentation of Append and related methods
   on the special handling of CPPDEFINES.
->>>>>>> d9a82d681 (Split out CPPDEFINES handling in Append methods)
 
 DEVELOPMENT
 -----------
