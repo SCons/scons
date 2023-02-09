@@ -17,8 +17,10 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
       see unexpected rebuilds. This is due to Python internals changing which changed
       the signature of a Python Action Function.
 
-NOTE: If you use dictionaries to specify your CPPDEFINES, most likely the order of the CPPDEFINES
-      on the generated command line will change causing a rebuild.
+NOTE: If you use a dictionary to specify your CPPDEFINES, the order of
+      dictionary keys is now preserved when generating the command line.
+      Previously these were sorted alphabecially: this may cause a change
+      which leads to a rebuild.
 
 
 NEW FUNCTIONALITY
@@ -98,15 +100,14 @@ FIXES
   actual build would not see the file as modified. Leading to incorrect incremental builds.
   Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
   the real taskmaster run when the build commences.
-- Inconsistent behavior of adding CPPDEFINES values via tuple arguments
-  has been cleaned up (problems described in issue #4254). In order to
-  achieve consistency, a rule for for adding macros-with-values via a
-  tuple (or list) is now enforced: they need to be entered as members
-  of a containing sequence. ["NAME", "VALUE"] and ("NAME", "VALUE")
-  are now treated the same (two individual macro names), rather than
-  the latter sometimes, but not always, being handled as a single
-  NAME=VALUE macro. Use a construct like [("NAME", "VALUE")] to get the
-  macro-with-value behavior.
+- Inconsistent behavior of adding values to the CPPDEFINES construction
+  variable has been cleaned up (described in issue #4254). Now a tuple,
+  whether provided by itself or as a member of a list, is consistently
+  interpreted as a macro with replacement value. When adding a list,
+  individual members are added in sequence without interpretation.
+  A string value containing spaces is split if it is the initial value or
+  added, but not if it is given as a member of an added list.  Detection
+  of duplicate macros now works for both valued and unvalued forms.
 - Handling of CPPDEFINES macros via Prepend and PrependUnique now works
   (previously this was special-cased only for Append and AppendUnique).
 

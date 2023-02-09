@@ -15,7 +15,7 @@ env_2300_2 = Environment(CPPDEFINES=['foo'], CPPDEFPREFIX='-D')  # note the list
 env_2300_2.Append(CPPDEFINES='bar')
 print(env_2300_2.subst('$_CPPDEFFLAGS'))
 
-# an initial space-separated string will be split, but not a string in a list
+# An initial space-separated string will be split, but not a string in a list.
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo bar"
 env_multi.Append(CPPDEFINES="baz")
@@ -28,19 +28,26 @@ env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo"
 env_multi.Append(CPPDEFINES=["bar baz"])
 print(env_multi.subst('$_CPPDEFFLAGS'))
+env_multi = Environment(CPPDEFPREFIX='-D')
+env_multi['CPPDEFINES'] = "foo"
+env_multi.Append(CPPDEFINES="bar baz")
+print(env_multi.subst('$_CPPDEFFLAGS'))
 
-# check that AppendUnique(..., delete_existing=True) works as expected
-# each addition is in different but matching form, and different order
+# Check that AppendUnique(..., delete_existing=True) works as expected.
+# Each addition is in different but matching form, and different order
 # so we expect a reordered list, but with the same macro defines.
 env_multi = Environment(CPPDEFPREFIX='-D')
-env_multi.Append(CPPDEFINES=["Macro1=Value1", ("Macro2", "Value2"), {"Macro3": "Value3"}])
+env_multi.Append(CPPDEFINES=["Macro1=Value1", ("Macro2", "Value2"), {"Macro3": "Value3"}, "Macro4"])
 env_multi.AppendUnique(CPPDEFINES="Macro2=Value2", delete_existing=True)
+env_multi.AppendUnique(CPPDEFINES=[("Macro4", None)], delete_existing=True)
 env_multi.AppendUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
 env_multi.AppendUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
 print(env_multi.subst('$_CPPDEFFLAGS'))
 
-# a lone tuple
+# A lone tuple handled differently than a lone list.
 env_multi = Environment(CPPDEFPREFIX='-D', CPPDEFINES=("Macro1", "Value1"))
+print(env_multi.subst('$_CPPDEFFLAGS'))
+env_multi = Environment(CPPDEFPREFIX='-D', CPPDEFINES=["Macro1", "Value1"])
 print(env_multi.subst('$_CPPDEFFLAGS'))
 
 # https://github.com/SCons/scons/issues/1152
@@ -66,11 +73,11 @@ class OrderedPrintingDict(OrderedDict):
 cases = [
     ('string', 'FOO'),
     ('valuestring', 'NAME1=VAL1'),
-    ('list', ['NAME1', 'NAME2']),
-    ('tuple', ('NAME1', 'NAME2')),
+    ('list', ['NAME1', 'NAME2', 'NAME3']),
+    ('tuple', ('NAME1', 'VAL1')),
     ('list-of-2lists', [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]),
     (
-        'dict',
+        'dict',  # intentionally not sorted by key
         OrderedPrintingDict([('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]),
     ),
 ]

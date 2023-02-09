@@ -120,6 +120,11 @@ class DefaultsTestCase(unittest.TestCase):
             self.assertEqual(rv, ['name=val'])
 
         with self.subTest():
+            # space-separated macros
+            rv = processDefines('name1 name2=val2')
+            self.assertEqual(rv, ['name1', 'name2=val2'])
+
+        with self.subTest():
             # single list
             rv = processDefines(['name', 'val'])
             self.assertEqual(rv, ['name', 'val'])
@@ -127,7 +132,7 @@ class DefaultsTestCase(unittest.TestCase):
         with self.subTest():
             # single tuple
             rv = processDefines(('name', 'val'))
-            self.assertEqual(rv, ['name', 'val'])
+            self.assertEqual(rv, ['name=val'])
 
         with self.subTest():
             # single dict

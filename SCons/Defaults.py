@@ -36,6 +36,7 @@ import shutil
 import stat
 import sys
 import time
+from typing import List
 
 import SCons.Action
 import SCons.Builder
@@ -46,7 +47,7 @@ import SCons.PathList
 import SCons.Scanner.Dir
 import SCons.Subst
 import SCons.Tool
-from SCons.Util import is_List, is_String, is_Sequence, is_Dict, flatten
+from SCons.Util import is_List, is_String, is_Sequence, is_Tuple, is_Dict, flatten
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -510,42 +511,67 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     return c(prefix, stripped, suffix, env)
 
 
-def processDefines(defs):
+def processDefines(defs) -> List[str]:
     """Return list of strings for preprocessor defines from *defs*.
 
-    Resolves all the different forms CPPDEFINES can be assembled in.
+    Resolves the different forms ``CPPDEFINES`` can be assembled in:
+    if the Append/Prepend routines are used beyond a initial setting it
+    will be a deque, but if written to only once (Environment initializer,
+    or direct write) it can be a multitude of types.
+
     Any prefix/suffix is handled elsewhere (usually :func:`_concat_ixes`).
     """
     dlist = []
-    if is_Sequence(defs):
+    if is_List(defs):
         for define in defs:
             if define is None:
                 continue
             elif is_Sequence(define):
-                if len(define) >= 2 and define[1] is not None:
-                    # TODO: do we need to quote define[1] if it contains space?
-                    dlist.append(str(define[0]) + '=' + str(define[1]))
+                if len(define) > 2:
+                    raise SCons.Errors.UserError(
+                        f"Invalid tuple in CPPDEFINES: {define!r}, "
+                        "must be a two-tuple"
+                    )
+                name, *value = define
+                if value and value[0] is not None:
+                    # TODO: do we need to quote value if it contains space?
+                    dlist.append(f"{name}={value[0]}")
                 else:
                     dlist.append(str(define[0]))
             elif is_Dict(define):
                 for macro, value in define.items():
                     if value is not None:
                         # TODO: do we need to quote value if it contains space?
-                        dlist.append(str(macro) + '=' + str(value))
+                        dlist.append(f"{macro}={value}")
                     else:
                         dlist.append(str(macro))
             elif is_String(define):
                 dlist.append(str(define))
             else:
                 raise SCons.Errors.UserError(
-                    f"DEFINE {define!r} is not a list, dict, string or None."
+                    f"CPPDEFINES entry {define!r} is not a tuple, list, "
+                    "dict, string or None."
                 )
+    elif is_Tuple(defs):
+        if len(defs) > 2:
+            raise SCons.Errors.UserError(
+                f"Invalid tuple in CPPDEFINES: {defs!r}, "
+                "must be a two-tuple"
+            )
+        name, *value = defs
+        if value and value[0] is not None:
+            # TODO: do we need to quote value if it contains space?
+            dlist.append(f"{name}={value[0]}")
+        else:
+            dlist.append(str(define[0]))
     elif is_Dict(defs):
         for macro, value in defs.items():
             if value is None:
                 dlist.append(str(macro))
             else:
-                dlist.append(str(macro) + '=' + str(value))
+                dlist.append(f"{macro}={value}")
+    elif is_String(defs):
+        return defs.split()
     else:
         dlist.append(str(defs))
 
@@ -556,7 +582,6 @@ def _defines(prefix, defs, suffix, env, target=None, source=None, c=_concat_ixes
     """A wrapper around :func:`_concat_ixes` that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
-
     return c(prefix, env.subst_list(processDefines(defs), target=target, source=source), suffix, env)
 
 

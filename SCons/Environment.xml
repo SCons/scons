@@ -512,7 +512,7 @@ but adding a string to a list or a list to a string requires
 different syntax - things &f-Append; takes care of.
 Some pre-defined &consvars; do have type expectations
 based on how &SCons; will use them:
-for example &cv-link-CPPDEFINES; is normally a string or a list of strings,
+for example &cv-link-CPPDEFINES; is often a string or a list of strings,
 but can also be a list of tuples or a dictionary;
 while &cv-link-LIBEMITTER;
 is expected to be a callable or list of callables,
@@ -577,20 +577,41 @@ scons: `.' is up to date.
 <para>
 Because &cv-link-CPPDEFINES; is intended for command-line
 specification of C/C++ preprocessor macros,
-it accepts additional syntax.
-A command-line preprocessor macro can predefine a name by itself
-(<computeroutput>-DFOO</computeroutput>),
-which gives it an implicit value,
-or be given with a replacement value
-(<computeroutput>-DBAR=1</computeroutput>).
-&SCons; allows you to specify a macro with replacement
-three different ways:
-using a string, like
-<quote><literal>macro=replacement</literal></quote>;
-as a (non-string) sequence inside a (non-string) sequence,
-like <literal>[(macro, replacement)]</literal>
-or as a key/value pair in a dictionary
-<literal>{macro: replacement}</literal>. Examples:
+additional syntax is accepted when adding to it.
+The preprocessor accepts arguments to predefine a macro name by itself
+(<computeroutput>-DFOO</computeroutput> for most compilers,
+<computeroutput>/DFOO</computeroutput> for Microsoft C++),
+which gives it an implicit value of <constant>1</constant>,
+or can be given with a replacement value
+(<computeroutput>-DBAR=TEXT</computeroutput>).
+&SCons; follows these rules when adding to &cv-CPPDEFINES;:
+</para>
+<itemizedlist>
+<listitem>
+<para>A string is split on spaces,
+giving an easy way to enter multiple macros in one addition.
+Use an <literal>=</literal> to specify a valued macro.</para>
+</listitem>
+<listitem>
+<para>A tuple is treated as a valued macro. 
+Use the value <constant>None</constant> if the macro should not have a value.
+It is an error to supply more than two elements in such a tuple.</para>
+</listitem>
+<listitem>
+<para>A list is processed in order,
+adding each item without further interpretation.
+In this case, space-separated strings are not split.</para>
+</listitem>
+<listitem>
+<para>A dictionary is processed in order,
+adding each key:value pair as a valued macro.
+Use the value <constant>None</constant> if the macro should not have a value.
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+Examples:
 </para>
 
 <example_commands>
@@ -616,15 +637,7 @@ scons: `.' is up to date.
 </screen>
 
 <para>
-Multiple &cv-CPPDEFINES; macros can be added in a single call
-using a (non-string) sequence,
-or using the dictionary form.
-If a given macro name should not have a replacement value,
-supply that macro as a string,
-or either omit the replacement value or give it as
-<constant>None</constant>;
-if using the dictionary form,
-specify the value as <constant>None</constant>. Examples:
+Examples of adding multiple macros:
 </para>
 
 <example_commands>
@@ -646,12 +659,8 @@ scons: `.' is up to date.
 
 <para>
 <emphasis>Changed in version  4.5</emphasis>:
-clarified that to receive the special handling,
-the tuple form must be supplied <emphasis>inside</emphasis>
-a sequence (e.g. a list); a single tuple will be interpreted
-just like a single list.
-Previously this form was inconsistently interpreted by
-various &SCons; methods.
+clarifined the use of tuples vs. other types,
+handling is now consistent across the four functions.
 </para>
 
 <example_commands>

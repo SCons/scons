@@ -13,7 +13,7 @@ import re
 from typing import Optional
 
 from collections import UserDict, UserList, UserString, deque
-from collections.abc import MappingView
+from collections.abc import MappingView, Iterable
 
 # Functions for deciding if things are like various types, mainly to
 # handle UserDict, UserList and UserString like their underlying types.
@@ -86,16 +86,19 @@ def is_String(  # pylint: disable=redefined-outer-name,redefined-builtin
 
 
 def is_Scalar(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes
+    obj, isinstance=isinstance, StringTypes=StringTypes, Iterable=Iterable,
 ) -> bool:
-    """Check if object is a scalar."""
+    """Check if object is a scalar: not a container or iterable."""
     # Profiling shows that there is an impressive speed-up of 2x
     # when explicitly checking for strings instead of just not
     # sequence when the argument (i.e. obj) is already a string.
     # But, if obj is a not string then it is twice as fast to
     # check only for 'not sequence'. The following code therefore
     # assumes that the obj argument is a string most of the time.
-    return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
+    # Update: now using collections.abc.Iterable for the 2nd check.
+    # Note: None is considered a "scalar" for this check, which is correct
+    # for the usage in SCons.Environment._add_cppdefines.
+    return isinstance(obj, StringTypes) or not isinstance(obj, Iterable)
 
 
 # From Dinu C. Gherman,

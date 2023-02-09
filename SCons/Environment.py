@@ -65,6 +65,7 @@ from SCons.Util import (
     flatten,
     is_Dict,
     is_List,
+    is_Scalar,
     is_Sequence,
     is_String,
     is_Tuple,
@@ -202,16 +203,18 @@ def _add_cppdefines(
 ) -> None:
     """Adds to CPPDEFINES, using the rules for C preprocessor macros.
 
-    Split out from regular construction variable handling because these
-    entries can express either a macro with a replacement list or one
-    without.  A macro with replacement list can be supplied three ways:
-    as a combined string ``name=value``; as a tuple contained in
-    a sequence type ``[("name", value)]``; or as a dictionary entry
-    ``{"name": value}``.  Appending/prepending can be unconditional
-    (duplicates allowed) or uniquing (no dupes).
+    This is split out from regular construction variable addition because
+    these entries can express either a macro with a replacement value or
+    one without.  A macro with replacement value can be supplied as *val*
+    in three ways: as a combined string ``"name=value"``; as a tuple
+    ``(name, value)``, or as an entry in a dictionary ``{"name": value}``.
+    A list argument with multiple macros can also be given.
 
-    Note if a replacement list is supplied, "unique" requires a full
-    match - both the name and the replacement must be equal.
+    Additions can be unconditional (duplicates allowed) or uniquing (no dupes).
+
+    Note if a replacement value is supplied, *unique* requires a full
+    match to decide uniqueness - both the macro name and the replacement.
+    The inner :func:`_is_in` is used to figure that out.
 
     Args:
         env_dict: the dictionary containing the ``CPPDEFINES`` to be modified.
@@ -239,12 +242,13 @@ def _add_cppdefines(
         ["FOO", "BAR"], string "FOO=BAR" and dict {"FOO": "BAR"} all
         differ as far as Python equality comparison is concerned, but
         are the same for purposes of creating the preprocessor macro.
+        Also an unvalued string should match something like ``("FOO", None)``.
         Since the caller may wish to remove a matched entry, we need to
         return it - cannot remove *item* itself unless it happened to
         be an exact (type) match.
 
         Called from a place we know *defines* is always a deque, and
-        *item* will not be a dict, so don't need do much type checking.
+        *item* will not be a dict, so don't need to do much type checking.
         If this ends up used more generally, would need to adjust that.
 
         Note implied assumption that members of a list-valued define
@@ -256,7 +260,10 @@ def _add_cppdefines(
             if is_Tuple(v):
                 return list(v)
             elif is_String(v):
-                return v.split("=")
+                rv = v.split("=")
+                if len(rv) == 1:
+                    return [v, None]
+                return rv
             return v
 
         if item in defines:  # cheap check first
@@ -274,22 +281,32 @@ def _add_cppdefines(
         defines = env_dict[key]
     except KeyError:
         # This is a new entry, just save it as is. Defer conversion to
-        # deque until someone tries to amend the value, processDefines
-        # can handle all of these fine.
+        # preferred type until someone tries to amend the value.
+        # processDefines has no problem with unconverted values if it
+        # gets called without any later additions.
         if is_String(val):
             env_dict[key] = val.split()
         else:
             env_dict[key] = val
         return
 
-    # Convert type of existing to deque to simplify processing of addition -
-    # inserting at either end is cheap.
+    # Convert type of existing to deque (if necessary) to simplify processing
+    # of additions - inserting at either end is cheap. Deferred conversion
+    # is also useful in case CPPDEFINES was set initially without calling
+    # through here (e.g. Environment kwarg, or direct assignment).
     if isinstance(defines, deque):
-        # filter deques out to avoid catching in is_List check below
+        # Already a deque? do nothing. Explicit check is so we don't get
+        # picked up by the is_list case below.
         pass
     elif is_String(defines):
         env_dict[key] = deque(defines.split())
-    elif is_Tuple(defines) or is_List(defines):
+    elif is_Tuple(defines):
+        if len(defines) > 2:
+            raise SCons.Errors.UserError(
+                f"Invalid tuple in CPPDEFINES: {define!r}, must be a two-tuple"
+            )
+        env_dict[key] = deque([defines])
+    elif is_List(defines):
         # a little extra work in case the initial container has dict
         # item(s) inside it, so those can be matched by _is_in().
         result = deque()
@@ -303,8 +320,9 @@ def _add_cppdefines(
         env_dict[key] = deque(defines.items())
     else:
         env_dict[key] = deque(defines)
-    defines = env_dict[key]  # in case we reassigned it after the try block.
+    defines = env_dict[key]  # in case we reassigned due to conversion
 
+    # now actually do the addition.
     if is_Dict(val):
         # Unpack the dict while applying to existing
         for item in val.items():
@@ -319,6 +337,31 @@ def _add_cppdefines(
                 _add_define(item, defines, prepend)
 
     elif is_String(val):
+        for v in val.split():
+            if unique:
+                match = _is_in(v, defines)
+                if match and delete_existing:
+                    defines.remove(match)
+                    _add_define(v, defines, prepend)
+                elif not match:
+                    _add_define(v, defines, prepend)
+            else:
+                _add_define(v, defines, prepend)
+
+    # A tuple appended to anything should yield -Dkey=value
+    elif is_Tuple(val):
+        if len(val) > 2:
+            raise SCons.Errors.UserError(
+                f"Invalid tuple added to CPPDEFINES: {val!r}, "
+                "must be a two-tuple"
+            )
+        if len(val) == 1:
+            val = (val[0], None)  # normalize
+        if not is_Scalar(val[0]) or not is_Scalar(val[1]):
+            raise SCons.Errors.UserError(
+                f"Invalid tuple added to CPPDEFINES: {val!r}, "
+                "values must be scalar"
+            )
         if unique:
             match = _is_in(val, defines)
             if match and delete_existing:
@@ -329,20 +372,7 @@ def _add_cppdefines(
         else:
             _add_define(val, defines, prepend)
 
-    # A tuple appended to anything should yield -Dkey=value
-    elif is_Tuple(val):
-        item = (val[0], val[1])
-        if unique:
-            match = _is_in(item, defines)
-            if match and delete_existing:
-                defines.remove(match)
-                _add_define(item, defines, prepend)
-            elif not match:
-                _add_define(item, defines, prepend)
-        else:
-            _add_define(item, defines, prepend)
-
-    elif is_Sequence(val):
+    elif is_List(val):
         tmp = []
         for item in val:
             if unique:
