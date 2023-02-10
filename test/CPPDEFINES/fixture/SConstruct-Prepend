@@ -97,16 +97,23 @@ for (t1, c1) in cases:
     for (t2, c2) in cases:
         print(f"==== Testing CPPDEFINES, prepending a {t2} to a {t1}")
         # string-like appearance if the value is a string
-        orig = f"'{c1}'" if isinstance(c1, str) else c1
-        pre = f"'{c2}'" if isinstance(c2, str) else c2
+        orig = f"{c1!r}" if isinstance(c1, str) else c1
+        pre = f"{c2!r}" if isinstance(c2, str) else c2
         print(f"   orig = {orig}, prepend = {pre}")
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
-        env.Prepend(CPPDEFINES=c2)
-        final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
-        print(f"Prepend:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
+        try:
+            env.Prepend(CPPDEFINES=c2)
+            final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
+            print(f"Prepend:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
+        except Exception as t:
+            print(f"Prepend:\n    FAILED: {t}")
+
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
-        env.PrependUnique(CPPDEFINES=c2)
-        final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
-        print(
-            f"PrependUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
-        )
+        try:
+            env.PrependUnique(CPPDEFINES=c2)
+            final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
+            print(
+                f"PrependUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
+            )
+        except Exception as t:
+            print(f"PrependUnique:\n    FAILED: {t}")

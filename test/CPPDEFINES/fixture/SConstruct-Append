@@ -96,16 +96,23 @@ for (t1, c1) in cases:
     for (t2, c2) in cases:
         print(f"==== Testing CPPDEFINES, appending a {t2} to a {t1}")
         # string-like appearance if the value is a string
-        orig = f"'{c1}'" if isinstance(c1, str) else c1
-        app = f"'{c2}'" if isinstance(c2, str) else c2
+        orig = f"{c1!r}" if isinstance(c1, str) else c1
+        app = f"{c2!r}" if isinstance(c2, str) else c2
         print(f"   orig = {orig}, append = {app}")
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
-        env.Append(CPPDEFINES=c2)
-        final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
-        print(f"Append:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
+        try:
+            env.Append(CPPDEFINES=c2)
+            final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
+            print(f"Append:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
+        except Exception as t:
+            print(f"Append:\n    FAILED: {t}")
+
         env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
-        env.AppendUnique(CPPDEFINES=c2)
-        final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
-        print(
-            f"AppendUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
-        )
+        try:
+            env.AppendUnique(CPPDEFINES=c2)
+            final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
+            print(
+                f"AppendUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
+            )
+        except Exception as t:
+            print(f"AppendUnique:\n    FAILED: {t}")
