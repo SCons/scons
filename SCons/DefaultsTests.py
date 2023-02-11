@@ -28,6 +28,7 @@ import collections
 import TestCmd
 
 from SCons.Defaults import mkdir_func, _defines, processDefines
+from SCons.Errors import UserError
 
 
 class DummyEnvironment(collections.UserDict):
@@ -143,6 +144,15 @@ class DefaultsTestCase(unittest.TestCase):
             # compound list
             rv = processDefines(['foo', ('name', 'val'), ['name2', 'val2']])
             self.assertEqual(rv, ['foo', 'name=val', 'name2=val2'])
+
+        with self.subTest():
+            # invalid tuple
+            try:
+                rv = processDefines([('name', 'val', 'bad')])
+            except UserError as e:
+                pass
+            else:
+                self.fail("Invalid tuple should throw SCons.Errors.UserError")
 
 
 if __name__ == "__main__":

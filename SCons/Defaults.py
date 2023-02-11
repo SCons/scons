@@ -530,7 +530,7 @@ def processDefines(defs) -> List[str]:
                 if len(define) > 2:
                     raise SCons.Errors.UserError(
                         f"Invalid tuple in CPPDEFINES: {define!r}, "
-                        "must be a two-tuple"
+                        "must be a tuple with only two elements"
                     )
                 name, *value = define
                 if value and value[0] is not None:
@@ -556,7 +556,7 @@ def processDefines(defs) -> List[str]:
         if len(defs) > 2:
             raise SCons.Errors.UserError(
                 f"Invalid tuple in CPPDEFINES: {defs!r}, "
-                "must be a two-tuple"
+                "must be a tuple with only two elements"
             )
         name, *value = defs
         if value and value[0] is not None:

@@ -1,3 +1,5 @@
+DefaultEnvironment(tools=[])
+
 # Special cases:
 # https://github.com/SCons/scons/issues/1738
 env_1738_2 = Environment(CPPDEFPREFIX='-D')
