@@ -833,15 +833,23 @@ def scons_subproc_run(
     returns a :class:`subprocess.CompletedProcess` instance with the results.
     Use when an external command needs to run in an "SCons context" -
     that is, with a crafted execution environment, rather than the user's
-    existing environment.  A supplied :keyword:`env` keyword argument
-    is used to set up the environment to pass to the call; if omitted,
-    *scons_env* is used to derive a suitable default.  Certain other
-    keyword arguments are examined before passing them through in the call.
-    The legacy :keyword:`error` keyword is remapped to :keyword:`check`.
-    The caller is responsible for setting up the appropriate keyword
-    arguments for :func:`subprocess.run`.
+    existing environment, particularly when you need to collect output
+    back. Typical case: run a tool's "version" option to find out which
+    version you have installed.
 
-    A subset of interesting kerword arguments follows; see the Python
+    If supplied, the :keyword:`env` keyword argument passes an
+    execution environment to process into appropriate form before it is
+    supplied to :mod:`subprocess`; if omitted, *scons_env* is used to derive
+    a suitable default.  The other keyword arguments are passed through,
+    except that SCons legacy :keyword:`error` keyword is remapped to
+    the subprocess :keyword:`check` keyword.  The caller is responsible for
+    setting up the desired arguments  for :func:`subprocess.run`.
+
+    This function retains the legacy behavior of returning something
+    vaguely usable even in the face of complete failure: it synthesizes
+    a :class:`~subprocess.CompletedProcess` instance in this case.
+
+    A subset of interesting keyword arguments follows; see the Python
     documentation of :mod:`subprocess` for a complete list.
 
     Keyword Arguments:
@@ -880,7 +888,7 @@ def scons_subproc_run(
     if check and error:
         raise ValueError('error and check arguments may not both be used.')
     if check is None:
-        check = False  # always supply some value for check
+        check = False  # always supply some value, to pacify checkers (pylint).
     if error is not None:
         if error == 'raise':
             check = True
