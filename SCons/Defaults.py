@@ -520,6 +520,11 @@ def processDefines(defs) -> List[str]:
     or direct write) it can be a multitude of types.
 
     Any prefix/suffix is handled elsewhere (usually :func:`_concat_ixes`).
+
+    .. versionchanged:: 4.5
+       Bare tuples are now treated the same as tuple-in-sequence, assumed
+       to describe a valued macro. Bare strings are now split on space.
+       A dictionary is no longer sorted before handling.
     """
     dlist = []
     if is_List(defs):

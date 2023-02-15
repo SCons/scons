@@ -1,4 +1,11 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+"""Prepend/PrependUnique tests"""
+
 DefaultEnvironment(tools=[])
+
 # Special cases:
 # https://github.com/SCons/scons/issues/1738
 env_1738_2 = Environment(CPPDEFPREFIX='-D')
@@ -21,29 +28,36 @@ env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo bar"
 env_multi.Prepend(CPPDEFINES="baz")
 print(env_multi.subst('$_CPPDEFFLAGS'))
+
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = ["foo bar"]
 env_multi.Prepend(CPPDEFINES="baz")
 print(env_multi.subst('$_CPPDEFFLAGS'))
+
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo"
 env_multi.Prepend(CPPDEFINES=["bar baz"])
 print(env_multi.subst('$_CPPDEFFLAGS'))
+
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo"
 env_multi.Prepend(CPPDEFINES="bar baz")
 print(env_multi.subst('$_CPPDEFFLAGS'))
 
-# Check that AppendUnique(..., delete_existing=True) works as expected.
+# Check that PrependUnique(..., delete_existing=True) works as expected.
 # Each addition is in different but matching form, and different order
 # so we expect a reordered list, but with the same macro defines.
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi.Prepend(CPPDEFINES=["Macro1=Value1", ("Macro2", "Value2"), {"Macro3": "Value3"}])
-env_multi.PrependUnique(CPPDEFINES="Macro2=Value2", delete_existing=True)
-env_multi.AppendUnique(CPPDEFINES=[("Macro4", None)], delete_existing=True)
-env_multi.PrependUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
-env_multi.PrependUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
-print(env_multi.subst('$_CPPDEFFLAGS'))
+try:
+    env_multi.PrependUnique(CPPDEFINES="Macro2=Value2", delete_existing=True)
+    env_multi.PrependUnique(CPPDEFINES=[("Macro4", None)], delete_existing=True)
+    env_multi.PrependUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
+    env_multi.PrependUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
+except Exception as t:
+    print(f"Prepend FAILED: {t}")
+else:
+    print(env_multi.subst('$_CPPDEFFLAGS'))
 
 # A lone tuple handled differently than a lone list.
 env_tuple = Environment(CPPDEFPREFIX='-D', CPPDEFINES=("Macro1", "Value1"))

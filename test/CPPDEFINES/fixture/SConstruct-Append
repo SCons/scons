@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+"""Append/AppendUnique tests"""
+
 DefaultEnvironment(tools=[])
 
 # Special cases:
@@ -22,14 +28,17 @@ env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo bar"
 env_multi.Append(CPPDEFINES="baz")
 print(env_multi.subst('$_CPPDEFFLAGS'))
+
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = ["foo bar"]
 env_multi.Append(CPPDEFINES="baz")
 print(env_multi.subst('$_CPPDEFFLAGS'))
+
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo"
 env_multi.Append(CPPDEFINES=["bar baz"])
 print(env_multi.subst('$_CPPDEFFLAGS'))
+
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi['CPPDEFINES'] = "foo"
 env_multi.Append(CPPDEFINES="bar baz")
@@ -40,11 +49,15 @@ print(env_multi.subst('$_CPPDEFFLAGS'))
 # so we expect a reordered list, but with the same macro defines.
 env_multi = Environment(CPPDEFPREFIX='-D')
 env_multi.Append(CPPDEFINES=["Macro1=Value1", ("Macro2", "Value2"), {"Macro3": "Value3"}, "Macro4"])
-env_multi.AppendUnique(CPPDEFINES="Macro2=Value2", delete_existing=True)
-env_multi.AppendUnique(CPPDEFINES=[("Macro4", None)], delete_existing=True)
-env_multi.AppendUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
-env_multi.AppendUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
-print(env_multi.subst('$_CPPDEFFLAGS'))
+try:
+    env_multi.AppendUnique(CPPDEFINES="Macro2=Value2", delete_existing=True)
+    env_multi.AppendUnique(CPPDEFINES=[("Macro4", None)], delete_existing=True)
+    env_multi.AppendUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
+    env_multi.AppendUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
+except Exception as t:
+    print(f"Prepend FAILED: {t}")
+else:
+    print(env_multi.subst('$_CPPDEFFLAGS'))
 
 # A lone tuple handled differently than a lone list.
 env_multi = Environment(CPPDEFPREFIX='-D', CPPDEFINES=("Macro1", "Value1"))

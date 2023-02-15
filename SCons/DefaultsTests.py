@@ -147,12 +147,10 @@ class DefaultsTestCase(unittest.TestCase):
 
         with self.subTest():
             # invalid tuple
-            try:
+            with self.assertRaises(
+                UserError, msg="Invalid tuple should throw SCons.Errors.UserError"
+            ):
                 rv = processDefines([('name', 'val', 'bad')])
-            except UserError as e:
-                pass
-            else:
-                self.fail("Invalid tuple should throw SCons.Errors.UserError")
 
 
 if __name__ == "__main__":

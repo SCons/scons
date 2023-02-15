@@ -201,7 +201,7 @@ def _add_cppdefines(
     unique: bool = False,
     delete_existing: bool = False,
 ) -> None:
-    """Adds to CPPDEFINES, using the rules for C preprocessor macros.
+    """Adds to ``CPPDEFINES``, using the rules for C preprocessor macros.
 
     This is split out from regular construction variable addition because
     these entries can express either a macro with a replacement value or
@@ -222,6 +222,8 @@ def _add_cppdefines(
         prepend: whether to put *val* in front or back.
         unique: whether to add *val* if it already exists.
         delete_existing: if *unique* is true, add *val* after removing previous.
+
+    .. versionadded:: 4.5
     """
 
     def _add_define(item, defines: deque, prepend: bool = False) -> None:
