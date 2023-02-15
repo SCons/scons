@@ -44,7 +44,7 @@ expect_print_output="""\
 -Dbaz -Dfoo bar
 -Dbar baz -Dfoo
 -Dbaz -Dbar -Dfoo
--DMacro1=Value1 -DMacro3=Value3 -DMacro2=Value2 -DMacro4
+-DMacro1=Value1 -DMacro3=Value3 -DMacro4 -DMacro2=Value2
 -DMacro1=Value1
 -DMacro1 -DValue1
 ==== Testing CPPDEFINES, prepending a string to a string
