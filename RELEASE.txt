@@ -17,10 +17,10 @@ NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), 
       see unexpected rebuilds. This is due to Python internals changing which changed
       the signature of a Python Action Function.
 
-NOTE: If you use a dictionary to specify your CPPDEFINES, the order of
-      dictionary keys is now preserved when generating the command line.
-      Previously these were sorted alphabecially: this may cause a change
-      which leads to a rebuild.
+NOTE: If you use a dictionary to specify your CPPDEFINES, you may see unexpected build results
+      The insertion order of dictionary keys is now preserved when generating the command line.
+      Previously these were sorted alphabecially.  This change to the command line,
+      while generating identical set of CPPDEFINES can change order and cause a rebuild.
 
 
 NEW FUNCTIONALITY

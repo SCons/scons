@@ -133,19 +133,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Also added "unique" keyword, to control whether a library is added
       or not if it is already in the $LIBS construction var in the
       configure context. (issue #2768).
-    - Special-case handling for CPPDEFINES in the Append/Prepend routines
-      is split out into its own function to simplify the remaining code and
-      fix problems. The e2e test test/CPPDEFINES/append.py is expanded
-      to cover missed cases, and AppendUnique no longer mismatches
-      with what Append does (#3876).  Inconsistent handling of tuples
-      to specify macro=value outputs is also cleaned up (#4254). The
-      special handling now also works for Prepend/PrependUnique, and a
-      corresponding e2e test test/CPPDEFINES/prepend.py was added to verify
-      the behavior.  A unit test for SCons.Util.processDefines, used to
-      convert CPPDEFINES into a list of strings, is added.  SCons used
-      to sort keys set or appended via a dict type, in order to assure
-      order of commandline flags did not change across runs. This behavior
-      has been dropped since Python now assures consistent dict order.
+    - Completely refactored the CPPDEFINES logic in Append/AppendUnique/Prepend/PrependUnique
+      This change fixes the following GH Issues:
+      - GH Issue #3876 - Append() and AppendUnique() will handle CPPDEFINES the same
+      - GH Issue #4254 - Make handling tuples in CPPDEFINES consistent.
+      - We no longer sort the keys added to CPPDEFINES by their dictionary keys.
+        We take advantage that their order is now stable based on insertion order
+        in Python 3.5+
+      - Added/modifed unit and system tests to verify these changes.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

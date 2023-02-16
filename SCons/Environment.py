@@ -223,7 +223,7 @@ def _add_cppdefines(
         unique: whether to add *val* if it already exists.
         delete_existing: if *unique* is true, add *val* after removing previous.
 
-    .. versionadded:: 4.5
+    .. versionadded:: 4.5.0
     """
 
     def _add_define(item, defines: deque, prepend: bool = False) -> None:
