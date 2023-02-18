@@ -117,9 +117,14 @@ def _action(target, source, env):
                 value = str(value)
             subs.append((k, value))
 
+    if 'FILE_ENCODING' not in env:
+        file_encoding = 'utf-8'
+    else:
+        file_encoding = env['FILE_ENCODING']
+
     # write the file
     try:
-        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
+        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='', encoding=file_encoding)
     except (OSError, IOError) as e:
         raise SCons.Errors.UserError("Can't write target file %s [%s]" % (target[0],e))
 

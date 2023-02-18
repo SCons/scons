@@ -56,7 +56,7 @@ Nested lists of source strings
 are flattened.
 Source strings need not literally be Python strings:
 they can be Nodes or Python objects that convert cleanly
-to &f-link-Value; nodes
+to &f-link-Value; nodes.
 </para>
 
 <para>
@@ -64,6 +64,7 @@ The prefix and suffix specified by the &cv-link-TEXTFILEPREFIX;
 and &cv-link-TEXTFILESUFFIX; &consvars;
 (by default an empty string and <filename>.txt</filename>, respectively)
 are automatically added to the target if they are not already present.
+By default file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -255,6 +256,14 @@ an empty string by default.
 <para>
 The suffix used for &b-link-Textfile; file names;
 <filename>.txt</filename> by default.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FILE_ENCODING">
+<summary>
+<para>
+File encoding. "utf-8" by default.
 </para>
 </summary>
 </cvar>

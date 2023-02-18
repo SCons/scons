@@ -44,7 +44,8 @@ linesep = '\n'
 
 textparts = ['lalala', '42',
              'Goethe', 'Schiller',
-             'tanteratei']
+             'tanteratei',
+             '×']  # <-- this is unicode /xd7 symbol   
 foo1Text = linesep.join(textparts)
 foo2Text = '|*'.join(textparts)
 foo1aText = foo1Text + linesep
