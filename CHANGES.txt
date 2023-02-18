@@ -46,6 +46,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Added JAVAPROCESSORPATH construction variable which populates -processorpath.
     - Updated JavaScanner to scan JAVAPROCESSORPATH.
 
+  From Nickolai Korshunov
+    - Added FILE_ENCODING, to allow explicitly setting the text encoding for files
+      written by the Textfile() and Substfile() builders. If not specified, Textfile() and Substfile() builders
+      will write files as UTF-8. Fixed Issue #4302.
+
   From Dan Mezhiborsky:
     - Add newline to end of compilation db (compile_commands.json).
 
@@ -59,7 +64,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       actual build would not see the file as modified. Leading to incorrect incremental builds.
       Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
       the real taskmaster run when the build commences.
-
 
   From Andrew Morrow
     - Avoid returning UniqueList for `children` and other `Executor` APIs. This type
@@ -133,11 +137,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Also added "unique" keyword, to control whether a library is added
       or not if it is already in the $LIBS construction var in the
       configure context. (issue #2768).
-
-  From Nickolai Korshunov
-    - Added explicit file encoding in env.Textfile. All written files by default 
-      will have utf-8 encoding. User can specify encoding manually with 
-      $FILE_ENCODING env var.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

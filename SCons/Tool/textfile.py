@@ -117,10 +117,8 @@ def _action(target, source, env):
                 value = str(value)
             subs.append((k, value))
 
-    if 'FILE_ENCODING' not in env:
-        file_encoding = 'utf-8'
-    else:
-        file_encoding = env['FILE_ENCODING']
+    # Pull file encoding from the environment or default to UTF-8
+    file_encoding = env.get('FILE_ENCODING', 'utf-8')
 
     # write the file
     try:
@@ -191,6 +189,7 @@ def generate(env):
     env['BUILDERS']['Substfile'] = _subst_builder
     env['SUBSTFILEPREFIX'] = ''
     env['SUBSTFILESUFFIX'] = ''
+    env['FILE_ENCODING'] = env.get('FILE_ENCODING', 'utf-8')
 
 
 def exists(env):
