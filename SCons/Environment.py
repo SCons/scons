@@ -35,7 +35,7 @@ import os
 import sys
 import re
 import shlex
-from collections import UserDict
+from collections import UserDict, deque
 
 import SCons.Action
 import SCons.Builder
@@ -65,6 +65,7 @@ from SCons.Util import (
     flatten,
     is_Dict,
     is_List,
+    is_Scalar,
     is_Sequence,
     is_String,
     is_Tuple,
@@ -192,6 +193,206 @@ def _delete_duplicates(l, keep_last):
         result.reverse()
     return result
 
+
+def _add_cppdefines(
+    env_dict: dict,
+    val,  # add annotation?
+    prepend: bool = False,
+    unique: bool = False,
+    delete_existing: bool = False,
+) -> None:
+    """Adds to ``CPPDEFINES``, using the rules for C preprocessor macros.
+
+    This is split out from regular construction variable addition because
+    these entries can express either a macro with a replacement value or
+    one without.  A macro with replacement value can be supplied as *val*
+    in three ways: as a combined string ``"name=value"``; as a tuple
+    ``(name, value)``, or as an entry in a dictionary ``{"name": value}``.
+    A list argument with multiple macros can also be given.
+
+    Additions can be unconditional (duplicates allowed) or uniquing (no dupes).
+
+    Note if a replacement value is supplied, *unique* requires a full
+    match to decide uniqueness - both the macro name and the replacement.
+    The inner :func:`_is_in` is used to figure that out.
+
+    Args:
+        env_dict: the dictionary containing the ``CPPDEFINES`` to be modified.
+        val: the value to add, can be string, sequence or dict
+        prepend: whether to put *val* in front or back.
+        unique: whether to add *val* if it already exists.
+        delete_existing: if *unique* is true, add *val* after removing previous.
+
+    .. versionadded:: 4.5.0
+    """
+
+    def _add_define(item, defines: deque, prepend: bool = False) -> None:
+        """Convenience function to prepend/append a single value.
+
+        Sole purpose is to shorten code in the outer function.
+        """
+        if prepend:
+            defines.appendleft(item)
+        else:
+            defines.append(item)
+
+
+    def _is_in(item, defines: deque):
+        """Returns match for *item* if found in *defines*.
+
+        Accounts for type differences: tuple ("FOO", "BAR"), list
+        ["FOO", "BAR"], string "FOO=BAR" and dict {"FOO": "BAR"} all
+        differ as far as Python equality comparison is concerned, but
+        are the same for purposes of creating the preprocessor macro.
+        Also an unvalued string should match something like ``("FOO", None)``.
+        Since the caller may wish to remove a matched entry, we need to
+        return it - cannot remove *item* itself unless it happened to
+        be an exact (type) match.
+
+        Called from a place we know *defines* is always a deque, and
+        *item* will not be a dict, so don't need to do much type checking.
+        If this ends up used more generally, would need to adjust that.
+
+        Note implied assumption that members of a list-valued define
+        will not be dicts - we cannot actually guarantee this, since
+        if the initial add is a list its contents are not converted.
+        """
+        def _macro_conv(v) -> list:
+            """Normalizes a macro to a list for comparisons."""
+            if is_Tuple(v):
+                return list(v)
+            elif is_String(v):
+                rv = v.split("=")
+                if len(rv) == 1:
+                    return [v, None]
+                return rv
+            return v
+
+        if item in defines:  # cheap check first
+            return item
+
+        item = _macro_conv(item)
+        for define in defines:
+            if item == _macro_conv(define):
+                return define
+
+        return False
+
+    key = 'CPPDEFINES'
+    try:
+        defines = env_dict[key]
+    except KeyError:
+        # This is a new entry, just save it as is. Defer conversion to
+        # preferred type until someone tries to amend the value.
+        # processDefines has no problem with unconverted values if it
+        # gets called without any later additions.
+        if is_String(val):
+            env_dict[key] = val.split()
+        else:
+            env_dict[key] = val
+        return
+
+    # Convert type of existing to deque (if necessary) to simplify processing
+    # of additions - inserting at either end is cheap. Deferred conversion
+    # is also useful in case CPPDEFINES was set initially without calling
+    # through here (e.g. Environment kwarg, or direct assignment).
+    if isinstance(defines, deque):
+        # Already a deque? do nothing. Explicit check is so we don't get
+        # picked up by the is_list case below.
+        pass
+    elif is_String(defines):
+        env_dict[key] = deque(defines.split())
+    elif is_Tuple(defines):
+        if len(defines) > 2:
+            raise SCons.Errors.UserError(
+                f"Invalid tuple in CPPDEFINES: {define!r}, must be a two-tuple"
+            )
+        env_dict[key] = deque([defines])
+    elif is_List(defines):
+        # a little extra work in case the initial container has dict
+        # item(s) inside it, so those can be matched by _is_in().
+        result = deque()
+        for define in defines:
+            if is_Dict(define):
+                result.extend(define.items())
+            else:
+                result.append(define)
+        env_dict[key] = result
+    elif is_Dict(defines):
+        env_dict[key] = deque(defines.items())
+    else:
+        env_dict[key] = deque(defines)
+    defines = env_dict[key]  # in case we reassigned due to conversion
+
+    # now actually do the addition.
+    if is_Dict(val):
+        # Unpack the dict while applying to existing
+        for item in val.items():
+            if unique:
+                match = _is_in(item, defines)
+                if match and delete_existing:
+                    defines.remove(match)
+                    _add_define(item, defines, prepend)
+                elif not match:
+                    _add_define(item, defines, prepend)
+            else:
+                _add_define(item, defines, prepend)
+
+    elif is_String(val):
+        for v in val.split():
+            if unique:
+                match = _is_in(v, defines)
+                if match and delete_existing:
+                    defines.remove(match)
+                    _add_define(v, defines, prepend)
+                elif not match:
+                    _add_define(v, defines, prepend)
+            else:
+                _add_define(v, defines, prepend)
+
+    # A tuple appended to anything should yield -Dkey=value
+    elif is_Tuple(val):
+        if len(val) > 2:
+            raise SCons.Errors.UserError(
+                f"Invalid tuple added to CPPDEFINES: {val!r}, "
+                "must be a two-tuple"
+            )
+        if len(val) == 1:
+            val = (val[0], None)  # normalize
+        if not is_Scalar(val[0]) or not is_Scalar(val[1]):
+            raise SCons.Errors.UserError(
+                f"Invalid tuple added to CPPDEFINES: {val!r}, "
+                "values must be scalar"
+            )
+        if unique:
+            match = _is_in(val, defines)
+            if match and delete_existing:
+                defines.remove(match)
+                _add_define(val, defines, prepend)
+            elif not match:
+                _add_define(val, defines, prepend)
+        else:
+            _add_define(val, defines, prepend)
+
+    elif is_List(val):
+        tmp = []
+        for item in val:
+            if unique:
+                match = _is_in(item, defines)
+                if match and delete_existing:
+                    defines.remove(match)
+                    tmp.append(item)
+                elif not match:
+                    tmp.append(item)
+            else:
+                tmp.append(item)
+
+        if prepend:
+            defines.extendleft(tmp)
+        else:
+            defines.extend(tmp)
+
+    # else:  # are there any other cases? processDefines doesn't think so.
 
 
 # The following is partly based on code in a comment added by Peter
@@ -837,8 +1038,8 @@ class SubstitutionEnvironment:
     def MergeFlags(self, args, unique=True) -> None:
         """Merge flags into construction variables.
 
-        Merges the flags from ``args`` into this construction environent.
-        If ``args`` is not a dict, it is first converted to one with
+        Merges the flags from *args* into this construction environent.
+        If *args* is not a dict, it is first converted to one with
         flags distributed into appropriate construction variables.
         See :meth:`ParseFlags`.
 
@@ -1215,16 +1416,15 @@ class Base(SubstitutionEnvironment):
 
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if key == 'CPPDEFINES':
+                _add_cppdefines(self._dict, val)
+                continue
+                
             try:
-                if key == 'CPPDEFINES' and is_String(self._dict[key]):
-                    self._dict[key] = [self._dict[key]]
                 orig = self._dict[key]
             except KeyError:
                 # No existing var in the environment, so set to the new value.
-                if key == 'CPPDEFINES' and is_String(val):
-                    self._dict[key] = [val]
-                else:
-                    self._dict[key] = val
+                self._dict[key] = val
                 continue
 
             try:
@@ -1263,19 +1463,8 @@ class Base(SubstitutionEnvironment):
             # things like UserList will incorrectly coerce the
             # original dict to a list (which we don't want).
             if is_List(val):
-                if key == 'CPPDEFINES':
-                    tmp = []
-                    for (k, v) in orig.items():
-                        if v is not None:
-                            tmp.append((k, v))
-                        else:
-                            tmp.append((k,))
-                    orig = tmp
-                    orig += val
-                    self._dict[key] = orig
-                else:
-                    for v in val:
-                        orig[v] = None
+                for v in val:
+                    orig[v] = None
             else:
                 try:
                     update_dict(val)
@@ -1330,6 +1519,9 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if key == 'CPPDEFINES':
+                _add_cppdefines(self._dict, val, unique=True, delete_existing=delete_existing)
+                continue
             if is_List(val):
                 val = _delete_duplicates(val, delete_existing)
             if key not in self._dict or self._dict[key] in ('', None):
@@ -1338,46 +1530,8 @@ class Base(SubstitutionEnvironment):
                 self._dict[key].update(val)
             elif is_List(val):
                 dk = self._dict[key]
-                if key == 'CPPDEFINES':
-                    tmp = []
-                    for i in val:
-                        if is_List(i):
-                            if len(i) >= 2:
-                                tmp.append((i[0], i[1]))
-                            else:
-                                tmp.append((i[0],))
-                        elif is_Tuple(i):
-                            tmp.append(i)
-                        else:
-                            tmp.append((i,))
-                    val = tmp
-                    # Construct a list of (key, value) tuples.
-                    if is_Dict(dk):
-                        tmp = []
-                        for (k, v) in dk.items():
-                            if v is not None:
-                                tmp.append((k, v))
-                            else:
-                                tmp.append((k,))
-                        dk = tmp
-                    elif is_String(dk):
-                        dk = [(dk,)]
-                    else:
-                        tmp = []
-                        for i in dk:
-                            if is_List(i):
-                                if len(i) >= 2:
-                                    tmp.append((i[0], i[1]))
-                                else:
-                                    tmp.append((i[0],))
-                            elif is_Tuple(i):
-                                tmp.append(i)
-                            else:
-                                tmp.append((i,))
-                        dk = tmp
-                else:
-                    if not is_List(dk):
-                        dk = [dk]
+                if not is_List(dk):
+                    dk = [dk]
                 if delete_existing:
                     dk = [x for x in dk if x not in val]
                 else:
@@ -1386,70 +1540,15 @@ class Base(SubstitutionEnvironment):
             else:
                 dk = self._dict[key]
                 if is_List(dk):
-                    if key == 'CPPDEFINES':
-                        tmp = []
-                        for i in dk:
-                            if is_List(i):
-                                if len(i) >= 2:
-                                    tmp.append((i[0], i[1]))
-                                else:
-                                    tmp.append((i[0],))
-                            elif is_Tuple(i):
-                                tmp.append(i)
-                            else:
-                                tmp.append((i,))
-                        dk = tmp
-                        # Construct a list of (key, value) tuples.
-                        if is_Dict(val):
-                            tmp = []
-                            for (k, v) in val.items():
-                                if v is not None:
-                                    tmp.append((k, v))
-                                else:
-                                    tmp.append((k,))
-                            val = tmp
-                        elif is_String(val):
-                            val = [(val,)]
-                        if delete_existing:
-                            dk = list(filter(lambda x, val=val: x not in val, dk))
-                            self._dict[key] = dk + val
-                        else:
-                            dk = [x for x in dk if x not in val]
-                            self._dict[key] = dk + val
+                    # By elimination, val is not a list.  Since dk is a
+                    # list, wrap val in a list first.
+                    if delete_existing:
+                        dk = list(filter(lambda x, val=val: x not in val, dk))
+                        self._dict[key] = dk + [val]
                     else:
-                        # By elimination, val is not a list.  Since dk is a
-                        # list, wrap val in a list first.
-                        if delete_existing:
-                            dk = list(filter(lambda x, val=val: x not in val, dk))
+                        if val not in dk:
                             self._dict[key] = dk + [val]
-                        else:
-                            if val not in dk:
-                                self._dict[key] = dk + [val]
                 else:
-                    if key == 'CPPDEFINES':
-                        if is_String(dk):
-                            dk = [dk]
-                        elif is_Dict(dk):
-                            tmp = []
-                            for (k, v) in dk.items():
-                                if v is not None:
-                                    tmp.append((k, v))
-                                else:
-                                    tmp.append((k,))
-                            dk = tmp
-                        if is_String(val):
-                            if val in dk:
-                                val = []
-                            else:
-                                val = [val]
-                        elif is_Dict(val):
-                            tmp = []
-                            for i,j in val.items():
-                                if j is not None:
-                                    tmp.append((i,j))
-                                else:
-                                    tmp.append(i)
-                            val = tmp
                     if delete_existing:
                         dk = [x for x in dk if x not in val]
                     self._dict[key] = dk + val
@@ -1726,6 +1825,9 @@ class Base(SubstitutionEnvironment):
 
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if key == 'CPPDEFINES':
+                _add_cppdefines(self._dict, val, prepend=True)
+                continue
             try:
                 orig = self._dict[key]
             except KeyError:
@@ -1815,6 +1917,9 @@ class Base(SubstitutionEnvironment):
         """
         kw = copy_non_reserved_keywords(kw)
         for key, val in kw.items():
+            if key == 'CPPDEFINES':
+                _add_cppdefines(self._dict, val, unique=True, prepend=True, delete_existing=delete_existing)
+                continue
             if is_List(val):
                 val = _delete_duplicates(val, not delete_existing)
             if key not in self._dict or self._dict[key] in ('', None):

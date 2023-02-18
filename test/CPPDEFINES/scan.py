@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that use of the Scanner that evaluates CPP lines works as expected.
@@ -41,12 +40,12 @@ f3_exe = 'f3' + TestSCons._exe
 f4_exe = 'f4' + TestSCons._exe
 
 test.write('SConstruct', """\
-env = Environment(CPPPATH = ['.'])
+env = Environment(CPPPATH=['.'])
 
-f1 = env.Object('f1', 'fff.c', CPPDEFINES = ['F1'])
-f2 = env.Object('f2', 'fff.c', CPPDEFINES = [('F2', 1)])
-f3 = env.Object('f3', 'fff.c', CPPDEFINES = {'F3':None})
-f4 = env.Object('f4', 'fff.c', CPPDEFINES = {'F4':1})
+f1 = env.Object('f1', 'fff.c', CPPDEFINES=['F1'])
+f2 = env.Object('f2', 'fff.c', CPPDEFINES=[('F2', 1)])
+f3 = env.Object('f3', 'fff.c', CPPDEFINES={'F3': None})
+f4 = env.Object('f4', 'fff.c', CPPDEFINES={'F4': 1})
 
 env.Program('f1', ['prog.c', f1])
 env.Program('f2', ['prog.c', f2])
@@ -110,20 +109,16 @@ main(int argc, char *argv[])
 
 
 test.run(arguments = '.')
-
 test.run(program = test.workpath('f1'), stdout = "prog.c:  F1\n")
 test.run(program = test.workpath('f2'), stdout = "prog.c:  F2\n")
 test.run(program = test.workpath('f3'), stdout = "prog.c:  F3\n")
 test.run(program = test.workpath('f4'), stdout = "prog.c:  F4\n")
-
-
 
 test.write('f1.h', """
 #define STRING  "F1 again"
 """)
 
 test.up_to_date(arguments = '%(f2_exe)s %(f3_exe)s %(f4_exe)s' % locals())
-
 test.not_up_to_date(arguments = '.')
 
 test.run(program = test.workpath('f1'), stdout = "prog.c:  F1 again\n")
@@ -131,14 +126,11 @@ test.run(program = test.workpath('f2'), stdout = "prog.c:  F2\n")
 test.run(program = test.workpath('f3'), stdout = "prog.c:  F3\n")
 test.run(program = test.workpath('f4'), stdout = "prog.c:  F4\n")
 
-
-
 test.write('f2.h', """
 #define STRING  "F2 again"
 """)
 
 test.up_to_date(arguments = '%(f1_exe)s %(f3_exe)s %(f4_exe)s' % locals())
-
 test.not_up_to_date(arguments = '.')
 
 test.run(program = test.workpath('f1'), stdout = "prog.c:  F1 again\n")
@@ -146,14 +138,11 @@ test.run(program = test.workpath('f2'), stdout = "prog.c:  F2 again\n")
 test.run(program = test.workpath('f3'), stdout = "prog.c:  F3\n")
 test.run(program = test.workpath('f4'), stdout = "prog.c:  F4\n")
 
-
-
 test.write('f3.h', """
 #define STRING  "F3 again"
 """)
 
 test.up_to_date(arguments = '%(f1_exe)s %(f2_exe)s %(f4_exe)s' % locals())
-
 test.not_up_to_date(arguments = '.')
 
 test.run(program = test.workpath('f1'), stdout = "prog.c:  F1 again\n")
@@ -161,22 +150,17 @@ test.run(program = test.workpath('f2'), stdout = "prog.c:  F2 again\n")
 test.run(program = test.workpath('f3'), stdout = "prog.c:  F3 again\n")
 test.run(program = test.workpath('f4'), stdout = "prog.c:  F4\n")
 
-
-
 test.write('f4.h', """
 #define STRING  "F4 again"
 """)
 
 test.up_to_date(arguments = '%(f1_exe)s %(f2_exe)s %(f3_exe)s' % locals())
-
 test.not_up_to_date(arguments = '.')
 
 test.run(program = test.workpath('f1'), stdout = "prog.c:  F1 again\n")
 test.run(program = test.workpath('f2'), stdout = "prog.c:  F2 again\n")
 test.run(program = test.workpath('f3'), stdout = "prog.c:  F3 again\n")
 test.run(program = test.workpath('f4'), stdout = "prog.c:  F4 again\n")
-
-
 
 test.pass_test()
 

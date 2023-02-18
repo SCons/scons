@@ -12,8 +12,8 @@ import pprint
 import re
 from typing import Optional
 
-from collections import UserDict, UserList, UserString
-from collections.abc import MappingView
+from collections import UserDict, UserList, UserString, deque
+from collections.abc import MappingView, Iterable
 
 # Functions for deciding if things are like various types, mainly to
 # handle UserDict, UserList and UserString like their underlying types.
@@ -23,20 +23,22 @@ from collections.abc import MappingView
 # exception, but handling the exception when it's not the right type is
 # often too slow.
 
-# We are using the following trick to speed up these
-# functions. Default arguments are used to take a snapshot of
-# the global functions and constants used by these functions. This
-# transforms accesses to global variable into local variables
-# accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
-# Since checkers dislike this, it's now annotated for pylint to flag
+# A trick is used to speed up these functions. Default arguments are
+# used to take a snapshot of the global functions and constants used
+# by these functions. This transforms accesses to global variables into
+# local variable accesses (i.e. LOAD_FAST instead of LOAD_GLOBAL).
+# Since checkers dislike this, it's now annotated for pylint, to flag
 # (mostly for other readers of this code) we're doing this intentionally.
-# TODO: PY3 check these are still valid choices for all of these funcs.
+# TODO: experts affirm this is still faster, but maybe check if worth it?
 
 DictTypes = (dict, UserDict)
-ListTypes = (list, UserList)
+ListTypes = (list, UserList, deque)
 
-# Handle getting dictionary views.
-SequenceTypes = (list, tuple, UserList, MappingView)
+# With Python 3, there are view types that are sequences. Other interesting
+# sequences are range and bytearray.  What we don't want is strings: while
+# they are iterable sequences, in SCons usage iterating over a string is
+# almost never what we want. So basically iterable-but-not-string:
+SequenceTypes = (list, tuple, deque, UserList, MappingView)
 
 # Note that profiling data shows a speed-up when comparing
 # explicitly with str instead of simply comparing
@@ -84,16 +86,19 @@ def is_String(  # pylint: disable=redefined-outer-name,redefined-builtin
 
 
 def is_Scalar(  # pylint: disable=redefined-outer-name,redefined-builtin
-    obj, isinstance=isinstance, StringTypes=StringTypes, SequenceTypes=SequenceTypes
+    obj, isinstance=isinstance, StringTypes=StringTypes, Iterable=Iterable,
 ) -> bool:
-    """Check if object is a scalar."""
+    """Check if object is a scalar: not a container or iterable."""
     # Profiling shows that there is an impressive speed-up of 2x
     # when explicitly checking for strings instead of just not
     # sequence when the argument (i.e. obj) is already a string.
     # But, if obj is a not string then it is twice as fast to
     # check only for 'not sequence'. The following code therefore
     # assumes that the obj argument is a string most of the time.
-    return isinstance(obj, StringTypes) or not isinstance(obj, SequenceTypes)
+    # Update: now using collections.abc.Iterable for the 2nd check.
+    # Note: None is considered a "scalar" for this check, which is correct
+    # for the usage in SCons.Environment._add_cppdefines.
+    return isinstance(obj, StringTypes) or not isinstance(obj, Iterable)
 
 
 # From Dinu C. Gherman,
