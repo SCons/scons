@@ -87,12 +87,12 @@ Acronyms \gls{gnu} and glossary entries \gls{nix}.
 
 a definition \gls{defPower}
 
-\glossarystyle{index}
+\setglossarystyle{index}
 \printglossary[type=symbol]
 \printglossary[type=acronym]
 \printglossary[type=main]
 \printglossary[type=definition]
-\glossarystyle{super}
+\setglossarystyle{super}
 
 \end{document}""")
 
