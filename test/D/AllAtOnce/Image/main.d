@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 import std.stdio: writefln;
 import amod: print_message;
 import bmod: calculate_value;

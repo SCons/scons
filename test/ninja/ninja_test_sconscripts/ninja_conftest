@@ -1,10 +1,13 @@
-SetOption('experimental','ninja')
-DefaultEnvironment(tools=[])
+# MIT License
+#
+# Copyright The SCons Foundation
 
 import sys 
 
-env = Environment()
+SetOption('experimental','ninja')
+DefaultEnvironment(tools=[])
 
+env = Environment()
 conf = Configure(env)
 env.Tool('ninja')
 

@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 env.DocbookHtmlhelp('manual.html', 'manual', xsl='htmlhelp.xsl')
 
