@@ -35,6 +35,7 @@ Set &consvars; for the &b-Textfile; and &b-Substfile; builders.
 <item>SUBSTFILESUFFIX</item>
 <item>TEXTFILEPREFIX</item>
 <item>TEXTFILESUFFIX</item>
+<item>FILE_ENCODING</item>
 </sets>
 <uses>
 <item>SUBST_DICT</item>
@@ -56,7 +57,7 @@ Nested lists of source strings
 are flattened.
 Source strings need not literally be Python strings:
 they can be Nodes or Python objects that convert cleanly
-to &f-link-Value; nodes
+to &f-link-Value; nodes.
 </para>
 
 <para>
@@ -64,6 +65,9 @@ The prefix and suffix specified by the &cv-link-TEXTFILEPREFIX;
 and &cv-link-TEXTFILESUFFIX; &consvars;
 (by default an empty string and <filename>.txt</filename>, respectively)
 are automatically added to the target if they are not already present.
+</para>
+<para>
+By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
 Examples:
 </para>
 
@@ -123,6 +127,11 @@ using the value of the
 the separator is not emitted after the contents of the last  file.
 Nested lists of source files
 are flattened. See also &b-link-Textfile;.
+</para>
+
+<para>
+By default the target file encoding is "utf-8" and can be changed by &cv-link-FILE_ENCODING;
+Examples:
 </para>
 
 <para>
@@ -255,6 +264,15 @@ an empty string by default.
 <para>
 The suffix used for &b-link-Textfile; file names;
 <filename>.txt</filename> by default.
+</para>
+</summary>
+</cvar>
+
+<cvar name="FILE_ENCODING">
+<summary>
+<para>
+File encoding used for files written by &b-link-Textfile; and &b-link-Substfile;.  Set to "utf-8" by default.
+<emphasis>Added in version  4.5.0.</emphasis>
 </para>
 </summary>
 </cvar>

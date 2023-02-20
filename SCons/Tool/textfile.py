@@ -117,9 +117,12 @@ def _action(target, source, env):
                 value = str(value)
             subs.append((k, value))
 
+    # Pull file encoding from the environment or default to UTF-8
+    file_encoding = env.get('FILE_ENCODING', 'utf-8')
+
     # write the file
     try:
-        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
+        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='', encoding=file_encoding)
     except (OSError, IOError) as e:
         raise SCons.Errors.UserError("Can't write target file %s [%s]" % (target[0],e))
 
@@ -186,6 +189,7 @@ def generate(env):
     env['BUILDERS']['Substfile'] = _subst_builder
     env['SUBSTFILEPREFIX'] = ''
     env['SUBSTFILESUFFIX'] = ''
+    env['FILE_ENCODING'] = env.get('FILE_ENCODING', 'utf-8')
 
 
 def exists(env):
