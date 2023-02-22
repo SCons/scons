@@ -146,15 +146,16 @@ over the file scanning rather than being called for each input line:
 
   <para>
 
-    &SCons; has built-in scanners that know how to look in
+    &SCons; has routines that know how to look in
     C/C++, Fortran, D, IDL, LaTeX, Python and SWIG source files
     for information about
-    other files that targets built from those files depend on--for example,
-    in the case of files that use the C preprocessor,
+    other files that targets built from those files depend on -
+    for example, in the case of files that use the C preprocessor,
     the <filename>.h</filename> files that are specified
     using <literal>#include</literal> lines in the source.
+    Such a routine is called a <firstterm>&Scanner;</firstterm>.
     You can use the same mechanisms that &SCons; uses to create
-    its built-in scanners to write scanners of your own for file types
+    its built-in Scanners to write Scanners of your own for file types
     that &SCons; does not know how to scan "out of the box."
 
   </para>
@@ -164,7 +165,7 @@ over the file scanning rather than being called for each input line:
 
     <para>
 
-      Suppose, for example, that we want to create a simple scanner
+      Suppose, for example, that we want to create a simple &Scanner;
       for <filename>.foo</filename> files.
       A <filename>.foo</filename> file contains some text that
       will be processed,
@@ -183,7 +184,7 @@ include filename.foo
       Scanning a file will be handled by a Python function
       that you must supply.
       Here is a function that will use the Python
-      <filename>re</filename> module
+      <systemitem>re</systemitem> module
       to scan for the <literal>include</literal> lines in our example:
 
     </para>
@@ -203,7 +204,7 @@ def kfile_scan(node, env, path, arg):
       It is important to note that you
       have to return a list of File nodes from the scanner function, simple
       strings for the file names won't do. As in the examples we are showing here,
-      you can use the &File;
+      you can use the &f-link-File;
       function of your current &consenv;  in order to create nodes
       on the fly from a sequence of file names with relative paths.
       
@@ -225,7 +226,7 @@ def kfile_scan(node, env, path, arg):
     <variablelist>
 
       <varlistentry>
-      <term>node</term>
+      <term><parameter>node</parameter></term>
 
       <listitem>
       <para>
@@ -233,8 +234,8 @@ def kfile_scan(node, env, path, arg):
       An &SCons; node object representing the file being scanned.
       The path name to the file can be
       used by converting the node to a string
-      using the <literal>str()</literal> function,
-      or an internal &SCons; <literal>get_text_contents()</literal>
+      using the <function>str</function> function,
+      or an internal &SCons; <methodname>get_text_contents</methodname>
       object method can be used to fetch the contents.
 
       </para>
@@ -242,7 +243,7 @@ def kfile_scan(node, env, path, arg):
       </varlistentry>
 
       <varlistentry>
-      <term>env</term>
+      <term><parameter>env</parameter></term>
 
       <listitem>
       <para>
@@ -256,13 +257,13 @@ def kfile_scan(node, env, path, arg):
       </varlistentry>
 
       <varlistentry>
-      <term>path</term>
+      <term><parameter>path</parameter></term>
 
       <listitem>
       <para>
 
       A list of directories that form the search path for included files
-      for this scanner.
+      for this Scanner.
       This is how &SCons; handles the &cv-link-CPPPATH; and &cv-link-LIBPATH;
       variables.
 
@@ -271,7 +272,7 @@ def kfile_scan(node, env, path, arg):
       </varlistentry>
 
       <varlistentry>
-      <term>arg</term>
+      <term><parameter>arg</parameter></term>
 
       <listitem>
       <para>
@@ -288,10 +289,10 @@ def kfile_scan(node, env, path, arg):
 
     <para>
 
-    A Scanner object is created using the &f-link-Scanner; function,
+    A scanner object is created using the &f-link-Scanner; function,
     which typically takes an <parameter>skeys</parameter> argument
-    to associate a file suffix with this scanner.
-    The Scanner object must then be associated with the
+    to associate a file suffix with this Scanner.
+    The scanner object must then be associated with the
     &cv-link-SCANNERS; &consvar; in the current &consenv;,
     typically by using the &f-link-Append; method:
 
@@ -320,7 +321,6 @@ def kfile_scan(node, env, path):
     return env.File(includes)
 
 kscan = Scanner(function=kfile_scan, skeys=['.k'])
-
 env = Environment(ENV={'PATH': '__ROOT__/usr/local/bin'})
 env.Append(SCANNERS=kscan)
 
@@ -364,21 +364,21 @@ cat
   </section>
 
   <section>
-  <title>Adding a search path to a scanner: &FindPathDirs;</title>
+  <title>Adding a search path to a Scanner: &FindPathDirs;</title>
 
     <para>
 
     If the build tool in question will use a path variable to search
-    for included files or other dependencies, then the Scanner will
+    for included files or other dependencies, then the &Scanner; will
     need to take that path variable into account as well -
     &cv-link-CPPPATH; and &cv-link-LIBPATH; are used this way,
     for example.  The path to search is passed to your
-    scanner as the <parameter>path</parameter> argument.  Path variables
+    Scanner as the <parameter>path</parameter> argument.  Path variables
     may be lists of nodes, semicolon-separated strings, or even
     contain &consvars; which need to be expanded.  
     &SCons; provides the &f-link-FindPathDirs; function which returns
     a callable to expand a given path (given as a SCons &consvar;
-    name) to a list of paths at the time the scanner is called.
+    name) to a list of paths at the time the Scanner is called.
     Deferring evaluation until that point allows, for instance,
     the path to contain &cv-link-TARGET; references which differ for
     each file scanned.
@@ -390,7 +390,7 @@ cat
     Using &FindPathDirs; is quite easy.  Continuing the above example,
     using <varname>KPATH</varname> as the &consvar; with the search path
     (analogous to &cv-link-CPPPATH;), we just modify the call to
-    the &Scanner; factory function to include a path keyword arg:
+    the &f-link-Scanner; factory function to include a path keyword arg:
 
     </para>
     
@@ -404,7 +404,7 @@ kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('K
     
     &FindPathDirs; returns a callable object that, when called, will
     essentially expand the elements in <literal>env['KPATH']</literal>
-    and tell the scanner to search in those dirs.  It will also properly
+    and tell the Scanner to search in those dirs.  It will also properly
     add related repository and variant dirs to the search list.  As a side
     note, the returned method stores the path in an efficient way so
     lookups are fast even when variable substitutions may be needed.
@@ -418,9 +418,9 @@ kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('K
 
     <para>
 
-    One approach for introducing scanners into the build is in
-    conjunction with a Builder.  There are two relvant optional
-    parameters we can use when creating a builder:
+    One approach for introducing a &Scanner; into the build is in
+    conjunction with a &Builder;.  There are two relvant optional
+    parameters we can use when creating a Builder:
     <parameter>source_scanner</parameter> and
     <parameter>target_scanner</parameter>.
     <parameter>source_scanner</parameter> is used for scanning
@@ -459,16 +459,16 @@ env.Foo('file')
     <para>
 
     An emitter function can modify the list of sources or targets
-    passed to the action function when the builder is triggered.
+    passed to the action function when the Builder is triggered.
 
     </para>
 
     <para>
 
     A scanner function will not affect the list of sources or targets
-    seen by the builder during the build action. The scanner function
-    will however affect if the builder should rebuild (if any of
-    the files sourced by the scanner have changed for example).
+    seen by the Builder during the build action. The scanner function
+    will however affect if the Builder should rebuild (if any of
+    the files sourced by the Scanner have changed for example).
 
     </para>
   </section>
