@@ -33,7 +33,7 @@ test = TestSCons.TestSCons()
 
 test.Qt_dummy_installation()
 
-test.Qt_create_SConstruct('SConstruct')
+test.Qt_create_SConstruct('SConstruct', qt_tool='qt3')
 
 test.write('SConscript', """\
 Import("env")

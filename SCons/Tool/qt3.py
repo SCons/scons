@@ -59,21 +59,21 @@ if SCons.Util.case_sensitive_suffixes('.h', '.H'):
 cxx_suffixes = cplusplus.CXXSuffixes
 
 
-def find_platform_specific_qt_paths():
+def find_platform_specific_qt3_paths():
     """
     find non-standard QT paths
 
     If the platform does not put QT tools in standard search paths,
-    the path is expected to be set using QTDIR. SCons violates
+    the path is expected to be set using QT3DIR. SCons violates
     the normal rule of not pulling from the user's environment
     in this case.  However, some test cases try to validate what
-    happens when QTDIR is unset, so we need to try to make a guess.
+    happens when QT3DIR is unset, so we need to try to make a guess.
 
     :return: a guess at a path
     """
 
-    # qt_bin_dirs = []
-    qt_bin_dir = None
+    # qt3_bin_dirs = []
+    qt3_bin_dir = None
     if os.path.isfile('/etc/redhat-release'):
         with open('/etc/redhat-release','r') as rr:
             lines = rr.readlines()
@@ -81,14 +81,14 @@ def find_platform_specific_qt_paths():
         if distro == 'CentOS':
             # Centos installs QT under /usr/{lib,lib64}/qt{4,5,-3.3}/bin
             # so we need to handle this differently
-            # qt_bin_dirs = glob.glob('/usr/lib64/qt*/bin')
+            # qt3_bin_dirs = glob.glob('/usr/lib64/qt*/bin')
             # TODO: all current Fedoras do the same, need to look deeper here.
-            qt_bin_dir = '/usr/lib64/qt-3.3/bin'
+            qt3_bin_dir = '/usr/lib64/qt-3.3/bin'
 
-    return qt_bin_dir
+    return qt3_bin_dir
 
 
-QT_BIN_DIR = find_platform_specific_qt_paths()
+QT3_BIN_DIR = find_platform_specific_qt3_paths()
 
 def checkMocIncluded(target, source, env):
     moc = target[0]
@@ -122,15 +122,15 @@ class _Automoc:
     def __call__(self, target, source, env):
         """
         Smart autoscan function. Gets the list of objects for the Program
-        or Lib. Adds objects and builders for the special qt files.
+        or Lib. Adds objects and builders for the special qt3 files.
         """
         try:
-            if int(env.subst('$QT_AUTOSCAN')) == 0:
+            if int(env.subst('$QT3_AUTOSCAN')) == 0:
                 return target, source
         except ValueError:
             pass
         try:
-            debug = int(env.subst('$QT_DEBUG'))
+            debug = int(env.subst('$QT3_DEBUG'))
         except ValueError:
             debug = 0
 
@@ -159,17 +159,17 @@ class _Automoc:
             if not obj.has_builder():
                 # binary obj file provided
                 if debug:
-                    print("scons: qt: '%s' seems to be a binary. Discarded." % str(obj))
+                    print("scons: qt3: '%s' seems to be a binary. Discarded." % str(obj))
                 continue
             cpp = obj.sources[0]
             if not splitext(str(cpp))[1] in cxx_suffixes:
                 if debug:
-                    print("scons: qt: '%s' is no cxx file. Discarded." % str(cpp))
+                    print("scons: qt3: '%s' is no cxx file. Discarded." % str(cpp))
                 # c or fortran source
                 continue
             #cpp_contents = comment.sub('', cpp.get_text_contents())
             if debug:
-                print("scons: qt: Getting contents of %s" % cpp)
+                print("scons: qt3: Getting contents of %s" % cpp)
             cpp_contents = cpp.get_text_contents()
             h=None
             for h_ext in header_extensions:
@@ -179,12 +179,12 @@ class _Automoc:
                 h = find_file(hname, (cpp.get_dir(),), env.File)
                 if h:
                     if debug:
-                        print("scons: qt: Scanning '%s' (header of '%s')" % (str(h), str(cpp)))
+                        print("scons: qt3: Scanning '%s' (header of '%s')" % (str(h), str(cpp)))
                     #h_contents = comment.sub('', h.get_text_contents())
                     h_contents = h.get_text_contents()
                     break
             if not h and debug:
-                print("scons: qt: no header for '%s'." % (str(cpp)))
+                print("scons: qt3: no header for '%s'." % (str(cpp)))
             if h and q_object_search.search(h_contents):
                 # h file with the Q_OBJECT macro found -> add moc_cpp
                 moc_cpp = env.Moc(h)
@@ -192,14 +192,14 @@ class _Automoc:
                 out_sources.append(moc_o)
                 #moc_cpp.target_scanner = SCons.Defaults.CScan
                 if debug:
-                    print("scons: qt: found Q_OBJECT macro in '%s', moc'ing to '%s'" % (str(h), str(moc_cpp)))
+                    print("scons: qt3: found Q_OBJECT macro in '%s', moc'ing to '%s'" % (str(h), str(moc_cpp)))
             if cpp and q_object_search.search(cpp_contents):
                 # cpp file with Q_OBJECT macro found -> add moc
                 # (to be included in cpp)
                 moc = env.Moc(cpp)
                 env.Ignore(moc, moc)
                 if debug:
-                    print("scons: qt: found Q_OBJECT macro in '%s', moc'ing to '%s'" % (str(cpp), str(moc)))
+                    print("scons: qt3: found Q_OBJECT macro in '%s', moc'ing to '%s'" % (str(cpp), str(moc)))
                 #moc.source_scanner = SCons.Defaults.CScan
         # restore the original env attributes (FIXME)
         objBuilder.env = objBuilderEnv
@@ -210,25 +210,25 @@ class _Automoc:
 AutomocShared = _Automoc('SharedObject')
 AutomocStatic = _Automoc('StaticObject')
 
-def _detect(env):
+def _detect_qt3(env):
     """Not really safe, but fast method to detect the QT library"""
 
-    QTDIR = env.get('QTDIR',None)
-    if not QTDIR:
-        QTDIR = os.environ.get('QTDIR',None)
-    if not QTDIR:
-        moc = env.WhereIs('moc') or env.WhereIs('moc',QT_BIN_DIR)
+    QT3DIR = env.get('QT3DIR',None)
+    if not QT3DIR:
+        QT3DIR = os.environ.get('QTDIR',None)
+    if not QT3DIR:
+        moc = env.WhereIs('moc') or env.WhereIs('moc',QT3_BIN_DIR)
         if moc:
-            QTDIR = os.path.dirname(os.path.dirname(moc))
+            QT3DIR = os.path.dirname(os.path.dirname(moc))
             SCons.Warnings.warn(
                 QtdirNotFound,
-                "Could not detect qt, using moc executable as a hint (QTDIR=%s)" % QTDIR)
+                "Could not detect qt3, using moc executable as a hint (QT3DIR=%s)" % QT3DIR)
         else:
-            QTDIR = None
+            QT3DIR = None
             SCons.Warnings.warn(
                 QtdirNotFound,
-                "Could not detect qt, using empty QTDIR")
-    return QTDIR
+                "Could not detect qt3, using empty QT3DIR")
+    return QT3DIR
 
 def uicEmitter(target, source, env):
     adjustixes = SCons.Util.adjustixes
@@ -238,13 +238,13 @@ def uicEmitter(target, source, env):
     if len(target) < 2:
         # second target is implementation
         target.append(adjustixes(bs,
-                                 env.subst('$QT_UICIMPLPREFIX'),
-                                 env.subst('$QT_UICIMPLSUFFIX')))
+                                 env.subst('$QT3_UICIMPLPREFIX'),
+                                 env.subst('$QT3_UICIMPLSUFFIX')))
     if len(target) < 3:
         # third target is moc file
         target.append(adjustixes(bs,
-                                 env.subst('$QT_MOCHPREFIX'),
-                                 env.subst('$QT_MOCHSUFFIX')))
+                                 env.subst('$QT3_MOCHPREFIX'),
+                                 env.subst('$QT3_MOCHSUFFIX')))
     return target, source
 
 def uicScannerFunc(node, env, path):
@@ -266,7 +266,7 @@ uicScanner = SCons.Scanner.ScannerBase(uicScannerFunc,
                                 recursive = 0)
 
 def generate(env):
-    """Add Builders and construction variables for qt to an Environment."""
+    """Add Builders and construction variables for qt3 to an Environment."""
     CLVar = SCons.Util.CLVar
     Action = SCons.Action.Action
     Builder = SCons.Builder.Builder
@@ -275,70 +275,74 @@ def generate(env):
         SCons.Warnings.ToolQtDeprecatedWarning, "Tool module for Qt version 3 is deprecated"
     )
 
-    env.SetDefault(QTDIR  = _detect(env),
-                   QT_BINPATH = os.path.join('$QTDIR', 'bin'),
-                   QT_CPPPATH = os.path.join('$QTDIR', 'include'),
-                   QT_LIBPATH = os.path.join('$QTDIR', 'lib'),
-                   QT_MOC = os.path.join('$QT_BINPATH','moc'),
-                   QT_UIC = os.path.join('$QT_BINPATH','uic'),
-                   QT_LIB = 'qt', # may be set to qt-mt
+    qt3path = _detect_qt3(env)
+    if qt3path is None:
+        return None
 
-                   QT_AUTOSCAN = 1, # scan for moc'able sources
+    env.SetDefault(QT3DIR  = qt3path,
+                   QT3_BINPATH = os.path.join('$QT3DIR', 'bin'),
+                   QT3_CPPPATH = os.path.join('$QT3DIR', 'include'),
+                   QT3_LIBPATH = os.path.join('$QT3DIR', 'lib'),
+                   QT3_MOC = os.path.join('$QT3_BINPATH','moc'),
+                   QT3_UIC = os.path.join('$QT3_BINPATH','uic'),
+                   QT3_LIB = 'qt', # may be set to qt-mt
+
+                   QT3_AUTOSCAN = 1, # scan for moc'able sources
 
                    # Some QT specific flags. I don't expect someone wants to
                    # manipulate those ...
-                   QT_UICIMPLFLAGS = CLVar(''),
-                   QT_UICDECLFLAGS = CLVar(''),
-                   QT_MOCFROMHFLAGS = CLVar(''),
-                   QT_MOCFROMCXXFLAGS = CLVar('-i'),
+                   QT3_UICIMPLFLAGS = CLVar(''),
+                   QT3_UICDECLFLAGS = CLVar(''),
+                   QT3_MOCFROMHFLAGS = CLVar(''),
+                   QT3_MOCFROMCXXFLAGS = CLVar('-i'),
 
                    # suffixes/prefixes for the headers / sources to generate
-                   QT_UICDECLPREFIX = '',
-                   QT_UICDECLSUFFIX = '.h',
-                   QT_UICIMPLPREFIX = 'uic_',
-                   QT_UICIMPLSUFFIX = '$CXXFILESUFFIX',
-                   QT_MOCHPREFIX = 'moc_',
-                   QT_MOCHSUFFIX = '$CXXFILESUFFIX',
-                   QT_MOCCXXPREFIX = '',
-                   QT_MOCCXXSUFFIX = '.moc',
-                   QT_UISUFFIX = '.ui',
+                   QT3_UICDECLPREFIX = '',
+                   QT3_UICDECLSUFFIX = '.h',
+                   QT3_UICIMPLPREFIX = 'uic_',
+                   QT3_UICIMPLSUFFIX = '$CXXFILESUFFIX',
+                   QT3_MOCHPREFIX = 'moc_',
+                   QT3_MOCHSUFFIX = '$CXXFILESUFFIX',
+                   QT3_MOCCXXPREFIX = '',
+                   QT3_MOCCXXSUFFIX = '.moc',
+                   QT3_UISUFFIX = '.ui',
 
-                   # Commands for the qt support ...
+                   # Commands for the qt3 support ...
                    # command to generate header, implementation and moc-file
                    # from a .ui file
-                   QT_UICCOM = [
-                    CLVar('$QT_UIC $QT_UICDECLFLAGS -o ${TARGETS[0]} $SOURCE'),
-                    CLVar('$QT_UIC $QT_UICIMPLFLAGS -impl ${TARGETS[0].file} '
+                   QT3_UICCOM = [
+                    CLVar('$QT3_UIC $QT3_UICDECLFLAGS -o ${TARGETS[0]} $SOURCE'),
+                    CLVar('$QT3_UIC $QT3_UICIMPLFLAGS -impl ${TARGETS[0].file} '
                           '-o ${TARGETS[1]} $SOURCE'),
-                    CLVar('$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[2]} ${TARGETS[0]}')],
+                    CLVar('$QT3_MOC $QT3_MOCFROMHFLAGS -o ${TARGETS[2]} ${TARGETS[0]}')],
                    # command to generate meta object information for a class
                    # declarated in a header
-                   QT_MOCFROMHCOM = (
-                          '$QT_MOC $QT_MOCFROMHFLAGS -o ${TARGETS[0]} $SOURCE'),
+                   QT3_MOCFROMHCOM = (
+                          '$QT3_MOC $QT3_MOCFROMHFLAGS -o ${TARGETS[0]} $SOURCE'),
                    # command to generate meta object information for a class
                    # declarated in a cpp file
-                   QT_MOCFROMCXXCOM = [
-                    CLVar('$QT_MOC $QT_MOCFROMCXXFLAGS -o ${TARGETS[0]} $SOURCE'),
+                   QT3_MOCFROMCXXCOM = [
+                    CLVar('$QT3_MOC $QT3_MOCFROMCXXFLAGS -o ${TARGETS[0]} $SOURCE'),
                     Action(checkMocIncluded,None)])
 
     # ... and the corresponding builders
-    uicBld = Builder(action=SCons.Action.Action('$QT_UICCOM', '$QT_UICCOMSTR'),
+    uicBld = Builder(action=SCons.Action.Action('$QT3_UICCOM', '$QT3_UICCOMSTR'),
                      emitter=uicEmitter,
-                     src_suffix='$QT_UISUFFIX',
-                     suffix='$QT_UICDECLSUFFIX',
-                     prefix='$QT_UICDECLPREFIX',
+                     src_suffix='$QT3_UISUFFIX',
+                     suffix='$QT3_UICDECLSUFFIX',
+                     prefix='$QT3_UICDECLPREFIX',
                      source_scanner=uicScanner)
     mocBld = Builder(action={}, prefix={}, suffix={})
     for h in header_extensions:
-        act = SCons.Action.Action('$QT_MOCFROMHCOM', '$QT_MOCFROMHCOMSTR')
+        act = SCons.Action.Action('$QT3_MOCFROMHCOM', '$QT3_MOCFROMHCOMSTR')
         mocBld.add_action(h, act)
-        mocBld.prefix[h] = '$QT_MOCHPREFIX'
-        mocBld.suffix[h] = '$QT_MOCHSUFFIX'
+        mocBld.prefix[h] = '$QT3_MOCHPREFIX'
+        mocBld.suffix[h] = '$QT3_MOCHSUFFIX'
     for cxx in cxx_suffixes:
-        act = SCons.Action.Action('$QT_MOCFROMCXXCOM', '$QT_MOCFROMCXXCOMSTR')
+        act = SCons.Action.Action('$QT3_MOCFROMCXXCOM', '$QT3_MOCFROMCXXCOMSTR')
         mocBld.add_action(cxx, act)
-        mocBld.prefix[cxx] = '$QT_MOCCXXPREFIX'
-        mocBld.suffix[cxx] = '$QT_MOCCXXSUFFIX'
+        mocBld.prefix[cxx] = '$QT3_MOCCXXPREFIX'
+        mocBld.suffix[cxx] = '$QT3_MOCCXXSUFFIX'
 
     # register the builders
     env['BUILDERS']['Uic'] = uicBld
@@ -356,10 +360,10 @@ def generate(env):
                      SHLIBEMITTER=[AutomocShared],
                      LDMODULEEMITTER=[AutomocShared],
                      LIBEMITTER  =[AutomocStatic],
-                     # Of course, we need to link against the qt libraries
-                     CPPPATH=["$QT_CPPPATH"],
-                     LIBPATH=["$QT_LIBPATH"],
-                     LIBS=['$QT_LIB'])
+                     # Of course, we need to link against the qt3 libraries
+                     CPPPATH=["$QT3_CPPPATH"],
+                     LIBPATH=["$QT3_LIBPATH"],
+                     LIBS=['$QT3_LIB'])
 
 def exists(env):
     return _detect(env)
