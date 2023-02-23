@@ -146,14 +146,13 @@ over the file scanning rather than being called for each input line:
 
   <para>
 
-    &SCons; has routines that know how to look in
+    &SCons; has built-in &Scanners; that know how to look in
     C/C++, Fortran, D, IDL, LaTeX, Python and SWIG source files
     for information about
     other files that targets built from those files depend on -
     for example, in the case of files that use the C preprocessor,
     the <filename>.h</filename> files that are specified
     using <literal>#include</literal> lines in the source.
-    Such a routine is called a <firstterm>&Scanner;</firstterm>.
     You can use the same mechanisms that &SCons; uses to create
     its built-in Scanners to write Scanners of your own for file types
     that &SCons; does not know how to scan "out of the box."

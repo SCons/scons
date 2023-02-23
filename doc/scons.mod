@@ -92,15 +92,23 @@
 <!ENTITY zip            "<application xmlns='http://www.scons.org/dbxsd/v1.0'>zip</application>">
 
 
+<!-- Concepts: these are key SCons things, which may *also* be classes, etc.
+     but are marked here for inclusion in a glossary
+-->
+<!ENTITY Action "<glossterm linkend='gls-action' xmlns='http://www.scons.org/dbxsd/v1.0'>Action</glossterm>">
+<!ENTITY Builder "<glossterm linkend='gls-builder' xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</glossterm>">
+<!ENTITY Builders "<glossterm linkend='gls-builder' xmlns='http://www.scons.org/dbxsd/v1.0'>Builders</glossterm>">
+<!ENTITY Scanner "<glossterm linkend='gls-scanner' xmlns='http://www.scons.org/dbxsd/v1.0'>Scanner</glossterm>">
+<!ENTITY Scanners "<glossterm linkend='gls-scanner' xmlns='http://www.scons.org/dbxsd/v1.0'>Scanners</glossterm>">
+
+
 <!-- Classes.  -->
 
-<!ENTITY Action "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Action</classname>">
 <!ENTITY ActionBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ActionBase</classname>">
 <!ENTITY BuildInfo "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>BuildInfo</classname>">
 <!ENTITY CommandAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CommandAction</classname>">
 <!ENTITY FunctionAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>FunctionAction</classname>">
 <!ENTITY ListAction "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>ListAction</classname>">
-<!ENTITY Builder "<glossterm xmlns='http://www.scons.org/dbxsd/v1.0'>Builder</glossterm>">
 <!ENTITY BuilderBase "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>BuilderBase</classname>">
 <!ENTITY CompositeBuilder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>CompositeBuilder</classname>">
 <!ENTITY MultiStepBuilder "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>MultiStepBuilder</classname>">
@@ -110,7 +118,6 @@
 <!ENTITY Parallel "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Parallel</classname>">
 <!ENTITY Node "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Node</classname>">
 <!ENTITY Node_FS "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Node.FS</classname>">
-<!ENTITY Scanner "<glossterm xmlns='http://www.scons.org/dbxsd/v1.0'>Scanner</glossterm>">
 <!ENTITY Sig "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Sig</classname>">
 <!ENTITY Signature "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Signature</classname>">
 <!ENTITY Taskmaster "<classname xmlns='http://www.scons.org/dbxsd/v1.0'>Taskmaster</classname>">
