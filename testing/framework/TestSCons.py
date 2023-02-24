@@ -1175,14 +1175,17 @@ else:
     def Qt_create_SConstruct(self, place, qt_tool='qt3'):
         if isinstance(place, list):
             place = test.workpath(*place)
+
+        var_prefix=qt_tool.upper()
         self.write(place, f"""\
 if ARGUMENTS.get('noqtdir', 0):
-    QTDIR = None
+    {var_prefix}DIR = None
 else:
-    QTDIR = r'{self.QT}'
+    {var_prefix}DIR = r'{self.QT}'
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
-    QTDIR=QTDIR, QT_LIB=r'{self.QT_LIB}', QT_MOC=r'{self.QT_MOC}', QT_UIC=r'{self.QT_UIC}', tools=['default', '{qt_tool}']
+    {var_prefix}DIR={var_prefix}DIR, {var_prefix}_LIB=r'{self.QT_LIB}', {var_prefix}_MOC=r'{self.QT_MOC}',
+    {var_prefix}_UIC=r'{self.QT_UIC}', tools=['default', '{qt_tool}']
 )
 dup = 1
 if ARGUMENTS.get('variant_dir', 0):

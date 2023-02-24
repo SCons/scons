@@ -53,7 +53,7 @@ test.write('SConstruct', """\
 import os
 aa=os.getcwd()
 
-env=Environment(tools=['default','expheaders','qt'],toolpath=[aa])
+env=Environment(tools=['default','expheaders','qt3'],toolpath=[aa])
 env["EXP_HEADER_ABS"]=os.path.join(os.getcwd(),'include')
 if not os.access(env["EXP_HEADER_ABS"],os.F_OK):
    os.mkdir (env["EXP_HEADER_ABS"])

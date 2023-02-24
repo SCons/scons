@@ -35,11 +35,11 @@ test.Qt_dummy_installation('qt')
 
 test.write('SConstruct', """\
 orig = Environment()
-env = orig.Clone(QTDIR = r'%s',
-                 QT_LIB = r'%s',
-                 QT_MOC = r'%s',
-                 QT_UIC = r'%s',
-                 tools=['qt'])
+env = orig.Clone(QT3DIR = r'%s',
+                 QT3_LIB = r'%s',
+                 QT3_MOC = r'%s',
+                 QT3_UIC = r'%s',
+                 tools=['qt3'])
 env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
 """ % (test.QT, test.QT_LIB, test.QT_MOC, test.QT_UIC))
 
@@ -61,11 +61,10 @@ foo6(void)
 
 # we can receive warnings about a non detected qt (empty QTDIR)
 # these are not critical, but may be annoying.
-test.run(stderr=None, arguments='--warn=no-tool-qt-deprecated')
+test.run(stderr=None)
 
 test.run(
     program=test.workpath('main' + TestSCons._exe),
-    arguments='--warn=no-tool-qt-deprecated',
     stderr=None,
     stdout='qt/include/foo6.h\n',
 )

@@ -271,10 +271,6 @@ def generate(env):
     Action = SCons.Action.Action
     Builder = SCons.Builder.Builder
 
-    SCons.Warnings.warn(
-        SCons.Warnings.ToolQtDeprecatedWarning, "Tool module for Qt version 3 is deprecated"
-    )
-
     qt3path = _detect_qt3(env)
     if qt3path is None:
         return None
@@ -366,7 +362,7 @@ def generate(env):
                      LIBS=['$QT3_LIB'])
 
 def exists(env):
-    return _detect(env)
+    return _detect_qt3(env)
 
 # Local Variables:
 # tab-width:4

@@ -67,9 +67,9 @@ void useit() {
 }
 """)
 
-test.run(arguments="--warn=no-tool-qt-deprecated " + aaa_dll)
+test.run(arguments=aaa_dll)
 
-test.up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=aaa_dll)
+test.up_to_date(options='-n', arguments=aaa_dll)
 
 test.write('aaa.ui', r"""
 /* a change */
@@ -81,11 +81,11 @@ test.write('aaa.ui', r"""
 DLLEXPORT void aaa(void)
 """)
 
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=moc)
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=cpp)
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=h)
+test.not_up_to_date(options='-n', arguments=moc)
+test.not_up_to_date(options='-n', arguments=cpp)
+test.not_up_to_date(options='-n', arguments=h)
 
-test.run(arguments="--warn=no-tool-qt-deprecated " + aaa_dll)
+test.run(arguments=" " + aaa_dll)
 
 test.write('aaa.ui', r"""
 void aaa(void)
@@ -93,28 +93,28 @@ void aaa(void)
 """)
 
 # test that non-existant ui.h files are ignored (as uic does)
-test.run(arguments="--warn=no-tool-qt-deprecated " + aaa_dll)
+test.run(arguments=" " + aaa_dll)
 
 test.write('aaa.ui.h', r"""
 /* test dependency to .ui.h */
 """)
 
-test.run(arguments="--warn=no-tool-qt-deprecated " + aaa_dll)
+test.run(arguments=" " + aaa_dll)
 
 test.write('aaa.ui.h', r"""
 /* changed */
 """)
 
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=obj)
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=cpp)
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=h)
-test.not_up_to_date(options='--warn=no-tool-qt-deprecated -n', arguments=moc)
+test.not_up_to_date(options='-n', arguments=obj)
+test.not_up_to_date(options='-n', arguments=cpp)
+test.not_up_to_date(options='-n', arguments=h)
+test.not_up_to_date(options='-n', arguments=moc)
 
 # clean up
-test.run(arguments="--warn=no-tool-qt-deprecated -c " + aaa_dll)
+test.run(arguments=" -c " + aaa_dll)
 
 test.run(
-    arguments="--warn=no-tool-qt-deprecated variant_dir=1 "
+    arguments="variant_dir=1 "
     + test.workpath('build', aaa_dll)
 )
 
@@ -129,7 +129,7 @@ cppContents = test.read(test.workpath('build', cpp), mode='r')
 test.fail_test(cppContents.find('#include "aaa.ui.h"') == -1)
 
 test.run(
-    arguments="--warn=no-tool-qt-deprecated variant_dir=1 chdir=1 "
+    arguments="variant_dir=1 chdir=1 "
     + test.workpath('build', aaa_dll)
 )
 
@@ -141,7 +141,7 @@ test.must_not_exist(test.workpath(cpp))
 test.must_not_exist(test.workpath(h))
 
 test.run(
-    arguments="--warn=no-tool-qt-deprecated variant_dir=1 chdir=1 dup=0 "
+    arguments=" variant_dir=1 chdir=1 dup=0 "
     + test.workpath('build_dup0', aaa_dll)
 )
 

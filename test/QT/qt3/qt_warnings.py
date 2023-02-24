@@ -51,7 +51,7 @@ import os
 env.StaticLibrary('aaa.cpp')
 """)
 
-test.run(arguments="--warn=no-tool-qt-deprecated", stderr=None)
+test.run(stderr=None)
 
 match12 = r"""
 scons: warning: Generated moc file 'aaa.moc' is not included by 'aaa.cpp'
@@ -64,7 +64,7 @@ if not re.search(match12, test.stderr()):
 
 os.environ['QTDIR'] = test.QT
 
-test.run(arguments='--warn=no-tool-qt-deprecated -n noqtdir=1')
+test.run(arguments='-n noqtdir=1')
 
 # We'd like to eliminate $QTDIR from the environment as follows:
 #       del os.environ['QTDIR']
@@ -74,7 +74,7 @@ test.run(arguments='--warn=no-tool-qt-deprecated -n noqtdir=1')
 # environment, so it only gets removed from the Python dictionary.
 # Consequently, we need to just wipe out its value as follows>
 os.environ['QTDIR'] = ''
-test.run(stderr=None, arguments='--warn=no-tool-qt-deprecated -n noqtdir=1')
+test.run(stderr=None, arguments='-n noqtdir=1')
 
 moc = test.where_is('moc')
 if moc:
@@ -83,13 +83,13 @@ if moc:
     qtdir = qtdir.replace('\\', '\\\\' )
 
     expect = r"""
-scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%s\)
+scons: warning: Could not detect qt3, using moc executable as a hint \(QT3DIR=%s\)
 File "%s", line \d+, in (\?|<module>)
 """ % (qtdir, re.escape(SConstruct_path))
 else:
 
     expect = r"""
-scons: warning: Could not detect qt, using empty QTDIR
+scons: warning: Could not detect qt3, using empty QT3DIR
 File "%s", line \d+, in (\?|<module>)
 """ % re.escape(SConstruct_path)
 

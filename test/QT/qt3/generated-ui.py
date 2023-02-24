@@ -45,7 +45,7 @@ test.write(['SConstruct'], """\
 import os
 aa=os.getcwd()
 
-env=Environment(tools=['default','expheaders','qt'],toolpath=[aa])
+env=Environment(tools=['default','expheaders','qt3'],toolpath=[aa])
 if 'HOME' in os.environ:
     env['ENV']['HOME'] = os.environ['HOME']
 env["EXP_HEADER_ABS"]=os.path.join(os.getcwd(),'include')
@@ -120,12 +120,11 @@ test.write(['layer', 'aclock', 'qt_bug', 'migraform.ui'], """\
 """)
 
 test.run(
-    arguments='--warn=no-tool-qt-deprecated',
     stderr=TestSCons.noisy_ar,
     match=TestSCons.match_re_dotall,
 )
 
-test.up_to_date(options="--warn=no-tool-qt-deprecated", arguments=".")
+test.up_to_date(arguments=".")
 
 test.pass_test()
 

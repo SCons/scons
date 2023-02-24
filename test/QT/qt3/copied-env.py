@@ -63,7 +63,7 @@ test.write('MyForm.ui', r"""
 void aaa(void)
 """)
 
-test.run(arguments="--warn=no-tool-qt-deprecated")
+test.run()
 
 moc_MyForm = [x for x in test.stdout().split('\n') if x.find('moc_MyForm') != -1]
 
