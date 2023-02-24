@@ -130,13 +130,13 @@ if moc:
     qtdir = os.path.dirname(os.path.dirname(moc))
 
     qt_err = r"""
-scons: warning: Could not detect qt, using moc executable as a hint \(QTDIR=%(qtdir)s\)
+scons: warning: Could not detect qt3, using moc executable as a hint \(QT3DIR=%(qtdir)s\)
 """ % locals()
 
 else:
 
     qt_err = """
-scons: warning: Could not detect qt, using empty QTDIR
+scons: warning: Could not detect qt3, using empty QT3DIR
 """
 
 qt_warnings = [ re.compile(qt_err + TestSCons.file_expr) ]
@@ -144,7 +144,7 @@ qt_warnings = [ re.compile(qt_err + TestSCons.file_expr) ]
 error_output = {
     'icl' : intel_warnings,
     'intelc' : intel_warnings,
-    'qt' : qt_warnings,
+    'qt3' : qt_warnings,
 }
 
 # An SConstruct for importing Tool names that have illegal characters
