@@ -23,6 +23,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       calls dunder method __call__. Invoke instance directly."
     - Python 3.9 dropped the alias base64.decodestring, deprecated since 3.1.
       Only used in msvs.py. Use base64.decodebytes instead.
+    - When debugging (--debug=pdb), the filenames SConstruct and SConscript
+      are now recognized when manipulating breakpoints. Previously, only a
+      full pathname worked, as otherwise pdb required a .py extension on files.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700

@@ -1,0 +1,5 @@
+
+When debugging (--debug=pdb), the filenames SConstruct and SConscript
+are now recognized when manipulating breakpoints. Previously, only a
+full pathname worked, as otherwise pdb required a .py extension on files.
+

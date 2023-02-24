@@ -959,9 +959,53 @@ of the various classes used internally by SCons.</para>
   <varlistentry>
   <term><emphasis role="bold">pdb</emphasis></term>
   <listitem>
-<para>Re-run &scons; under the control of the
+<para>Run &scons; under control of the
 <systemitem>pdb</systemitem>
 &Python; debugger.</para>
+<screen>
+$ <userinput>scons --debug=pdb</userinput>
+> /usr/lib/python3.11/site-packages/SCons/Script/Main.py(869)_main()
+-> options = parser.values
+(Pdb)
+</screen>
+<note>
+<para><systemitem>pdb</systemitem> will stop at the
+beginning of the &scons; main routine on startup.
+The search path (<systemitem>sys.path</systemitem>)
+at that point will include the location of the running &scons;,
+but not of the project itself -
+if you need to set breakpoints in your project files,
+you will either need to add to the path,
+or use absolute pathnames when referring to project files.
+A <filename>.pdbrc</filename> file in the project root
+can be used to add the current directory to the search path
+to avoid having to enter it by hand,
+along these lines:
+</para>
+<programlisting language="python">
+sys.path.append('.')
+</programlisting>
+<para>
+Due to the implementation of the
+<systemitem>pdb</systemitem> module,
+the <command>break</command>,
+<command>tbreak</command>
+and <command>clear</command>
+commands only understand references to filenames
+which end in a <filename>.py</filename> suffix
+(although that suffix does not have to be typed),
+<emphasis>except</emphasis> if you use an absolute path.
+As a special exception to that rule, the names
+&SConstruct; and &SConscript; are recognized without
+needing the <filename>.py</filename> extension.
+</para>
+<para>
+<emphasis>Changed in version 4.5.0</emphasis>:
+The names &SConstruct; and &SConscript; are now
+recognized without needing to have a
+<filename>.py</filename> suffix.
+</para>
+</note>
   </listitem>
   </varlistentry>
 

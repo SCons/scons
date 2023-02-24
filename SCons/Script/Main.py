@@ -1390,7 +1390,42 @@ def _exec_main(parser, values) -> None:
 
     if isinstance(options.debug, list) and "pdb" in options.debug:
         import pdb
-        pdb.Pdb().runcall(_main, parser)
+
+        class SConsPdb(pdb.Pdb):
+            """Specialization of Pdb to help find SConscript files."""
+
+            def lookupmodule(self, filename: str) -> Optional[str]:
+                """Helper function for break/clear parsing -- SCons version.
+
+                Copy of the original, but recognizes common names for
+                SConstruct/SConscript without having to have them end in ``.py``
+
+                .. versionadded:: 4.5.0
+                """
+                if os.path.isabs(filename) and os.path.exists(filename):
+                    return filename
+                f = os.path.join(sys.path[0], filename)
+                if os.path.exists(f) and self.canonic(f) == self.mainpyfile:
+                    return f
+                root, ext = os.path.splitext(filename)
+                SCONSCRIPTS = (
+                    "SConstruct Sconstruct sconstruct SConscript sconscript".split()
+                )
+                base = os.path.split(filename)[-1]
+                if ext == '' and base not in SCONSCRIPTS:
+                    filename = filename + '.py'
+                if os.path.isabs(filename):
+                    return filename
+                for dirname in sys.path:
+                    while os.path.islink(dirname):
+                        dirname = os.readlink(dirname)
+                    fullname = os.path.join(dirname, filename)
+                    if os.path.exists(fullname):
+                        return fullname
+                return None
+
+        SConsPdb().runcall(_main, parser)
+
     elif options.profile_file:
         from cProfile import Profile
 
@@ -1399,6 +1434,7 @@ def _exec_main(parser, values) -> None:
             prof.runcall(_main, parser)
         finally:
             prof.dump_stats(options.profile_file)
+
     else:
         _main(parser)
 
