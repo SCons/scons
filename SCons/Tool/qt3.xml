@@ -79,7 +79,7 @@ directory. It must have one of the suffixes
 <filename>.hxx</filename>,
 <filename>.hh</filename>.
 You can turn off automatic moc file generation by setting
-&cv-link-qt3_AUTOSCAN; to <constant>False</constant>.
+&cv-link-QT3_AUTOSCAN; to <constant>False</constant>.
 See also the corresponding
 &b-link-Moc; Builder.
 </para>
@@ -89,7 +89,7 @@ See also the corresponding
 As described in the Qt documentation, include the moc file at the end of
 the C++ file. Note that you have to include the file, which is generated
 by the transformation
-<literal>${qt3_MOCCXXPREFIX}&lt;basename&gt;${QT3_MOCCXXSUFFIX}</literal>, by default
+<literal>${QT3_MOCCXXPREFIX}&lt;basename&gt;${QT3_MOCCXXSUFFIX}</literal>, by default
 <filename>&lt;basename&gt;.mo</filename>. A warning is generated after building the moc file if you
 do not include the correct file. If you are using &f-link-VariantDir;, you may
 need to specify <parameter>duplicate=True</parameter>.
@@ -149,7 +149,7 @@ See also the corresponding
 Builds an output file from a <command>moc</command> input file.
 <command>moc</command> input files are either header files or C++ files.
 This builder is only available after using the
-tool &t-link-qt;. See the &cv-link-QT3DIR; variable for more information.
+tool &t-link-qt3;. See the &cv-link-QT3DIR; variable for more information.
 Example:
 </para>
 
@@ -165,7 +165,7 @@ env.Moc('foo.cpp')  # generates foo.moc
 <para>
 Builds a header file, an implementation file and a moc file from an ui file.
 and returns the corresponding nodes in the that order.
-This builder is only available after using the tool &t-link-qt;.
+This builder is only available after using the tool &t-link-qt3;.
 Note: you can specify <filename>.ui</filename> files directly as source
 files to the &b-link-Program;,
 &b-link-Library; and &b-link-SharedLibrary; builders
@@ -191,7 +191,7 @@ env.Uic(
 <para>
 The path to the Qt installation to build against.
 If not already set,
-&t-link-qt; tool tries to obtain this from
+&t-link-qt3; tool tries to obtain this from
 <varname>os.environ</varname>;
 if not found there, it tries to make a guess.
 </para>
