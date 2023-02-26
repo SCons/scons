@@ -714,6 +714,12 @@ class SConfBase:
         if ok:
             prog = self.lastTarget
             pname = prog.get_internal_path()
+            if sys.platform == "win32" and os.sep == "/":
+                # msys might have a Python where os.sep='/' on Windows.
+                # That builds a path in the env.Command below which breaks
+                # if the SHELL used is cmd because 'pname' will always have
+                # an os.sep in it.
+                pname = pname.replace(os.sep, os.altsep)
             output = self.confdir.File(os.path.basename(pname)+'.out')
             node = self.env.Command(output, prog, [ [ pname, ">", "${TARGET}"] ])
             ok = self.BuildNodes(node)

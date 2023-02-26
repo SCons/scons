@@ -145,6 +145,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
         We take advantage that their order is now stable based on insertion order
         in Python 3.5+
       - Added/modifed unit and system tests to verify these changes.
+    - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+      is '/' rather than the Windows default '\'), certain Configure checks
+      could fail due to the construction of the path to run the compiled check.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

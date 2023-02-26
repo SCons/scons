@@ -48,7 +48,8 @@ mingw_base_paths = [
     r'C:\msys64\mingw64\bin',
     r'C:\cygwin\bin',
     r'C:\msys',
-    r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
+    r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin',
+    os.path.expandvars(r'%LocalAppData%\Programs\msys64\usr\bin'),
 ]
 
 

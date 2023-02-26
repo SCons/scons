@@ -113,6 +113,9 @@ FIXES
   of duplicate macros now works for both valued and unvalued forms.
 - Handling of CPPDEFINES macros via Prepend and PrependUnique now works
   (previously this was special-cased only for Append and AppendUnique).
+- Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+  is '/' rather than the Windows default '\'), certain Configure checks
+  could fail due to the construction of the path to run the compiled check.
 
 IMPROVEMENTS
 ------------
