@@ -32,7 +32,9 @@ Sets &consvars; for building Qt3 applications.
 <note><para>
 This tool is only suitable for building targeted to Qt3,
 which is obsolete
-(<emphasis>the tool is deprecated since 4.3</emphasis>).
+(<emphasis>the tool is deprecated since 4.3,
+and was renamed to qt3 in 4.5.0.
+</emphasis>).
 There are contributed tools for Qt4 and Qt5, see
 <ulink url="https://github.com/SCons/scons-contrib">
 https://github.com/SCons/scons-contrib</ulink>.
@@ -195,6 +197,9 @@ If not already set,
 <varname>os.environ</varname>;
 if not found there, it tries to make a guess.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QTDIR.
+</para>
 </summary>
 </cvar>
 
@@ -204,6 +209,9 @@ if not found there, it tries to make a guess.
 Turn off scanning for mocable files. Use the &b-link-Moc; Builder to explicitly
 specify files to run <command>moc</command> on.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_AUTOSCAN.
+</para>
 </summary>
 </cvar>
 
@@ -212,6 +220,9 @@ specify files to run <command>moc</command> on.
 <para>
 The path where the Qt binaries are installed.
 The default value is '&cv-link-QT3DIR;<filename>/bin</filename>'.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_BINPATH.
 </para>
 </summary>
 </cvar>
@@ -225,6 +236,9 @@ Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-CPPPATH;
 construction variable.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_CPPPATH.
+</para>
 </summary>
 </cvar>
 
@@ -232,6 +246,9 @@ construction variable.
 <summary>
 <para>
 Prints lots of debugging information while scanning for moc files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_DEBUG.
 </para>
 </summary>
 </cvar>
@@ -244,6 +261,9 @@ You may want to set this to <literal>'qt-mt'</literal>.
 Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-LIBS; variable.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_LIB.
+</para>
 </summary>
 </cvar>
 
@@ -255,6 +275,9 @@ The default value is '&cv-link-QT3DIR;<filename>/lib</filename>'.
 Note: If you set this variable to <constant>None</constant>,
 the tool won't change the &cv-link-LIBPATH;
 construction variable.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_LIBPATH.
 </para>
 </summary>
 </cvar>
@@ -282,6 +305,9 @@ Prefix for <command>moc</command> output files when source is a C++ file.
 Default value is <literal>'.moc'</literal>.
 Suffix for <command>moc</command> output files when source is a C++ file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCCXXSUFFIX.
+</para>
 </summary>
 </cvar>
 
@@ -291,6 +317,9 @@ Suffix for <command>moc</command> output files when source is a C++ file.
 Default value is <literal>'-i'</literal>.
 These flags are passed to <command>moc</command> when moccing a C++ file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXFLAGS.
+</para>
 </summary>
 </cvar>
 
@@ -298,6 +327,9 @@ These flags are passed to <command>moc</command> when moccing a C++ file.
 <summary>
 <para>
 Command to generate a moc file from a C++ file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXCOM.
 </para>
 </summary>
 </cvar>
@@ -308,6 +340,9 @@ Command to generate a moc file from a C++ file.
 The string displayed when generating a moc file from a C++ file.
 If this is not set, then &cv-link-QT3_MOCFROMCXXCOM; (the command line) is displayed.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXCOMSTR.
+</para>
 </summary>
 </cvar>
 
@@ -315,6 +350,9 @@ If this is not set, then &cv-link-QT3_MOCFROMCXXCOM; (the command line) is displ
 <summary>
 <para>
 Command to generate a moc file from a header.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHCOM.
 </para>
 </summary>
 </cvar>
@@ -325,6 +363,9 @@ Command to generate a moc file from a header.
 The string displayed when generating a moc file from a C++ file.
 If this is not set, then &cv-link-QT3_MOCFROMHCOM; (the command line) is displayed.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHCOMSTR.
+</para>
 </summary>
 </cvar>
 
@@ -333,6 +374,9 @@ If this is not set, then &cv-link-QT3_MOCFROMHCOM; (the command line) is display
 <para>
 Default value is <literal>''</literal>. These flags are passed to <command>moc</command>
 when moccing a header file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHFLAGS.
 </para>
 </summary>
 </cvar>
@@ -343,6 +387,9 @@ when moccing a header file.
 Default value is <literal>'moc_'</literal>.
 Prefix for <command>moc</command> output files when source is a header.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCHPREFIX.
+</para>
 </summary>
 </cvar>
 
@@ -352,6 +399,9 @@ Prefix for <command>moc</command> output files when source is a header.
 Default value is '&cv-link-CXXFILESUFFIX;'.
 Suffix for moc output files when source is a header.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCHSUFFIX.
+</para>
 </summary>
 </cvar>
 
@@ -360,6 +410,9 @@ Suffix for moc output files when source is a header.
 <para>
 Default value is '&cv-link-QT3_BINPATH;<filename>/uic</filename>'.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UIC.
+</para>
 </summary>
 </cvar>
 
@@ -367,6 +420,9 @@ Default value is '&cv-link-QT3_BINPATH;<filename>/uic</filename>'.
 <summary>
 <para>
 Command to generate header files from <filename>.ui</filename> files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICCOM.
 </para>
 </summary>
 </cvar>
@@ -377,6 +433,9 @@ Command to generate header files from <filename>.ui</filename> files.
 The string displayed when generating header files from <filename>.ui</filename> files.
 If this is not set, then &cv-link-QT3_UICCOM; (the command line) is displayed.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICCOMSTR.
+</para>
 </summary>
 </cvar>
 
@@ -385,6 +444,9 @@ If this is not set, then &cv-link-QT3_UICCOM; (the command line) is displayed.
 <para>
 Default value is ''. These flags are passed to <command>uic</command>
 when creating a header file from a <filename>.ui</filename> file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLFLAGS.
 </para>
 </summary>
 </cvar>
@@ -395,6 +457,9 @@ when creating a header file from a <filename>.ui</filename> file.
 Default value is <literal>''</literal>.
 Prefix for <command>uic</command> generated header files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLPREFIX.
+</para>
 </summary>
 </cvar>
 
@@ -403,6 +468,9 @@ Prefix for <command>uic</command> generated header files.
 <para>
 Default value is <literal>'.h'</literal>.
 Suffix for <command>uic</command> generated header files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLSUFFIX.
 </para>
 </summary>
 </cvar>
@@ -414,6 +482,9 @@ Default value is <literal>''</literal>.
 These flags are passed to <command>uic</command> when creating a C++
 file from a <filename>.ui</filename> file.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPFLAGS.
+</para>
 </summary>
 </cvar>
 
@@ -422,6 +493,9 @@ file from a <filename>.ui</filename> file.
 <para>
 Default value is <literal>'uic_'</literal>.
 Prefix for uic generated implementation files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPLPREFIX.
 </para>
 </summary>
 </cvar>
@@ -432,6 +506,9 @@ Prefix for uic generated implementation files.
 Default value is '&cv-link-CXXFILESUFFIX;'. Suffix for uic generated implementation
 files.
 </para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPLSUFFIX.
+</para>
 </summary>
 </cvar>
 
@@ -440,6 +517,9 @@ files.
 <para>
 Default value is <literal>'.ui'</literal>.
 Suffix of designer input files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UISUFFIX.
 </para>
 </summary>
 </cvar>

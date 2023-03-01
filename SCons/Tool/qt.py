@@ -25,11 +25,14 @@
 This is a fake tool to instruct any builds still referencing 'qt' instead
 of the new 'qt3' or a newer QT builder how to fix their now broken build.
 """
-import SCons.Warnings
+import SCons.Errors
 
 def generate(env):
-    pass
+    raise SCons.Errors.UserError(
+        "Deprecated tool 'qt' renamed to 'qt3'. "
+        "Please update your build accordingly. "
+        "'qt3' will be removed entirely in a future release."
+    )
 
 def exists(env):
     return False
-
