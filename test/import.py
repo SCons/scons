@@ -137,7 +137,7 @@ scons: warning: Could not detect qt3, using empty QT3DIR
 """
 
 qt_moved = r"""
-scons: \*\*\* Deprecated tool 'qt' has moved to 'qt3'. Please update your build accordingly. 'qt3' will be removed entirely in a future release.
+scons: \*\*\* Deprecated tool 'qt' renamed to 'qt3'. Please update your build accordingly. 'qt3' will be removed entirely in a future release.
 """
 
 qt3_warnings = [re.compile(qt3_err + TestSCons.file_expr)]
@@ -181,9 +181,9 @@ for tool in tools:
         test.write('SConstruct', indirect_import % locals())
     else:
         test.write('SConstruct', direct_import % locals())
-    test.run(stderr=None)
+    test.run(stderr=None, status=None)
     stderr = test.stderr()
-    if stderr:
+    if stderr or test.status:
         matched = None
         for expression in error_output.get(tool, []):
             if expression.match(stderr):
