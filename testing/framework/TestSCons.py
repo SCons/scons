@@ -1172,17 +1172,20 @@ else:
         self.QT_UIC = f"{_python_} {self.workpath(dir, 'bin', 'myuic.py')}"
         self.QT_LIB_DIR = self.workpath(dir, 'lib')
 
-    def Qt_create_SConstruct(self, place):
+    def Qt_create_SConstruct(self, place, qt_tool='qt3'):
         if isinstance(place, list):
             place = test.workpath(*place)
-        self.write(place, """\
+
+        var_prefix=qt_tool.upper()
+        self.write(place, f"""\
 if ARGUMENTS.get('noqtdir', 0):
-    QTDIR = None
+    {var_prefix}DIR = None
 else:
-    QTDIR = r'%s'
+    {var_prefix}DIR = r'{self.QT}'
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
-    QTDIR=QTDIR, QT_LIB=r'%s', QT_MOC=r'%s', QT_UIC=r'%s', tools=['default', 'qt']
+    {var_prefix}DIR={var_prefix}DIR, {var_prefix}_LIB=r'{self.QT_LIB}', {var_prefix}_MOC=r'{self.QT_MOC}',
+    {var_prefix}_UIC=r'{self.QT_UIC}', tools=['default', '{qt_tool}']
 )
 dup = 1
 if ARGUMENTS.get('variant_dir', 0):
@@ -1203,7 +1206,7 @@ else:
     sconscript = File('SConscript')
 Export("env dup")
 SConscript(sconscript)
-""" % (self.QT, self.QT_LIB, self.QT_MOC, self.QT_UIC))
+""")
 
     NCR = 0  # non-cached rebuild
     CR = 1  # cached rebuild (up to date)

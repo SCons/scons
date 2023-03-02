@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Look if qt is installed, and try out all builders.
+Look if qt3 is installed, and try out all builders.
 """
 
 import os
@@ -56,7 +56,7 @@ try:
 except KeyError:
     ENV_PATH=ENV.get('PATH', '')
 
-env = Environment(tools=['default','qt'],
+env = Environment(tools=['default','qt3'],
                   ENV={'PATH':ENV_PATH,
                        'PATHEXT':os.environ.get('PATHEXT'),
                        'HOME':os.getcwd(),
@@ -65,9 +65,9 @@ env = Environment(tools=['default','qt'],
                   CXXFILESUFFIX=".cpp")
 
 conf = env.Configure()
-if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
-    conf.env['QT_LIB'] = 'qt-mt'
-    if not conf.CheckLib(env.subst("$QT_LIB"), autoadd=0):
+if not conf.CheckLib(env.subst("$QT3_LIB"), autoadd=0):
+    conf.env['QT3_LIB'] = 'qt-mt'
+    if not conf.CheckLib(env.subst("$QT3_LIB"), autoadd=0):
          Exit(0)
 env = conf.Finish()
 VariantDir('bld', '.')
@@ -196,18 +196,18 @@ if test.stdout() != "Hello World\n" or test.stderr() != '' or test.status:
         sys.stdout.write('test_realqt returned status %s\n' % test.status)
         test.fail_test()
 
-QTDIR = os.environ['QTDIR']
+QT3DIR = os.environ['QTDIR']
 PATH = os.environ['PATH']
 os.environ['QTDIR'] = ''
 os.environ['PATH'] = '.'
 
 test.run(
     stderr=None,
-    arguments="--warn=no-tool-qt-deprecated -c bld/test_realqt" + TestSCons._exe,
+    arguments="-c bld/test_realqt" + TestSCons._exe,
 )
 
-expect1 = "scons: warning: Could not detect qt, using empty QTDIR"
-expect2 = "scons: warning: Could not detect qt, using moc executable as a hint"
+expect1 = "scons: warning: Could not detect qt3, using empty QT3DIR"
+expect2 = "scons: warning: Could not detect qt3, using moc executable as a hint"
 
 test.fail_test(expect1 not in test.stderr() and expect2 not in test.stderr())
 

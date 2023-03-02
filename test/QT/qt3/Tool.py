@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Verify that applying env.Tool('qt') after running Configure checks
+Verify that applying env.Tool('qt3') after running Configure checks
 works properly.  This was broken in 0.96.95.
 
 The configuration here is a moderately stripped-down version of the
@@ -90,7 +90,7 @@ def CheckForQt(context):
     ]
 
   if 'QTDIR' in os.environ:
-    potential_qt_dirs.insert(0, os.environ[ 'QTDIR' ])
+    potential_qt_dirs.insert(0, os.environ['QTDIR'])
   
   if env[ 'qt_directory' ] != "/":
      uic_path = os.path.join(env['qt_directory'], 'bin', 'uic')
@@ -101,7 +101,7 @@ def CheckForQt(context):
         return 0
 
   for i in potential_qt_dirs:
-    context.env.Replace(QTDIR = i)
+    context.env.Replace(QT3DIR = i)
     if CheckForQtAt(context, i):
        # additional checks to validate QT installation
        if not os.path.isfile(os.path.join(i, 'bin', 'uic')):
@@ -133,7 +133,7 @@ opts = Variables('lprof.conf')
 opts.Add(PathVariable("qt_directory", "Path to Qt directory", "/"))
 opts.Update(env)
 
-env['QT_LIB'] = 'qt-mt'
+env['QT3_LIB'] = 'qt-mt'
 config = env.Configure(custom_tests = {
     'CheckForQt' : CheckForQt,
 })
@@ -142,10 +142,10 @@ if not config.CheckForQt():
     print("Failed to find valid QT environment.")
     Exit(1)
 
-env.Tool('qt', ['$TOOL_PATH'])
+env.Tool('qt3', ['$TOOL_PATH'])
 """)
 
-test.run(arguments='--warn=no-tool-qt-deprecated .')
+test.run(arguments='.')
 
 test.pass_test()
 

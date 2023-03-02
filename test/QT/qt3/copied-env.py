@@ -24,47 +24,56 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test creation from a copied environment that already has QT variables.
-This makes sure the tool initialization is re-entrant.
+Test Qt with a copied construction environment.
 """
 
 import TestSCons
 
 test = TestSCons.TestSCons()
 
-test.Qt_dummy_installation('qt')
+test.Qt_dummy_installation()
 
-test.write(['qt', 'include', 'foo5.h'], """\
-#include <stdio.h>
-void
-foo5(void)
-{
-#ifdef  FOO
-    printf("qt/include/foo5.h\\n");
-#endif
-}
-""")
-
-test.Qt_create_SConstruct('SConstruct')
+test.Qt_create_SConstruct('SConstruct', qt_tool='qt3')
 
 test.write('SConscript', """\
 Import("env")
-env = env.Clone(tools=['qt'])
-env.Program('main', 'main.cpp', CPPDEFINES=['FOO'], LIBS=[])
-""")
-
-test.write('main.cpp', r"""
-#include "foo5.h"
-int main(void) { foo5(); return 0; }
-""")
-
-test.run(arguments="--warn=no-tool-qt-deprecated")
-
-test.run(
-    arguments='--warn=no-tool-qt-deprecated',
-    program=test.workpath('main' + TestSCons._exe),
-    stdout='qt/include/foo5.h\n',
+env.Append(CPPDEFINES = ['FOOBAZ'])
+                                                                                
+copy = env.Clone()
+copy.Append(CPPDEFINES = ['MYLIB_IMPL'])
+                                                                                
+copy.SharedLibrary(
+   target = 'MyLib',
+   source = ['MyFile.cpp','MyForm.ui']
 )
+""")
+
+test.write('MyFile.h', r"""
+void aaa(void);
+""")
+
+test.write('MyFile.cpp', r"""
+#include "MyFile.h"
+void useit() {
+  aaa();
+}
+""")
+
+test.write('MyForm.ui', r"""
+void aaa(void)
+""")
+
+test.run()
+
+moc_MyForm = [x for x in test.stdout().split('\n') if x.find('moc_MyForm') != -1]
+
+MYLIB_IMPL = [x for x in moc_MyForm if x.find('MYLIB_IMPL') != -1]
+
+if not MYLIB_IMPL:
+    print("Did not find MYLIB_IMPL on moc_MyForm compilation line:")
+    print(test.stdout())
+    test.fail_test()
+
 test.pass_test()
 
 # Local Variables:

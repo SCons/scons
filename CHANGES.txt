@@ -41,6 +41,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
       command lines using the generated tempfile for long command lines, instead of the full command line for
       the compilation step for the source/target pair.
+    - Renamed the qt tools to qt3 since the logic in that tool is only for QT version 3.  Renamed all env vars
+      which affect qt3 from QT_ to QT3_.  If you are still using SCons to build QT 3 code, you'll need to update
+      your SConscripts.  Note that using 'qt' tool has been deprecated for some time.
 
   From David H:
     - Added JAVAPROCESSORPATH construction variable which populates -processorpath.

@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Testing the configuration mechanisms of the 'qt' tool.
+Testing the configuration mechanisms of the 'qt3' tool.
 """
 
 import TestSCons
@@ -39,24 +39,24 @@ test.subdir('work1', 'work2')
 
 test.run(
     chdir=test.workpath('qt', 'lib'),
-    arguments="--warn=no-tool-qt-deprecated .",
+    arguments=".",
     stderr=TestSCons.noisy_ar,
     match=TestSCons.match_re_dotall,
 )
 
-QT = test.workpath('qt')
-QT_LIB = 'myqt'
-QT_MOC = '%s %s' % (_python_, test.workpath('qt', 'bin', 'mymoc.py'))
-QT_UIC = '%s %s' % (_python_, test.workpath('qt', 'bin', 'myuic.py'))
+QT3 = test.workpath('qt')
+QT3_LIB = 'myqt'
+QT3_MOC = '%s %s' % (_python_, test.workpath('qt', 'bin', 'mymoc.py'))
+QT3_UIC = '%s %s' % (_python_, test.workpath('qt', 'bin', 'myuic.py'))
 
 def createSConstruct(test, place, overrides):
     test.write(place, """\
 env = Environment(
-    tools=['default','qt'],
-    QTDIR = r'%s',
-    QT_LIB = r'%s',
-    QT_MOC = r'%s',
-    QT_UIC = r'%s',
+    tools=['default','qt3'],
+    QT3DIR = r'%s',
+    QT3_LIB = r'%s',
+    QT3_MOC = r'%s',
+    QT3_UIC = r'%s',
     %s  # last because 'overrides' may add comma
 )
 if ARGUMENTS.get('variant_dir', 0):
@@ -70,23 +70,23 @@ else:
     sconscript = File('SConscript')
 Export("env")
 SConscript(sconscript)
-""" % (QT, QT_LIB, QT_MOC, QT_UIC, overrides))
+""" % (QT3, QT3_LIB, QT3_MOC, QT3_UIC, overrides))
 
 
 createSConstruct(test, ['work1', 'SConstruct'],
-                 """QT_UICIMPLFLAGS='-x',
-                    QT_UICDECLFLAGS='-y',
-                    QT_MOCFROMHFLAGS='-z',
-                    QT_MOCFROMCXXFLAGS='-i -w',
-                    QT_UICDECLPREFIX='uic-',
-                    QT_UICDECLSUFFIX='.hpp',
-                    QT_UICIMPLPREFIX='',
-                    QT_UICIMPLSUFFIX='.cxx',
-                    QT_MOCHPREFIX='mmm',
-                    QT_MOCHSUFFIX='.cxx',
-                    QT_MOCCXXPREFIX='moc',
-                    QT_MOCCXXSUFFIX='.inl',
-                    QT_UISUFFIX='.myui',""")
+                 """QT3_UICIMPLFLAGS='-x',
+                    QT3_UICDECLFLAGS='-y',
+                    QT3_MOCFROMHFLAGS='-z',
+                    QT3_MOCFROMCXXFLAGS='-i -w',
+                    QT3_UICDECLPREFIX='uic-',
+                    QT3_UICDECLSUFFIX='.hpp',
+                    QT3_UICIMPLPREFIX='',
+                    QT3_UICIMPLSUFFIX='.cxx',
+                    QT3_MOCHPREFIX='mmm',
+                    QT3_MOCHSUFFIX='.cxx',
+                    QT3_MOCCXXPREFIX='moc',
+                    QT3_MOCCXXSUFFIX='.inl',
+                    QT3_UISUFFIX='.myui',""")
 test.write(['work1', 'SConscript'],"""
 Import("env")
 env.Program('mytest', ['mocFromH.cpp',
@@ -137,7 +137,7 @@ int main(void) {
 }
 """)
 
-test.run(chdir='work1', arguments="--warn=no-tool-qt-deprecated mytest" + _exe)
+test.run(chdir='work1', arguments="mytest" + _exe)
 
 test.must_exist(
     ['work1', 'mmmmocFromH.cxx'],
@@ -173,32 +173,32 @@ test.write(['work2', 'SConstruct'], """
 import os.path
 
 env1 = Environment(
-    tools=['qt'],
-    QTDIR=r'%(QTDIR)s',
-    QT_BINPATH='$QTDIR/bin64',
-    QT_LIBPATH='$QTDIR/lib64',
-    QT_CPPPATH='$QTDIR/h64',
+    tools=['qt3'],
+    QT3DIR=r'%(QT3DIR)s',
+    QT3_BINPATH='$QT3DIR/bin64',
+    QT3_LIBPATH='$QT3DIR/lib64',
+    QT3_CPPPATH='$QT3DIR/h64',
 )
 
 cpppath = env1.subst('$CPPPATH')
-if os.path.normpath(cpppath) != os.path.join(r'%(QTDIR)s', 'h64'):
+if os.path.normpath(cpppath) != os.path.join(r'%(QT3DIR)s', 'h64'):
     print(cpppath)
     Exit(1)
 libpath = env1.subst('$LIBPATH')
-if os.path.normpath(libpath) != os.path.join(r'%(QTDIR)s', 'lib64'):
+if os.path.normpath(libpath) != os.path.join(r'%(QT3DIR)s', 'lib64'):
     print(libpath)
     Exit(2)
-qt_moc = env1.subst('$QT_MOC')
-if os.path.normpath(qt_moc) != os.path.join(r'%(QTDIR)s', 'bin64', 'moc'):
+qt_moc = env1.subst('$QT3_MOC')
+if os.path.normpath(qt_moc) != os.path.join(r'%(QT3DIR)s', 'bin64', 'moc'):
     print(qt_moc)
     Exit(3)
 
 env2 = Environment(
-    tools=['default', 'qt'], QTDIR=None, QT_LIB=None, QT_CPPPATH=None, QT_LIBPATH=None
+    tools=['default', 'qt3'], QT3DIR=None, QT3_LIB=None, QT3_CPPPATH=None, QT3_LIBPATH=None
 )
 
 env2.Program('main.cpp')
-""" % {'QTDIR':QT})
+""" % {'QT3DIR':QT3})
 
 test.write(['work2', 'main.cpp'], """
 int main(void) { return 0; }
@@ -206,7 +206,7 @@ int main(void) { return 0; }
 
 # Ignore stderr, because if Qt is not installed,
 # there may be a warning about an empty QTDIR on stderr.
-test.run(arguments="--warn=no-tool-qt-deprecated", chdir='work2', stderr=None)
+test.run(chdir='work2', stderr=None)
 
 test.must_exist(['work2', 'main' + _exe])
 

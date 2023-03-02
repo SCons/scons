@@ -65,6 +65,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   always emitted in the order entered. Sorting is no longer required
   after Python interpreter improvements.  There might be a one-time 
   rebuild of targets that involved such sorted keys in their actions.
+- Renamed the 'qt' tools to 'qt3' since the logic in that tool is only for QT version 3.  
+  Renamed all env vars which affect qt3 from QT_ to QT3_.  If you are still using SCons
+  to build QT 3 code, you'll need to update your SConscripts.  Note that using 'qt' tool 
+  has been deprecated for some time.
+
 
 FIXES
 -----

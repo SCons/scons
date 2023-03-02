@@ -1,0 +1,527 @@
+<?xml version="1.0"?>
+<!--
+__COPYRIGHT__
+
+This file is processed by the bin/SConsDoc.py module.
+See its __doc__ string for a discussion of the format.
+-->
+
+<!DOCTYPE sconsdoc [
+<!ENTITY % scons SYSTEM '../../doc/scons.mod'>
+%scons;
+<!ENTITY % builders-mod SYSTEM '../../doc/generated/builders.mod'>
+%builders-mod;
+<!ENTITY % functions-mod SYSTEM '../../doc/generated/functions.mod'>
+%functions-mod;
+<!ENTITY % tools-mod SYSTEM '../../doc/generated/tools.mod'>
+%tools-mod;
+<!ENTITY % variables-mod SYSTEM '../../doc/generated/variables.mod'>
+%variables-mod;
+]>
+
+<sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
+<tool name="qt3">
+<summary>
+<para>
+Sets &consvars; for building Qt3 applications.
+</para>
+
+<note><para>
+This tool is only suitable for building targeted to Qt3,
+which is obsolete
+(<emphasis>the tool is deprecated since 4.3,
+and was renamed to qt3 in 4.5.0.
+</emphasis>).
+There are contributed tools for Qt4 and Qt5, see
+<ulink url="https://github.com/SCons/scons-contrib">
+https://github.com/SCons/scons-contrib</ulink>.
+Qt4 has also passed end of life for standard support (in Dec 2015).
+</para></note>
+
+<para>
+Note paths for these &consvars; are assembled
+using the <function>os.path.join</function> method
+so they will have the appropriate separator at runtime,
+but are listed here in the various
+entries only with the <literal>'/'</literal> separator
+for simplicity.
+</para>
+
+<para>
+In addition, the &consvars;
+&cv-link-CPPPATH;,
+&cv-link-LIBPATH; and
+&cv-link-LIBS; may be modified
+and the variables
+&cv-link-PROGEMITTER;, &cv-link-SHLIBEMITTER; and &cv-link-LIBEMITTER;
+are modified. Because the build-performance is affected when using this tool,
+you have to explicitly specify it at Environment creation:
+</para>
+
+<example_commands>
+Environment(tools=['default','qt3'])
+</example_commands>
+
+<para>
+The &t-qt3; tool supports the following operations:
+</para>
+
+<para>
+<emphasis role="strong">Automatic moc file generation from header files.</emphasis>
+You do not have to specify moc files explicitly, the tool does it for you.
+However, there are a few preconditions to do so: Your header file must have
+the same filebase as your implementation file and must stay in the same
+directory. It must have one of the suffixes
+<filename>.h</filename>,
+<filename>.hpp</filename>,
+<filename>.H</filename>,
+<filename>.hxx</filename>,
+<filename>.hh</filename>.
+You can turn off automatic moc file generation by setting
+&cv-link-QT3_AUTOSCAN; to <constant>False</constant>.
+See also the corresponding
+&b-link-Moc; Builder.
+</para>
+
+<para>
+<emphasis role="strong">Automatic moc file generation from C++ files.</emphasis>
+As described in the Qt documentation, include the moc file at the end of
+the C++ file. Note that you have to include the file, which is generated
+by the transformation
+<literal>${QT3_MOCCXXPREFIX}&lt;basename&gt;${QT3_MOCCXXSUFFIX}</literal>, by default
+<filename>&lt;basename&gt;.mo</filename>. A warning is generated after building the moc file if you
+do not include the correct file. If you are using &f-link-VariantDir;, you may
+need to specify <parameter>duplicate=True</parameter>.
+You can turn off automatic moc file generation by setting &cv-QT3_AUTOSCAN; to
+<literal>False</literal>. See also the corresponding
+&b-link-Moc; Builder.
+</para>
+
+<para>
+<emphasis role="strong">Automatic handling of .ui files.</emphasis>
+The implementation files generated from <filename>.ui</filename>
+files are handled much the same as yacc or lex files.
+Each <command>.ui</command> file given as a source of &b-link-Program;,
+&b-link-Library; or &b-link-SharedLibrary;
+will generate three files: the declaration file, the
+implementation file and a moc file. Because there are also generated headers,
+you may need to specify <parameter>duplicate=True</parameter> in calls to
+&f-link-VariantDir;.
+See also the corresponding
+&b-link-Uic; Builder.
+</para>
+</summary>
+<sets>
+<item>QT3DIR</item>
+<item>QT3_BINPATH</item>
+<item>QT3_CPPPATH</item>
+<item>QT3_LIBPATH</item>
+<item>QT3_MOC</item>
+<item>QT3_UIC</item>
+<item>QT3_LIB</item>
+<item>QT3_AUTOSCAN</item>
+<item>QT3_UICIMPLFLAGS</item>
+<item>QT3_UICDECLFLAGS</item>
+<item>QT3_MOCFROMHFLAGS</item>
+<item>QT3_MOCFROMCXXFLAGS</item>
+<item>QT3_UICDECLPREFIX</item>
+<item>QT3_UICDECLSUFFIX</item>
+<item>QT3_UICIMPLPREFIX</item>
+<item>QT3_UICIMPLSUFFIX</item>
+<item>QT3_MOCHPREFIX</item>
+<item>QT3_MOCHSUFFIX</item>
+<item>QT3_MOCCXXPREFIX</item>
+<item>QT3_MOCCXXSUFFIX</item>
+<item>QT3_UISUFFIX</item>
+<item>QT3_UICCOM</item>
+<item>QT3_MOCFROMHCOM</item>
+<item>QT3_MOCFROMCXXCOM</item>
+</sets>
+<uses>
+<item>QT3DIR</item>
+</uses>
+</tool>
+
+<builder name="Moc">
+<summary>
+<para>
+Builds an output file from a <command>moc</command> input file.
+<command>moc</command> input files are either header files or C++ files.
+This builder is only available after using the
+tool &t-link-qt3;. See the &cv-link-QT3DIR; variable for more information.
+Example:
+</para>
+
+<example_commands>
+env.Moc('foo.h')  # generates moc_foo.cc
+env.Moc('foo.cpp')  # generates foo.moc
+</example_commands>
+</summary>
+</builder>
+
+<builder name="Uic">
+<summary>
+<para>
+Builds a header file, an implementation file and a moc file from an ui file.
+and returns the corresponding nodes in the that order.
+This builder is only available after using the tool &t-link-qt3;.
+Note: you can specify <filename>.ui</filename> files directly as source
+files to the &b-link-Program;,
+&b-link-Library; and &b-link-SharedLibrary; builders
+without using this builder. Using this builder lets you override the standard
+naming conventions (be careful: prefixes are always prepended to names of
+built files; if you don't want prefixes, you may set them to ``).
+See the &cv-link-QT3DIR; variable for more information.
+Example:
+</para>
+
+<example_commands>
+env.Uic('foo.ui')  # -> ['foo.h', 'uic_foo.cc', 'moc_foo.cc']
+env.Uic(
+    target=Split('include/foo.h gen/uicfoo.cc gen/mocfoo.cc'),
+    source='foo.ui'
+)  # -> ['include/foo.h', 'gen/uicfoo.cc', 'gen/mocfoo.cc']
+</example_commands>
+</summary>
+</builder>
+
+<cvar name="QT3DIR">
+<summary>
+<para>
+The path to the Qt installation to build against.
+If not already set,
+&t-link-qt3; tool tries to obtain this from
+<varname>os.environ</varname>;
+if not found there, it tries to make a guess.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QTDIR.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_AUTOSCAN">
+<summary>
+<para>
+Turn off scanning for mocable files. Use the &b-link-Moc; Builder to explicitly
+specify files to run <command>moc</command> on.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_AUTOSCAN.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_BINPATH">
+<summary>
+<para>
+The path where the Qt binaries are installed.
+The default value is '&cv-link-QT3DIR;<filename>/bin</filename>'.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_BINPATH.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_CPPPATH">
+<summary>
+<para>
+The path where the Qt header files are installed.
+The default value is '&cv-link-QT3DIR;/include'.
+Note: If you set this variable to <constant>None</constant>,
+the tool won't change the &cv-link-CPPPATH;
+construction variable.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_CPPPATH.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_DEBUG">
+<summary>
+<para>
+Prints lots of debugging information while scanning for moc files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_DEBUG.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_LIB">
+<summary>
+<para>
+Default value is <literal>'qt'</literal>.
+You may want to set this to <literal>'qt-mt'</literal>.
+Note: If you set this variable to <constant>None</constant>,
+the tool won't change the &cv-link-LIBS; variable.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_LIB.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_LIBPATH">
+<summary>
+<para>
+The path where the Qt libraries are installed.
+The default value is '&cv-link-QT3DIR;<filename>/lib</filename>'.
+Note: If you set this variable to <constant>None</constant>,
+the tool won't change the &cv-link-LIBPATH;
+construction variable.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_LIBPATH.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOC">
+<summary>
+<para>
+Default value is '&cv-link-QT3_BINPATH;<filename>/moc</filename>'.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCCXXPREFIX">
+<summary>
+<para>
+Default value is <literal>''</literal>.
+Prefix for <command>moc</command> output files when source is a C++ file.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCCXXSUFFIX">
+<summary>
+<para>
+Default value is <literal>'.moc'</literal>.
+Suffix for <command>moc</command> output files when source is a C++ file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCCXXSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCFROMCXXFLAGS">
+<summary>
+<para>
+Default value is <literal>'-i'</literal>.
+These flags are passed to <command>moc</command> when moccing a C++ file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCFROMCXXCOM">
+<summary>
+<para>
+Command to generate a moc file from a C++ file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCFROMCXXCOMSTR">
+<summary>
+<para>
+The string displayed when generating a moc file from a C++ file.
+If this is not set, then &cv-link-QT3_MOCFROMCXXCOM; (the command line) is displayed.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMCXXCOMSTR.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCFROMHCOM">
+<summary>
+<para>
+Command to generate a moc file from a header.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCFROMHCOMSTR">
+<summary>
+<para>
+The string displayed when generating a moc file from a C++ file.
+If this is not set, then &cv-link-QT3_MOCFROMHCOM; (the command line) is displayed.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHCOMSTR.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCFROMHFLAGS">
+<summary>
+<para>
+Default value is <literal>''</literal>. These flags are passed to <command>moc</command>
+when moccing a header file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCFROMSHFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCHPREFIX">
+<summary>
+<para>
+Default value is <literal>'moc_'</literal>.
+Prefix for <command>moc</command> output files when source is a header.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCHPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_MOCHSUFFIX">
+<summary>
+<para>
+Default value is '&cv-link-CXXFILESUFFIX;'.
+Suffix for moc output files when source is a header.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_MOCHSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UIC">
+<summary>
+<para>
+Default value is '&cv-link-QT3_BINPATH;<filename>/uic</filename>'.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UIC.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICCOM">
+<summary>
+<para>
+Command to generate header files from <filename>.ui</filename> files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICCOM.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICCOMSTR">
+<summary>
+<para>
+The string displayed when generating header files from <filename>.ui</filename> files.
+If this is not set, then &cv-link-QT3_UICCOM; (the command line) is displayed.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICCOMSTR.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICDECLFLAGS">
+<summary>
+<para>
+Default value is ''. These flags are passed to <command>uic</command>
+when creating a header file from a <filename>.ui</filename> file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICDECLPREFIX">
+<summary>
+<para>
+Default value is <literal>''</literal>.
+Prefix for <command>uic</command> generated header files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICDECLSUFFIX">
+<summary>
+<para>
+Default value is <literal>'.h'</literal>.
+Suffix for <command>uic</command> generated header files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICDECLSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICIMPLFLAGS">
+<summary>
+<para>
+Default value is <literal>''</literal>.
+These flags are passed to <command>uic</command> when creating a C++
+file from a <filename>.ui</filename> file.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPFLAGS.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICIMPLPREFIX">
+<summary>
+<para>
+Default value is <literal>'uic_'</literal>.
+Prefix for uic generated implementation files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPLPREFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UICIMPLSUFFIX">
+<summary>
+<para>
+Default value is '&cv-link-CXXFILESUFFIX;'. Suffix for uic generated implementation
+files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UICIMPLSUFFIX.
+</para>
+</summary>
+</cvar>
+
+<cvar name="QT3_UISUFFIX">
+<summary>
+<para>
+Default value is <literal>'.ui'</literal>.
+Suffix of designer input files.
+</para>
+<para>
+<emphasis>Changed in 4.5.0</emphasis>: renamed from QT_UISUFFIX.
+</para>
+</summary>
+</cvar>
+
+</sconsdoc>

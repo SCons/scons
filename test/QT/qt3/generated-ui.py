@@ -22,22 +22,14 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
-Validate that a stripped-down real-world Qt configuation (thanks
-to Leanid Nazdrynau) with a generated .h file is correctly
-up-to-date after a build.
-
-(This catches a bug that was introduced during a signature refactoring
-ca. September 2005.)
+Test that the UI scanning logic correctly picks up scansG
 """
 
 import os
 
 import TestSCons
-
-_obj = TestSCons._obj
 
 test = TestSCons.TestSCons()
 
@@ -45,15 +37,17 @@ if not os.environ.get('QTDIR', None):
     x ="External environment variable $QTDIR not set; skipping test(s).\n"
     test.skip_test(x)
 
-test.subdir('layer',
+test.subdir(['layer'],
             ['layer', 'aclock'],
             ['layer', 'aclock', 'qt_bug'])
 
-test.write('SConstruct', """\
+test.write(['SConstruct'], """\
 import os
 aa=os.getcwd()
 
-env=Environment(tools=['default','expheaders','qt'],toolpath=[aa])
+env=Environment(tools=['default','expheaders','qt3'],toolpath=[aa])
+if 'HOME' in os.environ:
+    env['ENV']['HOME'] = os.environ['HOME']
 env["EXP_HEADER_ABS"]=os.path.join(os.getcwd(),'include')
 if not os.access(env["EXP_HEADER_ABS"],os.F_OK):
    os.mkdir (env["EXP_HEADER_ABS"])
@@ -61,7 +55,7 @@ Export('env')
 env.SConscript('layer/aclock/qt_bug/SConscript')
 """)
 
-test.write('expheaders.py', """\
+test.write(['expheaders.py'], """\
 import SCons.Defaults
 def ExpHeaderScanner(node, env, path):
    return []
@@ -77,10 +71,11 @@ test.write(['layer', 'aclock', 'qt_bug', 'SConscript'], """\
 import os
 
 Import ("env")
+#src=os.path.join(env.Dir('.').srcnode().abspath, 'testfile.h')
 env.ExportHeaders(os.path.join(env["EXP_HEADER_ABS"],'main.h'), 'main.h')
 env.ExportHeaders(os.path.join(env["EXP_HEADER_ABS"],'migraform.h'), 'migraform.h')
 env.Append(CPPPATH=env["EXP_HEADER_ABS"])
-env.StaticLibrary('all',['main.ui','migraform.ui','my.cc'])
+env.StaticLibrary('all',['main.ui','migraform.ui'])
 """)
 
 test.write(['layer', 'aclock', 'qt_bug', 'main.ui'], """\
@@ -116,7 +111,7 @@ test.write(['layer', 'aclock', 'qt_bug', 'migraform.ui'], """\
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>600</width>
+            <width>%s</width>
             <height>385</height>
         </rect>
     </property>
@@ -124,16 +119,12 @@ test.write(['layer', 'aclock', 'qt_bug', 'migraform.ui'], """\
 </UI>
 """)
 
-test.write(['layer', 'aclock', 'qt_bug', 'my.cc'], """\
-#include <main.h>
-""")
+test.run(
+    stderr=TestSCons.noisy_ar,
+    match=TestSCons.match_re_dotall,
+)
 
-my_obj = 'layer/aclock/qt_bug/my' + _obj
-
-test.run(arguments='--warn=no-tool-qt-deprecated ' + my_obj, stderr=None)
-
-expect = my_obj.replace('/', os.sep)
-test.up_to_date(options='--debug=explain', arguments=expect, stderr=None)
+test.up_to_date(arguments=".")
 
 test.pass_test()
 
