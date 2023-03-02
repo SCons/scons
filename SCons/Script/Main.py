@@ -505,7 +505,7 @@ def ValidateOptions(throw_exception=False) -> None:
 
     :raises SConsBadOptionError: If throw_exception is True and there are invalid options on command line.
 
-    .. versionadded:: 4.4.1
+    .. versionadded:: 4.5.0
     """
 
     OptionsParser.raise_exception_on_error = throw_exception
