@@ -128,23 +128,26 @@ if moc:
     import os.path
 
     qtdir = os.path.dirname(os.path.dirname(moc))
-
-    qt_err = r"""
-scons: warning: Could not detect qt3, using moc executable as a hint \(QT3DIR=%(qtdir)s\)
-""" % locals()
-
+    qt3_err = fr"""
+scons: warning: Could not detect qt3, using moc executable as a hint \(QT3DIR={qtdir}\)
+"""
 else:
-
-    qt_err = """
+    qt3_err = r"""
 scons: warning: Could not detect qt3, using empty QT3DIR
 """
 
-qt_warnings = [ re.compile(qt_err + TestSCons.file_expr) ]
+qt_moved = r"""
+scons: \*\*\* Deprecated tool 'qt' renamed to 'qt3'. Please update your build accordingly. 'qt3' will be removed entirely in a future release.
+"""
+
+qt3_warnings = [re.compile(qt3_err + TestSCons.file_expr)]
+qt_error = [re.compile(qt_moved + TestSCons.file_expr)]
 
 error_output = {
-    'icl' : intel_warnings,
-    'intelc' : intel_warnings,
-    'qt3' : qt_warnings,
+    'icl': intel_warnings,
+    'intelc': intel_warnings,
+    'qt3': qt3_warnings,
+    'qt': qt_error,
 }
 
 # An SConstruct for importing Tool names that have illegal characters
@@ -178,16 +181,16 @@ for tool in tools:
         test.write('SConstruct', indirect_import % locals())
     else:
         test.write('SConstruct', direct_import % locals())
-    test.run(stderr=None)
+    test.run(stderr=None, status=None)
     stderr = test.stderr()
-    if stderr:
+    if stderr or test.status:
         matched = None
         for expression in error_output.get(tool, []):
             if expression.match(stderr):
                 matched = 1
                 break
         if not matched:
-            print("Failed importing '%s', stderr:" % tool)
+            print(f"Failed importing '{tool}', stderr:")
             print(stderr)
             failures.append(tool)
 
