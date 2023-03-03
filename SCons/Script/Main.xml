@@ -1000,9 +1000,9 @@ scons --compilers=mingw (the correct flag is --compiler)
                 Could cause SCons to run configure steps with the incorrect compiler. Costing developer time trying to
                 track down why the configure logic failed with a compiler which should work.
             </para>
-
-
-
+            <para>
+                <emphasis>New in version 4.5.0</emphasis>
+            </para>
         </summary>
     </scons_function>
 
