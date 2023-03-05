@@ -1,12 +1,4 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, 4.4.1, is now available on the SCons download page:
+A new SCons release, 4.5.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
@@ -39,7 +31,7 @@ NEW FUNCTIONALITY
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- List anything that's been deprecated since the last release
+- The qt tool has been renamed qt3.
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -190,3 +182,17 @@ Thanks to the following contributors listed below for their contributions to thi
 .. code-block:: text
 
     git shortlog --no-merges -ns 4.4.0..HEAD
+    93  Mats Wichmann
+    85  William Deegan
+     9  Anatoli Babenia
+     8  Daniel Moody
+     4  Andrew Morrow
+     3  Ryan Saunders
+     2  Flaviu Tamas
+     1  Dan Mezhiborsky
+     1  Lukas Schrangl
+     1  Nickolai Korshunov
+     1  TZe
+     1  Thad Guidry
+     1  djh
+     
