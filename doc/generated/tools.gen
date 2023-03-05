@@ -779,13 +779,13 @@ the Microsoft toolchain:
   <varlistentry id="t-msvc">
     <term>msvc</term>
     <listitem><para>
-Sets construction variables for the Microsoft Visual C/C++ compiler.
+Sets &consvars; for the Microsoft Visual C/C++ compiler.
 </para>
-<para>Sets: &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-MSVC_NOTFOUND_POLICY;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
+<para>Sets: &cv-link-BUILDERS;, &cv-link-CC;, &cv-link-CCCOM;, &cv-link-CCDEPFLAGS;, &cv-link-CCFLAGS;, &cv-link-CCPCHFLAGS;, &cv-link-CCPDBFLAGS;, &cv-link-CFILESUFFIX;, &cv-link-CFLAGS;, &cv-link-CPPDEFPREFIX;, &cv-link-CPPDEFSUFFIX;, &cv-link-CXX;, &cv-link-CXXCOM;, &cv-link-CXXFILESUFFIX;, &cv-link-CXXFLAGS;, &cv-link-INCPREFIX;, &cv-link-INCSUFFIX;, &cv-link-OBJPREFIX;, &cv-link-OBJSUFFIX;, &cv-link-PCHCOM;, &cv-link-PCHPDBFLAGS;, &cv-link-RC;, &cv-link-RCCOM;, &cv-link-RCFLAGS;, &cv-link-SHCC;, &cv-link-SHCCCOM;, &cv-link-SHCCFLAGS;, &cv-link-SHCFLAGS;, &cv-link-SHCXX;, &cv-link-SHCXXCOM;, &cv-link-SHCXXFLAGS;, &cv-link-SHOBJPREFIX;, &cv-link-SHOBJSUFFIX;.</para><para>Uses: &cv-link-CCCOMSTR;, &cv-link-CXXCOMSTR;, &cv-link-MSVC_NOTFOUND_POLICY;, &cv-link-MSVC_SCRIPTERROR_POLICY;, &cv-link-MSVC_SCRIPT_ARGS;, &cv-link-MSVC_SDK_VERSION;, &cv-link-MSVC_SPECTRE_LIBS;, &cv-link-MSVC_TOOLSET_VERSION;, &cv-link-MSVC_USE_SCRIPT;, &cv-link-MSVC_USE_SCRIPT_ARGS;, &cv-link-MSVC_USE_SETTINGS;, &cv-link-MSVC_VERSION;, &cv-link-PCH;, &cv-link-PCHSTOP;, &cv-link-PDB;, &cv-link-SHCCCOMSTR;, &cv-link-SHCXXCOMSTR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-msvs">
     <term>msvs</term>
-    <listitem><para>Sets construction variables for Microsoft Visual Studio.</para>
+    <listitem><para>Sets &consvars; for Microsoft Visual Studio.</para>
     <para>Sets: &cv-link-MSVSBUILDCOM;, &cv-link-MSVSCLEANCOM;, &cv-link-MSVSENCODING;, &cv-link-MSVSPROJECTCOM;, &cv-link-MSVSREBUILDCOM;, &cv-link-MSVSSCONS;, &cv-link-MSVSSCONSCOM;, &cv-link-MSVSSCONSCRIPT;, &cv-link-MSVSSCONSFLAGS;, &cv-link-MSVSSOLUTIONCOM;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-mwcc">
@@ -867,13 +867,22 @@ provided to an Action that uses this environment.
   <varlistentry id="t-qt">
     <term>qt</term>
     <listitem><para>
+Placeholder tool to alert anyone still using qt tools to switch to qt3 or newer tool.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="t-qt3">
+    <term>qt3</term>
+    <listitem><para>
 Sets &consvars; for building Qt3 applications.
 </para>
 
 <note><para>
 This tool is only suitable for building targeted to Qt3,
 which is obsolete
-(<emphasis>the tool is deprecated since 4.3</emphasis>).
+(<emphasis>the tool is deprecated since 4.3,
+and was renamed to qt3 in 4.5.0.
+</emphasis>).
 There are contributed tools for Qt4 and Qt5, see
 <ulink url="https://github.com/SCons/scons-contrib">
 https://github.com/SCons/scons-contrib</ulink>.
@@ -901,11 +910,11 @@ you have to explicitly specify it at Environment creation:
 </para>
 
 <example_commands>
-Environment(tools=['default','qt'])
+Environment(tools=['default','qt3'])
 </example_commands>
 
 <para>
-The &t-qt; tool supports the following operations:
+The &t-qt3; tool supports the following operations:
 </para>
 
 <para>
@@ -920,7 +929,7 @@ directory. It must have one of the suffixes
 <filename>.hxx</filename>,
 <filename>.hh</filename>.
 You can turn off automatic moc file generation by setting
-&cv-link-QT_AUTOSCAN; to <constant>False</constant>.
+&cv-link-QT3_AUTOSCAN; to <constant>False</constant>.
 See also the corresponding
 &b-link-Moc; Builder.
 </para>
@@ -930,11 +939,11 @@ See also the corresponding
 As described in the Qt documentation, include the moc file at the end of
 the C++ file. Note that you have to include the file, which is generated
 by the transformation
-<literal>${QT_MOCCXXPREFIX}&lt;basename&gt;${QT_MOCCXXSUFFIX}</literal>, by default
+<literal>${QT3_MOCCXXPREFIX}&lt;basename&gt;${QT3_MOCCXXSUFFIX}</literal>, by default
 <filename>&lt;basename&gt;.mo</filename>. A warning is generated after building the moc file if you
 do not include the correct file. If you are using &f-link-VariantDir;, you may
 need to specify <parameter>duplicate=True</parameter>.
-You can turn off automatic moc file generation by setting &cv-QT_AUTOSCAN; to
+You can turn off automatic moc file generation by setting &cv-QT3_AUTOSCAN; to
 <literal>False</literal>. See also the corresponding
 &b-link-Moc; Builder.
 </para>
@@ -952,7 +961,7 @@ you may need to specify <parameter>duplicate=True</parameter> in calls to
 See also the corresponding
 &b-link-Uic; Builder.
 </para>
-<para>Sets: &cv-link-QTDIR;, &cv-link-QT_AUTOSCAN;, &cv-link-QT_BINPATH;, &cv-link-QT_CPPPATH;, &cv-link-QT_LIB;, &cv-link-QT_LIBPATH;, &cv-link-QT_MOC;, &cv-link-QT_MOCCXXPREFIX;, &cv-link-QT_MOCCXXSUFFIX;, &cv-link-QT_MOCFROMCXXCOM;, &cv-link-QT_MOCFROMCXXFLAGS;, &cv-link-QT_MOCFROMHCOM;, &cv-link-QT_MOCFROMHFLAGS;, &cv-link-QT_MOCHPREFIX;, &cv-link-QT_MOCHSUFFIX;, &cv-link-QT_UIC;, &cv-link-QT_UICCOM;, &cv-link-QT_UICDECLFLAGS;, &cv-link-QT_UICDECLPREFIX;, &cv-link-QT_UICDECLSUFFIX;, &cv-link-QT_UICIMPLFLAGS;, &cv-link-QT_UICIMPLPREFIX;, &cv-link-QT_UICIMPLSUFFIX;, &cv-link-QT_UISUFFIX;.</para><para>Uses: &cv-link-QTDIR;.</para></listitem>
+<para>Sets: &cv-link-QT3DIR;, &cv-link-QT3_AUTOSCAN;, &cv-link-QT3_BINPATH;, &cv-link-QT3_CPPPATH;, &cv-link-QT3_LIB;, &cv-link-QT3_LIBPATH;, &cv-link-QT3_MOC;, &cv-link-QT3_MOCCXXPREFIX;, &cv-link-QT3_MOCCXXSUFFIX;, &cv-link-QT3_MOCFROMCXXCOM;, &cv-link-QT3_MOCFROMCXXFLAGS;, &cv-link-QT3_MOCFROMHCOM;, &cv-link-QT3_MOCFROMHFLAGS;, &cv-link-QT3_MOCHPREFIX;, &cv-link-QT3_MOCHSUFFIX;, &cv-link-QT3_UIC;, &cv-link-QT3_UICCOM;, &cv-link-QT3_UICDECLFLAGS;, &cv-link-QT3_UICDECLPREFIX;, &cv-link-QT3_UICDECLSUFFIX;, &cv-link-QT3_UICIMPLFLAGS;, &cv-link-QT3_UICIMPLPREFIX;, &cv-link-QT3_UICIMPLSUFFIX;, &cv-link-QT3_UISUFFIX;.</para><para>Uses: &cv-link-QT3DIR;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-rmic">
     <term>rmic</term>
@@ -1071,7 +1080,7 @@ Sets construction variables for the TeX formatter and typesetter.
     <listitem><para>
 Set &consvars; for the &b-Textfile; and &b-Substfile; builders.
 </para>
-<para>Sets: &cv-link-LINESEPARATOR;, &cv-link-SUBSTFILEPREFIX;, &cv-link-SUBSTFILESUFFIX;, &cv-link-TEXTFILEPREFIX;, &cv-link-TEXTFILESUFFIX;.</para><para>Uses: &cv-link-SUBST_DICT;.</para></listitem>
+<para>Sets: &cv-link-FILE_ENCODING;, &cv-link-LINESEPARATOR;, &cv-link-SUBSTFILEPREFIX;, &cv-link-SUBSTFILESUFFIX;, &cv-link-TEXTFILEPREFIX;, &cv-link-TEXTFILESUFFIX;.</para><para>Uses: &cv-link-SUBST_DICT;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-tlib">
     <term>tlib</term>

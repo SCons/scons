@@ -425,126 +425,205 @@ Multiple targets can be passed in to a single call to
   <varlistentry id="f-Append">
     <term><replaceable>env</replaceable>.<methodname>Append</methodname>(<parameter>key=val, [...]</parameter>)</term>
     <listitem><para>
-Intelligently append values to &consvars; in the &consenv;
-named by <varname>env</varname>.
+Appends value(s) intelligently to &consvars; in
+<varname>env</varname>.
 The &consvars; and values to add to them are passed as
 <parameter>key=val</parameter> pairs (&Python; keyword arguments).
 &f-env-Append; is designed to allow adding values
-without normally having to know the data type of an existing &consvar;.
+without having to think about the data type of an existing &consvar;.
 Regular &Python; syntax can also be used to manipulate the &consvar;,
-but for that you must know the type of the &consvar;:
-for example, different &Python; syntax is needed to combine
-a list of values with a single string value, or vice versa.
+but for that you may need to know the types involved,
+for example pure &Python; lets you directly "add" two lists of strings,
+but adding a string to a list or a list to a string requires
+different syntax - things &f-Append; takes care of.
 Some pre-defined &consvars; do have type expectations
-based on how &SCons; will use them,
-for example &cv-link-CPPDEFINES; is normally a string or a list of strings,
-but can be a string,
-a list of strings,
-a list of tuples,
-or a dictionary, while &cv-link-LIBEMITTER;
-would expect a callable or list of callables,
-and &cv-link-BUILDERS; would expect a mapping type.
+based on how &SCons; will use them:
+for example &cv-link-CPPDEFINES; is often a string or a list of strings,
+but can also be a list of tuples or a dictionary;
+while &cv-link-LIBEMITTER;
+is expected to be a callable or list of callables,
+and &cv-link-BUILDERS; is expected to be a dictionary.
 Consult the documentation for the various &consvars; for more details.
 </para>
 
 <para>
-The following descriptions apply to both the append
-and prepend functions, the only difference being
-the insertion point of the added values.
-</para>
-<para>
-If <varname>env</varname>.  does not have a &consvar;
-indicated by <parameter>key</parameter>,
-<parameter>val</parameter>
-is added to the environment under that key as-is.
+The following descriptions apply to both the &f-Append;
+and &f-Prepend; methods, as well as their
+<emphasis role="bold">Unique</emphasis> variants,
+with the differences being the insertion point of the added values
+and whether duplication is allowed.
 </para>
 
 <para>
-<parameter>val</parameter> can be almost any type,
-and &SCons; will combine it with an existing value into an appropriate type,
-but there are a few special cases to be aware of.
-When two strings are combined,
-the result is normally a new string,
-with the caller responsible for supplying any needed separation.
-The exception to this is the &consvar; &cv-link-CPPDEFINES;,
-in which each item will be postprocessed by adding a prefix
-and/or suffix,
-so the contents are treated as a list of strings, that is,
-adding a string will result in a separate string entry,
-not a combined string. For &cv-CPPDEFINES; as well as
-for &cv-link-LIBS;, and the various <literal>*PATH</literal>;
-variables, &SCons; will supply the compiler-specific
-syntax (e.g. adding a <literal>-D</literal> or <literal>/D</literal>
-prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
+<parameter>val</parameter> can be almost any type.
+If <varname>env</varname> does not have a &consvar;
+named <parameter>key</parameter>,
+then <parameter>key</parameter> is simply
+stored with a value of <parameter>val</parameter>.
+Otherwise, <parameter>val</parameter> is
+combinined with the existing value,
+possibly converting into an appropriate type
+which can hold the expanded contents.
+There are a few special cases to be aware of.
+Normally, when two strings are combined,
+the result is a new string containing their concatenation
+(and you are responsible for supplying any needed separation);
+however, the contents of &cv-link-CPPDEFINES; will
+will be postprocessed by adding a prefix and/or suffix
+to each entry when the command line is produced,
+so &SCons; keeps them separate -
+appending a string will result in a separate string entry,
+not a combined string.
+For &cv-CPPDEFINES;. as well as
+&cv-link-LIBS;, and the various <literal>*PATH</literal> variables,
+&SCons; will amend the variable by supplying the compiler-specific
+syntax (e.g. prepending a <literal>-D</literal> or <literal>/D</literal>
+prefix for &cv-CPPDEFINES;), so you should omit this syntax when
 adding values to these variables.
-Example (gcc syntax shown in the expansion of &CPPDEFINES;):
+Examples (gcc syntax shown in the expansion of &CPPDEFINES;):
 </para>
 
 <example_commands>
 env = Environment(CXXFLAGS="-std=c11", CPPDEFINES="RELEASE")
-print("CXXFLAGS={}, CPPDEFINES={}".format(env['CXXFLAGS'], env['CPPDEFINES']))
-# notice including a leading space in CXXFLAGS value
+print(f"CXXFLAGS = {env['CXXFLAGS']}, CPPDEFINES = {env['CPPDEFINES']}")
+# notice including a leading space in CXXFLAGS addition
 env.Append(CXXFLAGS=" -O", CPPDEFINES="EXTRA")
-print("CXXFLAGS={}, CPPDEFINES={}".format(env['CXXFLAGS'], env['CPPDEFINES']))
-print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
+print(f"CXXFLAGS = {env['CXXFLAGS']}, CPPDEFINES = {env['CPPDEFINES']}")
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
 </example_commands>
 
 <screen>
 $ scons -Q
-CXXFLAGS=-std=c11, CPPDEFINES=RELEASE
-CXXFLAGS=-std=c11 -O, CPPDEFINES=['RELEASE', 'EXTRA']
+CXXFLAGS = -std=c11, CPPDEFINES = RELEASE
+CXXFLAGS = -std=c11 -O, CPPDEFINES = deque(['RELEASE', 'EXTRA'])
 CPPDEFINES will expand to -DRELEASE -DEXTRA
 scons: `.' is up to date.
 </screen>
 
 <para>
-Because &cv-link-CPPDEFINES; is intended to
-describe C/C++ pre-processor macro definitions,
-it accepts additional syntax.
-Preprocessor macros can be valued, or un-valued, as in
-<computeroutput>-DBAR=1</computeroutput> or
-<computeroutput>-DFOO</computeroutput>.
-The macro can be be supplied as a complete string including the value,
-or as a tuple (or list) of macro, value, or as a dictionary.
-Example (again gcc syntax in the expanded defines):
+Because &cv-link-CPPDEFINES; is intended for command-line
+specification of C/C++ preprocessor macros,
+additional syntax is accepted when adding to it.
+The preprocessor accepts arguments to predefine a macro name by itself
+(<computeroutput>-DFOO</computeroutput> for most compilers,
+<computeroutput>/DFOO</computeroutput> for Microsoft C++),
+which gives it an implicit value of <constant>1</constant>,
+or can be given with a replacement value
+(<computeroutput>-DBAR=TEXT</computeroutput>).
+&SCons; follows these rules when adding to &cv-CPPDEFINES;:
+</para>
+<itemizedlist>
+<listitem>
+<para>A string is split on spaces,
+giving an easy way to enter multiple macros in one addition.
+Use an <literal>=</literal> to specify a valued macro.</para>
+</listitem>
+<listitem>
+<para>A tuple is treated as a valued macro. 
+Use the value <constant>None</constant> if the macro should not have a value.
+It is an error to supply more than two elements in such a tuple.</para>
+</listitem>
+<listitem>
+<para>A list is processed in order,
+adding each item without further interpretation.
+In this case, space-separated strings are not split.</para>
+</listitem>
+<listitem>
+<para>A dictionary is processed in order,
+adding each key:value pair as a valued macro.
+Use the value <constant>None</constant> if the macro should not have a value.
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+Examples:
 </para>
 
 <example_commands>
 env = Environment(CPPDEFINES="FOO")
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES="BAR=1")
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-env.Append(CPPDEFINES=("OTHER", 2))
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES=[("OTHER", 2)])
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES={"EXTRA": "arg"})
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
 </example_commands>
 
 <screen>
 $ scons -Q
-CPPDEFINES=FOO
-CPPDEFINES=['FOO', 'BAR=1']
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2)]
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
+CPPDEFINES = FOO
+CPPDEFINES = deque(['FOO', 'BAR=1'])
+CPPDEFINES = deque(['FOO', 'BAR=1', ('OTHER', 2)])
+CPPDEFINES = deque(['FOO', 'BAR=1', ('OTHER', 2), ('EXTRA', 'arg')])
 CPPDEFINES will expand to -DFOO -DBAR=1 -DOTHER=2 -DEXTRA=arg
 scons: `.' is up to date.
 </screen>
 
 <para>
-Adding a string <parameter>val</parameter>
-to a dictonary &consvar; will enter
-<parameter>val</parameter> as the key in the dict,
+Examples of adding multiple macros:
+</para>
+
+<example_commands>
+env = Environment()
+env.Append(CPPDEFINES=[("ONE", 1), "TWO", ("THREE", )])
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES={"FOUR": 4, "FIVE": None})
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
+</example_commands>
+
+<screen>
+$ scons -Q
+CPPDEFINES = [('ONE', 1), 'TWO', ('THREE',)]
+CPPDEFINES = deque([('ONE', 1), 'TWO', ('THREE',), ('FOUR', 4), ('FIVE', None)])
+CPPDEFINES will expand to -DONE=1 -DTWO -DTHREE -DFOUR=4 -DFIVE
+scons: `.' is up to date.
+</screen>
+
+<para>
+<emphasis>Changed in version  4.5</emphasis>:
+clarifined the use of tuples vs. other types,
+handling is now consistent across the four functions.
+</para>
+
+<example_commands>
+env = Environment()
+env.Append(CPPDEFINES=("MACRO1", "MACRO2"))
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES=[("MACRO3", "MACRO4")])
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
+</example_commands>
+
+<screen>
+$ scons -Q
+CPPDEFINES = ('MACRO1', 'MACRO2')
+CPPDEFINES = deque(['MACRO1', 'MACRO2', ('MACRO3', 'MACRO4')])
+CPPDEFINES will expand to -DMACRO1 -DMACRO2 -DMACRO3=MACRO4
+scons: `.' is up to date.
+</screen>
+
+<para>
+See &cv-link-CPPDEFINES; for more details.
+</para>
+
+<para>
+Appending a string <parameter>val</parameter>
+to a dictonary-typed &consvar; enters
+<parameter>val</parameter> as the key in the dictionary,
 and <literal>None</literal> as its value.
-Using a tuple type to supply a key + value only works
-for the special case of &cv-link-CPPDEFINES;
+Using a tuple type to supply a <literal>key, value</literal>
+only works for the special case of &cv-CPPDEFINES;
 described above.
 </para>
 
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a &Python; exception will be raised.
+do not make sense and &Python; raises an exception.
 </para>
 
 <para>
@@ -552,7 +631,7 @@ When using &f-env-Append; to modify &consvars;
 which are path specifications (conventionally,
 the names of such end in <literal>PATH</literal>),
 it is recommended to add the values as a list of strings,
-even if there is only a single string to add.
+even if you are only adding a single string.
 The same goes for adding library names to &cv-LIBS;.
 </para>
 
@@ -616,18 +695,18 @@ See also &f-link-env-PrependENVPath;.
 </listitem>
   </varlistentry>
   <varlistentry id="f-AppendUnique">
-    <term><replaceable>env</replaceable>.<methodname>AppendUnique</methodname>(<parameter>key=val, [...], delete_existing=False</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>AppendUnique</methodname>(<parameter>key=val, [...], [delete_existing=False]</parameter>)</term>
     <listitem><para>
 Append values to &consvars; in the current &consenv;,
 maintaining uniqueness.
-Works like &f-link-env-Append; (see for details),
-except that values already present in the &consvar;
-will not be added again.
+Works like &f-link-env-Append;,
+except that values that would become duplicates
+are not added.
 If <parameter>delete_existing</parameter>
-is <constant>True</constant>,
-the existing matching value is first removed,
-and the requested value is added,
-having the effect of moving such values to the end.
+is set to a true value, then for any duplicate,
+the existing instance of <parameter>val</parameter> is first removed,
+then <parameter>val</parameter> is appended,
+having the effect of moving it to the end.
 </para>
 
 <para>
@@ -1546,7 +1625,6 @@ will print:
   </varlistentry>
   <varlistentry id="f-EnsurePythonVersion">
     <term><function>EnsurePythonVersion</function>(<parameter>major, minor</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>EnsurePythonVersion</methodname>(<parameter>major, minor</parameter>)</term>
     <listitem><para>
 Ensure that the Python version is at least
 <varname>major</varname>.<varname>minor</varname>.
@@ -1566,7 +1644,6 @@ EnsurePythonVersion(2,2)
   </varlistentry>
   <varlistentry id="f-EnsureSConsVersion">
     <term><function>EnsureSConsVersion</function>(<parameter>major, minor, [revision]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>EnsureSConsVersion</methodname>(<parameter>major, minor, [revision]</parameter>)</term>
     <listitem><para>
 Ensure that the SCons version is at least
 <varname>major.minor</varname>,
@@ -1669,7 +1746,6 @@ if Execute("mkdir sub/dir/ectory"):
   </varlistentry>
   <varlistentry id="f-Exit">
     <term><function>Exit</function>(<parameter>[value]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Exit</methodname>(<parameter>[value]</parameter>)</term>
     <listitem><para>
 This tells
 &scons;
@@ -2117,7 +2193,6 @@ Nodes or strings representing path names.
   </varlistentry>
   <varlistentry id="f-GetLaunchDir">
     <term><function>GetLaunchDir</function>()</term>
-    <term><replaceable>env</replaceable>.<methodname>GetLaunchDir</methodname>()</term>
     <listitem><para>
 Returns the absolute path name of the directory from which
 &scons;
@@ -2138,18 +2213,22 @@ file is found.
     <term><function>GetOption</function>(<parameter>name</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>GetOption</methodname>(<parameter>name</parameter>)</term>
     <listitem><para>
-This function provides a way to query the value of
-options which can be set via the command line or using the
-&f-link-SetOption; function.
+Query the value of settable options which may have been set
+on the command line, or by using the &f-link-SetOption; function.
+The value of the option is returned in a type matching how the
+option was declared - see the documentation for the
+corresponding command line option for information about each specific
+option.
 </para>
+
 <para>
 <parameter>name</parameter> can be an entry from the following table,
 which shows the corresponding command line arguments
 that could affect the value.
 <parameter>name</parameter> can be also be the destination
 variable name from a project-specific option added using the
-&f-link-AddOption; function, as long as the addition
-happens prior to the &f-GetOption; call in the SConscript files.
+&f-link-AddOption; function, as long as that addition has been
+processed prior to the &f-GetOption; call in the &SConscript; files.
 </para>
 
 <informaltable rowsep="1" colsep="1" frame="topbot">
@@ -2374,56 +2453,83 @@ happens prior to the &f-GetOption; call in the SConscript files.
 </tbody>
 </tgroup>
 </informaltable>
-
-<para>
-See the documentation for the
-corresponding command line option for information about each specific
-option.
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-Glob">
-    <term><function>Glob</function>(<parameter>pattern, [ondisk, source, strings, exclude]</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>Glob</methodname>(<parameter>pattern, [ondisk, source, strings, exclude]</parameter>)</term>
+    <term><function>Glob</function>(<parameter>pattern, [ondisk=True, source=False, strings=False, exclude=None]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>Glob</methodname>(<parameter>pattern, [ondisk=True, source=False, strings=False, exclude=None]</parameter>)</term>
     <listitem><para>
-Returns Nodes (or strings) that match the specified
-<parameter>pattern</parameter>,
-relative to the directory of the current
-&SConscript;
-file.
+Returns a possibly empty list of Nodes (or strings) that match
+pathname specification <parameter>pattern</parameter>.
+<parameter>pattern</parameter> can be absolute,
+top-relative,
+or (most commonly) relative to the directory of the current
+&SConscript; file.
+&f-Glob; matches both files stored on disk and Nodes
+which &SCons; already knows about, even if any corresponding
+file is not currently stored on disk.
 The evironment method form (&f-env-Glob;)
 performs string substition on
 <parameter>pattern</parameter>
-and returns whatever matches
-the resulting expanded pattern.
+and returns whatever matches the resulting expanded pattern.
+The results are sorted, unlike for the similar &Python;
+<systemitem>glob.glob</systemitem> function,
+to ensure build order will be stable.
 </para>
 
 <para>
-The specified
 <parameter>pattern</parameter>
-uses Unix shell style metacharacters for matching:
+can contain POSIX-style shell metacharacters for matching:
 </para>
 
-<example_commands>
-  *       matches everything
-  ?       matches any single character
-  [seq]   matches any character in seq
-  [!seq]  matches any char not in seq
-</example_commands>
+<informaltable rowsep="1" colsep="1" frame="topbot">
+<tgroup cols="2">
+<thead>
+  <row>
+    <entry>Pattern</entry>
+    <entry>Meaning</entry>
+  </row>
+</thead>
+<tbody>
+  <row>
+    <entry><literal>*</literal></entry>
+    <entry>matches everything</entry>
+  </row>
+  <row>
+      <entry><literal>?</literal></entry>
+      <entry>matches any single character</entry>
+  </row>
+  <row>
+      <entry><literal>[seq]</literal></entry>
+      <entry>matches any character in <emphasis>seq</emphasis>
+      (can be a list or a range).</entry>
+  </row>
+  <row>
+      <entry><literal>[!seq]</literal></entry>
+      <entry>matches any character not in <emphasis>seq</emphasis></entry>
+  </row>
+</tbody>
+</tgroup>
+</informaltable>
 
 <para>
-If the first character of a filename is a dot,
-it must be matched explicitly.
-Character matches do
-<emphasis>not</emphasis>
-span directory separators.
+For a literal match, wrap the metacharacter in brackets to
+escape the normal behavior.
+For example, <literal>'[?]'</literal> matches the character
+<literal>'?'</literal>.
 </para>
 
 <para>
-The
+Filenames starting with a dot are specially handled -
+they can only be matched by patterns that start with a dot
+(or have a dot immediately following a pathname separator
+character, or slash), they are not not matched by the metacharacters.
+Metacharacter matches also do not span directory separators.
+</para>
+
+<para>
 &f-Glob;
-knows about
-repositories
+understands repositories
 (see the
 &f-link-Repository;
 function)
@@ -2431,8 +2537,7 @@ and source directories
 (see the
 &f-link-VariantDir;
 function)
-and
-returns a Node (or string, if so configured)
+and returns a Node (or string, if so configured) match
 in the local (SConscript) directory
 if a matching Node is found
 anywhere in a corresponding
@@ -2440,65 +2545,60 @@ repository or source directory.
 </para>
 
 <para>
-The
+If the optional
 <parameter>ondisk</parameter>
-argument may be set to a value which evaluates
-<constant>False</constant>
-to disable the search for matches on disk,
-thereby only returning matches among
-already-configured File or Dir Nodes.
-The default behavior is to
-return corresponding Nodes
-for any on-disk matches found.
+argument evaluates false,
+the search for matches on disk is disabled,
+and only matches from
+already-configured File or Dir Nodes are returned.
+The default is to return Nodes for
+matches on disk as well.
 </para>
 
 <para>
-The
+If the optional
 <parameter>source</parameter>
-argument may be set to a value which evaluates
-<constant>True</constant>
-to specify that,
-when the local directory is a
-&f-VariantDir;,
-the returned Nodes should be from the
-corresponding source directory,
-not the local directory.
+argument evaluates true,
+and the local directory is a variant directory,
+then &f-Glob; returnes Nodes from
+the corresponding source directory,
+rather than the local directory.
+<!-- XXX what about generated files that don't exist in src but will be sources? -->
 </para>
 
 <para>
-The
+If the optional
 <parameter>strings</parameter>
-argument may be set to a value which evaluates
-<constant>True</constant>
-to have the
+argument evaluates true,
 &f-Glob;
-function return strings, not Nodes,
-that represent the matched files or directories.
+returns matches as strings, rather than Nodes.
 The returned strings will be relative to
 the local (SConscript) directory.
-(Note that This may make it easier to perform
+(Note that while this may make it easier to perform
 arbitrary manipulation of file names,
-but if the returned strings are
+it loses the context &SCons; would have in the Node,
+so if the returned strings are
 passed to a different
 &SConscript;
 file,
-any Node translation will be relative
-to the other
+any Node translation there will be relative
+to that
 &SConscript;
 directory,
-not the original
+not to the original
 &SConscript;
 directory.)
 </para>
 
 <para>
-The
+The optional
 <parameter>exclude</parameter>
 argument may be set to a pattern or a list of patterns
-(following the same Unix shell semantics)
-which must be filtered out of returned elements.
-Elements matching a least one pattern of
-this list will be excluded.
+descibing files or directories
+to filter out of the match list.
+Elements matching a least one specified pattern will be excluded.
+These patterns use the same syntax as for
+<parameter>pattern</parameter>.
 </para>
 
 <para>
@@ -2508,9 +2608,10 @@ Examples:
 <example_commands>
 Program("foo", Glob("*.c"))
 Zip("/tmp/everything", Glob(".??*") + Glob("*"))
-sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) + \
-          Glob( "os_%s_specific_*.cpp" % currentOS)
+sources = Glob("*.cpp", exclude=["os_*_specific_*.cpp"]) \
+    + Glob("os_%s_specific_*.cpp" % currentOS)
 </example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="f-Help">
@@ -2542,24 +2643,26 @@ the existing help text.
     <term><function>Ignore</function>(<parameter>target, dependency</parameter>)</term>
     <term><replaceable>env</replaceable>.<methodname>Ignore</methodname>(<parameter>target, dependency</parameter>)</term>
     <listitem><para>
-The specified dependency file(s)
-will be ignored when deciding if
-the target file(s) need to be rebuilt.
+Ignores <parameter>dependency</parameter>
+when deciding if
+<parameter>target</parameter> needs to be rebuilt.
+<parameter>target</parameter> and
+<parameter>dependency</parameter>
+can each be a single filename or Node
+or a list of filenames or Nodes.
 </para>
 
 <para>
-You can also use
-&f-Ignore;
-to remove a target from the default build.
-In order to do this you must specify the directory the target will
-be built in as the target, and the file you want to skip building
-as the dependency.
-</para>
-
-<para>
-Note that this will only remove the dependencies listed from
-the files built by default.  It will still be built if that
-dependency is needed by another object being built.
+&f-Ignore; can also be used to
+remove a target from the default build
+by specifying the directory the target will be built in as
+<parameter>target</parameter>
+and the file you want to skip selecting for building as
+<parameter>dependency</parameter>.
+Note that this only removes the target from
+the default target selection algorithm:
+if it is a dependency of another object being
+built &SCons; still builds it normally.
 See the third and forth examples below.
 </para>
 
@@ -3116,20 +3219,20 @@ See also &f-link-env-AppendENVPath;.
 </listitem>
   </varlistentry>
   <varlistentry id="f-PrependUnique">
-    <term><replaceable>env</replaceable>.<methodname>PrependUnique</methodname>(<parameter>key=val, delete_existing=False, [...]</parameter>)</term>
+    <term><replaceable>env</replaceable>.<methodname>PrependUnique</methodname>(<parameter>key=val, [...], [delete_existing=False]</parameter>)</term>
     <listitem><para>
 Prepend values to &consvars; in the current &consenv;,
 maintaining uniqueness.
-Works like &f-link-env-Append; (see for details),
+Works like &f-link-env-Append;,
 except that values are added to the front,
-rather than the end, of any existing value of the &consvar;,
-and values already present in the &consvar;
-will not be added again.
+rather than the end, of the &consvar;,
+and values that would become duplicates
+are not added.
 If <parameter>delete_existing</parameter>
-is <constant>True</constant>,
-the existing matching value is first removed,
-and the requested value is inserted,
-having the effect of moving such values to the front.
+is set to a true value, then for any duplicate,
+the existing instance of <parameter>val</parameter> is first removed,
+then <parameter>val</parameter> is inserted,
+having the effect of moving it to the front.
 </para>
 
 <para>
@@ -3713,24 +3816,16 @@ script does not explicitly call &Return;, it returns
   </varlistentry>
   <varlistentry id="f-SConscriptChdir">
     <term><function>SConscriptChdir</function>(<parameter>value</parameter>)</term>
-    <term><replaceable>env</replaceable>.<methodname>SConscriptChdir</methodname>(<parameter>value</parameter>)</term>
     <listitem><para>
 By default,
 &scons;
 changes its working directory
 to the directory in which each
-subsidiary SConscript file lives.
+subsidiary SConscript file lives
+while reading and processing that script.
 This behavior may be disabled
-by specifying either:
-</para>
-
-<example_commands>
-SConscriptChdir(0)
-env.SConscriptChdir(0)
-</example_commands>
-
-<para>
-in which case
+by specifying an argument which
+evaluates false, in which case
 &scons;
 will stay in the top-level directory
 while reading all SConscript files.
@@ -3748,10 +3843,9 @@ Example:
 </para>
 
 <example_commands>
-env = Environment()
-SConscriptChdir(0)
+SConscriptChdir(False)
 SConscript('foo/SConscript')	# will not chdir to foo
-env.SConscriptChdir(1)
+SConscriptChdir(True)
 SConscript('bar/SConscript')	# will chdir to bar
 </example_commands>
 </listitem>
@@ -4340,6 +4434,12 @@ appended to the &cv-link-TOOLS;
 </para>
 
 <para>
+<emphasis>Changed in version  4.2:</emphasis>
+&f-env-Tool; now returns the tool object,
+previously it did not return (i.e. returned <constant>None</constant>).
+</para>
+
+<para>
 Examples:
 </para>
 
@@ -4376,12 +4476,6 @@ msvctool(env)  # adds 'msvc' to the TOOLS variable
 gltool = Tool('opengl', toolpath = ['tools'])
 gltool(env)  # adds 'opengl' to the TOOLS variable
 </example_commands>
-
-<para>
-<emphasis>Changed in &SCons; 4.2: &f-env-Tool; now returns
-the tool object, previously it did not return
-(i.e. returned <constant>None</constant>).</emphasis>
-</para>
 </listitem>
   </varlistentry>
   <varlistentry id="f-ValidateOptions">
@@ -4420,7 +4514,7 @@ except SConsBadOptionError as e:
     print("Message is :%s" % e.opt_str)
     Exit(3)
             </example_commands>
-            
+
             <para>
                 This function is useful to force SCons to fail fast before you execute any expensive logic later in your
                 build logic.
@@ -4434,9 +4528,9 @@ scons --compilers=mingw (the correct flag is --compiler)
                 Could cause SCons to run configure steps with the incorrect compiler. Costing developer time trying to
                 track down why the configure logic failed with a compiler which should work.
             </para>
-
-
-
+            <para>
+                <emphasis>New in version 4.5.0</emphasis>
+            </para>
         </listitem>
   </varlistentry>
   <varlistentry id="f-Value">
@@ -4454,10 +4548,6 @@ will be rebuilt.
 files are up-to-date.)
 When using timestamp source signatures, Value Nodes'
 timestamps are equal to the system time when the Node is created.
-<parameter>name</parameter> can be provided as an alternative name
-for the resulting <literal>Value</literal> node; this is advised
-if the <parameter>value</parameter> parameter can't be converted to
-a string.
 </para>
 
 <para>
@@ -4474,6 +4564,18 @@ to indicate the Node should already be considered
 There is a corresponding
 <function>read</function>()
 method that will return the built value of the Node.
+</para>
+
+<para>
+The optional <parameter>name</parameter> parameter can be provided as an
+alternative name for the resulting <literal>Value</literal> node;
+this is advised if the <parameter>value</parameter> parameter
+cannot be converted to a string.
+</para>
+
+<para>
+<emphasis>Changed in version 4.0:</emphasis>
+the <parameter>name</parameter> parameter was added.
 </para>
 
 <para>
@@ -4496,8 +4598,8 @@ prefix = ARGUMENTS.get('prefix', '/usr/local')
 
 # Attach a .Config() builder for the above function action
 # to the construction environment.
-env['BUILDERS']['Config'] = Builder(action = create)
-env.Config(target = 'package-config', source = Value(prefix))
+env['BUILDERS']['Config'] = Builder(action=create)
+env.Config(target='package-config', source=Value(prefix))
 
 def build_value(target, source, env):
     # A function that "builds" a Python Value by updating
@@ -4510,8 +4612,8 @@ input = env.Value('after')
 
 # Attach a .UpdateValue() builder for the above function
 # action to the construction environment.
-env['BUILDERS']['UpdateValue'] = Builder(action = build_value)
-env.UpdateValue(target = Value(output), source = Value(input))
+env['BUILDERS']['UpdateValue'] = Builder(action=build_value)
+env.UpdateValue(target=Value(output), source=Value(input))
 </example_commands>
 </listitem>
   </varlistentry>
@@ -4585,7 +4687,7 @@ The subsidiary SConscript file must be called as if it were in
 <parameter>variant_dir</parameter>,
 regardless of the value of
 <parameter>duplicate</parameter>.
-When calling an SConscript file, you can use the 
+When calling an SConscript file, you can use the
 <parameter>exports</parameter> keyword argument
 to pass parameters (individually or as an appropriately set up environment)
 so the SConscript can pick up the right settings for that variant build.
