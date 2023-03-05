@@ -1,198 +1,65 @@
-A new SCons release, 4.5.0, is now available on the SCons download page:
+If you are reading this in the git repository, the contents
+refer to *unreleased* changes since the last SCons release.
+Past official release announcements appear at:
+
+    https://scons.org/tag/releases.html
+
+==================================================================
+
+A new SCons release, 4.4.1, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 
 Here is a summary of the changes since 4.4.0:
 
-NOTE: If you build with Python 3.10.0 and then rebuild with 3.10.1 (or higher), you may
-      see unexpected rebuilds. This is due to Python internals changing which changed
-      the signature of a Python Action Function.
-
-NOTE: If you use a dictionary to specify your CPPDEFINES, you may see an unexpected rebuild.
-      The insertion order of dictionary keys is now preserved when generating the command line.
-      Previously these were sorted alphabecially.  This change to the command line,
-      while generating identical set of CPPDEFINES can change order and cause a rebuild.
-
-
 NEW FUNCTIONALITY
 -----------------
 
-- Added ValidateOptions() which will check that all command line options are in either
-  those specified by SCons itself, or by AddOption() in SConstruct/SConscript.  It should
-  not be called until all AddOption() calls are completed. Resolves Issue #4187
-- Added --experimental=tm_v2, which enables Andrew Morrow's NewParallel Job implementation.
-  This should scale much better for highly parallel builds.  You can also enable this via SetOption().
-- Added FILE_ENCODING, to allow explicitly setting the text encoding for files
-  written by the Textfile() and Substfile() builders. If not specified, Textfile() and Substfile() builders
-  will write files as UTF-8.
-
+- List new features (presumably why a checkpoint is being released)
 
 DEPRECATED FUNCTIONALITY
 ------------------------
 
-- The qt tool has been renamed qt3.
+- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- Added -fsanitize support to ParseFlags().  This will propagate to CCFLAGS and LINKFLAGS.
-- Calling EnsureSConsVersion() and EnsurePythonVersion() won't initialize
-  DefaultEnvironment anymore.
-- The console message from the Chmod() action function now displays
-  octal modes using the modern Python syntax (0o755 rather than 0755).
-- Migrated logging logic for --taskmastertrace to use Python's logging module. Added logging
-  to NewParallel Job class (Andrew Morrow's new parallel job implementation)
-- Preliminary support for Python 3.12.
-- Run LaTeX after biber/bibtex only if necessary
-- Configure context methods CheckLib and CheckLibWithHeader now expose
-  two additional keyword arguments: 'append', which controls whether to append
-  (the default) or prepend discovered libraries to $LIBS, and 'unique',
-  which controls whether to add the library if it is already in the $LIBS
-  list. This brings the library-adding functionality in Configure in line
-  with the regular Append, AppendUnique, Prepend and PrependUnique methods.
-- CPPDEFINES values added via a dictionary type are longer sorted by
-  key. This used to be required to maintain a consistent order of
-  commandline arguments between SCons runs, but meant macros were not
-  always emitted in the order entered. Sorting is no longer required
-  after Python interpreter improvements.  There might be a one-time 
-  rebuild of targets that involved such sorted keys in their actions.
-- Renamed the 'qt' tools to 'qt3' since the logic in that tool is only for QT version 3.  
-  Renamed all env vars which affect qt3 from QT_ to QT3_.  If you are still using SCons
-  to build QT 3 code, you'll need to update your SConscripts.  Note that using 'qt' tool 
-  has been deprecated for some time.
-
+- List modifications to existing features, where the previous behavior
+  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- Added missing newline to generated compilation database (compile_commands.json)
-- A list argument as the source to the Copy() action function is now handled.
-  Both the implementation and the strfunction which prints the progress
-  message were adjusted.
-- The Java Scanner processing of JAVACLASSPATH for dependencies (behavior
-  that was introduced in SCons 4.4.0) is adjusted to split on the system's
-  search path separator instead of on a space. The previous behavior meant
-  that a path containing spaces (e.g. r"C:\somepath\My Classes") would
-  lead to unexpected errors. If the split-on-space behavior is desired,
-  pre-split the value: instead of: env["JAVACLASSPATH"] = "foo bar baz"
-  use: env["JAVACLASSPATH"] = env.Split("foo bar baz")
-  There is no change in how JAVACLASSPATH gets turned into the -classpath
-  argument passed to the JDK tools.
-- Ninja: Fix execution environment sanitation for launching ninja. Previously if you set an
-  execution environment variable set to a python list it would crash. Now it
-  will create a string joining the list with os.pathsep
-- Fixed command line argument --diskcheck: previously a value of 'none' was ignored.
-  SetOption('diskcheck','none') is unaffected, as it did not have the problem.
-- Fixed Issue #4275 - when outputting compilation db and TEMPFILE was in use, the compilation db would have
-  command lines using the generated tempfile for long command lines, instead of the full command line for
-  the compilation step for the source/target pair.
-- A refactor in the caching logic for version 4.4.0 left Java inner classes
-  failing with an exception when a CacheDir was enabled. This is now corrected.
-- When using the gfortran tool (the default on most platforms as long as a GNU
-  toolchain is installed), the user setting of the "dialect" compilers
-  (F77, F90, F03 and F09, as well as the shared-library equivalents SHF77,
-  SHF90, SHF03, SHF09) is now honored; previously the tool overwrote the
-  settings to 'gfortran', which made it difficult reference a cross-compile
-  version for dialects.
-- Fix issue #2757, where Configure checks that perform a check which reads a modified source
-  (including program, source or header file(s)) would incorrectly mark that file "up to date" so the
-  actual build would not see the file as modified. Leading to incorrect incremental builds.
-  Now configure checks now clear node info for non conftest nodes, so they will be re-evaluated for
-  the real taskmaster run when the build commences.
-- Inconsistent behavior of adding values to the CPPDEFINES construction
-  variable has been cleaned up (described in issue #4254). Now a tuple,
-  whether provided by itself or as a member of a list, is consistently
-  interpreted as a macro with replacement value. When adding a list,
-  individual members are added in sequence without interpretation.
-  A string value containing spaces is split if it is the initial value or
-  added, but not if it is given as a member of an added list.  Detection
-  of duplicate macros now works for both valued and unvalued forms.
-- Handling of CPPDEFINES macros via Prepend and PrependUnique now works
-  (previously this was special-cased only for Append and AppendUnique).
+- List fixes of outright bugs
 
 IMPROVEMENTS
 ------------
 
-- Changed the Taskmaster trace logic to use python's logging module.
-- Add cache-debug messages for push failures.
-- Added error message to handle the case when SCons attempts to retrieve all the targets
-  for a specified builder from the CacheDir, fails to do so, and then runs into an error
-  when deleting the files which were retrieved. Previously if this happened there were no
-  errors or warnings.
+- List improvements that wouldn't be visible to the user in the
+  documentation:  performance improvements (describe the circumstances
+  under which they would be observed), or major code cleanups
 
 PACKAGING
 ---------
 
-- SCons now has three requirements files: requirements.txt describes
-  requirements to run scons; requirements-dev.txt requirements to
-  develop it - mainly things needed to run the testsuite;
-  requirements_pkg.txt are the requirements to do a full build
-  (including docs build) with an intent to create the packages.
-- Moved rpm and debian directories under packaging
-- Added logic to help packagers enable reproducible builds into packaging/etc/.
-  Please read packaging/etc/README.txt if you are interested.
-- A zipapp of scons-local is now also built.
-
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- Updated the --hash-format manpage entry.
-- EnsureSConsVersion, EnsurePythonVersion, Exit, GetLaunchDir and
-  SConscriptChdir are now listed as Global functions only.
-- Updated the docs for Glob.
-- Updated SHELL_ENV_GENERATORS description and added versionadded indicator.
-- JAVABOOTCLASSPATH, JAVACLASSPATH and JAVASOURCEPATH better document the
-  acceptable syntax for values, and how they will be interpreted,
-  including that JAVACLASSPATH will be scanned for dependencies.
-  Added note on the possibly surprising feature that SCons always passes
-  -sourcepath when calling javac, which affects how the class path is
-  used when finding sources.
-- Updated the User Guide chapter on installation: modernized the notes
-  on Python installs, SCons installs, and having multiple SCons versions
-  present on a single system.
-- Updated the User Guide chapter on variant directories with more
-  explanation, and the introduction of terms like "out of tree" that
-  may help in forming a mental model.
-- Additional explanations for MSVSProject and MSVSSolution builders.
-- Updated MSVC documentation - adds "version added" annotations on recently
-  added construction variables and provides a version-mapping table.
-- Added further details in the documentation of Append and related methods
-  on the special handling of CPPDEFINES.
+- List any significant changes to the documentation (not individual
+  typo fixes, even if they're mentioned in src/CHANGES.txt to give
+  the contributor credit)
 
 DEVELOPMENT
 -----------
 
-- Refactored SCons/Taskmaster into a package. Moved SCons/Jobs.py into that package.
-  NOTE: If you hook into SCons.Jobs, you'll have to change that to use SCons.Taskmaster.Jobs
-- Refactored SCons.Util, which had grown quite large, to be a package,
-  not a single-file module. Change should be transparent: the same import
-  of SCons.Util and public symbols from it will continue to work, however
-  code which reaches directly in to grab private symbols (starting with
-  underscore) which moved to a submodule, that code will have to be adjusted,
-  as those are not imported to the package level (new SCons.Util.hashes has
-  some of these, which are used by existing unit tests).
-- Added overrides argument to SCons.Subst.scons_subst(), subst_list(), subst(), and Action's process(),
-  strfunction(). This allows passing a dictionary of envvars to override when evaluating subst()'d strings/lists
-
+- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.4.0..HEAD
-    93  Mats Wichmann
-    85  William Deegan
-     9  Anatoli Babenia
-     8  Daniel Moody
-     4  Andrew Morrow
-     3  Ryan Saunders
-     2  Flaviu Tamas
-     1  Dan Mezhiborsky
-     1  Lukas Schrangl
-     1  Nickolai Korshunov
-     1  TZe
-     1  Thad Guidry
-     1  djh
-
+    git shortlog --no-merges -ns 4.0.1..HEAD
