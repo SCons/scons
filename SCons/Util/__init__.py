@@ -32,7 +32,7 @@ import os
 import re
 import sys
 import time
-from collections import UserDict, UserList, OrderedDict
+from collections import UserDict, UserList, OrderedDict, deque
 from contextlib import suppress
 from types import MethodType, FunctionType
 from typing import Optional, Union
@@ -527,7 +527,7 @@ def semi_deepcopy(obj):
     if isinstance(obj, UserDict):
         return obj.__class__(semi_deepcopy_dict(obj))
 
-    if isinstance(obj, UserList):
+    if isinstance(obj, (UserList, deque)):
         return obj.__class__(_semi_deepcopy_list(obj))
 
     return obj

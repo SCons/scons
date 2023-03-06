@@ -28,7 +28,7 @@ import io
 import os
 import sys
 import unittest
-from collections import UserDict as UD, UserList as UL
+from collections import UserDict as UD, UserList as UL, deque
 
 import TestCmd
 
@@ -1821,147 +1821,189 @@ def exists(env):
         updates and check that the original remains intact
         and the copy has the updated values.
         """
-        env1 = self.TestEnvironment(XXX='x', YYY='y')
-        env2 = env1.Clone()
-        env1copy = env1.Clone()
-        assert env1copy == env1
-        assert env2 == env1
-        env2.Replace(YYY = 'yyy')
-        assert env1 != env2
-        assert env1 == env1copy
+        with self.subTest():
+            env1 = self.TestEnvironment(XXX='x', YYY='y')
+            env2 = env1.Clone()
+            env1copy = env1.Clone()
+            self.assertEqual(env1copy, env1)
+            self.assertEqual(env2, env1)
+            env2.Replace(YYY = 'yyy')
+            self.assertNotEqual(env1, env2)
+            self.assertEqual(env1, env1copy)
 
-        env3 = env1.Clone(XXX='x3', ZZZ='z3')
-        assert env3 != env1
-        assert env3.Dictionary('XXX') == 'x3'
-        assert env1.Dictionary('XXX') == 'x'
-        assert env3.Dictionary('YYY') == 'y'
-        assert env3.Dictionary('ZZZ') == 'z3'
-        assert env1 == env1copy
+            env3 = env1.Clone(XXX='x3', ZZZ='z3')
+            self.assertNotEqual(env3, env1)
+            self.assertEqual(env3.Dictionary('XXX'), 'x3')
+            self.assertEqual(env1.Dictionary('XXX'), 'x')
+            self.assertEqual(env3.Dictionary('YYY'), 'y')
+            self.assertEqual(env3.Dictionary('ZZZ'), 'z3')
+            self.assertRaises(KeyError, env1.Dictionary, 'ZZZ')   # leak test
+            self.assertEqual(env1, env1copy)
 
         # Ensure that lists and dictionaries are deep copied, but not instances
-        class TestA:
-            pass
+        with self.subTest():
 
-        env1 = self.TestEnvironment(XXX=TestA(), YYY=[1, 2, 3], ZZZ={1: 2, 3: 4})
-        env2 = env1.Clone()
-        env2.Dictionary('YYY').append(4)
-        env2.Dictionary('ZZZ')[5] = 6
-        assert env1.Dictionary('XXX') is env2.Dictionary('XXX')
-        assert 4 in env2.Dictionary('YYY')
-        assert 4 not in env1.Dictionary('YYY')
-        assert 5 in env2.Dictionary('ZZZ')
-        assert 5 not in env1.Dictionary('ZZZ')
+            class TestA:
+                pass
 
-        #
-        env1 = self.TestEnvironment(BUILDERS={'b1': Builder()})
-        assert hasattr(env1, 'b1'), "env1.b1 was not set"
-        assert env1.b1.object == env1, "b1.object doesn't point to env1"
-        env2 = env1.Clone(BUILDERS = {'b2' : Builder()})
-        assert env2 != env1
-        assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
-        assert env1.b1.object == env1, "b1.object was changed"
-        assert not hasattr(env2, 'b1'), "b1 was not cleared from env2"
-        assert hasattr(env2, 'b2'), "env2.b2 was not set"
-        assert env2.b2.object == env2, "b2.object doesn't point to env2"
+            env1 = self.TestEnvironment(
+                XXX=TestA(),
+                YYY=[1, 2, 3],
+                ZZZ={1: 2, 3: 4}
+            )
+            env2 = env1.Clone()
+            env2.Dictionary('YYY').append(4)
+            env2.Dictionary('ZZZ')[5] = 6
+            self.assertIs(env1.Dictionary('XXX'), env2.Dictionary('XXX'))
+            self.assertIn(4, env2.Dictionary('YYY'))
+            self.assertNotIn(4, env1.Dictionary('YYY'))
+            self.assertIn(5, env2.Dictionary('ZZZ'))
+            self.assertNotIn(5, env1.Dictionary('ZZZ'))
+
+        # We also need to look at the special cases in semi_deepcopy()
+        # used when cloning - these should not leak to the original either
+        with self.subTest():
+            env1 = self.TestEnvironment(
+                XXX=deque([1, 2, 3]),
+                YYY=UL([1, 2, 3]),
+                ZZZ=UD({1: 2, 3: 4}),
+            )
+            env2 = env1.Clone()
+            env2.Dictionary('XXX').append(4)
+            env2.Dictionary('YYY').append(4)
+            env2.Dictionary('ZZZ')[5] = 6
+            self.assertIn(4, env2.Dictionary('XXX'))
+            self.assertNotIn(4, env1.Dictionary('XXX'))
+            self.assertIn(4, env2.Dictionary('YYY'))
+            self.assertNotIn(4, env1.Dictionary('YYY'))
+            self.assertIn(5, env2.Dictionary('ZZZ'))
+            self.assertNotIn(5, env1.Dictionary('ZZZ'))
+
+        # BUILDERS is special...
+        with self.subTest():
+            env1 = self.TestEnvironment(BUILDERS={'b1': Builder()})
+            assert hasattr(env1, 'b1'), "env1.b1 was not set"
+            assert env1.b1.object == env1, "b1.object doesn't point to env1"
+            env2 = env1.Clone(BUILDERS = {'b2' : Builder()})
+            assert env2 != env1
+            assert hasattr(env1, 'b1'), "b1 was mistakenly cleared from env1"
+            assert env1.b1.object == env1, "b1.object was changed"
+            assert not hasattr(env2, 'b1'), "b1 was not cleared from env2"
+            assert hasattr(env2, 'b2'), "env2.b2 was not set"
+            assert env2.b2.object == env2, "b2.object doesn't point to env2"
 
         # Ensure that specifying new tools in a copied environment works.
-        def foo(env): env['FOO'] = 1
-        def bar(env): env['BAR'] = 2
-        def baz(env): env['BAZ'] = 3
-        env1 = self.TestEnvironment(tools=[foo])
-        env2 = env1.Clone()
-        env3 = env1.Clone(tools=[bar, baz])
+        with self.subTest():
 
-        assert env1.get('FOO') == 1
-        assert env1.get('BAR') is None
-        assert env1.get('BAZ') is None
-        assert env2.get('FOO') == 1
-        assert env2.get('BAR') is None
-        assert env2.get('BAZ') is None
-        assert env3.get('FOO') == 1
-        assert env3.get('BAR') == 2
-        assert env3.get('BAZ') == 3
+            def foo(env):
+                env['FOO'] = 1
+
+            def bar(env):
+                env['BAR'] = 2
+
+            def baz(env):
+                env['BAZ'] = 3
+
+            env1 = self.TestEnvironment(tools=[foo])
+            env2 = env1.Clone()
+            env3 = env1.Clone(tools=[bar, baz])
+
+            assert env1.get('FOO') == 1
+            assert env1.get('BAR') is None
+            assert env1.get('BAZ') is None
+            assert env2.get('FOO') == 1
+            assert env2.get('BAR') is None
+            assert env2.get('BAZ') is None
+            assert env3.get('FOO') == 1
+            assert env3.get('BAR') == 2
+            assert env3.get('BAZ') == 3
 
         # Ensure that recursive variable substitution when copying
         # environments works properly.
-        env1 = self.TestEnvironment(CCFLAGS = '-DFOO', XYZ = '-DXYZ')
-        env2 = env1.Clone(CCFLAGS = '$CCFLAGS -DBAR',
-                         XYZ = ['-DABC', 'x $XYZ y', '-DDEF'])
-        x = env2.get('CCFLAGS')
-        assert x == '-DFOO -DBAR', x
-        x = env2.get('XYZ')
-        assert x == ['-DABC', 'x -DXYZ y', '-DDEF'], x
+        with self.subTest():
+            env1 = self.TestEnvironment(CCFLAGS='-DFOO', XYZ='-DXYZ')
+            env2 = env1.Clone(
+                CCFLAGS='$CCFLAGS -DBAR', XYZ=['-DABC', 'x $XYZ y', '-DDEF']
+            )
+            x = env2.get('CCFLAGS')
+            assert x == '-DFOO -DBAR', x
+            x = env2.get('XYZ')
+            assert x == ['-DABC', 'x -DXYZ y', '-DDEF'], x
 
         # Ensure that special properties of a class don't get
         # lost on copying.
-        env1 = self.TestEnvironment(FLAGS = CLVar('flag1 flag2'))
-        x = env1.get('FLAGS')
-        assert x == ['flag1', 'flag2'], x
-        env2 = env1.Clone()
-        env2.Append(FLAGS = 'flag3 flag4')
-        x = env2.get('FLAGS')
-        assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
-        x = env1.get('FLAGS')
-        assert x == ['flag1', 'flag2'], x
+        with self.subTest():
+            env1 = self.TestEnvironment(FLAGS=CLVar('flag1 flag2'))
+            x = env1.get('FLAGS')
+            assert x == ['flag1', 'flag2'], x
+            env2 = env1.Clone()
+            env2.Append(FLAGS='flag3 flag4')
+            x = env2.get('FLAGS')
+            assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
+            x = env1.get('FLAGS')
+            assert x == ['flag1', 'flag2'], x
 
         # Ensure that appending directly to a copied CLVar
         # doesn't modify the original.
-        env1 = self.TestEnvironment(FLAGS = CLVar('flag1 flag2'))
-        x = env1.get('FLAGS')
-        assert x == ['flag1', 'flag2'], x
-        env2 = env1.Clone()
-        env2['FLAGS'] += ['flag3', 'flag4']
-        x = env2.get('FLAGS')
-        assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
-        x = env1.get('FLAGS')
-        assert x == ['flag1', 'flag2'], x
+        with self.subTest():
+            env1 = self.TestEnvironment(FLAGS=CLVar('flag1 flag2'))
+            x = env1.get('FLAGS')
+            assert x == ['flag1', 'flag2'], x
+            env2 = env1.Clone()
+            env2['FLAGS'] += ['flag3', 'flag4']
+            x = env2.get('FLAGS')
+            assert x == ['flag1', 'flag2', 'flag3', 'flag4'], x
+            x = env1.get('FLAGS')
+            assert x == ['flag1', 'flag2'], x
 
         # Test that the environment stores the toolpath and
         # re-uses it for copies.
-        test = TestCmd.TestCmd(workdir = '')
+        with self.subTest():
+            test = TestCmd.TestCmd(workdir='')
 
-        test.write('xxx.py', """\
+            test.write('xxx.py', """\
 def exists(env):
     return True
 def generate(env):
     env['XXX'] = 'one'
 """)
 
-        test.write('yyy.py', """\
+            test.write('yyy.py', """\
 def exists(env):
     return True
 def generate(env):
     env['YYY'] = 'two'
 """)
 
-        env = self.TestEnvironment(tools=['xxx'], toolpath=[test.workpath('')])
-        assert env['XXX'] == 'one', env['XXX']
-        env = env.Clone(tools=['yyy'])
-        assert env['YYY'] == 'two', env['YYY']
-
+            env = self.TestEnvironment(tools=['xxx'], toolpath=[test.workpath('')])
+            assert env['XXX'] == 'one', env['XXX']
+            env = env.Clone(tools=['yyy'])
+            assert env['YYY'] == 'two', env['YYY']
 
         # Test that
-        real_value = [4]
+        with self.subTest():
+            real_value = [4]
 
-        def my_tool(env, rv=real_value):
-            assert env['KEY_THAT_I_WANT'] == rv[0]
-            env['KEY_THAT_I_WANT'] = rv[0] + 1
+            def my_tool(env, rv=real_value):
+                assert env['KEY_THAT_I_WANT'] == rv[0]
+                env['KEY_THAT_I_WANT'] = rv[0] + 1
 
-        env = self.TestEnvironment()
+            env = self.TestEnvironment()
 
-        real_value[0] = 5
-        env = env.Clone(KEY_THAT_I_WANT=5, tools=[my_tool])
-        assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
+            real_value[0] = 5
+            env = env.Clone(KEY_THAT_I_WANT=5, tools=[my_tool])
+            assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
 
-        real_value[0] = 6
-        env = env.Clone(KEY_THAT_I_WANT=6, tools=[my_tool])
-        assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
+            real_value[0] = 6
+            env = env.Clone(KEY_THAT_I_WANT=6, tools=[my_tool])
+            assert env['KEY_THAT_I_WANT'] == real_value[0], env['KEY_THAT_I_WANT']
 
         # test for pull request #150
-        env = self.TestEnvironment()
-        env._dict.pop('BUILDERS')
-        assert ('BUILDERS' in env) is False
-        env2 = env.Clone()
+        with self.subTest():
+            env = self.TestEnvironment()
+            env._dict.pop('BUILDERS')
+            assert ('BUILDERS' in env) is False
+            env2 = env.Clone()
 
     def test_Detect(self):
         """Test Detect()ing tools"""

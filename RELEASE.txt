@@ -11,7 +11,7 @@ A new SCons release, 4.4.1, is now available on the SCons download page:
     https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.4.0:
+Here is a summary of the changes since 4.5.0:
 
 NEW FUNCTIONALITY
 -----------------
@@ -32,7 +32,9 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fix a problem in 4.5.0 where in some circumstances a Clone environment
+  could share the CPPDEFINES data structure with the original, causing
+  leakage when they should be completely independent after the Clone.
 
 IMPROVEMENTS
 ------------
