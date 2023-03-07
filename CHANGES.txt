@@ -7,32 +7,18 @@
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 4.5.1
 
-      From John Doe:
-
-        - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-      From John Doe:
-
-        - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-      From John Doe:
-
-        - Whatever John Doe did.
-
-
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Mats Wichmann
+    - Fix a problem in 4.5.0 where using something like the following code
+      will cause a Clone()'d environment to share the CPPDEFINES with the
+      original Environment() which was cloned. Causing leakage of changes
+      to CPPDEFINES when they should be completely independent after the Clone.
+          env=Environment(CPPDEFINES=['a'])
+          env.Append(CPPDEFINES=['b']) (or AppendUnique,Prepend,PrependUnique)
+          env1=env.Clone()
+          env1.Append(CPPDEFINES=['c']) (or any other modification, but not overwriting CPPDEFINES
+      Now env['CPPDEFINES'] will contain 'c' when it should not.
 
 
 RELEASE 4.5.0 -  Sun, 05 Mar 2023 14:08:29 -0700
@@ -160,7 +146,7 @@ RELEASE 4.5.0 -  Sun, 05 Mar 2023 14:08:29 -0700
     - Updated MSVC documentation - adds "version added" annotations on recently
       added construction variables and provides a version-mapping table.
     - Add Python 3.12 support, and indicate 3.11/3.12 support in package.
-      3.12 is in alpha for this SCons release, the bytecode sequences 
+      3.12 is in alpha for this SCons release, the bytecode sequences
       embedded in SCons/ActionTests.py may need to change later, but
       based on what is known now, 3.12 itself should work with this release.
     - Add "append" keyword argument to Configure context's CheckLib and
