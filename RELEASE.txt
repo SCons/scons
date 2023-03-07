@@ -44,7 +44,8 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- Remove the redundant `wheel` dependency from `pyproject.toml`,
+  as it is added automatically by the setuptools PEP517 backend.
 
 DOCUMENTATION
 -------------
