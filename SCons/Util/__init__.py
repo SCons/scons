@@ -516,6 +516,7 @@ _semi_deepcopy_dispatch = {
     tuple: _semi_deepcopy_tuple,
 }
 
+
 def semi_deepcopy(obj):
     copier = _semi_deepcopy_dispatch.get(type(obj))
     if copier:

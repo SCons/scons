@@ -10,9 +10,15 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 RELEASE 4.5.1
 
   From Mats Wichmann
-    - Fix a problem in 4.5.0 where in some circumstances a Clone environment
-      could share the CPPDEFINES data structure with the original, causing
-      leakage when they should be completely independent after the Clone.
+    - Fix a problem in 4.5.0 where using something like the following code
+      will cause a Clone()'d environment to share the CPPDEFINES with the
+      original Environment() which was cloned. Causing leakage of changes
+      to CPPDEFINES when they should be completely independent after the Clone.
+          env=Environment(CPPDEFINES=['a'])
+          env.Append(CPPDEFINES=['b']) (or AppendUnique,Prepend,PrependUnique)
+          env1=env.Clone()
+          env1.Append(CPPDEFINES=['c']) (or any other modification, but not overwriting CPPDEFINES
+      Now env['CPPDEFINES'] will contain 'c' when it should not.
 
 
 RELEASE 4.5.0 -  Sun, 05 Mar 2023 14:08:29 -0700

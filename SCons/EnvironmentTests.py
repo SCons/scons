@@ -1869,15 +1869,15 @@ def exists(env):
                 ZZZ=UD({1: 2, 3: 4}),
             )
             env2 = env1.Clone()
-            env2.Dictionary('XXX').append(4)
-            env2.Dictionary('YYY').append(4)
-            env2.Dictionary('ZZZ')[5] = 6
-            self.assertIn(4, env2.Dictionary('XXX'))
-            self.assertNotIn(4, env1.Dictionary('XXX'))
-            self.assertIn(4, env2.Dictionary('YYY'))
-            self.assertNotIn(4, env1.Dictionary('YYY'))
-            self.assertIn(5, env2.Dictionary('ZZZ'))
-            self.assertNotIn(5, env1.Dictionary('ZZZ'))
+            env2['XXX'].append(4)
+            env2['YYY'].append(4)
+            env2['ZZZ'][5] = 6
+            self.assertIn(4, env2['XXX'])
+            self.assertNotIn(4, env1['XXX'])
+            self.assertIn(4, env2['YYY'])
+            self.assertNotIn(4, env1['YYY'])
+            self.assertIn(5, env2['ZZZ'])
+            self.assertNotIn(5, env1['ZZZ'])
 
         # BUILDERS is special...
         with self.subTest():
