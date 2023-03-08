@@ -2520,6 +2520,9 @@ class OverrideEnvironment(Base):
 
     # Methods that make this class act like a proxy.
     def __getattr__(self, name):
+        if '__subject' not in self.__dict__:
+            setattr(self.__dict__, '__subject', {})
+
         attr = getattr(self.__dict__['__subject'], name)
         # Here we check if attr is one of the Wrapper classes. For
         # example when a pseudo-builder is being called from an
@@ -2535,6 +2538,9 @@ class OverrideEnvironment(Base):
             return attr
 
     def __setattr__(self, name, value):
+        if '__subject' not in self.__dict__:
+            setattr(self.__dict__, '__subject', {})
+
         setattr(self.__dict__['__subject'], name, value)
 
     # Methods that make this class act like a dictionary.
