@@ -122,7 +122,7 @@ stdout3 = """\
 """
 
 stdout4 = """\
-['_REENTRANT', 'TOOLS_ENABLED']
+['TOOLS_ENABLED', '_REENTRANT']
 ['pulse']
 ['-pthread']
 ['-pthread']
