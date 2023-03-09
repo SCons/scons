@@ -902,6 +902,11 @@ sys.exit(0)
         assert env['A'] == ['aaa'], env['A']
         assert env['B'] == ['b', 'bb', 'bbb'], env['B']
 
+        # issue #4231: CPPDEFINES can be a deque, tripped up merge logic
+        env = Environment(CPPDEFINES=deque(['aaa', 'bbb']))
+        env.MergeFlags({'CPPDEFINES': 'ccc'})
+        self.assertEqual(env['CPPDEFINES'], deque(['aaa', 'bbb', 'ccc']))
+
         # issue #3665: if merging dict which is a compound object
         # (i.e. value can be lists, etc.), the value object should not
         # be modified. per the issue, this happened if key not in env.
@@ -2167,7 +2172,7 @@ def generate(env):
                                       ('-isystem', '/usr/include/foo2'),
                                       ('-idirafter', '/usr/include/foo3'),
                                       '+DD64'], env['CCFLAGS']
-            assert env['CPPDEFINES'] == ['FOO', ['BAR', 'value']], env['CPPDEFINES']
+            self.assertEqual(list(env['CPPDEFINES']), ['FOO', ['BAR', 'value']])
             assert env['CPPFLAGS'] == ['', '-Wp,-cpp'], env['CPPFLAGS']
             assert env['CPPPATH'] == ['string', '/usr/include/fum', 'bar'], env['CPPPATH']
             assert env['FRAMEWORKPATH'] == ['fwd1', 'fwd2', 'fwd3'], env['FRAMEWORKPATH']
@@ -3662,10 +3667,10 @@ def generate(env):
         env = Environment(tools=[], CCFLAGS=None, parse_flags = '-Y')
         assert env['CCFLAGS'] == ['-Y'], env['CCFLAGS']
 
-        env = Environment(tools=[], CPPDEFINES = 'FOO', parse_flags = '-std=c99 -X -DBAR')
+        env = Environment(tools=[], CPPDEFINES='FOO', parse_flags='-std=c99 -X -DBAR')
         assert env['CFLAGS']  == ['-std=c99'], env['CFLAGS']
         assert env['CCFLAGS'] == ['-X'], env['CCFLAGS']
-        assert env['CPPDEFINES'] == ['FOO', 'BAR'], env['CPPDEFINES']
+        self.assertEqual(list(env['CPPDEFINES']), ['FOO', 'BAR'])
 
     def test_clone_parse_flags(self):
         """Test the env.Clone() parse_flags argument"""
@@ -3687,8 +3692,7 @@ def generate(env):
         assert 'CCFLAGS' not in env
         assert env2['CCFLAGS'] == ['-X'], env2['CCFLAGS']
         assert env['CPPDEFINES'] == 'FOO', env['CPPDEFINES']
-        assert env2['CPPDEFINES'] == ['FOO','BAR'], env2['CPPDEFINES']
-
+        self.assertEqual(list(env2['CPPDEFINES']), ['FOO','BAR'])
 
 
 class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
@@ -3978,15 +3982,16 @@ class OverrideEnvironmentTestCase(unittest.TestCase,TestEnvironmentFixture):
         assert env['CCFLAGS'] is None, env['CCFLAGS']
         assert env2['CCFLAGS'] == ['-Y'], env2['CCFLAGS']
 
-        env = SubstitutionEnvironment(CPPDEFINES = 'FOO')
-        env2 = env.Override({'parse_flags' : '-std=c99 -X -DBAR'})
+        env = SubstitutionEnvironment(CPPDEFINES='FOO')
+        env2 = env.Override({'parse_flags': '-std=c99 -X -DBAR'})
         assert 'CFLAGS' not in env
         assert env2['CFLAGS']  == ['-std=c99'], env2['CFLAGS']
         assert 'CCFLAGS' not in env
         assert env2['CCFLAGS'] == ['-X'], env2['CCFLAGS']
+        # make sure they are independent
+        self.assertIsNot(env['CPPDEFINES'], env2['CPPDEFINES'])
         assert env['CPPDEFINES'] == 'FOO', env['CPPDEFINES']
-        assert env2['CPPDEFINES'] == ['FOO','BAR'], env2['CPPDEFINES']
-
+        self.assertEqual(list(env2['CPPDEFINES']), ['FOO','BAR'])
 
 
 class NoSubstitutionProxyTestCase(unittest.TestCase,TestEnvironmentFixture):

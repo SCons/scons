@@ -13,6 +13,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Remove the redundant `wheel` dependency from `pyproject.toml`,
       as it is added automatically by the setuptools PEP517 backend.
 
+  From Mats Wichmann
+    -  Fix a problem (#4321) in 4.5.0/4.5.1 where ParseConfig could cause an
+       exception in MergeFlags when the result would be to add preprocessor
+       defines to existing CPPDEFINES. The following code illustrates the
+       circumstances that could trigger this:
+          env=Environment(CPPDEFINES=['a'])
+          env.Append(CPPDEFINES=['b'])
+          env.MergeFlags({'CPPDEFINES': 'c'})
+
 
 RELEASE 4.5.1 -  Mon, 06 Mar 2023 14:08:29 -0700
 
