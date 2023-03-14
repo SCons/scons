@@ -299,6 +299,11 @@ SupportedArchitectureList = [
     ),
 
     ArchDefinition(
+        'arm64',
+        ['ARM64', 'aarch64', 'AARCH64', 'AArch64'],
+    ),
+
+    ArchDefinition(
         'ia64',
         ['IA64'],
     ),
@@ -315,9 +320,20 @@ def get_architecture(arch=None):
     """Returns the definition for the specified architecture string.
 
     If no string is specified, the system default is returned (as defined
-    by the PROCESSOR_ARCHITEW6432 or PROCESSOR_ARCHITECTURE environment
-    variables).
+    by the registry PROCESSOR_ARCHITECTURE value, PROCESSOR_ARCHITEW6432
+    environment variable, PROCESSOR_ARCHITECTURE environment variable, or
+    the platform machine).
     """
+    if arch is None:
+        if SCons.Util.can_read_reg:
+            try:
+                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                          'SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment')
+                val, tok = SCons.Util.RegQueryValueEx(k, 'PROCESSOR_ARCHITECTURE')
+            except SCons.Util.RegError:
+                val = ''
+            if val and val in SupportedArchitectureMap:
+                arch = val
     if arch is None:
         arch = os.environ.get('PROCESSOR_ARCHITEW6432')
         if not arch:

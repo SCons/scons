@@ -209,6 +209,17 @@ def has_reg(value):
 # Functions for fetching environment variable settings from batch files.
 
 
+def _force_vscmd_skip_sendtelemetry(env):
+
+    if 'VSCMD_SKIP_SENDTELEMETRY' in env['ENV']:
+        return False
+
+    env['ENV']['VSCMD_SKIP_SENDTELEMETRY'] = '1'
+    debug("force env['ENV']['VSCMD_SKIP_SENDTELEMETRY']=%s", env['ENV']['VSCMD_SKIP_SENDTELEMETRY'])
+
+    return True
+
+
 def normalize_env(env, keys, force=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
@@ -257,7 +268,7 @@ def normalize_env(env, keys, force=False):
     return normenv
 
 
-def get_output(vcbat, args=None, env=None):
+def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
@@ -296,20 +307,23 @@ def get_output(vcbat, args=None, env=None):
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
+    if skip_sendtelemetry:
+        _force_vscmd_skip_sendtelemetry(env)
+
     if args:
         debug("Calling '%s %s'", vcbat, args)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" %s & set' % (vcbat, args),
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" %s & set' % (vcbat, args)
     else:
         debug("Calling '%s'", vcbat)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" & set' % vcbat,
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" & set' % vcbat
+
+    popen = SCons.Action._subproc(
+        env,
+        cmd_str,
+        stdin='devnull',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
