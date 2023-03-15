@@ -61,6 +61,8 @@ rest of our code will find our pre-loaded compatibility module.
 import sys
 import importlib
 
+from .win32_comspec import windows_comspec_warning_message
+
 PYPY = hasattr(sys, 'pypy_translation_info')
 
 

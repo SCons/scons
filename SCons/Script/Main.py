@@ -906,6 +906,10 @@ def _main(parser):
     if options.diskcheck:
         SCons.Node.FS.set_diskcheck(options.diskcheck)
 
+    message = SCons.compat.windows_comspec_warning_message()
+    if message:
+        SCons.Warnings.warn(SCons.Warnings.WindowsComspecWarning, message)
+
     # Next, we want to create the FS object that represents the outside
     # world's file system, as that's central to a lot of initialization.
     # To do this, however, we need to be in the directory from which we
