@@ -46,30 +46,31 @@ LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE:
     import logging
 
-    modulelist = (
-        # root module and parent/root module
-        'MSCommon', 'Tool',
-        # python library and below: correct iff scons does not have a lib folder
-        'lib',
-        # scons modules
-        'SCons', 'test', 'scons'
-    )
-
-    def get_relative_filename(filename, module_list):
-        if not filename:
-            return filename
-        for module in module_list:
-            try:
-                ind = filename.rindex(module)
-                return filename[ind:]
-            except ValueError:
-                pass
-        return filename
-
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
+
+        modulelist = (
+            # root module and parent/root module
+            'MSCommon', 'Tool',
+            # python library and below: correct iff scons does not have a lib folder
+            'lib',
+            # scons modules
+            'SCons', 'test', 'scons'
+        )
+
+        def get_relative_filename(self, filename, module_list):
+            if not filename:
+                return filename
+            for module in module_list:
+                try:
+                    ind = filename.rindex(module)
+                    return filename[ind:]
+                except ValueError:
+                    pass
+            return filename
+
         def filter(self, record):
-            relfilename = get_relative_filename(record.pathname, modulelist)
+            relfilename = self.get_relative_filename(record.pathname, self.modulelist)
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
