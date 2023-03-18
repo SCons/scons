@@ -9,6 +9,31 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Joseph Brill:
+    - Fix issue #4312: the cached installed msvc list had an indirect dependency
+      on the target architecture in the environment dictionary.  The first call
+      to construct the installed msvc list now forces the target architecture to be
+      undefined, constructs the installed msvc list, and then restores the original
+      target architecture.
+      Note: an indirect dependency on the VSWHERE construction variable in the
+      environment remains.
+    - Fix issue #4312: explicitly guard against an empty regular expression list
+      when msvc is not installed.
+    - When trying to find a valid msvc batch file, check that the compiler executable
+      (cl.exe) exists for VS6 to VS2015 to avoid executing the msvc batch file.  Always
+      check that the compiler executable is found on the msvc script environment path
+      after running the msvc batch file.  Only use the sdk batch files when all of the
+      msvc script host/target combinations have been exhausted and a valid script was
+      not found.
+    - Add ARM64 host configurations for windows and msvc.
+      Note: VS2013 and earlier has not been tested on ARM64.
+    - If necessary, automatically define VSCMD_SKIP_SENDTELEMETRY for VS2019 and later
+      on ARM64 hosts when using an arm32 build of python to prevent a powershell dll
+      not found error pop-up window.
+    - Fix an issue where test SConfTests.py would fail when mscommon debugging
+      was enabled.  The mscommon debug filter class registered with the logging
+      module was refactored.
+
   From Michał Górny:
     - Remove the redundant `wheel` dependency from `pyproject.toml`,
       as it is added automatically by the setuptools PEP517 backend.
