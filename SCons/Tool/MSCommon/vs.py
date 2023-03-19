@@ -207,7 +207,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2019
@@ -219,7 +219,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2017
@@ -231,7 +231,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual C++ 2017 Express Edition (for Desktop)
@@ -243,7 +243,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\WDExpress.exe',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
     ),
 
     # Visual Studio 2015

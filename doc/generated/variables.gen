@@ -3179,8 +3179,8 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       Valid host arch values are
       <literal>x86</literal> and <literal>arm</literal>
       for 32-bit hosts and
-      <literal>amd64</literal> and <literal>x86_64</literal>
-      for 64-bit hosts.
+      <literal>amd64</literal>, <literal>arm64</literal>,
+      and <literal>x86_64</literal> for 64-bit hosts.
     </para>
     <para>
       Should be considered immutable. 

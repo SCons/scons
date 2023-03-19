@@ -33,6 +33,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix an issue where test SConfTests.py would fail when mscommon debugging
       was enabled.  The mscommon debug filter class registered with the logging
       module was refactored.
+    - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
+      consistent with the current documentation of MSVS_ARCH.
 
   From Michał Górny:
     - Remove the redundant `wheel` dependency from `pyproject.toml`,
