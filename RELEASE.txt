@@ -18,6 +18,11 @@ NEW FUNCTIONALITY
 
 - List new features (presumably why a checkpoint is being released)
 
+- MSVC: If available, native arm64 tools will be used on arm64 hosts for VS2022.
+- MSVC: If necessary, automatically define VSCMD_SKIP_TELEMETRY for VS2019 and later
+  on arm64 hosts when using an arm (32-bit) build of python to prevent a powershell
+  error pop-up window (powershell dll not found).
+
 DEPRECATED FUNCTIONALITY
 ------------------------
 
@@ -29,10 +34,36 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - List modifications to existing features, where the previous behavior
   wouldn't actually be considered a bug
 
+- MSVC: When trying to find a valid msvc batch file, the existence of the msvc compiler
+  executable is verified for VS6 to VS2015 to avoid executing the msvc batch file when
+  the host/target tool is known not to be present. Always check that the msvc compiler
+  executable is found on the msvc script environment path after running the msvc batch
+  file.  The is predominately needed for recent versions of Visual Studio where the msvc
+  batch file exists but an individual msvc toolset may not support the host/target
+  architecture combination.  For example, when using VS2022 on arm64, the arm64 native
+  tools are only installed for the 14.3x toolsets.
+
 FIXES
 -----
 
 - List fixes of outright bugs
+
+- MSVC: The installed msvc list is calculated once and cached.  There was an indirect
+  dependency on the target architecture when determining if each version of msvc
+  was installed based on the initial invocation.  It was possible that an msvc instance
+  would not be considered installed due to the tools for the requested target
+  architecture not being installed.  The initial call to construct the installed msvc
+  list now uses an undefined target architecture to evaluate all potential host/target
+  combinations when evaluating if the msvc tools are installed for a given Visual Studio
+  installation.
+- MSVC: Erroneous construction of the installed msvc list (as described above) caused an
+  index error in the msvc support code.  An explicit check was added to prevent indexing
+  into an empty list.
+- MSCommon: Test SConsTests.py would fail when mscommon debugging was enabled via the
+  MSVC_MSCOMMON_DEBUG environment variable.  The mscommon logging filter class registered
+  with the python logging module was refactored to prevent test failure.
+- MSVS: Add arm64 to the MSVS supported architectures list for VS2017 and later to be
+  consistent with the current documentation of MSVS_ARCH.
 
 IMPROVEMENTS
 ------------
@@ -53,6 +84,8 @@ DOCUMENTATION
 - List any significant changes to the documentation (not individual
   typo fixes, even if they're mentioned in src/CHANGES.txt to give
   the contributor credit)
+
+- HOST_ARCH: Add arm64 to the valid win32 host architectures.
 
 DEVELOPMENT
 -----------
