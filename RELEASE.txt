@@ -19,7 +19,7 @@ NEW FUNCTIONALITY
 - List new features (presumably why a checkpoint is being released)
 
 - MSVC: If available, native arm64 tools will be used on arm64 hosts for VS2022.
-- MSVC: If necessary, automatically define VSCMD_SKIP_TELEMETRY for VS2019 and later
+- MSVC: If necessary, automatically define VSCMD_SKIP_SENDTELEMETRY for VS2019 and later
   on arm64 hosts when using an arm (32-bit) build of python to prevent a powershell
   error pop-up window (powershell dll not found).
 
