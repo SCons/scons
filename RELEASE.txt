@@ -38,7 +38,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   executable is verified for VS6 to VS2015 to avoid executing the msvc batch file when
   the host/target tool is known not to be present. Always check that the msvc compiler
   executable is found on the msvc script environment path after running the msvc batch
-  file.  The is predominately needed for recent versions of Visual Studio where the msvc
+  file.  This is predominately needed for recent versions of Visual Studio where the msvc
   batch file exists but an individual msvc toolset may not support the host/target
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
