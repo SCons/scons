@@ -10,36 +10,18 @@ A new SCons release, 4.5.2, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
-
 Here is a summary of the changes since 4.5.1:
-
-NEW FUNCTIONALITY
------------------
-
-- List new features (presumably why a checkpoint is being released)
-
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
-
-CHANGED/ENHANCED EXISTING FUNCTIONALITY
----------------------------------------
-
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
 
 FIXES
 -----
 
-- List fixes of outright bugs
-
-IMPROVEMENTS
-------------
-
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+-  Fix a problem (#4321) in 4.5.0/4.5.1 where ParseConfig could cause an
+   exception in MergeFlags when the result would be to add preprocessor
+   defines to existing CPPDEFINES. The following code illustrates the
+   circumstances that could trigger this:
+      env=Environment(CPPDEFINES=['a'])
+      env.Append(CPPDEFINES=['b'])
+      env.MergeFlags({'CPPDEFINES': 'c'})
 
 PACKAGING
 ---------
@@ -47,20 +29,12 @@ PACKAGING
 - Remove the redundant `wheel` dependency from `pyproject.toml`,
   as it is added automatically by the setuptools PEP517 backend.
 
-DOCUMENTATION
--------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
-
-DEVELOPMENT
------------
-
-- List visible changes in the way SCons is developed
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.5.1..HEAD
+     3  Mats Wichmann
+     2  William Deegan
+     1  Michał Górny
