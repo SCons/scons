@@ -1,11 +1,3 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
 A new SCons release, 4.5.2, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
