@@ -9,9 +9,12 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Mats Wichmann
+    - C scanner's dictifyCPPDEFINES routine did not understand the possible
+      combinations of CPPDEFINES - not aware of a "name=value" string either
+      embedded in a sequence, or by itself.  The conditional C scanner thus
+      did not always properly apply the defines. The regular C scanner does
+      not use these, so was not affected.  [fixes #4193]
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700

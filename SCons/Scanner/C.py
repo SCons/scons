@@ -64,22 +64,35 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
 def dictify_CPPDEFINES(env) -> dict:
     """Returns CPPDEFINES converted to a dict."""
     cppdefines = env.get('CPPDEFINES', {})
+    result = {}
     if cppdefines is None:
-        return {}
+        return result
     if SCons.Util.is_Sequence(cppdefines):
-        result = {}
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
                 try:
                     result[c[0]] = c[1]
                 except IndexError:
-                    # it could be a one-item sequence
+                    # could be a one-item sequence
                     result[c[0]] = None
+            elif SCons.Util.is_String(c):
+                try:
+                    name, value = c.split('=')
+                    result[name] = value
+                except ValueError:
+                    result[c] = None
             else:
+                # don't really know what to do here
                 result[c] = None
         return result
+    if SCons.Util.is_String(cppdefines):
+        try:
+            name, value = cppdefines.split('=')
+            return {name: value}
+        except ValueError:
+            return {cppdefines: None}
     if not SCons.Util.is_Dict(cppdefines):
-        return {cppdefines : None}
+        return {cppdefines: None}
     return cppdefines
 
 class SConsCPPScannerWrapper:
