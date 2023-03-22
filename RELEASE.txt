@@ -6,12 +6,12 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.5.2, is now available on the SCons download page:
+A new SCons release, 4.5.3, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.5.1:
+Here is a summary of the changes since 4.5.2:
 
 NEW FUNCTIONALITY
 -----------------
@@ -75,8 +75,7 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- Remove the redundant `wheel` dependency from `pyproject.toml`,
-  as it is added automatically by the setuptools PEP517 backend.
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------

@@ -36,6 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
       consistent with the current documentation of MSVS_ARCH.
 
+
+RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
+
   From Michał Górny:
     - Remove the redundant `wheel` dependency from `pyproject.toml`,
       as it is added automatically by the setuptools PEP517 backend.
