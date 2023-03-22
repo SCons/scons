@@ -516,16 +516,14 @@ class CConditionalScannerTestCase4(unittest.TestCase):
     def runTest(self):
         """Test that dependency is detected if #include uses a macro."""
 
-        # first try the macro defined in the source file
-        with self.subTest():
+        with self.subTest("macro defined in the source file"):
             env = DummyEnvironment()
             s = SCons.Scanner.C.CConditionalScanner()
             deps = s(env.File('f9a.c'), env, s.path(env))
             headers = ['f9.h']
             deps_match(self, deps, headers)
 
-        # then try the macro defined on the command line
-        with self.subTest():
+        with self.subTest("macro defined on the command line"):
             env = DummyEnvironment(CPPDEFINES='HEADER=\\"f9.h\\"')
             #env = DummyEnvironment(CPPDEFINES=['HEADER=\\"f9.h\\"'])
             s = SCons.Scanner.C.CConditionalScanner()
@@ -536,29 +534,42 @@ class CConditionalScannerTestCase4(unittest.TestCase):
 
 class dictify_CPPDEFINESTestCase(unittest.TestCase):
     def runTest(self):
-        """Make sure single-item tuples convert correctly.
+        """Make sure CPPDEFINES converts correctly.
 
-        This is a regression test: AppendUnique turns sequences into
-        lists of tuples, and dictify could gack on these.
+        Various types and combinations of types could fail if not handled
+        specifically by dictify_CPPDEFINES - this is a regression test.
         """
-        with self.subTest():
-            env = DummyEnvironment(CPPDEFINES=[("VALUED_DEFINE", 1), ("UNVALUED_DEFINE", )])
+        with self.subTest("tuples in a sequence, including one without value"):
+            env = DummyEnvironment(CPPDEFINES=[("VALUED", 1), ("UNVALUED",)])
             d = SCons.Scanner.C.dictify_CPPDEFINES(env)
-            expect = {'VALUED_DEFINE': 1, 'UNVALUED_DEFINE': None}
+            expect = {"VALUED": 1, "UNVALUED": None}
             self.assertEqual(d, expect)
 
-        # string-valued define in a sequence
-        with self.subTest():
-            env = DummyEnvironment(CPPDEFINES=["STRING=VALUE"])
+        with self.subTest("tuple-valued define by itself"):
+            env = DummyEnvironment(CPPDEFINES=("STRING", "VALUE"))
             d = SCons.Scanner.C.dictify_CPPDEFINES(env)
-            expect = {'STRING': 'VALUE'}
+            expect = {"STRING": "VALUE"}
             self.assertEqual(d, expect)
 
-        # string-valued define by itself
-        with self.subTest():
+        with self.subTest("string-valued define in a sequence"):
+            env = DummyEnvironment(CPPDEFINES=[("STRING=VALUE")])
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE"}
+            self.assertEqual(d, expect)
+
+        with self.subTest("string-valued define by itself"):
             env = DummyEnvironment(CPPDEFINES="STRING=VALUE")
             d = SCons.Scanner.C.dictify_CPPDEFINES(env)
-            expect = {'STRING': 'VALUE'}
+            expect = {"STRING": "VALUE"}
+            self.assertEqual(d, expect)
+
+        from collections import deque
+        with self.subTest("compound CPPDEFINES in internal format"):
+            env = DummyEnvironment(
+                CPPDEFINES=deque([("STRING", "VALUE"), ("UNVALUED",)])
+            )
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE", "UNVALUED": None}
             self.assertEqual(d, expect)
 
 
