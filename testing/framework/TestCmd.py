@@ -324,7 +324,7 @@ from typing import Optional
 
 if sys.platform == 'win32':
     try:
-        import win32_comspec_warn
+        import win32_comspec_load
     except ImportError:
         pass
 
