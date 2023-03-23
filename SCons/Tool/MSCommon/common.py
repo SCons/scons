@@ -34,6 +34,10 @@ import sys
 from contextlib import suppress
 from pathlib import Path
 
+from SCons.compat import (
+    windows_comspec_context_create,
+    windows_comspec_context_restore,
+)
 import SCons.Util
 import SCons.Warnings
 
@@ -298,18 +302,22 @@ def get_output(vcbat, args=None, env=None):
 
     if args:
         debug("Calling '%s %s'", vcbat, args)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" %s & set' % (vcbat, args),
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" %s & set' % (vcbat, args)
     else:
         debug("Calling '%s'", vcbat)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" & set' % vcbat,
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" & set' % vcbat
+
+    try:
+        context = windows_comspec_context_create(env)
+        popen = SCons.Action._subproc(
+            env,
+            cmd_str,
+            stdin='devnull',
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    finally:
+        windows_comspec_context_restore(context, env)
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows

@@ -323,10 +323,7 @@ from subprocess import PIPE, STDOUT
 from typing import Optional
 
 if sys.platform == 'win32':
-    try:
-        import win32_comspec_load
-    except ImportError:
-        pass
+    import win32_comspec_test
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'

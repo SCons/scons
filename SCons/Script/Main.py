@@ -906,7 +906,7 @@ def _main(parser):
     if options.diskcheck:
         SCons.Node.FS.set_diskcheck(options.diskcheck)
 
-    message = SCons.compat.windows_comspec_warning_message()
+    message = SCons.compat.windows_comspec_import_warning_message()
     if message:
         SCons.Warnings.warn(SCons.Warnings.WindowsComspecWarning, message)
 

@@ -26,16 +26,21 @@ Windows COMSPEC command interpreter configuration.
 """
 
 import sys
-import os
-import textwrap
-from collections import namedtuple
 
 __all__ = [
-    'windows_comspec_warning_message',
+    'windows_comspec_import_warning_message',
+    'windows_comspec_context_create',
+    'windows_comspec_context_restore',
+    'windows_comspec_state_create',
+    'windows_comspec_state_warning_message',
 ]
 
 
 if sys.platform == 'win32':
+
+    import os
+    import textwrap
+    from collections import namedtuple
 
     try:
         import winreg
@@ -47,16 +52,11 @@ if sys.platform == 'win32':
         force_comspec_evar = 'SCONS_WIN32_COMSPEC_FORCE'
 
         # accepted values (case-insensitive) for evar value
-        _EVAR_LCASE_TRUE = ('true', 't', 'yes', 'y', '1')
-        _EVAR_LCASE_FALSE = ('false', 'f', 'no', 'n', '0')
-
-        # internal debugging/testing
-        _use_registry = True
-        _use_systemroot = True
-        _use_systempath = True
+        EVAR_LCASE_TRUE = ('true', 't', 'yes', 'y', '1')
+        EVAR_LCASE_FALSE = ('false', 'f', 'no', 'n', '0')
 
         # registry config for systemroot and command interpreter
-        _CMD_EXECUTABLE_REGISTRY = [
+        CMD_EXECUTABLE_REGISTRY = [
             # cmd.exe (Windows NT)
             (
                 r'Software\Microsoft\Windows NT\CurrentVersion',
@@ -74,59 +74,141 @@ if sys.platform == 'win32':
         ]
 
         # last two elements of registry config for environment config
-        _CMD_EXECUTABLE_ENVIRONMENT = [
+        CMD_EXECUTABLE_ENVIRONMENT = [
             t[-2:]
-            for t in _CMD_EXECUTABLE_REGISTRY
+            for t in CMD_EXECUTABLE_REGISTRY
         ]
 
         # last element of environment config for executable basename
-        _CMD_EXECUTABLE_BASENAME = [
+        CMD_EXECUTABLE_BASENAME = [
             os.path.splitext(t[-1])[0]
-            for t in _CMD_EXECUTABLE_ENVIRONMENT
+            for t in CMD_EXECUTABLE_ENVIRONMENT
         ]
 
-        WindowsComspecValue = namedtuple("WindowsComspecValue", [
-            "is_comspec",    # is expected command interpreter (cmd.exe or command.com)
+        # internal debugging/testing
+        _use_registry = True
+        _use_systemroot = True
+        _use_systempath = True
+        _use_oscomspec = True
+        _use_envcomspec = True
+
+        _WindowsComspecValue = namedtuple("_WindowsComspecValue", [
+            "is_comspec",    # is supported command interpreter (cmd.exe or command.com)
+            "is_defined",    # is comspec defined
             "norm_comspec",  # normalized comspec for comparison
             "orig_comspec",  # original comspec (extension case may not be preserved)
         ])
 
+        class WindowsComspecValue(_WindowsComspecValue):
+            """Windows comspec command interpreter value."""
+
+            _cache = {}
+
+            @classmethod
+            def _iscomspec(cls, comspec):
+                if comspec and os.path.exists(comspec):
+                    _, tail = os.path.split(comspec)
+                    base, _ = os.path.splitext(tail)
+                    base = base.lower()
+                    if base in _WindowsCommandInterpreter.CMD_EXECUTABLE_BASENAME:
+                        return True
+                return False
+
+            @classmethod
+            def factory(cls, comspec):
+                """Return a WindowsComspecValue instance."""
+
+                if comspec:
+                    orig_comspec = comspec
+                else:
+                    orig_comspec = ''
+
+                rval = cls._cache.get(orig_comspec)
+                if rval:
+                    return rval
+
+                if orig_comspec:
+                    norm_comspec = os.path.normcase(os.path.normpath(orig_comspec))
+                else:
+                    norm_comspec = orig_comspec
+
+                if norm_comspec != orig_comspec:
+                    rval = cls._cache.get(norm_comspec)
+                    if rval:
+                        return rval
+
+                is_comspec = cls._iscomspec(norm_comspec)
+                is_defined = bool(orig_comspec)
+
+                rval = cls(
+                    is_comspec=is_comspec,
+                    is_defined=is_defined,
+                    norm_comspec=norm_comspec,
+                    orig_comspec=orig_comspec,
+                )
+
+                cls._cache[orig_comspec] = rval
+
+                if norm_comspec != orig_comspec:
+                    cls._cache[norm_comspec] = rval
+
+                return rval
+
         WindowsComspecContext = namedtuple("WindowsComspecContext", [
-            "env_comspec",   # environment command interpreter
-            "cmd_comspec",   # windows command interpreter
-            "env_force",     # scons force os.environ value
-            "is_force",      # force os.environ['COMSPEC'] enabled
-            "is_user",       # user specified (True) or default (False)
-            "is_installed",  # set os.environ['COMSPEC']
+            "win_comspec",   # windows command interpreter
+            "os_comspec",    # os.environ['COMSPEC'] command interpreter
+            "env_comspec",   # scons env['ENV']['COMSPEC'] command interpreter
         ])
 
+        WindowsComspecState = namedtuple("WindowsComspecState", [
+            "win_comspec",    # windows command interpreter
+            "os_comspec",     # os.environ['COMSPEC'] command interpreter
+            "os_force",       # force os.environ value
+            "os_installed",   # os.environ['COMSPEC'] written
+            "env_comspec",    # env['ENV]['COMSPEC'] command interpreter
+            "env_installed",  # env['ENV']['COMSPEC'] written
+            "is_force",       # force comspec enabled
+            "is_user",        # user specified (True) or default (False)
+        ])
+
+        _get_registry_systemroot_cache = None
+
         @classmethod
-        def _inspect_registry_systemroot(cls):
+        def _get_registry_systemroot(cls):
 
-            system_root = None
-            cmd_interpreter = None
+            if cls._get_registry_systemroot_cache is not None:
 
-            if winreg:
-                for subkey, valname, subpath, cmdexec in cls._CMD_EXECUTABLE_REGISTRY:
-                    try:
-                        winkey = winreg.OpenKeyEx(
-                            winreg.HKEY_LOCAL_MACHINE, subkey
-                        )
-                        sysroot, _ = winreg.QueryValueEx(winkey, valname)
-                        if not os.path.exists(sysroot):
-                            continue
-                        system_root = sysroot
-                        cmdexe = os.path.join(sysroot, subpath, cmdexec)
-                        if os.path.exists(cmdexe) and cls._use_registry:
-                            cmd_interpreter = cmdexe
-                            return system_root, cmd_interpreter
-                    except OSError:
-                        pass
+                system_root, cmd_interpreter = cls._get_registry_systemroot_cache
+
+            else:
+
+                system_root = None
+                cmd_interpreter = None
+
+                if winreg:
+                    for cmdreg_t in cls.CMD_EXECUTABLE_REGISTRY:
+                        subkey, valname, subpath, cmdexec = cmdreg_t
+                        try:
+                            winkey = winreg.OpenKeyEx(
+                                winreg.HKEY_LOCAL_MACHINE, subkey
+                            )
+                            sysroot, _ = winreg.QueryValueEx(winkey, valname)
+                            if not os.path.exists(sysroot):
+                                continue
+                            system_root = sysroot
+                            cmdexe = os.path.join(sysroot, subpath, cmdexec)
+                            if os.path.exists(cmdexe) and cls._use_registry:
+                                cmd_interpreter = cmdexe
+                                return system_root, cmd_interpreter
+                        except OSError:
+                            pass
+
+                cls._get_registry_systemroot_cache = (system_root, cmd_interpreter)
 
             return system_root, cmd_interpreter
 
         @classmethod
-        def _inspect_environ_systemroot(cls, system_root):
+        def _get_osenviron_systemroot(cls, system_root):
 
             cmd_interpreter = None
 
@@ -136,7 +218,7 @@ if sys.platform == 'win32':
                     system_root = sysroot
 
             if system_root:
-                for subpath, cmdexec in cls._CMD_EXECUTABLE_ENVIRONMENT:
+                for subpath, cmdexec in cls.CMD_EXECUTABLE_ENVIRONMENT:
                     cmdexe = os.path.join(system_root, subpath, cmdexec)
                     if os.path.exists(cmdexe) and cls._use_systemroot:
                         cmd_interpreter = cmdexe
@@ -145,7 +227,7 @@ if sys.platform == 'win32':
             return system_root, cmd_interpreter
 
         @classmethod
-        def _inspect_environ_systempath(cls):
+        def _get_osenviron_systempath(cls):
 
             cmd_interpreter = None
 
@@ -157,7 +239,7 @@ if sys.platform == 'win32':
 
             for syspath in env_path_list:
                 for ext in env_pathext_list:
-                    for basename in cls._CMD_EXECUTABLE_BASENAME:
+                    for basename in cls.CMD_EXECUTABLE_BASENAME:
                         cmdexe = os.path.join(syspath, basename + ext)
                         if os.path.exists(cmdexe) and cls._use_systempath:
                             cmd_interpreter = cmdexe
@@ -167,115 +249,176 @@ if sys.platform == 'win32':
 
         @classmethod
         def _find_command_interpreter(cls):
-            system_root, cmd_interpreter = cls._inspect_registry_systemroot()
+            system_root, cmd_interpreter = cls._get_registry_systemroot()
             if cmd_interpreter:
                 return cmd_interpreter
-            system_root, cmd_interpreter = cls._inspect_environ_systemroot(system_root)
+            system_root, cmd_interpreter = cls._get_osenviron_systemroot(system_root)
             if cmd_interpreter:
                 return cmd_interpreter
-            cmd_interpreter = cls._inspect_environ_systempath()
+            cmd_interpreter = cls._get_osenviron_systempath()
             if cmd_interpreter:
                 return cmd_interpreter
             return None
 
         @classmethod
-        def _iscomspec(cls, comspec):
-            if comspec and os.path.exists(comspec):
-                _, tail = os.path.split(comspec)
-                base, _ = os.path.splitext(tail)
-                if base.lower() in cls._CMD_EXECUTABLE_BASENAME:
-                    return True
-            return False
-
-        @classmethod
-        def _construct_comspec(cls, comspec):
-            if comspec:
-                norm_comspec = os.path.normcase(os.path.normpath(comspec))
-                is_comspec = cls._iscomspec(norm_comspec)
-            else:
-                norm_comspec = comspec
-                is_comspec = False
-            rval = cls.WindowsComspecValue(
-                is_comspec=is_comspec,
-                norm_comspec=norm_comspec,
-                orig_comspec=comspec
-            )
+        def _get_osenviron_comspec(cls):
+            comspec = os.environ.get('COMSPEC') if cls._use_oscomspec else None
+            rval = cls.WindowsComspecValue.factory(comspec)
             return rval
 
         @classmethod
-        def _get_environ_comspec(cls):
-            comspec = os.environ.get('COMSPEC', '')
-            return cls._construct_comspec(comspec)
-
-        @classmethod
         def _get_command_interpreter(cls):
-            cmd_interpreter = cls._find_command_interpreter()
-            return cls._construct_comspec(cmd_interpreter)
+            comspec = cls._find_command_interpreter()
+            rval = cls.WindowsComspecValue.factory(comspec)
+            return rval
 
         @classmethod
-        def _get_environ_force_comspec(cls):
-            orig_val = os.environ.get(cls.force_comspec_evar)
+        def _get_sconsenv_comspec(cls, env=None):
+            env = env.get('ENV') if env else None
+            comspec = env.get('COMSPEC') if env and cls._use_envcomspec else None
+            rval = cls.WindowsComspecValue.factory(comspec)
+            return rval
+
+        @classmethod
+        def comspec_context_create(cls, env):
+            """Return windows comspec context or None."""
+
+            os_comspec = cls._get_osenviron_comspec()
+            if os_comspec.is_comspec:
+                # os.environ is a supported command interpreter
+                return None
+
+            win_comspec = cls._get_command_interpreter()
+            if not win_comspec.is_comspec:
+                # could not find a supported command interpreter
+                return None
+
+            os.environ['COMSPEC'] = win_comspec.orig_comspec
+
+            env_comspec = cls._get_sconsenv_comspec(env)
+            if env_comspec.norm_comspec != win_comspec.norm_comspec:
+                if env and 'ENV' in env:
+                    env['ENV']['COMSPEC'] = win_comspec.orig_comspec
+
+            rval = cls.WindowsComspecContext(
+                win_comspec=win_comspec,
+                os_comspec=os_comspec,
+                env_comspec=env_comspec,
+            )
+
+            return rval
+
+        @classmethod
+        def comspec_context_restore(cls, context, env):
+            """Restore windows comspec context."""
+
+            if context:
+
+                os_path = os.environ.get('COMSPEC')
+                if os_path:
+                    os_norm = os.path.normcase(os.path.normpath(os_path))
+                    if os_norm == context.win_comspec.norm_comspec:
+                        # os.environ comspec has not changed
+                        if not context.os_comspec.is_defined:
+                            # remove key if original value is undefined
+                            del os.environ['COMSPEC']
+                        else:
+                            # restore original value
+                            os.environ['COMSPEC'] = context.os_comspec.orig_comspec
+
+                if env and 'ENV' in env:
+                    env_path = env['ENV'].get('COMSPEC')
+                    if env_path:
+                        env_norm = os.path.normcase(os.path.normpath(env_path))
+                        if env_norm == context.win_comspec.norm_comspec:
+                            # env comspec has not changed
+                            if not context.env_comspec.is_defined:
+                                # remove key if original value is undefined
+                                del env['ENV']['COMSPEC']
+                            else:
+                                # restore original value
+                                env['ENV']['COMSPEC'] = context.env_comspec.orig_comspec
+
+        @classmethod
+        def _get_osenviron_force_comspec(cls):
+            orig_val = os.environ.get(cls.force_comspec_evar, '')
             val = orig_val.lower() if orig_val else ''
             if val:
-                if val in cls._EVAR_LCASE_TRUE:
+                if val in cls.EVAR_LCASE_TRUE:
                     # is_force=True, is_user=True
                     return True, True, orig_val
-                if val in cls._EVAR_LCASE_FALSE:
+                if val in cls.EVAR_LCASE_FALSE:
                     # is_force=False, is_user=True
                     return False, True, orig_val
                 # unrecognized symbol
-                return False, False, orig_val
             # is_force=default, is_user=False
             return False, False, orig_val
 
         @classmethod
-        def _construct_context(cls):
-            env_comspec = cls._get_environ_comspec()
-            if env_comspec.is_comspec:
+        def _construct_state(cls, env=None):
+
+            os_comspec = cls._get_osenviron_comspec()
+            if os_comspec.is_comspec:
                 return None
-            cmd_comspec = cls._get_command_interpreter()
-            is_force, is_user, env_force = cls._get_environ_force_comspec()
-            if cmd_comspec and cmd_comspec.is_comspec and is_force:
-                os.environ['COMSPEC'] = cmd_comspec.orig_comspec
-                is_installed = True
+
+            win_comspec = cls._get_command_interpreter()
+            env_comspec = cls._get_sconsenv_comspec(env=env)
+
+            is_force, is_user, os_force = cls._get_osenviron_force_comspec()
+
+            if win_comspec.is_comspec and is_force:
+                os.environ['COMSPEC'] = win_comspec.orig_comspec
+                os_installed = True
             else:
-                is_installed = False
-            rval = cls.WindowsComspecContext(
+                os_installed = False
+
+            if env_comspec.is_comspec and is_force:
+                env['ENV']['COMSPEC'] = win_comspec.orig_comspec
+                env_installed = True
+            else:
+                env_installed = False
+
+            rval = cls.WindowsComspecState(
+                win_comspec=win_comspec,
+                os_comspec=os_comspec,
+                os_force=os_force,
+                os_installed=os_installed,
                 env_comspec=env_comspec,
-                cmd_comspec=cmd_comspec,
-                env_force=env_force,
+                env_installed=env_installed,
                 is_force=is_force,
                 is_user=is_user,
-                is_installed=is_installed,
             )
             return rval
 
         @classmethod
-        def get_comspec_context(cls):
-            """Return windows comspec context tuple or None."""
-            context = cls._construct_context()
-            return context
+        def get_comspec_state(cls, env=None):
+            """Return windows comspec state tuple or None."""
+            state = cls._construct_state(env=env)
+            return state
 
-        # key = (is_supported, is_force, is_user)
+        # key = (os_installed, is_force, is_user)
         _warning_message_kind = {
-            (True,  True,   True): 0,   # user suppress override (no message)
-            (True,  True,  False): -1,  # impossible (internal error)
-            (True,  False,  True): -2,  # impossible (internal error)
-            (True,  False, False): -3,  # impossible (internal error)
+
+            (True,  True,   True): 0,   # user override (no message)
+            (True,  True,  False): 0,   # default override (no message)
             (False, True,   True): 1,   # user override failed (unsupported: no cmd)
-            (False, True,  False): -4,  # impossible (internal error)
+            (False, True,  False): 1,   # default override failed (unsupported: no cmd)
+
+            (True,  False,  True): -1,  # impossible (internal error)
+            (True,  False, False): -2,  # impossible (internal error)
             (False, False,  True): 0,   # user suppress unsupported (no message)
             (False, False, False): 2,   # unsupported (unsupported: no cmd or set)
+
         }
 
         @classmethod
-        def get_comspec_warning(cls, context):
+        def get_comspec_state_warning(cls, state):
             """Return windows comspec warning message string or None."""
 
-            if not context:
+            if not state:
                 return None
 
-            key = (context.is_installed, context.is_force, context.is_user)
+            key = (state.os_installed, state.is_force, state.is_user)
             kind = cls._warning_message_kind[key]
 
             if kind == 0:
@@ -284,26 +427,28 @@ if sys.platform == 'win32':
             msg = None
 
             if kind == 1:
-                # not is_installed, is_force, is_user
+                # not os_installed, is_force
+
+                os_force = state.os_force if state.os_force else ''
 
                 msg = textwrap.dedent(
                     f""" \
                     Unsupported windows COMSPEC value, build may fail:
-                       COMSPEC={context.env_comspec.orig_comspec}
-                       {cls.force_comspec_evar}={context.env_force}
+                       COMSPEC={state.os_comspec.orig_comspec}
+                       {cls.force_comspec_evar}={os_force}
                        A valid command interpreter was not found.\
                     """
                 )
 
             elif kind == 2:
-                # not is_installed, not is_force, not is_user
+                # not os_installed, not is_force, not is_user
 
-                if context.cmd_comspec.is_comspec:
+                if state.win_comspec.is_comspec:
                     # found compatible command interpreter
                     msg = textwrap.dedent(
                         f""" \
                         Unsupported windows COMSPEC value, build may fail:
-                           COMSPEC={context.env_comspec.orig_comspec}
+                           COMSPEC={state.os_comspec.orig_comspec}
                            Set this windows environment variable to override COMSPEC:
                               {cls.force_comspec_evar}=1
                            Set this windows environment variable to ignore this warning:
@@ -315,7 +460,7 @@ if sys.platform == 'win32':
                     msg = textwrap.dedent(
                         f""" \
                         Unsupported windows COMSPEC value, build may fail:
-                           COMSPEC={context.env_comspec.orig_comspec}
+                           COMSPEC={state.os_comspec.orig_comspec}
                            Set this windows environment variable to override COMSPEC:
                               {cls.force_comspec_evar}=1
                            Set this windows environment variable to ignore this warning:
@@ -330,20 +475,62 @@ if sys.platform == 'win32':
 
             return msg
 
-    _WINDOWS_COMSPEC_CONTEXT = _WindowsCommandInterpreter.get_comspec_context()
+    _WINDOWS_COMSPEC_INISTATE = _WindowsCommandInterpreter.get_comspec_state()
 
-    def windows_comspec_warning_message():
-        """Return windows comspec warning message string or None."""
-        msg = _WindowsCommandInterpreter.get_comspec_warning(_WINDOWS_COMSPEC_CONTEXT)
+    def windows_comspec_import_warning_message():
+        """Return windows comspec import state warning message string or None."""
+        msg = _WindowsCommandInterpreter.get_comspec_state_warning(
+            _WINDOWS_COMSPEC_INISTATE
+        )
+        return msg
+
+    def windows_comspec_context_create(env=None):
+        """Return windows comspec context or None."""
+        context = _WindowsCommandInterpreter.comspec_context_create(env)
+        return context
+
+    def windows_comspec_context_restore(context, env=None):
+        """Restore windows comspec context."""
+        rval = _WindowsCommandInterpreter.comspec_context_restore(context, env)
+        return rval
+
+    def windows_comspec_state_create(env=None):
+        """Return windows comspec state or None."""
+        state = _WindowsCommandInterpreter.get_comspec_state(env)
+        return state
+
+    def windows_comspec_state_warning_message(state=None):
+        """Return windows comspec state warning message string or None."""
+        msg = _WindowsCommandInterpreter.get_comspec_state_warning(
+            state
+        )
         return msg
 
 else:
 
-    def windows_comspec_warning_message():
-        """Return windows comspec warning message string or None."""
+    def windows_comspec_import_warning_message():
+        """Return windows comspec import state warning message string or None."""
         return None
 
-# print(windows_comspec_warning_message(), file=sys.stderr)
+    def windows_comspec_context_create(env=None):
+        """Return windows comspec context or None."""
+        # pylint: disable=unused-argument
+        return None
+
+    def windows_comspec_context_restore(context, env=None):
+        """Restore windows comspec context."""
+        # pylint: disable=unused-argument
+        return None
+
+    def windows_comspec_state_create(env=None):
+        """Return windows comspec state or None."""
+        # pylint: disable=unused-argument
+        return None
+
+    def windows_comspec_state_warning_message(state=None):
+        """Return windows comspec state warning message string or None."""
+        # pylint: disable=unused-argument
+        return None
 
 # Local Variables:
 # tab-width:4
