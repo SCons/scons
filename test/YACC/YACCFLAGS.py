@@ -56,7 +56,7 @@ env.CFile(target='out/aaa', source='in/aaa.y')
 
 test.write(['in', 'aaa.y'], "aaa.y\nYACCFLAGS\nI_ARGS\n")
 test.run('.', stderr=None)
-test.must_match(['out', 'aaa.c'], "aaa.y\n -x\n out in\n")
+test.must_match(['out', 'aaa.c'], "aaa.y\n-x\nout in\n")
 
 test.pass_test()
 
