@@ -109,6 +109,10 @@ from subprocess import DEVNULL
 import inspect
 from collections import OrderedDict
 
+from SCons.compat import (
+    windows_comspec_context_create,
+    windows_comspec_context_restore,
+)
 import SCons.Debug
 import SCons.Util
 from SCons.Debug import logInstanceCreation
@@ -809,6 +813,7 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
     kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
     try:
+        context = windows_comspec_context_create(env=kw['env'])
         pobj = subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
         if error == 'raise': raise
@@ -841,6 +846,7 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
             stdout = stderr = f()
         pobj = dummyPopen(e)
     finally:
+        windows_comspec_context_restore(context, env=kw['env'])
         # clean up open file handles stored in parent's kw
         for k, v in kw.items():
             if inspect.ismethod(getattr(v, 'close', None)):

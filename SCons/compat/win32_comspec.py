@@ -157,7 +157,7 @@ if sys.platform == 'win32':
         WindowsComspecContext = namedtuple("WindowsComspecContext", [
             "win_comspec",   # windows command interpreter
             "os_comspec",    # os.environ['COMSPEC'] command interpreter
-            "env_comspec",   # scons env['ENV']['COMSPEC'] command interpreter
+            "env_comspec",   # scons ENV['COMSPEC'] command interpreter
         ])
 
         WindowsComspecState = namedtuple("WindowsComspecState", [
@@ -165,8 +165,8 @@ if sys.platform == 'win32':
             "os_comspec",     # os.environ['COMSPEC'] command interpreter
             "os_force",       # force os.environ value
             "os_installed",   # os.environ['COMSPEC'] written
-            "env_comspec",    # env['ENV]['COMSPEC'] command interpreter
-            "env_installed",  # env['ENV']['COMSPEC'] written
+            "env_comspec",    # ENV['COMSPEC'] command interpreter
+            "env_installed",  # ENV['COMSPEC'] written
             "is_force",       # force comspec enabled
             "is_user",        # user specified (True) or default (False)
         ])
@@ -274,7 +274,6 @@ if sys.platform == 'win32':
 
         @classmethod
         def _get_sconsenv_comspec(cls, env=None):
-            env = env.get('ENV') if env else None
             comspec = env.get('COMSPEC') if env and cls._use_envcomspec else None
             rval = cls.WindowsComspecValue.factory(comspec)
             return rval
@@ -297,8 +296,8 @@ if sys.platform == 'win32':
 
             env_comspec = cls._get_sconsenv_comspec(env)
             if env_comspec.norm_comspec != win_comspec.norm_comspec:
-                if env and 'ENV' in env:
-                    env['ENV']['COMSPEC'] = win_comspec.orig_comspec
+                if env:
+                    env['COMSPEC'] = win_comspec.orig_comspec
 
             rval = cls.WindowsComspecContext(
                 win_comspec=win_comspec,
@@ -326,18 +325,18 @@ if sys.platform == 'win32':
                             # restore original value
                             os.environ['COMSPEC'] = context.os_comspec.orig_comspec
 
-                if env and 'ENV' in env:
-                    env_path = env['ENV'].get('COMSPEC')
+                if env:
+                    env_path = env.get('COMSPEC')
                     if env_path:
                         env_norm = os.path.normcase(os.path.normpath(env_path))
                         if env_norm == context.win_comspec.norm_comspec:
                             # env comspec has not changed
                             if not context.env_comspec.is_defined:
                                 # remove key if original value is undefined
-                                del env['ENV']['COMSPEC']
+                                del env['COMSPEC']
                             else:
                                 # restore original value
-                                env['ENV']['COMSPEC'] = context.env_comspec.orig_comspec
+                                env['COMSPEC'] = context.env_comspec.orig_comspec
 
         @classmethod
         def _get_osenviron_force_comspec(cls):
@@ -373,7 +372,7 @@ if sys.platform == 'win32':
                 os_installed = False
 
             if env_comspec.is_comspec and is_force:
-                env['ENV']['COMSPEC'] = win_comspec.orig_comspec
+                env['COMSPEC'] = win_comspec.orig_comspec
                 env_installed = True
             else:
                 env_installed = False
