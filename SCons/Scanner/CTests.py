@@ -91,6 +91,27 @@ int main(void)
 }
 """)
 
+# include using a macro, defined in source file
+test.write('f9a.c', """\
+#define HEADER "f9.h"
+#include HEADER
+
+int main(void)
+{
+   return 0;
+}
+""")
+
+# include using a macro, not defined in source file
+test.write('f9b.c', """\
+#include HEADER
+
+int main(void)
+{
+   return 0;
+}
+""")
+
 
 # for Emacs -> "
 
@@ -99,7 +120,7 @@ test.subdir('d1', ['d1', 'd2'])
 headers = ['f1.h','f2.h', 'f3-test.h', 'fi.h', 'fj.h', 'never.h',
            'd1/f1.h', 'd1/f2.h', 'd1/f3-test.h', 'd1/fi.h', 'd1/fj.h',
            'd1/d2/f1.h', 'd1/d2/f2.h', 'd1/d2/f3-test.h',
-           'd1/d2/f4.h', 'd1/d2/fi.h', 'd1/d2/fj.h']
+           'd1/d2/f4.h', 'd1/d2/fi.h', 'd1/d2/fj.h', 'f9.h']
 
 for h in headers:
     test.write(h, " ")
@@ -224,7 +245,7 @@ def deps_match(self, deps, headers):
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
-    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertTrue(scanned == expect, f"expect {expect} != scanned {scanned}")
 
 # define some tests:
 
@@ -443,7 +464,7 @@ class CScannerTestCase15(unittest.TestCase):
         env = DummyEnvironment(CPPSUFFIXES = suffixes)
         s = SCons.Scanner.C.CScanner()
         for suffix in suffixes:
-            assert suffix in s.get_skeys(env), "%s not in skeys" % suffix
+            assert suffix in s.get_skeys(env), f"{suffix} not in skeys"
 
 
 class CConditionalScannerTestCase1(unittest.TestCase):
@@ -490,42 +511,70 @@ class CConditionalScannerTestCase3(unittest.TestCase):
         headers = ['d1/f1.h']
         deps_match(self, deps, headers)
 
+
+class CConditionalScannerTestCase4(unittest.TestCase):
+    def runTest(self):
+        """Test that dependency is detected if #include uses a macro."""
+
+        with self.subTest("macro defined in the source file"):
+            env = DummyEnvironment()
+            s = SCons.Scanner.C.CConditionalScanner()
+            deps = s(env.File('f9a.c'), env, s.path(env))
+            headers = ['f9.h']
+            deps_match(self, deps, headers)
+
+        with self.subTest("macro defined on the command line"):
+            env = DummyEnvironment(CPPDEFINES='HEADER=\\"f9.h\\"')
+            #env = DummyEnvironment(CPPDEFINES=['HEADER=\\"f9.h\\"'])
+            s = SCons.Scanner.C.CConditionalScanner()
+            deps = s(env.File('f9b.c'), env, s.path(env))
+            headers = ['f9.h']
+            deps_match(self, deps, headers)
+
+
 class dictify_CPPDEFINESTestCase(unittest.TestCase):
     def runTest(self):
-        """Make sure single-item tuples convert correctly.
+        """Make sure CPPDEFINES converts correctly.
 
-        This is a regression test: AppendUnique turns sequences into
-        lists of tuples, and dictify could gack on these.
+        Various types and combinations of types could fail if not handled
+        specifically by dictify_CPPDEFINES - this is a regression test.
         """
-        env = DummyEnvironment(CPPDEFINES=(("VALUED_DEFINE", 1), ("UNVALUED_DEFINE", )))
-        d = SCons.Scanner.C.dictify_CPPDEFINES(env)
-        expect = {'VALUED_DEFINE': 1, 'UNVALUED_DEFINE': None}
-        assert d == expect
+        with self.subTest("tuples in a sequence, including one without value"):
+            env = DummyEnvironment(CPPDEFINES=[("VALUED", 1), ("UNVALUED",)])
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"VALUED": 1, "UNVALUED": None}
+            self.assertEqual(d, expect)
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(CScannerTestCase1())
-    suite.addTest(CScannerTestCase2())
-    suite.addTest(CScannerTestCase3())
-    suite.addTest(CScannerTestCase4())
-    suite.addTest(CScannerTestCase5())
-    suite.addTest(CScannerTestCase6())
-    suite.addTest(CScannerTestCase8())
-    suite.addTest(CScannerTestCase9())
-    suite.addTest(CScannerTestCase10())
-    suite.addTest(CScannerTestCase11())
-    suite.addTest(CScannerTestCase12())
-    suite.addTest(CScannerTestCase13())
-    suite.addTest(CScannerTestCase14())
-    suite.addTest(CScannerTestCase15())
-    suite.addTest(CConditionalScannerTestCase1())
-    suite.addTest(CConditionalScannerTestCase2())
-    suite.addTest(CConditionalScannerTestCase3())
-    suite.addTest(dictify_CPPDEFINESTestCase())
-    return suite
+        with self.subTest("tuple-valued define by itself"):
+            env = DummyEnvironment(CPPDEFINES=("STRING", "VALUE"))
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE"}
+            self.assertEqual(d, expect)
+
+        with self.subTest("string-valued define in a sequence"):
+            env = DummyEnvironment(CPPDEFINES=[("STRING=VALUE")])
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE"}
+            self.assertEqual(d, expect)
+
+        with self.subTest("string-valued define by itself"):
+            env = DummyEnvironment(CPPDEFINES="STRING=VALUE")
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE"}
+            self.assertEqual(d, expect)
+
+        from collections import deque
+        with self.subTest("compound CPPDEFINES in internal format"):
+            env = DummyEnvironment(
+                CPPDEFINES=deque([("STRING", "VALUE"), ("UNVALUED",)])
+            )
+            d = SCons.Scanner.C.dictify_CPPDEFINES(env)
+            expect = {"STRING": "VALUE", "UNVALUED": None}
+            self.assertEqual(d, expect)
+
 
 if __name__ == "__main__":
-    TestUnit.run(suite())
+    unittest.main()
 
 # Local Variables:
 # tab-width:4
