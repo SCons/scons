@@ -21,7 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Dependency scanner for C/C++ code."""
+"""Dependency scanner for C/C++ code.
+
+Two scanners are defined here: the default CScanner, and the optional
+CConditionalScanner, which must be explicitly selected by calling
+add_scanner() for each affected suffix.
+"""
 
 import SCons.Node.FS
 import SCons.cpp
@@ -62,25 +67,60 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             return ''
 
 def dictify_CPPDEFINES(env) -> dict:
-    """Returns CPPDEFINES converted to a dict."""
+    """Returns CPPDEFINES converted to a dict.
+
+    This should be similar to :func:`~SCons.Defaults.processDefines`.
+    Unfortunately, we can't do the simple thing of calling that routine and
+    passing the result to the dict() constructor, because it turns the defines
+    into a list of "name=value" pairs, which the dict constructor won't
+    consume correctly.  Also cannot just call dict on CPPDEFINES itself - it's
+    fine if it's stored in the converted form (currently deque of tuples), but
+    CPPDEFINES could be in other formats too.
+
+    So we have to do all the work here - keep concepts in sync with
+    ``processDefines``.
+    """
     cppdefines = env.get('CPPDEFINES', {})
+    result = {}
     if cppdefines is None:
-        return {}
+        return result
+
+    if SCons.Util.is_Tuple(cppdefines):
+        try:
+            return {cppdefines[0]: cppdefines[1]}
+        except IndexError:
+            return {cppdefines[0]: None}
+
     if SCons.Util.is_Sequence(cppdefines):
-        result = {}
         for c in cppdefines:
             if SCons.Util.is_Sequence(c):
                 try:
                     result[c[0]] = c[1]
                 except IndexError:
-                    # it could be a one-item sequence
+                    # could be a one-item sequence
                     result[c[0]] = None
+            elif SCons.Util.is_String(c):
+                try:
+                    name, value = c.split('=')
+                    result[name] = value
+                except ValueError:
+                    result[c] = None
             else:
+                # don't really know what to do here
                 result[c] = None
         return result
-    if not SCons.Util.is_Dict(cppdefines):
-        return {cppdefines : None}
-    return cppdefines
+
+    if SCons.Util.is_String(cppdefines):
+        try:
+            name, value = cppdefines.split('=')
+            return {name: value}
+        except ValueError:
+            return {cppdefines: None}
+
+    if SCons.Util.is_Dict(cppdefines):
+        return cppdefines
+
+    return {cppdefines: None}
 
 class SConsCPPScannerWrapper:
     """The SCons wrapper around a cpp.py scanner.

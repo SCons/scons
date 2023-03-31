@@ -31,9 +31,6 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
-
 - MSVC: When trying to find a valid msvc batch file, the existence of the msvc compiler
   executable is verified for VS6 to VS2015 to avoid executing the msvc batch file when
   the host/target tool is known not to be present. Always check that the msvc compiler
@@ -46,7 +43,11 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- C scanner's dictifyCPPDEFINES routine did not understand the possible
+  combinations of CPPDEFINES - not aware of a "name=value" string either
+  embedded in a sequence, or by itself.  The conditional C scanner thus
+  did not always properly apply the defines. The regular C scanner does
+  not use these, so was not affected.  [fixes #4193]
 
 - MSVC: The installed msvc list is calculated once and cached.  There was an indirect
   dependency on the target architecture when determining if each version of msvc

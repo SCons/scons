@@ -36,6 +36,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
       consistent with the current documentation of MSVS_ARCH.
 
+  From Mats Wichmann
+    - C scanner's dictifyCPPDEFINES routine did not understand the possible
+      combinations of CPPDEFINES - not aware of a "name=value" string either
+      embedded in a sequence, or by itself.  The conditional C scanner thus
+      did not always properly apply the defines. The regular C scanner does
+      not use these, so was not affected.  [fixes #4193]
+
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 
