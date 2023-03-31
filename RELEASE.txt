@@ -16,8 +16,6 @@ Here is a summary of the changes since 4.5.2:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
-
 - MSVC: If available, native arm64 tools will be used on arm64 hosts for VS2022.
 - MSVC: If necessary, automatically define VSCMD_SKIP_SENDTELEMETRY for VS2019 and later
   on arm64 hosts when using an arm (32-bit) build of python to prevent a powershell
@@ -48,7 +46,6 @@ FIXES
   embedded in a sequence, or by itself.  The conditional C scanner thus
   did not always properly apply the defines. The regular C scanner does
   not use these, so was not affected.  [fixes #4193]
-
 - MSVC: The installed msvc list is calculated once and cached.  There was an indirect
   dependency on the target architecture when determining if each version of msvc
   was installed based on the initial invocation.  It was possible that an msvc instance
@@ -80,10 +77,6 @@ PACKAGING
 
 DOCUMENTATION
 -------------
-
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
 
 - HOST_ARCH: Add arm64 to the valid win32 host architectures.
 
