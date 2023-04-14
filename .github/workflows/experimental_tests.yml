@@ -23,7 +23,8 @@ jobs:
       matrix:
         # note: in the 2nd half of 2022 the setup-mingw was often failing on
         # windows-latest. revisit someday (perhaps when there's an @v3)
-        os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+        #os: ['ubuntu-latest', 'windows-2019', 'macos-latest']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -33,11 +34,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
-        if: matrix.os == 'windows-2019'
-        with:
-          platform: x64
+      # experiment: looks like we don't need this if we use windows-latest
+      #- name: Set up MinGW
+      #  uses: egor-tensin/setup-mingw@v2
+      #  if: matrix.os == 'windows-2019'
+      #  with:
+      #    platform: x64
 
       - name: Set up Python 3.11 ${{ matrix.os }}
         uses: actions/setup-python@v2
