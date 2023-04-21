@@ -30,6 +30,7 @@ install:
 # Leaving the Coverage build on VS2017 for build-time reasons (1hr time limit).
 # maybe move coverage to github in future to restore some flexibility?
 environment:
+  # set COVERAGE to 1 for any builder that should run it
   COVERAGE: 0
   SCONS_CACHE_MSVC_CONFIG: "true"
   matrix:
@@ -42,7 +43,6 @@ environment:
     - WINPYTHON: "Python38"
 
     - WINPYTHON: "Python36"
-      COVERAGE: 1
 
 # remove sets of build jobs based on criteria below
 # to fine tune the number and platforms tested
