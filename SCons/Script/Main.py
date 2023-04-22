@@ -37,7 +37,6 @@ deprecated_python_version = (3, 6, 0)
 
 import SCons.compat
 
-import atexit
 import importlib.util
 import os
 import re
@@ -63,6 +62,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, ENABLE_JSON, WriteJsonFile
 
 from SCons import __version__ as SConsVersion
 
@@ -82,20 +82,24 @@ num_jobs = None
 delayed_warnings = []
 
 
+display = SCons.Util.display
+progress_display = SCons.Util.DisplayEngine()
+ProgressObject = SCons.Util.Null()
+_BuildFailures = []
+
+
 def revert_io():
-    # This call is added to revert stderr and stdout to the original
-    # ones just in case some build rule or something else in the system
-    # has redirected them elsewhere.
+    """
+    This call is added to revert stderr and stdout to the original
+    ones just in case some build rule or something else in the system
+    has redirected them elsewhere.
+    """
     sys.stderr = sys.__stderr__
     sys.stdout = sys.__stdout__
 
 
 class SConsPrintHelpException(Exception):
     pass
-
-
-display = SCons.Util.display
-progress_display = SCons.Util.DisplayEngine()
 
 
 class Progressor:
@@ -150,7 +154,6 @@ class Progressor:
                 self.erase_previous()
             self.func(node)
 
-ProgressObject = SCons.Util.Null()
 
 def Progress(*args, **kw):
     global ProgressObject
@@ -158,9 +161,6 @@ def Progress(*args, **kw):
 
 # Task control.
 #
-
-_BuildFailures = []
-
 
 def GetBuildFailures():
     return _BuildFailures
@@ -515,59 +515,8 @@ def ValidateOptions(throw_exception=False) -> None:
 def PrintHelp(file=None):
     OptionsParser.print_help(file=file)
 
-class Stats:
-    def __init__(self):
-        self.stats = []
-        self.labels = []
-        self.append = self.do_nothing
-        self.print_stats = self.do_nothing
-    def enable(self, outfp):
-        self.outfp = outfp
-        self.append = self.do_append
-        self.print_stats = self.do_print
-    def do_nothing(self, *args, **kw):
-        pass
 
-class CountStats(Stats):
-    def do_append(self, label):
-        self.labels.append(label)
-        self.stats.append(SCons.Debug.fetchLoggedInstances())
-    def do_print(self):
-        stats_table = {}
-        for s in self.stats:
-            for n in [t[0] for t in s]:
-                stats_table[n] = [0, 0, 0, 0]
-        i = 0
-        for s in self.stats:
-            for n, c in s:
-                stats_table[n][i] = c
-            i = i + 1
-        self.outfp.write("Object counts:\n")
-        pre = ["   "]
-        post = ["   %s\n"]
-        l = len(self.stats)
-        fmt1 = ''.join(pre + [' %7s']*l + post)
-        fmt2 = ''.join(pre + [' %7d']*l + post)
-        labels = self.labels[:l]
-        labels.append(("", "Class"))
-        self.outfp.write(fmt1 % tuple([x[0] for x in labels]))
-        self.outfp.write(fmt1 % tuple([x[1] for x in labels]))
-        for k in sorted(stats_table.keys()):
-            r = stats_table[k][:l] + [k]
-            self.outfp.write(fmt2 % tuple(r))
 
-count_stats = CountStats()
-
-class MemStats(Stats):
-    def do_append(self, label):
-        self.labels.append(label)
-        self.stats.append(SCons.Debug.memory())
-    def do_print(self):
-        fmt = 'Memory %-32s %12d\n'
-        for label, stats in zip(self.labels, self.stats):
-            self.outfp.write(fmt % (label, stats))
-
-memory_stats = MemStats()
 
 # utility functions
 
@@ -671,7 +620,7 @@ def _set_debug_values(options):
         enable_count = False
         if __debug__: enable_count = True
         if enable_count:
-            count_stats.enable(sys.stdout)
+            COUNT_STATS.enable(sys.stdout)
             SCons.Debug.track_instances = True
         else:
             msg = "--debug=count is not supported when running SCons\n" + \
@@ -685,7 +634,7 @@ def _set_debug_values(options):
     options.debug_includes = ("includes" in debug_values)
     print_memoizer = ("memoizer" in debug_values)
     if "memory" in debug_values:
-        memory_stats.enable(sys.stdout)
+        MEMORY_STATS.enable(sys.stdout)
     print_objects = ("objects" in debug_values)
     if print_objects:
         SCons.Debug.track_instances = True
@@ -706,6 +655,8 @@ def _set_debug_values(options):
         SCons.Taskmaster.print_prepare = True
     if "duplicate" in debug_values:
         SCons.Node.print_duplicate = True
+    if "json" in debug_values:
+        SCons.Util.stats.ENABLE_JSON = True
 
 def _create_path(plist):
     path = '.'
@@ -1039,8 +990,8 @@ def _main(parser):
     if not hasattr(sys.stderr, 'isatty') or not sys.stderr.isatty():
         sys.stderr = SCons.Util.Unbuffered(sys.stderr)
 
-    memory_stats.append('before reading SConscript files:')
-    count_stats.append(('pre-', 'read'))
+    MEMORY_STATS.append('before reading SConscript files:')
+    COUNT_STATS.append(('pre-', 'read'))
 
     # And here's where we (finally) read the SConscript files.
 
@@ -1066,8 +1017,8 @@ def _main(parser):
 
     progress_display("scons: done reading SConscript files.")
 
-    memory_stats.append('after reading SConscript files:')
-    count_stats.append(('post-', 'read'))
+    MEMORY_STATS.append('after reading SConscript files:')
+    COUNT_STATS.append(('post-', 'read'))
 
     # Re-{enable,disable} warnings in case they disabled some in
     # the SConscript file.
@@ -1319,8 +1270,8 @@ def _build_targets(fs, options, targets, target_top):
         if msg:
             SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
-    memory_stats.append('before building targets:')
-    count_stats.append(('pre-', 'build'))
+    MEMORY_STATS.append('before building targets:')
+    COUNT_STATS.append(('pre-', 'build'))
 
     def jobs_postfunc(
         jobs=jobs,
@@ -1348,8 +1299,8 @@ def _build_targets(fs, options, targets, target_top):
     progress_display("scons: " + opening_message)
     jobs.run(postfunc = jobs_postfunc)
 
-    memory_stats.append('after building targets:')
-    count_stats.append(('post-', 'build'))
+    MEMORY_STATS.append('after building targets:')
+    COUNT_STATS.append(('post-', 'build'))
 
     return nodes
 
@@ -1437,8 +1388,8 @@ def main():
         SCons.Script._SConscript.SConscript_exception()
         sys.exit(2)
 
-    memory_stats.print_stats()
-    count_stats.print_stats()
+    MEMORY_STATS.print_stats()
+    COUNT_STATS.print_stats()
 
     if print_objects:
         SCons.Debug.listLoggedInstances('*')
@@ -1468,6 +1419,9 @@ def main():
         print("Total SConscript file execution time: %f seconds"%sconscript_time)
         print("Total SCons execution time: %f seconds"%scons_time)
         print("Total command execution time: %f seconds"%ct)
+
+    if SCons.Util.stats.ENABLE_JSON:
+        WriteJsonFile()
 
     sys.exit(exit_status)
 
