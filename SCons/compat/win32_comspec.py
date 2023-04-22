@@ -47,6 +47,17 @@ if sys.platform == 'win32':
     except ImportError:
         winreg = None
 
+    _norm_path_cache = {}
+
+    def _normalize_path(orig_path):
+        """Normalize path for comparison."""
+        norm_path = _norm_path_cache.get(orig_path)
+        if norm_path is None:
+            norm_path = os.path.normcase(os.path.normpath(orig_path))
+            _norm_path_cache[orig_path] = norm_path
+            _norm_path_cache[norm_path] = norm_path
+        return norm_path
+
     class _WindowsCommandInterpreter:
 
         force_comspec_evar = 'SCONS_WIN32_COMSPEC_FORCE'
@@ -128,7 +139,7 @@ if sys.platform == 'win32':
                     return rval
 
                 if orig_comspec:
-                    norm_comspec = os.path.normcase(os.path.normpath(orig_comspec))
+                    norm_comspec = _normalize_path(orig_comspec)
                 else:
                     norm_comspec = orig_comspec
 
@@ -315,7 +326,7 @@ if sys.platform == 'win32':
 
                 os_path = os.environ.get('COMSPEC')
                 if os_path:
-                    os_norm = os.path.normcase(os.path.normpath(os_path))
+                    os_norm = _normalize_path(os_path)
                     if os_norm == context.win_comspec.norm_comspec:
                         # os.environ comspec has not changed
                         if not context.os_comspec.is_defined:
@@ -328,7 +339,7 @@ if sys.platform == 'win32':
                 if env:
                     env_path = env.get('COMSPEC')
                     if env_path:
-                        env_norm = os.path.normcase(os.path.normpath(env_path))
+                        env_norm = _normalize_path(env_path)
                         if env_norm == context.win_comspec.norm_comspec:
                             # env comspec has not changed
                             if not context.env_comspec.is_defined:
