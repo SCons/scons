@@ -1,25 +1,8 @@
-# MIT License
+# SPDX-License-Identifier: MIT
 #
 # Copyright The SCons Foundation
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+"""Build the scons-local packages."""
 
 from glob import glob
 import os.path
@@ -93,29 +76,29 @@ def create_local_packages(env):
     installed_files = install_local_package_files(env)
 
     build_local_dir = 'build/scons-local'
-    package = env.Command(
+    local_zip = env.Command(
         '#build/dist/scons-local-${VERSION}.zip',
         installed_files,
         zipit,
         CD=build_local_dir,
         PSV='.',
     )
+    env.Alias("local-zip", local_zip)
 
-    do_zipapp = True  # Q: maybe an external way to specify whether to build?
-    if do_zipapp:
-        # We need to descend into the versioned directory for zipapp,
-        # but we don't know the version. env.Glob lets us expand that.
-        # The action isn't going to use the sources, but including
-        # them makes sure SCons has populated the dir we're going to zip.
-        app_dir = env.Glob(f"{build_local_dir}/scons-local-*")[0]
-        zipapp = env.Command(
-            target='#build/dist/scons-local-${VERSION}.pyz',
-            source=installed_files,
-            action=zipappit,
-            CD=app_dir,
-            PSV='.',
-            entry='SCons.Script.Main:main',
-        )
+    # We need to descend into the versioned directory for zipapp,
+    # but we don't know the version. env.Glob lets us expand that.
+    # The action isn't going to use the sources, but including
+    # them makes sure SCons has populated the dir we're going to zip.
+    app_dir = env.Glob(f"{build_local_dir}/scons-local-*")[0]
+    zipapp = env.Command(
+        target='#build/dist/scons-local-${VERSION}.pyz',
+        source=installed_files,
+        action=zipappit,
+        CD=app_dir,
+        PSV='.',
+        entry='SCons.Script.Main:main',
+    )
+    env.Alias("local-zipapp", zipapp)
 
     if is_windows():
         # avoid problem with tar interpreting c:/ as a remote machine
@@ -123,12 +106,12 @@ def create_local_packages(env):
     else:
         tar_cargs = '-czf'
 
-    env.Command(
+    local_tar = env.Command(
         '#build/dist/scons-local-${VERSION}.tar.gz',
         installed_files,
         "cd %s && tar %s $( ${TARGET.abspath} $) *" % (build_local_dir, tar_cargs),
     )
+    env.Alias("local-tar-gz", local_tar)
 
-    print(f"Package:{package}")
-    if do_zipapp:
-        print(f"Zipapp:{zipapp}")
+    print(f"Package:{local_zip}")
+    print(f"Zipapp:{zipapp}")
