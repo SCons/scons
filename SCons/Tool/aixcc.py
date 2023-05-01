@@ -44,7 +44,7 @@ def get_xlc(env):
     xlc = env.get('CC', 'xlc')
     return SCons.Platform.aix.get_xlc(env, xlc, packages)
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for xlc / Visual Age
     suite to an Environment."""
     path, _cc, version = get_xlc(env)

@@ -30,7 +30,7 @@ selection method.
 
 from . import win32
 
-def generate(env):
+def generate(env) -> None:
     if 'ENV' not in env:
         env['ENV']        = {}
     env['OBJPREFIX']      = ''

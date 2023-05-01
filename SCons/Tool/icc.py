@@ -35,7 +35,7 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 from . import cc
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for the OS/2 to an Environment."""
     cc.generate(env)
 

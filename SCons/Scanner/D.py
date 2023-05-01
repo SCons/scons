@@ -35,7 +35,7 @@ def DScanner():
     return ds
 
 class D(Classic):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="DScanner",
             suffixes='$DSUFFIXES',

@@ -34,7 +34,7 @@ class NinjaExperimentalWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
 
-def ninja_add_command_line_options():
+def ninja_add_command_line_options() -> None:
     """
     Add additional command line arguments to SCons specific to the ninja tool
     """
@@ -92,7 +92,7 @@ def alias_to_ninja_build(node):
     }
 
 
-def check_invalid_ninja_node(node):
+def check_invalid_ninja_node(node) -> bool:
     return not isinstance(node, (SCons.Node.FS.Base, SCons.Node.Alias.Alias))
 
 
@@ -129,7 +129,7 @@ def get_order_only(node):
     return [get_path(src_file(prereq)) for prereq in filter_ninja_nodes(node.prerequisites)]
 
 
-def get_dependencies(node, skip_sources=False):
+def get_dependencies(node, skip_sources: bool=False):
     """Return a list of dependencies for node."""
     if skip_sources:
         return [
@@ -236,7 +236,7 @@ def to_escaped_list(env, lst):
     return sorted([dep.escape(env.get("ESCAPE", lambda x: x)) for dep in deps_list])
 
 
-def generate_depfile(env, node, dependencies):
+def generate_depfile(env, node, dependencies) -> None:
     """
     Ninja tool function for writing a depfile. The depfile should include
     the node path followed by all the dependent files in a makefile format.
@@ -281,7 +281,7 @@ def ninja_recursive_sorted_dict(build):
     return sorted_dict
 
 
-def ninja_sorted_build(ninja, **build):
+def ninja_sorted_build(ninja, **build) -> None:
     sorted_dict = ninja_recursive_sorted_dict(build)
     ninja.build(**sorted_dict)
 
@@ -437,7 +437,7 @@ def ninja_whereis(thing, *_args, **_kwargs):
         return path
 
 
-def ninja_print_conf_log(s, target, source, env):
+def ninja_print_conf_log(s, target, source, env) -> None:
     """Command line print only for conftest to generate a correct conf log."""
     if target and target[0].is_conftest():
         action = SCons.Action._ActionAction()

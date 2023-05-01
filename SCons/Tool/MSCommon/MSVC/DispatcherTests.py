@@ -46,37 +46,37 @@ verify = None
 
 class StaticMethods:
     @staticmethod
-    def _reset():
+    def _reset() -> None:
         Data.reset_count += 1
 
     @staticmethod
-    def reset():
+    def reset() -> None:
         Data.reset_count += 1
 
     @staticmethod
-    def _verify():
+    def _verify() -> None:
         Data.verify_count += 1
 
     @staticmethod
-    def verify():
+    def verify() -> None:
         Data.verify_count += 1
 
 
 class ClassMethods:
     @classmethod
-    def _reset(cls):
+    def _reset(cls) -> None:
         Data.reset_count += 1
 
     @classmethod
-    def reset(cls):
+    def reset(cls) -> None:
         Data.reset_count += 1
 
     @classmethod
-    def _verify(cls):
+    def _verify(cls) -> None:
         Data.verify_count += 1
 
     @classmethod
-    def verify(cls):
+    def verify(cls) -> None:
         Data.verify_count += 1
 
 
@@ -94,22 +94,22 @@ MSVC.Dispatcher.register_class(NotCallable)
 
 
 class DispatcherTests(unittest.TestCase):
-    def test_dispatcher_reset(self):
+    def test_dispatcher_reset(self) -> None:
         MSVC.Dispatcher.reset()
         self.assertTrue(Data.reset_count == 4, "MSVC.Dispatcher.reset() count failed")
         Data.reset_count = 0
 
-    def test_dispatcher_verify(self):
+    def test_dispatcher_verify(self) -> None:
         MSVC.Dispatcher.verify()
         self.assertTrue(Data.verify_count == 4, "MSVC.Dispatcher.verify() count failed")
         Data.verify_count = 0
 
-    def test_msvc_reset(self):
+    def test_msvc_reset(self) -> None:
         MSVC._reset()
         self.assertTrue(Data.reset_count == 4, "MSVC._reset() count failed")
         Data.reset_count = 0
 
-    def test_msvc_verify(self):
+    def test_msvc_verify(self) -> None:
         MSVC._verify()
         self.assertTrue(Data.verify_count == 4, "MSVC._verify() count failed")
         Data.verify_count = 0

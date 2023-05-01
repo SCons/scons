@@ -43,7 +43,7 @@ cache_show = False
 cache_readonly = False
 cache_tmp_uuid = uuid.uuid4().hex
 
-def CacheRetrieveFunc(target, source, env):
+def CacheRetrieveFunc(target, source, env) -> int:
     t = target[0]
     fs = t.fs
     cd = env.get_CacheDir()
@@ -133,7 +133,7 @@ CachePush = SCons.Action.Action(CachePushFunc, None)
 
 class CacheDir:
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         """
         Initialize a CacheDir object.
 
@@ -192,12 +192,12 @@ class CacheDir:
                 msg = "Failed to read cache configuration for " + path
                 raise SCons.Errors.SConsEnvironmentError(msg)
 
-    def CacheDebug(self, fmt, target, cachefile):
+    def CacheDebug(self, fmt, target, cachefile) -> None:
         if cache_debug != self.current_cache_debug:
             if cache_debug == '-':
                 self.debugFP = sys.stdout
             elif cache_debug:
-                def debug_cleanup(debugFP):
+                def debug_cleanup(debugFP) -> None:
                     debugFP.close()
 
                 self.debugFP = open(cache_debug, 'w')
@@ -270,7 +270,7 @@ class CacheDir:
         cachedir = os.path.join(self.path, subdir)
         return cachedir, os.path.join(cachedir, sig)
 
-    def retrieve(self, node):
+    def retrieve(self, node) -> bool:
         """
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in

@@ -54,7 +54,7 @@ class _Data:
     need_init = True
 
     @classmethod
-    def reset(cls):
+    def reset(cls) -> None:
         debug('msvc default:init')
         cls.n_setup = 0                 # number of calls to msvc_setup_env_once
         cls.default_ismsvc = False      # is msvc the default compiler
@@ -65,7 +65,7 @@ class _Data:
         cls.msvc_nodefault = False      # is there a default version of msvc
         cls.need_init = True            # reset initialization indicator
 
-def _initialize(env, msvc_exists_func):
+def _initialize(env, msvc_exists_func) -> None:
     if _Data.need_init:
         _Data.reset()
         _Data.need_init = False
@@ -88,7 +88,7 @@ def register_tool(env, tool, msvc_exists_func):
         _Data.msvc_tools.add(tool)
         debug('msvc default:tool=%s, msvc_tools=%s', tool, _Data.msvc_tools)
 
-def register_setup(env, msvc_exists_func):
+def register_setup(env, msvc_exists_func) -> None:
     if _Data.need_init:
         _initialize(env, msvc_exists_func)
     _Data.n_setup += 1
@@ -106,7 +106,7 @@ def register_setup(env, msvc_exists_func):
             _Data.n_setup, _Data.msvc_installed, _Data.default_ismsvc
         )
 
-def set_nodefault():
+def set_nodefault() -> None:
     # default msvc version, msvc not installed
     _Data.msvc_nodefault = True
     debug('msvc default:msvc_nodefault=%s', _Data.msvc_nodefault)
@@ -227,7 +227,7 @@ def register_iserror(env, tool, msvc_exists_func):
     # return tool list in order presented
     return tools_found_list
 
-def reset():
+def reset() -> None:
     debug('')
     _Data.reset()
 

@@ -44,7 +44,7 @@ from SCons.Tool.MSCommon import msvc_setup_env_once
 
 compilers = ['clang++']
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for clang++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

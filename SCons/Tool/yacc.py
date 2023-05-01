@@ -125,7 +125,7 @@ def yyEmitter(target, source, env) -> tuple:
     return _yaccEmitter(target, source, env, ['.yy'], '$YACCHXXFILESUFFIX')
 
 
-def get_yacc_path(env, append_paths=False) -> Optional[str]:
+def get_yacc_path(env, append_paths: bool=False) -> Optional[str]:
     """
     Returns the path to the yacc tool, searching several possible names.
 

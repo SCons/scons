@@ -65,7 +65,7 @@ def _ldmodule_soversion(target, source, env, for_signature):
         return ''
 
 
-def _ldmodule_soname(target, source, env, for_signature):
+def _ldmodule_soname(target, source, env, for_signature) -> str:
     if 'SONAME' in env:
         return '$SONAME'
     else:
@@ -82,7 +82,7 @@ def _LDMODULEVERSION(target, source, env, for_signature):
     else:
         return ""
 
-def setup_loadable_module_logic(env):
+def setup_loadable_module_logic(env) -> None:
     """
     Just the logic for loadable modules
 

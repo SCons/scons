@@ -40,7 +40,7 @@ _strconv = [
 AllowableExceptions = (IndexError, NameError)
 
 
-def SetAllowableExceptions(*excepts):
+def SetAllowableExceptions(*excepts) -> None:
     global AllowableExceptions
     AllowableExceptions = [_f for _f in excepts if _f]
 
@@ -59,10 +59,10 @@ class Literal:
     around a string, then it will be interpreted as literal.
     When passed to the command interpreter, all special
     characters will be escaped."""
-    def __init__(self, lstr):
+    def __init__(self, lstr) -> None:
         self.lstr = lstr
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.lstr
 
     def escape(self, escape_func):
@@ -71,7 +71,7 @@ class Literal:
     def for_signature(self):
         return self.lstr
 
-    def is_literal(self):
+    def is_literal(self) -> int:
         return 1
 
     def __eq__(self, other):
@@ -79,7 +79,7 @@ class Literal:
             return False
         return self.lstr == other.lstr
 
-    def __neq__(self, other):
+    def __neq__(self, other) -> bool:
         return not self.__eq__(other)
 
     def __hash__(self):
@@ -94,7 +94,7 @@ class SpecialAttrWrapper:
     such that we can return some canonical string during signature
     calculation to avoid unnecessary rebuilds."""
 
-    def __init__(self, lstr, for_signature=None):
+    def __init__(self, lstr, for_signature=None) -> None:
         """The for_signature parameter, if supplied, will be the
         canonical string we return from for_signature().  Else
         we will simply return lstr."""
@@ -104,7 +104,7 @@ class SpecialAttrWrapper:
         else:
             self.forsig = lstr
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.lstr
 
     def escape(self, escape_func):
@@ -113,7 +113,7 @@ class SpecialAttrWrapper:
     def for_signature(self):
         return self.forsig
 
-    def is_literal(self):
+    def is_literal(self) -> int:
         return 1
 
 def quote_spaces(arg):
@@ -131,7 +131,7 @@ class CmdStringHolder(collections.UserString):
     particular platform, it will return the contained string with the
     proper escape sequences inserted.
     """
-    def __init__(self, cmd, literal=None):
+    def __init__(self, cmd, literal=None) -> None:
         super().__init__(cmd)
         self.literal = literal
 
@@ -180,7 +180,7 @@ class NLWrapper:
     cleaner conceptually...
     """
 
-    def __init__(self, list, func):
+    def __init__(self, list, func) -> None:
         self.list = list
         self.func = func
     def _return_nodelist(self):
@@ -209,7 +209,7 @@ class Targets_or_Sources(collections.UserList):
     a list during variable expansion.  We're not really using any
     collections.UserList methods in practice.
     """
-    def __init__(self, nl):
+    def __init__(self, nl) -> None:
         self.nl = nl
     def __getattr__(self, attr):
         nl = self.nl._create_nodelist()
@@ -217,10 +217,10 @@ class Targets_or_Sources(collections.UserList):
     def __getitem__(self, i):
         nl = self.nl._create_nodelist()
         return nl[i]
-    def __str__(self):
+    def __str__(self) -> str:
         nl = self.nl._create_nodelist()
         return str(nl)
-    def __repr__(self):
+    def __repr__(self) -> str:
         nl = self.nl._create_nodelist()
         return repr(nl)
 
@@ -230,7 +230,7 @@ class Target_or_Source:
     to access an individual proxy Node, calling the NLWrapper to create
     a proxy on demand.
     """
-    def __init__(self, nl):
+    def __init__(self, nl) -> None:
         self.nl = nl
     def __getattr__(self, attr):
         nl = self.nl._create_nodelist()
@@ -241,20 +241,20 @@ class Target_or_Source:
             # pass through, so raise AttributeError for everything.
             raise AttributeError("NodeList has no attribute: %s" % attr)
         return getattr(nl0, attr)
-    def __str__(self):
+    def __str__(self) -> str:
         nl = self.nl._create_nodelist()
         if nl:
             return str(nl[0])
         return ''
-    def __repr__(self):
+    def __repr__(self) -> str:
         nl = self.nl._create_nodelist()
         if nl:
             return repr(nl[0])
         return ''
 
 class NullNodeList(SCons.Util.NullSeq):
-  def __call__(self, *args, **kwargs): return ''
-  def __str__(self): return ''
+  def __call__(self, *args, **kwargs) -> str: return ''
+  def __str__(self) -> str: return ''
 
 NullNodesList = NullNodeList()
 
@@ -335,7 +335,7 @@ class StringSubber:
     """
 
 
-    def __init__(self, env, mode, conv, gvars):
+    def __init__(self, env, mode, conv, gvars) -> None:
         self.env = env
         self.mode = mode
         self.conv = conv
@@ -489,7 +489,7 @@ class ListSubber(collections.UserList):
     and the rest of the object takes care of doing the right thing
     internally.
     """
-    def __init__(self, env, mode, conv, gvars):
+    def __init__(self, env, mode, conv, gvars) -> None:
         super().__init__([])
         self.env = env
         self.mode = mode
@@ -503,7 +503,7 @@ class ListSubber(collections.UserList):
         self.in_strip = None
         self.next_line()
 
-    def expanded(self, s):
+    def expanded(self, s) -> bool:
         """Determines if the string s requires further expansion.
 
         Due to the implementation of ListSubber expand will call
@@ -620,7 +620,7 @@ class ListSubber(collections.UserList):
         else:
             self.append(s)
 
-    def substitute(self, args, lvars, within_list):
+    def substitute(self, args, lvars, within_list) -> None:
         """Substitute expansions in an argument or list of arguments.
 
         This serves as a wrapper for splitting up a string into
@@ -643,23 +643,23 @@ class ListSubber(collections.UserList):
         else:
             self.expand(args, lvars, within_list)
 
-    def next_line(self):
+    def next_line(self) -> None:
         """Arrange for the next word to start a new line.  This
         is like starting a new word, except that we have to append
         another line to the result."""
         collections.UserList.append(self, [])
         self.next_word()
 
-    def this_word(self):
+    def this_word(self) -> None:
         """Arrange for the next word to append to the end of the
         current last word in the result."""
         self.append = self.add_to_current_word
 
-    def next_word(self):
+    def next_word(self) -> None:
         """Arrange for the next word to start a new word."""
         self.append = self.add_new_word
 
-    def add_to_current_word(self, x):
+    def add_to_current_word(self, x) -> None:
         """Append the string x to the end of the current last word
         in the result.  If that is not possible, then just add
         it as a new word.  Make sure the entire concatenated string
@@ -707,7 +707,7 @@ class ListSubber(collections.UserList):
                         y = CmdStringHolder(y, None)
                     self[-1][-1] = y
 
-    def add_new_word(self, x):
+    def add_new_word(self, x) -> None:
         if not self.in_strip or self.mode != SUBST_SIG:
             literal = self.literal(x)
             x = self.conv(x)
@@ -724,12 +724,12 @@ class ListSubber(collections.UserList):
         else:
             return l()
 
-    def open_strip(self, x):
+    def open_strip(self, x) -> None:
         """Handle the "open strip" $( token."""
         self.add_strip(x)
         self.in_strip = 1
 
-    def close_strip(self, x):
+    def close_strip(self, x) -> None:
         """Handle the "close strip" $) token."""
         self.add_strip(x)
         self.in_strip = None
@@ -805,7 +805,7 @@ _separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides=False):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: bool=False):
     """Expand a string or list containing construction variable
     substitutions.
 
@@ -887,7 +887,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None,overrides=False):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None,overrides: bool=False):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 

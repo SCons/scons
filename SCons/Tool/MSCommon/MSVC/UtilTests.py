@@ -39,7 +39,7 @@ class Data:
 
 class UtilTests(unittest.TestCase):
 
-    def test_listdir_dirs(self):
+    def test_listdir_dirs(self) -> None:
         func = Util.listdir_dirs
         for dirname, expect in [
             (None, False), ('', False), ('doesnotexist.xyz.abc', False),
@@ -50,7 +50,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(dirname), 'list is empty' if expect else 'list is not empty'
             ))
 
-    def test_process_path(self):
+    def test_process_path(self) -> None:
         func = Util.process_path
         for p, expect in [
             (None, True), ('', True),
@@ -61,7 +61,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(p), repr(rval)
             ))
 
-    def test_get_version_prefix(self):
+    def test_get_version_prefix(self) -> None:
         func = Util.get_version_prefix
         for version, expect in [
             (None, ''), ('', ''),
@@ -76,7 +76,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(version), repr(prefix), repr(expect)
             ))
 
-    def test_get_msvc_version_prefix(self):
+    def test_get_msvc_version_prefix(self) -> None:
         func = Util.get_msvc_version_prefix
         for version, expect in [
             (None, ''), ('', ''),
@@ -91,7 +91,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(version), repr(prefix), repr(expect)
             ))
 
-    def test_is_toolset_full(self):
+    def test_is_toolset_full(self) -> None:
         func = Util.is_toolset_full
         for toolset, expect in [
             (None, False), ('', False),
@@ -103,7 +103,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(toolset), repr(rval)
             ))
 
-    def test_is_toolset_140(self):
+    def test_is_toolset_140(self) -> None:
         func = Util.is_toolset_140
         for toolset, expect in [
             (None, False), ('', False),
@@ -115,7 +115,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(toolset), repr(rval)
             ))
 
-    def test_is_toolset_sxs(self):
+    def test_is_toolset_sxs(self) -> None:
         func = Util.is_toolset_sxs
         for toolset, expect in [
             (None, False), ('', False),
@@ -127,7 +127,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(toolset), repr(rval)
             ))
 
-    def test_msvc_version_components(self):
+    def test_msvc_version_components(self) -> None:
         func = Util.msvc_version_components
         for vcver, expect in [
             (None, False), ('', False), ('ABC', False), ('14', False), ('14.1.', False), ('14.16', False),
@@ -145,7 +145,7 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(vcver)
             ))
 
-    def test_msvc_extended_version_components(self):
+    def test_msvc_extended_version_components(self) -> None:
         func = Util.msvc_extended_version_components
         # normal code paths
         for vcver, expect in [
@@ -184,7 +184,7 @@ class UtilTests(unittest.TestCase):
             ))
         Util.re_extended_version = save_re
 
-    def test_msvc_sdk_version_components(self):
+    def test_msvc_sdk_version_components(self) -> None:
         func = Util.msvc_sdk_version_components
         for vcver, expect in [
             (None, False), ('', False), ('ABC', False), ('14', False), ('14.1.', False), ('14.16', False),

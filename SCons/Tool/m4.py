@@ -37,7 +37,7 @@ import SCons.Action
 import SCons.Builder
 import SCons.Util
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for m4 to an Environment."""
     M4Action = SCons.Action.Action('$M4COM', '$M4COMSTR')
     bld = SCons.Builder.Builder(action = M4Action, src_suffix = '.m4')

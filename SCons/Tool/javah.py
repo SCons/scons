@@ -109,13 +109,13 @@ def JavaHOutFlagGenerator(target, source, env, for_signature):
     except AttributeError:
         return '-o ' + str(t)
 
-def getJavaHClassPath(env,target, source, for_signature):
+def getJavaHClassPath(env,target, source, for_signature) -> str:
     path = "${SOURCE.attributes.java_classdir}"
     if 'JAVACLASSPATH' in env and env['JAVACLASSPATH']:
         path = SCons.Util.AppendPath(path, env['JAVACLASSPATH'])
     return "-classpath %s" % path
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for javah to an Environment."""
     java_javah = SCons.Tool.CreateJavaHBuilder(env)
     java_javah.emitter = emit_java_headers

@@ -100,7 +100,7 @@ def _soversion(target, source, env, for_signature):
         return ""
 
 
-def _soname(target, source, env, for_signature):
+def _soname(target, source, env, for_signature) -> str:
     if "SONAME" in env:
         # Now verify that SOVERSION is not also set as that is not allowed
         if "SOVERSION" in env:
@@ -177,7 +177,7 @@ def _get_shlib_dir(target, source, env, for_signature: bool) -> str:
         return ""
 
 
-def setup_shared_lib_logic(env):
+def setup_shared_lib_logic(env) -> None:
     """Initialize an environment for shared library building.
 
     Args:

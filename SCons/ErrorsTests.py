@@ -95,7 +95,7 @@ class ErrorsTestCase(unittest.TestCase):
         except SCons.Errors.ExplicitExit as e:
             assert e.node == "node"
 
-    def test_convert_EnvironmentError_to_BuildError(self):
+    def test_convert_EnvironmentError_to_BuildError(self) -> None:
         """Test the convert_to_BuildError function on SConsEnvironmentError
         exceptions.
         """
@@ -106,7 +106,7 @@ class ErrorsTestCase(unittest.TestCase):
         assert be.exitstatus == 2
         assert be.filename is None
 
-    def test_convert_OSError_to_BuildError(self):
+    def test_convert_OSError_to_BuildError(self) -> None:
         """Test the convert_to_BuildError function on OSError
         exceptions.
         """

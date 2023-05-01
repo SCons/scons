@@ -147,13 +147,13 @@ class Data:
     )
 
     @classmethod
-    def msvc_sdk_version_list_components(cls, msvc_version, msvc_uwp_app=False):
+    def msvc_sdk_version_list_components(cls, msvc_version, msvc_uwp_app: bool=False):
         comps_dict = cls.SDK_VERSIONS_COMPS_DICT.get(msvc_version, {})
         comps_list = comps_dict.get(msvc_uwp_app, [])
         return comps_list
 
     @classmethod
-    def msvc_sdk_version(cls, msvc_version, msvc_uwp_app=False):
+    def msvc_sdk_version(cls, msvc_version, msvc_uwp_app: bool=False):
         comps_dict = cls.SDK_VERSIONS_COMPS_DICT.get(msvc_version, {})
         comps_list = comps_dict.get(msvc_uwp_app, [])
         if not comps_list:
@@ -163,7 +163,7 @@ class Data:
         return sdk_version
 
     @classmethod
-    def msvc_sdk_notfound_version(cls, msvc_version, msvc_uwp_app=False):
+    def msvc_sdk_notfound_version(cls, msvc_version, msvc_uwp_app: bool=False):
         notfound_dict = cls.SDK_VERSIONS_NOTFOUND_DICT.get(msvc_version, {})
         notfound_list = notfound_dict.get(msvc_uwp_app, [])
         if not notfound_list:
@@ -201,19 +201,19 @@ class Patch:
                 return hook
 
             @classmethod
-            def restore(cls):
+            def restore(cls) -> None:
                 Config.MSVC_SDK_VERSIONS = cls.MSVC_SDK_VERSIONS
 
 class ScriptArgumentsTests(unittest.TestCase):
 
-    def test_verify(self):
+    def test_verify(self) -> None:
         MSVC_SDK_VERSIONS = Patch.Config.MSVC_SDK_VERSIONS.enable_copy()
         MSVC_SDK_VERSIONS.add('99.0')
         with self.assertRaises(MSVCInternalError):
             ScriptArguments.verify()
         Patch.Config.MSVC_SDK_VERSIONS.restore()
 
-    def test_msvc_script_arguments_defaults(self):
+    def test_msvc_script_arguments_defaults(self) -> None:
         func = ScriptArguments.msvc_script_arguments
         env = Environment()
         # disable forcing sdk and toolset versions as arguments
@@ -244,7 +244,7 @@ class ScriptArgumentsTests(unittest.TestCase):
         # restore forcing sdk and toolset versions as arguments
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    def test_msvc_toolset_versions_internal(self):
+    def test_msvc_toolset_versions_internal(self) -> None:
         func = ScriptArguments._msvc_toolset_versions_internal
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for full in (True, False):
@@ -267,7 +267,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                             func.__name__, repr(version_def.msvc_version), repr(vc_dir), repr(full), repr(sxs)
                         ))
 
-    def test_msvc_toolset_internal(self):
+    def test_msvc_toolset_internal(self) -> None:
         if not Data.HAVE_MSVC:
             return
         func = ScriptArguments._msvc_toolset_internal
@@ -278,7 +278,7 @@ class ScriptArgumentsTests(unittest.TestCase):
             for toolset_version in toolset_versions:
                 _ = func(version_def.msvc_version, toolset_version, vc_dir)
 
-    def run_msvc_script_args_none(self):
+    def run_msvc_script_args_none(self) -> None:
         func = ScriptArguments.msvc_script_arguments
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             for kwargs in [
@@ -291,7 +291,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                 env = Environment(**kwargs)
                 _ = func(env, version_def.msvc_version, vc_dir, '')
 
-    def run_msvc_script_args(self):
+    def run_msvc_script_args(self) -> None:
         func = ScriptArguments.msvc_script_arguments
         for version_def, vc_dir in Data.INSTALLED_VERSIONS_PAIRS:
             if version_def.msvc_vernum >= 14.1:
@@ -565,7 +565,7 @@ class ScriptArgumentsTests(unittest.TestCase):
                     with self.assertRaises(MSVCArgumentError):
                         _ = func(env, version_def.msvc_version, vc_dir, '')
 
-    def test_msvc_script_args_none(self):
+    def test_msvc_script_args_none(self) -> None:
         force = ScriptArguments.msvc_force_default_arguments(force=False)
         self.run_msvc_script_args_none()
         if Data.HAVE_MSVC:
@@ -573,14 +573,14 @@ class ScriptArgumentsTests(unittest.TestCase):
             self.run_msvc_script_args_none()
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    def test_msvc_script_args(self):
+    def test_msvc_script_args(self) -> None:
         force = ScriptArguments.msvc_force_default_arguments(force=False)
         self.run_msvc_script_args()
         ScriptArguments.msvc_force_default_arguments(force=True)
         self.run_msvc_script_args()
         ScriptArguments.msvc_force_default_arguments(force=force)
 
-    def test_reset(self):
+    def test_reset(self) -> None:
         ScriptArguments.reset()
         self.assertTrue(ScriptArguments._toolset_have140_cache is None, "ScriptArguments._toolset_have140_cache was not reset")
         self.assertFalse(ScriptArguments._toolset_version_cache, "ScriptArguments._toolset_version_cache was not reset")

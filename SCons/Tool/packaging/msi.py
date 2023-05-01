@@ -130,7 +130,7 @@ def create_feature_dict(files):
     """
     dict = {}
 
-    def add_to_dict( feature, file ):
+    def add_to_dict( feature, file ) -> None:
         if not SCons.Util.is_List( feature ):
             feature = [ feature ]
 
@@ -150,7 +150,7 @@ def create_feature_dict(files):
 
     return dict
 
-def generate_guids(root):
+def generate_guids(root) -> None:
     """ generates globally unique identifiers for parts of the xml which need
     them.
 
@@ -179,7 +179,7 @@ def generate_guids(root):
             node.attributes[attribute] = str(hash)
 
 
-def string_wxsfile(target, source, env):
+def string_wxsfile(target, source, env) -> str:
     return "building WiX file %s" % target[0].path
 
 def build_wxsfile(target, source, env):
@@ -266,7 +266,7 @@ def create_default_directory_layout(root, NAME, VERSION, VENDOR, filename_set):
 #
 # mandatory and optional file tags
 #
-def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set, id_set):
+def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set, id_set) -> None:
     """ Builds the Component sections of the wxs file with their included files.
 
     Files need to be specified in 8.3 format and in the long name format, long
@@ -358,7 +358,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
 #
 # additional functions
 #
-def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set):
+def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set) -> None:
     """ This function creates the <features> tag based on the supplied xml tree.
 
     This is achieved by finding all <component>s and adding them to a default target.
@@ -413,7 +413,7 @@ def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set):
 
     root.getElementsByTagName('Product')[0].childNodes.append(Feature)
 
-def build_wxsfile_default_gui(root):
+def build_wxsfile_default_gui(root) -> None:
     """ This function adds a default GUI to the wxs file
     """
     factory = Document()
@@ -427,7 +427,7 @@ def build_wxsfile_default_gui(root):
     UIRef.attributes['Id'] = 'WixUI_ErrorProgressText'
     Product.childNodes.append(UIRef)
 
-def build_license_file(directory, spec):
+def build_license_file(directory, spec) -> None:
     """ Creates a License.rtf file with the content of "X_MSI_LICENSE_TEXT"
     in the given directory
     """
@@ -451,7 +451,7 @@ def build_license_file(directory, spec):
 #
 # mandatory and optional package tags
 #
-def build_wxsfile_header_section(root, spec):
+def build_wxsfile_header_section(root, spec) -> None:
     """ Adds the xml file node which define the package meta-data.
     """
     # Create the needed DOM nodes and add them at the correct position in the tree.

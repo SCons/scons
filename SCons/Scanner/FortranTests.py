@@ -202,7 +202,7 @@ test.write(['modules', 'use.mod'], "\n")
 # define some helpers:
 
 class DummyEnvironment:
-    def __init__(self, listCppPath):
+    def __init__(self, listCppPath) -> None:
         self.path = listCppPath
         self.fs = SCons.Node.FS.FS(test.workpath(''))
 
@@ -214,16 +214,16 @@ class DummyEnvironment:
         else:
             raise KeyError("Dummy environment only has FORTRANPATH attribute.")
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.Dictionary()
 
     def __getitem__(self, key):
         return self.Dictionary()[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self.Dictionary()[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         del self.Dictionary()[key]
 
     def subst(self, arg, target=None, source=None, conv=None):
@@ -249,7 +249,7 @@ class DummyEnvironment:
         return self.fs.File(filename)
 
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     scanned = list(map(os.path.normpath, list(map(str, deps))))
     expect = list(map(os.path.normpath, headers))
     self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
@@ -258,7 +258,7 @@ def deps_match(self, deps, headers):
 # define some tests:
 
 class FortranScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write('f1.f', "\n")
         test.write('f2.f', "      INCLUDE 'fi.f'\n")
         env = DummyEnvironment([])
@@ -272,7 +272,7 @@ class FortranScannerTestCase1(unittest.TestCase):
 
 
 class FortranScannerTestCase2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write('f1.f', "\n")
         test.write('f2.f', "      INCLUDE 'fi.f'\n")
         env = DummyEnvironment([test.workpath("d1")])
@@ -286,7 +286,7 @@ class FortranScannerTestCase2(unittest.TestCase):
 
 
 class FortranScannerTestCase3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
@@ -296,7 +296,7 @@ class FortranScannerTestCase3(unittest.TestCase):
 
 
 class FortranScannerTestCase4(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write(['d1', 'f2.f'], "      INCLUDE 'fi.f'\n")
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
@@ -308,7 +308,7 @@ class FortranScannerTestCase4(unittest.TestCase):
 
 
 class FortranScannerTestCase5(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
@@ -318,7 +318,7 @@ class FortranScannerTestCase5(unittest.TestCase):
 
 
 class FortranScannerTestCase6(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write('f2.f', "\n")
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
@@ -330,7 +330,7 @@ class FortranScannerTestCase6(unittest.TestCase):
 
 
 class FortranScannerTestCase7(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([test.workpath("d1/d2"), test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
@@ -340,7 +340,7 @@ class FortranScannerTestCase7(unittest.TestCase):
 
 
 class FortranScannerTestCase8(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write('f2.f', "\n")
         env = DummyEnvironment([test.workpath("d1/d2"), test.workpath("d1")])
         s = SCons.Scanner.Fortran.FortranScan()
@@ -352,7 +352,7 @@ class FortranScannerTestCase8(unittest.TestCase):
 
 
 class FortranScannerTestCase9(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write('f3.f', "\n")
         env = DummyEnvironment([])
         s = SCons.Scanner.Fortran.FortranScan()
@@ -380,7 +380,7 @@ class FortranScannerTestCase9(unittest.TestCase):
 
 
 class FortranScannerTestCase10(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(["include"])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
@@ -397,11 +397,11 @@ class FortranScannerTestCase10(unittest.TestCase):
 
 
 class FortranScannerTestCase11(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
 
         class TestOut:
-            def __call__(self, x):
+            def __call__(self, x) -> None:
                 self.out = x
 
         to = TestOut()
@@ -419,7 +419,7 @@ class FortranScannerTestCase11(unittest.TestCase):
 
 
 class FortranScannerTestCase12(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([])
         env.fs.chdir(env.Dir('include'))
         s = SCons.Scanner.Fortran.FortranScan()
@@ -432,7 +432,7 @@ class FortranScannerTestCase12(unittest.TestCase):
 
 
 class FortranScannerTestCase13(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.Repository(test.workpath('repository'))
@@ -451,7 +451,7 @@ class FortranScannerTestCase13(unittest.TestCase):
 
 
 class FortranScannerTestCase14(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.VariantDir('build1', 'src', 1)
@@ -473,7 +473,7 @@ class FortranScannerTestCase14(unittest.TestCase):
 
 
 class FortranScannerTestCase15(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         class SubstEnvironment(DummyEnvironment):
             def subst(self, arg, target=None, source=None, conv=None, test=test):
                 if arg == "$junk":
@@ -492,7 +492,7 @@ class FortranScannerTestCase15(unittest.TestCase):
 
 
 class FortranScannerTestCase16(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         test.write('f1.f', "\n")
         test.write('f2.f', "\n")
         test.write('f3.f', "\n")

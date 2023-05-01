@@ -37,7 +37,7 @@ PDFBuilder = None
 
 EpsPdfAction = SCons.Action.Action('$EPSTOPDFCOM', '$EPSTOPDFCOMSTR')
 
-def generate(env):
+def generate(env) -> None:
     try:
         env['BUILDERS']['PDF']
     except KeyError:
@@ -57,7 +57,7 @@ def generate(env):
 
 # put the epstopdf builder in this routine so we can add it after 
 # the pdftex builder so that one is the default for no source suffix
-def generate2(env):
+def generate2(env) -> None:
     bld = env['BUILDERS']['PDF']
     #bld.add_action('.ps',  EpsPdfAction) # this is covered by direct Ghostcript action in gs.py
     bld.add_action('.eps', EpsPdfAction)
@@ -66,7 +66,7 @@ def generate2(env):
     env['EPSTOPDFFLAGS'] = SCons.Util.CLVar('')
     env['EPSTOPDFCOM']   = '$EPSTOPDF $EPSTOPDFFLAGS ${SOURCE} --outfile=${TARGET}'
 
-def exists(env):
+def exists(env) -> int:
     # This only puts a skeleton Builder in place, so if someone
     # references this Tool directly, it's always "available."
     return 1
