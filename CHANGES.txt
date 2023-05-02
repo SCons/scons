@@ -15,6 +15,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       embedded in a sequence, or by itself.  The conditional C scanner thus
       did not always properly apply the defines. The regular C scanner does
       not use these, so was not affected.  [fixes #4193]
+    - Simplify some code due to pylint observation: "C2801: Unnecessarily
+      calls dunder method __call__. Invoke instance directly."
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
