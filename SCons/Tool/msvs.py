@@ -777,7 +777,7 @@ class _GenerateV6DSP(_DSPGenerator):
 
         # OK, we've found our little pickled cache of data.
         try:
-            datas = base64.decodestring(datas)
+            datas = base64.decodebytes(datas)
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
@@ -798,7 +798,7 @@ class _GenerateV6DSP(_DSPGenerator):
         # OK, we've found our little pickled cache of data.
         # it has a "# " in front of it, so we strip that.
         try:
-            datas = base64.decodestring(datas)
+            datas = base64.decodebytes(datas)
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
@@ -1095,7 +1095,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
         # OK, we've found our little pickled cache of data.
         try:
-            datas = base64.decodestring(datas)
+            datas = base64.decodebytes(datas)
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
@@ -1115,7 +1115,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
         # OK, we've found our little pickled cache of data.
         try:
-            datas = base64.decodestring(datas)
+            datas = base64.decodebytes(datas)
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
@@ -1592,7 +1592,7 @@ class _GenerateV7DSW(_DSWGenerator):
 
         # OK, we've found our little pickled cache of data.
         try:
-            datas = base64.decodestring(datas)
+            datas = base64.decodebytes(datas)
             data = pickle.loads(datas)
         except KeyboardInterrupt:
             raise
