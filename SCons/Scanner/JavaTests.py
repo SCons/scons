@@ -54,7 +54,7 @@ for fname in subfiles:
     test.write(fname.split('/'), "\n")
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self,**kw):
+    def __init__(self,**kw) -> None:
         collections.UserDict.__init__(self)
         self.data.update(kw)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -73,7 +73,7 @@ class DummyEnvironment(collections.UserDict):
             path = [path]
         return list(map(self.subst, path))
 
-    def has_key(self, key):
+    def has_key(self, key) -> bool:
         return key in self.Dictionary()
 
     def get_calculator(self):
@@ -93,13 +93,13 @@ class DummyEnvironment(collections.UserDict):
 
 
 class DummyNode:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
 
-    def rexists(self):
+    def rexists(self) -> int:
         return 1
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -109,14 +109,14 @@ my_normpath = os.path.normpath
 if os.path.normcase('foo') == os.path.normcase('FOO'):
     my_normpath = os.path.normcase
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     scanned = sorted(map(my_normpath, list(map(str, deps))))
     expect = sorted(map(my_normpath, headers))
     self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
 
 
 class JavaScannerEmptyClasspath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         path = []
         env = DummyEnvironment(JAVASUFFIXES=['.java'], JAVACLASSPATH=path)
         s = SCons.Scanner.Java.JavaScanner()
@@ -126,7 +126,7 @@ class JavaScannerEmptyClasspath(unittest.TestCase):
 
 
 class JavaScannerClasspath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(JAVASUFFIXES=['.java'],
                                JAVACLASSPATH=[test.workpath('classpath.jar')])
         s = SCons.Scanner.Java.JavaScanner()
@@ -136,7 +136,7 @@ class JavaScannerClasspath(unittest.TestCase):
 
 
 class JavaScannerWildcardClasspath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(JAVASUFFIXES=['.java'],
                                JAVACLASSPATH=[test.workpath('*')])
         s = SCons.Scanner.Java.JavaScanner()
@@ -146,7 +146,7 @@ class JavaScannerWildcardClasspath(unittest.TestCase):
 
 
 class JavaScannerDirClasspath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(JAVASUFFIXES=['.java'],
                                JAVACLASSPATH=[test.workpath()])
         s = SCons.Scanner.Java.JavaScanner()
@@ -156,7 +156,7 @@ class JavaScannerDirClasspath(unittest.TestCase):
 
 
 class JavaScannerNamedDirClasspath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(
             JAVASUFFIXES=['.java'],
             JAVACLASSPATH=[test.workpath('com'), test.workpath('java space')],
@@ -168,7 +168,7 @@ class JavaScannerNamedDirClasspath(unittest.TestCase):
 
 
 class JavaScannerSearchPathClasspath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(
             JAVASUFFIXES=['.java'],
             JAVACLASSPATH=os.pathsep.join([test.workpath('com'), test.workpath('java space')]),
@@ -180,7 +180,7 @@ class JavaScannerSearchPathClasspath(unittest.TestCase):
 
 
 class JavaScannerEmptyProcessorpath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         path = []
         env = DummyEnvironment(JAVASUFFIXES=['.java'], JAVAPROCESSORPATH=path)
         s = SCons.Scanner.Java.JavaScanner()
@@ -190,7 +190,7 @@ class JavaScannerEmptyProcessorpath(unittest.TestCase):
 
 
 class JavaScannerProcessorpath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(JAVASUFFIXES=['.java'],
                                JAVAPROCESSORPATH=[test.workpath('classpath.jar')])
         s = SCons.Scanner.Java.JavaScanner()
@@ -200,7 +200,7 @@ class JavaScannerProcessorpath(unittest.TestCase):
 
 
 class JavaScannerWildcardProcessorpath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(JAVASUFFIXES=['.java'],
                                JAVAPROCESSORPATH=[test.workpath('*')])
         s = SCons.Scanner.Java.JavaScanner()
@@ -210,7 +210,7 @@ class JavaScannerWildcardProcessorpath(unittest.TestCase):
 
 
 class JavaScannerDirProcessorpath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(JAVASUFFIXES=['.java'],
                                JAVAPROCESSORPATH=[test.workpath()])
         s = SCons.Scanner.Java.JavaScanner()
@@ -220,7 +220,7 @@ class JavaScannerDirProcessorpath(unittest.TestCase):
 
 
 class JavaScannerNamedDirProcessorpath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(
             JAVASUFFIXES=['.java'],
             JAVAPROCESSORPATH=[test.workpath('com'), test.workpath('java space')],
@@ -232,7 +232,7 @@ class JavaScannerNamedDirProcessorpath(unittest.TestCase):
 
 
 class JavaScannerSearchPathProcessorpath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(
             JAVASUFFIXES=['.java'],
             JAVAPROCESSORPATH=os.pathsep.join([test.workpath('com'), test.workpath('java space')]),

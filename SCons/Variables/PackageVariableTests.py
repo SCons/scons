@@ -29,7 +29,7 @@ import SCons.Variables
 import TestCmd
 
 class PackageVariableTestCase(unittest.TestCase):
-    def test_PackageVariable(self):
+    def test_PackageVariable(self) -> None:
         """Test PackageVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
@@ -41,7 +41,7 @@ class PackageVariableTestCase(unittest.TestCase):
         assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
 
-    def test_converter(self):
+    def test_converter(self) -> None:
         """Test the PackageVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))
@@ -82,7 +82,7 @@ class PackageVariableTestCase(unittest.TestCase):
         x = o.converter(str(False))
         assert not x, "converter returned a string when given str(False)"
 
-    def test_validator(self):
+    def test_validator(self) -> None:
         """Test the PackageVariable validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PackageVariable('test', 'test option help', '/default/path'))

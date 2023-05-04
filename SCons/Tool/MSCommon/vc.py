@@ -455,7 +455,7 @@ def get_native_host_platform():
 
     return _native_host_platform
 
-def get_host_target(env, msvc_version, all_host_targets=False):
+def get_host_target(env, msvc_version, all_host_targets: bool=False):
 
     vernum = float(get_msvc_version_numeric(msvc_version))
 
@@ -823,7 +823,7 @@ __INSTALLED_VCS_RUN = None
 _VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
 _VC_TOOLS_VERSION_FILE = os.sep.join(_VC_TOOLS_VERSION_FILE_PATH)
 
-def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version):
+def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version) -> bool:
     """Return status of finding a cl.exe to use.
 
     Locates cl in the vc_dir depending on TARGET_ARCH, HOST_ARCH and the
@@ -963,7 +963,7 @@ def get_installed_vcs(env=None):
     __INSTALLED_VCS_RUN = installed_versions
     return __INSTALLED_VCS_RUN
 
-def reset_installed_vcs():
+def reset_installed_vcs() -> None:
     """Make it try again to find VC.  This is just for the tests."""
     global __INSTALLED_VCS_RUN
     __INSTALLED_VCS_RUN = None
@@ -1099,7 +1099,7 @@ def get_default_version(env):
 
     return msvc_version
 
-def msvc_setup_env_once(env, tool=None):
+def msvc_setup_env_once(env, tool=None) -> None:
     try:
         has_run = env["MSVC_SETUP_RUN"]
     except KeyError:
@@ -1340,7 +1340,7 @@ def msvc_setup_env_tool(env=None, version=None, tool=None):
         rval = True
     return rval
 
-def msvc_sdk_versions(version=None, msvc_uwp_app=False):
+def msvc_sdk_versions(version=None, msvc_uwp_app: bool=False):
     debug('version=%s, msvc_uwp_app=%s', repr(version), repr(msvc_uwp_app))
 
     rval = []
@@ -1360,7 +1360,7 @@ def msvc_sdk_versions(version=None, msvc_uwp_app=False):
     rval = MSVC.WinSDK.get_msvc_sdk_version_list(version, msvc_uwp_app)
     return rval
 
-def msvc_toolset_versions(msvc_version=None, full=True, sxs=False):
+def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False):
     debug('msvc_version=%s, full=%s, sxs=%s', repr(msvc_version), repr(full), repr(sxs))
 
     env = None
@@ -1410,7 +1410,7 @@ def msvc_toolset_versions_spectre(msvc_version=None):
     rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_version, vc_dir)
     return rval
 
-def msvc_query_version_toolset(version=None, prefer_newest=True):
+def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
     """
     Returns an msvc version and a toolset version given a version
     specification.

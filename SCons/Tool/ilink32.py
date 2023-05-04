@@ -33,7 +33,7 @@ import SCons.Tool
 import SCons.Tool.bcc32
 import SCons.Util
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for Borland ilink to an
     Environment."""
     SCons.Tool.createSharedLibBuilder(env)

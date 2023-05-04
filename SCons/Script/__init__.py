@@ -175,11 +175,11 @@ DefaultEnvironment      = SCons.Defaults.DefaultEnvironment
 
 # Other variables we provide.
 class TargetList(collections.UserList):
-    def _do_nothing(self, *args, **kw):
+    def _do_nothing(self, *args, **kw) -> None:
         pass
-    def _add_Default(self, list):
+    def _add_Default(self, list) -> None:
         self.extend(list)
-    def _clear(self):
+    def _clear(self) -> None:
         del self[:]
 
 ARGUMENTS               = {}
@@ -199,13 +199,13 @@ DEFAULT_TARGETS         = []
 # own targets to BUILD_TARGETS.
 _build_plus_default = TargetList()
 
-def _Add_Arguments(alist):
+def _Add_Arguments(alist) -> None:
     for arg in alist:
         a, b = arg.split('=', 1)
         ARGUMENTS[a] = b
         ARGLIST.append((a, b))
 
-def _Add_Targets(tlist):
+def _Add_Targets(tlist) -> None:
     if tlist:
         COMMAND_LINE_TARGETS.extend(tlist)
         BUILD_TARGETS.extend(tlist)
@@ -225,7 +225,7 @@ def _Set_Default_Targets_Has_Not_Been_Called(d, fs):
 
 _Get_Default_Targets = _Set_Default_Targets_Has_Not_Been_Called
 
-def _Set_Default_Targets(env, tlist):
+def _Set_Default_Targets(env, tlist) -> None:
     global DEFAULT_TARGETS
     global _Get_Default_Targets
     _Get_Default_Targets = _Set_Default_Targets_Has_Been_Called
@@ -250,7 +250,7 @@ def _Set_Default_Targets(env, tlist):
 #
 help_text = None
 
-def HelpFunction(text, append=False):
+def HelpFunction(text, append: bool=False) -> None:
     global help_text
     if help_text is None:
         if append:
@@ -271,7 +271,7 @@ sconscript_reading = 0
 _no_missing_sconscript = False
 _warn_missing_sconscript_deprecated = True
 
-def set_missing_sconscript_error(flag=1):
+def set_missing_sconscript_error(flag: int=1):
     """Set behavior on missing file in SConscript() call.
 
     Returns:

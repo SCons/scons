@@ -37,7 +37,7 @@ KEEP_ALL_FILES = False
 IGNORE_CORRUPT_DBFILES = False
 
 
-def corruption_warning(filename):
+def corruption_warning(filename) -> None:
     """Local warning for corrupt db.
 
     Used for self-tests. SCons overwrites this with a
@@ -76,7 +76,7 @@ class dblite:
     _shutil_copyfile = shutil.copyfile
     _time_time = time.time
 
-    def __init__(self, file_base_name, flag, mode):
+    def __init__(self, file_base_name, flag, mode) -> None:
         assert flag in (None, "r", "w", "c", "n")
         if flag is None:
             flag = "r"
@@ -136,14 +136,14 @@ class dblite:
                         else:
                             raise
 
-    def close(self):
+    def close(self) -> None:
         if self._needs_sync:
             self.sync()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
-    def sync(self):
+    def sync(self) -> None:
         self._check_writable()
         with self._open(self._tmp_name, "wb", self._mode) as f:
             self._pickle_dump(self._dict, f, self._pickle_protocol)
@@ -197,17 +197,17 @@ class dblite:
     def keys(self):
         return list(self._dict.keys())
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self._dict
 
     def __iter__(self):
         return iter(self._dict)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._dict)
 
 
-def open(file, flag=None, mode=0o666):
+def open(file, flag=None, mode: int=0o666):
     return dblite(file, flag, mode)
 
 

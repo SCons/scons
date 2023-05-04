@@ -60,7 +60,7 @@ for dir in dirs:
         break
 
         
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for g++ to an Environment."""
     cplusplus.generate(env)
 

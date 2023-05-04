@@ -30,7 +30,7 @@ from typing import Tuple
 import SCons.Scanner.Fortran
 import SCons.Tool
 import SCons.Util
-from SCons.Action import Action
+from SCons.Action import Action, ActionBase
 
 
 def isfortran(env, source) -> bool:
@@ -115,7 +115,9 @@ def ComputeFortranSuffixes(suffixes, ppsuffixes) -> None:
     else:
         suffixes.extend(upper_suffixes)
 
-def CreateDialectActions(dialect) -> Tuple[Action, Action, Action, Action]:
+def CreateDialectActions(
+    dialect: str,
+) -> Tuple[ActionBase, ActionBase, ActionBase, ActionBase]:
     """Create dialect specific actions."""
     CompAction = Action(f'${dialect}COM ', cmdstr=f'${dialect}COMSTR')
     CompPPAction = Action(f'${dialect}PPCOM ', cmdstr=f'${dialect}PPCOMSTR')
@@ -124,7 +126,7 @@ def CreateDialectActions(dialect) -> Tuple[Action, Action, Action, Action]:
     return CompAction, CompPPAction, ShCompAction, ShCompPPAction
 
 
-def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods=False) -> None:
+def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods: bool=False) -> None:
     """Add dialect specific construction variables.
 
     Args:

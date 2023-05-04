@@ -40,7 +40,7 @@ cplusplus = SCons.Tool.cxx
 #cplusplus = __import__('cxx', globals(), locals(), [])
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for SGI MIPS C++ to an Environment."""
 
     cplusplus.generate(env)

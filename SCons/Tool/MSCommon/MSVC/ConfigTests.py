@@ -44,7 +44,7 @@ class Patch:
                 return hook
 
             @classmethod
-            def restore(cls):
+            def restore(cls) -> None:
                 vc._VCVER = cls._VCVER
 
     class Config:
@@ -58,13 +58,13 @@ class Patch:
                 return hook
 
             @classmethod
-            def restore(cls):
+            def restore(cls) -> None:
                 Config.MSVC_VERSION_INTERNAL = cls.MSVC_VERSION_INTERNAL
 
 
 class ConfigTests(unittest.TestCase):
 
-    def test_vcver(self):
+    def test_vcver(self) -> None:
         # all vc._VCVER in Config.MSVC_VERSION_SUFFIX
         _VCVER = Patch.vc._VCVER.enable_copy()
         _VCVER.append('99.9')
@@ -72,7 +72,7 @@ class ConfigTests(unittest.TestCase):
             Config.verify()
         Patch.vc._VCVER.restore()
 
-    def test_msvc_version_internal(self):
+    def test_msvc_version_internal(self) -> None:
         # all vc._VCVER numstr in Config.MSVC_VERSION_INTERNAL
         MSVC_VERSION_INTERNAL = Patch.Config.MSVC_VERSION_INTERNAL.enable_copy()
         del MSVC_VERSION_INTERNAL['14.3']
@@ -80,7 +80,7 @@ class ConfigTests(unittest.TestCase):
             Config.verify()
         Patch.Config.MSVC_VERSION_INTERNAL.restore()
 
-    def test_verify(self):
+    def test_verify(self) -> None:
         Config.verify()
 
 

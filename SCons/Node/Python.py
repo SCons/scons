@@ -58,7 +58,7 @@ class ValueNodeInfo(SCons.Node.NodeInfoBase):
 
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """
         Restore the attributes from a pickled state.
         """
@@ -87,7 +87,7 @@ class Value(SCons.Node.Node):
     NodeInfo = ValueNodeInfo
     BuildInfo = ValueBuildInfo
 
-    def __init__(self, value, built_value=None, name=None):
+    def __init__(self, value, built_value=None, name=None) -> None:
         super().__init__()
         self.value = value
         self.changed_since_last_build = 6
@@ -105,25 +105,25 @@ class Value(SCons.Node.Node):
     def str_for_display(self):
         return repr(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         self.get_csig()
 
-    def build(self, **kw):
+    def build(self, **kw) -> None:
         if not hasattr(self, 'built_value'):
             SCons.Node.Node.build(self, **kw)
 
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir):
+    def is_under(self, dir) -> int:
         # Make Value nodes get built regardless of
         # what directory scons was run from. Value nodes
         # are outside the filesystem:
         return 1
 
-    def write(self, built_value):
+    def write(self, built_value) -> None:
         """Set the value of the node."""
         self.built_value = built_value
 

@@ -94,7 +94,7 @@ implicit_deps_changed = 0
 
 # A variable that can be set to an interface-specific function be called
 # to annotate a Node with information about its creation.
-def do_nothing_node(node): pass
+def do_nothing_node(node) -> None: pass
 
 Annotate = do_nothing_node
 
@@ -121,10 +121,10 @@ _is_derived_map = {0 : is_derived_none,
 def exists_none(node):
     raise NotImplementedError
 
-def exists_always(node):
+def exists_always(node) -> int:
     return 1
 
-def exists_base(node):
+def exists_base(node) -> bool:
     return node.stat() is not None
 
 def exists_entry(node):
@@ -326,10 +326,10 @@ do_store_info = True
 # First, the single info functions
 #
 
-def store_info_pass(node):
+def store_info_pass(node) -> None:
     pass
 
-def store_info_file(node):
+def store_info_file(node) -> None:
     # Merge our build information into the already-stored entry.
     # This accommodates "chained builds" where a file that's a target
     # in one build (SConstruct file) is a source in a different build.
@@ -353,7 +353,7 @@ class NodeInfoBase:
     __slots__ = ('__weakref__',)
     current_version_id = 2
 
-    def update(self, node):
+    def update(self, node) -> None:
         try:
             field_list = self.field_list
         except AttributeError:
@@ -370,10 +370,10 @@ class NodeInfoBase:
             else:
                 setattr(self, f, func())
 
-    def convert(self, node, val):
+    def convert(self, node, val) -> None:
         pass
 
-    def merge(self, other):
+    def merge(self, other) -> None:
         """
         Merge the fields of another object into this object. Already existing
         information is overwritten by the other instance's data.
@@ -383,7 +383,7 @@ class NodeInfoBase:
         state = other.__getstate__()
         self.__setstate__(state)
 
-    def format(self, field_list=None, names=0):
+    def format(self, field_list=None, names: int=0):
         if field_list is None:
             try:
                 field_list = self.field_list
@@ -426,7 +426,7 @@ class NodeInfoBase:
             pass
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """
         Restore the attributes from a pickled state. The version is discarded.
         """
@@ -452,7 +452,7 @@ class BuildInfoBase:
                  "bsources", "bdepends", "bact", "bimplicit", "__weakref__")
     current_version_id = 2
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         self.bsourcesigs = []
@@ -460,7 +460,7 @@ class BuildInfoBase:
         self.bimplicitsigs = []
         self.bactsig = None
 
-    def merge(self, other):
+    def merge(self, other) -> None:
         """
         Merge the fields of another object into this object. Already existing
         information is overwritten by the other instance's data.
@@ -490,7 +490,7 @@ class BuildInfoBase:
             pass
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """
         Restore the attributes from a pickled state.
         """
@@ -553,7 +553,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         __slots__ = ('shared', '__dict__')
 
 
-    def __init__(self):
+    def __init__(self) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.Node')
         # Note that we no longer explicitly initialize a self.builder
         # attribute to None here.  That's because the self.builder
@@ -615,7 +615,7 @@ class Node(object, metaclass=NoSlotsPyPy):
     def disambiguate(self, must_exist=None):
         return self
 
-    def get_suffix(self):
+    def get_suffix(self) -> str:
         return ''
 
     @SCons.Memoize.CountMethodCall
@@ -634,11 +634,11 @@ class Node(object, metaclass=NoSlotsPyPy):
         """Fetch the appropriate scanner path for this node."""
         return self.get_executor().get_build_scanner_path(scanner)
 
-    def set_executor(self, executor):
+    def set_executor(self, executor) -> None:
         """Set the action executor for this node."""
         self.executor = executor
 
-    def get_executor(self, create=1):
+    def get_executor(self, create: int=1):
         """Fetch the action executor for this node.  Create one if
         there isn't already one, and requested to do so."""
         try:
@@ -659,7 +659,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             self.executor = executor
         return executor
 
-    def executor_cleanup(self):
+    def executor_cleanup(self) -> None:
         """Let the executor clean up any cached information."""
         try:
             executor = self.get_executor(create=None)
@@ -669,19 +669,19 @@ class Node(object, metaclass=NoSlotsPyPy):
             if executor is not None:
                 executor.cleanup()
 
-    def reset_executor(self):
+    def reset_executor(self) -> None:
         """Remove cached executor; forces recompute when needed."""
         try:
             delattr(self, 'executor')
         except AttributeError:
             pass
 
-    def push_to_cache(self):
+    def push_to_cache(self) -> None:
         """Try to push a node into a cache
         """
         pass
 
-    def retrieve_from_cache(self):
+    def retrieve_from_cache(self) -> int:
         """Try to retrieve the node's content from a cache
 
         This method is called from multiple threads in a parallel build,
@@ -696,7 +696,7 @@ class Node(object, metaclass=NoSlotsPyPy):
     # Taskmaster interface subsystem
     #
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         """Get a Node ready for evaluation.
 
         This is called before the Taskmaster decides if the Node is
@@ -795,7 +795,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                                     "Cannot find target " + str(self) + " after building")
         self.ninfo.update(self)
 
-    def visited(self):
+    def visited(self) -> None:
         """Called just after this node has been visited (with or
         without a build)."""
         try:
@@ -808,7 +808,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             self.ninfo.update(self)
             SCons.Node.store_info_map[self.store_info](self)
 
-    def release_target_info(self):
+    def release_target_info(self) -> None:
         """Called just after this node has been marked
         up-to-date or was built completely.
 
@@ -825,10 +825,10 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         pass
 
-    def add_to_waiting_s_e(self, node):
+    def add_to_waiting_s_e(self, node) -> None:
         self.waiting_s_e.add(node)
 
-    def add_to_waiting_parents(self, node):
+    def add_to_waiting_parents(self, node) -> int:
         """
         Returns the number of nodes added to our waiting parents list:
         1 if we add a unique waiting parent, 0 if not.  (Note that the
@@ -842,13 +842,13 @@ class Node(object, metaclass=NoSlotsPyPy):
         wp.add(node)
         return 1
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         """Clean up anything we don't need to hang onto after we've
         been built."""
         self.executor_cleanup()
         self.waiting_parents = set()
 
-    def clear(self):
+    def clear(self) -> None:
         """Completely clear a Node of all its cached state (so that it
         can be re-evaluated by interfaces that do continuous integration
         builds).
@@ -868,17 +868,17 @@ class Node(object, metaclass=NoSlotsPyPy):
         self.cached = 0
         self.includes = None
 
-    def clear_memoized_values(self):
+    def clear_memoized_values(self) -> None:
         self._memo = {}
 
-    def builder_set(self, builder):
+    def builder_set(self, builder) -> None:
         self.builder = builder
         try:
             del self.executor
         except AttributeError:
             pass
 
-    def has_builder(self):
+    def has_builder(self) -> bool:
         """Return whether this Node has a builder or not.
 
         In Boolean tests, this turns out to be a *lot* more efficient
@@ -897,7 +897,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             b = self.builder = None
         return b is not None
 
-    def set_explicit(self, is_explicit):
+    def set_explicit(self, is_explicit) -> None:
         self.is_explicit = is_explicit
 
     def has_explicit_builder(self):
@@ -934,11 +934,11 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return _is_derived_map[self._func_is_derived](self)
 
-    def is_sconscript(self):
+    def is_sconscript(self) -> bool:
         """ Returns true if this node is an sconscript """
         return self in SConscriptNodes
 
-    def is_conftest(self):
+    def is_conftest(self) -> bool:
         """ Returns true if this node is an conftest node"""
         try:
             self.attributes.conftest_node
@@ -1050,14 +1050,14 @@ class Node(object, metaclass=NoSlotsPyPy):
             scanner = scanner.select(node)
         return scanner
 
-    def add_to_implicit(self, deps):
+    def add_to_implicit(self, deps) -> None:
         if not hasattr(self, 'implicit') or self.implicit is None:
             self.implicit = []
             self.implicit_set = set()
             self._children_reset()
         self._add_child(self.implicit, self.implicit_set, deps)
 
-    def scan(self):
+    def scan(self) -> None:
         """Scan this node's dependents for implicit dependencies."""
         # Don't bother scanning non-derived files, because we don't
         # care what their dependencies are.
@@ -1119,7 +1119,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return scanner.select(self)
 
-    def env_set(self, env, safe=0):
+    def env_set(self, env, safe: int=0) -> None:
         if safe and self.env:
             return
         self.env = env
@@ -1197,7 +1197,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         return binfo
 
-    def del_binfo(self):
+    def del_binfo(self) -> None:
         """Delete the build info from this node."""
         try:
             delattr(self, 'binfo')
@@ -1226,27 +1226,27 @@ class Node(object, metaclass=NoSlotsPyPy):
     #
     #
 
-    def set_precious(self, precious = 1):
+    def set_precious(self, precious: int = 1) -> None:
         """Set the Node's precious value."""
         self.precious = precious
 
-    def set_pseudo(self, pseudo = True):
+    def set_pseudo(self, pseudo: bool = True) -> None:
         """Set the Node's precious value."""
         self.pseudo = pseudo
 
-    def set_noclean(self, noclean = 1):
+    def set_noclean(self, noclean: int = 1) -> None:
         """Set the Node's noclean value."""
         # Make sure noclean is an integer so the --debug=stree
         # output in Util.py can use it as an index.
         self.noclean = noclean and 1 or 0
 
-    def set_nocache(self, nocache = 1):
+    def set_nocache(self, nocache: int = 1) -> None:
         """Set the Node's nocache value."""
         # Make sure nocache is an integer so the --debug=stree
         # output in Util.py can use it as an index.
         self.nocache = nocache and 1 or 0
 
-    def set_always_build(self, always_build = 1):
+    def set_always_build(self, always_build: int = 1) -> None:
         """Set the Node's always_build value."""
         self.always_build = always_build
 
@@ -1263,7 +1263,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """Fetch the contents of the entry."""
         return _get_contents_map[self._func_get_contents](self)
 
-    def missing(self):
+    def missing(self) -> bool:
         return not self.is_derived() and \
                not self.linked and \
                not self.rexists()
@@ -1284,7 +1284,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node dependency to %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
-    def add_prerequisite(self, prerequisite):
+    def add_prerequisite(self, prerequisite) -> None:
         """Adds prerequisites"""
         if self.prerequisites is None:
             self.prerequisites = UniqueList()
@@ -1317,7 +1317,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                 s = str(e)
             raise SCons.Errors.UserError("attempted to add a non-Node as source of %s:\n\t%s is a %s, not a Node" % (str(self), s, type(e)))
 
-    def _add_child(self, collection, set, child):
+    def _add_child(self, collection, set, child) -> None:
         """Adds 'child' to 'collection', first checking 'set' to see if it's
         already present."""
         added = None
@@ -1329,16 +1329,16 @@ class Node(object, metaclass=NoSlotsPyPy):
         if added:
             self._children_reset()
 
-    def set_specific_source(self, source):
+    def set_specific_source(self, source) -> None:
         self.add_source(source)
         self._specific_sources = True
 
-    def add_wkid(self, wkid):
+    def add_wkid(self, wkid) -> None:
         """Add a node to the list of kids waiting to be evaluated"""
         if self.wkids is not None:
             self.wkids.append(wkid)
 
-    def _children_reset(self):
+    def _children_reset(self) -> None:
         self.clear_memoized_values()
         # We need to let the Executor clear out any calculated
         # build info that it's cached so we can re-calculate it.
@@ -1381,7 +1381,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         self._memo['_children_get'] = children
         return children
 
-    def all_children(self, scan=1):
+    def all_children(self, scan: int=1):
         """Return a list of all the node's direct children."""
         if scan:
             self.scan()
@@ -1405,14 +1405,14 @@ class Node(object, metaclass=NoSlotsPyPy):
         # internally anyway...)
         return list(chain.from_iterable([_f for _f in [self.sources, self.depends, self.implicit] if _f]))
 
-    def children(self, scan=1):
+    def children(self, scan: int=1):
         """Return a list of the node's direct children, minus those
         that are ignored by this node."""
         if scan:
             self.scan()
         return self._children_get()
 
-    def set_state(self, state):
+    def set_state(self, state) -> None:
         self.state = state
 
     def get_state(self):
@@ -1425,7 +1425,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             env = SCons.Defaults.DefaultEnvironment()
         return env
 
-    def Decider(self, function):
+    def Decider(self, function) -> None:
         foundkey = None
         for k, v in _decider_map.items():
             if v == function:
@@ -1436,7 +1436,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             _decider_map[foundkey] = function
         self.changed_since_last_build = foundkey
 
-    def Tag(self, key, value):
+    def Tag(self, key, value) -> None:
         """ Add a user-defined tag. """
         if not self._tags:
             self._tags = {}
@@ -1448,7 +1448,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             return None
         return self._tags.get(key, None)
 
-    def changed(self, node=None, allowcache=False):
+    def changed(self, node=None, allowcache: bool=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
         stored last time it was built.  The default behavior is to compare
@@ -1534,7 +1534,7 @@ class Node(object, metaclass=NoSlotsPyPy):
                 state = s
         return (state == 0 or state == SCons.Node.up_to_date)
 
-    def is_literal(self):
+    def is_literal(self) -> int:
         """Always pass the string representation of a Node to
         the command interpreter literally."""
         return 1
@@ -1710,12 +1710,12 @@ class Node(object, metaclass=NoSlotsPyPy):
             return ( ' '*11).join(lines)
 
 class NodeList(collections.UserList):
-    def __str__(self):
+    def __str__(self) -> str:
         return str(list(map(str, self.data)))
 
 def get_children(node, parent): return node.children()
-def ignore_cycle(node, stack): pass
-def do_nothing(node, parent): pass
+def ignore_cycle(node, stack) -> None: pass
+def do_nothing(node, parent) -> None: pass
 
 class Walker:
     """An iterator for walking a Node tree.
@@ -1732,7 +1732,7 @@ class Walker:
     """
     def __init__(self, node, kids_func=get_children,
                              cycle_func=ignore_cycle,
-                             eval_func=do_nothing):
+                             eval_func=do_nothing) -> None:
         self.kids_func = kids_func
         self.cycle_func = cycle_func
         self.eval_func = eval_func
@@ -1771,7 +1771,7 @@ class Walker:
                 return node
         return None
 
-    def is_done(self):
+    def is_done(self) -> bool:
         return not self.stack
 
 

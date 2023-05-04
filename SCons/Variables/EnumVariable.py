@@ -56,7 +56,7 @@ def _validator(key, val, env, vals) -> None:
             'Invalid value for option %s: %s.  Valid values are: %s' % (key, val, vals))
 
 
-def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0) -> Tuple[str, str, str, Callable, Callable]:
+def EnumVariable(key, help, default, allowed_values, map={}, ignorecase: int=0) -> Tuple[str, str, str, Callable, Callable]:
     """Return a tuple describing an enumaration SCons Variable.
 
     The input parameters describe an option with only certain values

@@ -51,7 +51,7 @@ class _CmdRunner:
     variables. It also provides `strfunction()` method, which shall be used by
     scons Action objects to print command string. """
 
-    def __init__(self, command, commandstr=None):
+    def __init__(self, command, commandstr=None) -> None:
         self.out = None
         self.err = None
         self.status = None
@@ -169,7 +169,7 @@ class _POTBuilder(BuilderBase):
         return BuilderBase._execute(self, env, target, source, *args)
 
 
-def _scan_xgettext_from_files(target, source, env, files=None, path=None):
+def _scan_xgettext_from_files(target, source, env, files=None, path=None) -> int:
     """ Parses `POTFILES.in`-like file and returns list of extracted file names.
     """
     if files is None:
@@ -257,7 +257,7 @@ def _POTUpdateBuilder(env, **kw):
     return _POTBuilder(**kw)
 
 
-def generate(env, **kw):
+def generate(env, **kw) -> None:
     """ Generate `xgettext` tool """
 
     if sys.platform == 'win32':

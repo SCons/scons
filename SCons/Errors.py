@@ -71,9 +71,9 @@ class BuildError(Exception):
     """
 
     def __init__(self,
-                 node=None, errstr="Unknown error", status=2, exitstatus=2,
+                 node=None, errstr: str="Unknown error", status: int=2, exitstatus: int=2,
                  filename=None, executor=None, action=None, command=None,
-                 exc_info=(None, None, None)):
+                 exc_info=(None, None, None)) -> None:
 
         # py3: errstr should be string and not bytes.
 
@@ -91,7 +91,7 @@ class BuildError(Exception):
         super().__init__(node, errstr, status, exitstatus, filename,
                          executor, action, command, exc_info)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.filename:
             return self.filename + ': ' + self.errstr
         else:
@@ -113,7 +113,7 @@ class MSVCError(IOError):
     pass
 
 class ExplicitExit(Exception):
-    def __init__(self, node=None, status=None, *args):
+    def __init__(self, node=None, status=None, *args) -> None:
         self.node = node
         self.status = status
         self.exitstatus = status

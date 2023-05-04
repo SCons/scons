@@ -72,7 +72,7 @@ re_refname = re.compile(r"<refname>([^<]*)</refname>")
 lmxl_xslt_global_max_depth = 3600
 
 if has_lxml and lmxl_xslt_global_max_depth:
-    def __lxml_xslt_set_global_max_depth(max_depth):
+    def __lxml_xslt_set_global_max_depth(max_depth) -> None:
         from lxml import etree
         etree.XSLT.set_global_max_depth(max_depth)
     __lxml_xslt_set_global_max_depth(lmxl_xslt_global_max_depth)
@@ -93,7 +93,7 @@ def __extend_targets_sources(target, source):
 
     return target, source
 
-def __init_xsl_stylesheet(kw, env, user_xsl_var, default_path):
+def __init_xsl_stylesheet(kw, env, user_xsl_var, default_path) -> None:
     if kw.get('DOCBOOK_XSL','') == '':
         xsl_style = kw.get('xsl', env.subst(user_xsl_var))
         if xsl_style == '':
@@ -137,7 +137,7 @@ def __get_xml_text(root):
             txt += e.data
     return txt
 
-def __create_output_dir(base_dir):
+def __create_output_dir(base_dir) -> None:
     """ Ensure that the output directory base_dir exists. """
     root, tail = os.path.split(base_dir)
     dir = None
@@ -173,7 +173,7 @@ fop_com = {'fop' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -fo $SOURCE -pdf $TARGET',
            'xep' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -valid -fo $SOURCE -pdf $TARGET',
            'jw' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -f docbook -b pdf $SOURCE -o $TARGET'}
 
-def __detect_cl_tool(env, chainkey, cdict, cpriority=None):
+def __detect_cl_tool(env, chainkey, cdict, cpriority=None) -> None:
     """
     Helper function, picks a command line tool from the list
     and initializes its environment variables.
@@ -195,7 +195,7 @@ def __detect_cl_tool(env, chainkey, cdict, cpriority=None):
                     env[chainkey + 'COM'] = cdict[cltool]
                 break
 
-def _detect(env):
+def _detect(env) -> None:
     """
     Detect all the command line tools that we might need for creating
     the requested output formats.
@@ -420,7 +420,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
     import zipfile
     import shutil
 
-    def build_open_container(target, source, env):
+    def build_open_container(target, source, env) -> None:
         """Generate the *.epub file from intermediate outputs
 
         Constructs the epub file according to the Open Container Format. This
@@ -444,7 +444,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
                             zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))),
                                 zipfile.ZIP_DEFLATED)
 
-    def add_resources(target, source, env):
+    def add_resources(target, source, env) -> None:
         """Add missing resources to the OEBPS directory
 
         Ensure all the resources in the manifest are present in the OEBPS directory.
@@ -789,7 +789,7 @@ def DocbookXslt(env, target, source=None, *args, **kw):
     return result
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for docbook to an Environment."""
 
     env.SetDefault(
@@ -839,5 +839,5 @@ def generate(env):
     env.AddMethod(DocbookXslt, "DocbookXslt")
 
 
-def exists(env):
+def exists(env) -> int:
     return 1

@@ -30,7 +30,7 @@ selection method.
 
 from . import posix
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
     # Based on sunSparc 8:32bit
     # ARG_MAX=1048320 - 3000 for environment expansion

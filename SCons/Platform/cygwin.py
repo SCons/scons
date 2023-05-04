@@ -40,7 +40,7 @@ if sys.platform == 'win32':
         r'C:\cygwin\bin'
     ]
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
 
     env['PROGPREFIX']  = ''

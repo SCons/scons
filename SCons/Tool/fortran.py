@@ -33,7 +33,7 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_fortran_to_env
 compilers = ['f95', 'f90', 'f77']
 
 
-def generate(env):
+def generate(env) -> None:
     add_all_to_env(env)
     add_fortran_to_env(env)
 

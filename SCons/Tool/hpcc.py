@@ -36,7 +36,7 @@ import SCons.Util
 
 from . import cc
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for aCC & cc to an Environment."""
     cc.generate(env)
 

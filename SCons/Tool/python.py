@@ -33,13 +33,13 @@ import SCons.Tool
 from SCons.Scanner.Python import PythonScanner, PythonSuffixes
 
 
-def generate(env):
+def generate(env) -> None:
     """Hook the python builder and scanner into the environment."""
     for suffix in PythonSuffixes:
         SCons.Tool.SourceFileScanner.add_scanner(suffix, PythonScanner)
 
 
-def exists(env):
+def exists(env) -> bool:
     return True
 
 # Local Variables:

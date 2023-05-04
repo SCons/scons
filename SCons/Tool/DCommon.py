@@ -32,7 +32,7 @@ Coded by Russel Winder (russel@winder.org.uk)
 import os.path
 
 
-def isD(env, source):
+def isD(env, source) -> int:
     if not source:
         return 0
     for s in source:
@@ -43,7 +43,7 @@ def isD(env, source):
     return 0
 
 
-def addDPATHToEnv(env, executable):
+def addDPATHToEnv(env, executable) -> None:
     dPath = env.WhereIs(executable)
     if dPath:
         phobosDir = dPath[:dPath.rindex(executable)] + '/../src/phobos'

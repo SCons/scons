@@ -41,11 +41,11 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
     by Nodes, not strings; 2) we can keep track of the files that are
     missing.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.missing = []
 
-    def initialize_result(self, fname):
+    def initialize_result(self, fname) -> None:
         self.result = SCons.Util.UniqueList([fname])
 
     def finalize_result(self, fname):
@@ -131,7 +131,7 @@ class SConsCPPScannerWrapper:
     evaluation of #if/#ifdef/#else/#elif lines.
     """
 
-    def __init__(self, name, variable):
+    def __init__(self, name, variable) -> None:
         self.name = name
         self.path = FindPathDirs(variable)
 
@@ -185,12 +185,12 @@ class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
     missing.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.missing = []
         self._known_paths = []
 
-    def initialize_result(self, fname):
+    def initialize_result(self, fname) -> None:
         self.result = SCons.Util.UniqueList([fname])
 
     def find_include_file(self, t):
@@ -228,7 +228,7 @@ class SConsCPPConditionalScannerWrapper:
     evaluation of #if/#ifdef/#else/#elif lines.
     """
 
-    def __init__(self, name, variable):
+    def __init__(self, name, variable) -> None:
         self.name = name
         self.path = FindPathDirs(variable)
 
