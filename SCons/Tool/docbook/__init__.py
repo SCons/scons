@@ -244,7 +244,7 @@ def __xml_scan(node, env, path, arg):
             # for xi:includes...
             contents = node.get_text_contents()
             return include_re.findall(contents)
-        
+
     from lxml import etree
 
     xsl_tree = etree.parse(xsl_file)
@@ -490,7 +490,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
 
     # Set the fixed base_dir
     kw['base_dir'] = 'OEBPS/'
-    tocncx = __builder.__call__(env, 'toc.ncx', source[0], **kw)
+    tocncx = __builder(env, 'toc.ncx', source[0], **kw)
     cxml = env.File('META-INF/container.xml')
     env.SideEffect(cxml, tocncx)
 
@@ -524,7 +524,7 @@ def DocbookHtml(env, target, source=None, *args, **kw):
     # Create targets
     result = []
     for t,s in zip(target,source):
-        r = __builder.__call__(env, __ensure_suffix(t,'.html'), s, **kw)
+        r = __builder(env, __ensure_suffix(t,'.html'), s, **kw)
         env.Depends(r, kw['DOCBOOK_XSL'])
         result.extend(r)
 
@@ -556,7 +556,7 @@ def DocbookHtmlChunked(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
@@ -591,7 +591,7 @@ def DocbookHtmlhelp(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
@@ -617,10 +617,10 @@ def DocbookPdf(env, target, source=None, *args, **kw):
     result = []
     for t,s in zip(target,source):
         t, stem = __ensure_suffix_stem(t, '.pdf')
-        xsl = __builder.__call__(env, stem+'.fo', s, **kw)
+        xsl = __builder(env, stem+'.fo', s, **kw)
         result.extend(xsl)
         env.Depends(xsl, kw['DOCBOOK_XSL'])
-        result.extend(__fop_builder.__call__(env, t, xsl, **kw))
+        result.extend(__fop_builder(env, t, xsl, **kw))
 
     return result
 
@@ -681,7 +681,7 @@ def DocbookMan(env, target, source=None, *args, **kw):
             # We have to completely rely on the given target name
             outfiles.append(t)
 
-        __builder.__call__(env, outfiles[0], s, **kw)
+        __builder(env, outfiles[0], s, **kw)
         env.Depends(outfiles[0], kw['DOCBOOK_XSL'])
         result.append(outfiles[0])
         if len(outfiles) > 1:
@@ -707,10 +707,10 @@ def DocbookSlidesPdf(env, target, source=None, *args, **kw):
     result = []
     for t,s in zip(target,source):
         t, stem = __ensure_suffix_stem(t, '.pdf')
-        xsl = __builder.__call__(env, stem+'.fo', s, **kw)
+        xsl = __builder(env, stem+'.fo', s, **kw)
         env.Depends(xsl, kw['DOCBOOK_XSL'])
         result.extend(xsl)
-        result.extend(__fop_builder.__call__(env, t, xsl, **kw))
+        result.extend(__fop_builder(env, t, xsl, **kw))
 
     return result
 
@@ -740,7 +740,7 @@ def DocbookSlidesHtml(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
@@ -762,7 +762,7 @@ def DocbookXInclude(env, target, source, *args, **kw):
     # Create targets
     result = []
     for t,s in zip(target,source):
-        result.extend(__builder.__call__(env, t, s, **kw))
+        result.extend(__builder(env, t, s, **kw))
 
     return result
 
@@ -782,7 +782,7 @@ def DocbookXslt(env, target, source=None, *args, **kw):
     # Create targets
     result = []
     for t,s in zip(target,source):
-        r = __builder.__call__(env, t, s, **kw)
+        r = __builder(env, t, s, **kw)
         env.Depends(r, kw['DOCBOOK_XSL'])
         result.extend(r)
 
