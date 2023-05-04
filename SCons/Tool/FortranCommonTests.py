@@ -44,21 +44,21 @@ os.chdir(test.workpath(''))
 class DummyEnvironment:
     dictionary = None  # type: Dict[Any, Any]
 
-    def __init__(self, list_cpp_path):
+    def __init__(self, list_cpp_path) -> None:
         self.path = list_cpp_path
         self.fs = SCons.Node.FS.FS(test.workpath(''))
         self.dictionary = {}
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.dictionary
 
     def __getitem__(self, key):
         return self.dictionary[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self.dictionary[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         del self.dictionary[key]
 
     def subst(self, arg, target=None, source=None, conv=None):
@@ -85,7 +85,7 @@ class DummyEnvironment:
 
 
 class FortranScannerSubmodulesTestCase(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """
         Check that test_1.f90 and test_2.f90 which have interface specifications
         Don't generate targets for those modules listed in the interface section

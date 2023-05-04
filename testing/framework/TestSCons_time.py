@@ -155,7 +155,7 @@ class TestSCons_time(TestCommon):
     initializations.
     """
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize an SCons_time testing object.
 
         If they're not overridden by keyword arguments, this
@@ -205,10 +205,10 @@ class TestSCons_time(TestCommon):
         else:
             return os.path.splitext(path)
 
-    def fake_logfile(self, logfile_name, index=0):
+    def fake_logfile(self, logfile_name, index: int=0) -> None:
         self.write(self.workpath(logfile_name), logfile_contents % locals())
 
-    def profile_data(self, profile_name, python_name, call, body):
+    def profile_data(self, profile_name, python_name, call, body) -> None:
         profile_name = self.workpath(profile_name)
         python_name = self.workpath(python_name)
         d = {
@@ -244,7 +244,7 @@ class TestSCons_time(TestCommon):
         x = x.replace('time\\-', f'time\\-[^{sep}]*')
         return x
 
-    def write_fake_scons_py(self):
+    def write_fake_scons_py(self) -> None:
         self.subdir('scripts')
         self.write('scripts/scons.py', scons_py)
 

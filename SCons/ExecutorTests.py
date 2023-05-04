@@ -27,7 +27,7 @@ import SCons.Executor
 
 
 class MyEnvironment:
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         self._dict = {}
         self._dict.update(kw)
     def __getitem__(self, key):
@@ -36,13 +36,13 @@ class MyEnvironment:
         d = self._dict.copy()
         d.update(overrides)
         return MyEnvironment(**d)
-    def _update(self, dict):
+    def _update(self, dict) -> None:
         self._dict.update(dict)
 
 class MyAction:
-    def __init__(self, actions=['action1', 'action2']):
+    def __init__(self, actions=['action1', 'action2']) -> None:
         self.actions = actions
-    def __call__(self, target, source, env, **kw):
+    def __call__(self, target, source, env, **kw) -> None:
         for action in self.actions:
             action(target, source, env, **kw)
     def genstring(self, target, source, env):
@@ -57,13 +57,13 @@ class MyAction:
         return []
 
 class MyBuilder:
-    def __init__(self, env, overrides):
+    def __init__(self, env, overrides) -> None:
         self.env = env
         self.overrides = overrides
         self.action = MyAction()
 
 class MyNode:
-    def __init__(self, name=None, pre=[], post=[]):
+    def __init__(self, name=None, pre=[], post=[]) -> None:
         self.name = name
         self.implicit = []
         self.pre_actions = pre
@@ -72,10 +72,10 @@ class MyNode:
         self.always_build = False
         self.up_to_date = False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def build(self):
+    def build(self) -> None:
         executor = SCons.Executor.Executor(MyAction(self.pre_actions +
                                                     [self.builder.action] +
                                                     self.post_actions),
@@ -90,7 +90,7 @@ class MyNode:
         if not scanner:
             scanner = self.get_env_scanner(env, kw)
         return [scanner.prefix + str(self)]
-    def add_to_implicit(self, deps):
+    def add_to_implicit(self, deps) -> None:
         self.implicit.extend(deps)
     def missing(self):
         return self.missing_val
@@ -103,7 +103,7 @@ class MyNode:
         return self.up_to_date
 
 class MyScanner:
-    def __init__(self, prefix):
+    def __init__(self, prefix) -> None:
         self.prefix = prefix
     def path(self, env, cwd, target, source):
         return ()
@@ -131,7 +131,7 @@ class ExecutorTestCase(unittest.TestCase):
         else:
             raise Exception("Did not catch expected UserError")
 
-    def test__action_list(self):
+    def test__action_list(self) -> None:
         """Test the {get,set}_action_list() methods"""
         x = SCons.Executor.Executor('a', 'e', 'o', 't', ['s1', 's2'])
 
@@ -151,7 +151,7 @@ class ExecutorTestCase(unittest.TestCase):
         l = x.get_action_list()
         assert l == ['pre', 'c', 'post'], l
 
-    def test_get_build_env(self):
+    def test_get_build_env(self) -> None:
         """Test fetching and generating a build environment"""
         x = SCons.Executor.Executor(MyAction(), MyEnvironment(e=1), [],
                                     't', ['s1', 's2'])
@@ -181,7 +181,7 @@ class ExecutorTestCase(unittest.TestCase):
         assert be['O'] == 'ob3', be['O']
         assert be['Y'] == 'yyy', be['Y']
 
-    def test_get_build_scanner_path(self):
+    def test_get_build_scanner_path(self) -> None:
         """Test fetching the path for the specified scanner."""
         t = MyNode('t')
         t.cwd = 'here'
@@ -192,7 +192,7 @@ class ExecutorTestCase(unittest.TestCase):
                                     ['s1', 's2'])
 
         class LocalScanner:
-            def path(self, env, dir, target, source):
+            def path(self, env, dir, target, source) -> str:
                 target = list(map(str, target))
                 source = list(map(str, source))
                 return "scanner: %s, %s, %s, %s" % (env['SCANNERVAL'], dir, target, source)
@@ -201,7 +201,7 @@ class ExecutorTestCase(unittest.TestCase):
         p = x.get_build_scanner_path(s)
         assert p == "scanner: sss, here, ['t'], ['s1', 's2']", p
 
-    def test_get_kw(self):
+    def test_get_kw(self) -> None:
         """Test the get_kw() method"""
         t = MyNode('t')
         x = SCons.Executor.Executor(MyAction(),
@@ -220,13 +220,13 @@ class ExecutorTestCase(unittest.TestCase):
     def test__call__(self):
         """Test calling an Executor"""
         result = []
-        def pre(target, source, env, result=result, **kw):
+        def pre(target, source, env, result=result, **kw) -> None:
             result.append('pre')
-        def action1(target, source, env, result=result, **kw):
+        def action1(target, source, env, result=result, **kw) -> None:
             result.append('action1')
-        def action2(target, source, env, result=result, **kw):
+        def action2(target, source, env, result=result, **kw) -> None:
             result.append('action2')
-        def post(target, source, env, result=result, **kw):
+        def post(target, source, env, result=result, **kw) -> None:
             result.append('post')
 
         env = MyEnvironment()
@@ -240,7 +240,7 @@ class ExecutorTestCase(unittest.TestCase):
         assert result == ['pre', 'action1', 'action2', 'post'], result
         del result[:]
 
-        def pre_err(target, source, env, result=result, **kw):
+        def pre_err(target, source, env, result=result, **kw) -> int:
             result.append('pre_err')
             return 1
 
@@ -256,7 +256,7 @@ class ExecutorTestCase(unittest.TestCase):
         assert result == ['pre_err'], result
         del result[:]
 
-    def test_cleanup(self):
+    def test_cleanup(self) -> None:
         """Test cleaning up an Executor"""
         orig_env = MyEnvironment(e=1)
         x = SCons.Executor.Executor('b', orig_env, [{'o':1}],
@@ -276,7 +276,7 @@ class ExecutorTestCase(unittest.TestCase):
         be = x.get_build_env()
         assert be['eee'] == 1, be['eee']
 
-    def test_add_sources(self):
+    def test_add_sources(self) -> None:
         """Test adding sources to an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         sources = x.get_all_sources()
@@ -290,7 +290,7 @@ class ExecutorTestCase(unittest.TestCase):
         sources = x.get_all_sources()
         assert sources == ['s1', 's2', 's3', 's4'], sources
 
-    def test_get_sources(self):
+    def test_get_sources(self) -> None:
         """Test getting sources from an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         sources = x.get_sources()
@@ -322,7 +322,7 @@ class ExecutorTestCase(unittest.TestCase):
         else:
             raise AssertionError("did not catch expected StopError: %s" % r)
 
-    def test_add_pre_action(self):
+    def test_add_pre_action(self) -> None:
         """Test adding pre-actions to an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         x.add_pre_action('a1')
@@ -330,7 +330,7 @@ class ExecutorTestCase(unittest.TestCase):
         x.add_pre_action('a2')
         assert x.pre_actions == ['a1', 'a2']
 
-    def test_add_post_action(self):
+    def test_add_post_action(self) -> None:
         """Test adding post-actions to an Executor"""
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         x.add_post_action('a1')
@@ -338,7 +338,7 @@ class ExecutorTestCase(unittest.TestCase):
         x.add_post_action('a2')
         assert x.post_actions == ['a1', 'a2']
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         """Test the __str__() method"""
         env = MyEnvironment(S='string')
 
@@ -355,12 +355,12 @@ class ExecutorTestCase(unittest.TestCase):
                  'GENSTRING post t s'
         assert c == expect, c
 
-    def test_nullify(self):
+    def test_nullify(self) -> None:
         """Test the nullify() method"""
         env = MyEnvironment(S='string')
 
         result = []
-        def action1(target, source, env, result=result, **kw):
+        def action1(target, source, env, result=result, **kw) -> None:
             result.append('action1')
 
         env = MyEnvironment()
@@ -381,7 +381,7 @@ class ExecutorTestCase(unittest.TestCase):
         s = str(x)
         assert s == '', s
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the signatures contents"""
         env = MyEnvironment(C='contents')
 
@@ -396,13 +396,13 @@ class ExecutorTestCase(unittest.TestCase):
         c = x.get_contents()
         assert c == b'pre t sgrow t spost t s', c
 
-    def test_get_timestamp(self):
+    def test_get_timestamp(self) -> None:
         """Test fetching the "timestamp" """
         x = SCons.Executor.Executor('b', 'e', 'o', 't', ['s1', 's2'])
         ts = x.get_timestamp()
         assert ts == 0, ts
 
-    def test_scan_targets(self):
+    def test_scan_targets(self) -> None:
         """Test scanning the targets for implicit dependencies"""
         env = MyEnvironment(S='string')
         t1 = MyNode('t1')
@@ -421,7 +421,7 @@ class ExecutorTestCase(unittest.TestCase):
         assert t1.implicit == ['scanner-t1', 'scanner-t2'], t1.implicit
         assert t2.implicit == ['scanner-t1', 'scanner-t2'], t2.implicit
 
-    def test_scan_sources(self):
+    def test_scan_sources(self) -> None:
         """Test scanning the sources for implicit dependencies"""
         env = MyEnvironment(S='string')
         t1 = MyNode('t1')
@@ -440,7 +440,7 @@ class ExecutorTestCase(unittest.TestCase):
         assert t1.implicit == ['scanner-s1', 'scanner-s2'], t1.implicit
         assert t2.implicit == ['scanner-s1', 'scanner-s2'], t2.implicit
 
-    def test_get_unignored_sources(self):
+    def test_get_unignored_sources(self) -> None:
         """Test fetching the unignored source list"""
         env = MyEnvironment()
         s1 = MyNode('s1')
@@ -457,7 +457,7 @@ class ExecutorTestCase(unittest.TestCase):
         r = x.get_unignored_sources(None, [s1, s3])
         assert r == [s2], list(map(str, r))
 
-    def test_changed_sources_for_alwaysBuild(self):
+    def test_changed_sources_for_alwaysBuild(self) -> None:
         """
         Ensure if a target is marked always build that the sources are always marked changed sources
         :return:

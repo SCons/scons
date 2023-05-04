@@ -50,7 +50,7 @@ else:
 
 GhostscriptAction = None
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for Ghostscript to an
     Environment."""
     global GhostscriptAction

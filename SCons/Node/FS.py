@@ -81,11 +81,11 @@ class EntryProxyAttributeError(AttributeError):
     An AttributeError subclass for recording and displaying the name
     of the underlying Entry involved in an AttributeError exception.
     """
-    def __init__(self, entry_proxy, attribute):
+    def __init__(self, entry_proxy, attribute) -> None:
         super().__init__()
         self.entry_proxy = entry_proxy
         self.attribute = attribute
-    def __str__(self):
+    def __str__(self) -> str:
         entry = self.entry_proxy.get()
         fmt = "%s instance %s has no attribute %s"
         return fmt % (entry.__class__.__name__,
@@ -116,7 +116,7 @@ default_max_drift = 2*24*60*60
 #
 Save_Strings = None
 
-def save_strings(val):
+def save_strings(val) -> None:
     global Save_Strings
     Save_Strings = val
 
@@ -130,7 +130,7 @@ def save_strings(val):
 do_splitdrive = None
 _my_splitdrive =None
 
-def initialize_do_splitdrive():
+def initialize_do_splitdrive() -> None:
     global do_splitdrive
     global has_unc
     drive, path = os.path.splitdrive('X:/foo')
@@ -231,7 +231,7 @@ needs_normpath_match = needs_normpath_check.match
 # TODO: See if theres a reasonable way to enable using links on win32/64
 
 if hasattr(os, 'link') and sys.platform != 'win32':
-    def _hardlink_func(fs, src, dst):
+    def _hardlink_func(fs, src, dst) -> None:
         # If the source is a symlink, we can't just hard-link to it
         # because a relative symlink may point somewhere completely
         # different.  We must disambiguate the symlink and then
@@ -247,12 +247,12 @@ else:
     _hardlink_func = None
 
 if hasattr(os, 'symlink') and sys.platform != 'win32':
-    def _softlink_func(fs, src, dst):
+    def _softlink_func(fs, src, dst) -> None:
         fs.symlink(src, dst)
 else:
     _softlink_func = None
 
-def _copy_func(fs, src, dest):
+def _copy_func(fs, src, dest) -> None:
     shutil.copy2(src, dest)
     st = fs.stat(src)
     fs.chmod(dest, stat.S_IMODE(st.st_mode) | stat.S_IWRITE)
@@ -286,7 +286,7 @@ def set_duplicate(duplicate):
         if link_dict[func]:
             Link_Funcs.append(link_dict[func])
 
-def LinkFunc(target, source, env):
+def LinkFunc(target, source, env) -> int:
     """
     Relative paths cause problems with symbolic links, so
     we use absolute paths, which may be a problem for people
@@ -321,19 +321,19 @@ def LinkFunc(target, source, env):
     return 0
 
 Link = SCons.Action.Action(LinkFunc, None)
-def LocalString(target, source, env):
+def LocalString(target, source, env) -> str:
     return 'Local copy of %s from %s' % (target[0], source[0])
 
 LocalCopy = SCons.Action.Action(LinkFunc, LocalString)
 
-def UnlinkFunc(target, source, env):
+def UnlinkFunc(target, source, env) -> int:
     t = target[0]
     t.fs.unlink(t.get_abspath())
     return 0
 
 Unlink = SCons.Action.Action(UnlinkFunc, None)
 
-def MkdirFunc(target, source, env):
+def MkdirFunc(target, source, env) -> int:
     t = target[0]
     # This os.path.exists test looks redundant, but it's possible
     # when using Install() to install multiple dirs outside the
@@ -385,7 +385,7 @@ class DiskChecker:
     This Class will hold functions to determine what this particular disk
     checking implementation should do when enabled or disabled.
     """
-    def __init__(self, disk_check_type, do_check_function, ignore_check_function):
+    def __init__(self, disk_check_type, do_check_function, ignore_check_function) -> None:
         self.disk_check_type = disk_check_type
         self.do_check_function = do_check_function
         self.ignore_check_function = ignore_check_function
@@ -394,7 +394,7 @@ class DiskChecker:
     def __call__(self, *args, **kw):
         return self.func(*args, **kw)
 
-    def enable(self, disk_check_type_list):
+    def enable(self, disk_check_type_list) -> None:
         """
         If the current object's disk_check_type matches any in the list passed
         :param disk_check_type_list: List of disk checks to enable
@@ -423,7 +423,7 @@ def do_diskcheck_match(node, predicate, errorfmt):
         raise TypeError(errorfmt % node.get_abspath())
 
 
-def ignore_diskcheck_match(node, predicate, errorfmt):
+def ignore_diskcheck_match(node, predicate, errorfmt) -> None:
     pass
 
 
@@ -434,7 +434,7 @@ diskcheckers = [
 ]
 
 
-def set_diskcheck(enabled_checkers):
+def set_diskcheck(enabled_checkers) -> None:
     for dc in diskcheckers:
         dc.enable(enabled_checkers)
 
@@ -584,7 +584,7 @@ class Base(SCons.Node.Node):
                  '_proxy',
                  '_func_sconsign']
 
-    def __init__(self, name, directory, fs):
+    def __init__(self, name, directory, fs) -> None:
         """Initialize a generic Node.FS.Base object.
 
         Call the superclass initialization, take care of setting up
@@ -663,7 +663,7 @@ class Base(SCons.Node.Node):
         raise AttributeError("%r object has no attribute %r" %
                          (self.__class__, attr))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """A Node.FS.Base object's string representation is its path
         name."""
         global Save_Strings
@@ -775,7 +775,7 @@ class Base(SCons.Node.Node):
             st = self.lstat()
             return st is not None and stat.S_ISLNK(st.st_mode)
     else:
-        def islink(self):
+        def islink(self) -> bool:
             return False                    # no symlinks
 
     def is_under(self, dir):
@@ -784,7 +784,7 @@ class Base(SCons.Node.Node):
         else:
             return self.dir.is_under(dir)
 
-    def set_local(self):
+    def set_local(self) -> None:
         self._local = 1
 
     def srcnode(self):
@@ -817,7 +817,7 @@ class Base(SCons.Node.Node):
                 pathname += p.dirname
         return pathname + path_elems[-1].name
 
-    def set_src_builder(self, builder):
+    def set_src_builder(self, builder) -> None:
         """Set the source code builder for this node."""
         self.sbuilder = builder
         if not self.has_builder():
@@ -951,7 +951,7 @@ class Base(SCons.Node.Node):
         self._memo['rentry'] = result
         return result
 
-    def _glob1(self, pattern, ondisk=True, source=False, strings=False):
+    def _glob1(self, pattern, ondisk: bool=True, source: bool=False, strings: bool=False):
         return []
 
 # Dict that provides a simple backward compatibility
@@ -989,12 +989,12 @@ class Entry(Base):
                  'released_target_info',
                  'contentsig']
 
-    def __init__(self, name, directory, fs):
+    def __init__(self, name, directory, fs) -> None:
         super().__init__(name, directory, fs)
         self._func_exists = 3
         self._func_get_contents = 1
 
-    def diskcheck_match(self):
+    def diskcheck_match(self) -> None:
         pass
 
     def disambiguate(self, must_exist=None):
@@ -1066,7 +1066,7 @@ class Entry(Base):
         else:
             return self.get_text_contents()
 
-    def must_be_same(self, klass):
+    def must_be_same(self, klass) -> None:
         """Called to make sure a Node is a Dir.  Since we're an
         Entry, we can morph into one."""
         if self.__class__ is not klass:
@@ -1097,7 +1097,7 @@ class Entry(Base):
     def new_ninfo(self):
         return self.disambiguate().new_ninfo()
 
-    def _glob1(self, pattern, ondisk=True, source=False, strings=False):
+    def _glob1(self, pattern, ondisk: bool=True, source: bool=False, strings: bool=False):
         return self.disambiguate()._glob1(pattern, ondisk, source, strings)
 
     def get_subst_proxy(self):
@@ -1162,10 +1162,10 @@ class LocalFS:
     def scandir(self, path):
         return os.scandir(path)
 
-    def makedirs(self, path, mode=0o777, exist_ok=False):
+    def makedirs(self, path, mode: int=0o777, exist_ok: bool=False):
         return os.makedirs(path, mode=mode, exist_ok=exist_ok)
 
-    def mkdir(self, path, mode=0o777):
+    def mkdir(self, path, mode: int=0o777):
         return os.mkdir(path, mode=mode)
 
     def rename(self, old, new):
@@ -1190,7 +1190,7 @@ class LocalFS:
 
     else:
 
-        def islink(self, path):
+        def islink(self, path) -> bool:
             return False  # no symlinks
 
     if hasattr(os, 'readlink'):
@@ -1200,13 +1200,13 @@ class LocalFS:
 
     else:
 
-        def readlink(self, file):
+        def readlink(self, file) -> str:
             return ''
 
 
 class FS(LocalFS):
 
-    def __init__(self, path = None):
+    def __init__(self, path = None) -> None:
         """Initialize the Node.FS subsystem.
 
         The supplied path is the top of the source tree, where we
@@ -1238,13 +1238,13 @@ class FS(LocalFS):
         DirNodeInfo.fs = self
         FileNodeInfo.fs = self
 
-    def set_SConstruct_dir(self, dir):
+    def set_SConstruct_dir(self, dir) -> None:
         self.SConstruct_dir = dir
 
     def get_max_drift(self):
         return self.max_drift
 
-    def set_max_drift(self, max_drift):
+    def set_max_drift(self, max_drift) -> None:
         self.max_drift = max_drift
 
     def getcwd(self):
@@ -1253,7 +1253,7 @@ class FS(LocalFS):
         else:
             return "<no cwd>"
 
-    def chdir(self, dir, change_os_dir=False):
+    def chdir(self, dir, change_os_dir: bool=False):
         """Change the current working directory for lookups.
         If change_os_dir is true, we will also change the "real" cwd
         to match.
@@ -1285,7 +1285,7 @@ class FS(LocalFS):
                 self.Root[''] = root
             return root
 
-    def _lookup(self, p, directory, fsclass, create=1):
+    def _lookup(self, p, directory, fsclass, create: int=1):
         """
         The generic entry point for Node lookup with user-supplied data.
 
@@ -1421,7 +1421,7 @@ class FS(LocalFS):
 
         return root._lookup_abs(p, fsclass, create)
 
-    def Entry(self, name, directory = None, create = 1):
+    def Entry(self, name, directory = None, create: int = 1):
         """Look up or create a generic Entry node with the specified name.
         If the name is a relative path (begins with ./, ../, or a file
         name), then it is looked up relative to the supplied directory
@@ -1430,7 +1430,7 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, Entry, create)
 
-    def File(self, name, directory = None, create = 1):
+    def File(self, name, directory = None, create: int = 1):
         """Look up or create a File node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
@@ -1442,7 +1442,7 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, File, create)
 
-    def Dir(self, name, directory = None, create = True):
+    def Dir(self, name, directory = None, create: bool = True):
         """Look up or create a Dir node with the specified name.  If
         the name is a relative path (begins with ./, ../, or a file name),
         then it is looked up relative to the supplied directory node,
@@ -1454,7 +1454,7 @@ class FS(LocalFS):
         """
         return self._lookup(name, directory, Dir, create)
 
-    def VariantDir(self, variant_dir, src_dir, duplicate=1):
+    def VariantDir(self, variant_dir, src_dir, duplicate: int=1):
         """Link the supplied variant directory to the source directory
         for purposes of building files."""
 
@@ -1470,7 +1470,7 @@ class FS(LocalFS):
             raise SCons.Errors.UserError("'%s' already has a source directory: '%s'."%(variant_dir, variant_dir.srcdir))
         variant_dir.link(src_dir, duplicate)
 
-    def Repository(self, *dirs):
+    def Repository(self, *dirs) -> None:
         """Specify Repository directories to search."""
         for d in dirs:
             if not isinstance(d, SCons.Node.Node):
@@ -1521,7 +1521,7 @@ class FS(LocalFS):
             message = fmt % ' '.join(map(str, targets))
         return targets, message
 
-    def Glob(self, pathname, ondisk=True, source=True, strings=False, exclude=None, cwd=None):
+    def Glob(self, pathname, ondisk: bool=True, source: bool=True, strings: bool=False, exclude=None, cwd=None):
         """
         Globs
 
@@ -1555,7 +1555,7 @@ class DirBuildInfo(SCons.Node.BuildInfoBase):
 
 glob_magic_check = re.compile('[*?[]')
 
-def has_glob_magic(s):
+def has_glob_magic(s) -> bool:
     return glob_magic_check.search(s) is not None
 
 class Dir(Base):
@@ -1580,12 +1580,12 @@ class Dir(Base):
     NodeInfo = DirNodeInfo
     BuildInfo = DirBuildInfo
 
-    def __init__(self, name, directory, fs):
+    def __init__(self, name, directory, fs) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.Dir')
         super().__init__(name, directory, fs)
         self._morph()
 
-    def _morph(self):
+    def _morph(self) -> None:
         """Turn a file system Node (either a freshly initialized directory
         object or a separate Entry object) into a proper directory object.
 
@@ -1649,11 +1649,11 @@ class Dir(Base):
             l.insert(0, a)
             self.get_executor().set_action_list(l)
 
-    def diskcheck_match(self):
+    def diskcheck_match(self) -> None:
         diskcheck_match(self, self.isfile,
                         "File %s found where directory expected.")
 
-    def __clearRepositoryCache(self, duplicate=None):
+    def __clearRepositoryCache(self, duplicate=None) -> None:
         """Called when we change the repository(ies) for a directory.
         This clears any cached information that is invalidated by changing
         the repository."""
@@ -1671,7 +1671,7 @@ class Dir(Base):
                     if duplicate is not None:
                         node.duplicate = duplicate
 
-    def __resetDuplicate(self, node):
+    def __resetDuplicate(self, node) -> None:
         if node != self:
             node.duplicate = node.get_dir().duplicate
 
@@ -1682,7 +1682,7 @@ class Dir(Base):
         """
         return self.fs.Entry(name, self)
 
-    def Dir(self, name, create=True):
+    def Dir(self, name, create: bool=True):
         """
         Looks up or creates a directory node named 'name' relative to
         this directory.
@@ -1696,7 +1696,7 @@ class Dir(Base):
         """
         return self.fs.File(name, self)
 
-    def link(self, srcdir, duplicate):
+    def link(self, srcdir, duplicate) -> None:
         """Set this directory as the variant directory for the
         supplied source directory."""
         self.srcdir = srcdir
@@ -1734,7 +1734,7 @@ class Dir(Base):
 
         return result
 
-    def addRepository(self, dir):
+    def addRepository(self, dir) -> None:
         if dir != self and dir not in self.repositories:
             self.repositories.append(dir)
             dir._tpath = '.'
@@ -1834,10 +1834,10 @@ class Dir(Base):
     # Taskmaster interface subsystem
     #
 
-    def prepare(self):
+    def prepare(self) -> None:
         pass
 
-    def build(self, **kw):
+    def build(self, **kw) -> None:
         """A null "builder" for directories."""
         global MkdirBuilder
         if self.builder is not MkdirBuilder:
@@ -1911,10 +1911,10 @@ class Dir(Base):
         contents = self.get_contents()
         return hash_signature(contents)
 
-    def do_duplicate(self, src):
+    def do_duplicate(self, src) -> None:
         pass
 
-    def is_up_to_date(self):
+    def is_up_to_date(self) -> int:
         """If any child is not up-to-date, then this directory isn't,
         either."""
         if self.builder is not MkdirBuilder and not self.exists():
@@ -2145,7 +2145,7 @@ class Dir(Base):
             return None
         return node
 
-    def walk(self, func, arg):
+    def walk(self, func, arg) -> None:
         """
         Walk this directory tree by calling the specified function
         for each directory in the tree.
@@ -2171,7 +2171,7 @@ class Dir(Base):
         for dirname in [n for n in names if isinstance(entries[n], Dir)]:
             entries[dirname].walk(func, arg)
 
-    def glob(self, pathname, ondisk=True, source=False, strings=False, exclude=None) -> list:
+    def glob(self, pathname, ondisk: bool=True, source: bool=False, strings: bool=False, exclude=None) -> list:
         """Returns a list of Nodes (or strings) matching a pathname pattern.
 
         Pathname patterns follow POSIX shell syntax::
@@ -2234,7 +2234,7 @@ class Dir(Base):
             result = [x for x in result if not any(fnmatch.fnmatch(str(x), str(e)) for e in SCons.Util.flatten(excludes))]
         return sorted(result, key=lambda a: str(a))
 
-    def _glob1(self, pattern, ondisk=True, source=False, strings=False):
+    def _glob1(self, pattern, ondisk: bool=True, source: bool=False, strings: bool=False):
         """
         Globs for and returns a list of entry names matching a single
         pattern in this directory.
@@ -2313,7 +2313,7 @@ class RootDir(Dir):
 
     __slots__ = ('_lookupDict', 'abspath', 'path')
 
-    def __init__(self, drive, fs):
+    def __init__(self, drive, fs) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.RootDir')
         SCons.Node.Node.__init__(self)
 
@@ -2371,7 +2371,7 @@ class RootDir(Dir):
         if not has_unc:
             self._lookupDict['//'] = self
 
-    def _morph(self):
+    def _morph(self) -> None:
         """Turn a file system Node (either a freshly initialized directory
         object or a separate Entry object) into a proper directory object.
 
@@ -2412,12 +2412,12 @@ class RootDir(Dir):
             self.get_executor().set_action_list(l)
 
 
-    def must_be_same(self, klass):
+    def must_be_same(self, klass) -> None:
         if klass is Dir:
             return
         Base.must_be_same(self, klass)
 
-    def _lookup_abs(self, p, klass, create=True):
+    def _lookup_abs(self, p, klass, create: bool=True):
         """
         Fast (?) lookup of a *normalized* absolute path.
 
@@ -2459,7 +2459,7 @@ class RootDir(Dir):
             result.must_be_same(klass)
         return result
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._abspath
 
     def entry_abspath(self, name):
@@ -2474,7 +2474,7 @@ class RootDir(Dir):
     def entry_tpath(self, name):
         return self._tpath + name
 
-    def is_under(self, dir):
+    def is_under(self, dir) -> int:
         if self is dir:
             return 1
         else:
@@ -2531,7 +2531,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
 
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """
         Restore the attributes from a pickled state.
         """
@@ -2544,7 +2544,7 @@ class FileNodeInfo(SCons.Node.NodeInfoBase):
     def __eq__(self, other):
         return self.csig == other.csig and self.timestamp == other.timestamp and self.size == other.size
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
 
@@ -2577,7 +2577,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
 
         return super().__setattr__(key, value)
 
-    def convert_to_sconsign(self):
+    def convert_to_sconsign(self) -> None:
         """
         Converts this FileBuildInfo object for writing to a .sconsign file
 
@@ -2604,7 +2604,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
             else:
                 setattr(self, attr, list(map(node_to_str, val)))
 
-    def convert_from_sconsign(self, dir, name):
+    def convert_from_sconsign(self, dir, name) -> None:
         """
         Converts a newly-read FileBuildInfo object for in-SCons use
 
@@ -2613,7 +2613,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
         """
         pass
 
-    def prepare_dependencies(self):
+    def prepare_dependencies(self) -> None:
         """
         Prepares a FileBuildInfo object for explaining what changed
 
@@ -2642,7 +2642,7 @@ class FileBuildInfo(SCons.Node.BuildInfoBase):
                 nodes.append(s)
             setattr(self, nattr, nodes)
 
-    def format(self, names=0):
+    def format(self, names: int=0):
         result = []
         bkids = self.bsources + self.bdepends + self.bimplicit
         bkidsigs = self.bsourcesigs + self.bdependsigs + self.bimplicitsigs
@@ -2680,11 +2680,11 @@ class File(Base):
     # Although the command-line argument is in kilobytes, this is in bytes.
     hash_chunksize = 65536
 
-    def diskcheck_match(self):
+    def diskcheck_match(self) -> None:
         diskcheck_match(self, self.isdir,
                         "Directory %s found where file expected.")
 
-    def __init__(self, name, directory, fs):
+    def __init__(self, name, directory, fs) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
         super().__init__(name, directory, fs)
         self._morph()
@@ -2694,7 +2694,7 @@ class File(Base):
         the directory of this file."""
         return self.dir.Entry(name)
 
-    def Dir(self, name, create=True):
+    def Dir(self, name, create: bool=True):
         """Create a directory node named 'name' relative to
         the directory of this file."""
         return self.dir.Dir(name, create=create)
@@ -2709,7 +2709,7 @@ class File(Base):
         the directory of this file."""
         return self.dir.File(name)
 
-    def _morph(self):
+    def _morph(self) -> None:
         """Turn a file system node into a File object."""
         self.scanner_paths = {}
         if not hasattr(self, '_local'):
@@ -2997,12 +2997,12 @@ class File(Base):
 
         return result
 
-    def _createDir(self):
+    def _createDir(self) -> None:
         # ensure that the directories for this node are
         # created.
         self.dir._create()
 
-    def push_to_cache(self):
+    def push_to_cache(self) -> None:
         """Try to push the node into a cache
         """
         # This should get called before the Nodes' .built() method is
@@ -3033,7 +3033,7 @@ class File(Base):
             return None
         return self.get_build_env().get_CacheDir().retrieve(self)
 
-    def visited(self):
+    def visited(self) -> None:
         if self.exists() and self.executor is not None:
             self.get_build_env().get_CacheDir().push_if_forced(self)
 
@@ -3056,7 +3056,7 @@ class File(Base):
 
         SCons.Node.store_info_map[self.store_info](self)
 
-    def release_target_info(self):
+    def release_target_info(self) -> None:
         """Called just after this node has been marked
          up-to-date or was built completely.
 
@@ -3123,7 +3123,7 @@ class File(Base):
                 self.builder_set(scb)
         return scb
 
-    def has_src_builder(self):
+    def has_src_builder(self) -> bool:
         """Return whether this Node has a source builder or not.
 
         If this Node doesn't have an explicit source code builder, this
@@ -3159,7 +3159,7 @@ class File(Base):
     # Taskmaster interface subsystem
     #
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         self.has_src_builder()
         self.get_binfo()
 
@@ -3282,11 +3282,11 @@ class File(Base):
     # DECISION SUBSYSTEM
     #
 
-    def builder_set(self, builder):
+    def builder_set(self, builder) -> None:
         SCons.Node.Node.builder_set(self, builder)
         self.changed_since_last_build = 5
 
-    def built(self):
+    def built(self) -> None:
         """Called just after this File node is successfully built.
 
          Just like for 'release_target_info' we try to release
@@ -3310,7 +3310,7 @@ class File(Base):
 
             self.scanner_paths = None
 
-    def changed(self, node=None, allowcache=False):
+    def changed(self, node=None, allowcache: bool=False):
         """
         Returns if the node is up-to-date with respect to the BuildInfo
         stored last time it was built.
@@ -3728,7 +3728,7 @@ class FileFinder:
     """
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._memo = {}
 
     def filedir_lookup(self, p, fd=None):
@@ -3826,7 +3826,7 @@ class FileFinder:
 find_file = FileFinder().find_file
 
 
-def invalidate_node_memos(targets):
+def invalidate_node_memos(targets) -> None:
     """
     Invalidate the memoized values of all Nodes (files or directories)
     that are associated with the given entries. Has been added to

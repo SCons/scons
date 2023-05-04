@@ -52,7 +52,7 @@ def _subst_paths(env, paths) -> list:
     return paths
 
 
-def _collect_classes(classlist, dirname, files):
+def _collect_classes(classlist, dirname, files) -> None:
     for fname in files:
         if fname.endswith(".class"):
             classlist.append(os.path.join(str(dirname), fname))

@@ -39,7 +39,7 @@ from .FortranCommon import add_all_to_env
 
 compilers = ['sunf90', 'f90']
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for sun f90 compiler to an
     Environment."""
     add_all_to_env(env)

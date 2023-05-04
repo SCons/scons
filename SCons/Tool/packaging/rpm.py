@@ -317,7 +317,7 @@ class SimpleTagCompiler:
       "cdef ghij cdef gh ij"
 
     """
-    def __init__(self, tagset, mandatory=1):
+    def __init__(self, tagset, mandatory: int=1) -> None:
         self.tagset = tagset
         self.mandatory = mandatory
 

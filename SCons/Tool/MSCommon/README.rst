@@ -40,7 +40,7 @@ The following issues are known to exist:
 
 * The code to suppress the "No versions of the MSVC compiler were found" warning for
   the default environment was moved from ``MSCommon/vc.py`` to ``MSCommon/MSVC/SetupEnvDefault.py``.
-  There very few, if any, existing unit tests. Now that the code is isolated in its own
+  There are very few, if any, existing unit tests. Now that the code is isolated in its own
   module with a limited API, unit tests may be easier to implement.
 
 
@@ -59,6 +59,7 @@ This is a proxy for using the toolset version for selection until that functiona
 
 Example usage:
 ::
+
     for version in [
         '14.3',
         '14.2',
@@ -90,6 +91,7 @@ Example usage:
 
 Example output fragment
 ::
+
     Build: _build003 {'MSVC_VERSION': '14.3', 'MSVC_TOOLSET_VERSION': '14.29.30133'}
     Where: C:\Software\MSVS-2022-143-Com\VC\Tools\MSVC\14.29.30133\bin\HostX64\x64\cl.exe
     Where: C:\Software\MSVS-2022-143-Com\Common7\Tools\guidgen.exe
@@ -138,6 +140,7 @@ for build failures. Refer to the documentation for details.
 
 Change the default policy:
 ::
+
     from SCons.Tool.MSCommon import msvc_set_scripterror_policy
 
     msvc_set_scripterror_policy('Warning')
@@ -169,6 +172,7 @@ detection of installed msvc instances.
 
 Windows command-line sample invocations:
 ::
+
     @rem 64-Bit Windows
     "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -all -sort -prerelease -products * -legacy -format json >MYVSWHEREOUTPUT.json
 
@@ -241,6 +245,7 @@ toolset specification should be omitted entirely.
 
 Local installation and summary test results:
 ::
+
     VS2022\VC\Auxiliary\Build\Microsoft.VCToolsVersion.v143.default.txt
         14.31.31103
 
@@ -249,6 +254,7 @@ Local installation and summary test results:
 
 Toolset version summary:
 ::
+
     14.31.31103   Environment()
     14.31.31103   Environment(MSVC_TOOLSET_VERSION=None)
 
@@ -263,6 +269,7 @@ Toolset version summary:
 
 VS2022\\Common7\\Tools\\vsdevcmd\\ext\\vcvars.bat usage fragment:
 ::
+
     @echo     -vcvars_ver=version : Version of VC++ Toolset to select
     @echo            ** [Default]   : If -vcvars_ver=version is NOT specified, the toolset specified by
     @echo                             [VSInstallDir]\VC\Auxiliary\Build\Microsoft.VCToolsVersion.v143.default.txt will be used.
@@ -283,6 +290,7 @@ VS2022\\Common7\\Tools\\vsdevcmd\\ext\\vcvars.bat usage fragment:
 
 VS2022 batch file fragment to determine the default toolset version:
 ::
+
     @REM Add MSVC
     set "__VCVARS_DEFAULT_CONFIG_FILE=%VCINSTALLDIR%Auxiliary\Build\Microsoft.VCToolsVersion.default.txt"
 
@@ -349,33 +357,33 @@ v60         6.0   12.0  60
 Product Versions
 ----------------
 
-======== ===== ========= ============
+======== ===== ========= ======================
 Product  VSVER SDK       BuildTools
-======== ===== ========= ============
-2022     17.0  10.0, 8.1 v143 .. v140
--------- ----- --------- ------------
-2019     16.0  10.0, 8.1 v142 .. v140
--------- ----- --------- ------------
-2017     15.0  10.0, 8.1 v141 .. v140
--------- ----- --------- ------------
+======== ===== ========= ======================
+2022     17.0  10.0, 8.1 v143, v142, v141, v140
+-------- ----- --------- ----------------------
+2019     16.0  10.0, 8.1 v142, v141, v140
+-------- ----- --------- ----------------------
+2017     15.0  10.0, 8.1 v141, v140
+-------- ----- --------- ----------------------
 2015     14.0  10.0, 8.1 v140
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2013     12.0            v120
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2012     11.0            v110
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2010     10.0            v100
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2008      9.0            v90
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2005      8.0            v80
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2003.NET  7.1            v71
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 2002.NET  7.0            v70
--------- ----- --------- ------------
+-------- ----- --------- ----------------------
 6.0       6.0            v60
-======== ===== ========= ============
+======== ===== ========= ======================
 
 
 SCons Implementation Notes

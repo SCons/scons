@@ -31,25 +31,25 @@ import SCons.SConsign
 from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 
 class BuildInfo:
-    def merge(self, object):
+    def merge(self, object) -> None:
         pass
 
 class DummySConsignEntry:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.binfo = BuildInfo()
-    def convert_to_sconsign(self):
+    def convert_to_sconsign(self) -> None:
         self.c_to_s = 1
-    def convert_from_sconsign(self, dir, name):
+    def convert_from_sconsign(self, dir, name) -> None:
         self.c_from_s = 1
 
 class FS:
-    def __init__(self, top):
+    def __init__(self, top) -> None:
         self.Top = top
         self.Top.repositories = []
 
 class DummyNode:
-    def __init__(self, path='not_a_valid_path', binfo=None):
+    def __init__(self, path: str='not_a_valid_path', binfo=None) -> None:
         self.path = path
         self.tpath = path
         self.fs = FS(self)
@@ -64,18 +64,18 @@ class DummyNode:
         return self.tpath
 
 class SConsignTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.save_cwd = os.getcwd()
         self.test = TestCmd.TestCmd(workdir = '')
         os.chdir(self.test.workpath(''))
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.test.cleanup()
         SCons.SConsign.Reset()
         os.chdir(self.save_cwd)
 
 class BaseTestCase(SConsignTestCase):
 
-    def test_Base(self):
+    def test_Base(self) -> None:
         aaa = DummySConsignEntry('aaa')
         bbb = DummySConsignEntry('bbb')
         bbb.arg1 = 'bbb arg1'
@@ -216,7 +216,7 @@ class BaseTestCase(SConsignTestCase):
 
 class SConsignDBTestCase(SConsignTestCase):
 
-    def test_SConsignDB(self):
+    def test_SConsignDB(self) -> None:
         save_DataBase = SCons.SConsign.DataBase
         SCons.SConsign.DataBase = {}
         try:
@@ -262,7 +262,7 @@ class SConsignDBTestCase(SConsignTestCase):
 
 class SConsignDirFileTestCase(SConsignTestCase):
 
-    def test_SConsignDirFile(self):
+    def test_SConsignDirFile(self) -> None:
         bi_foo = DummySConsignEntry('foo')
         bi_bar = DummySConsignEntry('bar')
 
@@ -291,7 +291,7 @@ class SConsignDirFileTestCase(SConsignTestCase):
 
 class SConsignFileTestCase(SConsignTestCase):
 
-    def test_SConsignFile(self):
+    def test_SConsignFile(self) -> None:
         test = self.test
         file = test.workpath('sconsign_file')
 
@@ -319,9 +319,9 @@ class SConsignFileTestCase(SConsignTestCase):
                 self.name = name
                 self.mode = mode
                 return self
-            def __getitem__(self, key):
+            def __getitem__(self, key) -> None:
                 pass
-            def __setitem__(self, key, value):
+            def __setitem__(self, key, value) -> None:
                 pass
 
         fake_dbm = Fake_DBM()
@@ -343,7 +343,7 @@ class SConsignFileTestCase(SConsignTestCase):
 
 class writeTestCase(SConsignTestCase):
 
-    def test_write(self):
+    def test_write(self) -> None:
 
         test = self.test
         file = test.workpath('sconsign_file')
@@ -351,12 +351,12 @@ class writeTestCase(SConsignTestCase):
         class Fake_DBM:
             def __getitem__(self, key):
                 return None
-            def __setitem__(self, key, value):
+            def __setitem__(self, key, value) -> None:
                 pass
             def open(self, name, mode):
                 self.sync_count = 0
                 return self
-            def sync(self):
+            def sync(self) -> None:
                 self.sync_count = self.sync_count + 1
 
         fake_dbm = Fake_DBM()

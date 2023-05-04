@@ -59,7 +59,7 @@ class SDKDefinition:
     """
     An abstract base class for trying to find installed SDK directories.
     """
-    def __init__(self, version, **kw):
+    def __init__(self, version, **kw) -> None:
         self.version = version
         self.__dict__.update(kw)
 
@@ -130,7 +130,7 @@ class WindowsSDK(SDKDefinition):
     A subclass for trying to find installed Windows SDK directories.
     """
     HKEY_FMT = r'Software\Microsoft\Microsoft SDKs\Windows\v%s\InstallationFolder'
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         self.hkey_data = self.version
 
@@ -139,7 +139,7 @@ class PlatformSDK(SDKDefinition):
     A subclass for trying to find installed Platform SDK directories.
     """
     HKEY_FMT = r'Software\Microsoft\MicrosoftSDK\InstalledSDKS\%s\Install Dir'
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         self.hkey_data = self.uuid
 
@@ -306,7 +306,7 @@ def get_installed_sdks():
 
 SDKEnvironmentUpdates = {}
 
-def set_sdk_by_directory(env, sdk_dir):
+def set_sdk_by_directory(env, sdk_dir) -> None:
     global SDKEnvironmentUpdates
     debug('set_sdk_by_directory: Using dir:%s', sdk_dir)
     try:

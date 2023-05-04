@@ -32,7 +32,7 @@ from SCons.Errors import UserError
 
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.data.update(kwargs)
 
@@ -48,7 +48,7 @@ class DummyEnvironment(collections.UserDict):
 
 
 class DefaultsTestCase(unittest.TestCase):
-    def test_mkdir_func0(self):
+    def test_mkdir_func0(self) -> None:
         test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir2 = test.workpath('sub', 'dir1', 'dir2')
@@ -56,7 +56,7 @@ class DefaultsTestCase(unittest.TestCase):
         mkdir_func(subdir2)
         mkdir_func(subdir2)  # 2nd time should be OK too
 
-    def test_mkdir_func1(self):
+    def test_mkdir_func1(self) -> None:
         test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir1 = test.workpath('sub', 'dir1')
@@ -66,7 +66,7 @@ class DefaultsTestCase(unittest.TestCase):
         mkdir_func(subdir2)
         mkdir_func(subdir1)
 
-    def test_mkdir_func2(self):
+    def test_mkdir_func2(self) -> None:
         test = TestCmd.TestCmd(workdir='')
         test.subdir('sub')
         subdir1 = test.workpath('sub', 'dir1')
@@ -84,7 +84,7 @@ class DefaultsTestCase(unittest.TestCase):
         else:
             self.fail("expected OSError")
 
-    def test__defines_no_target_or_source_arg(self):
+    def test__defines_no_target_or_source_arg(self) -> None:
         """
         Verify that _defines() function can handle either or neither source or
         target being specified
@@ -106,7 +106,7 @@ class DefaultsTestCase(unittest.TestCase):
             z = _defines('-D', ['AAB', 'BAB', 'CAB'], 'XYZAB', env, 'XYZ', 'abc')
             self.assertEqual(z, ['-DAABXYZAB', '-DBABXYZAB', '-DCABXYZAB'])
 
-    def test_processDefines(self):
+    def test_processDefines(self) -> None:
         """Verify correct handling in processDefines."""
         env = DummyEnvironment()
 

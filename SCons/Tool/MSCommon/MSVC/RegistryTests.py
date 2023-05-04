@@ -37,7 +37,7 @@ class RegistryTests(unittest.TestCase):
     _sdk_versions = None
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls._sdk_versions = []
         sdk_seen = set()
         for vs_def in Config.VISUALSTUDIO_DEFINITION_LIST:
@@ -49,24 +49,24 @@ class RegistryTests(unittest.TestCase):
                 sdk_seen.add(sdk_version)
                 cls._sdk_versions.append(sdk_version)
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.sdk_versions = self.__class__._sdk_versions
 
-    def test_sdk_query_paths(self):
+    def test_sdk_query_paths(self) -> None:
         for sdk_version in self.sdk_versions:
             _ = Registry.sdk_query_paths(sdk_version)
 
-    def test_vstudio_sxs_vc7(self):
+    def test_vstudio_sxs_vc7(self) -> None:
         suffix = Registry.vstudio_sxs_vc7('14.0')
         _ = Registry.microsoft_query_paths(suffix)
 
-    def test_microsoft_query_keys(self):
+    def test_microsoft_query_keys(self) -> None:
         val = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
         for suffix in ['Temp', 'Tmp']:
             _ = Registry.registry_query_path(Registry.HKEY_LOCAL_MACHINE, val, suffix, expand=True)
             _ = Registry.registry_query_path(Registry.HKEY_LOCAL_MACHINE, val, suffix, expand=False)
 
-    def test_registry_query_path(self):
+    def test_registry_query_path(self) -> None:
         # need a better test for when VS2015 is no longer installed
         for component_reg in ('enterprise', 'professional', 'community'):
             suffix = Registry.devdiv_vs_servicing_component('14.0', component_reg)
@@ -74,7 +74,7 @@ class RegistryTests(unittest.TestCase):
             if not rval:
                 continue
 
-    def test_windows_kit_query_paths(self):
+    def test_windows_kit_query_paths(self) -> None:
         for sdk_version in self.sdk_versions:
             _ = Registry.windows_kit_query_paths(sdk_version)
 

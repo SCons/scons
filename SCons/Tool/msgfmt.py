@@ -86,7 +86,7 @@ def _create_mo_file_builder(env, **kw):
     return _MOFileBuilder(**kw)
 
 
-def generate(env, **kw):
+def generate(env, **kw) -> None:
     """ Generate `msgfmt` tool """
 
     if sys.platform == 'win32':

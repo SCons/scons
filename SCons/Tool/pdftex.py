@@ -68,7 +68,7 @@ def PDFTeXLaTeXFunction(target = None, source= None, env=None):
 
 PDFTeXLaTeXAction = None
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for pdftex to an Environment."""
     global PDFTeXAction
     if PDFTeXAction is None:

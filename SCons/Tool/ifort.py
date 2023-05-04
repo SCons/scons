@@ -35,7 +35,7 @@ from SCons.Scanner.Fortran import FortranScan
 from .FortranCommon import add_all_to_env
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ifort to an Environment."""
     # ifort supports Fortran 90 and Fortran 95
     # Additionally, ifort recognizes more file extensions.

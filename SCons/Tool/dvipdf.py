@@ -85,12 +85,12 @@ def PDFEmitter(target, source, env):
     used to generate the .dvi file we're using as input, and we only
     care about the .dvi file.
     """
-    def strip_suffixes(n):
+    def strip_suffixes(n) -> bool:
         return not SCons.Util.splitext(str(n))[1] in ['.aux', '.log']
     source = [src for src in source if strip_suffixes(src)]
     return (target, source)
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for dvipdf to an Environment."""
     global PDFAction
     if PDFAction is None:

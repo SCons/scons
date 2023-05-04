@@ -31,19 +31,19 @@ import SCons.Tool
 
 
 class DummyEnvironment:
-    def __init__(self):
+    def __init__(self) -> None:
         self.dict = {}
     def Detect(self, progs):
         if not SCons.Util.is_List(progs):
             progs = [ progs ]
         return progs[0]
-    def Append(self, **kw):
+    def Append(self, **kw) -> None:
         self.dict.update(kw)
     def __getitem__(self, key):
         return self.dict[key]
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         self.dict[key] = val
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.dict
     def subst(self, string, *args, **kwargs):
         return string
@@ -60,13 +60,13 @@ class DummyEnvironment:
         if self.PHONY_PATH in paths:
             return os.path.join(self.PHONY_PATH, key_program)
         return None
-    def AppendENVPath(self, pathvar, path):
+    def AppendENVPath(self, pathvar, path) -> None:
         # signature matches how called from find_program_path()
         self['ENV'][pathvar] = self['ENV'][pathvar] + os.pathsep + path
 
 
 class ToolTestCase(unittest.TestCase):
-    def test_Tool(self):
+    def test_Tool(self) -> None:
         """Test the Tool() function"""
 
         env = DummyEnvironment()
@@ -96,7 +96,7 @@ class ToolTestCase(unittest.TestCase):
         assert exc_caught, "did not catch expected UserError"
 
 
-    def test_pathfind(self):
+    def test_pathfind(self) -> None:
         """Test that find_program_path() alters PATH only if add_path is true"""
 
         env = DummyEnvironment()

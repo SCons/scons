@@ -30,7 +30,7 @@ selection method.
 
 from . import posix
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
     env['HOST_OS'] = 'irix'
 

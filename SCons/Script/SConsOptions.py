@@ -98,7 +98,7 @@ class SConsValues(optparse.Values):
     in the set_option() method.
     """
 
-    def __init__(self, defaults):
+    def __init__(self, defaults) -> None:
         self.__defaults__ = defaults
         self.__SConscript_settings__ = {}
 
@@ -300,11 +300,11 @@ class SConsBadOptionError(optparse.BadOptionError):
 
     """
 
-    def __init__(self, opt_str, parser=None):
+    def __init__(self, opt_str, parser=None) -> None:
         self.opt_str = opt_str
         self.parser = parser
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _("no such option: %s") % self.opt_str
 
 
@@ -396,7 +396,7 @@ class SConsOptionParser(optparse.OptionParser):
 
         option.process(opt, value, values, self)
 
-    def reparse_local_options(self):
+    def reparse_local_options(self) -> None:
         """ Re-parse the leftover command-line options.
 
         Parse options stored in `self.largs`, so that any value
@@ -491,7 +491,7 @@ class SConsOptionParser(optparse.OptionParser):
 
 
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
-    def format_usage(self, usage):
+    def format_usage(self, usage) -> str:
         """ Formats the usage message. """
         return "usage: %s\n" % usage
 
@@ -610,7 +610,7 @@ def Parser(version):
     op.version = version
 
     # options ignored for compatibility
-    def opt_ignore(option, opt, value, parser):
+    def opt_ignore(option, opt, value, parser) -> None:
         sys.stderr.write("Warning:  ignoring %s option\n" % opt)
 
     op.add_option("-b", "-d", "-e", "-m", "-S", "-t", "-w",
@@ -822,7 +822,7 @@ def Parser(version):
                   action="help",
                   help="Print this message and exit")
 
-    def warn_md5_chunksize_deprecated(option, opt, value, parser):
+    def warn_md5_chunksize_deprecated(option, opt, value, parser) -> None:
         if opt == '--md5-chunksize':
             SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                                 "Parameter %s is deprecated. Use "
@@ -865,7 +865,7 @@ def Parser(version):
                   action="store_true",
                   help="Cache implicit dependencies")
 
-    def opt_implicit_deps(option, opt, value, parser):
+    def opt_implicit_deps(option, opt, value, parser) -> None:
         setattr(parser.values, 'implicit_cache', True)
         setattr(parser.values, option.dest, True)
 
@@ -1002,7 +1002,7 @@ def Parser(version):
                   help="Search up directory tree for SConstruct, "
                        "build Default() targets from local SConscript")
 
-    def opt_version(option, opt, value, parser):
+    def opt_version(option, opt, value, parser) -> None:
         sys.stdout.write(parser.version + '\n')
         sys.exit(0)
 
@@ -1010,7 +1010,7 @@ def Parser(version):
                   action="callback", callback=opt_version,
                   help="Print the SCons version number and exit")
 
-    def opt_warn(option, opt, value, parser, tree_options=tree_options):
+    def opt_warn(option, opt, value, parser, tree_options=tree_options) -> None:
         if SCons.Util.is_String(value):
             value = value.split(',')
         parser.values.warn.extend(value)
@@ -1033,7 +1033,7 @@ def Parser(version):
     # we don't want to change.  These all get a "the -X option is not
     # yet implemented" message and don't show up in the help output.
 
-    def opt_not_yet(option, opt, value, parser):
+    def opt_not_yet(option, opt, value, parser) -> None:
         msg = "Warning:  the %s option is not yet implemented\n" % opt
         sys.stderr.write(msg)
 

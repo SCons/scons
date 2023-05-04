@@ -36,7 +36,7 @@ import SCons.Util
 
 from . import cc
 
-def generate(env):
+def generate(env) -> None:
     """
     Add Builders and construction variables for Forte C and C++ compilers
     to an Environment.

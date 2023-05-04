@@ -137,11 +137,11 @@ def _action(target, source, env):
     target_file.close()
 
 
-def _strfunc(target, source, env):
+def _strfunc(target, source, env) -> str:
     return "Creating '%s'" % target[0]
 
 
-def _convert_list_R(newlist, sources):
+def _convert_list_R(newlist, sources) -> None:
     for elem in sources:
         if is_Sequence(elem):
             _convert_list_R(newlist, elem)
@@ -181,7 +181,7 @@ _subst_builder = SCons.Builder.Builder(
 )
 
 
-def generate(env):
+def generate(env) -> None:
     env['LINESEPARATOR'] = LINESEP # os.linesep
     env['BUILDERS']['Textfile'] = _text_builder
     env['TEXTFILEPREFIX'] = ''
@@ -192,7 +192,7 @@ def generate(env):
     env['FILE_ENCODING'] = env.get('FILE_ENCODING', 'utf-8')
 
 
-def exists(env):
+def exists(env) -> int:
     return 1
 
 # Local Variables:

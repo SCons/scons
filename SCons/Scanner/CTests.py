@@ -201,7 +201,7 @@ test.write("f5b.h", "\n")
 # define some helpers:
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.data.update(kwargs)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -241,7 +241,7 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
 else:
     my_normpath = os.path.normpath
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
@@ -250,7 +250,7 @@ def deps_match(self, deps, headers):
 # define some tests:
 
 class CScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find local files with no CPPPATH"""
         env = DummyEnvironment(CPPPATH=[])
         s = SCons.Scanner.C.CScanner()
@@ -260,7 +260,7 @@ class CScannerTestCase1(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find a file in a CPPPATH directory"""
         env = DummyEnvironment(CPPPATH=[test.workpath("d1")])
         s = SCons.Scanner.C.CScanner()
@@ -270,7 +270,7 @@ class CScannerTestCase2(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in explicit subdirectories, ignore missing file"""
         env = DummyEnvironment(CPPPATH=[test.workpath("d1")])
         s = SCons.Scanner.C.CScanner()
@@ -280,7 +280,7 @@ class CScannerTestCase3(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase4(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in explicit subdirectories"""
         env = DummyEnvironment(CPPPATH=[test.workpath("d1"), test.workpath("d1/d2")])
         s = SCons.Scanner.C.CScanner()
@@ -290,7 +290,7 @@ class CScannerTestCase4(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase5(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Make sure files in repositories will get scanned"""
         env = DummyEnvironment(CPPPATH=[])
         s = SCons.Scanner.C.CScanner()
@@ -315,7 +315,7 @@ class CScannerTestCase5(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase6(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find a same-named file in different directories when CPPPATH changes"""
         env1 = DummyEnvironment(CPPPATH=[test.workpath("d1")])
         env2 = DummyEnvironment(CPPPATH=[test.workpath("d1/d2")])
@@ -330,7 +330,7 @@ class CScannerTestCase6(unittest.TestCase):
         deps_match(self, deps2, headers2)
 
 class CScannerTestCase8(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in a subdirectory relative to the current directory"""
         env = DummyEnvironment(CPPPATH=["include"])
         s = SCons.Scanner.C.CScanner()
@@ -347,11 +347,11 @@ class CScannerTestCase8(unittest.TestCase):
         deps_match(self, deps2, headers2)
 
 class CScannerTestCase9(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Generate a warning when we can't find a #included file"""
         SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
         class TestOut:
-            def __call__(self, x):
+            def __call__(self, x) -> None:
                 self.out = x
 
         to = TestOut()
@@ -372,7 +372,7 @@ class CScannerTestCase9(unittest.TestCase):
         test.unlink('fa.h')
 
 class CScannerTestCase10(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in the local directory when the scanned file is elsewhere"""
         fs = SCons.Node.FS.FS(test.workpath(''))
         fs.chdir(fs.Dir('include'))
@@ -387,7 +387,7 @@ class CScannerTestCase10(unittest.TestCase):
         test.unlink('include/fa.cpp')
 
 class CScannerTestCase11(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Handle dependencies on a derived .h file in a non-existent directory"""
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
@@ -407,7 +407,7 @@ class CScannerTestCase11(unittest.TestCase):
         os.chdir(test.workpath(''))
 
 class CScannerTestCase12(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in VariantDir() directories"""
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
@@ -429,7 +429,7 @@ class CScannerTestCase12(unittest.TestCase):
         os.chdir(test.workpath(''))
 
 class CScannerTestCase13(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in directories named in a substituted environment variable"""
         class SubstEnvironment(DummyEnvironment):
             def subst(self, arg, target=None, source=None, conv=None, test=test):
@@ -445,7 +445,7 @@ class CScannerTestCase13(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase14(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files when there's no space between "#include" and the name"""
         env = DummyEnvironment(CPPPATH=[])
         s = SCons.Scanner.C.CScanner()
@@ -455,7 +455,7 @@ class CScannerTestCase14(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class CScannerTestCase15(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Verify scanner initialization with the suffixes in $CPPSUFFIXES"""
         suffixes = [".c", ".C", ".cxx", ".cpp", ".c++", ".cc",
                     ".h", ".H", ".hxx", ".hpp", ".hh",
@@ -468,7 +468,7 @@ class CScannerTestCase15(unittest.TestCase):
 
 
 class CConditionalScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find local files with no CPPPATH"""
         env = DummyEnvironment(CPPPATH=[])
         s = SCons.Scanner.C.CConditionalScanner()
@@ -479,7 +479,7 @@ class CConditionalScannerTestCase1(unittest.TestCase):
 
 
 class CConditionalScannerTestCase2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find local files with no CPPPATH based on #ifdef"""
         env = DummyEnvironment(CPPPATH=[], CPPDEFINES=["INCLUDE_F2"])
         s = SCons.Scanner.C.CConditionalScanner()
@@ -490,7 +490,7 @@ class CConditionalScannerTestCase2(unittest.TestCase):
 
 
 class CConditionalScannerTestCase3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Find files in explicit subdirectories, ignore missing file"""
         env = DummyEnvironment(
             CPPPATH=[test.workpath("d1")],
@@ -513,7 +513,7 @@ class CConditionalScannerTestCase3(unittest.TestCase):
 
 
 class CConditionalScannerTestCase4(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Test that dependency is detected if #include uses a macro."""
 
         with self.subTest("macro defined in the source file"):
@@ -533,7 +533,7 @@ class CConditionalScannerTestCase4(unittest.TestCase):
 
 
 class dictify_CPPDEFINESTestCase(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """Make sure CPPDEFINES converts correctly.
 
         Various types and combinations of types could fail if not handled
