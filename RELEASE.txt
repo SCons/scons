@@ -32,6 +32,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
+
+- Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+  is '/' rather than the Windows default '\'), certain Configure checks
+  could fail due to the construction of the path to run the compiled check.
 - C scanner's dictifyCPPDEFINES routine did not understand the possible
   combinations of CPPDEFINES - not aware of a "name=value" string either
   embedded in a sequence, or by itself.  The conditional C scanner thus
