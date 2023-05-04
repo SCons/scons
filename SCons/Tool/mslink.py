@@ -256,7 +256,7 @@ compositeLdmodAction = ldmodLinkAction + regServerCheck + embedManifestDllCheckA
 exeLinkAction = SCons.Action.Action('${TEMPFILE("$LINK $LINKFLAGS /OUT:$TARGET.windows $_LIBDIRFLAGS $_LIBFLAGS $_PDB $SOURCES.windows", "$LINKCOMSTR")}', '$LINKCOMSTR')
 compositeLinkAction = exeLinkAction + embedManifestExeCheckAction
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createSharedLibBuilder(env, shlib_suffix='$SHLIBSUFFIX')
     SCons.Tool.createProgBuilder(env)

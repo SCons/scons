@@ -36,7 +36,7 @@ import SCons.Builder
 import SCons.Action
 import os
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for WiX to an Environment."""
     if not exists(env):
       return

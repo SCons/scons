@@ -73,7 +73,7 @@ def emit_java_classes(target, source, env):
         elif isinstance(entry, SCons.Node.FS.Dir):
             result = OrderedDict()
             dirnode = entry.rdir()
-            def find_java_files(arg, dirpath, filenames):
+            def find_java_files(arg, dirpath, filenames) -> None:
                 java_files = sorted([n for n in filenames
                                        if _my_normcase(n).endswith(js)])
                 mydir = dirnode.Dir(dirpath)
@@ -141,7 +141,7 @@ class pathopt:
     Callable object for generating javac-style path options from
     a construction variable (e.g. -classpath, -sourcepath).
     """
-    def __init__(self, opt, var, default=None):
+    def __init__(self, opt, var, default=None) -> None:
         self.opt = opt
         self.var = var
         self.default = default
@@ -198,7 +198,7 @@ def Java(env, target, source, *args, **kw):
 
     return result
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for javac to an Environment."""
     java_file = SCons.Tool.CreateJavaFileBuilder(env)
     java_class = SCons.Tool.CreateJavaClassFileBuilder(env)
@@ -242,7 +242,7 @@ def generate(env):
     env['_JAVACCOM'] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVAPROCESSORPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
     env['JAVACCOM'] = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
 
-def exists(env):
+def exists(env) -> int:
     return 1
 
 # Local Variables:

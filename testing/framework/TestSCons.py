@@ -107,7 +107,7 @@ dll_ = dll_prefix
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
     # fact that the underlying Win32 OS is case-insensitive.
-    def case_sensitive_suffixes(s1, s2):
+    def case_sensitive_suffixes(s1, s2) -> int:
         return 0
 else:
     def case_sensitive_suffixes(s1, s2):
@@ -212,7 +212,7 @@ def initialize_sconsflags(ignore_python_version):
     return save_sconsflags
 
 
-def restore_sconsflags(sconsflags):
+def restore_sconsflags(sconsflags) -> None:
     if sconsflags is None:
         del os.environ['SCONSFLAGS']
     else:
@@ -232,7 +232,7 @@ class NoMatch(Exception):
     """
     Exception for matchPart to indicate there was no match found in the passed logfile
     """
-    def __init__(self, p):
+    def __init__(self, p) -> None:
         self.pos = p
 
 
@@ -258,7 +258,7 @@ class TestSCons(TestCommon):
     scons_version = SConsVersion
     javac_is_gcj = False
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize an SCons testing object.
 
         If they're not overridden by keyword arguments, this
@@ -416,7 +416,7 @@ class TestSCons(TestCommon):
 
         return None
 
-    def wrap_stdout(self, build_str="", read_str="", error=0, cleaning=0) -> str:
+    def wrap_stdout(self, build_str: str="", read_str: str="", error: int=0, cleaning: int=0) -> str:
         """Wraps "expect" strings in SCons boilerplate.
 
         Given strings of expected output specific to a test,
@@ -448,7 +448,7 @@ class TestSCons(TestCommon):
                build_str + \
                term
 
-    def run(self, *args, **kw):
+    def run(self, *args, **kw) -> None:
         """
         Set up SCONSFLAGS for every command so test scripts don't need
         to worry about unexpected warnings in their output.
@@ -482,7 +482,7 @@ class TestSCons(TestCommon):
     #        kw['options'] = ' '.join(options)
     #        TestCommon.run(self, *args, **kw)
 
-    def up_to_date(self, arguments='.', read_str="", **kw):
+    def up_to_date(self, arguments: str='.', read_str: str="", **kw) -> None:
         """Asserts that all of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
@@ -498,7 +498,7 @@ class TestSCons(TestCommon):
         kw['match'] = self.match_re_dotall
         self.run(**kw)
 
-    def not_up_to_date(self, arguments='.', read_str="", **kw):
+    def not_up_to_date(self, arguments: str='.', read_str: str="", **kw) -> None:
         """Asserts that none of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
@@ -529,7 +529,7 @@ class TestSCons(TestCommon):
                 kw['arguments'] = f"{option} {arguments}"
         return self.run(**kw)
 
-    def deprecated_wrap(self, msg):
+    def deprecated_wrap(self, msg) -> str:
         """
         Calculate the pattern that matches a deprecation warning.
         """
@@ -592,7 +592,7 @@ class TestSCons(TestCommon):
         """
         warning = self.deprecated_fatal(warn, msg)
 
-        def RunPair(option, expected):
+        def RunPair(option, expected) -> None:
             # run the same test with the option on the command line and
             # then with the option passed via SetOption().
             self.run(options=f"--warn={option}",
@@ -616,7 +616,7 @@ class TestSCons(TestCommon):
 
         return warning
 
-    def diff_substr(self, expect, actual, prelen=20, postlen=40):
+    def diff_substr(self, expect, actual, prelen: int=20, postlen: int=40) -> str:
         i = 0
         for x, y in zip(expect, actual):
             if x != y:
@@ -668,7 +668,7 @@ class TestSCons(TestCommon):
         return s
 
     @staticmethod
-    def to_bytes_re_sub(pattern, repl, str, count=0, flags=0):
+    def to_bytes_re_sub(pattern, repl, str, count: int=0, flags: int=0):
         """
         Wrapper around re.sub to change pattern and repl to bytes to work with
         both python 2 & 3
@@ -749,7 +749,7 @@ class TestSCons(TestCommon):
             return database_prefix
 
 
-    def unlink_sconsignfile(self, name='.sconsign.dblite'):
+    def unlink_sconsignfile(self, name: str='.sconsign.dblite') -> None:
         """Delete the sconsign file.
 
         Note on python it seems to append .p3 to the file name so we take
@@ -1066,7 +1066,7 @@ class TestSCons(TestCommon):
                     result.append(os.path.join(dirpath, fname))
         return sorted(result)
 
-    def Qt_dummy_installation(self, dir='qt'):
+    def Qt_dummy_installation(self, dir: str='qt') -> None:
         # create a dummy qt installation
 
         self.subdir(dir, [dir, 'bin'], [dir, 'include'], [dir, 'lib'])
@@ -1172,7 +1172,7 @@ else:
         self.QT_UIC = f"{_python_} {self.workpath(dir, 'bin', 'myuic.py')}"
         self.QT_LIB_DIR = self.workpath(dir, 'lib')
 
-    def Qt_create_SConstruct(self, place, qt_tool='qt3'):
+    def Qt_create_SConstruct(self, place, qt_tool: str='qt3') -> None:
         if isinstance(place, list):
             place = test.workpath(*place)
 
@@ -1221,12 +1221,12 @@ SConscript(sconscript)
     # to use cygwin compilers on cmd.exe -> uncomment following line
     # Configure_lib = 'm'
 
-    def coverage_run(self):
+    def coverage_run(self) -> bool:
         """ Check if the the tests are being run under coverage.
         """
         return 'COVERAGE_PROCESS_START' in os.environ or 'COVERAGE_FILE' in os.environ
 
-    def skip_if_not_msvc(self, check_platform=True):
+    def skip_if_not_msvc(self, check_platform: bool=True) -> None:
         """ Skip test if MSVC is not available.
 
         Check whether we are on a Windows platform and skip the test if
@@ -1251,10 +1251,10 @@ SConscript(sconscript)
             pass
 
     def checkConfigureLogAndStdout(self, checks,
-                                   logfile='config.log',
-                                   sconf_dir='.sconf_temp',
-                                   sconstruct="SConstruct",
-                                   doCheckLog=True, doCheckStdout=True):
+                                   logfile: str='config.log',
+                                   sconf_dir: str='.sconf_temp',
+                                   sconstruct: str="SConstruct",
+                                   doCheckLog: bool=True, doCheckStdout: bool=True):
         """ Verify expected output from Configure.
 
         Used to verify the expected output from using Configure()
@@ -1386,7 +1386,7 @@ SConscript(sconscript)
 
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,
-                          doCheckLog=True, doCheckStdout=True):
+                          doCheckLog: bool=True, doCheckStdout: bool=True):
         """ Verify expected output from Configure.
 
         Used to verify the expected output from using Configure()
@@ -1547,7 +1547,7 @@ SConscript(sconscript)
         # see also sys.prefix documentation
         return python_minor_version_string()
 
-    def get_platform_python_info(self, python_h_required=False):
+    def get_platform_python_info(self, python_h_required: bool=False):
         """Return information about Python.
 
         Returns a path to a Python executable suitable for testing on
@@ -1640,7 +1640,7 @@ else:
             restore_sconsflags(sconsflags)
         return p
 
-    def wait_for(self, fname, timeout=20.0, popen=None):
+    def wait_for(self, fname, timeout: float=20.0, popen=None) -> None:
         """
         Waits for the specified file name to exist.
         """
@@ -1702,7 +1702,7 @@ else:
 
 
 class Stat:
-    def __init__(self, name, units, expression, convert=None):
+    def __init__(self, name, units, expression, convert=None) -> None:
         if convert is None:
             convert = lambda x: x
         self.name = name
@@ -1736,7 +1736,7 @@ StatList = [
 class TimeSCons(TestSCons):
     """Class for timing SCons."""
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         """
         In addition to normal TestSCons.TestSCons intialization,
         this enables verbose mode (which causes the command lines to
@@ -1784,7 +1784,7 @@ class TimeSCons(TestSCons):
             self.test_dir = os.path.join(self.orig_cwd, self.test_dir)
         self.copy_timing_configuration(self.test_dir, self.workpath())
 
-    def main(self, *args, **kw):
+    def main(self, *args, **kw) -> None:
         """
         The main entry point for standard execution of timings.
 
@@ -1814,7 +1814,7 @@ class TimeSCons(TestSCons):
             self.full(*args, **kw)
             self.null(*args, **kw)
 
-    def trace(self, graph, name, value, units, sort=None):
+    def trace(self, graph, name, value, units, sort=None) -> None:
         fmt = "TRACE: graph=%s name=%s value=%s units=%s"
         line = fmt % (graph, name, value, units)
         if sort is not None:
@@ -1823,7 +1823,7 @@ class TimeSCons(TestSCons):
         sys.stdout.write(line)
         sys.stdout.flush()
 
-    def report_traces(self, trace, stats):
+    def report_traces(self, trace, stats) -> None:
         self.trace('TimeSCons-elapsed',
                    trace,
                    self.elapsed_time(),
@@ -1832,7 +1832,7 @@ class TimeSCons(TestSCons):
         for name, args in stats.items():
             self.trace(name, trace, **args)
 
-    def uptime(self):
+    def uptime(self) -> None:
         try:
             fp = open('/proc/loadavg')
         except EnvironmentError:
@@ -1856,7 +1856,7 @@ class TimeSCons(TestSCons):
                 result[stat.name] = {'value': value, 'units': stat.units}
         return result
 
-    def add_timing_options(self, kw, additional=None):
+    def add_timing_options(self, kw, additional=None) -> None:
         """
         Add the necessary timings options to the kw['options'] value.
         """
@@ -1865,7 +1865,7 @@ class TimeSCons(TestSCons):
             options += additional
         kw['options'] = f"{options} --debug=memory,time"
 
-    def startup(self, *args, **kw):
+    def startup(self, *args, **kw) -> None:
         """
         Runs scons with the --help option.
 
@@ -1886,7 +1886,7 @@ class TimeSCons(TestSCons):
         del stats['time-commands']
         self.report_traces('startup', stats)
 
-    def full(self, *args, **kw):
+    def full(self, *args, **kw) -> None:
         """
         Runs a full build of SCons.
         """
@@ -1899,7 +1899,7 @@ class TimeSCons(TestSCons):
         self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
         self.trace('full-memory', 'final', **stats['memory-final'])
 
-    def calibration(self, *args, **kw):
+    def calibration(self, *args, **kw) -> None:
         """
         Runs a full build of SCons, but only reports calibration
         information (the variable(s) that were set for this configuration,
@@ -1912,7 +1912,7 @@ class TimeSCons(TestSCons):
             sys.stdout.write(f'VARIABLE: {variable}={value}\n')
         sys.stdout.write(f'ELAPSED: {self.elapsed_time()}\n')
 
-    def null(self, *args, **kw):
+    def null(self, *args, **kw) -> None:
         """
         Runs an up-to-date null build of SCons.
         """
@@ -1960,7 +1960,7 @@ class TimeSCons(TestSCons):
             self.endTime = time.perf_counter()
         return result
 
-    def copy_timing_configuration(self, source_dir, dest_dir):
+    def copy_timing_configuration(self, source_dir, dest_dir) -> None:
         """
         Copies the timing configuration from the specified source_dir (the
         directory in which the controlling script lives) to the specified
@@ -1985,7 +1985,7 @@ class TimeSCons(TestSCons):
                 destination = source.replace(source_dir, dest_dir)
                 shutil.copy2(source, destination)
 
-    def up_to_date(self, arguments='.', read_str="", **kw):
+    def up_to_date(self, arguments: str='.', read_str: str="", **kw) -> None:
         """Asserts that all of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.

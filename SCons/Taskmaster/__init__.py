@@ -81,7 +81,7 @@ class Stats:
     the Taskmaster records its decision each time it processes the Node.
     (Ideally, that's just once per Node.)
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Instantiates a Taskmaster.Stats object, initializing all
         appropriate counters to zero.
@@ -106,7 +106,7 @@ fmt = "%(considered)3d "\
       "%(build)3d "
 
 
-def dump_stats():
+def dump_stats() -> None:
     for n in sorted(StatsNodes, key=lambda a: str(a)):
         print((fmt % n.attributes.stats.__dict__) + str(n))
 
@@ -132,19 +132,19 @@ class Task(ABC):
 
     LOGGER = None
 
-    def __init__(self, tm, targets, top, node):
+    def __init__(self, tm, targets, top, node) -> None:
         self.tm = tm
         self.targets = targets
         self.top = top
         self.node = node
         self.exc_clear()
 
-    def trace_message(self, node, description='node'):
+    def trace_message(self, node, description: str='node') -> None:
         # This grabs the name of the function which calls trace_message()
         method_name=sys._getframe(1).f_code.co_name+"():"
         Task.LOGGER.debug('%-15s %s %s' % (method_name, description, self.tm.tm_trace_node(node)))
 
-    def display(self, message):
+    def display(self, message) -> None:
         """
         Hook to allow the calling interface to display a message.
 
@@ -157,7 +157,7 @@ class Task(ABC):
         """
         pass
 
-    def prepare(self):
+    def prepare(self) -> None:
         """
         Called just before the task is executed.
 
@@ -260,7 +260,7 @@ class Task(ABC):
             buildError.exc_info = sys.exc_info()
             raise buildError
 
-    def executed_without_callbacks(self):
+    def executed_without_callbacks(self) -> None:
         """
         Called when the task has been successfully executed
         and the Taskmaster instance doesn't want to call
@@ -276,7 +276,7 @@ class Task(ABC):
                     side_effect.set_state(NODE_NO_STATE)
                 t.set_state(NODE_EXECUTED)
 
-    def executed_with_callbacks(self):
+    def executed_with_callbacks(self) -> None:
         """
         Called when the task has been successfully executed and
         the Taskmaster instance wants to call the Node's callback
@@ -311,7 +311,7 @@ class Task(ABC):
 
     executed = executed_with_callbacks
 
-    def failed(self):
+    def failed(self) -> None:
         """
         Default action when a task fails:  stop the build.
 
@@ -321,7 +321,7 @@ class Task(ABC):
         """
         self.fail_stop()
 
-    def fail_stop(self):
+    def fail_stop(self) -> None:
         """
         Explicit stop-the-build failure.
 
@@ -349,7 +349,7 @@ class Task(ABC):
         self.targets = [self.tm.current_top]
         self.top = 1
 
-    def fail_continue(self):
+    def fail_continue(self) -> None:
         """
         Explicit continue-the-build failure.
 
@@ -366,7 +366,7 @@ class Task(ABC):
 
         self.tm.will_not_build(self.targets, lambda n: n.set_state(NODE_FAILED))
 
-    def make_ready_all(self):
+    def make_ready_all(self) -> None:
         """
         Marks all targets in a task ready for execution.
 
@@ -431,7 +431,7 @@ class Task(ABC):
 
     make_ready = make_ready_current
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         """
         Post-processes a task after it's been executed.
 
@@ -511,7 +511,7 @@ class Task(ABC):
         """
         return self.exception
 
-    def exc_clear(self):
+    def exc_clear(self) -> None:
         """
         Clears any recorded exception.
 
@@ -521,7 +521,7 @@ class Task(ABC):
         self.exception = (None, None, None)
         self.exception_raise = self._no_exception_to_raise
 
-    def exception_set(self, exception=None):
+    def exception_set(self, exception=None) -> None:
         """
         Records an exception to be raised at the appropriate time.
 
@@ -533,7 +533,7 @@ class Task(ABC):
         self.exception = exception
         self.exception_raise = self._exception_raise
 
-    def _no_exception_to_raise(self):
+    def _no_exception_to_raise(self) -> None:
         pass
 
     def _exception_raise(self):
@@ -563,7 +563,7 @@ class Task(ABC):
 
 
 class AlwaysTask(Task):
-    def needs_execute(self):
+    def needs_execute(self) -> bool:
         """
         Always returns True (indicating this Task should always
         be executed).
@@ -606,7 +606,7 @@ class Taskmaster:
     The Taskmaster for walking the dependency DAG.
     """
 
-    def __init__(self, targets=[], tasker=None, order=None, trace=None):
+    def __init__(self, targets=[], tasker=None, order=None, trace=None) -> None:
         self.original_top = targets
         self.top_targets_left = targets[:]
         self.top_targets_left.reverse()
@@ -623,7 +623,7 @@ class Taskmaster:
         self.trace = False
         self.configure_trace(trace)
 
-    def configure_trace(self, trace=None):
+    def configure_trace(self, trace=None) -> None:
         """
         This handles the command line option --taskmastertrace=
         It can be:
@@ -726,7 +726,7 @@ class Taskmaster:
             self.will_not_build(candidates)
         return None
 
-    def _validate_pending_children(self):
+    def _validate_pending_children(self) -> None:
         """
         Validate the content of the pending_children set. Assert if an
         internal error is found.
@@ -803,7 +803,7 @@ class Taskmaster:
             for p in n.waiting_parents:
                 assert p.ref_count > 0, (str(n), str(p), p.ref_count)
 
-    def tm_trace_node(self, node):
+    def tm_trace_node(self, node) -> str:
         return('<%-10s %-3s %s>' % (StateString[node.get_state()],
                                     node.ref_count,
                                     repr(str(node))))
@@ -1047,7 +1047,7 @@ class Taskmaster:
 
         return task
 
-    def will_not_build(self, nodes, node_func=lambda n: None):
+    def will_not_build(self, nodes, node_func=lambda n: None) -> None:
         """
         Perform clean-up about nodes that will never be built. Invokes
         a user defined function on all of these nodes (including all
@@ -1092,7 +1092,7 @@ class Taskmaster:
         # allow us to use in-place updates
         self.pending_children = pending_children
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Stops the current build completely.
         """

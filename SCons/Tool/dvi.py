@@ -34,7 +34,7 @@ import SCons.Tool
 
 DVIBuilder = None
 
-def generate(env):
+def generate(env) -> None:
     try:
         env['BUILDERS']['DVI']
     except KeyError:
@@ -52,7 +52,7 @@ def generate(env):
 
         env['BUILDERS']['DVI'] = DVIBuilder
 
-def exists(env):
+def exists(env) -> int:
     # This only puts a skeleton Builder in place, so if someone
     # references this Tool directly, it's always "available."
     return 1

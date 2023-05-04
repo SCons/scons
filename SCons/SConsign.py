@@ -35,7 +35,7 @@ from SCons.compat import PICKLE_PROTOCOL
 from SCons.Util import print_time
 
 
-def corrupt_dblite_warning(filename):
+def corrupt_dblite_warning(filename) -> None:
     SCons.Warnings.warn(
         SCons.Warnings.CorruptSConsignWarning,
         "Ignoring corrupt .sconsign file: %s" % filename,
@@ -106,7 +106,7 @@ def Get_DataBase(dir):
         raise
 
 
-def Reset():
+def Reset() -> None:
     """Reset global state.  Used by unit tests that end up using
     SConsign multiple times to get a clean slate for each test."""
     global sig_files, DB_sync_list
@@ -116,7 +116,7 @@ def Reset():
 normcase = os.path.normcase
 
 
-def write():
+def write() -> None:
     global sig_files
 
     if print_time():
@@ -154,16 +154,16 @@ class SConsignEntry:
     __slots__ = ("binfo", "ninfo", "__weakref__")
     current_version_id = 2
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         #_version_id = self.current_version_id
         pass
 
-    def convert_to_sconsign(self):
+    def convert_to_sconsign(self) -> None:
         self.binfo.convert_to_sconsign()
 
-    def convert_from_sconsign(self, dir, name):
+    def convert_from_sconsign(self, dir, name) -> None:
         self.binfo.convert_from_sconsign(dir, name)
 
     def __getstate__(self):
@@ -180,7 +180,7 @@ class SConsignEntry:
             pass
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         for key, value in state.items():
             if key not in ('_version_id', '__weakref__'):
                 setattr(self, key, value)
@@ -195,7 +195,7 @@ class Base:
     methods for fetching and storing the individual bits of information
     that make up signature entry.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.entries = {}
         self.dirty = False
         self.to_be_merged = {}
@@ -206,26 +206,26 @@ class Base:
         """
         return self.entries[filename]
 
-    def set_entry(self, filename, obj):
+    def set_entry(self, filename, obj) -> None:
         """
         Set the entry.
         """
         self.entries[filename] = obj
         self.dirty = True
 
-    def do_not_set_entry(self, filename, obj):
+    def do_not_set_entry(self, filename, obj) -> None:
         pass
 
-    def store_info(self, filename, node):
+    def store_info(self, filename, node) -> None:
         entry = node.get_stored_info()
         entry.binfo.merge(node.get_binfo())
         self.to_be_merged[filename] = node
         self.dirty = True
 
-    def do_not_store_info(self, filename, node):
+    def do_not_store_info(self, filename, node) -> None:
         pass
 
-    def merge(self):
+    def merge(self) -> None:
         for key, node in self.to_be_merged.items():
             entry = node.get_stored_info()
             try:
@@ -247,7 +247,7 @@ class DB(Base):
     from a global .sconsign.db* file--the actual file suffix is
     determined by the database module.
     """
-    def __init__(self, dir):
+    def __init__(self, dir) -> None:
         super().__init__()
 
         self.dir = dir
@@ -287,7 +287,7 @@ class DB(Base):
         global sig_files
         sig_files.append(self)
 
-    def write(self, sync=1):
+    def write(self, sync: int=1) -> None:
         if not self.dirty:
             return
 
@@ -315,7 +315,7 @@ class DB(Base):
 
 
 class Dir(Base):
-    def __init__(self, fp=None, dir=None):
+    def __init__(self, fp=None, dir=None) -> None:
         """
         fp - file pointer to read entries from
         """
@@ -338,7 +338,7 @@ class DirFile(Dir):
     """
     Encapsulates reading and writing a per-directory .sconsign file.
     """
-    def __init__(self, dir):
+    def __init__(self, dir) -> None:
         """
         dir - the directory for the file
         """
@@ -367,7 +367,7 @@ class DirFile(Dir):
         global sig_files
         sig_files.append(self)
 
-    def write(self, sync=1):
+    def write(self, sync: int=1) -> None:
         """
         Write the .sconsign file to disk.
 
@@ -431,7 +431,7 @@ class DirFile(Dir):
 ForDirectory = DB
 
 
-def File(name, dbm_module=None):
+def File(name, dbm_module=None) -> None:
     """
     Arrange for all signatures to be stored in a global .sconsign.db*
     file.

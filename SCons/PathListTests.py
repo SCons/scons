@@ -28,10 +28,10 @@ import SCons.PathList
 
 class subst_pathTestCase(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
 
         class FakeEnvironment:
-            def __init__(self, **kw):
+            def __init__(self, **kw) -> None:
                 self.kw = kw
             def subst(self, s, target=None, source=None, conv=lambda x: x):
                 if s[0] == '$':
@@ -48,7 +48,7 @@ class subst_pathTestCase(unittest.TestCase):
         from SCons.Environment import Environment
         self.env = Environment(AAA = 'aaa', NULL = '')
 
-    def test_node(self):
+    def test_node(self) -> None:
         """Test the subst_path() method on a Node
         """
 
@@ -65,12 +65,12 @@ class subst_pathTestCase(unittest.TestCase):
 
         assert result == (n,), result
 
-    def test_object(self):
+    def test_object(self) -> None:
         """Test the subst_path() method on a non-Node object
         """
 
         class A:
-            def __str__(self):
+            def __str__(self) -> str:
                 return '<object A>'
 
         a = A()
@@ -81,12 +81,12 @@ class subst_pathTestCase(unittest.TestCase):
 
         assert result == ('<object A>',), result
 
-    def test_object_get(self):
+    def test_object_get(self) -> None:
         """Test the subst_path() method on an object with a get() method
         """
 
         class B:
-            def get(self):
+            def get(self) -> str:
                 return 'b'
 
         b = B()
@@ -97,7 +97,7 @@ class subst_pathTestCase(unittest.TestCase):
 
         assert result == ('b',), result
 
-    def test_string(self):
+    def test_string(self) -> None:
         """Test the subst_path() method on a non-substitution string
         """
 
@@ -109,7 +109,7 @@ class subst_pathTestCase(unittest.TestCase):
 
         assert result == ('x',), result
 
-    def test_subst(self):
+    def test_subst(self) -> None:
         """Test the subst_path() method on substitution strings
         """
 
@@ -119,14 +119,14 @@ class subst_pathTestCase(unittest.TestCase):
 
         assert result == ('aaa',), result
 
-    def test_list_of_lists(self):
+    def test_list_of_lists(self) -> None:
         """Test the subst_path() method on substitution of nested lists.
         """
         pl = SCons.PathList.PathList((['$AAA', '$AAA'], '$NULL'))
         result = pl.subst_path(self.env, 'y', 'z')
         assert result == ('aaa', 'aaa'), result
 
-    def test_subst_nested(self):
+    def test_subst_nested(self) -> None:
         """Test the subst_path() method on nested substitution of strings.
         """
         self.env.Append(L1 = ['a', 'b'],
@@ -144,7 +144,7 @@ class subst_pathTestCase(unittest.TestCase):
         result = pl.subst_path(self.env, 'y', 'z')
         assert result == ('a', 'b', 'c', 'd', 'c', 'd'), result
 
-    def test_another_env(self):
+    def test_another_env(self) -> None:
         """Test the subst_path does lazy evaluation.
         """
         pl = SCons.PathList.PathList(('$AAA', '$NULL'))
@@ -156,7 +156,7 @@ class subst_pathTestCase(unittest.TestCase):
 
 class PathListCacheTestCase(unittest.TestCase):
 
-    def test_no_PathListCache(self):
+    def test_no_PathListCache(self) -> None:
         """Make sure the PathListCache class is not visible
         """
         try:
@@ -169,7 +169,7 @@ class PathListCacheTestCase(unittest.TestCase):
 
 class PathListTestCase(unittest.TestCase):
 
-    def test_PathList(self):
+    def test_PathList(self) -> None:
         """Test the PathList() entry point
         """
 

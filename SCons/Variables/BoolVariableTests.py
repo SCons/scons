@@ -27,7 +27,7 @@ import SCons.Errors
 import SCons.Variables
 
 class BoolVariableTestCase(unittest.TestCase):
-    def test_BoolVariable(self):
+    def test_BoolVariable(self) -> None:
         """Test BoolVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
@@ -39,7 +39,7 @@ class BoolVariableTestCase(unittest.TestCase):
         assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
 
-    def test_converter(self):
+    def test_converter(self) -> None:
         """Test the BoolVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))
@@ -80,7 +80,7 @@ class BoolVariableTestCase(unittest.TestCase):
             caught = True
         assert caught, "did not catch expected ValueError for 'x'"
 
-    def test_validator(self):
+    def test_validator(self) -> None:
         """Test the BoolVariable validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.BoolVariable('test', 'test option help', False))

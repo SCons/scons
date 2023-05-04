@@ -79,7 +79,7 @@ def _POInitBuilderWrapper(env, target=None, source=_null, **kw):
         source = [domain]  # NOTE: Suffix shall be appended automatically
     return env._POInitBuilder(target, source, **kw)
 
-def generate(env, **kw):
+def generate(env, **kw) -> None:
     """ Generate the `msginit` tool """
 
     if sys.platform == 'win32':

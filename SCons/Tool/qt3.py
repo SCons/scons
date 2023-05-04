@@ -90,7 +90,7 @@ def find_platform_specific_qt3_paths():
 
 QT3_BIN_DIR = find_platform_specific_qt3_paths()
 
-def checkMocIncluded(target, source, env):
+def checkMocIncluded(target, source, env) -> None:
     moc = target[0]
     cpp = source[0]
     # looks like cpp.includes is cleared before the build stage :-(
@@ -116,7 +116,7 @@ class _Automoc:
     StaticLibraries.
     """
 
-    def __init__(self, objBuilderName):
+    def __init__(self, objBuilderName) -> None:
         self.objBuilderName = objBuilderName
 
     def __call__(self, target, source, env):

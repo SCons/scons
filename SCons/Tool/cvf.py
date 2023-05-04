@@ -33,7 +33,7 @@ from . import fortran
 
 compilers = ['f90']
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for compaq visual fortran to an Environment."""
 
     fortran.generate(env)

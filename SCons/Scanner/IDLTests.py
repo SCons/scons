@@ -187,7 +187,7 @@ test.write([ 'repository', 'src', 'ddd.idl'], "\n")
 # define some helpers:
 
 class DummyEnvironment:
-    def __init__(self, listCppPath):
+    def __init__(self, listCppPath) -> None:
         self.path = listCppPath
         self.fs = SCons.Node.FS.FS(test.workpath(''))
         
@@ -207,16 +207,16 @@ class DummyEnvironment:
             path = [path]
         return list(map(self.subst, path))
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.Dictionary()
 
     def __getitem__(self,key):
         return self.Dictionary()[key]
 
-    def __setitem__(self,key,value):
+    def __setitem__(self,key,value) -> None:
         self.Dictionary()[key] = value
 
-    def __delitem__(self,key):
+    def __delitem__(self,key) -> None:
         del self.Dictionary()[key]
 
     def get_calculator(self):
@@ -237,7 +237,7 @@ my_normpath = os.path.normpath
 if os.path.normcase('foo') == os.path.normcase('FOO'):
     my_normpath = os.path.normcase
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
     self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
@@ -245,7 +245,7 @@ def deps_match(self, deps, headers):
 # define some tests:
 
 class IDLScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
@@ -254,7 +254,7 @@ class IDLScannerTestCase1(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class IDLScannerTestCase2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
@@ -263,7 +263,7 @@ class IDLScannerTestCase2(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class IDLScannerTestCase3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([test.workpath("d1")])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
@@ -272,7 +272,7 @@ class IDLScannerTestCase3(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class IDLScannerTestCase4(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([test.workpath("d1"), test.workpath("d1/d2")])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
@@ -281,7 +281,7 @@ class IDLScannerTestCase4(unittest.TestCase):
         deps_match(self, deps, headers)
         
 class IDLScannerTestCase5(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
@@ -306,7 +306,7 @@ class IDLScannerTestCase5(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class IDLScannerTestCase6(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env1 = DummyEnvironment([test.workpath("d1")])
         env2 = DummyEnvironment([test.workpath("d1/d2")])
         s = SCons.Scanner.IDL.IDLScan()
@@ -320,7 +320,7 @@ class IDLScannerTestCase6(unittest.TestCase):
         deps_match(self, deps2, headers2)
 
 class IDLScannerTestCase7(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(["include"])
         s = SCons.Scanner.IDL.IDLScan()
         path = s.path(env)
@@ -336,10 +336,10 @@ class IDLScannerTestCase7(unittest.TestCase):
         deps_match(self, deps2, headers2)
 
 class IDLScannerTestCase8(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         SCons.Warnings.enableWarningClass(SCons.Warnings.DependencyWarning)
         class TestOut:
-            def __call__(self, x):
+            def __call__(self, x) -> None:
                 self.out = x
 
         to = TestOut()
@@ -358,7 +358,7 @@ class IDLScannerTestCase8(unittest.TestCase):
         test.unlink('fa.idl')
 
 class IDLScannerTestCase9(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment([])
         env.fs.chdir(env.Dir('include'))
         s = SCons.Scanner.IDL.IDLScan()
@@ -370,7 +370,7 @@ class IDLScannerTestCase9(unittest.TestCase):
         test.unlink('include/t4.idl')
 
 class IDLScannerTestCase10(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.Repository(test.workpath('repository'))
@@ -389,7 +389,7 @@ class IDLScannerTestCase10(unittest.TestCase):
         os.chdir(test.workpath(''))
 
 class IDLScannerTestCase11(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         os.chdir(test.workpath('work'))
         fs = SCons.Node.FS.FS(test.workpath('work'))
         fs.VariantDir('build1', 'src', 1)
@@ -410,7 +410,7 @@ class IDLScannerTestCase11(unittest.TestCase):
         os.chdir(test.workpath(''))
 
 class IDLScannerTestCase12(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         class SubstEnvironment(DummyEnvironment):
             def subst(self, arg, target=None, source=None, conv=None, test=test):
                 if arg == "$blah":

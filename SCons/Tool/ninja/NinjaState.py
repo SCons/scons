@@ -52,7 +52,7 @@ from .Methods import get_command
 class NinjaState:
     """Maintains state of Ninja build system as it's translated from SCons."""
 
-    def __init__(self, env, ninja_file, ninja_syntax):
+    def __init__(self, env, ninja_file, ninja_syntax) -> None:
         self.env = env
         self.ninja_file = ninja_file
 
@@ -303,7 +303,7 @@ class NinjaState:
             }
         self.pools = {"scons_pool": 1}
 
-    def add_build(self, node):
+    def add_build(self, node) -> bool:
         if not node.has_builder():
             return False
 
@@ -348,12 +348,12 @@ class NinjaState:
 
     # TODO: rely on SCons to tell us what is generated source
     # or some form of user scanner maybe (Github Issue #3624)
-    def is_generated_source(self, output):
+    def is_generated_source(self, output) -> bool:
         """Check if output ends with a known generated suffix."""
         _, suffix = splitext(output)
         return suffix in self.generated_suffixes
 
-    def has_generated_sources(self, output):
+    def has_generated_sources(self, output) -> bool:
         """
         Determine if output indicates this is a generated header file.
         """
@@ -710,7 +710,7 @@ class NinjaState:
 class SConsToNinjaTranslator:
     """Translates SCons Actions into Ninja build objects."""
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         self.env = env
         self.func_handlers = {
             # Skip conftest builders

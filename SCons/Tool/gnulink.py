@@ -39,7 +39,7 @@ import SCons.Tool
 from . import link
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for gnulink to an Environment."""
     link.generate(env)
 

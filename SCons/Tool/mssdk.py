@@ -36,7 +36,7 @@ selection method.
 from .MSCommon import mssdk_exists, \
                      mssdk_setup_env
 
-def generate(env):
+def generate(env) -> None:
     """Add construction variables for an MS SDK to an Environment."""
     mssdk_setup_env(env)
 

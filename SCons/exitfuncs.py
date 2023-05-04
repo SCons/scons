@@ -28,7 +28,7 @@
 import atexit
 
 _exithandlers = []
-def _run_exitfuncs():
+def _run_exitfuncs() -> None:
     """run any registered exit functions
 
     _exithandlers is traversed in reverse order so functions are executed
@@ -39,7 +39,7 @@ def _run_exitfuncs():
         func, targs, kargs =  _exithandlers.pop()
         func(*targs, **kargs)
 
-def register(func, *targs, **kargs):
+def register(func, *targs, **kargs) -> None:
     """register a function to be executed upon normal program termination
 
     func - function to be called at exit

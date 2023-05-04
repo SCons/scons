@@ -28,13 +28,13 @@ import SCons.Node.Alias
 
 class AliasTestCase(unittest.TestCase):
 
-    def test_AliasNameSpace(self):
+    def test_AliasNameSpace(self) -> None:
         """Test creating an Alias name space
         """
         ans = SCons.Node.Alias.AliasNameSpace()
         assert ans is not None, ans
 
-    def test_ANS_Alias(self):
+    def test_ANS_Alias(self) -> None:
         """Test the Alias() factory
         """
         ans = SCons.Node.Alias.AliasNameSpace()
@@ -45,11 +45,11 @@ class AliasTestCase(unittest.TestCase):
         a2 = ans.Alias('a1')
         assert a1 is a2, (a1, a2)
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test the get_contents() method
         """
         class DummyNode:
-            def __init__(self, contents):
+            def __init__(self, contents) -> None:
                 self.contents = contents
             def get_csig(self):
                 return self.contents
@@ -66,7 +66,7 @@ class AliasTestCase(unittest.TestCase):
         c = a.get_contents()
         assert c == 'onetwothree', c
 
-    def test_lookup(self):
+    def test_lookup(self) -> None:
         """Test the lookup() method
         """
         ans = SCons.Node.Alias.AliasNameSpace()
@@ -81,7 +81,7 @@ class AliasTestCase(unittest.TestCase):
         a = ans.lookup('a2')
         assert a is None, a
 
-    def test_Alias(self):
+    def test_Alias(self) -> None:
         """Test creating an Alias() object
         """
         a1 = SCons.Node.Alias.Alias('a')
@@ -94,14 +94,14 @@ class AliasTestCase(unittest.TestCase):
         assert a1.name == a2.name
 
 class AliasNodeInfoTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test AliasNodeInfo initialization"""
         ans = SCons.Node.Alias.AliasNameSpace()
         aaa = ans.Alias('aaa')
         ni = SCons.Node.Alias.AliasNodeInfo()
 
 class AliasBuildInfoTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test AliasBuildInfo initialization"""
         ans = SCons.Node.Alias.AliasNameSpace()
         aaa = ans.Alias('aaa')

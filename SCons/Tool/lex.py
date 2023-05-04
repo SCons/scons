@@ -95,7 +95,7 @@ def lexEmitter(target, source, env) -> tuple:
     return target, source
 
 
-def get_lex_path(env, append_paths=False) -> Optional[str]:
+def get_lex_path(env, append_paths: bool=False) -> Optional[str]:
     """
     Returns the path to the lex tool, searching several possible names.
 

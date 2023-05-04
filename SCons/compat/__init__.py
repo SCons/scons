@@ -72,7 +72,7 @@ from .win32_comspec import (
 PYPY = hasattr(sys, 'pypy_translation_info')
 
 
-def rename_module(new, old):
+def rename_module(new, old) -> bool:
     """
     Attempt to import the old module and load it under the new name.
     Used for purely cosmetic name changes in Python 3.x.

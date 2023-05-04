@@ -49,7 +49,7 @@ def PDFLaTeXAuxFunction(target = None, source= None, env=None):
 
 PDFLaTeXAuxAction = None
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for pdflatex to an Environment."""
     global PDFLaTeXAction
     if PDFLaTeXAction is None:

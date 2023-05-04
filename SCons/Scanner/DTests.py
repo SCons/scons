@@ -33,7 +33,7 @@ test = TestCmd.TestCmd(workdir = '')
 
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.data.update(kwargs)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -73,7 +73,7 @@ if os.path.normcase('foo') == os.path.normcase('FOO'):
 else:
     my_normpath = os.path.normpath
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
@@ -222,44 +222,44 @@ void main() {}
 """)
 
 class DScannerTestCase(unittest.TestCase):
-    def helper(self, filename, headers):
+    def helper(self, filename, headers) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.D.DScanner()
         path = s.path(env)
         deps = s(env.File(filename), env, path)
         deps_match(self, deps, headers)
 
-    def test_BasicImport(self):
+    def test_BasicImport(self) -> None:
         self.helper('basic.d', ['A.d'])
 
-    def test_StaticImport(self):
+    def test_StaticImport(self) -> None:
         self.helper('static.d', ['A.d'])
 
-    def test_publicImport(self):
+    def test_publicImport(self) -> None:
         self.helper('public.d', ['A.d'])
     
-    def test_RenameImport(self):
+    def test_RenameImport(self) -> None:
         self.helper('rename.d', ['A.d'])
 
-    def test_SelectiveImport(self):
+    def test_SelectiveImport(self) -> None:
         self.helper('selective.d', ['A.d'])
 
-    def test_RenameAndSelectiveImport(self):
+    def test_RenameAndSelectiveImport(self) -> None:
         self.helper('renameAndSelective.d', ['A.d'])
 
-    def test_ScopedImport(self):
+    def test_ScopedImport(self) -> None:
         self.helper('scoped.d', ['A.d'])
 
-    def test_CombinatorialImport(self):
+    def test_CombinatorialImport(self) -> None:
         self.helper('combinatorial.d', ['A.d', 'B.d', 'C.d', 'D.d'])
 
-    def test_SubdirsImport(self):
+    def test_SubdirsImport(self) -> None:
         self.helper('subdirs.d', [os.path.join('X','X','X.d'), os.path.join('X','Y.d'), os.path.join('X','Z.d')])
 
-    def test_MultipleImport(self):
+    def test_MultipleImport(self) -> None:
         self.helper('multiple.d', ['A.d', 'B.d', 'C.d', os.path.join('X','Y.d')])
 
-    def test_MultilineImport(self):
+    def test_MultilineImport(self) -> None:
         self.helper('multiline.d', ['A.d'])
 
 if __name__ == "__main__":
