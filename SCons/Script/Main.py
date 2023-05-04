@@ -31,13 +31,8 @@ some other module.  If it's specific to the "scons" script invocation,
 it goes here.
 """
 
-# these define the range of versions SCons supports
-minimum_python_version = (3, 6, 0)
-deprecated_python_version = (3, 6, 0)
-
 import SCons.compat
 
-import atexit
 import importlib.util
 import os
 import re
@@ -46,6 +41,7 @@ import time
 import traceback
 import platform
 import threading
+from typing import Optional, List
 
 import SCons.CacheDir
 import SCons.Debug
@@ -65,6 +61,20 @@ import SCons.Warnings
 import SCons.Script.Interactive
 
 from SCons import __version__ as SConsVersion
+
+# these define the range of versions SCons supports
+minimum_python_version = (3, 6, 0)
+deprecated_python_version = (3, 6, 0)
+
+# ordered list of SConsctruct names to look for if there is no -f flag
+KNOWN_SCONSTRUCT_NAMES = [
+    'SConstruct',
+    'Sconstruct',
+    'sconstruct',
+    'SConstruct.py',
+    'Sconstruct.py',
+    'sconstruct.py',
+]
 
 # Global variables
 first_command_start = None
@@ -284,7 +294,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
 
         node = buildError.node
         if not SCons.Util.is_List(node):
-                node = [ node ]
+            node = [node]
         nodename = ', '.join(map(str, node))
 
         errfmt = "scons: *** [%s] %s\n"
@@ -460,23 +470,28 @@ def python_version_deprecated(version=sys.version_info):
 
 
 class FakeOptionParser:
-    """
-    A do-nothing option parser, used for the initial OptionsParser variable.
+    """A do-nothing option parser, used for the initial OptionsParser value.
 
     During normal SCons operation, the OptionsParser is created right
-    away by the main() function.  Certain tests scripts however, can
+    away by the main() function.  Certain test scripts however, can
     introspect on different Tool modules, the initialization of which
     can try to add a new, local option to an otherwise uninitialized
     OptionsParser object.  This allows that introspection to happen
     without blowing up.
-
     """
+
     class FakeOptionValues:
         def __getattr__(self, attr):
             return None
+
     values = FakeOptionValues()
+
+    # TODO: to quiet checkers, FakeOptionParser should also define
+    #   raise_exception_on_error, preserve_unknown_options, largs and parse_args
+
     def add_local_option(self, *args, **kw) -> None:
         pass
+
 
 OptionsParser = FakeOptionParser()
 
@@ -492,22 +507,26 @@ def GetOption(name):
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
 
-
 def ValidateOptions(throw_exception: bool=False) -> None:
     """Validate options passed to SCons on the command line.
 
-    If you call this after you set all your command line options with AddOption(),
-    it will verify that all command line options are valid.
-    So if you added an option --xyz and you call SCons with --xyy you can cause
+    Checks that all options given on the command line are known to this
+    instance of SCons. Call after all of the cli options have been set
+    up through :func:`AddOption` calls.  For example, if you added an
+    option ``--xyz`` and you call SCons with ``--xyy`` you can cause
     SCons to issue an error message and exit by calling this function.
 
-    :param bool throw_exception: (Optional) Should this function raise an error if there's an invalid option on the command line, or issue a message and exit with error status.
+    Arguments:
+       throw_exception: if an invalid option is present on the command line,
+          raises an exception if this optional parameter evaluates true;
+          if false (the default), issue a message and exit with error status.
 
-    :raises SConsBadOptionError: If throw_exception is True and there are invalid options on command line.
+    Raises:
+       SConsBadOptionError: If *throw_exception* is true and there are invalid
+          options on the command line.
 
     .. versionadded:: 4.5.0
     """
-
     OptionsParser.raise_exception_on_error = throw_exception
     OptionsParser.preserve_unknown_options = False
     OptionsParser.parse_args(OptionsParser.largs, OptionsParser.values)
@@ -641,13 +660,24 @@ def _scons_internal_error() -> None:
     traceback.print_exc()
     sys.exit(2)
 
-def _SConstruct_exists(dirname: str='', repositories=[], filelist=None):
-    """This function checks that an SConstruct file exists in a directory.
-    If so, it returns the path of the file. By default, it checks the
-    current directory.
+def _SConstruct_exists(
+    dirname: str, repositories: List[str], filelist: List[str]
+) -> Optional[str]:
+    """Check that an SConstruct file exists in a directory.
+
+    Arguments:
+       dirname: the directory to search. If empty, look in cwd.
+       repositories: a list of repositories to search in addition to the
+          project directory tree.
+       filelist: names of SConstruct file(s) to search for.
+          If empty list, use the built-in list of names.
+
+    Returns:
+        The path to the located SConstruct file, or ``None``.
+
     """
     if not filelist:
-        filelist = ['SConstruct', 'Sconstruct', 'sconstruct', 'SConstruct.py', 'Sconstruct.py', 'sconstruct.py']
+        filelist = KNOWN_SCONSTRUCT_NAMES
     for file in filelist:
         sfile = os.path.join(dirname, file)
         if os.path.isfile(sfile):
@@ -679,14 +709,14 @@ def _set_debug_values(options) -> None:
             SCons.Warnings.warn(SCons.Warnings.NoObjectCountWarning, msg)
     if "dtree" in debug_values:
         options.tree_printers.append(TreePrinter(derived=True))
-    options.debug_explain = ("explain" in debug_values)
+    options.debug_explain = "explain" in debug_values
     if "findlibs" in debug_values:
         SCons.Scanner.Prog.print_find_libs = "findlibs"
-    options.debug_includes = ("includes" in debug_values)
-    print_memoizer = ("memoizer" in debug_values)
+    options.debug_includes = "includes" in debug_values
+    print_memoizer = "memoizer" in debug_values
     if "memory" in debug_values:
         memory_stats.enable(sys.stdout)
-    print_objects = ("objects" in debug_values)
+    print_objects = "objects" in debug_values
     if print_objects:
         SCons.Debug.track_instances = True
     if "presub" in debug_values:
@@ -919,9 +949,9 @@ def _main(parser):
     target_top = None
     if options.climb_up:
         target_top = '.'  # directory to prepend to targets
-        while script_dir and not _SConstruct_exists(script_dir,
-                                                    options.repository,
-                                                    options.file):
+        while script_dir and not _SConstruct_exists(
+            script_dir, options.repository, options.file
+        ):
             script_dir, last_part = os.path.split(script_dir)
             if last_part:
                 target_top = os.path.join(last_part, target_top)
@@ -951,8 +981,7 @@ def _main(parser):
     if options.file:
         scripts.extend(options.file)
     if not scripts:
-        sfile = _SConstruct_exists(repositories=options.repository,
-                                   filelist=options.file)
+        sfile = _SConstruct_exists("", options.repository, options.file)
         if sfile:
             scripts.append(sfile)
 
@@ -1011,8 +1040,8 @@ def _main(parser):
     # Next, set up the variables that hold command-line arguments,
     # so the SConscript files that we read and execute have access to them.
     # TODO: for options defined via AddOption which take space-separated
-    # option-args, the option-args will collect into targets here,
-    # because we don't yet know to do any different.
+    #   option-args, the option-args will collect into targets here,
+    #   because we don't yet know to do any different.
     targets = []
     xmit_args = []
     for a in parser.largs:
