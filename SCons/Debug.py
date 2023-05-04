@@ -42,7 +42,7 @@ track_instances = False
 # List of currently tracked classes
 tracked_classes = {}
 
-def logInstanceCreation(instance, name=None):
+def logInstanceCreation(instance, name=None) -> None:
     if name is None:
         name = instance.__class__.__name__
     if name not in tracked_classes:
@@ -60,15 +60,15 @@ def string_to_classes(s):
     else:
         return s.split()
 
-def fetchLoggedInstances(classes="*"):
+def fetchLoggedInstances(classes: str="*"):
     classnames = string_to_classes(classes)
     return [(cn, len(tracked_classes[cn])) for cn in classnames]
 
-def countLoggedInstances(classes, file=sys.stdout):
+def countLoggedInstances(classes, file=sys.stdout) -> None:
     for classname in string_to_classes(classes):
         file.write("%s: %d\n" % (classname, len(tracked_classes[classname])))
 
-def listLoggedInstances(classes, file=sys.stdout):
+def listLoggedInstances(classes, file=sys.stdout) -> None:
     for classname in string_to_classes(classes):
         file.write('\n%s:\n' % classname)
         for ref in tracked_classes[classname]:
@@ -79,7 +79,7 @@ def listLoggedInstances(classes, file=sys.stdout):
             if obj is not None:
                 file.write('    %s\n' % repr(obj))
 
-def dumpLoggedInstances(classes, file=sys.stdout):
+def dumpLoggedInstances(classes, file=sys.stdout) -> None:
     for classname in string_to_classes(classes):
         file.write('\n%s:\n' % classname)
         for ref in tracked_classes[classname]:
@@ -99,7 +99,7 @@ if sys.platform[:5] == "linux":
         return int(mstr)
 elif sys.platform[:6] == 'darwin':
     #TODO really get memory stats for OS X
-    def memory():
+    def memory() -> int:
         return 0
 elif sys.platform == 'win32':
     from SCons.compat.win32 import get_peak_memory_usage
@@ -108,7 +108,7 @@ else:
     try:
         import resource
     except ImportError:
-        def memory():
+        def memory() -> int:
             return 0
     else:
         def memory():
@@ -132,7 +132,7 @@ def caller_stack():
 caller_bases = {}
 caller_dicts = {}
 
-def caller_trace(back=0):
+def caller_trace(back: int=0) -> None:
     """
     Trace caller stack and save info into global dicts, which
     are printed automatically at the end of SCons execution.
@@ -153,7 +153,7 @@ def caller_trace(back=0):
         callee = caller
 
 # print a single caller and its callers, if any
-def _dump_one_caller(key, file, level=0):
+def _dump_one_caller(key, file, level: int=0) -> None:
     leader = '      '*level
     for v,c in sorted([(-v,c) for c,v in caller_dicts[key].items()]):
         file.write("%s  %6d %s:%d(%s)\n" % ((leader,-v) + func_shorten(c[-3:])))
@@ -161,7 +161,7 @@ def _dump_one_caller(key, file, level=0):
             _dump_one_caller(c, file, level+1)
 
 # print each call tree
-def dump_caller_counts(file=sys.stdout):
+def dump_caller_counts(file=sys.stdout) -> None:
     for k in sorted(caller_bases.keys()):
         file.write("Callers of %s:%d(%s), %d calls:\n"
                     % (func_shorten(k) + (caller_bases[k],)))
@@ -196,7 +196,7 @@ TimeStampDefault = False
 StartTime = time.perf_counter()
 PreviousTime = StartTime
 
-def Trace(msg, tracefile=None, mode='w', tstamp=False):
+def Trace(msg, tracefile=None, mode: str='w', tstamp: bool=False) -> None:
     """Write a trace message.
 
     Write messages when debugging which do not interfere with stdout.
@@ -217,7 +217,7 @@ def Trace(msg, tracefile=None, mode='w', tstamp=False):
     global TimeStampDefault
     global PreviousTime
 
-    def trace_cleanup(traceFP):
+    def trace_cleanup(traceFP) -> None:
         traceFP.close()
 
     if tracefile is None:

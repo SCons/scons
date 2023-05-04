@@ -32,7 +32,7 @@ import os
 import re
 import sys
 import time
-from collections import UserDict, UserList, OrderedDict
+from collections import UserDict, UserList, OrderedDict, deque
 from contextlib import suppress
 from types import MethodType, FunctionType
 from typing import Optional, Union
@@ -183,10 +183,10 @@ class NodeList(UserList):
     ['foo', 'bar']
     """
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.data)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ' '.join(map(str, self.data))
 
     def __iter__(self):
@@ -214,7 +214,7 @@ class DisplayEngine:
 
     print_it = True
 
-    def __call__(self, text, append_newline=1):
+    def __call__(self, text, append_newline: int=1) -> None:
         if not self.print_it:
             return
 
@@ -231,14 +231,14 @@ class DisplayEngine:
         with suppress(IOError):
             sys.stdout.write(str(text))
 
-    def set_mode(self, mode):
+    def set_mode(self, mode) -> None:
         self.print_it = mode
 
 display = DisplayEngine()
 
 
 # TODO: W0102: Dangerous default value [] as argument (dangerous-default-value)
-def render_tree(root, child_func, prune=0, margin=[0], visited=None) -> str:
+def render_tree(root, child_func, prune: int=0, margin=[0], visited=None) -> str:
     """Render a tree of nodes into an ASCII tree view.
 
     Args:
@@ -302,8 +302,8 @@ BOX_HORIZ_DOWN = chr(0x252c)  # '┬'
 def print_tree(
     root,
     child_func,
-    prune=0,
-    showtags=False,
+    prune: int=0,
+    showtags: bool=False,
     margin=[0],
     visited=None,
     lastChild: bool = False,
@@ -432,7 +432,7 @@ def do_flatten(
     isinstance=isinstance,
     StringTypes=StringTypes,
     SequenceTypes=SequenceTypes,
-):  # pylint: disable=redefined-outer-name,redefined-builtin
+) -> None:  # pylint: disable=redefined-outer-name,redefined-builtin
     for item in sequence:
         if isinstance(item, StringTypes) or not isinstance(item, SequenceTypes):
             result.append(item)
@@ -516,6 +516,7 @@ _semi_deepcopy_dispatch = {
     tuple: _semi_deepcopy_tuple,
 }
 
+
 def semi_deepcopy(obj):
     copier = _semi_deepcopy_dispatch.get(type(obj))
     if copier:
@@ -527,7 +528,7 @@ def semi_deepcopy(obj):
     if isinstance(obj, UserDict):
         return obj.__class__(semi_deepcopy_dict(obj))
 
-    if isinstance(obj, UserList):
+    if isinstance(obj, (UserList, deque)):
         return obj.__class__(_semi_deepcopy_list(obj))
 
     return obj
@@ -563,7 +564,7 @@ class Proxy:
             __str__ = Delegate('__str__')
     """
 
-    def __init__(self, subject):
+    def __init__(self, subject) -> None:
         """Wrap an object as a Proxy object"""
         self._subject = subject
 
@@ -592,7 +593,7 @@ class Delegate:
         class Foo(Proxy):
             __str__ = Delegate('__str__')
     """
-    def __init__(self, attribute):
+    def __init__(self, attribute) -> None:
         self.attribute = attribute
 
     def __get__(self, obj, cls):
@@ -857,7 +858,7 @@ class CLVar(UserList):
     6 ['--some', '--opts', 'and', 'args', 'strips', 'spaces']
     """
 
-    def __init__(self, initlist=None):
+    def __init__(self, initlist=None) -> None:
         super().__init__(Split(initlist if initlist is not None else []))
 
     def __add__(self, other):
@@ -869,7 +870,7 @@ class CLVar(UserList):
     def __iadd__(self, other):
         return super().__iadd__(CLVar(other))
 
-    def __str__(self):
+    def __str__(self) -> str:
         # Some cases the data can contain Nodes, so make sure they
         # processed to string before handing them over to join.
         return ' '.join([str(d) for d in self.data])
@@ -922,7 +923,7 @@ else:
         return os.path.normcase(s1) != os.path.normcase(s2)
 
 
-def adjustixes(fname, pre, suf, ensure_suffix=False) -> str:
+def adjustixes(fname, pre, suf, ensure_suffix: bool=False) -> str:
     """Adjust filename prefixes and suffixes as needed.
 
     Add `prefix` to `fname` if specified.
@@ -1049,7 +1050,7 @@ class LogicalLines:
     Allows us to read all "logical" lines at once from a given file object.
     """
 
-    def __init__(self, fileobj):
+    def __init__(self, fileobj) -> None:
         self.fileobj = fileobj
 
     def readlines(self):
@@ -1063,16 +1064,16 @@ class UniqueList(UserList):
     up on access by those methods which need to act on a unique list to be
     correct. That means things like "in" don't have to eat the uniquing time.
     """
-    def __init__(self, initlist=None):
+    def __init__(self, initlist=None) -> None:
         super().__init__(initlist)
         self.unique = True
 
-    def __make_unique(self):
+    def __make_unique(self) -> None:
         if not self.unique:
             self.data = uniquer_hashables(self.data)
             self.unique = True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         self.__make_unique()
         return super().__repr__()
 
@@ -1102,7 +1103,7 @@ class UniqueList(UserList):
 
     # __contains__ doesn't need to worry about uniquing, inherit
 
-    def __len__(self):
+    def __len__(self) -> int:
         self.__make_unique()
         return super().__len__()
 
@@ -1110,7 +1111,7 @@ class UniqueList(UserList):
         self.__make_unique()
         return super().__getitem__(i)
 
-    def __setitem__(self, i, item):
+    def __setitem__(self, i, item) -> None:
         super().__setitem__(i, item)
         self.unique = False
 
@@ -1146,11 +1147,11 @@ class UniqueList(UserList):
         result.unique = False
         return result
 
-    def append(self, item):
+    def append(self, item) -> None:
         super().append(item)
         self.unique = False
 
-    def insert(self, i, item):
+    def insert(self, i, item) -> None:
         super().insert(i, item)
         self.unique = False
 
@@ -1162,7 +1163,7 @@ class UniqueList(UserList):
         self.__make_unique()
         return super().index(item, *args)
 
-    def reverse(self):
+    def reverse(self) -> None:
         self.__make_unique()
         super().reverse()
 
@@ -1171,7 +1172,7 @@ class UniqueList(UserList):
         self.__make_unique()
         return super().sort(*args, **kwds)
 
-    def extend(self, other):
+    def extend(self, other) -> None:
         super().extend(other)
         self.unique = False
 
@@ -1181,10 +1182,10 @@ class Unbuffered:
 
     Delegates everything else to the wrapped object.
     """
-    def __init__(self, file):
+    def __init__(self, file) -> None:
         self.file = file
 
-    def write(self, arg):
+    def write(self, arg) -> None:
         # Stdout might be connected to a pipe that has been closed
         # by now. The most likely reason for the pipe being closed
         # is that the user has press ctrl-c. It this is the case,
@@ -1196,7 +1197,7 @@ class Unbuffered:
             self.file.write(arg)
             self.file.flush()
 
-    def writelines(self, arg):
+    def writelines(self, arg) -> None:
         with suppress(IOError):
             self.file.writelines(arg)
             self.file.flush()
@@ -1243,7 +1244,7 @@ def print_time():
     return print_time
 
 
-def wait_for_process_to_die(pid):
+def wait_for_process_to_die(pid) -> None:
     """
     Wait for specified process to die, or alternatively kill it
     NOTE: This function operates best with psutil pypi package
@@ -1277,7 +1278,7 @@ def wait_for_process_to_die(pid):
 # From: https://stackoverflow.com/questions/1741972/how-to-use-different-formatters-with-the-same-logging-handler-in-python
 class DispatchingFormatter(Formatter):
 
-    def __init__(self, formatters, default_formatter):
+    def __init__(self, formatters, default_formatter) -> None:
         self._formatters = formatters
         self._default_formatter = default_formatter
 

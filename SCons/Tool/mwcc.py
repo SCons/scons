@@ -37,7 +37,7 @@ import os.path
 
 import SCons.Util
 
-def set_vars(env):
+def set_vars(env) -> int:
     """Set MWCW_VERSION, MWCW_VERSIONS, and some codewarrior environment vars
 
     MWCW_VERSIONS is set to a list of objects representing installed versions
@@ -120,7 +120,7 @@ def find_versions():
 
 
 class MWVersion:
-    def __init__(self, version, path, platform):
+    def __init__(self, version, path, platform) -> None:
         self.version = version
         self.path = path
         self.platform = platform
@@ -144,7 +144,7 @@ class MWVersion:
         self.includes = [msl, support]
         self.libs = [msl, support]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.version
 
 
@@ -152,7 +152,7 @@ CSuffixes = ['.c', '.C']
 CXXSuffixes = ['.cc', '.cpp', '.cxx', '.c++', '.C++']
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for the mwcc to an Environment."""
     import SCons.Defaults
     import SCons.Tool

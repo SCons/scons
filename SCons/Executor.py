@@ -39,7 +39,7 @@ class Batch:
     __slots__ = ('targets',
                  'sources')
 
-    def __init__(self, targets=[], sources=[]):
+    def __init__(self, targets=[], sources=[]) -> None:
         self.targets = targets
         self.sources = sources
 
@@ -55,7 +55,7 @@ class TSList(collections.UserList):
     a list during variable expansion.  We're not really using any
     collections.UserList methods in practice.
     """
-    def __init__(self, func):
+    def __init__(self, func) -> None:
         self.func = func
     def __getattr__(self, attr):
         nl = self.func()
@@ -63,10 +63,10 @@ class TSList(collections.UserList):
     def __getitem__(self, i):
         nl = self.func()
         return nl[i]
-    def __str__(self):
+    def __str__(self) -> str:
         nl = self.func()
         return str(nl)
-    def __repr__(self):
+    def __repr__(self) -> str:
         nl = self.func()
         return repr(nl)
 
@@ -74,17 +74,17 @@ class TSObject:
     """A class that implements $TARGET or $SOURCE expansions by wrapping
     an Executor method.
     """
-    def __init__(self, func):
+    def __init__(self, func) -> None:
         self.func = func
     def __getattr__(self, attr):
         n = self.func()
         return getattr(n, attr)
-    def __str__(self):
+    def __str__(self) -> str:
         n = self.func()
         if n:
             return str(n)
         return ''
-    def __repr__(self):
+    def __repr__(self) -> str:
         n = self.func()
         if n:
             return repr(n)
@@ -104,7 +104,7 @@ def rfile(node):
         return rfile()
 
 
-def execute_nothing(obj, target, kw):
+def execute_nothing(obj, target, kw) -> int:
     return 0
 
 def execute_action_list(obj, target, kw):
@@ -138,7 +138,7 @@ def execute_actions_str(obj):
                                        env)
                       for action in obj.get_action_list()])
 
-def execute_null_str(obj):
+def execute_null_str(obj) -> str:
     return ''
 
 _execute_str_map = {0 : execute_null_str,
@@ -170,7 +170,7 @@ class Executor(object, metaclass=NoSlotsPyPy):
                  '_execute_str')
 
     def __init__(self, action, env=None, overridelist=[{}],
-                 targets=[], sources=[], builder_kw={}):
+                 targets=[], sources=[], builder_kw={}) -> None:
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Executor.Executor')
         self.set_action_list(action)
         self.pre_actions = []
@@ -202,7 +202,7 @@ class Executor(object, metaclass=NoSlotsPyPy):
             }
             return self.lvars
 
-    def _get_changes(self):
+    def _get_changes(self) -> None:
         cs = []
         ct = []
         us = []
@@ -383,10 +383,10 @@ class Executor(object, metaclass=NoSlotsPyPy):
     def __call__(self, target, **kw):
         return _do_execute_map[self._do_execute](self, target, kw)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         self._memo = {}
 
-    def add_sources(self, sources):
+    def add_sources(self, sources) -> None:
         """Add source files to this Executor's list.  This is necessary
         for "multi" Builders that can be called repeatedly to build up
         a source file list for a given target."""
@@ -399,7 +399,7 @@ class Executor(object, metaclass=NoSlotsPyPy):
     def get_sources(self):
         return self.batches[0].sources
 
-    def add_batch(self, targets, sources):
+    def add_batch(self, targets, sources) -> None:
         """Add pair of associated target and source to this Executor's list.
         This is necessary for "batch" Builders that can be called repeatedly
         to build up a list of matching target and source files that will be
@@ -417,18 +417,18 @@ class Executor(object, metaclass=NoSlotsPyPy):
                 msg = "Source `%s' not found, needed by target `%s'."
                 raise SCons.Errors.StopError(msg % (s, self.batches[0].targets[0]))
 
-    def add_pre_action(self, action):
+    def add_pre_action(self, action) -> None:
         self.pre_actions.append(action)
 
-    def add_post_action(self, action):
+    def add_post_action(self, action) -> None:
         self.post_actions.append(action)
 
     # another extra indirection for new-style objects and nullify...
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _execute_str_map[self._execute_str](self)
 
-    def nullify(self):
+    def nullify(self) -> None:
         self.cleanup()
         self._do_execute = 0
         self._execute_str = 0
@@ -459,23 +459,23 @@ class Executor(object, metaclass=NoSlotsPyPy):
         self._memo['get_contents'] = result
         return result
 
-    def get_timestamp(self):
+    def get_timestamp(self) -> int:
         """Fetch a time stamp for this Executor.  We don't have one, of
         course (only files do), but this is the interface used by the
         timestamp module.
         """
         return 0
 
-    def scan_targets(self, scanner):
+    def scan_targets(self, scanner) -> None:
         # TODO(batch):  scan by batches
         self.scan(scanner, self.get_all_targets())
 
-    def scan_sources(self, scanner):
+    def scan_sources(self, scanner) -> None:
         # TODO(batch):  scan by batches
         if self.batches[0].sources:
             self.scan(scanner, self.get_all_sources())
 
-    def scan(self, scanner, node_list):
+    def scan(self, scanner, node_list) -> None:
         """Scan a list of this Executor's files (targets or sources) for
         implicit dependencies and update all of the targets with them.
         This essentially short-circuits an N*M scan of the sources for
@@ -553,7 +553,7 @@ _batch_executors = {}
 def GetBatchExecutor(key):
     return _batch_executors[key]
 
-def AddBatchExecutor(key, executor):
+def AddBatchExecutor(key, executor) -> None:
     assert key not in _batch_executors
     _batch_executors[key] = executor
 
@@ -601,7 +601,7 @@ class Null(object, metaclass=NoSlotsPyPy):
                  '_do_execute',
                  '_execute_str')
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         if SCons.Debug.track_instances:
             logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]
@@ -609,9 +609,9 @@ class Null(object, metaclass=NoSlotsPyPy):
         return get_NullEnvironment()
     def get_build_scanner_path(self):
         return None
-    def cleanup(self):
+    def cleanup(self) -> None:
         pass
-    def prepare(self):
+    def prepare(self) -> None:
         pass
     def get_unignored_sources(self, *args, **kw):
         return tuple(())
@@ -629,11 +629,11 @@ class Null(object, metaclass=NoSlotsPyPy):
         return []
     def get_action_side_effects(self):
         return []
-    def __call__(self, *args, **kw):
+    def __call__(self, *args, **kw) -> int:
         return 0
-    def get_contents(self):
+    def get_contents(self) -> str:
         return ''
-    def _morph(self):
+    def _morph(self) -> None:
         """Morph this Null executor to a real Executor object."""
         batches = self.batches
         self.__class__ = Executor
@@ -643,13 +643,13 @@ class Null(object, metaclass=NoSlotsPyPy):
     # The following methods require morphing this Null Executor to a
     # real Executor object.
 
-    def add_pre_action(self, action):
+    def add_pre_action(self, action) -> None:
         self._morph()
         self.add_pre_action(action)
-    def add_post_action(self, action):
+    def add_post_action(self, action) -> None:
         self._morph()
         self.add_post_action(action)
-    def set_action_list(self, action):
+    def set_action_list(self, action) -> None:
         self._morph()
         self.set_action_list(action)
 

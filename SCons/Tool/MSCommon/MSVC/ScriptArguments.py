@@ -107,12 +107,12 @@ _MSVC_FORCE_DEFAULT_TOOLSET = False
 # Force default arguments
 _MSVC_FORCE_DEFAULT_ARGUMENTS = False
 
-def _msvc_force_default_sdk(force=True):
+def _msvc_force_default_sdk(force: bool=True) -> None:
     global _MSVC_FORCE_DEFAULT_SDK
     _MSVC_FORCE_DEFAULT_SDK = force
     debug('_MSVC_FORCE_DEFAULT_SDK=%s', repr(force))
 
-def _msvc_force_default_toolset(force=True):
+def _msvc_force_default_toolset(force: bool=True) -> None:
     global _MSVC_FORCE_DEFAULT_TOOLSET
     _MSVC_FORCE_DEFAULT_TOOLSET = force
     debug('_MSVC_FORCE_DEFAULT_TOOLSET=%s', repr(force))
@@ -227,7 +227,7 @@ def _msvc_script_argument_uwp(env, msvc, arglist):
 
     return uwp_arg
 
-def _user_script_argument_uwp(env, uwp, user_argstr):
+def _user_script_argument_uwp(env, uwp, user_argstr) -> bool:
 
     matches = [m for m in re_vcvars_uwp.finditer(user_argstr)]
     if not matches:
@@ -331,7 +331,7 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
 
     return sdk_version
 
-def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk=False):
+def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk: bool=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
         return None
@@ -390,7 +390,7 @@ def _msvc_have140_toolset():
 
     return _toolset_have140_cache
 
-def _reset_have140_cache():
+def _reset_have140_cache() -> None:
     global _toolset_have140_cache
     debug('reset: cache')
     _toolset_have140_cache = None
@@ -520,7 +520,7 @@ def _msvc_read_toolset_default(msvc, vc_dir):
 _toolset_version_cache = {}
 _toolset_default_cache = {}
 
-def _reset_toolset_cache():
+def _reset_toolset_cache() -> None:
     global _toolset_version_cache
     global _toolset_default_cache
     debug('reset: toolset cache')
@@ -686,7 +686,7 @@ def _msvc_script_argument_toolset(env, msvc, vc_dir, arglist):
 
     return toolset_vcvars
 
-def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset=False):
+def _msvc_script_default_toolset(env, msvc, vc_dir, arglist, force_toolset: bool=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2017.vc_buildtools_def.vc_version_numeric:
         return None
@@ -853,7 +853,7 @@ def _msvc_script_argument_user(env, msvc, arglist):
 
     return script_args
 
-def _msvc_process_construction_variables(env):
+def _msvc_process_construction_variables(env) -> bool:
 
     for cache_variable in [
         _MSVC_FORCE_DEFAULT_TOOLSET,
@@ -982,7 +982,7 @@ def _msvc_toolset_internal(msvc_version, toolset_version, vc_dir):
 
     return toolset_vcvars
 
-def _msvc_toolset_versions_internal(msvc_version, vc_dir, full=True, sxs=False):
+def _msvc_toolset_versions_internal(msvc_version, vc_dir, full: bool=True, sxs: bool=False):
 
     msvc = _msvc_version(msvc_version)
 
@@ -1020,12 +1020,12 @@ def _msvc_toolset_versions_spectre_internal(msvc_version, vc_dir):
 
     return spectre_toolset_versions
 
-def reset():
+def reset() -> None:
     debug('')
     _reset_have140_cache()
     _reset_toolset_cache()
 
-def verify():
+def verify() -> None:
     debug('')
     _verify_re_sdk_dispatch_map()
 

@@ -22,7 +22,7 @@ def get_runner():
     return getattr(runnermod, fromsplit[1])
 
 
-def run(suite=None):
+def run(suite=None) -> None:
     runner = get_runner()
     if suite:
         if not runner().run(suite).wasSuccessful():

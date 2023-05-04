@@ -26,14 +26,14 @@ import unittest
 import SCons.Warnings
 
 class TestOutput:
-    def __call__(self, x):
+    def __call__(self, x) -> None:
         args = x.args[0]
         if len(args) == 1:
             args = args[0]
         self.out = str(args)
 
 class WarningsTestCase(unittest.TestCase):
-    def test_Warning(self):
+    def test_Warning(self) -> None:
         """Test warn function."""
 
         # Reset global state
@@ -50,7 +50,7 @@ class WarningsTestCase(unittest.TestCase):
                             "Foo", 1)
         assert to.out == "('Foo', 1)", to.out
 
-    def test_WarningAsExc(self):
+    def test_WarningAsExc(self) -> None:
         """Test warnings as exceptions."""
         
         # Reset global state
@@ -76,7 +76,7 @@ class WarningsTestCase(unittest.TestCase):
             exc_caught = 1
         assert exc_caught == 0
 
-    def test_Disable(self):
+    def test_Disable(self) -> None:
         """Test disabling/enabling warnings."""
 
         # Reset global state

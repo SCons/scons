@@ -104,7 +104,7 @@ def compute_exports(exports):
 
 class Frame:
     """A frame on the SConstruct/SConscript call stack"""
-    def __init__(self, fs, exports, sconscript):
+    def __init__(self, fs, exports, sconscript) -> None:
         self.globals = BuildDefaultGlobals()
         self.retval = None
         self.prev_dir = fs.getcwd()
@@ -332,7 +332,7 @@ def _SConscript(fs, *files, **kw):
     else:
         return tuple(results)
 
-def SConscript_exception(file=sys.stderr):
+def SConscript_exception(file=sys.stderr) -> None:
     """Print an exception stack trace just for the SConscript file(s).
     This will show users who have Python errors where the problem is,
     without cluttering the output with all of the internal calls leading
@@ -481,11 +481,11 @@ class SConsEnvironment(SCons.Environment.Base):
         kw['_depth'] = kw.get('_depth', 0) + 1
         return SCons.Environment.Base.Configure(self, *args, **kw)
 
-    def Default(self, *targets):
+    def Default(self, *targets) -> None:
         SCons.Script._Set_Default_Targets(self, targets)
 
     @staticmethod
-    def EnsureSConsVersion(major, minor, revision=0):
+    def EnsureSConsVersion(major, minor, revision: int=0) -> None:
         """Exit abnormally if the SCons version is not late enough."""
         # split string to avoid replacement during build process
         if SCons.__version__ == '__' + 'VERSION__':
@@ -503,7 +503,7 @@ class SConsEnvironment(SCons.Environment.Base):
             sys.exit(2)
 
     @staticmethod
-    def EnsurePythonVersion(major, minor):
+    def EnsurePythonVersion(major, minor) -> None:
         """Exit abnormally if the Python version is not late enough."""
         if sys.version_info < (major, minor):
             v = sys.version.split()[0]
@@ -511,10 +511,10 @@ class SConsEnvironment(SCons.Environment.Base):
             sys.exit(2)
 
     @staticmethod
-    def Exit(value=0):
+    def Exit(value: int=0) -> None:
         sys.exit(value)
 
-    def Export(self, *vars, **kw):
+    def Export(self, *vars, **kw) -> None:
         for var in vars:
             global_exports.update(compute_exports(self.Split(var)))
         global_exports.update(kw)
@@ -529,7 +529,7 @@ class SConsEnvironment(SCons.Environment.Base):
         return SCons.Script.Main.GetOption(name)
 
 
-    def Help(self, text, append=False):
+    def Help(self, text, append: bool=False) -> None:
         text = self.subst(text, raw=1)
         SCons.Script.HelpFunction(text, append=append)
 
@@ -602,7 +602,7 @@ class SConsEnvironment(SCons.Environment.Base):
         global sconscript_chdir
         sconscript_chdir = flag
 
-    def SetOption(self, name, value):
+    def SetOption(self, name, value) -> None:
         name = self.subst(name)
         SCons.Script.Main.SetOption(name, value)
 
@@ -650,7 +650,7 @@ class DefaultEnvironmentCall:
     thereby prevent expansion of construction variables (since from
     the user's point of view this was called as a global function,
     with no associated construction environment)."""
-    def __init__(self, method_name, subst=0):
+    def __init__(self, method_name, subst: int=0) -> None:
         self.method_name = method_name
         if subst:
             self.factory = SCons.Defaults.DefaultEnvironment
@@ -674,7 +674,7 @@ def BuildDefaultGlobals():
 
         import SCons.Script
         d = SCons.Script.__dict__
-        def not_a_module(m, d=d, mtype=type(SCons.Script)):
+        def not_a_module(m, d=d, mtype=type(SCons.Script)) -> bool:
              return not isinstance(d[m], mtype)
         for m in filter(not_a_module, dir(SCons.Script)):
              GlobalDict[m] = d[m]

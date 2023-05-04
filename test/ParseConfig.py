@@ -33,6 +33,7 @@ test = TestSCons.TestSCons()
 test_config1 = test.workpath('test-config1')
 test_config2 = test.workpath('test-config2')
 test_config3 = test.workpath('test-config3')
+test_config4 = test.workpath('test-config4')
 
 # 'abc' is supposed to be a static lib; it is included in LIBS as a
 # File node.
@@ -49,6 +50,10 @@ print("-L foo -L lib_dir")
 # This is like what wxWidgets does on OSX w/ Universal Binaries
 test.write(test_config3, """\
 print("-L foo -L lib_dir -isysroot /tmp -arch ppc -arch i386")
+""")
+
+test.write(test_config4, """\
+print("-D_REENTRANT -lpulse -pthread")
 """)
 
 test.write('SConstruct1', """
@@ -85,6 +90,23 @@ print([str(x) for x in env['LIBS']])
 print(env['CCFLAGS'])
 """ % locals())
 
+# issue #4321: if CPPDEFINES has been promoted to deque, adding would fail
+test.write('SConstruct4', f"""\
+env = Environment(
+    CPPDEFINES="_REENTRANT",
+    LIBS=[],
+    CCFLAGS=[],
+    LINKFLAGS=[],
+    PYTHON=r'{_python_}',
+)
+env.Append(CPPDEFINES="TOOLS_ENABLED")
+env.ParseConfig(r"$PYTHON {test_config4} --libs --cflags")
+print([str(x) for x in env['CPPDEFINES']])
+print([str(x) for x in env['LIBS']])
+print(env['CCFLAGS'])
+print(env['LINKFLAGS'])
+""")
+
 good_stdout = """\
 ['/usr/include/fum', 'bar']
 ['/usr/fax', 'foo', 'lib_dir']
@@ -99,11 +121,20 @@ stdout3 = """\
 ['-pipe', '-Wall', ('-isysroot', '/tmp'), ('-arch', 'ppc'), ('-arch', 'i386')]
 """
 
+stdout4 = """\
+['TOOLS_ENABLED', '_REENTRANT']
+['pulse']
+['-pthread']
+['-pthread']
+"""
+
 test.run(arguments = "-q -Q -f SConstruct1 .", stdout = good_stdout)
 
 test.run(arguments = "-q -Q -f SConstruct2 .", stdout = good_stdout)
 
 test.run(arguments = "-q -Q -f SConstruct3 .", stdout = stdout3)
+
+test.run(arguments = "-q -Q -f SConstruct4 .", stdout = stdout4)
 
 test.pass_test()
 

@@ -39,7 +39,7 @@ CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++', '.mm']
 if SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CXXSuffixes.append('.C')
 
-def iscplusplus(source):
+def iscplusplus(source) -> int:
     if not source:
         # Source might be None for unusual cases like SConf.
         return 0
@@ -50,7 +50,7 @@ def iscplusplus(source):
                 return 1
     return 0
 
-def generate(env):
+def generate(env) -> None:
     """
     Add Builders and construction variables for Visual Age C++ compilers
     to an Environment.

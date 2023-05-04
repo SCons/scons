@@ -45,7 +45,7 @@ def StringizeLibSymlinks(symlinks):
         return symlinks
 
 
-def EmitLibSymlinks(env, symlinks, libnode, **kw):
+def EmitLibSymlinks(env, symlinks, libnode, **kw) -> None:
     """Used by emitters to handle (shared/versioned) library symlinks"""
     Verbose = False
 
@@ -66,7 +66,7 @@ def EmitLibSymlinks(env, symlinks, libnode, **kw):
             print("EmitLibSymlinks: Clean(%r,%r)" % (linktgt.get_path(), [x.get_path() for x in clean_list]))
 
 
-def CreateLibSymlinks(env, symlinks):
+def CreateLibSymlinks(env, symlinks) -> int:
     """Physically creates symlinks. The symlinks argument must be a list in
     form [ (link, linktarget), ... ], where link and linktarget are SCons
     nodes.
@@ -92,7 +92,7 @@ def CreateLibSymlinks(env, symlinks):
     return 0
 
 
-def LibSymlinksActionFunction(target, source, env):
+def LibSymlinksActionFunction(target, source, env) -> int:
     for tgt in target:
         symlinks = getattr(getattr(tgt, 'attributes', None), 'shliblinks', None)
         if symlinks:
@@ -127,7 +127,7 @@ def _call_env_subst(env, string, *args, **kw):
     return env.subst(string, *args, **kw2)
 
 
-def smart_link(source, target, env, for_signature):
+def smart_link(source, target, env, for_signature) -> str:
     import SCons.Tool.cxx
     import SCons.Tool.FortranCommon
 

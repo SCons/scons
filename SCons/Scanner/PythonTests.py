@@ -56,7 +56,7 @@ else:
     my_normpath = os.path.normpath
 
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     global my_normpath
     scanned = list(map(my_normpath, list(map(str, deps))))
     expect = list(map(my_normpath, headers))
@@ -66,7 +66,7 @@ def deps_match(self, deps, headers):
 
 # Copied from LaTeXTests.py.
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.data.update(kwargs)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -104,7 +104,7 @@ class DummyEnvironment(collections.UserDict):
 
 
 class PythonScannerTestPythonPath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         env['ENV']['PYTHONPATH'] = test.workpath('')
@@ -115,7 +115,7 @@ class PythonScannerTestPythonPath(unittest.TestCase):
 
 
 class PythonScannerTestPythonCallablePath(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         env['ENV']['PYTHONPATH'] = test.workpath('')
@@ -126,7 +126,7 @@ class PythonScannerTestPythonCallablePath(unittest.TestCase):
 
 
 class PythonScannerTestImportSimplePackage(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('imports_simple_package.py')
@@ -141,7 +141,7 @@ class PythonScannerTestImportSimplePackage(unittest.TestCase):
 
 
 class PythonScannerTestImportSimplePackageModule1As(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('import_simple_package_module1_as.py')
@@ -152,7 +152,7 @@ class PythonScannerTestImportSimplePackageModule1As(unittest.TestCase):
 
 
 class PythonScannerTestImportSimplePackageModuleAs(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('import_simple_package_module1.py')
@@ -163,7 +163,7 @@ class PythonScannerTestImportSimplePackageModuleAs(unittest.TestCase):
 
 
 class PythonScannerTestFromImportSimplePackageModule1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('from_import_simple_package_module1.py')
@@ -174,7 +174,7 @@ class PythonScannerTestFromImportSimplePackageModule1(unittest.TestCase):
 
 
 class PythonScannerTestFromImportSimplePackageModule1As(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('from_import_simple_package_module1_as.py')
@@ -186,7 +186,7 @@ class PythonScannerTestFromImportSimplePackageModule1As(unittest.TestCase):
 
 class PythonScannerTestFromImportSimplePackageModulesNoSpace(
         unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('from_import_simple_package_modules_no_space.py')
@@ -199,7 +199,7 @@ class PythonScannerTestFromImportSimplePackageModulesNoSpace(
 
 class PythonScannerTestFromImportSimplePackageModulesWithSpace(
         unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('from_import_simple_package_modules_with_space.py')
@@ -211,7 +211,7 @@ class PythonScannerTestFromImportSimplePackageModulesWithSpace(
 
 
 class PythonScannerTestCurdirReferenceScript(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.Dir('curdir_reference').File('script.py')
@@ -222,7 +222,7 @@ class PythonScannerTestCurdirReferenceScript(unittest.TestCase):
 
 
 class PythonScannerTestImportsNested3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File('imports_nested3.py')
@@ -234,7 +234,7 @@ class PythonScannerTestImportsNested3(unittest.TestCase):
 
 
 class PythonScannerTestImportsGrandparentModule(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File(
@@ -246,7 +246,7 @@ class PythonScannerTestImportsGrandparentModule(unittest.TestCase):
 
 
 class PythonScannerTestImportsParentModule(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File(
@@ -258,7 +258,7 @@ class PythonScannerTestImportsParentModule(unittest.TestCase):
 
 
 class PythonScannerTestImportsParentThenSubmodule(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment()
         s = SCons.Scanner.Python.PythonScanner
         node = env.File(
@@ -270,7 +270,7 @@ class PythonScannerTestImportsParentThenSubmodule(unittest.TestCase):
 
 
 class PythonScannerTestImportsModuleWithFunc(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """
         This test case tests the following import statement:
         `from simple_package.module1 import somefunc` with somefunc.py existing
@@ -287,7 +287,7 @@ class PythonScannerTestImportsModuleWithFunc(unittest.TestCase):
 
 
 class PythonScannerTestFromNested1ImportNested2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """
         This test case tests the following import statement:
         `from nested1 import module, nested2`. In this test, module is a Python
@@ -305,7 +305,7 @@ class PythonScannerTestFromNested1ImportNested2(unittest.TestCase):
 
 
 class PythonScannerTestImportUnknownFiles(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """
         This test case tests importing files that are not found. If Python
         really can't find those files, it will fail. But this is intended to

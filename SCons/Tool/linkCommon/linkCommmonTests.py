@@ -31,10 +31,10 @@ from SCons.Environment import Environment
 
 
 class SharedLibraryTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def test_shlib_symlink_emitter(self):
+    def test_shlib_symlink_emitter(self) -> None:
         """Test shlib_symlink_emitter() """
         env = Environment(tools=['gnulink'])
 

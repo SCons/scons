@@ -143,7 +143,7 @@ def get_mingw_paths():
         _mingw_all_paths = mingw_base_paths + find_version_specific_mingw_paths()
     return _mingw_all_paths
 
-def generate(env):
+def generate(env) -> None:
     # Check for reasoanble mingw default paths
     mingw_paths = get_mingw_paths()
 

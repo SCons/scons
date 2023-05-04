@@ -55,7 +55,7 @@ for d in dirs:
         break
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for Forte to an Environment."""
     link.generate(env)
 

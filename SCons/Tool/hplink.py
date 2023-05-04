@@ -51,7 +51,7 @@ for dir in dirs:
         ccLinker = linker
         break
 
-def generate(env):
+def generate(env) -> None:
     """
     Add Builders and construction variables for Visual Age linker to
     an Environment.

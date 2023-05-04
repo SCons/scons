@@ -27,39 +27,39 @@ import unittest
 import SCons.Tool.javac
 
 class DummyNode:
-    def __init__(self, val):
+    def __init__(self, val) -> None:
         self.val = val
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.val)
 
 class pathoptTestCase(unittest.TestCase):
-    def assert_pathopt(self, expect, path):
+    def assert_pathopt(self, expect, path) -> None:
         popt = SCons.Tool.javac.pathopt('-foopath', 'FOOPATH')
         env = {'FOOPATH': path}
         actual = popt(None, None, env, None)
         self.assertEqual(expect, actual)
 
-    def assert_pathopt_default(self, expect, path, default):
+    def assert_pathopt_default(self, expect, path, default) -> None:
         popt = SCons.Tool.javac.pathopt('-foopath', 'FOOPATH', default='DPATH')
         env = {'FOOPATH': path,
                'DPATH': default}
         actual = popt(None, None, env, None)
         self.assertEqual(expect, actual)
 
-    def test_unset(self):
+    def test_unset(self) -> None:
         self.assert_pathopt([], None)
         self.assert_pathopt([], '')
 
-    def test_str(self):
+    def test_str(self) -> None:
         self.assert_pathopt(['-foopath', '/foo/bar'],
                             '/foo/bar')
 
-    def test_list_str(self):
+    def test_list_str(self) -> None:
         self.assert_pathopt(['-foopath', '/foo%s/bar' % os.pathsep],
                             ['/foo', '/bar'])
 
-    def test_uses_pathsep(self):
+    def test_uses_pathsep(self) -> None:
         save = os.pathsep
         try:
             os.pathsep = '!'
@@ -68,27 +68,27 @@ class pathoptTestCase(unittest.TestCase):
         finally:
             os.pathsep = save
 
-    def test_node(self):
+    def test_node(self) -> None:
         self.assert_pathopt(['-foopath', '/foo'],
                             DummyNode('/foo'))
 
-    def test_list_node(self):
+    def test_list_node(self) -> None:
         self.assert_pathopt(['-foopath', os.pathsep.join(['/foo','/bar'])],
                             ['/foo', DummyNode('/bar')])
 
-    def test_default_str(self):
+    def test_default_str(self) -> None:
         self.assert_pathopt_default(
             ['-foopath', os.pathsep.join(['/foo','/bar','/baz'])],
             ['/foo', '/bar'],
             '/baz')
 
-    def test_default_list(self):
+    def test_default_list(self) -> None:
         self.assert_pathopt_default(
             ['-foopath', os.pathsep.join(['/foo','/bar','/baz'])],
             ['/foo', '/bar'],
             ['/baz'])
 
-    def test_default_unset(self):
+    def test_default_unset(self) -> None:
         self.assert_pathopt_default(
             ['-foopath', '/foo'],
             '/foo',
@@ -98,7 +98,7 @@ class pathoptTestCase(unittest.TestCase):
             '/foo',
             '')
     
-    def test_list_within_list(self):
+    def test_list_within_list(self) -> None:
         self.assert_pathopt(['-foopath', os.pathsep.join(['/foo','/bar'])],
                     ['/foo', ['/bar']])
 

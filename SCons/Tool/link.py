@@ -40,7 +40,7 @@ from SCons.Tool.linkCommon.LoadableModule import setup_loadable_module_logic
 from SCons.Tool.linkCommon.SharedLibrary import setup_shared_lib_logic
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for gnulink to an Environment."""
     createProgBuilder(env)
 

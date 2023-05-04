@@ -32,7 +32,7 @@ from . import posix
 import os
 
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'
     env['HOST_OS'] = 'darwin'

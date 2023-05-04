@@ -48,7 +48,7 @@ class F90Scanner(Classic):
     """
 
     def __init__(self, name, suffixes, path_variable,
-                 use_regex, incl_regex, def_regex, *args, **kwargs):
+                 use_regex, incl_regex, def_regex, *args, **kwargs) -> None:
 
         self.cre_use = re.compile(use_regex, re.M)
         self.cre_incl = re.compile(incl_regex, re.M)
@@ -119,7 +119,7 @@ class F90Scanner(Classic):
 
         return [pair[1] for pair in sorted(nodes)]
 
-def FortranScan(path_variable="FORTRANPATH"):
+def FortranScan(path_variable: str="FORTRANPATH"):
     """Return a prototype Scanner instance for scanning source files
     for Fortran USE & INCLUDE statements"""
 

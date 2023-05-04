@@ -60,7 +60,7 @@ def validate_vars(env):
         if not SCons.Util.is_String(env['PCHSTOP']):
             raise SCons.Errors.UserError("The PCHSTOP construction variable must be a string: %r"%env['PCHSTOP'])
 
-def msvc_set_PCHPDBFLAGS(env):
+def msvc_set_PCHPDBFLAGS(env) -> None:
     """
     Set appropriate PCHPDBFLAGS for the MSVC version being used.
     """
@@ -229,7 +229,7 @@ ShCXXAction = SCons.Action.Action("$SHCXXCOM", "$SHCXXCOMSTR",
 
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for MSVC++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

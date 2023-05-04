@@ -77,11 +77,11 @@ logging.basicConfig(
 )
 
 
-def daemon_log(message):
+def daemon_log(message) -> None:
     logging.debug(message)
 
 
-def custom_readlines(handle, line_separator="\n", chunk_size=1):
+def custom_readlines(handle, line_separator: str="\n", chunk_size: int=1):
     buf = ""
     while not handle.closed:
         data = handle.read(chunk_size)
@@ -98,7 +98,7 @@ def custom_readlines(handle, line_separator="\n", chunk_size=1):
             buf = ""
 
 
-def custom_readerr(handle, line_separator="\n", chunk_size=1):
+def custom_readerr(handle, line_separator: str="\n", chunk_size: int=1):
     buf = ""
     while not handle.closed:
         data = handle.read(chunk_size)
@@ -112,13 +112,13 @@ def custom_readerr(handle, line_separator="\n", chunk_size=1):
                 yield chunk + line_separator
 
 
-def enqueue_output(out, queue):
+def enqueue_output(out, queue) -> None:
     for line in iter(custom_readlines(out)):
         queue.put(line)
     out.close()
 
 
-def enqueue_error(err, queue):
+def enqueue_error(err, queue) -> None:
     for line in iter(custom_readerr(err)):
         queue.put(line)
     err.close()
@@ -143,7 +143,7 @@ class StateInfo:
 
 shared_state = StateInfo()
 
-def sigint_func(signum, frame):
+def sigint_func(signum, frame) -> None:
     global shared_state
     shared_state.daemon_needs_to_shutdown = True
 
@@ -264,7 +264,7 @@ logging.debug(
 
 keep_alive_timer = timer()
 
-def server_thread_func():
+def server_thread_func() -> None:
     global shared_state
     class S(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
@@ -284,7 +284,7 @@ def server_thread_func():
                     daemon_log(f"Got request: {build[0]}")
                     input_q.put(build[0])
 
-                    def pred():
+                    def pred() -> bool:
                         return build[0] in shared_state.finished_building
 
                     with building_cv:
@@ -329,7 +329,7 @@ def server_thread_func():
                 daemon_log("SERVER ERROR: " + traceback.format_exc())
                 raise
 
-            def log_message(self, format, *args):
+            def log_message(self, format, *args) -> None:
                 return
 
     socketserver.TCPServer.allow_reuse_address = True

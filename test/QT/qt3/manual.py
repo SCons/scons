@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test the manual QT builder calls.
+Test the manual QT3 builder calls.
 """
 
 import TestSCons
@@ -51,7 +51,7 @@ sources.extend(env.Uic('ui/ccc.ui')[1:])
 
 # manual target specification
 sources.append(env.Moc('moc-ddd.cpp', 'include/ddd.h',
-               QT_MOCHPREFIX='')) # Watch out !
+               QT3_MOCHPREFIX='')) # Watch out !
 moc = env.Moc('moc_eee.cpp', 'eee.cpp')
 env.Ignore( moc, moc )
 sources.extend(env.Uic(['include/uic_fff.hpp', 'fff.cpp', 'fff.moc.cpp'],
@@ -61,7 +61,7 @@ print(list(map(str,sources)))
 env.Program(target='aaa',
             source=sources,
             CPPPATH=['$CPPPATH', './include'],
-            QT_AUTOSCAN=0)
+            QT3_AUTOSCAN=0)
 """)
 
 test.write('aaa.cpp', r"""
@@ -123,7 +123,7 @@ int main(void) {
 }
 """)
 
-test.run(arguments="--warn=no-tool-qt-deprecated " + aaa_exe)
+test.run(arguments=aaa_exe)
 
 # normal invocation
 test.must_exist(test.workpath('include', 'moc_aaa.cc'))

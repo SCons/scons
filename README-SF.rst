@@ -136,7 +136,7 @@ By default, the above commands will do the following:
 - Install scripts named "scons" and "sconsign" scripts in the default system
   script directory (/usr/bin or C:\\Python\*\\Scripts, for example).
 
-- Install "scons-3.1.2.exe" and "scons.exe" executables in the Python
+- Install "scons-4.5.1.exe" and "scons.exe" executables in the Python
   prefix directory on Windows (C:\\Python\*, for example).
 
 - Install the SCons build engine (a Python module) in the standard Python library directory
@@ -378,7 +378,7 @@ running all of "runtest.py -a".
 Building Packages
 =================
 
-We use SCons (version 3.1.2 or later) to build its own packages.  If you
+We use SCons to build its own packages.  If you
 already have an appropriate version of SCons installed on your system, you can
 build everything by simply running it::
 
@@ -393,12 +393,12 @@ about `Executing SCons Without Installing`_)::
 Depending on the utilities installed on your system, any or all of the
 following packages will be built::
 
-    SCons-4.2.0-py3-none-any.whl
-    SCons-4.3.0ayyyymmdd.tar.gz
-    SCons-4.3.0ayyyymmdd.zip
-    scons-doc-4.3.0ayyyymmdd.tar.gz
-    scons-local-4.3.0ayyyymmdd.tar.gz
-    scons-local-4.3.0ayyyymmdd.zip
+    SCons-4.5.1-py3-none-any.whl
+    SCons-4.7.0ayyyymmdd.tar.gz
+    SCons-4.7.0ayyyymmdd.zip
+    scons-doc-4.7.0ayyyymmdd.tar.gz
+    scons-local-4.7.0ayyyymmdd.tar.gz
+    scons-local-4.7.0ayyyymmdd.zip
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
@@ -612,5 +612,5 @@ many contributors, including but not at all limited to:
 
 \... and many others.
 
-Copyright (c) 2001 - 2021 The SCons Foundation
+Copyright (c) 2001 - 2023 The SCons Foundation
 

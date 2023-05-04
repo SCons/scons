@@ -58,7 +58,7 @@ import SCons.Tool
 import SCons.Tool.DCommon as DCommon
 
 
-def generate(env):
+def generate(env) -> None:
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     static_obj.add_action('.d', SCons.Defaults.DAction)

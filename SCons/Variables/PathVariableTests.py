@@ -30,7 +30,7 @@ import SCons.Variables
 import TestCmd
 
 class PathVariableTestCase(unittest.TestCase):
-    def test_PathVariable(self):
+    def test_PathVariable(self) -> None:
         """Test PathVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',
@@ -164,7 +164,7 @@ class PathVariableTestCase(unittest.TestCase):
         except:
             raise Exception("did not catch expected UserError")
 
-    def test_PathAccept(self):
+    def test_PathAccept(self) -> None:
         """Test the PathAccept validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.PathVariable('test',

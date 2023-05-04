@@ -164,7 +164,7 @@ def get_paths_str(dest) -> str:
 
     If *dest* is a list, manually converts each elem to a string.
     """
-    def quote(arg):
+    def quote(arg) -> str:
         return f'"{arg}"'
 
     if is_List(dest):
@@ -256,7 +256,7 @@ Chmod = ActionFactory(chmod_func, chmod_strfunc)
 
 
 
-def copy_func(dest, src, symlinks=True) -> int:
+def copy_func(dest, src, symlinks: bool=True) -> int:
     """Implementation of the Copy action function.
 
     Copies *src* to *dest*.  If *src* is a list, *dest* must be
@@ -308,7 +308,7 @@ def copy_func(dest, src, symlinks=True) -> int:
         return 0
 
 
-def copy_strfunc(dest, src, symlinks=True) -> str:
+def copy_strfunc(dest, src, symlinks: bool=True) -> str:
     """strfunction for the Copy action function."""
     return f'Copy({get_paths_str(dest)}, {get_paths_str(src)})'
 
@@ -316,7 +316,7 @@ def copy_strfunc(dest, src, symlinks=True) -> str:
 Copy = ActionFactory(copy_func, copy_strfunc)
 
 
-def delete_func(dest, must_exist=False) -> None:
+def delete_func(dest, must_exist: bool=False) -> None:
     """Implementation of the Delete action function.
 
     Lets the Python :func:`os.unlink` raise an error if *dest* does not exist,
@@ -338,7 +338,7 @@ def delete_func(dest, must_exist=False) -> None:
         os.unlink(entry)
 
 
-def delete_strfunc(dest, must_exist=False) -> str:
+def delete_strfunc(dest, must_exist: bool=False) -> str:
     """strfunction for the Delete action function."""
     return f'Delete({get_paths_str(dest)})'
 
@@ -392,7 +392,7 @@ Touch = ActionFactory(touch_func, lambda file: f'Touch({get_paths_str(file)})')
 # Internal utility functions
 
 # pylint: disable-msg=too-many-arguments
-def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=None, affect_signature=True):
+def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=None, affect_signature: bool=True):
     """
     Creates a new list from 'items_iter' by first interpolating each element
     in the list using the 'env' dictionary and then calling f on the
@@ -602,7 +602,7 @@ class NullCmdGenerator:
     env["LINKCOM"] = "${DO_NOTHING('$LINK $SOURCES $TARGET')}"
     """
 
-    def __init__(self, cmd):
+    def __init__(self, cmd) -> None:
         self.cmd = cmd
 
     def __call__(self, target, source, env, for_signature=None):
@@ -622,7 +622,7 @@ class Variable_Method_Caller:
     create new environment objects to hold the variables.)
     """
 
-    def __init__(self, variable, method):
+    def __init__(self, variable, method) -> None:
         self.variable = variable
         self.method = method
 
