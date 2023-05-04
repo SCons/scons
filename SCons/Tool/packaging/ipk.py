@@ -105,7 +105,7 @@ def gen_ipk_dir(proot, source, env, kw):
     # the packageroot directory does now contain the specfiles.
     return proot
 
-def build_specfiles(source, target, env):
+def build_specfiles(source, target, env) -> int:
     """ Filter the targets for the needed files and use the variables in env
     to create the specfile.
     """

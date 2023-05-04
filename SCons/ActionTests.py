@@ -27,12 +27,12 @@
 # contents, so try to minimize changes by defining them here, before we
 # even import anything.
 
-def GlobalFunc():
+def GlobalFunc() -> None:
     pass
 
 
 class GlobalActFunc:
-    def __call__(self):
+    def __call__(self) -> None:
         pass
 
 
@@ -105,7 +105,7 @@ sys.stdout = io.StringIO()
 
 
 class CmdStringHolder:
-    def __init__(self, cmd, literal=None):
+    def __init__(self, cmd, literal=None) -> None:
         self.data = str(cmd)
         self.literal = literal
 
@@ -132,7 +132,7 @@ class CmdStringHolder:
 
 
 class Environment:
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         self.d = {}
         self.d['SHELL'] = scons_env['SHELL']
         self.d['SPAWN'] = scons_env['SPAWN']
@@ -142,23 +142,23 @@ class Environment:
             self.d[k] = v
 
     # Just use the underlying scons_subst*() utility methods.
-    def subst(self, strSubst, raw=0, target=[], source=[], conv=None, overrides=False):
+    def subst(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: bool=False):
         return SCons.Subst.scons_subst(strSubst, self, raw,
                                        target, source, self.d, conv=conv, overrides=overrides)
 
     subst_target_source = subst
 
-    def subst_list(self, strSubst, raw=0, target=[], source=[], conv=None, overrides=False):
+    def subst_list(self, strSubst, raw: int=0, target=[], source=[], conv=None, overrides: bool=False):
         return SCons.Subst.scons_subst_list(strSubst, self, raw,
                                             target, source, self.d, conv=conv, overrides=overrides)
 
     def __getitem__(self, item):
         return self.d[item]
 
-    def __setitem__(self, item, value):
+    def __setitem__(self, item, value) -> None:
         self.d[item] = value
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.d
 
     def get(self, key, value=None):
@@ -188,13 +188,13 @@ class Environment:
 
 
 class DummyNode:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
 
     def str_for_display(self):
         return '"' + self.name + '"'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def rfile(self):
@@ -213,7 +213,7 @@ _python_ = test.escape(python)
 _null = SCons.Action._null
 
 
-def test_varlist(pos_call, str_call, cmd, cmdstrfunc, **kw):
+def test_varlist(pos_call, str_call, cmd, cmdstrfunc, **kw) -> None:
     def call_action(a, pos_call=pos_call, str_call=str_call, kw=kw):
         a = SCons.Action.Action(*a, **kw)
         # returned object must provide these entry points
@@ -260,7 +260,7 @@ def test_positional_args(pos_callback, cmd, **kw):
 
     if not isinstance(act, SCons.Action._ActionAction):
         # only valid cmdstrfunc is None
-        def none(a):
+        def none(a) -> None:
             pass
 
         test_varlist(pos_callback, none, cmd, None, **kw)
@@ -273,22 +273,22 @@ def test_positional_args(pos_callback, cmd, **kw):
         assert act.exitstatfunc is SCons.Action.default_exitstatfunc, \
             act.exitstatfunc
 
-        def cmdstr(a):
+        def cmdstr(a) -> None:
             assert hasattr(a, 'strfunction')
             assert a.cmdstr == 'cmdstr', a.cmdstr
 
         test_varlist(pos_callback, cmdstr, cmd, 'cmdstr', **kw)
 
-        def fun():
+        def fun() -> None:
             pass
 
-        def strfun(a, fun=fun):
+        def strfun(a, fun=fun) -> None:
             assert a.strfunction is fun, a.strfunction
             assert a.cmdstr == _null, a.cmdstr
 
         test_varlist(pos_callback, strfun, cmd, fun, **kw)
 
-        def none(a):
+        def none(a) -> None:
             assert hasattr(a, 'strfunction')
             assert a.cmdstr is None, a.cmdstr
 
@@ -310,13 +310,13 @@ def test_positional_args(pos_callback, cmd, **kw):
 class ActionTestCase(unittest.TestCase):
     """Test the Action() factory function"""
 
-    def test_FunctionAction(self):
+    def test_FunctionAction(self) -> None:
         """Test the Action() factory's creation of FunctionAction objects."""
 
-        def foo():
+        def foo() -> None:
             pass
 
-        def func_action(a, foo=foo):
+        def func_action(a, foo=foo) -> None:
             assert isinstance(a, SCons.Action.FunctionAction), a
             assert a.execfunction == foo, a.execfunction
 
@@ -324,10 +324,10 @@ class ActionTestCase(unittest.TestCase):
         # a singleton list returns the contained action
         test_positional_args(func_action, [foo])
 
-    def test_CommandAction(self):
+    def test_CommandAction(self) -> None:
         """Test the Action() factory's creation of CommandAction objects."""
 
-        def cmd_action(a):
+        def cmd_action(a) -> None:
             assert isinstance(a, SCons.Action.CommandAction), a
             assert a.cmd_list == "string", a.cmd_list
 
@@ -335,13 +335,13 @@ class ActionTestCase(unittest.TestCase):
         # a singleton list returns the contained action
         test_positional_args(cmd_action, ["string"])
 
-        def line_action(a):
+        def line_action(a) -> None:
             assert isinstance(a, SCons.Action.CommandAction), a
             assert a.cmd_list == ["explicit", "command", "line"], a.cmd_list
 
         test_positional_args(line_action, [["explicit", "command", "line"]])
 
-    def test_ListAction(self):
+    def test_ListAction(self) -> None:
         """Test the Action() factory's creation of ListAction objects."""
 
         a1 = SCons.Action.Action(["x", "y", "z", ["a", "b", "c"]])
@@ -366,7 +366,7 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a2.list[2], SCons.Action.CommandAction), a2.list[2]
         assert a2.list[2].cmd_list == "z", a2.list[2].cmd_list
 
-        def foo():
+        def foo() -> None:
             pass
 
         a3 = SCons.Action.Action(["x", foo, "z"])
@@ -399,21 +399,21 @@ class ActionTestCase(unittest.TestCase):
         assert a5.list[1].cmd_list == "y", a5.list[1].cmd_list
         assert a5.list[1].strfunction == foo, a5.list[1].strfunction
 
-    def test_CommandGeneratorAction(self):
+    def test_CommandGeneratorAction(self) -> None:
         """Test the Action factory's creation of CommandGeneratorAction objects."""
 
-        def foo(): pass
+        def foo() -> None: pass
 
-        def gen_action(a, foo=foo):
+        def gen_action(a, foo=foo) -> None:
             assert isinstance(a, SCons.Action.CommandGeneratorAction), a
             assert a.generator is foo, a.generator
 
         test_positional_args(gen_action, foo, generator=1)
 
-    def test_LazyCmdGeneratorAction(self):
+    def test_LazyCmdGeneratorAction(self) -> None:
         """Test the Action factory's creation of lazy CommandGeneratorAction objects."""
 
-        def lazy_action(a):
+        def lazy_action(a) -> None:
             assert isinstance(a, SCons.Action.LazyAction), a
             assert a.var == "FOO", a.var
             assert a.cmd_list == "${FOO}", a.cmd_list
@@ -421,7 +421,7 @@ class ActionTestCase(unittest.TestCase):
         test_positional_args(lazy_action, "$FOO")
         test_positional_args(lazy_action, "${FOO}")
 
-    def test_no_action(self):
+    def test_no_action(self) -> None:
         """Test when the Action() factory can't create an action object."""
 
         try:
@@ -431,7 +431,7 @@ class ActionTestCase(unittest.TestCase):
         else:
             assert 0, "Should have thrown a TypeError creating Action from an int."
 
-    def test_reentrance(self):
+    def test_reentrance(self) -> None:
         """Test the Action factory when the action is already an Action object."""
 
         a1 = SCons.Action.Action("foo")
@@ -441,16 +441,16 @@ class ActionTestCase(unittest.TestCase):
 
 class _ActionActionTestCase(unittest.TestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         """Test creation of _ActionAction objects."""
 
-        def func1():
+        def func1() -> None:
             pass
 
-        def func2():
+        def func2() -> None:
             pass
 
-        def func3():
+        def func3() -> None:
             pass
 
         a = SCons.Action._ActionAction()
@@ -517,7 +517,7 @@ class _ActionActionTestCase(unittest.TestCase):
     def test_dup_keywords(self):
         """Test handling of both cmdstr and strfunction arguments."""
 
-        def func():
+        def func() -> None:
             pass
 
         try:
@@ -529,7 +529,7 @@ class _ActionActionTestCase(unittest.TestCase):
         else:
             raise Exception("did not catch expected UserError")
 
-    def test___cmp__(self):
+    def test___cmp__(self) -> None:
         """Test Action comparison."""
 
         a1 = SCons.Action.Action("x")
@@ -539,13 +539,13 @@ class _ActionActionTestCase(unittest.TestCase):
         assert a1 != a3
         assert a2 != a3
 
-    def test_print_cmd_lines(self):
+    def test_print_cmd_lines(self) -> None:
         """Test the print_cmd_lines() method."""
 
         save_stdout = sys.stdout
 
         try:
-            def execfunc(target, source, env):
+            def execfunc(target, source, env) -> None:
                 pass
 
             a = SCons.Action.Action(execfunc)
@@ -559,7 +559,7 @@ class _ActionActionTestCase(unittest.TestCase):
         finally:
             sys.stdout = save_stdout
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         """Test calling an Action."""
 
         save_stdout = sys.stdout
@@ -576,19 +576,19 @@ class _ActionActionTestCase(unittest.TestCase):
         try:
             env = Environment()
 
-            def execfunc(target, source, env):
+            def execfunc(target, source, env) -> int:
                 assert isinstance(target, list), type(target)
                 assert isinstance(source, list), type(source)
                 return 7
 
             a = SCons.Action.Action(execfunc)
 
-            def firstfunc(target, source, env):
+            def firstfunc(target, source, env) -> int:
                 assert isinstance(target, list), type(target)
                 assert isinstance(source, list), type(source)
                 return 0
 
-            def lastfunc(target, source, env):
+            def lastfunc(target, source, env) -> int:
                 assert isinstance(target, list), type(target)
                 assert isinstance(source, list), type(source)
                 return 9
@@ -733,7 +733,7 @@ class _ActionActionTestCase(unittest.TestCase):
 
             result = []
 
-            def my_print_cmd_line(s, target, source, env, result=result):
+            def my_print_cmd_line(s, target, source, env, result=result) -> None:
                 result.append(s)
 
             env['PRINT_CMD_LINE_FUNC'] = my_print_cmd_line
@@ -747,7 +747,7 @@ class _ActionActionTestCase(unittest.TestCase):
             SCons.Action.print_actions_presub = save_print_actions_presub
             SCons.Action.execute_actions = save_execute_actions
 
-    def test_presub_lines(self):
+    def test_presub_lines(self) -> None:
         """Test the presub_lines() method."""
 
         env = Environment()
@@ -759,7 +759,7 @@ class _ActionActionTestCase(unittest.TestCase):
         s = a.presub_lines(env)
         assert s == ['y', 'z'], s
 
-        def func():
+        def func() -> None:
             pass
 
         a = SCons.Action.Action(func)
@@ -781,7 +781,7 @@ class _ActionActionTestCase(unittest.TestCase):
         s = a.presub_lines(Environment(ACT='expanded action'))
         assert s == ['expanded action'], s
 
-    def test_add(self):
+    def test_add(self) -> None:
         """Test adding Actions to stuff."""
 
         # Adding actions to other Actions or to stuff that can
@@ -869,7 +869,7 @@ class _ActionActionTestCase(unittest.TestCase):
 
 class CommandActionTestCase(unittest.TestCase):
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of a command Action."""
 
         a = SCons.Action.CommandAction(["xyzzy"])
@@ -880,7 +880,7 @@ class CommandActionTestCase(unittest.TestCase):
         assert a.cmd_list == ["abra"], a.cmd_list
         assert a.cmdstr == "cadabra", a.cmdstr
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         """Test fetching the pre-substitution string for command Actions."""
 
         env = Environment()
@@ -894,7 +894,7 @@ class CommandActionTestCase(unittest.TestCase):
         s = str(act)
         assert s == "xyzzy $TARGET $SOURCE $TARGETS $SOURCES", s
 
-    def test_genstring(self):
+    def test_genstring(self) -> None:
         """Test the genstring() method for command Actions."""
 
         env = Environment()
@@ -931,7 +931,7 @@ class CommandActionTestCase(unittest.TestCase):
         s = act.genstring([t1, t2], [s1, s2], env)
         assert s == expect, s
 
-    def test_strfunction(self):
+    def test_strfunction(self) -> None:
         """Test fetching the string representation of command Actions."""
 
         env = Environment()
@@ -993,7 +993,7 @@ class CommandActionTestCase(unittest.TestCase):
         s = act.strfunction([t1, t2], [s1, s2], env)
         assert s == 'cmdstr\tt1 t2\ns1 s2   ', s
 
-        def sf(target, source, env):
+        def sf(target, source, env) -> str:
             return "sf was called"
 
         act = SCons.Action.CommandAction('foo', strfunction=sf)
@@ -1001,35 +1001,35 @@ class CommandActionTestCase(unittest.TestCase):
         assert s == "sf was called", s
 
         class actclass1:
-            def __init__(self, targets, sources, env):
+            def __init__(self, targets, sources, env) -> None:
                 pass
 
-            def __call__(self):
+            def __call__(self) -> int:
                 return 1
 
         class actclass2:
-            def __init__(self, targets, sources, env):
+            def __init__(self, targets, sources, env) -> None:
                 self.strfunction = 5
 
-            def __call__(self):
+            def __call__(self) -> int:
                 return 2
 
         class actclass3:
-            def __init__(self, targets, sources, env):
+            def __init__(self, targets, sources, env) -> None:
                 pass
 
-            def __call__(self):
+            def __call__(self) -> int:
                 return 3
 
-            def strfunction(self, targets, sources, env):
+            def strfunction(self, targets, sources, env) -> str:
                 return 'actclass3 on %s to get %s' % (str(sources[0]),
                                                       str(targets[0]))
 
         class actclass4:
-            def __init__(self, targets, sources, env):
+            def __init__(self, targets, sources, env) -> None:
                 pass
 
-            def __call__(self):
+            def __call__(self) -> int:
                 return 4
 
             strfunction = None
@@ -1082,7 +1082,7 @@ class CommandActionTestCase(unittest.TestCase):
         s = act.strfunction([], [], env)
         assert s == "foo bar", s
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test execution of command Actions."""
 
         try:
@@ -1156,10 +1156,10 @@ class CommandActionTestCase(unittest.TestCase):
         assert c == "act.py: 'out5' 'XYZZY'\nact.py: 'xyzzy5'\n", c
 
         class Obj:
-            def __init__(self, str):
+            def __init__(self, str) -> None:
                 self._str = str
 
-            def __str__(self):
+            def __str__(self) -> str:
                 return self._str
 
             def rfile(self):
@@ -1238,16 +1238,16 @@ class CommandActionTestCase(unittest.TestCase):
         r = act([], [], env)
         assert r == 0, r
 
-    def test_set_handler(self):
+    def test_set_handler(self) -> None:
         """Test setting the command handler..."""
 
         class Test:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.executed = 0
 
         t = Test()
 
-        def func(sh, escape, cmd, args, env, test=t):
+        def func(sh, escape, cmd, args, env, test=t) -> int:
             test.executed = args
             test.shell = sh
             return 0
@@ -1256,16 +1256,16 @@ class CommandActionTestCase(unittest.TestCase):
             return '**' + cmd + '**'
 
         class LiteralStr:
-            def __init__(self, x):
+            def __init__(self, x) -> None:
                 self.data = x
 
-            def __str__(self):
+            def __str__(self) -> str:
                 return self.data
 
             def escape(self, escape_func):
                 return escape_func(self.data)
 
-            def is_literal(self):
+            def is_literal(self) -> int:
                 return 1
 
         a = SCons.Action.CommandAction(["xyzzy"])
@@ -1289,10 +1289,10 @@ class CommandActionTestCase(unittest.TestCase):
         a([], [], e)
         assert t.executed == ['**xyzzy**'], t.executed
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the contents of a command Action."""
 
-        def CmdGen(target, source, env, for_signature):
+        def CmdGen(target, source, env, for_signature) -> str:
             assert for_signature
             return "%s %s" % \
                    (env["foo"], env["bar"])
@@ -1308,7 +1308,7 @@ class CommandActionTestCase(unittest.TestCase):
         # Make sure that CommandActions use an Environment's
         # subst_target_source() method for substitution.
         class SpecialEnvironment(Environment):
-            def subst_target_source(self, strSubst, raw=0, target=[], source=[]):
+            def subst_target_source(self, strSubst, raw: int=0, target=[], source=[]):
                 return 'subst_target_source: ' + strSubst
 
         c = a.get_contents(target=DummyNode('ttt'), source=DummyNode('sss'),
@@ -1361,7 +1361,7 @@ class CommandActionTestCase(unittest.TestCase):
         c = a.get_contents(target=t, source=s, env=env)
         assert c == b"s4 s5", c
 
-    def test_get_implicit_deps(self):
+    def test_get_implicit_deps(self) -> None:
         """Test getting the implicit dependencies of a command Action."""
 
         class SpecialEnvironment(Environment):
@@ -1407,19 +1407,19 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
         return SCons.Action.CommandGeneratorAction(act, kw)
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of a command generator Action."""
 
-        def f(target, source, env):
+        def f(target, source, env) -> None:
             pass
 
         a = self.factory(f)
         assert a.generator == f
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         """Test the pre-substitution strings for command generator Actions."""
 
-        def f(target, source, env, for_signature, self=self):
+        def f(target, source, env, for_signature, self=self) -> str:
             # See if "env" is really a construction environment (or
             # looks like one) by accessing the FindIxes attribute.
             # (The Tool/mingw.py module has a generator that uses this,
@@ -1433,10 +1433,10 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         s = str(a)
         assert s == 'FOO', s
 
-    def test_genstring(self):
+    def test_genstring(self) -> None:
         """Test the command generator Action genstring() method."""
 
-        def f(target, source, env, for_signature, self=self):
+        def f(target, source, env, for_signature, self=self) -> str:
             dummy = env['dummy']
             self.dummy = dummy
             return "$FOO $TARGET $SOURCE $TARGETS $SOURCES"
@@ -1447,17 +1447,17 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         assert self.dummy == 1, self.dummy
         assert s == "$FOO $TARGET $SOURCE $TARGETS $SOURCES", s
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test executing a command generator Action."""
 
-        def f(target, source, env, for_signature, self=self):
+        def f(target, source, env, for_signature, self=self) -> str:
             dummy = env['dummy']
             self.dummy = dummy
             s = env.subst("$FOO")
             assert s == 'foo baz\nbar ack', s
             return "$FOO"
 
-        def func_action(target, source, env, self=self):
+        def func_action(target, source, env, self=self) -> None:
             dummy = env['dummy']
             s = env.subst('$foo')
             assert s == 'bar', s
@@ -1466,7 +1466,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         def f2(target, source, env, for_signature, f=func_action):
             return f
 
-        def ch(sh, escape, cmd, args, env, self=self):
+        def ch(sh, escape, cmd, args, env, self=self) -> None:
             self.cmd.append(cmd)
             self.args.append(args)
 
@@ -1489,7 +1489,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         del self.dummy
 
         class DummyFile:
-            def __init__(self, t):
+            def __init__(self, t) -> None:
                 self.t = t
 
             def rfile(self):
@@ -1499,14 +1499,14 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             def get_subst_proxy(self):
                 return self
 
-        def f3(target, source, env, for_signature):
+        def f3(target, source, env, for_signature) -> str:
             return ''
 
         c = self.factory(f3)
         c(target=[], source=DummyFile(self), env=Environment())
         assert self.rfile_called
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the contents of a command generator Action."""
 
         def f(target, source, env, for_signature):
@@ -1516,7 +1516,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             return [["guux", foo, "$(", "$ignore", "$)", bar,
                      '${test("$( foo $bar $)")}']]
 
-        def test(mystr):
+        def test(mystr) -> str:
             assert mystr == "$( foo $bar $)", mystr
             return "test"
 
@@ -1526,10 +1526,10 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=env)
         assert c == b"guux FFF BBB test", c
 
-    def test_get_contents_of_function_action(self):
+    def test_get_contents_of_function_action(self) -> None:
         """Test contents of a CommandGeneratorAction-generated FunctionAction."""
 
-        def LocalFunc():
+        def LocalFunc() -> None:
             pass
 
         # Since the python bytecode has per version differences, we need different expected results per version
@@ -1586,19 +1586,19 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
 
 class FunctionActionTestCase(unittest.TestCase):
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of a function Action."""
 
-        def func1():
+        def func1() -> None:
             pass
 
-        def func2():
+        def func2() -> None:
             pass
 
-        def func3():
+        def func3() -> None:
             pass
 
-        def func4():
+        def func4() -> None:
             pass
 
         a = SCons.Action.FunctionAction(func1, {})
@@ -1609,10 +1609,10 @@ class FunctionActionTestCase(unittest.TestCase):
         assert a.execfunction == func2, a.execfunction
         assert a.strfunction == func3, a.strfunction
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         """Test the __str__() method for function Actions."""
 
-        def func1():
+        def func1() -> None:
             pass
 
         a = SCons.Action.FunctionAction(func1, {})
@@ -1620,19 +1620,19 @@ class FunctionActionTestCase(unittest.TestCase):
         assert s == "func1(target, source, env)", s
 
         class class1:
-            def __call__(self):
+            def __call__(self) -> None:
                 pass
 
         a = SCons.Action.FunctionAction(class1(), {})
         s = str(a)
         assert s == "class1(target, source, env)", s
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test executing a function Action."""
 
         self.inc = 0
 
-        def f(target, source, env):
+        def f(target, source, env) -> int:
             s = env['s']
             s.inc = s.inc + 1
             s.target = target
@@ -1650,7 +1650,7 @@ class FunctionActionTestCase(unittest.TestCase):
         global count
         count = 0
 
-        def function1(target, source, env):
+        def function1(target, source, env) -> int:
             global count
             count = count + 1
             for t in target:
@@ -1669,7 +1669,7 @@ class FunctionActionTestCase(unittest.TestCase):
         assert c == "function1\n", c
 
         class class1a:
-            def __init__(self, target, source, env):
+            def __init__(self, target, source, env) -> None:
                 with open(env['out'], 'w') as f:
                     f.write("class1a\n")
 
@@ -1680,7 +1680,7 @@ class FunctionActionTestCase(unittest.TestCase):
         assert c == "class1a\n", c
 
         class class1b:
-            def __call__(self, target, source, env):
+            def __call__(self, target, source, env) -> int:
                 with open(env['out'], 'w') as f:
                     f.write("class1b\n")
                 return 2
@@ -1691,7 +1691,7 @@ class FunctionActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "class1b\n", c
 
-        def build_it(target, source, env, executor=None, self=self):
+        def build_it(target, source, env, executor=None, self=self) -> int:
             self.build_it = 1
             return 0
 
@@ -1706,10 +1706,10 @@ class FunctionActionTestCase(unittest.TestCase):
         assert self.build_it
         assert self.string_it
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the contents of a function Action."""
 
-        def LocalFunc():
+        def LocalFunc() -> None:
             pass
 
         func_matches = {
@@ -1775,7 +1775,7 @@ class FunctionActionTestCase(unittest.TestCase):
         assert c in matches_foo, repr(c)
 
         class Foo:
-            def get_contents(self, target, source, env):
+            def get_contents(self, target, source, env) -> bytes:
                 return b'xyzzy'
 
         a = factory(Foo())
@@ -1783,7 +1783,7 @@ class FunctionActionTestCase(unittest.TestCase):
         assert c == b'xyzzy', repr(c)
 
         class LocalClass:
-            def LocalMethod(self):
+            def LocalMethod(self) -> None:
                 pass
 
         lc = LocalClass()
@@ -1793,10 +1793,10 @@ class FunctionActionTestCase(unittest.TestCase):
             c == meth_matches[sys.version_info[:2]]
         ), f"Got\n{c!r}\nExpected one of \n" + repr(meth_matches[sys.version_info[:2]])
 
-    def test_strfunction(self):
+    def test_strfunction(self) -> None:
         """Test the FunctionAction.strfunction() method."""
 
-        def func():
+        def func() -> None:
             pass
 
         def factory(act, **kw):
@@ -1817,10 +1817,10 @@ class FunctionActionTestCase(unittest.TestCase):
 
 class ListActionTestCase(unittest.TestCase):
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of a list of subsidiary Actions."""
 
-        def func():
+        def func() -> None:
             pass
 
         a = SCons.Action.ListAction(["x", func, ["y", "z"]])
@@ -1829,26 +1829,26 @@ class ListActionTestCase(unittest.TestCase):
         assert isinstance(a.list[2], SCons.Action.ListAction)
         assert a.list[2].list[0].cmd_list == 'y'
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         """Test the __str__() method for a list of subsidiary Actions."""
 
-        def f(target, source, env):
+        def f(target, source, env) -> None:
             pass
 
-        def g(target, source, env):
+        def g(target, source, env) -> None:
             pass
 
         a = SCons.Action.ListAction([f, g, "XXX", f])
         s = str(a)
         assert s == "f(target, source, env)\ng(target, source, env)\nXXX\nf(target, source, env)", s
 
-    def test_genstring(self):
+    def test_genstring(self) -> None:
         """Test the genstring() method for a list of subsidiary Actions."""
 
-        def f(target, source, env):
+        def f(target, source, env) -> None:
             pass
 
-        def g(target, source, env, for_signature):
+        def g(target, source, env, for_signature) -> str:
             return 'generated %s %s' % (target[0], source[0])
 
         g = SCons.Action.Action(g, generator=1)
@@ -1856,11 +1856,11 @@ class ListActionTestCase(unittest.TestCase):
         s = a.genstring(['foo.x'], ['bar.y'], Environment())
         assert s == "f(target, source, env)\ngenerated foo.x bar.y\nXXX\nf(target, source, env)", s
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test executing a list of subsidiary Actions."""
         self.inc = 0
 
-        def f(target, source, env):
+        def f(target, source, env) -> None:
             s = env['s']
             s.inc = s.inc + 1
 
@@ -1870,19 +1870,19 @@ class ListActionTestCase(unittest.TestCase):
 
         cmd2 = r'%s %s %s syzygy' % (_python_, act_py, outfile)
 
-        def function2(target, source, env):
+        def function2(target, source, env) -> int:
             with open(env['out'], 'a') as f:
                 f.write("function2\n")
             return 0
 
         class class2a:
-            def __call__(self, target, source, env):
+            def __call__(self, target, source, env) -> int:
                 with open(env['out'], 'a') as f:
                     f.write("class2a\n")
                 return 0
 
         class class2b:
-            def __init__(self, target, source, env):
+            def __init__(self, target, source, env) -> None:
                 with open(env['out'], 'a') as f:
                     f.write("class2b\n")
 
@@ -1892,12 +1892,12 @@ class ListActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "act.py: 'syzygy'\nfunction2\nclass2a\nclass2b\n", c
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the contents of a list of subsidiary Actions."""
 
         self.foo = 0
 
-        def gen(target, source, env, for_signature):
+        def gen(target, source, env, for_signature) -> str:
             s = env['s']
             s.foo = 1
             return "y"
@@ -1911,7 +1911,7 @@ class ListActionTestCase(unittest.TestCase):
 
 
 class LazyActionTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of a lazy-evaluation Action."""
 
         # Environment variable references should create a special type
@@ -1925,10 +1925,10 @@ class LazyActionTestCase(unittest.TestCase):
         assert isinstance(a10, SCons.Action.LazyAction), a10
         assert a10.var == 'FOO', a10.var
 
-    def test_genstring(self):
+    def test_genstring(self) -> None:
         """Test the lazy-evaluation Action genstring() method."""
 
-        def f(target, source, env):
+        def f(target, source, env) -> None:
             pass
 
         a = SCons.Action.Action('$BAR')
@@ -1939,10 +1939,10 @@ class LazyActionTestCase(unittest.TestCase):
         s = a.genstring([], [], env=env2)
         assert s == 'xxx', s
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test executing a lazy-evaluation Action."""
 
-        def f(target, source, env):
+        def f(target, source, env) -> int:
             s = env['s']
             s.test = 1
             return 0
@@ -1955,7 +1955,7 @@ class LazyActionTestCase(unittest.TestCase):
         c = test.read(outfile, 'r')
         assert c == "act.py: 'lazy'\n", c
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the contents of a lazy-evaluation Action."""
 
         a = SCons.Action.Action("${FOO}")
@@ -1963,10 +1963,10 @@ class LazyActionTestCase(unittest.TestCase):
         c = a.get_contents(target=[], source=[], env=env)
         assert c == b"This is a test", c
 
-    def test_get_contents_of_function_action(self):
+    def test_get_contents_of_function_action(self) -> None:
         """Test fetching the contents of a lazy-evaluation FunctionAction."""
 
-        def LocalFunc():
+        def LocalFunc() -> None:
             pass
 
         func_matches = {
@@ -2018,7 +2018,7 @@ class LazyActionTestCase(unittest.TestCase):
 
 
 class ActionCallerTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of an ActionCaller"""
 
         ac = SCons.Action.ActionCaller(1, [2, 3], {'FOO': 4, 'BAR': 5})
@@ -2026,13 +2026,13 @@ class ActionCallerTestCase(unittest.TestCase):
         assert ac.args == [2, 3], ac.args
         assert ac.kw == {'FOO': 4, 'BAR': 5}, ac.kw
 
-    def test_get_contents(self):
+    def test_get_contents(self) -> None:
         """Test fetching the contents of an ActionCaller"""
 
-        def strfunc():
+        def strfunc() -> None:
             pass
 
-        def LocalFunc():
+        def LocalFunc() -> None:
             pass
 
         matches = {
@@ -2063,7 +2063,7 @@ class ActionCallerTestCase(unittest.TestCase):
         )
 
         class LocalActFunc:
-            def __call__(self):
+            def __call__(self) -> None:
                 pass
 
         af = SCons.Action.ActionFactory(GlobalActFunc(), strfunc)
@@ -2093,15 +2093,15 @@ class ActionCallerTestCase(unittest.TestCase):
         assert c in ("<built-in function str>", "<type 'str'>", "<class 'str'>"), repr(c)
         # ^^ class str for python3
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         """Test calling an ActionCaller"""
 
         actfunc_args = []
 
-        def actfunc(a1, a2, a3, args=actfunc_args):
+        def actfunc(a1, a2, a3, args=actfunc_args) -> None:
             args.extend([a1, a2, a3])
 
-        def strfunc(a1, a2, a3):
+        def strfunc(a1, a2, a3) -> None:
             pass
 
         e = Environment(FOO=2, BAR=5)
@@ -2121,15 +2121,15 @@ class ActionCallerTestCase(unittest.TestCase):
         assert actfunc_args[2] is e, actfunc_args
         del actfunc_args[:]
 
-    def test_strfunction(self):
+    def test_strfunction(self) -> None:
         """Test calling the ActionCaller strfunction() method"""
 
         strfunc_args = []
 
-        def actfunc(a1, a2, a3, a4):
+        def actfunc(a1, a2, a3, a4) -> None:
             pass
 
-        def strfunc(a1, a2, a3, a4, args=strfunc_args):
+        def strfunc(a1, a2, a3, a4, args=strfunc_args) -> None:
             args.extend([a1, a2, a3, a4])
 
         af = SCons.Action.ActionFactory(actfunc, strfunc)
@@ -2145,29 +2145,29 @@ class ActionCallerTestCase(unittest.TestCase):
 
 
 class ActionFactoryTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of an ActionFactory"""
 
-        def actfunc():
+        def actfunc() -> None:
             pass
 
-        def strfunc():
+        def strfunc() -> None:
             pass
 
         ac = SCons.Action.ActionFactory(actfunc, strfunc)
         assert ac.actfunc is actfunc, ac.actfunc
         assert ac.strfunc is strfunc, ac.strfunc
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         """Test calling whatever's returned from an ActionFactory"""
 
         actfunc_args = []
         strfunc_args = []
 
-        def actfunc(a1, a2, a3, args=actfunc_args):
+        def actfunc(a1, a2, a3, args=actfunc_args) -> None:
             args.extend([a1, a2, a3])
 
-        def strfunc(a1, a2, a3, args=strfunc_args):
+        def strfunc(a1, a2, a3, args=strfunc_args) -> None:
             args.extend([a1, a2, a3])
 
         af = SCons.Action.ActionFactory(actfunc, strfunc)
@@ -2177,7 +2177,7 @@ class ActionFactoryTestCase(unittest.TestCase):
 
 
 class ActionCompareTestCase(unittest.TestCase):
-    def test_1_solo_name(self):
+    def test_1_solo_name(self) -> None:
         """Test Lazy Cmd Generator Action get_name alone.
 
         Basically ensures we can locate the builder, comparing it to
@@ -2188,7 +2188,7 @@ class ActionCompareTestCase(unittest.TestCase):
         name = bar.get_name(env)
         assert name == 'BAR', name
 
-    def test_2_multi_name(self):
+    def test_2_multi_name(self) -> None:
         """Test LazyCmdGenerator Action get_name multi builders.
 
         Ensure that we can compare builders (and thereby actions) to
@@ -2204,7 +2204,7 @@ class ActionCompareTestCase(unittest.TestCase):
         name = bar.get_name(env)
         assert name == 'BAR', name
 
-    def test_3_dict_names(self):
+    def test_3_dict_names(self) -> None:
         """Test Action/Suffix dicts with get_name.
 
         Verifies that Action/Suffix dictionaries work correctly,
@@ -2226,16 +2226,16 @@ class ActionCompareTestCase(unittest.TestCase):
 class TestClass:
     """A test class used by ObjectContentsTestCase.test_object_contents"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.a = "a"
         self.b = "b"
 
-    def method(self, arg):
+    def method(self, arg) -> None:
         pass
 
 
 class ObjectContentsTestCase(unittest.TestCase):
-    def test_function_contents(self):
+    def test_function_contents(self) -> None:
         """Test that Action._function_contents works"""
 
         def func1(a, b, c):
@@ -2263,7 +2263,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             expected[sys.version_info[:2]]
         )
 
-    def test_object_contents(self):
+    def test_object_contents(self) -> None:
         """Test that Action._object_contents works"""
 
         # See definition above
@@ -2305,7 +2305,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             expected[sys.version_info[:2]]
         )
 
-    def test_code_contents(self):
+    def test_code_contents(self) -> None:
         """Test that Action._code_contents works"""
 
         code = compile("print('Hello, World!')", '<string>', 'exec')

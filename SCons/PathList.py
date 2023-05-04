@@ -67,7 +67,7 @@ class _PathList:
     """
     An actual PathList object.
     """
-    def __init__(self, pathlist):
+    def __init__(self, pathlist) -> None:
         """
         Initializes a PathList object, canonicalizing the input and
         pre-processing it for quicker substitution later.
@@ -113,7 +113,7 @@ class _PathList:
 
         self.pathlist = tuple(pl)
 
-    def __len__(self): return len(self.pathlist)
+    def __len__(self) -> int: return len(self.pathlist)
 
     def __getitem__(self, i): return self.pathlist[i]
 
@@ -168,7 +168,7 @@ class PathListCache:
     cheaply avoid re-parsing both values of CPPPATH by using the
     common value from this cache.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._memo = {}
 
     def _PathList_key(self, pathlist):

@@ -78,7 +78,7 @@ class AliasNodeInfo(SCons.Node.NodeInfoBase):
 
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """
         Restore the attributes from a pickled state.
         """
@@ -98,7 +98,7 @@ class Alias(SCons.Node.Node):
     NodeInfo = AliasNodeInfo
     BuildInfo = AliasBuildInfo
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         super().__init__()
         self.name = name
         self.changed_since_last_build = 1
@@ -107,16 +107,16 @@ class Alias(SCons.Node.Node):
     def str_for_display(self):
         return '"' + self.__str__() + '"'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         self.get_csig()
 
     really_build = SCons.Node.Node.build
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir):
+    def is_under(self, dir) -> int:
         # Make Alias nodes get built regardless of
         # what directory scons was run from. Alias nodes
         # are outside the filesystem:
@@ -128,7 +128,7 @@ class Alias(SCons.Node.Node):
         childsigs = [n.get_csig() for n in self.children()]
         return ''.join(childsigs)
 
-    def sconsign(self):
+    def sconsign(self) -> None:
         """An Alias is not recorded in .sconsign files"""
         pass
 
@@ -136,11 +136,11 @@ class Alias(SCons.Node.Node):
     #
     #
 
-    def build(self):
+    def build(self) -> None:
         """A "builder" for aliases."""
         pass
 
-    def convert(self):
+    def convert(self) -> None:
         try: del self.builder
         except AttributeError: pass
         self.reset_executor()

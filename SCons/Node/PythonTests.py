@@ -28,7 +28,7 @@ import SCons.Node.Python
 
 
 class ValueTestCase(unittest.TestCase):
-    def test_Value(self):
+    def test_Value(self) -> None:
         """Test creating a Value() object
         """
         v1 = SCons.Node.Python.Value('a')
@@ -45,11 +45,11 @@ class ValueTestCase(unittest.TestCase):
         v3 = SCons.Node.Python.Value('c', 'cb')
         assert v3.built_value == 'cb'
 
-    def test_build(self):
+    def test_build(self) -> None:
         """Test "building" a Value Node
         """
         class fake_executor:
-            def __call__(self, node):
+            def __call__(self, node) -> None:
                 node.write('faked')
 
         v1 = SCons.Node.Python.Value('b', 'built')
@@ -68,14 +68,14 @@ class ValueTestCase(unittest.TestCase):
         assert v3.name == 'name', v3.name
         assert v3.built_value == 'faked', v3.built_value
 
-    def test_read(self):
+    def test_read(self) -> None:
         """Test the Value.read() method
         """
         v1 = SCons.Node.Python.Value('a')
         x = v1.read()
         assert x == 'a', x
 
-    def test_write(self):
+    def test_write(self) -> None:
         """Test the Value.write() method
         """
         v1 = SCons.Node.Python.Value('a')
@@ -86,7 +86,7 @@ class ValueTestCase(unittest.TestCase):
         assert v1.value == 'a', v1.value
         assert v1.built_value == 'new', v1.built_value
 
-    def test_get_csig(self):
+    def test_get_csig(self) -> None:
         """Test calculating the content signature of a Value() object
         """
         v1 = SCons.Node.Python.Value('aaa')
@@ -106,21 +106,21 @@ class ValueTestCase(unittest.TestCase):
 
 
 class ValueNodeInfoTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test ValueNodeInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
         ni = SCons.Node.Python.ValueNodeInfo()
 
 
 class ValueBuildInfoTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test ValueBuildInfo initialization"""
         vvv = SCons.Node.Python.Value('vvv')
         bi = SCons.Node.Python.ValueBuildInfo()
 
 
 class ValueChildTestCase(unittest.TestCase):
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test support for a Value() being an implicit dependency of a Node"""
         value = SCons.Node.Python.Value('v')
         node = SCons.Node.Node()
@@ -132,7 +132,7 @@ class ValueChildTestCase(unittest.TestCase):
 
 
 class ValueMemoTestCase(unittest.TestCase):
-    def test_memo(self):
+    def test_memo(self) -> None:
         """Test memoization"""
         # First confirm that ValueWithMemo does memoization.
         value1 = SCons.Node.Python.ValueWithMemo('vvv')
@@ -145,13 +145,13 @@ class ValueMemoTestCase(unittest.TestCase):
         value3 = ni.str_to_node('vvv')
         assert value1 is value3
 
-    def test_built_value(self):
+    def test_built_value(self) -> None:
         """Confirm that built values are not memoized."""
         v1 = SCons.Node.Python.ValueWithMemo('c', 'ca')
         v2 = SCons.Node.Python.ValueWithMemo('c', 'ca')
         assert v1 is not v2
 
-    def test_non_primitive_values(self):
+    def test_non_primitive_values(self) -> None:
         """Confirm that non-primitive values are not memoized."""
         d = {'a': 1}
         v1 = SCons.Node.Python.ValueWithMemo(d)
@@ -163,7 +163,7 @@ class ValueMemoTestCase(unittest.TestCase):
         v4 = SCons.Node.Python.ValueWithMemo(a)
         assert v3 is not v4
 
-    def test_value_set_name(self):
+    def test_value_set_name(self) -> None:
         """ Confirm setting name and caching takes the name into account """
 
         v1 = SCons.Node.Python.ValueWithMemo(b'\x00\x0F', name='name')

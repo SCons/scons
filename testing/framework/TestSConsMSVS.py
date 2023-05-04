@@ -688,7 +688,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
 
         return self._msvs_versions
 
-    def vcproj_sys_path(self, fname):
+    def vcproj_sys_path(self, fname) -> None:
         """
         """
         orig = 'sys.path = [ join(sys'
@@ -704,7 +704,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
                         subdir=None, sconscript=None,
                         python=None,
                         project_guid=None,
-                        vcproj_sccinfo='', sln_sccinfo=''):
+                        vcproj_sccinfo: str='', sln_sccinfo: str=''):
         if not hasattr(self, '_msvs_versions'):
             self.msvs_versions()
 
@@ -809,7 +809,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
 
         return host
 
-    def validate_msvs_file(self,  file):
+    def validate_msvs_file(self,  file) -> None:
         try:
             x = ElementTree.parse(file)
         except:
@@ -832,7 +832,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         minor = 0 if len(components) < 2 else int(components[1])
         return major, minor
 
-    def _get_solution_file_format_version(self, vc_version):
+    def _get_solution_file_format_version(self, vc_version) -> str:
         """
         Returns the Visual Studio format version expected in the .sln file.
         """
@@ -848,7 +848,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
-    def _get_solution_file_vs_number(self, vc_version):
+    def _get_solution_file_vs_number(self, vc_version) -> str:
         """
         Returns the Visual Studio number expected in the .sln file.
         """
@@ -871,7 +871,7 @@ print("self._msvs_versions =%%s"%%str(SCons.Tool.MSCommon.query_versions()))
         else:
             raise SCons.Errors.UserError(f'Received unexpected VC version {vc_version}')
 
-    def _get_vcxproj_file_tools_version(self, vc_version):
+    def _get_vcxproj_file_tools_version(self, vc_version) -> str:
         """
         Returns the version entry expected in the project file.
         For .vcxproj files, this goes is ToolsVersion.

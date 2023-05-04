@@ -149,11 +149,11 @@ _null = SCons.Scanner.LaTeX._null
 
 modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
-def check_file_error_message(utility, filename='log'):
+def check_file_error_message(utility, filename: str='log') -> None:
     msg = '%s returned an error, check the %s file\n' % (utility, filename)
     sys.stdout.write(msg)
 
-def FindFile(name,suffixes,paths,env,requireExt=False):
+def FindFile(name,suffixes,paths,env,requireExt: bool=False):
     if requireExt:
         name,ext = SCons.Util.splitext(name)
         # if the user gave an extension use it.
@@ -253,7 +253,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # .aux files already processed by BibTex
     already_bibtexed = []
 
-    def check_content_hash(filenode, suffix):
+    def check_content_hash(filenode, suffix) -> bool:
         """
         Routine to update content hash and compare
         """
@@ -840,7 +840,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
 
 TeXLaTeXAction = None
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for TeX to an Environment."""
 
     global TeXLaTeXAction
@@ -859,7 +859,7 @@ def generate(env):
     bld.add_action('.tex', TeXLaTeXAction)
     bld.add_emitter('.tex', tex_eps_emitter)
 
-def generate_darwin(env):
+def generate_darwin(env) -> None:
     try:
         environ = env['ENV']
     except KeyError:
@@ -874,7 +874,7 @@ def generate_darwin(env):
         if ospath:
             env.AppendENVPath('PATH', ospath)
 
-def generate_common(env):
+def generate_common(env) -> None:
     """Add internal Builders and construction variables for LaTeX to an Environment."""
 
     # Add OSX system paths so TeX tools can be found

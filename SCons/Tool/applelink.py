@@ -79,7 +79,7 @@ def _applelib_check_valid_version(version_string):
     return True, ""
 
 
-def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
+def _applelib_currentVersionFromSoVersion(source, target, env, for_signature) -> str:
     """
     A generator function to create the -Wl,-current_version flag if needed.
     If env['APPLELINK_NO_CURRENT_VERSION'] contains a true value no flag will be generated
@@ -110,7 +110,7 @@ def _applelib_currentVersionFromSoVersion(source, target, env, for_signature):
     return "-Wl,-current_version,%s" % version_string
 
 
-def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
+def _applelib_compatVersionFromSoVersion(source, target, env, for_signature) -> str:
     """
     A generator function to create the -Wl,-compatibility_version flag if needed.
     If env['APPLELINK_NO_COMPATIBILITY_VERSION'] contains a true value no flag will be generated
@@ -141,7 +141,7 @@ def _applelib_compatVersionFromSoVersion(source, target, env, for_signature):
 
     return "-Wl,-compatibility_version,%s" % version_string
 
-def _applelib_soname(target, source, env, for_signature):
+def _applelib_soname(target, source, env, for_signature) -> str:
     """
     Override default _soname() function from SCons.Tools.linkCommon.SharedLibrary.
     Apple's file naming for versioned shared libraries puts the version string before
@@ -160,7 +160,7 @@ def _applelib_soname(target, source, env, for_signature):
         return "$SHLIBPREFIX$_get_shlib_stem$_SHLIBSOVERSION${SHLIBSUFFIX}"
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for applelink to an
     Environment."""
     link.generate(env)

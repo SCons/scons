@@ -136,7 +136,7 @@ def ninja_builder(env, target, source):
         sys.stdout.write("\n")
 
 
-def options(opts):
+def options(opts) -> None:
     """
     Add command line Variables for Ninja builder.
     """
@@ -302,7 +302,7 @@ def generate(env):
     # instead return something that looks more expanded. So to
     # continue working even if a user has done this we map both the
     # "bracketted" and semi-expanded versions.
-    def robust_rule_mapping(var, rule, tool):
+    def robust_rule_mapping(var, rule, tool) -> None:
         provider = gen_get_response_file_command(env, rule, tool)
         env.NinjaRuleMapping("${" + var + "}", provider)
 
@@ -459,7 +459,7 @@ def generate(env):
     # In the future we may be able to use this to actually cache the build.ninja
     # file once we have the upstream support for referencing SConscripts as File
     # nodes.
-    def ninja_execute(self):
+    def ninja_execute(self) -> None:
 
         target = self.targets[0]
         if target.get_env().get('NINJA_SKIP'):
@@ -475,7 +475,7 @@ def generate(env):
     # date-ness.
     SCons.Script.Main.BuildTask.needs_execute = lambda x: True
 
-    def ninja_Set_Default_Targets(env, tlist):
+    def ninja_Set_Default_Targets(env, tlist) -> None:
         """
             Record the default targets if they were ever set by the user. Ninja
             will need to write the default targets and make sure not to include

@@ -74,7 +74,7 @@ def piped_env_spawn(sh, escape, cmd, args, env, stdout, stderr):
                        env, stdout, stderr)
 
 
-def generate(env):
+def generate(env) -> None:
     # Bearing in mind we have python 2.4 as a baseline, we can just do this:
     spawn = subprocess_spawn
     pspawn = piped_env_spawn

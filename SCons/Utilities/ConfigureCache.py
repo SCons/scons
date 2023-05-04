@@ -38,7 +38,7 @@ import glob
 import json
 import os
 
-def rearrange_cache_entries(current_prefix_len, new_prefix_len):
+def rearrange_cache_entries(current_prefix_len, new_prefix_len) -> None:
     """Move cache files if prefix length changed.
 
     Move the existing cache files to new directories of the

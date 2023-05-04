@@ -34,5 +34,5 @@ def generate(env):
         "'qt3' will be removed entirely in a future release."
     )
 
-def exists(env):
+def exists(env) -> bool:
     return False

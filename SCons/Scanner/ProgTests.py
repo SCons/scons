@@ -44,7 +44,7 @@ for h in libs:
 # define some helpers:
 
 class DummyEnvironment:
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         self._dict = {'LIBSUFFIXES' : '.lib'}
         self._dict.update(kw)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -57,16 +57,16 @@ class DummyEnvironment:
         else:
             return [self._dict[x] for x in args]
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.Dictionary()
 
     def __getitem__(self,key):
         return self.Dictionary()[key]
 
-    def __setitem__(self,key,value):
+    def __setitem__(self,key,value) -> None:
         self.Dictionary()[key] = value
 
-    def __delitem__(self,key):
+    def __delitem__(self,key) -> None:
         del self.Dictionary()[key]
 
     def subst(self, s, target=None, source=None, conv=None):
@@ -87,11 +87,11 @@ class DummyEnvironment:
         return self.fs.File(test.workpath(filename))
 
 class DummyNode:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
-    def rexists(self):
+    def rexists(self) -> int:
         return 1
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
     
 def deps_match(deps, libs):
@@ -102,7 +102,7 @@ def deps_match(deps, libs):
 # define some tests:
 
 class ProgramScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=[ test.workpath("") ],
                                LIBS=[ 'l1', 'l2', 'l3' ])
         s = SCons.Scanner.Prog.ProgramScanner()
@@ -135,7 +135,7 @@ class ProgramScannerTestCase1(unittest.TestCase):
 
 
 class ProgramScannerTestCase2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=list(map(test.workpath,
                                            ["", "d1", "d1/d2" ])),
                                LIBS=[ 'l1', 'l2', 'l3' ])
@@ -145,7 +145,7 @@ class ProgramScannerTestCase2(unittest.TestCase):
         assert deps_match(deps, ['l1.lib', 'd1/l2.lib', 'd1/d2/l3.lib' ]), list(map(str, deps))
 
 class ProgramScannerTestCase3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=[test.workpath("d1/d2"),
                                         test.workpath("d1")],
                                LIBS='l2 l3'.split())
@@ -155,7 +155,7 @@ class ProgramScannerTestCase3(unittest.TestCase):
         assert deps_match(deps, ['d1/l2.lib', 'd1/d2/l3.lib']), list(map(str, deps))
 
 class ProgramScannerTestCase5(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         class SubstEnvironment(DummyEnvironment):
             def subst(self, arg, target=None, source=None, conv=None, path=test.workpath("d1")):
                 if arg == "$blah":
@@ -170,7 +170,7 @@ class ProgramScannerTestCase5(unittest.TestCase):
         assert deps_match(deps, [ 'd1/l2.lib' ]), list(map(str, deps))
 
 class ProgramScannerTestCase6(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
                                LIBS=['foo', 'sub/libbar', 'xyz.other'],
                                LIBPREFIXES=['lib'],
@@ -181,7 +181,7 @@ class ProgramScannerTestCase6(unittest.TestCase):
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), list(map(str, deps))
 
 class ProgramScannerTestCase7(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
                                LIBS=['foo', '$LIBBAR', '$XYZ'],
                                LIBPREFIXES=['lib'],
@@ -194,7 +194,7 @@ class ProgramScannerTestCase7(unittest.TestCase):
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), list(map(str, deps))
 
 class ProgramScannerTestCase8(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         
         n1 = DummyNode('n1')
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
@@ -217,7 +217,7 @@ class ProgramScannerTestCase8(unittest.TestCase):
         assert deps == [n1, n2], deps
 
 class ProgramScannerTestCase9(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
                                LIBS=['foo', '$LIBBAR'],
                                LIBPREFIXES=['lib'],
@@ -229,7 +229,7 @@ class ProgramScannerTestCase9(unittest.TestCase):
         assert deps_match(deps, ['dir/libfoo.a', 'dir/sub/libbar.a', 'dir/libxyz.other']), list(map(str, deps))
 
 class ProgramScannerTestCase10(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(LIBPATH=[ test.workpath("dir") ],
                                LIBS=['foo', '$LIBBAR'],
                                LIBPREFIXES=['lib'],

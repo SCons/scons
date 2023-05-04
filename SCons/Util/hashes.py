@@ -314,7 +314,7 @@ def hash_signature(s, hash_format=None):
     return m.hexdigest()
 
 
-def hash_file_signature(fname, chunksize=65536, hash_format=None):
+def hash_file_signature(fname, chunksize: int=65536, hash_format=None):
     """
     Generate the md5 signature of a file
 
@@ -358,7 +358,7 @@ def hash_collect(signatures, hash_format=None):
 _MD5_WARNING_SHOWN = False
 
 
-def _show_md5_warning(function_name):
+def _show_md5_warning(function_name) -> None:
     """Shows a deprecation warning for various MD5 functions."""
 
     global _MD5_WARNING_SHOWN
@@ -380,7 +380,7 @@ def MD5signature(s):
     return hash_signature(s)
 
 
-def MD5filesignature(fname, chunksize=65536):
+def MD5filesignature(fname, chunksize: int=65536):
     """Deprecated. Use :func:`hash_file_signature` instead."""
 
     _show_md5_warning("MD5filesignature")

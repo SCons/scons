@@ -48,7 +48,7 @@ def copyto_emitter(target, source, env):
 
     return (n_target, source)
 
-def copy_action_func(target, source, env):
+def copy_action_func(target, source, env) -> int:
     assert( len(target) == len(source) ), "\ntarget: %s\nsource: %s" %(list(map(str, target)),list(map(str, source)))
 
     for t, s in zip(target, source):
@@ -62,7 +62,7 @@ def copy_action_str(target, source, env):
 
 copy_action = SCons.Action.Action( copy_action_func, copy_action_str )
 
-def generate(env):
+def generate(env) -> None:
     try:
         env['BUILDERS']['CopyTo']
         env['BUILDERS']['CopyAs']
@@ -88,7 +88,7 @@ def generate(env):
 
         env['COPYSTR'] = 'Copy file(s): "$SOURCES" to "$TARGETS"'
 
-def exists(env):
+def exists(env) -> int:
     return 1
 
 # Local Variables:

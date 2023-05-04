@@ -67,7 +67,7 @@ def get_xlc(env, xlc=None, packages=[]):
                 xlcPath, sep, xlc = filename.rpartition('/')
     return (xlcPath, xlc, xlcVersion)
 
-def generate(env):
+def generate(env) -> None:
     posix.generate(env)
     #Based on AIX 5.2: ARG_MAX=24576 - 3000 for environment expansion
     env['MAXLINELENGTH']  = 21576

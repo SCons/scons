@@ -61,7 +61,7 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
-def log_error(msg):
+def log_error(msg) -> None:
     logging.debug(msg)
     sys.stderr.write(msg)
 

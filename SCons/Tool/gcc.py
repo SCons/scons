@@ -40,7 +40,7 @@ import SCons.Util
 compilers = ['gcc', 'cc']
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for gcc to an Environment."""
 
     if 'CC' not in env:

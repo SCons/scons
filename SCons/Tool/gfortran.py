@@ -34,7 +34,7 @@ from SCons.Util import CLVar
 from . import fortran
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for gfortran."""
     fortran.generate(env)
 

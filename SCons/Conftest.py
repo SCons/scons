@@ -215,7 +215,7 @@ int main(void)
     _YesNoResult(context, ret, None, text)
     return ret
 
-def _check_empty_program(context, comp, text, language, use_shared = False):
+def _check_empty_program(context, comp, text, language, use_shared: bool = False):
     """Return 0 on success, 1 otherwise."""
     if comp not in context.env or not context.env[comp]:
         # The compiler construction variable is not set or empty
@@ -626,8 +626,8 @@ int main(void) {
     return ret
 
 def CheckLib(context, libs, func_name = None, header = None,
-             extra_libs = None, call = None, language = None, autoadd = 1,
-             append=True, unique=False):
+             extra_libs = None, call = None, language = None, autoadd: int = 1,
+             append: bool=True, unique: bool=False):
     """
     Configure check for a C or C++ libraries "libs".  Searches through
     the list of libraries, until one is found where the test succeeds.
@@ -753,7 +753,7 @@ def CheckProg(context, prog_name):
 # END OF PUBLIC FUNCTIONS
 #
 
-def _YesNoResult(context, ret, key, text, comment = None):
+def _YesNoResult(context, ret, key, text, comment = None) -> None:
     r"""
     Handle the result of a test with a "yes" or "no" result.
 
@@ -772,7 +772,7 @@ def _YesNoResult(context, ret, key, text, comment = None):
         context.Display("yes\n")
 
 
-def _Have(context, key, have, comment = None):
+def _Have(context, key, have, comment = None) -> None:
     r"""
     Store result of a test in context.havedict and context.headerfilename.
 
@@ -815,7 +815,7 @@ def _Have(context, key, have, comment = None):
         context.config_h = context.config_h + lines
 
 
-def _LogFailed(context, text, msg):
+def _LogFailed(context, text, msg) -> None:
     """
     Write to the log about a failed program.
     Add line numbers, so that error messages can be understood.

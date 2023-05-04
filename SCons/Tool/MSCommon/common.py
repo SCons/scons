@@ -69,7 +69,7 @@ if LOGFILE:
                     pass
             return filename
 
-        def filter(self, record):
+        def filter(self, record) -> bool:
             relfilename = self.get_relative_filename(record.pathname, self.modulelist)
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
@@ -139,7 +139,7 @@ def read_script_env_cache():
     return envcache
 
 
-def write_script_env_cache(cache):
+def write_script_env_cache(cache) -> None:
     """ write out cache of msvc env vars if requested """
     if CONFIG_CACHE:
         try:
@@ -221,7 +221,7 @@ def _force_vscmd_skip_sendtelemetry(env):
     return True
 
 
-def normalize_env(env, keys, force=False):
+def normalize_env(env, keys, force: bool=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
     controlled by the keys argument.
@@ -384,7 +384,7 @@ def parse_output(output, keep=KEEPLIST):
     for i in keep:
         rdk[i] = re.compile('%s=(.*)' % i, re.I)
 
-    def add_env(rmatch, key, dkeep=dkeep):
+    def add_env(rmatch, key, dkeep=dkeep) -> None:
         path_list = rmatch.group(1).split(os.pathsep)
         for path in path_list:
             # Do not add empty paths (when a var ends with ;)

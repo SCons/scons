@@ -50,8 +50,8 @@ class CopytreeError(OSError):
     pass
 
 
-def scons_copytree(src, dst, symlinks=False, ignore=None, copy_function=copy2,
-                   ignore_dangling_symlinks=False, dirs_exist_ok=False):
+def scons_copytree(src, dst, symlinks: bool=False, ignore=None, copy_function=copy2,
+                   ignore_dangling_symlinks: bool=False, dirs_exist_ok: bool=False):
     """Recursively copy a directory tree, SCons version.
 
     This is a modified copy of the Python 3.7 shutil.copytree function.
@@ -225,7 +225,7 @@ def listShlibLinksToInstall(dest, source, env):
                 install_links.append((install_link, install_linktgt))
     return install_links
 
-def installShlibLinks(dest, source, env):
+def installShlibLinks(dest, source, env) -> None:
     """If we are installing a versioned shared library create the required links."""
     Verbose = False
     symlinks = listShlibLinksToInstall(dest, source, env)
@@ -337,7 +337,7 @@ class DESTDIR_factory:
     """ A node factory, where all files will be relative to the dir supplied
     in the constructor.
     """
-    def __init__(self, env, dir):
+    def __init__(self, env, dir) -> None:
         self.env = env
         self.dir = env.arg2nodes( dir, env.fs.Dir )[0]
 
@@ -429,7 +429,7 @@ def InstallVersionedBuilderWrapper(env, target=None, source=None, dir=None, **kw
 added = None
 
 
-def generate(env):
+def generate(env) -> None:
 
     from SCons.Script import AddOption, GetOption
     global added
@@ -500,7 +500,7 @@ def generate(env):
     except KeyError:
         env['INSTALLVERSIONEDLIB'] = copyFuncVersionedLib
 
-def exists(env):
+def exists(env) -> int:
     return 1
 
 # Local Variables:

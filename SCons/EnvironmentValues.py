@@ -72,7 +72,7 @@ class EnvironmentValue:
     Hold a single value. We're going to cache parsed version of the file
     We're going to keep track of variables which feed into this values evaluation
     """
-    def __init__(self, value):
+    def __init__(self, value) -> None:
         self.value = value
         self.var_type = ValueTypes.UNKNOWN
 
@@ -82,7 +82,7 @@ class EnvironmentValue:
             self.parse_value()
 
 
-    def parse_value(self):
+    def parse_value(self) -> None:
         """
         Scan the string and break into component values
         """
@@ -99,7 +99,7 @@ class EnvironmentValue:
             # likely callable? either way we don't parse
             self._parsed = self.value
 
-    def parse_trial(self):
+    def parse_trial(self) -> None:
         """
         Try alternate parsing methods.
         :return:
@@ -113,7 +113,7 @@ class EnvironmentValues:
     """
     A class to hold all the environment variables
     """
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         self._dict = {}
         for k in kw:
             self._dict[k] = EnvironmentValue(kw[k])

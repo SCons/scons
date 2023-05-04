@@ -58,7 +58,7 @@ if False:
 
         shutil.copy2 = CopyFile
 
-        def win_api_copyfile(src,dst):
+        def win_api_copyfile(src,dst) -> None:
             CopyFile(src,dst)
             os.utime(dst)
 
@@ -283,7 +283,7 @@ class ArchDefinition:
     Determine which windows CPU were running on.
     A class for defining architecture-specific settings and logic.
     """
-    def __init__(self, arch, synonyms=[]):
+    def __init__(self, arch, synonyms=[]) -> None:
         self.arch = arch
         self.synonyms = synonyms
 
