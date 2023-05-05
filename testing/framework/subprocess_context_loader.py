@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Windows COMSPEC command interpreter module loader.
+Subprocess context module loader.
 """
 
 try:

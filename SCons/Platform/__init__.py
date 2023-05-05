@@ -350,9 +350,11 @@ def Platform(name = platform_default()):
     spec = PlatformSpec(name, module.generate)
     return spec
 
-def SubprocessContextHandler(name = platform_default()):
+def SubprocessContextHandler(name=None):
     """Select a subprocess context handler."""
 
+    if not name:
+        name = platform_default() 
     subprocess_context_handler = subprocess_context.get_handler(name)
     return subprocess_context_handler
 

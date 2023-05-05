@@ -809,7 +809,7 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
 
     kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
-    context_handler = SCons.Platform.SubprocessContextHandler(scons_env['PLATFORM'])
+    context_handler = SCons.Platform.SubprocessContextHandler(scons_env.get('PLATFORM'))
     context = context_handler.context_create(env=kw['env']) if context_handler else None
     try:
         pobj = subprocess.Popen(cmd, **kw)
