@@ -321,9 +321,14 @@ from collections import UserList, UserString
 from pathlib import Path
 from subprocess import PIPE, STDOUT
 from typing import Optional
-
-if sys.platform == 'win32':
-    import win32_comspec_test
+try:
+    import msvcrt
+except ModuleNotFoundError:
+    _mswindows = False
+else:
+    _mswindows = True
+if _mswindows:
+    import subprocess_context_windows
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'

@@ -22,21 +22,74 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Windows COMSPEC command interpreter configuration.
+Subprocess context handler support.
 """
 
-import sys
-
 __all__ = [
-    'windows_comspec_import_warning_message',
-    'windows_comspec_context_create',
-    'windows_comspec_context_restore',
-    'windows_comspec_state_create',
-    'windows_comspec_state_warning_message',
+    'get_handler',
 ]
 
+import abc
 
-if sys.platform == 'win32':
+try:
+    import msvcrt
+except ModuleNotFoundError:
+    _mswindows = False
+else:
+    _mswindows = True
+
+
+_subprocess_context_registry = {}
+
+def get_handler(platform):
+    """Return context handler for the platform."""
+    cls = _subprocess_context_registry.get(platform.lower())
+    return cls
+
+class SubprocessContextBase(abc.ABC):
+    """Base subprocess context."""
+
+    def __init_subclass__(cls, platforms, **kwargs):
+        super().__init_subclass__(**kwargs)
+        for platform in platforms:
+            _subprocess_context_registry[platform.lower()] = cls
+
+    @classmethod
+    @abc.abstractmethod
+    def context_create(cls, env=None):
+        """Return subprocess context or None."""
+        # pylint: disable=unused-argument
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def context_restore(cls, context, env=None):
+        """Restore subprocess comspec context."""
+        # pylint: disable=unused-argument
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def state_create(cls, env=None):
+        """Return subprocess state or None."""
+        # pylint: disable=unused-argument
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def get_warning_message_from_state(cls, state=None):
+        """Return subprocess state warning message string or None."""
+        # pylint: disable=unused-argument
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def get_warning_message(cls, env=None):
+        """Return subprocess state warning message string or None."""
+        # pylint: disable=unused-argument
+        raise NotImplementedError
+
+if _mswindows:
 
     import os
     import textwrap
@@ -485,62 +538,39 @@ if sys.platform == 'win32':
 
             return msg
 
-    _WINDOWS_COMSPEC_INISTATE = _WindowsCommandInterpreter.get_comspec_state()
 
-    def windows_comspec_import_warning_message():
-        """Return windows comspec import state warning message string or None."""
-        msg = _WindowsCommandInterpreter.get_comspec_state_warning(
-            _WINDOWS_COMSPEC_INISTATE
-        )
-        return msg
+    class SubprocessContextWindows(SubprocessContextBase, platforms=['win32', 'windows', 'msvcrt']):
+        """Subprocess context for windows platform."""
 
-    def windows_comspec_context_create(env=None):
-        """Return windows comspec context or None."""
-        context = _WindowsCommandInterpreter.comspec_context_create(env)
-        return context
+        @classmethod
+        def context_create(cls, env=None):
+            """Return windows subprocess context or None."""
+            context = _WindowsCommandInterpreter.comspec_context_create(env)
+            return context
 
-    def windows_comspec_context_restore(context, env=None):
-        """Restore windows comspec context."""
-        rval = _WindowsCommandInterpreter.comspec_context_restore(context, env)
-        return rval
+        @classmethod
+        def context_restore(cls, context, env=None):
+            """Restore windows subprocess context."""
+            _WindowsCommandInterpreter.comspec_context_restore(context, env)
 
-    def windows_comspec_state_create(env=None):
-        """Return windows comspec state or None."""
-        state = _WindowsCommandInterpreter.get_comspec_state(env)
-        return state
+        @classmethod
+        def state_create(cls, env=None):
+            """Return windows subprocess state or None."""
+            state = _WindowsCommandInterpreter.get_comspec_state(env)
+            return state
 
-    def windows_comspec_state_warning_message(state=None):
-        """Return windows comspec state warning message string or None."""
-        msg = _WindowsCommandInterpreter.get_comspec_state_warning(
-            state
-        )
-        return msg
+        @classmethod
+        def get_warning_message_from_state(cls, state=None):
+            """Return windows subprocess state warning message string or None."""
+            msg = _WindowsCommandInterpreter.get_comspec_state_warning(state)
+            return msg
 
-else:
-
-    def windows_comspec_import_warning_message():
-        """Return windows comspec import state warning message string or None."""
-        return None
-
-    def windows_comspec_context_create(env=None):
-        """Return windows comspec context or None."""
-        # pylint: disable=unused-argument
-        return None
-
-    def windows_comspec_context_restore(context, env=None):
-        """Restore windows comspec context."""
-        # pylint: disable=unused-argument
-        return None
-
-    def windows_comspec_state_create(env=None):
-        """Return windows comspec state or None."""
-        # pylint: disable=unused-argument
-        return None
-
-    def windows_comspec_state_warning_message(state=None):
-        """Return windows comspec state warning message string or None."""
-        # pylint: disable=unused-argument
-        return None
+        @classmethod
+        def get_warning_message(cls, env=None):
+            """Return windows subprocess state warning message string or None."""
+            state = _WindowsCommandInterpreter.get_comspec_state(env)
+            msg = _WindowsCommandInterpreter.get_comspec_state_warning(state)
+            return msg
 
 # Local Variables:
 # tab-width:4

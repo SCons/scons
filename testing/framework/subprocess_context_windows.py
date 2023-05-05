@@ -25,16 +25,21 @@
 Windows COMSPEC command interpreter module loader.
 """
 
-import sys
+try:
+    import msvcrt
+except ModuleNotFoundError:
+    _mswindows = False
+else:
+    _mswindows = True
 
 __all__ = []
 
+if _mswindows:
 
-if sys.platform == 'win32':
-
+    import sys
     import os
 
-    _SCONS_WIN32_COMSPEC_FORCE_TEST_EVAR = 'SCONS_WIN32_COMSPEC_FORCE_TEST'
+    _SCONS_WINDOWS_COMSPEC_FORCE_TEST_EVAR = 'SCONS_WINDOWS_COMSPEC_FORCE_TEST'
 
     _VERBOSE = False
 
@@ -66,7 +71,7 @@ if sys.platform == 'win32':
         return True, comspec
 
     def _windows_osenviron_force_comspec():
-        orig_val = os.environ.get(_SCONS_WIN32_COMSPEC_FORCE_TEST_EVAR, '')
+        orig_val = os.environ.get(_SCONS_WINDOWS_COMSPEC_FORCE_TEST_EVAR, '')
         val = orig_val.lower() if orig_val else ''
         if val and val in ('false', 'f', 'no', 'n', '0'):
             rval = False
@@ -74,13 +79,12 @@ if sys.platform == 'win32':
             rval = True
         return rval, orig_val
 
-    def _windows_comspec_loader(verbose=False):
+    def _subprocess_context_loader(verbose=False):
 
-        win32_comspec_modulename = 'win32_comspec'
-        win32_comspec_filename = win32_comspec_modulename + '.py'
+        subprocess_context_modulename = 'subprocess_context'
 
-        win32_comspec_relpaths = [
-            '../../SCons/compat',
+        subprocess_context_relpaths = [
+            '../../SCons/Platform',
         ]
 
         if verbose:
@@ -90,12 +94,12 @@ if sys.platform == 'win32':
         curdir = os.path.dirname(__file__)
 
         modulepath = None
-        for reldir in win32_comspec_relpaths:
+        for reldir in subprocess_context_relpaths:
             checkdir = os.path.normpath(os.path.join(curdir, reldir))
             if not os.path.exists(checkdir):
                 continue
-            checkfile = os.path.join(checkdir, win32_comspec_filename)
-            if not os.path.exists(checkfile):
+            checkmodule = os.path.join(checkdir, subprocess_context_modulename)
+            if not os.path.exists(checkmodule):
                 continue
             modulepath = checkdir
             break
@@ -108,24 +112,24 @@ if sys.platform == 'win32':
 
         import importlib  # pylint: disable=import-outside-toplevel
 
-        win32_comspec_module = None
+        subprocess_context_module = None
 
         if modulepath:
             sys.path.append(modulepath)
             try:
-                win32_comspec_module = importlib.import_module(win32_comspec_modulename)
+                subprocess_context_module = importlib.import_module(subprocess_context_modulename)
             except ImportError:
                 pass
             sys.path.pop()
 
         if verbose:
-            print(f"{__file__}: module='{win32_comspec_module}'", file=sys.stderr)
+            print(f"{__file__}: module='{subprocess_context_module}'", file=sys.stderr)
 
         if verbose:
             _comspec = os.environ.get('COMSPEC')
             print(f"{__file__}: os.environ['COMSPEC']={_comspec}", file=sys.stderr)
 
-        return win32_comspec_module
+        return subprocess_context_module
 
     def _windows_comspec_setup(verbose=False):
 
@@ -150,43 +154,44 @@ if sys.platform == 'win32':
                 file=sys.stderr
             )
 
-        win32_comspec = _windows_comspec_loader(verbose=verbose)
+        subprocess_context = _subprocess_context_loader(verbose=verbose)
 
         if verbose:
-            print(f"{__file__}: win32_comspec={win32_comspec}", file=sys.stderr)
+            print(f"{__file__}: subprocess_context={subprocess_context}", file=sys.stderr)
 
         msg = ''
 
         if not is_force:
-            # not is_force, win32_comspec
-            # not is_force, not win32_comspec
+            # not is_force, subprocess_context
+            # not is_force, not subprocess_context
             msg = textwrap.dedent(
                 f""" \
                 Unsupported windows COMSPEC value, build may fail:
                    COMSPEC={comspec}
-                   {_SCONS_WIN32_COMSPEC_FORCE_TEST_EVAR}={os_force}\
+                   {_SCONS_WINDOWS_COMSPEC_FORCE_TEST_EVAR}={os_force}\
                 """
             )
-        elif not win32_comspec:
-            # is_force, not win32_comspec
+        elif not subprocess_context:
+            # is_force, not subprocess_context
             msg = textwrap.dedent(
                 f""" \
                 Unsupported windows COMSPEC value, build may fail:
                    COMSPEC={comspec}
-                   {_SCONS_WIN32_COMSPEC_FORCE_TEST_EVAR}={os_force}
-                   win32_comspec module import failed.\
+                   {_SCONS_WINDOWS_COMSPEC_FORCE_TEST_EVAR}={os_force}
+                   subprocess_context module import failed.\
                 """
             )
         else:
-            # is_force, win32_comspec
-            win32_comspec.windows_comspec_context_create()
-            state = win32_comspec.windows_comspec_state_create()
+            # is_force, subprocess_context
+            context_handler = subprocess_context.get_handler('msvcrt')
+            context_handler.context_create()
+            state = context_handler.state_create()
             if state:
                 msg = textwrap.dedent(
                     f""" \
                     Unsupported windows COMSPEC value, build may fail:
                        COMSPEC={comspec}
-                       {_SCONS_WIN32_COMSPEC_FORCE_TEST_EVAR}={os_force}
+                       {_SCONS_WINDOWS_COMSPEC_FORCE_TEST_EVAR}={os_force}
                        A valid command interpreter was not found.\
                     """
                 )

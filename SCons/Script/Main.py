@@ -926,6 +926,11 @@ def _main(parser):
     for warning_type, message in delayed_warnings:
         SCons.Warnings.warn(warning_type, message)
 
+    context_handler = SCons.Platform.SubprocessContextHandler()
+    message = context_handler.get_warning_message() if context_handler else None
+    if message:
+        SCons.Warnings.warn(SCons.Warnings.SubprocessContextWarning, message)
+
     if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
         if options.enable_virtualenv:
             SCons.Platform.virtualenv.enable_virtualenv = True
@@ -935,10 +940,6 @@ def _main(parser):
 
     if options.diskcheck:
         SCons.Node.FS.set_diskcheck(options.diskcheck)
-
-    message = SCons.compat.windows_comspec_import_warning_message()
-    if message:
-        SCons.Warnings.warn(SCons.Warnings.WindowsComspecWarning, message)
 
     # Next, we want to create the FS object that represents the outside
     # world's file system, as that's central to a lot of initialization.
