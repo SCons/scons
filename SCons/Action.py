@@ -795,7 +795,7 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
     subprocess.  Adds an an error-handling argument.  Adds ability
     to specify std{in,out,err} with "'devnull'" tag.
     """
-    import SCons.Platform.subprocess_context
+    import SCons.Platform
     # TODO: just uses subprocess.DEVNULL now, we can drop the "devnull"
     # string now - it is a holdover from Py2, which didn't have DEVNULL.
     for stream in 'stdin', 'stdout', 'stderr':
@@ -809,7 +809,7 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
 
     kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
-    context_handler = SCons.Platform.subprocess_context.get_handler(scons_env['PLATFORM'])
+    context_handler = SCons.Platform.SubprocessContextHandler(scons_env['PLATFORM'])
     context = context_handler.context_create(env=kw['env']) if context_handler else None
     try:
         pobj = subprocess.Popen(cmd, **kw)
