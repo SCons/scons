@@ -30,13 +30,16 @@ __all__ = [
 ]
 
 import abc
+import os
+import textwrap
+from collections import namedtuple
 
 try:
-    import msvcrt
+    import msvcrt  # pylint: disable=unused-import
 except ModuleNotFoundError:
-    _mswindows = False
+    _MSWINDOWS = False
 else:
-    _mswindows = True
+    _MSWINDOWS = True
 
 
 _subprocess_context_registry = {}
@@ -89,16 +92,14 @@ class SubprocessContextBase(abc.ABC):
         # pylint: disable=unused-argument
         raise NotImplementedError
 
-if _mswindows:
-
-    import os
-    import textwrap
-    from collections import namedtuple
+if _MSWINDOWS:
 
     try:
         import winreg
     except ImportError:
-        winreg = None
+        _WINREG = False
+    else:
+        _WINREG = True
 
     _norm_path_cache = {}
 
@@ -249,7 +250,7 @@ if _mswindows:
                 system_root = None
                 cmd_interpreter = None
 
-                if winreg:
+                if _WINREG:
                     for cmdreg_t in cls.CMD_EXECUTABLE_REGISTRY:
                         subkey, valname, subpath, cmdexec = cmdreg_t
                         try:
