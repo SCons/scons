@@ -321,7 +321,6 @@ from collections import UserList, UserString
 from pathlib import Path
 from subprocess import PIPE, STDOUT
 from typing import Optional
-import subprocess_context_loader
 
 IS_WINDOWS = sys.platform == 'win32'
 IS_MACOS = sys.platform == 'darwin'
