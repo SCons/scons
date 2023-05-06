@@ -43,13 +43,13 @@ env.CFile(target='foo.c', source='foo.l')
 env.CFile(target='bar', source='bar.y')
 </example_commands>
 
-<para>
+<!--para>  ** Left here for reference, does not need to be user-visible. **
 Note that for yacc files,
 the output file name is derived from <parameter>target</parameter>,
 or from the source file name if a target is not specified;
 the traditional yacc default name
 <filename>y.tab.c</filename> is not used.
-</para>
+</para-->
 </summary>
 </builder>
 
