@@ -973,8 +973,8 @@ $ <userinput>scons --debug=pdb</userinput>
 beginning of the &scons; main routine on startup.
 The search path (<systemitem>sys.path</systemitem>)
 at that point will include the location of the running &scons;,
-but not of the project itself -
-if you need to set breakpoints in your project files,
+but not of the project itself.
+If you need to set breakpoints in your project files,
 you will either need to add to the path,
 or use absolute pathnames when referring to project files.
 A <filename>.pdbrc</filename> file in the project root
@@ -992,17 +992,17 @@ the <command>break</command>,
 <command>tbreak</command>
 and <command>clear</command>
 commands only understand references to filenames
-which end in a <filename>.py</filename> suffix
-(although that suffix does not have to be typed),
+which have a <filename>.py</filename> extension.
+(although the suffix itself can be omitted),
 <emphasis>except</emphasis> if you use an absolute path.
 As a special exception to that rule, the names
 &SConstruct; and &SConscript; are recognized without
 needing the <filename>.py</filename> extension.
 </para>
 <para>
-<emphasis>Changed in version 4.5.0</emphasis>:
+<emphasis>Changed in version 4.6.0</emphasis>:
 The names &SConstruct; and &SConscript; are now
-recognized without needing to have a
+recognized without requiring
 <filename>.py</filename> suffix.
 </para>
 </note>
@@ -4005,7 +4005,7 @@ it will not be added again. The default is <literal>False</literal>.
 <parameter>library</parameter> can be a list of library names,
 or <constant>None</constant> (the default if the argument is omitted).
 If the former, <parameter>symbol</parameter> is checked against
-each library name in order, returning 
+each library name in order, returning
 (and reporting success) on the first
 successful test; if the latter,
 it is checked with the current value of &cv-LIBS;

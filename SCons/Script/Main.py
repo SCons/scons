@@ -1397,10 +1397,13 @@ def _exec_main(parser, values) -> None:
             def lookupmodule(self, filename: str) -> Optional[str]:
                 """Helper function for break/clear parsing -- SCons version.
 
-                Copy of the original, but recognizes common names for
-                SConstruct/SConscript without having to have them end in ``.py``
+                translates (possibly incomplete) file or module name
+                into an absolute file name.
 
-                .. versionadded:: 4.5.0
+                The SCons override recognizes common names for ``SConstruct``
+                and ``SConscript`` without requiring a ``.py`` suffix.
+
+                .. versionadded:: 4.6.0
                 """
                 if os.path.isabs(filename) and os.path.exists(filename):
                     return filename
@@ -1412,7 +1415,7 @@ def _exec_main(parser, values) -> None:
                     "SConstruct Sconstruct sconstruct SConscript sconscript".split()
                 )
                 base = os.path.split(filename)[-1]
-                if ext == '' and base not in SCONSCRIPTS:
+                if ext == '' and base not in SCONSCRIPTS:  # SCons
                     filename = filename + '.py'
                 if os.path.isabs(filename):
                     return filename

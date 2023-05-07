@@ -26,8 +26,10 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- When debugging (--debug=pdb), the filenames SConstruct and SConscript
+  are now recognized when manipulating breakpoints. Previously,
+  only a full pathname to an sconscript file worked, as pdb requires
+  a .py extension to open a file that is not an absolute path.
 
 FIXES
 -----
