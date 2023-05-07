@@ -81,6 +81,9 @@ from .envs import (
     AddPathIfNotExists,
     AddMethod,
 )
+from .subprocess_context import (
+    SubprocessContextHandler,
+) 
 
 
 # Note: the Util package cannot import other parts of SCons globally without

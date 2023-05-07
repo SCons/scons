@@ -26,7 +26,7 @@ Subprocess context handler support.
 """
 
 __all__ = [
-    'get_handler',
+    'SubprocessContextHandler',
 ]
 
 import abc
@@ -42,20 +42,8 @@ else:
     _MSWINDOWS = True
 
 
-_subprocess_context_registry = {}
-
-def get_handler(platform):
-    """Return context handler for the platform."""
-    cls = _subprocess_context_registry.get(platform.lower())
-    return cls
-
-class SubprocessContextBase(abc.ABC):
-    """Base subprocess context."""
-
-    def __init_subclass__(cls, platforms, **kwargs):
-        super().__init_subclass__(**kwargs)
-        for platform in platforms:
-            _subprocess_context_registry[platform.lower()] = cls
+class SubprocessContextHandlerBase(abc.ABC):
+    """Subprocess context handler base."""
 
     @classmethod
     @abc.abstractmethod
@@ -91,6 +79,7 @@ class SubprocessContextBase(abc.ABC):
         """Return subprocess state warning message string or None."""
         # pylint: disable=unused-argument
         raise NotImplementedError
+
 
 if _MSWINDOWS:
 
@@ -540,8 +529,8 @@ if _MSWINDOWS:
             return msg
 
 
-    class SubprocessContextWindows(SubprocessContextBase, platforms=['win32', 'windows', 'msvcrt']):
-        """Subprocess context for windows platform."""
+    class WindowsSubprocessContextHandler(SubprocessContextHandlerBase):
+        """Windows subprocess context handler"""
 
         @classmethod
         def context_create(cls, env=None):
@@ -572,6 +561,45 @@ if _MSWINDOWS:
             state = _WindowsCommandInterpreter.get_comspec_state(env)
             msg = _WindowsCommandInterpreter.get_comspec_state_warning(state)
             return msg
+
+    SubprocessContextHandler = WindowsSubprocessContextHandler
+
+else:
+
+    class DefaultSubprocessContextHandler(SubprocessContextHandlerBase):
+        """Default subprocess context handler."""
+
+        @classmethod
+        def context_create(cls, env=None):
+            """Return None."""
+            # pylint: disable=unused-argument
+            return None
+
+        @classmethod
+        def context_restore(cls, context, env=None):
+            """Do nothing."""
+            # pylint: disable=unused-argument
+            return
+
+        @classmethod
+        def state_create(cls, env=None):
+            """Return None."""
+            # pylint: disable=unused-argument
+            return None
+
+        @classmethod
+        def get_warning_message_from_state(cls, state=None):
+            """Return None."""
+            # pylint: disable=unused-argument
+            return None
+
+        @classmethod
+        def get_warning_message(cls, env=None):
+            """Return None."""
+            # pylint: disable=unused-argument
+            return None
+
+    SubprocessContextHandler = DefaultSubprocessContextHandler
 
 # Local Variables:
 # tab-width:4

@@ -795,7 +795,6 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
     subprocess.  Adds an an error-handling argument.  Adds ability
     to specify std{in,out,err} with "'devnull'" tag.
     """
-    import SCons.Platform
     # TODO: just uses subprocess.DEVNULL now, we can drop the "devnull"
     # string now - it is a holdover from Py2, which didn't have DEVNULL.
     for stream in 'stdin', 'stdout', 'stderr':
@@ -809,8 +808,7 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
 
     kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
-    context_handler = SCons.Platform.SubprocessContextHandler(scons_env.get('PLATFORM'))
-    context = context_handler.context_create(env=kw['env']) if context_handler else None
+    context = SCons.Util.SubprocessContextHandler.context_create(env=kw['env'])
     try:
         pobj = subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
@@ -844,8 +842,7 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
             stdout = stderr = f()
         pobj = dummyPopen(e)
     finally:
-        if context_handler and context:
-            context_handler.context_restore(context, env=kw['env'])
+        SCons.Util.SubprocessContextHandler.context_restore(context, env=kw['env'])
         # clean up open file handles stored in parent's kw
         for k, v in kw.items():
             if inspect.ismethod(getattr(v, 'close', None)):

@@ -51,8 +51,6 @@ import SCons.Errors
 import SCons.Subst
 import SCons.Tool
 
-from . import subprocess_context
-
 
 def platform_default():
     r"""Return the platform string for our execution environment.
@@ -349,14 +347,6 @@ def Platform(name = platform_default()):
     module = platform_module(name)
     spec = PlatformSpec(name, module.generate)
     return spec
-
-def SubprocessContextHandler(name=None):
-    """Select a subprocess context handler."""
-
-    if not name:
-        name = platform_default() 
-    subprocess_context_handler = subprocess_context.get_handler(name)
-    return subprocess_context_handler
 
 # Local Variables:
 # tab-width:4

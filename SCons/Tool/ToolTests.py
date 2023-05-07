@@ -45,8 +45,6 @@ class DummyEnvironment:
         self.dict[key] = val
     def __contains__(self, key) -> bool:
         return key in self.dict
-    def get(self, key, val=None):
-        return self.dict.get(key, val)
     def subst(self, string, *args, **kwargs):
         return string
 
