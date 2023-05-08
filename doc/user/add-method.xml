@@ -32,9 +32,14 @@ Copyright The SCons Foundation
   The &f-link-AddMethod; function is used to add a method
   to an environment.  It is typically used to add a "pseudo-builder,"
   a function that looks like a &Builder; but
-  wraps up calls to multiple other Builders
+  wraps up calls to multiple other &Builders;
   or otherwise processes its arguments
-  before calling one or more Builders.
+  before calling one or more &Builders;.
+
+  </para>
+
+  <para>
+
   In the following example,
   we want to install the program into the standard
   <filename>/usr/bin</filename> directory hierarchy,
@@ -70,11 +75,11 @@ int main() { printf("Hello, world!\n"); }
 
   <para>
 
-  A pseudo-builder is useful because it provides more flexibility
-  in parsing arguments than you can get with a standard &Builder;.
+  A pseudo-builder is useful because it gives you more flexibility
+  parsing arguments than you can get with a standard &Builder;.
   The next example shows a pseudo-builder with a
-  named argument that modifies the filename, and a separate argument
-  for the resource file (rather than having the builder figure it out
+  named argument that modifies the filename, and a separate optional
+  argument for a resource file (rather than having the builder figure it out
   by file extension).  This example also demonstrates using the global
   &AddMethod; function to add a method to the global Environment class,
   so it will be available in all subsequently created environments.
