@@ -808,7 +808,6 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
 
     kw['env'] = SCons.Util.sanitize_shell_env(ENV)
 
-    context = SCons.Util.SubprocessContextHandler.context_create(env=kw['env'])
     try:
         pobj = subprocess.Popen(cmd, **kw)
     except EnvironmentError as e:
@@ -842,7 +841,6 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
             stdout = stderr = f()
         pobj = dummyPopen(e)
     finally:
-        SCons.Util.SubprocessContextHandler.context_restore(context, env=kw['env'])
         # clean up open file handles stored in parent's kw
         for k, v in kw.items():
             if inspect.ismethod(getattr(v, 'close', None)):
