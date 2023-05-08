@@ -48,7 +48,7 @@ test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env = Environment(
     YACC=r'%(_python_)s myyacc.py',
-    YACCFLAGS='-x -I${TARGET.dir} -I${SOURCE.dir}',
+    YACCFLAGS='-x -I ${TARGET.dir} -I ${SOURCE.dir}',
     tools=['yacc', '%(linker)s', '%(compiler)s'],
 )
 env.CFile(target='out/aaa', source='in/aaa.y')

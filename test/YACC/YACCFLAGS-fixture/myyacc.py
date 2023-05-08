@@ -67,7 +67,7 @@ def fake_yacc():
         elif arg == "-o":
             skip = True
         elif arg.startswith("-I"):
-            pass
+            skip = True
         else:
             opt_list.append(arg)
     # The original didn't use the file argument(s) so we have to get rid of.
