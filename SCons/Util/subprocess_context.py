@@ -28,6 +28,7 @@ Subprocess context handler support.
 __all__ = [
     'SubprocessContextHandler',
     'get_command_interpreter',
+    'get_command_interpreter_prefix',
 ]
 
 import abc
@@ -326,6 +327,7 @@ if _MSWINDOWS:
 
         @classmethod
         def get_command_interpreter(cls):
+            """Return windows command interpreter."""
             win_comspec = cls._get_command_interpreter()
             if win_comspec.is_comspec:
                 cmd_interpreter = win_comspec.orig_comspec
@@ -424,9 +426,9 @@ if _MSWINDOWS:
             # env comspec has not changed
 
             if not context.env_comspec.is_defined:
-                 # remove key if original value is undefined
-                 del env['COMSPEC']
-                 return
+                # remove key if original value is undefined
+                del env['COMSPEC']
+                return
 
             # restore original value
             env['COMSPEC'] = context.env_comspec.orig_comspec
@@ -591,6 +593,12 @@ if _MSWINDOWS:
         cmd_interpreter = _WindowsCommandInterpreter.get_command_interpreter()
         return cmd_interpreter
 
+    def get_command_interpreter_prefix():
+        """Return windows command interpreter prefix."""
+        cmd_interpreter = _WindowsCommandInterpreter.get_command_interpreter()
+        cmd_prefix = f'"{cmd_interpreter}" /c '
+        return cmd_prefix
+
     class WindowsSubprocessContextHandler(SubprocessContextHandlerBase):
         """Windows subprocess context handler"""
 
@@ -638,7 +646,11 @@ if _MSWINDOWS:
 else:
 
     def get_command_interpreter():
-        """Return command interpreter."""
+        """Return ''."""
+        return ''
+
+    def get_command_interpreter_prefix():
+        """Return ''."""
         return ''
 
     class DefaultSubprocessContextHandler(SubprocessContextHandlerBase):
