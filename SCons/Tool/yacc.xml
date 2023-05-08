@@ -48,7 +48,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="yacc">
 <summary>
 <para>
-Sets construction variables for the &yacc; parse generator.
+Sets construction variables for the &yacc; parser generator.
 </para>
 </summary>
 <sets>
@@ -109,13 +109,19 @@ and adds those to the target list.
 </para>
 
 <para>
-If a <option>-d</option> option is present,
+If the <option>-d</option> option is present in &cv-YACCFLAGS;
 &scons; assumes that the call will also create a header file
 with the suffix defined by &cv-link-YACCHFILESUFFIX;
 if the yacc source file ends in a <filename>.y</filename> suffix,
 or a file with the suffix defined by &cv-link-YACCHXXFILESUFFIX;
 if the yacc source file ends in a <filename>.yy</filename> suffix.
 The header will have the same base name as the requested target.
+This is only correct if the executable is <command>bison</command>
+(or <command>win_bison</command>).
+If using Berkeley yacc (<command>byacc</command>),
+<filename>y.tab.h</filename> is always written -
+avoid the <option>-d</option> in this case and
+use &cv-link-YACC_HEADER_FILE; instead.
 </para>
 
 <para>

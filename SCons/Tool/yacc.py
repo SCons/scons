@@ -53,7 +53,7 @@ YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 if sys.platform == 'win32':
     BINS = ['bison', 'yacc', 'win_bison']
 else:
-    BINS = ["bison", "yacc"]
+    BINS = ["bison", "yacc", "byacc"]  # for byacc, yacc is normally a link
 
 
 def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
