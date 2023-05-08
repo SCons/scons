@@ -36,7 +36,7 @@ test.dir_fixture('MSVC_USE_SCRIPT_ARGS-fixture')
 
 test.run(arguments = ".", status=0, stderr=None)
 
-test.must_contain('MSDEBUG_OUTPUT.log', "Calling 'fake_script.bat one two'")
+test.must_contain('MSDEBUG_OUTPUT.log', "Calling '\"fake_script.bat\" one two'")
 
 test.pass_test()
 

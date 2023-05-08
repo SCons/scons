@@ -308,7 +308,7 @@ def get_output(vcbat, args=None, env=None):
         cmd_vcbat
     )
 
-    debug("Calling %s", repr(cmd))
+    debug("Calling %s", repr(cmd_vcbat))
     popen = SCons.Action._subproc(env,
                                   cmd,
                                   stdin='devnull',
