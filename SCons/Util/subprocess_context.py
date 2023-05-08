@@ -27,6 +27,7 @@ Subprocess context handler support.
 
 __all__ = [
     'SubprocessContextHandler',
+    'get_command_interpreter',
 ]
 
 import abc
@@ -47,7 +48,7 @@ class SubprocessContextHandlerBase(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def context_create(cls, env=None):
+    def context_create(cls, env=None, os_environ_force_allowed=False):
         """Return subprocess context or None."""
         # pylint: disable=unused-argument
         raise NotImplementedError
@@ -61,7 +62,7 @@ class SubprocessContextHandlerBase(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def state_create(cls, env=None):
+    def state_create(cls, env=None, os_environ_force_allowed=False):
         """Return subprocess state or None."""
         # pylint: disable=unused-argument
         raise NotImplementedError
@@ -75,11 +76,10 @@ class SubprocessContextHandlerBase(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def get_warning_message(cls, env=None):
+    def get_warning_message(cls, env=None, os_environ_force_allowed=False):
         """Return subprocess state warning message string or None."""
         # pylint: disable=unused-argument
         raise NotImplementedError
-
 
 if _MSWINDOWS:
 
@@ -102,6 +102,8 @@ if _MSWINDOWS:
         return norm_path
 
     class _WindowsCommandInterpreter:
+
+        default_cmd_interpreter = 'cmd.exe'
 
         force_comspec_evar = 'SCONS_WIN32_COMSPEC_FORCE'
 
@@ -210,7 +212,9 @@ if _MSWINDOWS:
 
         WindowsComspecContext = namedtuple("WindowsComspecContext", [
             "win_comspec",   # windows command interpreter
+            "os_modified",   # os.eviron['COMSPEC'] modified
             "os_comspec",    # os.environ['COMSPEC'] command interpreter
+            "env_modified",  # scons ENV['COMSPEC'] modified
             "env_comspec",   # scons ENV['COMSPEC'] command interpreter
         ])
 
@@ -315,14 +319,23 @@ if _MSWINDOWS:
             return None
 
         @classmethod
-        def _get_osenviron_comspec(cls):
-            comspec = os.environ.get('COMSPEC') if cls._use_oscomspec else None
+        def _get_command_interpreter(cls):
+            comspec = cls._find_command_interpreter()
             rval = cls.WindowsComspecValue.factory(comspec)
             return rval
 
         @classmethod
-        def _get_command_interpreter(cls):
-            comspec = cls._find_command_interpreter()
+        def get_command_interpreter(cls):
+            win_comspec = cls._get_command_interpreter()
+            if win_comspec.is_comspec:
+                cmd_interpreter = win_comspec.orig_comspec
+            else:
+                cmd_interpreter = cls.default_cmd_interpreter
+            return cmd_interpreter
+
+        @classmethod
+        def _get_osenviron_comspec(cls):
+            comspec = os.environ.get('COMSPEC') if cls._use_oscomspec else None
             rval = cls.WindowsComspecValue.factory(comspec)
             return rval
 
@@ -333,7 +346,7 @@ if _MSWINDOWS:
             return rval
 
         @classmethod
-        def comspec_context_create(cls, env):
+        def comspec_context_create(cls, env, os_environ_force_allowed=False):
             """Return windows comspec context or None."""
 
             os_comspec = cls._get_osenviron_comspec()
@@ -346,20 +359,78 @@ if _MSWINDOWS:
                 # could not find a supported command interpreter
                 return None
 
-            os.environ['COMSPEC'] = win_comspec.orig_comspec
+            os_modified = False
+            if os_environ_force_allowed:
+                os.environ['COMSPEC'] = win_comspec.orig_comspec
+                os_modified = True
 
+            env_modified = False
             env_comspec = cls._get_sconsenv_comspec(env)
             if env_comspec.norm_comspec != win_comspec.norm_comspec:
                 if env:
                     env['COMSPEC'] = win_comspec.orig_comspec
+                    env_modified = True
+
+            if not any((os_modified, env_modified)):
+                return None
 
             rval = cls.WindowsComspecContext(
                 win_comspec=win_comspec,
+                os_modified=os_modified,
                 os_comspec=os_comspec,
+                env_modified=env_modified,
                 env_comspec=env_comspec,
             )
 
             return rval
+
+        @classmethod
+        def _restore_os_comspec(cls, context):
+
+            os_path = os.environ.get('COMSPEC')
+            if not os_path:
+                # os.environ comspec is not defined
+                return
+
+            os_norm = _normalize_path(os_path)
+            if os_norm != context.win_comspec.norm_comspec:
+                # os.environ comspec has changed
+                return
+
+            # os.environ comspec has not changed
+
+            if not context.os_comspec.is_defined:
+                # remove key if original value is undefined
+                del os.environ['COMSPEC']
+                return
+
+            # restore original value
+            os.environ['COMSPEC'] = context.os_comspec.orig_comspec
+            return
+
+        @classmethod
+        def _restore_env_comspec(cls, context, env):
+
+            env_path = env.get('COMSPEC')
+            if not env_path:
+                # env comspec is not defined
+                return
+
+            env_norm = _normalize_path(env_path)
+            if env_norm != context.win_comspec.norm_comspec:
+                # env comspec has changed
+                return
+
+            # env comspec has not changed
+
+            if not context.env_comspec.is_defined:
+                 # remove key if original value is undefined
+                 del env['COMSPEC']
+                 return
+
+            # restore original value
+            env['COMSPEC'] = context.env_comspec.orig_comspec
+            return
 
         @classmethod
         def comspec_context_restore(cls, context, env):
@@ -367,30 +438,11 @@ if _MSWINDOWS:
 
             if context:
 
-                os_path = os.environ.get('COMSPEC')
-                if os_path:
-                    os_norm = _normalize_path(os_path)
-                    if os_norm == context.win_comspec.norm_comspec:
-                        # os.environ comspec has not changed
-                        if not context.os_comspec.is_defined:
-                            # remove key if original value is undefined
-                            del os.environ['COMSPEC']
-                        else:
-                            # restore original value
-                            os.environ['COMSPEC'] = context.os_comspec.orig_comspec
+                if context.os_modified:
+                    cls._restore_os_comspec(context)
 
-                if env:
-                    env_path = env.get('COMSPEC')
-                    if env_path:
-                        env_norm = _normalize_path(env_path)
-                        if env_norm == context.win_comspec.norm_comspec:
-                            # env comspec has not changed
-                            if not context.env_comspec.is_defined:
-                                # remove key if original value is undefined
-                                del env['COMSPEC']
-                            else:
-                                # restore original value
-                                env['COMSPEC'] = context.env_comspec.orig_comspec
+                if env and context.env_modified:
+                    cls._restore_env_comspec(context, env)
 
         @classmethod
         def _get_osenviron_force_comspec(cls):
@@ -408,7 +460,7 @@ if _MSWINDOWS:
             return False, False, orig_val
 
         @classmethod
-        def _construct_state(cls, env=None):
+        def _construct_state(cls, env=None, os_environ_force_allowed=False):
 
             os_comspec = cls._get_osenviron_comspec()
             if os_comspec.is_comspec:
@@ -418,6 +470,9 @@ if _MSWINDOWS:
             env_comspec = cls._get_sconsenv_comspec(env=env)
 
             is_force, is_user, os_force = cls._get_osenviron_force_comspec()
+
+            if is_force and not os_environ_force_allowed:
+                is_force = False
 
             if win_comspec.is_comspec and is_force:
                 os.environ['COMSPEC'] = win_comspec.orig_comspec
@@ -444,9 +499,12 @@ if _MSWINDOWS:
             return rval
 
         @classmethod
-        def get_comspec_state(cls, env=None):
+        def get_comspec_state(cls, env=None, os_environ_force_allowed=False):
             """Return windows comspec state tuple or None."""
-            state = cls._construct_state(env=env)
+            state = cls._construct_state(
+                env=env,
+                os_environ_force_allowed=os_environ_force_allowed
+            )
             return state
 
         # key = (os_installed, is_force, is_user)
@@ -528,14 +586,21 @@ if _MSWINDOWS:
 
             return msg
 
+    def get_command_interpreter():
+        """Return windows command interpreter."""
+        cmd_interpreter = _WindowsCommandInterpreter.get_command_interpreter()
+        return cmd_interpreter
 
     class WindowsSubprocessContextHandler(SubprocessContextHandlerBase):
         """Windows subprocess context handler"""
 
         @classmethod
-        def context_create(cls, env=None):
+        def context_create(cls, env=None, os_environ_force_allowed=False):
             """Return windows subprocess context or None."""
-            context = _WindowsCommandInterpreter.comspec_context_create(env)
+            context = _WindowsCommandInterpreter.comspec_context_create(
+                env,
+                os_environ_force_allowed=os_environ_force_allowed
+            )
             return context
 
         @classmethod
@@ -544,9 +609,12 @@ if _MSWINDOWS:
             _WindowsCommandInterpreter.comspec_context_restore(context, env)
 
         @classmethod
-        def state_create(cls, env=None):
+        def state_create(cls, env=None, os_environ_force_allowed=False):
             """Return windows subprocess state or None."""
-            state = _WindowsCommandInterpreter.get_comspec_state(env)
+            state = _WindowsCommandInterpreter.get_comspec_state(
+                env,
+                os_environ_force_allowed=os_environ_force_allowed
+            )
             return state
 
         @classmethod
@@ -556,9 +624,12 @@ if _MSWINDOWS:
             return msg
 
         @classmethod
-        def get_warning_message(cls, env=None):
+        def get_warning_message(cls, env=None, os_environ_force_allowed=False):
             """Return windows subprocess state warning message string or None."""
-            state = _WindowsCommandInterpreter.get_comspec_state(env)
+            state = _WindowsCommandInterpreter.get_comspec_state(
+                env,
+                os_environ_force_allowed=os_environ_force_allowed
+            )
             msg = _WindowsCommandInterpreter.get_comspec_state_warning(state)
             return msg
 
@@ -566,11 +637,15 @@ if _MSWINDOWS:
 
 else:
 
+    def get_command_interpreter():
+        """Return command interpreter."""
+        return ''
+
     class DefaultSubprocessContextHandler(SubprocessContextHandlerBase):
         """Default subprocess context handler."""
 
         @classmethod
-        def context_create(cls, env=None):
+        def context_create(cls, env=None, os_environ_force_allowed=False):
             """Return None."""
             # pylint: disable=unused-argument
             return None
@@ -582,7 +657,7 @@ else:
             return
 
         @classmethod
-        def state_create(cls, env=None):
+        def state_create(cls, env=None, os_environ_force_allowed=False):
             """Return None."""
             # pylint: disable=unused-argument
             return None
@@ -594,7 +669,7 @@ else:
             return None
 
         @classmethod
-        def get_warning_message(cls, env=None):
+        def get_warning_message(cls, env=None, os_environ_force_allowed=False):
             """Return None."""
             # pylint: disable=unused-argument
             return None

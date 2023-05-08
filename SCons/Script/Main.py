@@ -926,7 +926,9 @@ def _main(parser):
     for warning_type, message in delayed_warnings:
         SCons.Warnings.warn(warning_type, message)
 
-    message = SCons.Util.SubprocessContextHandler.get_warning_message()
+    message = SCons.Util.SubprocessContextHandler.get_warning_message(
+        os_environ_force_allowed=True
+    )
     if message:
         SCons.Warnings.warn(SCons.Warnings.SubprocessContextWarning, message)
 

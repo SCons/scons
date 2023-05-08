@@ -83,7 +83,8 @@ from .envs import (
 )
 from .subprocess_context import (
     SubprocessContextHandler,
-) 
+    get_command_interpreter,
+)
 
 
 # Note: the Util package cannot import other parts of SCons globally without

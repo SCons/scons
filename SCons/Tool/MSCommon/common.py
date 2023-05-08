@@ -296,20 +296,24 @@ def get_output(vcbat, args=None, env=None):
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
+    cmd_interpreter = SCons.Util.get_command_interpreter()
+
     if args:
-        debug("Calling '%s %s'", vcbat, args)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" %s & set' % (vcbat, args),
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_vcbat = '"{}" {}'.format(vcbat, args)
     else:
-        debug("Calling '%s'", vcbat)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" & set' % vcbat,
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_vcbat = '"{}"'.format(vcbat)
+
+    cmd = '"{}" /c {} & set'.format(
+        cmd_interpreter,
+        cmd_vcbat
+    )
+
+    debug("Calling %s", repr(cmd))
+    popen = SCons.Action._subproc(env,
+                                  cmd,
+                                  stdin='devnull',
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
