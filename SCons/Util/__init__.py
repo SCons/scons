@@ -81,10 +81,9 @@ from .envs import (
     AddPathIfNotExists,
     AddMethod,
 )
-from .subprocess_context import (
-    SubprocessContextHandler,
-    get_command_interpreter,
-    get_command_interpreter_prefix,
+from .contexts import (
+    ProcessContext,
+    ShellContext,
 )
 
 
@@ -1321,7 +1320,7 @@ def sanitize_shell_env(execution_env: dict) -> dict:
             # is the proper way to handle Dir and File instances and will
             # produce something reasonable for just about everything else:
             new_env[key] = str(value)
-    _ = SubprocessContextHandler.context_create(env=new_env)
+    _ = ShellContext.update_env(env=new_env)
     return new_env
 
 # Local Variables:

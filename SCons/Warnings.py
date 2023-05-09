@@ -85,7 +85,10 @@ class ReservedVariableWarning(WarningOnByDefault):
 class StackSizeWarning(WarningOnByDefault):
     pass
 
-class SubprocessContextWarning(WarningOnByDefault):
+class ProcessContextWarning(WarningOnByDefault):
+    pass
+
+class ShellContextWarning(WarningOnByDefault):
     pass
 
 class VisualCMissingWarning(WarningOnByDefault):

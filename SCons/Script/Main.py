@@ -926,11 +926,9 @@ def _main(parser):
     for warning_type, message in delayed_warnings:
         SCons.Warnings.warn(warning_type, message)
 
-    message = SCons.Util.SubprocessContextHandler.get_warning_message(
-        os_environ_force_allowed=True
-    )
+    message = SCons.Util.ProcessContext.update_environ()
     if message:
-        SCons.Warnings.warn(SCons.Warnings.SubprocessContextWarning, message)
+        SCons.Warnings.warn(SCons.Warnings.ProcessContextWarning, message)
 
     if not SCons.Platform.virtualenv.virtualenv_enabled_by_default:
         if options.enable_virtualenv:

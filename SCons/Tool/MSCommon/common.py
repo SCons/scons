@@ -296,16 +296,16 @@ def get_output(vcbat, args=None, env=None):
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
-    cmd_prefix = SCons.Util.get_command_interpreter_prefix()
-
     if args:
         cmd_vcbat = '"{}" {}'.format(vcbat, args)
     else:
         cmd_vcbat = '"{}"'.format(vcbat)
 
+    cmd = SCons.Util.ProcessContext.subprocess_command(f'{cmd_vcbat} & set')
+
     debug("Calling %s", repr(cmd_vcbat))
     popen = SCons.Action._subproc(env,
-                                  f'{cmd_prefix}{cmd_vcbat} & set',
+                                  cmd,
                                   stdin='devnull',
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
