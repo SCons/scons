@@ -76,6 +76,16 @@ KNOWN_SCONSTRUCT_NAMES = [
     'sconstruct.py',
 ]
 
+# list of names regognized by debugger as "SConscript files" (inc. SConstruct)
+# files suffixed .py always work so don't need to be in this list.
+KNOWN_SCONSCRIPTS = [
+    "SConstruct",
+    "Sconstruct",
+    "sconstruct",
+    "SConscript",
+    "sconscript",
+]
+
 # Global variables
 first_command_start = None
 last_command_end = None
@@ -1397,11 +1407,12 @@ def _exec_main(parser, values) -> None:
             def lookupmodule(self, filename: str) -> Optional[str]:
                 """Helper function for break/clear parsing -- SCons version.
 
-                translates (possibly incomplete) file or module name
-                into an absolute file name.
-
-                The SCons override recognizes common names for ``SConstruct``
-                and ``SConscript`` without requiring a ``.py`` suffix.
+                Translates (possibly incomplete) file or module name
+                into an absolute file name. The "possibly incomplete"
+                means adding a ``.py`` suffix if not present, which breaks
+                picking breakpoints in sconscript files, which often don't
+                have a suffix. This version fixes for some known names of
+                sconscript files that don't have the suffix.
 
                 .. versionadded:: 4.6.0
                 """
@@ -1411,11 +1422,8 @@ def _exec_main(parser, values) -> None:
                 if os.path.exists(f) and self.canonic(f) == self.mainpyfile:
                     return f
                 root, ext = os.path.splitext(filename)
-                SCONSCRIPTS = (
-                    "SConstruct Sconstruct sconstruct SConscript sconscript".split()
-                )
                 base = os.path.split(filename)[-1]
-                if ext == '' and base not in SCONSCRIPTS:  # SCons
+                if ext == '' and base not in KNOWN_SCONSCRIPTS:  # SCons mod
                     filename = filename + '.py'
                 if os.path.isabs(filename):
                     return filename
