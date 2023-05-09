@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test a list of tests in failed_tests.log to run with the --retry option
@@ -42,19 +41,22 @@ test.subdir('test')
 test.write_failing_test(test_fail_py)
 test.write_passing_test(test_pass_py)
 
-test.write('failed_tests.log', """\
-%(test_fail_py)s
-""" % locals())
+test.write(
+    'failed_tests.log',
+    f"""\
+{test_fail_py}
+""",
+)
 
-expect_stdout = """\
-%(pythonstring)s%(pythonflags)s %(test_fail_py)s
+expect_stdout = f"""\
+{pythonstring}{pythonflags} {test_fail_py}
 FAILING TEST STDOUT
-%(pythonstring)s%(pythonflags)s %(test_pass_py)s
+{pythonstring}{pythonflags} {test_pass_py}
 PASSING TEST STDOUT
 
 Failed the following test:
-\t%(test_fail_py)s
-""" % locals()
+\t{test_fail_py}
+"""
 
 expect_stderr = """\
 FAILING TEST STDERR

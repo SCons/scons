@@ -64,7 +64,11 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- SCons test runner now uses pathlib to normalize and compare paths
+  to test files, which allows test lists, exclude lists, and tests on
+  the command line to "not care" about the OS convention for pathname
+  separators.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

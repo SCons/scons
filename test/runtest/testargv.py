@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test subdir args for runtest.py, for example:
@@ -38,34 +37,35 @@ import TestRuntest
 test = TestRuntest.TestRuntest()
 test.subdir('test', ['test', 'subdir'])
 
-files = {}
-files['pythonstring'] = TestRuntest.pythonstring
-files['pythonflags'] = TestRuntest.pythonflags
+pythonstring = TestRuntest.pythonstring
+pythonflags = TestRuntest.pythonflags
 
-files['one'] = os.path.join('test/subdir', 'test_one.py')
-files['two'] = os.path.join('test/subdir', 'two.py')
-files['three'] = os.path.join('test', 'test_three.py')
+one = os.path.join('test', 'subdir', 'test_one.py')
+two = os.path.join('test', 'subdir', 'two.py')
+three = os.path.join('test', 'test_three.py')
 
-test.write_passing_test(files['one'])
-test.write_passing_test(files['two'])
-test.write_passing_test(files['three'])
+test.write_passing_test(['test', 'subdir', 'test_one.py'])
+test.write_passing_test(['test', 'subdir', 'two.py'])
+test.write_passing_test(['test', 'test_three.py'])
 
-expect_stdout = """\
-%(pythonstring)s%(pythonflags)s %(one)s
+expect_stdout = f"""\
+{pythonstring}{pythonflags} {one}
 PASSING TEST STDOUT
-%(pythonstring)s%(pythonflags)s %(two)s
+{pythonstring}{pythonflags} {two}
 PASSING TEST STDOUT
-""" % files
+"""
 
 expect_stderr = """\
 PASSING TEST STDERR
 PASSING TEST STDERR
 """
 
-test.run(arguments = '--no-progress test/subdir',
-         status = 0,
-         stdout = expect_stdout,
-         stderr = expect_stderr)
+test.run(
+    arguments='--no-progress test/subdir',
+    status=0,
+    stdout=expect_stdout,
+    stderr=expect_stderr,
+)
 
 test.pass_test()
 
