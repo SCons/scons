@@ -25,6 +25,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Only used in msvs.py. Use base64.decodebytes instead.
     - SCons test runner now uses pathlib to normalize and compare paths
       to test files.
+    - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+      is '/' rather than the Windows default '\'), certain Configure checks
+      could fail due to the construction of the path to run the compiled check.
+    - Added effort to find mingw if it comes from Chocolatey install of msys2.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
@@ -198,9 +202,6 @@ RELEASE 4.5.0 -  Sun, 05 Mar 2023 14:08:29 -0700
         We take advantage that their order is now stable based on insertion order
         in Python 3.5+
       - Added/modifed unit and system tests to verify these changes.
-    - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
-      is '/' rather than the Windows default '\'), certain Configure checks
-      could fail due to the construction of the path to run the compiled check.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700
