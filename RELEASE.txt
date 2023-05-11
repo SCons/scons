@@ -32,7 +32,6 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-
 - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
   is '/' rather than the Windows default '\'), certain Configure checks
   could fail due to the construction of the path to run the compiled check.
@@ -45,9 +44,7 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Now tries to find mingw if it comes from Chocolatey install of msys2.
 
 PACKAGING
 ---------
