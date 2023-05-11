@@ -59,18 +59,20 @@ def generate(env) -> None:
 
     static_obj.add_action('.d', SCons.Defaults.DAction)
     shared_obj.add_action('.d', SCons.Defaults.ShDAction)
-    static_obj.add_emitter('.d', SCons.Defaults.StaticObjectEmitter)
-    shared_obj.add_emitter('.d', SCons.Defaults.SharedObjectEmitter)
+    static_obj.add_emitter('.d', DCommon.DStaticObjectEmitter)
+    shared_obj.add_emitter('.d', DCommon.DSharedObjectEmitter)
 
     env['DC'] = env.Detect('gdc') or 'gdc'
-    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -c -o $TARGET $SOURCES'
+    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DINTFDIR -c -o $TARGET $SOURCES'
     env['_DINCFLAGS'] = '${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
     env['_DVERFLAGS'] = '${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}'
     env['_DDEBUGFLAGS'] = '${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)}'
+    env['_DINTFDIR'] = '${_optWithIxes(DINTFDIRPREFIX, DINTFDIRKEY, DINTFDIRSUFFIX, __env__, Dirs, TARGET, SOURCE)}'
+    env['_optWithIxes'] = DCommon._optWithIxes
     env['_DFLAGS'] = '${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)}'
 
     env['SHDC'] = '$DC'
-    env['SHDCOM'] = '$SHDC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS -fPIC -c -o $TARGET $SOURCES'
+    env['SHDCOM'] = '$SHDC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DINTFDIR -fPIC -c -o $TARGET $SOURCES'
 
     env['DPATH'] = ['#/']
     env['DFLAGS'] = []
@@ -82,13 +84,17 @@ def generate(env) -> None:
 
     env['DINCPREFIX'] = '-I'
     env['DINCSUFFIX'] = ''
-    env['DVERPREFIX'] = '-version='
+    env['DVERPREFIX'] = '-fversion='
     env['DVERSUFFIX'] = ''
-    env['DDEBUGPREFIX'] = '-debug='
+    env['DDEBUGPREFIX'] = '-fdebug='
     env['DDEBUGSUFFIX'] = ''
     env['DFLAGPREFIX'] = '-'
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
+    env['DIFILESUFFIX'] = '.di'
+    env['DINTFDIRKEY'] = 'DINTFDIR'
+    env['DINTFDIRPREFIX'] = '-Hd'
+    env['DINTFDIRSUFFIX'] = ''
 
     env['DLINK'] = '$DC'
     env['DLINKFLAGS'] = SCons.Util.CLVar('')

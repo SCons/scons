@@ -1,0 +1,15 @@
+# -*- mode:python; coding:utf-8; -*-
+
+import os
+import SCons.Node
+
+environment = Environment(
+    tools=['link','ar' ,'{}']
+)
+
+environment.Decider("content")
+
+o1 = environment.Object('source/helloWorld.d',DINTFDIR = "../include")[0]
+o2 = environment.Object('helloWorldMain.d',DPATH="include")
+
+environment.Program('hw', [o2,o1])
