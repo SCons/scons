@@ -23,6 +23,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       calls dunder method __call__. Invoke instance directly."
     - Python 3.9 dropped the alias base64.decodestring, deprecated since 3.1.
       Only used in msvs.py. Use base64.decodebytes instead.
+    - SCons test runner now uses pathlib to normalize and compare paths
+      to test files.
     - D compilers : added support for generation of .di interface files
 
 
