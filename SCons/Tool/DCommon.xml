@@ -353,14 +353,6 @@ See also &cv-link-DLINKFLAGS; for linking static objects.
 <cvar name="DIFILESUFFIX">
 <summary>
 <para>
-	Suffix of d include files default is .di
-</para>
-</summary>
-</cvar>
-
-<cvar name="DIFILESUFFIX">
-<summary>
-<para>
 Suffix of d include files default is .di
 </para>
 </summary>
