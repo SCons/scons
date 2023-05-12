@@ -28,9 +28,9 @@ Common code for the various D tools.
 Coded by Russel Winder (russel@winder.org.uk)
 2012-09-06
 """
-import SCons.Util
 
 import os.path
+import SCons.Util
 
 def isD(env, source) -> int:
     if not source:
@@ -57,17 +57,8 @@ def allAtOnceEmitter(target, source, env):
         env.Clean(target[0], str(target[0]) + '.o')
     return target, source
 
-def _optWithIxes(pre,x,suf,env,f=lambda x: x, target=None, source=None) -> str:
-# a single optional argument version of _concat
-#    print ("_optWithIxes",str(target),str(source))
-    if x in env:
-        l = f(SCons.PathList.PathList([env[x]]).subst_path(env, target, source))
-        return pre + str(l[0]) + suf
-    else:
-        return ""
-
 def DObjectEmitter(target,source,env):
-    if "DINTFDIR" in env:
+    if "DINTFDIR" in env and len(env["DINTFDIR"]):
         if (len(target) != 1):
             raise Exception("expect only one object target")
         targetBase, targetName = os.path.split(SCons.Util.to_String(target[0]))

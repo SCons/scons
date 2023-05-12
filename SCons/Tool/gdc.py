@@ -67,8 +67,7 @@ def generate(env) -> None:
     env['_DINCFLAGS'] = '${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
     env['_DVERFLAGS'] = '${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}'
     env['_DDEBUGFLAGS'] = '${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)}'
-    env['_DINTFDIR'] = '${_optWithIxes(DINTFDIRPREFIX, DINTFDIRKEY, DINTFDIRSUFFIX, __env__, Dirs, TARGET, SOURCE)}'
-    env['_optWithIxes'] = DCommon._optWithIxes
+    env['_DINTFDIR'] = '${_concat(DINTFDIRPREFIX, DINTFDIR, DINTFDIRSUFFIX, __env__, Dirs, TARGET, SOURCE)}'
     env['_DFLAGS'] = '${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)}'
 
     env['SHDC'] = '$DC'
@@ -78,6 +77,7 @@ def generate(env) -> None:
     env['DFLAGS'] = []
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
+    env['DINTFDIR'] = []
 
     if env['DC']:
         DCommon.addDPATHToEnv(env, env['DC'])
@@ -92,7 +92,6 @@ def generate(env) -> None:
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
     env['DIFILESUFFIX'] = '.di'
-    env['DINTFDIRKEY'] = 'DINTFDIR'
     env['DINTFDIRPREFIX'] = '-Hd'
     env['DINTFDIRSUFFIX'] = ''
 

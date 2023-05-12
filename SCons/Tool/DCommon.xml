@@ -358,7 +358,7 @@ Suffix of d include files default is .di
 </summary>
 </cvar>
 
-<cvar name="DINTFDIRKEY">
+<cvar name="DINTFDIR">
 <summary>
 <para>
 Path where .di files will be generated
