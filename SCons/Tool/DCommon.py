@@ -28,9 +28,9 @@ Common code for the various D tools.
 Coded by Russel Winder (russel@winder.org.uk)
 2012-09-06
 """
+import SCons.Util
 
 import os.path
-import SCons.Defaults
 
 def isD(env, source) -> int:
     if not source:
@@ -57,7 +57,7 @@ def allAtOnceEmitter(target, source, env):
         env.Clean(target[0], str(target[0]) + '.o')
     return target, source
 
-def _optWithIxes(pre,x,suf,env,f=lambda x: x, target=None, source=None):
+def _optWithIxes(pre,x,suf,env,f=lambda x: x, target=None, source=None) -> str:
 # a single optional argument version of _concat
 #    print ("_optWithIxes",str(target),str(source))
     if x in env:
@@ -76,11 +76,13 @@ def DObjectEmitter(target,source,env):
     return (target,source)
 
 def DStaticObjectEmitter(target,source,env):
-    target,source = SCons.Defaults.StaticObjectEmitter(target,source,env)
+    for tgt in target:
+        tgt.attributes.shared = None
     return DObjectEmitter(target,source,env)
 
 def DSharedObjectEmitter(target,source,env):
-    target,source = SCons.Defaults.SharedObjectEmitter(target,source,env)
+    for tgt in target:
+        tgt.attributes.shared = 1
     return DObjectEmitter(target,source,env)
 
 # Local Variables:
