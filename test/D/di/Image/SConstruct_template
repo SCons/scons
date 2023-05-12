@@ -7,8 +7,6 @@ environment = Environment(
     tools=['link','ar' ,'{}']
 )
 
-environment.Decider("content")
-
 o1 = environment.Object('source/helloWorld.d',DINTFDIR = "../include")[0]
 o2 = environment.Object('helloWorldMain.d',DPATH="include")
 
