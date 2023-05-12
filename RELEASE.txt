@@ -16,7 +16,7 @@ Here is a summary of the changes since 4.5.2:
 NEW FUNCTIONALITY
 -----------------
 
-- List new features (presumably why a checkpoint is being released)
+- D compilers : added support for generation of .di interface files
 
 DEPRECATED FUNCTIONALITY
 ------------------------
