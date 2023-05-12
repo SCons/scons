@@ -350,6 +350,45 @@ See also &cv-link-DLINKFLAGS; for linking static objects.
 </summary>
 </cvar>
 
+<cvar name="DIFILESUFFIX">
+<summary>
+<para>
+	Suffix of d include files default is .di
+</para>
+</summary>
+</cvar>
+
+<cvar name="DIFILESUFFIX">
+<summary>
+<para>
+Suffix of d include files default is .di
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINTFDIRKEY">
+<summary>
+<para>
+Path where .di files will be generated
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINTFDIRPREFIX">
+<summary>
+<para>
+Prefix to send the di path argument to compiler
+</para>
+</summary>
+</cvar>
+
+<cvar name="DINTFDIRSUFFIX">
+<summary>
+<para>
+Suffix to send the di path argument to compiler
+</para>
+</summary>
+</cvar>
 
 <builder name="ProgramAllAtOnce">
 <summary>
