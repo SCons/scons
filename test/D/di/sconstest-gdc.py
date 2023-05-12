@@ -25,8 +25,6 @@
 Test gdc use of .di files
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
 from Common.common import testForTool
 testForTool('gdc')
 
