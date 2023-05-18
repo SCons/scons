@@ -61,14 +61,19 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Aligned manpage signature for Alias function to match implementation -
+  if the previous *targets* parameter had been used as a keyword argument,
+  the results would be incorrect (does not apply to positional argument
+  usage, which had no problem).
 
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- SCons test runner now uses pathlib to normalize and compare paths
+  to test files, which allows test lists, exclude lists, and tests on
+  the command line to "not care" about the OS convention for pathname
+  separators.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

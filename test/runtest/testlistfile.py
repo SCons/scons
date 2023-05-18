@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test a list of tests to run in a file specified with the -f option.
@@ -46,15 +45,18 @@ test.write_failing_test(['test', 'fail.py'])
 test.write_no_result_test(['test', 'no_result.py'])
 test.write_passing_test(['test', 'pass.py'])
 
-test.write('t.txt', """\
-#%(test_fail_py)s
-%(test_pass_py)s
-""" % locals())
+test.write(
+    't.txt',
+    f"""\
+#{test_fail_py}
+{test_pass_py}
+""",
+)
 
-expect_stdout = """\
-%(pythonstring)s%(pythonflags)s %(test_pass_py)s
+expect_stdout = f"""\
+{pythonstring}{pythonflags} {test_pass_py}
 PASSING TEST STDOUT
-""" % locals()
+"""
 
 expect_stderr = """\
 PASSING TEST STDERR

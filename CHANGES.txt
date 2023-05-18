@@ -23,8 +23,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       calls dunder method __call__. Invoke instance directly."
     - Python 3.9 dropped the alias base64.decodestring, deprecated since 3.1.
       Only used in msvs.py. Use base64.decodebytes instead.
-    - Obsoleted YACCVCGFILESUFFIX, it's being replaced by YACC_GRAPH_FILE_SUFFIX.
-      If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
     - The yacc tool now understands the bison behavior of --header,
       --defines and --graph being called without option-argument as being
       synonyms for -d (first two) and -g. -H also recognized as a synonym
@@ -34,6 +32,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not to the source file name, to match actual current behavior (only
       affects if target explicitly requested with a different base name
       than source).  Docs updated.  Fixes #4326 and #4327.
+      Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
+      If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
+    - SCons test runner now uses pathlib to normalize and compare paths
+      to test files.
+    - Minor doc fixes: signature of Alias() now matches implementation
+      to avoid problem if kwargs used; case of Alias with no targets is
+      mentioned in text (was already shown in example); now mention that
+      Action([item]) does not return a ListAction - previously implied
+      that if arg was a list, a ListAction was *always* returned; mention
+      default Decider and sort the names of available decider functions,
+      and add a version marking.  Minor fiddling with Alias.py docstrings.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
