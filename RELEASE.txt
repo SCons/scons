@@ -57,9 +57,10 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Aligned manpage signature for Alias function to match implementation -
+  if the previous *targets* parameter had been used as a keyword argument,
+  the results would be incorrect (does not apply to positional argument
+  usage, which had no problem).
 
 DEVELOPMENT
 -----------

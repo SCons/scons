@@ -26,6 +26,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - SCons test runner now uses pathlib to normalize and compare paths
       to test files.
     - D compilers : added support for generation of .di interface files
+    - Minor doc fixes: signature of Alias() now matches implementation
+      to avoid problem if kwargs used; case of Alias with no targets is
+      mentioned in text (was already shown in example); now mention that
+      Action([item]) does not return a ListAction - previously implied
+      that if arg was a list, a ListAction was *always* returned; mention
+      default Decider and sort the names of available decider functions,
+      and add a version marking.  Minor fiddling with Alias.py docstrings.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
