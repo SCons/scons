@@ -58,6 +58,7 @@ Sets construction variables for the &yacc; parser generator.
 <item>YACCHFILESUFFIX</item>
 <item>YACCHXXFILESUFFIX</item>
 <item>YACCVCGFILESUFFIX</item>
+<item>YACC_GRAPH_FILE_SUFFIX</item>
 </sets>
 <uses>
 <item>YACCCOMSTR</item>
@@ -229,6 +230,20 @@ The default value is <filename>.hpp</filename>.
 
 <cvar name="YACCVCGFILESUFFIX">
 <summary>
+<para>
+Obsoleted. Use &cv-link-ACC_GRAPH_FILE_SUFFIX;.
+</para>
+<para>
+<emphasis>Changed in version 4.X.Y</emphasis>
+</para>
+</summary>
+</cvar>
+
+<cvar name="YACC_GRAPH_FILE_SUFFIX">
+<summary>
+<para>
+Previously specified by &cv-link-YACCVCGFILESUFFIX;.
+</para>
 <para>
 The suffix of the file
 containing a graph of the grammar automaton

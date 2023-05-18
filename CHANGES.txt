@@ -23,10 +23,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       calls dunder method __call__. Invoke instance directly."
     - Python 3.9 dropped the alias base64.decodestring, deprecated since 3.1.
       Only used in msvs.py. Use base64.decodebytes instead.
+    - Obsoleted YACCVCGFILESUFFIX, it's being replaced by YACC_GRAPH_FILE_SUFFIX.
+      If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
     - The yacc tool now understands the bison behavior of --header,
       --defines and --graph being called without option-argument as being
       synonyms for -d (first two) and -g. -H also recognized as a synonym
-      for -d.  Default value for $YACCVCGFILESUFFIX changed to '.gv'
+      for -d.  Default value for $YACC_GRAPH_FILE_SUFFIX changed to '.gv'
       to match current bison default (since bison 3.8).  The graph file name
       (-g) is now generated relative to the requested target file name,
       not to the source file name, to match actual current behavior (only
