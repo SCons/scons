@@ -149,10 +149,13 @@ over the file scanning rather than being called for each input line:
     &SCons; has built-in &Scanners; that know how to look in
     C/C++, Fortran, D, IDL, LaTeX, Python and SWIG source files
     for information about
-    other files that targets built from those files depend on -
-    for example, in the case of files that use the C preprocessor,
-    the <filename>.h</filename> files that are specified
-    using <literal>#include</literal> lines in the source.
+    other files that targets built from those files depend on.
+
+    For example, if you have a file format which uses <literal>#include</literal>
+    to specify files which should be included into the source file
+    when it is processed, you can use an existing scanner already 
+    included in &SCons;.
+
     You can use the same mechanisms that &SCons; uses to create
     its built-in Scanners to write Scanners of your own for file types
     that &SCons; does not know how to scan "out of the box."
