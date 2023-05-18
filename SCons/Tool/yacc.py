@@ -68,16 +68,18 @@ def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
 
     # If -d is specified on the command line, yacc will emit a .h
     # or .hpp file with the same base name as the .c or .cpp output file.
-    # if '-d' in flags:  # add bison options -H, --header, --defines (obsolete)
+    # if '-d' in flags: 
+    # or  bison options -H, --header, --defines (obsolete)
     if "-d" in flags or "-H" in flags or "--header" in flags or "--defines" in flags:
         target.append(targetBase + env.subst(hsuf, target=target, source=source))
 
     # If -g is specified on the command line, yacc will emit a graph
     # file with the same base name as the .c or .cpp output file.
     # TODO: should this be handled like -v? i.e. a side effect, not target
-    # if "-g" in flags:  # add bison option --graph
+    # if "-g" in flags:  
+    # or bison option --graph
     if "-g" in flags or "--graph" in flags:
-        target.append(targetBase + env.subst("$YACCVCGFILESUFFIX"))
+        target.append(targetBase + env.subst("$YACC_GRAPH_FILE_SUFFIX"))
 
     # If -v is specified yacc will create the output debug file
     # which is not really source for any process, but should
@@ -193,6 +195,7 @@ def generate(env) -> None:
     env['YACCHFILESUFFIX'] = '.h'
     env['YACCHXXFILESUFFIX'] = '.hpp'
     env['YACCVCGFILESUFFIX'] = '.gv'
+    env['YACC_GRAPH_FILE_SUFFIX'] = '$YACCVCGFILESUFFIX'
     env['_YACC_HEADER'] = '${YACC_HEADER_FILE and "--header=" + str(YACC_HEADER_FILE)}'
     env['_YACC_GRAPH'] = '${YACC_GRAPH_FILE and "--graph=" + str(YACC_GRAPH_FILE)}'
 

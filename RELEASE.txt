@@ -25,11 +25,12 @@ DEPRECATED FUNCTIONALITY
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
-
+- Obsoleted YACCVCGFILESUFFIX, it's being replaced by YACC_GRAPH_FILE_SUFFIX.
+  If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 - The yacc tool now understands the bison behavior of --header, --defines
   and --graph being called without an option-argument as being synonyms
   for -d (first two) and -g. -H also recognized as a synonym for -d.
-  Default value for $YACCVCGFILESUFFIX changed to '.gv' to match
+  Default value for $YACC_GRAPH_FILE_SUFFIX changed to '.gv' to match
   current bison default (since bison 3.8). Set this variable to '.dot'
   if using byacc.
 
