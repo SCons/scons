@@ -9,6 +9,10 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From William Deegan:
+    - Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
+      If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
+
   From Mats Wichmann
     - C scanner's dictifyCPPDEFINES routine did not understand the possible
       combinations of CPPDEFINES - not aware of a "name=value" string either
@@ -32,8 +36,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       not to the source file name, to match actual current behavior (only
       affects if target explicitly requested with a different base name
       than source).  Docs updated.  Fixes #4326 and #4327.
-      Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
-      If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
     - SCons test runner now uses pathlib to normalize and compare paths
       to test files.
     - Minor doc fixes: signature of Alias() now matches implementation

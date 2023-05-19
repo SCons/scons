@@ -231,10 +231,14 @@ The default value is <filename>.hpp</filename>.
 <cvar name="YACCVCGFILESUFFIX">
 <summary>
 <para>
-Obsoleted. Use &cv-link-ACC_GRAPH_FILE_SUFFIX;.
+Obsoleted. Use &cv-link-YACC_GRAPH_FILE_SUFFIX; instead.
+The value is used only if &cv-YACC_GRAPH_FILE_SUFFIX; is not set.
+The default value is <filename>.gv</filename>.
 </para>
 <para>
-<emphasis>Changed in version 4.X.Y</emphasis>
+<emphasis>Changed in version 4.X.Y</emphasis>: deprecated. The default value
+changed from <filename>.vcg</filename> (&bison; stopped generating
+<filename>.vcg</filename> output with version 2.4, in 2006).
 </para>
 </summary>
 </cvar>
@@ -256,13 +260,8 @@ it does not affect the actual generated filename.
 Various yacc tools have emitted various formats
 at different times.
 Set this to match what your parser generator produces.
-The default value is <filename>.gv</filename>.
 </para>
-<para>
-<emphasis>Changed in version 4.X.Y</emphasis>: the default value
-changed from <filename>.vcg</filename> (&bison; stopped generating
-<filename>.vcg</filename> output with version 2.4, in 2006).
-</para>
+<para><emphasis>New in version 4.X.Y</emphasis>. </para>
 </summary>
 </cvar>
 
