@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import package1  # noqa: F401
 import package2  # noqa: F401
 import sys

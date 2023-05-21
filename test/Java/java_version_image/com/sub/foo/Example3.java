@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 package com.sub.foo;
 
 public class Example3

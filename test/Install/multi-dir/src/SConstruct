@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+#
 # This tests for a bug where installing a sequence dirs and subdirs
 # outside the source tree can cause SCons to fail to create the dest
 # dir.

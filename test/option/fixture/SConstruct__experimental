@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 from SCons.Script.SConsOptions import experimental_features
 
 print("All Features=%s" % ','.join(sorted(experimental_features)))
