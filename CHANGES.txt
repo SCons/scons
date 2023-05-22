@@ -32,6 +32,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       that if arg was a list, a ListAction was *always* returned; mention
       default Decider and sort the names of available decider functions,
       and add a version marking.  Minor fiddling with Alias.py docstrings.
+    - Added copyright headers to files in test/ that didn't have them.
+    - Drop three unused methods from the Environment Base class:
+      get_src_sig_type and get_tgt_sig_type, as well as "private"
+      _changed_source. These were orphaned when the long-deprecated
+      Source Signatures and Target Signatures were removed, these were
+      missed at that time.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
