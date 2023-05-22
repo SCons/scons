@@ -32,7 +32,14 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       that if arg was a list, a ListAction was *always* returned; mention
       default Decider and sort the names of available decider functions,
       and add a version marking.  Minor fiddling with Alias.py docstrings.
-    - Added copyright headers to files in test/ that didn't have them.
+    - Python 3.12 support: new bytecodes for ActionTests.py, adapt to
+      changes to pathlib module in runtest.py (PosixPath no longer
+      converts slashes if given a Windows-style path). Also switch to
+      using `subTest` in `ActionTests`, so that we can see all 21 fails
+      due to bytecode changes (previously testcases aborted on the first
+      assert fail so we only saw seven), and use unittest asserts to
+      simplify complex printing stanzas.
+\    - Added copyright headers to files in test/ that didn't have them.
     - Drop three unused methods from the Environment Base class:
       get_src_sig_type and get_tgt_sig_type, as well as "private"
       _changed_source. These were orphaned when the long-deprecated
