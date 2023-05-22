@@ -38,6 +38,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       _changed_source. These were orphaned when the long-deprecated
       Source Signatures and Target Signatures were removed, these were
       missed at that time.
+    - Remove dead code: some mocked classes in unit tests had methods
+      which have been removed from the Node class they're mocking,
+      there's no need to shadow those any more as there are no callers.
+      The methods are depends_on (base functionality removed in 2005)
+      and is_pseudeo_derived (base functionality removed in 2006). There
+      may well be more!
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
