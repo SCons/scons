@@ -26,8 +26,10 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- Three unused non-public methods of the Environment Base class
+  were dropped: get_src_sig_type, get_tgt_sig_type, _changed_source.
+  These were unused remnants of the previously removed SourceSignatures
+  and TargetSignatures features (dropped in 3.1.2).
 
 FIXES
 -----
@@ -54,9 +56,10 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Aligned manpage signature for Alias function to match implementation -
+  if the previous *targets* parameter had been used as a keyword argument,
+  the results would be incorrect (does not apply to positional argument
+  usage, which had no problem).
 
 DEVELOPMENT
 -----------

@@ -351,9 +351,9 @@ to be performed
 after the specified
 <parameter>target</parameter>
 has been built.
-The specified action(s) may be
+<parameter>action</parameter> may be
 an Action object, or anything that
-can be converted into an Action object
+can be converted into an Action object.
 See the manpage section "Action Objects"
 for a complete explanation.
 </para>
@@ -364,6 +364,13 @@ the action may be called multiple times,
 once after each action that generates
 one or more targets in the list.
 </para>
+
+<example_commands>
+foo = Program('foo.c')
+# remove execute permission from binary:
+AddPostAction(foo, Chmod('$TARGET', "a-x"))
+</example_commands>
+
 </summary>
 </scons_function>
 
@@ -379,9 +386,9 @@ to be performed
 before the specified
 <parameter>target</parameter>
 is built.
-The specified action(s) may be
+<parameter>action</parameter> may be
 an Action object, or anything that
-can be converted into an Action object
+can be converted into an Action object.
 See the manpage section "Action Objects"
 for a complete explanation.
 </para>
@@ -426,21 +433,35 @@ file into an object file.
 
 <scons_function name="Alias">
 <arguments>
-(alias, [targets, [action]])
+(alias, [source, [action]])
 </arguments>
 <summary>
 <para>
-Creates one or more phony targets that
-expand to one or more other targets.
-An optional
+Creates a phony target (or targets) that
+can be used as references to zero or more other targets,
+as specified by the optional <parameter>source</parameter>
+parameter.
+<parameter>alias</parameter> and
+<parameter>source</parameter>
+may each be a string or Node object,
+or a list of strings or Node objects;
+if Nodes are used for
+<parameter>alias</parameter>
+they must be Alias nodes.
+The optional
 <parameter>action</parameter>
-(command)
-or list of actions
-can be specified that will be executed
+parameter specifies an action or list of actions
+that will be executed
 whenever the any of the alias targets are out-of-date.
-Returns the Node object representing the alias,
-which exists outside of any file system.
-This Node object, or the alias name,
+</para>
+
+<para>
+Returns a list of Alias Node objects representing the alias(es),
+which exist outside of any physical file system.
+</para>
+
+<para>
+The alias name, or an Alias Node object,
 may be used as a dependency of any other target,
 including another alias.
 &f-Alias;
@@ -593,7 +614,7 @@ giving an easy way to enter multiple macros in one addition.
 Use an <literal>=</literal> to specify a valued macro.</para>
 </listitem>
 <listitem>
-<para>A tuple is treated as a valued macro. 
+<para>A tuple is treated as a valued macro.
 Use the value <constant>None</constant> if the macro should not have a value.
 It is an error to supply more than two elements in such a tuple.</para>
 </listitem>
@@ -1238,8 +1259,8 @@ so you normally don't need to create directories by hand.
 </arguments>
 <summary>
 <para>
-Creates a Configure object for integrated
-functionality similar to GNU autoconf.
+Creates a &Configure; object for integrated
+functionality similar to GNU <command>autoconf</command>.
 See the manpage section "Configure Contexts"
 for a complete explanation of the arguments and behavior.
 </para>
@@ -1265,50 +1286,24 @@ that will be applied:
 <para>
 <variablelist>
 <varlistentry>
-<term><literal>"timestamp-newer"</literal></term>
-<listitem>
-<para>
-Specifies that a target shall be considered out of date and rebuilt
-if the dependency's timestamp is newer than the target file's timestamp.
-This is the behavior of the classic Make utility,
-and
-<literal>make</literal>
-can be used a synonym for
-<literal>timestamp-newer</literal>.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>"timestamp-match"</literal></term>
-<listitem>
-<para>
-Specifies that a target shall be considered out of date and rebuilt
-if the dependency's timestamp is different than the
-timestamp recorded the last time the target was built.
-This provides behavior very similar to the classic Make utility
-(in particular, files are not opened up so that their
-contents can be checksummed)
-except that the target will also be rebuilt if a
-dependency file has been restored to a version with an
-<emphasis>earlier</emphasis>
-timestamp, such as can happen when restoring files from backup archives.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
 <term><literal>"content"</literal></term>
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
-as determined be performing an checksum
-on the dependency's contents
+as determined by performing a checksum
+on the dependency's contents using the selected hash function,
 and comparing it to the checksum recorded the
 last time the target was built.
-<literal>MD5</literal>
-can be used as a synonym for
-<literal>content</literal>, but it is deprecated.
+<literal>content</literal> is the default decider.
+</para>
+<para>
+<emphasis>Changed in version 4.1:</emphasis>
+The decider was renamed to <literal>content</literal>
+since the hash function is now selectable.
+The former name, <literal>MD5</literal>,
+can still be used as a synonym, but is deprecated.
 </para>
 </listitem>
 </varlistentry>
@@ -1339,9 +1334,44 @@ that runs a build,
 updates a file,
 and runs the build again,
 all within a single second.
-<literal>MD5-timestamp</literal>
-can be used as a synonym for
-<literal>content-timestamp</literal>, but it is deprecated.
+</para>
+<para>
+<emphasis>Changed in version 4.1:</emphasis>
+The decider was renamed to <literal>content-timestamp</literal>
+since the hash function is now selectable.
+The former name, <literal>MD5-timestamp</literal>,
+can still be used as a synonym, but is deprecated.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>"timestamp-newer"</literal></term>
+<listitem>
+<para>
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's timestamp is newer than the target file's timestamp.
+This is the behavior of the classic Make utility,
+and
+<literal>make</literal>
+can be used a synonym for
+<literal>timestamp-newer</literal>.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>"timestamp-match"</literal></term>
+<listitem>
+<para>
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's timestamp is different than the
+timestamp recorded the last time the target was built.
+This provides behavior very similar to the classic Make utility
+(in particular, files are not opened up so that their
+contents can be checksummed)
+except that the target will also be rebuilt if a
+dependency file has been restored to a version with an
+<emphasis>earlier</emphasis>
+timestamp, such as can happen when restoring files from backup archives.
 </para>
 </listitem>
 </varlistentry>

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 """
 Command wrapper taking arguments, for testing SCons.
 

@@ -129,7 +129,7 @@ CacheDir('/usr/local/build_cache')
       A few inside details: &SCons; tracks two main kinds of cryptographic
       hashes: a <emphasis>&contentsig;</emphasis>,
       which is a hash of the contents of a file participating in the
-      build (depepdencies as well as targets);
+      build (dependencies as well as targets);
       and a <emphasis>&buildsig;</emphasis>, which is a hash of the
       elements needed to build a target, such as the command line,
       the contents of the sources, and possibly information about

@@ -1,5 +1,10 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import sys
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=['python'])
 
 # Copy each file individually instead of copying the dir. This has the benefit

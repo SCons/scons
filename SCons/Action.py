@@ -148,9 +148,8 @@ def default_exitstatfunc(s):
 strip_quotes = re.compile(r'^[\'"](.*)[\'"]$')
 
 
-def _callable_contents(obj):
-    """Return the signature contents of a callable Python object.
-    """
+def _callable_contents(obj) -> bytearray:
+    """Return the signature contents of a callable Python object."""
     try:
         # Test if obj is a method.
         return _function_contents(obj.__func__)
@@ -170,7 +169,7 @@ def _callable_contents(obj):
                 return _function_contents(obj)
 
 
-def _object_contents(obj):
+def _object_contents(obj) -> bytearray:
     """Return the signature contents of any Python object.
 
     We have to handle the case where object contains a code object
@@ -210,8 +209,10 @@ def _object_contents(obj):
                         # the best we can.
                         return bytearray(repr(obj), 'utf-8')
 
+# TODO: docstrings for _code_contents and _function_contents
+#   do not render well with Sphinx. Consider reworking.
 
-def _code_contents(code, docstring=None):
+def _code_contents(code, docstring=None) -> bytearray:
     r"""Return the signature contents of a code object.
 
     By providing direct access to the code object of the
@@ -223,7 +224,7 @@ def _code_contents(code, docstring=None):
     recompilations from moving a Python function.
 
     See:
-      - https://docs.python.org/2/library/inspect.html
+      - https://docs.python.org/3/library/inspect.html
       - http://python-reference.readthedocs.io/en/latest/docs/code/index.html
 
     For info on what each co\_ variable provides
@@ -243,7 +244,6 @@ def _code_contents(code, docstring=None):
     co_code     - Returns a string representing the sequence of bytecode instructions.
 
     """
-
     # contents = []
 
     # The code contents depends on the number of local variables
@@ -281,8 +281,9 @@ def _code_contents(code, docstring=None):
     return contents
 
 
-def _function_contents(func):
-    """
+def _function_contents(func) -> bytearray:
+    """Return the signature contents of a function.
+
     The signature is as follows (should be byte/chars):
     < _code_contents (see above) from func.__code__ >
     ,( comma separated _object_contents for function argument defaults)
@@ -293,11 +294,7 @@ def _function_contents(func):
       - func.__code__     - The code object representing the compiled function body.
       - func.__defaults__ - A tuple containing default argument values for those arguments that have defaults, or None if no arguments have a default value
       - func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
-
-    :Returns:
-      Signature contents of a function. (in bytes)
     """
-
     contents = [_code_contents(func.__code__, func.__doc__)]
 
     # The function contents depends on the value of defaults arguments
@@ -439,16 +436,13 @@ def _do_create_keywords(args, kw):
 
 
 def _do_create_action(act, kw):
-    """This is the actual "implementation" for the
-    Action factory method, below.  This handles the
-    fact that passing lists to Action() itself has
-    different semantics than passing lists as elements
-    of lists.
+    """The internal implementation for the Action factory method.
 
-    The former will create a ListAction, the latter
-    will create a CommandAction by converting the inner
-    list elements to strings."""
-
+    This handles the fact that passing lists to :func:`Action` itself has
+    different semantics than passing lists as elements of lists.
+    The former will create a :class:`ListAction`, the latter will create a
+    :class:`CommandAction by converting the inner list elements to strings.
+    """
     if isinstance(act, ActionBase):
         return act
 
@@ -491,13 +485,22 @@ def _do_create_action(act, kw):
     return None
 
 
-def _do_create_list_action(act, kw):
-    """A factory for list actions.  Convert the input list into Actions
-    and then wrap them in a ListAction."""
+# TODO: from __future__ import annotations once we get to Python 3.7 base,
+#   to avoid quoting the defined-later classname
+def _do_create_list_action(act, kw) -> "ListAction":
+    """A factory for list actions.
+
+    Convert the input list *act* into Actions and then wrap them in a
+    :class:`ListAction`. If *act* has only a single member, return that
+    member, not a *ListAction*. This is intended to allow a contained
+    list to specify a command action without being processed into a
+    list action.
+    """
     acts = []
     for a in act:
         aa = _do_create_action(a, kw)
-        if aa is not None: acts.append(aa)
+        if aa is not None:
+            acts.append(aa)
     if not acts:
         return ListAction([])
     elif len(acts) == 1:

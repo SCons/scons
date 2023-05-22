@@ -1399,23 +1399,6 @@ class Base(SubstitutionEnvironment):
             if k not in self._dict:
                 self._dict[k] = v
 
-
-    def get_src_sig_type(self):
-        try:
-            return self.src_sig_type
-        except AttributeError:
-            t = SCons.Defaults.DefaultEnvironment().src_sig_type
-            self.src_sig_type = t
-            return t
-
-    def get_tgt_sig_type(self):
-        try:
-            return self.tgt_sig_type
-        except AttributeError:
-            t = SCons.Defaults.DefaultEnvironment().tgt_sig_type
-            self.tgt_sig_type = t
-            return t
-
     #######################################################################
     # Public methods for manipulating an Environment.  These begin with
     # upper-case letters.  The essential characteristic of methods in
@@ -1626,14 +1609,6 @@ class Base(SubstitutionEnvironment):
 
     def _changed_content(self, dependency, target, prev_ni, repo_node=None):
         return dependency.changed_content(target, prev_ni, repo_node)
-
-    def _changed_source(self, dependency, target, prev_ni, repo_node=None):
-        target_env = dependency.get_build_env()
-        type = target_env.get_tgt_sig_type()
-        if type == 'source':
-            return target_env.decide_source(dependency, target, prev_ni, repo_node)
-        else:
-            return target_env.decide_target(dependency, target, prev_ni, repo_node)
 
     def _changed_timestamp_then_content(self, dependency, target, prev_ni, repo_node=None):
         return dependency.changed_timestamp_then_content(target, prev_ni, repo_node)
