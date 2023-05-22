@@ -592,7 +592,10 @@ def scanlist(testfile):
     # backward slashes, first create the object as a PureWindowsPath which
     # accepts either, then use that to make a Path object to use for
     # comparisons like "file in scanned_list".
-    return [Path(PureWindowsPath(t)) for t in tests if t]
+    if sys.platform == 'win32':
+        return [Path(t) for t in tests if t]
+    else:
+        return [Path(PureWindowsPath(t).as_posix()) for t in tests if t]
 
 
 def find_unit_tests(directory):
@@ -641,7 +644,10 @@ else:
     if args.all:  # -a flag
         testpaths = [Path('SCons'), Path('test')]
     elif args.testlist:  # paths given on cmdline
-        testpaths = [Path(PureWindowsPath(t)) for t in args.testlist]
+        if sys.platform == 'win32':
+            testpaths = [Path(t) for t in args.testlist]
+        else:
+            testpaths = [Path(PureWindowsPath(t).as_posix()) for t in args.testlist]
 
     for path in testpaths:
         # Clean up path removing leading ./ or .\
