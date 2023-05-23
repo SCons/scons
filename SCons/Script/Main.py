@@ -76,7 +76,7 @@ KNOWN_SCONSTRUCT_NAMES = [
     'sconstruct.py',
 ]
 
-# list of names regognized by debugger as "SConscript files" (inc. SConstruct)
+# list of names recognized by debugger as "SConscript files" (inc. SConstruct)
 # files suffixed .py always work so don't need to be in this list.
 KNOWN_SCONSCRIPTS = [
     "SConstruct",
