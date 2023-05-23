@@ -96,8 +96,8 @@ class DummyNode:
     def __init__(self, name) -> None:
         self.name = name
 
-    def rexists(self) -> int:
-        return 1
+    def rexists(self) -> bool:
+        return True
 
     def __str__(self) -> str:
         return self.name

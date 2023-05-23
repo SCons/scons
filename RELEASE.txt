@@ -79,6 +79,7 @@ DEVELOPMENT
   reflect its usage. Derived _ActionAction inherits the ABC, so it
   now declares (actually raises NotImplementedError) two methods it
   doesn't use so it can be instantiated by unittests and others.
+- Added more type annotations to internal routines.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

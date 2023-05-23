@@ -40,8 +40,8 @@ class DummyNode:
         self.name = os.path.normpath(name)
     def __str__(self) -> str:
         return self.name
-    def is_literal(self) -> int:
-        return 1
+    def is_literal(self) -> bool:
+        return True
     def rfile(self):
         return self
     def get_subst_proxy(self):
@@ -136,8 +136,8 @@ class SubstTestCase(unittest.TestCase):
             self.literal = literal
         def __str__(self) -> str:
             return self.literal
-        def is_literal(self) -> int:
-            return 1
+        def is_literal(self) -> bool:
+            return True
 
     class TestCallable:
         def __init__(self, value) -> None:
@@ -1200,24 +1200,25 @@ class quote_spaces_TestCase(unittest.TestCase):
         def __init__(self, name, children=[]) -> None:
             self.children = children
             self.name = name
+
         def __str__(self) -> str:
             return self.name
-        def exists(self) -> int:
-            return 1
-        def rexists(self) -> int:
-            return 1
-        def has_builder(self) -> int:
-            return 1
-        def has_explicit_builder(self) -> int:
-            return 1
-        def side_effect(self) -> int:
-            return 1
-        def precious(self) -> int:
-            return 1
-        def always_build(self) -> int:
-            return 1
-        def current(self) -> int:
-            return 1
+        def exists(self) -> bool:
+            return True
+        def rexists(self) -> bool:
+            return True
+        def has_builder(self) -> bool:
+            return True
+        def has_explicit_builder(self) -> bool:
+            return True
+        def side_effect(self) -> bool:
+            return True
+        def precious(self) -> bool:
+            return True
+        def always_build(self) -> bool:
+            return True
+        def current(self) -> bool:
+            return True
 
 class LiteralTestCase(unittest.TestCase):
     def test_Literal(self) -> None:

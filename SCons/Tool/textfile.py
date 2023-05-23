@@ -21,31 +21,28 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Textfile/Substfile builder for SCons.
+"""Textfile/Substfile builder for SCons.
 
-    Create file 'target' which typically is a textfile.  The 'source'
-    may be any combination of strings, Nodes, or lists of same.  A
-    'linesep' will be put between any part written and defaults to
-    os.linesep.
+Create file 'target' which typically is a textfile.  The 'source'
+may be any combination of strings, Nodes, or lists of same.  A
+'linesep' will be put between any part written and defaults to
+os.linesep.
 
-    The only difference between the Textfile builder and the Substfile
-    builder is that strings are converted to Value() nodes for the
-    former and File() nodes for the latter.  To insert files in the
-    former or strings in the latter, wrap them in a File() or Value(),
-    respectively.
+The only difference between the Textfile builder and the Substfile
+builder is that strings are converted to Value() nodes for the
+former and File() nodes for the latter.  To insert files in the
+former or strings in the latter, wrap them in a File() or Value(),
+respectively.
 
-    The values of SUBST_DICT first have any construction variables
-    expanded (its keys are not expanded).  If a value of SUBST_DICT is
-    a python callable function, it is called and the result is expanded
-    as the value.  Values are substituted in a "random" order; if any
-    substitution could be further expanded by another substitution, it
-    is unpredictable whether the expansion will occur.
+The values of SUBST_DICT first have any construction variables
+expanded (its keys are not expanded).  If a value of SUBST_DICT is
+a python callable function, it is called and the result is expanded
+as the value.  Values are substituted in a "random" order; if any
+substitution could be further expanded by another substitution, it
+is unpredictable whether the expansion will occur.
 """
 
 import SCons
-
-
 from SCons.Node import Node
 from SCons.Node.Python import Value
 from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes
@@ -192,8 +189,8 @@ def generate(env) -> None:
     env['FILE_ENCODING'] = env.get('FILE_ENCODING', 'utf-8')
 
 
-def exists(env) -> int:
-    return 1
+def exists(env) -> bool:
+    return True
 
 # Local Variables:
 # tab-width:4

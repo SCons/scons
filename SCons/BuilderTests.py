@@ -170,15 +170,15 @@ class MyNode_without_target_from_source:
         return self.builder is not None
     def set_explicit(self, is_explicit) -> None:
         self.is_explicit = is_explicit
-    def has_explicit_builder(self):
+    def has_explicit_builder(self) -> bool:
         return self.is_explicit
-    def env_set(self, env, safe: int=0) -> None:
+    def env_set(self, env, safe: bool=False) -> None:
         self.env = env
     def add_source(self, source) -> None:
         self.sources.extend(source)
     def scanner_key(self):
         return self.name
-    def is_derived(self):
+    def is_derived(self) -> bool:
         return self.has_builder()
     def generate_build_env(self, env):
         return env

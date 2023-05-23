@@ -21,16 +21,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""SCons.Tool.javac
-
-Tool-specific initialization for javac.
+"""Tool-specific initialization for javac.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
-
 """
-
 
 import os
 import os.path
@@ -242,8 +238,8 @@ def generate(env) -> None:
     env['_JAVACCOM'] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVAPROCESSORPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
     env['JAVACCOM'] = "${TEMPFILE('$_JAVACCOM','$JAVACCOMSTR')}"
 
-def exists(env) -> int:
-    return 1
+def exists(env) -> bool:
+    return True
 
 # Local Variables:
 # tab-width:4

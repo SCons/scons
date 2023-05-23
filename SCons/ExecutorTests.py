@@ -49,7 +49,7 @@ class MyAction:
         return ' '.join(['GENSTRING'] + list(map(str, self.actions)) + target + source)
     def get_contents(self, target, source, env):
         return b' '.join(
-            [SCons.Util.to_bytes(aa) for aa in self.actions] + 
+            [SCons.Util.to_bytes(aa) for aa in self.actions] +
             [SCons.Util.to_bytes(tt) for tt in target] +
             [SCons.Util.to_bytes(ss) for ss in source]
         )
@@ -99,7 +99,7 @@ class MyNode:
     def disambiguate(self):
         return self
 
-    def is_up_to_date(self):
+    def is_up_to_date(self) -> bool:
         return self.up_to_date
 
 class MyScanner:
@@ -264,7 +264,7 @@ class ExecutorTestCase(unittest.TestCase):
 
         be = x.get_build_env()
         assert be['e'] == 1, be['e']
-        
+
         x.cleanup()
 
         x.env = MyEnvironment(eee=1)

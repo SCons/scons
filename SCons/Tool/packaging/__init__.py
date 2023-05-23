@@ -218,8 +218,8 @@ def generate(env) -> None:
         env['BUILDERS']['Tag'] = Tag
 
 
-def exists(env) -> int:
-    return 1
+def exists(env) -> bool:
+    return True
 
 
 def options(opts) -> None:

@@ -39,6 +39,7 @@ import os
 import re
 import sys
 import traceback
+from typing import Tuple
 
 import SCons.Action
 import SCons.Builder
@@ -265,12 +266,12 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
             sys.excepthook(*self.exc_info())
         return SCons.Taskmaster.Task.failed(self)
 
-    def collect_node_states(self):
+    def collect_node_states(self) -> Tuple[bool, bool, bool]:
         # returns (is_up_to_date, cached_error, cachable)
-        # where is_up_to_date is 1, if the node(s) are up_to_date
-        #       cached_error  is 1, if the node(s) are up_to_date, but the
-        #                           build will fail
-        #       cachable      is 0, if some nodes are not in our cache
+        # where is_up_to_date is True if the node(s) are up_to_date
+        #       cached_error  is True if the node(s) are up_to_date, but the
+        #                             build will fail
+        #       cachable      is False if some nodes are not in our cache
         T = 0
         changed = False
         cached_error = False
@@ -311,7 +312,7 @@ class SConfBuildTask(SCons.Taskmaster.AlwaysTask):
         if cache_mode == CACHE and not cachable:
             raise ConfigureCacheError(self.targets[0])
         elif cache_mode == FORCE:
-            is_up_to_date = 0
+            is_up_to_date = False
 
         if cached_error and is_up_to_date:
             self.display("Building \"%s\" failed in a previous run and all "

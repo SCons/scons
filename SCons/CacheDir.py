@@ -67,7 +67,7 @@ def CacheRetrieveFunc(target, source, env) -> int:
         fs.chmod(t.get_internal_path(), stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
-def CacheRetrieveString(target, source, env):
+def CacheRetrieveString(target, source, env) -> None:
     t = target[0]
     fs = t.fs
     cd = env.get_CacheDir()
@@ -271,7 +271,10 @@ class CacheDir:
         return cachedir, os.path.join(cachedir, sig)
 
     def retrieve(self, node) -> bool:
-        """
+        """Retrieve a node from cache.
+
+        Returns True if a successful retrieval resulted.
+
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
