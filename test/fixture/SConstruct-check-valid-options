@@ -5,6 +5,8 @@
 import sys
 from SCons.Script.SConsOptions import SConsOptionParser, SConsBadOptionError
 
+DefaultEnvironment(tools=[])
+
 AddOption(
     '--testing',
     help='Test arg',

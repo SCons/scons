@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 env = Environment(tools=['lex'])
 
 def make_header_path(env, target, source, for_signature):

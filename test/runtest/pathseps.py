@@ -24,49 +24,50 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test a combination of a passing test, failing test, and no-result
-test with no argument on the command line.
+Make sure different path separators don't break things.
+Backslashes should be okay on POSIX, forwards slashes on win32,
+and combinations should cause no problems.
 """
 
-import os
+import os.path
 
 import TestRuntest
 
-pythonstring = TestRuntest.pythonstring
-pythonflags = TestRuntest.pythonflags
-test_fail_py = os.path.join('test', 'fail.py')
-test_no_result_py = os.path.join('test', 'no_result.py')
-test_pass_py = os.path.join('test', 'pass.py')
+# the "expected" paths are generated os-native
+test_one_py = os.path.join('test', 'subdir', 'test1.py')
+test_two_py = os.path.join('test', 'subdir', 'test2.py')
+test_three_py = os.path.join('test', 'subdir', 'test3.py')
+test_four_py = os.path.join('test', 'subdir', 'test4.py')
 
 test = TestRuntest.TestRuntest()
+# create files for discovery
+testdir = "test/subdir".split("/")
+test.subdir(testdir[0], testdir)
+test.write_passing_test(testdir + ['test1.py'])
+test.write_passing_test(testdir + ['test2.py'])
+test.write_passing_test(testdir + ['test3.py'])
+test.write_passing_test(testdir + ['test4.py'])
 
-test.subdir('test')
-test.write_failing_test(['test', 'fail.py'])
-test.write_no_result_test(['test', 'no_result.py'])
-test.write_passing_test(['test', 'pass.py'])
+# discover tests using testlist file with various combinations of slashes
+test.write(
+    'testlist.txt',
+    r"""
+test/subdir/test1.py
+test\subdir/test2.py
+test/subdir\test3.py
+test\subdir\test4.py
+""",
+)
 
+# expect the discovered files to all be os-native
 expect_stdout = f"""\
-{pythonstring}{pythonflags} {test_fail_py}
-FAILING TEST STDOUT
-{pythonstring}{pythonflags} {test_no_result_py}
-NO RESULT TEST STDOUT
-{pythonstring}{pythonflags} {test_pass_py}
-PASSING TEST STDOUT
-
-Failed the following test:
-\t{test_fail_py}
-
-NO RESULT from the following test:
-\t{test_no_result_py}
+{test_one_py}
+{test_two_py}
+{test_three_py}
+{test_four_py}
 """
 
-expect_stderr = """\
-FAILING TEST STDERR
-NO RESULT TEST STDERR
-PASSING TEST STDERR
-"""
-
-test.run(arguments='-k -b . test', status=1, stdout=expect_stdout, stderr=expect_stderr)
+test.run(arguments="-k -l -f testlist.txt", stdout=expect_stdout, stderr=None)
 
 test.pass_test()
 

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 fnode = File(u'foo.txt')
 
 def funcact(target, source, env):
@@ -7,6 +11,6 @@ def funcact(target, source, env):
         pass
     return 0
 
+DefaultEnvironment(tools=[])
 env = Environment()
-
 env.Command(fnode, [], ["echo $TARGET", funcact])

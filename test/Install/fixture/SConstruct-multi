@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+#
 # first run creates a src file, makes it read-only, and installs.
 # second run updates src, Install should successfully replace
 # the previous install (read-only attr on Windows might fail it)

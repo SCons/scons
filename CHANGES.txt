@@ -27,6 +27,38 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       are now recognized when manipulating breakpoints. Previously,
       only a full pathname to an sconscript file worked, as pdb requires
       a .py extension to open a file that is not an absolute path.
+    - SCons test runner now uses pathlib to normalize and compare paths
+      to test files.
+    - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+      is '/' rather than the Windows default '\'), certain Configure checks
+      could fail due to the construction of the path to run the compiled check.
+    - Added effort to find mingw if it comes from Chocolatey install of msys2.
+    - Minor doc fixes: signature of Alias() now matches implementation
+      to avoid problem if kwargs used; case of Alias with no targets is
+      mentioned in text (was already shown in example); now mention that
+      Action([item]) does not return a ListAction - previously implied
+      that if arg was a list, a ListAction was *always* returned; mention
+      default Decider and sort the names of available decider functions,
+      and add a version marking.  Minor fiddling with Alias.py docstrings.
+    - Python 3.12 support: new bytecodes for ActionTests.py, adapt to
+      changes to pathlib module in runtest.py (PosixPath no longer
+      converts slashes if given a Windows-style path). Also switch to
+      using `subTest` in `ActionTests`, so that we can see all 21 fails
+      due to bytecode changes (previously testcases aborted on the first
+      assert fail so we only saw seven), and use unittest asserts to
+      simplify complex printing stanzas.
+    - Added copyright headers to files in test/ that didn't have them.
+    - Drop three unused methods from the Environment Base class:
+      get_src_sig_type and get_tgt_sig_type, as well as "private"
+      _changed_source. These were orphaned when the long-deprecated
+      Source Signatures and Target Signatures were removed, these were
+      missed at that time.
+    - Remove dead code: some mocked classes in unit tests had methods
+      which have been removed from the Node class they're mocking,
+      there's no need to shadow those any more as there are no callers.
+      The methods are depends_on (base functionality removed in 2005)
+      and is_pseudeo_derived (base functionality removed in 2006). There
+      may well be more!
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
@@ -200,9 +232,6 @@ RELEASE 4.5.0 -  Sun, 05 Mar 2023 14:08:29 -0700
         We take advantage that their order is now stable based on insertion order
         in Python 3.5+
       - Added/modifed unit and system tests to verify these changes.
-    - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
-      is '/' rather than the Windows default '\'), certain Configure checks
-      could fail due to the construction of the path to run the compiled check.
 
 
 RELEASE 4.4.0 -  Sat, 30 Jul 2022 14:08:29 -0700

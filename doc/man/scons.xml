@@ -1260,7 +1260,7 @@ small block-size slows down the build considerably.</para>
 <para>The default value is to use a chunk size of 64 kilobytes, which should
 be appropriate for most uses.</para>
 
-<para><emphasis>New in version 4.2.</emphasis></para>
+<para><emphasis>New in version 4.1.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1300,7 +1300,7 @@ For example, <option>--hash-format=sha256</option> uses a SConsign
 database named <filename>.sconsign_sha256.dblite</filename>.
 </para>
 
-<para><emphasis>New in version 4.2.</emphasis></para>
+<para><emphasis>New in version 4.1.</emphasis></para>
   </listitem>
 </varlistentry>
 
@@ -6570,9 +6570,11 @@ env.Command(
 </programlisting>
 
 <para>
-The behavior of <function>Chmod</function> is limited on Windows,
+The behavior of <function>Chmod</function> is limited on Windows
+and on WebAssembly platforms,
 see the notes in the Python documentation for
-<systemitem>os.chmod</systemitem>, which is the underlying function.
+<ulink url="https://docs.python.org/3/library/os.html#os.chmod">
+os.chmod</ulink>, which is the underlying function.
 </para>
 
   </listitem>

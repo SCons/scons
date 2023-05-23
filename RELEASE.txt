@@ -30,10 +30,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   are now recognized when manipulating breakpoints. Previously,
   only a full pathname to an sconscript file worked, as pdb requires
   a .py extension to open a file that is not an absolute path.
+- Three unused non-public methods of the Environment Base class
+  were dropped: get_src_sig_type, get_tgt_sig_type, _changed_source.
+  These were unused remnants of the previously removed SourceSignatures
+  and TargetSignatures features (dropped in 3.1.2).
 
 FIXES
 -----
-
 
 - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
   is '/' rather than the Windows default '\'), certain Configure checks
@@ -47,9 +50,7 @@ FIXES
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Now tries to find mingw if it comes from Chocolatey install of msys2.
 
 PACKAGING
 ---------
@@ -59,14 +60,19 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Aligned manpage signature for Alias function to match implementation -
+  if the previous *targets* parameter had been used as a keyword argument,
+  the results would be incorrect (does not apply to positional argument
+  usage, which had no problem).
 
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- SCons test runner now uses pathlib to normalize and compare paths
+  to test files, which allows test lists, exclude lists, and tests on
+  the command line to "not care" about the OS convention for pathname
+  separators.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
