@@ -76,6 +76,16 @@ KNOWN_SCONSTRUCT_NAMES = [
     'sconstruct.py',
 ]
 
+# list of names recognized by debugger as "SConscript files" (inc. SConstruct)
+# files suffixed .py always work so don't need to be in this list.
+KNOWN_SCONSCRIPTS = [
+    "SConstruct",
+    "Sconstruct",
+    "sconstruct",
+    "SConscript",
+    "sconscript",
+]
+
 # Global variables
 first_command_start = None
 last_command_end = None
@@ -1390,7 +1400,43 @@ def _exec_main(parser, values) -> None:
 
     if isinstance(options.debug, list) and "pdb" in options.debug:
         import pdb
-        pdb.Pdb().runcall(_main, parser)
+
+        class SConsPdb(pdb.Pdb):
+            """Specialization of Pdb to help find SConscript files."""
+
+            def lookupmodule(self, filename: str) -> Optional[str]:
+                """Helper function for break/clear parsing -- SCons version.
+
+                Translates (possibly incomplete) file or module name
+                into an absolute file name. The "possibly incomplete"
+                means adding a ``.py`` suffix if not present, which breaks
+                picking breakpoints in sconscript files, which often don't
+                have a suffix. This version fixes for some known names of
+                sconscript files that don't have the suffix.
+
+                .. versionadded:: 4.6.0
+                """
+                if os.path.isabs(filename) and os.path.exists(filename):
+                    return filename
+                f = os.path.join(sys.path[0], filename)
+                if os.path.exists(f) and self.canonic(f) == self.mainpyfile:
+                    return f
+                root, ext = os.path.splitext(filename)
+                base = os.path.split(filename)[-1]
+                if ext == '' and base not in KNOWN_SCONSCRIPTS:  # SCons mod
+                    filename = filename + '.py'
+                if os.path.isabs(filename):
+                    return filename
+                for dirname in sys.path:
+                    while os.path.islink(dirname):
+                        dirname = os.readlink(dirname)
+                    fullname = os.path.join(dirname, filename)
+                    if os.path.exists(fullname):
+                        return fullname
+                return None
+
+        SConsPdb().runcall(_main, parser)
+
     elif options.profile_file:
         from cProfile import Profile
 
@@ -1399,6 +1445,7 @@ def _exec_main(parser, values) -> None:
             prof.runcall(_main, parser)
         finally:
             prof.dump_stats(options.profile_file)
+
     else:
         _main(parser)
 

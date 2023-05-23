@@ -26,6 +26,10 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
+- When debugging (--debug=pdb), the filenames SConstruct and SConscript
+  are now recognized when manipulating breakpoints. Previously,
+  only a full pathname to an sconscript file worked, as pdb requires
+  a .py extension to open a file that is not an absolute path.
 - Three unused non-public methods of the Environment Base class
   were dropped: get_src_sig_type, get_tgt_sig_type, _changed_source.
   These were unused remnants of the previously removed SourceSignatures
