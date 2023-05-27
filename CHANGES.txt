@@ -59,6 +59,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       The methods are depends_on (base functionality removed in 2005)
       and is_pseudeo_derived (base functionality removed in 2006). There
       may well be more!
+    - Added pass_test() call to test/MSVC/MSVC_BATCH-spaces-targetdir.py.
+      It looked it was missing a more detailed check, but it should be
+      sufficient just to check the build worked. Renamed the fixture
+      dir to follow naming convention in test/MSVC overall, and added
+      a sconstest.skip file, also to follow convention.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
