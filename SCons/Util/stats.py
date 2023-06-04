@@ -33,13 +33,16 @@ There are basically two types of stats.
    though it might be useful to query during a run.
 
 """
+import os
 import json
+import sys
+from datetime import datetime
 
 import SCons.Debug
 
 ALL_STATS = {}
 ENABLE_JSON = False
-
+JSON_OUTPUT_FILE = 'scons_stats.json'
 
 def AddStatType(name, stat_object):
     """
@@ -135,10 +138,12 @@ class TimeStats(Stats):
             'command_exec_time': command_exec_time
         }
 
-    def add_command(self, command, command_time):
+    def add_command(self, command, start_time, finish_time):
         if command in self.commands:
             print("Duplicate command %s" % command)
-        self.commands[command] = command_time
+        self.commands[command] = {'start': start_time,
+                                  'end' : finish_time,
+                                  'duration': finish_time - start_time}
 
 
 COUNT_STATS = CountStats()
@@ -148,8 +153,12 @@ TIME_STATS = TimeStats()
 
 def WriteJsonFile():
     """
-
+    Actually write the JSON file with debug information.
+    Depending which of : count, time, action-timestamps,memory their information will be written.
     """
+
+    from SCons.Script import BUILD_TARGETS, COMMAND_LINE_TARGETS, ARGUMENTS, ARGLIST
+
     print("DUMPING JSON FILE")
     json_structure = {}
     if COUNT_STATS.enabled:
@@ -172,8 +181,26 @@ def WriteJsonFile():
         json_structure['Time'] = {'Commands': TIME_STATS.commands,
                                   'Totals': TIME_STATS.totals}
 
-    with open("scons_stats.json", 'w') as sf:
-        sf.write(json.dumps(json_structure))
+    # Now add information about this build to the JSON file
+    json_structure['Build_Info'] = {
+        'BUILD_TARGETS' : [str(t) for t in BUILD_TARGETS],
+        'ARGUMENTS' : [str(a) for a in ARGUMENTS],
+        'ARGLIST' : [ str(al) for al in ARGLIST],
+        'COMMAND_LINE_TARGETS' : [ str(clt) for clt in COMMAND_LINE_TARGETS],
+        'ARGV' : sys.argv,
+        'TIME' : datetime.now().isoformat(),
+        'HOST' : os.uname().nodename,
+        'PYTHON_VERSION' : {
+            'major' : sys.version_info.major,
+            'minor' : sys.version_info.minor,
+            'micro' : sys.version_info.micro,
+            'releaselevel' : sys.version_info.releaselevel,
+            'serial' : sys.version_info.serial,
+        }
+    }
+
+    with open(JSON_OUTPUT_FILE, 'w') as sf:
+        sf.write(json.dumps(json_structure, indent=4))
 
 # Local Variables:
 # tab-width:4

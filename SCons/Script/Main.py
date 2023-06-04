@@ -208,7 +208,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     "Command execution end timestamp: %s: %f\n"
                     % (str(self.node), finish_time)
                 )
-            TIME_STATS.add_command(str(self.node), (finish_time - start_time))
+            TIME_STATS.add_command(str(self.node), start_time, finish_time)
             sys.stdout.write(
                 "Command execution time: %s: %f seconds\n"
                 % (str(self.node), (finish_time - start_time))

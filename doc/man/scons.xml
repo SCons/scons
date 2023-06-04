@@ -929,6 +929,19 @@ $ <userinput>scons --debug=includes foo.o</userinput>
   </listitem>
   </varlistentry>
 
+<varlistentry>
+  <term><emphasis role="bold">json</emphasis></term>
+  <listitem>
+<para>Write info for any of the following debug options if they are enabled: <emphasis role="bold">memory</emphasis>,
+    <emphasis>count</emphasis>, <emphasis>time</emphasis>, <emphasis>action-timestamps</emphasis> </para>
+
+<screen>
+$ <userinput>scons --debug=memory,json foo.o</userinput>
+</screen>
+
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term><emphasis role="bold">memoizer</emphasis></term>
   <listitem>
