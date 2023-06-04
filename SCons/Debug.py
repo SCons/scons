@@ -196,6 +196,7 @@ TimeStampDefault = False
 StartTime = time.perf_counter()
 PreviousTime = StartTime
 
+
 def Trace(msg, tracefile=None, mode='w', tstamp=False):
     """Write a trace message.
 

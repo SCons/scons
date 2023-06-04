@@ -51,11 +51,6 @@ def AddStatType(name, stat_object):
         ALL_STATS[name] = stat_object
 
 
-# Local Variables:
-# tab-width:4
-# indent-tabs-mode:nil
-# End:
-# vim: set expandtab tabstop=4 shiftwidth=4:
 class Stats:
     def __init__(self):
         self.stats = []
@@ -126,8 +121,29 @@ class MemStats(Stats):
             self.outfp.write(fmt % (label, stats))
 
 
+class TimeStats(Stats):
+    def __init__(self):
+        super().__init__()
+        self.totals = {}
+        self.commands = {}  # we get order from insertion order, and can address individual via dict
+
+    def total_times(self, build_time, sconscript_time, scons_exec_time, command_exec_time):
+        self.totals = {
+            'build_time': build_time,
+            'sconscript_time': sconscript_time,
+            'scons_exec_time': scons_exec_time,
+            'command_exec_time': command_exec_time
+        }
+
+    def add_command(self, command, command_time):
+        if command in self.commands:
+            print("Duplicate command %s" % command)
+        self.commands[command] = command_time
+
+
 COUNT_STATS = CountStats()
 MEMORY_STATS = MemStats()
+TIME_STATS = TimeStats()
 
 
 def WriteJsonFile():
@@ -150,7 +166,17 @@ def WriteJsonFile():
 
         m = json_structure['Memory']
         for label, stats in zip(MEMORY_STATS.labels, MEMORY_STATS.stats):
-            m[label] =stats
+            m[label] = stats
+
+    if TIME_STATS.enabled:
+        json_structure['Time'] = {'Commands': TIME_STATS.commands,
+                                  'Totals': TIME_STATS.totals}
 
     with open("scons_stats.json", 'w') as sf:
         sf.write(json.dumps(json_structure))
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

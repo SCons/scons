@@ -62,7 +62,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
-from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, ENABLE_JSON, WriteJsonFile
+from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, TIME_STATS, ENABLE_JSON, WriteJsonFile
 
 from SCons import __version__ as SConsVersion
 
@@ -208,6 +208,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     "Command execution end timestamp: %s: %f\n"
                     % (str(self.node), finish_time)
                 )
+            TIME_STATS.add_command(str(self.node), (finish_time - start_time))
             sys.stdout.write(
                 "Command execution time: %s: %f seconds\n"
                 % (str(self.node), (finish_time - start_time))
@@ -646,6 +647,7 @@ def _set_debug_values(options):
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
         print_time = True
+        TIME_STATS.enable(sys.stdout)
     if "action-timestamps" in debug_values:
         print_time = True
         print_action_timestamps = True
@@ -1419,6 +1421,8 @@ def main():
         print("Total SConscript file execution time: %f seconds"%sconscript_time)
         print("Total SCons execution time: %f seconds"%scons_time)
         print("Total command execution time: %f seconds"%ct)
+        TIME_STATS.total_times(total_time, sconscript_time, scons_time, ct)
+
 
     if SCons.Util.stats.ENABLE_JSON:
         WriteJsonFile()
