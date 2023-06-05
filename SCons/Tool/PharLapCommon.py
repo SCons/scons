@@ -86,7 +86,7 @@ def getPharLapVersion():
     # Default return for Phar Lap 9.1
     return 910
 
-def addPharLapPaths(env):
+def addPharLapPaths(env) -> None:
     """This function adds the path to the Phar Lap binaries, includes,
     and libraries, if they are not already there."""
     ph_path = getPharLapPath()

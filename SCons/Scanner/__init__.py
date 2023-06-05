@@ -59,7 +59,7 @@ class FindPathDirs:
     """Class to bind a specific E{*}PATH variable name to a function that
     will return all of the E{*}path directories.
     """
-    def __init__(self, variable):
+    def __init__(self, variable) -> None:
         self.variable = variable
 
     def __call__(self, env, dir=None, target=None, source=None, argument=None):
@@ -149,7 +149,7 @@ class ScannerBase:
     def __init__(
         self,
         function,
-        name="NONE",
+        name: str="NONE",
         argument=_null,
         skeys=_null,
         path_function=None,
@@ -159,7 +159,7 @@ class ScannerBase:
         node_factory=None,
         scan_check=None,
         recursive=None,
-    ):
+    ) -> None:
         """Construct a new scanner object given a scanner function."""
         # Note: this class could easily work with scanner functions that take
         # something other than a filename as an argument (e.g. a database
@@ -238,10 +238,10 @@ class ScannerBase:
     def __hash__(self):
         return id(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def add_skey(self, skey):
+    def add_skey(self, skey) -> None:
         """Add a skey to the list of skeys"""
         self.skeys.append(skey)
 
@@ -270,7 +270,7 @@ class ScannerBase:
 
     # recurse_nodes = _recurse_no_nodes
 
-    def add_scanner(self, skey, scanner):
+    def add_scanner(self, skey, scanner) -> None:
         self.function[skey] = scanner
         self.add_skey(skey)
 
@@ -292,7 +292,7 @@ class Selector(ScannerBase):
     used by various Tool modules and therefore was likely a template
     for custom modules that may be out there.)
     """
-    def __init__(self, mapping, *args, **kwargs):
+    def __init__(self, mapping, *args, **kwargs) -> None:
         super().__init__(None, *args, **kwargs)
         self.mapping = mapping
         self.skeys = list(mapping.keys())
@@ -306,7 +306,7 @@ class Selector(ScannerBase):
         except KeyError:
             return None
 
-    def add_scanner(self, skey, scanner):
+    def add_scanner(self, skey, scanner) -> None:
         self.mapping[skey] = scanner
         self.add_skey(skey)
 
@@ -318,7 +318,7 @@ class Current(ScannerBase):
     either locally or in a repository).
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         def current_check(node, env):
             return not node.has_builder() or node.is_up_to_date()
 
@@ -337,7 +337,7 @@ class Classic(Current):
     name of the include file in group 0.
     """
 
-    def __init__(self, name, suffixes, path_variable, regex, *args, **kwargs):
+    def __init__(self, name, suffixes, path_variable, regex, *args, **kwargs) -> None:
         self.cre = re.compile(regex, re.M)
 
         def _scan(node, _, path=(), self=self):

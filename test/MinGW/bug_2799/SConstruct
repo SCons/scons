@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
 env = Environment(
     tools=['mingw'],
     SHCCCOMSTR='SHCC $TARGET',
@@ -8,7 +13,5 @@ env = Environment(
     SHLIBPREFIX='lib',
     LDMODULESUFFIX='.so',
 )
-
 env.SharedLibrary('testlib', 'shlib.c')
-
 env.LoadableModule('testmodule', 'module.c')

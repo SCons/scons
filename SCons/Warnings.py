@@ -144,15 +144,15 @@ _warningAsException = False
 # If not None, a function to call with the warning
 _warningOut = None
 
-def suppressWarningClass(clazz):
+def suppressWarningClass(clazz) -> None:
     """Suppresses all warnings of type clazz or derived from clazz."""
     _enabled.insert(0, (clazz, False))
 
-def enableWarningClass(clazz):
+def enableWarningClass(clazz) -> None:
     """Enables all warnings of type clazz or derived from clazz."""
     _enabled.insert(0, (clazz, True))
 
-def warningAsException(flag=True):
+def warningAsException(flag: bool=True):
     """Set global _warningAsExeption flag.
 
     Args:
@@ -185,7 +185,7 @@ def warn(clazz, *args):
                     _warningOut(warning)
             break
 
-def process_warn_strings(arguments):
+def process_warn_strings(arguments) -> None:
     """Process requests to enable/disable warnings.
 
     The requests are strings passed to the --warn option or the

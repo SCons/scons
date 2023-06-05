@@ -61,7 +61,7 @@ __all__ = ['ListVariable',]
 
 
 class _ListVariable(collections.UserList):
-    def __init__(self, initlist=None, allowedElems=None):
+    def __init__(self, initlist=None, allowedElems=None) -> None:
         if initlist is None:
             initlist = []
         if allowedElems is None:
@@ -87,7 +87,7 @@ class _ListVariable(collections.UserList):
     def __lt__(self, other):
         raise NotImplementedError
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not len(self):
             return 'none'
         self.data.sort()

@@ -1,4 +1,9 @@
-env=Environment(tools=[])
-env2=env.Clone(YACC="SOMETHING_DUMB")
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
+env = Environment(tools=[])
+env2 = env.Clone(YACC="SOMETHING_DUMB")
 env2.Tool('yacc')
 env2.CFile('aaa.y')

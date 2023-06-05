@@ -100,7 +100,7 @@ if java_parsing:
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
 
-        def __init__(self, version=default_java_version):
+        def __init__(self, version=default_java_version) -> None:
             if version not in (
                 '1.1',
                 '1.2',
@@ -136,7 +136,7 @@ if java_parsing:
             self.anonStacksStack = [[0]]
             self.package = None
 
-        def trace(self):
+        def trace(self) -> None:
             pass
 
         def __getClassState(self):
@@ -175,10 +175,10 @@ if java_parsing:
         def _getAnonStack(self):
             return self.anonStacksStack[-1]
 
-        def openBracket(self):
+        def openBracket(self) -> None:
             self.brackets = self.brackets + 1
 
-        def closeBracket(self):
+        def closeBracket(self) -> None:
             self.brackets = self.brackets - 1
             if len(self.stackBrackets) and \
                     self.brackets == self.stackBrackets[-1]:
@@ -223,7 +223,7 @@ if java_parsing:
                 return self.__getSkipState()
             return self
 
-        def addAnonClass(self):
+        def addAnonClass(self) -> None:
             """Add an anonymous inner class"""
             if self.version in ('1.1', '1.2', '1.3', '1.4'):
                 clazz = self.listClasses[0]
@@ -257,7 +257,7 @@ if java_parsing:
             self.nextAnon = self.nextAnon + 1
             self._getAnonStack().append(0)
 
-        def setPackage(self, package):
+        def setPackage(self, package) -> None:
             self.package = package
 
 
@@ -267,7 +267,7 @@ if java_parsing:
         within the confines of a scope.
         """
 
-        def __init__(self, old_state):
+        def __init__(self, old_state) -> None:
             self.outer_state = old_state.outer_state
             self.old_state = old_state
             self.brackets = 0
@@ -296,10 +296,10 @@ if java_parsing:
                 self.skipState = ret
                 return ret
 
-        def openBracket(self):
+        def openBracket(self) -> None:
             self.brackets = self.brackets + 1
 
-        def closeBracket(self):
+        def closeBracket(self) -> None:
             self.brackets = self.brackets - 1
 
         def parseToken(self, token):
@@ -332,7 +332,7 @@ if java_parsing:
     class AnonClassState:
         """A state that looks for anonymous inner classes."""
 
-        def __init__(self, old_state):
+        def __init__(self, old_state) -> None:
             # outer_state is always an instance of OuterState
             self.outer_state = old_state.outer_state
             self.old_state = old_state
@@ -373,7 +373,7 @@ if java_parsing:
         """A state that will skip a specified number of tokens before
         reverting to the previous state."""
 
-        def __init__(self, tokens_to_skip, old_state):
+        def __init__(self, tokens_to_skip, old_state) -> None:
             self.tokens_to_skip = tokens_to_skip
             self.old_state = old_state
 
@@ -387,7 +387,7 @@ if java_parsing:
     class ClassState:
         """A state we go into when we hit a class or interface keyword."""
 
-        def __init__(self, outer_state):
+        def __init__(self, outer_state) -> None:
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
 
@@ -419,7 +419,7 @@ if java_parsing:
         """A state that will ignore all tokens until it gets to a
         specified token."""
 
-        def __init__(self, ignore_until, old_state):
+        def __init__(self, ignore_until, old_state) -> None:
             self.ignore_until = ignore_until
             self.old_state = old_state
 
@@ -433,7 +433,7 @@ if java_parsing:
         """The state we enter when we encounter the package keyword.
         We assume the next token will be the package name."""
 
-        def __init__(self, outer_state):
+        def __init__(self, outer_state) -> None:
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
 

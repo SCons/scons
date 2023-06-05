@@ -36,12 +36,12 @@ class Environment(collections.UserDict):
     def Detect(self, cmd):
         return cmd
 
-    def AppendENVPath(self, key, value):
+    def AppendENVPath(self, key, value) -> None:
         pass
 
 
 class PlatformTestCase(unittest.TestCase):
-    def test_Platform(self):
+    def test_Platform(self) -> None:
         """Test the Platform() function"""
         p = SCons.Platform.Platform('cygwin')
         assert str(p) == 'cygwin', p
@@ -132,7 +132,7 @@ class PlatformTestCase(unittest.TestCase):
         SCons.Platform.Platform()(env)
         assert env != {}, env
 
-    def test_win32_no_arch_shell_variables(self):
+    def test_win32_no_arch_shell_variables(self) -> None:
         """
         Test that a usable HOST_ARCH is available when
         neither: PROCESSOR_ARCHITEW6432 nor PROCESSOR_ARCHITECTURE
@@ -160,7 +160,7 @@ class PlatformTestCase(unittest.TestCase):
 
 
 class TempFileMungeTestCase(unittest.TestCase):
-    def test_MAXLINELENGTH(self):
+    def test_MAXLINELENGTH(self) -> None:
         """ Test different values for MAXLINELENGTH with the same
             size command string to ensure that the temp file mechanism
             kicks in only at MAXLINELENGTH+1, or higher
@@ -196,7 +196,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert cmd != defined_cmd, cmd
 
-    def test_TEMPFILEARGJOINBYTE(self):
+    def test_TEMPFILEARGJOINBYTE(self) -> None:
         """
         Test argument join byte TEMPFILEARGJOINBYTE
         """
@@ -231,7 +231,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert file_content != env['TEMPFILEARGJOINBYTE'].join(['test','command','line'])
 
-    def test_TEMPFILEARGESCFUNC(self):
+    def test_TEMPFILEARGESCFUNC(self) -> None:
         """
         Test a custom TEMPFILEARGESCFUNC
         """
@@ -261,7 +261,7 @@ class TempFileMungeTestCase(unittest.TestCase):
         SCons.Action.print_actions = old_actions
         assert b"newarg" in file_content
 
-    def test_tempfilecreation_once(self):
+    def test_tempfilecreation_once(self) -> None:
         """
         Init class with cmd, such that the fully expanded
         string reads "a test command line".
@@ -287,7 +287,7 @@ class TempFileMungeTestCase(unittest.TestCase):
             class Attrs:
                 pass
 
-            def __init__(self):
+            def __init__(self) -> None:
                 self.attributes = self.Attrs()
 
         target = [Node()]
@@ -300,7 +300,7 @@ class TempFileMungeTestCase(unittest.TestCase):
 
 
 class PlatformEscapeTestCase(unittest.TestCase):
-    def test_posix_escape(self):
+    def test_posix_escape(self) -> None:
         """  Check that paths with parens are escaped properly
         """
         import SCons.Platform.posix

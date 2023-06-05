@@ -55,10 +55,10 @@ default_stack_size = 256
 interrupt_msg = 'Build interrupted.'
 
 class InterruptState:
-    def __init__(self):
+    def __init__(self) -> None:
         self.interrupted = False
 
-    def set(self):
+    def set(self) -> None:
         self.interrupted = True
 
     def __call__(self):
@@ -70,7 +70,7 @@ class Jobs:
     methods for starting, stopping, and waiting on all N jobs.
     """
 
-    def __init__(self, num, taskmaster):
+    def __init__(self, num, taskmaster) -> None:
         """
         Create 'num' jobs using the given taskmaster.
 
@@ -109,7 +109,7 @@ class Jobs:
             self.job = Serial(taskmaster)
             self.num_jobs = 1
 
-    def run(self, postfunc=lambda: None):
+    def run(self, postfunc=lambda: None) -> None:
         """Run the jobs.
 
         postfunc() will be invoked after the jobs has run. It will be
@@ -129,7 +129,7 @@ class Jobs:
         """Returns whether the jobs were interrupted by a signal."""
         return self.job.interrupted()
 
-    def _setup_sig_handler(self):
+    def _setup_sig_handler(self) -> None:
         """Setup an interrupt handler so that SCons can shutdown cleanly in
         various conditions:
 
@@ -150,7 +150,7 @@ class Jobs:
         SCons forks before executing another process. In that case, we
         want the child to exit immediately.
         """
-        def handler(signum, stack, self=self, parentpid=os.getpid()):
+        def handler(signum, stack, self=self, parentpid=os.getpid()) -> None:
             if os.getpid() == parentpid:
                 self.job.taskmaster.stop()
                 self.job.interrupted.set()
@@ -169,7 +169,7 @@ class Jobs:
                 "Will not be able to reinstate and so will return to default handler."
             SCons.Warnings.warn(SCons.Warnings.SConsWarning, msg)
 
-    def _reset_sig_handler(self):
+    def _reset_sig_handler(self) -> None:
         """Restore the signal handlers to their previous state (before the
          call to _setup_sig_handler()."""
         sigint_to_use = self.old_sigint if self.old_sigint is not None else signal.SIG_DFL
@@ -191,7 +191,7 @@ class Serial:
     This class is not thread safe.
     """
 
-    def __init__(self, taskmaster):
+    def __init__(self, taskmaster) -> None:
         """Create a new serial job given a taskmaster.
 
         The taskmaster's next_task() method should return the next task
@@ -253,7 +253,7 @@ else:
         dequeues the task, executes it, and posts a tuple including the task
         and a boolean indicating whether the task executed successfully. """
 
-        def __init__(self, requestQueue, resultsQueue, interrupted):
+        def __init__(self, requestQueue, resultsQueue, interrupted) -> None:
             super().__init__()
             self.daemon = True
             self.requestQueue = requestQueue
@@ -287,7 +287,7 @@ else:
     class ThreadPool:
         """This class is responsible for spawning and managing worker threads."""
 
-        def __init__(self, num, stack_size, interrupted):
+        def __init__(self, num, stack_size, interrupted) -> None:
             """Create the request and reply queues, and 'num' worker threads.
 
             One must specify the stack size of the worker threads. The
@@ -318,7 +318,7 @@ else:
             if 'prev_size' in locals():
                 threading.stack_size(prev_size)
 
-        def put(self, task):
+        def put(self, task) -> None:
             """Put task into request queue."""
             self.requestQueue.put(task)
 
@@ -326,10 +326,10 @@ else:
             """Remove and return a result tuple from the results queue."""
             return self.resultsQueue.get()
 
-        def preparation_failed(self, task):
+        def preparation_failed(self, task) -> None:
             self.resultsQueue.put((task, False))
 
-        def cleanup(self):
+        def cleanup(self) -> None:
             """
             Shuts down the thread pool, giving each worker thread a
             chance to shut down gracefully.
@@ -365,7 +365,7 @@ else:
         This class is thread safe.
         """
 
-        def __init__(self, taskmaster, num, stack_size):
+        def __init__(self, taskmaster, num, stack_size) -> None:
             """Create a new parallel job given a taskmaster.
 
             The taskmaster's next_task() method should return the next
@@ -459,16 +459,16 @@ else:
             COMPLETED = 3
 
         class Worker(threading.Thread):
-            def __init__(self, owner):
+            def __init__(self, owner) -> None:
                 super().__init__()
                 self.daemon = True
                 self.owner = owner
                 self.start()
 
-            def run(self):
+            def run(self) -> None:
                 self.owner._work()
 
-        def __init__(self, taskmaster, num, stack_size):
+        def __init__(self, taskmaster, num, stack_size) -> None:
             self.taskmaster = taskmaster
             self.num_workers = num
             self.stack_size = stack_size
@@ -507,21 +507,21 @@ else:
             jl.addHandler(self.taskmaster.trace.log_handler)
             return jl
 
-        def trace_message(self, message):
+        def trace_message(self, message) -> None:
             # This grabs the name of the function which calls trace_message()
             method_name = sys._getframe(1).f_code.co_name + "():"
             thread_id=threading.get_ident()
             self.trace.debug('%s.%s [Thread:%s] %s' % (type(self).__name__, method_name, thread_id, message))
             # print('%-15s %s' % (method_name, message))
 
-        def start(self):
+        def start(self) -> None:
             self._start_workers()
             for worker in self.workers:
                 worker.join()
             self.workers = []
             self.taskmaster.cleanup()
 
-        def _start_workers(self):
+        def _start_workers(self) -> None:
             prev_size = self._adjust_stack_size()
             for _ in range(self.num_workers):
                 self.workers.append(NewParallel.Worker(self))
@@ -544,7 +544,7 @@ else:
 
             return None
 
-        def _restore_stack_size(self, prev_size):
+        def _restore_stack_size(self, prev_size) -> None:
             if prev_size is not None:
                 threading.stack_size(prev_size)
 

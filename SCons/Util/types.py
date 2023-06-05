@@ -115,16 +115,16 @@ class Null:
             cls._instance = super(Null, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         pass
 
     def __call__(self, *args, **kwargs):
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Null(0x{id(self):08X})"
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return False
 
     def __getattr__(self, name):
@@ -140,7 +140,7 @@ class Null:
 class NullSeq(Null):
     """A Null object that can also be iterated over."""
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 0
 
     def __iter__(self):
@@ -245,7 +245,7 @@ def to_String_for_signature(  # pylint: disable=redefined-outer-name,redefined-b
         return f()
 
 
-def get_env_bool(env, name, default=False) -> bool:
+def get_env_bool(env, name, default: bool=False) -> bool:
     """Convert a construction variable to bool.
 
     If the value of *name* in *env* is 'true', 'yes', 'y', 'on' (case
@@ -279,7 +279,7 @@ def get_env_bool(env, name, default=False) -> bool:
         return default
 
 
-def get_os_env_bool(name, default=False) -> bool:
+def get_os_env_bool(name, default: bool=False) -> bool:
     """Convert an environment variable to bool.
 
     Conversion is the same as for :func:`get_env_bool`.

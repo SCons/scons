@@ -39,7 +39,7 @@ scan_called = 0
 
 
 class Node:
-    def __init__(self, name, kids=[], scans=[]):
+    def __init__(self, name, kids=[], scans=[]) -> None:
         self.name = name
         self.kids = kids
         self.scans = scans
@@ -72,7 +72,7 @@ class Node:
     def disambiguate(self):
         return self
 
-    def push_to_cache(self):
+    def push_to_cache(self) -> None:
         pass
 
     def retrieve_from_cache(self):
@@ -81,18 +81,18 @@ class Node:
             cache_text.append(self.name + " retrieved")
         return self.cached
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         pass
 
-    def prepare(self):
+    def prepare(self) -> None:
         self.prepared = 1
         self.get_binfo()
 
-    def build(self):
+    def build(self) -> None:
         global built_text
         built_text = self.name + " built"
 
-    def remove(self):
+    def remove(self) -> None:
         pass
 
     # The following four methods new_binfo(), del_binfo(),
@@ -104,7 +104,7 @@ class Node:
         binfo = "binfo"
         return binfo
 
-    def del_binfo(self):
+    def del_binfo(self) -> None:
         """Delete the build info from this node."""
         try:
             delattr(self, 'binfo')
@@ -123,13 +123,13 @@ class Node:
 
         return binfo
 
-    def clear(self):
+    def clear(self) -> None:
         # The del_binfo() call here isn't necessary for normal execution,
         # but is for interactive mode, where we might rebuild the same
         # target and need to start from scratch.
         self.del_binfo()
 
-    def built(self):
+    def built(self) -> None:
         global built_text
         if not self.cached:
             built_text = built_text + " really"
@@ -141,10 +141,10 @@ class Node:
 
         self.clear()
 
-    def release_target_info(self):
+    def release_target_info(self) -> None:
         pass
 
-    def has_builder(self):
+    def has_builder(self) -> bool:
         return self.builder is not None
 
     def is_derived(self):
@@ -153,7 +153,7 @@ class Node:
     def alter_targets(self):
         return self.alttargets, None
 
-    def visited(self):
+    def visited(self) -> None:
         global visited_nodes
         visited_nodes.append(self.name)
 
@@ -163,7 +163,7 @@ class Node:
             self.scanned = 1
         return self.kids
 
-    def scan(self):
+    def scan(self) -> None:
         global scan_called
         scan_called = scan_called + 1
         self.kids = self.kids + self.scans
@@ -172,7 +172,7 @@ class Node:
     def scanner_key(self):
         return self.name
 
-    def add_to_waiting_parents(self, node):
+    def add_to_waiting_parents(self, node) -> int:
         wp = self.waiting_parents
         if node in wp:
             return 0
@@ -182,44 +182,35 @@ class Node:
     def get_state(self):
         return self.state
 
-    def set_state(self, state):
+    def set_state(self, state) -> None:
         self.state = state
 
-    def set_bsig(self, bsig):
+    def set_bsig(self, bsig) -> None:
         self.bsig = bsig
 
-    def set_csig(self, csig):
+    def set_csig(self, csig) -> None:
         self.csig = csig
 
-    def store_csig(self):
+    def store_csig(self) -> None:
         pass
 
-    def store_bsig(self):
-        pass
-
-    def is_pseudo_derived(self):
+    def store_bsig(self) -> None:
         pass
 
     def is_up_to_date(self):
         return self._current_val
 
-    def depends_on(self, nodes):
-        for node in nodes:
-            if node in self.kids:
-                return 1
-        return 0
-
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         self.postprocessed = 1
         self.waiting_parents = set()
 
     def get_executor(self):
         if not hasattr(self, 'executor'):
             class Executor:
-                def prepare(self):
+                def prepare(self) -> None:
                     pass
 
                 def get_action_targets(self):
@@ -261,7 +252,7 @@ class MyException(Exception):
 
 class TaskmasterTestCase(unittest.TestCase):
 
-    def test_next_task(self):
+    def test_next_task(self) -> None:
         """Test fetching the next task
         """
         global built_text
@@ -307,7 +298,7 @@ class TaskmasterTestCase(unittest.TestCase):
         top_node = n3
 
         class MyTask(SCons.Taskmaster.AlwaysTask):
-            def execute(self):
+            def execute(self) -> None:
                 global built_text
                 if self.targets[0].get_state() == SCons.Node.up_to_date:
                     if self.top:
@@ -550,14 +541,14 @@ class TaskmasterTestCase(unittest.TestCase):
         s = n2.get_state()
         assert s == SCons.Node.executed, s
 
-    def test_make_ready_out_of_date(self):
+    def test_make_ready_out_of_date(self) -> None:
         """Test the Task.make_ready() method's list of out-of-date Nodes
         """
         ood = []
 
         def TaskGen(tm, targets, top, node, ood=ood):
             class MyTask(SCons.Taskmaster.AlwaysTask):
-                def make_ready(self):
+                def make_ready(self) -> None:
                     SCons.Taskmaster.Task.make_ready(self)
                     self.ood.extend(self.out_of_date)
 
@@ -597,7 +588,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert ood == [a5], ood
 
-    def test_make_ready_exception(self):
+    def test_make_ready_exception(self) -> None:
         """Test handling exceptions from Task.make_ready()
         """
 
@@ -612,7 +603,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert exc_type == MyException, repr(exc_type)
         assert str(exc_value) == "from make_ready()", exc_value
 
-    def test_needs_execute(self):
+    def test_needs_execute(self) -> None:
         """Test that we can't instantiate a Task subclass without needs_execute
 
         We should be getting:
@@ -627,7 +618,7 @@ class TaskmasterTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             _ = tm.next_task()
 
-    def test_make_ready_all(self):
+    def test_make_ready_all(self) -> None:
         """Test the make_ready_all() method"""
 
         class MyTask(SCons.Taskmaster.AlwaysTask):
@@ -688,7 +679,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert t is None
 
-    def test_children_errors(self):
+    def test_children_errors(self) -> None:
         """Test errors when fetching the children of a node.
         """
 
@@ -697,7 +688,7 @@ class TaskmasterTestCase(unittest.TestCase):
                 raise SCons.Errors.StopError("stop!")
 
         class ExitNode(Node):
-            def children(self):
+            def children(self) -> None:
                 sys.exit(77)
 
         n1 = StopNode("n1")
@@ -715,7 +706,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert exc_value.node == n2, exc_value.node
         assert exc_value.status == 77, exc_value.status
 
-    def test_cycle_detection(self):
+    def test_cycle_detection(self) -> None:
         """Test detecting dependency cycles
         """
         n1 = Node("n1")
@@ -731,7 +722,7 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             assert 'Did not catch expected UserError'
 
-    def test_next_top_level_candidate(self):
+    def test_next_top_level_candidate(self) -> None:
         """Test the next_top_level_candidate() method
         """
         n1 = Node("n1")
@@ -745,7 +736,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.targets == [n3], list(map(str, t.targets))
         assert t.top == 1, t.top
 
-    def test_stop(self):
+    def test_stop(self) -> None:
         """Test the stop() method
 
         Both default and overridden in a subclass.
@@ -769,7 +760,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert tm.next_task() is None
 
         class MyTM(SCons.Taskmaster.Taskmaster):
-            def stop(self):
+            def stop(self) -> None:
                 global built_text
                 built_text = "MyTM.stop()"
                 SCons.Taskmaster.Taskmaster.stop(self)
@@ -787,7 +778,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert built_text == "MyTM.stop()"
         assert tm.next_task() is None
 
-    def test_executed(self):
+    def test_executed(self) -> None:
         """Test when a task has been executed
         """
         global built_text
@@ -945,7 +936,7 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             raise AssertionError("did not catch expected exception")
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test executing a task
         """
         global built_text
@@ -1043,7 +1034,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert built_text is None, built_text
         assert cache_text == ["n7 retrieved", "n8 retrieved"], cache_text
 
-    def test_cached_execute(self):
+    def test_cached_execute(self) -> None:
         """Test executing a task with cached targets
         """
         # In issue #2720 Alexei Klimkin detected that the previous
@@ -1087,7 +1078,7 @@ class TaskmasterTestCase(unittest.TestCase):
         has_binfo = hasattr(n1, 'binfo')
         assert has_binfo, has_binfo
 
-    def test_cached_execute_target_unlink_fails(self):
+    def test_cached_execute_target_unlink_fails(self) -> None:
         """Test executing a task with cached targets where unlinking one of the targets fail
         """
         global cache_text
@@ -1114,7 +1105,7 @@ class TaskmasterTestCase(unittest.TestCase):
         _save_warn = SCons.Warnings.warn
         issued_warnings = []
 
-        def fake_warnings_warn(clz, message):
+        def fake_warnings_warn(clz, message) -> None:
             nonlocal issued_warnings
             issued_warnings.append((clz, message))
         SCons.Warnings.warn = fake_warnings_warn
@@ -1136,7 +1127,7 @@ class TaskmasterTestCase(unittest.TestCase):
         self.assertEqual(cache_text, ["n1 retrieved"], msg=cache_text)
 
 
-    def test_exception(self):
+    def test_exception(self) -> None:
         """Test generic Taskmaster exception handling
 
         """
@@ -1221,7 +1212,7 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             assert 0, "did not catch expected exception"
 
-    def test_postprocess(self):
+    def test_postprocess(self) -> None:
         """Test postprocessing targets to give them a chance to clean up
         """
         n1 = Node("n1")
@@ -1247,7 +1238,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n2.postprocessed
         assert n3.postprocessed
 
-    def test_trace(self):
+    def test_trace(self) -> None:
         """Test Taskmaster tracing
         """
         import io

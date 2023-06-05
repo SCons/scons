@@ -63,37 +63,37 @@ num_tasks = num_jobs*5
 
 class DummyLock:
     """fake lock class to use if threads are not supported"""
-    def acquire(self):
+    def acquire(self) -> None:
         pass
 
-    def release(self):
+    def release(self) -> None:
         pass
 
 class NoThreadsException(Exception):
     """raised by the ParallelTestCase if threads are not supported"""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "the interpreter doesn't support threads"
 
 class Task:
     """A dummy task class for testing purposes."""
 
-    def __init__(self, i, taskmaster):
+    def __init__(self, i, taskmaster) -> None:
         self.i = i
         self.taskmaster = taskmaster
         self.was_executed = 0
         self.was_prepared = 0
 
-    def prepare(self):
+    def prepare(self) -> None:
         self.was_prepared = 1
 
-    def _do_something(self):
+    def _do_something(self) -> None:
         pass
 
-    def needs_execute(self):
+    def needs_execute(self) -> bool:
         return True
 
-    def execute(self):
+    def execute(self) -> None:
         self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
 
@@ -119,7 +119,7 @@ class Task:
         self.taskmaster.end_list.append(self.i)
         self.taskmaster.guard.release()
 
-    def executed(self):
+    def executed(self) -> None:
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
 
         self.taskmaster.test_case.assertTrue(self.was_prepared,
@@ -129,20 +129,20 @@ class Task:
         self.taskmaster.test_case.assertTrue(isinstance(self, Task),
                                   "the task wasn't really a Task instance")
 
-    def failed(self):
+    def failed(self) -> None:
         self.taskmaster.num_failed = self.taskmaster.num_failed + 1
         self.taskmaster.stop = 1
         self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         self.taskmaster.num_postprocessed = self.taskmaster.num_postprocessed + 1
 
-    def exception_set(self):
+    def exception_set(self) -> None:
         pass
 
 class RandomTask(Task):
-    def _do_something(self):
+    def _do_something(self) -> None:
         # do something that will take some random amount of time:
         for i in range(random.randrange(0, 100 + num_sines, 1)):
             x = math.sin(i)
@@ -151,20 +151,20 @@ class RandomTask(Task):
 class ExceptionTask:
     """A dummy task class for testing purposes."""
 
-    def __init__(self, i, taskmaster):
+    def __init__(self, i, taskmaster) -> None:
         self.taskmaster = taskmaster
         self.was_prepared = 0
 
-    def prepare(self):
+    def prepare(self) -> None:
         self.was_prepared = 1
 
-    def needs_execute(self):
+    def needs_execute(self) -> bool:
         return True
 
     def execute(self):
         raise Exception
 
-    def executed(self):
+    def executed(self) -> None:
         self.taskmaster.num_executed = self.taskmaster.num_executed + 1
 
         self.taskmaster.test_case.assertTrue(self.was_prepared,
@@ -174,22 +174,22 @@ class ExceptionTask:
         self.taskmaster.test_case.assertTrue(self.__class__ is Task,
                                   "the task wasn't really a Task instance")
 
-    def failed(self):
+    def failed(self) -> None:
         self.taskmaster.num_failed = self.taskmaster.num_failed + 1
         self.taskmaster.stop = 1
         self.taskmaster.test_case.assertTrue(self.was_prepared,
                                   "the task wasn't prepared")
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         self.taskmaster.num_postprocessed = self.taskmaster.num_postprocessed + 1
 
-    def exception_set(self):
+    def exception_set(self) -> None:
         self.taskmaster.exception_set()
 
 class Taskmaster:
     """A dummy taskmaster class for testing the job classes."""
 
-    def __init__(self, n, test_case, Task):
+    def __init__(self, n, test_case, Task) -> None:
         """n is the number of dummy tasks to perform."""
 
         self.test_case = test_case
@@ -232,14 +232,14 @@ class Taskmaster:
     def all_tasks_are_postprocessed(self):
         return self.num_postprocessed == self.num_tasks
 
-    def tasks_were_serial(self):
+    def tasks_were_serial(self) -> bool:
         """analyze the task order to see if they were serial"""
         return not self.found_parallel
 
-    def exception_set(self):
+    def exception_set(self) -> None:
         pass
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         pass
 
 
@@ -292,7 +292,7 @@ class ParallelTestCase(JobTestCase):
         # tasks complete and get their notifications on the resultsQueue.
 
         class SleepTask(Task):
-            def _do_something(self):
+            def _do_something(self) -> None:
                 time.sleep(0.01)
 
         global SaveThreadPool
@@ -329,7 +329,7 @@ class ParallelTestCase(JobTestCase):
             SCons.Taskmaster.Job.ThreadPool = SaveThreadPool
 
 class SerialTestCase(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """test a serial job"""
 
         taskmaster = Taskmaster(num_tasks, self, RandomTask)
@@ -350,7 +350,7 @@ class SerialTestCase(unittest.TestCase):
 
 class NoParallelTestCase(JobTestCase):
 
-    def runTest(self):
+    def runTest(self) -> None:
         """test handling lack of parallel support"""
         def NoParallel(tm, num, stack_size):
             raise NameError
@@ -377,7 +377,7 @@ class NoParallelTestCase(JobTestCase):
 
 
 class SerialExceptionTestCase(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         """test a serial job with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
@@ -396,7 +396,7 @@ class SerialExceptionTestCase(unittest.TestCase):
 
 class ParallelExceptionTestCase(JobTestCase):
 
-    def runTest(self):
+    def runTest(self) -> None:
         """test parallel jobs with tasks that raise exceptions"""
 
         taskmaster = Taskmaster(num_tasks, self, ExceptionTask)
@@ -421,23 +421,23 @@ import SCons.Node
 import time
 
 class DummyNodeInfo:
-    def update(self, obj):
+    def update(self, obj) -> None:
         pass
 
 class testnode (SCons.Node.Node):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.expect_to_be = SCons.Node.executed
         self.ninfo = DummyNodeInfo()
 
 class goodnode (testnode):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.expect_to_be = SCons.Node.up_to_date
         self.ninfo = DummyNodeInfo()
 
 class slowgoodnode (goodnode):
-    def prepare(self):
+    def prepare(self) -> None:
         # Delay to allow scheduled Jobs to run while the dispatcher
         # sleeps.  Keep this short because it affects the time taken
         # by this test.
@@ -445,7 +445,7 @@ class slowgoodnode (goodnode):
         goodnode.prepare(self)
 
 class badnode (goodnode):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.expect_to_be = SCons.Node.failed
     def build(self, **kw):
@@ -467,7 +467,7 @@ class badpreparenode (badnode):
 
 class _SConsTaskTest(JobTestCase):
 
-    def _test_seq(self, num_jobs):
+    def _test_seq(self, num_jobs) -> None:
         for node_seq in [
             [goodnode],
             [badnode],
@@ -484,7 +484,7 @@ class _SConsTaskTest(JobTestCase):
 
             self._do_test(num_jobs, node_seq)
 
-    def _do_test(self, num_jobs, node_seq):
+    def _do_test(self, num_jobs, node_seq) -> None:
 
         testnodes = []
         for tnum in range(num_tasks):
@@ -549,13 +549,13 @@ class _SConsTaskTest(JobTestCase):
 
 
 class SerialTaskTest(_SConsTaskTest):
-    def runTest(self):
+    def runTest(self) -> None:
         """test serial jobs with actual Taskmaster and Task"""
         self._test_seq(1)
 
 
 class ParallelTaskTest(_SConsTaskTest):
-    def runTest(self):
+    def runTest(self) -> None:
         """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 

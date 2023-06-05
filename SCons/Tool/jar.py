@@ -240,7 +240,7 @@ def generate(env) -> None:
     env['JARCOM'] = "${TEMPFILE('$_JARCOM','$JARCOMSTR')}"
     env['JARSUFFIX'] = '.jar'
 
-def exists(env):
+def exists(env) -> bool:
     # As reported by Jan Nijtmans in issue #2730, the simple
     #    return env.Detect('jar')
     # doesn't always work during initialization. For now, we

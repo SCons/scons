@@ -104,7 +104,7 @@ RMICBuilder = SCons.Builder.Builder(action = RMICAction,
                      target_factory = SCons.Node.FS.Dir,
                      source_factory = SCons.Node.FS.File)
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for rmic to an Environment."""
     env['BUILDERS']['RMIC'] = RMICBuilder
 
@@ -123,7 +123,7 @@ def generate(env):
     env['RMICCOM']         = '$RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} -classpath ${SOURCE.attributes.java_classdir} ${SOURCES.attributes.java_classname}'
     env['JAVACLASSSUFFIX']  = '.class'
 
-def exists(env):
+def exists(env) -> int:
     # As reported by Jan Nijtmans in issue #2730, the simple
     #    return env.Detect('rmic')
     # doesn't always work during initialization. For now, we

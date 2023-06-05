@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
 env  = Environment(tools=['default', 'packaging'])
 prog = env.Install( 'bin/', ["f1", "f2"] )
 env.File( "f3" )

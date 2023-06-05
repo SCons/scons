@@ -71,7 +71,7 @@ for h in headers:
 # define some helpers:
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.data.update(kwargs)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
@@ -89,7 +89,7 @@ class DummyEnvironment(collections.UserDict):
             path = [path]
         return list(map(self.subst, path))
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.data
 
     def get_calculator(self):
@@ -110,7 +110,7 @@ my_normpath = os.path.normpath
 if os.path.normcase('foo') == os.path.normcase('FOO'):
     my_normpath = os.path.normcase
 
-def deps_match(self, deps, headers):
+def deps_match(self, deps, headers) -> None:
     scanned = sorted(map(my_normpath, list(map(str, deps))))
     expect = sorted(map(my_normpath, headers))
     self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
@@ -118,7 +118,7 @@ def deps_match(self, deps, headers):
 # define some tests:
 
 class RCScannerTestCase1(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         path = []
         env = DummyEnvironment(RCSUFFIXES=['.rc','.rc2'],
                                CPPPATH=path)
@@ -128,7 +128,7 @@ class RCScannerTestCase1(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class RCScannerTestCase2(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         path = []
         env = DummyEnvironment(RCSUFFIXES=['.rc','.rc2'],
                                CPPPATH=path)
@@ -145,7 +145,7 @@ class RCScannerTestCase2(unittest.TestCase):
         deps_match(self, deps, headers)
 
 class RCScannerTestCase3(unittest.TestCase):
-    def runTest(self):
+    def runTest(self) -> None:
         path = []
         env = DummyEnvironment(RCSUFFIXES=['.rc','.rc2'],
                                CPPPATH=path)

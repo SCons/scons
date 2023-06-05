@@ -1,5 +1,8 @@
-# -*- mode:python; coding:utf-8; -*-
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
+DefaultEnvironment(tools=[])
 env=Environment({})
 
 change = ARGUMENTS.get('change', 0)

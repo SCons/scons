@@ -41,6 +41,8 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
+# TODO: should this be synced with SCons/Platform/mingw.py:MINGW_DEFAULTPATHS
+#  i.e. either keep the same, or make sure there's only one?
 mingw_base_paths = [
     r'c:\MinGW\bin',
     r'C:\cygwin64\bin',
@@ -48,8 +50,14 @@ mingw_base_paths = [
     r'C:\msys64\mingw64\bin',
     r'C:\cygwin\bin',
     r'C:\msys',
-    r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
+    # Chocolatey mingw (pkg name for MinGW-w64) does not use ChocolateyToolsLocation
+    r'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin',
 ]
+# Chocolatey msys2 uses envvar ChocolateyToolsLocation to base the install
+# location (unless the user supplied additional params). Try to reproduce:
+choco = os.environ.get('ChocolateyToolsLocation')
+if choco:
+    mingw_base_paths.append(choco + r'\msys64\bin')
 
 
 def shlib_generator(target, source, env, for_signature):
@@ -142,7 +150,7 @@ def get_mingw_paths():
         _mingw_all_paths = mingw_base_paths + find_version_specific_mingw_paths()
     return _mingw_all_paths
 
-def generate(env):
+def generate(env) -> None:
     # Check for reasoanble mingw default paths
     mingw_paths = get_mingw_paths()
 

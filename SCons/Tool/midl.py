@@ -73,7 +73,7 @@ midl_builder = SCons.Builder.Builder(action=midl_action,
                                      source_scanner=idl_scanner)
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for midl to an Environment."""
 
     env['MIDL'] = 'MIDL.EXE'

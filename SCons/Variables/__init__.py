@@ -57,7 +57,7 @@ class Variables:
     """
     instance = None
 
-    def __init__(self, files=None, args=None, is_global=True):
+    def __init__(self, files=None, args=None, is_global: bool=True) -> None:
         if args is None:
             args = {}
         self.options = []
@@ -76,7 +76,7 @@ class Variables:
             if not Variables.instance:
                 Variables.instance=self
 
-    def _do_add(self, key, help="", default=None, validator=None, converter=None, **kwargs) -> None:
+    def _do_add(self, key, help: str="", default=None, validator=None, converter=None, **kwargs) -> None:
 
         class Variable:
             pass

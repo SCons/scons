@@ -6,12 +6,12 @@ Past official release announcements appear at:
 
 ==================================================================
 
-A new SCons release, 4.5.2, is now available on the SCons download page:
+A new SCons release, 4.5.3, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
 
-Here is a summary of the changes since 4.5.1:
+Here is a summary of the changes since 4.5.2:
 
 NEW FUNCTIONALITY
 -----------------
@@ -26,38 +26,53 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- When debugging (--debug=pdb), the filenames SConstruct and SConscript
+  are now recognized when manipulating breakpoints. Previously,
+  only a full pathname to an sconscript file worked, as pdb requires
+  a .py extension to open a file that is not an absolute path.
+- Three unused non-public methods of the Environment Base class
+  were dropped: get_src_sig_type, get_tgt_sig_type, _changed_source.
+  These were unused remnants of the previously removed SourceSignatures
+  and TargetSignatures features (dropped in 3.1.2).
 
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
+  is '/' rather than the Windows default '\'), certain Configure checks
+  could fail due to the construction of the path to run the compiled check.
+- C scanner's dictifyCPPDEFINES routine did not understand the possible
+  combinations of CPPDEFINES - not aware of a "name=value" string either
+  embedded in a sequence, or by itself.  The conditional C scanner thus
+  did not always properly apply the defines. The regular C scanner does
+  not use these, so was not affected.  [fixes #4193]
 
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Now tries to find mingw if it comes from Chocolatey install of msys2.
 
 PACKAGING
 ---------
 
-- Remove the redundant `wheel` dependency from `pyproject.toml`,
-  as it is added automatically by the setuptools PEP517 backend.
+- List changes in the way SCons is packaged and/or released
 
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Aligned manpage signature for Alias function to match implementation -
+  if the previous *targets* parameter had been used as a keyword argument,
+  the results would be incorrect (does not apply to positional argument
+  usage, which had no problem).
 
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- SCons test runner now uses pathlib to normalize and compare paths
+  to test files, which allows test lists, exclude lists, and tests on
+  the command line to "not care" about the OS convention for pathname
+  separators.
+
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

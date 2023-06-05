@@ -53,16 +53,16 @@ from ..common import (
 _refs = []
 
 
-def register_modulename(modname):
+def register_modulename(modname) -> None:
     module = sys.modules[modname]
     _refs.append(module)
 
 
-def register_class(ref):
+def register_class(ref) -> None:
     _refs.append(ref)
 
 
-def reset():
+def reset() -> None:
     debug('')
     for ref in _refs:
         for method in ['reset', '_reset']:
@@ -73,7 +73,7 @@ def reset():
             func()
 
 
-def verify():
+def verify() -> None:
     debug('')
     for ref in _refs:
         for method in ['verify', '_verify']:

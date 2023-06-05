@@ -35,12 +35,12 @@ __revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import SCons.Tool
 
-def generate(env):
+def generate(env) -> None:
     """Add default tools."""
     for t in SCons.Tool.tool_list(env['PLATFORM'], env):
         SCons.Tool.Tool(t)(env)
 
-def exists(env):
+def exists(env) -> int:
     return 1
 
 # Local Variables:

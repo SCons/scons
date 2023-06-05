@@ -50,7 +50,7 @@ def get_xlf77(env):
     #return SCons.Platform.aix.get_xlc(env, xlf77, xlf77_r, packages)
     return (None, xlf77, xlf77_r, None)
 
-def generate(env):
+def generate(env) -> None:
     """
     Add Builders and construction variables for the Visual Age FORTRAN
     compiler to an Environment.

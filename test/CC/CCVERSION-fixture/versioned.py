@@ -1,5 +1,10 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import subprocess
 import sys
+
 if '-dumpversion' in sys.argv:
     print('3.9.9')
     sys.exit(0)

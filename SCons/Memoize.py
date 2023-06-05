@@ -111,7 +111,7 @@ class Counter:
     fill in the correct class name and method name that represents
     the name of the function being counted.
     """
-    def __init__(self, cls_name, method_name):
+    def __init__(self, cls_name, method_name) -> None:
         """
         """
         self.cls_name = cls_name
@@ -120,7 +120,7 @@ class Counter:
         self.miss = 0
     def key(self):
         return self.cls_name+'.'+self.method_name
-    def display(self):
+    def display(self) -> None:
         print("    {:7d} hits {:7d} misses    {}()".format(self.hit, self.miss, self.key()))
     def __eq__(self, other):
         try:
@@ -136,7 +136,7 @@ class CountValue(Counter):
     the class's methods that memoizes its return value by simply storing
     the return value in its _memo dictionary.
     """
-    def count(self, *args, **kw):
+    def count(self, *args, **kw) -> None:
         """ Counts whether the memoized value has already been
             set (a hit) or not (a miss).
         """
@@ -156,12 +156,12 @@ class CountDict(Counter):
     indexed by some key that can be computed from one or more of
     its input arguments.
     """
-    def __init__(self, cls_name, method_name, keymaker):
+    def __init__(self, cls_name, method_name, keymaker) -> None:
         """
         """
         super().__init__(cls_name, method_name)
         self.keymaker = keymaker
-    def count(self, *args, **kw):
+    def count(self, *args, **kw) -> None:
         """ Counts whether the computed key value is already present
            in the memoization dictionary (a hit) or not (a miss).
         """
@@ -177,7 +177,7 @@ class CountDict(Counter):
             else:
                 self.miss = self.miss + 1
 
-def Dump(title=None):
+def Dump(title=None) -> None:
     """ Dump the hit/miss count for all the counters
         collected so far.
     """
@@ -186,7 +186,7 @@ def Dump(title=None):
     for counter in sorted(CounterList):
         CounterList[counter].display()
 
-def EnableMemoization():
+def EnableMemoization() -> None:
     global use_memoizer
     use_memoizer = 1
 

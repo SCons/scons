@@ -29,7 +29,7 @@ import SCons.Memoize
 SCons.Memoize.EnableMemoization()
 
 class FakeObject:
-    def __init__(self):
+    def __init__(self) -> None:
         self._memo = {}
 
     def _dict_key(self, argument):
@@ -74,7 +74,7 @@ class FakeObject:
         return SCons.Memoize.CounterList.get(self.__class__.__name__+'.'+name, None)
 
 class Returner:
-    def __init__(self, result):
+    def __init__(self, result) -> None:
         self.result = result
         self.calls = 0
     def __call__(self, *args, **kw):
@@ -84,7 +84,7 @@ class Returner:
 
 class CountDictTestCase(unittest.TestCase):
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         """Calling a Memoized dict method
         """
         obj = FakeObject()
@@ -126,7 +126,7 @@ class CountDictTestCase(unittest.TestCase):
 
 class CountValueTestCase(unittest.TestCase):
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         """Calling a Memoized value method
         """
         obj = FakeObject()

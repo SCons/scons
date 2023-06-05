@@ -121,7 +121,7 @@ def get_cppc(env):
     return (cppcPath, 'CC', 'CC', cppcVersion)
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for SunPRO C++."""
     path, cxx, shcxx, version = get_cppc(env)
     if path:

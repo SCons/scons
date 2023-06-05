@@ -47,9 +47,9 @@ from . import ScriptArguments  # noqa: F401
 
 from . import Dispatcher as _Dispatcher
 
-def _reset():
+def _reset() -> None:
     _Dispatcher.reset()
 
-def _verify():
+def _verify() -> None:
     _Dispatcher.verify()
 

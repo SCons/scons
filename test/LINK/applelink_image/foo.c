@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 #include <stdio.h>
 #include <stdlib.h>
 int

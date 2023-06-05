@@ -16,7 +16,7 @@ from .types import is_List, is_Tuple, is_String
 
 
 def PrependPath(
-    oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
+    oldpath, newpath, sep=os.pathsep, delete_existing: bool=True, canonicalize=None
 ) -> Union[list, str]:
     """Prepend *newpath* path elements to *oldpath*.
 
@@ -102,7 +102,7 @@ def PrependPath(
 
 
 def AppendPath(
-    oldpath, newpath, sep=os.pathsep, delete_existing=True, canonicalize=None
+    oldpath, newpath, sep=os.pathsep, delete_existing: bool=True, canonicalize=None
 ) -> Union[list, str]:
     """Append *newpath* path elements to *oldpath*.
 
@@ -187,7 +187,7 @@ def AppendPath(
     return sep.join(paths)
 
 
-def AddPathIfNotExists(env_dict, key, path, sep=os.pathsep):
+def AddPathIfNotExists(env_dict, key, path, sep=os.pathsep) -> None:
     """Add a path element to a construction variable.
 
     `key` is looked up in `env_dict`, and `path` is added to it if it
@@ -229,7 +229,7 @@ class MethodWrapper:
     a new underlying object being copied (without which we wouldn't need
     to save that info).
     """
-    def __init__(self, obj, method, name=None):
+    def __init__(self, obj, method, name=None) -> None:
         if name is None:
             name = method.__name__
         self.object = obj
@@ -265,7 +265,7 @@ class MethodWrapper:
 #   is not needed, the remaining bit is now used inline in AddMethod.
 
 
-def AddMethod(obj, function, name=None):
+def AddMethod(obj, function, name=None) -> None:
     """Add a method to an object.
 
     Adds *function* to *obj* if *obj* is a class object.

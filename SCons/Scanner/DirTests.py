@@ -41,7 +41,7 @@ from SCons.SConsign import current_sconsign_filename
 #        return self.fs.Entry(name)
 
 class DummyEnvironment:
-    def __init__(self, root):
+    def __init__(self, root) -> None:
         self.fs = SCons.Node.FS.FS(root)
     def Dir(self, name):
         return self.fs.Dir(name)
@@ -53,7 +53,7 @@ class DummyEnvironment:
         return factory or self.fs.Entry
 
 class DirScannerTestBase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.test = TestCmd.TestCmd(workdir = '')
 
         self.test.subdir('dir', ['dir', 'sub'])
@@ -79,7 +79,7 @@ class DirScannerTestBase(unittest.TestCase):
         self.test.write(['dir', 'sub', '{}.pag'.format(sconsign)], "dir/{}.pag\n".format(sconsign))
 
 class DirScannerTestCase(DirScannerTestBase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(self.test.workpath())
 
         s = SCons.Scanner.Dir.DirScanner()
@@ -102,7 +102,7 @@ class DirScannerTestCase(DirScannerTestBase):
         assert sss == expect, "Found {}, expected {}".format(sss, expect)
 
 class DirEntryScannerTestCase(DirScannerTestBase):
-    def runTest(self):
+    def runTest(self) -> None:
         env = DummyEnvironment(self.test.workpath())
 
         s = SCons.Scanner.Dir.DirEntryScanner()

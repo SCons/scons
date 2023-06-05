@@ -51,12 +51,12 @@ __COMPILATION_DB_ENTRIES = []
 # We make no effort to avoid rebuilding the entries. Someday, perhaps we could and even
 # integrate with the cache, but there doesn't seem to be much call for it.
 class __CompilationDbNode(SCons.Node.Python.Value):
-    def __init__(self, value):
+    def __init__(self, value) -> None:
         SCons.Node.Python.Value.__init__(self, value)
         self.Decider(changed_since_last_build_node)
 
 
-def changed_since_last_build_node(child, target, prev_ni, node):
+def changed_since_last_build_node(child, target, prev_ni, node) -> bool:
     """ Dummy decider to force always building"""
     return True
 
@@ -111,7 +111,7 @@ class CompDBTEMPFILE(TempFileMunge):
         return self.cmd
 
 
-def compilation_db_entry_action(target, source, env, **kw):
+def compilation_db_entry_action(target, source, env, **kw) -> None:
     """
     Create a dictionary with evaluated command line, target, source
     and store that info as an attribute on the target
@@ -140,7 +140,7 @@ def compilation_db_entry_action(target, source, env, **kw):
     target[0].write(entry)
 
 
-def write_compilation_db(target, source, env):
+def write_compilation_db(target, source, env) -> None:
     entries = []
 
     use_abspath = env['COMPILATIONDB_USE_ABSPATH'] in [True, 1, 'True', 'true']
@@ -197,7 +197,7 @@ def compilation_db_emitter(target, source, env):
     return target, source
 
 
-def generate(env, **kwargs):
+def generate(env, **kwargs) -> None:
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 
     env["COMPILATIONDB_COMSTR"] = kwargs.get(
@@ -261,5 +261,5 @@ def generate(env, **kwargs):
     env['COMPILATIONDB_PATH_FILTER'] = ''
 
 
-def exists(env):
+def exists(env) -> bool:
     return True

@@ -33,7 +33,7 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ilink to an Environment."""
     SCons.Tool.createProgBuilder(env)
     

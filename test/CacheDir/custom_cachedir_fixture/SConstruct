@@ -1,11 +1,16 @@
-import SCons
-class CustomCacheDir(SCons.CacheDir.CacheDir):
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
+import SCons
+
+class CustomCacheDir(SCons.CacheDir.CacheDir):
     @classmethod
     def copy_to_cache(cls, env, src, dst):
         print("MY_CUSTOM_CACHEDIR_CLASS")
         super().copy_to_cache(env, src, dst)
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=[])
 env.CacheDir('cache', CustomCacheDir)
 env.Command('file.out', 'file.in', Copy('$TARGET', '$SOURCE'))

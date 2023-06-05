@@ -134,7 +134,7 @@ def cyglink_ldmodule_version(target, source, env, for_signature):
     return "." + version
 
 
-def _implib_pre_flags(target, source, env, for_signature):
+def _implib_pre_flags(target, source, env, for_signature) -> str:
     no_import_lib = env.get('no_import_lib', False)
     if no_import_lib in ['1', 'True', 'true', True]:
         return ''
@@ -142,7 +142,7 @@ def _implib_pre_flags(target, source, env, for_signature):
         return '-Wl,--out-implib=${TARGETS[1]} -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive'
 
 
-def _implib_post_flags(target, source, env, for_signature):
+def _implib_post_flags(target, source, env, for_signature) -> str:
     no_import_lib = env.get('no_import_lib', False)
     if no_import_lib in ['1', 'True', 'true', True]:
         return ''
@@ -150,7 +150,7 @@ def _implib_post_flags(target, source, env, for_signature):
         return '-Wl,--no-whole-archive'
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for cyglink to an Environment."""
     gnulink.generate(env)
 
