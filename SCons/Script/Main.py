@@ -1506,7 +1506,6 @@ def main() -> None:
 
     if SCons.Util.stats.ENABLE_JSON:
         WriteJsonFile()
-        TIME_STATS.total_times(total_time, sconscript_time, scons_time, ct)
 
 
     if SCons.Util.stats.ENABLE_JSON:

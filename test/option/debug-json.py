@@ -24,9 +24,10 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test that the --debug=count option works.
+Test that the --debug=json option works.
 """
 
+import json
 import re
 import sys
 
@@ -35,8 +36,8 @@ import TestSCons
 test = TestSCons.TestSCons()
 
 test.file_fixture('fixture/SConstruct_debug_count', 'SConstruct')
-
 test.write('file.in', "file.in\n")
+
 
 # Just check that object counts for some representative classes
 # show up in the output.
@@ -45,41 +46,32 @@ def find_object_count(s, stdout):
     re_string = r'\d+ +\d+   %s' % re.escape(s)
     return re.search(re_string, stdout)
 
+
 objects = [
     'Action.CommandAction',
     'Builder.BuilderBase',
     'Environment.Base',
     'Executor.Executor',
-    'Node.FS',
+    'Node.FS.File',
     'Node.FS.Base',
     'Node.Node',
 ]
 
-for args in ['-h --debug=count', '--debug=count']:
-    test.run(arguments = args)
-    stdout = test.stdout()
+test.run(arguments='--debug=count,json')
+test.must_exist('scons_stats.json')
+with open('scons_stats.json') as jf:
+    stats_info = json.load(jf)
+    if 'Build_Info' not in stats_info:
+        test.fail_test(message='No Build_Info in json')
+    if 'Object counts' not in stats_info:
+        test.fail_test(message='No "Object counts" in json')
 
-    missing = [o for o in objects if find_object_count(o, stdout) is None]
+    for o in objects:
+        if o not in stats_info['Object counts']:
+            test.fail_test(message=f"Object counts missing {o}")
 
-    if missing:
-        print("Missing the following object lines from '%s' output:" % args)
-        print("\t", ' '.join(missing))
-        print("STDOUT ==========")
-        print(stdout)
-        test.fail_test(1)
-
-expect_warning = """
-scons: warning: --debug=count is not supported when running SCons
-\twith the python -O option or optimized \\(.pyo\\) modules.
-""" + TestSCons.file_expr
-
-test.run(
-    arguments = '--debug=count -h',
-    # Test against current interpreter vs default path option.
-    interpreter = [ sys.executable, '-O' ],
-    stderr = expect_warning,
-    match = TestSCons.match_re
-)
+    if stats_info['Build_Info']['PYTHON_VERSION']['major'] != sys.version_info.major:
+        test.fail_test(message=f"Build Info PYTHON_VERSION incorrect")
 
 test.pass_test()
 
