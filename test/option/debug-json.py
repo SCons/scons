@@ -46,6 +46,22 @@ def find_object_count(s, stdout):
     re_string = r'\d+ +\d+   %s' % re.escape(s)
     return re.search(re_string, stdout)
 
+def check_json_file(filename):
+    with open(filename,'r') as jf:
+        stats_info = json.load(jf)
+        if 'Build_Info' not in stats_info:
+            test.fail_test(message='No Build_Info in json')
+        if 'Object counts' not in stats_info:
+            test.fail_test(message='No "Object counts" in json')
+
+        for o in objects:
+            if o not in stats_info['Object counts']:
+                test.fail_test(message=f"Object counts missing {o}")
+
+        if stats_info['Build_Info']['PYTHON_VERSION'][
+            'major'] != sys.version_info.major:
+            test.fail_test(message=f"Build Info PYTHON_VERSION incorrect")
+
 
 objects = [
     'Action.CommandAction',
@@ -59,19 +75,16 @@ objects = [
 
 test.run(arguments='--debug=count,json')
 test.must_exist('scons_stats.json')
-with open('scons_stats.json') as jf:
-    stats_info = json.load(jf)
-    if 'Build_Info' not in stats_info:
-        test.fail_test(message='No Build_Info in json')
-    if 'Object counts' not in stats_info:
-        test.fail_test(message='No "Object counts" in json')
+check_json_file('scons_stats.json')
 
-    for o in objects:
-        if o not in stats_info['Object counts']:
-            test.fail_test(message=f"Object counts missing {o}")
+test.run(arguments='--debug=count,json  JSON=build/output/stats.json')
+test.must_exist('build/output/stats.json')
+check_json_file('build/output/stats.json')
 
-    if stats_info['Build_Info']['PYTHON_VERSION']['major'] != sys.version_info.major:
-        test.fail_test(message=f"Build Info PYTHON_VERSION incorrect")
+test.run(arguments='--debug=count,json  JSON=/cant/write/here/dumb.json', status=2, stderr=None)
+test.must_not_exist('/cant/write/here/dumb.json')
+test.pass_test('scons: *** Unable to create directory for JSON debug output file:' in test.stderr())
+
 
 test.pass_test()
 

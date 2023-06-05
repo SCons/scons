@@ -59,7 +59,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
-from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, TIME_STATS, ENABLE_JSON, WriteJsonFile
+from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, TIME_STATS, ENABLE_JSON, WriteJsonFile, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
 
@@ -518,6 +518,24 @@ def GetOption(name):
 
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
+
+def DebugOptions(json=None):
+    """
+    API to allow specifying options to SCons debug logic
+    Currently only json is supported which changes the
+    json file written by --debug=json from the default
+    """
+    if json is not None:
+        json_node = SCons.Defaults.DefaultEnvironment().arg2nodes(json)
+        SCons.Util.stats.JSON_OUTPUT_FILE = json_node[0].get_abspath()
+        # Check if parent dir to JSON_OUTPUT_FILE exists
+        json_dir = os.path.dirname(SCons.Util.stats.JSON_OUTPUT_FILE)
+        try:
+            if not os.path.isdir(json_dir):
+                os.makedirs(json_dir, exist_ok=True)
+        except (FileNotFoundError, OSError) as e:
+            raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
+
 
 def ValidateOptions(throw_exception: bool=False) -> None:
     """Validate options passed to SCons on the command line.
@@ -1502,10 +1520,6 @@ def main() -> None:
         print("Total SCons execution time: %f seconds"%scons_time)
         print("Total command execution time: %f seconds"%ct)
         TIME_STATS.total_times(total_time, sconscript_time, scons_time, ct)
-
-
-    if SCons.Util.stats.ENABLE_JSON:
-        WriteJsonFile()
 
 
     if SCons.Util.stats.ENABLE_JSON:

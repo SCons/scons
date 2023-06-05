@@ -151,6 +151,7 @@ MEMORY_STATS = MemStats()
 TIME_STATS = TimeStats()
 
 
+
 def WriteJsonFile():
     """
     Actually write the JSON file with debug information.
@@ -159,7 +160,7 @@ def WriteJsonFile():
 
     from SCons.Script import BUILD_TARGETS, COMMAND_LINE_TARGETS, ARGUMENTS, ARGLIST
 
-    # print("DUMPING JSON FILE")
+    print(f"DUMPING JSON FILE: {JSON_OUTPUT_FILE}")
     json_structure = {}
     if COUNT_STATS.enabled:
         json_structure['Object counts'] = {}
@@ -198,6 +199,8 @@ def WriteJsonFile():
             'serial' : sys.version_info.serial,
         }
     }
+
+
 
     with open(JSON_OUTPUT_FILE, 'w') as sf:
         sf.write(json.dumps(json_structure, indent=4))
