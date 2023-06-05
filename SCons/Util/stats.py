@@ -160,7 +160,7 @@ def WriteJsonFile():
 
     from SCons.Script import BUILD_TARGETS, COMMAND_LINE_TARGETS, ARGUMENTS, ARGLIST
 
-    print(f"DUMPING JSON FILE: {JSON_OUTPUT_FILE}")
+    # print(f"DUMPING JSON FILE: {JSON_OUTPUT_FILE}")
     json_structure = {}
     if COUNT_STATS.enabled:
         json_structure['Object counts'] = {}
