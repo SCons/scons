@@ -25,16 +25,17 @@
 
 import re
 import os.path
-from typing import Tuple
+from typing import Tuple, List
 
 import SCons.Scanner.Fortran
 import SCons.Tool
 import SCons.Util
-from SCons.Action import Action, ActionBase
+from SCons.Action import Action, CommandAction
+from SCons.Defaults import StaticObjectEmitter, SharedObjectEmitter
 
 
 def isfortran(env, source) -> bool:
-    """Returns True if source has any fortran files in it.
+    """Returns True if *source* has any fortran files in it.
 
     Only checks based on filename suffixes, does not examine code.
     """
@@ -62,14 +63,14 @@ def _fortranEmitter(target, source, env) -> Tuple:
     Called by both the static and shared object emitters,
     mainly to account for generated module files.
     """
-
     node = source[0].rfile()
     if not node.exists() and not node.is_derived():
-       print("Could not locate " + str(node.name))
-       return ([], [])
+        print("Could not locate " + str(node.name))
+        return [], []
+
     # This has to match the def_regex in the Fortran scanner
     mod_regex = r"""(?i)^\s*MODULE\s+(?!PROCEDURE|SUBROUTINE|FUNCTION|PURE|ELEMENTAL)(\w+)"""
-    cre = re.compile(mod_regex,re.M)
+    cre = re.compile(mod_regex, re.M)
     # Retrieve all USE'd module names
     modules = cre.findall(node.get_text_contents())
     # Remove unique items from the list
@@ -77,39 +78,39 @@ def _fortranEmitter(target, source, env) -> Tuple:
     # Convert module name to a .mod filename
     suffix = env.subst('$FORTRANMODSUFFIX', target=target, source=source)
     moddir = env.subst('$FORTRANMODDIR', target=target, source=source)
-    modules = [x.lower() + suffix for x in modules]
-    for m in modules:
-       target.append(env.fs.File(m, moddir))
-    return (target, source)
+    modules = [mod.lower() + suffix for mod in modules]
+    for module in modules:
+        target.append(env.fs.File(module, moddir))
+    return target, source
 
 
 def FortranEmitter(target, source, env) -> Tuple:
-    import SCons.Defaults
+    """Create emitter for static objects."""
     target, source = _fortranEmitter(target, source, env)
-    return SCons.Defaults.StaticObjectEmitter(target, source, env)
+    return StaticObjectEmitter(target, source, env)
 
 
 def ShFortranEmitter(target, source, env) -> Tuple:
-    import SCons.Defaults
+    """Create emitter for shared objects."""
     target, source = _fortranEmitter(target, source, env)
-    return SCons.Defaults.SharedObjectEmitter(target, source, env)
+    return SharedObjectEmitter(target, source, env)
 
 
-def ComputeFortranSuffixes(suffixes, ppsuffixes) -> None:
+def ComputeFortranSuffixes(suffixes: List[str], ppsuffixes: List[str]) -> None:
     """Update the suffix lists to reflect the platform requirements.
 
     If upper-cased suffixes can be distinguished from lower, those are
     added to *ppsuffixes*. If not, they are added to *suffixes*.
 
     Args:
-        suffixes (list): indicate regular Fortran source files
-        ppsuffixes (list): indicate Fortran source files that should be
+        suffixes: regular Fortran source files
+        ppsuffixes: Fortran source files that should be
           be run through the pre-processor
     """
     assert len(suffixes) > 0
     s = suffixes[0]
     sup = s.upper()
-    upper_suffixes = [_.upper() for _ in suffixes]
+    upper_suffixes = [suf.upper() for suf in suffixes]
     if SCons.Util.case_sensitive_suffixes(s, sup):
         ppsuffixes.extend(upper_suffixes)
     else:
@@ -117,7 +118,7 @@ def ComputeFortranSuffixes(suffixes, ppsuffixes) -> None:
 
 def CreateDialectActions(
     dialect: str,
-) -> Tuple[ActionBase, ActionBase, ActionBase, ActionBase]:
+) -> Tuple[CommandAction, CommandAction, CommandAction, CommandAction]:
     """Create dialect specific actions."""
     CompAction = Action(f'${dialect}COM ', cmdstr=f'${dialect}COMSTR')
     CompPPAction = Action(f'${dialect}PPCOM ', cmdstr=f'${dialect}PPCOMSTR')
@@ -186,15 +187,13 @@ def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods: bool=False
 
 def add_fortran_to_env(env) -> None:
     """Add Builders and construction variables for Fortran/generic."""
-    try:
-        FortranSuffixes = env['FORTRANFILESUFFIXES']
-    except KeyError:
-        FortranSuffixes = ['.f', '.for', '.ftn']
+    FortranSuffixes = env.get(('FORTRANFILESUFFIXES'), [])
+    FortranSuffixes.extend(['.f', '.for', '.ftn'])
+    FortranSuffixes = SCons.Util.unique(FortranSuffixes)
 
-    try:
-        FortranPPSuffixes = env['FORTRANPPFILESUFFIXES']
-    except KeyError:
-        FortranPPSuffixes = ['.fpp', '.FPP']
+    FortranPPSuffixes = env.get(('FORTRANPPFILESUFFIXES'), [])
+    FortranPPSuffixes.extend(['.fpp', '.FPP'])
+    FortranPPSuffixes = SCons.Util.unique(FortranPPSuffixes)
 
     DialectAddToEnv(env, "FORTRAN", FortranSuffixes, FortranPPSuffixes, support_mods=True)
 
@@ -208,71 +207,56 @@ def add_fortran_to_env(env) -> None:
 
 def add_f77_to_env(env) -> None:
     """Add Builders and construction variables for f77 dialect."""
-    try:
-        F77Suffixes = env['F77FILESUFFIXES']
-    except KeyError:
-        F77Suffixes = ['.f77']
+    F77Suffixes = env.get(('F77FILESUFFIXES'), [])
+    F77Suffixes.extend(['.f77'])
+    F77Suffixes = SCons.Util.unique(F77Suffixes)
 
-    try:
-        F77PPSuffixes = env['F77PPFILESUFFIXES']
-    except KeyError:
-        F77PPSuffixes = []
+    F77PPSuffixes = env.get(('F77PPFILESUFFIXES'), [])
+    F77PPSuffixes = SCons.Util.unique(F77PPSuffixes)
 
     DialectAddToEnv(env, "F77", F77Suffixes, F77PPSuffixes)
 
 def add_f90_to_env(env) -> None:
     """Add Builders and construction variables for f90 dialect."""
-    try:
-        F90Suffixes = env['F90FILESUFFIXES']
-    except KeyError:
-        F90Suffixes = ['.f90']
+    F90Suffixes = env.get(('F90FILESUFFIXES'), [])
+    F90Suffixes.extend(['.f90'])
+    F90Suffixes = SCons.Util.unique(F90Suffixes)
 
-    try:
-        F90PPSuffixes = env['F90PPFILESUFFIXES']
-    except KeyError:
-        F90PPSuffixes = []
+    F90PPSuffixes = env.get(('F90PPFILESUFFIXES'), [])
+    F90PPSuffixes = SCons.Util.unique(F90PPSuffixes)
 
     DialectAddToEnv(env, "F90", F90Suffixes, F90PPSuffixes, support_mods=True)
 
 def add_f95_to_env(env) -> None:
     """Add Builders and construction variables for f95 dialect."""
-    try:
-        F95Suffixes = env['F95FILESUFFIXES']
-    except KeyError:
-        F95Suffixes = ['.f95']
+    F95Suffixes = env.get(('F95FILESUFFIXES'), [])
+    F95Suffixes.extend(['.f95'])
+    F95Suffixes = SCons.Util.unique(F95Suffixes)
 
-    try:
-        F95PPSuffixes = env['F95PPFILESUFFIXES']
-    except KeyError:
-        F95PPSuffixes = []
+    F95PPSuffixes = env.get(('F95PPFILESUFFIXES'), [])
+    F95PPSuffixes = SCons.Util.unique(F95PPSuffixes)
 
     DialectAddToEnv(env, "F95", F95Suffixes, F95PPSuffixes, support_mods=True)
 
 def add_f03_to_env(env) -> None:
     """Add Builders and construction variables for f03 dialect."""
-    try:
-        F03Suffixes = env['F03FILESUFFIXES']
-    except KeyError:
-        F03Suffixes = ['.f03']
+    F03Suffixes = env.get(('F03FILESUFFIXES'), [])
+    F03Suffixes.extend(['.f03'])
+    F03Suffixes = SCons.Util.unique(F03Suffixes)
 
-    try:
-        F03PPSuffixes = env['F03PPFILESUFFIXES']
-    except KeyError:
-        F03PPSuffixes = []
+    F03PPSuffixes = env.get(('F03PPFILESUFFIXES'), [])
+    F03PPSuffixes = SCons.Util.unique(F03PPSuffixes)
 
     DialectAddToEnv(env, "F03", F03Suffixes, F03PPSuffixes, support_mods=True)
 
 def add_f08_to_env(env) -> None:
     """Add Builders and construction variables for f08 dialect."""
-    try:
-        F08Suffixes = env['F08FILESUFFIXES']
-    except KeyError:
-        F08Suffixes = ['.f08']
+    F08Suffixes = env.get(('F08FILESUFFIXES'), [])
+    F08Suffixes.extend(['.f08'])
+    F08Suffixes = SCons.Util.unique(F08Suffixes)
 
-    try:
-        F08PPSuffixes = env['F08PPFILESUFFIXES']
-    except KeyError:
-        F08PPSuffixes = []
+    F08PPSuffixes = env.get(('F08PPFILESUFFIXES'), [])
+    F08PPSuffixes = SCons.Util.unique(F08PPSuffixes)
 
     DialectAddToEnv(env, "F08", F08Suffixes, F08PPSuffixes, support_mods=True)
 
