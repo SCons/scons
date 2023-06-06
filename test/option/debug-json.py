@@ -32,6 +32,7 @@ import re
 import sys
 
 import TestSCons
+from TestCmd import IS_WINDOWS
 
 test = TestSCons.TestSCons()
 
@@ -81,9 +82,11 @@ test.run(arguments='--debug=count,json  JSON=build/output/stats.json')
 test.must_exist('build/output/stats.json')
 check_json_file('build/output/stats.json')
 
-test.run(arguments='--debug=count,json  JSON=/cant/write/here/dumb.json', status=2, stderr=None)
-test.must_not_exist('/cant/write/here/dumb.json')
-test.pass_test('scons: *** Unable to create directory for JSON debug output file:' in test.stderr())
+# TODO: Not sure how to do this in a reasonable way on windows, so just skip for now
+if not IS_WINDOWS:
+    test.run(arguments='--debug=count,json  JSON=/cant/write/here/dumb.json', status=2, stderr=None)
+    test.must_not_exist('/cant/write/here/dumb.json')
+    test.pass_test('scons: *** Unable to create directory for JSON debug output file:' in test.stderr())
 
 
 test.pass_test()

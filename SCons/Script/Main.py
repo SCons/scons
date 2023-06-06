@@ -533,7 +533,9 @@ def DebugOptions(json=None):
         try:
             if not os.path.isdir(json_dir):
                 os.makedirs(json_dir, exist_ok=True)
-        except (FileNotFoundError, OSError) as e:
+            # Now try to open file and see if you can..
+            open(SCons.Util.stats.JSON_OUTPUT_FILE,'w')
+        except OSError as e:
             raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
 
 

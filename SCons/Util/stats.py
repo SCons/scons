@@ -33,7 +33,7 @@ There are basically two types of stats.
    though it might be useful to query during a run.
 
 """
-import os
+import platform
 import json
 import sys
 from datetime import datetime
@@ -190,7 +190,7 @@ def WriteJsonFile():
         'COMMAND_LINE_TARGETS' : [ str(clt) for clt in COMMAND_LINE_TARGETS],
         'ARGV' : sys.argv,
         'TIME' : datetime.now().isoformat(),
-        'HOST' : os.uname().nodename,
+        'HOST' : platform.node(),
         'PYTHON_VERSION' : {
             'major' : sys.version_info.major,
             'minor' : sys.version_info.minor,
@@ -201,9 +201,9 @@ def WriteJsonFile():
     }
 
 
-
     with open(JSON_OUTPUT_FILE, 'w') as sf:
-        sf.write(json.dumps(json_structure, indent=4))
+        sf.write(json.dumps(json_structure, indent=4))        
+
 
 # Local Variables:
 # tab-width:4
