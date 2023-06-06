@@ -23,7 +23,7 @@
 
 """Operations on signature database files (.sconsign). """
 
-import SCons.compat
+import SCons.compat  # pylint: disable=wrong-import-order
 
 import os
 import pickle
@@ -69,11 +69,10 @@ def current_sconsign_filename():
     # eg .sconsign_sha1, etc.
     if hash_format is None and current_hash_algorithm == 'md5':
         return ".sconsign"
-    else:
-        return ".sconsign_" + current_hash_algorithm
+    return ".sconsign_" + current_hash_algorithm
 
 def Get_DataBase(dir):
-    global DataBase, DB_Module, DB_Name
+    global DB_Name
 
     if DB_Name is None:
         DB_Name = current_sconsign_filename()
@@ -117,8 +116,6 @@ normcase = os.path.normcase
 
 
 def write() -> None:
-    global sig_files
-
     if print_time():
         start_time = time.perf_counter()
 
@@ -284,7 +281,6 @@ class DB(Base):
             self.set_entry = self.do_not_set_entry
             self.store_info = self.do_not_store_info
 
-        global sig_files
         sig_files.append(self)
 
     def write(self, sync: int=1) -> None:
@@ -316,9 +312,7 @@ class DB(Base):
 
 class Dir(Base):
     def __init__(self, fp=None, dir=None) -> None:
-        """
-        fp - file pointer to read entries from
-        """
+        """fp - file pointer to read entries from."""
         super().__init__()
 
         if not fp:
@@ -335,13 +329,9 @@ class Dir(Base):
 
 
 class DirFile(Dir):
-    """
-    Encapsulates reading and writing a per-directory .sconsign file.
-    """
+    """Encapsulates reading and writing a per-directory .sconsign file."""
     def __init__(self, dir) -> None:
-        """
-        dir - the directory for the file
-        """
+        """dir - the directory for the file."""
 
         self.dir = dir
         self.sconsign = os.path.join(dir.get_internal_path(), current_sconsign_filename())
@@ -364,12 +354,10 @@ class DirFile(Dir):
         except AttributeError:
             pass
 
-        global sig_files
         sig_files.append(self)
 
     def write(self, sync: int=1) -> None:
-        """
-        Write the .sconsign file to disk.
+        """Write the .sconsign file to disk.
 
         Try to write to a temporary file first, and rename it if we
         succeed.  If we can't write to the temporary file, it's
