@@ -64,6 +64,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       sufficient just to check the build worked. Renamed the fixture
       dir to follow naming convention in test/MSVC overall, and added
       a sconstest.skip file, also to follow convention.
+    - Class ActionBase is now an abstract base class to more accurately
+      reflect its usage. Derived _ActionAction inherits the ABC, so it
+      now declares (actually raises NotImplementedError) two methods it
+      doesn't use so it can be instantiated by unittests and others.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
