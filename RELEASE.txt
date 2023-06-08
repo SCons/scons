@@ -72,7 +72,10 @@ DEVELOPMENT
   to test files, which allows test lists, exclude lists, and tests on
   the command line to "not care" about the OS convention for pathname
   separators.
-
+- Class ActionBase is now an abstract base class to more accurately
+  reflect its usage. Derived _ActionAction inherits the ABC, so it
+  now declares (actually raises NotImplementedError) two methods it
+  doesn't use so it can be instantiated by unittests and others.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
