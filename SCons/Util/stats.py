@@ -33,6 +33,8 @@ There are basically two types of stats.
    though it might be useful to query during a run.
 
 """
+from abc import ABC
+
 import platform
 import json
 import sys
@@ -40,21 +42,21 @@ from datetime import datetime
 
 import SCons.Debug
 
-ALL_STATS = {}
+all_stats = {}
 ENABLE_JSON = False
 JSON_OUTPUT_FILE = 'scons_stats.json'
 
-def AddStatType(name, stat_object):
+def add_stat_type(name, stat_object):
     """
     Add a statistic type to the global collection
     """
-    if name in ALL_STATS:
+    if name in all_stats:
         raise UserWarning(f'Stat type {name} already exists')
     else:
-        ALL_STATS[name] = stat_object
+        all_stats[name] = stat_object
 
 
-class Stats:
+class Stats(ABC):
     def __init__(self):
         self.stats = []
         self.labels = []
@@ -151,14 +153,15 @@ MEMORY_STATS = MemStats()
 TIME_STATS = TimeStats()
 
 
-
-def WriteJsonFile():
+def write_scons_stats_file():
     """
     Actually write the JSON file with debug information.
     Depending which of : count, time, action-timestamps,memory their information will be written.
     """
 
-    from SCons.Script import BUILD_TARGETS, COMMAND_LINE_TARGETS, ARGUMENTS, ARGLIST
+    # Have to import where used to avoid import loop
+    from SCons.Script import BUILD_TARGETS, COMMAND_LINE_TARGETS, ARGUMENTS, \
+        ARGLIST # [import-outside-toplevel]
 
     # print(f"DUMPING JSON FILE: {JSON_OUTPUT_FILE}")
     json_structure = {}
@@ -202,7 +205,7 @@ def WriteJsonFile():
 
 
     with open(JSON_OUTPUT_FILE, 'w') as sf:
-        sf.write(json.dumps(json_structure, indent=4))        
+        sf.write(json.dumps(json_structure, indent=4))
 
 
 # Local Variables:

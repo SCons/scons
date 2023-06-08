@@ -59,7 +59,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
-from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, TIME_STATS, ENABLE_JSON, WriteJsonFile, JSON_OUTPUT_FILE
+from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, TIME_STATS, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
 
@@ -534,7 +534,8 @@ def DebugOptions(json=None):
             if not os.path.isdir(json_dir):
                 os.makedirs(json_dir, exist_ok=True)
             # Now try to open file and see if you can..
-            open(SCons.Util.stats.JSON_OUTPUT_FILE,'w')
+            with open(SCons.Util.stats.JSON_OUTPUT_FILE,'w') as js:
+                pass
         except OSError as e:
             raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
 
@@ -669,8 +670,10 @@ def _SConstruct_exists(
                     return sfile
     return None
 
+
 def _set_debug_values(options) -> None:
-    global print_memoizer, print_objects, print_stacktrace, print_time, print_action_timestamps
+    global print_memoizer, print_objects, print_stacktrace, print_time, \
+        print_action_timestamps, ENABLE_JSON
 
     debug_values = options.debug
 
@@ -720,9 +723,7 @@ def _set_debug_values(options) -> None:
     if "duplicate" in debug_values:
         SCons.Node.print_duplicate = True
     if "json" in debug_values:
-        SCons.Util.stats.ENABLE_JSON = True
-    if "json" in debug_values:
-        SCons.Util.stats.ENABLE_JSON = True
+        ENABLE_JSON = True
 
 def _create_path(plist):
     path = '.'
@@ -1431,6 +1432,7 @@ def main() -> None:
     global OptionsParser
     global exit_status
     global first_command_start
+    global ENABLE_JSON
 
     # Check up front for a Python version we do not support.  We
     # delay the check for deprecated Python versions until later,
@@ -1524,8 +1526,8 @@ def main() -> None:
         TIME_STATS.total_times(total_time, sconscript_time, scons_time, ct)
 
 
-    if SCons.Util.stats.ENABLE_JSON:
-        WriteJsonFile()
+    if ENABLE_JSON:
+        write_scons_stats_file()
 
     sys.exit(exit_status)
 

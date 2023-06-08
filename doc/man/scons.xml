@@ -932,10 +932,10 @@ $ <userinput>scons --debug=includes foo.o</userinput>
 <varlistentry>
   <term><emphasis role="bold">json</emphasis></term>
   <listitem>
-<para>Write info to a JSON file for any of the following debug options if they are enabled: <emphasis>memory</emphasis>,
+    <para>Write info to a JSON file for any of the following debug options if they are enabled: <emphasis>memory</emphasis>,
     <emphasis>count</emphasis>, <emphasis>time</emphasis>, <emphasis>action-timestamps</emphasis> </para>
-    <para>The default output file is in the top level directory named <literal>scons_stats.json</literal></para>
-    <para>The file name/path can be modified by using <literal>DebugOptions(json='path/to/file.json')</literal></para>
+    <para>The default output file is <literal>scons_stats.json</literal></para>
+    <para>The file name/path can be modified by using &f-link-DebugOptions; for example <literal>DebugOptions(json='path/to/file.json')</literal></para>
 
 <screen>
 $ <userinput>scons --debug=memory,json foo.o</userinput>
