@@ -148,9 +148,9 @@ class TimeStats(Stats):
                                   'duration': finish_time - start_time}
 
 
-COUNT_STATS = CountStats()
-MEMORY_STATS = MemStats()
-TIME_STATS = TimeStats()
+count_stats = CountStats()
+memory_stats = MemStats()
+time_stats = TimeStats()
 
 
 def write_scons_stats_file():
@@ -165,25 +165,25 @@ def write_scons_stats_file():
 
     # print(f"DUMPING JSON FILE: {JSON_OUTPUT_FILE}")
     json_structure = {}
-    if COUNT_STATS.enabled:
+    if count_stats.enabled:
         json_structure['Object counts'] = {}
 
         oc = json_structure['Object counts']
-        for c in COUNT_STATS.stats_table:
+        for c in count_stats.stats_table:
             oc[c] = {}
-            for l, v in zip(COUNT_STATS.labels, COUNT_STATS.stats_table[c]):
+            for l, v in zip(count_stats.labels, count_stats.stats_table[c]):
                 oc[c][''.join(l)] = v
 
-    if MEMORY_STATS.enabled:
+    if memory_stats.enabled:
         json_structure['Memory'] = {}
 
         m = json_structure['Memory']
-        for label, stats in zip(MEMORY_STATS.labels, MEMORY_STATS.stats):
+        for label, stats in zip(memory_stats.labels, memory_stats.stats):
             m[label] = stats
 
-    if TIME_STATS.enabled:
-        json_structure['Time'] = {'Commands': TIME_STATS.commands,
-                                  'Totals': TIME_STATS.totals}
+    if time_stats.enabled:
+        json_structure['Time'] = {'Commands': time_stats.commands,
+                                  'Totals': time_stats.totals}
 
     # Now add information about this build to the JSON file
     json_structure['Build_Info'] = {

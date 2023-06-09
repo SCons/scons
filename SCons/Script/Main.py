@@ -59,7 +59,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
-from SCons.Util.stats import COUNT_STATS, MEMORY_STATS, TIME_STATS, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
+from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
 
@@ -229,7 +229,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     "Command execution end timestamp: %s: %f\n"
                     % (str(self.node), finish_time)
                 )
-            TIME_STATS.add_command(str(self.node), start_time, finish_time)
+            time_stats.add_command(str(self.node), start_time, finish_time)
             sys.stdout.write(
                 "Command execution time: %s: %f seconds\n"
                 % (str(self.node), (finish_time - start_time))
@@ -685,7 +685,7 @@ def _set_debug_values(options) -> None:
         enable_count = False
         if __debug__: enable_count = True
         if enable_count:
-            COUNT_STATS.enable(sys.stdout)
+            count_stats.enable(sys.stdout)
             SCons.Debug.track_instances = True
         else:
             msg = "--debug=count is not supported when running SCons\n" + \
@@ -699,7 +699,7 @@ def _set_debug_values(options) -> None:
     options.debug_includes = "includes" in debug_values
     print_memoizer = "memoizer" in debug_values
     if "memory" in debug_values:
-        MEMORY_STATS.enable(sys.stdout)
+        memory_stats.enable(sys.stdout)
     print_objects = ("objects" in debug_values)
     if print_objects:
         SCons.Debug.track_instances = True
@@ -711,8 +711,8 @@ def _set_debug_values(options) -> None:
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
         print_time = True
-        TIME_STATS.enable(sys.stdout)
-        TIME_STATS.enable(sys.stdout)
+        time_stats.enable(sys.stdout)
+        time_stats.enable(sys.stdout)
     if "action-timestamps" in debug_values:
         print_time = True
         print_action_timestamps = True
@@ -1056,8 +1056,8 @@ def _main(parser):
     if not hasattr(sys.stderr, 'isatty') or not sys.stderr.isatty():
         sys.stderr = SCons.Util.Unbuffered(sys.stderr)
 
-    MEMORY_STATS.append('before reading SConscript files:')
-    COUNT_STATS.append(('pre-', 'read'))
+    memory_stats.append('before reading SConscript files:')
+    count_stats.append(('pre-', 'read'))
 
     # And here's where we (finally) read the SConscript files.
 
@@ -1083,8 +1083,8 @@ def _main(parser):
 
     progress_display("scons: done reading SConscript files.")
 
-    MEMORY_STATS.append('after reading SConscript files:')
-    COUNT_STATS.append(('post-', 'read'))
+    memory_stats.append('after reading SConscript files:')
+    count_stats.append(('post-', 'read'))
 
     # Re-{enable,disable} warnings in case they disabled some in
     # the SConscript file.
@@ -1336,8 +1336,8 @@ def _build_targets(fs, options, targets, target_top):
         if msg:
             SCons.Warnings.warn(SCons.Warnings.NoParallelSupportWarning, msg)
 
-    MEMORY_STATS.append('before building targets:')
-    COUNT_STATS.append(('pre-', 'build'))
+    memory_stats.append('before building targets:')
+    count_stats.append(('pre-', 'build'))
 
     def jobs_postfunc(
         jobs=jobs,
@@ -1365,8 +1365,8 @@ def _build_targets(fs, options, targets, target_top):
     progress_display("scons: " + opening_message)
     jobs.run(postfunc = jobs_postfunc)
 
-    MEMORY_STATS.append('after building targets:')
-    COUNT_STATS.append(('post-', 'build'))
+    memory_stats.append('after building targets:')
+    count_stats.append(('post-', 'build'))
 
     return nodes
 
@@ -1492,8 +1492,8 @@ def main() -> None:
         SCons.Script._SConscript.SConscript_exception()
         sys.exit(2)
 
-    MEMORY_STATS.print_stats()
-    COUNT_STATS.print_stats()
+    memory_stats.print_stats()
+    count_stats.print_stats()
 
     if print_objects:
         SCons.Debug.listLoggedInstances('*')
@@ -1523,7 +1523,7 @@ def main() -> None:
         print("Total SConscript file execution time: %f seconds"%sconscript_time)
         print("Total SCons execution time: %f seconds"%scons_time)
         print("Total command execution time: %f seconds"%ct)
-        TIME_STATS.total_times(total_time, sconscript_time, scons_time, ct)
+        time_stats.total_times(total_time, sconscript_time, scons_time, ct)
 
 
     if ENABLE_JSON:
