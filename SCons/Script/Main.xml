@@ -183,6 +183,23 @@ Future versions of &SCons; will likely forbid such usage.
 </summary>
 </scons_function>
 
+<scons_function name="DebugOptions">
+<arguments signature="global">
+([json])
+</arguments>
+<summary>
+<para>
+Allows setting options for SCons debug options. Currently the only supported value is
+  <emphasis>json</emphasis> which sets the path to the json file created when
+  <literal>--debug=json</literal> is set.
+</para>
+  <example_commands>
+DebugOptions(json='#/build/output/scons_stats.json')
+</example_commands>
+</summary>
+</scons_function>
+
+
 <scons_function name="GetBuildFailures">
 <arguments signature="global">
 ()

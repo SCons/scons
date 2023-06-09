@@ -59,6 +59,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
 
@@ -228,6 +229,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     "Command execution end timestamp: %s: %f\n"
                     % (str(self.node), finish_time)
                 )
+            time_stats.add_command(str(self.node), start_time, finish_time)
             sys.stdout.write(
                 "Command execution time: %s: %f seconds\n"
                 % (str(self.node), (finish_time - start_time))
@@ -517,6 +519,27 @@ def GetOption(name):
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
 
+def DebugOptions(json=None):
+    """
+    API to allow specifying options to SCons debug logic
+    Currently only json is supported which changes the
+    json file written by --debug=json from the default
+    """
+    if json is not None:
+        json_node = SCons.Defaults.DefaultEnvironment().arg2nodes(json)
+        SCons.Util.stats.JSON_OUTPUT_FILE = json_node[0].get_abspath()
+        # Check if parent dir to JSON_OUTPUT_FILE exists
+        json_dir = os.path.dirname(SCons.Util.stats.JSON_OUTPUT_FILE)
+        try:
+            if not os.path.isdir(json_dir):
+                os.makedirs(json_dir, exist_ok=True)
+            # Now try to open file and see if you can..
+            with open(SCons.Util.stats.JSON_OUTPUT_FILE,'w') as js:
+                pass
+        except OSError as e:
+            raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
+
+
 def ValidateOptions(throw_exception: bool=False) -> None:
     """Validate options passed to SCons on the command line.
 
@@ -544,59 +567,8 @@ def ValidateOptions(throw_exception: bool=False) -> None:
 def PrintHelp(file=None) -> None:
     OptionsParser.print_help(file=file)
 
-class Stats:
-    def __init__(self) -> None:
-        self.stats = []
-        self.labels = []
-        self.append = self.do_nothing
-        self.print_stats = self.do_nothing
-    def enable(self, outfp) -> None:
-        self.outfp = outfp
-        self.append = self.do_append
-        self.print_stats = self.do_print
-    def do_nothing(self, *args, **kw) -> None:
-        pass
 
-class CountStats(Stats):
-    def do_append(self, label) -> None:
-        self.labels.append(label)
-        self.stats.append(SCons.Debug.fetchLoggedInstances())
-    def do_print(self) -> None:
-        stats_table = {}
-        for s in self.stats:
-            for n in [t[0] for t in s]:
-                stats_table[n] = [0, 0, 0, 0]
-        i = 0
-        for s in self.stats:
-            for n, c in s:
-                stats_table[n][i] = c
-            i = i + 1
-        self.outfp.write("Object counts:\n")
-        pre = ["   "]
-        post = ["   %s\n"]
-        l = len(self.stats)
-        fmt1 = ''.join(pre + [' %7s']*l + post)
-        fmt2 = ''.join(pre + [' %7d']*l + post)
-        labels = self.labels[:l]
-        labels.append(("", "Class"))
-        self.outfp.write(fmt1 % tuple([x[0] for x in labels]))
-        self.outfp.write(fmt1 % tuple([x[1] for x in labels]))
-        for k in sorted(stats_table.keys()):
-            r = stats_table[k][:l] + [k]
-            self.outfp.write(fmt2 % tuple(r))
 
-count_stats = CountStats()
-
-class MemStats(Stats):
-    def do_append(self, label) -> None:
-        self.labels.append(label)
-        self.stats.append(SCons.Debug.memory())
-    def do_print(self) -> None:
-        fmt = 'Memory %-32s %12d\n'
-        for label, stats in zip(self.labels, self.stats):
-            self.outfp.write(fmt % (label, stats))
-
-memory_stats = MemStats()
 
 # utility functions
 
@@ -698,8 +670,10 @@ def _SConstruct_exists(
                     return sfile
     return None
 
+
 def _set_debug_values(options) -> None:
-    global print_memoizer, print_objects, print_stacktrace, print_time, print_action_timestamps
+    global print_memoizer, print_objects, print_stacktrace, print_time, \
+        print_action_timestamps, ENABLE_JSON
 
     debug_values = options.debug
 
@@ -726,7 +700,7 @@ def _set_debug_values(options) -> None:
     print_memoizer = "memoizer" in debug_values
     if "memory" in debug_values:
         memory_stats.enable(sys.stdout)
-    print_objects = "objects" in debug_values
+    print_objects = ("objects" in debug_values)
     if print_objects:
         SCons.Debug.track_instances = True
     if "presub" in debug_values:
@@ -737,6 +711,8 @@ def _set_debug_values(options) -> None:
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
         print_time = True
+        time_stats.enable(sys.stdout)
+        time_stats.enable(sys.stdout)
     if "action-timestamps" in debug_values:
         print_time = True
         print_action_timestamps = True
@@ -746,6 +722,8 @@ def _set_debug_values(options) -> None:
         SCons.Taskmaster.print_prepare = True
     if "duplicate" in debug_values:
         SCons.Node.print_duplicate = True
+    if "json" in debug_values:
+        ENABLE_JSON = True
 
 def _create_path(plist):
     path = '.'
@@ -1454,6 +1432,7 @@ def main() -> None:
     global OptionsParser
     global exit_status
     global first_command_start
+    global ENABLE_JSON
 
     # Check up front for a Python version we do not support.  We
     # delay the check for deprecated Python versions until later,
@@ -1544,6 +1523,11 @@ def main() -> None:
         print("Total SConscript file execution time: %f seconds"%sconscript_time)
         print("Total SCons execution time: %f seconds"%scons_time)
         print("Total command execution time: %f seconds"%ct)
+        time_stats.total_times(total_time, sconscript_time, scons_time, ct)
+
+
+    if ENABLE_JSON:
+        write_scons_stats_file()
 
     sys.exit(exit_status)
 
