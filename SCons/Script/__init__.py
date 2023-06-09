@@ -110,6 +110,7 @@ SetOption               = Main.SetOption
 ValidateOptions         = Main.ValidateOptions
 Progress                = Main.Progress
 GetBuildFailures        = Main.GetBuildFailures
+DebugOptions            = Main.DebugOptions
 
 #keep_going_on_error     = Main.keep_going_on_error
 #print_dtree             = Main.print_dtree

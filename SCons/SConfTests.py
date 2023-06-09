@@ -199,8 +199,6 @@ class SConfTestCase(unittest.TestCase):
                         self.state = state
                     def alter_targets(self):
                         return [], None
-                    def depends_on(self, nodes):
-                        return None
                     def postprocess(self) -> None:
                         pass
                     def clear(self) -> None:

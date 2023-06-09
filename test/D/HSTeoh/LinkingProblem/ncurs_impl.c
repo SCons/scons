@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 /* Ncurses wrappers */
 #include <ncurses.h>
 

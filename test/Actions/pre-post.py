@@ -43,7 +43,7 @@ test.write(['work1', 'SConstruct'], """
 import os.path
 import stat
 
-# DefaultEnvironment(tools=[])
+DefaultEnvironment(tools=[])
 env = Environment(XXX='bar%(_exe)s')
 
 def before(env, target, source):

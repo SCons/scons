@@ -25,6 +25,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Clone</function>">
 <!ENTITY f-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Command</function>">
 <!ENTITY f-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Configure</function>">
+<!ENTITY f-DebugOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DebugOptions</function>">
 <!ENTITY f-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Decider</function>">
 <!ENTITY f-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>Default</function>">
 <!ENTITY f-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>DefaultEnvironment</function>">
@@ -106,6 +107,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-env-Clone "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Clone</function>">
 <!ENTITY f-env-Command "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Command</function>">
 <!ENTITY f-env-Configure "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Configure</function>">
+<!ENTITY f-env-DebugOptions "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DebugOptions</function>">
 <!ENTITY f-env-Decider "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Decider</function>">
 <!ENTITY f-env-Default "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.Default</function>">
 <!ENTITY f-env-DefaultEnvironment "<function xmlns='http://www.scons.org/dbxsd/v1.0'>env.DefaultEnvironment</function>">
@@ -193,6 +195,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-Clone "<link linkend='f-Clone' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Clone</function></link>">
 <!ENTITY f-link-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Command</function></link>">
 <!ENTITY f-link-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Configure</function></link>">
+<!ENTITY f-link-DebugOptions "<link linkend='f-DebugOptions' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DebugOptions</function></link>">
 <!ENTITY f-link-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Decider</function></link>">
 <!ENTITY f-link-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>Default</function></link>">
 <!ENTITY f-link-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>DefaultEnvironment</function></link>">
@@ -274,6 +277,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY f-link-env-Clone "<link linkend='f-Clone' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Clone</function></link>">
 <!ENTITY f-link-env-Command "<link linkend='f-Command' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Command</function></link>">
 <!ENTITY f-link-env-Configure "<link linkend='f-Configure' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Configure</function></link>">
+<!ENTITY f-link-env-DebugOptions "<link linkend='f-DebugOptions' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DebugOptions</function></link>">
 <!ENTITY f-link-env-Decider "<link linkend='f-Decider' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Decider</function></link>">
 <!ENTITY f-link-env-Default "<link linkend='f-Default' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.Default</function></link>">
 <!ENTITY f-link-env-DefaultEnvironment "<link linkend='f-DefaultEnvironment' xmlns='http://www.scons.org/dbxsd/v1.0'><function>env.DefaultEnvironment</function></link>">

@@ -59,6 +59,7 @@ import SCons.Taskmaster
 import SCons.Util
 import SCons.Warnings
 import SCons.Script.Interactive
+from SCons.Util.stats import count_stats, memory_stats, time_stats, ENABLE_JSON, write_scons_stats_file, JSON_OUTPUT_FILE
 
 from SCons import __version__ as SConsVersion
 
@@ -74,6 +75,16 @@ KNOWN_SCONSTRUCT_NAMES = [
     'SConstruct.py',
     'Sconstruct.py',
     'sconstruct.py',
+]
+
+# list of names recognized by debugger as "SConscript files" (inc. SConstruct)
+# files suffixed .py always work so don't need to be in this list.
+KNOWN_SCONSCRIPTS = [
+    "SConstruct",
+    "Sconstruct",
+    "sconstruct",
+    "SConscript",
+    "sconscript",
 ]
 
 # Global variables
@@ -218,6 +229,7 @@ class BuildTask(SCons.Taskmaster.OutOfDateTask):
                     "Command execution end timestamp: %s: %f\n"
                     % (str(self.node), finish_time)
                 )
+            time_stats.add_command(str(self.node), start_time, finish_time)
             sys.stdout.write(
                 "Command execution time: %s: %f seconds\n"
                 % (str(self.node), (finish_time - start_time))
@@ -507,6 +519,27 @@ def GetOption(name):
 def SetOption(name, value):
     return OptionsParser.values.set_option(name, value)
 
+def DebugOptions(json=None):
+    """
+    API to allow specifying options to SCons debug logic
+    Currently only json is supported which changes the
+    json file written by --debug=json from the default
+    """
+    if json is not None:
+        json_node = SCons.Defaults.DefaultEnvironment().arg2nodes(json)
+        SCons.Util.stats.JSON_OUTPUT_FILE = json_node[0].get_abspath()
+        # Check if parent dir to JSON_OUTPUT_FILE exists
+        json_dir = os.path.dirname(SCons.Util.stats.JSON_OUTPUT_FILE)
+        try:
+            if not os.path.isdir(json_dir):
+                os.makedirs(json_dir, exist_ok=True)
+            # Now try to open file and see if you can..
+            with open(SCons.Util.stats.JSON_OUTPUT_FILE,'w') as js:
+                pass
+        except OSError as e:
+            raise SCons.Errors.UserError(f"Unable to create directory for JSON debug output file: {SCons.Util.stats.JSON_OUTPUT_FILE}")
+
+
 def ValidateOptions(throw_exception: bool=False) -> None:
     """Validate options passed to SCons on the command line.
 
@@ -534,59 +567,8 @@ def ValidateOptions(throw_exception: bool=False) -> None:
 def PrintHelp(file=None) -> None:
     OptionsParser.print_help(file=file)
 
-class Stats:
-    def __init__(self) -> None:
-        self.stats = []
-        self.labels = []
-        self.append = self.do_nothing
-        self.print_stats = self.do_nothing
-    def enable(self, outfp) -> None:
-        self.outfp = outfp
-        self.append = self.do_append
-        self.print_stats = self.do_print
-    def do_nothing(self, *args, **kw) -> None:
-        pass
 
-class CountStats(Stats):
-    def do_append(self, label) -> None:
-        self.labels.append(label)
-        self.stats.append(SCons.Debug.fetchLoggedInstances())
-    def do_print(self) -> None:
-        stats_table = {}
-        for s in self.stats:
-            for n in [t[0] for t in s]:
-                stats_table[n] = [0, 0, 0, 0]
-        i = 0
-        for s in self.stats:
-            for n, c in s:
-                stats_table[n][i] = c
-            i = i + 1
-        self.outfp.write("Object counts:\n")
-        pre = ["   "]
-        post = ["   %s\n"]
-        l = len(self.stats)
-        fmt1 = ''.join(pre + [' %7s']*l + post)
-        fmt2 = ''.join(pre + [' %7d']*l + post)
-        labels = self.labels[:l]
-        labels.append(("", "Class"))
-        self.outfp.write(fmt1 % tuple([x[0] for x in labels]))
-        self.outfp.write(fmt1 % tuple([x[1] for x in labels]))
-        for k in sorted(stats_table.keys()):
-            r = stats_table[k][:l] + [k]
-            self.outfp.write(fmt2 % tuple(r))
 
-count_stats = CountStats()
-
-class MemStats(Stats):
-    def do_append(self, label) -> None:
-        self.labels.append(label)
-        self.stats.append(SCons.Debug.memory())
-    def do_print(self) -> None:
-        fmt = 'Memory %-32s %12d\n'
-        for label, stats in zip(self.labels, self.stats):
-            self.outfp.write(fmt % (label, stats))
-
-memory_stats = MemStats()
 
 # utility functions
 
@@ -688,8 +670,10 @@ def _SConstruct_exists(
                     return sfile
     return None
 
+
 def _set_debug_values(options) -> None:
-    global print_memoizer, print_objects, print_stacktrace, print_time, print_action_timestamps
+    global print_memoizer, print_objects, print_stacktrace, print_time, \
+        print_action_timestamps, ENABLE_JSON
 
     debug_values = options.debug
 
@@ -716,7 +700,7 @@ def _set_debug_values(options) -> None:
     print_memoizer = "memoizer" in debug_values
     if "memory" in debug_values:
         memory_stats.enable(sys.stdout)
-    print_objects = "objects" in debug_values
+    print_objects = ("objects" in debug_values)
     if print_objects:
         SCons.Debug.track_instances = True
     if "presub" in debug_values:
@@ -727,6 +711,8 @@ def _set_debug_values(options) -> None:
         options.tree_printers.append(TreePrinter(status=True))
     if "time" in debug_values:
         print_time = True
+        time_stats.enable(sys.stdout)
+        time_stats.enable(sys.stdout)
     if "action-timestamps" in debug_values:
         print_time = True
         print_action_timestamps = True
@@ -736,6 +722,8 @@ def _set_debug_values(options) -> None:
         SCons.Taskmaster.print_prepare = True
     if "duplicate" in debug_values:
         SCons.Node.print_duplicate = True
+    if "json" in debug_values:
+        ENABLE_JSON = True
 
 def _create_path(plist):
     path = '.'
@@ -1390,7 +1378,43 @@ def _exec_main(parser, values) -> None:
 
     if isinstance(options.debug, list) and "pdb" in options.debug:
         import pdb
-        pdb.Pdb().runcall(_main, parser)
+
+        class SConsPdb(pdb.Pdb):
+            """Specialization of Pdb to help find SConscript files."""
+
+            def lookupmodule(self, filename: str) -> Optional[str]:
+                """Helper function for break/clear parsing -- SCons version.
+
+                Translates (possibly incomplete) file or module name
+                into an absolute file name. The "possibly incomplete"
+                means adding a ``.py`` suffix if not present, which breaks
+                picking breakpoints in sconscript files, which often don't
+                have a suffix. This version fixes for some known names of
+                sconscript files that don't have the suffix.
+
+                .. versionadded:: 4.6.0
+                """
+                if os.path.isabs(filename) and os.path.exists(filename):
+                    return filename
+                f = os.path.join(sys.path[0], filename)
+                if os.path.exists(f) and self.canonic(f) == self.mainpyfile:
+                    return f
+                root, ext = os.path.splitext(filename)
+                base = os.path.split(filename)[-1]
+                if ext == '' and base not in KNOWN_SCONSCRIPTS:  # SCons mod
+                    filename = filename + '.py'
+                if os.path.isabs(filename):
+                    return filename
+                for dirname in sys.path:
+                    while os.path.islink(dirname):
+                        dirname = os.readlink(dirname)
+                    fullname = os.path.join(dirname, filename)
+                    if os.path.exists(fullname):
+                        return fullname
+                return None
+
+        SConsPdb().runcall(_main, parser)
+
     elif options.profile_file:
         from cProfile import Profile
 
@@ -1399,6 +1423,7 @@ def _exec_main(parser, values) -> None:
             prof.runcall(_main, parser)
         finally:
             prof.dump_stats(options.profile_file)
+
     else:
         _main(parser)
 
@@ -1407,6 +1432,7 @@ def main() -> None:
     global OptionsParser
     global exit_status
     global first_command_start
+    global ENABLE_JSON
 
     # Check up front for a Python version we do not support.  We
     # delay the check for deprecated Python versions until later,
@@ -1497,6 +1523,11 @@ def main() -> None:
         print("Total SConscript file execution time: %f seconds"%sconscript_time)
         print("Total SCons execution time: %f seconds"%scons_time)
         print("Total command execution time: %f seconds"%ct)
+        time_stats.total_times(total_time, sconscript_time, scons_time, ct)
+
+
+    if ENABLE_JSON:
+        write_scons_stats_file()
 
     sys.exit(exit_status)
 

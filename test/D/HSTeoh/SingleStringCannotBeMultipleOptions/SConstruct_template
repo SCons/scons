@@ -1,12 +1,17 @@
-# -*- mode:python; coding=utf-8; -*-
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
 import os
 
+DefaultEnvironment(tools=[])
 environment = Environment(
     tools=['link', '{}'],
-    # It might be thought that a single string can contain multiple options space separated. Actually this
-    # is deemed to be a single option, so leads to an error.
-    DFLAGS = '-m64 -O')
+    # It might be thought that a single string can contain multiple
+    # options space separated. Actually this is deemed to be a single option,
+    # so leads to an error.
+    DFLAGS='-m64 -O',
+)
 
 environment.Program('proj', Split("""
 proj.d
