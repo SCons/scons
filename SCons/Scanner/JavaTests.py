@@ -54,8 +54,8 @@ for fname in subfiles:
     test.write(fname.split('/'), "\n")
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self,**kw) -> None:
-        collections.UserDict.__init__(self)
+    def __init__(self, **kw) -> None:
+        super().__init__()
         self.data.update(kw)
         self.fs = SCons.Node.FS.FS(test.workpath(''))
         self['ENV'] = {}

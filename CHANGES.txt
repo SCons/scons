@@ -69,6 +69,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       sufficient just to check the build worked. Renamed the fixture
       dir to follow naming convention in test/MSVC overall, and added
       a sconstest.skip file, also to follow convention.
+    - Marked some scanner methods as @staticmethod.
     - Class ActionBase is now an abstract base class to more accurately
       reflect its usage. Derived _ActionAction inherits the ABC, so it
       now declares (actually raises NotImplementedError) two methods it

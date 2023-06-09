@@ -415,7 +415,8 @@ class ClassicCPP(Classic):
     to the constructor must return the leading bracket in group 0, and
     the contained filename in group 1.
     """
-    def find_include(self, include, source_dir, path):
+    @staticmethod
+    def find_include(include, source_dir, path):
         include = list(map(SCons.Util.to_str, include))
         if include[0] == '"':
             paths = (source_dir,) + tuple(path)
@@ -426,7 +427,8 @@ class ClassicCPP(Classic):
         i = SCons.Util.silent_intern(include[1])
         return n, i
 
-    def sort_key(self, include):
+    @staticmethod
+    def sort_key(include):
         return SCons.Node.FS._my_normcase(' '.join(include))
 
 # Local Variables:

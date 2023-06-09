@@ -43,7 +43,8 @@ class D(Classic):
             regex=r'(?:import\s+)([\w\s=,.]+)(?:\s*:[\s\w,=]+)?(?:;)',
         )
 
-    def find_include(self, include, source_dir, path):
+    @staticmethod
+    def find_include(include, source_dir, path):
         # translate dots (package separators) to slashes
         inc = include.replace('.', '/')
 
