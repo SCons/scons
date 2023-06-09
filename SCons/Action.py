@@ -100,21 +100,22 @@ way for wrapping up the functions.
 
 """
 
+import inspect
 import os
 import pickle
 import re
-import sys
 import subprocess
-from subprocess import DEVNULL
-import inspect
+import sys
+from abc import ABC, abstractmethod
 from collections import OrderedDict
+from subprocess import DEVNULL
+from typing import Union
 
 import SCons.Debug
+import SCons.Errors
+import SCons.Subst
 import SCons.Util
 from SCons.Debug import logInstanceCreation
-import SCons.Errors
-import SCons.Util
-import SCons.Subst
 
 # we use these a lot, so try to optimize them
 from SCons.Util import is_String, is_List
@@ -441,7 +442,7 @@ def _do_create_action(act, kw):
     This handles the fact that passing lists to :func:`Action` itself has
     different semantics than passing lists as elements of lists.
     The former will create a :class:`ListAction`, the latter will create a
-    :class:`CommandAction by converting the inner list elements to strings.
+    :class:`CommandAction` by converting the inner list elements to strings.
     """
     if isinstance(act, ActionBase):
         return act
@@ -518,10 +519,25 @@ def Action(act, *args, **kw):
     return _do_create_action(act, kw)
 
 
-class ActionBase:
+class ActionBase(ABC):
     """Base class for all types of action objects that can be held by
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
+
+    @abstractmethod
+    def __call__(
+        self,
+        target,
+        source,
+        env,
+        exitstatfunc=_null,
+        presub=_null,
+        show=_null,
+        execute=_null,
+        chdir=_null,
+        executor=None,
+    ):
+        raise NotImplementedError
 
     def __eq__(self, other):
         return self.__dict__ == other
@@ -533,6 +549,14 @@ class ActionBase:
 
     def genstring(self, target, source, env):
         return str(self)
+
+    @abstractmethod
+    def get_presig(self, target, source, env, executor=None):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_implicit_deps(self, target, source, env, executor=None):
+        raise NotImplementedError
 
     def get_contents(self, target, source, env):
         result = self.get_presig(target, source, env)
@@ -721,6 +745,16 @@ class _ActionAction(ActionBase):
             print_func('os.chdir(%s)' % repr(save_cwd), target, source, env)
 
         return stat
+
+    # Stub these two only so _ActionAction can be instantiated. It's really
+    # an ABC like parent ActionBase, but things reach in and use it. It's
+    # not just unittests or we could fix it up with a concrete subclass there.
+
+    def get_presig(self, target, source, env, executor=None):
+        raise NotImplementedError
+
+    def get_implicit_deps(self, target, source, env, executor=None):
+        raise NotImplementedError
 
 
 def _string_from_cmd_list(cmd_list):
@@ -1223,9 +1257,13 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         c = self.get_parent_class(env)
         return c.__call__(self, target, source, env, *args, **kw)
 
-    def get_presig(self, target, source, env):
+    def get_presig(self, target, source, env, executor=None):
         c = self.get_parent_class(env)
         return c.get_presig(self, target, source, env)
+
+    def get_implicit_deps(self, target, source, env, executor=None):
+        c = self.get_parent_class(env)
+        return c.get_implicit_deps(self, target, source, env)
 
     def get_varlist(self, target, source, env, executor=None):
         c = self.get_parent_class(env)
@@ -1345,14 +1383,14 @@ class FunctionAction(_ActionAction):
             # more information about this issue.
             del exc_info
 
-    def get_presig(self, target, source, env):
+    def get_presig(self, target, source, env, executor=None):
         """Return the signature contents of this callable action."""
         try:
             return self.gc(target, source, env)
         except AttributeError:
             return self.funccontents
 
-    def get_implicit_deps(self, target, source, env):
+    def get_implicit_deps(self, target, source, env, executor=None):
         return []
 
 class ListAction(ActionBase):
@@ -1379,7 +1417,7 @@ class ListAction(ActionBase):
         return SCons.Util.flatten_sequence(
             [a.presub_lines(env) for a in self.list])
 
-    def get_presig(self, target, source, env):
+    def get_presig(self, target, source, env, executor=None):
         """Return the signature contents of this action list.
 
         Simple concatenation of the signatures of the elements.
@@ -1398,7 +1436,7 @@ class ListAction(ActionBase):
                 return stat
         return 0
 
-    def get_implicit_deps(self, target, source, env):
+    def get_implicit_deps(self, target, source, env, executor=None):
         result = []
         for act in self.list:
             result.extend(act.get_implicit_deps(target, source, env))
