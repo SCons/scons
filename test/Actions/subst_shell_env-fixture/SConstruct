@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import sys
 
 def custom_environment_expansion1(env, target, source, shell_env):
@@ -16,6 +20,7 @@ def expand_this_generator(env, target, source, for_signature):
 def expand_that_generator(env, target, source, for_signature):
     return str(target[0]) + "_is_from_expansion"
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=['textfile'])
 
 env['SHELL_ENV_GENERATORS'] = [custom_environment_expansion1, custom_environment_expansion2]

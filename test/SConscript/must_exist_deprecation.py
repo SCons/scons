@@ -44,7 +44,7 @@ warnmsg = """
 scons: warning: Calling missing SConscript without error is deprecated.
 Transition by adding must_exist=False to SConscript calls.
 Missing SConscript '{}'
-""".format(missing) + test.python_file_line(SConstruct_path, 14)
+""".format(missing) + test.python_file_line(SConstruct_path, 18)
 
 expect_stderr = warnmsg
 test.run(arguments=".", stderr=expect_stderr)

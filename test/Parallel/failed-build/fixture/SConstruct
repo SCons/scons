@@ -1,12 +1,19 @@
-import sys
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import os
+import random
+import sys
 import threading
 
-import random
+from teststate import server_thread
+
 PORT = random.randint(10000, 60000)
 
 sys.path.append(os.getcwd())
-from teststate import server_thread
+
+DefaultEnvironment(tools=[])
 
 # this thread will setup a sever for the different tasks to talk to
 # and act as a manager of IPC and the different tasks progressing

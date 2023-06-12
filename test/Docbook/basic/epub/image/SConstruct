@@ -1,2 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 env.DocbookEpub('manual')

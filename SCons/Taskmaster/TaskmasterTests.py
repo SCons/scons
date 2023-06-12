@@ -197,17 +197,8 @@ class Node:
     def store_bsig(self) -> None:
         pass
 
-    def is_pseudo_derived(self) -> None:
-        pass
-
     def is_up_to_date(self):
         return self._current_val
-
-    def depends_on(self, nodes) -> int:
-        for node in nodes:
-            if node in self.kids:
-                return 1
-        return 0
 
     def __str__(self) -> str:
         return self.name

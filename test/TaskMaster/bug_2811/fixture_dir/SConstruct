@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 """
 This issue requires the following.
 1. Generated source file which outputs 2 (or more) files
@@ -29,17 +33,12 @@ def _dwo_emitter(target, source, env):
     return (targets, source)
 
 build_string = '$MYCOPY $SOURCE $TARGET'
-
-
 bld = Builder(action=build_string)
 
+DefaultEnvironment(tools=[])
 env = Environment(BUILDERS={'Foo': bld}, MYCOPY="%s mycopy.py"%sys.executable)
-
 env['SHCCCOM'] = '$MYCOPY $SOURCE $TARGET && $MYCOPY $SOURCE ${TARGETS[1]}'
-
 env['SHCCCOMSTR'] = env['SHCCCOM']
-
-
 suffixes = ['.c']
 
 for object_builder in SCons.Tool.createObjBuilders(env):
