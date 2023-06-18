@@ -124,8 +124,8 @@ class ScannerBaseTestCase(unittest.TestCase):
             self.key = key
         def scanner_key(self):
             return self.key
-        def rexists(self) -> int:
-            return 1
+        def rexists(self) -> bool:
+            return True
 
     def func(self, filename, env, target, *args):
         self.filename = filename
@@ -343,13 +343,14 @@ class ScannerBaseTestCase(unittest.TestCase):
         assert s == 'xyzzy', s
 
 class SelectorTestCase(unittest.TestCase):
+
     class skey_node:
         def __init__(self, key) -> None:
             self.key = key
         def scanner_key(self):
             return self.key
-        def rexists(self) -> int:
-            return 1
+        def rexists(self) -> bool:
+            return True
 
     def test___init__(self) -> None:
         """Test creation of Scanner.Selector object"""
@@ -407,28 +408,28 @@ class CurrentTestCase(unittest.TestCase):
                 self.called_has_builder = None
                 self.called_is_up_to_date = None
                 self.func_called = None
-            def rexists(self) -> int:
-                return 1
+            def rexists(self) -> bool:
+                return True
         class HasNoBuilder(MyNode):
-            def has_builder(self):
-                self.called_has_builder = 1
-                return None
+            def has_builder(self) -> bool:
+                self.called_has_builder = True
+                return False
         class IsNotCurrent(MyNode):
-            def has_builder(self) -> int:
-                self.called_has_builder = 1
-                return 1
-            def is_up_to_date(self):
-                self.called_is_up_to_date = 1
-                return None
+            def has_builder(self) -> bool:
+                self.called_has_builder = True
+                return True
+            def is_up_to_date(self) -> bool:
+                self.called_is_up_to_date = True
+                return False
         class IsCurrent(MyNode):
-            def has_builder(self) -> int:
-                self.called_has_builder = 1
-                return 1
-            def is_up_to_date(self) -> int:
-                self.called_is_up_to_date = 1
-                return 1
+            def has_builder(self) -> bool:
+                self.called_has_builder = True
+                return True
+            def is_up_to_date(self) -> bool:
+                self.called_is_up_to_date = True
+                return True
         def func(node, env, path):
-            node.func_called = 1
+            node.func_called = True
             return []
         env = DummyEnvironment()
         s = Current(func)

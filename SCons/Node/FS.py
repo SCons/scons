@@ -762,30 +762,30 @@ class Base(SCons.Node.Node):
         else:
             return None
 
-    def isdir(self):
+    def isdir(self) -> bool:
         st = self.stat()
         return st is not None and stat.S_ISDIR(st.st_mode)
 
-    def isfile(self):
+    def isfile(self) -> bool:
         st = self.stat()
         return st is not None and stat.S_ISREG(st.st_mode)
 
     if hasattr(os, 'symlink'):
-        def islink(self):
+        def islink(self) -> bool:
             st = self.lstat()
             return st is not None and stat.S_ISLNK(st.st_mode)
     else:
         def islink(self) -> bool:
             return False                    # no symlinks
 
-    def is_under(self, dir):
+    def is_under(self, dir) -> bool:
         if self is dir:
-            return 1
+            return True
         else:
             return self.dir.is_under(dir)
 
     def set_local(self) -> None:
-        self._local = 1
+        self._local = True
 
     def srcnode(self):
         """If this node is in a build path, return the node
@@ -1144,10 +1144,10 @@ class LocalFS:
     def getsize(self, path):
         return os.path.getsize(path)
 
-    def isdir(self, path):
+    def isdir(self, path) -> bool:
         return os.path.isdir(path)
 
-    def isfile(self, path):
+    def isfile(self, path) -> bool:
         return os.path.isfile(path)
 
     def link(self, src, dst):
@@ -1185,7 +1185,7 @@ class LocalFS:
 
     if hasattr(os, 'symlink'):
 
-        def islink(self, path):
+        def islink(self, path) -> bool:
             return os.path.islink(path)
 
     else:
@@ -1914,16 +1914,15 @@ class Dir(Base):
     def do_duplicate(self, src) -> None:
         pass
 
-    def is_up_to_date(self) -> int:
-        """If any child is not up-to-date, then this directory isn't,
-        either."""
+    def is_up_to_date(self) -> bool:
+        """If any child is not up-to-date, then this directory isn't, either."""
         if self.builder is not MkdirBuilder and not self.exists():
-            return 0
+            return False
         up_to_date = SCons.Node.up_to_date
         for kid in self.children():
             if kid.get_state() > up_to_date:
-                return 0
-        return 1
+                return False
+        return True
 
     def rdir(self):
         if not self.exists():
@@ -2474,11 +2473,8 @@ class RootDir(Dir):
     def entry_tpath(self, name):
         return self._tpath + name
 
-    def is_under(self, dir) -> int:
-        if self is dir:
-            return 1
-        else:
-            return 0
+    def is_under(self, dir) -> bool:
+        return True if self is dir else False
 
     def up(self):
         return None
@@ -2713,7 +2709,7 @@ class File(Base):
         """Turn a file system node into a File object."""
         self.scanner_paths = {}
         if not hasattr(self, '_local'):
-            self._local = 0
+            self._local = False
         if not hasattr(self, 'released_target_info'):
             self.released_target_info = False
 
@@ -3018,19 +3014,19 @@ class File(Base):
         if self.exists():
             self.get_build_env().get_CacheDir().push(self)
 
-    def retrieve_from_cache(self):
+    def retrieve_from_cache(self) -> bool:
         """Try to retrieve the node's content from a cache
 
         This method is called from multiple threads in a parallel build,
         so only do thread safe stuff here. Do thread unsafe stuff in
         built().
 
-        Returns true if the node was successfully retrieved.
+        Returns True if the node was successfully retrieved.
         """
         if self.nocache:
-            return None
+            return False
         if not self.is_derived():
-            return None
+            return False
         return self.get_build_env().get_CacheDir().retrieve(self)
 
     def visited(self) -> None:
@@ -3310,7 +3306,7 @@ class File(Base):
 
             self.scanner_paths = None
 
-    def changed(self, node=None, allowcache: bool=False):
+    def changed(self, node=None, allowcache: bool=False) -> bool:
         """
         Returns if the node is up-to-date with respect to the BuildInfo
         stored last time it was built.
@@ -3332,14 +3328,14 @@ class File(Base):
             self._memo['changed'] = has_changed
         return has_changed
 
-    def changed_content(self, target, prev_ni, repo_node=None):
+    def changed_content(self, target, prev_ni, repo_node=None) -> bool:
         cur_csig = self.get_csig()
         try:
             return cur_csig != prev_ni.csig
         except AttributeError:
-            return 1
+            return True
 
-    def changed_state(self, target, prev_ni, repo_node=None):
+    def changed_state(self, target, prev_ni, repo_node=None) -> bool:
         return self.state != SCons.Node.up_to_date
 
 
@@ -3466,7 +3462,7 @@ class File(Base):
 
         return df
 
-    def changed_timestamp_then_content(self, target, prev_ni, node=None):
+    def changed_timestamp_then_content(self, target, prev_ni, node=None) -> bool:
         """
         Used when decider for file is Timestamp-MD5
 
@@ -3527,13 +3523,13 @@ class File(Base):
             return False
         return self.changed_content(target, new_prev_ni)
 
-    def changed_timestamp_newer(self, target, prev_ni, repo_node=None):
+    def changed_timestamp_newer(self, target, prev_ni, repo_node=None) -> bool:
         try:
             return self.get_timestamp() > target.get_timestamp()
         except AttributeError:
-            return 1
+            return True
 
-    def changed_timestamp_match(self, target, prev_ni, repo_node=None):
+    def changed_timestamp_match(self, target, prev_ni, repo_node=None) -> bool:
         """
         Return True if the timestamps don't match or if there is no previous timestamp
         :param target:
@@ -3543,13 +3539,13 @@ class File(Base):
         try:
             return self.get_timestamp() != prev_ni.timestamp
         except AttributeError:
-            return 1
+            return True
 
-    def is_up_to_date(self):
-        """Check for whether the Node is current
-           In all cases self is the target we're checking to see if it's up to date
+    def is_up_to_date(self) -> bool:
+        """Check for whether the Node is current.
+
+        In all cases self is the target we're checking to see if it's up to date
         """
-
         T = 0
         if T: Trace('is_up_to_date(%s):' % self)
         if not self.exists():
@@ -3570,10 +3566,10 @@ class File(Base):
                             raise e
                         SCons.Node.store_info_map[self.store_info](self)
                     if T: Trace(' 1\n')
-                    return 1
+                    return True
             self.changed()
             if T: Trace(' None\n')
-            return None
+            return False
         else:
             r = self.changed()
             if T: Trace(' self.exists():  %s\n' % r)

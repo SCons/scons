@@ -161,7 +161,7 @@ def write_script_env_cache(cache) -> None:
 _is_win64 = None
 
 
-def is_win64():
+def is_win64() -> bool:
     """Return true if running on windows 64 bits.
 
     Works whether python itself runs in 64 bits or 32 bits."""
@@ -196,9 +196,8 @@ def read_reg(value, hkroot=SCons.Util.HKEY_LOCAL_MACHINE):
     return SCons.Util.RegGetValue(hkroot, value)[0]
 
 
-def has_reg(value):
-    """Return True if the given key exists in HKEY_LOCAL_MACHINE, False
-    otherwise."""
+def has_reg(value) -> bool:
+    """Return True if the given key exists in HKEY_LOCAL_MACHINE."""
     try:
         SCons.Util.RegOpenKeyEx(SCons.Util.HKEY_LOCAL_MACHINE, value)
         ret = True

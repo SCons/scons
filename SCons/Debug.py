@@ -92,7 +92,7 @@ def dumpLoggedInstances(classes, file=sys.stdout) -> None:
 
 if sys.platform[:5] == "linux":
     # Linux doesn't actually support memory usage stats from getrusage().
-    def memory():
+    def memory() -> int:
         with open('/proc/self/stat') as f:
             mstr = f.read()
         mstr = mstr.split()[22]
@@ -111,7 +111,7 @@ else:
         def memory() -> int:
             return 0
     else:
-        def memory():
+        def memory() -> int:
             res = resource.getrusage(resource.RUSAGE_SELF)
             return res[4]
 

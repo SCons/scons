@@ -117,11 +117,11 @@ class Value(SCons.Node.Node):
 
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir) -> int:
+    def is_under(self, dir) -> bool:
         # Make Value nodes get built regardless of
         # what directory scons was run from. Value nodes
         # are outside the filesystem:
-        return 1
+        return True
 
     def write(self, built_value) -> None:
         """Set the value of the node."""

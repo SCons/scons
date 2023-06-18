@@ -119,32 +119,32 @@ class UtilTestCase(unittest.TestCase):
         def __str__(self) -> str:
             return self.name
 
-        def exists(self) -> int:
-            return 1
+        def exists(self) -> bool:
+            return True
 
-        def rexists(self) -> int:
-            return 1
+        def rexists(self) -> bool:
+            return True
 
-        def has_builder(self) -> int:
-            return 1
+        def has_builder(self) -> bool:
+            return True
 
-        def has_explicit_builder(self) -> int:
-            return 1
+        def has_explicit_builder(self) -> bool:
+            return True
 
-        def side_effect(self) -> int:
-            return 1
+        def side_effect(self) -> bool:
+            return True
 
-        def precious(self) -> int:
-            return 1
+        def precious(self) -> bool:
+            return True
 
-        def always_build(self) -> int:
-            return 1
+        def always_build(self) -> bool:
+            return True
 
-        def is_up_to_date(self) -> int:
-            return 1
+        def is_up_to_date(self) -> bool:
+            return True
 
-        def noclean(self) -> int:
-            return 1
+        def noclean(self) -> bool:
+            return True
 
     def tree_case_1(self):
         """Fixture for the render_tree() and print_tree() tests."""

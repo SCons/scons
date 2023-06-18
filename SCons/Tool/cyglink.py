@@ -31,7 +31,7 @@ def cyglink_lib_emitter(target, source, env, **kw):
 
         import_lib = env.subst('$%s_IMPLIBNAME' % var_prefix, target=target, source=source)
         import_lib_target = env.fs.File(import_lib)
-        import_lib_target.attributes.shared = 1
+        import_lib_target.attributes.shared = True
         target.append(import_lib_target)
 
         if verbose:
@@ -41,7 +41,7 @@ def cyglink_lib_emitter(target, source, env, **kw):
     for tgt in target:
         if is_String(tgt):
             tgt = env.File(tgt)
-        tgt.attributes.shared = 1
+        tgt.attributes.shared = True
 
     return target, source
 

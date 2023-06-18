@@ -109,7 +109,7 @@ class CmdStringHolder:
         self.data = str(cmd)
         self.literal = literal
 
-    def is_literal(self):
+    def is_literal(self) -> bool:
         return self.literal
 
     def escape(self, escape_func):
@@ -1265,8 +1265,8 @@ class CommandActionTestCase(unittest.TestCase):
             def escape(self, escape_func):
                 return escape_func(self.data)
 
-            def is_literal(self) -> int:
-                return 1
+            def is_literal(self) -> bool:
+                return True
 
         a = SCons.Action.CommandAction(["xyzzy"])
         e = Environment(SPAWN=func)
