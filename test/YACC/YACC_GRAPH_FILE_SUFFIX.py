@@ -23,40 +23,69 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
+"""
+Test setting the YACC_GRAPH_FILE_SUFFIX variable.
+Also that if both YACCVCGFILESUFFIX and YACC_GRAPH_FILE_SUFFIX are set,
+then YACCVCGFILESUFFIX will be ignored.
+"""
 
 import TestSCons
-from TestCmd import IS_WINDOWS
 
 _python_ = TestSCons._python_
-_exe   = TestSCons._exe
-
-if IS_WINDOWS:
-    compiler = 'msvc'
-    linker = 'mslink'
-else:
-    compiler = 'gcc'
-    linker = 'gnulink'
 
 test = TestSCons.TestSCons()
 
-test.subdir('in')
+test.write('myyacc.py', """\
+import getopt
+import os.path
+import sys
 
-test.dir_fixture('YACCFLAGS-fixture')
+vcg = None
+opts, args = getopt.getopt(sys.argv[1:], 'go:')
+for o, a in opts:
+    if o == '-g':
+        vcg = 1
+    elif o == '-o':
+        outfile = open(a, 'wb')
+for f in args:
+    with open(f, 'rb') as infile:
+        for l in [l for l in infile.readlines() if l != b'/*yacc*/\\n']:
+            outfile.write(l)
+outfile.close()
+if vcg:
+    base, ext = os.path.splitext(args[0])
+    with open(base + '.graph_suffix', 'wb') as outfile:
+        outfile.write((" ".join(sys.argv) + '\\n').encode())
+sys.exit(0)
+""")
 
 test.write('SConstruct', """
 DefaultEnvironment(tools=[])
 env = Environment(
+    tools=['default', 'yacc'],
     YACC=r'%(_python_)s myyacc.py',
-    YACCFLAGS='-x -I ${TARGET.dir} -I ${SOURCE.dir}',
-    tools=['yacc', '%(linker)s', '%(compiler)s'],
+    YACCVCGFILESUFFIX='.vcg_obsolete',
+    YACC_GRAPH_FILE_SUFFIX='.graph_suffix',
 )
-env.CFile(target='out/aaa', source='in/aaa.y')
+env.CXXFile(target='aaa', source='aaa.yy')
+env.CXXFile(target='bbb', source='bbb.yy', YACCFLAGS='-g')
 """ % locals())
 
-test.write(['in', 'aaa.y'], "aaa.y\nYACCFLAGS\nI_ARGS\n")
-test.run('.', stderr=None)
-test.must_match(['out', 'aaa.c'], "aaa.y\n-x\nout in\n")
+test.write('aaa.yy', "aaa.yy\n/*yacc*/\n")
+test.write('bbb.yy', "bbb.yy\n/*yacc*/\n")
+
+test.run(arguments='.')
+
+test.must_match('aaa.cc', "aaa.yy\n")
+test.must_not_exist('aaa.vcg')
+test.must_not_exist('aaa.graph_suffix')
+
+test.must_match('bbb.cc', "bbb.yy\n")
+test.must_not_exist('bbb.vcg')
+test.must_not_exist('bbb.vcg_obsolete')
+test.must_contain('bbb.graph_suffix', "myyacc.py -g -o bbb.cc bbb.yy\n")
+
+test.up_to_date(arguments='.')
 
 test.pass_test()
 

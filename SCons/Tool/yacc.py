@@ -23,8 +23,11 @@
 
 """Tool-specific initialization for yacc.
 
-This tool should support multiple yacc implementations,
-but is in actuality biased towards GNU Bison.
+This tool should support multiple yacc implementations, but is in actuality
+biased towards GNU Bison. In particular, it forces the output file name (thus
+avoiding the default convention of y.tab.c or foo.tab.c), so the tool *must*
+support the -o option, which pure POSIX yacc does not.  byacc should be okay
+as an alternative to bison.
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()
@@ -50,7 +53,7 @@ YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 if sys.platform == 'win32':
     BINS = ['bison', 'yacc', 'win_bison']
 else:
-    BINS = ["bison", "yacc"]
+    BINS = ["bison", "yacc", "byacc"]  # for byacc, yacc is normally a link
 
 
 def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
@@ -64,15 +67,19 @@ def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
         target = [targetBase + ".m"]  # the extension is ".m".
 
     # If -d is specified on the command line, yacc will emit a .h
-    # or .hpp file with the same name as the .c or .cpp output file.
-    if '-d' in flags:
+    # or .hpp file with the same base name as the .c or .cpp output file.
+    # if '-d' in flags: 
+    # or  bison options -H, --header, --defines (obsolete)
+    if "-d" in flags or "-H" in flags or "--header" in flags or "--defines" in flags:
         target.append(targetBase + env.subst(hsuf, target=target, source=source))
 
-    # If -g is specified on the command line, yacc will emit a .vcg
-    # file with the same base name as the .y, .yacc, .ym or .yy file.
-    if "-g" in flags:
-        base, ext = os.path.splitext(to_String(source[0]))
-        target.append(base + env.subst("$YACCVCGFILESUFFIX"))
+    # If -g is specified on the command line, yacc will emit a graph
+    # file with the same base name as the .c or .cpp output file.
+    # TODO: should this be handled like -v? i.e. a side effect, not target
+    # if "-g" in flags:  
+    # or bison option --graph
+    if "-g" in flags or "--graph" in flags:
+        target.append(targetBase + env.subst("$YACC_GRAPH_FILE_SUFFIX"))
 
     # If -v is specified yacc will create the output debug file
     # which is not really source for any process, but should
@@ -82,11 +89,13 @@ def _yaccEmitter(target, source, env, ysuf, hsuf) -> tuple:
         env.Clean(target[0], targetBase + '.output')
 
     # With --defines and --graph, the file to write is defined by the option
-    # argument. Extract this and include in the list of targets.
-    # NOTE: a filename passed to the command this way is not modified by SCons,
-    # and so will be interpreted relative to the project top directory at
-    # execution time, while the name added to the target list will be
+    # argument, if present (the no-option-argument cases were caught above).
+    # Extract this and include in the list of targets.
+    # NOTE: a filename passed to the command this way is not modified by
+    # SCons, and so will be interpreted relative to the project top directory
+    # at execution time, while the name added to the target list will be
     # interpreted relative to the SConscript directory - a possible mismatch.
+    # Better to use YACC_HEADER_FILE and YACC_GRAPH_FILE to pass these.
     #
     # These are GNU bison-only options.
     # Since bison 3.8, --header is the preferred name over --defines
@@ -185,7 +194,8 @@ def generate(env) -> None:
     env['YACCCOM'] = '$YACC $YACCFLAGS $_YACC_HEADER $_YACC_GRAPH -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
     env['YACCHXXFILESUFFIX'] = '.hpp'
-    env['YACCVCGFILESUFFIX'] = '.vcg'
+    env['YACCVCGFILESUFFIX'] = '.gv'
+    env['YACC_GRAPH_FILE_SUFFIX'] = '$YACCVCGFILESUFFIX'
     env['_YACC_HEADER'] = '${YACC_HEADER_FILE and "--header=" + str(YACC_HEADER_FILE)}'
     env['_YACC_GRAPH'] = '${YACC_GRAPH_FILE and "--graph=" + str(YACC_GRAPH_FILE)}'
 
