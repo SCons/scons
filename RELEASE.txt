@@ -44,7 +44,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   for -d (first two) and -g. -H also recognized as a synonym for -d.
   Default value for $YACC_GRAPH_FILE_SUFFIX changed to '.gv' to match
   current bison default (since bison 3.8). Set this variable to '.dot'
-  if using byacc.
+  if using byacc. Fixes #4326 and #4327.
 
 FIXES
 -----
