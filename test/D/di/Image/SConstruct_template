@@ -4,11 +4,16 @@ import os
 
 DefaultEnvironment(tools=[])
 
-environment = Environment(
-    tools=['link','ar' ,'{}']
+env = Environment(
+    tools=['link','ar' ,'{}'],
+    DPATH=['include'],
+    DI_FILE_DIR='include'
 )
 
-o1 = environment.Object('source/helloWorld.d',DINTFDIR = "../include")[0]
-o2 = environment.Object('helloWorldMain.d',DPATH="include")
 
-environment.Program('hw', [o2,o1])
+# o1 = env.Object('source/helloWorld.d')
+# o2 = env.Object('helloWorldMain.d')
+# env.Program('hw', [o1[0], o2[0]])
+
+# Alternatively 
+env.Program('hw', ['helloWorldMain.d','source/helloWorld.d'])
