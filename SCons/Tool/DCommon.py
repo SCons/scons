@@ -29,8 +29,8 @@ Coded by Russel Winder (russel@winder.org.uk)
 2012-09-06
 """
 
+from pathlib import Path
 import os.path
-import SCons.Util
 
 def isD(env, source) -> int:
     if not source:
@@ -62,7 +62,7 @@ def DObjectEmitter(target,source,env):
     # TODO: Verify sane DI_FILE_DIR?
     if di_file_dir:
         di_file_suffix = env.subst('$DI_FILE_SUFFIX', target=target, source=source)
-        file_base = os.path.basename(target[0].get_path())
+        file_base = Path(target[0].get_path()).stem
         # print(f'DObjectEmitter: {di_file_dir}/*{file_base}*{di_file_suffix}')
         target.append(env.fs.File(f"{file_base}{di_file_suffix}", di_file_dir))
         # print("New Target:%s"%" ".join([str(t) for t in target]))
