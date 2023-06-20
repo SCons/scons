@@ -59,11 +59,11 @@ def ninja_add_command_line_options() -> None:
               action="store_true",
               default=False,
               help='Allow scons to skip regeneration of the ninja file and restarting of the daemon. ' +
-                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' + 
+                    'Care should be taken in cases where Glob is in use or SCons generated files are used in ' +
                     'command lines.')
 
 
-def is_valid_dependent_node(node):
+def is_valid_dependent_node(node) -> bool:
     """
     Return True if node is not an alias or is an alias that has children
 
@@ -76,7 +76,7 @@ def is_valid_dependent_node(node):
     are valid implicit dependencies.
     """
     if isinstance(node, SCons.Node.Alias.Alias):
-        return node.children()
+        return bool(node.children())
 
     return not node.get_env().get("NINJA_SKIP")
 

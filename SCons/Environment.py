@@ -507,15 +507,11 @@ class BuilderDict(UserDict):
             self.__setitem__(i, v)
 
 
-
 _is_valid_var = re.compile(r'[_a-zA-Z]\w*$')
 
-def is_valid_construction_var(varstr):
-    """Return if the specified string is a legitimate construction
-    variable.
-    """
+def is_valid_construction_var(varstr) -> bool:
+    """Return True if *varstr* is a legitimate construction variable."""
     return _is_valid_var.match(varstr)
-
 
 
 class SubstitutionEnvironment:
@@ -1602,21 +1598,21 @@ class Base(SubstitutionEnvironment):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Environment.EnvironmentClone')
         return clone
 
-    def _changed_build(self, dependency, target, prev_ni, repo_node=None):
+    def _changed_build(self, dependency, target, prev_ni, repo_node=None) -> bool:
         if dependency.changed_state(target, prev_ni, repo_node):
-            return 1
+            return True
         return self.decide_source(dependency, target, prev_ni, repo_node)
 
-    def _changed_content(self, dependency, target, prev_ni, repo_node=None):
+    def _changed_content(self, dependency, target, prev_ni, repo_node=None) -> bool:
         return dependency.changed_content(target, prev_ni, repo_node)
 
-    def _changed_timestamp_then_content(self, dependency, target, prev_ni, repo_node=None):
+    def _changed_timestamp_then_content(self, dependency, target, prev_ni, repo_node=None) -> bool:
         return dependency.changed_timestamp_then_content(target, prev_ni, repo_node)
 
-    def _changed_timestamp_newer(self, dependency, target, prev_ni, repo_node=None):
+    def _changed_timestamp_newer(self, dependency, target, prev_ni, repo_node=None) -> bool:
         return dependency.changed_timestamp_newer(target, prev_ni, repo_node)
 
-    def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None):
+    def _changed_timestamp_match(self, dependency, target, prev_ni, repo_node=None) -> bool:
         return dependency.changed_timestamp_match(target, prev_ni, repo_node)
 
     def Decider(self, function):

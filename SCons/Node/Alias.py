@@ -87,7 +87,7 @@ class AliasNodeInfo(SCons.Node.NodeInfoBase):
         for key, value in state.items():
             if key not in ('__weakref__',):
                 setattr(self, key, value)
-          
+
 
 class AliasBuildInfo(SCons.Node.BuildInfoBase):
     __slots__ = ()
@@ -103,7 +103,7 @@ class Alias(SCons.Node.Node):
         self.name = name
         self.changed_since_last_build = 1
         self.store_info = 0
-        
+
     def str_for_display(self):
         return '"' + self.__str__() + '"'
 
@@ -116,11 +116,11 @@ class Alias(SCons.Node.Node):
     really_build = SCons.Node.Node.build
     is_up_to_date = SCons.Node.Node.children_are_up_to_date
 
-    def is_under(self, dir) -> int:
+    def is_under(self, dir) -> bool:
         # Make Alias nodes get built regardless of
         # what directory scons was run from. Alias nodes
         # are outside the filesystem:
-        return 1
+        return True
 
     def get_contents(self):
         """The contents of an alias is the concatenation

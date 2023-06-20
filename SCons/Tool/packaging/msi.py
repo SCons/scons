@@ -1,11 +1,7 @@
-"""SCons.Tool.packaging.msi
-
-The msi packager.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
-# 
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -25,7 +21,7 @@ The msi packager.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The msi packager."""
 
 import os
 import SCons
@@ -78,9 +74,8 @@ def convert_to_id(s, id_set):
 
         return id_set[id][s]
 
-def is_dos_short_file_name(file):
-    """ Examine if the given file is in the 8.3 form.
-    """
+def is_dos_short_file_name(file) -> bool:
+    """Examine if the given file is in the 8.3 form."""
     fname, ext = os.path.splitext(file)
     proper_ext = len(ext) == 0 or (2 <= len(ext) <= 4) # the ext contains the dot
     proper_fname = file.isupper() and len(fname) <= 8
@@ -88,9 +83,11 @@ def is_dos_short_file_name(file):
     return proper_ext and proper_fname
 
 def gen_dos_short_file_name(file, filename_set):
-    """ See http://support.microsoft.com/default.aspx?scid=kb;en-us;Q142982
+    """Return a filename in the 8.3 form.
 
-    These are no complete 8.3 dos short names. The ~ char is missing and 
+    See http://support.microsoft.com/default.aspx?scid=kb;en-us;Q142982
+
+    These are no complete 8.3 dos short names. The ~ char is missing and
     replaced with one character from the filename. WiX warns about such
     filenames, since a collision might occur. Google for "CNDL1014" for
     more information.
@@ -298,7 +295,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
         for d in dir_parts[:]:
             already_created = [c for c in Directory.childNodes
                                if c.nodeName == 'Directory'
-                               and c.attributes['LongName'].value == escape(d)] 
+                               and c.attributes['LongName'].value == escape(d)]
 
             if already_created:
                 Directory = already_created[0]

@@ -32,15 +32,16 @@ Coded by Russel Winder (russel@winder.org.uk)
 from pathlib import Path
 import os.path
 
-def isD(env, source) -> int:
+
+def isD(env, source) -> bool:
     if not source:
-        return 0
+        return False
     for s in source:
         if s.sources:
             ext = os.path.splitext(str(s.sources[0]))[1]
             if ext == '.d':
-                return 1
-    return 0
+                return True
+    return False
 
 
 def addDPATHToEnv(env, executable) -> None:

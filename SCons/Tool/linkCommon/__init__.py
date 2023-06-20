@@ -165,6 +165,6 @@ def lib_emitter(target, source, env, **kw):
     for tgt in target:
         if SCons.Util.is_String(tgt):
             tgt = env.File(tgt)
-        tgt.attributes.shared = 1
+        tgt.attributes.shared = True
 
     return target, source

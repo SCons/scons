@@ -471,7 +471,7 @@ else:
     # Java-file parsing takes too long (although it shouldn't relative
     # to how long the Java compiler itself seems to take...).
 
-    def parse_java_file(fn):
+    def parse_java_file(fn, version=default_java_version):
         """ "Parse" a .java file.
 
         This actually just splits the file name, so the assumption here
@@ -511,7 +511,7 @@ def get_java_install_dirs(platform, version=None) -> List[str]:
             extracts the next-to-last component, then trims it further if
             it had a complex name, like 'java-1.8.0-openjdk-1.8.0.312-1',
             to try and put it on a common footing with the more common style,
-            which looks like 'jdk-11.0.2'. 
+            which looks like 'jdk-11.0.2'.
 
             This is certainly fragile, and if someone has a 9.0 it won't
             sort right since this will still be alphabetic, BUT 9.0 was

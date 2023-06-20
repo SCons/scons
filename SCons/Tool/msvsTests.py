@@ -1,5 +1,6 @@
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -19,8 +20,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import os
 import sys
@@ -577,8 +576,8 @@ def DummyQueryValue(key, value):
     # print "Query Value",key.name+"\\"+value,"=>",rv
     return rv
 
-def DummyExists(path) -> int:
-    return 1
+def DummyExists(path) -> bool:
+    return True
 
 def DummyVsWhere(msvc_version, env):
     # not testing versions with vswhere, so return none
@@ -642,12 +641,12 @@ class msvsTestCase(unittest.TestCase):
         assert not v1 or str(v1[0]) == self.highest_version, \
                (v1, self.highest_version)
         assert len(v1) == self.number_of_versions, v1
-        
+
     def test_config_generation(self) -> None:
         """Test _DSPGenerator.__init__(...)"""
         if not self.highest_version :
             return
-        
+
         # Initialize 'static' variables
         version_num, suite = msvs_parse_version(self.highest_version)
         if version_num >= 10.0:
@@ -663,16 +662,16 @@ class msvsTestCase(unittest.TestCase):
         # Avoid any race conditions between the test cases when we test
         # actually writing the files.
         dspfile = 'test%s%s' % (hash(self), suffix)
-            
+
         str_function_test = str(function_test.__init__)
         source = 'test.cpp'
-        
+
         # Create the cmdargs test list
         list_variant = ['Debug|Win32','Release|Win32',
                         'Debug|x64', 'Release|x64']
-        list_cmdargs = ['debug=True target_arch=32', 
+        list_cmdargs = ['debug=True target_arch=32',
                         'debug=False target_arch=32',
-                        'debug=True target_arch=x64', 
+                        'debug=True target_arch=x64',
                         'debug=False target_arch=x64']
         list_cppdefines = [['_A', '_B', 'C'], ['_B', '_C_'], ['D'], []]
         list_cpppaths = [[r'C:\test1'], [r'C:\test1;C:\test2'],
@@ -775,15 +774,15 @@ class msvsTestCase(unittest.TestCase):
             class _DummyEnv(DummyEnv):
                 def subst(self, string, *args, **kwargs):
                     return string
-            
+
             env = _DummyEnv(param_dict)
             env['MSVSSCONSCRIPT'] = ''
             env['MSVS_VERSION'] = self.highest_version
             env['MSVSBUILDTARGET'] = 'target'
-           
+
             # Call function to test
             genDSP = function_test(dspfile, source, env)
-        
+
             # Check expected result
             self.assertListEqual(list(genDSP.configs.keys()), list(expected_configs.keys()))
             for key, v in genDSP.configs.items():

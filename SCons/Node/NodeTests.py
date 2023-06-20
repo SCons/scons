@@ -137,7 +137,7 @@ class Environment:
         return []
 
 class Builder:
-    def __init__(self, env=None, is_explicit: int=1) -> None:
+    def __init__(self, env=None, is_explicit: bool=True) -> None:
         if env is None: env = Environment()
         self.env = env
         self.overrides = {}
@@ -542,10 +542,9 @@ class NodeTestCase(unittest.TestCase):
         assert m is None, m
 
     def test_is_up_to_date(self) -> None:
-        """Test the default is_up_to_date() method
-        """
+        """Test the default is_up_to_date() method."""
         node = SCons.Node.Node()
-        assert node.is_up_to_date() is None
+        assert not node.is_up_to_date()
 
     def test_children_are_up_to_date(self) -> None:
         """Test the children_are_up_to_date() method used by subclasses

@@ -26,7 +26,7 @@ import unittest
 
 import TestUnit
 
-import cpp
+import SCons.cpp as cpp
 
 
 basic_input = """
