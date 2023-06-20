@@ -1,6 +1,10 @@
-import SCons
-class CustomCacheDir1(SCons.CacheDir.CacheDir):
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
+import SCons
+
+class CustomCacheDir1(SCons.CacheDir.CacheDir):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         print("INSTANCIATED %s" % str(type(self).__name__))
@@ -11,7 +15,6 @@ class CustomCacheDir1(SCons.CacheDir.CacheDir):
         super().copy_to_cache(env, src, dst)
 
 class CustomCacheDir2(SCons.CacheDir.CacheDir):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         print("INSTANCIATED %s" % str(type(self).__name__))
@@ -21,6 +24,7 @@ class CustomCacheDir2(SCons.CacheDir.CacheDir):
         print("MY_CUSTOM_CACHEDIR_CLASS2")
         super().copy_to_cache(env, src, dst)
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=[])
 env.CacheDir('cache1', CustomCacheDir1)
 env.CacheDir('cache2', CustomCacheDir2)

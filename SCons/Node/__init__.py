@@ -109,7 +109,7 @@ interactive = False
 def is_derived_none(node):
     raise NotImplementedError
 
-def is_derived_node(node):
+def is_derived_node(node) -> bool:
     """
         Returns true if this node is derived (i.e. built).
     """
@@ -118,16 +118,16 @@ def is_derived_node(node):
 _is_derived_map = {0 : is_derived_none,
                    1 : is_derived_node}
 
-def exists_none(node):
+def exists_none(node) -> bool:
     raise NotImplementedError
 
-def exists_always(node) -> int:
-    return 1
+def exists_always(node) -> bool:
+    return True
 
 def exists_base(node) -> bool:
     return node.stat() is not None
 
-def exists_entry(node):
+def exists_entry(node) -> bool:
     """Return if the Entry exists.  Check the file system to see
     what we should turn into first.  Assume a file if there's no
     directory."""
@@ -135,7 +135,7 @@ def exists_entry(node):
     return _exists_map[node._func_exists](node)
 
 
-def exists_file(node):
+def exists_file(node) -> bool:
     # Duplicate from source path if we are set up to do this.
     if node.duplicate and not node.is_derived() and not node.linked:
         src = node.srcnode()
@@ -245,7 +245,7 @@ _target_from_source_map = {0 : target_from_source_none,
 #
 # First, the single decider functions
 #
-def changed_since_last_build_node(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_node(node, target, prev_ni, repo_node=None) -> bool:
     """
 
     Must be overridden in a specific subclass to return True if this
@@ -266,37 +266,37 @@ def changed_since_last_build_node(node, target, prev_ni, repo_node=None):
     raise NotImplementedError
 
 
-def changed_since_last_build_alias(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_alias(node, target, prev_ni, repo_node=None) -> bool:
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
     except AttributeError:
-        return 1
+        return True
 
 
-def changed_since_last_build_entry(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_entry(node, target, prev_ni, repo_node=None) -> bool:
     node.disambiguate()
     return _decider_map[node.changed_since_last_build](node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_state_changed(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_state_changed(node, target, prev_ni, repo_node=None) -> bool:
     return node.state != SCons.Node.up_to_date
 
 
-def decide_source(node, target, prev_ni, repo_node=None):
+def decide_source(node, target, prev_ni, repo_node=None) -> bool:
     return target.get_build_env().decide_source(node, target, prev_ni, repo_node)
 
 
-def decide_target(node, target, prev_ni, repo_node=None):
+def decide_target(node, target, prev_ni, repo_node=None) -> bool:
     return target.get_build_env().decide_target(node, target, prev_ni, repo_node)
 
 
-def changed_since_last_build_python(node, target, prev_ni, repo_node=None):
+def changed_since_last_build_python(node, target, prev_ni, repo_node=None) -> bool:
     cur_csig = node.get_csig()
     try:
         return cur_csig != prev_ni.csig
     except AttributeError:
-        return 1
+        return True
 
 
 #
@@ -681,7 +681,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         pass
 
-    def retrieve_from_cache(self) -> int:
+    def retrieve_from_cache(self) -> bool:
         """Try to retrieve the node's content from a cache
 
         This method is called from multiple threads in a parallel build,
@@ -690,7 +690,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         Returns true if the node was successfully retrieved.
         """
-        return 0
+        return False
 
     #
     # Taskmaster interface subsystem
@@ -757,7 +757,7 @@ class Node(object, metaclass=NoSlotsPyPy):
             e.node = self
             raise
 
-    def built(self):
+    def built(self) -> None:
         """Called just after this node is successfully built."""
 
         # Clear the implicit dependency caches of any Nodes
@@ -782,7 +782,6 @@ class Node(object, metaclass=NoSlotsPyPy):
                     peer.implicit = None
             except AttributeError:
                 pass
-
 
         self.clear()
 
@@ -900,8 +899,8 @@ class Node(object, metaclass=NoSlotsPyPy):
     def set_explicit(self, is_explicit) -> None:
         self.is_explicit = is_explicit
 
-    def has_explicit_builder(self):
-        """Return whether this Node has an explicit builder
+    def has_explicit_builder(self) -> bool:
+        """Return whether this Node has an explicit builder.
 
         This allows an internal Builder created by SCons to be marked
         non-explicit, so that it can be overridden by an explicit
@@ -910,8 +909,8 @@ class Node(object, metaclass=NoSlotsPyPy):
         try:
             return self.is_explicit
         except AttributeError:
-            self.is_explicit = None
-            return self.is_explicit
+            self.is_explicit = False
+            return False
 
     def get_builder(self, default_builder=None):
         """Return the set builder, or a specified default value"""
@@ -922,7 +921,7 @@ class Node(object, metaclass=NoSlotsPyPy):
 
     multiple_side_effect_has_builder = has_builder
 
-    def is_derived(self):
+    def is_derived(self) -> bool:
         """
         Returns true if this node is derived (i.e. built).
 
@@ -1119,7 +1118,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """
         return scanner.select(self)
 
-    def env_set(self, env, safe: int=0) -> None:
+    def env_set(self, env, safe: bool=False) -> None:
         if safe and self.env:
             return
         self.env = env
@@ -1250,7 +1249,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         """Set the Node's always_build value."""
         self.always_build = always_build
 
-    def exists(self):
+    def exists(self) -> bool:
         """Does this node exists?"""
         return _exists_map[self._func_exists](self)
 
@@ -1512,12 +1511,12 @@ class Node(object, metaclass=NoSlotsPyPy):
 
         return result
 
-    def is_up_to_date(self):
+    def is_up_to_date(self) -> bool:
         """Default check for whether the Node is current: unknown Node
         subtypes are always out of date, so they will always get built."""
-        return None
+        return False
 
-    def children_are_up_to_date(self):
+    def children_are_up_to_date(self) -> bool:
         """Alternate check for whether the Node is current:  If all of
         our children were up-to-date, then this Node was up-to-date, too.
 
@@ -1526,7 +1525,7 @@ class Node(object, metaclass=NoSlotsPyPy):
         # Allow the children to calculate their signatures.
         self.binfo = self.get_binfo()
         if self.always_build:
-            return None
+            return False
         state = 0
         for kid in self.children(None):
             s = kid.get_state()
@@ -1534,10 +1533,10 @@ class Node(object, metaclass=NoSlotsPyPy):
                 state = s
         return (state == 0 or state == SCons.Node.up_to_date)
 
-    def is_literal(self) -> int:
+    def is_literal(self) -> bool:
         """Always pass the string representation of a Node to
         the command interpreter literally."""
-        return 1
+        return True
 
     def render_include_tree(self):
         """

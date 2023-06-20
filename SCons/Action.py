@@ -100,21 +100,22 @@ way for wrapping up the functions.
 
 """
 
+import inspect
 import os
 import pickle
 import re
-import sys
 import subprocess
-from subprocess import DEVNULL
-import inspect
+import sys
+from abc import ABC, abstractmethod
 from collections import OrderedDict
+from subprocess import DEVNULL
+from typing import Union
 
 import SCons.Debug
+import SCons.Errors
+import SCons.Subst
 import SCons.Util
 from SCons.Debug import logInstanceCreation
-import SCons.Errors
-import SCons.Util
-import SCons.Subst
 
 # we use these a lot, so try to optimize them
 from SCons.Util import is_String, is_List
@@ -148,9 +149,8 @@ def default_exitstatfunc(s):
 strip_quotes = re.compile(r'^[\'"](.*)[\'"]$')
 
 
-def _callable_contents(obj):
-    """Return the signature contents of a callable Python object.
-    """
+def _callable_contents(obj) -> bytearray:
+    """Return the signature contents of a callable Python object."""
     try:
         # Test if obj is a method.
         return _function_contents(obj.__func__)
@@ -170,7 +170,7 @@ def _callable_contents(obj):
                 return _function_contents(obj)
 
 
-def _object_contents(obj):
+def _object_contents(obj) -> bytearray:
     """Return the signature contents of any Python object.
 
     We have to handle the case where object contains a code object
@@ -210,8 +210,10 @@ def _object_contents(obj):
                         # the best we can.
                         return bytearray(repr(obj), 'utf-8')
 
+# TODO: docstrings for _code_contents and _function_contents
+#   do not render well with Sphinx. Consider reworking.
 
-def _code_contents(code, docstring=None):
+def _code_contents(code, docstring=None) -> bytearray:
     r"""Return the signature contents of a code object.
 
     By providing direct access to the code object of the
@@ -223,7 +225,7 @@ def _code_contents(code, docstring=None):
     recompilations from moving a Python function.
 
     See:
-      - https://docs.python.org/2/library/inspect.html
+      - https://docs.python.org/3/library/inspect.html
       - http://python-reference.readthedocs.io/en/latest/docs/code/index.html
 
     For info on what each co\_ variable provides
@@ -243,7 +245,6 @@ def _code_contents(code, docstring=None):
     co_code     - Returns a string representing the sequence of bytecode instructions.
 
     """
-
     # contents = []
 
     # The code contents depends on the number of local variables
@@ -281,8 +282,9 @@ def _code_contents(code, docstring=None):
     return contents
 
 
-def _function_contents(func):
-    """
+def _function_contents(func) -> bytearray:
+    """Return the signature contents of a function.
+
     The signature is as follows (should be byte/chars):
     < _code_contents (see above) from func.__code__ >
     ,( comma separated _object_contents for function argument defaults)
@@ -293,11 +295,7 @@ def _function_contents(func):
       - func.__code__     - The code object representing the compiled function body.
       - func.__defaults__ - A tuple containing default argument values for those arguments that have defaults, or None if no arguments have a default value
       - func.__closure__  - None or a tuple of cells that contain bindings for the function's free variables.
-
-    :Returns:
-      Signature contents of a function. (in bytes)
     """
-
     contents = [_code_contents(func.__code__, func.__doc__)]
 
     # The function contents depends on the value of defaults arguments
@@ -439,16 +437,13 @@ def _do_create_keywords(args, kw):
 
 
 def _do_create_action(act, kw):
-    """This is the actual "implementation" for the
-    Action factory method, below.  This handles the
-    fact that passing lists to Action() itself has
-    different semantics than passing lists as elements
-    of lists.
+    """The internal implementation for the Action factory method.
 
-    The former will create a ListAction, the latter
-    will create a CommandAction by converting the inner
-    list elements to strings."""
-
+    This handles the fact that passing lists to :func:`Action` itself has
+    different semantics than passing lists as elements of lists.
+    The former will create a :class:`ListAction`, the latter will create a
+    :class:`CommandAction` by converting the inner list elements to strings.
+    """
     if isinstance(act, ActionBase):
         return act
 
@@ -491,13 +486,22 @@ def _do_create_action(act, kw):
     return None
 
 
-def _do_create_list_action(act, kw):
-    """A factory for list actions.  Convert the input list into Actions
-    and then wrap them in a ListAction."""
+# TODO: from __future__ import annotations once we get to Python 3.7 base,
+#   to avoid quoting the defined-later classname
+def _do_create_list_action(act, kw) -> "ListAction":
+    """A factory for list actions.
+
+    Convert the input list *act* into Actions and then wrap them in a
+    :class:`ListAction`. If *act* has only a single member, return that
+    member, not a *ListAction*. This is intended to allow a contained
+    list to specify a command action without being processed into a
+    list action.
+    """
     acts = []
     for a in act:
         aa = _do_create_action(a, kw)
-        if aa is not None: acts.append(aa)
+        if aa is not None:
+            acts.append(aa)
     if not acts:
         return ListAction([])
     elif len(acts) == 1:
@@ -515,10 +519,25 @@ def Action(act, *args, **kw):
     return _do_create_action(act, kw)
 
 
-class ActionBase:
+class ActionBase(ABC):
     """Base class for all types of action objects that can be held by
     other objects (Builders, Executors, etc.)  This provides the
     common methods for manipulating and combining those actions."""
+
+    @abstractmethod
+    def __call__(
+        self,
+        target,
+        source,
+        env,
+        exitstatfunc=_null,
+        presub=_null,
+        show=_null,
+        execute=_null,
+        chdir=_null,
+        executor=None,
+    ):
+        raise NotImplementedError
 
     def __eq__(self, other):
         return self.__dict__ == other
@@ -530,6 +549,14 @@ class ActionBase:
 
     def genstring(self, target, source, env):
         return str(self)
+
+    @abstractmethod
+    def get_presig(self, target, source, env, executor=None):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_implicit_deps(self, target, source, env, executor=None):
+        raise NotImplementedError
 
     def get_contents(self, target, source, env):
         result = self.get_presig(target, source, env)
@@ -718,6 +745,16 @@ class _ActionAction(ActionBase):
             print_func('os.chdir(%s)' % repr(save_cwd), target, source, env)
 
         return stat
+
+    # Stub these two only so _ActionAction can be instantiated. It's really
+    # an ABC like parent ActionBase, but things reach in and use it. It's
+    # not just unittests or we could fix it up with a concrete subclass there.
+
+    def get_presig(self, target, source, env, executor=None):
+        raise NotImplementedError
+
+    def get_implicit_deps(self, target, source, env, executor=None):
+        raise NotImplementedError
 
 
 def _string_from_cmd_list(cmd_list):
@@ -1220,9 +1257,13 @@ class LazyAction(CommandGeneratorAction, CommandAction):
         c = self.get_parent_class(env)
         return c.__call__(self, target, source, env, *args, **kw)
 
-    def get_presig(self, target, source, env):
+    def get_presig(self, target, source, env, executor=None):
         c = self.get_parent_class(env)
         return c.get_presig(self, target, source, env)
+
+    def get_implicit_deps(self, target, source, env, executor=None):
+        c = self.get_parent_class(env)
+        return c.get_implicit_deps(self, target, source, env)
 
     def get_varlist(self, target, source, env, executor=None):
         c = self.get_parent_class(env)
@@ -1342,14 +1383,14 @@ class FunctionAction(_ActionAction):
             # more information about this issue.
             del exc_info
 
-    def get_presig(self, target, source, env):
+    def get_presig(self, target, source, env, executor=None):
         """Return the signature contents of this callable action."""
         try:
             return self.gc(target, source, env)
         except AttributeError:
             return self.funccontents
 
-    def get_implicit_deps(self, target, source, env):
+    def get_implicit_deps(self, target, source, env, executor=None):
         return []
 
 class ListAction(ActionBase):
@@ -1376,7 +1417,7 @@ class ListAction(ActionBase):
         return SCons.Util.flatten_sequence(
             [a.presub_lines(env) for a in self.list])
 
-    def get_presig(self, target, source, env):
+    def get_presig(self, target, source, env, executor=None):
         """Return the signature contents of this action list.
 
         Simple concatenation of the signatures of the elements.
@@ -1395,7 +1436,7 @@ class ListAction(ActionBase):
                 return stat
         return 0
 
-    def get_implicit_deps(self, target, source, env):
+    def get_implicit_deps(self, target, source, env, executor=None):
         result = []
         for act in self.list:
             result.extend(act.get_implicit_deps(target, source, env))

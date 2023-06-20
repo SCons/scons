@@ -157,21 +157,21 @@ def get_msvc_version_prefix(version):
 
 # toolset version query utilities
 
-def is_toolset_full(toolset_version):
+def is_toolset_full(toolset_version) -> bool:
     rval = False
     if toolset_version:
         if re_toolset_full.match(toolset_version):
             rval = True
     return rval
 
-def is_toolset_140(toolset_version):
+def is_toolset_140(toolset_version) -> bool:
     rval = False
     if toolset_version:
         if re_toolset_140.match(toolset_version):
             rval = True
     return rval
 
-def is_toolset_sxs(toolset_version):
+def is_toolset_sxs(toolset_version) -> bool:
     rval = False
     if toolset_version:
         if re_toolset_sxs.match(toolset_version):

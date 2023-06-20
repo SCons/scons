@@ -289,7 +289,8 @@ class LaTeX(ScannerBase):
                 return [filename+e for e in self.graphics_extensions]
         return [filename]
 
-    def sort_key(self, include):
+    @staticmethod
+    def sort_key(include):
         return SCons.Node.FS._my_normcase(str(include))
 
     def find_include(self, include, source_dir, path):

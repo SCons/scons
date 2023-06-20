@@ -500,8 +500,8 @@ def generate(env) -> None:
     except KeyError:
         env['INSTALLVERSIONEDLIB'] = copyFuncVersionedLib
 
-def exists(env) -> int:
-    return 1
+def exists(env) -> bool:
+    return True
 
 # Local Variables:
 # tab-width:4

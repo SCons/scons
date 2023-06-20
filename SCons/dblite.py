@@ -24,8 +24,13 @@
 """
 dblite.py module contributed by Ralf W. Grosse-Kunstleve.
 Extended for Unicode by Steven Knight.
+
+This is a very simple-minded "database" used for saved signature
+information, with an interface modeled on the Python dbm database
+interface module.
 """
 
+import io
 import os
 import pickle
 import shutil
@@ -45,41 +50,59 @@ def corruption_warning(filename) -> None:
     """
     print("Warning: Discarding corrupt database:", filename)
 
-DBLITE_SUFFIX = '.dblite'
-TMP_SUFFIX = '.tmp'
+
+DBLITE_SUFFIX = ".dblite"
+TMP_SUFFIX = ".tmp"
 
 
-class dblite:
+class _Dblite:
+    """Lightweight signature database class.
+
+    Behaves like a dict when in memory, loads from a pickled disk
+    file on open and writes back out to it on close.
+
+    Open the database file using a path derived from *file_base_name*.
+    The optional *flag* argument can be:
+
+    +---------+---------------------------------------------------+
+    | Value   | Meaning                                           |
+    +=========+===================================================+
+    | ``'r'`` | Open existing database for reading only (default) |
+    +---------+---------------------------------------------------+
+    | ``'w'`` | Open existing database for reading and  writing   |
+    +---------+---------------------------------------------------+
+    | ``'c'`` | Open database for reading and writing, creating   |
+    |         | it if it doesn't exist                            |
+    +---------+---------------------------------------------------+
+    | ``'n'`` | Always create a new, empty database, open for     |
+    |         | reading and writing                               |
+    +---------+---------------------------------------------------+
+
+    The optional *mode* argument is the POSIX mode of the file, used only
+    when the database has to be created.  It defaults to octal ``0o666``.
     """
-    Squirrel away references to the functions in various modules
-    that we'll use when our __del__() method calls our sync() method
-    during shutdown.  We might get destroyed when Python is in the midst
-    of tearing down the different modules we import in an essentially
-    arbitrary order, and some of the various modules's global attributes
-    may already be wiped out from under us.
 
-    See the discussion at:
-      http://mail.python.org/pipermail/python-bugs-list/2003-March/016877.html
+    # Because open() is defined at module level, overwriting builtin open
+    # in the scope of this module, we use io.open to avoid ambiguity.
+    _open = staticmethod(io.open)
 
-    """
-
-    _open = open
+    # we need to squirrel away references to functions from various modules
+    # that we'll use when sync() is called: this may happen at Python
+    # teardown time (we call it from our __del__), and the global module
+    # references themselves may already have been rebound to None.
     _pickle_dump = staticmethod(pickle.dump)
     _pickle_protocol = PICKLE_PROTOCOL
-
     try:
-        _os_chown = os.chown
+        _os_chown = staticmethod(os.chown)
     except AttributeError:
         _os_chown = None
-    _os_replace = os.replace
-    _os_chmod = os.chmod
-    _shutil_copyfile = shutil.copyfile
-    _time_time = time.time
+    _os_replace = staticmethod(os.replace)
+    _os_chmod = staticmethod(os.chmod)
+    _shutil_copyfile = staticmethod(shutil.copyfile)
+    _time_time = staticmethod(time.time)
 
-    def __init__(self, file_base_name, flag, mode) -> None:
-        assert flag in (None, "r", "w", "c", "n")
-        if flag is None:
-            flag = "r"
+    def __init__(self, file_base_name, flag='r', mode=0o666) -> None:
+        assert flag in ("r", "w", "c", "n")
 
         base, ext = os.path.splitext(file_base_name)
         if ext == DBLITE_SUFFIX:
@@ -95,7 +118,7 @@ class dblite:
         self._dict = {}
         self._needs_sync = False
 
-        if self._os_chown is not None and (os.geteuid() == 0 or os.getuid() == 0):
+        if self._os_chown is not None and 0 in (os.geteuid(), os.getegid()):
             # running as root; chown back to current owner/group when done
             try:
                 statinfo = os.stat(self._file_name)
@@ -111,30 +134,47 @@ class dblite:
             self._chgrp_to = -1  # don't chgrp
 
         if self._flag == "n":
-            with self._open(self._file_name, "wb", self._mode):
-                pass  # just make sure it exists
+            with io.open(self._file_name, "wb", opener=self.opener):
+                return  # just make sure it exists
         else:
+            # We only need the disk file to slurp in the data.  Updates are
+            # handled on close, db is mainained only in memory until then.
             try:
-                f = self._open(self._file_name, "rb")
-            except IOError as e:
+                with io.open(self._file_name, "rb") as f:
+                    p = f.read()
+            except OSError as e:
+                # an error for file not to exist, unless flag is create
                 if self._flag != "c":
                     raise e
-                with self._open(self._file_name, "wb", self._mode):
-                    pass  # just make sure it exists
-            else:
-                p = f.read()
-                f.close()
-                if len(p) > 0:
-                    try:
-                        self._dict = pickle.loads(p, encoding='bytes')
-                    except (pickle.UnpicklingError, EOFError, KeyError):
-                        # Note how we catch KeyErrors too here, which might happen
-                        # when we don't have cPickle available (default pickle
-                        # throws it).
-                        if IGNORE_CORRUPT_DBFILES:
-                            corruption_warning(self._file_name)
-                        else:
-                            raise
+                with io.open(self._file_name, "wb", opener=self.opener):
+                    return  # just make sure it exists
+            if len(p) > 0:
+                try:
+                    self._dict = pickle.loads(p, encoding='bytes')
+                except (
+                    pickle.UnpicklingError,
+                    # Python3 docs:
+                    # Note that other exceptions may also be raised during
+                    # unpickling, including (but not necessarily limited to)
+                    # AttributeError, EOFError, ImportError, and IndexError.
+                    AttributeError,
+                    EOFError,
+                    ImportError,
+                    IndexError,
+                ):
+                    if IGNORE_CORRUPT_DBFILES:
+                        corruption_warning(self._file_name)
+                    else:
+                        raise
+
+    def opener(self, path, flags):
+        """Database open helper when creation may be needed.
+
+        The high-level Python open() function cannot specify a file mode
+        for creation. Using this as the opener with the saved mode lets
+        us do that.
+        """
+        return os.open(path, flags, mode=self._mode)
 
     def close(self) -> None:
         if self._needs_sync:
@@ -144,8 +184,15 @@ class dblite:
         self.close()
 
     def sync(self) -> None:
+        """Flush the database to disk.
+
+        This routine *must* succeed, since the in-memory and on-disk
+        copies are out of sync as soon as we do anything that changes
+        the in-memory version. Thus, to be cautious, flush to a
+        temporary file and then move it over with some error handling.
+        """
         self._check_writable()
-        with self._open(self._tmp_name, "wb", self._mode) as f:
+        with self._open(self._tmp_name, "wb", opener=self.opener) as f:
             self._pickle_dump(self._dict, f, self._pickle_protocol)
 
         try:
@@ -162,7 +209,9 @@ class dblite:
                 pass
             self._os_replace(self._tmp_name, self._file_name)
 
-        if self._os_chown is not None and self._chown_to > 0:  # don't chown to root or -1
+        if (
+            self._os_chown is not None and self._chown_to > 0
+        ):  # don't chown to root or -1
             try:
                 self._os_chown(self._file_name, self._chown_to, self._chgrp_to)
             except OSError:
@@ -171,13 +220,12 @@ class dblite:
         self._needs_sync = False
         if KEEP_ALL_FILES:
             self._shutil_copyfile(
-                self._file_name,
-                self._file_name + "_" + str(int(self._time_time()))
+                self._file_name, f"{self._file_name}_{int(self._time_time())}"
             )
 
     def _check_writable(self):
         if self._flag == "r":
-            raise IOError("Read-only database: %s" % self._file_name)
+            raise OSError(f"Read-only database: {self._file_name}")
 
     def __getitem__(self, key):
         return self._dict[key]
@@ -186,29 +234,37 @@ class dblite:
         self._check_writable()
 
         if not isinstance(key, str):
-            raise TypeError("key `%s' must be a string but is %s" % (key, type(key)))
+            raise TypeError(f"key `{key}' must be a string but is {type(key)}")
 
         if not isinstance(value, bytes):
-            raise TypeError("value `%s' must be a bytes but is %s" % (value, type(value)))
+            raise TypeError(f"value `{value}' must be bytes but is {type(value)}")
 
         self._dict[key] = value
         self._needs_sync = True
 
+    def __delitem__(self, key):
+        del self._dict[key]
+
     def keys(self):
-        return list(self._dict.keys())
+        return self._dict.keys()
+
+    def items(self):
+        return self._dict.items()
+
+    def values(self):
+        return self._dict.values()
+
+    __iter__ = keys
 
     def __contains__(self, key) -> bool:
         return key in self._dict
-
-    def __iter__(self):
-        return iter(self._dict)
 
     def __len__(self) -> int:
         return len(self._dict)
 
 
-def open(file, flag=None, mode: int=0o666):
-    return dblite(file, flag, mode)
+def open(file, flag="r", mode: int = 0o666):  # pylint: disable=redefined-builtin
+    return _Dblite(file, flag, mode)
 
 
 def _exercise():
@@ -225,13 +281,13 @@ def _exercise():
     assert db["bar"] == b"foo"
     db.sync()
 
-    db = open("tmp", "r")
+    db = open("tmp")
     assert len(db) == 2, len(db)
     assert db["foo"] == b"bar"
     assert db["bar"] == b"foo"
     try:
         db.sync()
-    except IOError as e:
+    except OSError as e:
         assert str(e) == "Read-only database: tmp.dblite"
     else:
         raise RuntimeError("IOError expected.")
@@ -250,21 +306,21 @@ def _exercise():
     try:
         db["list"] = [1, 2]
     except TypeError as e:
-        assert str(e) == "value `[1, 2]' must be a bytes but is <class 'list'>", str(e)
+        assert str(e) == "value `[1, 2]' must be bytes but is <class 'list'>", str(e)
     else:
         raise RuntimeError("TypeError exception expected")
 
-    db = open("tmp", "r")
+    db = open("tmp")
     assert len(db) == 3, len(db)
 
     db = open("tmp", "n")
     assert len(db) == 0, len(db)
-    dblite._open("tmp.dblite", "w")
+    _Dblite._open("tmp.dblite", "w")
 
-    db = open("tmp", "r")
-    dblite._open("tmp.dblite", "w").write("x")
+    db = open("tmp")
+    _Dblite._open("tmp.dblite", "w").write("x")
     try:
-        db = open("tmp", "r")
+        db = open("tmp")
     except pickle.UnpicklingError:
         pass
     else:
@@ -272,12 +328,12 @@ def _exercise():
 
     global IGNORE_CORRUPT_DBFILES
     IGNORE_CORRUPT_DBFILES = True
-    db = open("tmp", "r")
+    db = open("tmp")
     assert len(db) == 0, len(db)
     os.unlink("tmp.dblite")
     try:
         db = open("tmp", "w")
-    except IOError as e:
+    except OSError as e:
         assert str(e) == "[Errno 2] No such file or directory: 'tmp.dblite'", str(e)
     else:
         raise RuntimeError("IOError expected.")

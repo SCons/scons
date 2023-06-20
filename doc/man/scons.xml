@@ -929,6 +929,21 @@ $ <userinput>scons --debug=includes foo.o</userinput>
   </listitem>
   </varlistentry>
 
+<varlistentry>
+  <term><emphasis role="bold">json</emphasis></term>
+  <listitem>
+    <para>Write info to a JSON file for any of the following debug options if they are enabled: <emphasis>memory</emphasis>,
+    <emphasis>count</emphasis>, <emphasis>time</emphasis>, <emphasis>action-timestamps</emphasis> </para>
+    <para>The default output file is <literal>scons_stats.json</literal></para>
+    <para>The file name/path can be modified by using &f-link-DebugOptions; for example <literal>DebugOptions(json='path/to/file.json')</literal></para>
+
+<screen>
+$ <userinput>scons --debug=memory,json foo.o</userinput>
+</screen>
+
+  </listitem>
+  </varlistentry>
+
   <varlistentry>
   <term><emphasis role="bold">memoizer</emphasis></term>
   <listitem>
@@ -959,9 +974,53 @@ of the various classes used internally by SCons.</para>
   <varlistentry>
   <term><emphasis role="bold">pdb</emphasis></term>
   <listitem>
-<para>Re-run &scons; under the control of the
+<para>Run &scons; under control of the
 <systemitem>pdb</systemitem>
 &Python; debugger.</para>
+<screen>
+$ <userinput>scons --debug=pdb</userinput>
+> /usr/lib/python3.11/site-packages/SCons/Script/Main.py(869)_main()
+-> options = parser.values
+(Pdb)
+</screen>
+<note>
+<para><systemitem>pdb</systemitem> will stop at the
+beginning of the &scons; main routine on startup.
+The search path (<systemitem>sys.path</systemitem>)
+at that point will include the location of the running &scons;,
+but not of the project itself.
+If you need to set breakpoints in your project files,
+you will either need to add to the path,
+or use absolute pathnames when referring to project files.
+A <filename>.pdbrc</filename> file in the project root
+can be used to add the current directory to the search path
+to avoid having to enter it by hand,
+along these lines:
+</para>
+<programlisting language="python">
+sys.path.append('.')
+</programlisting>
+<para>
+Due to the implementation of the
+<systemitem>pdb</systemitem> module,
+the <command>break</command>,
+<command>tbreak</command>
+and <command>clear</command>
+commands only understand references to filenames
+which have a <filename>.py</filename> extension.
+(although the suffix itself can be omitted),
+<emphasis>except</emphasis> if you use an absolute path.
+As a special exception to that rule, the names
+&SConstruct; and &SConscript; are recognized without
+needing the <filename>.py</filename> extension.
+</para>
+<para>
+<emphasis>Changed in version 4.6.0</emphasis>:
+The names &SConstruct; and &SConscript; are now
+recognized without requiring
+<filename>.py</filename> suffix.
+</para>
+</note>
   </listitem>
   </varlistentry>
 
@@ -1216,7 +1275,7 @@ small block-size slows down the build considerably.</para>
 <para>The default value is to use a chunk size of 64 kilobytes, which should
 be appropriate for most uses.</para>
 
-<para><emphasis>New in version 4.2.</emphasis></para>
+<para><emphasis>New in version 4.1.</emphasis></para>
   </listitem>
   </varlistentry>
 
@@ -1256,7 +1315,7 @@ For example, <option>--hash-format=sha256</option> uses a SConsign
 database named <filename>.sconsign_sha256.dblite</filename>.
 </para>
 
-<para><emphasis>New in version 4.2.</emphasis></para>
+<para><emphasis>New in version 4.1.</emphasis></para>
   </listitem>
 </varlistentry>
 
@@ -3961,7 +4020,7 @@ it will not be added again. The default is <literal>False</literal>.
 <parameter>library</parameter> can be a list of library names,
 or <constant>None</constant> (the default if the argument is omitted).
 If the former, <parameter>symbol</parameter> is checked against
-each library name in order, returning 
+each library name in order, returning
 (and reporting success) on the first
 successful test; if the latter,
 it is checked with the current value of &cv-LIBS;
@@ -6526,9 +6585,11 @@ env.Command(
 </programlisting>
 
 <para>
-The behavior of <function>Chmod</function> is limited on Windows,
+The behavior of <function>Chmod</function> is limited on Windows
+and on WebAssembly platforms,
 see the notes in the Python documentation for
-<systemitem>os.chmod</systemitem>, which is the underlying function.
+<ulink url="https://docs.python.org/3/library/os.html#os.chmod">
+os.chmod</ulink>, which is the underlying function.
 </para>
 
   </listitem>

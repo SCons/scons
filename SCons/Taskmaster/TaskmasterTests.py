@@ -43,8 +43,8 @@ class Node:
         self.name = name
         self.kids = kids
         self.scans = scans
-        self.cached = 0
-        self.scanned = 0
+        self.cached = False
+        self.scanned = False
         self.scanner = None
         self.targets = [self]
         self.prerequisites = None
@@ -61,7 +61,7 @@ class Node:
         self.ref_count = 0
         self.waiting_parents = set()
         self.waiting_s_e = set()
-        self.side_effect = 0
+        self.side_effect = False
         self.side_effects = []
         self.alttargets = []
         self.postprocessed = None
@@ -75,7 +75,7 @@ class Node:
     def push_to_cache(self) -> None:
         pass
 
-    def retrieve_from_cache(self):
+    def retrieve_from_cache(self) -> bool:
         global cache_text
         if self.cached:
             cache_text.append(self.name + " retrieved")
@@ -147,7 +147,7 @@ class Node:
     def has_builder(self) -> bool:
         return self.builder is not None
 
-    def is_derived(self):
+    def is_derived(self) -> bool:
         return self.has_builder or self.side_effect
 
     def alter_targets(self):
@@ -160,7 +160,7 @@ class Node:
     def children(self):
         if not self.scanned:
             self.scan()
-            self.scanned = 1
+            self.scanned = True
         return self.kids
 
     def scan(self) -> None:
@@ -197,17 +197,8 @@ class Node:
     def store_bsig(self) -> None:
         pass
 
-    def is_pseudo_derived(self) -> None:
-        pass
-
-    def is_up_to_date(self):
+    def is_up_to_date(self) -> bool:
         return self._current_val
-
-    def depends_on(self, nodes) -> int:
-        for node in nodes:
-            if node in self.kids:
-                return 1
-        return 0
 
     def __str__(self) -> str:
         return self.name
@@ -456,7 +447,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n3 = Node("n3")
         n4 = Node("n4", [n1, n2, n3])
         n5 = Node("n5", [n4])
-        n3.side_effect = 1
+        n3.side_effect = True
         n1.side_effects = n2.side_effects = n3.side_effects = [n4]
         tm = SCons.Taskmaster.Taskmaster([n1, n2, n3, n4, n5])
         t = tm.next_task()
@@ -1010,7 +1001,7 @@ class TaskmasterTestCase(unittest.TestCase):
         cache_text = []
         n5 = Node("n5")
         n6 = Node("n6")
-        n6.cached = 1
+        n6.cached = True
         tm = SCons.Taskmaster.Taskmaster([n5])
         t = tm.next_task()
         # This next line is moderately bogus.  We're just reaching
@@ -1028,8 +1019,8 @@ class TaskmasterTestCase(unittest.TestCase):
         cache_text = []
         n7 = Node("n7")
         n8 = Node("n8")
-        n7.cached = 1
-        n8.cached = 1
+        n7.cached = True
+        n8.cached = True
         tm = SCons.Taskmaster.Taskmaster([n7])
         t = tm.next_task()
         # This next line is moderately bogus.  We're just reaching

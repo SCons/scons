@@ -222,13 +222,14 @@ hello.c
     To be able to use both our own defined &Builder; objects
     and the default &Builder; objects in the same &consenv;,
     you can either add to the &cv-link-BUILDERS; variable
-    using the &Append; function:
+    using the &f-link-Append; function:
 
     </para>
 
     <scons_example name="builderswriting_ex3">
        <file name="SConstruct">
 import os
+
 env = Environment()
 env.AppendENVPath('PATH', os.getcwd())
 bld = Builder(action='foobuild &lt; $SOURCE &gt; $TARGET')

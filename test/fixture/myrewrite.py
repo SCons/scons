@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 r"""
 Phony tool to modify a file in place for testing SCons.
 

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import os
 import os.path
 
@@ -9,6 +13,7 @@ for vw_path in VSWHERE_PATHS:
 
 
 # Allow normal detection logic to find vswhere.exe
+DefaultEnvironment(tools=[])
 env1=Environment()
 print("VSWHERE-detect=%s" % env1['VSWHERE'])
 

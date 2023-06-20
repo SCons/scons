@@ -95,7 +95,7 @@ def DefaultEnvironment(*args, **kw):
 # going into a shared library are, in fact, shared.
 def StaticObjectEmitter(target, source, env):
     for tgt in target:
-        tgt.attributes.shared = None
+        tgt.attributes.shared = False
     return target, source
 
 
@@ -112,7 +112,7 @@ def SharedFlagChecker(source, target, env):
             try:
                 shared = src.attributes.shared
             except AttributeError:
-                shared = None
+                shared = False
             if not shared:
                 raise SCons.Errors.UserError(
                     "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0]))

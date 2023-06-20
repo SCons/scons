@@ -185,8 +185,8 @@ class SConfTestCase(unittest.TestCase):
                         self.attributes = Attrs()
                     def disambiguate(self):
                         return self
-                    def has_builder(self) -> int:
-                        return 1
+                    def has_builder(self) -> bool:
+                        return True
                     def add_pre_action(self, *actions) -> None:
                         pass
                     def add_post_action(self, *actions) -> None:
@@ -199,20 +199,18 @@ class SConfTestCase(unittest.TestCase):
                         self.state = state
                     def alter_targets(self):
                         return [], None
-                    def depends_on(self, nodes):
-                        return None
                     def postprocess(self) -> None:
                         pass
                     def clear(self) -> None:
                         pass
-                    def is_up_to_date(self):
-                        return None
+                    def is_up_to_date(self) -> bool:
+                        return False
                     def prepare(self) -> None:
                         pass
                     def push_to_cache(self) -> None:
                         pass
-                    def retrieve_from_cache(self) -> int:
-                        return 0
+                    def retrieve_from_cache(self) -> bool:
+                        return False
                     def build(self, **kw) -> None:
                         return
                     def built(self) -> None:

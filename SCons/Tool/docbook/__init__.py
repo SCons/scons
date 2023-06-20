@@ -1,16 +1,6 @@
-
-"""SCons.Tool.docbook
-
-Tool-specific initialization for Docbook.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,7 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""Tool-specific initialization for Docbook.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os
 import glob
@@ -42,7 +38,6 @@ import SCons.Defaults
 import SCons.Script
 import SCons.Tool
 import SCons.Util
-
 
 __debug_tool_location = False
 # Get full path to this script
@@ -839,5 +834,5 @@ def generate(env) -> None:
     env.AddMethod(DocbookXslt, "DocbookXslt")
 
 
-def exists(env) -> int:
-    return 1
+def exists(env) -> bool:
+    return True

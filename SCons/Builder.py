@@ -385,10 +385,10 @@ class BuilderBase:
                         emitter = None,
                         multi: int = 0,
                         env = None,
-                        single_source: int = 0,
+                        single_source: bool = False,
                         name = None,
                         chdir = _null,
-                        is_explicit: int = 1,
+                        is_explicit: bool = True,
                         src_builder = None,
                         ensure_suffix: bool = False,
                         **overrides) -> None:
@@ -889,7 +889,7 @@ class CompositeBuilder(SCons.Util.Proxy):
         self.cmdgen.add_action(suffix, action)
         self.set_src_suffix(self.cmdgen.src_suffixes())
 
-def is_a_Builder(obj):
+def is_a_Builder(obj) -> bool:
     """"Returns True if the specified obj is one of our Builder classes.
 
     The test is complicated a bit by the fact that CompositeBuilder

@@ -1,12 +1,6 @@
-"""SCons.Tool.c++
-
-Tool-specific initialization for generic Posix C++ compilers.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-"""
-
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,7 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""Tool-specific initialization for generic Posix C++ compilers.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os.path
 
@@ -39,16 +39,16 @@ CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++', '.mm']
 if SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CXXSuffixes.append('.C')
 
-def iscplusplus(source) -> int:
+def iscplusplus(source) -> bool:
     if not source:
         # Source might be None for unusual cases like SConf.
-        return 0
+        return False
     for s in source:
         if s.sources:
             ext = os.path.splitext(str(s.sources[0]))[1]
             if ext in CXXSuffixes:
-                return 1
-    return 0
+                return True
+    return False
 
 def generate(env) -> None:
     """

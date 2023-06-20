@@ -71,8 +71,8 @@ class Literal:
     def for_signature(self):
         return self.lstr
 
-    def is_literal(self) -> int:
-        return 1
+    def is_literal(self) -> bool:
+        return True
 
     def __eq__(self, other):
         if not isinstance(other, Literal):
@@ -113,8 +113,8 @@ class SpecialAttrWrapper:
     def for_signature(self):
         return self.forsig
 
-    def is_literal(self) -> int:
-        return 1
+    def is_literal(self) -> bool:
+        return True
 
 def quote_spaces(arg):
     """Generic function for putting double quotes around any string that
@@ -135,7 +135,7 @@ class CmdStringHolder(collections.UserString):
         super().__init__(cmd)
         self.literal = literal
 
-    def is_literal(self):
+    def is_literal(self) -> bool:
         return self.literal
 
     def escape(self, escape_func, quote_func=quote_spaces):
@@ -417,7 +417,7 @@ class StringSubber:
             return list(map(func, s))
         elif callable(s):
 
-            # SCons has the unusual Null class where any __getattr__ call returns it's self, 
+            # SCons has the unusual Null class where any __getattr__ call returns it's self,
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
@@ -594,7 +594,7 @@ class ListSubber(collections.UserList):
                 self.substitute(a, lvars, 1)
                 self.next_word()
         elif callable(s):
-            # SCons has the unusual Null class where any __getattr__ call returns it's self, 
+            # SCons has the unusual Null class where any __getattr__ call returns it's self,
             # which does not work the signature module, and the Null class returns an empty
             # string if called on, so we make an exception in this condition for Null class
             # Also allow callables where the only non default valued args match the expected defaults
@@ -894,7 +894,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     The companion scons_subst() function (above) handles basic
     substitutions within strings, so see that function instead
     if that's what you're looking for.
-    """ 
+    """
     if conv is None:
         conv = _strconv[mode]
 

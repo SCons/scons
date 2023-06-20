@@ -1,10 +1,6 @@
-"""SCons.Tool.Packaging.rpm
-
-The rpm packager.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,12 +21,10 @@ The rpm packager.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
+"""The rpm packager."""
 
 import SCons.Builder
 import SCons.Tool.rpmutils
-
 from SCons.Environment import OverrideEnvironment
 from SCons.Tool.packaging import stripinstallbuilder, src_targz
 from SCons.Errors import UserError
@@ -324,7 +318,7 @@ class SimpleTagCompiler:
     def compile(self, values):
         """ Compiles the tagset and returns a str containing the result
         """
-        def is_international(tag):
+        def is_international(tag) -> bool:
             return tag.endswith('_')
 
         def get_country_code(tag):
