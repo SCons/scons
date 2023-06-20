@@ -67,23 +67,22 @@ def generate(env) -> None:
     shared_obj.add_emitter('.d', DCommon.DSharedObjectEmitter)
 
     env['DC'] = env.Detect('ldc2') or 'ldc2'
-    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DINTFDIR -c -of=$TARGET $SOURCES'
+    env['DCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DI_FLAGS -c -of=$TARGET $SOURCES'
     env['_DINCFLAGS'] = '${_concat(DINCPREFIX, DPATH, DINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
     env['_DVERFLAGS'] = '${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}'
     env['_DDEBUGFLAGS'] = '${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)}'
 
-    env['_DINTFDIR'] = "${DI_FILE_DIR and DINTFDIRPREFIX+DI_FILE_DIR+DINTFDIRSUFFIX}"
+    env['_DI_FLAGS'] = "${DI_FILE_DIR and DI_FILE_DIR_PREFIX+DI_FILE_DIR+DI_FILE_DIR_SUFFFIX}"
     
     env['_DFLAGS'] = '${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)}'
 
     env['SHDC'] = '$DC'
-    env['SHDCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DINTFDIR -c -relocation-model=pic -of=$TARGET $SOURCES'
+    env['SHDCOM'] = '$DC $_DINCFLAGS $_DVERFLAGS $_DDEBUGFLAGS $_DFLAGS $_DI_FLAGS -c -relocation-model=pic -of=$TARGET $SOURCES'
 
     env['DPATH'] = ['#/']
     env['DFLAGS'] = []
     env['DVERSIONS'] = []
     env['DDEBUG'] = []
-    env['DINTFDIR'] = []
 
     if env['DC']:
         DCommon.addDPATHToEnv(env, env['DC'])
@@ -101,8 +100,8 @@ def generate(env) -> None:
     env['DI_FILE_DIR'] = ''
     env['DI_FILE_SUFFIX'] = '.di'
     
-    env['DINTFDIRPREFIX'] = '-Hd='
-    env['DINTFDIRSUFFIX'] = ''
+    env['DI_FILE_DIR_PREFIX'] = '-Hd='
+    env['DI_FILE_DIR_SUFFFIX'] = ''
 
     env['DLINK'] = '$DC'
     env['DLINKFLAGS'] = SCons.Util.CLVar('')
