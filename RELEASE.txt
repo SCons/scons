@@ -88,10 +88,10 @@ DEVELOPMENT
   now declares (actually raises NotImplementedError) two methods it
   doesn't use so it can be instantiated by unittests and others.
 - Added more type annotations to internal routines.
-- Cleanud up dblite module (checker warnings, etc.).
+- Cleaned up dblite module (checker warnings, etc.).
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.5.2..HEAD

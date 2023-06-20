@@ -91,7 +91,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       name, to match actual current behavior (only affects if target
       explicitly requested with a different base name
       than source).  Docs updated.  Fixes #4326 and #4327.
-    - Cleanud up dblite module (checker warnings, etc.).
+    - Cleaned up dblite module (checker warnings, etc.).
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700

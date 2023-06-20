@@ -112,6 +112,7 @@ def Reset() -> None:
     sig_files = []
     DB_sync_list = []
 
+
 normcase = os.path.normcase
 
 
