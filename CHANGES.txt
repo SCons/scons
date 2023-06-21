@@ -68,6 +68,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a .py extension to open a file that is not an absolute path.
     - SCons test runner now uses pathlib to normalize and compare paths
       to test files.
+    - D compilers : added support for generation of .di interface files. 
+      New variables DI_FILE_DIR, DI_FILE_DIR_PREFIX, DI_FILE_DIR_SUFFIX,
+      DI_FILE_SUFFIX.
     - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
       is '/' rather than the Windows default '\'), certain Configure checks
       could fail due to the construction of the path to run the compiled check.
