@@ -677,6 +677,9 @@ def __lib_either_version_flag(env, version_var1, version_var2, flags_var):
     return None
 
 
+    
+
+
 ConstructionEnvironment = {
     'BUILDERS': {},
     'SCANNERS': [SCons.Tool.SourceFileScanner],

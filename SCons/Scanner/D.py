@@ -48,9 +48,11 @@ class D(Classic):
         # translate dots (package separators) to slashes
         inc = include.replace('.', '/')
 
-        i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
+        # According to https://dlang.org/dmd-linux.html#interface-files
+        # Prefer .di files over .d files when processing includes(imports)
+        i = SCons.Node.FS.find_file(inc + '.di', (source_dir,) + path)
         if i is None:
-            i = SCons.Node.FS.find_file(inc + '.di', (source_dir,) + path)
+            i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
         return i, include
 
     def find_include_names(self, node):
