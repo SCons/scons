@@ -41,7 +41,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       a .py extension to open a file that is not an absolute path.
     - SCons test runner now uses pathlib to normalize and compare paths
       to test files.
-    - D compilers : added support for generation of .di interface files. 
+    - D compilers : added support for generation of .di interface files.
       New variables DI_FILE_DIR, DI_FILE_DIR_PREFIX, DI_FILE_DIR_SUFFIX,
       DI_FILE_SUFFIX.
     - Fixed: when using the mingw tool, if an msys2 Python is used (os.sep
@@ -95,6 +95,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       explicitly requested with a different base name
       than source).  Docs updated.  Fixes #4326 and #4327.
     - Cleaned up dblite module (checker warnings, etc.).
+    - Some cleanup in the FortranCommon tool.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
