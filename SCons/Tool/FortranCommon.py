@@ -116,6 +116,7 @@ def ComputeFortranSuffixes(suffixes: List[str], ppsuffixes: List[str]) -> None:
     else:
         suffixes.extend(upper_suffixes)
 
+
 def CreateDialectActions(
     dialect: str,
 ) -> Tuple[CommandAction, CommandAction, CommandAction, CommandAction]:
@@ -127,14 +128,20 @@ def CreateDialectActions(
     return CompAction, CompPPAction, ShCompAction, ShCompPPAction
 
 
-def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods: bool=False) -> None:
+def DialectAddToEnv(
+    env,
+    dialect: str,
+    suffixes: List[str],
+    ppsuffixes: List[str],
+    support_mods: bool = False,
+) -> None:
     """Add dialect specific construction variables.
 
     Args:
-        dialect (str): dialect name
-        suffixes (list): suffixes associated with this dialect
-        ppsuffixes (list): suffixes using cpp associated with this dialect
-        support_mods (bool): whether this dialect supports modules
+        dialect: dialect name
+        suffixes: suffixes associated with this dialect
+        ppsuffixes: suffixes using cpp associated with this dialect
+        support_mods: whether this dialect supports modules
     """
     ComputeFortranSuffixes(suffixes, ppsuffixes)
 
@@ -187,14 +194,8 @@ def DialectAddToEnv(env, dialect, suffixes, ppsuffixes, support_mods: bool=False
 
 def add_fortran_to_env(env) -> None:
     """Add Builders and construction variables for Fortran/generic."""
-    FortranSuffixes = env.get(('FORTRANFILESUFFIXES'), [])
-    FortranSuffixes.extend(['.f', '.for', '.ftn'])
-    FortranSuffixes = SCons.Util.unique(FortranSuffixes)
-
-    FortranPPSuffixes = env.get(('FORTRANPPFILESUFFIXES'), [])
-    FortranPPSuffixes.extend(['.fpp', '.FPP'])
-    FortranPPSuffixes = SCons.Util.unique(FortranPPSuffixes)
-
+    FortranSuffixes = env.get('FORTRANFILESUFFIXES', ['.f', '.for', '.ftn'])
+    FortranPPSuffixes = env.get('FORTRANPPFILESUFFIXES', ['.fpp', '.FPP'])
     DialectAddToEnv(env, "FORTRAN", FortranSuffixes, FortranPPSuffixes, support_mods=True)
 
     # Module support
@@ -207,57 +208,32 @@ def add_fortran_to_env(env) -> None:
 
 def add_f77_to_env(env) -> None:
     """Add Builders and construction variables for f77 dialect."""
-    F77Suffixes = env.get(('F77FILESUFFIXES'), [])
-    F77Suffixes.extend(['.f77'])
-    F77Suffixes = SCons.Util.unique(F77Suffixes)
-
-    F77PPSuffixes = env.get(('F77PPFILESUFFIXES'), [])
-    F77PPSuffixes = SCons.Util.unique(F77PPSuffixes)
-
+    F77Suffixes = env.get('F77FILESUFFIXES', ['.f77'])
+    F77PPSuffixes = env.get('F77PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F77", F77Suffixes, F77PPSuffixes)
 
 def add_f90_to_env(env) -> None:
     """Add Builders and construction variables for f90 dialect."""
-    F90Suffixes = env.get(('F90FILESUFFIXES'), [])
-    F90Suffixes.extend(['.f90'])
-    F90Suffixes = SCons.Util.unique(F90Suffixes)
-
-    F90PPSuffixes = env.get(('F90PPFILESUFFIXES'), [])
-    F90PPSuffixes = SCons.Util.unique(F90PPSuffixes)
-
+    F90Suffixes = env.get('F90FILESUFFIXES', ['.f90'])
+    F90PPSuffixes = env.get('F90PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F90", F90Suffixes, F90PPSuffixes, support_mods=True)
 
 def add_f95_to_env(env) -> None:
     """Add Builders and construction variables for f95 dialect."""
-    F95Suffixes = env.get(('F95FILESUFFIXES'), [])
-    F95Suffixes.extend(['.f95'])
-    F95Suffixes = SCons.Util.unique(F95Suffixes)
-
-    F95PPSuffixes = env.get(('F95PPFILESUFFIXES'), [])
-    F95PPSuffixes = SCons.Util.unique(F95PPSuffixes)
-
+    F95Suffixes = env.get('F95FILESUFFIXES', ['.f95'])
+    F95PPSuffixes = env.get('F95PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F95", F95Suffixes, F95PPSuffixes, support_mods=True)
 
 def add_f03_to_env(env) -> None:
     """Add Builders and construction variables for f03 dialect."""
-    F03Suffixes = env.get(('F03FILESUFFIXES'), [])
-    F03Suffixes.extend(['.f03'])
-    F03Suffixes = SCons.Util.unique(F03Suffixes)
-
-    F03PPSuffixes = env.get(('F03PPFILESUFFIXES'), [])
-    F03PPSuffixes = SCons.Util.unique(F03PPSuffixes)
-
+    F03Suffixes = env.get('F03FILESUFFIXES', ['.f03'])
+    F03PPSuffixes = env.get('F03PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F03", F03Suffixes, F03PPSuffixes, support_mods=True)
 
 def add_f08_to_env(env) -> None:
     """Add Builders and construction variables for f08 dialect."""
-    F08Suffixes = env.get(('F08FILESUFFIXES'), [])
-    F08Suffixes.extend(['.f08'])
-    F08Suffixes = SCons.Util.unique(F08Suffixes)
-
-    F08PPSuffixes = env.get(('F08PPFILESUFFIXES'), [])
-    F08PPSuffixes = SCons.Util.unique(F08PPSuffixes)
-
+    F08Suffixes = env.get('F08FILESUFFIXES', ['.f08'])
+    F08PPSuffixes = env.get('F08PPFILESUFFIXES', [])
     DialectAddToEnv(env, "F08", F08Suffixes, F08PPSuffixes, support_mods=True)
 
 def add_all_to_env(env) -> None:

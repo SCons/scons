@@ -95,9 +95,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       explicitly requested with a different base name
       than source).  Docs updated.  Fixes #4326 and #4327.
     - Cleaned up dblite module (checker warnings, etc.).
-    - Fortran tools now make sure the default file suffixes for each variant
-      are set, even if FORTRANFILESUFFIXES and the other variant-specific
-      variables are already set.
+    - Some cleanup in the FortranCommon tool.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
