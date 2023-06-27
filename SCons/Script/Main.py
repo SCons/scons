@@ -1131,7 +1131,7 @@ def _main(parser):
             raise SConsPrintHelpException
         else:
             print(help_text)
-            print("Use scons -H for help about command-line options.")
+            print("Use scons -H for help about SCons built-in command-line options.")
         exit_status = 0
         return
 
