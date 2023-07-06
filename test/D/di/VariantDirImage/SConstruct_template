@@ -6,10 +6,8 @@ DefaultEnvironment(tools=[])
 
 env = Environment(
     tools=['link','ar' ,'{}'],
-    DPATH=['include'],
-    DI_FILE_DIR='build/include'
+    VARIANT_DIR='build/'
 )
 
-
-SConscript('hws/SConscript',exports=['env'],variant_dir="build")
+SConscript('hws/SConscript',exports=['env'],variant_dir="build",duplicate=False)
 

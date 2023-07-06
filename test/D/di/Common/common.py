@@ -43,7 +43,8 @@ def testForTool(tool):
     if not isExecutableOfToolAvailable(test, tool) :
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
-    for img in ["Image","VariantDirImage"]:
+    for img in ["VariantDirImage","Image"]:
+            
         if img == "VariantDirImage":
             buildPrefix = "build/"
             sourcePrefix = "hws/"
@@ -57,34 +58,34 @@ def testForTool(tool):
 
         test.run(options="--debug=explain")
 
-        test.must_exist(buildPrefix + 'source/helloWorld.o')
-        test.must_exist(buildPrefix + 'helloWorldMain.o')
-        test.must_exist(buildPrefix + 'include/helloWorld.di')
+        test.must_exist(buildPrefix + 'parts/part.o')
+        test.must_exist(buildPrefix + 'main.o')
+        test.must_exist(buildPrefix + 'include/part.di')
         test.must_exist(buildPrefix + 'hw')
 
         test.run(program=test.workpath(buildPrefix + 'hw'+TestSCons._exe))
         test.fail_test(test.stdout() != 'Hello World.\n')
 
         #add a comment and test that this doesn't result in a complete rebuild of all the files that include helloWorld.d because the comment doesn't change helloWorld.di
-        test.write(sourcePrefix + "source/helloWorld.d",'''import std.stdio;
+        test.write(sourcePrefix + "parts/part.d",'''import std.stdio;
 void go()
 {
     //comment
     writeln("Hello World.");
 }''')
 
-        test.not_up_to_date(buildPrefix + "source/helloWorld.o")
-        test.up_to_date(buildPrefix + "helloWorldMain.o")
+        test.not_up_to_date(buildPrefix + "parts/part.o")
+        test.up_to_date(buildPrefix + "main.o",options='--debug=explain')
         test.up_to_date(buildPrefix + "hw")
 
         test.run("-c")
         
-        test.must_not_exist(buildPrefix + 'source/helloWorld.o')
-        test.must_not_exist(buildPrefix + 'helloWorldMain.o')
-        test.must_not_exist(buildPrefix + 'include/helloWorld.di')
+        test.must_not_exist(buildPrefix + 'parts/part.o')
+        test.must_not_exist(buildPrefix + 'main.o')
+        test.must_not_exist(buildPrefix + 'include/part.di')
         test.must_not_exist(buildPrefix + 'hw')
 
-        test.pass_test()
+    test.pass_test()
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

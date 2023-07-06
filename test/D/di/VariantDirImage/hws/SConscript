@@ -1,2 +1,5 @@
 Import('env')
-env.Program('hw', ['helloWorldMain.d','source/helloWorld.d'])
+
+
+o = env.Object('parts/part.d',DI_FILE_DIR='include')[0]
+env.Program('hw', ['main.d',o],DPATH='include')

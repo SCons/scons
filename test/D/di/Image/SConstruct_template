@@ -10,4 +10,4 @@ env = Environment(
     DI_FILE_DIR='include'
 )
 
-env.Program('hw', ['helloWorldMain.d','source/helloWorld.d'])
+env.Program('hw', ['main.d','parts/part.d'])
