@@ -43,40 +43,48 @@ def testForTool(tool):
     if not isExecutableOfToolAvailable(test, tool) :
         test.skip_test("Required executable for tool '{0}' not found, skipping test.\n".format(tool))
 
-    test.dir_fixture('Image')
-    with open('SConstruct_template', 'r') as f:
-        config = f.read().format(tool)
-    test.write('SConstruct', config)
+    for img in ["Image","VariantDirImage"]:
+        if img == "VariantDirImage":
+            buildPrefix = "build/"
+            sourcePrefix = "hws/"
+        else:
+            sourcePrefix = ""
+            buildPrefix = ""
+        test.dir_fixture(img)
+        with open('SConstruct_template', 'r') as f:
+            config = f.read().format(tool)
+        test.write('SConstruct', config)
 
-    test.run(options="--debug=explain")
+        test.run(options="--debug=explain")
 
-    test.must_exist('source/helloWorld.o')
-    test.must_exist('helloWorldMain.o')
-    test.must_exist('include/helloWorld.di')
-    test.must_exist('hw')
+        test.must_exist(buildPrefix + 'source/helloWorld.o')
+        test.must_exist(buildPrefix + 'helloWorldMain.o')
+        test.must_exist(buildPrefix + 'include/helloWorld.di')
+        test.must_exist(buildPrefix + 'hw')
 
-    test.run(program=test.workpath('hw'+TestSCons._exe))
-    test.fail_test(test.stdout() != 'Hello World.\n')
+        test.run(program=test.workpath(buildPrefix + 'hw'+TestSCons._exe))
+        test.fail_test(test.stdout() != 'Hello World.\n')
 
-    #add a comment and test that this doesn't result in a complete rebuild of all the files that include helloWorld.d because the comment doesn't change helloWorld.di
-    test.write("source/helloWorld.d",'''import std.stdio;
+        #add a comment and test that this doesn't result in a complete rebuild of all the files that include helloWorld.d because the comment doesn't change helloWorld.di
+        test.write(sourcePrefix + "source/helloWorld.d",'''import std.stdio;
 void go()
 {
-	//comment
-	writeln("Hello World.");
+    //comment
+    writeln("Hello World.");
 }''')
 
-    test.not_up_to_date("source/helloWorld.o")
-    test.up_to_date("helloWorldMain.o hw")
+        test.not_up_to_date(buildPrefix + "source/helloWorld.o")
+        test.up_to_date(buildPrefix + "helloWorldMain.o")
+        test.up_to_date(buildPrefix + "hw")
 
-    test.run("-c")
-    
-    test.must_not_exist('source/helloWorld.o')
-    test.must_not_exist('helloWorldMain.o')
-    test.must_not_exist('include/helloWorld.di')
-    test.must_not_exist('hw')
+        test.run("-c")
+        
+        test.must_not_exist(buildPrefix + 'source/helloWorld.o')
+        test.must_not_exist(buildPrefix + 'helloWorldMain.o')
+        test.must_not_exist(buildPrefix + 'include/helloWorld.di')
+        test.must_not_exist(buildPrefix + 'hw')
 
-    test.pass_test()
+        test.pass_test()
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil

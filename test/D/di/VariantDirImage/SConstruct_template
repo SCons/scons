@@ -7,7 +7,9 @@ DefaultEnvironment(tools=[])
 env = Environment(
     tools=['link','ar' ,'{}'],
     DPATH=['include'],
-    DI_FILE_DIR='include'
+    DI_FILE_DIR='build/include'
 )
 
-env.Program('hw', ['helloWorldMain.d','source/helloWorld.d'])
+
+SConscript('hws/SConscript',exports=['env'],variant_dir="build")
+
