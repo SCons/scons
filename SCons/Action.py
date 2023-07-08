@@ -874,7 +874,7 @@ def scons_subproc_run(
           Otherwise (the default) in case of an :exc:`OSError`, report the
           exit code in the :class:`~Subprocess.CompletedProcess` instance.
 
-    .. versionadded:: 4.5
+    .. versionadded:: 4.6
     """
     # Figure out the execution environment to use
     ENV = kwargs.get('env', None)
@@ -937,7 +937,7 @@ def _subproc(scons_env, cmd, error='ignore', **kw):
     subprocess.  Adds an an error-handling argument.  Adds ability
     to specify std{in,out,err} with "'devnull'" tag.
 
-    .. deprecated:: 4.5
+    .. deprecated:: 4.6
     """
     # TODO: just uses subprocess.DEVNULL now, we can drop the "devnull"
     # string now - it is a holdover from Py2, which didn't have DEVNULL.

@@ -29,9 +29,9 @@ import copy
 import json
 import os
 import re
-import subprocess
 import sys
 from contextlib import suppress
+from subprocess import DEVNULL, PIPE
 from pathlib import Path
 
 import SCons.Util
@@ -297,22 +297,14 @@ def get_output(vcbat, args=None, env=None):
 
     if args:
         debug("Calling '%s %s'", vcbat, args)
-        cp = SCons.Action.scons_subproc_run(
-            env,
-            '"%s" %s & set' % (vcbat, args),
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        cmd_str = '"%s" %s & set' % (vcbat, args)
     else:
         debug("Calling '%s'", vcbat)
-        cp = SCons.Action.scons_subproc_run(
-            env,
-            '"%s" & set' % vcbat,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        cmd_str = '"%s" & set' % vcbat
+
+    cp = SCons.Action.scons_subproc_run(
+        env, cmd_str, stdin=DEVNULL, stdout=PIPE, stderr=PIPE,
+    )
 
     # Extra debug logic, uncomment if necessary
     # debug('stdout:%s', cp.stdout)
