@@ -47,11 +47,9 @@ version at the SCons download page:
 Execution Requirements
 ======================
 
-Running SCons requires Python 3.5 or higher. There should be no other
-dependencies or requirements to run scons.
-
-As of SCons 4.2.0 support for Python 3.5 is deprecated and will be removed
-with the next major release.
+Running SCons requires Python 3.6 or higher. There should be no other
+dependencies or requirements to run standard SCons.
+The last release to support Python 3.5 was 4.2.0.
 
 The default SCons configuration assumes use of the Microsoft Visual C++
 compiler suite on Win32 systems, and assumes a C compiler named 'cc', a C++
@@ -399,12 +397,13 @@ following packages will be built::
     scons-doc-4.7.0ayyyymmdd.tar.gz
     scons-local-4.7.0ayyyymmdd.tar.gz
     scons-local-4.7.0ayyyymmdd.zip
+    scons-local-4.7.0ayyyymmdd.pyz
 
 The SConstruct file is supposed to be smart enough to avoid trying to build
 packages for which you don't have the proper utilities installed.
 
-If you receive a build error, please report it to the scons-devel mailing list
-and open a bug report on the SCons bug tracker.
+If you receive a build error, please report it to the scons-users mailing list
+and open a bug report on the SCons issue tracker on GitHub.
 
 Note that in addition to creating the above packages, the default build will
 also unpack one or more of the packages for testing.
@@ -546,8 +545,9 @@ for the problem you've run into on GitHub Issues:
 Mailing Lists
 =============
 
-An active mailing list for developers of SCons is available.  You may
-send questions or comments to the list at:
+In addition to the scons-users list which is appropriate for almost any
+question, there is a mailing list specifically for developers of SCons
+You may send questions or comments to the list at:
 
         scons-dev@scons.org
 
@@ -559,9 +559,11 @@ Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
 in the future and/or weed out lurkers.
 
-There are other mailing lists available for SCons users, for notification of
-SCons code changes, and for notification of updated bug reports and project
-documents.  Please see our mailing lists page for details.
+Note that while this list still exists, the number of different places you
+can talk about SCons means it is no longer very active.  GitHub has
+support for discussions as well as for issues, and there is usually more
+immediacy on the Discord chat, so these are probably now considered the
+preferred places for "development" topics.
 
 
 Donations
