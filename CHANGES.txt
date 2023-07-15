@@ -97,6 +97,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Cleaned up dblite module (checker warnings, etc.).
     - Some cleanup in the FortranCommon tool.
 
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
+
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 
