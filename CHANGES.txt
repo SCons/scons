@@ -103,6 +103,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       since it's well debugged and supported.  _subproc is no longer
       called by internal code, but remains in place in case there are builds
       which call to it (even though it was never "published API").
+    - Changed the message about scons -H to clarify it shows built-in options.
+
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
 
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700

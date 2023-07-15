@@ -39,7 +39,7 @@ scons: done reading SConscript files.
 Help text
 goes here.
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
@@ -55,7 +55,7 @@ scons: done reading SConscript files.
 Even more
 help text!
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
@@ -77,7 +77,7 @@ Multiline
 help
 text!
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
@@ -138,7 +138,7 @@ buildmod: List of modules to build
     default: none
     actual: None
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 test.run(arguments = '-h', stdout = expect)
