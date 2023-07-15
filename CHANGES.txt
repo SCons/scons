@@ -96,6 +96,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       than source).  Docs updated.  Fixes #4326 and #4327.
     - Cleaned up dblite module (checker warnings, etc.).
     - Some cleanup in the FortranCommon tool.
+    - Changed the message about scons -H to clarify it shows built-in options.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
