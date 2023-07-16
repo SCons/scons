@@ -676,8 +676,7 @@ char %s();
 
     # if no function to test, leave main() blank
     text = text + """
-int
-main() {
+int main(void) {
   %s
 return 0;
 }

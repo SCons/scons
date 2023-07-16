@@ -16,7 +16,7 @@ Here is a summary of the changes since 4.5.2:
 NEW FUNCTIONALITY
 -----------------
 
-- D compilers : added support for generation of .di interface files. 
+- D compilers : added support for generation of .di interface files.
   New variables DI_FILE_DIR, DI_FILE_DIR_PREFIX, DI_FILE_DIR_SUFFIX,
   DI_FILE_SUFFIX.
 - MSVC: If available, native arm64 tools will be used on arm64 hosts for VS2022.
@@ -105,6 +105,7 @@ DOCUMENTATION
   if the previous *targets* parameter had been used as a keyword argument,
   the results would be incorrect (does not apply to positional argument
   usage, which had no problem).
+- Changed the message about scons -H to clarify it shows built-in options only.
 
 DEVELOPMENT
 -----------

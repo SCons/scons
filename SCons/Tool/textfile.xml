@@ -26,7 +26,7 @@ See its __doc__ string for a discussion of the format.
 <tool name="textfile">
 <summary>
 <para>
-Set &consvars; for the &b-Textfile; and &b-Substfile; builders.
+Set &consvars; for the &b-link-Textfile; and &b-link-Substfile; builders.
 </para>
 </summary>
 <sets>

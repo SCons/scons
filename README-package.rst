@@ -159,8 +159,9 @@ for the problem you've run into, on the
 Mailing Lists
 =============
 
-An active mailing list for developers of SCons is available.  You may
-send questions or comments to the list at scons-dev@scons.org.
+In addition to the scons-users list which is appropriate for almost any
+question, there is a mailing list specifically for developers of SCons
+You may send questions or comments to the list at:
 
 You may subscribe to the developer's mailing list using the form at
 https://two.pairlist.net/mailman/listinfo/scons-dev.
@@ -169,9 +170,11 @@ Subscription to the developer's mailing list is by approval.  In practice, no
 one is refused list membership, but we reserve the right to limit membership
 in the future and/or weed out lurkers.
 
-There are other mailing lists available for SCons users, for notification of
-SCons code changes, and for notification of updated bug reports and project
-documents.  Please see our mailing lists page for details.
+Note that while this list still exists, the number of different places you
+can talk about SCons means it is no longer very active.  GitHub has
+support for discussions as well as for issues, and there is usually more
+immediacy on the Discord chat, so these are probably now considered the
+preferred places for "development" topics.
 
 
 Donations
