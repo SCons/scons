@@ -196,20 +196,31 @@ Export('command_line', 'env', 'whereis', 'revaction')
 SConscript('doc/SConscript')
 
 
-# Copy manpage's into base dir for inclusion in pypi packages
+# Copy manpages into base dir for inclusion in pypi packages
 man_pages = env.Install("#/", Glob("#/build/doc/man/*.1"))
 
-# Build packages for pypi
-wheel = env.Command('$DISTDIR/SCons-${VERSION}-py3-none-any.whl', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-            '$PYTHON setup.py bdist_wheel')
+# Build packages for pypi. 'build' makes sdist (tgz) + whl
+wheel = env.Command(
+    target=[
+        '$DISTDIR/SCons-${VERSION}-py3-none-any.whl',
+        '$DISTDIR/SCons-${VERSION}.tar.gz',
+    ],
+    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    action='$PYTHON -m build --outdir $DISTDIR',
+)
 
-zip_file = env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-            '$PYTHON setup.py sdist --format=zip')
-tgz_file = env.Command('$DISTDIR/SCons-${VERSION}.tar.gz', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-            '$PYTHON setup.py sdist --format=gztar')
+# TODO: this is built the old way, because "build" doesn't make zipfiles,
+# and it deletes its isolated env so we can't just zip that one up.
+zip_file = env.Command(
+    target='$DISTDIR/SCons-${VERSION}.zip',
+    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    action='$PYTHON setup.py sdist --format=zip',
+)
 
 # Now set depends so the above run in a particular order
-env.Depends(tgz_file, [zip_file, wheel])
+# NOTE: 'build' with default options builds sdist, then whl from sdist,
+# so it's already ordered.
+# env.Depends(tgz_file, [zip_file, wheel])
 
 # NOTE: Commenting this out as the manpages are expected to be in the base directory when manually
 # running setup.py from the base of the repo.
