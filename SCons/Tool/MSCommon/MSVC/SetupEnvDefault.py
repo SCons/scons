@@ -188,19 +188,22 @@ def register_iserror(env, tool, msvc_exists_func):
         debug('msvc default:check tools:nchar=%d, tools=%s', tools_nchar, tools)
 
         # iteratively remove default tool sequences (longest to shortest)
-        re_nchar_min, re_tools_min = _Data.default_tools_re_list[-1]
-        if tools_nchar >= re_nchar_min and re_tools_min.search(tools):
-            # minimum characters satisfied and minimum pattern exists
-            for re_nchar, re_default_tool in _Data.default_tools_re_list:
-                if tools_nchar < re_nchar:
-                    # not enough characters for pattern
-                    continue
-                tools = re_default_tool.sub('', tools).strip(_Data.separator)
-                tools_nchar = len(tools)
-                debug('msvc default:check tools:nchar=%d, tools=%s', tools_nchar, tools)
-                if tools_nchar < re_nchar_min or not re_tools_min.search(tools):
-                    # less than minimum characters or minimum pattern does not exist
-                    break
+        if not _Data.default_tools_re_list:
+            debug('default_tools_re_list=%s', _Data.default_tools_re_list)
+        else:
+            re_nchar_min, re_tools_min = _Data.default_tools_re_list[-1]
+            if tools_nchar >= re_nchar_min and re_tools_min.search(tools):
+                # minimum characters satisfied and minimum pattern exists
+                for re_nchar, re_default_tool in _Data.default_tools_re_list:
+                    if tools_nchar < re_nchar:
+                        # not enough characters for pattern
+                        continue
+                    tools = re_default_tool.sub('', tools).strip(_Data.separator)
+                    tools_nchar = len(tools)
+                    debug('msvc default:check tools:nchar=%d, tools=%s', tools_nchar, tools)
+                    if tools_nchar < re_nchar_min or not re_tools_min.search(tools):
+                        # less than minimum characters or minimum pattern does not exist
+                        break
 
         # construct non-default list(s) tools set
         tools_set = {msvc_tool for msvc_tool in tools.split(_Data.separator) if msvc_tool}

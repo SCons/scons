@@ -46,30 +46,31 @@ LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE:
     import logging
 
-    modulelist = (
-        # root module and parent/root module
-        'MSCommon', 'Tool',
-        # python library and below: correct iff scons does not have a lib folder
-        'lib',
-        # scons modules
-        'SCons', 'test', 'scons'
-    )
-
-    def get_relative_filename(filename, module_list):
-        if not filename:
-            return filename
-        for module in module_list:
-            try:
-                ind = filename.rindex(module)
-                return filename[ind:]
-            except ValueError:
-                pass
-        return filename
-
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
+
+        modulelist = (
+            # root module and parent/root module
+            'MSCommon', 'Tool',
+            # python library and below: correct iff scons does not have a lib folder
+            'lib',
+            # scons modules
+            'SCons', 'test', 'scons'
+        )
+
+        def get_relative_filename(self, filename, module_list):
+            if not filename:
+                return filename
+            for module in module_list:
+                try:
+                    ind = filename.rindex(module)
+                    return filename[ind:]
+                except ValueError:
+                    pass
+            return filename
+
         def filter(self, record) -> bool:
-            relfilename = get_relative_filename(record.pathname, modulelist)
+            relfilename = self.get_relative_filename(record.pathname, self.modulelist)
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
@@ -208,6 +209,17 @@ def has_reg(value) -> bool:
 # Functions for fetching environment variable settings from batch files.
 
 
+def _force_vscmd_skip_sendtelemetry(env):
+
+    if 'VSCMD_SKIP_SENDTELEMETRY' in env['ENV']:
+        return False
+
+    env['ENV']['VSCMD_SKIP_SENDTELEMETRY'] = '1'
+    debug("force env['ENV']['VSCMD_SKIP_SENDTELEMETRY']=%s", env['ENV']['VSCMD_SKIP_SENDTELEMETRY'])
+
+    return True
+
+
 def normalize_env(env, keys, force: bool=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
@@ -256,7 +268,7 @@ def normalize_env(env, keys, force: bool=False):
     return normenv
 
 
-def get_output(vcbat, args=None, env=None):
+def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
@@ -295,20 +307,23 @@ def get_output(vcbat, args=None, env=None):
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
+    if skip_sendtelemetry:
+        _force_vscmd_skip_sendtelemetry(env)
+
     if args:
         debug("Calling '%s %s'", vcbat, args)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" %s & set' % (vcbat, args),
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" %s & set' % (vcbat, args)
     else:
         debug("Calling '%s'", vcbat)
-        popen = SCons.Action._subproc(env,
-                                      '"%s" & set' % vcbat,
-                                      stdin='devnull',
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+        cmd_str = '"%s" & set' % vcbat
+
+    popen = SCons.Action._subproc(
+        env,
+        cmd_str,
+        stdin='devnull',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
 
     # Use the .stdout and .stderr attributes directly because the
     # .communicate() method uses the threading module on Windows
