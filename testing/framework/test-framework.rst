@@ -25,8 +25,8 @@ There are three types of SCons tests:
 *End-to-End Tests*
    End-to-end tests of SCons are Python scripts (``*.py``) underneath the
    ``test/`` subdirectory.  They use the test infrastructure modules in
-   the ``testing/framework`` subdirectory. They build set up complete
-   projects and call scons to execute them, checking that the behavior is
+   the ``testing/framework`` subdirectory. They set up small complete
+   projects and call SCons to execute them, checking that the behavior is
    as expected.
 
 *Unit Tests*
@@ -48,29 +48,33 @@ There are three types of SCons tests:
 Contrasting end-to-end and unit tests
 -------------------------------------
 
-In general, functionality with end-to-end tests
-should be considered a hardened part of the public interface (that is,
-something that a user might do) and should not be broken.  Unit tests
-are now considered more malleable, more for testing internal interfaces
-that can change so long as we don't break users' ``SConscript`` files.
-(This wasn't always the case, and there's a lot of meaty code in many
-of the unit test scripts that does, in fact, capture external interface
+In general, end-to-end tests verify hardened parts of the public interface:
+interfaces documented in the manpage that a user might use in their
+project. These cannot be broken (of course, errors can be corrected,
+though sometimes a transition period will be required).
+Unit tests are now considered for testing internal interfaces, which do
+not themselves directly have API guarantees. Things can change here if
+necessary, as long as we don't break users' ``SConscript`` files.
+Note this strategy is new-ish, and there's a lot of meaty code in many
+of the unit test scripts that, in fact, captures external interface
 behavior.  In general, we should try to move those things to end-to-end
-scripts as we find them.)
+scripts as we find them.
 
-End-to-end tests are by their nature harder to debug.
-You can drop straight into the Python debugger on the unit test
-scripts by using the ``runtest.py --pdb`` option, but the end-to-end
-tests treat an SCons invocation as a *black box* and just look for
-external effects; simple methods like inserting ``print`` statements
-in the SCons code itself can disrupt those external effects.
-See `Debugging end-to-end tests`_ for some more thoughts.
+End-to-end tests are by their nature harder to debug. For the unit
+tests, you're running a test program directly, so you can drop straight
+into the Python debugger by calling ``runtest.py`` with the ``-d / --debug``
+option and setting breakpoints to help examine the internal state as
+the test is running. The e2e tests are each mini SCons projects execected
+by an instance of scons in a subprocess, and the Python debugger isn't
+particularly useful in this context.
+There's a separate section of this document on that topic: see `Debugging
+end-to-end tests`_.
+
 
 Naming conventions
 ------------------
 
-The end-to-end tests, more or less, stick to the following naming
-conventions:
+The end-to-end tests, more or less, follow this naming convention:
 
 #. All tests end with a ``.py`` suffix.
 #. In the *General* form we use
@@ -88,60 +92,80 @@ conventions:
       upper-case single-letter option (with an extra hyphen, so the
       file names will be unique on case-insensitive systems)
    ``option--lo.py``
-      long option; abbreviate the long option name to a few characters
+      long option; you can abbreviate the long option name to a
+      few characters (the abbreviation must be unique, of course).
+#. Use a suitably named subdirectory if there's a whole group of
+   related test files.
 
-Running tests
-=============
 
-The standard set of SCons tests are run from the top-level source
-directory by the ``runtest.py`` script.
+Testing Architecture
+====================
 
+The test framework provides a lot of useful functions for use within a
+test program. This includes test setup, parameterization, running tests,
+looking at results and reporting outcomes. You can run a particular test
+directly by making sure the Python interpreter can find the framework::
+
+    $ PYTHON_PATH=testing/framework python SCons/ActionTests.py
+
+The framework does *not* provide facilities for handling a collection of
+test programs. For that, SCons provides a driver script ``runtest.py``.
 Help is available through the ``-h`` option::
 
    $ python runtest.py -h
 
+You run tests from the top-level source directory.
 To simply run all the tests, use the ``-a`` option::
 
    $ python runtest.py -a
 
-By default, ``runtest.py`` prints a count and percentage message for each
-test case, along with the name of the test file.  If you need the output
-to be more silent, have a look at the ``-q``, ``-s`` and ``-k`` options.
-
-You may specifically list one or more tests to be run::
+You may specifically list one or more tests to be run. ``runtest``
+considers all arguments it doesn't recognize as options to be
+part of the test list::
 
    $ python runtest.py SCons/BuilderTests.py
-   $ python runtest.py test/option-j.py test/Program.py
+   $ python runtest.py -t test/option/option-j.py test/option/option-p.py
 
-Folder names are allowed in the test list as well, so you can do::
+Folder names work in the test list as well, so you can do::
 
    $ python runtest.py test/SWIG
 
-to run all SWIG tests only.
+to run all SWIG tests (and no others).
 
 You can also use the ``-f`` option to execute just the tests listed in
 a test list file::
 
    $ cat testlist.txt
-   test/option-j.py
-   test/Program.py
+   test/option/option-j.py
+   test/option/option-p.py
    $ python runtest.py -f testlist.txt
 
-One test must be listed per line, and any lines that begin with '#'
-will be ignored (the intent being to allow you, for example, to comment
-out tests that are currently passing and then uncomment all of the tests
-in the file for a final validation run).
+List one test file per line. Lines that begin with the
+comment mark ``#`` will be ignored (this lets you quickly change the
+test list by commenting out a few tests in the testlist file).
 
 If more than one test is run, the ``runtest.py`` script prints a summary
-of how many tests passed, failed, or yielded no result, and lists any
-unsuccessful tests.
+and count of tests that failed or yielded no result (skips). Skipped
+tests do not count towards considering the overall run to have failed,
+unless the ``--no-ignore-skips`` option is used. Passed tests can be
+listed using the ``--passed`` option, though this tends to make the
+result section at the end quite noisy, which is why it's off by default.
+Also by default, ``runtest.py`` prints a running count and completion
+percentage message for each test case as it finishes, along with the name
+of the test file.  You can quiet this output:
+have a look at the ``-q``, ``-s`` and ``-k`` options.
 
-The above invocations all test against the scons files underneath the ``src/``
-subdirectory, and do not require that a packaging build of SCons be performed
-first.  This is the most common mode: make some changes, and test the
-effects in place.
-The ``runtest.py`` script supports additional options to run
-tests against unpacked packages in the ``build/test-*/`` subdirectories.
+Since a test run can produce a lot of output that you may want to examine
+later, there is an option ``-o FILE`` to save the same output that went
+to the screen to a file named by ``FILE``. There is also an option to
+save the results in a custom XML format.
+
+The above invocations all test against the SCons files in the current
+directory (that is, in ``./SCons``, and do not require that a packaging
+build of SCons be performed first.  This is the most common mode: make
+some changes, and test the effects in place.  The ``runtest.py`` script
+supports additional options to run tests against unpacked packages in the
+``build/test-*/`` subdirectories.
 
 If you are testing a separate Tool outside of the SCons source tree,
 call the ``runtest.py`` script in *external* (stand-alone) mode::
@@ -165,6 +189,13 @@ into a directory to debug after a test has gone wrong.
 For a way around this, check out the ``PRESERVE`` environment variable.
 It can be seen in action in `How to convert old tests to use fixures`_ below.
 
+By the way, there's nothing magical about ``runtest.py``, the intent
+of the separation of test-support framework from test collection handling
+is that you could write your own driver script to run the tests,
+or possibly even use an existing test toolkit like ``PyTest``
+(that has been requested, although it would take some work to make
+it fully usable).
+
 Not running tests
 =================
 
@@ -187,18 +218,18 @@ When started in *standard* mode::
    $ python runtest.py -a
 
 ``runtest.py`` assumes that it is run from the SCons top-level source
-directory.  It then dives into the ``src`` and ``test`` directories,
+directory.  It then dives into the ``SCons`` and ``test`` directories,
 where it tries to find filenames
 
 ``*Test.py``
-   for the ``src`` directory (unit tests)
+   for the ``SCons`` directory (unit tests)
 
 ``*.py``
    for the ``test`` directory (end-to-end tests)
 
 When using fixtures, you may end up in a situation where you have
 supporting Python script files in a subdirectory which shouldn't be
-picked up as test scripts.  There are two options here:
+picked up as test scripts of their own.  There are two options here:
 
 #. Add a file with the name ``sconstest.skip`` to your subdirectory. This
    tells ``runtest.py`` to skip the contents of the directory completely.
@@ -245,7 +276,7 @@ Explanation
 -----------
 
 ``import TestSCons``
-   Imports the main infrastructure for writing SCons tests.  This is
+   Imports the main infrastructure for SCons tests.  This is
    normally the only part of the infrastructure that needs importing.
    Sometimes other Python modules are necessary or helpful, and get
    imported before this line.
@@ -452,7 +483,7 @@ Note that some files are not appropriate for use in a fixture as-is:
 fixture files should be static. If the creation of the file involves
 interpolating data discovered during the run of the test script,
 that process should stay in the script.  Here is an example of this
-kind of usage that does not lend itself to a fixture::
+kind of usage that does not lend itself easily to a fixture::
 
    import TestSCons
    _python_ = TestSCons._python_
@@ -479,28 +510,38 @@ where the path separator is a backslash).
 The other files created in this test may still be candidates for
 use as fixture files, however.
 
+
 Debugging end-to-end tests
 ==========================
 
-Most of the end to end tests have expectations for standard output
-and error embedded in the tests. The expectation could be either
-that there is nothing on that stream, or that it will contain
-very specific text which the test matches against. So adding
-``print()`` calls, or ``sys.stderr.write()`` or similar will
-emit data that the tests do not expect, and thus cause further
-failures - possibly even obscuring the original error.
-Say you have three different tests in a script, and the third
-one is unexpectedly failing. You add some debug prints to the
-part of scons that is involved, and now the first test of the
-three starts failing, aborting the test run before it gets
-to the third test you were trying to debug.
+The end-to-end tests are hand-crafted SCons projects, so testing
+involves running an instance of scons with those inputs. The
+tests treat the SCons invocation as a *black box*,
+usually looking for *external* effects of the test - targets are
+created, created files have expected contents, files properly
+removed on clean, etc.  They often also look for
+the flow of messages from SCons.
+
+Simple tricks like inserting ``print`` statements in the SCons code
+itself don't really help as they end up disrupting those external
+effects (e.g. ``test.run(stdout="Some text")``, but with the
+``print``, ``stdout`` contains the extra print output and the
+result doesn't match).
+
+Even more irritatingly, added text can cause other tests to fail and
+obscure the error you're looking for.  Say you have three different
+tests in a script excercising different code paths for the same feature,
+and the third one is unexpectedly failing. You add some debug prints to
+the affected part of scons, and now the first test of the three starts
+failing, aborting the test run before it even gets to the third test -
+the one you were trying to debug.
 
 Still, there are some techniques to help debugging.
 
 The first step should be to run the tests so the harness
 emits more information, without forcing more information into
 the test stdout/stderr which will confuse result evaluation.
-``runtest.py`` has several verbose levels which can be used
+``runtest.py`` has several levels of verbosity which can be used
 for this purpose::
 
    $ python runtest.py --verbose=2 test/foo.py
@@ -508,11 +549,13 @@ for this purpose::
 You can also use the internal
 ``SCons.Debug.Trace()`` function, which prints output to
 ``/dev/tty`` on Linux/UNIX systems and ``con`` on Windows systems,
-so you can see what's going on.
+so you can see what's going on, but do not contribute to the
+captured stdout/stderr and mess up the test expectations.
 
 If you do need to add informational messages in scons code
 to debug a problem, you can use logging and send the messages
 to a file instead, so they don't interrupt the test expectations.
+Or write directly to a trace file of your choosing.
 
 Part of the technique discussed in the section
 `How to Convert Old Tests to Use Fixures`_ can also be helpful
@@ -520,25 +563,38 @@ for debugging purposes.  If you have a failing test, try::
 
    $ PRESERVE=1 python runtest.py test/failing-test.py
 
-You can now go to the save directory reported from this run
-and invoke the test manually to see what it is doing, without
-the presence of the test infrastructure which would otherwise
-consume output you may be interested in. In this case,
+You can now go to the save directory reported from this run and invoke
+scons manually (with appropriate arguments matching what the test did)
+to see the results without the presence of the test infrastructure which
+would otherwise consume output you may be interested in. In this case,
 adding debug prints may be more useful.
+
+There are related variables ``PRESERVE_PASS``, ``PRESERVE_FAIL`` and
+``PRESERVE_NORESULT`` that preserve the directory only if the test result
+was the indicated one, which is helpful if you're trying to work with
+multiple tests showing an unusual result.
+
+From a Windows ``cmd`` shell, you will have to set the envronment
+variable first, it doesn't work on a single line like the example above for
+POSIX-style shells.
 
 
 Test infrastructure
 ===================
 
-The main test API is defined in the ``TestSCons`` class.  ``TestSCons``
+The main e2e test API is defined in the ``TestSCons`` class.  ``TestSCons``
 is a subclass of ``TestCommon``, which is a subclass of ``TestCmd``.
-All those classes are defined in Python files of the same name
+``TestSCons`` provides the help for using an instance of SCons during
+the run.
+
+The unit tests do not run an instance of SCons separately, but instead
+import the modules of SCons that they intend to test. Those tests
+should use the ``TestCmd`` class - it is intended for runnable scripts.
+
+Those classes are defined in Python files of the same name
 in ``testing/framework``.
 Start in ``testing/framework/TestCmd.py`` for the base API definitions, like how
 to create files (``test.write()``) and run commands (``test.run()``).
-
-Use ``TestSCons`` for the end-to-end tests in ``test``, but use
-``TestCmd`` for the unit tests in the ``SCons`` directory.
 
 The match functions work like this:
 
