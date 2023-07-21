@@ -126,6 +126,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Changed the message about scons -H to clarify it shows built-in options.
     - Release-building setup tweaked. (most of) the targets listed in
       SCons' own "scons --help" now work again.
+    - Fix platform unit test on Windows for Py 3.12+. Fixes #4376.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
