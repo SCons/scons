@@ -192,13 +192,6 @@ into a directory to debug after a test has gone wrong.
 For a way around this, check out the ``PRESERVE`` environment variable.
 It can be seen in action in `How to convert old tests to use fixures`_ below.
 
-By the way, there's nothing magical about ``runtest.py``, the intent
-of the separation of test-support framework from test collection handling
-is that you could write your own driver script to run the tests,
-or possibly even use an existing test toolkit like ``PyTest``
-(that has been requested, although it would take some work to make
-it fully usable).
-
 Not running tests
 =================
 
@@ -585,8 +578,9 @@ POSIX-style shells.
 Test infrastructure
 ===================
 
-The main e2e test API is defined in the ``TestSCons`` class.  ``TestSCons``
-is a subclass of ``TestCommon``, which is a subclass of ``TestCmd``.
+The main end-to-end test API is defined in the ``TestSCons`` class.
+``TestSCons`` is a subclass of ``TestCommon``,
+which is a subclass of ``TestCmd``.
 ``TestSCons`` provides the help for using an instance of SCons during
 the run.
 
