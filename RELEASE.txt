@@ -96,7 +96,10 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- The build of scons now matches the help text displayed - the targets
+  listed there can all now be given as a target to build (except for
+  the two full source balls; the source tar.gz is currently generated directly
+  by the GitHub release process).
 
 DOCUMENTATION
 -------------
