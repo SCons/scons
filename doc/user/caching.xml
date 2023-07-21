@@ -526,7 +526,7 @@ Program('prog', ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
     <classname>SCons.CacheDir.CacheDir</classname> class,
     specializing those methods you want to change.
     You can pass this custom class as the <parameter>custom_class</parameter>
-    paramter when calling &f-link-CacheDir; for global reach,
+    parameter when calling &f-link-CacheDir; for global reach,
     or when calling &f-link-env-CacheDir; for a specific environment.
     You can also set the &consvar;
     &cv-link-CACHEDIR_CLASS; to the custom class - this needs to happen
