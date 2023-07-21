@@ -51,14 +51,17 @@ Contrasting end-to-end and unit tests
 In general, end-to-end tests verify hardened parts of the public interface:
 interfaces documented in the manpage that a user might use in their
 project. These cannot be broken (of course, errors can be corrected,
-though sometimes a transition period will be required).
+though sometimes a transition period may be required).
 Unit tests are now considered for testing internal interfaces, which do
-not themselves directly have API guarantees. Things can change here if
-necessary, as long as we don't break users' ``SConscript`` files.
-Note this strategy is new-ish, and there's a lot of meaty code in many
-of the unit test scripts that, in fact, captures external interface
-behavior.  In general, we should try to move those things to end-to-end
-scripts as we find them.
+not themselves directly have API guarantees.  An example could be using
+and end-to-end test to verify that things added by env.Append() actually
+appear correctly in issued command lines, while unit tests assure
+correct behavior given various inputs of internal routines that
+Append() may make use of. If a reported error can be tested by adding a new
+case to an existing unit test, by all means, do that, as it tends to be
+simpler and cleaner. On the other hand, reported problems that come with
+a reproducer are by their nature more like an e2e test - this is something
+a user has tried in their SConscripts that didn't have the expected result.
 
 End-to-end tests are by their nature harder to debug. For the unit
 tests, you're running a test program directly, so you can drop straight
