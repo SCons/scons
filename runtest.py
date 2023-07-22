@@ -6,9 +6,10 @@
 
 The SCons test suite consists of:
 
- * unit tests        - *Tests.py files from the SCons/ dir
+ * unit tests        - *Tests.py files from the SCons/ directory
  * end-to-end tests  - *.py files in the test/ directory that
-                       require the custom SCons framework from testing/
+                       require the custom SCons framework from
+                       testing/framework.
 
 This script adds SCons/ and testing/ directories to PYTHONPATH,
 performs test discovery and processes tests according to options.
@@ -26,28 +27,29 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from pathlib import Path, PurePath, PureWindowsPath
 from queue import Queue
+from typing import List, TextIO, Optional
 
 cwd = os.getcwd()
-
-debug = None
-scons = None
-catch_output = False
-suppress_output = False
-
+debug: Optional[str] = None
+scons: Optional[str] = None
+catch_output: bool = False
+suppress_output: bool = False
 script = PurePath(sys.argv[0]).name
-usagestr = """\
-%(script)s [OPTIONS] [TEST ...]
-""" % locals()
-
+usagestr = f"{script} [OPTIONS] [TEST ...]"
 epilogstr = """\
 Environment Variables:
   PRESERVE, PRESERVE_{PASS,FAIL,NO_RESULT}: preserve test subdirs
   TESTCMD_VERBOSE: turn on verbosity in TestCommand\
 """
 
+# this is currently expected to be global, maybe refactor later?
+unittests: List[str]
+
 parser = argparse.ArgumentParser(
-    usage=usagestr, epilog=epilogstr, allow_abbrev=False,
-    formatter_class=argparse.RawDescriptionHelpFormatter
+    usage=usagestr,
+    epilog=epilogstr,
+    allow_abbrev=False,
+    formatter_class=argparse.RawDescriptionHelpFormatter,
 )
 
 # test selection options:
@@ -78,7 +80,15 @@ parser.add_argument('-D', '--devmode', action='store_true',
                     help="Run tests in Python's development mode (Py3.7+ only).")
 parser.add_argument('-e', '--external', action='store_true',
                     help="Run the script in external mode (for external Tools)")
-parser.add_argument('-j', '--jobs', metavar='JOBS', default=1, type=int,
+
+def posint(arg: str) -> int:
+    """Special positive-int type for argparse"""
+    num = int(arg)
+    if num < 0:
+        raise argparse.ArgumentTypeError("JOBS value must not be negative")
+    return num
+
+parser.add_argument('-j', '--jobs', metavar='JOBS', default=1, type=posint,
                     help="Run tests in JOBS parallel jobs (0 for cpu_count).")
 parser.add_argument('-l', '--list', action='store_true', dest='list_only',
                     help="List available tests and exit.")
@@ -125,7 +135,7 @@ outctl.add_argument('-q', '--quiet', action='store_false',
                     help="Don't print the test being executed.")
 outctl.add_argument('-s', '--short-progress', action='store_true',
                     help="""Short progress, prints only the command line
-                             and a progress percentage.""")
+                             and a progress percentage, no results.""")
 outctl.add_argument('-t', '--time', action='store_true', dest='print_times',
                     help="Print test execution time.")
 outctl.add_argument('--verbose', metavar='LEVEL', type=int, choices=range(1, 4),
@@ -134,14 +144,18 @@ outctl.add_argument('--verbose', metavar='LEVEL', type=int, choices=range(1, 4),
                              2=print commands and non-zero output,
                              3=print commands and all output).""")
 # maybe add?
-# outctl.add_argument('--version', action='version', version='%s 1.0' % script)
+# outctl.add_argument('--version', action='version', version=f'{script} 1.0')
 
 logctl = parser.add_argument_group(description='Log control options:')
 logctl.add_argument('-o', '--output', metavar='LOG', help="Save console output to LOG.")
-logctl.add_argument('--xml', metavar='XML', help="Save results to XML in SCons XML format.")
+logctl.add_argument(
+    '--xml',
+    metavar='XML',
+    help="Save results to XML in SCons XML format (use - for stdout).",
+)
 
 # process args and handle a few specific cases:
-args = parser.parse_args()
+args: argparse.Namespace = parser.parse_args()
 
 # we can't do this check with an argparse exclusive group, since those
 # only work with optional args, and the cmdline tests (args.testlist)
@@ -159,38 +173,30 @@ if args.retry:
 if args.testlistfile:
     # args.testlistfile changes from a string to a pathlib Path object
     try:
-        p = Path(args.testlistfile)
-        # TODO simplify when Py3.5 dropped
-        if sys.version_info.major == 3 and sys.version_info.minor < 6:
-            args.testlistfile = p.resolve()
-        else:
-            args.testlistfile = p.resolve(strict=True)
+        ptest = Path(args.testlistfile)
+        args.testlistfile = ptest.resolve(strict=True)
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
-            + 'error: -f/--file testlist file "%s" not found\n' % p
+            + f'error: -f/--file testlist file "{args.testlistfile}" not found\n'
         )
         sys.exit(1)
 
 if args.excludelistfile:
     # args.excludelistfile changes from a string to a pathlib Path object
     try:
-        p = Path(args.excludelistfile)
-        # TODO simplify when Py3.5 dropped
-        if sys.version_info.major == 3 and sys.version_info.minor < 6:
-            args.excludelistfile = p.resolve()
-        else:
-            args.excludelistfile = p.resolve(strict=True)
+        pexcl = Path(args.excludelistfile)
+        args.excludelistfile = pexcl.resolve(strict=True)
     except FileNotFoundError:
         sys.stderr.write(
             parser.format_usage()
-            + 'error: --exclude-list file "%s" not found\n' % p
+            + f'error: --exclude-list file "{args.excludelistfile}" not found\n'
         )
         sys.exit(1)
 
 if args.jobs == 0:
     try:
-        # on Linux, check available rather then physical CPUs
+        # on Linux, check available rather than physical CPUs
         args.jobs = len(os.sched_getaffinity(0))
     except AttributeError:
         # Windows
@@ -288,6 +294,7 @@ if sys.platform == 'win32':
     E_POINTER = ctypes.c_long(0x80004003).value
 
     def get_template_command(filetype, verb=None):
+        """Return the association-related string for *filetype*"""
         flags = ASSOCF_INIT_IGNOREUNKNOWN | ASSOCF_NOTRUNCATE
         assoc_str = ASSOCSTR_COMMAND
         cch = ctypes.c_ulong(260)
@@ -427,7 +434,7 @@ class PopenExecutor(RuntestBase):
     # definition of spawn_it() above.
     if args.allow_pipe_files:
 
-        def execute(self, env):
+        def execute(self, env) -> None:
             # Create temporary files
             tmp_stdout = tempfile.TemporaryFile(mode='w+t')
             tmp_stderr = tempfile.TemporaryFile(mode='w+t')
@@ -438,6 +445,7 @@ class PopenExecutor(RuntestBase):
                 stderr=tmp_stderr,
                 shell=False,
                 env=env,
+                check=False,
             )
             self.status = cp.returncode
 
@@ -454,13 +462,14 @@ class PopenExecutor(RuntestBase):
                 tmp_stderr.close()
     else:
 
-        def execute(self, env):
+        def execute(self, env) -> None:
             cp = subprocess.run(
                 self.command_args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=False,
                 env=env,
+                check=False,
             )
             self.status, self.stdout, self.stderr = cp.returncode, cp.stdout, cp.stderr
 
@@ -494,7 +503,11 @@ else:
 if not args.baseline or args.baseline == '.':
     baseline = cwd
 elif args.baseline == '-':
-    print("This logic used to checkout from svn. It's been removed. If you used this, please let us know on devel mailing list, IRC, or discord server")
+    sys.stderr.write(
+        "'baseline' logic used to checkout from svn. It has been removed. "
+        "If you used this, please let us know on devel mailing list, "
+        "IRC, or discord server\n"
+    )
     sys.exit(-1)
 else:
     baseline = args.baseline
@@ -601,7 +614,7 @@ def scanlist(testfile):
 def find_unit_tests(directory):
     """ Look for unit tests """
     result = []
-    for dirpath, dirnames, filenames in os.walk(directory):
+    for dirpath, _, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
             continue
@@ -615,7 +628,7 @@ def find_unit_tests(directory):
 def find_e2e_tests(directory):
     """ Look for end-to-end tests """
     result = []
-    for dirpath, dirnames, filenames in os.walk(directory):
+    for dirpath, _, filenames in os.walk(directory):
         # Skip folders containing a sconstest.skip file
         if 'sconstest.skip' in filenames:
             continue
