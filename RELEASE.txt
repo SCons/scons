@@ -109,6 +109,7 @@ DOCUMENTATION
   the results would be incorrect (does not apply to positional argument
   usage, which had no problem).
 - Changed the message about scons -H to clarify it shows built-in options only.
+- Cachedir description updated.
 
 DEVELOPMENT
 -----------

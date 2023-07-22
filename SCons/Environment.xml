@@ -251,8 +251,8 @@ that are part of this construction environment.
     <summary>
         <para>
 The class type that SCons should use when instantiating a
-new &f-link-CacheDir; for the given environment. It must be
-a subclass of the SCons.CacheDir.CacheDir class.
+new &f-link-CacheDir; in this &consenv;. Must be
+a subclass of the <classname>SCons.CacheDir.CacheDir</classname> class.
         </para>
     </summary>
 </cvar>
@@ -883,16 +883,7 @@ disables derived file caching.
 </para>
 
 <para>
-When specifying a
-<parameter>custom_class</parameter> which should be a class type which is a subclass of
-<classname>SCons.CacheDir.CacheDir</classname>, SCons will
-internally invoke this class to use for performing caching operations.
-This argument is optional and if left to default <constant>None</constant>, will use the
-default <classname>SCons.CacheDir.CacheDir</classname> class.
-</para>
-
-<para>
-Calling the environment method
+Calling the environment method 
 &f-link-env-CacheDir;
 limits the effect to targets built
 through the specified construction environment.
@@ -903,6 +894,18 @@ that will be used by all targets built
 through construction environments
 that do not set up environment-specific
 caching by calling &f-env-CacheDir;.
+</para>
+
+<para>
+Caching behavior can be configured by passing a specialized cache
+class as the optional <parameter>custom_class</parameter> parameter.
+This class must be a subclass of
+<classname>SCons.CacheDir.CacheDir</classname>.
+&SCons; will internally invoke the custom class for performing
+caching operations.
+If the parameter is omitted or set to
+<constant>None</constant>, &SCons; will use the default
+<classname>SCons.CacheDir.CacheDir</classname> class.
 </para>
 
 <para>
@@ -930,15 +933,14 @@ identified by its &buildsig;, for future use.
 The
 <computeroutput>Retrieved `file' from cache</computeroutput>
 messages are useful for human consumption,
-but less so when comparing log files between
+but less useful when comparing log files between
 &scons; runs which will show differences that are
 noisy and not actually significant.
 To disable,
 use the <option>--cache-show</option> option.
-With this option, &scons;
-will print the action that would
-have been used to build the file without
-considering cache retrieval.
+With this option, &scons; changes printing
+to always show the action that would
+have been used to build the file without caching.
 </para>
 
 <para>
@@ -946,10 +948,10 @@ Derived-file caching
 may be disabled for any invocation
 of &scons; by giving the
 <option>--cache-disable</option>
-command line option.
-Cache updating may be disabled, leaving cache
+command line option;
+cache updating may be disabled, leaving cache
 fetching enabled, by giving the
-<option>--cache-readonly</option>.
+<option>--cache-readonly</option> option.
 </para>
 
 <para>
@@ -959,7 +961,7 @@ option is used,
 &scons;
 will place a copy of
 <emphasis>all</emphasis>
-derived files in the cache,
+derived files into the cache,
 even if they already existed
 and were not built by this invocation.
 This is useful to populate a cache
@@ -984,7 +986,7 @@ predict or prohibitively large.
 <para>
 Note that (at this time) &SCons; provides no facilities
 for managing the derived-file cache. It is up to the developer
-to arrange for cache pruning, expiry, etc. if needed.
+to arrange for cache pruning, expiry, access control, etc. if needed.
 </para>
 
 </summary>
