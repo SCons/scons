@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+
 def update_init_file(env):
     substitutions = {
         '__version__': env['VERSION'],
@@ -8,10 +13,13 @@ def update_init_file(env):
         "__revision__": env['REVISION'],
         "__build__": env['BUILD'],
     }
-    si = env.Textfile('#SCons/__init__.py',
-                      ["%s=\"%s\"" % (k, v) for k, v in substitutions.items()] +
-                      ['# make sure compatibility is always in place',
-                       'import SCons.compat # noqa'],
-                      )
+    si = env.Textfile(
+        '#SCons/__init__.py',
+        ["%s=\"%s\"" % (k, v) for k, v in substitutions.items()]
+        + [
+            '# make sure compatibility is always in place',
+            'import SCons.compat  # noqa',
+        ],
+    )
     env.Precious(si)
     env.NoClean(si)  # Don't clean this file as it breaks the build.
