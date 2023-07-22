@@ -128,6 +128,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Release-building setup tweaked. (most of) the targets listed in
       SCons' own "scons --help" now work again.
     - Fix platform unit test on Windows for Py 3.12+. Fixes #4376.
+    - More tweaking of test framework overview (which is duplicated onto
+      the website, but not in the regular documentation section).
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
