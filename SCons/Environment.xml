@@ -883,7 +883,7 @@ disables derived file caching.
 </para>
 
 <para>
-Calling the environment method form
+Calling the environment method 
 &f-link-env-CacheDir;
 limits the effect to targets built
 through the specified construction environment.
