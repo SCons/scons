@@ -1,7 +1,12 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import os.path
 import re
 
 from SCons.Script import Builder, Action, Scanner
+
 
 def soelim(target, source, env):
     """
@@ -26,9 +31,10 @@ def soelim(target, source, env):
             else:
                 tfp.write(line)
 
+
 def soscan(node, env, path):
     c = node.get_text_contents()
     return re.compile(r"^[.']so\s+(\S+)", re.M).findall(c)
 
-soelimbuilder = Builder(action = Action(soelim),
-                        source_scanner = Scanner(soscan))
+
+soelimbuilder = Builder(action=Action(soelim), source_scanner=Scanner(soscan))

@@ -1,27 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+SPDX-License-Identifier: MIT
 
-  Copyright (c) 2001-2010 The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+Copyright The SCons Foundation
 -->
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
@@ -49,7 +30,7 @@ stylesheet <literal>utils/xmldepend.xsl</literal> by Paul DuBois is used for thi
 <para>Note, that there is no support for XML catalog resolving offered! This tool calls
 the XSLT processors and PDF renderers with the stylesheets you specified, that's it.
 The rest lies in your hands and you still have to know what you're doing when
-resolving names via a catalog. 
+resolving names via a catalog.
 </para>
 <section id="install"><title>Install</title>
 <para>Installing it, requires you to copy (or, even better: checkout) the contents of the
@@ -62,7 +43,7 @@ package's <literal>docbook</literal> folder to
 </para>
 </listitem>
 </orderedlist>
-<para>For more infos about this, please refer to 
+<para>For more infos about this, please refer to
 </para>
 <itemizedlist><listitem><para>the SCons User's Guide, chap. 19.7 "Where to put your custom Builders and Tools" and
 </para>
@@ -131,7 +112,7 @@ Tool uses the given names as file stems, and adds the suffixes for target and so
 accordingly.
 </para>
 </important>
-<para>The rules given above are valid for the Builders <literal>DocbookHtml</literal>, <literal>DocbookPdf</literal>, 
+<para>The rules given above are valid for the Builders <literal>DocbookHtml</literal>, <literal>DocbookPdf</literal>,
 <literal>DocbookSlidePdf</literal> and <literal>DocbookXInclude</literal>. For the <literal>DocbookMan</literal> transformation you
 can specify a target name, but the actual output names are automatically set from
 the <literal>refname</literal> entries in your XML source.
@@ -149,13 +130,13 @@ Builder call as follows:
 e.g. <literal>html.xsl</literal> for HTML and <literal>pdf.xsl</literal> for PDF output, a set of variables for setting the
 default XSL name is provided. These are:
 </para>
-<screen>DOCBOOK_DEFAULT_XSL_HTML        
-DOCBOOK_DEFAULT_XSL_HTMLCHUNKED        
-DOCBOOK_DEFAULT_XSL_HTMLHELP        
-DOCBOOK_DEFAULT_XSL_PDF        
-DOCBOOK_DEFAULT_XSL_MAN        
-DOCBOOK_DEFAULT_XSL_SLIDESPDF        
-DOCBOOK_DEFAULT_XSL_SLIDESHTML        
+<screen>DOCBOOK_DEFAULT_XSL_HTML
+DOCBOOK_DEFAULT_XSL_HTMLCHUNKED
+DOCBOOK_DEFAULT_XSL_HTMLHELP
+DOCBOOK_DEFAULT_XSL_PDF
+DOCBOOK_DEFAULT_XSL_MAN
+DOCBOOK_DEFAULT_XSL_SLIDESPDF
+DOCBOOK_DEFAULT_XSL_SLIDESHTML
 </screen>
 <para>and you can set them when constructing your environment:
 </para>
@@ -178,7 +159,7 @@ XSL transformation is not picked up by the stylesheets.
 </para>
 </listitem>
 </orderedlist>
-<para>As a result, there is simply no use in specifying a target HTML name. 
+<para>As a result, there is simply no use in specifying a target HTML name.
 So the basic syntax for these builders is:
 </para>
 <screen>env = Environment(tools=['docbook'])
@@ -199,7 +180,7 @@ call, and the given prefix gets prepended to all the created filenames:
 env.DocbookHtmlhelp('manual', xsl='htmlhelp.xsl', base_dir='output/')
 </screen>
 <para>Make sure that you don't forget the trailing slash for the base folder, else
-your files get renamed only! 
+your files get renamed only!
 </para>
 </section>
 <section id="builders"><title>All builders</title>

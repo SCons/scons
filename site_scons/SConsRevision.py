@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import os
 
 def SCons_revision(target, source, env):
@@ -29,7 +33,7 @@ def SCons_revision(target, source, env):
         contents = contents.replace('__REVISION'  + '__', env['REVISION'])
         contents = contents.replace('__VERSION'   + '__', env['VERSION'])
         contents = contents.replace('__NULL'      + '__', '')
-        
+
         with open(t,'w') as of:
             of.write(contents)
     except UnicodeDecodeError as e:

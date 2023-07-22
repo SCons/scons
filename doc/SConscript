@@ -1,7 +1,3 @@
-#
-# SConscript file for building SCons documentation.
-#
-
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -25,12 +21,17 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 
+"""Build SCons documentation."""
+
+import glob
 import os.path
 import re
+import shutil
 import sys
-import glob
+import time
 
-import bootstrap
+import SCons.Builder
+import SCons.Util
 
 Import('command_line', 'env', 'whereis', 'revaction')
 
@@ -44,7 +45,7 @@ try:
     import SConsExamples
 except ImportError as exc:
     print("doc: SConsDoc failed to import, the error was:")
-    print("         ImportError: %s" % exc)
+    print(f"         ImportError: {exc}")
     print("     Please make sure that python-lxml is installed.")
     skip_doc = True
 
@@ -77,30 +78,27 @@ tar_list = []
 orig_env = env
 env = orig_env.Clone(SCONS_PY=File('#/scripts/scons.py').rfile())
 
-
 #
 # --- Helpers ---
 #
 def writeVersionXml(verfile, date, ver, rev, copyright_years):
-    """ Helper function: Write a version.xml file. """
+    """Helper function: Write a version.xml file."""
     try:
         os.unlink(verfile)
     except OSError:
         pass  # okay if the file didn't exist
     dir, f = os.path.split(verfile)
-    try:
-        os.makedirs(dir)
-    except OSError:
-        pass  # okay if the directory already exists
+    os.makedirs(dir, exist_ok=True)
     with open(verfile, "w") as vf:
-        vf.write("""<!--
+        vf.write(f"""\
+<!--
 THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 -->
-<!ENTITY builddate "%s">
-<!ENTITY buildversion "%s">
-<!ENTITY buildrevision "%s">
-<!ENTITY copyright_years "%s">
-""" % (date, ver, rev, copyright_years))
+<!ENTITY builddate "{date}">
+<!ENTITY buildversion "{ver}">
+<!ENTITY buildrevision "{rev}">
+<!ENTITY copyright_years "{copyright_years}">
+""")
 
 
 # The names of the target files for the MAN pages
@@ -117,13 +115,12 @@ man_replace_tpl = r""".TH "%(uctitle)s" "1" "%(today)s" "SCons %(version)s" "SCo
 .SH "NOTE"
 %(title)s \- This is a replacement file, stemming from an incomplete
 packaging process without the required doc modules installed. Please
-update the system and try running bootstrap.py again.
+update the system and try running the build again.
 """
 
 #
 # --- Processing ---
 #
-
 if skip_doc:
     print("doc: ...skipping building User Guide.")
     print("     ...creating fake MAN pages.")
@@ -135,42 +132,43 @@ if skip_doc:
     if not os.path.isdir(scdir):
         os.makedirs(scdir)
 
-    import time
-
-    today = time.strftime("%Y-%m-%d",
-                          time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))))
+    today = time.strftime(
+        "%Y-%m-%d", time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time())))
+    )
     version = env.subst('$VERSION')
     for m in man_page_list:
         man, _ = os.path.splitext(m)
-        fman = open(os.path.join(scdir, m), "w")
-        fman.write(man_replace_tpl % {'uctitle': man.upper().replace("-", "\\-"),
-                                      'today': today,
-                                      'title': man,
-                                      'version': version})
-        fman.close()
+        with open(os.path.join(scdir, m), "w") as fman:
+            fman.write(
+                man_replace_tpl
+                % {
+                    'uctitle': man.upper().replace("-", "\\-"),
+                    'today': today,
+                    'title': man,
+                    'version': version,
+                }
+            )
 else:
     if not lynx:
-        print("doc: Warning, lynx is not installed...created release packages won't be complete!")
+        print(
+            "doc: Warning, lynx is not installed. "
+            "Created release packages will not be complete!"
+        )
 
-    #
     # Always create a version.xml file containing the version information
     # for this run.  Ignore it for dependency purposes so we don't
     # rebuild all the docs every time just because the date changes.
-    #
-    date, ver, rev, copyright_years = env.Dictionary('DATE', 'VERSION', 'REVISION', 'COPYRIGHT_YEARS')
+    date, ver, rev, copyright_years = env.Dictionary(
+        'DATE', 'VERSION', 'REVISION', 'COPYRIGHT_YEARS'
+    )
     version_xml = File(os.path.join(build, "version.xml"))
     writeVersionXml(str(version_xml), date, ver, rev, copyright_years)
 
-    import shutil
-    import SCons.Builder
-    import SCons.Util
-
-
-    #
-    # Builder for copying files to an Install dir, based
-    # on their extension (better: glob matching pattern)...
-    #
     def _glob_install_action(target, source, env):
+        """Builder for copying files to an Install dir.
+
+        Selection is based on globbing for filename extension.
+        """
         if not SCons.Util.is_List(target):
             target = [target]
         if not SCons.Util.is_List(source):
@@ -178,8 +176,8 @@ else:
         for t, s in zip(target, source):
             shutil.copy(str(s), str(t))
 
-
     def _glob_install_emitter(target, source, env):
+        """Emitter for GlobInstall Builder."""
         if not SCons.Util.is_List(target):
             target = [target]
         if not SCons.Util.is_List(source):
@@ -194,16 +192,13 @@ else:
             res_src.append(g)
         return res, res_src
 
-
-    _glob_install_builder = SCons.Builder.Builder(action=_glob_install_action,
-                                                  emitter=_glob_install_emitter)
+    _glob_install_builder = SCons.Builder.Builder(
+        action=_glob_install_action, emitter=_glob_install_emitter
+    )
     env['BUILDERS']['GlobInstall'] = _glob_install_builder
 
-
-    #
-    # Builder for copying ChunkedHTML files to an Install dir...
-    #
     def _chunked_install_action(target, source, env):
+        """Builder for copying ChunkedHTML files to an Install dir."""
         if not SCons.Util.is_List(target):
             target = [target]
         if not SCons.Util.is_List(source):
@@ -213,8 +208,8 @@ else:
         for g in glob.glob(spattern):
             shutil.copy(g, tdir)
 
-
     def _chunked_install_emitter(target, source, env):
+        """Emitter for ChunkedInstall Builder."""
         if not SCons.Util.is_List(target):
             target = [target]
         if not SCons.Util.is_List(source):
@@ -224,9 +219,9 @@ else:
         head, tail = os.path.split(str(source[0]))
         return os.path.join(str(tdir), tail), source
 
-
-    _chunked_install_builder = SCons.Builder.Builder(action=_chunked_install_action,
-                                                     emitter=_chunked_install_emitter)
+    _chunked_install_builder = SCons.Builder.Builder(
+        action=_chunked_install_action, emitter=_chunked_install_emitter
+    )
     env['BUILDERS']['ChunkedInstall'] = _chunked_install_builder
 
     if not env.GetOption('clean'):
@@ -246,16 +241,17 @@ else:
             print("OK")
         else:
             print(
-                "Not all example names and suffixes are unique! Please correct the errors listed above and try again.")
+                "Not all example names and suffixes are unique! "
+                "Please correct the errors listed above and try again."
+            )
             sys.exit(1)
 
     # List of prerequisite files in the build/doc folder
     buildsuite = []
 
-
     def copy_dbfiles(env, toolpath, paths, fpattern, use_builddir=True):
-        """ Helper function, copies a bunch of files matching
-            the given fpattern to a target directory.
+        """Helper function, copies a bunch of files matching
+        the given fpattern to a target directory.
         """
         global buildsuite
         if not SCons.Util.is_List(toolpath):
@@ -266,14 +262,19 @@ else:
             fpattern = [fpattern]
 
         if use_builddir:
-            target_dir = env.Dir(os.path.join(command_line.build_dir, *(toolpath + paths)))
-            buildsuite.extend(env.GlobInstall(target_dir,
-                                              os.path.join('..', *(toolpath + paths + fpattern))))
+            target_dir = env.Dir(
+                os.path.join(command_line.build_dir, *(toolpath + paths))
+            )
+            buildsuite.extend(
+                env.GlobInstall(
+                    target_dir, os.path.join('..', *(toolpath + paths + fpattern))
+                )
+            )
         else:
             target_dir = env.Dir(os.path.join(*(toolpath + paths)))
-            buildsuite.extend(env.GlobInstall(target_dir,
-                                              os.path.join(*(paths + fpattern))))
-
+            buildsuite.extend(
+                env.GlobInstall(target_dir, os.path.join(*(paths + fpattern)))
+            )
 
     #
     # Copy generated files (.gen/.mod/.xml) to the build folder
@@ -310,13 +311,13 @@ else:
     copy_dbfiles(env, toolpath, [], 'gs.py')
     copy_dbfiles(env, toolpath, [], 'zip.py')
 
-    #
     # Each document will live in its own subdirectory "build/doc/xxx".
-    # List them here by their subfolder names. Note, how the specifiers
+    # List them here by their subfolder names. Note how the specifiers
     # for each subdir (=DOCTARGETS) have nothing to do with which
-    # formats get created...but which of the outputs get installed
+    # formats get created, but which of the outputs get installed
     # to the build folder and added to the different source and binary
     # packages in the end.
+    #
     # In addition to the list of target formats (DOCTARGETS), we also
     # store some dependency information in this dict. The DOCDEPENDS
     # list contains all files from each local "MANIFEST", after
@@ -325,51 +326,91 @@ else:
     # such that a simple 'python bootstrap.py' rebuilds the
     # documentation when a file, like 'doc/user/depends.xml'
     # for example, changes.
+    #
     # Finally, in DOCNODES we store the created PDF and HTML files,
     # such that we can then install them in the proper places for
     # getting picked up by the archiving/packaging stages.
     DOCTARGETS = 0
     DOCDEPENDS = 1
     DOCNODES = 2
-    docs = {'design': (['chunked', 'pdf'], [], []),
-            # 'python10' : (['chunked','html','pdf'], [], []),
-            'reference': (['chunked', 'html', 'pdf'], [], []),
-            # 'developer' : (['chunked','html','pdf'], [], []),
-            'user': (['chunked', 'html', 'pdf', 'epub', 'text'], [], []),
-            'man': (['man', 'epub', 'text'], [], [])
-            }
+    docs = {
+        # 'design': (['chunked', 'pdf'], [], []),
+        # 'python10' : (['chunked','html','pdf'], [], []),
+        # 'reference': (['chunked', 'html', 'pdf'], [], []),
+        # 'developer' : (['chunked','html','pdf'], [], []),
+        'user': (['chunked', 'html', 'pdf', 'epub', 'text'], [], []),
+        'man': (['man', 'epub', 'text'], [], []),
+    }
 
     #
     # We have to tell SCons to scan the top-level XML files which
     # get included by the document XML files in the subdirectories.
     #
+
+    def _parse_manifest_lines(basedir, manifest) -> list:
+        """
+        Scans a MANIFEST file, and returns the list of source files.
+
+        Has basic support for recursive globs '**',
+        filename wildcards of the form '*.xml' and
+        comment lines, starting with a '#'.
+
+        Args:
+           basedir: base path to find files in. Note this does not
+              run in an SCons context so path must not need
+              further processing (e.g. no '#' signs)
+           manifest: path to manifest file
+        """
+        sources = []
+        basewd = os.path.abspath(basedir)
+        with open(manifest) as m:
+            lines = m.readlines()
+        for l in lines:
+            if l.startswith('#'):
+                # Skip comments
+                continue
+            l = l.rstrip('\n')
+            if l.endswith('**'):
+                # Glob all files recursively
+                globwd = os.path.dirname(os.path.join(basewd, l))
+                for path, dirs, files in os.walk(globwd):
+                    for f in files:
+                        fpath = os.path.join(globwd, path, f)
+                        sources.append(os.path.relpath(fpath, basewd))
+            elif '*' in l:
+                # Glob file pattern
+                files = glob.glob(os.path.join(basewd, l))
+                for f in files:
+                    sources.append(os.path.relpath(f, basewd))
+            else:
+                sources.append(l)
+
+        return sources
+
+
     manifest = File('MANIFEST').rstr()
-    src_files = bootstrap.parseManifestLines('.', manifest)
+    src_files = _parse_manifest_lines('.', manifest)
     for s in src_files:
         if not s:
             continue
         base, ext = os.path.splitext(s)
         if ext in ['.fig', '.jpg']:
-            buildsuite.extend(env.Command(os.path.join(build, s),
-                                          s,
-                                          Copy("$TARGET", "$SOURCE")))
+            buildsuite.extend(
+                env.Command(os.path.join(build, s), s, Copy("$TARGET", "$SOURCE"))
+            )
         else:
-            revaction([env.File(os.path.join(build, s))],
-                      [env.File(s)], env)
+            revaction([env.File(os.path.join(build, s))], [env.File(s)], env)
 
     for doc in docs:
-
-        #
-        # Read MANIFEST file and copy the listed files to the
-        # build directory, while branding them with the
-        # SCons copyright and the current revision number...
-        #
+        # Read MANIFEST file and copy the listed files to the build directory,
+        # while branding them with the SCons copyright and the current
+        # revision number...
         if not os.path.exists(os.path.join(build, doc)):
             env.Execute(Mkdir(os.path.join(build, doc)))
         if not os.path.exists(os.path.join(build, doc, 'titlepage')):
             env.Execute(Mkdir(os.path.join(build, doc, 'titlepage')))
         manifest = File(os.path.join(doc, 'MANIFEST')).rstr()
-        src_files = bootstrap.parseManifestLines(doc, manifest)
+        src_files = _parse_manifest_lines(doc, manifest)
         for s in src_files:
             if not s:
                 continue
@@ -382,8 +423,9 @@ else:
             else:
                 target_dir = os.path.join(build, doc)
             if ext in ['.fig', '.jpg', '.svg']:
-                docs[doc][DOCDEPENDS].extend(env.Command(build_s, doc_s,
-                                                         Copy("$TARGET", "$SOURCE")))
+                docs[doc][DOCDEPENDS].extend(
+                    env.Command(build_s, doc_s, Copy("$TARGET", "$SOURCE"))
+                )
             else:
                 btarget = env.File(build_s)
                 docs[doc][DOCDEPENDS].append(btarget)
@@ -406,38 +448,48 @@ else:
         if 'html' in docs[doc][DOCTARGETS]:
             sctargets.append(env.File(os.path.join(scdir, 'index.html')))
         if 'chunked' in docs[doc][DOCTARGETS]:
-            sctargets.append(env.File(os.path.join(scdir, 'scons-%s' % doc, 'index.html')))
+            sctargets.append(
+                env.File(os.path.join(scdir, f'scons-{doc}', 'index.html'))
+            )
         if 'pdf' in docs[doc][DOCTARGETS]:
-            sctargets.append(env.File(os.path.join(scdir, 'scons-%s.pdf' % doc)))
+            sctargets.append(env.File(os.path.join(scdir, f'scons-{doc}.pdf')))
         if 'epub' in docs[doc][DOCTARGETS]:
-            sctargets.append(env.File(os.path.join(scdir, 'scons-%s.epub' % doc)))
+            sctargets.append(env.File(os.path.join(scdir, f'scons-{doc}.epub')))
 
         if 'man' in docs[doc][DOCTARGETS]:
             for m in man_page_list:
                 sctargets.append(os.path.join(scdir, m))
                 man, _1 = os.path.splitext(m)
 
-                sctargets.append(os.path.join(scdir, 'scons-%s.pdf' % man))
-                sctargets.append(os.path.join(scdir, 'scons-%s.html' % man))
+                sctargets.append(os.path.join(scdir, f'scons-{man}.pdf'))
+                sctargets.append(os.path.join(scdir, f'scons-{man}.html'))
 
-        docs[doc][DOCNODES].extend(env.Command(sctargets, buildsuite + docs[doc][DOCDEPENDS],
-                                               "cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt)))
+        docs[doc][DOCNODES].extend(
+            env.Command(
+                target=sctargets,
+                source=buildsuite + docs[doc][DOCDEPENDS],
+                action="cd %s && $PYTHON ${SCONS_PY.abspath}%s" % (scdir, cleanopt),
+            )
+        )
 
     install_css = False
     for doc in docs:
 
         # Collect the output files for this subfolder
-        htmldir = os.path.join(build, 'HTML', 'scons-%s' % doc)
+        htmldir = os.path.join(build, 'HTML', f'scons-{doc}')
         htmlindex = os.path.join(htmldir, 'index.html')
-        html = os.path.join(build, 'HTML', 'scons-%s.html' % doc)
-        pdf = os.path.join(build, 'PDF', 'scons-%s.pdf' % doc)
-        epub = os.path.join(build, 'EPUB', 'scons-%s.epub' % doc)
-        text = os.path.join(build, 'TEXT', 'scons-%s.txt' % doc)
+        html = os.path.join(build, 'HTML', f'scons-{doc}.html')
+        pdf = os.path.join(build, 'PDF', f'scons-{doc}.pdf')
+        epub = os.path.join(build, 'EPUB', f'scons-{doc}.epub')
+        text = os.path.join(build, 'TEXT', f'scons-{doc}.txt')
         if 'chunked' in docs[doc][DOCTARGETS]:
-            installed_chtml = env.ChunkedInstall(env.Dir(htmldir),
-                                                 os.path.join(build, doc, 'scons-%s' % doc, 'index.html'))
-            installed_chtml_css = env.Install(env.Dir(htmldir),
-                                              os.path.join(build, doc, 'scons.css'))
+            installed_chtml = env.ChunkedInstall(
+                env.Dir(htmldir),
+                os.path.join(build, doc, f'scons-{doc}', 'index.html'),
+            )
+            installed_chtml_css = env.Install(
+                env.Dir(htmldir), os.path.join(build, doc, 'scons.css')
+            )
             env.Depends(installed_chtml, docs[doc][DOCNODES])
             env.Depends(installed_chtml_css, docs[doc][DOCNODES])
 
@@ -447,7 +499,10 @@ else:
             env.Ignore(htmlindex, version_xml)
 
         if 'html' in docs[doc][DOCTARGETS]:
-            env.InstallAs(env.File(html), env.File(os.path.join(build, doc, 'index.html')))
+            env.InstallAs(
+                target=env.File(html),
+                source=env.File(os.path.join(build, doc, 'index.html')),
+            )
             tar_deps.extend([html])
             tar_list.extend([html])
             Local(html)
@@ -455,7 +510,10 @@ else:
             install_css = True
 
         if 'pdf' in docs[doc][DOCTARGETS]:
-            env.InstallAs(env.File(pdf), env.File(os.path.join(build, doc, 'scons-%s.pdf' % doc)))
+            env.InstallAs(
+                target=env.File(pdf),
+                source=env.File(os.path.join(build, doc, f'scons-{doc}.pdf')),
+            )
             Local(pdf)
             env.Ignore(pdf, version_xml)
 
@@ -463,21 +521,31 @@ else:
             tar_list.append(pdf)
 
         if 'epub' in docs[doc][DOCTARGETS] and gs:
-            env.InstallAs(env.File(epub), env.File(os.path.join(build, doc, 'scons-%s.epub' % doc)))
+            env.InstallAs(
+                target=env.File(epub),
+                source=env.File(os.path.join(build, doc, f'scons-{doc}.epub')),
+            )
             Local(epub)
             env.Ignore(epub, version_xml)
 
             tar_deps.append(epub)
             tar_list.append(epub)
 
-        if ('text' in docs[doc][DOCTARGETS] and lynx and
-                (('html' in docs[doc][DOCTARGETS]) or (doc == 'man'))):
+        if (
+            'text' in docs[doc][DOCTARGETS]
+            and lynx
+            and (('html' in docs[doc][DOCTARGETS]) or (doc == 'man'))
+        ):
             texthtml = os.path.join(build, doc, 'index.html')
             if doc == 'man':
                 # Special handling for single MAN file
                 texthtml = os.path.join(build, doc, 'scons-scons.html')
 
-            env.Command(text, env.File(texthtml), "lynx -dump ${SOURCE.abspath} > $TARGET")
+            env.Command(
+                target=text,
+                source=env.File(texthtml),
+                action="lynx -dump ${SOURCE.abspath} > $TARGET",
+            )
             Local(text)
 
             env.Ignore(text, version_xml)
@@ -486,17 +554,20 @@ else:
             tar_list.append(text)
 
         if 'man' in docs[doc][DOCTARGETS]:
-            #
-            # Man page(s)
-            #
             for m in man_page_list:
                 man, _1 = os.path.splitext(m)
 
-                pdf = os.path.join(build, 'PDF', '%s-man.pdf' % man)
-                html = os.path.join(build, 'HTML', '%s-man.html' % man)
+                pdf = os.path.join(build, 'PDF', f'{man}-man.pdf')
+                html = os.path.join(build, 'HTML', f'{man}-man.html')
 
-                env.InstallAs(env.File(pdf), env.File(os.path.join(build, 'man', 'scons-%s.pdf' % man)))
-                env.InstallAs(env.File(html), env.File(os.path.join(build, 'man', 'scons-%s.html' % man)))
+                env.InstallAs(
+                    target=env.File(pdf),
+                    source=env.File(os.path.join(build, 'man', f'scons-{man}.pdf')),
+                )
+                env.InstallAs(
+                    target=env.File(html),
+                    source=env.File(os.path.join(build, 'man', f'scons-{man}.html')),
+                )
 
                 tar_deps.extend([pdf, html])
                 tar_list.extend([pdf, html])
@@ -504,8 +575,10 @@ else:
     # Install CSS file, common to all single HTMLs
     if install_css:
         css_file = os.path.join(build, 'HTML', 'scons.css')
-        env.InstallAs(env.File(css_file),
-                      env.File(os.path.join(build, 'user', 'scons.css')))
+        env.InstallAs(
+            target=env.File(css_file),
+            source=env.File(os.path.join(build, 'user', 'scons.css')),
+        )
         tar_deps.extend([css_file])
         tar_list.extend([css_file])
         Local(css_file)
@@ -513,20 +586,23 @@ else:
 if not skip_doc:
     # Build API DOCS
     # TODO: Better specify dependencies on source files
-    pdf_file = env.Command('#/build/doc/api/scons-api.pdf',
-                           env.Glob('#/SCons/*'),
-                           [Delete("#/build/doc/api"),
-                            "cd doc && make pdf"])
+    pdf_file = env.Command(
+        target='#/build/doc/api/scons-api.pdf',
+        source=env.Glob('#/SCons/*'),
+        action=[Delete("#/build/doc/api"), "cd doc && make pdf"],
+    )
     pdf_install = os.path.join(build, 'PDF', 'scons-api.pdf')
-    env.InstallAs(pdf_install, pdf_file)
+    env.InstallAs(target=pdf_install, source=pdf_file)
     tar_deps.append(pdf_install)
     tar_list.append(pdf_install)
 
     htmldir = os.path.join(build, 'HTML', 'scons-api')
-    html_files = env.Command('#/build/doc/HTML/scons-api/index.html',
-                             env.Glob('#/SCons/*'),
-                             "cd doc && make dirhtml BUILDDIR=${HTMLDIR}",
-                             HTMLDIR=htmldir)
+    html_files = env.Command(
+        target='#/build/doc/HTML/scons-api/index.html',
+        source=env.Glob('#/SCons/*'),
+        action="cd doc && make dirhtml BUILDDIR=${HTMLDIR}",
+        HTMLDIR=htmldir,
+    )
     tar_deps.append(htmldir)
     tar_list.append(htmldir)
 
@@ -536,8 +612,11 @@ if not skip_doc:
 #
 if tar_deps:
     tar_list = ' '.join([x.replace(build + '/', '') for x in tar_list])
-    t = env.Command(dist_doc_tar_gz, tar_deps,
-                    "tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list))
+    t = env.Command(
+        target=dist_doc_tar_gz,
+        source=tar_deps,
+        action="tar cf${TAR_HFLAG} - -C %s %s | gzip > $TARGET" % (build, tar_list),
+    )
     AddPostAction(dist_doc_tar_gz, Chmod(dist_doc_tar_gz, 0o644))
     Local(t)
     Alias('doc', t)
