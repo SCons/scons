@@ -121,6 +121,9 @@ if java_parsing:
                 '15.0',
                 '16.0',
                 '17.0',
+                '18.0',
+                '19.0',
+                '20.0',
             ):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
@@ -245,6 +248,9 @@ if java_parsing:
                 '15.0',
                 '16.0',
                 '17.0',
+                '18.0',
+                '19.0',
+                '20.0',
             ):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []

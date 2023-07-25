@@ -59,6 +59,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   batch file exists but an individual msvc toolset may not support the host/target
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
+- Extend range of recognized Java versions to 20.
 
 FIXES
 -----

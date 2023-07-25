@@ -130,6 +130,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix platform unit test on Windows for Py 3.12+. Fixes #4376.
     - More tweaking of test framework overview (which is duplicated onto
       the website, but not in the regular documentation section).
+    - Extend range of recognized Java versions to 20.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
