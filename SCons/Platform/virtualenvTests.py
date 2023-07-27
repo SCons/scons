@@ -21,6 +21,15 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# TODO: issue #4376: since Python 3.12, CPython's posixpath.py does a test
+#   import of 'posix', expecting it to fail on win32. However, if
+#   SCons/Platform is in sys.path, it will find our posix module instead.
+#   This happens in this unittest, since it's the script path. Remove
+#   it before the stdlib imports. Better way to handle this problem?
+import sys
+if 'Platform' in sys.path[0]:
+    platpath = sys.path.pop(0)
+# pylint: disable=wrong-import-position
 import collections
 import unittest
 import os
@@ -29,6 +38,7 @@ import sys
 import SCons.compat
 import SCons.Platform.virtualenv
 import SCons.Util
+# pylint: enable=wrong-import-position
 
 class Environment(collections.UserDict):
     def Detect(self, cmd):
