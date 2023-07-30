@@ -1205,8 +1205,8 @@ the mechanisms in the specified order.</para>
         A comma-separated string can be used to select multiple features.
         The default setting is <literal>none</literal>.</para>
       <para>Current available features are:
-        <literal>ninja</literal> (<emphasis>added in version 4.2</emphasis>),
-        <literal>tm_v2</literal> (<emphasis>added in version 4.4.1</emphasis>).
+        <literal>ninja</literal> (<emphasis>New in version 4.2</emphasis>),
+        <literal>tm_v2</literal> (<emphasis>New in version 4.4.1</emphasis>).
       </para>
       <caution><para>
         No Support offered for any features or tools enabled by this flag.
