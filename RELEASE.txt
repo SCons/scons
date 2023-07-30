@@ -60,6 +60,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
 - Extend range of recognized Java versions to 20.
+- The Help() function now takes an additional keyword argument keep_local.
+  On first call to Help(), if both append and keep_local are True,
+  the help from project AddOption calls is kept in the help message,
+  but not SCons' own option help.
 
 FIXES
 -----

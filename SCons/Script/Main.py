@@ -564,10 +564,11 @@ def ValidateOptions(throw_exception: bool=False) -> None:
     OptionsParser.preserve_unknown_options = False
     OptionsParser.parse_args(OptionsParser.largs, OptionsParser.values)
 
-def PrintHelp(file=None) -> None:
-    OptionsParser.print_help(file=file)
-
-
+def PrintHelp(file=None, local_only: bool = False) -> None:
+    if local_only:
+        OptionsParser.print_local_option_help(file=file)
+    else:
+        OptionsParser.print_help(file=file)
 
 
 # utility functions

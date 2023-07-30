@@ -271,8 +271,7 @@ class SConsOption(optparse.Option):
 
 
 class SConsOptionGroup(optparse.OptionGroup):
-    """
-    A subclass for SCons-specific option groups.
+    """A subclass for SCons-specific option groups.
 
     The only difference between this and the base class is that we print
     the group's help text flush left, underneath their own title but
@@ -288,7 +287,8 @@ class SConsOptionGroup(optparse.OptionGroup):
         formatter.dedent()
         result = formatter.format_heading(self.title)
         formatter.indent()
-        result = result + optparse.OptionContainer.format_help(self, formatter)
+        # bypass OptionGroup format_help and call up to its parent
+        result += optparse.OptionContainer.format_help(self, formatter)
         return result
 
 
@@ -474,7 +474,6 @@ class SConsOptionParser(optparse.OptionParser):
             self.local_option_group = group
 
         result = group.add_option(*args, **kw)
-
         if result:
             # The option was added successfully.  We now have to add the
             # default value to our object that holds the default values
@@ -488,6 +487,40 @@ class SConsOptionParser(optparse.OptionParser):
             self.reparse_local_options()
 
         return result
+
+    def format_local_option_help(self, formatter=None, file=None):
+        """Return the help for the project-level ("local") options.
+
+        .. versionadded:: 4.6.0
+        """
+        if formatter is None:
+            formatter = self.formatter
+        try:
+            group = self.local_option_group
+        except AttributeError:
+            return ""
+
+        formatter.store_local_option_strings(self, group)
+        for opt in group.option_list:
+            strings = formatter.format_option_strings(opt)
+            formatter.option_strings[opt] = strings
+
+        # defeat our own cleverness, which starts out by dedenting
+        formatter.indent()
+        local_help = group.format_help(formatter)
+        formatter.dedent()
+        return local_help
+
+    def print_local_option_help(self, file=None):
+        """Print help for just project-defined options.
+
+        Writes to *file* (default stdout).
+
+        .. versionadded:: 4.6.0
+        """
+        if file is None:
+            file = sys.stdout
+        file.write(self.format_local_option_help())
 
 
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
@@ -504,7 +537,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         """
         if heading == 'Options':
             heading = "SCons Options"
-        return optparse.IndentedHelpFormatter.format_heading(self, heading)
+        return super().format_heading(heading)
 
     def format_option(self, option):
         """ Customized option formatter.
@@ -576,6 +609,24 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         elif opts[-1] != "\n":
             result.append("\n")
         return "".join(result)
+
+    def store_local_option_strings(self, parser, group):
+        """Local-only version of store_option_strings.
+
+        We need to replicate this so the formatter will be set up
+        properly if we didn't go through the "normal" store_option_strings
+
+        .. versionadded:: 4.6.0
+        """
+        self.indent()
+        max_len = 0
+        for opt in group.option_list:
+            strings = self.format_option_strings(opt)
+            self.option_strings[opt] = strings
+            max_len = max(max_len, len(strings) + self.current_indent)
+        self.dedent()
+        self.help_position = min(max_len + 2, self.max_help_position)
+        self.help_width = max(self.width - self.help_position, 11)
 
 
 def Parser(version):

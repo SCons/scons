@@ -131,6 +131,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - More tweaking of test framework overview (which is duplicated onto
       the website, but not in the regular documentation section).
     - Extend range of recognized Java versions to 20.
+    - The Help() function now takes an additional keyword argument
+      keep_local, which if combined with the append argument direct
+      help from only AddOption ("project local") calls to be kept in the
+      help message, not SCons' own option help.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
