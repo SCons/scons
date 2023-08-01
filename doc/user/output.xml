@@ -104,8 +104,8 @@ Type: 'scons program' to build the production program,
     multiple calls to the &f-link-Help; function,
     in which case the specified text(s)
     will be concatenated when displayed.
-    This allows you to define bits of help text together with
-    the corresponding feature, even if speread
+    This allows you to define fragments of help text together with
+    the corresponding feature, even if spread
     across multiple &SConscript; files.
     In this situation, the order in
     which the &SConscript; files are called
@@ -117,11 +117,13 @@ Type: 'scons program' to build the production program,
 
     <para>
 
-    Calling <literal>Help("text")</literal> will clobber
-    any help output associated with &f-link-AddOption; calls.
-    To preserve the help output from &AddOption;,
-    add the <literal>append=True</literal> keyword argument.
-    This also preserves the help for the &scons; command itself.
+    Calling <literal>Help("text")</literal> overwrites
+    the help text that otherwise would be collected from any
+    command-line options defined in &f-link-AddOption; calls.
+    To preserve the &AddOption; help text,
+    add the <literal>append=True</literal> keyword argument
+    when calling <literal>Help</literal>.
+    This also preserves the option help for the &scons; command itself.
     To preserve only the &AddOption; help,
     also add the <literal>local_only=True</literal> keyword argument.
     (This only matters the first time you call &Append;,
