@@ -212,7 +212,7 @@ def get_contents_file(node):
     try:
         with open(fname, "rb") as fp:
             contents = fp.read()
-    except EnvironmentError as e:
+    except OSError as e:
         if not e.filename:
             e.filename = fname
         raise
@@ -501,7 +501,7 @@ class BuildInfoBase:
                 setattr(self, key, value)
 
 
-class Node(object, metaclass=NoSlotsPyPy):
+class Node(metaclass=NoSlotsPyPy):
     """The base Node class, for entities that we know how to
     build, or use to build other Nodes.
     """

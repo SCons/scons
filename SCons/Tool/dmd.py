@@ -145,7 +145,7 @@ def generate(env) -> None:
     env['_DLIBDIRFLAGS'] = '${_concat(DLIBDIRPREFIX, LIBPATH, DLIBDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
 
     env['DLIB'] = 'lib' if env['PLATFORM'] == 'win32' else 'ar cr'
-    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {0}$TARGET $SOURCES $_DLIBFLAGS'.format(
+    env['DLIBCOM'] = '$DLIB $_DLIBFLAGS {}$TARGET $SOURCES $_DLIBFLAGS'.format(
         '-c ' if env['PLATFORM'] == 'win32' else '')
 
     # env['_DLIBFLAGS'] = '${_concat(DLIBFLAGPREFIX, DLIBFLAGS, DLIBFLAGSUFFIX, __env__)}'

@@ -605,7 +605,7 @@ def match_re(lines=None, res=None):
         print(f"match_re: expected {len(res)} lines, found {len(lines)}")
         return None
     for i, (line, regex) in enumerate(zip(lines, res)):
-        s = r"^{}$".format(regex)
+        s = fr"^{regex}$"
         try:
             expr = re.compile(s)
         except re.error as e:
@@ -635,7 +635,7 @@ def match_re_dotall(lines=None, res=None):
         lines = "\n".join(lines)
     if not isinstance(res, str):
         res = "\n".join(res)
-    s = r"^{}$".format(res)
+    s = fr"^{res}$"
     try:
         expr = re.compile(s, re.DOTALL)
     except re.error as e:
@@ -714,7 +714,7 @@ def diff_re(a, b, fromfile: str='', tofile: str='',
     elif diff > 0:
         b = b + [''] * diff
     for i, (aline, bline) in enumerate(zip(a, b)):
-        s = r"^{}$".format(aline)
+        s = fr"^{aline}$"
         try:
             expr = re.compile(s)
         except re.error as e:

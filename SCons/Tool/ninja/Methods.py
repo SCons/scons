@@ -47,7 +47,7 @@ def register_custom_rule(env, rule, command, description: str="", deps=None, poo
     """Allows specification of Ninja rules from inside SCons files."""
     rule_obj = {
         "command": command,
-        "description": description if description else "{} $out".format(rule),
+        "description": description if description else f"{rule} $out",
     }
 
     if use_depfile:

@@ -334,7 +334,7 @@ def set_sdk_by_directory(env, sdk_dir) -> None:
 
 def get_sdk_by_version(mssdk):
     if mssdk not in SupportedSDKMap:
-        raise SCons.Errors.UserError("SDK version {} is not supported".format(repr(mssdk)))
+        raise SCons.Errors.UserError(f"SDK version {mssdk!r} is not supported")
     get_installed_sdks()
     return InstalledSDKMap.get(mssdk)
 

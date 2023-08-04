@@ -22,11 +22,11 @@ def soelim(target, source, env):
     t = str(target[0])
     s = str(source[0])
     dir, f = os.path.split(s)
-    with open(t, 'w') as tfp, open(s, 'r') as sfp:
+    with open(t, 'w') as tfp, open(s) as sfp:
         for line in sfp.readlines():
             if line[:4] in ['.so ', "'so "]:
                 sofile = os.path.join(dir, line[4:-1])
-                with open(sofile, 'r') as f:
+                with open(sofile) as f:
                     tfp.write(f.read())
             else:
                 tfp.write(line)

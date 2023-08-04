@@ -48,7 +48,7 @@ acc = None
 
 try:
     dirs = os.listdir('/opt')
-except (IOError, OSError):
+except OSError:
     # Not being able to read the directory because it doesn't exist
     # (IOError) or isn't readable (OSError) is okay.
     dirs = []

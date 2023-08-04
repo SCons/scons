@@ -131,6 +131,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - More tweaking of test framework overview (which is duplicated onto
       the website, but not in the regular documentation section).
     - Extend range of recognized Java versions to 20.
+    - A little more code "modernization", done via "pypgrade" tool set
+      to "3.6 and above" setting.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures

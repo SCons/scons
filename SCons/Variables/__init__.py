@@ -182,7 +182,7 @@ class Variables:
                     sys.path.insert(0, dir)
                 try:
                     values['__name__'] = filename
-                    with open(filename, 'r') as f:
+                    with open(filename) as f:
                         contents = f.read()
                     exec(contents, {}, values)
                 finally:
@@ -285,7 +285,7 @@ class Variables:
                             fh.write('%s = %s\n' % (option.key, repr(value)))
                     except KeyError:
                         pass
-        except IOError as x:
+        except OSError as x:
             raise SCons.Errors.UserError('Error writing options to file: %s\n%s' % (filename, x))
 
     def GenerateHelpText(self, env, sort=None) -> str:

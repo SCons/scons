@@ -55,9 +55,9 @@ def get_package_info(package_name, pkginfo, pkgchk):
         from subprocess import DEVNULL 
 
         try:
-            with open('/var/sadm/install/contents', 'r', encoding='UTF-8') as f:
+            with open('/var/sadm/install/contents', encoding='UTF-8') as f:
                 sadm_contents = f.read()
-        except EnvironmentError:
+        except OSError:
             pass
         else:
             sadm_re = re.compile(r'^(\S*/bin/CC)(=\S*)? %s$' % package_name, re.M)
@@ -70,7 +70,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
                                  universal_newlines=True,
                                  stdout=subprocess.PIPE,
                                  stderr=DEVNULL)
-        except EnvironmentError:
+        except OSError:
             pass
         else:
             pkginfo_contents = p.communicate()[0]
@@ -85,7 +85,7 @@ def get_package_info(package_name, pkginfo, pkgchk):
                                      universal_newlines=True,
                                      stdout=subprocess.PIPE,
                                      stderr=DEVNULL)
-            except EnvironmentError:
+            except OSError:
                 pass
             else:
                 pkgchk_contents = p.communicate()[0]

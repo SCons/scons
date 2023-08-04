@@ -85,7 +85,7 @@ def ninja_builder(env, target, source):
         with open('run_ninja_env.bat', 'w') as f:
             for key in env['ENV']:
                 f.write('set {}={}\n'.format(key, env['ENV'][key]))
-            f.write('{} -f {} %*\n'.format(NINJA_STATE.ninja_bin_path, generated_build_ninja))
+            f.write(f'{NINJA_STATE.ninja_bin_path} -f {generated_build_ninja} %*\n')
         cmd = ['run_ninja_env.bat']
 
     else:
@@ -112,8 +112,7 @@ def ninja_builder(env, target, source):
                                     universal_newlines=True,
                                     env=spawn_env
                                     )
-            for stdout_line in iter(proc.stdout.readline, ""):
-                yield stdout_line
+            yield from iter(proc.stdout.readline, "")
             proc.stdout.close()
             return_code = proc.wait()
             if return_code:
