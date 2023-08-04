@@ -235,7 +235,7 @@ def _user_script_argument_uwp(env, uwp, user_argstr) -> bool:
 
     if len(matches) > 1:
         debug('multiple uwp declarations: MSVC_SCRIPT_ARGS=%s', repr(user_argstr))
-        err_msg = f"multiple uwp declarations: MSVC_SCRIPT_ARGS={repr(user_argstr)}"
+        err_msg = f"multiple uwp declarations: MSVC_SCRIPT_ARGS={user_argstr!r}"
         raise MSVCArgumentError(err_msg)
 
     if not uwp:
@@ -270,7 +270,7 @@ def _msvc_script_argument_sdk_constraints(msvc, sdk_version):
             return None
 
     debug('invalid: method exit: sdk_version=%s', repr(sdk_version))
-    err_msg = f"MSVC_SDK_VERSION ({repr(sdk_version)}) is not supported"
+    err_msg = f"MSVC_SDK_VERSION ({sdk_version!r}) is not supported"
     return err_msg
 
 def _msvc_script_argument_sdk_platform_constraints(msvc, toolset, sdk_version, platform_def):

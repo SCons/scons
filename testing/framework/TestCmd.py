@@ -722,9 +722,9 @@ def diff_re(a, b, fromfile: str='', tofile: str='',
             raise re.error(msg % (repr(s), e.args[0]))
         if not expr.search(bline):
             result.append(f"{i + 1}c{i + 1}")
-            result.append(f"< {repr(a[i])}")
+            result.append(f"< {a[i]!r}")
             result.append('---')
-            result.append(f"> {repr(b[i])}")
+            result.append(f"> {b[i]!r}")
     return result
 
 
@@ -1672,7 +1672,7 @@ class TestCmd:
         except subprocess.TimeoutExpired:
             p.terminate()
             stdout, stderr = p.communicate()
-        
+
         # this is instead of using Popen as a context manager:
         if p.stdout:
             p.stdout.close()
@@ -1683,7 +1683,7 @@ class TestCmd:
                 p.stdin.close()
         finally:
             p.wait()
-       
+
         self.status = p.returncode
         self.process = None
 
