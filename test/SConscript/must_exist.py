@@ -88,7 +88,7 @@ except UserError as e:
 """,
 )
 
-missing = "missing/SConscript"
+missing = os.path.join("missing", "SConscript")
 err1 = f"""
 scons: *** Fatal: missing SConscript {missing!r}
 """ + test.python_file_line(
