@@ -90,31 +90,31 @@ except UserError as e:
 
 missing = os.path.join("missing", "SConscript")
 err1 = f"""
-scons: *** Fatal: missing SConscript {missing!r}
+scons: *** missing SConscript file {missing!r}
 """ + test.python_file_line(
     SConstruct_path, 21
 )
 
 err2 = f"""
-scons: *** Fatal: missing SConscript {missing!r}
+scons: *** missing SConscript file {missing!r}
 """ + test.python_file_line(
     SConstruct_path, 27
 )
 
 err3 = f"""
-scons: *** Fatal: missing SConscript {missing!r}
+scons: *** missing SConscript file {missing!r}
 """ + test.python_file_line(
     SConstruct_path, 33
 )
 
 err4 = f"""
-scons: *** Fatal: missing SConscript {missing!r}
+scons: *** missing SConscript file {missing!r}
 """ + test.python_file_line(
     SConstruct_path, 40
 )
 
 err5 = f"""
-scons: *** Fatal: missing SConscript {missing!r}
+scons: *** missing SConscript file {missing!r}
 """ + test.python_file_line(
     SConstruct_path, 46
 )

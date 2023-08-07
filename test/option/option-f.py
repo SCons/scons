@@ -141,7 +141,7 @@ test.run(arguments='-f Build2 -f SConscript .', stdout=expect)
 
 missing = "no_such_file"
 test.run(arguments=f"-f {missing} .", status=2, stderr=None)
-expect = [f"scons: *** Fatal: missing SConscript {missing!r}"]
+expect = [f"scons: *** missing SConscript file {missing!r}"]
 test.must_contain_all_lines(test.stderr(), expect)
 
 test.pass_test()

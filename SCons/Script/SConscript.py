@@ -168,7 +168,7 @@ def handle_missing_SConscript(f: str, must_exist: bool = True) -> None:
         return
     if not SCons.Script._no_missing_sconscript:  # system default changed: ok
         return
-    msg = f"Fatal: missing SConscript '{f.get_internal_path()}'"
+    msg = f"missing SConscript file {f.get_internal_path()!r}"
     raise SCons.Errors.UserError(msg)
 
 
