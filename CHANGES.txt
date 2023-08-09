@@ -132,9 +132,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the website, but not in the regular documentation section).
     - Extend range of recognized Java versions to 20.
     - The Help() function now takes an additional keyword argument
-      keep_local, which if combined with the append argument direct
-      help from only AddOption ("project local") calls to be kept in the
-      help message, not SCons' own option help.
+      keep_local: when starting to build a help message, you can now
+      retain help from AddOption calls, but omit help for SCons' own
+      command-line options with "Help(newtext, append=True, local_only=True)".
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
