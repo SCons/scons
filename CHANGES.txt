@@ -136,6 +136,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix another instance of `int main()` in CheckLib() causing failures
       when using -Wstrict-prototypes.
 
+  From Max Bachmann:
+    - Add missing directories to searched paths for mingw installs
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 
