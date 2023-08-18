@@ -133,6 +133,8 @@ DOCUMENTATION
 - Changed the message about scons -H to clarify it shows built-in options only.
 - Cachedir description updated.
 - Updated the first two chapters on building with SCons in the User Guide.
+- Clarify that exported variables are shared - if mutable, changes made in
+  an SConscript are visible everywhere that takes a refereence to that object.
 
 DEVELOPMENT
 -----------
