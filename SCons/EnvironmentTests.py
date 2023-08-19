@@ -1489,7 +1489,8 @@ def exists(env):
         SCons.CacheDir.CacheDir.copy_from_cache = save_copy_from_cache
         SCons.CacheDir.CacheDir.copy_to_cache = save_copy_to_cache
 
-    def test_concat(self) -> None:
+    # function is in Defaults.py, tested here to use TestEnvironment
+    def test__concat(self) -> None:
         """Test _concat()"""
         e1 = self.TestEnvironment(PRE='pre', SUF='suf', STR='a b', LIST=['a', 'b'])
         s = e1.subst
@@ -1507,7 +1508,8 @@ def exists(env):
         assert x == '$( preasuf prebsuf $)', x
 
 
-    def test_concat_nested(self) -> None:
+    # function is in Defaults.py, tested here to use TestEnvironment
+    def test__concat_nested(self) -> None:
         """Test _concat() on a nested substitution strings."""
         e = self.TestEnvironment(PRE='pre', SUF='suf',
                                  L1=['a', 'b'],
@@ -1521,6 +1523,24 @@ def exists(env):
         e.AppendUnique(L1 = ['$L3'])
         x = e.subst('$( ${_concat(PRE, L1, SUF, __env__)} $)')
         assert x == 'preasuf prebsuf precsuf predsuf precsuf predsuf', x
+
+
+    # function is in Defaults.py, tested here to use TestEnvironment
+    def test__stripixes(self) -> None:
+        """Test _stripixes()"""
+        # LIBPREFIXES and LIBSUFFIXES are stripped,
+        # except if an entry begins with LIBLITERAL
+        e = self.TestEnvironment(
+            PRE='pre',
+            SUF='suf',
+            LIST=['xxx-a', 'b.yyy', 'zzxxx-c.yyy'],
+            LIBPREFIXES=['xxx-'],
+            LIBSUFFIXES=['.yyy'],
+            LIBLITERAL='zz',
+        )
+        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__)} $)')
+        self.assertEqual(x, 'preasuf prebsuf prezzxxx-c.yyysuf')
+
 
     def test_gvars(self) -> None:
         """Test the Environment gvars() method"""

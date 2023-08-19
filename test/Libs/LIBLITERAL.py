@@ -24,9 +24,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test LIBSUFFIXES.
+Test LIBLITERAL behavior.
 
-Depends on a live compiler to build library and executable,
+Build a static library and shared library of the same name,
+and make sure the requested syntax selects the static one.
+Depends on a live compiler to build libraries and executable,
 and actually runs the executable.
 """
 
@@ -34,19 +36,31 @@ import os
 import sys
 
 import TestSCons
-from TestSCons import lib_
-
-if sys.platform == 'win32':
-    import SCons.Tool.MSCommon as msc
-    if not msc.msvc_exists():
-        lib_ = 'lib'
+from TestSCons import lib_, _lib
 
 test = TestSCons.TestSCons()
 
+if sys.platform == 'win32':
+    import SCons.Tool.MSCommon as msc
+    if msc.msvc_exists():
+        test.skip_test("Functionality not available for msvc, skipping test.\n")
+
 test.write('SConstruct', """\
-env = Environment(LIBSUFFIX='.xxx', LIBSUFFIXES=['.xxx'])
+LIBLITERAL = ":"
+env = Environment(LIBLITERAL=LIBLITERAL, LIBPATH=".")
 lib = env.Library(target='foo', source='foo.c')
-env.Program(target='prog', source=['prog.c', lib])
+shlib = env.SharedLibrary(target='foo', source='shfoo.c')
+env.Program(target='prog', source=['prog.c'], LIBS=f"{LIBLITERAL}libfoo.a")
+""")
+
+test.write('shfoo.c', r"""
+#include <stdio.h>
+
+void
+foo(void)
+{
+        printf("shared libfoo\n");
+}
 """)
 
 test.write('foo.c', r"""
@@ -55,7 +69,7 @@ test.write('foo.c', r"""
 void
 foo(void)
 {
-        printf("foo.c\n");
+        printf("static libfoo\n");
 }
 """)
 
@@ -74,9 +88,9 @@ main(int argc, char *argv[])
 """)
 
 test.run(arguments='.', stderr=TestSCons.noisy_ar, match=TestSCons.match_re_dotall)
-test.fail_test(not os.path.exists(test.workpath(lib_ + 'foo.xxx')))
+test.fail_test(not os.path.exists(test.workpath(f"{lib_}foo{_lib}")))
 
-test.run(program=test.workpath('prog'), stdout="foo.c\nprog.c\n")
+test.run(program=test.workpath('prog'), stdout="static libfoo\nprog.c\n")
 
 test.pass_test()
 
