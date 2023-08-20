@@ -60,6 +60,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
 - Extend range of recognized Java versions to 20.
+- Builder calls (like Program()) now accept pathlib objects in source lists.
 
 FIXES
 -----

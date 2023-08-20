@@ -131,6 +131,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - More tweaking of test framework overview (which is duplicated onto
       the website, but not in the regular documentation section).
     - Extend range of recognized Java versions to 20.
+    - Builder calls now accept PathLike objects in source lists. Fixes #4398.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
