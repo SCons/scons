@@ -66,6 +66,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   to fail by being explicit: pass keyword argument "must_exist=False".
   The "--warn=missing-sconscript" commandline option is no longer available
   as the warning was part of the transitional phase.
+- Add missing directories to searched paths for mingw installs
 
 FIXES
 -----
