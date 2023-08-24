@@ -449,7 +449,7 @@ if java_parsing:
 
 
     def parse_java_file(fn, version=default_java_version):
-        with open(fn, 'r', encoding='utf-8') as f:
+        with open(fn, encoding='utf-8') as f:
             data = f.read()
         return parse_java(data, version)
 

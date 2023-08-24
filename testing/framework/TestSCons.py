@@ -1835,7 +1835,7 @@ class TimeSCons(TestSCons):
     def uptime(self) -> None:
         try:
             fp = open('/proc/loadavg')
-        except EnvironmentError:
+        except OSError:
             pass
         else:
             avg1, avg5, avg15 = fp.readline().split(" ")[:3]

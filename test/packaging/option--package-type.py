@@ -52,7 +52,6 @@ test.subdir('src')
 test.write( 'main', '' )
 
 test.write('SConstruct', """
-# -*- coding: iso-8859-15 -*-
 env=Environment(tools=['packaging', 'filesystem', 'tar', 'rpm'])
 env.Prepend(RPM = 'TAR_OPTIONS=--wildcards ')
 env.Append(RPMFLAGS = r' --buildroot %(rpm_build_root)s')

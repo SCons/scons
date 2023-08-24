@@ -342,7 +342,7 @@ class NinjaState:
                 self.builds[node_string] = tmp_build
                 print(warn_msg)
             else:
-                raise InternalError("Node {} added to ninja build state more than once".format(node_string))
+                raise InternalError(f"Node {node_string} added to ninja build state more than once")
         self.builds[node_string] = build
         return True
 

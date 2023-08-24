@@ -350,7 +350,7 @@ version                 Prints SCons version information.
             # Doing the right thing with an argument list currently
             # requires different shell= values on Windows and Linux.
             p = subprocess.Popen(argv, shell=(sys.platform=='win32'))
-        except EnvironmentError as e:
+        except OSError as e:
             sys.stderr.write('scons: %s: %s\n' % (argv[0], e.strerror))
         else:
             p.wait()

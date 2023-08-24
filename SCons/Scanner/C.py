@@ -62,7 +62,7 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
         try:
             with open(str(file.rfile())) as fp:
                 return fp.read()
-        except EnvironmentError as e:
+        except OSError as e:
             self.missing.append((file, self.current_file))
             return ''
 
@@ -213,7 +213,7 @@ class SConsCPPConditionalScanner(SCons.cpp.PreProcessor):
         try:
             with open(str(file.rfile())) as fp:
                 return fp.read()
-        except EnvironmentError:
+        except OSError:
             self.missing.append((file, self.current_file))
             return ""
 

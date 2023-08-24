@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # SCons documentation build configuration file, created by
 # sphinx-quickstart on Mon Apr 30 09:36:53 2018.

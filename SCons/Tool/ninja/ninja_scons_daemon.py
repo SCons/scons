@@ -220,7 +220,7 @@ def daemon_thread_func():
                     break
                 if "exit" in building_node:
                     daemon_log("input: " + "exit")
-                    p.stdin.write("exit\n".encode("utf-8"))
+                    p.stdin.write(b"exit\n")
                     p.stdin.flush()
                     with building_cv:
                         shared_state.finished_building += [building_node]

@@ -2,7 +2,7 @@
 #
 # Copyright The SCons Foundation
 
-class TestCallable(object):
+class TestCallable:
     def __init__(self, thing, makePathsRelative = True, debug = False):
         pass
 

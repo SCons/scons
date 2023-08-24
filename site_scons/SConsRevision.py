@@ -14,7 +14,7 @@ def SCons_revision(target, source, env):
     s = source[0].rstr()
 
     try:
-        with open(s, 'r') as fp:
+        with open(s) as fp:
             contents = fp.read()
 
 

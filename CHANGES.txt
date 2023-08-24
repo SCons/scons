@@ -134,6 +134,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - More tweaking of test framework overview (which is duplicated onto
       the website, but not in the regular documentation section).
     - Extend range of recognized Java versions to 20.
+    - A little more code "modernization", done via "pypgrade" tool set
+      to "3.6 and above" setting.
     - Finish the change to make calling SConscript() with a nonexistent
       file an error. It has issued a warning since 3.0, with "warn instead
       of fail" deprecated since 3.1.  Fixes #3958.

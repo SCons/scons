@@ -1773,9 +1773,9 @@ class Base(SubstitutionEnvironment):
         """
         filename = self.subst(filename)
         try:
-            with open(filename, 'r') as fp:
+            with open(filename) as fp:
                 lines = LogicalLines(fp).readlines()
-        except IOError:
+        except OSError:
             if must_exist:
                 raise
             return

@@ -228,7 +228,7 @@ def msvc_version_components(vcver):
     msvc_vernum = float(msvc_verstr)
 
     msvc_comps = tuple(msvc_verstr.split('.'))
-    msvc_major, msvc_minor = [int(x) for x in msvc_comps]
+    msvc_major, msvc_minor = (int(x) for x in msvc_comps)
 
     msvc_version_components_def = _MSVC_VERSION_COMPONENTS_DEFINITION(
         msvc_version = msvc_version,
@@ -291,7 +291,7 @@ def msvc_extended_version_components(version):
     msvc_vernum = float(msvc_verstr)
 
     msvc_comps = tuple(msvc_verstr.split('.'))
-    msvc_major, msvc_minor = [int(x) for x in msvc_comps]
+    msvc_major, msvc_minor = (int(x) for x in msvc_comps)
 
     msvc_extended_version_components_def = _MSVC_EXTENDED_VERSION_COMPONENTS_DEFINITION(
         msvc_version = msvc_version,
@@ -351,7 +351,7 @@ def msvc_sdk_version_components(version):
     sdk_verstr = '.'.join(sdk_comps[:2])
     sdk_vernum = float(sdk_verstr)
 
-    sdk_major, sdk_minor = [int(x) for x in sdk_comps[:2]]
+    sdk_major, sdk_minor = (int(x) for x in sdk_comps[:2])
 
     msvc_sdk_version_components_def = _MSVC_SDK_VERSION_COMPONENTS_DEFINITION(
         sdk_version = sdk_version,
