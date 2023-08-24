@@ -60,6 +60,13 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
 - Extend range of recognized Java versions to 20.
+- Calling SConscript() with a nonexistent file is now an error.
+  Previously this succeeded - prior to SCons 3.0, silently; since 3.0, with
+  a warning. Developers can still instruct such an SConscript() call not
+  to fail by being explicit: pass keyword argument "must_exist=False".
+  The "--warn=missing-sconscript" commandline option is no longer available
+  as the warning was part of the transitional phase.
+- Add missing directories to searched paths for mingw installs
 
 FIXES
 -----

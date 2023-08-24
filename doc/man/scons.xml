@@ -2272,13 +2272,13 @@ of this tool module.
   </listitem>
   </varlistentry>
 
-  <varlistentry>
+  <!--varlistentry>   Removed in 4.6.0
   <term><emphasis role="bold">missing-sconscript</emphasis></term>
   <listitem>
 <para>Warnings about missing &SConscript; files.
 These warnings are enabled by default.</para>
   </listitem>
-  </varlistentry>
+  </varlistentry-->
 
   <varlistentry>
   <term><emphasis role="bold">no-object-count</emphasis></term>
@@ -2341,7 +2341,7 @@ These warnings are enabled by default.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><emphasis role="bold">target_not_build</emphasis></term>
+  <term><emphasis role="bold">target-not-built</emphasis></term>
   <listitem>
 <para>Warnings about a build rule not building the
  expected targets. These warnings are disabled by default.</para>

@@ -269,10 +269,10 @@ def HelpFunction(text, append: bool=False) -> None:
 # Will be non-zero if we are reading an SConscript file.
 sconscript_reading = 0
 
-_no_missing_sconscript = False
-_warn_missing_sconscript_deprecated = True
+_no_missing_sconscript = True
+_warn_missing_sconscript_deprecated = False  # TODO: now unused
 
-def set_missing_sconscript_error(flag: int=1):
+def set_missing_sconscript_error(flag: bool = True) -> bool:
     """Set behavior on missing file in SConscript() call.
 
     Returns:
