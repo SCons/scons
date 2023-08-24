@@ -263,7 +263,7 @@ class _UserGenerator:
         try:
             filename = self.dspabs +'.user'
             self.usrfile = open(filename, 'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + filename + '" for writing:' + str(detail))
         else:
             self.UserHeader()
@@ -757,8 +757,8 @@ class _GenerateV6DSP(_DSPGenerator):
 
     def Parse(self):
         try:
-            dspfile = open(self.dspabs,'r')
-        except IOError:
+            dspfile = open(self.dspabs)
+        except OSError:
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dspfile.readline()
@@ -810,7 +810,7 @@ class _GenerateV6DSP(_DSPGenerator):
     def Build(self):
         try:
             self.file = open(self.dspabs,'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + self.dspabs + '" for writing:' + str(detail))
         else:
             self.PrintHeader()
@@ -1075,8 +1075,8 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
 
     def Parse(self):
         try:
-            dspfile = open(self.dspabs,'r')
-        except IOError:
+            dspfile = open(self.dspabs)
+        except OSError:
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dspfile.readline()
@@ -1127,7 +1127,7 @@ class _GenerateV7DSP(_DSPGenerator, _GenerateV7User):
     def Build(self):
         try:
             self.file = open(self.dspabs,'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + self.dspabs + '" for writing:' + str(detail))
         else:
             self.PrintHeader()
@@ -1314,7 +1314,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
         self.filtersabs = self.dspabs + '.filters'
         try:
             self.filters_file = open(self.filtersabs, 'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + self.filtersabs + '" for writing:' + str(detail))
 
         self.filters_file.write('<?xml version="1.0" encoding="utf-8"?>\n'
@@ -1451,7 +1451,7 @@ class _GenerateV10DSP(_DSPGenerator, _GenerateV10User):
     def Build(self):
         try:
             self.file = open(self.dspabs, 'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + self.dspabs + '" for writing:' + str(detail))
         else:
             self.PrintHeader()
@@ -1573,8 +1573,8 @@ class _GenerateV7DSW(_DSWGenerator):
 
     def Parse(self):
         try:
-            dswfile = open(self.dswfile,'r')
-        except IOError:
+            dswfile = open(self.dswfile)
+        except OSError:
             return # doesn't exist yet, so can't add anything to configs.
 
         line = dswfile.readline()
@@ -1729,7 +1729,7 @@ class _GenerateV7DSW(_DSWGenerator):
     def Build(self):
         try:
             self.file = open(self.dswfile,'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + self.dswfile + '" for writing:' + str(detail))
         else:
             self.PrintSolution()
@@ -1778,7 +1778,7 @@ class _GenerateV6DSW(_DSWGenerator):
     def Build(self):
         try:
             self.file = open(self.dswfile,'w')
-        except IOError as detail:
+        except OSError as detail:
             raise SCons.Errors.InternalError('Unable to open "' + self.dswfile + '" for writing:' + str(detail))
         else:
             self.PrintWorkspace()
@@ -1835,7 +1835,7 @@ def GenerateProject(target, source, env):
     if dspfile is not builddspfile:
         try:
             bdsp = open(str(builddspfile), "w+")
-        except IOError as detail:
+        except OSError as detail:
             print('Unable to open "' + str(dspfile) + '" for writing:',detail,'\n')
             raise
 
@@ -1852,7 +1852,7 @@ def GenerateProject(target, source, env):
 
             try:
                 bdsw = open(str(builddswfile), "w+")
-            except IOError as detail:
+            except OSError as detail:
                 print('Unable to open "' + str(dspfile) + '" for writing:',detail,'\n')
                 raise
 

@@ -161,7 +161,7 @@ def smart_link(source, target, env, for_signature) -> str:
 def lib_emitter(target, source, env, **kw):
     verbose = False
     if verbose:
-        print("_lib_emitter: target[0]={!r}".format(target[0].get_path()))
+        print(f"_lib_emitter: target[0]={target[0].get_path()!r}")
     for tgt in target:
         if SCons.Util.is_String(tgt):
             tgt = env.File(tgt)

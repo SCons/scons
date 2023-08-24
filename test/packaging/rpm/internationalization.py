@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # __COPYRIGHT__
 #
@@ -54,7 +53,6 @@ rpm_build_root = test.workpath('rpm_build_root')
 test.file_fixture('src/main.c', 'main.c')
 
 test.write('SConstruct', """
-# -*- coding: utf-8 -*-
 import os
 
 env  = Environment(tools=['default', 'packaging'])
@@ -129,7 +127,6 @@ test.write( ['man.en'], '' )
 test.write( ['man.fr'], '' )
 
 test.write('SConstruct', """
-# -*- coding: utf-8 -*-
 import os
 
 env  = Environment(tools=['default', 'packaging'])

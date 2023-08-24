@@ -194,7 +194,7 @@ def _verify_sdk_dispatch_map():
     for sdk_version in Config.MSVC_SDK_VERSIONS:
         if sdk_version in _sdk_dispatch_map:
             continue
-        err_msg = 'sdk version {} not in sdk_dispatch_map'.format(sdk_version)
+        err_msg = f'sdk version {sdk_version} not in sdk_dispatch_map'
         raise MSVCInternalError(err_msg)
     return None
 

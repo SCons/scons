@@ -121,7 +121,7 @@ class Counter:
     def key(self):
         return self.cls_name+'.'+self.method_name
     def display(self) -> None:
-        print("    {:7d} hits {:7d} misses    {}()".format(self.hit, self.miss, self.key()))
+        print(f"    {self.hit:7d} hits {self.miss:7d} misses    {self.key()}()")
     def __eq__(self, other):
         try:
             return self.key() == other.key()

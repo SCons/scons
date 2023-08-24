@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,14 +22,11 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 """
 Verify that we can scan Unicode-encoded files for implicit
 dependencies.
 """
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 import TestSCons
 
@@ -108,28 +107,28 @@ include utf16be.k
 foo.k 1 line 4
 """)
 
-contents = (u"""\
+contents = ("""\
 ascii.k 1 line 1
 include ascii.inc
 ascii.k 1 line 3
 """)
 test.write('ascii.k', contents.encode('ascii'))
 
-contents = (u"""\
+contents = ("""\
 utf8.k 1 line 1
 include utf8.inc
 utf8.k 1 line 3
 """)
 test.write('utf8.k', codecs.BOM_UTF8 + contents.encode('utf-8'))
 
-contents = (u"""\
+contents = ("""\
 utf16le.k 1 line 1
 include utf16le.inc
 utf16le.k 1 line 3
 """)
 test.write('utf16le.k', codecs.BOM_UTF16_LE + contents.encode('utf-16-le'))
 
-contents = (u"""\
+contents = ("""\
 utf16be.k 1 line 1
 include utf16be.inc
 utf16be.k 1 line 3

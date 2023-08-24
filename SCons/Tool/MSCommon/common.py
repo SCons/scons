@@ -154,7 +154,7 @@ def write_script_env_cache(cache) -> None:
             # data can't serialize to json, don't leave partial file
             with suppress(FileNotFoundError):
                 p.unlink()
-        except IOError:
+        except OSError:
             # can't write the file, just skip
             pass
 
@@ -344,7 +344,7 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     if sys.version_info.major == 3 and sys.version_info.minor < 6:
         from ctypes import windll
 
-        OEM = "cp{}".format(windll.kernel32.GetConsoleOutputCP())
+        OEM = f"cp{windll.kernel32.GetConsoleOutputCP()}"
     else:
         OEM = "oem"
     if stderr:
@@ -352,7 +352,7 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         # this at least prevents errors from getting swallowed.
         sys.stderr.write(stderr.decode(OEM))
     if popen.wait() != 0:
-        raise IOError(stderr.decode(OEM))
+        raise OSError(stderr.decode(OEM))
 
     return stdout.decode(OEM)
 

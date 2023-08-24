@@ -369,7 +369,7 @@ class TestCommon(TestCmd):
                 title = 'output'
             sys.stdout.write(f"Missing expected lines from {title}:\n")
             for line in missing:
-                sys.stdout.write(f"    {repr(line)}\n")
+                sys.stdout.write(f"    {line!r}\n")
             sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
@@ -396,7 +396,7 @@ class TestCommon(TestCmd):
                 title = 'output'
             sys.stdout.write(f"Unexpected number of lines from {title}:\n")
             for line in counts:
-                sys.stdout.write(f"    {repr(line)}: found {str(counts[line])}\n")
+                sys.stdout.write(f"    {line!r}: found {str(counts[line])}\n")
             sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
@@ -420,7 +420,7 @@ class TestCommon(TestCmd):
             title = 'output'
         sys.stdout.write(f"Missing any expected line from {title}:\n")
         for line in lines:
-            sys.stdout.write(f"    {repr(line)}\n")
+            sys.stdout.write(f"    {line!r}\n")
         sys.stdout.write(f"{self.banner(f'{title} ')}\n")
         sys.stdout.write(output)
         self.fail_test()
@@ -463,12 +463,12 @@ class TestCommon(TestCmd):
         if missing:
             sys.stdout.write(f"Missing expected lines from {title}:\n")
             for line in missing:
-                sys.stdout.write(f"    {repr(line)}\n")
+                sys.stdout.write(f"    {line!r}\n")
             sys.stdout.write(f"{self.banner(f'Missing {title} ')}\n")
         if out:
             sys.stdout.write(f"Extra unexpected lines from {title}:\n")
             for line in out:
-                sys.stdout.write(f"    {repr(line)}\n")
+                sys.stdout.write(f"    {line!r}\n")
             sys.stdout.write(f"{self.banner(f'Extra {title} ')}\n")
         sys.stdout.flush()
         self.fail_test()
@@ -582,7 +582,7 @@ class TestCommon(TestCmd):
                 title = 'output'
             sys.stdout.write(f"Unexpected lines in {title}:\n")
             for line in unexpected:
-                sys.stdout.write(f"    {repr(line)}\n")
+                sys.stdout.write(f"    {line!r}\n")
             sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()

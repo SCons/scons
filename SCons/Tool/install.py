@@ -230,7 +230,7 @@ def installShlibLinks(dest, source, env) -> None:
     Verbose = False
     symlinks = listShlibLinksToInstall(dest, source, env)
     if Verbose:
-        print('installShlibLinks: symlinks={!r}'.format(StringizeLibSymlinks(symlinks)))
+        print(f'installShlibLinks: symlinks={StringizeLibSymlinks(symlinks)!r}')
     if symlinks:
         CreateLibSymlinks(env, symlinks)
     return
@@ -326,7 +326,7 @@ def add_versioned_targets_to_INSTALLED_FILES(target, source, env):
     Verbose = False
     _INSTALLED_FILES.extend(target)
     if Verbose:
-        print("add_versioned_targets_to_INSTALLED_FILES: target={!r}".format(list(map(str, target))))
+        print(f"add_versioned_targets_to_INSTALLED_FILES: target={list(map(str, target))!r}")
     symlinks = listShlibLinksToInstall(target[0], source, env)
     if symlinks:
         EmitLibSymlinks(env, symlinks, target[0])

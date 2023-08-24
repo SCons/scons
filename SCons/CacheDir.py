@@ -118,7 +118,7 @@ def CachePushFunc(target, source, env):
             cd.copy_to_cache(env, t.get_internal_path(), tempfile)
         fs.rename(tempfile, cachefile)
 
-    except EnvironmentError:
+    except OSError:
         # It's possible someone else tried writing the file at the
         # same time we did, or else that there was some problem like
         # the CacheDir being on a separate file system that's full.
@@ -233,7 +233,7 @@ class CacheDir:
                 os.chmod(dst, st | stat.S_IWRITE)
             return result
         except AttributeError as ex:
-            raise EnvironmentError from ex
+            raise OSError from ex
 
     @property
     def hit_ratio(self) -> float:

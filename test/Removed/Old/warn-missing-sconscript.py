@@ -61,14 +61,10 @@ Missing SConscript 'no_such_file'
 #scons: warning: Ignoring missing SConscript 'no_such_file'
 "" + TestSCons.file_expr
 
-test.run(arguments = '--warn=missing-sconscript .', stderr = expect)
-
-test.run(arguments = '--warn=no-missing-sconscript .', stderr = "")
-
-test.run(arguments = 'WARN=missing-sconscript .', stderr = expect)
-
-test.run(arguments = 'WARN=no-missing-sconscript .', stderr = "")
-
+test.run(arguments='--warn=missing-sconscript .', stderr=expect)
+test.run(arguments='--warn=no-missing-sconscript .', stderr="")
+test.run(arguments='WARN=missing-sconscript .', stderr=expect)
+test.run(arguments='WARN=no-missing-sconscript .', stderr="")
 
 test.pass_test()
 

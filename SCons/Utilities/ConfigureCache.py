@@ -123,7 +123,7 @@ def main():
     if not os.path.exists('config'):
         # old config dirs did not have a 'config' file. Try to update.
         # Validate the only files in the directory are directories 0-9, a-f
-        expected = ['{:X}'.format(x) for x in range(0, 16)]
+        expected = [f'{x:X}' for x in range(0, 16)]
         if not set(os.listdir('.')).issubset(expected):
             raise RuntimeError(
                 "%s does not look like a valid version 1 cache directory" % cache)

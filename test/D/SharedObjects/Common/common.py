@@ -54,7 +54,7 @@ def testForTool(tool):
         match = re.search(r'[0-9]+(\.[0-9]+)+', vstr)
         if match:
             version = match.group(0)
-            major, minor, debug = [int(x) for x in version.split('.')]
+            major, minor, debug = (int(x) for x in version.split('.'))
         else:
             major = 0
         if (major < 6) or (major == 6 and minor < 3):
@@ -83,7 +83,7 @@ def testForTool(tool):
         test.fail_test()
 
     test.dir_fixture('Image')
-    with open('SConstruct_template', 'r') as f:
+    with open('SConstruct_template') as f:
         config = f.read().format(tool)
     test.write('SConstruct', config)
 

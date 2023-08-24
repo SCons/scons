@@ -274,8 +274,8 @@ def HelpFunction(text, append: bool = False, keep_local: bool = False) -> None:
 # Will be non-zero if we are reading an SConscript file.
 sconscript_reading: int = 0
 
-_no_missing_sconscript: bool = False
-_warn_missing_sconscript_deprecated: bool = True
+_no_missing_sconscript = True
+_warn_missing_sconscript_deprecated = False  # TODO: now unused
 
 def set_missing_sconscript_error(flag: bool = True) -> bool:
     """Set behavior on missing file in SConscript() call.
