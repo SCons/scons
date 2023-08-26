@@ -322,10 +322,10 @@ def verify():
     from .. import vc
     for msvc_version in vc._VCVER:
         if msvc_version not in MSVC_VERSION_SUFFIX:
-            err_msg = 'msvc_version {} not in MSVC_VERSION_SUFFIX'.format(repr(msvc_version))
+            err_msg = f'msvc_version {msvc_version!r} not in MSVC_VERSION_SUFFIX'
             raise MSVCInternalError(err_msg)
         vc_version = Util.get_msvc_version_prefix(msvc_version)
         if vc_version not in MSVC_VERSION_INTERNAL:
-            err_msg = 'vc_version {} not in MSVC_VERSION_INTERNAL'.format(repr(vc_version))
+            err_msg = f'vc_version {vc_version!r} not in MSVC_VERSION_INTERNAL'
             raise MSVCInternalError(err_msg)
 

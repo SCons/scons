@@ -238,29 +238,42 @@ file is found.
 
 <scons_function name="Help">
 <arguments>
-(text, append=False)
+(text, append=False, local_only=False)
 </arguments>
 <summary>
 <para>
-Specifies a local help message to be printed if the
-<option>-h</option>
-argument is given to
-&scons;.
-Subsequent calls to
-&f-Help;
-append <parameter>text</parameter> to the previously
-defined local help text.
+Adds <parameter>text</parameter> to the help message shown when
+&scons; is called with the
+<option>-h</option> or <option>--help</option>
+argument.
 </para>
 <para>
-For the first call to &f-Help; only,
+On the first call to &f-Help;,
 if <parameter>append</parameter> is <constant>False</constant>
-(the default)
-any local help message generated through
-&f-link-AddOption; calls is replaced.
+(the default), any existing help text is discarded.
+The default help text is the help for the &scons;
+command itself plus help collected from any
+project-local &f-link-AddOption; calls.
+This is the help printed if &f-Help; has never been called.
 If <parameter>append</parameter> is <constant>True</constant>,
 <parameter>text</parameter> is appended to
 the existing help text.
+If <parameter>local_only</parameter> is also <constant>True</constant>
+(the default is <constant>False</constant>),
+the project-local help from &f-AddOption; calls is preserved
+in the help message but the &scons; command help is not.
 </para>
+<para>
+Subsequent calls to
+&f-Help; ignore the keyword arguments
+<parameter>append</parameter> and
+<parameter>local_only</parameter>
+and always append to the existing help text.
+</para>
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: added <parameter>local_only</parameter>.
+</para>
+
 </summary>
 </scons_function>
 
@@ -538,15 +551,18 @@ TODO??? SConscript('build/SConscript', src_dir='src')
 <para>
 If the optional
 <varname>must_exist</varname>
-is <constant>True</constant>,
+is <constant>True</constant> (the default),
 causes an exception to be raised if a requested
-SConscript file is not found. The current default is
-<constant>False</constant>,
-causing only a warning to be emitted, but this default is deprecated
-(<emphasis>since 3.1</emphasis>).
-For scripts which truly intend to be optional, transition to
-explicitly supplying
+SConscript file is not found.
+To allow missing scripts to be silently ignored
+(the default behavior prior to &SCons; version 3.1),
+pass
 <literal>must_exist=False</literal> to the &f-SConscript; call.
+</para>
+
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: <parameter>must_exist</parameter>
+now defaults to <constant>True</constant>.
 </para>
 
 <para>

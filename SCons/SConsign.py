@@ -87,7 +87,7 @@ def Get_DataBase(dir):
                 except KeyError:
                     path = d.entry_abspath(DB_Name)
                     try: db = DataBase[d] = DB_Module.open(path, mode)
-                    except (IOError, OSError):
+                    except OSError:
                         pass
                     else:
                         if mode != "r":
@@ -339,7 +339,7 @@ class DirFile(Dir):
 
         try:
             fp = open(self.sconsign, 'rb')
-        except IOError:
+        except OSError:
             fp = None
 
         try:
@@ -378,11 +378,11 @@ class DirFile(Dir):
         try:
             file = open(temp, 'wb')
             fname = temp
-        except IOError:
+        except OSError:
             try:
                 file = open(self.sconsign, 'wb')
                 fname = self.sconsign
-            except IOError:
+            except OSError:
                 return
         for key, entry in self.entries.items():
             entry.convert_to_sconsign()
@@ -393,7 +393,7 @@ class DirFile(Dir):
                 mode = os.stat(self.sconsign)[0]
                 os.chmod(self.sconsign, 0o666)
                 os.unlink(self.sconsign)
-            except (IOError, OSError):
+            except OSError:
                 # Try to carry on in the face of either OSError
                 # (things like permission issues) or IOError (disk
                 # or network issues).  If there's a really dangerous
@@ -414,7 +414,7 @@ class DirFile(Dir):
                 os.chmod(self.sconsign, mode)
         try:
             os.unlink(temp)
-        except (IOError, OSError):
+        except OSError:
             pass
 
 ForDirectory = DB

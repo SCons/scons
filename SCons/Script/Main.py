@@ -378,7 +378,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                     raise SCons.Errors.UserError(errstr % pathstr)
         except SCons.Errors.UserError as e:
             print(e)
-        except (IOError, OSError) as e:
+        except OSError as e:
             print("scons: Could not remove '%s':" % pathstr, e.strerror)
 
     def _get_files_to_clean(self):
@@ -411,7 +411,7 @@ class CleanTask(SCons.Taskmaster.AlwaysTask):
                 # the file not existing.  In either case, print a
                 # message and keep going to try to remove as many
                 # targets as possible.
-                print("scons: Could not remove '{0}'".format(str(t)), e.strerror)
+                print(f"scons: Could not remove '{str(t)}'", e.strerror)
             else:
                 if removed:
                     display("Removed " + str(t))
@@ -564,10 +564,11 @@ def ValidateOptions(throw_exception: bool=False) -> None:
     OptionsParser.preserve_unknown_options = False
     OptionsParser.parse_args(OptionsParser.largs, OptionsParser.values)
 
-def PrintHelp(file=None) -> None:
-    OptionsParser.print_help(file=file)
-
-
+def PrintHelp(file=None, local_only: bool = False) -> None:
+    if local_only:
+        OptionsParser.print_local_option_help(file=file)
+    else:
+        OptionsParser.print_help(file=file)
 
 
 # utility functions
@@ -792,7 +793,7 @@ def _load_site_scons_dir(topdir, site_dir_name=None):
             if not re_dunder.match(k):
                 site_m[k] = v
 
-        with open(spec.origin, 'r') as f:
+        with open(spec.origin) as f:
             code = f.read()
         try:
             codeobj = compile(code, spec.name, "exec")

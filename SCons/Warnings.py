@@ -70,6 +70,7 @@ class LinkWarning(WarningOnByDefault):
 class MisleadingKeywordsWarning(WarningOnByDefault):
     pass
 
+# TODO: no longer needed, now an error instead of warning. Leave for a bit.
 class MissingSConscriptWarning(WarningOnByDefault):
     pass
 

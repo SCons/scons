@@ -166,18 +166,18 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # and do clean up stuff
     if stdout is not None and not stdoutRedirected:
         try:
-            with open(tmpFileStdoutName, "r") as tmpFileStdout:
+            with open(tmpFileStdoutName) as tmpFileStdout:
                 stdout.write(tmpFileStdout.read())
             os.remove(tmpFileStdoutName)
-        except (IOError, OSError):
+        except OSError:
             pass
 
     if stderr is not None and not stderrRedirected:
         try:
-            with open(tmpFileStderrName, "r") as tmpFileStderr:
+            with open(tmpFileStderrName) as tmpFileStderr:
                 stderr.write(tmpFileStderr.read())
             os.remove(tmpFileStderrName)
-        except (IOError, OSError):
+        except OSError:
             pass
 
     return ret
@@ -186,7 +186,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 def exec_spawn(l, env):
     try:
         result = spawnve(os.P_WAIT, l[0], l, env)
-    except (OSError, EnvironmentError) as e:
+    except OSError as e:
         try:
             result = exitvalmap[e.errno]
             sys.stderr.write("scons: %s: %s\n" % (l[0], e.strerror))

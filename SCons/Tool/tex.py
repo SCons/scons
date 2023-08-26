@@ -300,7 +300,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
         flsContent = ''
         auxfiles = []
         if os.path.isfile(flsfilename):
-            with open(flsfilename, "r") as f:
+            with open(flsfilename) as f:
                 flsContent = f.read()
             auxfiles = openout_aux_re.findall(flsContent)
             # remove duplicates
@@ -311,7 +311,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
 
         bcffiles = []
         if os.path.isfile(flsfilename):
-            with open(flsfilename, "r") as f:
+            with open(flsfilename) as f:
                 flsContent = f.read()
             bcffiles = openout_bcf_re.findall(flsContent)
             # remove duplicates
@@ -335,7 +335,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(auxfilename)
                 target_aux = os.path.join(targetdir, auxfilename)
                 if os.path.isfile(target_aux):
-                    with open(target_aux, "r") as f:
+                    with open(target_aux) as f:
                         content = f.read()
                     if content.find("bibdata") != -1:
                         if Verbose:
@@ -359,7 +359,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
                 already_bibtexed.append(bcffilename)
                 target_bcf = os.path.join(targetdir, bcffilename)
                 if os.path.isfile(target_bcf):
-                    with open(target_bcf, "r") as f:
+                    with open(target_bcf) as f:
                         content = f.read()
                     if content.find("bibdata") != -1:
                         if Verbose:
@@ -823,7 +823,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     # read fls file to get all other files that latex creates and will read on the next pass
     # remove files from list that we explicitly dealt with above
     if os.path.isfile(flsfilename):
-        with open(flsfilename, "r") as f:
+        with open(flsfilename) as f:
             content = f.read()
         out_files = openout_re.findall(content)
         myfiles = [auxfilename, logfilename, flsfilename, targetbase+'.dvi',targetbase+'.pdf']

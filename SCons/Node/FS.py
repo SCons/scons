@@ -308,7 +308,7 @@ def LinkFunc(target, source, env) -> int:
         try:
             func(fs, src, dest)
             break
-        except (IOError, OSError):
+        except OSError:
             # An OSError indicates something happened like a permissions
             # problem or an attempt to symlink across file-system
             # boundaries.  An IOError indicates something like the file
@@ -2778,7 +2778,7 @@ class File(Base):
         fname = self.rfile().get_abspath()
         try:
             cs = hash_file_signature(fname, chunksize=File.hash_chunksize)
-        except EnvironmentError as e:
+        except OSError as e:
             if not e.filename:
                 e.filename = fname
             raise
@@ -2935,7 +2935,7 @@ class File(Base):
 
         try:
             sconsign_entry = self.dir.sconsign().get_entry(self.name)
-        except (KeyError, EnvironmentError):
+        except (KeyError, OSError):
             import SCons.SConsign
             sconsign_entry = SCons.SConsign.SConsignEntry()
             sconsign_entry.binfo = self.new_binfo()
@@ -3146,7 +3146,7 @@ class File(Base):
     def _rmv_existing(self):
         self.clear_memoized_values()
         if SCons.Node.print_duplicate:
-            print("dup: removing existing target {}".format(self))
+            print(f"dup: removing existing target {self}")
         e = Unlink(self, [], None)
         if isinstance(e, SCons.Errors.BuildError):
             raise e
@@ -3174,7 +3174,7 @@ class File(Base):
                 try:
                     self._createDir()
                 except SCons.Errors.StopError as drive:
-                    raise SCons.Errors.StopError("No drive `{}' for target `{}'.".format(drive, self))
+                    raise SCons.Errors.StopError(f"No drive `{drive}' for target `{self}'.")
 
     #
     #
@@ -3190,11 +3190,11 @@ class File(Base):
     def do_duplicate(self, src):
         self._createDir()
         if SCons.Node.print_duplicate:
-            print("dup: relinking variant '{}' from '{}'".format(self, src))
+            print(f"dup: relinking variant '{self}' from '{src}'")
         Unlink(self, None, None)
         e = Link(self, src, None)
         if isinstance(e, SCons.Errors.BuildError):
-            raise SCons.Errors.StopError("Cannot duplicate `{}' in `{}': {}.".format(src.get_internal_path(), self.dir._path, e.errstr))
+            raise SCons.Errors.StopError(f"Cannot duplicate `{src.get_internal_path()}' in `{self.dir._path}': {e.errstr}.")
         self.linked = 1
         # The Link() action may or may not have actually
         # created the file, depending on whether the -n
@@ -3260,7 +3260,7 @@ class File(Base):
                     contents = self.get_contents()
                 else:
                     csig = self.get_content_hash()
-            except IOError:
+            except OSError:
                 # This can happen if there's actually a directory on-disk,
                 # which can be the case if they've disabled disk checks,
                 # or if an action with a File target actually happens to

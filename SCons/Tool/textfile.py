@@ -120,7 +120,7 @@ def _action(target, source, env):
     # write the file
     try:
         target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='', encoding=file_encoding)
-    except (OSError, IOError) as e:
+    except OSError as e:
         raise SCons.Errors.UserError("Can't write target file %s [%s]" % (target[0],e))
 
     # separate lines by 'linesep' only if linesep is not empty

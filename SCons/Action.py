@@ -249,7 +249,7 @@ def _code_contents(code, docstring=None) -> bytearray:
 
     # The code contents depends on the number of local variables
     # but not their actual names.
-    contents = bytearray("{}, {}".format(code.co_argcount, len(code.co_varnames)), 'utf-8')
+    contents = bytearray(f"{code.co_argcount}, {len(code.co_varnames)}", 'utf-8')
 
     contents.extend(b", ")
     contents.extend(bytearray(str(len(code.co_cellvars)), 'utf-8'))
@@ -847,7 +847,7 @@ def _subproc(scons_env, cmd, error: str='ignore', **kw):
 
     try:
         pobj = subprocess.Popen(cmd, **kw)
-    except EnvironmentError as e:
+    except OSError as e:
         if error == 'raise': raise
         # return a dummy Popen instance that only returns error
         class dummyPopen:

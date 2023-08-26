@@ -917,7 +917,7 @@ def find_vc_pdir(env, msvc_version):
                 return comps
             else:
                 debug('reg says dir is %s, but it does not exist. (ignoring)', comps)
-                raise MissingConfiguration("registry dir {} not found on the filesystem".format(comps))
+                raise MissingConfiguration(f"registry dir {comps} not found on the filesystem")
     return None
 
 def find_batch_file(msvc_version, host_arch, target_arch, pdir):
@@ -1043,7 +1043,7 @@ def _check_cl_exists_in_vc_dir(env, vc_dir, msvc_version) -> bool:
         try:
             with open(default_toolset_file) as f:
                 vc_specific_version = f.readlines()[0].strip()
-        except IOError:
+        except OSError:
             debug('failed to read %s', default_toolset_file)
             return False
         except IndexError:
@@ -1501,7 +1501,7 @@ def msvc_setup_env(env):
     if SCons.Util.is_String(use_script):
         use_script = use_script.strip()
         if not os.path.exists(use_script):
-            raise MSVCScriptNotFound('Script specified by MSVC_USE_SCRIPT not found: "{}"'.format(use_script))
+            raise MSVCScriptNotFound(f'Script specified by MSVC_USE_SCRIPT not found: "{use_script}"')
         args = env.subst('$MSVC_USE_SCRIPT_ARGS')
         debug('use_script 1 %s %s', repr(use_script), repr(args))
         d = script_env(env, use_script, args)
@@ -1512,7 +1512,7 @@ def msvc_setup_env(env):
             return d
     elif use_settings is not None:
         if not SCons.Util.is_Dict(use_settings):
-            error_msg = 'MSVC_USE_SETTINGS type error: expected a dictionary, found {}'.format(type(use_settings).__name__)
+            error_msg = f'MSVC_USE_SETTINGS type error: expected a dictionary, found {type(use_settings).__name__}'
             raise MSVCUseSettingsError(error_msg)
         d = use_settings
         debug('use_settings %s', d)
@@ -1531,10 +1531,10 @@ def msvc_setup_env(env):
     if not find_program_path(env, 'cl'):
         debug("did not find %s", _CL_EXE_NAME)
         if CONFIG_CACHE:
-            propose = "SCONS_CACHE_MSVC_CONFIG caching enabled, remove cache file {} if out of date.".format(CONFIG_CACHE)
+            propose = f"SCONS_CACHE_MSVC_CONFIG caching enabled, remove cache file {CONFIG_CACHE} if out of date."
         else:
             propose = "It may need to be installed separately with Visual Studio."
-        warn_msg = "Could not find MSVC compiler 'cl'. {}".format(propose)
+        warn_msg = f"Could not find MSVC compiler 'cl'. {propose}"
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
@@ -1603,7 +1603,7 @@ def msvc_sdk_versions(version=None, msvc_uwp_app: bool=False):
 
     version_def = MSVC.Util.msvc_extended_version_components(version)
     if not version_def:
-        msg = 'Unsupported version {}'.format(repr(version))
+        msg = f'Unsupported version {version!r}'
         raise MSVCArgumentError(msg)
 
     rval = MSVC.WinSDK.get_msvc_sdk_version_list(version, msvc_uwp_app)
@@ -1623,7 +1623,7 @@ def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False):
         return rval
 
     if msvc_version not in _VCVER:
-        msg = 'Unsupported msvc version {}'.format(repr(msvc_version))
+        msg = f'Unsupported msvc version {msvc_version!r}'
         raise MSVCArgumentError(msg)
 
     vc_dir = find_vc_pdir(env, msvc_version)
@@ -1648,7 +1648,7 @@ def msvc_toolset_versions_spectre(msvc_version=None):
         return rval
 
     if msvc_version not in _VCVER:
-        msg = 'Unsupported msvc version {}'.format(repr(msvc_version))
+        msg = f'Unsupported msvc version {msvc_version!r}'
         raise MSVCArgumentError(msg)
 
     vc_dir = find_vc_pdir(env, msvc_version)
@@ -1720,13 +1720,13 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
     version_def = MSVC.Util.msvc_extended_version_components(version)
 
     if not version_def:
-        msg = 'Unsupported msvc version {}'.format(repr(version))
+        msg = f'Unsupported msvc version {version!r}'
         raise MSVCArgumentError(msg)
 
     if version_def.msvc_suffix:
         if version_def.msvc_verstr != version_def.msvc_toolset_version:
             # toolset version with component suffix
-            msg = 'Unsupported toolset version {}'.format(repr(version))
+            msg = f'Unsupported toolset version {version!r}'
             raise MSVCArgumentError(msg)
 
     if version_def.msvc_vernum > 14.0:
@@ -1805,11 +1805,11 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
     )
 
     if version_def.msvc_verstr == msvc_toolset_version:
-        msg = 'MSVC version {} was not found'.format(repr(version))
+        msg = f'MSVC version {version!r} was not found'
         MSVC.Policy.msvc_notfound_handler(None, msg)
         return msvc_version, msvc_toolset_version
 
-    msg = 'MSVC toolset version {} not found'.format(repr(version))
+    msg = f'MSVC toolset version {version!r} not found'
     raise MSVCToolsetVersionNotFound(msg)
 
 

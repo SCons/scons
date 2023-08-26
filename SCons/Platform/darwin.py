@@ -54,7 +54,7 @@ def generate(env) -> None:
 
     for file in filelist:
         if os.path.isfile(file):
-            with open(file, 'r') as f:
+            with open(file) as f:
                 lines = f.readlines()
                 for line in lines:
                     if line:
