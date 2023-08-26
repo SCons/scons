@@ -100,7 +100,6 @@ main                    = Main.main
 BuildTask               = Main.BuildTask
 CleanTask               = Main.CleanTask
 QuestionTask            = Main.QuestionTask
-#PrintHelp               = Main.PrintHelp
 #SConscriptSettableOptions = Main.SConscriptSettableOptions
 
 AddOption               = Main.AddOption
@@ -248,26 +247,32 @@ def _Set_Default_Targets(env, tlist) -> None:
             BUILD_TARGETS._add_Default(nodes)
             _build_plus_default._add_Default(nodes)
 
-#
+
 help_text = None
 
-def HelpFunction(text, append: bool=False) -> None:
+
+def HelpFunction(text, append: bool = False, keep_local: bool = False) -> None:
+    """The implementaion of the the ``Help`` method.
+
+    See :meth:`~SCons.Script.SConscript.Help`.
+
+    .. versionchanged:: 4.6.0
+       The *keep_local* parameter was added.
+    """
     global help_text
     if help_text is None:
         if append:
-            s = StringIO()
-            PrintHelp(s)
-            help_text = s.getvalue()
-            s.close()
+            with StringIO() as s:
+                PrintHelp(s, local_only=keep_local)
+                help_text = s.getvalue()
         else:
             help_text = ""
 
-    help_text= help_text + text
+    help_text += text
 
 
-#
 # Will be non-zero if we are reading an SConscript file.
-sconscript_reading = 0
+sconscript_reading: int = 0
 
 _no_missing_sconscript = True
 _warn_missing_sconscript_deprecated = False  # TODO: now unused

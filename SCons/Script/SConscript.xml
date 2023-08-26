@@ -238,29 +238,42 @@ file is found.
 
 <scons_function name="Help">
 <arguments>
-(text, append=False)
+(text, append=False, local_only=False)
 </arguments>
 <summary>
 <para>
-Specifies a local help message to be printed if the
-<option>-h</option>
-argument is given to
-&scons;.
-Subsequent calls to
-&f-Help;
-append <parameter>text</parameter> to the previously
-defined local help text.
+Adds <parameter>text</parameter> to the help message shown when
+&scons; is called with the
+<option>-h</option> or <option>--help</option>
+argument.
 </para>
 <para>
-For the first call to &f-Help; only,
+On the first call to &f-Help;,
 if <parameter>append</parameter> is <constant>False</constant>
-(the default)
-any local help message generated through
-&f-link-AddOption; calls is replaced.
+(the default), any existing help text is discarded.
+The default help text is the help for the &scons;
+command itself plus help collected from any
+project-local &f-link-AddOption; calls.
+This is the help printed if &f-Help; has never been called.
 If <parameter>append</parameter> is <constant>True</constant>,
 <parameter>text</parameter> is appended to
 the existing help text.
+If <parameter>local_only</parameter> is also <constant>True</constant>
+(the default is <constant>False</constant>),
+the project-local help from &f-AddOption; calls is preserved
+in the help message but the &scons; command help is not.
 </para>
+<para>
+Subsequent calls to
+&f-Help; ignore the keyword arguments
+<parameter>append</parameter> and
+<parameter>local_only</parameter>
+and always append to the existing help text.
+</para>
+<para>
+<emphasis>Changed in 4.6.0</emphasis>: added <parameter>local_only</parameter>.
+</para>
+
 </summary>
 </scons_function>
 
