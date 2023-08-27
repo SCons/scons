@@ -99,7 +99,9 @@ There are the following methods for internal use within this module:
 
 """
 
+import os
 from collections import UserDict, UserList
+from contextlib import suppress
 
 import SCons.Action
 import SCons.Debug
@@ -479,6 +481,11 @@ class BuilderBase:
             files = [files]
 
         for f in files:
+            # fspath() is to catch PathLike paths. We avoid the simpler
+            # str(f) so as not to "lose" files that are already Nodes:
+            # TypeError: expected str, bytes or os.PathLike object, not File
+            with suppress(TypeError):
+                f = os.fspath(f)
             if SCons.Util.is_String(f):
                 f = SCons.Util.adjustixes(f, pre, suf, ensure_suffix)
             result.append(f)
