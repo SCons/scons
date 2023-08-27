@@ -98,8 +98,12 @@ FIXES
 - MSCommon: Test SConfTests.py would fail when mscommon debugging was enabled via the
   MSVC_MSCOMMON_DEBUG environment variable.  The mscommon logging filter class registered
   with the python logging module was refactored to prevent test failure.
-- MSVS: Add arm64 to the MSVS supported architectures list for VS2017 and later to be
-  consistent with the current documentation of MSVS_ARCH.
+- MSVS: Add arm64 to the MSVS supported architectures list for VS2017 and later
+  to be consistent with the current documentation of MSVS_ARCH.
+- MSCommon: "config cache" made more resilient - now throws away the cache if
+  it took a decode error reading it in. Suspect a possible race condition
+  creating it in certain CI builds, which always start from a "no cache file
+  exists" state.
 
 IMPROVEMENTS
 ------------
