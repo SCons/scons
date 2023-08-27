@@ -144,6 +144,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Finish the change to make calling SConscript() with a nonexistent
       file an error. It has issued a warning since 3.0, with "warn instead
       of fail" deprecated since 3.1.  Fixes #3958.
+    - Minor (non-functional) cleanup of some tests, particuarly test/MSVC.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures

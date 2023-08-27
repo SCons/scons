@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -31,50 +33,53 @@ from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
-
 default_version = installed_versions[0]
+if default_version.msvc_vernum < 14.0:
+    test.skip_test("MSVC version earlier than 14.0, skipping.")
 
-if default_version.msvc_vernum >= 14.0:
-    # VS2015 and later
+# VS2015 and later
+# force SDK version and toolset version as msvc batch file arguments
+test.write('SConstruct', textwrap.dedent(
+    """
+    import os
+    import json
 
-    # force SDK version and toolset version as msvc batch file arguments
-    test.write('SConstruct', textwrap.dedent(
-        """
-        import os
-        import json
+    cache_file = 'MSCACHE.json'
 
-        cache_file = 'MSCACHE.json'
+    os.environ['SCONS_CACHE_MSVC_CONFIG']=cache_file
+    os.environ['SCONS_CACHE_MSVC_FORCE_DEFAULTS']='1'
 
-        os.environ['SCONS_CACHE_MSVC_CONFIG']=cache_file
-        os.environ['SCONS_CACHE_MSVC_FORCE_DEFAULTS']='1'
+    DefaultEnvironment(tools=[])
+    env = Environment(tools=['msvc'])
 
-        DefaultEnvironment(tools=[])
-        env = Environment(tools=['msvc'])
+    envcache_keys = []
+    with open(cache_file, 'r') as file:
+        envcache_list = json.load(file)
+        envcache_keys = [tuple(d['key']) for d in envcache_list]
 
-        envcache_keys = []
-        with open(cache_file, 'r') as file:
-            envcache_list = json.load(file)
-            envcache_keys = [tuple(d['key']) for d in envcache_list]
+    if envcache_keys:
+        # key = (script, arguments)
+        print("SCRIPT_ARGS: {}".format(envcache_keys[0][-1]))
+    """
+))
+test.run(arguments="-Q -s", status=0, stdout=None)
+cache_arg = test.stdout().strip()
+if default_version.msvc_verstr == '14.0':
+    # VS2015: target_arch msvc_sdk_version
+    expect = r'^SCRIPT_ARGS: .* [0-9.]+$'
+else:
+    # VS2017+ msvc_sdk_version msvc_toolset_version
+    expect = r'^SCRIPT_ARGS: [0-9.]+ -vcvars_ver=[0-9.]+$'
 
-        if envcache_keys:
-            # key = (script, arguments)
-            print("SCRIPT_ARGS: {}".format(envcache_keys[0][-1]))
-        """
-    ))
-    test.run(arguments = "-Q -s", status=0, stdout=None)
+test.must_contain_all(cache_arg, expect, find=TestSCons.match_re)
 
-    cache_arg = test.stdout().strip()
+test.pass_test()
 
-    if default_version.msvc_verstr == '14.0':
-        # VS2015: target_arch msvc_sdk_version
-        expect = r'^SCRIPT_ARGS: .* [0-9.]+$'
-    else:
-        # VS2017+ msvc_sdk_version msvc_toolset_version
-        expect = r'^SCRIPT_ARGS: [0-9.]+ -vcvars_ver=[0-9.]+$'
-
-    test.must_contain_all(cache_arg, expect, find=TestSCons.match_re)
-
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

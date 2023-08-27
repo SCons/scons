@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test adding a src_builder to the RES builder so that RC files can
@@ -32,13 +31,13 @@ be generated.
 import TestSCons
 
 _python_ = TestSCons._python_
-
 test = TestSCons.TestSCons()
 
 fake_rc = test.workpath('fake_rc.py')
 
 test.write(fake_rc, """\
 import sys
+
 with open(sys.argv[1], 'w') as fo, open(sys.argv[2], 'r') as fi:
     fo.write("fake_rc.py\\n" + fi.read())
 """)
@@ -50,11 +49,11 @@ def generate_rc(target, source, env):
     with open(t, 'w') as fo, open(s, 'r') as fi:
         fo.write('generate_rc\\n' + fi.read())
 
-env = Environment(tools=['msvc'],
-                  RCCOM=r'%(_python_)s %(fake_rc)s $TARGET $SOURCE')
-env['BUILDERS']['GenerateRC'] = Builder(action=generate_rc,
-                                        suffix='.rc',
-                                        src_suffix='.in')
+DefaultEnvironment(tools=[])
+env = Environment(tools=['msvc'], RCCOM=r'%(_python_)s %(fake_rc)s $TARGET $SOURCE')
+env['BUILDERS']['GenerateRC'] = Builder(
+    action=generate_rc, suffix='.rc', src_suffix='.in'
+)
 env['BUILDERS']['RES'].src_builder.append('GenerateRC')
 
 env.RES('my.in')
@@ -62,8 +61,7 @@ env.RES('my.in')
 
 test.write('my.in', "my.in\n")
 
-test.run(arguments = '.')
-
+test.run(arguments='.')
 test.must_match('my.rc', "generate_rc\nmy.in\n", mode='r')
 test.must_match('my.res', "fake_rc.py\ngenerate_rc\nmy.in\n", mode='r')
 

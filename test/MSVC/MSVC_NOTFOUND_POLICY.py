@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -28,7 +30,6 @@ Test the MSVC_NOTFOUND_POLICY construction variable and functions.
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 import textwrap
@@ -49,6 +50,7 @@ test.run(arguments='-Q -s', stdout='')
 # Test construction variable with invalid symbol
 test.write('SConstruct', textwrap.dedent(
     """
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Undefined', tools=['msvc'])
     """
 ))
@@ -61,6 +63,7 @@ test.write('SConstruct', textwrap.dedent(
     """
     from SCons.Tool.MSCommon import msvc_set_notfound_policy
     msvc_set_notfound_policy('Exception')
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', tools=['msvc'])
     """
 ))
@@ -73,6 +76,7 @@ test.write('SConstruct', textwrap.dedent(
     """
     from SCons.Tool.MSCommon import msvc_set_notfound_policy
     msvc_set_notfound_policy('Exception')
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY=None, tools=['msvc'])
     """
 ))
@@ -83,6 +87,7 @@ test.must_contain_all(test.stderr(), expect)
 # Test environment construction with construction variable
 test.write('SConstruct', textwrap.dedent(
     """
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Error', tools=['msvc'])
     """
 ))
@@ -95,6 +100,7 @@ test.write('SConstruct', textwrap.dedent(
     """
     from SCons.Tool.MSCommon import msvc_set_notfound_policy
     msvc_set_notfound_policy('Warning')
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', tools=['msvc'])
     """
 ))
@@ -105,6 +111,7 @@ test.must_contain_all(test.stderr(), expect)
 # Test environment construction with construction variable
 test.write('SConstruct', textwrap.dedent(
     """
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Warning', tools=['msvc'])
     """
 ))
@@ -117,6 +124,7 @@ test.write('SConstruct', textwrap.dedent(
     """
     from SCons.Tool.MSCommon import msvc_set_notfound_policy
     msvc_set_notfound_policy('Exception')
+    DefaultEnvironment(tools=[])
     env = Environment(MSVC_VERSION='12.9', MSVC_NOTFOUND_POLICY='Ignore', tools=['msvc'])
     """
 ))
@@ -124,3 +132,8 @@ test.run(arguments='-Q -s', stdout='')
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

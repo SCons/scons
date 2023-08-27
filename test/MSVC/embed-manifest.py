@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify that manifest files get embedded correctly in EXEs and DLLs
@@ -39,17 +38,24 @@ test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
 test.write('SConstruct', """\
-env=Environment(WINDOWS_EMBED_MANIFEST=True)
-env.Append(CCFLAGS = '/MD')
-env.Append(LINKFLAGS = '/MANIFEST')
-env.Append(SHLINKFLAGS = '/MANIFEST')
-exe=env.Program('test.cpp')
-dll=env.SharedLibrary('testdll.cpp')
-env.Command('exe-extracted.manifest', exe,
-  '$MT /nologo -inputresource:${SOURCE};1 -out:${TARGET}')
-env.Command('dll-extracted.manifest', dll,
-  '$MT /nologo -inputresource:${SOURCE};2 -out:${TARGET}')
-env2=Environment(WINDOWS_EMBED_MANIFEST=True) # no /MD here
+DefaultEnvironment(tools=[])
+env = Environment(WINDOWS_EMBED_MANIFEST=True)
+env.Append(CCFLAGS='/MD')
+env.Append(LINKFLAGS='/MANIFEST')
+env.Append(SHLINKFLAGS='/MANIFEST')
+exe = env.Program('test.cpp')
+dll = env.SharedLibrary('testdll.cpp')
+env.Command(
+    'exe-extracted.manifest',
+    exe,
+    '$MT /nologo -inputresource:${SOURCE};1 -out:${TARGET}',
+)
+env.Command(
+    'dll-extracted.manifest',
+    dll,
+    '$MT /nologo -inputresource:${SOURCE};2 -out:${TARGET}',
+)
+env2 = Environment(WINDOWS_EMBED_MANIFEST=True)  # no /MD here
 env2.Program('test-nomanifest', env2.Object('test-nomanifest', 'test.cpp'))
 """)
 

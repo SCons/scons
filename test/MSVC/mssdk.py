@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,33 +27,27 @@
 Simple test to make sure mssdk works.
 """
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
-
-
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 #####
 # Test the basics
 
-test.write('SConstruct',"""
+test.write('SConstruct',"""\
 import os
+
 DefaultEnvironment(tools=[])
 # TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
 # and ideally we shouldn't need to specify the tools= list anyway.
 env = Environment(tools=['mssdk', 'msvc', 'mslink'])
 env.Tool('mssdk')
-
 """)
-
 
 #  Visual Studio 8 has deprecated the /Yd option and prints warnings
 #  about it, so ignore stderr when running SCons.
 test.run(stderr=None, stdout=None)
-
 
 test.pass_test()
 

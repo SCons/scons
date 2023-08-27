@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -32,11 +34,9 @@ from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 from SCons.Tool.MSCommon import msvc_toolset_versions_spectre
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
-
 GE_VS2017_versions = [v for v in installed_versions if v.msvc_vernum >= 14.1]
 LT_VS2017_versions = [v for v in installed_versions if v.msvc_vernum < 14.1]
 
@@ -150,3 +150,8 @@ if LT_VS2017_versions:
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:
