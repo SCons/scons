@@ -129,17 +129,17 @@ def read_script_env_cache() -> dict:
             # If we couldn't decode it, it could be corrupt. Toss.
             with suppress(FileNotFoundError):
                 p.unlink()
-            warn_msg = f"Could not decode msvc cache file %s: dropping."
-            SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
-            debug(warn_msg, repr(CONFIG_CACHE))
+            warn_msg = "Could not decode msvc cache file %s: dropping."
+            SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+            debug(warn_msg, CONFIG_CACHE)
         else:
             if isinstance(envcache_list, list):
                 envcache = {tuple(d['key']): d['data'] for d in envcache_list}
             else:
                 # don't fail if incompatible format, just proceed without it
-                warn_msg = f"Incompatible format for msvc cache file %s: file may be overwritten."
-                SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
-                debug(warn_msg, repr(CONFIG_CACHE))
+                warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
+                SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+                debug(warn_msg, CONFIG_CACHE)
 
     return envcache
 
