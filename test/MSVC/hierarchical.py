@@ -29,10 +29,8 @@ Verify use of Visual Studio with a hierarchical build.
 
 import TestSCons
 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
-
+test = TestSCons.TestSCons(match=TestSCons.match_re)
 test.skip_if_not_msvc()
-
 test.subdir('src', 'build', 'out')
 
 test.write('SConstruct', """
@@ -44,6 +42,7 @@ SConscript('build/SConscript')
 test.write('src/SConscript',"""
 # TODO:  this is order-dependent (putting 'mssdk' second or third breaks),
 # and ideally we shouldn't need to specify the tools= list anyway.
+DefaultEnvironment(tools=[])
 env = Environment(tools=['mssdk', 'msvc', 'mslink'])
 env['PCH'] = File('StdAfx.pch')
 env['PDB'] = '#out/test.pdb'
@@ -55,8 +54,8 @@ env.Program('#out/test.exe', 'test.cpp')
 test.write('src/test.cpp', '''
 #include "StdAfx.h"
 
-int main(void) 
-{ 
+int main(void)
+{
     return 1;
 }
 ''')
@@ -70,18 +69,14 @@ test.write('src/StdAfx.cpp', '''
 ''')
 
 test.run(arguments='out', stderr=None)
-
 test.must_exist(test.workpath('out/test.pdb'))
 test.must_exist(test.workpath('build/StdAfx.pch'))
 test.must_exist(test.workpath('build/StdAfx.obj'))
 
 test.run(arguments='-c out')
-
 test.must_not_exist(test.workpath('out/test.pdb'))
 test.must_not_exist(test.workpath('build/StdAfx.pch'))
 test.must_not_exist(test.workpath('build/StdAfx.obj'))
-
-
 
 test.pass_test()
 

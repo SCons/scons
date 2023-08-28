@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,57 +22,53 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
- 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
- 
+
 """
 Verify PCH works to build a simple exe and a simple dll.
 """
- 
- 
+
 import TestSCons
- 
-test = TestSCons.TestSCons(match = TestSCons.match_re)
- 
+
+test = TestSCons.TestSCons(match=TestSCons.match_re)
 test.skip_if_not_msvc()
- 
+
 test.write('Main.cpp', """\
 #include "Precompiled.h"
- 
+
 int main(void)
 {
     return testf();
 }
 """)
- 
+
 test.write('Precompiled.cpp', """\
 #include "Precompiled.h"
 """)
- 
+
 test.write('Precompiled.h', """\
 #pragma once
- 
+
 static int testf()
 {
     return 0;
 }
 """)
- 
+
 test.write('SConstruct', """\
+DefaultEnvironment(tools=[])
 env = Environment()
- 
+
 env['PCHSTOP'] = 'Precompiled.h'
 env['PCH'] = env.PCH('Precompiled.cpp')[0]
- 
+
 env.SharedLibrary('pch_dll', 'Main.cpp')
 env.Program('pch_exe', 'Main.cpp')
 """)
- 
+
 test.run(arguments='.', stderr=None)
- 
+
 test.pass_test()
- 
+
 # Local Variables:
 # tab-width:4
 # indent-tabs-mode:nil
