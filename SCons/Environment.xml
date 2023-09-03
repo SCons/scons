@@ -437,17 +437,32 @@ file into an object file.
 </arguments>
 <summary>
 <para>
-Creates a phony target (or targets) that
-can be used as references to zero or more other targets,
-as specified by the optional <parameter>source</parameter>
-parameter.
-<parameter>alias</parameter> and
-<parameter>source</parameter>
+Creates an <firstterm>alias</firstterm> target that
+can be used as a reference to zero or more other targets,
+specified by the optional <parameter>source</parameter> parameter.
+Aliases provide a way to give a shorter or more descriptive
+name to specific targets,
+and to group multiple targets under a single name.
+The alias name, or an Alias Node object,
+may be used as a dependency of any other target,
+including another alias.
+</para>
+
+<para>
+<parameter>alias</parameter> and <parameter>source</parameter>
 may each be a string or Node object,
 or a list of strings or Node objects;
 if Nodes are used for
 <parameter>alias</parameter>
 they must be Alias nodes.
+If <parameter>source</parameter> is omitted,
+the alias is created but has no reference;
+if selected for building this will result in a
+<quote>Nothing to be done.</quote> message.
+An empty alias can be used to define the alias
+in a visible place in the project;
+it can later be appended to in a subsidiary SConscript file
+with the actual target(s) to refer to.
 The optional
 <parameter>action</parameter>
 parameter specifies an action or list of actions
@@ -456,20 +471,18 @@ whenever the any of the alias targets are out-of-date.
 </para>
 
 <para>
-Returns a list of Alias Node objects representing the alias(es),
-which exist outside of any physical file system.
+&f-Alias; can be called for an existing alias,
+which appends the <parameter>alias</parameter>
+and/or <parameter>action</parameter> arguments
+to the existing lists for that alias.
 </para>
 
 <para>
-The alias name, or an Alias Node object,
-may be used as a dependency of any other target,
-including another alias.
-&f-Alias;
-can be called multiple times for the same
-alias to add additional targets to the alias,
-or additional actions to the list for this alias.
-Aliases are global even if set through
-the construction environment method.
+Returns a list of Alias Node objects representing the alias(es),
+which exist outside of any physical file system.
+The alias name space is separate from the name space for
+tangible targets; to avoid confusion do not reuse
+target names as alias names.
 </para>
 
 <para>
@@ -883,7 +896,7 @@ disables derived file caching.
 </para>
 
 <para>
-Calling the environment method 
+Calling the environment method
 &f-link-env-CacheDir;
 limits the effect to targets built
 through the specified construction environment.
