@@ -100,10 +100,10 @@ FIXES
   with the python logging module was refactored to prevent test failure.
 - MSVS: Add arm64 to the MSVS supported architectures list for VS2017 and later
   to be consistent with the current documentation of MSVS_ARCH.
-- MSCommon: "config cache" made more resilient - now throws away the cache if
-  it took a decode error reading it in. Suspect a possible race condition
-  creating it in certain CI builds, which always start from a "no cache file
-  exists" state.
+- MSCommon: Added more error handling while reading msvc config cache.
+  (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
+  The existing cache will be discarded if there's a decode error reading it.
+  It's possible there's a race condition creating this issue it in certain CI builds.
 
 IMPROVEMENTS
 ------------
