@@ -30,19 +30,24 @@ selection method.
 """
 
 from SCons.Util import CLVar
+from SCons.Tool.FortranCommon import add_all_to_env, add_fortran_to_env
 
-from . import fortran
+compilers = ['gfortran']
 
 
 def generate(env) -> None:
     """Add Builders and construction variables for gfortran."""
-    fortran.generate(env)
+
+    add_all_to_env(env)
+    add_fortran_to_env(env)
+
+    compiler = env.Detect(compilers) or 'gfortran'
 
     # fill in other dialects (FORTRAN dialect set by fortran.generate(),
     # but don't overwrite if they have been set manually.
-    for dialect in ['F77', 'F90', 'F95', 'F03', 'F08']:
+    for dialect in ['FORTRAN', 'F77', 'F90', 'F95', 'F03', 'F08']:
         if dialect not in env:
-            env[f'{dialect}'] = 'gfortran'
+            env[f'{dialect}'] = compiler
         if f'SH{dialect}' not in env:
             env[f'SH{dialect}'] = f'${dialect}'
 

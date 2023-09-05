@@ -46,6 +46,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 
+  From Philipp Maierhöfer:
+    - Fix gfortran tool initialization. Defaults to using binary named gfortran 
+      as would be expected, and properly set's SHFORTRAN flags to include -fPIC
+      where previously it was only doing so for the other fortran versions (F77,..)
+
   From Mats Wichmann
     - C scanner's dictifyCPPDEFINES routine did not understand the possible
       combinations of CPPDEFINES - not aware of a "name=value" string either
