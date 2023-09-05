@@ -100,6 +100,10 @@ FIXES
   with the python logging module was refactored to prevent test failure.
 - MSVS: Add arm64 to the MSVS supported architectures list for VS2017 and later to be
   consistent with the current documentation of MSVS_ARCH.
+- FORTRAN: Fix gfortran tool initialization. Defaults to using binary named gfortran 
+  as would be expected, and properly set's SHFORTRAN flags to include -fPIC
+  where previously it was only doing so for the other fortran versions (F77,..)
+
 
 IMPROVEMENTS
 ------------
