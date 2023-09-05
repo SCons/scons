@@ -103,7 +103,10 @@ FIXES
 - FORTRAN: Fix gfortran tool initialization. Defaults to using binary named gfortran 
   as would be expected, and properly set's SHFORTRAN flags to include -fPIC
   where previously it was only doing so for the other fortran versions (F77,..)
-
+- MSCommon: Added more error handling while reading msvc config cache.
+  (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
+  The existing cache will be discarded if there's a decode error reading it.
+  It's possible there's a race condition creating this issue it in certain CI builds.
 
 IMPROVEMENTS
 ------------

@@ -150,6 +150,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       file an error. It has issued a warning since 3.0, with "warn instead
       of fail" deprecated since 3.1.  Fixes #3958.
     - Minor (non-functional) cleanup of some tests, particuarly test/MSVC.
+    - Added more error handling while reading msvc config cache.
+      (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
+      The existing cache will be discarded if there's a decode error reading it.
+      It's possible there's a race condition creating this issue it in certain CI builds.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
