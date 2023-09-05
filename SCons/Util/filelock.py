@@ -58,7 +58,7 @@ class FileLock:
        or some arbitrary number?
 
     Arguments:
-       file: name of file to lock.
+       file: name of file to lock. Only used to build the lockfile name.
        timeout: optional time (sec) to give up trying.
           If ``None``, quit now if we failed to get the lock (non-blocking).
           If 0, block forever (well, a long time).
@@ -104,7 +104,7 @@ class FileLock:
         while True:
             try:
                 self.lock = os.open(self.lockfile, os.O_CREAT|os.O_EXCL|os.O_RDWR)
-            except FileExistsError as exc:
+            except (FileExistsError, PermissionError) as exc:
                 if self.timeout is None:
                     raise SConsLockFailure(
                         f"Could not acquire lock on {self.file!r}"
