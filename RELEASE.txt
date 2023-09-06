@@ -107,6 +107,8 @@ FIXES
   (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
   The existing cache will be discarded if there's a decode error reading it.
   It's possible there's a race condition creating this issue it in certain CI builds.
+- Fixed: race condition in `Mkdir` which can happen when two `SConscript`
+  are processed simultaneously by two separate build commands.
 
 IMPROVEMENTS
 ------------
