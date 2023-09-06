@@ -119,7 +119,7 @@ def read_script_env_cache() -> dict:
     p = Path(CONFIG_CACHE)
     if not CONFIG_CACHE or not p.is_file():
         return envcache
-    with p.open('r') as f:
+    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5), p.open('r') as f:
         # Convert the list of cache entry dictionaries read from
         # json to the cache dictionary. Reconstruct the cache key
         # tuple from the key list written to json.
@@ -151,11 +151,13 @@ def write_script_env_cache(cache) -> None:
 
     p = Path(CONFIG_CACHE)
     try:
-        with p.open('w') as f:
+        with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('w') as f:
             # Convert the cache dictionary to a list of cache entry
             # dictionaries. The cache key is converted from a tuple to
             # a list for compatibility with json.
-            envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
+            envcache_list = [
+                {'key': list(key), 'data': data} for key, data in cache.items()
+            ]
             json.dump(envcache_list, f, indent=2)
     except TypeError:
         # data can't serialize to json, don't leave partial file
