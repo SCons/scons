@@ -211,7 +211,7 @@ def separate_files(flist):
             missing.append(f)
     return existing, missing
 
-def contains(seq, subseq, find):
+def contains(seq, subseq, find) -> bool:
     # Returns True or False.
     if find is None:
         return subseq in seq
@@ -234,14 +234,14 @@ def find_index(seq, subseq, find):
 
 
 if os.name == 'posix':
-    def _failed(self, status = 0):
+    def _failed(self, status: int = 0):
         if self.status is None or status is None:
             return None
         return _status(self) != status
     def _status(self):
         return self.status
 elif os.name == 'nt':
-    def _failed(self, status = 0):
+    def _failed(self, status: int = 0):
         return not (self.status is None or status is None) and \
                self.status != status
     def _status(self):
@@ -256,7 +256,7 @@ class TestCommon(TestCmd):
     #
     #  $test->copy('src_file', 'dst_file');
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize a new TestCommon instance.  This involves just
         calling the base class initialization, and then changing directory
         to the workdir.
@@ -281,7 +281,7 @@ class TestCommon(TestCmd):
 
         return arguments
 
-    def must_be_writable(self, *files):
+    def must_be_writable(self, *files) -> None:
         """Ensures that the specified file(s) exist and are writable.
         An individual file can be specified as a list of directory names,
         in which case the pathname will be constructed by concatenating
@@ -297,7 +297,7 @@ class TestCommon(TestCmd):
             print("Unwritable files: `%s'" % "', `".join(unwritable))
         self.fail_test(missing + unwritable)
 
-    def must_contain(self, file, required, mode='rb', find=None):
+    def must_contain(self, file, required, mode: str='rb', find=None) -> None:
         """Ensures specified file contains the required text.
 
         Args:
@@ -319,14 +319,14 @@ class TestCommon(TestCmd):
         file_contents = self.read(file, mode)
 
         if not contains(file_contents, required, find):
-            print("File `%s' does not contain required string." % file)
+            print(f"File `{file}' does not contain required string.")
             print(self.banner('Required string '))
             print(required)
-            print(self.banner('%s contents ' % file))
+            print(self.banner(f'{file} contents '))
             print(file_contents)
             self.fail_test()
 
-    def must_contain_all(self, output, input, title=None, find=None):
+    def must_contain_all(self, output, input, title=None, find=None) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the specified input as a block (second argument).
 
@@ -343,13 +343,13 @@ class TestCommon(TestCmd):
         if not contains(output, input, find):
             if title is None:
                 title = 'output'
-            print('Missing expected input from {}:'.format(title))
+            print(f'Missing expected input from {title}:')
             print(input)
-            print(self.banner(title + ' '))
+            print(self.banner(f"{title} "))
             print(output)
             self.fail_test()
 
-    def must_contain_all_lines(self, output, lines, title=None, find=None):
+    def must_contain_all_lines(self, output, lines, title=None, find=None) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the specified lines (second argument).
 
@@ -367,14 +367,14 @@ class TestCommon(TestCmd):
         if missing:
             if title is None:
                 title = 'output'
-            sys.stdout.write("Missing expected lines from %s:\n" % title)
+            sys.stdout.write(f"Missing expected lines from {title}:\n")
             for line in missing:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner(title + ' ') + '\n')
+                sys.stdout.write(f"    {line!r}\n")
+            sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_contain_single_instance_of(self, output, lines, title=None):
+    def must_contain_single_instance_of(self, output, lines, title=None) -> None:
         """Ensures that the specified output string (first argument)
         contains one instance of the specified lines (second argument).
 
@@ -394,14 +394,14 @@ class TestCommon(TestCmd):
         if counts:
             if title is None:
                 title = 'output'
-            sys.stdout.write("Unexpected number of lines from %s:\n" % title)
+            sys.stdout.write(f"Unexpected number of lines from {title}:\n")
             for line in counts:
-                sys.stdout.write('    ' + repr(line) + ": found " + str(counts[line]) + '\n')
-            sys.stdout.write(self.banner(title + ' ') + '\n')
+                sys.stdout.write(f"    {line!r}: found {str(counts[line])}\n")
+            sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
 
-    def must_contain_any_line(self, output, lines, title=None, find=None):
+    def must_contain_any_line(self, output, lines, title=None, find=None) -> None:
         """Ensures that the specified output string (first argument)
         contains at least one of the specified lines (second argument).
 
@@ -418,14 +418,14 @@ class TestCommon(TestCmd):
 
         if title is None:
             title = 'output'
-        sys.stdout.write("Missing any expected line from %s:\n" % title)
+        sys.stdout.write(f"Missing any expected line from {title}:\n")
         for line in lines:
-            sys.stdout.write('    ' + repr(line) + '\n')
-        sys.stdout.write(self.banner(title + ' ') + '\n')
+            sys.stdout.write(f"    {line!r}\n")
+        sys.stdout.write(f"{self.banner(f'{title} ')}\n")
         sys.stdout.write(output)
         self.fail_test()
 
-    def must_contain_exactly_lines(self, output, expect, title=None, find=None):
+    def must_contain_exactly_lines(self, output, expect, title=None, find=None) -> None:
         """Ensures that the specified output string (first argument)
         contains all of the lines in the expected string (second argument)
         with none left over.
@@ -461,15 +461,15 @@ class TestCommon(TestCmd):
         if title is None:
             title = 'output'
         if missing:
-            sys.stdout.write("Missing expected lines from %s:\n" % title)
+            sys.stdout.write(f"Missing expected lines from {title}:\n")
             for line in missing:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner('Missing %s ' % title) + '\n')
+                sys.stdout.write(f"    {line!r}\n")
+            sys.stdout.write(f"{self.banner(f'Missing {title} ')}\n")
         if out:
-            sys.stdout.write("Extra unexpected lines from %s:\n" % title)
+            sys.stdout.write(f"Extra unexpected lines from {title}:\n")
             for line in out:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner('Extra %s ' % title) + '\n')
+                sys.stdout.write(f"    {line!r}\n")
+            sys.stdout.write(f"{self.banner(f'Extra {title} ')}\n")
         sys.stdout.flush()
         self.fail_test()
 
@@ -477,7 +477,7 @@ class TestCommon(TestCmd):
         # Deprecated; retain for backwards compatibility.
         return self.must_contain_all_lines(output, lines, title, find)
 
-    def must_exist(self, *files):
+    def must_exist(self, *files) -> None:
         """Ensures that the specified file(s) must exist.  An individual
         file be specified as a list of directory names, in which case the
         pathname will be constructed by concatenating them.  Exits FAILED
@@ -489,7 +489,7 @@ class TestCommon(TestCmd):
             print("Missing files: `%s'" % "', `".join(missing))
             self.fail_test(missing)
 
-    def must_exist_one_of(self, files):
+    def must_exist_one_of(self, files) -> None:
         """Ensures that at least one of the specified file(s) exists.
         The filenames can be given as a list, where each entry may be
         a single path string, or a tuple of folder names and the final
@@ -509,7 +509,7 @@ class TestCommon(TestCmd):
         print("Missing one of: `%s'" % "', `".join(missing))
         self.fail_test(missing)
 
-    def must_match(self, file, expect, mode = 'rb', match=None, message=None, newline=None):
+    def must_match(self, file, expect, mode: str = 'rb', match=None, message=None, newline=None):
         """Matches the contents of the specified file (first argument)
         against the expected contents (second argument).  The expected
         contents are a list of lines or a string which will be split
@@ -523,24 +523,45 @@ class TestCommon(TestCmd):
         except KeyboardInterrupt:
             raise
         except:
-            print("Unexpected contents of `%s'" % file)
+            print(f"Unexpected contents of `{file}'")
             self.diff(expect, file_contents, 'contents ')
             raise
 
-    def must_not_contain(self, file, banned, mode = 'rb', find = None):
+    def must_match_file(self, file, golden_file, mode: str='rb', match=None, message=None, newline=None):
+        """Matches the contents of the specified file (first argument)
+        against the expected contents (second argument).  The expected
+        contents are a list of lines or a string which will be split
+        on newlines.
+        """
+        file_contents = self.read(file, mode, newline)
+        golden_file_contents = self.read(golden_file, mode, newline)
+
+        if not match:
+            match = self.match
+
+        try:
+            self.fail_test(not match(to_str(file_contents), to_str(golden_file_contents)), message=message)
+        except KeyboardInterrupt:
+            raise
+        except:
+            print("Unexpected contents of `%s'" % file)
+            self.diff(golden_file_contents, file_contents, 'contents ')
+            raise
+
+    def must_not_contain(self, file, banned, mode: str = 'rb', find = None) -> None:
         """Ensures that the specified file doesn't contain the banned text.
         """
         file_contents = self.read(file, mode)
 
         if contains(file_contents, banned, find):
-            print("File `%s' contains banned string." % file)
+            print(f"File `{file}' contains banned string.")
             print(self.banner('Banned string '))
             print(banned)
-            print(self.banner('%s contents ' % file))
+            print(self.banner(f'{file} contents '))
             print(file_contents)
             self.fail_test()
 
-    def must_not_contain_any_line(self, output, lines, title=None, find=None):
+    def must_not_contain_any_line(self, output, lines, title=None, find=None) -> None:
         """Ensures that the specified output string (first argument)
         does not contain any of the specified lines (second argument).
 
@@ -559,17 +580,17 @@ class TestCommon(TestCmd):
         if unexpected:
             if title is None:
                 title = 'output'
-            sys.stdout.write("Unexpected lines in %s:\n" % title)
+            sys.stdout.write(f"Unexpected lines in {title}:\n")
             for line in unexpected:
-                sys.stdout.write('    ' + repr(line) + '\n')
-            sys.stdout.write(self.banner(title + ' ') + '\n')
+                sys.stdout.write(f"    {line!r}\n")
+            sys.stdout.write(f"{self.banner(f'{title} ')}\n")
             sys.stdout.write(output)
             self.fail_test()
 
     def must_not_contain_lines(self, lines, output, title=None, find=None):
         return self.must_not_contain_any_line(output, lines, title, find)
 
-    def must_not_exist(self, *files):
+    def must_not_exist(self, *files) -> None:
         """Ensures that the specified file(s) must not exist.
         An individual file be specified as a list of directory names, in
         which case the pathname will be constructed by concatenating them.
@@ -581,7 +602,7 @@ class TestCommon(TestCmd):
             print("Unexpected files exist: `%s'" % "', `".join(existing))
             self.fail_test(existing)
 
-    def must_not_exist_any_of(self, files):
+    def must_not_exist_any_of(self, files) -> None:
         """Ensures that none of the specified file(s) exists.
         The filenames can be given as a list, where each entry may be
         a single path string, or a tuple of folder names and the final
@@ -601,12 +622,12 @@ class TestCommon(TestCmd):
             print("Unexpected files exist: `%s'" % "', `".join(existing))
             self.fail_test(existing)
 
-    def must_not_be_empty(self, file):
+    def must_not_be_empty(self, file) -> None:
         """Ensures that the specified file exists, and that it is not empty.
         Exits FAILED if the file doesn't exist or is empty.
         """
         if not (os.path.exists(file) or os.path.islink(file)):
-            print("File doesn't exist: `%s'" % file)
+            print(f"File doesn't exist: `{file}'")
             self.fail_test(file)
 
         try:
@@ -615,10 +636,10 @@ class TestCommon(TestCmd):
             fsize = 0
 
         if fsize == 0:
-            print("File is empty: `%s'" % file)
+            print(f"File is empty: `{file}'")
             self.fail_test(file)
 
-    def must_not_be_writable(self, *files):
+    def must_not_be_writable(self, *files) -> None:
         """Ensures that the specified file(s) exist and are not writable.
         An individual file can be specified as a list of directory names,
         in which case the pathname will be constructed by concatenating
@@ -635,7 +656,7 @@ class TestCommon(TestCmd):
         self.fail_test(missing + writable)
 
     def _complete(self, actual_stdout, expected_stdout,
-                        actual_stderr, expected_stderr, status, match):
+                        actual_stderr, expected_stderr, status, match) -> None:
         """
         Post-processes running a subcommand, checking for failure
         status and displaying output appropriately.
@@ -643,8 +664,8 @@ class TestCommon(TestCmd):
         if _failed(self, status):
             expect = ''
             if status != 0:
-                expect = " (expected %s)" % str(status)
-            print("%s returned %s%s" % (self.program, _status(self), expect))
+                expect = f" (expected {str(status)})"
+            print(f"{self.program} returned {_status(self)}{expect}")
             print(self.banner('STDOUT '))
             print(actual_stdout)
             print(self.banner('STDERR '))
@@ -692,10 +713,10 @@ class TestCommon(TestCmd):
             except IndexError:
                 pass
             cmd_args = self.command_args(program, interpreter, arguments)
-            sys.stderr.write('Exception trying to execute: %s\n' % cmd_args)
+            sys.stderr.write(f'Exception trying to execute: {cmd_args}\n')
             raise e
 
-    def finish(self, popen, stdout = None, stderr = '', status = 0, **kw):
+    def finish(self, popen, stdout = None, stderr: str = '', status: int = 0, **kw) -> None:
         """
         Finishes and waits for the process being run under control of
         the specified popen argument.  Additional arguments are similar
@@ -719,7 +740,7 @@ class TestCommon(TestCmd):
                        self.stderr(), stderr, status, match)
 
     def run(self, options = None, arguments = None,
-                  stdout = None, stderr = '', status = 0, **kw):
+                  stdout = None, stderr: str = '', status: int = 0, **kw) -> None:
         """Runs the program under test, checking that the test succeeded.
 
         The parameters are the same as the base TestCmd.run() method,
@@ -754,7 +775,7 @@ class TestCommon(TestCmd):
         self._complete(self.stdout(), stdout,
                        self.stderr(), stderr, status, match)
 
-    def skip_test(self, message="Skipping test.\n", from_fw=False):
+    def skip_test(self, message: str="Skipping test.\n", from_fw: bool=False) -> None:
         """Skips a test.
 
         Proper test-skipping behavior is dependent on the external
@@ -797,19 +818,19 @@ class TestCommon(TestCmd):
             self.pass_test()
 
     @staticmethod
-    def detailed_diff(value, expect):
+    def detailed_diff(value, expect) -> str:
         v_split = value.split('\n')
         e_split = expect.split('\n')
         if len(v_split) != len(e_split):
-            print("different number of lines:%d %d" % (len(v_split), len(e_split)))
+            print(f"different number of lines:{len(v_split)} {len(e_split)}")
 
         # breakpoint()
         for v, e in zip(v_split, e_split):
             # print("%s:%s"%(v,e))
             if v != e:
-                print("\n[%s]\n[%s]" % (v, e))
+                print(f"\n[{v}]\n[{e}]")
 
-        return "Expected:\n%s\nGot:\n%s" % (expect, value)
+        return f"Expected:\n{expect}\nGot:\n{value}"
 
 
 # Local Variables:

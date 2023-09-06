@@ -1,11 +1,7 @@
-"""SCons.Tool.packaging.msi
-
-The msi packager.
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
-# 
+# Copyright The SCons Foundation
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -25,7 +21,7 @@ The msi packager.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""The msi packager."""
 
 import os
 import SCons
@@ -78,9 +74,8 @@ def convert_to_id(s, id_set):
 
         return id_set[id][s]
 
-def is_dos_short_file_name(file):
-    """ Examine if the given file is in the 8.3 form.
-    """
+def is_dos_short_file_name(file) -> bool:
+    """Examine if the given file is in the 8.3 form."""
     fname, ext = os.path.splitext(file)
     proper_ext = len(ext) == 0 or (2 <= len(ext) <= 4) # the ext contains the dot
     proper_fname = file.isupper() and len(fname) <= 8
@@ -88,9 +83,11 @@ def is_dos_short_file_name(file):
     return proper_ext and proper_fname
 
 def gen_dos_short_file_name(file, filename_set):
-    """ See http://support.microsoft.com/default.aspx?scid=kb;en-us;Q142982
+    """Return a filename in the 8.3 form.
 
-    These are no complete 8.3 dos short names. The ~ char is missing and 
+    See http://support.microsoft.com/default.aspx?scid=kb;en-us;Q142982
+
+    These are no complete 8.3 dos short names. The ~ char is missing and
     replaced with one character from the filename. WiX warns about such
     filenames, since a collision might occur. Google for "CNDL1014" for
     more information.
@@ -130,7 +127,7 @@ def create_feature_dict(files):
     """
     dict = {}
 
-    def add_to_dict( feature, file ):
+    def add_to_dict( feature, file ) -> None:
         if not SCons.Util.is_List( feature ):
             feature = [ feature ]
 
@@ -150,7 +147,7 @@ def create_feature_dict(files):
 
     return dict
 
-def generate_guids(root):
+def generate_guids(root) -> None:
     """ generates globally unique identifiers for parts of the xml which need
     them.
 
@@ -179,7 +176,7 @@ def generate_guids(root):
             node.attributes[attribute] = str(hash)
 
 
-def string_wxsfile(target, source, env):
+def string_wxsfile(target, source, env) -> str:
     return "building WiX file %s" % target[0].path
 
 def build_wxsfile(target, source, env):
@@ -266,7 +263,7 @@ def create_default_directory_layout(root, NAME, VERSION, VENDOR, filename_set):
 #
 # mandatory and optional file tags
 #
-def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set, id_set):
+def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set, id_set) -> None:
     """ Builds the Component sections of the wxs file with their included files.
 
     Files need to be specified in 8.3 format and in the long name format, long
@@ -298,7 +295,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
         for d in dir_parts[:]:
             already_created = [c for c in Directory.childNodes
                                if c.nodeName == 'Directory'
-                               and c.attributes['LongName'].value == escape(d)] 
+                               and c.attributes['LongName'].value == escape(d)]
 
             if already_created:
                 Directory = already_created[0]
@@ -358,7 +355,7 @@ def build_wxsfile_file_section(root, files, NAME, VERSION, VENDOR, filename_set,
 #
 # additional functions
 #
-def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set):
+def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set) -> None:
     """ This function creates the <features> tag based on the supplied xml tree.
 
     This is achieved by finding all <component>s and adding them to a default target.
@@ -413,7 +410,7 @@ def build_wxsfile_features_section(root, files, NAME, VERSION, SUMMARY, id_set):
 
     root.getElementsByTagName('Product')[0].childNodes.append(Feature)
 
-def build_wxsfile_default_gui(root):
+def build_wxsfile_default_gui(root) -> None:
     """ This function adds a default GUI to the wxs file
     """
     factory = Document()
@@ -427,7 +424,7 @@ def build_wxsfile_default_gui(root):
     UIRef.attributes['Id'] = 'WixUI_ErrorProgressText'
     Product.childNodes.append(UIRef)
 
-def build_license_file(directory, spec):
+def build_license_file(directory, spec) -> None:
     """ Creates a License.rtf file with the content of "X_MSI_LICENSE_TEXT"
     in the given directory
     """
@@ -451,7 +448,7 @@ def build_license_file(directory, spec):
 #
 # mandatory and optional package tags
 #
-def build_wxsfile_header_section(root, spec):
+def build_wxsfile_header_section(root, spec) -> None:
     """ Adds the xml file node which define the package meta-data.
     """
     # Create the needed DOM nodes and add them at the correct position in the tree.

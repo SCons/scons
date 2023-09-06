@@ -112,7 +112,7 @@ version                 Prints SCons version information.
         'sh'    : 'shell',
     }
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         cmd.Cmd.__init__(self)
         for key, val in kw.items():
             setattr(self, key, val)
@@ -122,7 +122,7 @@ version                 Prints SCons version information.
         else:
             self.shell_variable = 'SHELL'
 
-    def default(self, argv):
+    def default(self, argv) -> None:
         print("*** Unknown command: %s" % argv[0])
 
     def onecmd(self, line):
@@ -148,7 +148,7 @@ version                 Prints SCons version information.
                 return self.default(argv)
             return func(argv)
 
-    def do_build(self, argv):
+    def do_build(self, argv) -> None:
         """\
         build [TARGETS]         Build the specified TARGETS and their
                                 dependencies.  'b' is a synonym.
@@ -213,11 +213,11 @@ version                 Prints SCons version information.
         seen_nodes = {}
 
         def get_unseen_children(node, parent, seen_nodes=seen_nodes):
-            def is_unseen(node, seen_nodes=seen_nodes):
+            def is_unseen(node, seen_nodes=seen_nodes) -> bool:
                 return node not in seen_nodes
             return [child for child in node.children(scan=1) if is_unseen(child)]
 
-        def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes):
+        def add_to_seen_nodes(node, parent, seen_nodes=seen_nodes) -> None:
             seen_nodes[node] = 1
 
             # If this file is in a VariantDir and has a
@@ -272,11 +272,11 @@ version                 Prints SCons version information.
         """
         return self.do_build(['build', '--clean'] + argv[1:])
 
-    def do_EOF(self, argv):
+    def do_EOF(self, argv) -> None:
         print()
         self.do_exit(argv)
 
-    def _do_one_help(self, arg):
+    def _do_one_help(self, arg) -> None:
         try:
             # If help_<arg>() exists, then call it.
             func = getattr(self, 'help_' + arg)
@@ -312,13 +312,13 @@ version                 Prints SCons version information.
         lines = list(map(strip_spaces, lines))
         return '\n'.join(lines)
 
-    def do_exit(self, argv):
+    def do_exit(self, argv) -> None:
         """\
         exit                    Exit SCons interactive mode.
         """
         sys.exit(0)
 
-    def do_help(self, argv):
+    def do_help(self, argv) -> None:
         """\
         help [COMMAND]          Prints help for the specified COMMAND.  'h'
                                 and '?' are synonyms.
@@ -335,7 +335,7 @@ version                 Prints SCons version information.
                 sys.stdout.write(doc + '\n')
                 sys.stdout.flush()
 
-    def do_shell(self, argv):
+    def do_shell(self, argv) -> None:
         """\
         shell [COMMANDLINE]     Execute COMMANDLINE in a subshell.  'sh' and
                                 '!' are synonyms.
@@ -350,18 +350,18 @@ version                 Prints SCons version information.
             # Doing the right thing with an argument list currently
             # requires different shell= values on Windows and Linux.
             p = subprocess.Popen(argv, shell=(sys.platform=='win32'))
-        except EnvironmentError as e:
+        except OSError as e:
             sys.stderr.write('scons: %s: %s\n' % (argv[0], e.strerror))
         else:
             p.wait()
 
-    def do_version(self, argv):
+    def do_version(self, argv) -> None:
         """\
         version                 Prints SCons version information.
         """
         sys.stdout.write(self.parser.version + '\n')
 
-def interact(fs, parser, options, targets, target_top):
+def interact(fs, parser, options, targets, target_top) -> None:
     c = SConsInteractiveCmd(prompt = 'scons>>> ',
                             fs = fs,
                             parser = parser,

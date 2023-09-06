@@ -27,7 +27,7 @@ import SCons.compat
 # Where this is defined in the file seems to affect its
 # byte-code contents, so try to minimize changes by
 # defining it here, before we even import anything.
-def Func():
+def Func() -> None:
     pass
 
 from collections import UserList
@@ -70,7 +70,7 @@ scons_env = SCons.Environment.Environment()
 env_arg2nodes_called = None
 
 class Environment:
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         self.d = {}
         self.d['SHELL'] = scons_env['SHELL']
         self.d['SPAWN'] = scons_env['SPAWN']
@@ -87,11 +87,11 @@ class Environment:
         def substitute(m, d=self.d):
             return d.get(m.group(1), '')
         return re.sub(r'\$(\w+)', substitute, s)
-    def subst_target_source(self, string, raw=0, target=None,
+    def subst_target_source(self, string, raw: int=0, target=None,
                             source=None, dict=None, conv=None):
         return SCons.Subst.scons_subst(string, self, raw, target,
                                        source, dict, conv)
-    def subst_list(self, string, raw=0, target=None, source=None, conv=None):
+    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None):
         return SCons.Subst.scons_subst_list(string, self, raw, target,
                                             source, {}, {}, conv)
     def arg2nodes(self, args, factory, **kw):
@@ -111,13 +111,13 @@ class Environment:
         return self.scanner
     def Dictionary(self):
         return {}
-    def autogenerate(self, dir=''):
+    def autogenerate(self, dir: str=''):
         return {}
-    def __setitem__(self, item, var):
+    def __setitem__(self, item, var) -> None:
         self.d[item] = var
     def __getitem__(self, item):
         return self.d[item]
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.d
     def keys(self):
         return list(self.d.keys())
@@ -128,7 +128,7 @@ class Environment:
         env.d.update(overrides)
         env.scanner = self.scanner
         return env
-    def _update(self, dict):
+    def _update(self, dict) -> None:
         self.d.update(dict)
     def items(self):
         return list(self.d.items())
@@ -144,15 +144,15 @@ class Environment:
         return self.scanner == other.scanner or self.d == other.d
 
 class MyAction:
-    def __init__(self, action):
+    def __init__(self, action) -> None:
         self.action = action
-    def __call__(self, *args, **kw):
+    def __call__(self, *args, **kw) -> None:
         pass
     def get_executor(self, env, overrides, tlist, slist, executor_kw):
         return ['executor'] + [self.action]
 
 class MyNode_without_target_from_source:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.sources = []
         self.builder = None
@@ -162,31 +162,31 @@ class MyNode_without_target_from_source:
         return os.path.splitext(self.name)[1]
     def disambiguate(self):
         return self
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
-    def builder_set(self, builder):
+    def builder_set(self, builder) -> None:
         self.builder = builder
-    def has_builder(self):
+    def has_builder(self) -> bool:
         return self.builder is not None
-    def set_explicit(self, is_explicit):
+    def set_explicit(self, is_explicit) -> None:
         self.is_explicit = is_explicit
-    def has_explicit_builder(self):
+    def has_explicit_builder(self) -> bool:
         return self.is_explicit
-    def env_set(self, env, safe=0):
+    def env_set(self, env, safe: bool=False) -> None:
         self.env = env
-    def add_source(self, source):
+    def add_source(self, source) -> None:
         self.sources.extend(source)
     def scanner_key(self):
         return self.name
-    def is_derived(self):
+    def is_derived(self) -> bool:
         return self.has_builder()
     def generate_build_env(self, env):
         return env
     def get_build_env(self):
         return self.executor.get_build_env()
-    def set_executor(self, executor):
+    def set_executor(self, executor) -> None:
         self.executor = executor
-    def get_executor(self, create=1):
+    def get_executor(self, create: int=1):
         return self.executor
 
 class MyNode(MyNode_without_target_from_source):
@@ -195,7 +195,7 @@ class MyNode(MyNode_without_target_from_source):
 
 class BuilderTestCase(unittest.TestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         """Test simple Builder creation
         """
         builder = SCons.Builder.Builder(action="foo")
@@ -204,7 +204,7 @@ class BuilderTestCase(unittest.TestCase):
         x = builder.overrides['OVERRIDE']
         assert x == 'x', x
 
-    def test__bool__(self):
+    def test__bool__(self) -> None:
         """Test a builder raising an exception when __bool__ is called. """
 
         # basic test: explicitly call it
@@ -339,7 +339,7 @@ class BuilderTestCase(unittest.TestCase):
         p = target.sources[0].get_internal_path()
         assert p == os.path.join('src_dir', 'n22'), p
 
-    def test_mistaken_variables(self):
+    def test_mistaken_variables(self) -> None:
         """Test keyword arguments that are often mistakes
         """
         import SCons.Warnings
@@ -348,7 +348,7 @@ class BuilderTestCase(unittest.TestCase):
 
         save_warn = SCons.Warnings.warn
         warned = []
-        def my_warn(exception, warning, warned=warned):
+        def my_warn(exception, warning, warned=warned) -> None:
             warned.append(warning)
         SCons.Warnings.warn = my_warn
 
@@ -368,7 +368,7 @@ class BuilderTestCase(unittest.TestCase):
         finally:
             SCons.Warnings.warn = save_warn
 
-    def test_action(self):
+    def test_action(self) -> None:
         """Test Builder creation
 
         Verify that we can retrieve the supplied action attribute.
@@ -376,7 +376,7 @@ class BuilderTestCase(unittest.TestCase):
         builder = SCons.Builder.Builder(action="foo")
         assert builder.action.cmd_list == "foo"
 
-        def func():
+        def func() -> None:
             pass
         builder = SCons.Builder.Builder(action=func)
         assert isinstance(builder.action, SCons.Action.FunctionAction)
@@ -385,16 +385,16 @@ class BuilderTestCase(unittest.TestCase):
         # point in the future.
         assert builder.action.execfunction == func
 
-    def test_generator(self):
+    def test_generator(self) -> None:
         """Test Builder creation given a generator function."""
 
-        def generator():
+        def generator() -> None:
             pass
 
         builder = SCons.Builder.Builder(generator=generator)
         assert builder.action.generator == generator
 
-    def test_cmp(self):
+    def test_cmp(self) -> None:
         """Test simple comparisons of Builder objects
         """
         b1 = SCons.Builder.Builder(src_suffix = '.o')
@@ -404,7 +404,7 @@ class BuilderTestCase(unittest.TestCase):
         assert b1 != b3
         assert b2 != b3
 
-    def test_target_factory(self):
+    def test_target_factory(self) -> None:
         """Test a Builder that creates target nodes of a specified class
         """
         class Foo:
@@ -416,7 +416,7 @@ class BuilderTestCase(unittest.TestCase):
         assert builder.target_factory is FooFactory
         assert builder.source_factory is not FooFactory
 
-    def test_source_factory(self):
+    def test_source_factory(self) -> None:
         """Test a Builder that creates source nodes of a specified class
         """
         class Foo:
@@ -428,7 +428,7 @@ class BuilderTestCase(unittest.TestCase):
         assert builder.target_factory is not FooFactory
         assert builder.source_factory is FooFactory
 
-    def test_splitext(self):
+    def test_splitext(self) -> None:
         """Test the splitext() method attached to a Builder."""
         b = SCons.Builder.Builder()
         assert b.splitext('foo') == ('foo','')
@@ -436,14 +436,14 @@ class BuilderTestCase(unittest.TestCase):
         assert b.splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'),'')
 
         class MyBuilder(SCons.Builder.BuilderBase):
-            def splitext(self, path):
+            def splitext(self, path) -> str:
                 return "called splitext()"
 
         b = MyBuilder()
         ret = b.splitext('xyz.c')
         assert ret == "called splitext()", ret
 
-    def test_adjust_suffix(self):
+    def test_adjust_suffix(self) -> None:
         """Test how a Builder adjusts file suffixes
         """
         b = SCons.Builder.Builder()
@@ -452,14 +452,14 @@ class BuilderTestCase(unittest.TestCase):
         assert b.adjust_suffix('$foo') == '$foo'
 
         class MyBuilder(SCons.Builder.BuilderBase):
-            def adjust_suffix(self, suff):
+            def adjust_suffix(self, suff) -> str:
                 return "called adjust_suffix()"
 
         b = MyBuilder()
         ret = b.adjust_suffix('.foo')
         assert ret == "called adjust_suffix()", ret
 
-    def test_prefix(self):
+    def test_prefix(self) -> None:
         """Test Builder creation with a specified target prefix
 
         Make sure that there is no '.' separator appended.
@@ -515,7 +515,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
         assert tgt.get_internal_path() == 'emit-f6', tgt.get_internal_path()
 
-    def test_set_suffix(self):
+    def test_set_suffix(self) -> None:
         """Test the set_suffix() method"""
         b = SCons.Builder.Builder(action='')
         env = Environment(XSUFFIX = '.x')
@@ -531,7 +531,7 @@ class BuilderTestCase(unittest.TestCase):
         s = b.get_suffix(env)
         assert s == '.x', s
 
-    def test_src_suffix(self):
+    def test_src_suffix(self) -> None:
         """Test Builder creation with a specified source file suffix
 
         Make sure that the '.' separator is appended to the
@@ -565,7 +565,7 @@ class BuilderTestCase(unittest.TestCase):
         b5 = SCons.Builder.Builder(action = { '.y' : ''})
         assert b5.src_suffixes(env) == ['.y'], b5.src_suffixes(env)
 
-    def test_srcsuffix_nonext(self):
+    def test_srcsuffix_nonext(self) -> None:
         """Test target generation from non-extension source suffixes"""
         env = Environment()
         b6 = SCons.Builder.Builder(action = '',
@@ -592,7 +592,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = b9(env, target=None, source='foo_altsrc.b')
         assert str(tgt[0]) == 'foo.c', str(tgt[0])
 
-    def test_src_suffix_expansion(self):
+    def test_src_suffix_expansion(self) -> None:
         """Test handling source suffixes when an expansion is involved"""
         env = Environment(OBJSUFFIX = '.obj')
 
@@ -607,7 +607,7 @@ class BuilderTestCase(unittest.TestCase):
         s = list(map(str, tgt[0].sources))
         assert s == ['foo.obj'], s
 
-    def test_suffix(self):
+    def test_suffix(self) -> None:
         """Test Builder creation with a specified target suffix
 
         Make sure that the '.' separator is appended to the
@@ -658,9 +658,43 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
         assert tgt.get_internal_path() == 'f6.emit', tgt.get_internal_path()
 
-    def test_single_source(self):
+    def test__adjustixes(self) -> None:
+        """Test the _adjustixes() method"""
+        from pathlib import Path
+
+        builder = SCons.Builder.Builder()
+
+        # path without suffix should have both added
+        with self.subTest():
+            r = builder._adjustixes('file', 'pre-', '-suf')
+            self.assertEqual(r, ['pre-file-suf'])
+
+        # path with a suffix should not have one added
+        with self.subTest():
+            r = builder._adjustixes('file.o', 'pre-', '-suf')
+            self.assertEqual(r, ['pre-file.o'])
+
+        # unless ensure_suffix is True
+        with self.subTest():
+            r = builder._adjustixes('file.o', 'pre-', '-suf', ensure_suffix=True)
+            self.assertEqual(r, ['pre-file.o-suf'])
+
+        # a PathLike object should be modified
+        with self.subTest():
+            r = builder._adjustixes(Path('file'), 'pre-', '-suf')
+            self.assertEqual(r, ['pre-file-suf'])
+
+        # make sure a non-str, non-PathLike is just left alone
+        with self.subTest():
+            env = Environment()
+            mynode = env.fs.File('file')
+            r = builder._adjustixes(mynode, 'pre-', '-suf')
+            self.assertEqual(r, [mynode])
+            self.assertEqual(r[0].path, 'file')
+
+    def test_single_source(self) -> None:
         """Test Builder with single_source flag set"""
-        def func(target, source, env):
+        def func(target, source, env) -> None:
             """create the file"""
             with open(str(target[0]), "w"):
                 pass
@@ -715,9 +749,9 @@ class BuilderTestCase(unittest.TestCase):
             assert 0
 
 
-    def test_lists(self):
+    def test_lists(self) -> None:
         """Testing handling lists of targets and source"""
-        def function2(target, source, env, tlist = [outfile, outfile2], **kw):
+        def function2(target, source, env, tlist = [outfile, outfile2], **kw) -> int:
             for t in target:
                 with open(str(t), 'w') as f:
                     f.write("function2\n")
@@ -748,7 +782,7 @@ class BuilderTestCase(unittest.TestCase):
         sub1_out = test.workpath('sub1', 'out')
         sub2_out = test.workpath('sub2', 'out')
 
-        def function3(target, source, env, tlist = [sub1_out, sub2_out]):
+        def function3(target, source, env, tlist = [sub1_out, sub2_out]) -> int:
             for t in target:
                 with open(str(t), 'w') as f:
                     f.write("function3\n")
@@ -773,7 +807,7 @@ class BuilderTestCase(unittest.TestCase):
         assert os.path.exists(test.workpath('sub1'))
         assert os.path.exists(test.workpath('sub2'))
 
-    def test_src_builder(self):
+    def test_src_builder(self) -> None:
         """Testing Builders with src_builder"""
         # These used to be MultiStepBuilder objects until we
         # eliminated it as a separate class
@@ -829,7 +863,7 @@ class BuilderTestCase(unittest.TestCase):
         s = list(map(str, tgt.sources[0].sources[0].sources))
         assert s == ['test.i'], s
 
-    def test_target_scanner(self):
+    def test_target_scanner(self) -> None:
         """Testing ability to set target and source scanners through a builder."""
         global instanced
         class TestScanner:
@@ -855,12 +889,12 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.builder.target_scanner == tscan, tgt.builder.target_scanner
         assert tgt.builder.source_scanner == tscan, tgt.builder.source_scanner
 
-    def test_actual_scanner(self):
+    def test_actual_scanner(self) -> None:
         """Test usage of actual Scanner objects."""
 
         import SCons.Scanner
 
-        def func(self):
+        def func(self) -> None:
             pass
 
         scanner = SCons.Scanner.ScannerBase(func, name='fooscan')
@@ -872,17 +906,17 @@ class BuilderTestCase(unittest.TestCase):
         assert b1 == b2
         assert b1 != b3
 
-    def test_src_scanner(self):
+    def test_src_scanner(self) -> None:
         """Testing ability to set a source file scanner through a builder."""
         class TestScanner:
-            def key(self, env):
+            def key(self, env) -> str:
                  return 'TestScannerkey'
             def instance(self, env):
                  return self
             def select(self, node):
                  return self
             name = 'TestScanner'
-            def __str__(self):
+            def __str__(self) -> str:
                 return self.name
 
         scanner = TestScanner()
@@ -904,12 +938,12 @@ class BuilderTestCase(unittest.TestCase):
         # An Environment that has suffix-specified SCANNERS should
         # provide a source scanner to the target.
         class EnvTestScanner:
-            def key(self, env):
+            def key(self, env) -> str:
                  return '.y'
             def instance(self, env):
                  return self
             name = 'EnvTestScanner'
-            def __str__(self):
+            def __str__(self) -> str:
                 return self.name
             def select(self, node):
                 return self
@@ -962,7 +996,7 @@ class BuilderTestCase(unittest.TestCase):
 
 
 
-    def test_Builder_API(self):
+    def test_Builder_API(self) -> None:
         """Test Builder interface.
 
         Some of this is tested elsewhere in this file, but this is a
@@ -1135,9 +1169,9 @@ class BuilderTestCase(unittest.TestCase):
         assert r == ['.src_sfx1', '.src_sfx2'], r
 
 
-    def test_Builder_Args(self):
+    def test_Builder_Args(self) -> None:
         """Testing passing extra args to a builder."""
-        def buildFunc(target, source, env, s=self):
+        def buildFunc(target, source, env, s=self) -> None:
             s.foo=env['foo']
             s.bar=env['bar']
             assert env['CC'] == 'mycc'
@@ -1150,7 +1184,7 @@ class BuilderTestCase(unittest.TestCase):
         assert self.foo == 1, self.foo
         assert self.bar == 2, self.bar
 
-    def test_emitter(self):
+    def test_emitter(self) -> None:
         """Test emitter functions."""
         def emit(target, source, env):
             foo = env.get('foo', 0)
@@ -1214,7 +1248,7 @@ class BuilderTestCase(unittest.TestCase):
         assert 'baz' in list(map(str, tgt.sources)), list(map(str, tgt.sources))
         assert 'bar' in list(map(str, tgt.sources)), list(map(str, tgt.sources))
 
-    def test_emitter_preserve_builder(self):
+    def test_emitter_preserve_builder(self) -> None:
         """Test an emitter not overwriting a newly-set builder"""
         env = Environment()
 
@@ -1236,7 +1270,7 @@ class BuilderTestCase(unittest.TestCase):
         assert tgt.builder is builder, tgt.builder
         assert node.builder is new_builder, node.builder
 
-    def test_emitter_suffix_map(self):
+    def test_emitter_suffix_map(self) -> None:
         """Test mapping file suffixes to emitter functions"""
         env = Environment()
 
@@ -1270,7 +1304,7 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(env, None, source='ccc.4c')[0]
         assert str(tgt) == 'emit4c-ccc', str(tgt)
 
-    def test_emitter_function_list(self):
+    def test_emitter_function_list(self) -> None:
         """Test lists of emitter functions"""
         env = Environment()
 
@@ -1309,7 +1343,7 @@ class BuilderTestCase(unittest.TestCase):
         tgts = list(map(str, tgts))
         assert tgts == ['target-2', 'emit2a-aaa', 'emit2b-aaa'], tgts
 
-    def test_emitter_TARGET_SOURCE(self):
+    def test_emitter_TARGET_SOURCE(self) -> None:
         """Test use of $TARGET and $SOURCE in emitter results"""
 
         env = SCons.Environment.Environment()
@@ -1329,7 +1363,7 @@ class BuilderTestCase(unittest.TestCase):
         assert targets == ['TTT', 'SSS.s1', 'TTT.t1'], targets
         assert sources == ['SSS', 'TTT.t2', 'SSS.s2'], targets
 
-    def test_no_target(self):
+    def test_no_target(self) -> None:
         """Test deducing the target from the source."""
 
         env = Environment()
@@ -1385,7 +1419,7 @@ class BuilderTestCase(unittest.TestCase):
         assert str(tgt.sources[0]) == 'i0.w', list(map(str, tgt.sources))
         assert str(tgt.sources[1]) == 'i1.y', list(map(str, tgt.sources))
 
-    def test_get_name(self):
+    def test_get_name(self) -> None:
         """Test getting name of builder.
 
         Each type of builder should return its environment-specific
@@ -1445,8 +1479,8 @@ class BuilderTestCase(unittest.TestCase):
 
 class CompositeBuilderTestCase(unittest.TestCase):
 
-    def setUp(self):
-        def func_action(target, source, env):
+    def setUp(self) -> None:
+        def func_action(target, source, env) -> int:
             return 0
 
         builder = SCons.Builder.Builder(action={ '.foo' : func_action,
@@ -1455,7 +1489,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         self.func_action = func_action
         self.builder = builder
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test CompositeBuilder creation"""
         env = Environment()
         builder = SCons.Builder.Builder(action={})
@@ -1466,7 +1500,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         assert isinstance(builder, SCons.Builder.CompositeBuilder)
         assert isinstance(builder.action, SCons.Action.CommandGeneratorAction)
 
-    def test_target_action(self):
+    def test_target_action(self) -> None:
         """Test CompositeBuilder setting of target builder actions"""
         env = Environment()
         builder = self.builder
@@ -1479,7 +1513,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         assert isinstance(tgt.builder, SCons.Builder.BuilderBase)
         assert tgt.builder.action is builder.action
 
-    def test_multiple_suffix_error(self):
+    def test_multiple_suffix_error(self) -> None:
         """Test the CompositeBuilder multiple-source-suffix error"""
         env = Environment()
         builder = self.builder
@@ -1494,7 +1528,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         expect = "While building `['test3']' from `test1.foo': Cannot build multiple sources with different extensions: .bar, .foo"
         assert str(err) == expect, err
 
-    def test_source_ext_match(self):
+    def test_source_ext_match(self) -> None:
         """Test the CompositeBuilder source_ext_match argument"""
         env = Environment()
         func_action = self.func_action
@@ -1505,7 +1539,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
         tgt = builder(env, target='test3', source=['test2.bar', 'test1.foo'])[0]
         tgt.build()
 
-    def test_suffix_variable(self):
+    def test_suffix_variable(self) -> None:
         """Test CompositeBuilder defining action suffixes through a variable"""
         env = Environment(BAR_SUFFIX = '.BAR2', FOO_SUFFIX = '.FOO2')
         func_action = self.func_action
@@ -1532,7 +1566,7 @@ class CompositeBuilderTestCase(unittest.TestCase):
             flag = 1
         assert flag, "UserError should be thrown when we call a builder with ambigous suffixes."
 
-    def test_src_builder(self):
+    def test_src_builder(self) -> None:
         """Test CompositeBuilder's use of a src_builder"""
         env = Environment()
 

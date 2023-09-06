@@ -77,7 +77,7 @@ def _POUpdateBuilderWrapper(env, target=None, source=_null, **kw):
     return env._POUpdateBuilder(target, source, **kw)
 
 
-def generate(env, **kw):
+def generate(env, **kw) -> None:
     """ Generate the `msgmerge` tool """
 
     if sys.platform == 'win32':

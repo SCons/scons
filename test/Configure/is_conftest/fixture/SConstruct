@@ -1,9 +1,11 @@
-"""
-Test the nodes are created as conftest nodes in configure tests.
-"""
-import sys
-DefaultEnvironment(tools=[])
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
+"""Test the nodes are created as conftest nodes in configure tests."""
+import sys
+
+DefaultEnvironment(tools=[])
 env = Environment()
 
 conf = Configure(env)

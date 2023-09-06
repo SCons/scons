@@ -46,7 +46,7 @@ def my_whichdb(filename):
     try:
         with open(filename + ".dblite", "rb"):
             return "SCons.dblite"
-    except IOError:
+    except OSError:
         pass
     return whichdb(filename)
 
@@ -72,7 +72,7 @@ def my_import(mname):
 class Flagger:
     default_value = 1
 
-    def __setitem__(self, item, value):
+    def __setitem__(self, item, value) -> None:
         self.__dict__[item] = value
         self.default_value = 0
 
@@ -201,7 +201,7 @@ def field(name, entry, verbose=Verbose):
     return val
 
 
-def nodeinfo_raw(name, ninfo, prefix=""):
+def nodeinfo_raw(name, ninfo, prefix: str=""):
     """
     This just formats the dictionary, which we would normally use str()
     to do, except that we want the keys sorted for deterministic output.
@@ -219,7 +219,7 @@ def nodeinfo_raw(name, ninfo, prefix=""):
     return name + ': {' + ', '.join(values) + '}'
 
 
-def nodeinfo_cooked(name, ninfo, prefix=""):
+def nodeinfo_cooked(name, ninfo, prefix: str=""):
     try:
         field_list = ninfo.field_list
     except AttributeError:
@@ -239,7 +239,7 @@ def nodeinfo_cooked(name, ninfo, prefix=""):
 nodeinfo_string = nodeinfo_cooked
 
 
-def printfield(name, entry, prefix=""):
+def printfield(name, entry, prefix: str="") -> None:
     outlist = field("implicit", entry, 0)
     if outlist:
         if Verbose:
@@ -253,7 +253,7 @@ def printfield(name, entry, prefix=""):
             print("        " + outact)
 
 
-def printentries(entries, location):
+def printentries(entries, location) -> None:
     if Print_Entries:
         for name in Print_Entries:
             try:
@@ -282,7 +282,7 @@ def printentries(entries, location):
 
 
 class Do_SConsignDB:
-    def __init__(self, dbm_name, dbm):
+    def __init__(self, dbm_name, dbm) -> None:
         self.dbm_name = dbm_name
         self.dbm = dbm
 
@@ -297,7 +297,7 @@ class Do_SConsignDB:
             #   .sconsign               => .sconsign.dblite
             #   .sconsign.dblite        => .sconsign.dblite.dblite
             db = self.dbm.open(fname, "r")
-        except (IOError, OSError) as e:
+        except OSError as e:
             print_e = e
             try:
                 # That didn't work, so try opening the base name,
@@ -305,14 +305,14 @@ class Do_SConsignDB:
                 # (for example), the dbm module will put the suffix back
                 # on for us and open it anyway.
                 db = self.dbm.open(os.path.splitext(fname)[0], "r")
-            except (IOError, OSError):
+            except OSError:
                 # That didn't work either.  See if the file name
                 # they specified even exists (independent of the dbm
                 # suffix-mangling).
                 try:
                     with open(fname, "rb"):
                         pass  # this is a touch only, we don't use it here.
-                except (IOError, OSError) as e:
+                except OSError as e:
                     # Nope, that file doesn't even exist, so report that
                     # fact back.
                     print_e = e
@@ -346,7 +346,7 @@ class Do_SConsignDB:
                 self.printentries(dir, db[dir])
 
     @staticmethod
-    def printentries(dir, val):
+    def printentries(dir, val) -> None:
         try:
             print('=== ' + dir + ':')
         except TypeError:
@@ -370,13 +370,13 @@ def Do_SConsignDir(name):
                 sys.stderr.write(err)
                 return
             printentries(sconsign.entries, args[0])
-    except (IOError, OSError) as e:
+    except OSError as e:
         sys.stderr.write("sconsign: %s\n" % e)
         return
 
 
 ##############################################################################
-def main():
+def main() -> None:
     global Do_Call
     global nodeinfo_string
     global args

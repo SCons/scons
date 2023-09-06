@@ -1,16 +1,6 @@
-
-"""SCons.Tool.docbook
-
-Tool-specific initialization for Docbook.
-
-There normally shouldn't be any need to import this module directly.
-It will usually be imported through the generic SCons.Tool.Tool()
-selection method.
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,7 +20,13 @@ selection method.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""Tool-specific initialization for Docbook.
+
+There normally shouldn't be any need to import this module directly.
+It will usually be imported through the generic SCons.Tool.Tool()
+selection method.
+"""
 
 import os
 import glob
@@ -42,7 +38,6 @@ import SCons.Defaults
 import SCons.Script
 import SCons.Tool
 import SCons.Util
-
 
 __debug_tool_location = False
 # Get full path to this script
@@ -69,10 +64,10 @@ re_refname = re.compile(r"<refname>([^<]*)</refname>")
 # lxml etree XSLT global max traversal depth
 #
 
-lmxl_xslt_global_max_depth = 3100
+lmxl_xslt_global_max_depth = 3600
 
 if has_lxml and lmxl_xslt_global_max_depth:
-    def __lxml_xslt_set_global_max_depth(max_depth):
+    def __lxml_xslt_set_global_max_depth(max_depth) -> None:
         from lxml import etree
         etree.XSLT.set_global_max_depth(max_depth)
     __lxml_xslt_set_global_max_depth(lmxl_xslt_global_max_depth)
@@ -93,7 +88,7 @@ def __extend_targets_sources(target, source):
 
     return target, source
 
-def __init_xsl_stylesheet(kw, env, user_xsl_var, default_path):
+def __init_xsl_stylesheet(kw, env, user_xsl_var, default_path) -> None:
     if kw.get('DOCBOOK_XSL','') == '':
         xsl_style = kw.get('xsl', env.subst(user_xsl_var))
         if xsl_style == '':
@@ -137,7 +132,7 @@ def __get_xml_text(root):
             txt += e.data
     return txt
 
-def __create_output_dir(base_dir):
+def __create_output_dir(base_dir) -> None:
     """ Ensure that the output directory base_dir exists. """
     root, tail = os.path.split(base_dir)
     dir = None
@@ -173,7 +168,7 @@ fop_com = {'fop' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -fo $SOURCE -pdf $TARGET',
            'xep' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -valid -fo $SOURCE -pdf $TARGET',
            'jw' : '$DOCBOOK_FOP $DOCBOOK_FOPFLAGS -f docbook -b pdf $SOURCE -o $TARGET'}
 
-def __detect_cl_tool(env, chainkey, cdict, cpriority=None):
+def __detect_cl_tool(env, chainkey, cdict, cpriority=None) -> None:
     """
     Helper function, picks a command line tool from the list
     and initializes its environment variables.
@@ -195,7 +190,7 @@ def __detect_cl_tool(env, chainkey, cdict, cpriority=None):
                     env[chainkey + 'COM'] = cdict[cltool]
                 break
 
-def _detect(env):
+def _detect(env) -> None:
     """
     Detect all the command line tools that we might need for creating
     the requested output formats.
@@ -244,7 +239,7 @@ def __xml_scan(node, env, path, arg):
             # for xi:includes...
             contents = node.get_text_contents()
             return include_re.findall(contents)
-        
+
     from lxml import etree
 
     xsl_tree = etree.parse(xsl_file)
@@ -324,7 +319,7 @@ def __build_lxml(target, source, env):
         with open(str(target[0]), "wb") as of:
             of.write(etree.tostring(result, encoding="utf-8", pretty_print=True))
     except Exception as e:
-        print("ERROR: Failed to write {}".format(str(target[0])))
+        print(f"ERROR: Failed to write {str(target[0])}")
         print(e)
 
     return None
@@ -367,7 +362,7 @@ def __xinclude_lxml(target, source, env):
         doc.write(str(target[0]), xml_declaration=True,
                   encoding="UTF-8", pretty_print=True)
     except Exception as e:
-        print("ERROR: Failed to write {}".format(str(target[0])))
+        print(f"ERROR: Failed to write {str(target[0])}")
         print(e)
 
     return None
@@ -420,7 +415,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
     import zipfile
     import shutil
 
-    def build_open_container(target, source, env):
+    def build_open_container(target, source, env) -> None:
         """Generate the *.epub file from intermediate outputs
 
         Constructs the epub file according to the Open Container Format. This
@@ -444,7 +439,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
                             zf.write(path, os.path.relpath(path, str(env.get('ZIPROOT', ''))),
                                 zipfile.ZIP_DEFLATED)
 
-    def add_resources(target, source, env):
+    def add_resources(target, source, env) -> None:
         """Add missing resources to the OEBPS directory
 
         Ensure all the resources in the manifest are present in the OEBPS directory.
@@ -490,7 +485,7 @@ def DocbookEpub(env, target, source=None, *args, **kw):
 
     # Set the fixed base_dir
     kw['base_dir'] = 'OEBPS/'
-    tocncx = __builder.__call__(env, 'toc.ncx', source[0], **kw)
+    tocncx = __builder(env, 'toc.ncx', source[0], **kw)
     cxml = env.File('META-INF/container.xml')
     env.SideEffect(cxml, tocncx)
 
@@ -524,7 +519,7 @@ def DocbookHtml(env, target, source=None, *args, **kw):
     # Create targets
     result = []
     for t,s in zip(target,source):
-        r = __builder.__call__(env, __ensure_suffix(t,'.html'), s, **kw)
+        r = __builder(env, __ensure_suffix(t,'.html'), s, **kw)
         env.Depends(r, kw['DOCBOOK_XSL'])
         result.extend(r)
 
@@ -556,7 +551,7 @@ def DocbookHtmlChunked(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
@@ -591,7 +586,7 @@ def DocbookHtmlhelp(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
@@ -617,10 +612,10 @@ def DocbookPdf(env, target, source=None, *args, **kw):
     result = []
     for t,s in zip(target,source):
         t, stem = __ensure_suffix_stem(t, '.pdf')
-        xsl = __builder.__call__(env, stem+'.fo', s, **kw)
+        xsl = __builder(env, stem+'.fo', s, **kw)
         result.extend(xsl)
         env.Depends(xsl, kw['DOCBOOK_XSL'])
-        result.extend(__fop_builder.__call__(env, t, xsl, **kw))
+        result.extend(__fop_builder(env, t, xsl, **kw))
 
     return result
 
@@ -660,7 +655,7 @@ def DocbookMan(env, target, source=None, *args, **kw):
 
             except Exception:
                 # Use simple regex parsing
-                with open(__ensure_suffix(str(s),'.xml'), 'r') as f:
+                with open(__ensure_suffix(str(s), '.xml')) as f:
                     content = f.read()
 
                 for m in re_manvolnum.finditer(content):
@@ -681,7 +676,7 @@ def DocbookMan(env, target, source=None, *args, **kw):
             # We have to completely rely on the given target name
             outfiles.append(t)
 
-        __builder.__call__(env, outfiles[0], s, **kw)
+        __builder(env, outfiles[0], s, **kw)
         env.Depends(outfiles[0], kw['DOCBOOK_XSL'])
         result.append(outfiles[0])
         if len(outfiles) > 1:
@@ -707,10 +702,10 @@ def DocbookSlidesPdf(env, target, source=None, *args, **kw):
     result = []
     for t,s in zip(target,source):
         t, stem = __ensure_suffix_stem(t, '.pdf')
-        xsl = __builder.__call__(env, stem+'.fo', s, **kw)
+        xsl = __builder(env, stem+'.fo', s, **kw)
         env.Depends(xsl, kw['DOCBOOK_XSL'])
         result.extend(xsl)
-        result.extend(__fop_builder.__call__(env, t, xsl, **kw))
+        result.extend(__fop_builder(env, t, xsl, **kw))
 
     return result
 
@@ -740,7 +735,7 @@ def DocbookSlidesHtml(env, target, source=None, *args, **kw):
 
     # Create targets
     result = []
-    r = __builder.__call__(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
+    r = __builder(env, __ensure_suffix(str(target[0]), '.html'), source[0], **kw)
     env.Depends(r, kw['DOCBOOK_XSL'])
     result.extend(r)
     # Add supporting files for cleanup
@@ -762,7 +757,7 @@ def DocbookXInclude(env, target, source, *args, **kw):
     # Create targets
     result = []
     for t,s in zip(target,source):
-        result.extend(__builder.__call__(env, t, s, **kw))
+        result.extend(__builder(env, t, s, **kw))
 
     return result
 
@@ -782,14 +777,14 @@ def DocbookXslt(env, target, source=None, *args, **kw):
     # Create targets
     result = []
     for t,s in zip(target,source):
-        r = __builder.__call__(env, t, s, **kw)
+        r = __builder(env, t, s, **kw)
         env.Depends(r, kw['DOCBOOK_XSL'])
         result.extend(r)
 
     return result
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for docbook to an Environment."""
 
     env.SetDefault(
@@ -839,5 +834,5 @@ def generate(env):
     env.AddMethod(DocbookXslt, "DocbookXslt")
 
 
-def exists(env):
-    return 1
+def exists(env) -> bool:
+    return True

@@ -44,7 +44,7 @@ def findIt(program, env):
         env.PrependENVPath('PATH', dir)
     return borwin
 
-def generate(env):
+def generate(env) -> None:
     findIt('bcc32', env)
     """Add Builders and construction variables for bcc to an
     Environment."""

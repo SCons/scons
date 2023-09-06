@@ -46,7 +46,7 @@ import SCons.Util
 import SCons.Action
 import SCons.Defaults
 
-def get_cmd(source, env):
+def get_cmd(source, env) -> str:
     tar_file_with_included_specfile = source
     if SCons.Util.is_List(source):
         tar_file_with_included_specfile = source[0]
@@ -110,7 +110,7 @@ RpmBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$RPMCOM', '$RPM
 
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for rpm to an Environment."""
     try:
         bld = env['BUILDERS']['Rpm']

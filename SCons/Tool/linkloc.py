@@ -51,9 +51,9 @@ def repl_linker_command(m):
     # Replaces any linker command file directives (e.g. "@foo.lnk") with
     # the actual contents of the file.
     try:
-        with open(m.group(2), "r") as f:
+        with open(m.group(2)) as f:
             return m.group(1) + f.read()
-    except IOError:
+    except OSError:
         # the linker should return an error if it can't
         # find the linker command file so we will remain quiet.
         # However, we will replace the @ with a # so we will not continue
@@ -61,7 +61,7 @@ def repl_linker_command(m):
         return m.group(1) + '#' + m.group(2)
 
 class LinklocGenerator:
-    def __init__(self, cmdline):
+    def __init__(self, cmdline) -> None:
         self.cmdline = cmdline
 
     def __call__(self, env, target, source, for_signature):
@@ -75,7 +75,7 @@ class LinklocGenerator:
         else:
             return "${TEMPFILE('" + self.cmdline + "')}"
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createSharedLibBuilder(env)
     SCons.Tool.createProgBuilder(env)

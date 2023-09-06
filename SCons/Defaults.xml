@@ -92,68 +92,111 @@ to each definition in &cv-link-CPPDEFINES;.
 <summary>
 <para>
 A platform independent specification of C preprocessor macro definitions.
-The definitions will be added to command lines
+The definitions are added to command lines
 through the automatically-generated
-&cv-link-_CPPDEFFLAGS; &consvar; (see above),
+&cv-link-_CPPDEFFLAGS; &consvar;,
 which is constructed according to
-the type of value of &cv-CPPDEFINES;:
+the contents of &cv-CPPDEFINES;:
 </para>
 
+<itemizedlist>
+<listitem>
 <para>
 If &cv-CPPDEFINES; is a string,
 the values of the
 &cv-link-CPPDEFPREFIX; and &cv-link-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
-each definition in &cv-link-CPPDEFINES;.
+are respectively prepended and appended to
+each definition in &cv-CPPDEFINES;,
+split on whitespace.
 </para>
 
 <example_commands>
-# Will add -Dxyz to POSIX compiler command lines,
+# Adds -Dxyz to POSIX compiler command lines,
 # and /Dxyz to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES='xyz')
 </example_commands>
 
+</listitem>
+<listitem>
 <para>
 If &cv-CPPDEFINES; is a list,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to 
+are respectively prepended and appended to
 each element in the list.
-If any element is a list or tuple,
-then the first item is the name being
-defined and the second item is its value:
+If any element is a tuple (or list)
+then the first item of the tuple is the macro name
+and the second is the macro definition.
+If the definition is not omitted or <literal>None</literal>,
+the name and definition are combined into a single
+<literal>name=definition</literal> item
+before the preending/appending.
 </para>
 
 <example_commands>
-# Will add -DB=2 -DA to POSIX compiler command lines,
+# Adds -DB=2 -DA to POSIX compiler command lines,
 # and /DB=2 /DA to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES=[('B', 2), 'A'])
 </example_commands>
 
+</listitem>
+<listitem>
 <para>
 If &cv-CPPDEFINES; is a dictionary,
 the values of the
 &cv-CPPDEFPREFIX; and &cv-CPPDEFSUFFIX; &consvars;
-will be respectively prepended and appended to
-each item from the dictionary.
-The key of each dictionary item
-is a name being defined
-to the dictionary item's corresponding value;
-if the value is
-<literal>None</literal>,
-then the name is defined without an explicit value.
-Note that the resulting flags are sorted by keyword
-to ensure that the order of the options on the
-command line is consistent each time
-&scons;
-is run.
+are respectively prepended and appended to
+each key from the dictionary.
+If the value for a key is not <literal>None</literal>,
+then the key (macro name) and the value
+(macros definition) are combined into a single
+<literal>name=definition</literal> item
+before the prepending/appending.
 </para>
 
 <example_commands>
-# Will add -DA -DB=2 to POSIX compiler command lines,
-# and /DA /DB=2 to Microsoft Visual C++ command lines.
+# Adds -DA -DB=2 to POSIX compiler command lines,
+# or /DA /DB=2 to Microsoft Visual C++ command lines.
 env = Environment(CPPDEFINES={'B':2, 'A':None})
 </example_commands>
+</listitem>
+</itemizedlist>
+
+<para>
+Depending on how contents are added to &cv-CPPDEFINES;,
+it may be transformed into a compound type,
+for example a list containing strings, tuples and/or dictionaries.
+&SCons; can correctly expand such a compound type.
+</para>
+
+<para>
+Note that &SCons; may call the compiler via a shell.
+If a macro definition contains characters such as spaces that
+have meaning to the shell, or is intended to be a string value,
+you may need to use the shell's quoting syntax to avoid
+interpretation by the shell before the preprocessor sees it.
+Function-like macros are not supported via this mechanism
+(and some compilers do not even implement that functionality
+via the command lines).
+When quoting, note that
+one set of quote characters are used to define a &Python; string,
+then quotes embedded inside that would be consumed by the shell
+unless escaped.  These examples may help illustrate:
+</para>
+
+<example_commands>
+env = Environment(CPPDEFINES=['USE_ALT_HEADER=\\"foo_alt.h\\"'])
+env = Environment(CPPDEFINES=[('USE_ALT_HEADER', '\\"foo_alt.h\\"')])
+</example_commands>
+
+<para>
+:<emphasis>Changed in version  4.5</emphasis>:
+&SCons; no longer sorts &cv-CPPDEFINES; values entered
+in dictionary form.  &Python; now preserves dictionary
+keys in the order they are entered, so it is no longer
+necessary to sort them to ensure a stable command line.
+</para>
+
 </summary>
 </cvar>
 
@@ -200,7 +243,7 @@ to each directory in &cv-link-CPPPATH;.
 <para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files. 
+directories for include files.
 In general it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
@@ -214,9 +257,9 @@ Python's <systemitem>os.sep</systemitem>.
 Note:
 directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -486,9 +529,9 @@ as the result will be non-portable.
 Note:
 directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -532,7 +575,7 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 <para>
 A list of one or more libraries
 that will be added to the link line
-for linking with any executable program, shared library, or loadable module 
+for linking with any executable program, shared library, or loadable module
 created by the &consenv; or override.
 </para>
 
@@ -604,26 +647,39 @@ searching the repositories.
 </arguments>
 <summary>
 <para>
-Instantiates and returns the default &consenv; object.
-The &defenv; is used internally by SCons
-in order to execute many of the global functions in this list
+Instantiates and returns the global &consenv; object.
+This environment is used internally by SCons
+when it executes many of the global functions listed in this section
 (that is, those not called as methods of a specific &consenv;).
-It is not mandatory to call &f-DefaultEnvironment;:
-the &defenv; will be instantiated automatically when the
-build phase begins if the function has not been called,
-however calling it explicitly gives the opportunity to
-affect and examine the contents of the &defenv;.
-</para>
-<para>
-The &defenv; is a singleton, so the keyword
-arguments affect it only on the first call, on subsequent
-calls the already-constructed object is returned and
-any keyword arguments are silently ignored.
-The &defenv; can be modified after instantiation
-in the same way as any &consenv;.
-Modifying the &defenv; has no effect on the &consenv;
+The &defenv; is a singleton:
+the keyword arguments are used only on the first call;
+on subsequent calls the already-constructed object is returned
+and any keyword arguments are silently ignored.
+The &defenv; can still be modified after instantiation
+in the same way as any other &consenv;.
+The &defenv; is independent:
+modifying it has no effect on any other &consenv;
 constructed by an &f-link-Environment; or &f-link-Clone; call.
 </para>
+
+<para>
+It is not mandatory to call &f-DefaultEnvironment;:
+the &defenv; is instantiated automatically when the
+build phase begins if this function has not been called;
+however calling it explicitly gives the opportunity to
+affect and examine the contents of the &defenv;.
+Instantiation happens even if no build instructions
+appar to use it, as there are internal uses.
+If there are no uses in the project &SConscript; files,
+a small performance gain may be seen by calling
+&f-DefaultEnvironment; with an empty tools list,
+thus avoiding that part of the initialization cost.
+This is mainly of interest in testing when &scons; is
+launched repeatedly in a short time period:
+</para>
+<example_commands>
+DefaultEnvironment(tools=[])
+</example_commands>
 </summary>
 </scons_function>
 

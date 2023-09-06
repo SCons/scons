@@ -1,4 +1,10 @@
 <?xml version='1.0'?>
+<!--
+SPDX-License-Identifier: MIT
+
+Copyright The SCons Foundation
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -19,33 +25,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Caching Built Files</title>
-
-<!--
-
-  MIT License
-
-  Copyright The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
   <para>
 
@@ -129,7 +108,7 @@ CacheDir('/usr/local/build_cache')
       A few inside details: &SCons; tracks two main kinds of cryptographic
       hashes: a <emphasis>&contentsig;</emphasis>,
       which is a hash of the contents of a file participating in the
-      build (depepdencies as well as targets);
+      build (dependencies as well as targets);
       and a <emphasis>&buildsig;</emphasis>, which is a hash of the
       elements needed to build a target, such as the command line,
       the contents of the sources, and possibly information about
@@ -534,22 +513,25 @@ Program('prog', ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
 
     <para>
 
-    &SCons;' internal <classname>CacheDir</classname> class can be extended to support customization
-    around the details of caching behaviors, for example using compressed cache files,
-    encrypted cache files, gathering statistics and data, or many other aspects.
+    You can customize the behavior of derived-file caching to
+    add your own features, for example to support compressed and/or
+    encrypted cache files, modify cache file permissions to better
+    support shared caches, gather additional statistics and data, etc.
 
     </para>
 
     <para>
 
-    To create your own custom cache class,
-    your custom class must be a subclass
-    of the <classname>SCons.CacheDir.CacheDir</classname> class.
-    You can then pass your custom class to the &f-link-CacheDir;
-    method or set the &consvar;
-    &cv-link-CACHEDIR_CLASS; to the class before configuring the cache
-    in that environment.
-    SCons will internally invoke and use your custom class when performing
+    To define custom cache behavior, subclass the
+    <classname>SCons.CacheDir.CacheDir</classname> class,
+    specializing those methods you want to change.
+    You can pass this custom class as the <parameter>custom_class</parameter>
+    parameter when calling &f-link-CacheDir; for global reach,
+    or when calling &f-link-env-CacheDir; for a specific environment.
+    You can also set the &consvar;
+    &cv-link-CACHEDIR_CLASS; to the custom class - this needs to happen
+    before configuring the cache in that environment.
+    &SCons; will internally invoke and use your custom class when performing
     cache operations.
     The below example shows a simple use case of overriding the
     <function>copy_from_cache</function>
@@ -559,8 +541,8 @@ Program('prog', ['f1.c', 'f2.c', 'f3.c', 'f4.c', 'f5.c'])
 
     <scons_example name="custom_caching">
       <file name="SConstruct" printme="1">
-import SCons
 import os
+import SCons.CacheDir
 
 class CustomCacheDir(SCons.CacheDir.CacheDir):
     total_retrieved = 0
@@ -569,10 +551,10 @@ class CustomCacheDir(SCons.CacheDir.CacheDir):
     def copy_from_cache(cls, env, src, dst):
         # record total bytes pulled from cache
         cls.total_retrieved += os.stat(src).st_size
-        super().copy_from_cache(env, src, dst)
+        return super().copy_from_cache(env, src, dst)
 
 env = Environment()
-env.CacheDir('scons-cache', CustomCacheDir)
+env.CacheDir('scons-cache', custom_class=CustomCacheDir)
 # ...
       </file>
     </scons_example>

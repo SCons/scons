@@ -1,9 +1,14 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 DefaultEnvironment(tools=[])
 
-textlist = ['This line has no substitutions',
-            'This line has @subst@ substitutions',
-            'This line has %subst% substitutions',
-            ]
+textlist = [
+    'This line has no substitutions',
+    'This line has @subst@ substitutions',
+    'This line has %subst% substitutions',
+]
 
 sub1 = {'@subst@': 'most'}
 sub2 = {'%subst%': 'many'}

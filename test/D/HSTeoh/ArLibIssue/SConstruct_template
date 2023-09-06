@@ -1,6 +1,10 @@
-env = Environment({})
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
 import os
-env['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
 
+DefaultEnvironment(tools=[])
+env = Environment({})
+env['ENV']['HOME'] = os.environ['HOME']  # Hack for gdmd
 env.StaticLibrary('mylib', ['a.d', 'b.d'])

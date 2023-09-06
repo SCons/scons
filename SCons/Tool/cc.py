@@ -40,7 +40,7 @@ CSuffixes = ['.c', '.m']
 if not SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CSuffixes.append('.C')
 
-def add_common_cc_variables(env):
+def add_common_cc_variables(env) -> None:
     """
     Add underlying common "C compiler" variables that
     are used by multiple tools (specifically, c++).
@@ -64,7 +64,7 @@ def add_common_cc_variables(env):
 
 compilers = ['cc']
 
-def generate(env):
+def generate(env) -> None:
     """
     Add Builders and construction variables for C compilers to an Environment.
     """

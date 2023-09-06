@@ -39,12 +39,12 @@ scan_called = 0
 
 
 class Node:
-    def __init__(self, name, kids=[], scans=[]):
+    def __init__(self, name, kids=[], scans=[]) -> None:
         self.name = name
         self.kids = kids
         self.scans = scans
-        self.cached = 0
-        self.scanned = 0
+        self.cached = False
+        self.scanned = False
         self.scanner = None
         self.targets = [self]
         self.prerequisites = None
@@ -61,7 +61,7 @@ class Node:
         self.ref_count = 0
         self.waiting_parents = set()
         self.waiting_s_e = set()
-        self.side_effect = 0
+        self.side_effect = False
         self.side_effects = []
         self.alttargets = []
         self.postprocessed = None
@@ -72,27 +72,27 @@ class Node:
     def disambiguate(self):
         return self
 
-    def push_to_cache(self):
+    def push_to_cache(self) -> None:
         pass
 
-    def retrieve_from_cache(self):
+    def retrieve_from_cache(self) -> bool:
         global cache_text
         if self.cached:
             cache_text.append(self.name + " retrieved")
         return self.cached
 
-    def make_ready(self):
+    def make_ready(self) -> None:
         pass
 
-    def prepare(self):
+    def prepare(self) -> None:
         self.prepared = 1
         self.get_binfo()
 
-    def build(self):
+    def build(self) -> None:
         global built_text
         built_text = self.name + " built"
 
-    def remove(self):
+    def remove(self) -> None:
         pass
 
     # The following four methods new_binfo(), del_binfo(),
@@ -104,7 +104,7 @@ class Node:
         binfo = "binfo"
         return binfo
 
-    def del_binfo(self):
+    def del_binfo(self) -> None:
         """Delete the build info from this node."""
         try:
             delattr(self, 'binfo')
@@ -123,13 +123,13 @@ class Node:
 
         return binfo
 
-    def clear(self):
+    def clear(self) -> None:
         # The del_binfo() call here isn't necessary for normal execution,
         # but is for interactive mode, where we might rebuild the same
         # target and need to start from scratch.
         self.del_binfo()
 
-    def built(self):
+    def built(self) -> None:
         global built_text
         if not self.cached:
             built_text = built_text + " really"
@@ -141,29 +141,29 @@ class Node:
 
         self.clear()
 
-    def release_target_info(self):
+    def release_target_info(self) -> None:
         pass
 
-    def has_builder(self):
+    def has_builder(self) -> bool:
         return self.builder is not None
 
-    def is_derived(self):
+    def is_derived(self) -> bool:
         return self.has_builder or self.side_effect
 
     def alter_targets(self):
         return self.alttargets, None
 
-    def visited(self):
+    def visited(self) -> None:
         global visited_nodes
         visited_nodes.append(self.name)
 
     def children(self):
         if not self.scanned:
             self.scan()
-            self.scanned = 1
+            self.scanned = True
         return self.kids
 
-    def scan(self):
+    def scan(self) -> None:
         global scan_called
         scan_called = scan_called + 1
         self.kids = self.kids + self.scans
@@ -172,7 +172,7 @@ class Node:
     def scanner_key(self):
         return self.name
 
-    def add_to_waiting_parents(self, node):
+    def add_to_waiting_parents(self, node) -> int:
         wp = self.waiting_parents
         if node in wp:
             return 0
@@ -182,44 +182,35 @@ class Node:
     def get_state(self):
         return self.state
 
-    def set_state(self, state):
+    def set_state(self, state) -> None:
         self.state = state
 
-    def set_bsig(self, bsig):
+    def set_bsig(self, bsig) -> None:
         self.bsig = bsig
 
-    def set_csig(self, csig):
+    def set_csig(self, csig) -> None:
         self.csig = csig
 
-    def store_csig(self):
+    def store_csig(self) -> None:
         pass
 
-    def store_bsig(self):
+    def store_bsig(self) -> None:
         pass
 
-    def is_pseudo_derived(self):
-        pass
-
-    def is_up_to_date(self):
+    def is_up_to_date(self) -> bool:
         return self._current_val
 
-    def depends_on(self, nodes):
-        for node in nodes:
-            if node in self.kids:
-                return 1
-        return 0
-
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def postprocess(self):
+    def postprocess(self) -> None:
         self.postprocessed = 1
         self.waiting_parents = set()
 
     def get_executor(self):
         if not hasattr(self, 'executor'):
             class Executor:
-                def prepare(self):
+                def prepare(self) -> None:
                     pass
 
                 def get_action_targets(self):
@@ -244,6 +235,12 @@ class Node:
             self.executor.targets = self.targets
         return self.executor
 
+    def get_internal_path(self):
+        """
+        Should only be used (currently) by TaskmasterTestCase.test_cached_execute_target_unlink_fails
+        """
+        return str(self)
+
 
 class OtherError(Exception):
     pass
@@ -255,7 +252,7 @@ class MyException(Exception):
 
 class TaskmasterTestCase(unittest.TestCase):
 
-    def test_next_task(self):
+    def test_next_task(self) -> None:
         """Test fetching the next task
         """
         global built_text
@@ -301,7 +298,7 @@ class TaskmasterTestCase(unittest.TestCase):
         top_node = n3
 
         class MyTask(SCons.Taskmaster.AlwaysTask):
-            def execute(self):
+            def execute(self) -> None:
                 global built_text
                 if self.targets[0].get_state() == SCons.Node.up_to_date:
                     if self.top:
@@ -450,7 +447,7 @@ class TaskmasterTestCase(unittest.TestCase):
         n3 = Node("n3")
         n4 = Node("n4", [n1, n2, n3])
         n5 = Node("n5", [n4])
-        n3.side_effect = 1
+        n3.side_effect = True
         n1.side_effects = n2.side_effects = n3.side_effects = [n4]
         tm = SCons.Taskmaster.Taskmaster([n1, n2, n3, n4, n5])
         t = tm.next_task()
@@ -544,14 +541,14 @@ class TaskmasterTestCase(unittest.TestCase):
         s = n2.get_state()
         assert s == SCons.Node.executed, s
 
-    def test_make_ready_out_of_date(self):
+    def test_make_ready_out_of_date(self) -> None:
         """Test the Task.make_ready() method's list of out-of-date Nodes
         """
         ood = []
 
         def TaskGen(tm, targets, top, node, ood=ood):
             class MyTask(SCons.Taskmaster.AlwaysTask):
-                def make_ready(self):
+                def make_ready(self) -> None:
                     SCons.Taskmaster.Task.make_ready(self)
                     self.ood.extend(self.out_of_date)
 
@@ -591,7 +588,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert ood == [a5], ood
 
-    def test_make_ready_exception(self):
+    def test_make_ready_exception(self) -> None:
         """Test handling exceptions from Task.make_ready()
         """
 
@@ -606,7 +603,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert exc_type == MyException, repr(exc_type)
         assert str(exc_value) == "from make_ready()", exc_value
 
-    def test_needs_execute(self):
+    def test_needs_execute(self) -> None:
         """Test that we can't instantiate a Task subclass without needs_execute
 
         We should be getting:
@@ -621,7 +618,7 @@ class TaskmasterTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             _ = tm.next_task()
 
-    def test_make_ready_all(self):
+    def test_make_ready_all(self) -> None:
         """Test the make_ready_all() method"""
 
         class MyTask(SCons.Taskmaster.AlwaysTask):
@@ -682,7 +679,7 @@ class TaskmasterTestCase(unittest.TestCase):
         t = tm.next_task()
         assert t is None
 
-    def test_children_errors(self):
+    def test_children_errors(self) -> None:
         """Test errors when fetching the children of a node.
         """
 
@@ -691,7 +688,7 @@ class TaskmasterTestCase(unittest.TestCase):
                 raise SCons.Errors.StopError("stop!")
 
         class ExitNode(Node):
-            def children(self):
+            def children(self) -> None:
                 sys.exit(77)
 
         n1 = StopNode("n1")
@@ -709,7 +706,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert exc_value.node == n2, exc_value.node
         assert exc_value.status == 77, exc_value.status
 
-    def test_cycle_detection(self):
+    def test_cycle_detection(self) -> None:
         """Test detecting dependency cycles
         """
         n1 = Node("n1")
@@ -725,7 +722,7 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             assert 'Did not catch expected UserError'
 
-    def test_next_top_level_candidate(self):
+    def test_next_top_level_candidate(self) -> None:
         """Test the next_top_level_candidate() method
         """
         n1 = Node("n1")
@@ -739,7 +736,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert t.targets == [n3], list(map(str, t.targets))
         assert t.top == 1, t.top
 
-    def test_stop(self):
+    def test_stop(self) -> None:
         """Test the stop() method
 
         Both default and overridden in a subclass.
@@ -763,7 +760,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert tm.next_task() is None
 
         class MyTM(SCons.Taskmaster.Taskmaster):
-            def stop(self):
+            def stop(self) -> None:
                 global built_text
                 built_text = "MyTM.stop()"
                 SCons.Taskmaster.Taskmaster.stop(self)
@@ -781,7 +778,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert built_text == "MyTM.stop()"
         assert tm.next_task() is None
 
-    def test_executed(self):
+    def test_executed(self) -> None:
         """Test when a task has been executed
         """
         global built_text
@@ -939,7 +936,7 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             raise AssertionError("did not catch expected exception")
 
-    def test_execute(self):
+    def test_execute(self) -> None:
         """Test executing a task
         """
         global built_text
@@ -1004,7 +1001,7 @@ class TaskmasterTestCase(unittest.TestCase):
         cache_text = []
         n5 = Node("n5")
         n6 = Node("n6")
-        n6.cached = 1
+        n6.cached = True
         tm = SCons.Taskmaster.Taskmaster([n5])
         t = tm.next_task()
         # This next line is moderately bogus.  We're just reaching
@@ -1022,8 +1019,8 @@ class TaskmasterTestCase(unittest.TestCase):
         cache_text = []
         n7 = Node("n7")
         n8 = Node("n8")
-        n7.cached = 1
-        n8.cached = 1
+        n7.cached = True
+        n8.cached = True
         tm = SCons.Taskmaster.Taskmaster([n7])
         t = tm.next_task()
         # This next line is moderately bogus.  We're just reaching
@@ -1037,7 +1034,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert built_text is None, built_text
         assert cache_text == ["n7 retrieved", "n8 retrieved"], cache_text
 
-    def test_cached_execute(self):
+    def test_cached_execute(self) -> None:
         """Test executing a task with cached targets
         """
         # In issue #2720 Alexei Klimkin detected that the previous
@@ -1071,7 +1068,7 @@ class TaskmasterTestCase(unittest.TestCase):
 
         n1 = Node("n1")
         # Mark the node as being cached
-        n1.cached = 1
+        n1.cached = True
         tm = SCons.Taskmaster.Taskmaster([n1])
         t = tm.next_task()
         t.prepare()
@@ -1081,7 +1078,56 @@ class TaskmasterTestCase(unittest.TestCase):
         has_binfo = hasattr(n1, 'binfo')
         assert has_binfo, has_binfo
 
-    def test_exception(self):
+    def test_cached_execute_target_unlink_fails(self) -> None:
+        """Test executing a task with cached targets where unlinking one of the targets fail
+        """
+        global cache_text
+        import SCons.Warnings
+
+        cache_text = []
+        n1 = Node("n1")
+        n2 = Node("not-cached")
+
+        class DummyFS:
+            def unlink(self, _):
+                raise IOError
+
+        n1.fs = DummyFS()
+
+        # Mark the node as being cached
+        n1.cached = True
+        # Add n2 as a target for n1
+        n1.targets.append(n2)
+        # Explicitly mark n2 as not cached
+        n2.cached = False
+
+        # Save SCons.Warnings.warn so we can mock it and catch it being called for unlink failures
+        _save_warn = SCons.Warnings.warn
+        issued_warnings = []
+
+        def fake_warnings_warn(clz, message) -> None:
+            nonlocal issued_warnings
+            issued_warnings.append((clz, message))
+        SCons.Warnings.warn = fake_warnings_warn
+
+        tm = SCons.Taskmaster.Taskmaster([n1, n2])
+        t = tm.next_task()
+        t.prepare()
+        t.execute()
+
+        # Restore saved warn
+        SCons.Warnings.warn = _save_warn
+
+        self.assertTrue(len(issued_warnings) == 1,
+                        msg='More than expected warnings (1) were issued %d' % len(issued_warnings))
+        self.assertEqual(issued_warnings[0][0], SCons.Warnings.CacheCleanupErrorWarning,
+                         msg='Incorrect warning class')
+        self.assertEqual(issued_warnings[0][1],
+                         'Failed copying all target files from cache, Error while attempting to remove file n1 retrieved from cache: ')
+        self.assertEqual(cache_text, ["n1 retrieved"], msg=cache_text)
+
+
+    def test_exception(self) -> None:
         """Test generic Taskmaster exception handling
 
         """
@@ -1103,8 +1149,6 @@ class TaskmasterTestCase(unittest.TestCase):
             # Moved from below
             t.exception_set(None)
             # pass
-
-        #        import pdb; pdb.set_trace()
 
         # Having this here works for python 2.x,
         # but it is a tuple (None, None, None) when called outside
@@ -1168,7 +1212,7 @@ class TaskmasterTestCase(unittest.TestCase):
         else:
             assert 0, "did not catch expected exception"
 
-    def test_postprocess(self):
+    def test_postprocess(self) -> None:
         """Test postprocessing targets to give them a chance to clean up
         """
         n1 = Node("n1")
@@ -1194,7 +1238,7 @@ class TaskmasterTestCase(unittest.TestCase):
         assert n2.postprocessed
         assert n3.postprocessed
 
-    def test_trace(self):
+    def test_trace(self) -> None:
         """Test Taskmaster tracing
         """
         import io

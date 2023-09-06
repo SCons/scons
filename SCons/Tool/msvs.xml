@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <!--
-__COPYRIGHT__
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: Copyright The SCons Foundation
+SPDX-FileType: DOCUMENTATION
 
-This file is processed by the bin/SConsDoc.py module.
-See its __doc__ string for a discussion of the format.
+This file is processed by the bin/SConsDoc.py module
 -->
+
 <!DOCTYPE sconsdoc [
 <!ENTITY % scons SYSTEM "../../doc/scons.mod">
 %scons;
@@ -20,7 +22,7 @@ See its __doc__ string for a discussion of the format.
 <sconsdoc xmlns="http://www.scons.org/dbxsd/v1.0" xmlns:ns="http://www.scons.org/dbxsd/v1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
   <tool name="msvs">
     <summary>
-      <para>Sets construction variables for Microsoft Visual Studio.</para>
+      <para>Sets &consvars; for Microsoft Visual Studio.</para>
     </summary>
     <sets>
       <item>MSVSPROJECTCOM</item>
@@ -39,70 +41,106 @@ See its __doc__ string for a discussion of the format.
   <builder name="MSVSProject">
     <summary>
       <para>
-        Builds a Microsoft Visual Studio project file, and by default
-        builds a solution file as well.
+        Build a Microsoft Visual C++ project file and solution file.
       </para>
       <para>
-        This builds a Visual Studio project file, based on the
-        version of Visual Studio that is configured (either the
-        latest installed version, or the version specified by
-        &cv-link-MSVS_VERSION; in the Environment constructor). For
-        Visual Studio 6, it will generate a <filename>.dsp</filename>
-        file. For Visual Studio 7, 8, and 9, it will
-        generate a <filename>.vcproj</filename> file.  For Visual
-        Studio 10 and later, it will generate a
-        <filename>.vcxproj</filename> file.
+        Builds a C++ project file based on the
+        version of Visual Studio (or to be more precise, of MSBuild)
+        that is configured: either the latest installed version,
+        or the version specified by
+        &cv-link-MSVC_VERSION; in the current &consenv;.
+        For Visual Studio 6.0 a <filename>.dsp</filename> file is generated.
+        For Visual Studio versions 2002-2008,
+        a <filename>.vcproj</filename> file is generated.
+        For Visual Studio 2010 and later a <filename>.vcxproj</filename>
+        file is generated.
+        Note there are multiple versioning schemes involved in
+        the Microsoft compilation environment -
+        see the description of &cv-link-MSVC_VERSION; for equivalences.
+        &SCons; does not know how to construct project files for
+        other languages (such as <filename>.csproj</filename> for C#,
+        <filename>.vbproj</filename> for Visual Basic or 
+        <filename>.pyproject</filename> for Python)).
+        </para>
+      <para>
+        For the <filename>.vcxproj</filename> file, the underlying
+        format is the MSBuild XML Schema, and the details conform to:
+        <ulink url="https://learn.microsoft.com/en-us/cpp/build/reference/vcxproj-file-structure">
+        https://learn.microsoft.com/en-us/cpp/build/reference/vcxproj-file-structure</ulink>.
+        The generated solution file enables Visual Studio to
+        understand the project structure, and allows building it
+        using MSBuild to call back to &SCons;.
+        The project file encodes a toolset version that has been
+        selected by &SCons; as described above. Since recent Visual
+        Studio versions support multiple concurrent toolsets,
+        use &cv-link-MSVC_VERSION; to select the desired one if
+        it does not match the &SCons; default.
+        The project file also includes entries which describe
+        how to call &SCons; to build the project from within Visual Studio
+        (or from an MSBuild command line).
+        In some situations &SCons; may generate this incorrectly -
+        notably when using the <emphasis>scons-local</emphasis>
+        distribution, which is not installed in a way that that
+        matches the default invocation line.
+        If so, the &cv-link-SCONS_HOME; &consvar; can be used to describe
+        the right way to locate the &SCons; code so that it can be imported.
       </para>
       <para>
-        By default, this also generates a solution file for the
-        specified project, a <filename>.dsw</filename> file for
-        Visual Studio 6 or a <filename>.sln</filename> file for
-        Visual Studio 7 and later. This behavior may be disabled by
-        specifying <literal>auto_build_solution=0</literal> when you
-        call &b-MSVSProject;, in which case you presumably want to
-        build the solution file(s) by calling the &b-MSVSSolution;
-        Builder (see below).
+        By default, a matching solution file for the project is also generated.
+        This behavior may be disabled by
+        specifying <parameter>auto_build_solution=0</parameter>
+        to the &b-MSVSProject; builder.
+        The solution file can also be independently
+        generated by calling the &b-MSVSSolution; builder,
+        such as in the case where a solution should describe
+        multiple projects.
+        See the &b-link-MSVSSolution; description for further information.
       </para>
       <para>
-        The &b-MSVSProject; builder takes several lists of filenames
-        to be placed into the project file. These are currently
-        limited to <literal>srcs</literal>, <literal>incs</literal>,
-        <literal>localincs</literal>, <literal>resources</literal>, and
-        <literal>misc</literal>. These are pretty self-explanatory,
-        but it should be noted that these lists are added to the
-        &cv-link-SOURCES; construction variable as strings, NOT as
-        SCons File Nodes.  This is because they represent file names
-        to be added to the project file, not the source files used
-        to build the project file.
-      </para>
-      <para>
-        The above filename lists are all optional, although at least
-        one must be specified for the resulting project file to
+        The &b-MSVSProject; builder accepts several keyword arguments
+        describing lists of filenames to be placed into the project file.
+        Currently,
+        <parameter>srcs</parameter>,
+        <parameter>incs</parameter>,
+        <parameter>localincs</parameter>,
+        <parameter>resources</parameter>,
+        and <parameter>misc</parameter>
+        are recognized.
+        The names are intended to be self-explanatory, but note that the
+        filenames need to be specified as strings, <emphasis>not</emphasis>
+        as &SCons; File Nodes
+        (for example if you generate files for inclusion by using the
+        &f-link-Glob; function, the results should be converted to
+        a list of strings before passing them to &b-MSVSProject;).
+        This is because Visual Studio and MSBuild know nothing about &SCons;
+        Node types.
+        Each of the filename lists are individually optional, but at
+        least one list must be specified for the resulting project file to
         be non-empty.
       </para>
       <para>
         In addition to the above lists of values, the following values
-        may be specified:
+        may be specified as keyword arguments:
       </para>
       <variablelist>
         <varlistentry>
-          <term>target</term>
+          <term><parameter>target</parameter></term>
           <listitem>
             <para>
               The name of the target <filename>.dsp</filename>
               or <filename>.vcproj</filename> file.
               The correct suffix for the version of Visual Studio
               must be used, but the &cv-link-MSVSPROJECTSUFFIX;
-              construction variable will be defined to the correct
+              &consvar; will be defined to the correct
               value (see example below).
             </para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>variant</term>
+          <term><parameter>variant</parameter></term>
           <listitem>
             <para>
-              The name of this particular variant. For Visual Studio 7
+              The name of this particular variant. Except for Visual Studio 6
               projects, this can also be a list of variant names. These
               are typically things like "Debug" or "Release", but
               really can be anything you want. For Visual Studio
@@ -117,144 +155,183 @@ See its __doc__ string for a discussion of the format.
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>cmdargs</term>
+          <term><parameter>cmdargs</parameter></term>
           <listitem>
             <para>
               Additional command line arguments
               for the different variants. The number of
-              <literal>cmdargs</literal> entries must match the number
-              of <literal>variant</literal> entries, or be empty (not
+              <parameter>cmdargs</parameter> entries must match the number
+              of <parameter>variant</parameter> entries, or be empty (not
               specified). If you give only one, it will automatically
               be propagated to all variants.
             </para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>cppdefines</term>
+          <term><parameter>cppdefines</parameter></term>
           <listitem>
             <para>
               Preprocessor definitions for the different variants.
-              The number of <literal>cppdefines</literal> entries
-              must match the number of <literal>variant</literal>
+              The number of <parameter>cppdefines</parameter> entries
+              must match the number of <parameter>variant</parameter>
               entries, or be empty (not specified). If you give
               only one, it will automatically be propagated to all
-              variants. If you don't give this parameter, SCons
+              variants. If you don't give this parameter, &SCons;
               will use the invoking environment's
-              <literal>CPPDEFINES</literal> entry for all variants.
+              &cv-link-CPPDEFINES; entry for all variants.
             </para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>cppflags</term>
+          <term><parameter>cppflags</parameter></term>
           <listitem>
             <para>
               Compiler flags for the different variants.
-              If a /std:c++ flag is found then /Zc:__cplusplus is
-              appended to the flags if not already found, this
-              ensures that intellisense uses the /std:c++ switch.
-              The number of <literal>cppflags</literal> entries
-              must match the number of <literal>variant</literal>
+              If a <option>/std:c++</option> flag is found then
+              <option>/Zc:__cplusplus</option> is appended to the
+              flags if not already found, this ensures that Intellisense
+              uses the <option>/std:c++</option> switch.
+              The number of <parameter>cppflags</parameter> entries
+              must match the number of <parameter>variant</parameter>
               entries, or be empty (not specified). If you give
               only one, it will automatically be propagated to all
               variants. If you don't give this parameter, SCons
               will combine the invoking environment's
-              <literal>CCFLAGS</literal>, <literal>CXXFLAGS</literal>,
-              <literal>CPPFLAGS</literal> entries for all variants.
+              &cv-link-CCFLAGS;, &cv-link-CXXFLAGS;,
+              &cv-link-CPPFLAGS; entries for all variants.
             </para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>cpppaths</term>
+          <term><parameter>cpppaths</parameter></term>
           <listitem>
             <para>
               Compiler include paths for the different variants.
-              The number of <literal>cpppaths</literal> entries
-              must match the number of <literal>variant</literal>
+              The number of <parameter>cpppaths</parameter> entries
+              must match the number of <parameter>variant</parameter>
               entries, or be empty (not specified). If you give
               only one, it will automatically be propagated to all
               variants. If you don't give this parameter, SCons
               will use the invoking environment's
-              <literal>CPPPATH</literal> entry for all variants.
+              &cv-link-CPPPATH; entry for all variants.
             </para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>buildtarget</term>
+          <term><parameter>buildtarget</parameter></term>
           <listitem>
             <para>
               An optional string, node, or list of strings
               or nodes (one per build variant), to tell
               the Visual Studio debugger what output target
               to use in what build variant. The number of
-              <literal>buildtarget</literal> entries must match the
-              number of <literal>variant</literal> entries.
+              <parameter>buildtarget</parameter> entries must match the
+              number of <parameter>variant</parameter> entries.
             </para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term>runfile</term>
+          <term><parameter>runfile</parameter></term>
           <listitem>
             <para>
               The name of the file that Visual Studio 7 and
               later will run and debug. This appears as the
-              value of the <literal>Output</literal> field in the
-              resulting Visual Studio project file. If this is not
+              value of the <parameter>Output</parameter> field in the
+              resulting Visual C++ project file. If this is not
               specified, the default is the same as the specified
-              <literal>buildtarget</literal> value.
+              <parameter>buildtarget</parameter> value.
             </para>
           </listitem>
         </varlistentry>
       </variablelist>
+      <note>
       <para>
-        Note that because &SCons; always executes its build commands
+        &SCons; and Microsoft Visual Studio understand projects in
+        different ways, and the mapping is sometimes imperfect:
+      </para>
+      <para>
+        Because &SCons; always executes its build commands
         from the directory in which the &SConstruct; file is located,
         if you generate a project file in a different directory
-        than the &SConstruct; directory, users will not be able to
+        than the directory of the &SConstruct; file, users will not be able to
         double-click on the file name in compilation error messages
         displayed in the Visual Studio console output window. This can
-        be remedied by adding the Visual C/C++ <literal>/FC</literal>
+        be remedied by adding the Visual C/C++ <option>/FC</option>
         compiler option to the &cv-link-CCFLAGS; variable so that
         the compiler will print the full path name of any files that
         cause compilation errors.
       </para>
+      <para>
+        If the project file is only used to teach the Visual Studio
+        project browser about the file layout there should be no issues,
+        However, Visual Studio should not be used to make changes
+        to the project structure, build options, etc. as these will
+        (a) not feed back to the &SCons; description of the project
+        and (b) be lost if &SCons; regenerates the project file.
+        The SConscript files should remain the definitive description
+        of the build.
+      </para>
+      <para>
+        If the project file is used to drive MSBuild (such as selecting
+        "build" from the Visual Studio interface) you lose the direct
+        control of target selection and command-line options you would
+        have if launching the build directly from &SCons;,
+        because these will be hardcoded in the project file to the
+        values specified in the &b-MSVSProject; call.
+        You can regain some of this control by defining multiple variants,
+        using multiple &b-MSVSProject; calls to arrange different build
+        targets, arguments, defines, flags and paths for different variants.
+      </para>
+      <para>
+        If the build is divided into a solution with multiple MSBuild
+        projects the mapping is further strained.  In this case,
+        it is important not to set Visual Studio to do parallel builds,
+        as it will then launch the separate project builds in parallel,
+        and &SCons; does not work well if called that way.
+        Instead you can set up the &SCons; build for parallel building -
+        see the &f-link-SetOption; function for how to do this with
+        <parameter>num_jobs</parameter>.
+      </para>
+      </note>
+
       <para>Example usage:</para>
       <example_commands>
 barsrcs = ['bar.cpp']
 barincs = ['bar.h']
 barlocalincs = ['StdAfx.h']
-barresources = ['bar.rc','resource.h']
+barresources = ['bar.rc', 'resource.h']
 barmisc = ['bar_readme.txt']
 
-dll = env.SharedLibrary(target='bar.dll',
-                        source=barsrcs)
+dll = env.SharedLibrary(target='bar.dll', source=barsrcs)
 buildtarget = [s for s in dll if str(s).endswith('dll')]
-env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
-                srcs=barsrcs,
-                incs=barincs,
-                localincs=barlocalincs,
-                resources=barresources,
-                misc=barmisc,
-                buildtarget=buildtarget,
-                variant='Release')
+env.MSVSProject(
+    target='Bar' + env['MSVSPROJECTSUFFIX'],
+    srcs=barsrcs,
+    incs=barincs,
+    localincs=barlocalincs,
+    resources=barresources,
+    misc=barmisc,
+    buildtarget=buildtarget,
+    variant='Release',
+)
       </example_commands>
-      <para>
-        Starting with version 2.4 of SCons it is
-        also possible to specify the optional argument
-        <parameter>DebugSettings</parameter>, which creates files
-        for debugging under Visual Studio:
-      </para>
+
       <variablelist>
         <varlistentry>
-          <term>DebugSettings</term>
+          <term><parameter>DebugSettings</parameter></term>
           <listitem>
             <para>
               A dictionary of debug settings that get written
               to the <filename>.vcproj.user</filename> or the
               <filename>.vcxproj.user</filename> file, depending on the
-              version installed. As it is done for cmdargs (see above),
+              version installed. As for <parameter>cmdargs</parameter>,
               you can specify a <parameter>DebugSettings</parameter>
               dictionary per variant. If you give only one, it will
               be propagated to all variants.
+            </para>
+            <para>
+             <emphasis>Changed in version 2.4:</emphasis>
+             Added the optional <parameter>DebugSettings</parameter> parameter.
             </para>
           </listitem>
         </varlistentry>
@@ -279,12 +356,17 @@ msvcver = vars.args.get('vc', '9')
 
 # Check command args to force one Microsoft Visual Studio version
 if msvcver == '9' or msvcver == '11':
-  env = Environment(MSVC_VERSION=msvcver+'.0', MSVC_BATCH=False)
+    env = Environment(MSVC_VERSION=msvcver + '.0', MSVC_BATCH=False)
 else:
-  env = Environment()
+    env = Environment()
 
-AddOption('--userfile', action='store_true', dest='userfile', default=False,
-          help="Create Visual Studio Project user file")
+AddOption(
+    '--userfile',
+    action='store_true',
+    dest='userfile',
+    default=False,
+    help="Create Visual C++ project file",
+)
 
 #
 # 1. Configure your Debug Setting dictionary with options you want in the list
@@ -292,28 +374,28 @@ AddOption('--userfile', action='store_true', dest='userfile', default=False,
 # a specific application for testing your dll with Microsoft Visual Studio 2008 (v9):
 #
 V9DebugSettings = {
-    'Command':'c:\\myapp\\using\\thisdll.exe',
+    'Command': 'c:\\myapp\\using\\thisdll.exe',
     'WorkingDirectory': 'c:\\myapp\\using\\',
     'CommandArguments': '-p password',
-#     'Attach':'false',
-#     'DebuggerType':'3',
-#     'Remote':'1',
-#     'RemoteMachine': None,
-#     'RemoteCommand': None,
-#     'HttpUrl': None,
-#     'PDBPath': None,
-#     'SQLDebugging': None,
-#     'Environment': '',
-#     'EnvironmentMerge':'true',
-#     'DebuggerFlavor': None,
-#     'MPIRunCommand': None,
-#     'MPIRunArguments': None,
-#     'MPIRunWorkingDirectory': None,
-#     'ApplicationCommand': None,
-#     'ApplicationArguments': None,
-#     'ShimCommand': None,
-#     'MPIAcceptMode': None,
-#     'MPIAcceptFilter': None,
+    # 'Attach':'false',
+    # 'DebuggerType':'3',
+    # 'Remote':'1',
+    # 'RemoteMachine': None,
+    # 'RemoteCommand': None,
+    # 'HttpUrl': None,
+    # 'PDBPath': None,
+    # 'SQLDebugging': None,
+    # 'Environment': '',
+    # 'EnvironmentMerge':'true',
+    # 'DebuggerFlavor': None,
+    # 'MPIRunCommand': None,
+    # 'MPIRunArguments': None,
+    # 'MPIRunWorkingDirectory': None,
+    # 'ApplicationCommand': None,
+    # 'ApplicationArguments': None,
+    # 'ShimCommand': None,
+    # 'MPIAcceptMode': None,
+    # 'MPIAcceptFilter': None,
 }
 
 #
@@ -327,28 +409,28 @@ V10DebugSettings = {
     'LocalDebuggerCommand': 'c:\\myapp\\using\\thisdll.exe',
     'LocalDebuggerWorkingDirectory': 'c:\\myapp\\using\\',
     'LocalDebuggerCommandArguments': '-p password',
-#     'LocalDebuggerEnvironment': None,
-#     'DebuggerFlavor': 'WindowsLocalDebugger',
-#     'LocalDebuggerAttach': None,
-#     'LocalDebuggerDebuggerType': None,
-#     'LocalDebuggerMergeEnvironment': None,
-#     'LocalDebuggerSQLDebugging': None,
-#     'RemoteDebuggerCommand': None,
-#     'RemoteDebuggerCommandArguments': None,
-#     'RemoteDebuggerWorkingDirectory': None,
-#     'RemoteDebuggerServerName': None,
-#     'RemoteDebuggerConnection': None,
-#     'RemoteDebuggerDebuggerType': None,
-#     'RemoteDebuggerAttach': None,
-#     'RemoteDebuggerSQLDebugging': None,
-#     'DeploymentDirectory': None,
-#     'AdditionalFiles': None,
-#     'RemoteDebuggerDeployDebugCppRuntime': None,
-#     'WebBrowserDebuggerHttpUrl': None,
-#     'WebBrowserDebuggerDebuggerType': None,
-#     'WebServiceDebuggerHttpUrl': None,
-#     'WebServiceDebuggerDebuggerType': None,
-#     'WebServiceDebuggerSQLDebugging': None,
+    # 'LocalDebuggerEnvironment': None,
+    # 'DebuggerFlavor': 'WindowsLocalDebugger',
+    # 'LocalDebuggerAttach': None,
+    # 'LocalDebuggerDebuggerType': None,
+    # 'LocalDebuggerMergeEnvironment': None,
+    # 'LocalDebuggerSQLDebugging': None,
+    # 'RemoteDebuggerCommand': None,
+    # 'RemoteDebuggerCommandArguments': None,
+    # 'RemoteDebuggerWorkingDirectory': None,
+    # 'RemoteDebuggerServerName': None,
+    # 'RemoteDebuggerConnection': None,
+    # 'RemoteDebuggerDebuggerType': None,
+    # 'RemoteDebuggerAttach': None,
+    # 'RemoteDebuggerSQLDebugging': None,
+    # 'DeploymentDirectory': None,
+    # 'AdditionalFiles': None,
+    # 'RemoteDebuggerDeployDebugCppRuntime': None,
+    # 'WebBrowserDebuggerHttpUrl': None,
+    # 'WebBrowserDebuggerDebuggerType': None,
+    # 'WebServiceDebuggerHttpUrl': None,
+    # 'WebServiceDebuggerDebuggerType': None,
+    # 'WebServiceDebuggerSQLDebugging': None,
 }
 
 #
@@ -370,71 +452,85 @@ else:
 barsrcs = ['bar.cpp', 'dllmain.cpp', 'stdafx.cpp']
 barincs = ['targetver.h']
 barlocalincs = ['StdAfx.h']
-barresources = ['bar.rc','resource.h']
+barresources = ['bar.rc', 'resource.h']
 barmisc = ['ReadMe.txt']
 
-dll = env.SharedLibrary(target='bar.dll',
-                        source=barsrcs)
+dll = env.SharedLibrary(target='bar.dll', source=barsrcs)
 
-env.MSVSProject(target='Bar' + env['MSVSPROJECTSUFFIX'],
-                srcs=barsrcs,
-                incs=barincs,
-                localincs=barlocalincs,
-                resources=barresources,
-                misc=barmisc,
-                buildtarget=[dll[0]] * 2,
-                variant=('Debug|Win32', 'Release|Win32'),
-                cmdargs='vc=%s' %  msvcver,
-                DebugSettings=(dbgSettings, {}))
+env.MSVSProject(
+    target='Bar' + env['MSVSPROJECTSUFFIX'],
+    srcs=barsrcs,
+    incs=barincs,
+    localincs=barlocalincs,
+    resources=barresources,
+    misc=barmisc,
+    buildtarget=[dll[0]] * 2,
+    variant=('Debug|Win32', 'Release|Win32'),
+    cmdargs=f'vc={msvcver}',
+    DebugSettings=(dbgSettings, {}),
+)
       </example_commands>
     </summary>
   </builder>
   <builder name="MSVSSolution">
     <summary>
-      <para>Builds a Microsoft Visual Studio solution file.</para>
+      <para>Build a Microsoft Visual Studio Solution file.</para>
       <para>
-        This builds a Visual Studio solution file, based on the
-        version of Visual Studio that is configured (either the
+        Builds a Visual Studio solution file based on the
+        version of Visual Studio that is configured: either the
         latest installed version, or the version specified by
-        &cv-link-MSVS_VERSION; in the construction environment). For
-        Visual Studio 6, it will generate a <filename>.dsw</filename>
-        file. For Visual Studio 7 (.NET), it will generate a
-        <filename>.sln</filename> file.
+        &cv-link-MSVC_VERSION; in the &consenv;. For
+        Visual Studio 6, a <filename>.dsw</filename> file is generated.
+        For Visual Studio .NET 2002 and later,
+        it will generate a <filename>.sln</filename> file.
+        Note there are multiple versioning schemes involved in
+        the Microsoft compilation environment -
+        see the description of &cv-link-MSVC_VERSION; for equivalences.
+      </para>
+      <para>
+        The solution file is a container for one or more projects,
+        and follows the format described at
+        <ulink url="https://learn.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file">
+        https://learn.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file</ulink>.
       </para>
       <para>The following values must be specified:</para>
       <variablelist>
         <varlistentry>
-          <term>target</term>
+          <term><parameter>target</parameter></term>
           <listitem>
             <para>
-              The name of the target .dsw or .sln file. The correct
+              The name of the target <filename>.dsw</filename> or
+              <filename>.sln</filename> file. The correct
               suffix for the version of Visual Studio must be used,
               but the value &cv-link-MSVSSOLUTIONSUFFIX; will be
               defined to the correct value (see example below).
             </para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>variant</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><parameter>variant</parameter></term>
+          <listitem>
             <para>
               The name of this particular variant, or a list of
               variant names (the latter is only supported for MSVS
               7 solutions). These are typically things like "Debug"
               or "Release", but really can be anything you want. For
               MSVS 7 they may also specify target platform, like this
-              "Debug|Xbox". Default platform is Win32.
+              <literal>"Debug|Xbox"</literal>. Default platform is Win32.
             </para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>projects</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><parameter>projects</parameter></term>
+          <listitem>
             <para>
               A list of project file names, or Project nodes returned
-              by calls to the &b-MSVSProject; Builder, to be placed
-              into the solution file. It should be noted that these
-              file names are NOT added to the $SOURCES environment
-              variable in form of files, but rather as strings.
-              This is because they represent file names to be added
-              to the solution file, not the source files used to
-              build the solution file.
+              by calls to the &b-link-MSVSProject; Builder, to be placed
+              into the solution file.
+              Note that these filenames need to be specified as strings,
+              NOT as &SCons; File Nodes.
+              This is because the solution file will be interpreted by MSBuild
+              and by Visual Studio, which know nothing about &SCons; Node types.
             </para>
           </listitem>
         </varlistentry>
@@ -456,28 +552,39 @@ env.MSVSSolution(
       </para>
       <variablelist>
         <varlistentry>
-          <term>VERSION</term> <listitem>
+          <term>VERSION</term>
+          <listitem>
             <para>the version of MSVS being used (can be set via
-            &cv-link-MSVS_VERSION;)</para>
+            &cv-link-MSVC_VERSION;)</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>VERSIONS</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>VERSIONS</term>
+          <listitem>
             <para>the available versions of MSVS installed</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>VCINSTALLDIR</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>VCINSTALLDIR</term>
+          <listitem>
             <para>installed directory of Visual C++</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>VSINSTALLDIR</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>VSINSTALLDIR</term>
+          <listitem>
             <para>installed directory of Visual Studio</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>FRAMEWORKDIR</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>FRAMEWORKDIR</term>
+          <listitem>
             <para>installed directory of the .NET framework</para>
           </listitem>
-        </varlistentry> <varlistentry>
-          <term>FRAMEWORKVERSIONS</term> <listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>FRAMEWORKVERSIONS</term>
+          <listitem>
             <para>
               list of installed versions of the .NET framework,
               sorted latest to oldest.
@@ -514,7 +621,12 @@ env.MSVSSolution(
           </listitem>
         </varlistentry>
       </variablelist>
-      <para>If a value is not set, it was not available in the registry.</para>
+      <para>If a value is not set, it was not available in the registry.
+      Visual Studio 2017 and later do not use the registry for
+      primary storage of this information, so typically for these
+      versions only  <literal>PROJECTSUFFIX</literal> and
+      <literal>SOLUTIONSUFFIX</literal> will be set.
+      </para>
     </summary>
   </cvar> <cvar name="MSVS_ARCH">
     <summary>
@@ -534,7 +646,7 @@ env.MSVSSolution(
     <summary>
       <para>
         The string placed in a generated
-Microsoft Visual Studio project file as the value of the
+Microsoft Visual C++ project file as the value of the
         <literal>ProjectGUID</literal> attribute. There is no default
         value. If not
 defined, a new GUID is generated.
@@ -545,9 +657,9 @@ defined, a new GUID is generated.
     <summary>
       <para>
         The path name placed in a generated
-Microsoft Visual Studio project file as the value of the
+Microsoft Visual C++ project file as the value of the
         <literal>SccAuxPath</literal> attribute if the
-        <envar>MSVS_SCC_PROVIDER</envar> construction variable is
+        <envar>MSVS_SCC_PROVIDER</envar> &consvar; is
         also set. There is
 no default value.
 
@@ -559,7 +671,7 @@ no default value.
         The root path of projects in your SCC workspace, i.e the
         path under which all project and solution files will be
         generated. It is used as a reference path from which the
-        relative paths of the generated Microsoft Visual Studio project
+        relative paths of the generated Microsoft Visual C++ project
         and solution files are computed. The relative project file path
         is placed as the value of the <literal>SccLocalPath</literal>
         attribute of the project file and as the values of the
@@ -572,7 +684,7 @@ no default value.
         to the number of projects in the solution) attributes of the
         <literal>GlobalSection(SourceCodeControl)</literal> section of
         the Microsoft Visual Studio solution file. This is used only if
-        the <envar>MSVS_SCC_PROVIDER</envar> construction variable is
+        the <envar>MSVS_SCC_PROVIDER</envar> &consvar; is
         also set. The default value is the current working directory.
       </para>
     </summary>
@@ -580,9 +692,9 @@ no default value.
     <summary>
       <para>
         The project name placed in a generated Microsoft
-        Visual Studio project file as the value of the
+        Visual C++ project file as the value of the
         <literal>SccProjectName</literal> attribute if the
-        <envar>MSVS_SCC_PROVIDER</envar> construction variable
+        <envar>MSVS_SCC_PROVIDER</envar> &consvar;
         is also set. In this case the string is also placed in
         the <literal>SccProjectName0</literal> attribute of the
         <literal>GlobalSection(SourceCodeControl)</literal> section
@@ -594,7 +706,7 @@ no default value.
     <summary>
       <para>
         The string placed in a generated Microsoft
-        Visual Studio project file as the value of the
+        Visual C++ project file as the value of the
         <literal>SccProvider</literal> attribute. The string is
         also placed in the <literal>SccProvider0</literal> attribute
         of the <literal>GlobalSection(SourceCodeControl)</literal>
@@ -604,23 +716,25 @@ no default value.
     </summary>
   </cvar> <cvar name="MSVS_VERSION">
     <summary>
-      <para>Sets the preferred version of Microsoft Visual Studio to use.</para>
+      <para>Set the preferred version of Microsoft Visual Studio to use.</para>
       <para>
         If &cv-MSVS_VERSION; is not set, &SCons; will (by default)
         select the latest version of Visual Studio installed on your
         system. So, if you have version 6 and version 7 (MSVS .NET)
         installed, it will prefer version 7. You can override this by
-        specifying the <envar>MSVS_VERSION</envar> variable in the
-        Environment initialization, setting it to the appropriate
+        specifying the &cv-link-MSVS_VERSION; variable when
+        initializing the Environment, setting it to the appropriate
         version ('6.0' or '7.0', for example). If the specified
         version isn't installed, tool initialization will fail.
       </para>
       <para>
-        This is obsolete: use &cv-MSVC_VERSION; instead. If
-        &cv-MSVS_VERSION; is set and &cv-MSVC_VERSION; is
-        not, &cv-MSVC_VERSION; will be set automatically to
-        &cv-MSVS_VERSION;. If both are set to different values,
-        scons will raise an error.
+        <emphasis>Deprecated since 1.3.0:</emphasis>
+        &cv-MSVS_VERSION; is deprecated in favor of &cv-link-MSVC_VERSION;.
+        As a transitional aid, if &cv-MSVS_VERSION; is set
+        and &cv-MSVC_VERSION; is not,
+        &cv-MSVC_VERSION; will be initialized to the value
+        of &cv-MSVS_VERSION;.
+        An error is raised if If both are set and have different values,
       </para>
     </summary>
   </cvar>
@@ -628,8 +742,8 @@ no default value.
     <summary>
       <para>
         The build command line placed in a generated Microsoft Visual
-        Studio project file. The default is to have Visual Studio
-        invoke SCons with any specified build targets.
+        C++ project file. The default is to have Visual Studio
+        invoke &SCons; with any specified build targets.
       </para>
     </summary>
   </cvar>
@@ -637,33 +751,34 @@ no default value.
     <summary>
       <para>
         The clean command line placed in a generated Microsoft Visual
-        Studio project file. The default is to have Visual Studio
-        invoke SCons with the -c option to remove any specified
-        targets.
+        C++ project file. The default is to have Visual Studio
+        invoke &SCons; with the <option>-c</option> option to remove
+        any specified targets.
       </para>
     </summary>
   </cvar> <cvar name="MSVSENCODING">
     <summary>
       <para>
         The encoding string placed in a generated Microsoft
-        Visual Studio project file. The default is encoding
+        Visual C++ project file. The default is encoding
         <literal>Windows-1252</literal>.
       </para>
     </summary>
   </cvar>
   <cvar name="MSVSPROJECTCOM">
     <summary>
-      <para>The action used to generate Microsoft Visual Studio project files.</para>
+      <para>The action used to generate Microsoft Visual C++ project files.</para>
     </summary>
   </cvar>
   <cvar name="MSVSPROJECTSUFFIX">
     <summary>
       <para>
-        The suffix used for Microsoft Visual Studio project (DSP)
-        files. The default value is <filename>.vcproj</filename>
-        when using Visual Studio version 7.x (.NET) or later version,
-        and <filename>.dsp</filename> when using earlier versions of
-        Visual Studio.
+        The suffix used for Microsoft Visual C++ project (DSP)
+        files. The default value is 
+        <filename>.vcxproj</filename> when using Visual Studio 2010
+        and later, <filename>.vcproj</filename>
+        when using Visual Studio versions between 2002 and 2008,
+        and <filename>.dsp</filename> when using Visual Studio 6.0.
       </para>
     </summary>
   </cvar>
@@ -671,8 +786,8 @@ no default value.
     <summary>
       <para>
         The rebuild command line placed in a generated Microsoft
-        Visual Studio project file. The default is to have Visual
-        Studio invoke SCons with any specified rebuild targets.
+        Visual C++ project file. The default is to have Visual
+        Studio invoke &SCons; with any specified rebuild targets.
 
       </para>
     </summary>
@@ -680,8 +795,8 @@ no default value.
   <cvar name="MSVSSCONS">
     <summary>
       <para>
-        The SCons used in generated Microsoft Visual Studio project
-        files. The default is the version of SCons being used to
+        The &SCons; used in generated Microsoft Visual C++ project
+        files. The default is the version of &SCons; being used to
         generate the project file.
       </para>
     </summary>
@@ -689,15 +804,15 @@ no default value.
   <cvar name="MSVSSCONSFLAGS">
     <summary>
       <para>
-        The SCons flags used in generated Microsoft Visual Studio project files.
+        The &SCons; flags used in generated Microsoft Visual C++ project files.
       </para>
     </summary>
   </cvar>
   <cvar name="MSVSSCONSCOM">
     <summary>
       <para>
-        The default SCons command used in generated Microsoft Visual
-        Studio project files.
+        The default &SCons; command used in generated Microsoft Visual
+        C++ project files.
       </para>
     </summary>
   </cvar>
@@ -705,10 +820,10 @@ no default value.
     <summary>
       <para>
         The sconscript file (that is, &SConstruct; or &SConscript;
-        file) that will be invoked by Visual Studio project files
+        file) that will be invoked by Visual C++ project files
         (through the &cv-link-MSVSSCONSCOM; variable). The default
         is the same sconscript file that contains the call to
-        &b-MSVSProject; to build the project file.
+        &b-link-MSVSProject; to build the project file.
       </para>
     </summary>
   </cvar>
@@ -721,20 +836,19 @@ no default value.
       <para>
         The suffix used for Microsoft Visual Studio solution (DSW)
         files. The default value is <filename>.sln</filename>
-        when using Visual Studio version 7.x (.NET), and
-        <filename>.dsw</filename> when using earlier versions of
-        Visual Studio.
+        when using Visual Studio version 7.x (.NET 2002) and later,
+        and <filename>.dsw</filename> when using Visual Studio 6.0.
       </para>
     </summary>
   </cvar>
   <cvar name="SCONS_HOME">
     <summary>
       <para>
-        The (optional) path to the SCons library directory,
+        The (optional) path to the &SCons; library directory,
         initialized from the external environment. If set, this is
         used to construct a shorter and more efficient search path in
         the &cv-link-MSVSSCONS; command line executed from Microsoft
-        Visual Studio project files.
+        Visual C++ project files.
       </para>
     </summary>
   </cvar>

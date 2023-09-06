@@ -58,7 +58,7 @@ if False:
 
         shutil.copy2 = CopyFile
 
-        def win_api_copyfile(src,dst):
+        def win_api_copyfile(src,dst) -> None:
             CopyFile(src,dst)
             os.utime(dst)
 
@@ -166,18 +166,18 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # and do clean up stuff
     if stdout is not None and not stdoutRedirected:
         try:
-            with open(tmpFileStdoutName, "r") as tmpFileStdout:
+            with open(tmpFileStdoutName) as tmpFileStdout:
                 stdout.write(tmpFileStdout.read())
             os.remove(tmpFileStdoutName)
-        except (IOError, OSError):
+        except OSError:
             pass
 
     if stderr is not None and not stderrRedirected:
         try:
-            with open(tmpFileStderrName, "r") as tmpFileStderr:
+            with open(tmpFileStderrName) as tmpFileStderr:
                 stderr.write(tmpFileStderr.read())
             os.remove(tmpFileStderrName)
-        except (IOError, OSError):
+        except OSError:
             pass
 
     return ret
@@ -186,7 +186,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 def exec_spawn(l, env):
     try:
         result = spawnve(os.P_WAIT, l[0], l, env)
-    except (OSError, EnvironmentError) as e:
+    except OSError as e:
         try:
             result = exitvalmap[e.errno]
             sys.stderr.write("scons: %s: %s\n" % (l[0], e.strerror))
@@ -283,7 +283,7 @@ class ArchDefinition:
     Determine which windows CPU were running on.
     A class for defining architecture-specific settings and logic.
     """
-    def __init__(self, arch, synonyms=[]):
+    def __init__(self, arch, synonyms=[]) -> None:
         self.arch = arch
         self.synonyms = synonyms
 
@@ -296,6 +296,11 @@ SupportedArchitectureList = [
     ArchDefinition(
         'x86_64',
         ['AMD64', 'amd64', 'em64t', 'EM64T', 'x86_64'],
+    ),
+
+    ArchDefinition(
+        'arm64',
+        ['ARM64', 'aarch64', 'AARCH64', 'AArch64'],
     ),
 
     ArchDefinition(
@@ -315,9 +320,20 @@ def get_architecture(arch=None):
     """Returns the definition for the specified architecture string.
 
     If no string is specified, the system default is returned (as defined
-    by the PROCESSOR_ARCHITEW6432 or PROCESSOR_ARCHITECTURE environment
-    variables).
+    by the registry PROCESSOR_ARCHITECTURE value, PROCESSOR_ARCHITEW6432
+    environment variable, PROCESSOR_ARCHITECTURE environment variable, or
+    the platform machine).
     """
+    if arch is None:
+        if SCons.Util.can_read_reg:
+            try:
+                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                          'SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment')
+                val, tok = SCons.Util.RegQueryValueEx(k, 'PROCESSOR_ARCHITECTURE')
+            except SCons.Util.RegError:
+                val = ''
+            if val and val in SupportedArchitectureMap:
+                arch = val
     if arch is None:
         arch = os.environ.get('PROCESSOR_ARCHITEW6432')
         if not arch:

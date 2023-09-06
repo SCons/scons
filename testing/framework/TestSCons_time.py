@@ -73,8 +73,7 @@ with open('SConstruct', 'r') as f:
 exec(script)
 """
 
-svn_py = """\
-#!/usr/bin/env python
+svn_py = f"""#!/usr/bin/env python
 import os
 import sys
 
@@ -82,12 +81,11 @@ dir = sys.argv[-1]
 script_dir = dir + '/scripts'
 os.makedirs(script_dir)
 with open(script_dir + '/scons.py', 'w') as f:
-    f.write(r'''%s''')
-""" % scons_py
+    f.write(r'''{scons_py}''')
+"""
 
 
-git_py = """\
-#!/usr/bin/env python
+git_py = f"""#!/usr/bin/env python
 import os
 import sys
 
@@ -95,8 +93,8 @@ dir = sys.argv[-1]
 script_dir = dir + '/scripts'
 os.makedirs(script_dir)
 with open(script_dir + '/scons.py', 'w') as f:
-    f.write(r'''%s''')
-""" % scons_py
+    f.write(r'''{scons_py}''')
+"""
 
 
 logfile_contents = """\
@@ -157,7 +155,7 @@ class TestSCons_time(TestCommon):
     initializations.
     """
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize an SCons_time testing object.
 
         If they're not overridden by keyword arguments, this
@@ -207,10 +205,10 @@ class TestSCons_time(TestCommon):
         else:
             return os.path.splitext(path)
 
-    def fake_logfile(self, logfile_name, index=0):
+    def fake_logfile(self, logfile_name, index: int=0) -> None:
         self.write(self.workpath(logfile_name), logfile_contents % locals())
 
-    def profile_data(self, profile_name, python_name, call, body):
+    def profile_data(self, profile_name, python_name, call, body) -> None:
         profile_name = self.workpath(profile_name)
         python_name = self.workpath(python_name)
         d = {
@@ -243,10 +241,10 @@ class TestSCons_time(TestCommon):
         args = (tempdir, 'scons-time-',) + args
         x = os.path.join(*args)
         x = re.escape(x)
-        x = x.replace('time\\-', 'time\\-[^%s]*' % sep)
+        x = x.replace('time\\-', f'time\\-[^{sep}]*')
         return x
 
-    def write_fake_scons_py(self):
+    def write_fake_scons_py(self) -> None:
         self.subdir('scripts')
         self.write('scripts/scons.py', scons_py)
 

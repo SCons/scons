@@ -50,7 +50,7 @@ def LaTeXAuxFunction(target = None, source= None, env=None):
 LaTeXAuxAction = SCons.Action.Action(LaTeXAuxFunction,
                               strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for LaTeX to an Environment."""
 
     env.AppendUnique(LATEXSUFFIXES=SCons.Tool.LaTeXSuffixes)

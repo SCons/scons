@@ -27,7 +27,7 @@ ninja file generation
 import SCons
 
 
-def ninja_hack_linkcom(env):
+def ninja_hack_linkcom(env) -> None:
     # TODO: change LINKCOM and SHLINKCOM to handle embedding manifest exe checks
     # without relying on the SCons hacks that SCons uses by default.
     if env["PLATFORM"] == "win32":
@@ -42,7 +42,7 @@ def ninja_hack_linkcom(env):
             ] = '${TEMPFILE("$SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_LIBDIRFLAGS $_LIBFLAGS $_PDB $_SHLINK_SOURCES", "$SHLINKCOMSTR")}'
 
 
-def ninja_hack_arcom(env):
+def ninja_hack_arcom(env) -> None:
     """
         Force ARCOM so use 's' flag on ar instead of separately running ranlib
     """
@@ -68,12 +68,12 @@ class NinjaNoResponseFiles(SCons.Platform.TempFileMunge):
     def __call__(self, target, source, env, for_signature):
         return self.cmd
 
-    def _print_cmd_str(*_args, **_kwargs):
+    def _print_cmd_str(*_args, **_kwargs) -> None:
         """Disable this method"""
         pass
 
 
-def ninja_always_serial(self, num, taskmaster):
+def ninja_always_serial(self, num, taskmaster) -> None:
     """Replacement for SCons.Job.Jobs constructor which always uses the Serial Job class."""
     # We still set self.num_jobs to num even though it's a lie. The
     # only consumer of this attribute is the Parallel Job class AND

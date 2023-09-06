@@ -27,7 +27,7 @@ import SCons.Errors
 import SCons.Variables
 
 class EnumVariableTestCase(unittest.TestCase):
-    def test_EnumVariable(self):
+    def test_EnumVariable(self) -> None:
         """Test EnumVariable creation"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
@@ -41,7 +41,7 @@ class EnumVariableTestCase(unittest.TestCase):
         assert o.validator is not None, o.validator
         assert o.converter is not None, o.converter
 
-    def test_converter(self):
+    def test_converter(self) -> None:
         """Test the EnumVariable converter"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.EnumVariable('test', 'test option help', 0,
@@ -127,7 +127,7 @@ class EnumVariableTestCase(unittest.TestCase):
             x = o2.converter(k)
             assert x == l[2], "o2 got %s, expected %s" % (x, l[2])
 
-    def test_validator(self):
+    def test_validator(self) -> None:
         """Test the EnumVariable validator"""
         opts = SCons.Variables.Variables()
         opts.Add(SCons.Variables.EnumVariable('test0', 'test option help', 0,
@@ -153,10 +153,10 @@ class EnumVariableTestCase(unittest.TestCase):
         o1 = opts.options[1]
         o2 = opts.options[2]
 
-        def valid(o, v):
+        def valid(o, v) -> None:
             o.validator('X', v, {})
 
-        def invalid(o, v):
+        def invalid(o, v) -> None:
             caught = None
             try:
                 o.validator('X', v, {})

@@ -1,17 +1,3 @@
-#
-# SConstruct file to build scons packages during development.
-#
-# See the README.rst file for an overview of how SCons is built and tested.
-import os.path
-import sys
-import textwrap
-from time import strftime
-
-copyright_years = strftime('2001 - %Y')
-
-# This gets inserted into the man pages to reflect the month of release.
-month_year = strftime('%B %Y')
-#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -34,30 +20,42 @@ month_year = strftime('%B %Y')
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 
+"""SConstruct file to build scons packages during development/release."""
+
+# See the README.rst file for an overview of how SCons is built and tested.
+
+import os.path
+import sys
+import textwrap
+from time import strftime
+
+copyright_years = strftime('2001 - %Y')
+
+# This gets inserted into the man pages to reflect the month of release.
+month_year = strftime('%B %Y')
 project = 'scons'
-default_version = '4.4.1'
-copyright = "Copyright (c) %s The SCons Foundation" % copyright_years
+default_version = '4.5.3'
+copyright = f"Copyright (c) {copyright_years} The SCons Foundation"
 
-#
 # We let the presence or absence of various utilities determine whether
 # or not we bother to build certain pieces of things.  This should allow
 # people to still do SCons packaging work even if they don't have all
 # of the utilities installed
-#
-print("git    :%s" % git)
-print("gzip   :%s" % gzip)
-print("unzip  :%s" % unzip)
-print("zip    :%s" % zip_path)
+print(f"git    :{git}")
+print(f"gzip   :{gzip}")
+print(f"unzip  :{unzip}")
+print(f"zip    :{zip_path}")
 
 #
 # Adding some paths to sys.path, this is mainly needed
 # for the doc toolchain.
 #
-addpaths = [os.path.abspath(os.path.join(os.getcwd(), 'bin')),
-            os.path.abspath(os.path.join(os.getcwd(), 'testing/framework'))]
+addpaths = [
+    os.path.abspath(os.path.join(os.getcwd(), 'bin')),
+    os.path.abspath(os.path.join(os.getcwd(), 'testing/framework')),
+]
 for a in addpaths:
     if a not in sys.path:
         sys.path.append(a)
@@ -71,16 +69,37 @@ Default('.', command_line.build_dir)
 SetOption('duplicate', 'copy')
 
 packaging_flavors = [
-    ('tar-gz', "The normal .tar.gz file for end-user installation."),
-    ('local-tar-gz', "A .tar.gz file for dropping into other software " +
-     "for local use."),
-    ('zip', "The normal .zip file for end-user installation."),
-    ('local-zip', "A .zip file for dropping into other software " +
-     "for local use."),
-    ('src-tar-gz', "A .tar.gz file containing all the source " +
-     "(including tests and documentation)."),
-    ('src-zip', "A .zip file containing all the source " +
-     "(including tests and documentation)."),
+    (
+        'wheel',
+        "The Python wheel file for pip installations."
+    ),
+    (
+        'tar-gz',
+        "The normal .tar.gz file for end-user installation."
+    ),
+    (
+        'local-tar-gz',
+        "A .tar.gz file for dropping into other software for local use.",
+    ),
+    (
+        'zip',
+        "The normal .zip file for end-user installation."),
+    (
+        'local-zip',
+        "A .zip file for dropping into other software for local use."
+    ),
+    (
+        'src-tar-gz',
+        "A .tar.gz file containing all the source (including tests and documentation).",
+    ),
+    (
+        'src-zip',
+        "A .zip file containing all the source (including tests and documentation).",
+    ),
+    (
+        'local-zipapp',
+        "A .pyz local zipapp. Like local-zip without need to unpack.",
+    )
 ]
 
 test_tar_gz_dir = os.path.join(command_line.build_dir, "test-tar-gz")
@@ -102,7 +121,7 @@ else:
 #     python_project_subinst_dir = os.path.join("lib", project)
 #     project_script_subinst_dir = 'bin'
 
-indent_fmt = '  %-26s  '
+indent_fmt = '  %-14s  '
 
 Help("""\
 The following aliases build packages of various types, and unpack the
@@ -135,12 +154,10 @@ for variable, help_text in command_line.command_line_variables:
     Help(tw.fill(help_text) + '\n')
 
 revaction = SCons_revision
-revbuilder = Builder(action=Action(SCons_revision,
-                                   varlist=['COPYRIGHT', 'VERSION']))
+revbuilder = Builder(action=Action(SCons_revision, varlist=['COPYRIGHT', 'VERSION']))
 
 env = Environment(
     ENV=command_line.ENV,
-
     BUILD=command_line.build_id,
     BUILDDIR=command_line.build_dir,
     BUILDSYS=command_line.build_system,
@@ -148,68 +165,65 @@ env = Environment(
     COPYRIGHT=copyright,
     DATE=command_line.date,
     DEB_DATE=deb_date,
-
     DEVELOPER=command_line.developer,
     DISTDIR=os.path.join(command_line.build_dir, 'dist'),
     MONTH_YEAR=month_year,
     REVISION=command_line.revision,
     VERSION=command_line.version,
-
     TAR_HFLAG=tar_hflag,
-
     ZIP=zip_path,
     ZIPFLAGS='-r',
     UNZIP=unzip,
     UNZIPFLAGS='-o -d $UNPACK_ZIP_DIR',
-
     # ZCAT=zcat,
     # ZIPID=zipit,
-
     TEST_SRC_TAR_GZ_DIR=test_src_tar_gz_dir,
     TEST_SRC_ZIP_DIR=test_src_zip_dir,
     TEST_TAR_GZ_DIR=test_tar_gz_dir,
     TEST_ZIP_DIR=test_zip_dir,
-
     UNPACK_TAR_GZ_DIR=unpack_tar_gz_dir,
     UNPACK_ZIP_DIR=unpack_zip_dir,
-
-    BUILDERS={'SCons_revision': revbuilder,
-              'SOElim': soelimbuilder},
-
-    PYTHON='"%s"' % sys.executable,
+    BUILDERS={'SCons_revision': revbuilder, 'SOElim': soelimbuilder},
+    PYTHON=f'"{sys.executable}"',
     PYTHONFLAGS='-tt',
 )
 
 Version_values = [Value(command_line.version), Value(command_line.build_id)]
-
 installed_local_files = create_local_packages(env)
-
 update_init_file(env)
-#
-#
-#
-#
-# Documentation.
-#
-Export('command_line', 'env', 'whereis', 'revaction')
 
+# Documentation
+Export('command_line', 'env', 'whereis', 'revaction')
 SConscript('doc/SConscript')
 
-
-# Copy manpage's into base dir for inclusion in pypi packages
+# Copy manpages into base dir for inclusion in pypi packages
 man_pages = env.Install("#/", Glob("#/build/doc/man/*.1"))
 
-# Build packages for pypi
-wheel = env.Command('$DISTDIR/SCons-${VERSION}-py3-none-any.whl', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-            '$PYTHON setup.py bdist_wheel')
+# Build packages for pypi. 'build' makes sdist (tgz) + whl
+wheel = env.Command(
+    target=[
+        '$DISTDIR/SCons-${VERSION}-py3-none-any.whl',
+        '$DISTDIR/SCons-${VERSION}.tar.gz',
+    ],
+    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    action='$PYTHON -m build --outdir $DISTDIR',
+)
+env.Alias("wheel", wheel[0])
+env.Alias("tar-gz", wheel[1])
 
-zip_file = env.Command('$DISTDIR/SCons-${VERSION}.zip', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-            '$PYTHON setup.py sdist --format=zip')
-tgz_file = env.Command('$DISTDIR/SCons-${VERSION}.tar.gz', ['setup.cfg', 'setup.py', 'SCons/__init__.py']+man_pages,
-            '$PYTHON setup.py sdist --format=gztar')
+# TODO: this is built the old way, because "build" doesn't make zipfiles,
+# and it deletes its isolated env so we can't just zip that one up.
+zip_file = env.Command(
+    target='$DISTDIR/SCons-${VERSION}.zip',
+    source=['setup.cfg', 'setup.py', 'SCons/__init__.py'] + man_pages,
+    action='$PYTHON setup.py sdist --format=zip',
+)
+env.Alias("zip", zip_file)
 
 # Now set depends so the above run in a particular order
-env.Depends(tgz_file, [zip_file, wheel])
+# NOTE: 'build' with default options builds sdist, then whl from sdist,
+# so it's already ordered.
+# env.Depends(tgz_file, [zip_file, wheel])
 
 # NOTE: Commenting this out as the manpages are expected to be in the base directory when manually
 # running setup.py from the base of the repo.

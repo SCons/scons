@@ -1,12 +1,6 @@
-"""SCons.Tool.pdf
-
-Common PDF Builder definition for various other Tool modules that use it.
-Add an explicit action to run epstopdf to convert .eps files to .pdf
-
-"""
-
+# MIT License
 #
-# __COPYRIGHT__
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -26,9 +20,12 @@ Add an explicit action to run epstopdf to convert .eps files to .pdf
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""Common PDF Builder definition.
+
+This is for various other Tool modules that use it.
+Add an explicit action to run epstopdf to convert .eps files to .pdf
+"""
 
 import SCons.Builder
 import SCons.Tool
@@ -37,7 +34,7 @@ PDFBuilder = None
 
 EpsPdfAction = SCons.Action.Action('$EPSTOPDFCOM', '$EPSTOPDFCOMSTR')
 
-def generate(env):
+def generate(env) -> None:
     try:
         env['BUILDERS']['PDF']
     except KeyError:
@@ -55,9 +52,9 @@ def generate(env):
     env['PDFPREFIX'] = ''
     env['PDFSUFFIX'] = '.pdf'
 
-# put the epstopdf builder in this routine so we can add it after 
+# put the epstopdf builder in this routine so we can add it after
 # the pdftex builder so that one is the default for no source suffix
-def generate2(env):
+def generate2(env) -> None:
     bld = env['BUILDERS']['PDF']
     #bld.add_action('.ps',  EpsPdfAction) # this is covered by direct Ghostcript action in gs.py
     bld.add_action('.eps', EpsPdfAction)
@@ -66,10 +63,10 @@ def generate2(env):
     env['EPSTOPDFFLAGS'] = SCons.Util.CLVar('')
     env['EPSTOPDFCOM']   = '$EPSTOPDF $EPSTOPDFFLAGS ${SOURCE} --outfile=${TARGET}'
 
-def exists(env):
+def exists(env) -> bool:
     # This only puts a skeleton Builder in place, so if someone
     # references this Tool directly, it's always "available."
-    return 1
+    return True
 
 # Local Variables:
 # tab-width:4

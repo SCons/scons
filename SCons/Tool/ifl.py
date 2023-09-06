@@ -32,7 +32,7 @@ import SCons.Defaults
 from SCons.Scanner.Fortran import FortranScan
 from .FortranCommon import add_all_to_env
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ifl to an Environment."""
     fscan = FortranScan("FORTRANPATH")
     SCons.Tool.SourceFileScanner.add_scanner('.i', fscan)

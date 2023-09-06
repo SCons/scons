@@ -198,7 +198,7 @@ def init_mapper(env):
 
     env["__GCCMODULEMAPPER__"] = mapper
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for g++ to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

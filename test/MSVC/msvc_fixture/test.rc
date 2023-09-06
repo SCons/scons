@@ -1,6 +1,10 @@
+// SPDX-License-Identifier: MIT
+//
+// Copyright The SCons Foundation
+
 #include "resource.h"
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE DISCARDABLE
 BEGIN
     IDS_TEST "test 1"
 END

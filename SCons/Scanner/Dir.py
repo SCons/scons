@@ -100,7 +100,7 @@ def scan_on_disk(node, env, path=()):
     """
     try:
         flist = node.fs.listdir(node.get_abspath())
-    except (IOError, OSError):
+    except OSError:
         return []
     e = node.Entry
     for f in  filter(do_not_scan, flist):

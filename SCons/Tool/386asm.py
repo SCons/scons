@@ -39,7 +39,7 @@ import SCons.Util
 
 as_module = __import__('as', globals(), locals(), [], 1)
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for ar to an Environment."""
     as_module.generate(env)
 

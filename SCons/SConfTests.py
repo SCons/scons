@@ -32,6 +32,7 @@ import TestCmd
 
 sys.stdout = io.StringIO()
 
+# a library that is sure to exist on the platform
 if sys.platform == 'win32':
     existing_lib = "msvcrt"
 else:
@@ -39,13 +40,13 @@ else:
 
 class SConfTestCase(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         # we always want to start with a clean directory
         self.save_cwd = os.getcwd()
         self.test = TestCmd.TestCmd(workdir = '')
         os.chdir(self.test.workpath(''))
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.test.cleanup()
         import SCons.SConsign
         SCons.SConsign.Reset()
@@ -78,15 +79,19 @@ class SConfTestCase(unittest.TestCase):
         #    - cygwin on Windows (using cmd.exe, not bash)
         #    - posix
         #    - msvc on Windows (hopefully)
-        if (not self.scons_env.Detect( self.scons_env.subst('$CXX') ) or
-            not self.scons_env.Detect( self.scons_env.subst('$CC') ) or
-            not self.scons_env.Detect( self.scons_env.subst('$LINK') )):
+        if not all(
+            (
+                self.scons_env.Detect(self.scons_env.subst('$CXX')),
+                self.scons_env.Detect(self.scons_env.subst('$CC')),
+                self.scons_env.Detect(self.scons_env.subst('$LINK')),
+            )
+        ):
             raise Exception("This test needs an installed compiler!")
         if self.scons_env['CXX'] == 'g++':
             global existing_lib
             existing_lib = 'm'
 
-    def _baseTryXXX(self, TryFunc):
+    def _baseTryXXX(self, TryFunc) -> None:
         # TryCompile and TryLink are much the same, so we can test them
         # in one method, we pass the function as a string ('TryCompile',
         # 'TryLink'), so we are aware of reloading modules.
@@ -143,7 +148,7 @@ class SConfTestCase(unittest.TestCase):
         finally:
             sconf.Finish()
 
-    def test_TryBuild(self):
+    def test_TryBuild(self) -> None:
         """Test SConf.TryBuild
         """
         # 1 test that we can try a builder that returns a list of nodes
@@ -155,14 +160,14 @@ class SConfTestCase(unittest.TestCase):
         import SCons.Node
 
         class MyAction:
-            def get_contents(self, target, source, env):
+            def get_contents(self, target, source, env) -> str:
                 return 'MyBuilder-MyAction $SOURCE $TARGET'
 
         class Attrs:
             __slots__ = ('shared', '__dict__')
 
         class MyBuilder(SCons.Builder.BuilderBase):
-            def __init__(self):
+            def __init__(self) -> None:
                 self.prefix = ''
                 self.suffix = ''
                 # need action because temporary file name uses hash of actions get_contents()
@@ -170,7 +175,7 @@ class SConfTestCase(unittest.TestCase):
 
             def __call__(self, env, target, source, *args, **kw):
                 class MyNode:
-                    def __init__(self, name):
+                    def __init__(self, name) -> None:
                         self.name = name
                         self.state = SCons.Node.no_state
                         self.waiting_parents = set()
@@ -180,43 +185,43 @@ class SConfTestCase(unittest.TestCase):
                         self.attributes = Attrs()
                     def disambiguate(self):
                         return self
-                    def has_builder(self):
-                        return 1
-                    def add_pre_action(self, *actions):
+                    def has_builder(self) -> bool:
+                        return True
+                    def add_pre_action(self, *actions) -> None:
                         pass
-                    def add_post_action(self, *actions):
+                    def add_post_action(self, *actions) -> None:
                         pass
-                    def children(self, scan = 1):
+                    def children(self, scan: int = 1):
                         return []
                     def get_state(self):
                         return self.state
-                    def set_state(self, state):
+                    def set_state(self, state) -> None:
                         self.state = state
                     def alter_targets(self):
                         return [], None
-                    def depends_on(self, nodes):
-                        return None
-                    def postprocess(self):
+                    def postprocess(self) -> None:
                         pass
-                    def clear(self):
+                    def clear(self) -> None:
                         pass
-                    def is_up_to_date(self):
-                        return None
-                    def prepare(self):
+                    def is_up_to_date(self) -> bool:
+                        return False
+                    def prepare(self) -> None:
                         pass
-                    def push_to_cache(self):
+                    def push_to_cache(self) -> None:
                         pass
-                    def retrieve_from_cache(self):
-                        return 0
-                    def build(self, **kw):
+                    def retrieve_from_cache(self) -> bool:
+                        return False
+                    def build(self, **kw) -> None:
                         return
-                    def built(self):
+                    def built(self) -> None:
                         pass
-                    def get_stored_info(self):
+                    def get_stored_info(self) -> None:
                         pass
+                    def is_conftest(self) -> bool:
+                        return True
                     def get_executor(self):
                         class Executor:
-                            def __init__(self, targets):
+                            def __init__(self, targets) -> None:
                                 self.targets = targets
                             def get_all_targets(self):
                                 return self.targets
@@ -228,17 +233,17 @@ class SConfTestCase(unittest.TestCase):
         finally:
             sconf.Finish()
 
-    def test_TryCompile(self):
+    def test_TryCompile(self) -> None:
         """Test SConf.TryCompile
         """
         self._baseTryXXX( "TryCompile" ) #self.SConf.SConf.TryCompile )
 
-    def test_TryLink(self):
+    def test_TryLink(self) -> None:
         """Test SConf.TryLink
         """
         self._baseTryXXX( "TryLink" ) #self.SConf.SConf.TryLink )
 
-    def test_TryRun(self):
+    def test_TryRun(self) -> None:
         """Test SConf.TryRun
         """
         def checks(sconf):
@@ -286,14 +291,14 @@ int main(void) {
         assert secondOcc is None, log
 
 
-    def test_TryAction(self):
+    def test_TryAction(self) -> None:
         """Test SConf.TryAction
         """
         def actionOK(target, source, env):
             with open(str(target[0]), "w") as f:
                 f.write("RUN OK\n")
             return None
-        def actionFAIL(target, source, env):
+        def actionFAIL(target, source, env) -> int:
             return 1
 
 
@@ -311,7 +316,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def _test_check_compilers(self, comp, func, name):
+    def _test_check_compilers(self, comp, func, name) -> None:
         """This is the implementation for CheckCC and CheckCXX tests."""
         from copy import deepcopy
 
@@ -406,7 +411,7 @@ int main(void) {
             sconf.Finish()
 
 
-    def test_CheckHeader(self):
+    def test_CheckHeader(self) -> None:
         """Test SConf.CheckHeader()
         """
         self._resetSConfState()
@@ -427,7 +432,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckCHeader(self):
+    def test_CheckCHeader(self) -> None:
         """Test SConf.CheckCHeader()
         """
         self._resetSConfState()
@@ -447,7 +452,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckCXXHeader(self):
+    def test_CheckCXXHeader(self) -> None:
         """Test SConf.CheckCXXHeader()
         """
         self._resetSConfState()
@@ -467,7 +472,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckLib(self):
+    def test_CheckLib(self) -> None:
         """Test SConf.CheckLib()
         """
         self._resetSConfState()
@@ -502,31 +507,63 @@ int main(void) {
             r = sconf.CheckLib( ["hopefullynolib",existing_lib], "main", autoadd=0 )
             assert r, "did not find %s " % existing_lib
 
-            # CheckLib() with autoadd
             def libs(env):
                 return env.get('LIBS', [])
 
-            env = sconf.env.Clone()
-
+            # CheckLib() with combinations of autoadd, append
             try:
-                r = sconf.CheckLib( existing_lib, "main", autoadd=1 )
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(existing_lib, "main", autoadd=True, append=True)
                 assert r, "did not find main in %s" % existing_lib
                 expect = libs(env) + [existing_lib]
                 got = libs(sconf.env)
                 assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
 
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(existing_lib, "main", autoadd=True, append=False)
+                assert r, "did not find main in %s" % existing_lib
+                expect = [existing_lib] + libs(env)
+                got = libs(sconf.env)
+                assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
+
                 sconf.env = env.Clone()
-                r = sconf.CheckLib( existing_lib, "main", autoadd=0 )
+                r = sconf.CheckLib(existing_lib, "main", autoadd=False)
                 assert r, "did not find main in %s" % existing_lib
                 expect = libs(env)
                 got = libs(sconf.env)
                 assert got == expect, "before and after LIBS were not the same"
             finally:
                 sconf.env = env
+
+            # CheckLib() with unique
+            sconf.env.Append(LIBS=existing_lib)
+            try:
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(
+                    existing_lib, "main", autoadd=True, append=True, unique=False
+                )
+                assert r, f"did not find main in {existing_lib}"
+
+                expect = libs(env) + [existing_lib]
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+
+                env = sconf.env.Clone()
+                r = sconf.CheckLib(
+                    existing_lib, "main", autoadd=True, append=True, unique=True
+                )
+                assert r, f"did not find main in {existing_lib}"
+
+                expect = libs(env)
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+            finally:
+                sconf.env = env
+
         finally:
             sconf.Finish()
 
-    def test_CheckLibWithHeader(self):
+    def test_CheckLibWithHeader(self) -> None:
         """Test SConf.CheckLibWithHeader()
         """
         self._resetSConfState()
@@ -565,21 +602,33 @@ int main(void) {
             r = sconf.CheckLibWithHeader( [existing_lib,"hopefullynolib"], ["stdio.h", "math.h"], "C", autoadd=0 )
             assert r, "did not find %s, #include stdio.h first" % existing_lib
 
-            # CheckLibWithHeader with autoadd
             def libs(env):
                 return env.get('LIBS', [])
 
-            env = sconf.env.Clone()
-
+            # CheckLibWithHeader with combinations of autoadd, append
             try:
-                r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=1 )
+                env = sconf.env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=True
+                )
                 assert r, "did not find math.h with %s" % existing_lib
                 expect = libs(env) + [existing_lib]
                 got = libs(sconf.env)
                 assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
 
                 sconf.env = env.Clone()
-                r = sconf.CheckLibWithHeader( existing_lib, "math.h", "C", autoadd=0 )
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=False
+                )
+                assert r, "did not find math.h with %s" % existing_lib
+                expect = [existing_lib] + libs(env)
+                got = libs(sconf.env)
+                assert got == expect, "LIBS: expected %s, got %s" % (expect, got)
+
+                sconf.env = env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=False
+                )
                 assert r, "did not find math.h with %s" % existing_lib
                 expect = libs(env)
                 got = libs(sconf.env)
@@ -587,10 +636,33 @@ int main(void) {
             finally:
                 sconf.env = env
 
+            # CheckLibWithHeader() with unique
+            sconf.env.Append(LIBS=existing_lib)
+            try:
+                env = sconf.env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=True, unique=False
+                )
+                assert r, f"did not find main in {existing_lib}"
+                expect = libs(env) + [existing_lib]
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+
+                env = sconf.env.Clone()
+                r = sconf.CheckLibWithHeader(
+                    existing_lib, "math.h", "C", autoadd=True, append=True, unique=True
+                )
+                assert r, f"did not find main in {existing_lib}"
+                expect = libs(env)
+                got = libs(sconf.env)
+                assert got == expect, f"LIBS: expected {expect}, got {got}"
+            finally:
+                sconf.env = env
+
         finally:
             sconf.Finish()
 
-    def test_CheckFunc(self):
+    def test_CheckFunc(self) -> None:
         """Test SConf.CheckFunc()
         """
         self._resetSConfState()
@@ -610,7 +682,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckProg(self):
+    def test_CheckProg(self) -> None:
         """Test SConf.CheckProg()
         """
         self._resetSConfState()
@@ -634,7 +706,7 @@ int main(void) {
             sconf.Finish()
 
 
-    def test_Define(self):
+    def test_Define(self) -> None:
         """Test SConf.Define()
         """
         self._resetSConfState()
@@ -670,7 +742,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckTypeSize(self):
+    def test_CheckTypeSize(self) -> None:
         """Test SConf.CheckTypeSize()
         """
         self._resetSConfState()
@@ -704,7 +776,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckDeclaration(self):
+    def test_CheckDeclaration(self) -> None:
         """Test SConf.CheckDeclaration()
         """
         self._resetSConfState()
@@ -725,7 +797,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CheckMember(self):
+    def test_CheckMember(self) -> None:
         """Test SConf.CheckMember()
         """
         self._resetSConfState()
@@ -746,7 +818,7 @@ int main(void) {
             sconf.Finish()
 
 
-    def test_(self):
+    def test_(self) -> None:
         """Test SConf.CheckType()
         """
         self._resetSConfState()
@@ -763,7 +835,7 @@ int main(void) {
         finally:
             sconf.Finish()
 
-    def test_CustomChecks(self):
+    def test_CustomChecks(self) -> None:
         """Test Custom Checks
         """
         def CheckCustom(test):

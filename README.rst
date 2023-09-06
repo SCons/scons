@@ -117,7 +117,7 @@ Installation Requirements
 =========================
 
 SCons has no installation dependencies beyond a compatible version
-of Python. The tools which will be used to to actually construct the
+of Python. The tools which will be used to actually construct the
 project, such as compilers, documentation production tools, etc.
 should of course be installed by the appropriate means.
 
@@ -167,7 +167,7 @@ messages during installation like this::
   Consider adding this directory to PATH or, if you prefer to suppress this warning,
   use --no-warn-script-location.
 
-If you are running on a system which uses a package manager 
+If you are running on a system which uses a package manager
 (for example most Linux distributions), you may, at your option,
 use the package manager (e.g. ``apt``, ``dnf``, ``yum``,
 ``zypper``, ``brew``, ``pacman`` etc.) to install a version

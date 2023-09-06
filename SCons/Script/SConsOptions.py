@@ -40,7 +40,7 @@ SUPPRESS_HELP = optparse.SUPPRESS_HELP
 
 diskcheck_all = SCons.Node.FS.diskcheck_types()
 
-experimental_features = {'warp_speed', 'transporter', 'ninja'}
+experimental_features = {'warp_speed', 'transporter', 'ninja', 'tm_v2'}
 
 
 def diskcheck_convert(value):
@@ -54,7 +54,10 @@ def diskcheck_convert(value):
         if v == 'all':
             result = diskcheck_all
         elif v == 'none':
-            result = []
+            # Don't use an empty list here as that fails the normal check
+            # to see if an optparse parser of if parser.argname:
+            # Changed to ['none'] as diskcheck expects a list value
+            result = ['none']
         elif v in diskcheck_all:
             result.append(v)
         else:
@@ -65,7 +68,7 @@ def diskcheck_convert(value):
 class SConsValues(optparse.Values):
     """
     Holder class for uniform access to SCons options, regardless
-    of whether or not they can be set on the command line or in the
+    of whether they can be set on the command line or in the
     SConscript files (using the SetOption() function).
 
     A SCons option value can originate three different ways:
@@ -95,7 +98,7 @@ class SConsValues(optparse.Values):
     in the set_option() method.
     """
 
-    def __init__(self, defaults):
+    def __init__(self, defaults) -> None:
         self.__defaults__ = defaults
         self.__SConscript_settings__ = {}
 
@@ -268,8 +271,7 @@ class SConsOption(optparse.Option):
 
 
 class SConsOptionGroup(optparse.OptionGroup):
-    """
-    A subclass for SCons-specific option groups.
+    """A subclass for SCons-specific option groups.
 
     The only difference between this and the base class is that we print
     the group's help text flush left, underneath their own title but
@@ -285,7 +287,8 @@ class SConsOptionGroup(optparse.OptionGroup):
         formatter.dedent()
         result = formatter.format_heading(self.title)
         formatter.indent()
-        result = result + optparse.OptionContainer.format_help(self, formatter)
+        # bypass OptionGroup format_help and call up to its parent
+        result += optparse.OptionContainer.format_help(self, formatter)
         return result
 
 
@@ -297,11 +300,11 @@ class SConsBadOptionError(optparse.BadOptionError):
 
     """
 
-    def __init__(self, opt_str, parser=None):
+    def __init__(self, opt_str, parser=None) -> None:
         self.opt_str = opt_str
         self.parser = parser
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _("no such option: %s") % self.opt_str
 
 
@@ -393,7 +396,7 @@ class SConsOptionParser(optparse.OptionParser):
 
         option.process(opt, value, values, self)
 
-    def reparse_local_options(self):
+    def reparse_local_options(self) -> None:
         """ Re-parse the leftover command-line options.
 
         Parse options stored in `self.largs`, so that any value
@@ -471,7 +474,6 @@ class SConsOptionParser(optparse.OptionParser):
             self.local_option_group = group
 
         result = group.add_option(*args, **kw)
-
         if result:
             # The option was added successfully.  We now have to add the
             # default value to our object that holds the default values
@@ -486,9 +488,43 @@ class SConsOptionParser(optparse.OptionParser):
 
         return result
 
+    def format_local_option_help(self, formatter=None, file=None):
+        """Return the help for the project-level ("local") options.
+
+        .. versionadded:: 4.6.0
+        """
+        if formatter is None:
+            formatter = self.formatter
+        try:
+            group = self.local_option_group
+        except AttributeError:
+            return ""
+
+        formatter.store_local_option_strings(self, group)
+        for opt in group.option_list:
+            strings = formatter.format_option_strings(opt)
+            formatter.option_strings[opt] = strings
+
+        # defeat our own cleverness, which starts out by dedenting
+        formatter.indent()
+        local_help = group.format_help(formatter)
+        formatter.dedent()
+        return local_help
+
+    def print_local_option_help(self, file=None):
+        """Print help for just project-defined options.
+
+        Writes to *file* (default stdout).
+
+        .. versionadded:: 4.6.0
+        """
+        if file is None:
+            file = sys.stdout
+        file.write(self.format_local_option_help())
+
 
 class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
-    def format_usage(self, usage):
+    def format_usage(self, usage) -> str:
         """ Formats the usage message. """
         return "usage: %s\n" % usage
 
@@ -501,7 +537,7 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
         """
         if heading == 'Options':
             heading = "SCons Options"
-        return optparse.IndentedHelpFormatter.format_heading(self, heading)
+        return super().format_heading(heading)
 
     def format_option(self, option):
         """ Customized option formatter.
@@ -574,6 +610,24 @@ class SConsIndentedHelpFormatter(optparse.IndentedHelpFormatter):
             result.append("\n")
         return "".join(result)
 
+    def store_local_option_strings(self, parser, group):
+        """Local-only version of store_option_strings.
+
+        We need to replicate this so the formatter will be set up
+        properly if we didn't go through the "normal" store_option_strings
+
+        .. versionadded:: 4.6.0
+        """
+        self.indent()
+        max_len = 0
+        for opt in group.option_list:
+            strings = self.format_option_strings(opt)
+            self.option_strings[opt] = strings
+            max_len = max(max_len, len(strings) + self.current_indent)
+        self.dedent()
+        self.help_position = min(max_len + 2, self.max_help_position)
+        self.help_width = max(self.width - self.help_position, 11)
+
 
 def Parser(version):
     """Returns a parser object initialized with the standard SCons options.
@@ -607,7 +661,7 @@ def Parser(version):
     op.version = version
 
     # options ignored for compatibility
-    def opt_ignore(option, opt, value, parser):
+    def opt_ignore(option, opt, value, parser) -> None:
         sys.stderr.write("Warning:  ignoring %s option\n" % opt)
 
     op.add_option("-b", "-d", "-e", "-m", "-S", "-t", "-w",
@@ -698,7 +752,7 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time", "action-timestamps"]
+                     "time", "action-timestamps", "json"]
 
     def opt_debug(option, opt, value__, parser,
                   debug_options=debug_options,
@@ -819,7 +873,7 @@ def Parser(version):
                   action="help",
                   help="Print this message and exit")
 
-    def warn_md5_chunksize_deprecated(option, opt, value, parser):
+    def warn_md5_chunksize_deprecated(option, opt, value, parser) -> None:
         if opt == '--md5-chunksize':
             SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning,
                                 "Parameter %s is deprecated. Use "
@@ -862,7 +916,7 @@ def Parser(version):
                   action="store_true",
                   help="Cache implicit dependencies")
 
-    def opt_implicit_deps(option, opt, value, parser):
+    def opt_implicit_deps(option, opt, value, parser) -> None:
         setattr(parser.values, 'implicit_cache', True)
         setattr(parser.values, option.dest, True)
 
@@ -999,7 +1053,7 @@ def Parser(version):
                   help="Search up directory tree for SConstruct, "
                        "build Default() targets from local SConscript")
 
-    def opt_version(option, opt, value, parser):
+    def opt_version(option, opt, value, parser) -> None:
         sys.stdout.write(parser.version + '\n')
         sys.exit(0)
 
@@ -1007,7 +1061,7 @@ def Parser(version):
                   action="callback", callback=opt_version,
                   help="Print the SCons version number and exit")
 
-    def opt_warn(option, opt, value, parser, tree_options=tree_options):
+    def opt_warn(option, opt, value, parser, tree_options=tree_options) -> None:
         if SCons.Util.is_String(value):
             value = value.split(',')
         parser.values.warn.extend(value)
@@ -1030,7 +1084,7 @@ def Parser(version):
     # we don't want to change.  These all get a "the -X option is not
     # yet implemented" message and don't show up in the help output.
 
-    def opt_not_yet(option, opt, value, parser):
+    def opt_not_yet(option, opt, value, parser) -> None:
         msg = "Warning:  the %s option is not yet implemented\n" % opt
         sys.stderr.write(msg)
 

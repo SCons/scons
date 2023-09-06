@@ -36,6 +36,7 @@ import shutil
 import stat
 import sys
 import time
+from typing import List
 
 import SCons.Action
 import SCons.Builder
@@ -46,7 +47,7 @@ import SCons.PathList
 import SCons.Scanner.Dir
 import SCons.Subst
 import SCons.Tool
-import SCons.Util
+from SCons.Util import is_List, is_String, is_Sequence, is_Tuple, is_Dict, flatten
 
 # A placeholder for a default Environment (for fetching source files
 # from source code management systems and the like).  This must be
@@ -57,31 +58,28 @@ _default_env = None
 
 # Lazily instantiate the default environment so the overhead of creating
 # it doesn't apply when it's not needed.
-def _fetch_DefaultEnvironment(*args, **kw):
+def _fetch_DefaultEnvironment(*args, **kwargs):
     """Returns the already-created default construction environment."""
-    global _default_env
     return _default_env
 
 
-def DefaultEnvironment(*args, **kw):
-    """
-    Initial public entry point for creating the default construction
-    Environment.
+def DefaultEnvironment(*args, **kwargs):
+    """Construct the global ("default") construction environment.
 
-    After creating the environment, we overwrite our name
-    (DefaultEnvironment) with the _fetch_DefaultEnvironment() function,
-    which more efficiently returns the initialized default construction
-    environment without checking for its existence.
+    The environment is provisioned with the values from *kwargs*.
 
-    (This function still exists with its _default_check because someone
-    else (*cough* Script/__init__.py *cough*) may keep a reference
-    to this function.  So we can't use the fully functional idiom of
-    having the name originally be a something that *only* creates the
-    construction environment and then overwrites the name.)
+    After the environment is created, this function is replaced with
+    a reference to :func:`_fetch_DefaultEnvironment` which efficiently
+    returns the initialized default construction environment without
+    checking for its existence.
+
+    Historically, some parts of the code held references to this function.
+    Thus it still has the existence check for :data:`_default_env` rather
+    than just blindly creating the environment and overwriting itself.
     """
     global _default_env
     if not _default_env:
-        _default_env = SCons.Environment.Environment(*args, **kw)
+        _default_env = SCons.Environment.Environment(*args, **kwargs)
         _default_env.Decider('content')
         global DefaultEnvironment
         DefaultEnvironment = _fetch_DefaultEnvironment
@@ -94,7 +92,7 @@ def DefaultEnvironment(*args, **kw):
 # going into a shared library are, in fact, shared.
 def StaticObjectEmitter(target, source, env):
     for tgt in target:
-        tgt.attributes.shared = None
+        tgt.attributes.shared = False
     return target, source
 
 
@@ -111,7 +109,7 @@ def SharedFlagChecker(source, target, env):
             try:
                 shared = src.attributes.shared
             except AttributeError:
-                shared = None
+                shared = False
             if not shared:
                 raise SCons.Errors.UserError(
                     "Source file: %s is static and is not compatible with shared target: %s" % (src, target[0]))
@@ -163,10 +161,10 @@ def get_paths_str(dest) -> str:
 
     If *dest* is a list, manually converts each elem to a string.
     """
-    def quote(arg):
+    def quote(arg) -> str:
         return f'"{arg}"'
 
-    if SCons.Util.is_List(dest):
+    if is_List(dest):
         elem_strs = [quote(d) for d in dest]
         return f'[{", ".join(elem_strs)}]'
     else:
@@ -202,11 +200,11 @@ def chmod_func(dest, mode) -> None:
     """
     from string import digits
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
-    if SCons.Util.is_String(mode) and 0 not in [i in digits for i in mode]:
+    if is_String(mode) and 0 not in [i in digits for i in mode]:
         mode = int(mode, 8)
-    if not SCons.Util.is_String(mode):
+    if not is_String(mode):
         for element in dest:
             os.chmod(str(element), mode)
     else:
@@ -244,7 +242,7 @@ def chmod_func(dest, mode) -> None:
 
 def chmod_strfunc(dest, mode) -> str:
     """strfunction for the Chmod action function."""
-    if not SCons.Util.is_String(mode):
+    if not is_String(mode):
         return f'Chmod({get_paths_str(dest)}, {mode:#o})'
     else:
         return f'Chmod({get_paths_str(dest)}, "{mode}")'
@@ -255,7 +253,7 @@ Chmod = ActionFactory(chmod_func, chmod_strfunc)
 
 
 
-def copy_func(dest, src, symlinks=True) -> int:
+def copy_func(dest, src, symlinks: bool=True) -> int:
     """Implementation of the Copy action function.
 
     Copies *src* to *dest*.  If *src* is a list, *dest* must be
@@ -272,10 +270,10 @@ def copy_func(dest, src, symlinks=True) -> int:
     """
 
     dest = str(dest)
-    src = [str(n) for n in src] if SCons.Util.is_List(src) else str(src)
+    src = [str(n) for n in src] if is_List(src) else str(src)
 
     SCons.Node.FS.invalidate_node_memos(dest)
-    if SCons.Util.is_List(src):
+    if is_List(src):
         # this fails only if dest exists and is not a dir
         try:
             os.makedirs(dest, exist_ok=True)
@@ -307,7 +305,7 @@ def copy_func(dest, src, symlinks=True) -> int:
         return 0
 
 
-def copy_strfunc(dest, src, symlinks=True) -> str:
+def copy_strfunc(dest, src, symlinks: bool=True) -> str:
     """strfunction for the Copy action function."""
     return f'Copy({get_paths_str(dest)}, {get_paths_str(src)})'
 
@@ -315,14 +313,14 @@ def copy_strfunc(dest, src, symlinks=True) -> str:
 Copy = ActionFactory(copy_func, copy_strfunc)
 
 
-def delete_func(dest, must_exist=False) -> None:
+def delete_func(dest, must_exist: bool=False) -> None:
     """Implementation of the Delete action function.
 
     Lets the Python :func:`os.unlink` raise an error if *dest* does not exist,
     unless *must_exist* evaluates false (the default).
     """
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
     for entry in dest:
         entry = str(entry)
@@ -337,7 +335,7 @@ def delete_func(dest, must_exist=False) -> None:
         os.unlink(entry)
 
 
-def delete_strfunc(dest, must_exist=False) -> str:
+def delete_strfunc(dest, must_exist: bool=False) -> str:
     """strfunction for the Delete action function."""
     return f'Delete({get_paths_str(dest)})'
 
@@ -348,7 +346,7 @@ Delete = ActionFactory(delete_func, delete_strfunc)
 def mkdir_func(dest) -> None:
     """Implementation of the Mkdir action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
     for entry in dest:
         os.makedirs(str(entry), exist_ok=True)
@@ -372,7 +370,7 @@ Move = ActionFactory(
 def touch_func(dest) -> None:
     """Implementation of the Touch action function."""
     SCons.Node.FS.invalidate_node_memos(dest)
-    if not SCons.Util.is_List(dest):
+    if not is_List(dest):
         dest = [dest]
     for file in dest:
         file = str(file)
@@ -391,7 +389,7 @@ Touch = ActionFactory(touch_func, lambda file: f'Touch({get_paths_str(file)})')
 # Internal utility functions
 
 # pylint: disable-msg=too-many-arguments
-def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=None, affect_signature=True):
+def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=None, affect_signature: bool=True):
     """
     Creates a new list from 'items_iter' by first interpolating each element
     in the list using the 'env' dictionary and then calling f on the
@@ -433,7 +431,7 @@ def _concat_ixes(prefix, items_iter, suffix, env):
     prefix = str(env.subst(prefix, SCons.Subst.SUBST_RAW))
     suffix = str(env.subst(suffix, SCons.Subst.SUBST_RAW))
 
-    for x in SCons.Util.flatten(items_iter):
+    for x in flatten(items_iter):
         if isinstance(x, SCons.Node.FS.File):
             result.append(x)
             continue
@@ -479,8 +477,8 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
         else:
             c = _concat_ixes
 
-    stripprefixes = list(map(env.subst, SCons.Util.flatten(stripprefixes)))
-    stripsuffixes = list(map(env.subst, SCons.Util.flatten(stripsuffixes)))
+    stripprefixes = list(map(env.subst, flatten(stripprefixes)))
+    stripsuffixes = list(map(env.subst, flatten(stripsuffixes)))
 
     stripped = []
     for l in SCons.PathList.PathList(itms).subst_path(env, None, None):
@@ -488,7 +486,7 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
             stripped.append(l)
             continue
 
-        if not SCons.Util.is_String(l):
+        if not is_String(l):
             l = str(l)
 
         for stripprefix in stripprefixes:
@@ -510,69 +508,96 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     return c(prefix, stripped, suffix, env)
 
 
-def processDefines(defs):
-    """process defines, resolving strings, lists, dictionaries, into a list of
-    strings
+def processDefines(defs) -> List[str]:
+    """Return list of strings for preprocessor defines from *defs*.
+
+    Resolves the different forms ``CPPDEFINES`` can be assembled in:
+    if the Append/Prepend routines are used beyond a initial setting it
+    will be a deque, but if written to only once (Environment initializer,
+    or direct write) it can be a multitude of types.
+
+    Any prefix/suffix is handled elsewhere (usually :func:`_concat_ixes`).
+
+    .. versionchanged:: 4.5.0
+       Bare tuples are now treated the same as tuple-in-sequence, assumed
+       to describe a valued macro. Bare strings are now split on space.
+       A dictionary is no longer sorted before handling.
     """
-    if SCons.Util.is_List(defs):
-        l = []
-        for d in defs:
-            if d is None:
+    dlist = []
+    if is_List(defs):
+        for define in defs:
+            if define is None:
                 continue
-            elif SCons.Util.is_List(d) or isinstance(d, tuple):
-                if len(d) >= 2:
-                    l.append(str(d[0]) + '=' + str(d[1]))
+            elif is_Sequence(define):
+                if len(define) > 2:
+                    raise SCons.Errors.UserError(
+                        f"Invalid tuple in CPPDEFINES: {define!r}, "
+                        "must be a tuple with only two elements"
+                    )
+                name, *value = define
+                if value and value[0] is not None:
+                    # TODO: do we need to quote value if it contains space?
+                    dlist.append(f"{name}={value[0]}")
                 else:
-                    l.append(str(d[0]))
-            elif SCons.Util.is_Dict(d):
-                for macro, value in d.items():
+                    dlist.append(str(define[0]))
+            elif is_Dict(define):
+                for macro, value in define.items():
                     if value is not None:
-                        l.append(str(macro) + '=' + str(value))
+                        # TODO: do we need to quote value if it contains space?
+                        dlist.append(f"{macro}={value}")
                     else:
-                        l.append(str(macro))
-            elif SCons.Util.is_String(d):
-                l.append(str(d))
+                        dlist.append(str(macro))
+            elif is_String(define):
+                dlist.append(str(define))
             else:
-                raise SCons.Errors.UserError("DEFINE %s is not a list, dict, string or None." % repr(d))
-    elif SCons.Util.is_Dict(defs):
-        # The items in a dictionary are stored in random order, but
-        # if the order of the command-line options changes from
-        # invocation to invocation, then the signature of the command
-        # line will change and we'll get random unnecessary rebuilds.
-        # Consequently, we have to sort the keys to ensure a
-        # consistent order...
-        l = []
-        for k, v in sorted(defs.items()):
-            if v is None:
-                l.append(str(k))
+                raise SCons.Errors.UserError(
+                    f"CPPDEFINES entry {define!r} is not a tuple, list, "
+                    "dict, string or None."
+                )
+    elif is_Tuple(defs):
+        if len(defs) > 2:
+            raise SCons.Errors.UserError(
+                f"Invalid tuple in CPPDEFINES: {defs!r}, "
+                "must be a tuple with only two elements"
+            )
+        name, *value = defs
+        if value and value[0] is not None:
+            # TODO: do we need to quote value if it contains space?
+            dlist.append(f"{name}={value[0]}")
+        else:
+            dlist.append(str(define[0]))
+    elif is_Dict(defs):
+        for macro, value in defs.items():
+            if value is None:
+                dlist.append(str(macro))
             else:
-                l.append(str(k) + '=' + str(v))
+                dlist.append(f"{macro}={value}")
+    elif is_String(defs):
+        return defs.split()
     else:
-        l = [str(defs)]
-    return l
+        dlist.append(str(defs))
+
+    return dlist
 
 
 def _defines(prefix, defs, suffix, env, target=None, source=None, c=_concat_ixes):
-    """A wrapper around _concat_ixes that turns a list or string
+    """A wrapper around :func:`_concat_ixes` that turns a list or string
     into a list of C preprocessor command-line definitions.
     """
-
     return c(prefix, env.subst_list(processDefines(defs), target=target, source=source), suffix, env)
 
 
 class NullCmdGenerator:
-    """This is a callable class that can be used in place of other
-    command generators if you don't want them to do anything.
+    """Callable class for use as a no-effect command generator.
 
-    The __call__ method for this class simply returns the thing
-    you instantiated it with.
+    The ``__call__`` method for this class simply returns the thing
+    you instantiated it with. Example usage::
 
-    Example usage:
-    env["DO_NOTHING"] = NullCmdGenerator
-    env["LINKCOM"] = "${DO_NOTHING('$LINK $SOURCES $TARGET')}"
+      env["DO_NOTHING"] = NullCmdGenerator
+      env["LINKCOM"] = "${DO_NOTHING('$LINK $SOURCES $TARGET')}"
     """
 
-    def __init__(self, cmd):
+    def __init__(self, cmd) -> None:
         self.cmd = cmd
 
     def __call__(self, target, source, env, for_signature=None):
@@ -583,16 +608,18 @@ class Variable_Method_Caller:
     """A class for finding a construction variable on the stack and
     calling one of its methods.
 
-    We use this to support "construction variables" in our string
-    eval()s that actually stand in for methods--specifically, use
-    of "RDirs" in call to _concat that should actually execute the
-    "TARGET.RDirs" method.  (We used to support this by creating a little
-    "build dictionary" that mapped RDirs to the method, but this got in
-    the way of Memoizing construction environments, because we had to
-    create new environment objects to hold the variables.)
+    Used to support "construction variables" appearing in string
+    ``eval``s that actually stand in for methods--specifically, the use
+    of "RDirs" in a call to :func:`_concat` that should actually execute the
+    ``TARGET.RDirs`` method.
+
+    Historical note: This was formerly supported by creating a little
+    "build dictionary" that mapped RDirs to the method, but this got
+    in the way of Memoizing construction environments, because we had to
+    create new environment objects to hold the variables.
     """
 
-    def __init__(self, variable, method):
+    def __init__(self, variable, method) -> None:
         self.variable = variable
         self.method = method
 
@@ -645,6 +672,9 @@ def __lib_either_version_flag(env, version_var1, version_var2, flags_var):
     except KeyError:
         pass
     return None
+
+
+
 
 
 ConstructionEnvironment = {

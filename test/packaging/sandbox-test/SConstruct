@@ -1,19 +1,27 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
 
 from glob import glob
 
-src_files = glob( 'src/*.c' )
-include_files = glob( 'src/*.h' )
+src_files = glob('src/*.c')
+include_files = glob('src/*.h')
 
-SharedLibrary( 'foobar', src_files )
+SharedLibrary('foobar', src_files)
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=['default', 'packaging'])
 
-env.Package( NAME        = 'libfoobar',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'targz',
-             source      = src_files + include_files )
+env.Package(
+    NAME='libfoobar',
+    VERSION='1.2.3',
+    PACKAGETYPE='targz',
+    source=src_files + include_files,
+)
 
-env.Package( NAME        = 'libfoobar',
-             VERSION     = '1.2.3',
-             PACKAGETYPE = 'zip',
-             source      = src_files + include_files )
+env.Package(
+    NAME='libfoobar',
+    VERSION='1.2.3',
+    PACKAGETYPE='zip',
+    source=src_files + include_files,
+)

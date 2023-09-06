@@ -60,3 +60,11 @@ if IS_WINDOWS:
     expected_stdout = expected_stdout.replace("/", os.sep)
 
 test.run("-Q", chdir="base", status=0, stdout=expected_stdout + "\n")
+
+test.pass_test()
+
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

@@ -46,10 +46,6 @@ from SCons.Util import (
     Proxy,
     Selector,
     WhereIs,
-    _attempt_init_of_python_3_9_hash_object,
-    _attempt_get_hash_function,
-    _get_hash_object,
-    _set_allowed_viable_default_hashes,
     adjustixes,
     containsAll,
     containsAny,
@@ -76,21 +72,27 @@ from SCons.Util import (
     to_bytes,
     to_str,
 )
+from SCons.Util.hashes import (
+    _attempt_init_of_python_3_9_hash_object,
+    _attempt_get_hash_function,
+    _get_hash_object,
+    _set_allowed_viable_default_hashes,
+)
 
 # These Util classes have no unit tests. Some don't make sense to test?
 # DisplayEngine, Delegate, MethodWrapper, UniqueList, Unbuffered, Null, NullSeq
 
 
 class OutBuffer:
-    def __init__(self):
+    def __init__(self) -> None:
         self.buffer = ""
 
-    def write(self, str):
+    def write(self, str) -> None:
         self.buffer = self.buffer + str
 
 
 class dictifyTestCase(unittest.TestCase):
-    def test_dictify(self):
+    def test_dictify(self) -> None:
         """Test the dictify() function"""
         r = dictify(['a', 'b', 'c'], [1, 2, 3])
         assert r == {'a': 1, 'b': 2, 'c': 3}, r
@@ -103,46 +105,46 @@ class dictifyTestCase(unittest.TestCase):
 
 
 class UtilTestCase(unittest.TestCase):
-    def test_splitext(self):
+    def test_splitext(self) -> None:
         assert splitext('foo') == ('foo', '')
         assert splitext('foo.bar') == ('foo', '.bar')
         assert splitext(os.path.join('foo.bar', 'blat')) == (os.path.join('foo.bar', 'blat'), '')
 
     class Node:
-        def __init__(self, name, children=[]):
+        def __init__(self, name, children=[]) -> None:
             self.children = children
             self.name = name
             self.nocache = None
 
-        def __str__(self):
+        def __str__(self) -> str:
             return self.name
 
-        def exists(self):
-            return 1
+        def exists(self) -> bool:
+            return True
 
-        def rexists(self):
-            return 1
+        def rexists(self) -> bool:
+            return True
 
-        def has_builder(self):
-            return 1
+        def has_builder(self) -> bool:
+            return True
 
-        def has_explicit_builder(self):
-            return 1
+        def has_explicit_builder(self) -> bool:
+            return True
 
-        def side_effect(self):
-            return 1
+        def side_effect(self) -> bool:
+            return True
 
-        def precious(self):
-            return 1
+        def precious(self) -> bool:
+            return True
 
-        def always_build(self):
-            return 1
+        def always_build(self) -> bool:
+            return True
 
-        def is_up_to_date(self):
-            return 1
+        def is_up_to_date(self) -> bool:
+            return True
 
-        def noclean(self):
-            return 1
+        def noclean(self) -> bool:
+            return True
 
     def tree_case_1(self):
         """Fixture for the render_tree() and print_tree() tests."""
@@ -172,7 +174,7 @@ class UtilTestCase(unittest.TestCase):
 
         return foo, expect, withtags
 
-    def tree_case_2(self, prune=1):
+    def tree_case_2(self, prune: int=1):
         """Fixture for the render_tree() and print_tree() tests."""
 
         types_h = self.Node('types.h')
@@ -207,7 +209,7 @@ class UtilTestCase(unittest.TestCase):
 
         return blat_o, expect, withtags
 
-    def test_render_tree(self):
+    def test_render_tree(self) -> None:
         """Test the render_tree() function"""
 
         def get_children(node):
@@ -228,7 +230,7 @@ class UtilTestCase(unittest.TestCase):
         actual = render_tree(node, get_children, 1)
         assert expect == actual, (expect, actual)
 
-    def test_print_tree(self):
+    def test_print_tree(self) -> None:
         """Test the print_tree() function"""
 
         def get_children(node):
@@ -288,7 +290,7 @@ class UtilTestCase(unittest.TestCase):
         finally:
             sys.stdout = save_stdout
 
-    def test_is_Dict(self):
+    def test_is_Dict(self) -> None:
         assert is_Dict({})
         assert is_Dict(UserDict())
         try:
@@ -303,7 +305,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Dict("")
 
 
-    def test_is_List(self):
+    def test_is_List(self) -> None:
         assert is_List([])
         assert is_List(UserList())
         try:
@@ -317,7 +319,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_List({})
         assert not is_List("")
 
-    def test_is_String(self):
+    def test_is_String(self) -> None:
         assert is_String("")
         assert is_String(UserString(''))
         try:
@@ -331,7 +333,7 @@ class UtilTestCase(unittest.TestCase):
         assert not is_String([])
         assert not is_String(())
 
-    def test_is_Tuple(self):
+    def test_is_Tuple(self) -> None:
         assert is_Tuple(())
         try:
             class mytuple(tuple):
@@ -344,13 +346,13 @@ class UtilTestCase(unittest.TestCase):
         assert not is_Tuple({})
         assert not is_Tuple("")
 
-    def test_to_Bytes(self):
+    def test_to_Bytes(self) -> None:
         """ Test the to_Bytes method"""
         self.assertEqual(to_bytes('Hello'),
                          bytearray('Hello', 'utf-8'),
                          "Check that to_bytes creates byte array when presented with non byte string.")
 
-    def test_to_String(self):
+    def test_to_String(self) -> None:
         """Test the to_String() method."""
         assert to_String(1) == "1", to_String(1)
         assert to_String([1, 2, 3]) == str([1, 2, 3]), to_String([1, 2, 3])
@@ -372,7 +374,7 @@ class UtilTestCase(unittest.TestCase):
         assert to_String(s2) == 'foo', s2
 
 
-    def test_WhereIs(self):
+    def test_WhereIs(self) -> None:
         test = TestCmd.TestCmd(workdir='')
 
         sub1_xxx_exe = test.workpath('sub1', 'xxx.exe')
@@ -452,7 +454,7 @@ class UtilTestCase(unittest.TestCase):
         finally:
             os.environ['PATH'] = env_path
 
-    def test_get_env_var(self):
+    def test_get_env_var(self) -> None:
         """Testing get_environment_var()."""
         assert get_environment_var("$FOO") == "FOO", get_environment_var("$FOO")
         assert get_environment_var("${BAR}") == "BAR", get_environment_var("${BAR}")
@@ -465,21 +467,21 @@ class UtilTestCase(unittest.TestCase):
         assert get_environment_var("${some('complex expression')}") is None, get_environment_var(
             "${some('complex expression')}")
 
-    def test_Proxy(self):
+    def test_Proxy(self) -> None:
         """Test generic Proxy class."""
 
         class Subject:
-            def foo(self):
+            def foo(self) -> int:
                 return 1
 
-            def bar(self):
+            def bar(self) -> int:
                 return 2
 
         s = Subject()
         s.baz = 3
 
         class ProxyTest(Proxy):
-            def bar(self):
+            def bar(self) -> int:
                 return 4
 
         p = ProxyTest(s)
@@ -494,7 +496,7 @@ class UtilTestCase(unittest.TestCase):
         assert p.baz == 5, p.baz
         assert p.get() == s, p.get()
 
-    def test_display(self):
+    def test_display(self) -> None:
         old_stdout = sys.stdout
         sys.stdout = OutBuffer()
         display("line1")
@@ -510,7 +512,7 @@ class UtilTestCase(unittest.TestCase):
         assert sys.stdout.buffer == "line1\nline3\nline4\n"
         sys.stdout = old_stdout
 
-    def test_get_native_path(self):
+    def test_get_native_path(self) -> None:
         """Test the get_native_path() function."""
         import tempfile
         f, filename = tempfile.mkstemp(text=True)
@@ -527,7 +529,7 @@ class UtilTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-    def test_PrependPath(self):
+    def test_PrependPath(self) -> None:
         """Test prepending to a path"""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         p2 = r'C:\mydir\num\one;C:\mydir\num\two'
@@ -545,7 +547,7 @@ class UtilTestCase(unittest.TestCase):
         p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
         assert p3 == r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one', p3
 
-    def test_AppendPath(self):
+    def test_AppendPath(self) -> None:
         """Test appending to a path."""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         p2 = r'C:\mydir\num\one;C:\mydir\num\two'
@@ -563,7 +565,7 @@ class UtilTestCase(unittest.TestCase):
         p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
         assert p3 == r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two', p3
 
-    def test_PrependPathPreserveOld(self):
+    def test_PrependPathPreserveOld(self) -> None:
         """Test prepending to a path while preserving old paths"""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
@@ -571,7 +573,7 @@ class UtilTestCase(unittest.TestCase):
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
         assert p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two', p1
 
-    def test_AppendPathPreserveOld(self):
+    def test_AppendPathPreserveOld(self) -> None:
         """Test appending to a path while preserving old paths"""
         p1 = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
@@ -579,7 +581,7 @@ class UtilTestCase(unittest.TestCase):
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
         assert p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three', p1
 
-    def test_addPathIfNotExists(self):
+    def test_addPathIfNotExists(self) -> None:
         """Test the AddPathIfNotExists() function"""
         env_dict = {'FOO': os.path.normpath('/foo/bar') + os.pathsep + \
                            os.path.normpath('/baz/blat'),
@@ -603,7 +605,7 @@ class UtilTestCase(unittest.TestCase):
                                     os.path.normpath('/foo/bar'),
                                     os.path.normpath('/baz/blat')], env_dict['BLAT']
 
-    def test_CLVar(self):
+    def test_CLVar(self) -> None:
         """Test the command-line construction variable class"""
 
         # the default value should be an empty list
@@ -726,14 +728,14 @@ class UtilTestCase(unittest.TestCase):
         assert str(f) == 'aa bb cc dd', str(f)
 
 
-    def test_Selector(self):
+    def test_Selector(self) -> None:
         """Test the Selector class"""
 
         class MyNode:
-            def __init__(self, name):
+            def __init__(self, name) -> None:
                 self.name = name
 
-            def __str__(self):
+            def __str__(self) -> str:
                 return self.name
 
             def get_suffix(self):
@@ -780,7 +782,7 @@ class UtilTestCase(unittest.TestCase):
         ret = s(env, [MyNode('bar.g')])
         assert ret == 'GGG', ret
 
-    def test_adjustixes(self):
+    def test_adjustixes(self) -> None:
         """Test the adjustixes() function"""
         r = adjustixes('file', 'pre-', '-suf')
         assert r == 'pre-file-suf', r
@@ -800,22 +802,22 @@ class UtilTestCase(unittest.TestCase):
         r = adjustixes('PREFIX', 'PREFIX', 'SUFFIX')
         assert r == 'PREFIXPREFIXSUFFIX', "Failed handling when filename = PREFIX [r='%s']" % r
 
-    def test_containsAny(self):
+    def test_containsAny(self) -> None:
         """Test the containsAny() function"""
         assert containsAny('*.py', '*?[]')
         assert not containsAny('file.txt', '*?[]')
 
-    def test_containsAll(self):
+    def test_containsAll(self) -> None:
         """Test the containsAll() function"""
         assert containsAll('43221', '123')
         assert not containsAll('134', '123')
 
-    def test_containsOnly(self):
+    def test_containsOnly(self) -> None:
         """Test the containsOnly() function"""
         assert containsOnly('.83', '0123456789.')
         assert not containsOnly('43221', '123')
 
-    def test_LogicalLines(self):
+    def test_LogicalLines(self) -> None:
         """Test the LogicalLines class"""
         content = """
 foo \\
@@ -836,7 +838,7 @@ bling
             'bling\n',
         ], lines
 
-    def test_intern(self):
+    def test_intern(self) -> None:
         s1 = silent_intern("spam")
         s3 = silent_intern(42)
         s4 = silent_intern("spam")
@@ -845,7 +847,7 @@ bling
 
 class HashTestCase(unittest.TestCase):
 
-    def test_collect(self):
+    def test_collect(self) -> None:
         """Test collecting a list of signatures into a new signature value
         """
         for algorithm, expected in {
@@ -871,7 +873,7 @@ class HashTestCase(unittest.TestCase):
                 assert expected[1] == hash_collect(s[0:2], hash_format=algorithm)
                 assert expected[2] == hash_collect(s, hash_format=algorithm)
 
-    def test_MD5signature(self):
+    def test_MD5signature(self) -> None:
         """Test generating a signature"""
         for algorithm, expected in {
             'md5': ('698d51a19d8a121ce581499d7b701668',
@@ -898,7 +900,7 @@ class HashTestCase(unittest.TestCase):
 # with using OpenSSL.
 
 class FIPSHashTestCase(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         ###############################
@@ -956,17 +958,17 @@ class FIPSHashTestCase(unittest.TestCase):
         self.sys_v4_8 = unittest.mock.Mock(version_info=v4_8)
         ###############################
 
-    def test_basic_failover_bad_hashlib_hash_init(self):
+    def test_basic_failover_bad_hashlib_hash_init(self) -> None:
         """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
         the hash init function returns None"""
         assert _attempt_init_of_python_3_9_hash_object(None) is None
 
-    def test_basic_failover_bad_hashlib_hash_get(self):
+    def test_basic_failover_bad_hashlib_hash_get(self) -> None:
         """Tests that if the hashing function is entirely missing from hashlib (hashlib returns None),
         the hash get function returns None"""
         assert _attempt_get_hash_function("nonexist", self.no_algorithms) is None
 
-    def test_usedforsecurity_flag_behavior(self):
+    def test_usedforsecurity_flag_behavior(self) -> None:
         """Test usedforsecurity flag -> should be set to 'True' on older versions of python, and 'False' on Python >= 3.9"""
         for version, expected in {
             self.sys_v3_8: (True, 'md5'),
@@ -975,7 +977,7 @@ class FIPSHashTestCase(unittest.TestCase):
         }.items():
             assert _attempt_init_of_python_3_9_hash_object(self.fake_md5, version) == expected
     
-    def test_automatic_default_to_md5(self):
+    def test_automatic_default_to_md5(self) -> None:
         """Test automatic default to md5 even if sha1 available"""
         for version, expected in {
             self.sys_v3_8: (True, 'md5'),
@@ -986,7 +988,7 @@ class FIPSHashTestCase(unittest.TestCase):
             set_hash_format(None, self.md5Default, version)
             assert _get_hash_object(None, self.md5Default, version) == expected
 
-    def test_automatic_default_to_sha256(self):
+    def test_automatic_default_to_sha256(self) -> None:
         """Test automatic default to sha256 if other algorithms available but throw"""
         for version, expected in {
             self.sys_v3_8: (True, 'sha256'),
@@ -997,7 +999,7 @@ class FIPSHashTestCase(unittest.TestCase):
             set_hash_format(None, self.sha256Default, version)
             assert _get_hash_object(None, self.sha256Default, version) == expected
 
-    def test_automatic_default_to_sha1(self):
+    def test_automatic_default_to_sha1(self) -> None:
         """Test automatic default to sha1 if md5 is missing from hashlib entirely"""
         for version, expected in {
             self.sys_v3_8: (True, 'sha1'),
@@ -1008,13 +1010,13 @@ class FIPSHashTestCase(unittest.TestCase):
             set_hash_format(None, self.sha1Default, version)
             assert _get_hash_object(None, self.sha1Default, version) == expected
     
-    def test_no_available_algorithms(self):
+    def test_no_available_algorithms(self) -> None:
         """expect exceptions on no available algorithms or when all algorithms throw"""
         self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.no_algorithms)
         self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.all_throw)
         self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.unsupported_algorithm)
 
-    def test_bad_algorithm_set_attempt(self):
+    def test_bad_algorithm_set_attempt(self) -> None:
         """expect exceptions on user setting an unsupported algorithm selections, either by host or by SCons"""
 
         # nonexistant hash algorithm, not supported by SCons
@@ -1033,18 +1035,18 @@ class FIPSHashTestCase(unittest.TestCase):
         _set_allowed_viable_default_hashes(self.sha1Default)
         self.assertRaises(SCons.Errors.UserError, set_hash_format, 'unsupported', hashlib_used=self.unsupported_algorithm)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Return SCons back to the normal global state for the hashing functions."""
         _set_allowed_viable_default_hashes(hashlib, sys)
         set_hash_format(None)
 
 
 class NodeListTestCase(unittest.TestCase):
-    def test_simple_attributes(self):
+    def test_simple_attributes(self) -> None:
         """Test simple attributes of a NodeList class"""
 
         class TestClass:
-            def __init__(self, name, child=None):
+            def __init__(self, name, child=None) -> None:
                 self.child = child
                 self.bar = name
 
@@ -1057,11 +1059,11 @@ class NodeListTestCase(unittest.TestCase):
         assert nl[0:2].child.bar == ['t1child', 't2child'], \
             nl[0:2].child.bar
 
-    def test_callable_attributes(self):
+    def test_callable_attributes(self) -> None:
         """Test callable attributes of a NodeList class"""
 
         class TestClass:
-            def __init__(self, name, child=None):
+            def __init__(self, name, child=None) -> None:
                 self.child = child
                 self.bar = name
 
@@ -1095,12 +1097,12 @@ class NodeListTestCase(unittest.TestCase):
 
 class flattenTestCase(unittest.TestCase):
 
-    def test_scalar(self):
+    def test_scalar(self) -> None:
         """Test flattening a scalar"""
         result = flatten('xyz')
         self.assertEqual(result, ['xyz'], result)
 
-    def test_dictionary_values(self):
+    def test_dictionary_values(self) -> None:
         """Test flattening the dictionary values"""
         items = {"a": 1, "b": 2, "c": 3}
         result = flatten(items.values())
@@ -1110,14 +1112,14 @@ class flattenTestCase(unittest.TestCase):
 class OsEnviron:
     """Used to temporarily mock os.environ"""
 
-    def __init__(self, environ):
+    def __init__(self, environ) -> None:
         self._environ = environ
 
-    def start(self):
+    def start(self) -> None:
         self._stored = os.environ
         os.environ = self._environ
 
-    def stop(self):
+    def stop(self) -> None:
         os.environ = self._stored
         del self._stored
 
@@ -1125,12 +1127,12 @@ class OsEnviron:
         self.start()
         return os.environ
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         self.stop()
 
 
 class get_env_boolTestCase(unittest.TestCase):
-    def test_missing(self):
+    def test_missing(self) -> None:
         env = dict()
         var = get_env_bool(env, 'FOO')
         assert var is False, "var should be False, not %s" % repr(var)
@@ -1138,7 +1140,7 @@ class get_env_boolTestCase(unittest.TestCase):
         var = get_env_bool(env, 'BAR')
         assert var is False, "var should be False, not %s" % repr(var)
 
-    def test_true(self):
+    def test_true(self) -> None:
         for foo in ['TRUE', 'True', 'true',
                     'YES', 'Yes', 'yes',
                     'Y', 'y',
@@ -1148,7 +1150,7 @@ class get_env_boolTestCase(unittest.TestCase):
             var = get_env_bool(env, 'FOO')
             assert var is True, 'var should be True, not %s' % repr(var)
 
-    def test_false(self):
+    def test_false(self) -> None:
         for foo in ['FALSE', 'False', 'false',
                     'NO', 'No', 'no',
                     'N', 'n',
@@ -1158,7 +1160,7 @@ class get_env_boolTestCase(unittest.TestCase):
             var = get_env_bool(env, 'FOO', True)
             assert var is False, 'var should be True, not %s' % repr(var)
 
-    def test_default(self):
+    def test_default(self) -> None:
         env = {'FOO': 'other'}
         var = get_env_bool(env, 'FOO', True)
         assert var is True, 'var should be True, not %s' % repr(var)
@@ -1167,7 +1169,7 @@ class get_env_boolTestCase(unittest.TestCase):
 
 
 class get_os_env_boolTestCase(unittest.TestCase):
-    def test_missing(self):
+    def test_missing(self) -> None:
         with OsEnviron(dict()):
             var = get_os_env_bool('FOO')
             assert var is False, "var should be False, not %s" % repr(var)
@@ -1175,7 +1177,7 @@ class get_os_env_boolTestCase(unittest.TestCase):
             var = get_os_env_bool('BAR')
             assert var is False, "var should be False, not %s" % repr(var)
 
-    def test_true(self):
+    def test_true(self) -> None:
         for foo in ['TRUE', 'True', 'true',
                     'YES', 'Yes', 'yes',
                     'Y', 'y',
@@ -1185,7 +1187,7 @@ class get_os_env_boolTestCase(unittest.TestCase):
                 var = get_os_env_bool('FOO')
                 assert var is True, 'var should be True, not %s' % repr(var)
 
-    def test_false(self):
+    def test_false(self) -> None:
         for foo in ['FALSE', 'False', 'false',
                     'NO', 'No', 'no',
                     'N', 'n',
@@ -1195,7 +1197,7 @@ class get_os_env_boolTestCase(unittest.TestCase):
                 var = get_os_env_bool('FOO', True)
                 assert var is False, 'var should be True, not %s' % repr(var)
 
-    def test_default(self):
+    def test_default(self) -> None:
         with OsEnviron({'FOO': 'other'}):
             var = get_os_env_bool('FOO', True)
             assert var is True, 'var should be True, not %s' % repr(var)

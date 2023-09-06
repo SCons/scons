@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 """
 Phony compiler for testing SCons.
 
@@ -18,7 +22,7 @@ import fileinput
 import sys
 
 def fake_compile():
-    skipline = f"/*{sys.argv[1]}*/\n".encode("utf-8")
+    skipline = f"/*{sys.argv[1]}*/\n".encode()
     with open(sys.argv[2], 'wb') as ofp, fileinput.input(files=sys.argv[3:], mode='rb') as ifp:
         for line in ifp:
             if line != skipline:

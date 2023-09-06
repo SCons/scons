@@ -44,7 +44,7 @@ import zipfile
 from collections import namedtuple
 
 from TestCommon import *
-from TestCommon import __all__
+from TestCommon import __all__, _python_
 from SCons.Util import get_hash_format, get_current_hash_algorithm_used
 
 from TestCmd import Popen
@@ -55,20 +55,14 @@ from TestCmd import PIPE
 # here provides some independent verification that what we packaged
 # conforms to what we expect.
 
-default_version = '4.4.1ayyyymmdd'
+default_version = '4.5.3ayyyymmdd'
 
 # TODO: these need to be hand-edited when there are changes
 python_version_unsupported = (3, 6, 0)
 python_version_deprecated = (3, 6, 0)
 python_version_supported_str = "3.6.0"  # str of lowest non-deprecated version
 
-# In the checked-in source, the value of SConsVersion in the following
-# line must remain "__ VERSION __" (without the spaces) so the built
-# version in build/testing/framework/TestSCons.py contains the actual version
-# string of the packages that have been built.
-SConsVersion = '__VERSION__'
-if SConsVersion == '__' + 'VERSION' + '__':
-    SConsVersion = default_version
+SConsVersion = default_version
 
 __all__.extend([
     'TestSCons',
@@ -113,7 +107,7 @@ dll_ = dll_prefix
 if sys.platform == 'cygwin':
     # On Cygwin, os.path.normcase() lies, so just report back the
     # fact that the underlying Win32 OS is case-insensitive.
-    def case_sensitive_suffixes(s1, s2):
+    def case_sensitive_suffixes(s1, s2) -> int:
         return 0
 else:
     def case_sensitive_suffixes(s1, s2):
@@ -126,7 +120,7 @@ file_expr = r"""File "[^"]*", line \d+, in [^\n]+
 # re.escape escapes too much.
 def re_escape(str):
     for c in '\\.[]()*+?':  # Not an exhaustive list.
-        str = str.replace(c, '\\' + c)
+        str = str.replace(c, f"\\{c}")
     return str
 
 
@@ -218,7 +212,7 @@ def initialize_sconsflags(ignore_python_version):
     return save_sconsflags
 
 
-def restore_sconsflags(sconsflags):
+def restore_sconsflags(sconsflags) -> None:
     if sconsflags is None:
         del os.environ['SCONSFLAGS']
     else:
@@ -238,7 +232,7 @@ class NoMatch(Exception):
     """
     Exception for matchPart to indicate there was no match found in the passed logfile
     """
-    def __init__(self, p):
+    def __init__(self, p) -> None:
         self.pos = p
 
 
@@ -264,7 +258,7 @@ class TestSCons(TestCommon):
     scons_version = SConsVersion
     javac_is_gcj = False
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Initialize an SCons testing object.
 
         If they're not overridden by keyword arguments, this
@@ -370,7 +364,7 @@ class TestSCons(TestCommon):
         """
         env = self.Environment(ENV)
         if env:
-            v = env.subst('$' + var)
+            v = env.subst(f"${var}")
             if not v:
                 return None
             if prog is None:
@@ -422,7 +416,7 @@ class TestSCons(TestCommon):
 
         return None
 
-    def wrap_stdout(self, build_str="", read_str="", error=0, cleaning=0) -> str:
+    def wrap_stdout(self, build_str: str="", read_str: str="", error: int=0, cleaning: int=0) -> str:
         """Wraps "expect" strings in SCons boilerplate.
 
         Given strings of expected output specific to a test,
@@ -454,7 +448,7 @@ class TestSCons(TestCommon):
                build_str + \
                term
 
-    def run(self, *args, **kw):
+    def run(self, *args, **kw) -> None:
         """
         Set up SCONSFLAGS for every command so test scripts don't need
         to worry about unexpected warnings in their output.
@@ -488,33 +482,33 @@ class TestSCons(TestCommon):
     #        kw['options'] = ' '.join(options)
     #        TestCommon.run(self, *args, **kw)
 
-    def up_to_date(self, arguments='.', read_str="", **kw):
+    def up_to_date(self, arguments: str='.', read_str: str="", **kw) -> None:
         """Asserts that all of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
         """
         s = ""
         for arg in arguments.split():
-            s = s + "scons: `%s' is up to date.\n" % arg
+            s = f"{s}scons: `{arg}' is up to date.\n"
         kw['arguments'] = arguments
         stdout = self.wrap_stdout(read_str=read_str, build_str=s)
         # Append '.*' so that timing output that comes after the
         # up-to-date output is okay.
-        kw['stdout'] = re.escape(stdout) + '.*'
+        kw['stdout'] = f"{re.escape(stdout)}.*"
         kw['match'] = self.match_re_dotall
         self.run(**kw)
 
-    def not_up_to_date(self, arguments='.', **kw):
+    def not_up_to_date(self, arguments: str='.', read_str: str="", **kw) -> None:
         """Asserts that none of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
         """
         s = ""
         for arg in arguments.split():
-            s = s + "(?!scons: `%s' is up to date.)" % re.escape(arg)
-        s = '(' + s + '[^\n]*\n)*'
+            s = f"{s}(?!scons: `{re.escape(arg)}' is up to date.)"
+        s = f"({s}[^\n]*\n)*"
         kw['arguments'] = arguments
-        stdout = re.escape(self.wrap_stdout(build_str='ARGUMENTSGOHERE'))
+        stdout = re.escape(self.wrap_stdout(read_str=read_str, build_str='ARGUMENTSGOHERE'))
         kw['stdout'] = stdout.replace('ARGUMENTSGOHERE', s)
         kw['match'] = self.match_re_dotall
         self.run(**kw)
@@ -524,7 +518,7 @@ class TestSCons(TestCommon):
         Verifies expected behavior for options that are not yet implemented:
         a warning message, and exit status 1.
         """
-        msg = "Warning:  the %s option is not yet implemented\n" % option
+        msg = f"Warning:  the {option} option is not yet implemented\n"
         kw['stderr'] = msg
         if arguments:
             # If it's a long option and the argument string begins with '=',
@@ -532,14 +526,14 @@ class TestSCons(TestCommon):
             if option[:2] == '--' and arguments[0] == '=':
                 kw['arguments'] = option + arguments
             else:
-                kw['arguments'] = option + ' ' + arguments
+                kw['arguments'] = f"{option} {arguments}"
         return self.run(**kw)
 
-    def deprecated_wrap(self, msg):
+    def deprecated_wrap(self, msg) -> str:
         """
         Calculate the pattern that matches a deprecation warning.
         """
-        return '\nscons: warning: ' + re_escape(msg) + '\n' + file_expr
+        return f"\nscons: warning: {re_escape(msg)}\n{file_expr}"
 
     def deprecated_fatal(self, warn, msg):
         """
@@ -598,14 +592,14 @@ class TestSCons(TestCommon):
         """
         warning = self.deprecated_fatal(warn, msg)
 
-        def RunPair(option, expected):
+        def RunPair(option, expected) -> None:
             # run the same test with the option on the command line and
             # then with the option passed via SetOption().
-            self.run(options='--warn=' + option,
+            self.run(options=f"--warn={option}",
                      arguments='.',
                      stderr=expected,
                      match=match_re_dotall)
-            self.run(options='WARN=' + option,
+            self.run(options=f"WARN={option}",
                      arguments='.',
                      stderr=expected,
                      match=match_re_dotall)
@@ -617,12 +611,12 @@ class TestSCons(TestCommon):
         RunPair(warn, warning)
 
         # warning disabled, should get either nothing or mandatory message
-        expect = """()|(Can not disable mandataory warning: 'no-%s'\n\n%s)""" % (warn, warning)
-        RunPair('no-' + warn, expect)
+        expect = f"""()|(Can not disable mandataory warning: 'no-{warn}'\n\n{warning})"""
+        RunPair(f"no-{warn}", expect)
 
         return warning
 
-    def diff_substr(self, expect, actual, prelen=20, postlen=40):
+    def diff_substr(self, expect, actual, prelen: int=20, postlen: int=40) -> str:
         i = 0
         for x, y in zip(expect, actual):
             if x != y:
@@ -658,7 +652,7 @@ class TestSCons(TestCommon):
         #       x = x.replace('<string>', file)
         #      x = x.replace('line 1,', 'line %s,' % line)
         #      x="\n".join(x)
-        x = 'File "%s", line %s, in <module>\n' % (file, line)
+        x = f'File "{file}", line {line}, in <module>\n'
         return x
 
     def normalize_ps(self, s):
@@ -674,7 +668,7 @@ class TestSCons(TestCommon):
         return s
 
     @staticmethod
-    def to_bytes_re_sub(pattern, repl, str, count=0, flags=0):
+    def to_bytes_re_sub(pattern, repl, str, count: int=0, flags: int=0):
         """
         Wrapper around re.sub to change pattern and repl to bytes to work with
         both python 2 & 3
@@ -751,11 +745,11 @@ class TestSCons(TestCommon):
         if hash_format is None and current_hash_algorithm == 'md5':
             return ".sconsign"
         else:
-            database_prefix=".sconsign_%s" % current_hash_algorithm
+            database_prefix=f".sconsign_{current_hash_algorithm}"
             return database_prefix
 
 
-    def unlink_sconsignfile(self, name='.sconsign.dblite'):
+    def unlink_sconsignfile(self, name: str='.sconsign.dblite') -> None:
         """Delete the sconsign file.
 
         Note on python it seems to append .p3 to the file name so we take
@@ -797,13 +791,13 @@ class TestSCons(TestCommon):
             if version:
                 if sys.platform == 'win32':
                     patterns = [
-                        'C:/Program Files*/Java/jdk*%s*/bin' % version,
+                        f'C:/Program Files*/Java/jdk*{version}*/bin',
                     ]
                 else:
                     patterns = [
-                        '/usr/java/jdk%s*/bin' % version,
-                        '/usr/lib/jvm/*-%s*/bin' % version,
-                        '/usr/local/j2sdk%s*/bin' % version,
+                        f'/usr/java/jdk{version}*/bin',
+                        f'/usr/lib/jvm/*-{version}*/bin',
+                        f'/usr/local/j2sdk{version}*/bin',
                     ]
                 java_path = self.paths(patterns) + [env['ENV']['PATH']]
             else:
@@ -848,10 +842,10 @@ class TestSCons(TestCommon):
                         '/usr/lib/jvm/default-java/include/jni.h',
                         '/usr/lib/jvm/java-*-oracle/include/jni.h']
         else:
-            jni_dirs = ['/System/Library/Frameworks/JavaVM.framework/Versions/%s*/Headers/jni.h' % version]
-        jni_dirs.extend(['/usr/lib/jvm/java-*-sun-%s*/include/jni.h' % version,
-                         '/usr/lib/jvm/java-%s*-openjdk*/include/jni.h' % version,
-                         '/usr/java/jdk%s*/include/jni.h' % version])
+            jni_dirs = [f'/System/Library/Frameworks/JavaVM.framework/Versions/{version}*/Headers/jni.h']
+        jni_dirs.extend([f'/usr/lib/jvm/java-*-sun-{version}*/include/jni.h',
+                         f'/usr/lib/jvm/java-{version}*-openjdk*/include/jni.h',
+                         f'/usr/java/jdk{version}*/include/jni.h'])
         dirs = self.paths(jni_dirs)
         if not dirs:
             return None
@@ -896,10 +890,10 @@ class TestSCons(TestCommon):
                     if os.path.exists(home):
                         return home
             else:
-                if java_home.find('jdk%s' % version) != -1:
+                if java_home.find(f'jdk{version}') != -1:
                     return java_home
                 for home in [
-                    '/System/Library/Frameworks/JavaVM.framework/Versions/%s/Home' % version,
+                    f'/System/Library/Frameworks/JavaVM.framework/Versions/{version}/Home',
                     # osx 10.10
                     '/System/Library/Frameworks/JavaVM.framework/Versions/Current/'
                 ]:
@@ -909,7 +903,7 @@ class TestSCons(TestCommon):
             home = ''
         else:
             jar = self.java_where_jar(version)
-            home = os.path.normpath('%s/..' % jar)
+            home = os.path.normpath(f'{jar}/..')
 
         if home and os.path.isdir(home):
             return home
@@ -934,7 +928,7 @@ class TestSCons(TestCommon):
             or b"Unable to locate a Java Runtime" in cp.stdout
         ):
             self.skip_test(
-                "Could not find Java " + java_bin_name + ", skipping test.\n",
+                f"Could not find Java {java_bin_name}, skipping test.\n",
                 from_fw=True,
             )
 
@@ -1003,7 +997,7 @@ class TestSCons(TestCommon):
                  status=None)
         # Note recent versions output version info to stdout instead of stderr
         if version:
-            verf = 'javac %s' % version
+            verf = f'javac {version}'
             if self.stderr().find(verf) == -1 and self.stdout().find(verf) == -1:
                 fmt = "Could not find javac for Java version %s, skipping test(s).\n"
                 self.skip_test(fmt % version, from_fw=True)
@@ -1072,7 +1066,7 @@ class TestSCons(TestCommon):
                     result.append(os.path.join(dirpath, fname))
         return sorted(result)
 
-    def Qt_dummy_installation(self, dir='qt'):
+    def Qt_dummy_installation(self, dir: str='qt') -> None:
         # create a dummy qt installation
 
         self.subdir(dir, [dir, 'bin'], [dir, 'include'], [dir, 'lib'])
@@ -1174,21 +1168,24 @@ else:
 
         self.QT = self.workpath(dir)
         self.QT_LIB = 'myqt'
-        self.QT_MOC = '%s %s' % (_python_, self.workpath(dir, 'bin', 'mymoc.py'))
-        self.QT_UIC = '%s %s' % (_python_, self.workpath(dir, 'bin', 'myuic.py'))
+        self.QT_MOC = f"{_python_} {self.workpath(dir, 'bin', 'mymoc.py')}"
+        self.QT_UIC = f"{_python_} {self.workpath(dir, 'bin', 'myuic.py')}"
         self.QT_LIB_DIR = self.workpath(dir, 'lib')
 
-    def Qt_create_SConstruct(self, place):
+    def Qt_create_SConstruct(self, place, qt_tool: str='qt3') -> None:
         if isinstance(place, list):
             place = test.workpath(*place)
-        self.write(place, """\
+
+        var_prefix=qt_tool.upper()
+        self.write(place, f"""\
 if ARGUMENTS.get('noqtdir', 0):
-    QTDIR = None
+    {var_prefix}DIR = None
 else:
-    QTDIR = r'%s'
+    {var_prefix}DIR = r'{self.QT}'
 DefaultEnvironment(tools=[])  # test speedup
 env = Environment(
-    QTDIR=QTDIR, QT_LIB=r'%s', QT_MOC=r'%s', QT_UIC=r'%s', tools=['default', 'qt']
+    {var_prefix}DIR={var_prefix}DIR, {var_prefix}_LIB=r'{self.QT_LIB}', {var_prefix}_MOC=r'{self.QT_MOC}',
+    {var_prefix}_UIC=r'{self.QT_UIC}', tools=['default', '{qt_tool}']
 )
 dup = 1
 if ARGUMENTS.get('variant_dir', 0):
@@ -1209,7 +1206,7 @@ else:
     sconscript = File('SConscript')
 Export("env dup")
 SConscript(sconscript)
-""" % (self.QT, self.QT_LIB, self.QT_MOC, self.QT_UIC))
+""")
 
     NCR = 0  # non-cached rebuild
     CR = 1  # cached rebuild (up to date)
@@ -1224,12 +1221,12 @@ SConscript(sconscript)
     # to use cygwin compilers on cmd.exe -> uncomment following line
     # Configure_lib = 'm'
 
-    def coverage_run(self):
+    def coverage_run(self) -> bool:
         """ Check if the the tests are being run under coverage.
         """
         return 'COVERAGE_PROCESS_START' in os.environ or 'COVERAGE_FILE' in os.environ
 
-    def skip_if_not_msvc(self, check_platform=True):
+    def skip_if_not_msvc(self, check_platform: bool=True) -> None:
         """ Skip test if MSVC is not available.
 
         Check whether we are on a Windows platform and skip the test if
@@ -1241,7 +1238,7 @@ SConscript(sconscript)
         """
         if check_platform:
             if sys.platform != 'win32':
-                msg = "Skipping Visual C/C++ test on non-Windows platform '%s'\n" % sys.platform
+                msg = f"Skipping Visual C/C++ test on non-Windows platform '{sys.platform}'\n"
                 self.skip_test(msg, from_fw=True)
                 return
 
@@ -1254,10 +1251,10 @@ SConscript(sconscript)
             pass
 
     def checkConfigureLogAndStdout(self, checks,
-                                   logfile='config.log',
-                                   sconf_dir='.sconf_temp',
-                                   sconstruct="SConstruct",
-                                   doCheckLog=True, doCheckStdout=True):
+                                   logfile: str='config.log',
+                                   sconf_dir: str='.sconf_temp',
+                                   sconstruct: str="SConstruct",
+                                   doCheckLog: bool=True, doCheckStdout: bool=True):
         """ Verify expected output from Configure.
 
         Used to verify the expected output from using Configure()
@@ -1295,14 +1292,14 @@ SConscript(sconscript)
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
-            log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
+            log = f"\t{re.escape(f'Configure(confdir = {sconf_dir})')}" + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
             rdstr = ""
 
             for check_info in checks:
-                log = re.escape("scons: Configure: " + check_info.check_string) + ls
+                log = re.escape(f"scons: Configure: {check_info.check_string}") + ls
 
                 if doCheckLog:
                     lastEnd = match_part_of_configlog(log, logfile, lastEnd)
@@ -1318,9 +1315,9 @@ SConscript(sconscript)
                             # rebuild will pass
                             if ext in ['.c', '.cpp']:
                                 log = log + conf_filename + re.escape(" <-") + ls
-                                log = log + r"(  \|" + nols + "*" + ls + ")+?"
+                                log = f"{log}(  \\|{nols}*{ls})+?"
                             else:
-                                log = log + "(" + nols + "*" + ls + ")*?"
+                                log = f"{log}({nols}*{ls})*?"
                             result_cached = 0
                         if flag == self.CR:
                             # CR = cached rebuild (up to date)s
@@ -1331,10 +1328,10 @@ SConscript(sconscript)
                                   re.escape("\" is up to date.") + ls
                             log = log + re.escape("scons: Configure: The original builder "
                                                   "output was:") + ls
-                            log = log + r"(  \|.*" + ls + ")+"
+                            log = f"{log}(  \\|.*{ls})+"
                         if flag == self.NCF:
                             # non-cached rebuild failure
-                            log = log + "(" + nols + "*" + ls + ")*?"
+                            log = f"{log}({nols}*{ls})*?"
                             result_cached = 0
                         if flag == self.CF:
                             # cached rebuild failure
@@ -1343,14 +1340,14 @@ SConscript(sconscript)
                                   conf_filename + \
                                   re.escape("\" failed in a previous run and all its sources are up to date.") + ls
                             log = log + re.escape("scons: Configure: The original builder output was:") + ls
-                            log = log + r"(  \|.*" + ls + ")+"
+                            log = f"{log}(  \\|.*{ls})+"
                 if result_cached:
-                    result = "(cached) " + check_info.result
+                    result = f"(cached) {check_info.result}"
                 else:
                     result = check_info.result
-                rdstr = rdstr + re.escape(check_info.check_string) + re.escape(result) + "\n"
+                rdstr = f"{rdstr + re.escape(check_info.check_string) + re.escape(result)}\n"
 
-                log = log + re.escape("scons: Configure: " + result) + ls + ls
+                log = log + re.escape(f"scons: Configure: {result}") + ls + ls
 
                 if doCheckLog:
                     lastEnd = match_part_of_configlog(log, logfile, lastEnd)
@@ -1389,7 +1386,7 @@ SConscript(sconscript)
 
     def checkLogAndStdout(self, checks, results, cached,
                           logfile, sconf_dir, sconstruct,
-                          doCheckLog=True, doCheckStdout=True):
+                          doCheckLog: bool=True, doCheckStdout: bool=True):
         """ Verify expected output from Configure.
 
         Used to verify the expected output from using Configure()
@@ -1433,7 +1430,7 @@ SConscript(sconscript)
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
-            log = "\t" + re.escape("Configure(confdir = %s)" % sconf_dir) + ls
+            log = f"\t{re.escape(f'Configure(confdir = {sconf_dir})')}" + ls
             if doCheckLog:
                 lastEnd = match_part_of_configlog(log, logfile, lastEnd)
 
@@ -1441,7 +1438,7 @@ SConscript(sconscript)
 
             cnt = 0
             for check, result, cache_desc in zip(checks, results, cached):
-                log = re.escape("scons: Configure: " + check) + ls
+                log = re.escape(f"scons: Configure: {check}") + ls
 
                 if doCheckLog:
                     lastEnd = match_part_of_configlog(log, logfile, lastEnd)
@@ -1474,9 +1471,9 @@ SConscript(sconscript)
                             # rebuild will pass
                             if ext in ['.c', '.cpp']:
                                 log = log + conf_filename + re.escape(" <-") + ls
-                                log = log + r"(  \|" + nols + "*" + ls + ")+?"
+                                log = f"{log}(  \\|{nols}*{ls})+?"
                             else:
-                                log = log + "(" + nols + "*" + ls + ")*?"
+                                log = f"{log}({nols}*{ls})*?"
                             result_cached = 0
                         if flag == self.CR:
                             # CR = cached rebuild (up to date)s
@@ -1487,10 +1484,10 @@ SConscript(sconscript)
                                   re.escape("\" is up to date.") + ls
                             log = log + re.escape("scons: Configure: The original builder "
                                                   "output was:") + ls
-                            log = log + r"(  \|.*" + ls + ")+"
+                            log = f"{log}(  \\|.*{ls})+"
                         if flag == self.NCF:
                             # non-cached rebuild failure
-                            log = log + "(" + nols + "*" + ls + ")*?"
+                            log = f"{log}({nols}*{ls})*?"
                             result_cached = 0
                         if flag == self.CF:
                             # cached rebuild failure
@@ -1499,14 +1496,14 @@ SConscript(sconscript)
                                   conf_filename + \
                                   re.escape("\" failed in a previous run and all its sources are up to date.") + ls
                             log = log + re.escape("scons: Configure: The original builder output was:") + ls
-                            log = log + r"(  \|.*" + ls + ")+"
+                            log = f"{log}(  \\|.*{ls})+"
                     # cnt = cnt + 1
                 if result_cached:
-                    result = "(cached) " + result
+                    result = f"(cached) {result}"
 
-                rdstr = rdstr + re.escape(check) + re.escape(result) + "\n"
+                rdstr = f"{rdstr + re.escape(check) + re.escape(result)}\n"
 
-                log = log + re.escape("scons: Configure: " + result) + ls + ls
+                log = log + re.escape(f"scons: Configure: {result}") + ls + ls
 
                 if doCheckLog:
                     lastEnd = match_part_of_configlog(log, logfile, lastEnd)
@@ -1550,7 +1547,7 @@ SConscript(sconscript)
         # see also sys.prefix documentation
         return python_minor_version_string()
 
-    def get_platform_python_info(self, python_h_required=False):
+    def get_platform_python_info(self, python_h_required: bool=False):
         """Return information about Python.
 
         Returns a path to a Python executable suitable for testing on
@@ -1643,14 +1640,14 @@ else:
             restore_sconsflags(sconsflags)
         return p
 
-    def wait_for(self, fname, timeout=20.0, popen=None):
+    def wait_for(self, fname, timeout: float=20.0, popen=None) -> None:
         """
         Waits for the specified file name to exist.
         """
         waited = 0.0
         while not os.path.exists(fname):
             if timeout and waited >= timeout:
-                sys.stderr.write('timed out waiting for %s to exist\n' % fname)
+                sys.stderr.write(f'timed out waiting for {fname} to exist\n')
                 if popen:
                     popen.stdin.close()
                     popen.stdin = None
@@ -1658,11 +1655,11 @@ else:
                     self.finish(popen)
                 stdout = self.stdout()
                 if stdout:
-                    sys.stdout.write(self.banner('STDOUT ') + '\n')
+                    sys.stdout.write(f"{self.banner('STDOUT ')}\n")
                     sys.stdout.write(stdout)
                 stderr = self.stderr()
                 if stderr:
-                    sys.stderr.write(self.banner('STDERR ') + '\n')
+                    sys.stderr.write(f"{self.banner('STDERR ')}\n")
                     sys.stderr.write(stderr)
                 self.fail_test()
             time.sleep(1.0)
@@ -1705,7 +1702,7 @@ else:
 
 
 class Stat:
-    def __init__(self, name, units, expression, convert=None):
+    def __init__(self, name, units, expression, convert=None) -> None:
         if convert is None:
             convert = lambda x: x
         self.name = name
@@ -1739,7 +1736,7 @@ StatList = [
 class TimeSCons(TestSCons):
     """Class for timing SCons."""
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         """
         In addition to normal TestSCons.TestSCons intialization,
         this enables verbose mode (which causes the command lines to
@@ -1787,7 +1784,7 @@ class TimeSCons(TestSCons):
             self.test_dir = os.path.join(self.orig_cwd, self.test_dir)
         self.copy_timing_configuration(self.test_dir, self.workpath())
 
-    def main(self, *args, **kw):
+    def main(self, *args, **kw) -> None:
         """
         The main entry point for standard execution of timings.
 
@@ -1807,7 +1804,7 @@ class TimeSCons(TestSCons):
         if 'options' not in kw and self.variables:
             options = []
             for variable, value in self.variables.items():
-                options.append('%s=%s' % (variable, value))
+                options.append(f'{variable}={value}')
             kw['options'] = ' '.join(options)
         if self.calibrate:
             self.calibration(*args, **kw)
@@ -1817,16 +1814,16 @@ class TimeSCons(TestSCons):
             self.full(*args, **kw)
             self.null(*args, **kw)
 
-    def trace(self, graph, name, value, units, sort=None):
+    def trace(self, graph, name, value, units, sort=None) -> None:
         fmt = "TRACE: graph=%s name=%s value=%s units=%s"
         line = fmt % (graph, name, value, units)
         if sort is not None:
-            line = line + (' sort=%s' % sort)
-        line = line + '\n'
+            line = f"{line} sort={sort}"
+        line = f"{line}\n"
         sys.stdout.write(line)
         sys.stdout.flush()
 
-    def report_traces(self, trace, stats):
+    def report_traces(self, trace, stats) -> None:
         self.trace('TimeSCons-elapsed',
                    trace,
                    self.elapsed_time(),
@@ -1835,10 +1832,10 @@ class TimeSCons(TestSCons):
         for name, args in stats.items():
             self.trace(name, trace, **args)
 
-    def uptime(self):
+    def uptime(self) -> None:
         try:
             fp = open('/proc/loadavg')
-        except EnvironmentError:
+        except OSError:
             pass
         else:
             avg1, avg5, avg15 = fp.readline().split(" ")[:3]
@@ -1859,16 +1856,16 @@ class TimeSCons(TestSCons):
                 result[stat.name] = {'value': value, 'units': stat.units}
         return result
 
-    def add_timing_options(self, kw, additional=None):
+    def add_timing_options(self, kw, additional=None) -> None:
         """
         Add the necessary timings options to the kw['options'] value.
         """
         options = kw.get('options', '')
         if additional is not None:
             options += additional
-        kw['options'] = options + ' --debug=memory,time'
+        kw['options'] = f"{options} --debug=memory,time"
 
-    def startup(self, *args, **kw):
+    def startup(self, *args, **kw) -> None:
         """
         Runs scons with the --help option.
 
@@ -1889,7 +1886,7 @@ class TimeSCons(TestSCons):
         del stats['time-commands']
         self.report_traces('startup', stats)
 
-    def full(self, *args, **kw):
+    def full(self, *args, **kw) -> None:
         """
         Runs a full build of SCons.
         """
@@ -1902,7 +1899,7 @@ class TimeSCons(TestSCons):
         self.trace('full-memory', 'prebuild', **stats['memory-prebuild'])
         self.trace('full-memory', 'final', **stats['memory-final'])
 
-    def calibration(self, *args, **kw):
+    def calibration(self, *args, **kw) -> None:
         """
         Runs a full build of SCons, but only reports calibration
         information (the variable(s) that were set for this configuration,
@@ -1912,10 +1909,10 @@ class TimeSCons(TestSCons):
         self.run(*args, **kw)
         for variable in self.calibrate_variables:
             value = self.variables[variable]
-            sys.stdout.write('VARIABLE: %s=%s\n' % (variable, value))
-        sys.stdout.write('ELAPSED: %s\n' % self.elapsed_time())
+            sys.stdout.write(f'VARIABLE: {variable}={value}\n')
+        sys.stdout.write(f'ELAPSED: {self.elapsed_time()}\n')
 
-    def null(self, *args, **kw):
+    def null(self, *args, **kw) -> None:
         """
         Runs an up-to-date null build of SCons.
         """
@@ -1963,7 +1960,7 @@ class TimeSCons(TestSCons):
             self.endTime = time.perf_counter()
         return result
 
-    def copy_timing_configuration(self, source_dir, dest_dir):
+    def copy_timing_configuration(self, source_dir, dest_dir) -> None:
         """
         Copies the timing configuration from the specified source_dir (the
         directory in which the controlling script lives) to the specified
@@ -1988,7 +1985,7 @@ class TimeSCons(TestSCons):
                 destination = source.replace(source_dir, dest_dir)
                 shutil.copy2(source, destination)
 
-    def up_to_date(self, arguments='.', read_str="", **kw):
+    def up_to_date(self, arguments: str='.', read_str: str="", **kw) -> None:
         """Asserts that all of the targets listed in arguments is
         up to date, but does not make any assumptions on other targets.
         This function is most useful in conjunction with the -n option.
@@ -1997,12 +1994,12 @@ class TimeSCons(TestSCons):
         """
         s = ""
         for arg in arguments.split():
-            s = s + "scons: `%s' is up to date.\n" % arg
+            s = f"{s}scons: `{arg}' is up to date.\n"
         kw['arguments'] = arguments
         stdout = self.wrap_stdout(read_str="REPLACEME", build_str=s)
         # Append '.*' so that timing output that comes after the
         # up-to-date output is okay.
-        stdout = re.escape(stdout) + '.*'
+        stdout = f"{re.escape(stdout)}.*"
         stdout = stdout.replace('REPLACEME', read_str)
         kw['stdout'] = stdout
         kw['match'] = self.match_re_dotall

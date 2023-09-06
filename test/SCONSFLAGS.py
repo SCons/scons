@@ -40,7 +40,7 @@ expect = """scons: Reading SConscript files ...
 scons: done reading SConscript files.
 Help text.
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 """
 
 os.environ['SCONSFLAGS'] = ''

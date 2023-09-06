@@ -35,7 +35,7 @@ class DummyFS:
         return DummyNode(name)
 
 class DummyEnvironment(collections.UserDict):
-    def __init__(self, mapping=None, **kwargs):
+    def __init__(self, mapping=None, **kwargs) -> None:
         super().__init__(mapping)
         self.data.update(kwargs)
         self.fs = DummyFS()
@@ -55,31 +55,31 @@ class DummyEnvironment(collections.UserDict):
         return factory or self.fs.File
 
 class DummyNode:
-    def __init__(self, name, search_result=()):
+    def __init__(self, name, search_result=()) -> None:
         self.name = name
         self.search_result = tuple(search_result)
 
-    def rexists(self):
+    def rexists(self) -> bool:
         return True
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def Rfindalldirs(self, pathlist):
         return self.search_result + pathlist
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
     def __eq__(self, other):
         return self.name == other.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
     def __eq__(self, other):
         return self.name == other.name
 
 class FindPathDirsTestCase(unittest.TestCase):
-    def test_FindPathDirs(self):
+    def test_FindPathDirs(self) -> None:
         """Test the FindPathDirs callable class"""
 
         env = DummyEnvironment(LIBPATH = [ 'foo' ])
@@ -95,9 +95,9 @@ class FindPathDirsTestCase(unittest.TestCase):
 
 class ScannerTestCase(unittest.TestCase):
 
-    def test_creation(self):
+    def test_creation(self) -> None:
         """Test creation of Scanner objects"""
-        def func(self):
+        def func(self) -> None:
             pass
         s = ScannerBase(func)
         assert isinstance(s, ScannerBase), s
@@ -120,12 +120,12 @@ class ScannerTestCase(unittest.TestCase):
 class ScannerBaseTestCase(unittest.TestCase):
 
     class skey_node:
-        def __init__(self, key):
+        def __init__(self, key) -> None:
             self.key = key
         def scanner_key(self):
             return self.key
-        def rexists(self):
-            return 1
+        def rexists(self) -> bool:
+            return True
 
     def func(self, filename, env, target, *args):
         self.filename = filename
@@ -137,7 +137,7 @@ class ScannerBaseTestCase(unittest.TestCase):
 
         return self.deps
 
-    def test(self, scanner, env, filename, deps, *args):
+    def test(self, scanner, env, filename, deps, *args) -> None:
         self.deps = deps
         path = scanner.path(env)
         scanned = scanner(filename, env, path)
@@ -154,7 +154,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         else:
             self.assertFalse(hasattr(self, "arg"), "an argument was given when it shouldn't have been")
 
-    def test___call__dict(self):
+    def test___call__dict(self) -> None:
         """Test calling ScannerBase objects with a dictionary"""
         called = []
         def s1func(node, env, path, called=called):
@@ -177,9 +177,9 @@ class ScannerBaseTestCase(unittest.TestCase):
         selector(ny, env, [])
         assert called == ['s2func', ny], called
 
-    def test_path(self):
+    def test_path(self) -> None:
         """Test the ScannerBase path() method"""
-        def pf(env, cwd, target, source, argument=None):
+        def pf(env, cwd, target, source, argument=None) -> str:
             return "pf: %s %s %s %s %s" % \
                         (env.VARIABLE, cwd, target[0], source[0], argument)
 
@@ -196,7 +196,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         p = s.path(env, 'here', [target], [source])
         assert p == "pf: v1 here target source xyz", p
 
-    def test_positional(self):
+    def test_positional(self) -> None:
         """Test the ScannerBase class using positional arguments"""
         s = ScannerBase(self.func, "Pos")
         env = DummyEnvironment()
@@ -207,7 +207,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         env.VARIABLE = "i1"
         self.test(s, env, DummyNode('i1.cpp'), ['i1.h', 'i1.hpp'])
 
-    def test_keywords(self):
+    def test_keywords(self) -> None:
         """Test the ScannerBase class using keyword arguments"""
         s = ScannerBase(function = self.func, name = "Key")
         env = DummyEnvironment()
@@ -219,7 +219,7 @@ class ScannerBaseTestCase(unittest.TestCase):
 
         self.test(s, env, DummyNode('i2.cpp'), ['i2.h', 'i2.hpp'])
 
-    def test_pos_opt(self):
+    def test_pos_opt(self) -> None:
         """Test the ScannerBase class using both position and optional arguments"""
         arg = "this is the argument"
         s = ScannerBase(self.func, "PosArg", arg)
@@ -231,7 +231,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         env.VARIABLE = "i3"
         self.test(s, env, DummyNode('i3.cpp'), ['i3.h', 'i3.hpp'], arg)
 
-    def test_key_opt(self):
+    def test_key_opt(self) -> None:
         """Test the ScannerBase class using both keyword and optional arguments"""
         arg = "this is another argument"
         s = ScannerBase(function = self.func, name = "KeyArg", argument = arg)
@@ -243,12 +243,12 @@ class ScannerBaseTestCase(unittest.TestCase):
         env.VARIABLE = "i4"
         self.test(s, env, DummyNode('i4.cpp'), ['i4.h', 'i4.hpp'], arg)
 
-    def test___cmp__(self):
+    def test___cmp__(self) -> None:
         """Test the ScannerBase class __cmp__() method"""
         s = ScannerBase(self.func, "Cmp")
         assert s is not None
 
-    def test_hash(self):
+    def test_hash(self) -> None:
         """Test the ScannerBase class __hash__() method"""
         s = ScannerBase(self.func, "Hash")
         mapping = {}
@@ -258,11 +258,11 @@ class ScannerBaseTestCase(unittest.TestCase):
         self.assertTrue(h == i,
                         "hash Scanner base class expected %s, got %s" % (i, h))
 
-    def test_scan_check(self):
+    def test_scan_check(self) -> None:
         """Test the ScannerBase class scan_check() method"""
         def my_scan(filename, env, target, *args):
             return []
-        def check(node, env, s=self):
+        def check(node, env, s=self) -> int:
             s.checked[str(node)] = 1
             return 1
         env = DummyEnvironment()
@@ -273,7 +273,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         self.assertTrue(self.checked['x'] == 1,
                         "did not call check function")
 
-    def test_recursive(self):
+    def test_recursive(self) -> None:
         """Test the ScannerBase class recursive flag"""
         nodes = [1, 2, 3, 4]
 
@@ -295,7 +295,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         n = s.recurse_nodes(nodes)
         self.assertTrue(n == [1, 3], "recursive = 1 didn't return all nodes: %s" % n)
 
-    def test_get_skeys(self):
+    def test_get_skeys(self) -> None:
         """Test the ScannerBase get_skeys() method"""
         s = ScannerBase(function = self.func)
         sk = s.get_skeys()
@@ -310,7 +310,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         sk = s.get_skeys(env)
         self.assertTrue(sk == ['.3', '.4'], "sk was %s, not ['.3', '.4']")
 
-    def test_select(self):
+    def test_select(self) -> None:
         """Test the ScannerBase select() method"""
         scanner = ScannerBase(function = self.func)
         s = scanner.select('.x')
@@ -324,7 +324,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         s = selector.select(self.skey_node('.z'))
         assert s is None, s
 
-    def test_add_scanner(self):
+    def test_add_scanner(self) -> None:
         """Test the ScannerBase add_scanner() method"""
         selector = ScannerBase({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.z'))
@@ -333,7 +333,7 @@ class ScannerBaseTestCase(unittest.TestCase):
         s = selector.select(self.skey_node('.z'))
         assert s == 3, s
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         """Test the ScannerBase __str__() method"""
         scanner = ScannerBase(function = self.func)
         s = str(scanner)
@@ -343,21 +343,22 @@ class ScannerBaseTestCase(unittest.TestCase):
         assert s == 'xyzzy', s
 
 class SelectorTestCase(unittest.TestCase):
+
     class skey_node:
-        def __init__(self, key):
+        def __init__(self, key) -> None:
             self.key = key
         def scanner_key(self):
             return self.key
-        def rexists(self):
-            return 1
+        def rexists(self) -> bool:
+            return True
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Test creation of Scanner.Selector object"""
         s = Selector({})
         assert isinstance(s, Selector), s
         assert s.mapping == {}, s.mapping
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         """Test calling Scanner.Selector objects"""
         called = []
         def s1func(node, env, path, called=called):
@@ -380,7 +381,7 @@ class SelectorTestCase(unittest.TestCase):
         selector(ny, env, [])
         assert called == ['s2func', ny], called
 
-    def test_select(self):
+    def test_select(self) -> None:
         """Test the Scanner.Selector select() method"""
         selector = Selector({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.x'))
@@ -390,7 +391,7 @@ class SelectorTestCase(unittest.TestCase):
         s = selector.select(self.skey_node('.z'))
         assert s is None, s
 
-    def test_add_scanner(self):
+    def test_add_scanner(self) -> None:
         """Test the Scanner.Selector add_scanner() method"""
         selector = Selector({'.x' : 1, '.y' : 2})
         s = selector.select(self.skey_node('.z'))
@@ -400,35 +401,35 @@ class SelectorTestCase(unittest.TestCase):
         assert s == 3, s
 
 class CurrentTestCase(unittest.TestCase):
-    def test_class(self):
+    def test_class(self) -> None:
         """Test the Scanner.Current class"""
         class MyNode:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.called_has_builder = None
                 self.called_is_up_to_date = None
                 self.func_called = None
-            def rexists(self):
-                return 1
+            def rexists(self) -> bool:
+                return True
         class HasNoBuilder(MyNode):
-            def has_builder(self):
-                self.called_has_builder = 1
-                return None
+            def has_builder(self) -> bool:
+                self.called_has_builder = True
+                return False
         class IsNotCurrent(MyNode):
-            def has_builder(self):
-                self.called_has_builder = 1
-                return 1
-            def is_up_to_date(self):
-                self.called_is_up_to_date = 1
-                return None
+            def has_builder(self) -> bool:
+                self.called_has_builder = True
+                return True
+            def is_up_to_date(self) -> bool:
+                self.called_is_up_to_date = True
+                return False
         class IsCurrent(MyNode):
-            def has_builder(self):
-                self.called_has_builder = 1
-                return 1
-            def is_up_to_date(self):
-                self.called_is_up_to_date = 1
-                return 1
+            def has_builder(self) -> bool:
+                self.called_has_builder = True
+                return True
+            def is_up_to_date(self) -> bool:
+                self.called_is_up_to_date = True
+                return True
         def func(node, env, path):
-            node.func_called = 1
+            node.func_called = True
             return []
         env = DummyEnvironment()
         s = Current(func)
@@ -461,7 +462,7 @@ class ClassicTestCase(unittest.TestCase):
 
         return self.deps
 
-    def test_find_include(self):
+    def test_find_include(self) -> None:
         """Test the Scanner.Classic find_include() method"""
         env = DummyEnvironment()
         s = Classic("t", ['.suf'], 'MYPATH', r'^my_inc (\S+)')
@@ -480,15 +481,15 @@ class ClassicTestCase(unittest.TestCase):
         finally:
             SCons.Node.FS.find_file = save
 
-    def test_name(self):
+    def test_name(self) -> None:
         """Test setting the Scanner.Classic name"""
         s = Classic("my_name", ['.s'], 'MYPATH', r'^my_inc (\S+)')
         assert s.name == "my_name", s.name
 
-    def test_scan(self):
+    def test_scan(self) -> None:
         """Test the Scanner.Classic scan() method"""
         class MyNode:
-            def __init__(self, name):
+            def __init__(self, name) -> None:
                 self.name = name
                 self._rfile = self
                 self.includes = None
@@ -562,7 +563,7 @@ class ClassicTestCase(unittest.TestCase):
         ret = s.function(n, env, ('foo5',))
         assert ret == ['jkl', 'mno'], ret
 
-    def test_recursive(self):
+    def test_recursive(self) -> None:
         """Test the Scanner.Classic class recursive flag"""
         nodes = [1, 2, 3, 4]
 
@@ -582,7 +583,7 @@ class ClassicTestCase(unittest.TestCase):
 
 
 class ClassicCPPTestCase(unittest.TestCase):
-    def test_find_include(self):
+    def test_find_include(self) -> None:
         """Test the Scanner.ClassicCPP find_include() method"""
         env = DummyEnvironment()
         s = ClassicCPP("Test", [], None, "")

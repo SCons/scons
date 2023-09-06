@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+DefaultEnvironment(tools=[])
 env = Environment()
 
 def generator(source, target, env, for_signature):
@@ -9,10 +14,6 @@ env['GENERATOR'] = generator
 
 env.Textfile(
     target="target",
-    source=[
-        "@generated@",
-    ],
-    SUBST_DICT={
-        '@generated@' : '$GENERATOR',
-    },
+    source=["@generated@"],
+    SUBST_DICT={'@generated@' : '$GENERATOR'},
 )

@@ -1,0 +1,133 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
+"""Append/AppendUnique tests"""
+
+DefaultEnvironment(tools=[])
+
+# Special cases:
+# https://github.com/SCons/scons/issues/1738
+env_1738_2 = Environment(CPPDEFPREFIX='-D')
+env_1738_2['CPPDEFINES'] = ['FOO']
+env_1738_2.Append(CPPDEFINES={'value': '1'})
+print(env_1738_2.subst('$_CPPDEFFLAGS'))
+# env_1738_2.Object('test_1738_2', 'main.c')
+
+# https://github.com/SCons/scons/issues/2300
+env_2300_1 = Environment(CPPDEFINES='foo', CPPDEFPREFIX='-D')
+env_2300_1.Append(CPPDEFINES='bar')
+print(env_2300_1.subst('$_CPPDEFFLAGS'))
+
+env_2300_2 = Environment(CPPDEFINES=['foo'], CPPDEFPREFIX='-D')  # note the list
+env_2300_2.Append(CPPDEFINES='bar')
+print(env_2300_2.subst('$_CPPDEFFLAGS'))
+
+# An initial space-separated string will be split, but not a string in a list.
+env_multi = Environment(CPPDEFPREFIX='-D')
+env_multi['CPPDEFINES'] = "foo bar"
+env_multi.Append(CPPDEFINES="baz")
+print(env_multi.subst('$_CPPDEFFLAGS'))
+
+env_multi = Environment(CPPDEFPREFIX='-D')
+env_multi['CPPDEFINES'] = ["foo bar"]
+env_multi.Append(CPPDEFINES="baz")
+print(env_multi.subst('$_CPPDEFFLAGS'))
+
+env_multi = Environment(CPPDEFPREFIX='-D')
+env_multi['CPPDEFINES'] = "foo"
+env_multi.Append(CPPDEFINES=["bar baz"])
+print(env_multi.subst('$_CPPDEFFLAGS'))
+
+env_multi = Environment(CPPDEFPREFIX='-D')
+env_multi['CPPDEFINES'] = "foo"
+env_multi.Append(CPPDEFINES="bar baz")
+print(env_multi.subst('$_CPPDEFFLAGS'))
+
+# Check that AppendUnique(..., delete_existing=True) works as expected.
+# Each addition is in different but matching form, and different order
+# so we expect a reordered list, but with the same macro defines.
+env_multi = Environment(CPPDEFPREFIX='-D')
+env_multi.Append(CPPDEFINES=["Macro1=Value1", ("Macro2", "Value2"), {"Macro3": "Value3"}, "Macro4"])
+try:
+    env_multi.AppendUnique(CPPDEFINES="Macro2=Value2", delete_existing=True)
+    env_multi.AppendUnique(CPPDEFINES=[("Macro4", None)], delete_existing=True)
+    env_multi.AppendUnique(CPPDEFINES=[("Macro3", "Value3")], delete_existing=True)
+    env_multi.AppendUnique(CPPDEFINES={"Macro1": "Value1"}, delete_existing=True)
+except Exception as t:
+    print(f"Prepend FAILED: {t}")
+else:
+    print(env_multi.subst('$_CPPDEFFLAGS'))
+
+# A lone tuple handled differently than a lone list.
+env_multi = Environment(CPPDEFPREFIX='-D', CPPDEFINES=("Macro1", "Value1"))
+print(env_multi.subst('$_CPPDEFFLAGS'))
+env_multi = Environment(CPPDEFPREFIX='-D', CPPDEFINES=["Macro1", "Value1"])
+print(env_multi.subst('$_CPPDEFFLAGS'))
+
+# https://github.com/SCons/scons/issues/1152
+# https://github.com/SCons/scons/issues/2900
+# Python3 dicts dont preserve order. Hence we supply subclass of OrderedDict
+# whose __str__ and __repr__ act like a normal dict.
+from collections import OrderedDict
+
+class OrderedPrintingDict(OrderedDict):
+    def __repr__(self):
+        return '{' + ', '.join([f'{k!r}: {v!r}' for (k, v) in self.items()]) + '}'
+
+    __str__ = __repr__
+
+    # Because dict-like objects (except dict and UserDict) are not deep copied
+    # directly when constructing Environment(CPPDEFINES=OrderedPrintingDict(...))
+    def __semi_deepcopy__(self):
+        return self.copy()
+
+
+# each of these types will be appended to each of the others
+# the first item in each tuple is a label for the output
+cases = [
+    ('string', 'FOO'),
+    ('valuestring', 'NAME1=VAL1'),
+    ('list', ['NAME1', 'NAME2', 'NAME3']),
+    ('tuple', ('NAME1', 'VAL1')),
+    ('list-of-2lists', [('NAME1', 'VAL1'), ['NAME2', 'VAL2']]),
+    (
+        'dict',  # intentionally not sorted by key
+        OrderedPrintingDict([('NAME2', 'VAL2'), ('NAME3', None), ('NAME1', 'VAL1')]),
+    ),
+]
+
+
+def dlist(coll):
+    # if it's a deque, turn it into a list for display purposes
+    from collections import deque
+
+    if isinstance(coll, deque):
+        return list(coll)
+    return coll
+
+
+for (t1, c1) in cases:
+    for (t2, c2) in cases:
+        print(f"==== Testing CPPDEFINES, appending a {t2} to a {t1}")
+        # string-like appearance if the value is a string
+        orig = f"{c1!r}" if isinstance(c1, str) else c1
+        app = f"{c2!r}" if isinstance(c2, str) else c2
+        print(f"   orig = {orig}, append = {app}")
+        env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
+        try:
+            env.Append(CPPDEFINES=c2)
+            final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
+            print(f"Append:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}")
+        except Exception as t:
+            print(f"Append:\n    FAILED: {t}")
+
+        env = Environment(CPPDEFINES=c1, CPPDEFPREFIX='-D')
+        try:
+            env.AppendUnique(CPPDEFINES=c2)
+            final = env.subst('$_CPPDEFFLAGS', source="src", target="tgt")
+            print(
+                f"AppendUnique:\n    result={dlist(env['CPPDEFINES'])}\n    final={final}"
+            )
+        except Exception as t:
+            print(f"AppendUnique:\n    FAILED: {t}")

@@ -82,8 +82,8 @@ class _POTargetFactory:
     default for all produced nodes.
     """
 
-    def __init__(self, env, nodefault=True, alias=None, precious=True
-                 , noclean=True):
+    def __init__(self, env, nodefault: bool=True, alias=None, precious: bool=True
+                 , noclean: bool=True) -> None:
         """ Object constructor.
 
         **Arguments**
@@ -104,7 +104,7 @@ class _POTargetFactory:
         self.noclean = noclean
         self.nodefault = nodefault
 
-    def _create_node(self, name, factory, directory=None, create=1):
+    def _create_node(self, name, factory, directory=None, create: int=1):
         """ Create node, and set it up to factory settings. """
         node = factory(name, directory, create)
         node.set_noclean(self.noclean)
@@ -115,11 +115,11 @@ class _POTargetFactory:
             self.env.AlwaysBuild(self.env.Alias(self.alias, node))
         return node
 
-    def Entry(self, name, directory=None, create=1):
+    def Entry(self, name, directory=None, create: int=1):
         """ Create `SCons.Node.FS.Entry` """
         return self._create_node(name, self.env.fs.Entry, directory, create)
 
-    def File(self, name, directory=None, create=1):
+    def File(self, name, directory=None, create: int=1):
         """ Create `SCons.Node.FS.File` """
         return self._create_node(name, self.env.fs.File, directory, create)
 
@@ -191,7 +191,7 @@ class _POFileBuilder(BuilderBase):
     #  and execute iterativelly (recursion) self._execute(None, source[i]).
     #  After that it calls emitter (which is quite too late). The emitter is
     #  also called in each iteration, what makes things yet worse.
-    def __init__(self, env, **kw):
+    def __init__(self, env, **kw) -> None:
         if 'suffix' not in kw:
             kw['suffix'] = '$POSUFFIX'
         if 'src_suffix' not in kw:
@@ -300,7 +300,7 @@ class RPaths:
     # seems be enough for our purposes (don't need TARGET variable and
     # SCons.Defaults.Variable_Caller stuff).
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         """ Initialize `RPaths` callable object.
 
           **Arguments**:

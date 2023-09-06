@@ -46,7 +46,7 @@ class VisualStudio:
     An abstract base class for trying to find installed versions of
     Visual Studio.
     """
-    def __init__(self, version, **kw):
+    def __init__(self, version, **kw) -> None:
         self.version = version
         kw['vc_version']  = kw.get('vc_version', version)
         kw['sdk_version'] = kw.get('sdk_version', version)
@@ -148,7 +148,7 @@ class VisualStudio:
             self._cache['supported_arch'] = self.supported_arch
             return self.supported_arch
 
-    def reset(self):
+    def reset(self) -> None:
         self._cache = {}
 
 # The list of supported Visual Studio versions we know how to detect.
@@ -207,7 +207,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2019
@@ -219,7 +219,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2017
@@ -231,7 +231,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual C++ 2017 Express Edition (for Desktop)
@@ -243,7 +243,7 @@ SupportedVSList = [
                  executable_path=r'Common7\IDE\WDExpress.exe',
                  # should be a fallback, prefer use vswhere installationPath
                  batch_file_path=r'Common7\Tools\VsDevCmd.bat',
-                 supported_arch=['x86', 'amd64', "arm"],
+                 supported_arch=['x86', 'amd64', "arm", 'arm64'],
     ),
 
     # Visual Studio 2015
@@ -439,7 +439,7 @@ def get_installed_visual_studios(env=None):
                 InstalledVSMap[vs.version] = vs
     return InstalledVSList
 
-def reset_installed_visual_studios():
+def reset_installed_visual_studios() -> None:
     global InstalledVSList
     global InstalledVSMap
     InstalledVSList = None
@@ -564,12 +564,12 @@ def get_default_arch(env):
 
     return arch
 
-def merge_default_version(env):
+def merge_default_version(env) -> None:
     version = get_default_version(env)
     arch = get_default_arch(env)
 
 # TODO: refers to versions and arch which aren't defined; called nowhere. Drop?
-def msvs_setup_env(env):
+def msvs_setup_env(env) -> None:
     msvs = get_vs_by_version(version)
     if msvs is None:
         return

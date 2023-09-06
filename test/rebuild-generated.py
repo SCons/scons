@@ -83,7 +83,7 @@ env = Environment()
 kernelDefines = env.Command("header.hh", "header.hh.in", Copy('$TARGET', '$SOURCE'))
 kernelImporterSource = env.Command("generated.cc", ["%s"], "%s")
 kernelImporter = env.Program(kernelImporterSource + ["main.cc"])
-kernelImports = env.Command("KernelImport.hh", kernelImporter, ".%s$SOURCE > $TARGET")
+kernelImports = env.Command("KernelImport.hh", kernelImporter, r".%s$SOURCE > $TARGET")
 osLinuxModule = env.StaticObject(["target.cc"])
 """ % (generator_name, kernel_action, sep))
 

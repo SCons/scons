@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -30,12 +32,11 @@ import TestSCons
 _python_ = TestSCons._python_
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
+
 test.dir_fixture('MSVC_USE_SCRIPT_ARGS-fixture')
 
-test.run(arguments = ".", status=0, stderr=None)
-
+test.run(arguments=".", status=0, stderr=None)
 test.must_contain('MSDEBUG_OUTPUT.log', "Calling 'fake_script.bat one two'")
 
 test.pass_test()

@@ -24,24 +24,24 @@ def cyglink_lib_emitter(target, source, env, **kw):
     no_import_lib = env.get('no_import_lib', False)
 
     if verbose:
-        print("cyglink_lib_emitter: target[0]={!r}".format(target[0].get_path()))
+        print(f"cyglink_lib_emitter: target[0]={target[0].get_path()!r}")
 
     if not no_import_lib:
         # Specify import lib and add to targets
 
         import_lib = env.subst('$%s_IMPLIBNAME' % var_prefix, target=target, source=source)
         import_lib_target = env.fs.File(import_lib)
-        import_lib_target.attributes.shared = 1
+        import_lib_target.attributes.shared = True
         target.append(import_lib_target)
 
         if verbose:
-            print("cyglink_lib_emitter: import_lib={}".format(import_lib))
+            print(f"cyglink_lib_emitter: import_lib={import_lib}")
             print("cyglink_lib_emitter: target=%s" % target)
 
     for tgt in target:
         if is_String(tgt):
             tgt = env.File(tgt)
-        tgt.attributes.shared = 1
+        tgt.attributes.shared = True
 
     return target, source
 
@@ -134,7 +134,7 @@ def cyglink_ldmodule_version(target, source, env, for_signature):
     return "." + version
 
 
-def _implib_pre_flags(target, source, env, for_signature):
+def _implib_pre_flags(target, source, env, for_signature) -> str:
     no_import_lib = env.get('no_import_lib', False)
     if no_import_lib in ['1', 'True', 'true', True]:
         return ''
@@ -142,7 +142,7 @@ def _implib_pre_flags(target, source, env, for_signature):
         return '-Wl,--out-implib=${TARGETS[1]} -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive'
 
 
-def _implib_post_flags(target, source, env, for_signature):
+def _implib_post_flags(target, source, env, for_signature) -> str:
     no_import_lib = env.get('no_import_lib', False)
     if no_import_lib in ['1', 'True', 'true', True]:
         return ''
@@ -150,7 +150,7 @@ def _implib_post_flags(target, source, env, for_signature):
         return '-Wl,--no-whole-archive'
 
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for cyglink to an Environment."""
     gnulink.generate(env)
 

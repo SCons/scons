@@ -154,7 +154,7 @@ def _sdk_81_layout(version):
 _sdk_map_cache = {}
 _sdk_cache = {}
 
-def _reset_sdk_cache():
+def _reset_sdk_cache() -> None:
     global _sdk_map_cache
     global _sdk_cache
     debug('')
@@ -194,7 +194,7 @@ def _verify_sdk_dispatch_map():
     for sdk_version in Config.MSVC_SDK_VERSIONS:
         if sdk_version in _sdk_dispatch_map:
             continue
-        err_msg = 'sdk version {} not in sdk_dispatch_map'.format(sdk_version)
+        err_msg = f'sdk version {sdk_version} not in sdk_dispatch_map'
         raise MSVCInternalError(err_msg)
     return None
 
@@ -220,7 +220,7 @@ def _sdk_map(version_list):
         _sdk_cache[key] = sdk_map
     return sdk_map
 
-def get_msvc_platform(is_uwp=False):
+def get_msvc_platform(is_uwp: bool=False):
     platform_def = _UWP if is_uwp else _DESKTOP
     return platform_def
 
@@ -230,7 +230,7 @@ def get_sdk_version_list(vs_def, platform_def):
     sdk_list = sdk_map.get(platform_def.vc_platform, [])
     return sdk_list
 
-def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
+def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app: bool=False):
     debug('msvc_version=%s, msvc_uwp_app=%s', repr(msvc_version), repr(msvc_uwp_app))
 
     sdk_versions = []
@@ -254,11 +254,11 @@ def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app=False):
 
     return sdk_versions
 
-def reset():
+def reset() -> None:
     debug('')
     _reset_sdk_cache()
 
-def verify():
+def verify() -> None:
     debug('')
     _verify_sdk_dispatch_map()
 

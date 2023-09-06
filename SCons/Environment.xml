@@ -251,8 +251,8 @@ that are part of this construction environment.
     <summary>
         <para>
 The class type that SCons should use when instantiating a
-new &f-link-CacheDir; for the given environment. It must be
-a subclass of the SCons.CacheDir.CacheDir class.
+new &f-link-CacheDir; in this &consenv;. Must be
+a subclass of the <classname>SCons.CacheDir.CacheDir</classname> class.
         </para>
     </summary>
 </cvar>
@@ -351,9 +351,9 @@ to be performed
 after the specified
 <parameter>target</parameter>
 has been built.
-The specified action(s) may be
+<parameter>action</parameter> may be
 an Action object, or anything that
-can be converted into an Action object
+can be converted into an Action object.
 See the manpage section "Action Objects"
 for a complete explanation.
 </para>
@@ -364,6 +364,13 @@ the action may be called multiple times,
 once after each action that generates
 one or more targets in the list.
 </para>
+
+<example_commands>
+foo = Program('foo.c')
+# remove execute permission from binary:
+AddPostAction(foo, Chmod('$TARGET', "a-x"))
+</example_commands>
+
 </summary>
 </scons_function>
 
@@ -379,9 +386,9 @@ to be performed
 before the specified
 <parameter>target</parameter>
 is built.
-The specified action(s) may be
+<parameter>action</parameter> may be
 an Action object, or anything that
-can be converted into an Action object
+can be converted into an Action object.
 See the manpage section "Action Objects"
 for a complete explanation.
 </para>
@@ -426,29 +433,56 @@ file into an object file.
 
 <scons_function name="Alias">
 <arguments>
-(alias, [targets, [action]])
+(alias, [source, [action]])
 </arguments>
 <summary>
 <para>
-Creates one or more phony targets that
-expand to one or more other targets.
-An optional
-<parameter>action</parameter>
-(command)
-or list of actions
-can be specified that will be executed
-whenever the any of the alias targets are out-of-date.
-Returns the Node object representing the alias,
-which exists outside of any file system.
-This Node object, or the alias name,
+Creates an <firstterm>alias</firstterm> target that
+can be used as a reference to zero or more other targets,
+specified by the optional <parameter>source</parameter> parameter.
+Aliases provide a way to give a shorter or more descriptive
+name to specific targets,
+and to group multiple targets under a single name.
+The alias name, or an Alias Node object,
 may be used as a dependency of any other target,
 including another alias.
-&f-Alias;
-can be called multiple times for the same
-alias to add additional targets to the alias,
-or additional actions to the list for this alias.
-Aliases are global even if set through
-the construction environment method.
+</para>
+
+<para>
+<parameter>alias</parameter> and <parameter>source</parameter>
+may each be a string or Node object,
+or a list of strings or Node objects;
+if Nodes are used for
+<parameter>alias</parameter>
+they must be Alias nodes.
+If <parameter>source</parameter> is omitted,
+the alias is created but has no reference;
+if selected for building this will result in a
+<quote>Nothing to be done.</quote> message.
+An empty alias can be used to define the alias
+in a visible place in the project;
+it can later be appended to in a subsidiary SConscript file
+with the actual target(s) to refer to.
+The optional
+<parameter>action</parameter>
+parameter specifies an action or list of actions
+that will be executed
+whenever the any of the alias targets are out-of-date.
+</para>
+
+<para>
+&f-Alias; can be called for an existing alias,
+which appends the <parameter>alias</parameter>
+and/or <parameter>action</parameter> arguments
+to the existing lists for that alias.
+</para>
+
+<para>
+Returns a list of Alias Node objects representing the alias(es),
+which exist outside of any physical file system.
+The alias name space is separate from the name space for
+tangible targets; to avoid confusion do not reuse
+target names as alias names.
 </para>
 
 <para>
@@ -499,126 +533,205 @@ Multiple targets can be passed in to a single call to
 </arguments>
 <summary>
 <para>
-Intelligently append values to &consvars; in the &consenv;
-named by <varname>env</varname>.
+Appends value(s) intelligently to &consvars; in
+<varname>env</varname>.
 The &consvars; and values to add to them are passed as
 <parameter>key=val</parameter> pairs (&Python; keyword arguments).
 &f-env-Append; is designed to allow adding values
-without normally having to know the data type of an existing &consvar;.
+without having to think about the data type of an existing &consvar;.
 Regular &Python; syntax can also be used to manipulate the &consvar;,
-but for that you must know the type of the &consvar;:
-for example, different &Python; syntax is needed to combine
-a list of values with a single string value, or vice versa.
+but for that you may need to know the types involved,
+for example pure &Python; lets you directly "add" two lists of strings,
+but adding a string to a list or a list to a string requires
+different syntax - things &f-Append; takes care of.
 Some pre-defined &consvars; do have type expectations
-based on how &SCons; will use them,
-for example &cv-link-CPPDEFINES; is normally a string or a list of strings,
-but can be a string,
-a list of strings,
-a list of tuples,
-or a dictionary, while &cv-link-LIBEMITTER;
-would expect a callable or list of callables,
-and &cv-link-BUILDERS; would expect a mapping type.
+based on how &SCons; will use them:
+for example &cv-link-CPPDEFINES; is often a string or a list of strings,
+but can also be a list of tuples or a dictionary;
+while &cv-link-LIBEMITTER;
+is expected to be a callable or list of callables,
+and &cv-link-BUILDERS; is expected to be a dictionary.
 Consult the documentation for the various &consvars; for more details.
 </para>
 
 <para>
-The following descriptions apply to both the append
-and prepend functions, the only difference being
-the insertion point of the added values.
-</para>
-<para>
-If <varname>env</varname>.  does not have a &consvar;
-indicated by <parameter>key</parameter>,
-<parameter>val</parameter>
-is added to the environment under that key as-is.
+The following descriptions apply to both the &f-Append;
+and &f-Prepend; methods, as well as their
+<emphasis role="bold">Unique</emphasis> variants,
+with the differences being the insertion point of the added values
+and whether duplication is allowed.
 </para>
 
 <para>
-<parameter>val</parameter> can be almost any type,
-and &SCons; will combine it with an existing value into an appropriate type,
-but there are a few special cases to be aware of.
-When two strings are combined,
-the result is normally a new string,
-with the caller responsible for supplying any needed separation.
-The exception to this is the &consvar; &cv-link-CPPDEFINES;,
-in which each item will be postprocessed by adding a prefix
-and/or suffix,
-so the contents are treated as a list of strings, that is,
-adding a string will result in a separate string entry,
-not a combined string. For &cv-CPPDEFINES; as well as
-for &cv-link-LIBS;, and the various <literal>*PATH</literal>;
-variables, &SCons; will supply the compiler-specific
-syntax (e.g. adding a <literal>-D</literal> or <literal>/D</literal>
-prefix for &cv-CPPDEFINES;), so this syntax should be omitted when
+<parameter>val</parameter> can be almost any type.
+If <varname>env</varname> does not have a &consvar;
+named <parameter>key</parameter>,
+then <parameter>key</parameter> is simply
+stored with a value of <parameter>val</parameter>.
+Otherwise, <parameter>val</parameter> is
+combinined with the existing value,
+possibly converting into an appropriate type
+which can hold the expanded contents.
+There are a few special cases to be aware of.
+Normally, when two strings are combined,
+the result is a new string containing their concatenation
+(and you are responsible for supplying any needed separation);
+however, the contents of &cv-link-CPPDEFINES; will
+will be postprocessed by adding a prefix and/or suffix
+to each entry when the command line is produced,
+so &SCons; keeps them separate -
+appending a string will result in a separate string entry,
+not a combined string.
+For &cv-CPPDEFINES;. as well as
+&cv-link-LIBS;, and the various <literal>*PATH</literal> variables,
+&SCons; will amend the variable by supplying the compiler-specific
+syntax (e.g. prepending a <literal>-D</literal> or <literal>/D</literal>
+prefix for &cv-CPPDEFINES;), so you should omit this syntax when
 adding values to these variables.
-Example (gcc syntax shown in the expansion of &CPPDEFINES;):
+Examples (gcc syntax shown in the expansion of &CPPDEFINES;):
 </para>
 
 <example_commands>
 env = Environment(CXXFLAGS="-std=c11", CPPDEFINES="RELEASE")
-print("CXXFLAGS={}, CPPDEFINES={}".format(env['CXXFLAGS'], env['CPPDEFINES']))
-# notice including a leading space in CXXFLAGS value
+print(f"CXXFLAGS = {env['CXXFLAGS']}, CPPDEFINES = {env['CPPDEFINES']}")
+# notice including a leading space in CXXFLAGS addition
 env.Append(CXXFLAGS=" -O", CPPDEFINES="EXTRA")
-print("CXXFLAGS={}, CPPDEFINES={}".format(env['CXXFLAGS'], env['CPPDEFINES']))
-print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
+print(f"CXXFLAGS = {env['CXXFLAGS']}, CPPDEFINES = {env['CPPDEFINES']}")
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
 </example_commands>
 
 <screen>
 $ scons -Q
-CXXFLAGS=-std=c11, CPPDEFINES=RELEASE
-CXXFLAGS=-std=c11 -O, CPPDEFINES=['RELEASE', 'EXTRA']
+CXXFLAGS = -std=c11, CPPDEFINES = RELEASE
+CXXFLAGS = -std=c11 -O, CPPDEFINES = deque(['RELEASE', 'EXTRA'])
 CPPDEFINES will expand to -DRELEASE -DEXTRA
 scons: `.' is up to date.
 </screen>
 
 <para>
-Because &cv-link-CPPDEFINES; is intended to
-describe C/C++ pre-processor macro definitions,
-it accepts additional syntax.
-Preprocessor macros can be valued, or un-valued, as in
-<computeroutput>-DBAR=1</computeroutput> or
-<computeroutput>-DFOO</computeroutput>.
-The macro can be be supplied as a complete string including the value,
-or as a tuple (or list) of macro, value, or as a dictionary.
-Example (again gcc syntax in the expanded defines):
+Because &cv-link-CPPDEFINES; is intended for command-line
+specification of C/C++ preprocessor macros,
+additional syntax is accepted when adding to it.
+The preprocessor accepts arguments to predefine a macro name by itself
+(<computeroutput>-DFOO</computeroutput> for most compilers,
+<computeroutput>/DFOO</computeroutput> for Microsoft C++),
+which gives it an implicit value of <constant>1</constant>,
+or can be given with a replacement value
+(<computeroutput>-DBAR=TEXT</computeroutput>).
+&SCons; follows these rules when adding to &cv-CPPDEFINES;:
+</para>
+<itemizedlist>
+<listitem>
+<para>A string is split on spaces,
+giving an easy way to enter multiple macros in one addition.
+Use an <literal>=</literal> to specify a valued macro.</para>
+</listitem>
+<listitem>
+<para>A tuple is treated as a valued macro.
+Use the value <constant>None</constant> if the macro should not have a value.
+It is an error to supply more than two elements in such a tuple.</para>
+</listitem>
+<listitem>
+<para>A list is processed in order,
+adding each item without further interpretation.
+In this case, space-separated strings are not split.</para>
+</listitem>
+<listitem>
+<para>A dictionary is processed in order,
+adding each key:value pair as a valued macro.
+Use the value <constant>None</constant> if the macro should not have a value.
+</para>
+</listitem>
+</itemizedlist>
+
+<para>
+Examples:
 </para>
 
 <example_commands>
 env = Environment(CPPDEFINES="FOO")
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES="BAR=1")
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-env.Append(CPPDEFINES=("OTHER", 2))
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES=[("OTHER", 2)])
+print("CPPDEFINES =", env['CPPDEFINES'])
 env.Append(CPPDEFINES={"EXTRA": "arg"})
-print("CPPDEFINES={}".format(env['CPPDEFINES']))
-print("CPPDEFINES will expand to {}".format(env.subst("$_CPPDEFFLAGS")))
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
 </example_commands>
 
 <screen>
 $ scons -Q
-CPPDEFINES=FOO
-CPPDEFINES=['FOO', 'BAR=1']
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2)]
-CPPDEFINES=['FOO', 'BAR=1', ('OTHER', 2), {'EXTRA': 'arg'}]
+CPPDEFINES = FOO
+CPPDEFINES = deque(['FOO', 'BAR=1'])
+CPPDEFINES = deque(['FOO', 'BAR=1', ('OTHER', 2)])
+CPPDEFINES = deque(['FOO', 'BAR=1', ('OTHER', 2), ('EXTRA', 'arg')])
 CPPDEFINES will expand to -DFOO -DBAR=1 -DOTHER=2 -DEXTRA=arg
 scons: `.' is up to date.
 </screen>
 
 <para>
-Adding a string <parameter>val</parameter>
-to a dictonary &consvar; will enter
-<parameter>val</parameter> as the key in the dict,
+Examples of adding multiple macros:
+</para>
+
+<example_commands>
+env = Environment()
+env.Append(CPPDEFINES=[("ONE", 1), "TWO", ("THREE", )])
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES={"FOUR": 4, "FIVE": None})
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
+</example_commands>
+
+<screen>
+$ scons -Q
+CPPDEFINES = [('ONE', 1), 'TWO', ('THREE',)]
+CPPDEFINES = deque([('ONE', 1), 'TWO', ('THREE',), ('FOUR', 4), ('FIVE', None)])
+CPPDEFINES will expand to -DONE=1 -DTWO -DTHREE -DFOUR=4 -DFIVE
+scons: `.' is up to date.
+</screen>
+
+<para>
+<emphasis>Changed in version  4.5</emphasis>:
+clarifined the use of tuples vs. other types,
+handling is now consistent across the four functions.
+</para>
+
+<example_commands>
+env = Environment()
+env.Append(CPPDEFINES=("MACRO1", "MACRO2"))
+print("CPPDEFINES =", env['CPPDEFINES'])
+env.Append(CPPDEFINES=[("MACRO3", "MACRO4")])
+print("CPPDEFINES =", env['CPPDEFINES'])
+print("CPPDEFINES will expand to", env.subst('$_CPPDEFFLAGS'))
+</example_commands>
+
+<screen>
+$ scons -Q
+CPPDEFINES = ('MACRO1', 'MACRO2')
+CPPDEFINES = deque(['MACRO1', 'MACRO2', ('MACRO3', 'MACRO4')])
+CPPDEFINES will expand to -DMACRO1 -DMACRO2 -DMACRO3=MACRO4
+scons: `.' is up to date.
+</screen>
+
+<para>
+See &cv-link-CPPDEFINES; for more details.
+</para>
+
+<para>
+Appending a string <parameter>val</parameter>
+to a dictonary-typed &consvar; enters
+<parameter>val</parameter> as the key in the dictionary,
 and <literal>None</literal> as its value.
-Using a tuple type to supply a key + value only works
-for the special case of &cv-link-CPPDEFINES;
+Using a tuple type to supply a <literal>key, value</literal>
+only works for the special case of &cv-CPPDEFINES;
 described above.
 </para>
 
 <para>
 Although most combinations of types work without
 needing to know the details, some combinations
-do not make sense and a &Python; exception will be raised.
+do not make sense and &Python; raises an exception.
 </para>
 
 <para>
@@ -626,7 +739,7 @@ When using &f-env-Append; to modify &consvars;
 which are path specifications (conventionally,
 the names of such end in <literal>PATH</literal>),
 it is recommended to add the values as a list of strings,
-even if there is only a single string to add.
+even if you are only adding a single string.
 The same goes for adding library names to &cv-LIBS;.
 </para>
 
@@ -696,20 +809,20 @@ See also &f-link-env-PrependENVPath;.
 
 <scons_function name="AppendUnique">
 <arguments signature="env">
-(key=val, [...], delete_existing=False)
+(key=val, [...], [delete_existing=False])
 </arguments>
 <summary>
 <para>
 Append values to &consvars; in the current &consenv;,
 maintaining uniqueness.
-Works like &f-link-env-Append; (see for details),
-except that values already present in the &consvar;
-will not be added again.
+Works like &f-link-env-Append;,
+except that values that would become duplicates
+are not added.
 If <parameter>delete_existing</parameter>
-is <constant>True</constant>,
-the existing matching value is first removed,
-and the requested value is added,
-having the effect of moving such values to the end.
+is set to a true value, then for any duplicate,
+the existing instance of <parameter>val</parameter> is first removed,
+then <parameter>val</parameter> is appended,
+having the effect of moving it to the end.
 </para>
 
 <para>
@@ -783,15 +896,6 @@ disables derived file caching.
 </para>
 
 <para>
-When specifying a
-<parameter>custom_class</parameter> which should be a class type which is a subclass of
-<classname>SCons.CacheDir.CacheDir</classname>, SCons will
-internally invoke this class to use for performing caching operations.
-This argument is optional and if left to default <constant>None</constant>, will use the
-default <classname>SCons.CacheDir.CacheDir</classname> class.
-</para>
-
-<para>
 Calling the environment method
 &f-link-env-CacheDir;
 limits the effect to targets built
@@ -803,6 +907,18 @@ that will be used by all targets built
 through construction environments
 that do not set up environment-specific
 caching by calling &f-env-CacheDir;.
+</para>
+
+<para>
+Caching behavior can be configured by passing a specialized cache
+class as the optional <parameter>custom_class</parameter> parameter.
+This class must be a subclass of
+<classname>SCons.CacheDir.CacheDir</classname>.
+&SCons; will internally invoke the custom class for performing
+caching operations.
+If the parameter is omitted or set to
+<constant>None</constant>, &SCons; will use the default
+<classname>SCons.CacheDir.CacheDir</classname> class.
 </para>
 
 <para>
@@ -830,15 +946,14 @@ identified by its &buildsig;, for future use.
 The
 <computeroutput>Retrieved `file' from cache</computeroutput>
 messages are useful for human consumption,
-but less so when comparing log files between
+but less useful when comparing log files between
 &scons; runs which will show differences that are
 noisy and not actually significant.
 To disable,
 use the <option>--cache-show</option> option.
-With this option, &scons;
-will print the action that would
-have been used to build the file without
-considering cache retrieval.
+With this option, &scons; changes printing
+to always show the action that would
+have been used to build the file without caching.
 </para>
 
 <para>
@@ -846,10 +961,10 @@ Derived-file caching
 may be disabled for any invocation
 of &scons; by giving the
 <option>--cache-disable</option>
-command line option.
-Cache updating may be disabled, leaving cache
+command line option;
+cache updating may be disabled, leaving cache
 fetching enabled, by giving the
-<option>--cache-readonly</option>.
+<option>--cache-readonly</option> option.
 </para>
 
 <para>
@@ -859,7 +974,7 @@ option is used,
 &scons;
 will place a copy of
 <emphasis>all</emphasis>
-derived files in the cache,
+derived files into the cache,
 even if they already existed
 and were not built by this invocation.
 This is useful to populate a cache
@@ -884,7 +999,7 @@ predict or prohibitively large.
 <para>
 Note that (at this time) &SCons; provides no facilities
 for managing the derived-file cache. It is up to the developer
-to arrange for cache pruning, expiry, etc. if needed.
+to arrange for cache pruning, expiry, access control, etc. if needed.
 </para>
 
 </summary>
@@ -1159,8 +1274,8 @@ so you normally don't need to create directories by hand.
 </arguments>
 <summary>
 <para>
-Creates a Configure object for integrated
-functionality similar to GNU autoconf.
+Creates a &Configure; object for integrated
+functionality similar to GNU <command>autoconf</command>.
 See the manpage section "Configure Contexts"
 for a complete explanation of the arguments and behavior.
 </para>
@@ -1186,50 +1301,24 @@ that will be applied:
 <para>
 <variablelist>
 <varlistentry>
-<term><literal>"timestamp-newer"</literal></term>
-<listitem>
-<para>
-Specifies that a target shall be considered out of date and rebuilt
-if the dependency's timestamp is newer than the target file's timestamp.
-This is the behavior of the classic Make utility,
-and
-<literal>make</literal>
-can be used a synonym for
-<literal>timestamp-newer</literal>.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>"timestamp-match"</literal></term>
-<listitem>
-<para>
-Specifies that a target shall be considered out of date and rebuilt
-if the dependency's timestamp is different than the
-timestamp recorded the last time the target was built.
-This provides behavior very similar to the classic Make utility
-(in particular, files are not opened up so that their
-contents can be checksummed)
-except that the target will also be rebuilt if a
-dependency file has been restored to a version with an
-<emphasis>earlier</emphasis>
-timestamp, such as can happen when restoring files from backup archives.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
 <term><literal>"content"</literal></term>
 <listitem>
 <para>
 Specifies that a target shall be considered out of date and rebuilt
 if the dependency's content has changed since the last time
 the target was built,
-as determined be performing an checksum
-on the dependency's contents
+as determined by performing a checksum
+on the dependency's contents using the selected hash function,
 and comparing it to the checksum recorded the
 last time the target was built.
-<literal>MD5</literal>
-can be used as a synonym for
-<literal>content</literal>, but it is deprecated.
+<literal>content</literal> is the default decider.
+</para>
+<para>
+<emphasis>Changed in version 4.1:</emphasis>
+The decider was renamed to <literal>content</literal>
+since the hash function is now selectable.
+The former name, <literal>MD5</literal>,
+can still be used as a synonym, but is deprecated.
 </para>
 </listitem>
 </varlistentry>
@@ -1260,9 +1349,44 @@ that runs a build,
 updates a file,
 and runs the build again,
 all within a single second.
-<literal>MD5-timestamp</literal>
-can be used as a synonym for
-<literal>content-timestamp</literal>, but it is deprecated.
+</para>
+<para>
+<emphasis>Changed in version 4.1:</emphasis>
+The decider was renamed to <literal>content-timestamp</literal>
+since the hash function is now selectable.
+The former name, <literal>MD5-timestamp</literal>,
+can still be used as a synonym, but is deprecated.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>"timestamp-newer"</literal></term>
+<listitem>
+<para>
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's timestamp is newer than the target file's timestamp.
+This is the behavior of the classic Make utility,
+and
+<literal>make</literal>
+can be used a synonym for
+<literal>timestamp-newer</literal>.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>"timestamp-match"</literal></term>
+<listitem>
+<para>
+Specifies that a target shall be considered out of date and rebuilt
+if the dependency's timestamp is different than the
+timestamp recorded the last time the target was built.
+This provides behavior very similar to the classic Make utility
+(in particular, files are not opened up so that their
+contents can be checksummed)
+except that the target will also be rebuilt if a
+dependency file has been restored to a version with an
+<emphasis>earlier</emphasis>
+timestamp, such as can happen when restoring files from backup archives.
 </para>
 </listitem>
 </varlistentry>
@@ -2716,22 +2840,22 @@ See also &f-link-env-AppendENVPath;.
 
 <scons_function name="PrependUnique">
 <arguments signature="env">
-(key=val, delete_existing=False, [...])
+(key=val, [...], [delete_existing=False])
 </arguments>
 <summary>
 <para>
 Prepend values to &consvars; in the current &consenv;,
 maintaining uniqueness.
-Works like &f-link-env-Append; (see for details),
+Works like &f-link-env-Append;,
 except that values are added to the front,
-rather than the end, of any existing value of the &consvar;,
-and values already present in the &consvar;
-will not be added again.
+rather than the end, of the &consvar;,
+and values that would become duplicates
+are not added.
 If <parameter>delete_existing</parameter>
-is <constant>True</constant>,
-the existing matching value is first removed,
-and the requested value is inserted,
-having the effect of moving such values to the front.
+is set to a true value, then for any duplicate,
+the existing instance of <parameter>val</parameter> is first removed,
+then <parameter>val</parameter> is inserted,
+having the effect of moving it to the front.
 </para>
 
 <para>

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import http.server
 import socketserver
 import time
@@ -81,7 +85,7 @@ def server_thread(PORT):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             if response != Response.DONE:
-                self.wfile.write("".encode('utf-8'))
+                self.wfile.write(b"")
 
         def log_message(self, format, *args):
             return

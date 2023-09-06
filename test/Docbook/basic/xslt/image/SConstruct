@@ -1,9 +1,13 @@
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+
 import os
 
+DefaultEnvironment(tools=[])
 env = Environment(tools=['docbook'])
 
 #
 # Create document
 #
-env.DocbookXslt('out.xml', 'in.xml', 
-                xsl='./to_docbook.xslt')
+env.DocbookXslt('out.xml', 'in.xml', xsl='./to_docbook.xslt')

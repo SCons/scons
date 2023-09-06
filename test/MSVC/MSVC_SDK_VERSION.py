@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -32,21 +34,16 @@ from SCons.Tool.MSCommon import msvc_toolset_versions
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
-
 installed_versions = get_installed_vcs_components()
-
 default_version = installed_versions[0]
-
 GE_VS2015_versions = [v for v in installed_versions if v.msvc_vernum >= 14.0]
 LT_VS2015_versions = [v for v in installed_versions if v.msvc_vernum < 14.0]
-
 default_sdk_versions_uwp = msvc_sdk_versions(version=None, msvc_uwp_app=True)
 default_sdk_versions_def = msvc_sdk_versions(version=None, msvc_uwp_app=False)
 
-have_140 = any([v.msvc_verstr == '14.0' for v in GE_VS2015_versions])
+have_140 = any(v.msvc_verstr == '14.0' for v in GE_VS2015_versions)
 
 def version_major(version):
     components = version.split('.')
@@ -239,3 +236,8 @@ if LT_VS2015_versions:
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

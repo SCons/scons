@@ -21,31 +21,28 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""
-Textfile/Substfile builder for SCons.
+"""Textfile/Substfile builder for SCons.
 
-    Create file 'target' which typically is a textfile.  The 'source'
-    may be any combination of strings, Nodes, or lists of same.  A
-    'linesep' will be put between any part written and defaults to
-    os.linesep.
+Create file 'target' which typically is a textfile.  The 'source'
+may be any combination of strings, Nodes, or lists of same.  A
+'linesep' will be put between any part written and defaults to
+os.linesep.
 
-    The only difference between the Textfile builder and the Substfile
-    builder is that strings are converted to Value() nodes for the
-    former and File() nodes for the latter.  To insert files in the
-    former or strings in the latter, wrap them in a File() or Value(),
-    respectively.
+The only difference between the Textfile builder and the Substfile
+builder is that strings are converted to Value() nodes for the
+former and File() nodes for the latter.  To insert files in the
+former or strings in the latter, wrap them in a File() or Value(),
+respectively.
 
-    The values of SUBST_DICT first have any construction variables
-    expanded (its keys are not expanded).  If a value of SUBST_DICT is
-    a python callable function, it is called and the result is expanded
-    as the value.  Values are substituted in a "random" order; if any
-    substitution could be further expanded by another substitution, it
-    is unpredictable whether the expansion will occur.
+The values of SUBST_DICT first have any construction variables
+expanded (its keys are not expanded).  If a value of SUBST_DICT is
+a python callable function, it is called and the result is expanded
+as the value.  Values are substituted in a "random" order; if any
+substitution could be further expanded by another substitution, it
+is unpredictable whether the expansion will occur.
 """
 
 import SCons
-
-
 from SCons.Node import Node
 from SCons.Node.Python import Value
 from SCons.Util import is_String, is_Sequence, is_Dict, to_bytes
@@ -117,10 +114,13 @@ def _action(target, source, env):
                 value = str(value)
             subs.append((k, value))
 
+    # Pull file encoding from the environment or default to UTF-8
+    file_encoding = env.get('FILE_ENCODING', 'utf-8')
+
     # write the file
     try:
-        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='')
-    except (OSError, IOError) as e:
+        target_file = open(target[0].get_path(), TEXTFILE_FILE_WRITE_MODE, newline='', encoding=file_encoding)
+    except OSError as e:
         raise SCons.Errors.UserError("Can't write target file %s [%s]" % (target[0],e))
 
     # separate lines by 'linesep' only if linesep is not empty
@@ -134,11 +134,11 @@ def _action(target, source, env):
     target_file.close()
 
 
-def _strfunc(target, source, env):
+def _strfunc(target, source, env) -> str:
     return "Creating '%s'" % target[0]
 
 
-def _convert_list_R(newlist, sources):
+def _convert_list_R(newlist, sources) -> None:
     for elem in sources:
         if is_Sequence(elem):
             _convert_list_R(newlist, elem)
@@ -178,7 +178,7 @@ _subst_builder = SCons.Builder.Builder(
 )
 
 
-def generate(env):
+def generate(env) -> None:
     env['LINESEPARATOR'] = LINESEP # os.linesep
     env['BUILDERS']['Textfile'] = _text_builder
     env['TEXTFILEPREFIX'] = ''
@@ -186,10 +186,11 @@ def generate(env):
     env['BUILDERS']['Substfile'] = _subst_builder
     env['SUBSTFILEPREFIX'] = ''
     env['SUBSTFILESUFFIX'] = ''
+    env['FILE_ENCODING'] = env.get('FILE_ENCODING', 'utf-8')
 
 
-def exists(env):
-    return 1
+def exists(env) -> bool:
+    return True
 
 # Local Variables:
 # tab-width:4

@@ -55,7 +55,7 @@ class TestSConsign(TestSCons):
     "scons" itself, since we need to run scons to generate the
     .sconsign files that we want the sconsign script to read.
     """
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         try:
             script_dir = os.environ['SCONS_SCRIPT_DIR']
         except KeyError:
@@ -92,7 +92,7 @@ class TestSConsign(TestSCons):
     def script_path(self, script):
         return os.path.join(self.script_dir, script)
 
-    def set_sconsign(self, sconsign):
+    def set_sconsign(self, sconsign) -> None:
         self.my_kw['program'] = sconsign
 
     def run_sconsign(self, *args, **kw):

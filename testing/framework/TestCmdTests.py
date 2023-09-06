@@ -19,8 +19,6 @@ Unit tests for the TestCmd.py module.
 # AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-__author__ = "Steven Knight <knight at baldmt dot com>"
-__revision__ = "TestCmdTests.py 1.3.D001 2010/06/03 12:58:27 knight"
 
 import os
 import shutil
@@ -42,6 +40,7 @@ from SCons.Util import to_bytes, to_str
 sys.path = sys.path[1:]
 
 import TestCmd
+from TestCmd import _python_
 
 def _is_readable(path):
     # XXX this doesn't take into account UID, it assumes it's our file
@@ -55,7 +54,7 @@ def _is_executable(path):
     # XXX this doesn't take into account UID, it assumes it's our file
     return os.stat(path)[stat.ST_MODE] & stat.S_IEXEC
 
-def _clear_dict(dict, *keys):
+def _clear_dict(dict, *keys) -> None:
     for key in keys:
         try:
             del dict[key]
@@ -69,10 +68,10 @@ class ExitError(Exception):
 class TestCmdTestCase(unittest.TestCase):
     """Base class for TestCmd test cases, with fixture and utility methods."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.orig_cwd = os.getcwd()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         os.chdir(self.orig_cwd)
 
     def setup_run_scripts(self):
@@ -97,10 +96,10 @@ class TestCmdTestCase(unittest.TestCase):
         textx = fmt % (t.scriptx, t.scriptx)
         if sys.platform == 'win32':
             textx = textx.replace('%', '%%')
-            textx = '@python -c "%s"' % textx + ' %1 %2 %3 %4 %5 %6 %7 %8 %9\n'
+            textx = f"@{_python_} -c \"{textx}\" %1 %2 %3 %4 %5 %6 %7 %8 %9\n"
         else:
-            textx = '#! /usr/bin/env python\n' + textx + '\n'
-        text1 = 'A first line to be ignored!\n' + fmt % (t.script1, t.script1)
+            textx = f"#!{_python_}\n{textx}\n"
+        text1 = f"A first line to be ignored!\n{fmt % (t.script1, t.script1)}"
         textout = fmtout % t.scriptout
         texterr = fmterr % t.scripterr
 
@@ -146,43 +145,37 @@ class TestCmdTestCase(unittest.TestCase):
         stderr = self.translate_newlines(to_str(cp.stderr))
         return stdout, stderr, cp.returncode
 
-    def popen_python(self, indata, status=0, stdout="", stderr="", python=None):
+    def popen_python(self, indata, status: int=0, stdout: str="", stderr: str="", python=None) -> None:
         if python is None:
             python = sys.executable
         _stdout, _stderr, _status = self.call_python(indata, python)
         assert _status == status, (
-            "status = %s, expected %s\n" % (str(_status), str(status))
-            + "STDOUT ===================\n"
-            + _stdout
-            + "STDERR ===================\n"
-            + _stderr
+            f"status = {_status}, expected {status}\n"
+            f"STDOUT ===================\n{_stdout}"
+            f"STDERR ===================\n{_stderr}"
         )
         assert _stdout == stdout, (
-            "Expected STDOUT ==========\n"
-            + stdout
-            + "Actual STDOUT ============\n"
-            + _stdout
-            + "STDERR ===================\n"
-            + _stderr
+            f"Expected STDOUT ==========\n{stdout}"
+            f"Actual STDOUT ============\n{_stdout}"
+            f"STDERR ===================\n{_stderr}"
         )
         assert _stderr == stderr, (
-            "Expected STDERR ==========\n"
-            + stderr
-            + "Actual STDERR ============\n"
-            + _stderr
+            f"Expected STDERR ==========\n{stderr}"
+            f"Actual STDERR ============\n{_stderr}"
         )
 
-    def run_match(self, content, *args):
+    def run_match(self, content, *args) -> None:
         expect = "%s:  %s:  %s:  %s\n" % args
         content = self.translate_newlines(to_str(content))
-        assert content == expect, \
-                "Expected %s ==========\n" % args[1] + expect + \
-                "Actual %s ============\n" % args[1] + content
+        assert content == expect, (
+            f"Expected {args[1] + expect} ==========\n"
+            f"Actual {args[1] + content} ============\n"
+        )
 
 
 
 class __init__TestCase(TestCmdTestCase):
-    def test_init(self):
+    def test_init(self) -> None:
         """Test init()"""
         test = TestCmd.TestCmd()
         test = TestCmd.TestCmd(description = 'test')
@@ -194,14 +187,14 @@ class __init__TestCase(TestCmdTestCase):
 
 
 class basename_TestCase(TestCmdTestCase):
-    def test_basename(self):
+    def test_basename(self) -> None:
         """Test basename() [XXX TO BE WRITTEN]"""
         assert 1 == 1
 
 
 
 class cleanup_TestCase(TestCmdTestCase):
-    def test_cleanup(self):
+    def test_cleanup(self) -> None:
         """Test cleanup()"""
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
@@ -209,7 +202,7 @@ class cleanup_TestCase(TestCmdTestCase):
         test.cleanup()
         assert not os.path.exists(wdir)
 
-    def test_writable(self):
+    def test_writable(self) -> None:
         """Test cleanup() when the directory isn't writable"""
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
@@ -219,7 +212,7 @@ class cleanup_TestCase(TestCmdTestCase):
         test.cleanup()
         assert not os.path.exists(wdir)
 
-    def test_shutil(self):
+    def test_shutil(self) -> None:
         """Test cleanup() when used with shutil"""
         test = TestCmd.TestCmd(workdir = '')
         wdir = test.workdir
@@ -227,7 +220,7 @@ class cleanup_TestCase(TestCmdTestCase):
 
         import shutil
         save_rmtree = shutil.rmtree
-        def my_rmtree(dir, ignore_errors=0, wdir=wdir, _rmtree=save_rmtree):
+        def my_rmtree(dir, ignore_errors: int=0, wdir=wdir, _rmtree=save_rmtree):
             assert os.getcwd() != wdir
             return _rmtree(dir, ignore_errors=ignore_errors)
         try:
@@ -236,14 +229,14 @@ class cleanup_TestCase(TestCmdTestCase):
         finally:
             shutil.rmtree = save_rmtree
 
-    def test_atexit(self):
+    def test_atexit(self) -> None:
         """Test cleanup when atexit is used"""
-        self.popen_python("""\
+        self.popen_python(f"""\
 import atexit
 import sys
 import TestCmd
 
-sys.path = [r'%s'] + sys.path
+sys.path = [r'{self.orig_cwd}'] + sys.path
 
 @atexit.register
 def cleanup():
@@ -251,11 +244,11 @@ def cleanup():
 
 result = TestCmd.TestCmd(workdir='')
 sys.exit(0)
-""" % self.orig_cwd, stdout='cleanup()\n')
+""", stdout='cleanup()\n')
 
 
 class chmod_TestCase(TestCmdTestCase):
-    def test_chmod(self):
+    def test_chmod(self) -> None:
         """Test chmod()"""
         test = TestCmd.TestCmd(workdir = '', subdir = 'sub')
 
@@ -273,17 +266,17 @@ class chmod_TestCase(TestCmdTestCase):
             test.chmod(['sub', 'file2'], stat.S_IWRITE)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0o444, '0%o' % file1_mode
+            assert file1_mode == 0o444, f'0{file1_mode:o}'
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0o666, '0%o' % file2_mode
+            assert file2_mode == 0o666, f'0{file2_mode:o}'
 
             test.chmod('file1', stat.S_IWRITE)
             test.chmod(wdir_sub_file2, stat.S_IREAD)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0o666, '0%o' % file1_mode
+            assert file1_mode == 0o666, f'0{file1_mode:o}'
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0o444, '0%o' % file2_mode
+            assert file2_mode == 0o444, f'0{file2_mode:o}'
 
         else:
 
@@ -291,17 +284,17 @@ class chmod_TestCase(TestCmdTestCase):
             test.chmod(['sub', 'file2'], 0o760)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0o700, '0%o' % file1_mode
+            assert file1_mode == 0o700, f'0{file1_mode:o}'
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0o760, '0%o' % file2_mode
+            assert file2_mode == 0o760, f'0{file2_mode:o}'
 
             test.chmod('file1', 0o765)
             test.chmod(wdir_sub_file2, 0o567)
 
             file1_mode = stat.S_IMODE(os.stat(wdir_file1)[stat.ST_MODE])
-            assert file1_mode == 0o765, '0%o' % file1_mode
+            assert file1_mode == 0o765, f'0{file1_mode:o}'
             file2_mode = stat.S_IMODE(os.stat(wdir_sub_file2)[stat.ST_MODE])
-            assert file2_mode == 0o567, '0%o' % file2_mode
+            assert file2_mode == 0o567, f'0{file2_mode:o}'
 
 
 
@@ -335,7 +328,7 @@ sys.stderr.write("run2 STDERR third line\\n")
                                    combine = 1)
             output = test.stdout()
             if output is not None:
-                raise IndexError("got unexpected output:\n\t`%s'\n" % output)
+                raise IndexError(f"got unexpected output:\n\t`{output}'\n")
 
             # The underlying system subprocess implementations can combine
             # stdout and stderr in different orders, so we accomodate both.
@@ -388,7 +381,7 @@ run2 STDERR third line
 
 
 class description_TestCase(TestCmdTestCase):
-    def test_description(self):
+    def test_description(self) -> None:
         """Test description()"""
         test = TestCmd.TestCmd()
         assert test.description is None, 'initialized description?'
@@ -400,7 +393,7 @@ class description_TestCase(TestCmdTestCase):
 
 
 class diff_TestCase(TestCmdTestCase):
-    def test_diff_re(self):
+    def test_diff_re(self) -> None:
         """Test diff_re()"""
         result = TestCmd.diff_re(["abcde"], ["abcde"])
         result = list(result)
@@ -412,10 +405,10 @@ class diff_TestCase(TestCmdTestCase):
         result = list(result)
         assert result == ['1c1', "< 'a.*e'", '---', "> 'xxx'"], result
 
-    def test_diff_custom_function(self):
+    def test_diff_custom_function(self) -> None:
         """Test diff() using a custom function"""
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def my_diff(a, b):
     return [
@@ -428,7 +421,7 @@ def my_diff(a, b):
 test = TestCmd.TestCmd(diff = my_diff)
 test.diff("a\\nb1\\nc\\n", "a\\nb2\\nc\\n", "STDOUT")
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout = """\
 STDOUT==========================================================================
 *****
@@ -438,14 +431,14 @@ STDOUT==========================================================================
 *****
 """)
 
-    def test_diff_string(self):
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+    def test_diff_string(self) -> None:
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff = 'diff_re')
 test.diff("a\\nb1\\nc\\n", "a\\nb2\\nc\\n", 'STDOUT')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout = """\
 STDOUT==========================================================================
 2c2
@@ -454,14 +447,14 @@ STDOUT==========================================================================
 > 'b2'
 """)
 
-    def test_error(self):
+    def test_error(self) -> None:
         """Test handling a compilation error in TestCmd.diff_re()"""
-        script_input = """import sys
-sys.path = [r'%s'] + sys.path
+        script_input = f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 assert TestCmd.diff_re([r"a.*(e"], ["abcde"])
 sys.exit(0)
-""" % self.orig_cwd
+"""
         stdout, stderr, status = self.call_python(script_input)
         assert status == 1, status
         expect1 = "Regular expression error in '^a.*(e$': missing )"
@@ -469,10 +462,10 @@ sys.exit(0)
         assert (stderr.find(expect1) != -1 or
                 stderr.find(expect2) != -1), repr(stderr)
 
-    def test_simple_diff_static_method(self):
+    def test_simple_diff_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.simple_diff() static method"""
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 result = TestCmd.TestCmd.simple_diff(['a', 'b', 'c', 'e', 'f1'],
                                      ['a', 'c', 'd', 'e', 'f2'])
@@ -480,12 +473,12 @@ result = list(result)
 expect = ['2d1', '< b', '3a3', '> d', '5c5', '< f1', '---', '> f2']
 assert result == expect, result
 sys.exit(0)
-""" % self.orig_cwd)
+""")
 
-    def test_context_diff_static_method(self):
+    def test_context_diff_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.context_diff() static method"""
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 result = TestCmd.TestCmd.context_diff(['a\\n', 'b\\n', 'c\\n', 'e\\n', 'f1\\n'],
                                       ['a\\n', 'c\\n', 'd\\n', 'e\\n', 'f2\\n'])
@@ -509,12 +502,12 @@ expect = [
 ]
 assert result == expect, result
 sys.exit(0)
-""" % self.orig_cwd)
+""")
 
-    def test_unified_diff_static_method(self):
+    def test_unified_diff_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.unified_diff() static method"""
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 result = TestCmd.TestCmd.unified_diff(['a\\n', 'b\\n', 'c\\n', 'e\\n', 'f1\\n'],
                                       ['a\\n', 'c\\n', 'd\\n', 'e\\n', 'f2\\n'])
@@ -533,12 +526,12 @@ expect = [
 ]
 assert result == expect, result
 sys.exit(0)
-""" % self.orig_cwd)
+""")
 
-    def test_diff_re_static_method(self):
+    def test_diff_re_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.diff_re() static method"""
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 result = TestCmd.TestCmd.diff_re(['a', 'b', 'c', '.', 'f1'],
                                  ['a', 'c', 'd', 'e', 'f2'])
@@ -559,20 +552,20 @@ expect = [
 ]
 assert result == expect, result
 sys.exit(0)
-""" % self.orig_cwd)
+""")
 
 
 
 class diff_stderr_TestCase(TestCmdTestCase):
-    def test_diff_stderr_default(self):
+    def test_diff_stderr_default(self) -> None:
         """Test diff_stderr() default behavior"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
 test.diff_stderr('a\nb1\nc\n', 'a\nb2\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 2c2
 < b1
@@ -580,11 +573,11 @@ sys.exit(0)
 > b2
 """)
 
-    def test_diff_stderr_not_affecting_diff_stdout(self):
+    def test_diff_stderr_not_affecting_diff_stdout(self) -> None:
         """Test diff_stderr() not affecting diff_stdout() behavior"""
-        self.popen_python(r"""
+        self.popen_python(fr"""
 import sys
-sys.path = [r'%s'] + sys.path
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stderr='diff_re')
 print("diff_stderr:")
@@ -592,7 +585,7 @@ test.diff_stderr('a\nb.\nc\n', 'a\nbb\nc\n')
 print("diff_stdout:")
 test.diff_stdout('a\nb.\nc\n', 'a\nbb\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 diff_stderr:
 diff_stdout:
@@ -602,17 +595,17 @@ diff_stdout:
 > bb
 """)
 
-    def test_diff_stderr_custom_function(self):
+    def test_diff_stderr_custom_function(self) -> None:
         """Test diff_stderr() using a custom function"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def my_diff(a, b):
     return ["a:"] + a + ["b:"] + b
 test = TestCmd.TestCmd(diff_stderr=my_diff)
 test.diff_stderr('abc', 'def')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 a:
 abc
@@ -620,15 +613,15 @@ b:
 def
 """)
 
-    def test_diff_stderr_TestCmd_function(self):
+    def test_diff_stderr_TestCmd_function(self) -> None:
         """Test diff_stderr() using a TestCmd function"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stderr = TestCmd.diff_re)
 test.diff_stderr('a\n.\n', 'b\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 1c1
 < 'a'
@@ -636,15 +629,15 @@ sys.exit(0)
 > 'b'
 """)
 
-    def test_diff_stderr_static_method(self):
+    def test_diff_stderr_static_method(self) -> None:
         """Test diff_stderr() using a static method"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stderr=TestCmd.TestCmd.diff_re)
 test.diff_stderr('a\n.\n', 'b\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 1c1
 < 'a'
@@ -652,15 +645,15 @@ sys.exit(0)
 > 'b'
 """)
 
-    def test_diff_stderr_string(self):
+    def test_diff_stderr_string(self) -> None:
         """Test diff_stderr() using a string to fetch the diff method"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stderr='diff_re')
 test.diff_stderr('a\n.\n', 'b\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 1c1
 < 'a'
@@ -671,15 +664,15 @@ sys.exit(0)
 
 
 class diff_stdout_TestCase(TestCmdTestCase):
-    def test_diff_stdout_default(self):
+    def test_diff_stdout_default(self) -> None:
         """Test diff_stdout() default behavior"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
 test.diff_stdout('a\nb1\nc\n', 'a\nb2\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 2c2
 < b1
@@ -687,11 +680,11 @@ sys.exit(0)
 > b2
 """)
 
-    def test_diff_stdout_not_affecting_diff_stderr(self):
+    def test_diff_stdout_not_affecting_diff_stderr(self) -> None:
         """Test diff_stdout() not affecting diff_stderr() behavior"""
-        self.popen_python(r"""
+        self.popen_python(fr"""
 import sys
-sys.path = [r'%s'] + sys.path
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stdout='diff_re')
 print("diff_stdout:")
@@ -699,7 +692,7 @@ test.diff_stdout('a\nb.\nc\n', 'a\nbb\nc\n')
 print("diff_stderr:")
 test.diff_stderr('a\nb.\nc\n', 'a\nbb\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 diff_stdout:
 diff_stderr:
@@ -709,17 +702,17 @@ diff_stderr:
 > bb
 """)
 
-    def test_diff_stdout_custom_function(self):
+    def test_diff_stdout_custom_function(self) -> None:
         """Test diff_stdout() using a custom function"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def my_diff(a, b):
     return ["a:"] + a + ["b:"] + b
 test = TestCmd.TestCmd(diff_stdout=my_diff)
 test.diff_stdout('abc', 'def')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 a:
 abc
@@ -727,15 +720,15 @@ b:
 def
 """)
 
-    def test_diff_stdout_TestCmd_function(self):
+    def test_diff_stdout_TestCmd_function(self) -> None:
         """Test diff_stdout() using a TestCmd function"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stdout = TestCmd.diff_re)
 test.diff_stdout('a\n.\n', 'b\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 1c1
 < 'a'
@@ -743,15 +736,15 @@ sys.exit(0)
 > 'b'
 """)
 
-    def test_diff_stdout_static_method(self):
+    def test_diff_stdout_static_method(self) -> None:
         """Test diff_stdout() using a static method"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stdout=TestCmd.TestCmd.diff_re)
 test.diff_stdout('a\n.\n', 'b\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 1c1
 < 'a'
@@ -759,15 +752,15 @@ sys.exit(0)
 > 'b'
 """)
 
-    def test_diff_stdout_string(self):
+    def test_diff_stdout_string(self) -> None:
         """Test diff_stdout() using a string to fetch the diff method"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(diff_stdout='diff_re')
 test.diff_stdout('a\n.\n', 'b\nc\n')
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 1c1
 < 'a'
@@ -778,7 +771,7 @@ sys.exit(0)
 
 
 class exit_TestCase(TestCmdTestCase):
-    def test_exit(self):
+    def test_exit(self) -> None:
         """Test exit()"""
         def _test_it(cwd, tempdir, condition, preserved):
             close_true = {'pass_test': 1, 'fail_test': 0, 'no_result': 0}
@@ -787,12 +780,12 @@ class exit_TestCase(TestCmdTestCase):
                              'fail_test': "FAILED test at line 5 of <stdin>\n",
                              'no_result': "NO RESULT for test at line 5 of <stdin>\n"}
             global ExitError
-            input = """import sys
-sys.path = [r'%s'] + sys.path
+            input = f"""import sys
+sys.path = [r'{cwd}'] + sys.path
 import TestCmd
-test = TestCmd.TestCmd(workdir = '%s')
-test.%s()
-""" % (cwd, tempdir, condition)
+test = TestCmd.TestCmd(workdir = '{tempdir}')
+test.{condition}()
+"""
             stdout, stderr, status = self.call_python(input, python="python")
             if close_true[condition]:
                 unexpected = (status != 0)
@@ -805,7 +798,7 @@ test.%s()
                         msg = "Expected exit status %d, got %d\n"
                         raise ExitError(msg % (exit_status[condition], status))
             if stderr != result_string[condition]:
-                msg = "Expected error output:\n%sGot error output:\n%s"
+                msg = "Expected error output:\n%s\nGot error output:\n%s"
                 raise ExitError(msg % (result_string[condition], stderr))
             if preserved:
                 if not os.path.exists(tempdir):
@@ -852,7 +845,7 @@ test.%s()
 
 
 class fail_test_TestCase(TestCmdTestCase):
-    def test_fail_test(self):
+    def test_fail_test(self) -> None:
         """Test fail_test()"""
         run_env = TestCmd.TestCmd(workdir = '')
         run_env.write('run', """import sys
@@ -862,40 +855,40 @@ sys.stderr.write("run:  STDERR\\n")
         os.chdir(run_env.workdir)
         # Everything before this prepared our "source directory."
         # Now do the real test.
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 TestCmd.fail_test(condition = 1)
-""" % self.orig_cwd, status = 1, stderr = "FAILED test at line 4 of <stdin>\n")
+""", status = 1, stderr = "FAILED test at line 4 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = '')
 test.run()
 test.fail_test(condition = (test.status == 0))
-""" % self.orig_cwd, status = 1, stderr = "FAILED test of %s\n\tat line 6 of <stdin>\n" % run_env.workpath('run'))
+""", status = 1, stderr = f"FAILED test of {run_env.workpath('run')}\n\tat line 6 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', description = 'xyzzy', workdir = '')
 test.run()
 test.fail_test(condition = (test.status == 0))
-""" % self.orig_cwd, status = 1, stderr = "FAILED test of %s [xyzzy]\n\tat line 6 of <stdin>\n" % run_env.workpath('run'))
+""", status = 1, stderr = f"FAILED test of {run_env.workpath('run')} [xyzzy]\n\tat line 6 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = '')
 test.run()
 def xxx():
     sys.stderr.write("printed on failure\\n")
 test.fail_test(condition = (test.status == 0), function = xxx)
-""" % self.orig_cwd, status = 1, stderr = "printed on failure\nFAILED test of %s\n\tat line 8 of <stdin>\n" % run_env.workpath('run'))
+""", status = 1, stderr = f"printed on failure\nFAILED test of {run_env.workpath('run')}\n\tat line 8 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def test1(self):
     self.run()
@@ -903,10 +896,10 @@ def test1(self):
 def test2(self):
     test1(self)
 test2(TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = ''))
-""" % self.orig_cwd, status = 1, stderr = "FAILED test of %s\n\tat line 6 of <stdin> (test1)\n\tfrom line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n" % run_env.workpath('run'))
+""", status = 1, stderr = f"FAILED test of {run_env.workpath('run')}\n\tat line 6 of <stdin> (test1)\n\tfrom line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def test1(self):
     self.run()
@@ -914,12 +907,12 @@ def test1(self):
 def test2(self):
     test1(self)
 test2(TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = ''))
-""" % self.orig_cwd, status = 1, stderr = "FAILED test of %s\n\tat line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n" % run_env.workpath('run'))
+""", status = 1, stderr = f"FAILED test of {run_env.workpath('run')}\n\tat line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n")
 
 
 
 class interpreter_TestCase(TestCmdTestCase):
-    def test_interpreter(self):
+    def test_interpreter(self) -> None:
         """Test interpreter()"""
         run_env = TestCmd.TestCmd(workdir = '')
         run_env.write('run', """import sys
@@ -939,7 +932,7 @@ sys.stderr.write("run:  STDERR\\n")
 
 
 class match_TestCase(TestCmdTestCase):
-    def test_match_default(self):
+    def test_match_default(self) -> None:
         """Test match() default behavior"""
         test = TestCmd.TestCmd()
         assert test.match("abcde\n", "a.*e\n")
@@ -948,7 +941,7 @@ class match_TestCase(TestCmdTestCase):
         regexes = ["v[^a-u]*z\n", "6[^ ]+0\n"]
         assert test.match(lines, regexes)
 
-    def test_match_custom_function(self):
+    def test_match_custom_function(self) -> None:
         """Test match() using a custom function"""
         def match_length(lines, matches):
             return len(lines) == len(matches)
@@ -961,7 +954,7 @@ class match_TestCase(TestCmdTestCase):
         regexes = ["1\n", "1\n"]
         assert test.match(lines, regexes)       # due to equal numbers of lines
 
-    def test_match_TestCmd_function(self):
+    def test_match_TestCmd_function(self) -> None:
         """Test match() using a TestCmd function"""
         test = TestCmd.TestCmd(match = TestCmd.match_exact)
         assert not test.match("abcde\n", "a.*e\n")
@@ -973,7 +966,7 @@ class match_TestCase(TestCmdTestCase):
         assert not test.match(lines, regexes)
         assert test.match(lines, lines)
 
-    def test_match_static_method(self):
+    def test_match_static_method(self) -> None:
         """Test match() using a static method"""
         test = TestCmd.TestCmd(match=TestCmd.TestCmd.match_exact)
         assert not test.match("abcde\n", "a.*e\n")
@@ -985,7 +978,7 @@ class match_TestCase(TestCmdTestCase):
         assert not test.match(lines, regexes)
         assert test.match(lines, lines)
 
-    def test_match_string(self):
+    def test_match_string(self) -> None:
         """Test match() using a string to fetch the match method"""
         test = TestCmd.TestCmd(match='match_exact')
         assert not test.match("abcde\n", "a.*e\n")
@@ -1000,23 +993,23 @@ class match_TestCase(TestCmdTestCase):
 
 
 class match_exact_TestCase(TestCmdTestCase):
-    def test_match_exact_function(self):
+    def test_match_exact_function(self) -> None:
         """Test calling the TestCmd.match_exact() function"""
         assert not TestCmd.match_exact("abcde\\n", "a.*e\\n")
         assert TestCmd.match_exact("abcde\\n", "abcde\\n")
 
-    def test_match_exact_instance_method(self):
+    def test_match_exact_instance_method(self) -> None:
         """Test calling the TestCmd.TestCmd().match_exact() instance method"""
         test = TestCmd.TestCmd()
         assert not test.match_exact("abcde\\n", "a.*e\\n")
         assert test.match_exact("abcde\\n", "abcde\\n")
 
-    def test_match_exact_static_method(self):
+    def test_match_exact_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.match_exact() static method"""
         assert not TestCmd.TestCmd.match_exact("abcde\\n", "a.*e\\n")
         assert TestCmd.TestCmd.match_exact("abcde\\n", "abcde\\n")
 
-    def test_evaluation(self):
+    def test_evaluation(self) -> None:
         """Test match_exact() evaluation"""
         test = TestCmd.TestCmd()
         assert not test.match_exact("abcde\n", "a.*e\n")
@@ -1041,20 +1034,20 @@ class match_exact_TestCase(TestCmdTestCase):
 
 
 class match_re_dotall_TestCase(TestCmdTestCase):
-    def test_match_re_dotall_function(self):
+    def test_match_re_dotall_function(self) -> None:
         """Test calling the TestCmd.match_re_dotall() function"""
         assert TestCmd.match_re_dotall("abcde\nfghij\n", r"a.*j\n")
 
-    def test_match_re_dotall_instance_method(self):
+    def test_match_re_dotall_instance_method(self) -> None:
         """Test calling the TestCmd.TestCmd().match_re_dotall() instance method"""
         test = TestCmd.TestCmd()
         test.match_re_dotall("abcde\\nfghij\\n", r"a.*j\\n")
 
-    def test_match_re_dotall_static_method(self):
+    def test_match_re_dotall_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.match_re_dotall() static method"""
         assert TestCmd.TestCmd.match_re_dotall("abcde\nfghij\n", r"a.*j\n")
 
-    def test_error(self):
+    def test_error(self) -> None:
         """Test handling a compilation error in TestCmd.match_re_dotall()"""
         run_env = TestCmd.TestCmd(workdir = '')
         cwd = os.getcwd()
@@ -1062,12 +1055,12 @@ class match_re_dotall_TestCase(TestCmdTestCase):
         # Everything before this prepared our "source directory."
         # Now do the real test.
         try:
-            script_input = """import sys
-sys.path = [r'%s'] + sys.path
+            script_input = f"""import sys
+sys.path = [r'{cwd}'] + sys.path
 import TestCmd
 assert TestCmd.match_re_dotall("abcde", r"a.*(e")
 sys.exit(0)
-""" % cwd
+"""
             stdout, stderr, status = self.call_python(script_input)
             assert status == 1, status
             expect1 = "Regular expression error in '^a.*(e$': missing )"
@@ -1077,7 +1070,7 @@ sys.exit(0)
         finally:
             os.chdir(cwd)
 
-    def test_evaluation(self):
+    def test_evaluation(self) -> None:
         """Test match_re_dotall() evaluation"""
         test = TestCmd.TestCmd()
         assert test.match_re_dotall("abcde\nfghij\n", r"a.*e\nf.*j\n")
@@ -1114,20 +1107,20 @@ sys.exit(0)
 
 
 class match_re_TestCase(TestCmdTestCase):
-    def test_match_re_function(self):
+    def test_match_re_function(self) -> None:
         """Test calling the TestCmd.match_re() function"""
         assert TestCmd.match_re("abcde\n", "a.*e\n")
 
-    def test_match_re_instance_method(self):
+    def test_match_re_instance_method(self) -> None:
         """Test calling the TestCmd.TestCmd().match_re() instance method"""
         test = TestCmd.TestCmd()
         assert test.match_re("abcde\n", "a.*e\n")
 
-    def test_match_re_static_method(self):
+    def test_match_re_static_method(self) -> None:
         """Test calling the TestCmd.TestCmd.match_re() static method"""
         assert TestCmd.TestCmd.match_re("abcde\n", "a.*e\n")
 
-    def test_error(self):
+    def test_error(self) -> None:
         """Test handling a compilation error in TestCmd.match_re()"""
         run_env = TestCmd.TestCmd(workdir = '')
         cwd = os.getcwd()
@@ -1135,12 +1128,14 @@ class match_re_TestCase(TestCmdTestCase):
         # Everything before this prepared our "source directory."
         # Now do the real test.
         try:
-            script_input = """import sys
-sys.path = [r'%s'] + sys.path
+            script_input = f"""import sys
+sys.path = [r'{cwd}'] + sys.path
 import TestCmd
-assert TestCmd.match_re("abcde\\n", "a.*(e\\n")
+assert TestCmd.match_re("abcde\
+", "a.*(e\
+")
 sys.exit(0)
-""" % cwd
+"""
             stdout, stderr, status = self.call_python(script_input)
             assert status == 1, status
             expect1 = "Regular expression error in '^a.*(e$': missing )"
@@ -1150,7 +1145,7 @@ sys.exit(0)
         finally:
             os.chdir(cwd)
 
-    def test_evaluation(self):
+    def test_evaluation(self) -> None:
         """Test match_re() evaluation"""
         test = TestCmd.TestCmd()
         assert test.match_re("abcde\n", "a.*e\n")
@@ -1175,7 +1170,7 @@ sys.exit(0)
 
 
 class match_stderr_TestCase(TestCmdTestCase):
-    def test_match_stderr_default(self):
+    def test_match_stderr_default(self) -> None:
         """Test match_stderr() default behavior"""
         test = TestCmd.TestCmd()
         assert test.match_stderr("abcde\n", "a.*e\n")
@@ -1184,7 +1179,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stderr(lines, regexes)
 
-    def test_match_stderr_not_affecting_match_stdout(self):
+    def test_match_stderr_not_affecting_match_stdout(self) -> None:
         """Test match_stderr() not affecting match_stdout() behavior"""
         test = TestCmd.TestCmd(match_stderr=TestCmd.TestCmd.match_exact)
 
@@ -1203,7 +1198,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stdout(lines, regexes)
 
-    def test_match_stderr_custom_function(self):
+    def test_match_stderr_custom_function(self) -> None:
         """Test match_stderr() using a custom function"""
         def match_length(lines, matches):
             return len(lines) == len(matches)
@@ -1216,7 +1211,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         regexes = [r"1\n", r"1\n"]
         assert test.match_stderr(lines, regexes)    # equal numbers of lines
 
-    def test_match_stderr_TestCmd_function(self):
+    def test_match_stderr_TestCmd_function(self) -> None:
         """Test match_stderr() using a TestCmd function"""
         test = TestCmd.TestCmd(match_stderr = TestCmd.match_exact)
         assert not test.match_stderr("abcde\n", "a.*e\n")
@@ -1228,7 +1223,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         assert not test.match_stderr(lines, regexes)
         assert test.match_stderr(lines, lines)
 
-    def test_match_stderr_static_method(self):
+    def test_match_stderr_static_method(self) -> None:
         """Test match_stderr() using a static method"""
         test = TestCmd.TestCmd(match_stderr=TestCmd.TestCmd.match_exact)
         assert not test.match_stderr("abcde\n", "a.*e\n")
@@ -1240,7 +1235,7 @@ class match_stderr_TestCase(TestCmdTestCase):
         assert not test.match_stderr(lines, regexes)
         assert test.match_stderr(lines, lines)
 
-    def test_match_stderr_string(self):
+    def test_match_stderr_string(self) -> None:
         """Test match_stderr() using a string to fetch the match method"""
         test = TestCmd.TestCmd(match_stderr='match_exact')
         assert not test.match_stderr("abcde\n", "a.*e\n")
@@ -1255,7 +1250,7 @@ class match_stderr_TestCase(TestCmdTestCase):
 
 
 class match_stdout_TestCase(TestCmdTestCase):
-    def test_match_stdout_default(self):
+    def test_match_stdout_default(self) -> None:
         """Test match_stdout() default behavior"""
         test = TestCmd.TestCmd()
         assert test.match_stdout("abcde\n", "a.*e\n")
@@ -1264,7 +1259,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stdout(lines, regexes)
 
-    def test_match_stdout_not_affecting_match_stderr(self):
+    def test_match_stdout_not_affecting_match_stderr(self) -> None:
         """Test match_stdout() not affecting match_stderr() behavior"""
         test = TestCmd.TestCmd(match_stdout=TestCmd.TestCmd.match_exact)
 
@@ -1283,7 +1278,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         regexes = [r"v[^a-u]*z\n", r"6[^ ]+0\n"]
         assert test.match_stderr(lines, regexes)
 
-    def test_match_stdout_custom_function(self):
+    def test_match_stdout_custom_function(self) -> None:
         """Test match_stdout() using a custom function"""
         def match_length(lines, matches):
             return len(lines) == len(matches)
@@ -1296,7 +1291,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         regexes = [r"1\n", r"1\n"]
         assert test.match_stdout(lines, regexes)    # equal numbers of lines
 
-    def test_match_stdout_TestCmd_function(self):
+    def test_match_stdout_TestCmd_function(self) -> None:
         """Test match_stdout() using a TestCmd function"""
         test = TestCmd.TestCmd(match_stdout = TestCmd.match_exact)
         assert not test.match_stdout("abcde\n", "a.*e\n")
@@ -1308,7 +1303,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         assert not test.match_stdout(lines, regexes)
         assert test.match_stdout(lines, lines)
 
-    def test_match_stdout_static_method(self):
+    def test_match_stdout_static_method(self) -> None:
         """Test match_stdout() using a static method"""
         test = TestCmd.TestCmd(match_stdout=TestCmd.TestCmd.match_exact)
         assert not test.match_stdout("abcde\n", "a.*e\n")
@@ -1320,7 +1315,7 @@ class match_stdout_TestCase(TestCmdTestCase):
         assert not test.match_stdout(lines, regexes)
         assert test.match_stdout(lines, lines)
 
-    def test_match_stdout_string(self):
+    def test_match_stdout_string(self) -> None:
         """Test match_stdout() using a string to fetch the match method"""
         test = TestCmd.TestCmd(match_stdout='match_exact')
         assert not test.match_stdout("abcde\n", "a.*e\n")
@@ -1335,7 +1330,7 @@ class match_stdout_TestCase(TestCmdTestCase):
 
 
 class no_result_TestCase(TestCmdTestCase):
-    def test_no_result(self):
+    def test_no_result(self) -> None:
         """Test no_result()"""
         run_env = TestCmd.TestCmd(workdir = '')
         run_env.write('run', """import sys
@@ -1345,40 +1340,40 @@ sys.stderr.write("run:  STDERR\\n")
         os.chdir(run_env.workdir)
         # Everything before this prepared our "source directory."
         # Now do the real test.
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 TestCmd.no_result(condition = 1)
-""" % self.orig_cwd, status = 2, stderr = "NO RESULT for test at line 4 of <stdin>\n")
+""", status = 2, stderr = "NO RESULT for test at line 4 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = '')
 test.run()
 test.no_result(condition = (test.status == 0))
-""" % self.orig_cwd, status = 2, stderr = "NO RESULT for test of %s\n\tat line 6 of <stdin>\n" % run_env.workpath('run'))
+""", status = 2, stderr = f"NO RESULT for test of {run_env.workpath('run')}\n\tat line 6 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', description = 'xyzzy', workdir = '')
 test.run()
 test.no_result(condition = (test.status == 0))
-""" % self.orig_cwd, status = 2, stderr = "NO RESULT for test of %s [xyzzy]\n\tat line 6 of <stdin>\n" % run_env.workpath('run'))
+""", status = 2, stderr = f"NO RESULT for test of {run_env.workpath('run')} [xyzzy]\n\tat line 6 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = '')
 test.run()
 def xxx():
     sys.stderr.write("printed on no result\\n")
 test.no_result(condition = (test.status == 0), function = xxx)
-""" % self.orig_cwd, status = 2, stderr = "printed on no result\nNO RESULT for test of %s\n\tat line 8 of <stdin>\n" % run_env.workpath('run'))
+""", status = 2, stderr = f"printed on no result\nNO RESULT for test of {run_env.workpath('run')}\n\tat line 8 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def test1(self):
     self.run()
@@ -1386,10 +1381,10 @@ def test1(self):
 def test2(self):
     test1(self)
 test2(TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = ''))
-""" % self.orig_cwd, status = 2, stderr = "NO RESULT for test of %s\n\tat line 6 of <stdin> (test1)\n\tfrom line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n" % run_env.workpath('run'))
+""", status = 2, stderr = f"NO RESULT for test of {run_env.workpath('run')}\n\tat line 6 of <stdin> (test1)\n\tfrom line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 def test1(self):
     self.run()
@@ -1397,12 +1392,12 @@ def test1(self):
 def test2(self):
     test1(self)
 test2(TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = ''))
-""" % self.orig_cwd, status = 2, stderr = "NO RESULT for test of %s\n\tat line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n" % run_env.workpath('run'))
+""", status = 2, stderr = f"NO RESULT for test of {run_env.workpath('run')}\n\tat line 8 of <stdin> (test2)\n\tfrom line 9 of <stdin>\n")
 
 
 
 class pass_test_TestCase(TestCmdTestCase):
-    def test_pass_test(self):
+    def test_pass_test(self) -> None:
         """Test pass_test()"""
         run_env = TestCmd.TestCmd(workdir = '')
         run_env.write('run', """import sys
@@ -1412,38 +1407,38 @@ sys.stderr.write("run:  STDERR\\n")
         os.chdir(run_env.workdir)
         # Everything before this prepared our "source directory."
         # Now do the real test.
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 TestCmd.pass_test(condition = 1)
-""" % self.orig_cwd, stderr = "PASSED\n")
+""", stderr = "PASSED\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = '')
 test.run()
 test.pass_test(condition = (test.status == 0))
-""" % self.orig_cwd, stderr = "PASSED\n")
+""", stderr = "PASSED\n")
 
-        self.popen_python("""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd(program = 'run', interpreter = 'python', workdir = '')
 test.run()
 def brag():
     sys.stderr.write("printed on success\\n")
 test.pass_test(condition = (test.status == 0), function = brag)
-""" % self.orig_cwd, stderr = "printed on success\nPASSED\n")
+""", stderr = "printed on success\nPASSED\n")
 
         # TODO(sgk): SHOULD ALSO TEST FAILURE CONDITIONS
 
 
 
 class preserve_TestCase(TestCmdTestCase):
-    def test_preserve(self):
+    def test_preserve(self) -> None:
         """Test preserve()"""
-        def cleanup_test(test, cond=None, stdout=""):
+        def cleanup_test(test, cond=None, stdout: str="") -> None:
             save = sys.stdout
             with closing(StringIO()) as io:
                 sys.stdout = io
@@ -1453,7 +1448,7 @@ class preserve_TestCase(TestCmdTestCase):
                     else:
                         test.cleanup()
                     o = io.getvalue()
-                    assert o == stdout, "o = `%s', stdout = `%s'" % (o, stdout)
+                    assert o == stdout, f"o = `{o}', stdout = `{stdout}'"
                 finally:
                     sys.stdout = save
 
@@ -1474,7 +1469,7 @@ class preserve_TestCase(TestCmdTestCase):
         try:
             test.write('file2', "Test file #2\n")
             test.preserve('pass_test')
-            cleanup_test(test, 'pass_test', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'pass_test', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
             cleanup_test(test, 'fail_test')
             assert not os.path.exists(wdir)
@@ -1488,7 +1483,7 @@ class preserve_TestCase(TestCmdTestCase):
         try:
             test.write('file3', "Test file #3\n")
             test.preserve('fail_test')
-            cleanup_test(test, 'fail_test', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'fail_test', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
             cleanup_test(test, 'pass_test')
             assert not os.path.exists(wdir)
@@ -1502,9 +1497,9 @@ class preserve_TestCase(TestCmdTestCase):
         try:
             test.write('file4', "Test file #4\n")
             test.preserve('fail_test', 'no_result')
-            cleanup_test(test, 'fail_test', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'fail_test', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'no_result', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'no_result', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
             cleanup_test(test, 'pass_test')
             assert not os.path.exists(wdir)
@@ -1517,11 +1512,11 @@ class preserve_TestCase(TestCmdTestCase):
         wdir = test.workdir
         try:
             test.preserve()
-            cleanup_test(test, 'pass_test', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'pass_test', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'fail_test', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'fail_test', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
-            cleanup_test(test, 'no_result', "Preserved directory %s\n" % wdir)
+            cleanup_test(test, 'no_result', f"Preserved directory {wdir}\n")
             assert os.path.isdir(wdir)
         finally:
             if os.path.exists(wdir):
@@ -1531,7 +1526,7 @@ class preserve_TestCase(TestCmdTestCase):
 
 
 class program_TestCase(TestCmdTestCase):
-    def test_program(self):
+    def test_program(self) -> None:
         """Test program()"""
         test = TestCmd.TestCmd()
         assert test.program is None, 'initialized program?'
@@ -1577,7 +1572,7 @@ class read_TestCase(TestCmdTestCase):
         except:
             raise
 
-        def _file_matches(file, contents, expected):
+        def _file_matches(file, contents, expected) -> None:
             contents = to_str(contents)
             assert contents == expected, \
                 "Expected contents of " + str(file) + "==========\n" + \
@@ -1626,7 +1621,7 @@ class rmdir_TestCase(TestCmdTestCase):
         else:
             raise Exception("did not catch expected SConsEnvironmentError")
 
-        assert os.path.isdir(s_d_o), "%s is gone?" % s_d_o
+        assert os.path.isdir(s_d_o), f"{s_d_o} is gone?"
 
         try:
             test.rmdir(['sub'])
@@ -1635,26 +1630,26 @@ class rmdir_TestCase(TestCmdTestCase):
         else:
             raise Exception("did not catch expected SConsEnvironmentError")
 
-        assert os.path.isdir(s_d_o), "%s is gone?" % s_d_o
+        assert os.path.isdir(s_d_o), f"{s_d_o} is gone?"
 
         test.rmdir(['sub', 'dir', 'one'])
 
-        assert not os.path.exists(s_d_o), "%s exists?" % s_d_o
-        assert os.path.isdir(s_d), "%s is gone?" % s_d
+        assert not os.path.exists(s_d_o), f"{s_d_o} exists?"
+        assert os.path.isdir(s_d), f"{s_d} is gone?"
 
         test.rmdir(['sub', 'dir'])
 
-        assert not os.path.exists(s_d), "%s exists?" % s_d
-        assert os.path.isdir(s), "%s is gone?" % s
+        assert not os.path.exists(s_d), f"{s_d} exists?"
+        assert os.path.isdir(s), f"{s} is gone?"
 
         test.rmdir('sub')
 
-        assert not os.path.exists(s), "%s exists?" % s
+        assert not os.path.exists(s), f"{s} exists?"
 
 
 
 class run_TestCase(TestCmdTestCase):
-    def test_run(self):
+    def test_run(self) -> None:
         """Test run()"""
 
         t = self.setup_run_scripts()
@@ -1804,7 +1799,7 @@ class run_TestCase(TestCmdTestCase):
         finally:
             os.chdir(t.orig_cwd)
 
-    def test_run_subclass(self):
+    def test_run_subclass(self) -> None:
         """Test run() through a subclass with different signatures"""
 
         t = self.setup_run_scripts()
@@ -1832,7 +1827,7 @@ class run_TestCase(TestCmdTestCase):
 
 
 class run_verbose_TestCase(TestCmdTestCase):
-    def test_run_verbose(self):
+    def test_run_verbose(self) -> None:
         """Test the run() method's verbose attribute"""
 
         # Prepare our "source directory."
@@ -1854,7 +1849,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 o = sys.stdout.getvalue()
                 assert o == '', o
                 e = sys.stderr.getvalue()
-                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                expect = f'python "{t.script_path}" "arg1 arg2\"\n'
                 assert expect == e, (expect, e)
 
             testx = TestCmd.TestCmd(program = t.scriptx,
@@ -1863,7 +1858,7 @@ class run_verbose_TestCase(TestCmdTestCase):
 
             with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
                 testx.run(arguments = ['arg1 arg2'])
-                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                expect = f'"{t.scriptx_path}" "arg1 arg2\"\n'
                 o = sys.stdout.getvalue()
                 assert o == '', o
                 e = sys.stderr.getvalue()
@@ -1907,7 +1902,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 o = sys.stdout.getvalue()
                 assert expect == o, (expect, o)
 
-                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                expect = f'python "{t.script_path}" "arg1 arg2\"\n'
                 e = sys.stderr.getvalue()
                 assert e == expect, (e, expect)
 
@@ -1926,7 +1921,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 o = sys.stdout.getvalue()
                 assert expect == o, (expect, o)
 
-                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                expect = f'"{t.scriptx_path}" "arg1 arg2\"\n'
                 e = sys.stderr.getvalue()
                 assert e == expect, (e, expect)
 
@@ -1947,7 +1942,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 assert expect == o, (expect, o)
 
                 e = sys.stderr.getvalue()
-                expect = 'python "%s" "arg1 arg2"\n' % t.scriptout_path
+                expect = f'python "{t.scriptout_path}" "arg1 arg2\"\n'
                 assert e == expect, (e, expect)
 
             test = TestCmd.TestCmd(program = t.scriptout,
@@ -1966,7 +1961,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 assert expect == o, (expect, o)
 
                 e = sys.stderr.getvalue()
-                expect = 'python "%s" "arg1 arg2"\n' % t.scriptout_path
+                expect = f'python "{t.scriptout_path}" "arg1 arg2\"\n'
                 assert e == expect, (e, expect)
 
             # Test letting TestCmd() pick up verbose = 2 from the environment.
@@ -1988,7 +1983,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 o = sys.stdout.getvalue()
                 assert expect == o, (expect, o)
 
-                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                expect = f'python "{t.script_path}" "arg1 arg2\"\n'
                 e = sys.stderr.getvalue()
                 assert e == expect, (e, expect)
 
@@ -2006,7 +2001,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 o = sys.stdout.getvalue()
                 assert expect == o, (expect, o)
 
-                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                expect = f'"{t.scriptx_path}" "arg1 arg2\"\n'
                 e = sys.stderr.getvalue()
                 assert e == expect, (e, expect)
 
@@ -2024,7 +2019,7 @@ class run_verbose_TestCase(TestCmdTestCase):
                 o = sys.stdout.getvalue()
                 assert o == '', o
                 e = sys.stderr.getvalue()
-                expect = 'python "%s" "arg1 arg2"\n' % t.script_path
+                expect = f'python "{t.script_path}" "arg1 arg2\"\n'
                 assert expect == e, (expect, e)
 
             testx = TestCmd.TestCmd(program = t.scriptx,
@@ -2033,7 +2028,7 @@ class run_verbose_TestCase(TestCmdTestCase):
 
             with closing(StringIO()) as sys.stdout, closing(StringIO()) as sys.stderr:
                 testx.run(arguments = ['arg1 arg2'])
-                expect = '"%s" "arg1 arg2"\n' % t.scriptx_path
+                expect = f'"{t.scriptx_path}" "arg1 arg2\"\n'
                 o = sys.stdout.getvalue()
                 assert o == '', o
                 e = sys.stderr.getvalue()
@@ -2048,23 +2043,22 @@ class run_verbose_TestCase(TestCmdTestCase):
 
 
 class set_diff_function_TestCase(TestCmdTestCase):
-    def test_set_diff_function(self):
+    def test_set_diff_function(self) -> None:
         """Test set_diff_function()"""
-        self.popen_python(r"""import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(fr"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
 test.diff("a\n", "a\n")
 test.set_diff_function('diff_re')
 test.diff(".\n", "a\n")
 sys.exit(0)
-""" % self.orig_cwd)
+""")
 
-    def test_set_diff_function_stdout(self):
+    def test_set_diff_function_stdout(self) -> None:
         """Test set_diff_function():  stdout"""
-        self.popen_python("""\
-import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
 print("diff:")
@@ -2077,7 +2071,7 @@ test.diff(".\\n", "a\\n")
 print("diff_stdout:")
 test.diff_stdout(".\\n", "a\\n")
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 diff:
 diff_stdout:
@@ -2089,11 +2083,10 @@ diff:
 diff_stdout:
 """)
 
-    def test_set_diff_function_stderr(self):
+    def test_set_diff_function_stderr(self) -> None:
         """Test set_diff_function():  stderr """
-        self.popen_python("""\
-import sys
-sys.path = [r'%s'] + sys.path
+        self.popen_python(f"""import sys
+sys.path = [r'{self.orig_cwd}'] + sys.path
 import TestCmd
 test = TestCmd.TestCmd()
 print("diff:")
@@ -2106,7 +2099,7 @@ test.diff(".\\n", "a\\n")
 print("diff_stderr:")
 test.diff_stderr(".\\n", "a\\n")
 sys.exit(0)
-""" % self.orig_cwd,
+""",
                           stdout="""\
 diff:
 diff_stderr:
@@ -2121,7 +2114,7 @@ diff_stderr:
 
 
 class set_match_function_TestCase(TestCmdTestCase):
-    def test_set_match_function(self):
+    def test_set_match_function(self) -> None:
         """Test set_match_function()"""
         test = TestCmd.TestCmd()
         assert test.match("abcde\n", "a.*e\n")
@@ -2132,7 +2125,7 @@ class set_match_function_TestCase(TestCmdTestCase):
         assert not test.match("abcde\n", "a.*e\n")
         assert test.match("abcde\n", "abcde\n")
 
-    def test_set_match_function_stdout(self):
+    def test_set_match_function_stdout(self) -> None:
         """Test set_match_function():  stdout """
         test = TestCmd.TestCmd()
         assert test.match("abcde\n", "a.*e\n")
@@ -2147,7 +2140,7 @@ class set_match_function_TestCase(TestCmdTestCase):
         assert not test.match_stdout("abcde\n", "a.*e\n")
         assert test.match_stdout("abcde\n", "abcde\n")
 
-    def test_set_match_function_stderr(self):
+    def test_set_match_function_stderr(self) -> None:
         """Test set_match_function():  stderr """
         test = TestCmd.TestCmd()
         assert test.match("abcde\n", "a.*e\n")
@@ -2165,7 +2158,7 @@ class set_match_function_TestCase(TestCmdTestCase):
 
 
 class sleep_TestCase(TestCmdTestCase):
-    def test_sleep(self):
+    def test_sleep(self) -> None:
         """Test sleep()"""
         test = TestCmd.TestCmd()
 
@@ -2173,13 +2166,13 @@ class sleep_TestCase(TestCmdTestCase):
         test.sleep()
         end = time.perf_counter()
         diff = end - start
-        assert diff > 0.9, "only slept %f seconds (start %f, end %f), not default" % (diff, start, end)
+        assert diff > 0.9, f"only slept {diff:f} seconds (start {start:f}, end {end:f}), not default"
 
         start = time.perf_counter()
         test.sleep(3)
         end = time.perf_counter()
         diff = end - start
-        assert diff > 2.9, "only slept %f seconds (start %f, end %f), not 3" % (diff, start, end)
+        assert diff > 2.9, f"only slept {diff:f} seconds (start {start:f}, end {end:f}), not 3"
 
 
 
@@ -2209,7 +2202,7 @@ sys.stderr.write("run2 STDERR second line\\n")
             pass
         else:
             if output is not None:
-                raise IndexError("got unexpected output:\n" + output)
+                raise IndexError(f"got unexpected output:\n{output}")
         test.program_set('run1')
         test.run(arguments = 'foo bar')
         test.program_set('run2')
@@ -2223,7 +2216,7 @@ sys.stderr.write("run2 STDERR second line\\n")
 
 
 class command_args_TestCase(TestCmdTestCase):
-    def test_command_args(self):
+    def test_command_args(self) -> None:
         """Test command_args()"""
         run_env = TestCmd.TestCmd(workdir = '')
         os.chdir(run_env.workdir)
@@ -2294,8 +2287,7 @@ class start_TestCase(TestCmdTestCase):
         t.recv_script = 'script_recv'
         t.recv_script_path = t.run_env.workpath(t.sub_dir, t.recv_script)
         t.recv_out_path = t.run_env.workpath('script_recv.out')
-        text = """\
-import os
+        text = f"""import os
 import sys
 
 class Unbuffered:
@@ -2312,27 +2304,27 @@ sys.stderr = Unbuffered(sys.stderr)
 
 sys.stdout.write('script_recv:  STDOUT\\n')
 sys.stderr.write('script_recv:  STDERR\\n')
-with open(r'%s', 'wb') as logfp:
-    while 1:
+with open(r'{t.recv_out_path}', 'w') as logfp:
+    while True:
         line = sys.stdin.readline()
         if not line:
             break
         logfp.write('script_recv:  ' + line)
         sys.stdout.write('script_recv:  STDOUT:  ' + line)
         sys.stderr.write('script_recv:  STDERR:  ' + line)
-""" % t.recv_out_path
+"""
         t.run_env.write(t.recv_script_path, text)
         os.chmod(t.recv_script_path, 0o644)  # XXX UNIX-specific
         return t
 
-    def _cleanup(self, popen):
+    def _cleanup(self, popen) -> None:
         """Quiet Python ResourceWarning after wait()"""
         if popen.stdout:
             popen.stdout.close()
         if popen.stderr:
             popen.stderr.close()
 
-    def test_start(self):
+    def test_start(self) -> None:
         """Test start()"""
 
         t = self.setup_run_scripts()
@@ -2475,7 +2467,7 @@ with open(r'%s', 'wb') as logfp:
         finally:
             os.chdir(t.orig_cwd)
 
-    def test_finish(self):
+    def test_finish(self) -> None:
         """Test finish()"""
 
         t = self.setup_run_scripts()
@@ -2536,7 +2528,7 @@ script_recv:  STDERR:  input
         finally:
             os.chdir(t.orig_cwd)
 
-    def test_recv(self):
+    def test_recv(self) -> None:
         """Test the recv() method of objects returned by start()"""
 
         t = self.setup_run_scripts()
@@ -2562,7 +2554,7 @@ script_recv:  STDERR:  input
         finally:
             os.chdir(t.orig_cwd)
 
-    def test_recv_err(self):
+    def test_recv_err(self) -> None:
         """Test the recv_err() method of objects returned by start()"""
 
         t = self.setup_run_scripts()
@@ -2590,7 +2582,7 @@ script_recv:  STDERR:  input
         finally:
             os.chdir(t.orig_cwd)
 
-    def test_send(self):
+    def test_send(self) -> None:
         """Test the send() method of objects returned by start()"""
 
         t = self.setup_run_scripts()
@@ -2609,26 +2601,26 @@ script_recv:  STDERR:  input
             p.stdin.write(to_bytes(input))
             p.stdin.close()
             p.wait()
-            with open(t.recv_out_path, 'rb') as f:
+            with open(t.recv_out_path, 'r') as f:
                 result = to_str(f.read())
-            expect = 'script_recv:  ' + input
-            assert result == expect, "Result:[%s] should match\nExpected:[%s]" % (result, expect)
+            expect = f"script_recv:  {input}"
+            assert result == expect, f"Result:[{result}] should match\nExpected:[{expect}]"
 
             p = test.start(stdin=1)
             input = 'send() input to the receive script\n'
             p.send(input)
             p.stdin.close()
             p.wait()
-            with open(t.recv_out_path, 'rb') as f:
+            with open(t.recv_out_path, 'r') as f:
                 result = to_str(f.read())
-            expect = 'script_recv:  ' + input
+            expect = f"script_recv:  {input}"
             assert result == expect, repr(result)
 
         finally:
             os.chdir(t.orig_cwd)
 
     # TODO(sgk):  figure out how to eliminate the race conditions here.
-    def __FLAKY__test_send_recv(self):
+    def __FLAKY__test_send_recv(self) -> None:
         """Test the send_recv() method of objects returned by start()"""
 
         t = self.setup_run_scripts()
@@ -2681,7 +2673,7 @@ script_recv:  STDERR:  input to the receive script
             assert stderr == expect_stderr, stderr
             with open(t.recv_out_path, 'rb') as f:
                 result = f.read()
-            expect = ('script_recv:  ' + input) * 2
+            expect = f"script_recv:  {input}" * 2
             assert result == expect, (result, stdout, stderr)
 
         finally:
@@ -2690,7 +2682,7 @@ script_recv:  STDERR:  input to the receive script
 
 
 class stdin_TestCase(TestCmdTestCase):
-    def test_stdin(self):
+    def test_stdin(self) -> None:
         """Test stdin()"""
         run_env = TestCmd.TestCmd(workdir = '')
         run_env.write('run', """\
@@ -2720,13 +2712,15 @@ class stdout_TestCase(TestCmdTestCase):
     def test_stdout(self):
         """Test stdout()"""
         run_env = TestCmd.TestCmd(workdir = '')
-        run_env.write('run1', """import sys
+        run_env.write('run1', """\
+import sys
 sys.stdout.write("run1 STDOUT %s\\n" % sys.argv[1:])
 sys.stdout.write("run1 STDOUT second line\\n")
 sys.stderr.write("run1 STDERR %s\\n" % sys.argv[1:])
 sys.stderr.write("run1 STDERR second line\\n")
 """)
-        run_env.write('run2', """import sys
+        run_env.write('run2', """\
+import sys
 sys.stdout.write("run2 STDOUT %s\\n" % sys.argv[1:])
 sys.stdout.write("run2 STDOUT second line\\n")
 sys.stderr.write("run2 STDERR %s\\n" % sys.argv[1:])
@@ -2738,7 +2732,7 @@ sys.stderr.write("run2 STDERR second line\\n")
         test = TestCmd.TestCmd(interpreter = 'python', workdir = '')
         output = test.stdout()
         if output is not None:
-            raise IndexError("got unexpected output:\n\t`%s'\n" % output)
+            raise IndexError(f"got unexpected output:\n\t`{output}'\n")
         test.program_set('run1')
         test.run(arguments = 'foo bar')
         test.program_set('run2')
@@ -2751,7 +2745,7 @@ sys.stderr.write("run2 STDERR second line\\n")
 
 
 class subdir_TestCase(TestCmdTestCase):
-    def test_subdir(self):
+    def test_subdir(self) -> None:
         """Test subdir()"""
         # intermediate directories are created
         test = TestCmd.TestCmd(workdir='', subdir=['no', 'such', 'subdir'])
@@ -2793,11 +2787,9 @@ class subdir_TestCase(TestCmdTestCase):
 
 
 class symlink_TestCase(TestCmdTestCase):
-    def test_symlink(self):
+    @unittest.skipIf(sys.platform == 'win32', "Skip symlink test on win32")
+    def test_symlink(self) -> None:
         """Test symlink()"""
-        try: os.symlink
-        except AttributeError: return
-
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         wdir_file1 = os.path.join(test.workdir, 'file1')
         wdir_target1 = os.path.join(test.workdir, 'target1')
@@ -2825,16 +2817,16 @@ class symlink_TestCase(TestCmdTestCase):
 
 
 class tempdir_TestCase(TestCmdTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         TestCmdTestCase.setUp(self)
         self._tempdir = tempfile.mkdtemp()
         os.chdir(self._tempdir)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         TestCmdTestCase.tearDown(self)
         os.rmdir(self._tempdir)
 
-    def test_tempdir(self):
+    def test_tempdir(self) -> None:
         """Test tempdir()"""
         test = TestCmd.TestCmd()
         tdir1 = test.tempdir()
@@ -2867,7 +2859,7 @@ sys.exit(0)
 """
 
 class timeout_TestCase(TestCmdTestCase):
-    def test_initialization(self):
+    def test_initialization(self) -> None:
         """Test initializating a TestCmd with a timeout"""
         test = TestCmd.TestCmd(workdir='', timeout=2)
         test.write('sleep.py', timeout_script)
@@ -2880,7 +2872,7 @@ class timeout_TestCase(TestCmdTestCase):
         assert test.stderr() == '', test.stderr()
         assert test.stdout() == 'sleeping 4\n', test.stdout()
 
-    def test_cancellation(self):
+    def test_cancellation(self) -> None:
         """Test timer cancellation after firing"""
         test = TestCmd.TestCmd(workdir='', timeout=4)
         test.write('sleep.py', timeout_script)
@@ -2897,7 +2889,7 @@ class timeout_TestCase(TestCmdTestCase):
         assert test.stderr() == '', test.stderr()
         assert test.stdout() == 'sleeping 6\n', test.stdout()
 
-    def test_run(self):
+    def test_run(self) -> None:
         """Test run() timeout"""
         test = TestCmd.TestCmd(workdir='', timeout=8)
         test.write('sleep.py', timeout_script)
@@ -3003,7 +2995,7 @@ class unlink_TestCase(TestCmdTestCase):
 
 
 class touch_TestCase(TestCmdTestCase):
-    def test_touch(self):
+    def test_touch(self) -> None:
         """Test touch()"""
         test = TestCmd.TestCmd(workdir = '', subdir = 'sub')
 
@@ -3040,7 +3032,7 @@ class touch_TestCase(TestCmdTestCase):
 
 
 class verbose_TestCase(TestCmdTestCase):
-    def test_verbose(self):
+    def test_verbose(self) -> None:
         """Test verbose()"""
         test = TestCmd.TestCmd()
         assert test.verbose == 0, 'verbose already initialized?'
@@ -3102,7 +3094,7 @@ class workdir_TestCase(TestCmdTestCase):
 
 
 class workdirs_TestCase(TestCmdTestCase):
-    def test_workdirs(self):
+    def test_workdirs(self) -> None:
         """Test workdirs()"""
         test = TestCmd.TestCmd()
         assert test.workdir is None
@@ -3119,7 +3111,7 @@ class workdirs_TestCase(TestCmdTestCase):
 
 
 class workpath_TestCase(TestCmdTestCase):
-    def test_workpath(self):
+    def test_workpath(self) -> None:
         """Test workpath()"""
         test = TestCmd.TestCmd()
         assert test.workdir is None
@@ -3129,17 +3121,14 @@ class workpath_TestCase(TestCmdTestCase):
         assert wpath == os.path.join(test.workdir, 'foo', 'bar')
 
 
-@unittest.skipIf(sys.platform == 'win32', "Don't run on win32")
 class readable_TestCase(TestCmdTestCase):
-    def test_readable(self):
+    @unittest.skipIf(sys.platform == 'win32', "Skip permission fiddling on win32")
+    def test_readable(self) -> None:
         """Test readable()"""
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
-
-        try: symlink = os.symlink
-        except AttributeError: pass
-        else: symlink('no_such_file', test.workpath('dangling_symlink'))
+        os.symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.readable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
@@ -3172,15 +3161,13 @@ class readable_TestCase(TestCmdTestCase):
 
 
 class writable_TestCase(TestCmdTestCase):
-    def test_writable(self):
+    @unittest.skipIf(sys.platform == 'win32', "Skip permission fiddling on win32")
+    def test_writable(self) -> None:
         """Test writable()"""
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
-
-        try: symlink = os.symlink
-        except AttributeError: pass
-        else: symlink('no_such_file', test.workpath('dangling_symlink'))
+        os.symlink('no_such_file', test.workpath('dangling_symlink'))
 
         test.writable(test.workdir, 0)
         # XXX skip these tests if euid == 0?
@@ -3209,23 +3196,20 @@ class writable_TestCase(TestCmdTestCase):
         assert not _is_writable(test.workpath('file1'))
 
 
-@unittest.skipIf(sys.platform == 'win32', "Don't run on win32")
 class executable_TestCase(TestCmdTestCase):
-    def test_executable(self):
+    @unittest.skipIf(sys.platform == 'win32', "Skip permission fiddling on win32")
+    def test_executable(self) -> None:
         """Test executable()"""
         test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
         test.write('file1', "Test file #1\n")
         test.write(['foo', 'file2'], "Test file #2\n")
+        os.symlink('no_such_file', test.workpath('dangling_symlink'))
 
-        try: symlink = os.symlink
-        except AttributeError: pass
-        else: symlink('no_such_file', test.workpath('dangling_symlink'))
-
-        def make_executable(fname):
+        def make_executable(fname) -> None:
             st = os.stat(fname)
             os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]|0o100))
 
-        def make_non_executable(fname):
+        def make_non_executable(fname) -> None:
             st = os.stat(fname)
             os.chmod(fname, stat.S_IMODE(st[stat.ST_MODE]&~0o100))
 
@@ -3328,7 +3312,7 @@ class write_TestCase(TestCmdTestCase):
 
 
 class variables_TestCase(TestCmdTestCase):
-    def test_variables(self):
+    def test_variables(self) -> None:
         """Test global variables"""
         run_env = TestCmd.TestCmd(workdir = '')
 

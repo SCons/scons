@@ -37,10 +37,19 @@ Example:
 
 <example_commands>
 # builds foo.c
-env.CFile(target = 'foo.c', source = 'foo.l')
+env.CFile(target='foo.c', source='foo.l')
+
 # builds bar.c
-env.CFile(target = 'bar', source = 'bar.y')
+env.CFile(target='bar', source='bar.y')
 </example_commands>
+
+<!--para>  ** Left here for reference, does not need to be user-visible. **
+Note that for yacc files,
+the output file name is derived from <parameter>target</parameter>,
+or from the source file name if a target is not specified;
+the traditional yacc default name
+<filename>y.tab.c</filename> is not used.
+</para-->
 </summary>
 </builder>
 
@@ -59,10 +68,19 @@ Example:
 
 <example_commands>
 # builds foo.cc
-env.CXXFile(target = 'foo.cc', source = 'foo.ll')
+env.CXXFile(target='foo.cc', source='foo.ll')
+
 # builds bar.cc
-env.CXXFile(target = 'bar', source = 'bar.yy')
+env.CXXFile(target='bar', source='bar.yy')
 </example_commands>
+
+<!--para>  ** Left here for reference, does not need to be user-visible. **
+Note that for yacc files,
+the output file name is derived from <parameter>target</parameter>,
+or from the source file name if a target is not specified;
+the traditional yacc default name
+<filename>y.tab.cc</filename> is not used.
+</para -->
 </summary>
 </builder>
 

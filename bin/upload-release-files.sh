@@ -27,7 +27,7 @@ $RSYNC $RSYNCOPTS\
        README.rst \
        $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons/
 
-	
+
 # Upload main scons release files:
 $RSYNC $RSYNCOPTS \
   SCons-$VERSION.tar.gz \
@@ -39,6 +39,7 @@ $RSYNC $RSYNCOPTS \
 $RSYNC $RSYNCOPTS \
   scons-local-$VERSION.tar.gz \
   scons-local-$VERSION.zip \
+  scons-local-$VERSION.pyz \
   CHANGES.txt RELEASE.txt \
   $SF_USER@$SF_MACHINE:$SF_TOPDIR/scons-local/$VERSION/
 

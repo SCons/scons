@@ -43,22 +43,22 @@ from SCons.Tool.MSCommon.MSVC.Warnings import (
 
 class PolicyTests(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.warnstack = []
 
-    def push_warning_as_exception(self, warning_class):
+    def push_warning_as_exception(self, warning_class) -> None:
         SCons.Warnings.enableWarningClass(warning_class)
         prev_state = SCons.Warnings.warningAsException()
         self.warnstack.append((warning_class, prev_state))
 
-    def pop_warning_as_exception(self):
+    def pop_warning_as_exception(self) -> None:
         warning_class, prev_state = self.warnstack.pop()
         SCons.Warnings.warningAsException(prev_state)
         SCons.Warnings.suppressWarningClass(warning_class)
 
     # msvc_set_notfound_policy, msvc_get_notfound_policy, and MSVC_NOTFOUND_POLICY
 
-    def test_notfound_func_valid_symbols(self):
+    def test_notfound_func_valid_symbols(self) -> None:
         def_policy = Policy.msvc_get_notfound_policy()
         last_policy = def_policy
         for notfound_def in Policy.MSVC_NOTFOUND_DEFINITION_LIST:
@@ -75,21 +75,21 @@ class PolicyTests(unittest.TestCase):
                 last_policy = cur_get_policy
         Policy.msvc_set_notfound_policy(def_policy)
 
-    def test_notfound_func_invalid_symbol(self):
+    def test_notfound_func_invalid_symbol(self) -> None:
         with self.assertRaises(MSVCArgumentError):
             Policy.msvc_set_notfound_policy('Undefined')
 
-    def test_notfound_handler_invalid_symbol(self):
+    def test_notfound_handler_invalid_symbol(self) -> None:
         with self.assertRaises(MSVCArgumentError):
             Policy.msvc_notfound_handler({'MSVC_NOTFOUND_POLICY': 'Undefined'}, '')
 
-    def test_notfound_handler_ignore(self):
+    def test_notfound_handler_ignore(self) -> None:
         def_policy = Policy.msvc_set_notfound_policy('Ignore')
         Policy.msvc_notfound_handler(None, '')
         Policy.msvc_notfound_handler({'MSVC_NOTFOUND_POLICY': None}, '')
         Policy.msvc_set_notfound_policy(def_policy)
 
-    def test_notfound_handler_warning(self):
+    def test_notfound_handler_warning(self) -> None:
         # treat warning as exception for testing
         self.push_warning_as_exception(SCons.Warnings.VisualCMissingWarning)
         def_policy = Policy.msvc_set_notfound_policy('Warning')
@@ -101,7 +101,7 @@ class PolicyTests(unittest.TestCase):
         Policy.msvc_set_notfound_policy(def_policy)
         self.pop_warning_as_exception()
 
-    def test_notfound_handler_error(self):
+    def test_notfound_handler_error(self) -> None:
         def_policy = Policy.msvc_set_notfound_policy('Error')
         with self.assertRaises(MSVCVersionNotFound):
             Policy.msvc_notfound_handler(None, '')
@@ -112,7 +112,7 @@ class PolicyTests(unittest.TestCase):
 
     # msvc_set_scripterror_policy, msvc_get_scripterror_policy, and MSVC_SCRIPTERROR_POLICY
 
-    def test_scripterror_func_valid_symbols(self):
+    def test_scripterror_func_valid_symbols(self) -> None:
         def_policy = Policy.msvc_get_scripterror_policy()
         last_policy = def_policy
         for scripterror_def in Policy.MSVC_SCRIPTERROR_DEFINITION_LIST:
@@ -129,21 +129,21 @@ class PolicyTests(unittest.TestCase):
                 last_policy = cur_get_policy
         Policy.msvc_set_scripterror_policy(def_policy)
 
-    def test_scripterror_func_invalid_symbol(self):
+    def test_scripterror_func_invalid_symbol(self) -> None:
         with self.assertRaises(MSVCArgumentError):
             Policy.msvc_set_scripterror_policy('Undefined')
 
-    def test_scripterror_handler_invalid_symbol(self):
+    def test_scripterror_handler_invalid_symbol(self) -> None:
         with self.assertRaises(MSVCArgumentError):
             Policy.msvc_scripterror_handler({'MSVC_SCRIPTERROR_POLICY': 'Undefined'}, '')
 
-    def test_scripterror_handler_ignore(self):
+    def test_scripterror_handler_ignore(self) -> None:
         def_policy = Policy.msvc_set_scripterror_policy('Ignore')
         Policy.msvc_scripterror_handler(None, '')
         Policy.msvc_scripterror_handler({'MSVC_SCRIPTERROR_POLICY': None}, '')
         Policy.msvc_set_scripterror_policy(def_policy)
 
-    def test_scripterror_handler_warning(self):
+    def test_scripterror_handler_warning(self) -> None:
         # treat warning as exception for testing
         self.push_warning_as_exception(MSVCScriptExecutionWarning)
         def_policy = Policy.msvc_set_scripterror_policy('Warning')
@@ -155,7 +155,7 @@ class PolicyTests(unittest.TestCase):
         Policy.msvc_set_scripterror_policy(def_policy)
         self.pop_warning_as_exception()
 
-    def test_scripterror_handler_error(self):
+    def test_scripterror_handler_error(self) -> None:
         def_policy = Policy.msvc_set_scripterror_policy('Error')
         with self.assertRaises(MSVCScriptExecutionError):
             Policy.msvc_scripterror_handler(None, '')

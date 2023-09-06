@@ -46,7 +46,7 @@ if SCons.Util.case_sensitive_suffixes('.s', '.S'):
 else:
     ASSuffixes.extend(['.S'])
 
-def generate(env):
+def generate(env) -> None:
     """Add Builders and construction variables for as to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 

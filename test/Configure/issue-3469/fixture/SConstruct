@@ -8,7 +8,6 @@ Github issue #3469
 """
 
 DefaultEnvironment(tools=[])
-
 vars = Variables()
 vars.Add(BoolVariable('SKIP', 'Skip Middle Conf test', False))
 env = Environment(variables=vars)

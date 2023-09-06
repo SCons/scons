@@ -25,8 +25,8 @@ There are three types of SCons tests:
 *End-to-End Tests*
    End-to-end tests of SCons are Python scripts (``*.py``) underneath the
    ``test/`` subdirectory.  They use the test infrastructure modules in
-   the ``testing/framework`` subdirectory. They build set up complete
-   projects and call scons to execute them, checking that the behavior is
+   the ``testing/framework`` subdirectory. They set up small complete
+   projects and call SCons to execute them, checking that the behavior is
    as expected.
 
 *Unit Tests*
@@ -48,31 +48,38 @@ There are three types of SCons tests:
 Contrasting end-to-end and unit tests
 -------------------------------------
 
-In general, functionality with end-to-end tests
-should be considered a hardened part of the public interface (that is,
-something that a user might do) and should not be broken.  Unit tests
-are now considered more malleable, more for testing internal interfaces
-that can change so long as we don't break users' ``SConscript`` files.
-(This wasn't always the case, and there's a lot of meaty code in many
-of the unit test scripts that does, in fact, capture external interface
-behavior.  In general, we should try to move those things to end-to-end
-scripts as we find them.)
+In general, end-to-end tests verify hardened parts of the public interface:
+interfaces documented in the manpage that a user might use in their
+project. These cannot be broken (of course, errors can be corrected,
+though sometimes a transition period may be required).
+Unit tests are now considered for testing internal interfaces, which do
+not themselves directly have API guarantees.  An example could be using
+and end-to-end test to verify that things added by env.Append() actually
+appear correctly in issued command lines, while unit tests assure
+correct behavior given various inputs of internal routines that
+Append() may make use of. If a reported error can be tested by adding a new
+case to an existing unit test, by all means, do that, as it tends to be
+simpler and cleaner. On the other hand, reported problems that come with
+a reproducer are by their nature more like an e2e test - this is something
+a user has tried in their SConscripts that didn't have the expected result.
 
-End-to-end tests are by their nature harder to debug.
-You can drop straight into the Python debugger on the unit test
-scripts by using the ``runtest.py --pdb`` option, but the end-to-end
-tests treat an SCons invocation as a "black box" and just look for
-external effects; simple methods like inserting ``print`` statements
-in the SCons code itself can disrupt those external effects.
-See `Debugging end-to-end tests`_ for some more thoughts.
+End-to-end tests are by their nature harder to debug. For the unit
+tests, you're running a test program directly, so you can drop straight
+into the Python debugger by calling ``runtest.py`` with the ``-d / --debug``
+option and setting breakpoints to help examine the internal state as
+the test is running. The e2e tests are each mini SCons projects execected
+by an instance of scons in a subprocess, and the Python debugger isn't
+particularly useful in this context.
+There's a separate section of this document on that topic: see `Debugging
+end-to-end tests`_.
+
 
 Naming conventions
 ------------------
 
-The end-to-end tests, more or less, stick to the following naming
-conventions:
+The end-to-end tests, more or less, follow this naming convention:
 
-#. All tests end with a .py suffix.
+#. All tests end with a ``.py`` suffix.
 #. In the *General* form we use
 
    ``Feature.py``
@@ -88,60 +95,80 @@ conventions:
       upper-case single-letter option (with an extra hyphen, so the
       file names will be unique on case-insensitive systems)
    ``option--lo.py``
-      long option; abbreviate the long option name to a few characters
+      long option; you can abbreviate the long option name to a
+      few characters (the abbreviation must be unique, of course).
+#. Use a suitably named subdirectory if there's a whole group of
+   related test files.
 
-Running tests
-=============
 
-The standard set of SCons tests are run from the top-level source
-directory by the ``runtest.py`` script.
+Testing Architecture
+====================
 
+The test framework provides a lot of useful functions for use within a
+test program. This includes test setup, parameterization, running tests,
+looking at results and reporting outcomes. You can run a particular test
+directly by making sure the Python interpreter can find the framework::
+
+    $ PYTHON_PATH=testing/framework python SCons/ActionTests.py
+
+The framework does *not* provide facilities for handling a collection of
+test programs. For that, SCons provides a driver script ``runtest.py``.
 Help is available through the ``-h`` option::
 
    $ python runtest.py -h
 
+You run tests from the top-level source directory.
 To simply run all the tests, use the ``-a`` option::
 
    $ python runtest.py -a
 
-By default, ``runtest.py`` prints a count and percentage message for each
-test case, along with the name of the test file.  If you need the output
-to be more silent, have a look at the ``-q``, ``-s`` and ``-k`` options.
-
-You may specifically list one or more tests to be run::
+You may specifically list one or more tests to be run. ``runtest``
+considers all arguments it doesn't recognize as options to be
+part of the test list::
 
    $ python runtest.py SCons/BuilderTests.py
-   $ python runtest.py test/option-j.py test/Program.py
+   $ python runtest.py -t test/option/option-j.py test/option/option-p.py
 
-Folder names are allowed in the test list as well, so you can do::
+Folder names work in the test list as well, so you can do::
 
    $ python runtest.py test/SWIG
 
-to run all SWIG tests only.
+to run all SWIG tests (and no others).
 
 You can also use the ``-f`` option to execute just the tests listed in
 a test list file::
 
    $ cat testlist.txt
-   test/option-j.py
-   test/Program.py
+   test/option/option-j.py
+   test/option/option-p.py
    $ python runtest.py -f testlist.txt
 
-One test must be listed per line, and any lines that begin with '#'
-will be ignored (the intent being to allow you, for example, to comment
-out tests that are currently passing and then uncomment all of the tests
-in the file for a final validation run).
+List one test file per line. Lines that begin with the
+comment mark ``#`` will be ignored (this lets you quickly change the
+test list by commenting out a few tests in the testlist file).
 
 If more than one test is run, the ``runtest.py`` script prints a summary
-of how many tests passed, failed, or yielded no result, and lists any
-unsuccessful tests.
+and count of tests that failed or yielded no result (skips). Skipped
+tests do not count towards considering the overall run to have failed,
+unless the ``--no-ignore-skips`` option is used. Passed tests can be
+listed using the ``--passed`` option, though this tends to make the
+result section at the end quite noisy, which is why it's off by default.
+Also by default, ``runtest.py`` prints a running count and completion
+percentage message for each test case as it finishes, along with the name
+of the test file.  You can quiet this output:
+have a look at the ``-q``, ``-s`` and ``-k`` options.
 
-The above invocations all test against the scons files underneath the ``src/``
-subdirectory, and do not require that a packaging build of SCons be performed
-first.  This is the most common mode: make some changes, and test the
-effects in place.
-The ``runtest.py`` script supports additional options to run
-tests against unpacked packages in the ``build/test-*/`` subdirectories.
+Since a test run can produce a lot of output that you may want to examine
+later, there is an option ``-o FILE`` to save the same output that went
+to the screen to a file named by ``FILE``. There is also an option to
+save the results in a custom XML format.
+
+The above invocations all test against the SCons files in the current
+directory (that is, in ``./SCons``, and do not require that a packaging
+build of SCons be performed first.  This is the most common mode: make
+some changes, and test the effects in place.  The ``runtest.py`` script
+supports additional options to run tests against unpacked packages in the
+``build/test-*/`` subdirectories.
 
 If you are testing a separate Tool outside of the SCons source tree,
 call the ``runtest.py`` script in *external* (stand-alone) mode::
@@ -161,7 +188,7 @@ a function which takes a path-component argument and returns the path to
 that path-component in the testing directory.
 
 The use of an ephemeral test directory means that you can't simply change
-into a directory to "debug things" after a test has gone wrong.
+into a directory to debug after a test has gone wrong.
 For a way around this, check out the ``PRESERVE`` environment variable.
 It can be seen in action in `How to convert old tests to use fixures`_ below.
 
@@ -170,7 +197,7 @@ Not running tests
 
 If you simply want to check which tests would get executed, you can call
 the ``runtest.py`` script with the ``-l`` option combined with whichever
-test finding options (see below) you intend to use. Example::
+test selection options (see below) you intend to use. Example::
 
    $ python runtest.py -l test/scons-time
 
@@ -179,26 +206,26 @@ each test which would have been run, but doesn't actually run them::
 
    $ python runtest.py -n -a
 
-Finding Tests
-=============
+Selecting tests
+===============
 
 When started in *standard* mode::
 
    $ python runtest.py -a
 
 ``runtest.py`` assumes that it is run from the SCons top-level source
-directory.  It then dives into the ``src`` and ``test`` directories,
+directory.  It then dives into the ``SCons`` and ``test`` directories,
 where it tries to find filenames
 
 ``*Test.py``
-   for the ``src`` directory (unit tests)
+   for the ``SCons`` directory (unit tests)
 
 ``*.py``
    for the ``test`` directory (end-to-end tests)
 
 When using fixtures, you may end up in a situation where you have
 supporting Python script files in a subdirectory which shouldn't be
-picked up as test scripts.  There are two options here:
+picked up as test scripts of their own.  There are two options here:
 
 #. Add a file with the name ``sconstest.skip`` to your subdirectory. This
    tells ``runtest.py`` to skip the contents of the directory completely.
@@ -209,11 +236,11 @@ The same rules apply when testing external Tools when using the ``-e``
 option.
 
 
-Example End-to-End Test Script
+Example End-to-End test script
 ==============================
 
 To illustrate how the end-to-end test scripts work, let's walk through
-a simple "Hello, world!" example::
+a simple *Hello, world!* example::
 
     #!python
     import TestSCons
@@ -241,15 +268,17 @@ a simple "Hello, world!" example::
 
     test.pass_test()
 
+Explanation
+-----------
 
 ``import TestSCons``
-   Imports the main infrastructure for writing SCons tests.  This is
+   Imports the main infrastructure for SCons tests.  This is
    normally the only part of the infrastructure that needs importing.
    Sometimes other Python modules are necessary or helpful, and get
    imported before this line.
 
 ``test = TestSCons.TestSCons()``
-   This initializes an object for testing.  A fair amount happens under
+   Initializes an object for testing.  A fair amount happens under
    the covers when the object is created, including:
 
    * A temporary directory is created for all the in-line files that will
@@ -302,8 +331,8 @@ Working with fixtures
 
 In the simple example above, the files to set up the test are created
 on the fly by the test program. We give a filename to the ``TestSCons.write()``
-method, and a string holding its contents, and it gets written to the test
-directory right before starting..
+method, plus a string holding its contents, and it gets written to the test
+directory right before starting.
 
 This simple technique can be seen throughout most of the end-to-end
 tests as it was the original technique provided to test developers,
@@ -321,12 +350,12 @@ for code, so the effect is lost on them.
 
 In testing parlance, a fixture is a repeatable test setup.  The SCons
 test harness allows the use of saved files or directories to be used
-in that sense: "the fixture for this test is foo", instead of writing
+in that sense: *the fixture for this test is foo*, instead of writing
 a whole bunch of strings to create files. Since these setups can be
 reusable across multiple tests, the *fixture* terminology applies well.
 
 Note: fixtures must not be treated by SCons as runnable tests. To exclude
-them, see instructions in the above section named "Finding Tests".
+them, see instructions in the above section named `Selecting tests`_.
 
 Directory fixtures
 ------------------
@@ -390,9 +419,11 @@ would have been placed in the top level of the test directory.
 Again, a reference example can be found in the current revision
 of SCons, see ``test/packaging/sandbox-test/sandbox-test.py``.
 
-For even more examples you should check out
-one of the external Tools, e.g. the *Qt4* Tool at
-https://bitbucket.org/dirkbaechle/scons_qt4. Also visit the SCons Tools
+For even more examples you should check out one of the external Tools,
+e.g. the *Qt5* Tool at
+https://github.com/SCons/scons-contrib/tree/master/sconscontrib/SCons/Tool/qt5.
+There are many other tools in the contrib repository,
+and you can also visit the SCons Tools
 Index at https://github.com/SCons/scons/wiki/ToolsIndex for a complete
 list of available Tools, though not all may have tests yet.
 
@@ -448,54 +479,65 @@ Note that some files are not appropriate for use in a fixture as-is:
 fixture files should be static. If the creation of the file involves
 interpolating data discovered during the run of the test script,
 that process should stay in the script.  Here is an example of this
-kind of usage that does not lend itself to a fixture::
+kind of usage that does not lend itself easily to a fixture::
 
    import TestSCons
    _python_ = TestSCons._python_
 
-   test.write('SConstruct', """
+   test.write('SConstruct', f"""
    cc = Environment().Dictionary('CC')
    env = Environment(
-       LINK=r'%(_python_)s mylink.py',
+       LINK=r'{_python_} mylink.py',
        LINKFLAGS=[],
-       CC=r'%(_python_)s mycc.py',
+       CC=r'{_python_} mycc.py',
        CXX=cc,
        CXXFLAGS=[],
    )
    env.Program(target='test1', source='test1.c')
-   """ % locals())
+   """
 
-Here the value of ``_python_`` is picked out of the script's
-``locals`` dictionary - which works because we've set it above -
-and interpolated using a mapping key into the string that will
-be written to ``SConstruct``. A fixture would be hard to use
-here because we don't know the value of ``_python_`` until runtime.
+Here the value of ``_python_`` from the test program is
+pasted in via f-string formatting. A fixture would be hard to use
+here because we don't know the value of ``_python_`` until runtime
+(also note that as it will be a full pathname, it's entered as a
+Python rawstring to avoid interpretation problems on Windows,
+where the path separator is a backslash).
 
 The other files created in this test may still be candidates for
 use as fixture files, however.
 
+
 Debugging end-to-end tests
 ==========================
 
-Most of the end to end tests have expectations for standard output
-and error embedded in the tests. The expectation could be either
-that there is nothing on that stream, or that it will contain
-very specific text which the test matches against. So adding
-``print()`` calls, or ``sys.stderr.write()`` or similar will
-emit data that the tests do not expect, and thus cause further
-failures - possibly even obscuring the original error.
-Say you have three different tests in a script, and the third
-one is unexpectedly failing. You add some debug prints to the
-part of scons that is involved, and now the first test of the
-three starts failing, aborting the test run before it gets
-to the third test you were trying to debug.
+The end-to-end tests are hand-crafted SCons projects, so testing
+involves running an instance of scons with those inputs. The
+tests treat the SCons invocation as a *black box*,
+usually looking for *external* effects of the test - targets are
+created, created files have expected contents, files properly
+removed on clean, etc.  They often also look for
+the flow of messages from SCons.
+
+Simple tricks like inserting ``print`` statements in the SCons code
+itself don't really help as they end up disrupting those external
+effects (e.g. ``test.run(stdout="Some text")``, but with the
+``print``, ``stdout`` contains the extra print output and the
+result doesn't match).
+
+Even more irritatingly, added text can cause other tests to fail and
+obscure the error you're looking for.  Say you have three different
+tests in a script excercising different code paths for the same feature,
+and the third one is unexpectedly failing. You add some debug prints to
+the affected part of scons, and now the first test of the three starts
+failing, aborting the test run before it even gets to the third test -
+the one you were trying to debug.
 
 Still, there are some techniques to help debugging.
 
 The first step should be to run the tests so the harness
 emits more information, without forcing more information into
 the test stdout/stderr which will confuse result evaluation.
-``runtest.py`` has several verbose levels which can be used
+``runtest.py`` has several levels of verbosity which can be used
 for this purpose::
 
    $ python runtest.py --verbose=2 test/foo.py
@@ -503,11 +545,13 @@ for this purpose::
 You can also use the internal
 ``SCons.Debug.Trace()`` function, which prints output to
 ``/dev/tty`` on Linux/UNIX systems and ``con`` on Windows systems,
-so you can see what's going on.
+so you can see what's going on, but do not contribute to the
+captured stdout/stderr and mess up the test expectations.
 
 If you do need to add informational messages in scons code
 to debug a problem, you can use logging and send the messages
 to a file instead, so they don't interrupt the test expectations.
+Or write directly to a trace file of your choosing.
 
 Part of the technique discussed in the section
 `How to Convert Old Tests to Use Fixures`_ can also be helpful
@@ -515,30 +559,44 @@ for debugging purposes.  If you have a failing test, try::
 
    $ PRESERVE=1 python runtest.py test/failing-test.py
 
-You can now go to the save directory reported from this run
-and invoke the test manually to see what it is doing, without
-the presence of the test infrastructure which would otherwise
-"swallow" output you may be interested in. In this case,
+You can now go to the save directory reported from this run and invoke
+scons manually (with appropriate arguments matching what the test did)
+to see the results without the presence of the test infrastructure which
+would otherwise consume output you may be interested in. In this case,
 adding debug prints may be more useful.
+
+There are related variables ``PRESERVE_PASS``, ``PRESERVE_FAIL`` and
+``PRESERVE_NORESULT`` that preserve the directory only if the test result
+was the indicated one, which is helpful if you're trying to work with
+multiple tests showing an unusual result.
+
+From a Windows ``cmd`` shell, you will have to set the envronment
+variable first, it doesn't work on a single line like the example above for
+POSIX-style shells.
 
 
 Test infrastructure
 ===================
 
-The main test API is defined in the ``TestSCons`` class.  ``TestSCons``
-is a subclass of ``TestCommon``, which is a subclass of ``TestCmd``.
-All those classes are defined in Python files of the same name
-in ``testing/framework``. 
+The main end-to-end test API is defined in the ``TestSCons`` class.
+``TestSCons`` is a subclass of ``TestCommon``,
+which is a subclass of ``TestCmd``.
+``TestSCons`` provides the help for using an instance of SCons during
+the run.
+
+The unit tests do not run an instance of SCons separately, but instead
+import the modules of SCons that they intend to test. Those tests
+should use the ``TestCmd`` class - it is intended for runnable scripts.
+
+Those classes are defined in Python files of the same name
+in ``testing/framework``.
 Start in ``testing/framework/TestCmd.py`` for the base API definitions, like how
 to create files (``test.write()``) and run commands (``test.run()``).
-
-Use ``TestSCons`` for the end-to-end tests in ``test``, but use
-``TestCmd`` for the unit tests in the ``src`` directory.
 
 The match functions work like this:
 
 ``TestSCons.match_re``
-   match each line with a RE
+   match each line with an RE
 
    * Splits the lines into a list (unless they already are)
    * splits the REs at newlines (unless already a list)
@@ -614,14 +672,84 @@ plumbed into the environment.  These things can be tested by mocking the
 behavior of the executable.  Many examples of this can be found in the
 ``test`` directory. See for example ``test/subdivide.py``.
 
-This leads to a suggestion for E2E test organization because the framework
-doesn't have a way to indicate a partial skip - if you executed
-200 lines of test, then found a condition which caused you to skip the
-last 20 lines, the whole test is marked as a skip;
-it also doesn't have a way to indicate a partial pass.
-To improve on this, keep tool tests which don't need the
-underlying program in separate files from ones which do -
-that way one can see in the test results that the "plumbing"
-tests worked even if the the ones using the underlying program
-maybe were skipped.
+Testing DOs and DONTs
+=====================
+
+There's no question that having to write tests in order to get a change
+approved - even an apparently trivial change - does make it a little harder
+to contribute to the SCons code base - but the requirement to have features
+and bugfixes testable is a necessary part of ensuring SCons quality.
+Thinking of SCons development in terms of the red/green model from
+Test Driven Development should make things a little easier.
+
+If you are working on an SCons bug, try to come up with a simple
+reproducer first.  Bug reports (even your own!) are often like *I tried
+to do this but it surprisingly failed*, and a reproducer is normally an
+``SConstruct`` along with, probably, some supporting files such as source
+files, data files, subsidiary SConscripts, etc.  Try to make this example
+as simple and clean as possible.  No, this isn't necessarily easy to do,
+but winnowing down what triggers a problem and removing the stuff that
+doesn't actually contribute to triggering the problem it is a step that
+lets you (and later readers) more clearly understand what is going on.
+You don't have to turn this into a formal testcase yet, but keep this
+reproducer around, and document with it what you expect to happen,
+and what actually happens.  This material will help produce an E2E
+test later, and this is something you *may* be able to get help with,
+if the way the tests are usually written and the test harness proves
+too confusing.  With a clean test in hand (make sure it's failing!)
+you can go ahead an code up a fix and make sure it passes with the fix
+in place.  Jumping straight to a fix without working on a testcase like
+this will often lead to a disappointing *how do I come up with a test
+so the maintainer will be willing to merge* phase. Asking questions on
+a public forum can be productive here.
+
+E2E-specific Suggestions:
+
+* Do not require the use of an external tool unless necessary.
+  Usually the SCons behavior is the thing we want to test,
+  not the behavior of the external tool. *Necessary* is not a precise term -
+  sometimes it would be too time-consuming to write a script to mock
+  a compiler with an extensive set of options, and sometimes it's
+  not a good idea to assume you know what all those will do vs what
+  the real tool does; there may be other good reasons for just going
+  ahead and calling the external tool.
+* If using an external tool, be prepared to skip the test if it is unavailable.
+* Do not combine tests that need an external tool with ones that
+  do not - divide these into separate test files. There is no concept
+  of partial skip for e2e tests, so if you successfully complete seven
+  of eight tests, and then come to a conditional "skip if tool missing"
+  or "skip if on Windows", and that branch is taken, then the
+  whole test file ends up skipped, and the seven that ran will
+  never be recorded.  Some tests follow the convention of creating a
+  second test file with the ending ``-live`` for the part that requires
+  actually running the external tool.
+* In testing, *fail fast* is not always the best policy - if you can think
+  of many scenarios that could go wrong and they are all run linearly in
+  a single test file, then you only hear about the first one that fails.
+  In some cases it may make sense to split them out a bit more, so you
+  can see several fails at once, which may show a helpful failure pattern
+  you wouldn't spot from a single fail.
+* Use test fixtures where it makes sense, and in particular, try to
+  make use of shareable mocked tools, which, by getting lots of use,
+  will be better debugged (that is, don't have each test produce its
+  own ``myfortan.py`` or ``mylex.py`` etc. unless they need drastically
+  different behaviors).
+
+Unittest-specific hints:
+
+- Let the ``unittest`` module help!  Lots of the existing tests just
+  use a bare ``assert`` call for checks, which works fine, but then
+  you are responsible for preparing the message if it fails.  The base
+  ``TestCase`` class has methods which know how to display many things,
+  for example ``self.assertEqual()`` displays in what way the two arguments
+  differ if they are *not* equal. Checking for am expected exception can
+  be done with ``self.assertRaises()`` rather than crafting a stub of
+  code using a try block for this situation.
+- The *fail fast* consideration applies here, too: try not to fail a whole
+  testcase on the first problem, if there are more checks to go.
+  Again, existing tests may use elaborate tricks for this, but modern
+  ``unittest`` has a ``subTest`` context manager that can be used to wrap
+  each distinct piece and not abort the testcase for a failing subtest
+  (to be fair, this functionality is a recent addition, after most SCons
+  unit tests were written - but it should be used going forward).
 

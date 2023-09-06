@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test scons when no MSVCs are present.
@@ -33,7 +32,6 @@ import sys
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 if sys.platform != 'win32':
     test.skip_test("Not win32 platform. Skipping test\n")
 
@@ -44,7 +42,6 @@ test.run(arguments='-Q -s', stdout='')
 # test no msvc's
 test.file_fixture('no_msvc/no_msvcs_sconstruct.py', 'SConstruct')
 test.run(arguments='-Q -s')
-
 if 'MSVC_VERSION=None' not in test.stdout():
     test.fail_test()
 
@@ -63,7 +60,6 @@ def generate(env):
 def exists(env):
     return 1
 """)
-
 test.file_fixture('no_msvc/no_msvcs_sconstruct_tools.py', 'SConstruct')
 test.run(arguments='-Q -s')
 
@@ -84,3 +80,8 @@ test.must_contain_all(test.stdout(), 'msvc_version=None, msvc_toolset_version=No
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

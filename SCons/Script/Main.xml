@@ -183,6 +183,23 @@ Future versions of &SCons; will likely forbid such usage.
 </summary>
 </scons_function>
 
+<scons_function name="DebugOptions">
+<arguments signature="global">
+([json])
+</arguments>
+<summary>
+<para>
+Allows setting options for SCons debug options. Currently the only supported value is
+  <emphasis>json</emphasis> which sets the path to the json file created when
+  <literal>--debug=json</literal> is set.
+</para>
+  <example_commands>
+DebugOptions(json='#/build/output/scons_stats.json')
+</example_commands>
+</summary>
+</scons_function>
+
+
 <scons_function name="GetBuildFailures">
 <arguments signature="global">
 ()
@@ -316,18 +333,22 @@ atexit.register(print_build_failures)
 </arguments>
 <summary>
 <para>
-This function provides a way to query the value of
-options which can be set via the command line or using the
-&f-link-SetOption; function.
+Query the value of settable options which may have been set
+on the command line, or by using the &f-link-SetOption; function.
+The value of the option is returned in a type matching how the
+option was declared - see the documentation for the
+corresponding command line option for information about each specific
+option.
 </para>
+
 <para>
 <parameter>name</parameter> can be an entry from the following table,
 which shows the corresponding command line arguments
 that could affect the value.
 <parameter>name</parameter> can be also be the destination
 variable name from a project-specific option added using the
-&f-link-AddOption; function, as long as the addition
-happens prior to the &f-GetOption; call in the SConscript files.
+&f-link-AddOption; function, as long as that addition has been
+processed prior to the &f-GetOption; call in the &SConscript; files.
 </para>
 
 <informaltable rowsep="1" colsep="1" frame="topbot">
@@ -552,12 +573,6 @@ happens prior to the &f-GetOption; call in the SConscript files.
 </tbody>
 </tgroup>
 </informaltable>
-
-<para>
-See the documentation for the
-corresponding command line option for information about each specific
-option.
-</para>
 </summary>
 </scons_function>
 
@@ -751,7 +766,7 @@ Sets &scons; option variable <parameter>name</parameter>
 to <parameter>value</parameter>.
 These options are all also settable via
 command-line options but the variable name
-may differ from the command-line option name - 
+may differ from the command-line option name -
 see the table for correspondences.
 A value set via command-line option will take
 precedence over one set with &f-SetOption;, which
@@ -948,64 +963,79 @@ SetOption('max_drift', 0)
 
 </scons_function>
 
-    <scons_function name="ValidateOptions">
-        <arguments signature="global">
-            ([throw_exception=False])
-        </arguments>
+  <scons_function name="ValidateOptions">
+    <arguments signature="global">([throw_exception=False])</arguments>
 
-        <summary>
-            <para>
-                Check that all the options specified on the command line are either defined by SCons itself
-                or defined by calls to &f-link-AddOption;.
-            </para>
-            <para>
-                This function should only be called after the last &f-link-AddOption; call in your &SConscript;
-                logic.
-            </para>
-            <para>
-                Be aware that some tools call &f-link-AddOption;, if you are getting error messages for arguments
-                that they add, you will need to ensure that you load those tools before you call &f-ValidateOptions;.
-            </para>
-            <para>
-                If there are any command line options not defined, calling this function will cause SCons to issue an
-                error message and then exit with an error exit
-                status.</para>
-            <para>If the optional <parameter>throw_exception</parameter> is <literal>True</literal>, &f-ValidateOptions; will raise a
-                <exceptionname>SConsBadOptionError</exceptionname>
-                exception. This would allow the calling
-                &SConscript; logic can catch that exception and handle invalid options itself.
-            </para>
+    <summary>
+      <para>
+        Check that all the options specified on the command line are either
+        &SCons; built-in options or defined via calls to &f-link-AddOption;.
+        &SCons; will eventually fail on unknown options anyway, but calling
+        this function allows the build to "fail fast" before executing
+        expensive logic later in the build.
+      </para>
 
-            <para>
-                Example:
-            </para>
+      <para>
+        This function should only be called after the last &f-AddOption;
+        call in your &SConscript; logic.
+        Be aware that some tools call &f-AddOption;, if you are getting
+        error messages for arguments that they add, you will need to ensure
+        that those tools are loaded before calling &f-ValidateOptions;.
+      </para>
 
-            <example_commands>
+      <para>
+        If there are any unknown command line options, &f-ValidateOptions;
+        prints an error message and exits with an error exit status.
+        If the optional <parameter>throw_exception</parameter> argument is
+        <literal>True</literal> (default is <literal>False</literal>),
+        a <exceptionname>SConsBadOptionError</exceptionname> is raised,
+        giving an opportunity for the &SConscript; logic to catch that
+        exception and handle invalid options appropriately. Note that
+        this exception name needs to be imported (see the example below).
+      </para>
+
+      <para>
+        A common build problem is typos (or thinkos) - a user enters an option
+        that is just a little off the expected value, or perhaps a different
+        word with a similar meaning.  It may be useful to abort the build
+        before going too far down the wrong path. For example:
+      </para>
+
+      <screen>
+$ <userinput>scons --compilers=mingw</userinput>  # the correct flag is --compiler
+      </screen>
+
+      <para>
+        Here &SCons; could go off and run a bunch of configure steps with
+        the default value of <literal>--compiler</literal>, since the
+        incorrect command line did not actually supply a value to it,
+        costing developer time to track down why the configure logic
+        made the "wrong" choices.  This example shows catching this:
+      </para>
+
+      <programlisting language="python">
+from SCons.Script.SConsOptions import SConsBadOptionError
+
+AddOption(
+    '--compiler',
+    dest='compiler',
+    action='store',
+    default='gcc',
+    type='string',
+)
+
+# ... other SConscript logic ...
+
 try:
     ValidateOptions(throw_exception=True)
 except SConsBadOptionError as e:
-    print("Parser is SConsOptionParser:%s" % (isinstance(e.parser, SConsOptionParser)))
-    print("Message is :%s" % e.opt_str)
+    print(f"ValidateOptions detects a fail: ", e.opt_str)
     Exit(3)
-            </example_commands>
+      </programlisting>
 
-            <para>
-                This function is useful to force SCons to fail fast before you execute any expensive logic later in your
-                build logic.
-                For example if you specify build options via any flags, a simple typo could yield the incorrect build
-                option throughout your entire build.
-            </para>
-            <example_commands>
-scons --compilers=mingw (the correct flag is --compiler)
-            </example_commands>
-            <para>
-                Could cause SCons to run configure steps with the incorrect compiler. Costing developer time trying to
-                track down why the configure logic failed with a compiler which should work.
-            </para>
+      <para><emphasis>New in version 4.5.0</emphasis></para>
 
-
-
-        </summary>
-    </scons_function>
+    </summary>
+  </scons_function>
 
 </sconsdoc>

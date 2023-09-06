@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -31,12 +33,9 @@ from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
-
 installed_versions = get_installed_vcs_components()
-
 GE_VS2015_versions = [v for v in installed_versions if v.msvc_vernum >= 14.0]
 LT_VS2015_versions = [v for v in installed_versions if v.msvc_vernum < 14.0]
 
@@ -55,7 +54,6 @@ re_lib_ge2017_2 = re.compile(r'\\lib\\x64\\store', re.IGNORECASE)
 
 
 def check_libpath(msvc, active, output):
-
     def _check_libpath(msvc, output):
         outdict = {key.strip(): val.strip() for key, val in [line.split('|') for line in output.splitlines()]}
         platform = outdict.get('PLATFORM', '')
@@ -90,11 +88,8 @@ def check_libpath(msvc, active, output):
 
 if GE_VS2015_versions:
     # VS2015 and later for uwp/store argument
-
     for supported in GE_VS2015_versions:
-
         for msvc_uwp_app in (True, '1', False, '0', None):
-
             active = msvc_uwp_app in (True, '1')
 
             # uwp using construction variable
@@ -141,11 +136,8 @@ if GE_VS2015_versions:
 
 if LT_VS2015_versions:
     # VS2013 and earlier for uwp/store error
-
     for unsupported in LT_VS2015_versions:
-
         for msvc_uwp_app in (True, '1', False, '0', None):
-
             active = msvc_uwp_app in (True, '1')
 
             # uwp using construction variable
@@ -165,3 +157,8 @@ if LT_VS2015_versions:
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

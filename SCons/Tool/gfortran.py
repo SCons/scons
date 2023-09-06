@@ -29,24 +29,32 @@ It will usually be imported through the generic SCons.Tool.Tool()
 selection method.
 """
 
-import SCons.Util
+from SCons.Util import CLVar
+from SCons.Tool.FortranCommon import add_all_to_env, add_fortran_to_env
 
-from . import fortran
+compilers = ['gfortran']
 
 
-def generate(env):
-    """Add Builders and construction variables for gfortran to an
-    Environment."""
-    fortran.generate(env)
+def generate(env) -> None:
+    """Add Builders and construction variables for gfortran."""
 
-    for dialect in ['F77', 'F90', 'FORTRAN', 'F95', 'F03', 'F08']:
-        env[f'{dialect}'] = 'gfortran'
-        env[f'SH{dialect}'] = f'${dialect}'
-        if env['PLATFORM'] in ['cygwin', 'win32']:
-            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS')
-        else:
-            env[f'SH{dialect}FLAGS'] = SCons.Util.CLVar(f'${dialect}FLAGS -fPIC')
+    add_all_to_env(env)
+    add_fortran_to_env(env)
 
+    compiler = env.Detect(compilers) or 'gfortran'
+
+    # fill in other dialects (FORTRAN dialect set by fortran.generate(),
+    # but don't overwrite if they have been set manually.
+    for dialect in ['FORTRAN', 'F77', 'F90', 'F95', 'F03', 'F08']:
+        if dialect not in env:
+            env[f'{dialect}'] = compiler
+        if f'SH{dialect}' not in env:
+            env[f'SH{dialect}'] = f'${dialect}'
+
+        # The fortran module always sets the shlib FLAGS, but does not
+        # include -fPIC, which is needed for the GNU tools. Rewrite if needed.
+        if env['PLATFORM'] not in ['cygwin', 'win32']:
+            env[f'SH{dialect}FLAGS'] = CLVar(f'${dialect}FLAGS -fPIC')
         env[f'INC{dialect}PREFIX'] = "-I"
         env[f'INC{dialect}SUFFIX'] = ""
 

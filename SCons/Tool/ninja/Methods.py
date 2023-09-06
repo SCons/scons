@@ -33,21 +33,21 @@ from SCons.Tool.ninja.Utils import get_targets_sources, get_dependencies, get_or
     get_rule, get_path, generate_command, get_command_env, get_comstr
 
 
-def register_custom_handler(env, name, handler):
+def register_custom_handler(env, name, handler) -> None:
     """Register a custom handler for SCons function actions."""
     env[NINJA_CUSTOM_HANDLERS][name] = handler
 
 
-def register_custom_rule_mapping(env, pre_subst_string, rule):
+def register_custom_rule_mapping(env, pre_subst_string, rule) -> None:
     """Register a function to call for a given rule."""
     SCons.Tool.ninja.Globals.__NINJA_RULE_MAPPING[pre_subst_string] = rule
 
 
-def register_custom_rule(env, rule, command, description="", deps=None, pool=None, use_depfile=False, use_response_file=False, response_file_content="$rspc"):
+def register_custom_rule(env, rule, command, description: str="", deps=None, pool=None, use_depfile: bool=False, use_response_file: bool=False, response_file_content: str="$rspc") -> None:
     """Allows specification of Ninja rules from inside SCons files."""
     rule_obj = {
         "command": command,
-        "description": description if description else "{} $out".format(rule),
+        "description": description if description else f"{rule} $out",
     }
 
     if use_depfile:
@@ -66,12 +66,12 @@ def register_custom_rule(env, rule, command, description="", deps=None, pool=Non
     env[NINJA_RULES][rule] = rule_obj
 
 
-def register_custom_pool(env, pool, size):
+def register_custom_pool(env, pool, size) -> None:
     """Allows the creation of custom Ninja pools"""
     env[NINJA_POOLS][pool] = size
 
 
-def set_build_node_callback(env, node, callback):
+def set_build_node_callback(env, node, callback) -> None:
     if not node.is_conftest():
         node.attributes.ninja_build_callback = callback
 
@@ -215,7 +215,7 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
     return ninja_build
 
 
-def gen_get_response_file_command(env, rule, tool, tool_is_dynamic=False, custom_env={}):
+def gen_get_response_file_command(env, rule, tool, tool_is_dynamic: bool=False, custom_env={}):
     """Generate a response file command provider for rule name."""
 
     # If win32 using the environment with a response file command will cause

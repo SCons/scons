@@ -130,14 +130,14 @@ def DefaultToolList(platform, env):
 
 
 class PlatformSpec:
-    def __init__(self, name, generate):
+    def __init__(self, name, generate) -> None:
         self.name = name
         self.generate = generate
 
     def __call__(self, *args, **kw):
         return self.generate(*args, **kw)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -192,7 +192,7 @@ class TempFileMunge:
         env["TEMPFILEARGESCFUNC"] = tempfile_arg_esc_func
 
     """
-    def __init__(self, cmd, cmdstr = None):
+    def __init__(self, cmd, cmdstr = None) -> None:
         self.cmd = cmd
         self.cmdstr = cmdstr
 
@@ -323,7 +323,7 @@ class TempFileMunge:
 
         return cmdlist
 
-    def _print_cmd_str(self, target, source, env, cmdstr):
+    def _print_cmd_str(self, target, source, env, cmdstr) -> None:
         # check if the user has specified a cmd line print function
         print_func = None
         try:
