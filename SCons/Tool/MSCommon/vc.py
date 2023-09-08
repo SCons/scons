@@ -73,10 +73,12 @@ from .MSVC.Exceptions import (
 )
 
 # user vswhere.exe location as command-line option
-
+#
+# TODO: INTENTIONALLY DISABLED
+#
 # _vswhere_cmdline_arg = '--vswhere-path'
 # _vswhere_cmdline_var = 'vswhere_path'
-# 
+#
 # SCons.Script.AddOption(
 #     _vswhere_cmdline_arg,
 #     dest=_vswhere_cmdline_var,
@@ -554,9 +556,6 @@ _CL_EXE_NAME = 'cl.exe'
 
 _VSWHERE_EXE = 'vswhere.exe'
 
-# case-insensitive endswith vswhere.exe
-_re_match_vswhere = re.compile('^.*' + re.escape(_VSWHERE_EXE) + '$', re.IGNORECASE)
-
 def get_msvc_version_numeric(msvc_version):
     """Get the raw version numbers from a MSVC_VERSION string, so it
     could be cast to float or other numeric values. For example, '14.0Exp'
@@ -807,7 +806,7 @@ for component_id, component_rank, component_suffix, scons_suffix in (
 # VS2015 and earlier: configure registry queries to probe for installed VC editions
 _VCVER_TO_PRODUCT_DIR = {
     '14.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir'),],
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
     '14.0Exp': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir'),  # vs root
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),  # not populated?
@@ -954,20 +953,25 @@ def _vswhere_user_path(pval):
 
         if not os.path.exists(pval):
 
-            warn_msg = f'vswhere path not found: {pval!r}'
-            SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
-            debug(warn_msg)
-
-        elif not _re_match_vswhere.match(pval):
-
-            warn_msg = f'vswhere.exe not found in vswhere path: {pval!r}'
+            warn_msg = f'vswhere executable path not found: {pval!r}'
             SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
             debug(warn_msg)
 
         else:
 
-            vswhere_path = MSVC.Util.process_path(pval)
-            debug('vswhere_path=%s', vswhere_path)
+            vswhere_norm = MSVC.Util.process_path(pval)
+
+            tail = os.path.split(vswhere_norm)[-1]
+            if tail != _VSWHERE_EXE:
+
+                warn_msg = f'unsupported vswhere executable (expected {_VSWHERE_EXE!r}, found {tail!r}): {pval!r}'
+                SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
+                debug(warn_msg)
+
+            else:
+
+                vswhere_path = vswhere_norm
+                debug('vswhere_path=%s', vswhere_path)
 
     _cache_user_vswhere_paths[pval] = vswhere_path
 
@@ -983,10 +987,12 @@ def _msvc_cmdline_vswhere():
     if _vswhere_path_cmdline == UNDEFINED:
 
         vswhere_path = None
+        # TODO: INTENTIONALLY DISABLED
         # vswhere_user = SCons.Script.GetOption(_vswhere_cmdline_var)
+        vswhere_user = None
 
-        # if vswhere_user:
-        #     vswhere_path = _vswhere_user_path(vswhere_user)
+        if vswhere_user:
+            vswhere_path = _vswhere_user_path(vswhere_user)
 
         _vswhere_path_cmdline = vswhere_path
         debug('vswhere_path=%s', vswhere_path)
@@ -1027,11 +1033,14 @@ def msvc_find_vswhere():
     # NB: this gets called from testsuite on non-Windows platforms.
     # Whether that makes sense or not, don't break it for those.
     vswhere_path = _msvc_cmdline_vswhere()
-    if not vswhere_path:
-        for pf in VSWHERE_PATHS:
-            if os.path.exists(pf):
-                vswhere_path = pf
-                break
+    if vswhere_path:
+        return
+
+    vswhere_path = None
+    for pf in VSWHERE_PATHS:
+        if os.path.exists(pf):
+            vswhere_path = pf
+            break
 
     return vswhere_path
 
@@ -1083,11 +1092,12 @@ def _filter_vswhere_paths(env):
         if vswhere_environ and vswhere_environ not in _VSWhere.seen_vswhere:
             vswhere_paths.append(vswhere_environ)
 
-    vswhere_cmdline = _msvc_cmdline_vswhere()
-    if vswhere_cmdline and vswhere_cmdline not in _VSWhere.seen_vswhere:
-        vswhere_paths.append(vswhere_cmdline)
+    # TODO: INTENTIONALLY DISABLED
+    # vswhere_cmdline = _msvc_cmdline_vswhere()
+    # if vswhere_cmdline and vswhere_cmdline not in _VSWhere.seen_vswhere:
+    #     vswhere_paths.append(vswhere_cmdline)
 
-    vswhere_default = _msvc_default_vswhere() 
+    vswhere_default = _msvc_default_vswhere()
     if vswhere_default and vswhere_default not in _VSWhere.seen_vswhere:
         vswhere_paths.append(vswhere_default)
 
