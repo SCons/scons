@@ -55,7 +55,8 @@ from functools import cmp_to_key
 import SCons.Util
 import SCons.Warnings
 from SCons.Tool import find_program_path
-import SCons.Script
+
+# import SCons.Script
 
 from . import common
 from .common import CONFIG_CACHE, debug
@@ -73,19 +74,19 @@ from .MSVC.Exceptions import (
 
 # user vswhere.exe location as command-line option
 
-_vswhere_cmdline_arg = '--vswhere-path'
-_vswhere_cmdline_var = 'vswhere_path'
-
-SCons.Script.AddOption(
-    _vswhere_cmdline_arg,
-    dest=_vswhere_cmdline_var,
-    type="string",
-    nargs=1,
-    action="store",
-    metavar='PATH',
-    default=None,
-    help='Fully qualified path to vswhere.exe.',
-)
+# _vswhere_cmdline_arg = '--vswhere-path'
+# _vswhere_cmdline_var = 'vswhere_path'
+# 
+# SCons.Script.AddOption(
+#     _vswhere_cmdline_arg,
+#     dest=_vswhere_cmdline_var,
+#     type="string",
+#     nargs=1,
+#     action="store",
+#     metavar='PATH',
+#     default=None,
+#     help='Fully qualified path to vswhere.exe.',
+# )
 
 # external exceptions
 
@@ -982,10 +983,10 @@ def _msvc_cmdline_vswhere():
     if _vswhere_path_cmdline == UNDEFINED:
 
         vswhere_path = None
-        vswhere_user = SCons.Script.GetOption(_vswhere_cmdline_var)
+        # vswhere_user = SCons.Script.GetOption(_vswhere_cmdline_var)
 
-        if vswhere_user:
-            vswhere_path = _vswhere_user_path(vswhere_user)
+        # if vswhere_user:
+        #     vswhere_path = _vswhere_user_path(vswhere_user)
 
         _vswhere_path_cmdline = vswhere_path
         debug('vswhere_path=%s', vswhere_path)
@@ -1184,14 +1185,13 @@ def _update_vswhere_msvc_map(env):
             if not installation_path or not os.path.exists(installation_path):
                 continue
 
-            vc_root = os.path.join(installation_path, 'VC')
-            if not os.path.exists(vc_root):
+            vc_path = os.path.join(installation_path, 'VC')
+            if not os.path.exists(vc_path):
                 continue
 
-            vc_root = MSVC.Util.process_path(vc_root)
+            vc_root = MSVC.Util.process_path(vc_path)
             if vc_root in _VSWhere.seen_root:
                 continue
-
             _VSWhere.seen_root.add(vc_root)
 
             installation_version = instance.get('installationVersion')
@@ -1229,7 +1229,7 @@ def _update_vswhere_msvc_map(env):
             is_release = False if is_prerelease else True
 
             msvc_instance = MSVC_INSTANCE(
-                vc_path = vc_root,
+                vc_path = vc_path,
                 vc_version = vc_version,
                 vc_version_numeric = float(vc_version),
                 vc_version_scons = vc_version_scons,
