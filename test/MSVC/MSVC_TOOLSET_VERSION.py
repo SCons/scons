@@ -38,6 +38,7 @@ test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
 default_version = installed_versions[0]
+
 GE_VS2017_versions = [v for v in installed_versions if v.msvc_vernum >= 14.1]
 LT_VS2017_versions = [v for v in installed_versions if v.msvc_vernum < 14.1]
 LT_VS2015_versions = [v for v in LT_VS2017_versions if v.msvc_vernum < 14.0]

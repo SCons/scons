@@ -75,7 +75,7 @@ class VswhereTestCase(unittest.TestCase):
 class MSVcTestCase(unittest.TestCase):
 
     @staticmethod
-    def _createDummyCl(path, add_bin: bool=True) -> None:
+    def _createDummyFile(path, filename, add_bin: bool=True) -> None:
         """
         Creates a dummy cl.exe in the correct directory.
         It will create all missing parent directories as well
@@ -94,7 +94,7 @@ class MSVcTestCase(unittest.TestCase):
         if create_path and not os.path.isdir(create_path):
             os.makedirs(create_path)
 
-        create_this = os.path.join(create_path,'cl.exe')
+        create_this = os.path.join(create_path, filename)
 
         # print("Creating: %s"%create_this)
         with open(create_this,'w') as ct:
@@ -105,18 +105,10 @@ class MSVcTestCase(unittest.TestCase):
         """
         Check that all proper HOST_PLATFORM and TARGET_PLATFORM are handled.
         Verify that improper HOST_PLATFORM and/or TARGET_PLATFORM are properly handled.
-        by SCons.Tool.MSCommon.vc._check_cl_exists_in_vc_dir()
+        by SCons.Tool.MSCommon.vc._check_files_exist_in_vc_dir()
         """
 
-        check = SCons.Tool.MSCommon.vc._check_cl_exists_in_vc_dir
-
-        env={'TARGET_ARCH':'x86'}
-        _, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[('x86','x86')]
-        path = os.path.join('.', *clpathcomps)
-        MSVcTestCase._createDummyCl(path, add_bin=False)
-
-        # print("retval:%s"%check(env, '.', '8.0'))
-
+        check = SCons.Tool.MSCommon.vc._check_files_exist_in_vc_dir
 
         # Setup for 14.1 (VS2017) and later tests
 
@@ -131,122 +123,70 @@ class MSVcTestCase(unittest.TestCase):
         except IOError as e:
             print("Failed trying to write :%s :%s" % (tools_version_file, e))
 
-
         # Test 14.3 (VS2022) and later
         vc_ge2022_list = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_CFG.all_pairs
-
         for host, target in vc_ge2022_list:
             batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("GE 14.3 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            path = os.path.join('.', "Auxiliary", "Build", batfile)
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
             path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
-            MSVcTestCase._createDummyCl(path, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
             result=check(env, '.', '14.3')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
-        # Now test bogus value for HOST_ARCH
-        env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
-        try:
-            result=check(env, '.', '14.3')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedHostArch:
-            pass
-        else:
-            self.fail('Did not fail when HOST_ARCH specified as: %s' % env['HOST_ARCH'])
-
-        # Now test bogus value for TARGET_ARCH
-        env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
-        try:
-            result=check(env, '.', '14.3')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedTargetArch:
-            pass
-        else:
-            self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
-
         # Test 14.2 (VS2019) to 14.1 (VS2017) versions
         vc_le2019_list = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_CFG.all_pairs
-
         for host, target in vc_le2019_list:
             batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("LE 14.2 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
-            MSVcTestCase._createDummyCl(path, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
             result=check(env, '.', '14.1')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
-        # Now test bogus value for HOST_ARCH
-        env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
-        try:
-            result=check(env, '.', '14.1')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedHostArch:
-            pass
-        else:
-            self.fail('Did not fail when HOST_ARCH specified as: %s' % env['HOST_ARCH'])
-
-        # Now test bogus value for TARGET_ARCH
-        env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
-        try:
-            result=check(env, '.', '14.1')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedTargetArch:
-            pass
-        else:
-            self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
-
-        # Test 14.0 (VS2015) to 8.0 (VS2005) versions
+        # Test 14.0 (VS2015) to 10.0 (VS2010) versions
         vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_CFG.all_pairs
-
         for host, target in vc_le2015_list:
-            batarg, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_CLPATHCOMPS[(host, target)]
-            # print("LE 14.0 Got: (%s, %s) -> (%s, %s)"%(host,target,batarg,clpathcomps))
+            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
+            # print("LE 14.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
             path = os.path.join('.', *clpathcomps)
-            MSVcTestCase._createDummyCl(path, add_bin=False)
-            result=check(env, '.', '9.0')
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            result=check(env, '.', '10.0')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
-        # Now test bogus value for HOST_ARCH
-        env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
-        try:
-            result=check(env, '.', '9.0')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedHostArch:
-            pass
-        else:
-            self.fail('Did not fail when HOST_ARCH specified as: %s' % env['HOST_ARCH'])
-
-        # Now test bogus value for TARGET_ARCH
-        env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
-        try:
-            result=check(env, '.', '9.0')
-            # print("for:%s got :%s"%(env, result))
-            self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
-        except MSVCUnsupportedTargetArch:
-            pass
-        else:
-            self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
+        # Test 9.0 (VC2008) to 8.0 (VS2005)
+        vc_le2008_list = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_CFG.all_pairs
+        for host, target in vc_le2008_list:
+            batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
+            # print("LE 9.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
+            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
+            MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
+            path = os.path.join('.', *clpathcomps)
+            MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
+            MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
+            # check will fail if '9.0' and VCForPython (layout different)
+            result=check(env, '.', '8.0')
+            # print("for:(%s, %s) got :%s"%(host, target, result))
+            self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 7.1 (VS2003) and earlier
         vc_le2003_list = SCons.Tool.MSCommon.vc._LE2003_HOST_TARGET_CFG.all_pairs
-
         for host, target in vc_le2003_list:
             # print("LE 7.1 Got: (%s, %s)"%(host,target))
             env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.')
-            MSVcTestCase._createDummyCl(path)
+            MSVcTestCase._createDummyFile(path, 'cl.exe')
             result=check(env, '.', '6.0')
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
@@ -254,7 +194,7 @@ class MSVcTestCase(unittest.TestCase):
         # Now test bogus value for HOST_ARCH
         env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
         try:
-            result=check(env, '.', '6.0')
+            result=check(env, '.', '14.3')
             # print("for:%s got :%s"%(env, result))
             self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedHostArch:
@@ -265,14 +205,13 @@ class MSVcTestCase(unittest.TestCase):
         # Now test bogus value for TARGET_ARCH
         env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
         try:
-            result=check(env, '.', '6.0')
+            result=check(env, '.', '14.3')
             # print("for:%s got :%s"%(env, result))
             self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedTargetArch:
             pass
         else:
             self.fail('Did not fail when TARGET_ARCH specified as: %s' % env['TARGET_ARCH'])
-
 
 class Data:
 

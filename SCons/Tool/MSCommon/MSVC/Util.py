@@ -155,6 +155,26 @@ def get_msvc_version_prefix(version):
             rval = m.group('version')
     return rval
 
+def get_msvc_version_prefix_suffix(version):
+    """
+    Get the msvc version number prefix and suffix from a string.
+
+    Args:
+        version: str
+            version specification
+
+    Returns:
+        (str, str): the msvc version prefix and suffix
+
+    """
+    prefix = suffix = ''
+    if version:
+        m = re_msvc_version.match(version)
+        if m:
+            prefix = m.group('msvc_version')
+            suffix = m.group('suffix') if m.group('suffix') else ''
+    return prefix, suffix
+
 # toolset version query utilities
 
 def is_toolset_full(toolset_version) -> bool:

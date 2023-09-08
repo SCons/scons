@@ -880,9 +880,9 @@ class msvs71TestCase(msvsTestCase):
 class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
     """Test MSVS 8 Express Registry"""
     registry = DummyRegistry(regdata_8exp + regdata_cv)
-    default_version = '8.0Exp'
-    highest_version = '8.0Exp'
-    number_of_versions = 1
+    default_version = '8.0'
+    highest_version = '8.0'
+    number_of_versions = 2
     install_locs = {
         '6.0' : {},
         '7.0' : {},

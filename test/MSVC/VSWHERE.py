@@ -28,6 +28,7 @@ Test the ability to configure the $VSWHERE construction variable.
 Also test that vswhere.exe is found and sets VSWHERE to the correct values
 """
 import os.path
+import SCons.Tool.MSCommon
 import TestSCons
 
 _python_ = TestSCons._python_
@@ -35,6 +36,10 @@ _python_ = TestSCons._python_
 test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 test.verbose_set(1)
+
+_default_vc = SCons.Tool.MSCommon.vc.get_installed_vcs_components()[0]
+if _default_vc.msvc_vernum < 14.1:
+    test.skip_test("no installed msvc requires vswhere.exe; skipping test\n")
 
 test.dir_fixture('VSWHERE-fixture')
 

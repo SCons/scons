@@ -42,6 +42,7 @@ from . import Util
 from . import Config
 from . import Registry
 from . import WinSDK
+from . import Kind
 
 from .Exceptions import (
     MSVCInternalError,
@@ -196,7 +197,7 @@ def _toolset_version(version):
 
     return version_args
 
-def _msvc_script_argument_uwp(env, msvc, arglist):
+def _msvc_script_argument_uwp(env, msvc, arglist, target_arch):
 
     uwp_app = env['MSVC_UWP_APP']
     debug('MSVC_VERSION=%s, MSVC_UWP_APP=%s', repr(msvc.version), repr(uwp_app))
@@ -216,6 +217,23 @@ def _msvc_script_argument_uwp(env, msvc, arglist):
         err_msg = "MSVC_UWP_APP ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
             repr(uwp_app), repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
         )
+        raise MSVCArgumentError(err_msg)
+
+    is_supported, is_target = Kind.msvc_version_uwp_is_supported(msvc.version, target_arch, env)
+    if not is_supported:
+        _, kind_str = Kind.get_msvc_version_kind(msvc.version)
+        debug(
+            'invalid: msvc_version constraint: %s %s %s',
+            repr(msvc.version), repr(kind_str), repr(target_arch)
+        )
+        if is_target and target_arch:
+            err_msg = "MSVC_UWP_APP ({}) TARGET_ARCH ({}) is not supported for MSVC_VERSION {} ({})".format(
+                repr(uwp_app), repr(target_arch), repr(msvc.version), repr(kind_str)
+            )
+        else:
+            err_msg = "MSVC_UWP_APP ({}) is not supported for MSVC_VERSION {} ({})".format(
+                repr(uwp_app), repr(msvc.version), repr(kind_str)
+            )
         raise MSVCArgumentError(err_msg)
 
     # VS2017+ rewrites uwp => store for 14.0 toolset
@@ -250,7 +268,7 @@ def _user_script_argument_uwp(env, uwp, user_argstr) -> bool:
 
     raise MSVCArgumentError(err_msg)
 
-def _msvc_script_argument_sdk_constraints(msvc, sdk_version):
+def _msvc_script_argument_sdk_constraints(msvc, sdk_version, env):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
         debug(
@@ -260,6 +278,14 @@ def _msvc_script_argument_sdk_constraints(msvc, sdk_version):
         )
         err_msg = "MSVC_SDK_VERSION ({}) constraint violation: MSVC_VERSION {} < {} VS2015".format(
             repr(sdk_version), repr(msvc.version), repr(VS2015.vc_buildtools_def.vc_version)
+        )
+        return err_msg
+
+    if not Kind.msvc_version_sdk_version_is_supported(msvc.version, env):
+        _, kind_str = Kind.get_msvc_version_kind(msvc.version)
+        debug('invalid: msvc_version constraint: %s %s', repr(msvc.version), repr(kind_str))
+        err_msg = "MSVC_SDK_VERSION ({}) is not supported for MSVC_VERSION {} ({})".format(
+            repr(sdk_version), repr(msvc.version), repr(kind_str)
         )
         return err_msg
 
@@ -310,7 +336,7 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
     if not sdk_version:
         return None
 
-    err_msg = _msvc_script_argument_sdk_constraints(msvc, sdk_version)
+    err_msg = _msvc_script_argument_sdk_constraints(msvc, sdk_version, env)
     if err_msg:
         raise MSVCArgumentError(err_msg)
 
@@ -334,6 +360,9 @@ def _msvc_script_argument_sdk(env, msvc, toolset, platform_def, arglist):
 def _msvc_script_default_sdk(env, msvc, platform_def, arglist, force_sdk: bool=False):
 
     if msvc.vs_def.vc_buildtools_def.vc_version_numeric < VS2015.vc_buildtools_def.vc_version_numeric:
+        return None
+
+    if not Kind.msvc_version_sdk_version_is_supported(msvc.version, env):
         return None
 
     sdk_list = WinSDK.get_sdk_version_list(msvc.vs_def, platform_def)
@@ -873,7 +902,18 @@ def _msvc_process_construction_variables(env) -> bool:
 
     return False
 
-def msvc_script_arguments(env, version, vc_dir, arg):
+def msvc_script_arguments_has_uwp(env):
+
+    if not _msvc_process_construction_variables(env):
+        return False
+
+    uwp_app = env.get('MSVC_UWP_APP')
+    is_uwp = bool(uwp_app and uwp_app in _ARGUMENT_BOOLEAN_TRUE_LEGACY)
+
+    debug('is_uwp=%s', is_uwp)
+    return is_uwp
+
+def msvc_script_arguments(env, version, vc_dir, arg=None):
 
     arguments = [arg] if arg else []
 
@@ -889,10 +929,12 @@ def msvc_script_arguments(env, version, vc_dir, arg):
 
     if _msvc_process_construction_variables(env):
 
+        target_arch = env.get('TARGET_ARCH')
+
         # MSVC_UWP_APP
 
         if 'MSVC_UWP_APP' in env:
-            uwp = _msvc_script_argument_uwp(env, msvc, arglist)
+            uwp = _msvc_script_argument_uwp(env, msvc, arglist, target_arch)
         else:
             uwp = None
 
