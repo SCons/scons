@@ -51,9 +51,9 @@ def repl_linker_command(m):
     # Replaces any linker command file directives (e.g. "@foo.lnk") with
     # the actual contents of the file.
     try:
-        with open(m.group(2), "r") as f:
+        with open(m.group(2)) as f:
             return m.group(1) + f.read()
-    except IOError:
+    except OSError:
         # the linker should return an error if it can't
         # find the linker command file so we will remain quiet.
         # However, we will replace the @ with a # so we will not continue

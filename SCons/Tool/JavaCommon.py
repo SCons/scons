@@ -121,6 +121,9 @@ if java_parsing:
                 '15.0',
                 '16.0',
                 '17.0',
+                '18.0',
+                '19.0',
+                '20.0',
             ):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError(msg)
@@ -245,6 +248,9 @@ if java_parsing:
                 '15.0',
                 '16.0',
                 '17.0',
+                '18.0',
+                '19.0',
+                '20.0',
             ):
                 self.stackAnonClassBrackets.append(self.brackets)
                 className = []
@@ -443,7 +449,7 @@ if java_parsing:
 
 
     def parse_java_file(fn, version=default_java_version):
-        with open(fn, 'r', encoding='utf-8') as f:
+        with open(fn, encoding='utf-8') as f:
             data = f.read()
         return parse_java(data, version)
 

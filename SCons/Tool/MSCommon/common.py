@@ -46,30 +46,31 @@ LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if LOGFILE:
     import logging
 
-    modulelist = (
-        # root module and parent/root module
-        'MSCommon', 'Tool',
-        # python library and below: correct iff scons does not have a lib folder
-        'lib',
-        # scons modules
-        'SCons', 'test', 'scons'
-    )
-
-    def get_relative_filename(filename, module_list):
-        if not filename:
-            return filename
-        for module in module_list:
-            try:
-                ind = filename.rindex(module)
-                return filename[ind:]
-            except ValueError:
-                pass
-        return filename
-
     class _Debug_Filter(logging.Filter):
         # custom filter for module relative filename
+
+        modulelist = (
+            # root module and parent/root module
+            'MSCommon', 'Tool',
+            # python library and below: correct iff scons does not have a lib folder
+            'lib',
+            # scons modules
+            'SCons', 'test', 'scons'
+        )
+
+        def get_relative_filename(self, filename, module_list):
+            if not filename:
+                return filename
+            for module in module_list:
+                try:
+                    ind = filename.rindex(module)
+                    return filename[ind:]
+                except ValueError:
+                    pass
+            return filename
+
         def filter(self, record) -> bool:
-            relfilename = get_relative_filename(record.pathname, modulelist)
+            relfilename = self.get_relative_filename(record.pathname, self.modulelist)
             relfilename = relfilename.replace('\\', '/')
             record.relfilename = relfilename
             return True
@@ -102,7 +103,7 @@ else:
 
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
-CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG')
+CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG', '')
 if CONFIG_CACHE in ('1', 'true', 'True'):
     CONFIG_CACHE = os.path.join(os.path.expanduser('~'), 'scons_msvc_cache.json')
 
@@ -112,50 +113,61 @@ if CONFIG_CACHE:
     if os.environ.get('SCONS_CACHE_MSVC_FORCE_DEFAULTS') in ('1', 'true', 'True'):
         CONFIG_CACHE_FORCE_DEFAULT_ARGUMENTS = True
 
-def read_script_env_cache():
+def read_script_env_cache() -> dict:
     """ fetch cached msvc env vars if requested, else return empty dict """
     envcache = {}
-    if CONFIG_CACHE:
+    p = Path(CONFIG_CACHE)
+    if not CONFIG_CACHE or not p.is_file():
+        return envcache
+    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5), p.open('r') as f:
+        # Convert the list of cache entry dictionaries read from
+        # json to the cache dictionary. Reconstruct the cache key
+        # tuple from the key list written to json.
         try:
-            p = Path(CONFIG_CACHE)
-            with p.open('r') as f:
-                # Convert the list of cache entry dictionaries read from
-                # json to the cache dictionary. Reconstruct the cache key
-                # tuple from the key list written to json.
-                envcache_list = json.load(f)
-                if isinstance(envcache_list, list):
-                    envcache = {tuple(d['key']): d['data'] for d in envcache_list}
-                else:
-                    # don't fail if incompatible format, just proceed without it
-                    warn_msg = "Incompatible format for msvc cache file {}: file may be overwritten.".format(
-                        repr(CONFIG_CACHE)
-                    )
-                    SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg)
-                    debug(warn_msg)
-        except FileNotFoundError:
-            # don't fail if no cache file, just proceed without it
-            pass
+            envcache_list = json.load(f)
+        except json.JSONDecodeError:
+            # If we couldn't decode it, it could be corrupt. Toss.
+            with suppress(FileNotFoundError):
+                p.unlink()
+            warn_msg = "Could not decode msvc cache file %s: dropping."
+            SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+            debug(warn_msg, CONFIG_CACHE)
+        else:
+            if isinstance(envcache_list, list):
+                envcache = {tuple(d['key']): d['data'] for d in envcache_list}
+            else:
+                # don't fail if incompatible format, just proceed without it
+                warn_msg = "Incompatible format for msvc cache file %s: file may be overwritten."
+                SCons.Warnings.warn(MSVCCacheInvalidWarning, warn_msg % CONFIG_CACHE)
+                debug(warn_msg, CONFIG_CACHE)
+
     return envcache
 
 
 def write_script_env_cache(cache) -> None:
     """ write out cache of msvc env vars if requested """
-    if CONFIG_CACHE:
-        try:
-            p = Path(CONFIG_CACHE)
-            with p.open('w') as f:
-                # Convert the cache dictionary to a list of cache entry
-                # dictionaries. The cache key is converted from a tuple to
-                # a list for compatibility with json.
-                envcache_list = [{'key': list(key), 'data': data} for key, data in cache.items()]
-                json.dump(envcache_list, f, indent=2)
-        except TypeError:
-            # data can't serialize to json, don't leave partial file
-            with suppress(FileNotFoundError):
-                p.unlink()
-        except IOError:
-            # can't write the file, just skip
-            pass
+    if not CONFIG_CACHE:
+        return
+
+    p = Path(CONFIG_CACHE)
+    try:
+        with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('w') as f:
+            # Convert the cache dictionary to a list of cache entry
+            # dictionaries. The cache key is converted from a tuple to
+            # a list for compatibility with json.
+            envcache_list = [
+                {'key': list(key), 'data': data} for key, data in cache.items()
+            ]
+            json.dump(envcache_list, f, indent=2)
+    except TypeError:
+        # data can't serialize to json, don't leave partial file
+        with suppress(FileNotFoundError):
+            p.unlink()
+    except OSError:
+        # can't write the file, just skip
+        pass
+
+    return
 
 
 _is_win64 = None
@@ -208,6 +220,17 @@ def has_reg(value) -> bool:
 # Functions for fetching environment variable settings from batch files.
 
 
+def _force_vscmd_skip_sendtelemetry(env):
+
+    if 'VSCMD_SKIP_SENDTELEMETRY' in env['ENV']:
+        return False
+
+    env['ENV']['VSCMD_SKIP_SENDTELEMETRY'] = '1'
+    debug("force env['ENV']['VSCMD_SKIP_SENDTELEMETRY']=%s", env['ENV']['VSCMD_SKIP_SENDTELEMETRY'])
+
+    return True
+
+
 def normalize_env(env, keys, force: bool=False):
     """Given a dictionary representing a shell environment, add the variables
     from os.environ needed for the processing of .bat files; the keys are
@@ -256,7 +279,7 @@ def normalize_env(env, keys, force: bool=False):
     return normenv
 
 
-def get_output(vcbat, args=None, env=None):
+def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
     """Parse the output of given bat file, with given args."""
 
     if env is None:
@@ -295,6 +318,9 @@ def get_output(vcbat, args=None, env=None):
     ]
     env['ENV'] = normalize_env(env['ENV'], vs_vc_vars, force=False)
 
+    if skip_sendtelemetry:
+        _force_vscmd_skip_sendtelemetry(env)
+
     if args:
         debug("Calling '%s %s'", vcbat, args)
         cmd_str = '"%s" %s & set' % (vcbat, args)
@@ -319,7 +345,7 @@ def get_output(vcbat, args=None, env=None):
         # this at least prevents errors from getting swallowed.
         sys.stderr.write(cp.stderr.decode(OEM))
     if cp.returncode != 0:
-        raise IOError(cp.stderr.decode(OEM))
+        raise OSError(cp.stderr.decode(OEM))
 
     return cp.stdout.decode(OEM)
 
@@ -348,7 +374,7 @@ def parse_output(output, keep=KEEPLIST):
     # rdk will  keep the regex to match the .bat file output line starts
     rdk = {}
     for i in keep:
-        rdk[i] = re.compile('%s=(.*)' % i, re.I)
+        rdk[i] = re.compile(r'%s=(.*)' % i, re.I)
 
     def add_env(rmatch, key, dkeep=dkeep) -> None:
         path_list = rmatch.group(1).split(os.pathsep)

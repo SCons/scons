@@ -240,7 +240,7 @@ class Task(ABC):
                 for t in cached_targets:
                     try:
                         t.fs.unlink(t.get_internal_path())
-                    except (IOError, OSError) as e:
+                    except OSError as e:
                         SCons.Warnings.warn(SCons.Warnings.CacheCleanupErrorWarning,
                             "Failed copying all target files from cache, Error while attempting to remove file %s retrieved from cache: %s" % (t.get_internal_path(), e))
                 self.targets[0].build()
@@ -404,7 +404,7 @@ class Task(ABC):
                 t.disambiguate().make_ready()
                 is_up_to_date = not t.has_builder() or \
                                 (not t.always_build and t.is_up_to_date())
-            except EnvironmentError as e:
+            except OSError as e:
                 raise SCons.Errors.BuildError(node=t, errstr=e.strerror, filename=e.filename)
 
             if not is_up_to_date:

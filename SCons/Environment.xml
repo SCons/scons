@@ -251,8 +251,8 @@ that are part of this construction environment.
     <summary>
         <para>
 The class type that SCons should use when instantiating a
-new &f-link-CacheDir; for the given environment. It must be
-a subclass of the SCons.CacheDir.CacheDir class.
+new &f-link-CacheDir; in this &consenv;. Must be
+a subclass of the <classname>SCons.CacheDir.CacheDir</classname> class.
         </para>
     </summary>
 </cvar>
@@ -437,17 +437,32 @@ file into an object file.
 </arguments>
 <summary>
 <para>
-Creates a phony target (or targets) that
-can be used as references to zero or more other targets,
-as specified by the optional <parameter>source</parameter>
-parameter.
-<parameter>alias</parameter> and
-<parameter>source</parameter>
+Creates an <firstterm>alias</firstterm> target that
+can be used as a reference to zero or more other targets,
+specified by the optional <parameter>source</parameter> parameter.
+Aliases provide a way to give a shorter or more descriptive
+name to specific targets,
+and to group multiple targets under a single name.
+The alias name, or an Alias Node object,
+may be used as a dependency of any other target,
+including another alias.
+</para>
+
+<para>
+<parameter>alias</parameter> and <parameter>source</parameter>
 may each be a string or Node object,
 or a list of strings or Node objects;
 if Nodes are used for
 <parameter>alias</parameter>
 they must be Alias nodes.
+If <parameter>source</parameter> is omitted,
+the alias is created but has no reference;
+if selected for building this will result in a
+<quote>Nothing to be done.</quote> message.
+An empty alias can be used to define the alias
+in a visible place in the project;
+it can later be appended to in a subsidiary SConscript file
+with the actual target(s) to refer to.
 The optional
 <parameter>action</parameter>
 parameter specifies an action or list of actions
@@ -456,20 +471,18 @@ whenever the any of the alias targets are out-of-date.
 </para>
 
 <para>
-Returns a list of Alias Node objects representing the alias(es),
-which exist outside of any physical file system.
+&f-Alias; can be called for an existing alias,
+which appends the <parameter>alias</parameter>
+and/or <parameter>action</parameter> arguments
+to the existing lists for that alias.
 </para>
 
 <para>
-The alias name, or an Alias Node object,
-may be used as a dependency of any other target,
-including another alias.
-&f-Alias;
-can be called multiple times for the same
-alias to add additional targets to the alias,
-or additional actions to the list for this alias.
-Aliases are global even if set through
-the construction environment method.
+Returns a list of Alias Node objects representing the alias(es),
+which exist outside of any physical file system.
+The alias name space is separate from the name space for
+tangible targets; to avoid confusion do not reuse
+target names as alias names.
 </para>
 
 <para>
@@ -883,15 +896,6 @@ disables derived file caching.
 </para>
 
 <para>
-When specifying a
-<parameter>custom_class</parameter> which should be a class type which is a subclass of
-<classname>SCons.CacheDir.CacheDir</classname>, SCons will
-internally invoke this class to use for performing caching operations.
-This argument is optional and if left to default <constant>None</constant>, will use the
-default <classname>SCons.CacheDir.CacheDir</classname> class.
-</para>
-
-<para>
 Calling the environment method
 &f-link-env-CacheDir;
 limits the effect to targets built
@@ -903,6 +907,18 @@ that will be used by all targets built
 through construction environments
 that do not set up environment-specific
 caching by calling &f-env-CacheDir;.
+</para>
+
+<para>
+Caching behavior can be configured by passing a specialized cache
+class as the optional <parameter>custom_class</parameter> parameter.
+This class must be a subclass of
+<classname>SCons.CacheDir.CacheDir</classname>.
+&SCons; will internally invoke the custom class for performing
+caching operations.
+If the parameter is omitted or set to
+<constant>None</constant>, &SCons; will use the default
+<classname>SCons.CacheDir.CacheDir</classname> class.
 </para>
 
 <para>
@@ -930,15 +946,14 @@ identified by its &buildsig;, for future use.
 The
 <computeroutput>Retrieved `file' from cache</computeroutput>
 messages are useful for human consumption,
-but less so when comparing log files between
+but less useful when comparing log files between
 &scons; runs which will show differences that are
 noisy and not actually significant.
 To disable,
 use the <option>--cache-show</option> option.
-With this option, &scons;
-will print the action that would
-have been used to build the file without
-considering cache retrieval.
+With this option, &scons; changes printing
+to always show the action that would
+have been used to build the file without caching.
 </para>
 
 <para>
@@ -946,10 +961,10 @@ Derived-file caching
 may be disabled for any invocation
 of &scons; by giving the
 <option>--cache-disable</option>
-command line option.
-Cache updating may be disabled, leaving cache
+command line option;
+cache updating may be disabled, leaving cache
 fetching enabled, by giving the
-<option>--cache-readonly</option>.
+<option>--cache-readonly</option> option.
 </para>
 
 <para>
@@ -959,7 +974,7 @@ option is used,
 &scons;
 will place a copy of
 <emphasis>all</emphasis>
-derived files in the cache,
+derived files into the cache,
 even if they already existed
 and were not built by this invocation.
 This is useful to populate a cache
@@ -984,7 +999,7 @@ predict or prohibitively large.
 <para>
 Note that (at this time) &SCons; provides no facilities
 for managing the derived-file cache. It is up to the developer
-to arrange for cache pruning, expiry, etc. if needed.
+to arrange for cache pruning, expiry, access control, etc. if needed.
 </para>
 
 </summary>

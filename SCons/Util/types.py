@@ -112,7 +112,7 @@ class Null:
 
     def __new__(cls, *args, **kwargs):
         if '_instance' not in vars(cls):
-            cls._instance = super(Null, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
     def __init__(self, *args, **kwargs) -> None:

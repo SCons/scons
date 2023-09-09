@@ -250,7 +250,7 @@ def generate_depfile(env, node, dependencies) -> None:
 
     need_rewrite = False
     try:
-        with open(depfile, 'r') as f:
+        with open(depfile) as f:
             need_rewrite = (f.read() != depfile_contents)
     except FileNotFoundError:
         need_rewrite = True
@@ -315,7 +315,7 @@ def get_command_env(env, target, source):
     scons_specified_env = SCons.Util.sanitize_shell_env(scons_specified_env)
     for key, value in scons_specified_env.items():
         if windows:
-            command_env += "set '{}={}' && ".format(key, value)
+            command_env += f"set '{key}={value}' && "
         else:
             # We address here *only* the specific case that a user might have
             # an environment variable which somehow gets included and has
@@ -323,7 +323,7 @@ def get_command_env(env, target, source):
             # doesn't make builds on paths with spaces (Ninja and SCons issues)
             # nor expanding response file paths with spaces (Ninja issue) work.
             value = value.replace(r' ', r'$ ')
-            command_env += "export {}='{}';".format(key, value)
+            command_env += f"export {key}='{value}';"
 
     env["NINJA_ENV_VAR_CACHE"] = command_env
     return command_env

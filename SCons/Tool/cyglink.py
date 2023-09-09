@@ -24,7 +24,7 @@ def cyglink_lib_emitter(target, source, env, **kw):
     no_import_lib = env.get('no_import_lib', False)
 
     if verbose:
-        print("cyglink_lib_emitter: target[0]={!r}".format(target[0].get_path()))
+        print(f"cyglink_lib_emitter: target[0]={target[0].get_path()!r}")
 
     if not no_import_lib:
         # Specify import lib and add to targets
@@ -35,7 +35,7 @@ def cyglink_lib_emitter(target, source, env, **kw):
         target.append(import_lib_target)
 
         if verbose:
-            print("cyglink_lib_emitter: import_lib={}".format(import_lib))
+            print(f"cyglink_lib_emitter: import_lib={import_lib}")
             print("cyglink_lib_emitter: target=%s" % target)
 
     for tgt in target:

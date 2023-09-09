@@ -250,7 +250,7 @@ def get_all_compiler_versions():
                         print("scons: *** Ignoring "+str(value))
 
                 i = i + 1
-        except EnvironmentError:
+        except OSError:
             # no more subkeys
             pass
     elif is_linux or is_mac:

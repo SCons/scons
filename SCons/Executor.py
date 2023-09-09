@@ -145,7 +145,7 @@ _execute_str_map = {0 : execute_null_str,
                     1 : execute_actions_str}
 
 
-class Executor(object, metaclass=NoSlotsPyPy):
+class Executor(metaclass=NoSlotsPyPy):
     """A class for controlling instances of executing an action.
 
     This largely exists to hold a single association of an action,
@@ -576,7 +576,7 @@ def get_NullEnvironment():
         nullenv = NullEnvironment()
     return nullenv
 
-class Null(object, metaclass=NoSlotsPyPy):
+class Null(metaclass=NoSlotsPyPy):
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 

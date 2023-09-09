@@ -81,6 +81,7 @@ from .envs import (
     AddPathIfNotExists,
     AddMethod,
 )
+from .filelock import FileLock, SConsLockFailure
 
 
 # Note: the Util package cannot import other parts of SCons globally without

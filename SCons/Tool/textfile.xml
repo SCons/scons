@@ -271,8 +271,11 @@ The suffix used for &b-link-Textfile; file names;
 <cvar name="FILE_ENCODING">
 <summary>
 <para>
-File encoding used for files written by &b-link-Textfile; and &b-link-Substfile;.  Set to "utf-8" by default.
-<emphasis>Added in version  4.5.0.</emphasis>
+File encoding used for files written by &b-link-Textfile; and &b-link-Substfile;.
+Set to "utf-8" by default.
+</para>
+<para>
+<emphasis>New in version  4.5.0.</emphasis>
 </para>
 </summary>
 </cvar>

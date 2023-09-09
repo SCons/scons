@@ -658,6 +658,40 @@ class BuilderTestCase(unittest.TestCase):
         tgt = builder(my_env, target = None, source = 'f6.zzz')[0]
         assert tgt.get_internal_path() == 'f6.emit', tgt.get_internal_path()
 
+    def test__adjustixes(self) -> None:
+        """Test the _adjustixes() method"""
+        from pathlib import Path
+
+        builder = SCons.Builder.Builder()
+
+        # path without suffix should have both added
+        with self.subTest():
+            r = builder._adjustixes('file', 'pre-', '-suf')
+            self.assertEqual(r, ['pre-file-suf'])
+
+        # path with a suffix should not have one added
+        with self.subTest():
+            r = builder._adjustixes('file.o', 'pre-', '-suf')
+            self.assertEqual(r, ['pre-file.o'])
+
+        # unless ensure_suffix is True
+        with self.subTest():
+            r = builder._adjustixes('file.o', 'pre-', '-suf', ensure_suffix=True)
+            self.assertEqual(r, ['pre-file.o-suf'])
+
+        # a PathLike object should be modified
+        with self.subTest():
+            r = builder._adjustixes(Path('file'), 'pre-', '-suf')
+            self.assertEqual(r, ['pre-file-suf'])
+
+        # make sure a non-str, non-PathLike is just left alone
+        with self.subTest():
+            env = Environment()
+            mynode = env.fs.File('file')
+            r = builder._adjustixes(mynode, 'pre-', '-suf')
+            self.assertEqual(r, [mynode])
+            self.assertEqual(r[0].path, 'file')
+
     def test_single_source(self) -> None:
         """Test Builder with single_source flag set"""
         def func(target, source, env) -> None:

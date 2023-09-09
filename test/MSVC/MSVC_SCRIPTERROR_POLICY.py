@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # MIT License
 #
 # Copyright The SCons Foundation
@@ -31,11 +33,9 @@ import textwrap
 from SCons.Tool.MSCommon.vc import get_installed_vcs_components
 
 test = TestSCons.TestSCons()
-
 test.skip_if_not_msvc()
 
 installed_versions = get_installed_vcs_components()
-
 default_version = installed_versions[0]
 
 # Test construction variable with valid symbols
@@ -139,3 +139,8 @@ if default_version.msvc_vernum >= 14.1:
 
 test.pass_test()
 
+# Local Variables:
+# tab-width:4
+# indent-tabs-mode:nil
+# End:
+# vim: set expandtab tabstop=4 shiftwidth=4:

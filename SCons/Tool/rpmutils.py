@@ -480,10 +480,10 @@ def updateRpmDicts(rpmrc, pyfile) -> None:
     """
     try:
         # Read old rpmutils.py file
-        with open(pyfile,"r") as f:
+        with open(pyfile) as f:
             oldpy = f.readlines()
         # Read current rpmrc.in file
-        with open(rpmrc,"r") as f:
+        with open(rpmrc) as f:
             rpm = f.readlines()
         # Parse for data
         data = {}

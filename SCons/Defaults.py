@@ -58,31 +58,28 @@ _default_env = None
 
 # Lazily instantiate the default environment so the overhead of creating
 # it doesn't apply when it's not needed.
-def _fetch_DefaultEnvironment(*args, **kw):
+def _fetch_DefaultEnvironment(*args, **kwargs):
     """Returns the already-created default construction environment."""
-    global _default_env
     return _default_env
 
 
-def DefaultEnvironment(*args, **kw):
-    """
-    Initial public entry point for creating the default construction
-    Environment.
+def DefaultEnvironment(*args, **kwargs):
+    """Construct the global ("default") construction environment.
 
-    After creating the environment, we overwrite our name
-    (DefaultEnvironment) with the _fetch_DefaultEnvironment() function,
-    which more efficiently returns the initialized default construction
-    environment without checking for its existence.
+    The environment is provisioned with the values from *kwargs*.
 
-    (This function still exists with its _default_check because someone
-    else (*cough* Script/__init__.py *cough*) may keep a reference
-    to this function.  So we can't use the fully functional idiom of
-    having the name originally be a something that *only* creates the
-    construction environment and then overwrites the name.)
+    After the environment is created, this function is replaced with
+    a reference to :func:`_fetch_DefaultEnvironment` which efficiently
+    returns the initialized default construction environment without
+    checking for its existence.
+
+    Historically, some parts of the code held references to this function.
+    Thus it still has the existence check for :data:`_default_env` rather
+    than just blindly creating the environment and overwriting itself.
     """
     global _default_env
     if not _default_env:
-        _default_env = SCons.Environment.Environment(*args, **kw)
+        _default_env = SCons.Environment.Environment(*args, **kwargs)
         _default_env.Decider('content')
         global DefaultEnvironment
         DefaultEnvironment = _fetch_DefaultEnvironment
@@ -591,15 +588,13 @@ def _defines(prefix, defs, suffix, env, target=None, source=None, c=_concat_ixes
 
 
 class NullCmdGenerator:
-    """This is a callable class that can be used in place of other
-    command generators if you don't want them to do anything.
+    """Callable class for use as a no-effect command generator.
 
-    The __call__ method for this class simply returns the thing
-    you instantiated it with.
+    The ``__call__`` method for this class simply returns the thing
+    you instantiated it with. Example usage::
 
-    Example usage:
-    env["DO_NOTHING"] = NullCmdGenerator
-    env["LINKCOM"] = "${DO_NOTHING('$LINK $SOURCES $TARGET')}"
+      env["DO_NOTHING"] = NullCmdGenerator
+      env["LINKCOM"] = "${DO_NOTHING('$LINK $SOURCES $TARGET')}"
     """
 
     def __init__(self, cmd) -> None:
@@ -613,13 +608,15 @@ class Variable_Method_Caller:
     """A class for finding a construction variable on the stack and
     calling one of its methods.
 
-    We use this to support "construction variables" in our string
-    eval()s that actually stand in for methods--specifically, use
-    of "RDirs" in call to _concat that should actually execute the
-    "TARGET.RDirs" method.  (We used to support this by creating a little
-    "build dictionary" that mapped RDirs to the method, but this got in
-    the way of Memoizing construction environments, because we had to
-    create new environment objects to hold the variables.)
+    Used to support "construction variables" appearing in string
+    ``eval``s that actually stand in for methods--specifically, the use
+    of "RDirs" in a call to :func:`_concat` that should actually execute the
+    ``TARGET.RDirs`` method.
+
+    Historical note: This was formerly supported by creating a little
+    "build dictionary" that mapped RDirs to the method, but this got
+    in the way of Memoizing construction environments, because we had to
+    create new environment objects to hold the variables.
     """
 
     def __init__(self, variable, method) -> None:
@@ -677,7 +674,7 @@ def __lib_either_version_flag(env, version_var1, version_var2, flags_var):
     return None
 
 
-    
+
 
 
 ConstructionEnvironment = {

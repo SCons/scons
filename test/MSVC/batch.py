@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify operation of Visual C/C++ batch builds.
@@ -81,7 +80,7 @@ DefaultEnvironment(tools=[])
 cccom = r'%(_python_)s fake_cl.py $_MSVC_OUTPUT_FLAG $CHANGED_SOURCES'
 linkcom = r'%(_python_)s fake_link.py ${TARGET.windows} $SOURCES'
 env = Environment(tools=['msvc', 'mslink'],
-                  CCCOM=cccom, 
+                  CCCOM=cccom,
                   LINKCOM=linkcom,
                   PROGSUFFIX='.exe',
                   OBJSUFFIX='.obj',
@@ -96,41 +95,27 @@ test.write('prog.c', "prog.c\n")
 test.write('f1.c', "f1.c\n")
 test.write('f2.c', "f2.c\n")
 
-
-
-test.run(arguments = 'MSVC_BATCH=1 .')
-
+test.run(arguments='MSVC_BATCH=1 .')
 test.must_match('prog.exe', "prog.c\nf1.c\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fo.%s prog.c f1.c f2.c
 """%os.sep, mode='r')
-
-test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
-
-
+test.up_to_date(options='MSVC_BATCH=1', arguments='.')
 
 test.write('f1.c', "f1.c 2\n")
 
-test.run(arguments = 'MSVC_BATCH=1 .')
-
+test.run(arguments='MSVC_BATCH=1 .')
 test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fo.%s prog.c f1.c f2.c
 /Fo.%s f1.c
 """%(os.sep, os.sep), mode='r')
+test.up_to_date(options='MSVC_BATCH=1', arguments='.')
 
-test.up_to_date(options = 'MSVC_BATCH=1', arguments = '.')
-
-
-
-test.run(arguments = '-c .')
-
+test.run(arguments='-c .')
 test.unlink('fake_cl.log')
 
-
-
-test.run(arguments = '. MSVC_BATCH=0')
-
+test.run(arguments='. MSVC_BATCH=0')
 test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
@@ -138,25 +123,20 @@ test.must_match('fake_cl.log', """\
 /Foprog.obj prog.c
 """, mode='r')
 
-test.run(arguments = '-c .')
+test.run(arguments='-c .')
 test.unlink('fake_cl.log')
 
-
-test.run(arguments = '. MSVC_BATCH=False')
-
+test.run(arguments='. MSVC_BATCH=False')
 test.must_match('prog.exe', "prog.c\nf1.c 2\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
 /Fof2.obj f2.c
 /Foprog.obj prog.c
 """, mode='r')
-
-
 
 test.write('f1.c', "f1.c 3\n")
 
-test.run(arguments = '. MSVC_BATCH=0')
-
+test.run(arguments='. MSVC_BATCH=0')
 test.must_match('prog.exe', "prog.c\nf1.c 3\nf2.c\n", mode='r')
 test.must_match('fake_cl.log', """\
 /Fof1.obj f1.c
@@ -164,8 +144,6 @@ test.must_match('fake_cl.log', """\
 /Foprog.obj prog.c
 /Fof1.obj f1.c
 """, mode='r')
-
-
 
 test.pass_test()
 
