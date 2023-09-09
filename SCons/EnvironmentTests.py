@@ -649,7 +649,7 @@ sys.exit(0)
             try:
                 env.backtick(cmd)
             except OSError as e:
-                assert str(e) == "'%s' exited 1" % cmd, str(e)
+                assert str(e) == f'{cmd!r} exited 1', str(e)
             else:
                 self.fail("did not catch expected OSError")
 

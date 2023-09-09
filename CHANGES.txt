@@ -135,6 +135,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       than source).  Docs updated.  Fixes #4326 and #4327.
     - Cleaned up dblite module (checker warnings, etc.).
     - Some cleanup in the FortranCommon tool.
+    - Rewrite the internal _subproc routine - a new scons_subproc_run() now
+      makes use of Python's subprocess.run in a more natural way, getting
+      around some of the issues with attempted context manager use, fetching
+      output, etc. - we let the subprocess module do the hard work,
+      since it's well debugged and supported.  _subproc is no longer
+      called by internal code, but remains in place in case there are builds
+      which call to it (even though it was never "published API").
     - Changed the message about scons -H to clarify it shows built-in options.
     - Improve CacheDir() Documentation.
     - Release-building setup tweaked. (most of) the targets listed in

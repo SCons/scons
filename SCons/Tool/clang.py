@@ -33,7 +33,7 @@ selection method.
 
 import os
 import re
-import subprocess
+from subprocess import DEVNULL, PIPE
 
 import SCons.Util
 import SCons.Tool.cc
@@ -50,11 +50,12 @@ def generate(env) -> None:
 
     if env['PLATFORM'] == 'win32':
         # Ensure that we have a proper path for clang
-        clang = SCons.Tool.find_program_path(env, compilers[0], 
-                                             default_paths=get_clang_install_dirs(env['PLATFORM']))
+        clang = SCons.Tool.find_program_path(
+            env, compilers[0], default_paths=get_clang_install_dirs(env['PLATFORM'])
+        )
         if clang:
             clang_bin_dir = os.path.dirname(clang)
-            env.AppendENVPath('PATH', clang_bin_dir)
+            env.AppendENVPath("PATH", clang_bin_dir)
 
             # Set-up ms tools paths
             msvc_setup_env_once(env)
@@ -67,23 +68,18 @@ def generate(env) -> None:
 
     # determine compiler version
     if env['CC']:
-        # pipe = SCons.Action._subproc(env, [env['CC'], '-dumpversion'],
-        pipe = SCons.Action._subproc(env, [env['CC'], '--version'],
-                                     stdin='devnull',
-                                     stderr='devnull',
-                                     stdout=subprocess.PIPE)
-        if pipe.wait() != 0: return
-        # clang -dumpversion is of no use
-        with pipe.stdout:
-            line = pipe.stdout.readline()
-        line = line.decode()
-        match = re.search(r'clang +version +([0-9]+(?:\.[0-9]+)+)', line)
-        if match:
-            env['CCVERSION'] = match.group(1)
+        kw = {
+            'stdout': PIPE,
+            'stderr': DEVNULL,
+            'universal_newlines': True,
+        }
+        cp = SCons.Action.scons_subproc_run(env, [env['CC'], '-dumpversion'], **kw)
+        line = cp.stdout
+        if line:
+            env['CCVERSION'] = line
 
     env['CCDEPFLAGS'] = '-MMD -MF ${TARGET}.d'
     env["NINJA_DEPFILE_PARSE_FORMAT"] = 'clang'
-
 
 def exists(env):
     return env.Detect(compilers)

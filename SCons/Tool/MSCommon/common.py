@@ -29,9 +29,9 @@ import copy
 import json
 import os
 import re
-import subprocess
 import sys
 from contextlib import suppress
+from subprocess import DEVNULL, PIPE
 from pathlib import Path
 
 import SCons.Util
@@ -328,44 +328,26 @@ def get_output(vcbat, args=None, env=None, skip_sendtelemetry=False):
         debug("Calling '%s'", vcbat)
         cmd_str = '"%s" & set' % vcbat
 
-    popen = SCons.Action._subproc(
-        env,
-        cmd_str,
-        stdin='devnull',
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+    cp = SCons.Action.scons_subproc_run(
+        env, cmd_str, stdin=DEVNULL, stdout=PIPE, stderr=PIPE,
     )
 
-    # Use the .stdout and .stderr attributes directly because the
-    # .communicate() method uses the threading module on Windows
-    # and won't work under Pythons not built with threading.
-    with popen.stdout:
-        stdout = popen.stdout.read()
-    with popen.stderr:
-        stderr = popen.stderr.read()
-
     # Extra debug logic, uncomment if necessary
-    # debug('stdout:%s', stdout)
-    # debug('stderr:%s', stderr)
+    # debug('stdout:%s', cp.stdout)
+    # debug('stderr:%s', cp.stderr)
 
     # Ongoing problems getting non-corrupted text led to this
     # changing to "oem" from "mbcs" - the scripts run presumably
     # attached to a console, so some particular rules apply.
-    # Unfortunately, "oem" not defined in Python 3.5, so get another way
-    if sys.version_info.major == 3 and sys.version_info.minor < 6:
-        from ctypes import windll
-
-        OEM = f"cp{windll.kernel32.GetConsoleOutputCP()}"
-    else:
-        OEM = "oem"
-    if stderr:
+    OEM = "oem"
+    if cp.stderr:
         # TODO: find something better to do with stderr;
         # this at least prevents errors from getting swallowed.
-        sys.stderr.write(stderr.decode(OEM))
-    if popen.wait() != 0:
-        raise OSError(stderr.decode(OEM))
+        sys.stderr.write(cp.stderr.decode(OEM))
+    if cp.returncode != 0:
+        raise OSError(cp.stderr.decode(OEM))
 
-    return stdout.decode(OEM)
+    return cp.stdout.decode(OEM)
 
 
 KEEPLIST = (
