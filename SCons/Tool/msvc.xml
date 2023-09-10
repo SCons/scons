@@ -371,11 +371,17 @@ loaded into the environment.
 
 <para>
 The valid values for &cv-MSVC_VERSION; represent major versions
-of the compiler, except that versions ending in <literal>Exp</literal>
-refer to "Express" or "Express for Desktop" Visual Studio editions,
-which require distict entries because they use a different
-filesystem layout and have some feature limitations compared to
-the full version.
+of the compiler.  Versions ending in <literal>Exp</literal>
+refer to "Express" or "Express for Desktop" Visual Studio editions.
+An express version may have some feature limitations as compared to
+the full version.  It is necessary to specify the <literal>Exp</literal>
+suffix when both express and non-express editions are installed
+simulaneously and the express version is desired.  An express edition
+is used for the msvc version without the 'Exp' suffix when there is one
+edition installed and it is the express edition.
+</para>
+
+<para>
 The following table shows correspondence
 of the selector string to various version indicators
 ('x' is used as a placeholder for
