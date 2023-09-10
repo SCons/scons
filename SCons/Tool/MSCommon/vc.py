@@ -72,24 +72,6 @@ from .MSVC.Exceptions import (
     MSVCToolsetVersionNotFound,
 )
 
-# user vswhere.exe location as command-line option
-#
-# TODO: INTENTIONALLY DISABLED
-#
-# _vswhere_cmdline_arg = '--vswhere-path'
-# _vswhere_cmdline_var = 'vswhere_path'
-#
-# SCons.Script.AddOption(
-#     _vswhere_cmdline_arg,
-#     dest=_vswhere_cmdline_var,
-#     type="string",
-#     nargs=1,
-#     action="store",
-#     metavar='PATH',
-#     default=None,
-#     help='Fully qualified path to vswhere.exe.',
-# )
-
 # external exceptions
 
 class MSVCUnsupportedHostArch(VisualCException):
@@ -959,7 +941,8 @@ def _vswhere_user_path(pval):
 
         else:
 
-            vswhere_norm = MSVC.Util.process_path(pval)
+            # vswhere_norm = MSVC.Util.process_path(pval)
+            vswhere_norm = os.path.normcase(os.path.normpath(pval))
 
             tail = os.path.split(vswhere_norm)[-1]
             if tail != _VSWHERE_EXE:
@@ -979,7 +962,8 @@ def _vswhere_user_path(pval):
 
 # normalized user-specified command-line vswhere path
 
-_vswhere_path_cmdline = UNDEFINED
+# TODO: stub for command-line specification of vswhere
+_vswhere_path_cmdline = None
 
 def _msvc_cmdline_vswhere():
     global _vswhere_path_cmdline
@@ -987,8 +971,6 @@ def _msvc_cmdline_vswhere():
     if _vswhere_path_cmdline == UNDEFINED:
 
         vswhere_path = None
-        # TODO: INTENTIONALLY DISABLED
-        # vswhere_user = SCons.Script.GetOption(_vswhere_cmdline_var)
         vswhere_user = None
 
         if vswhere_user:
@@ -1092,10 +1074,9 @@ def _filter_vswhere_paths(env):
         if vswhere_environ and vswhere_environ not in _VSWhere.seen_vswhere:
             vswhere_paths.append(vswhere_environ)
 
-    # TODO: INTENTIONALLY DISABLED
-    # vswhere_cmdline = _msvc_cmdline_vswhere()
-    # if vswhere_cmdline and vswhere_cmdline not in _VSWhere.seen_vswhere:
-    #     vswhere_paths.append(vswhere_cmdline)
+    vswhere_cmdline = _msvc_cmdline_vswhere()
+    if vswhere_cmdline and vswhere_cmdline not in _VSWhere.seen_vswhere:
+        vswhere_paths.append(vswhere_cmdline)
 
     vswhere_default = _msvc_default_vswhere()
     if vswhere_default and vswhere_default not in _VSWhere.seen_vswhere:
