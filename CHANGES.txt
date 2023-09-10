@@ -38,6 +38,65 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       module was refactored.
     - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
       consistent with the current documentation of MSVS_ARCH.
+    - For msvc version specifications without an 'Exp' suffix, an express installation
+      is used when no other edition is detected for the msvc version.
+    - VS2015 Express (14.1Exp) may not have been detected. The registry keys written
+      during installation appear to be different than for earlier express versions.
+      VS2015 Express should be correctly detected now.
+    - VS2015 Express (14.1Exp) does not support the sdk version argument.  VS2015 Express
+      does not support the store argument for target architectures other than x86.
+      Script argument validation now takes into account these restrictions.
+    - VS2015 BuildTools (14.0) does not support the sdk version argument and does not
+      support the store argument.  Script argument validation now takes into account
+      these restrictions.
+    - The Windows SDK for Windows 7 and .NET Framework 4" (SDK 7.1) populates the
+      registry keys in a manner in which the msvc detection would report that VS2010
+      (10.0) is installed when only the SDK was installed.  The installed files are
+      intended to be used via the sdk batch file setenv.cmd. The installed msvc
+      batch files will fail. The msvc detection logic now ignores SDK-only VS2010
+      installations.  Similar protection is implemented for the sdk-only installs that
+      populate the installation folder and registry keys for VS2008 (9.0), if necessary.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
+    - For VS2005 (8.0) to VS2015 (14.0), vsvarsall.bat is employed to dispatch to a
+      dependent batch file when configuring the msvc environment.  Previously, only the
+      existence of the compiler executable was verified. In certain installations, the
+      dependent batch file (e.g., vcvars64.bat) may not exist while the compiler
+      executable does exist resulting in build failures.  The existence of vcvarsall.bat,
+      the dependent batch file, and the compiler executable are now validated.
+    - MSVC configuration data specific to versions VS2005 (8.0) to VS2008 (9.0) was added
+      as the dependent batch files have different names than the batch file names used
+      for VS2010 (10.0) and later.  The VS2008 (9.0) Visual C++ For Python installation
+      is handled as a special case as the dependent batch files are: (a) not used and (b)
+      in different locations.
+    - When VS2008 (9.0) Visual C++ For Python is installed using the ALLUSERS=1 option
+      (i.e., msiexec /i VCForPython27.msi ALLUSERS=1), the registry keys are written to
+      HKEY_LOCAL_MACHINE rather than HKEY_CURRENT_USER.  An entry was added to query the
+      Visual C++ For Python keys in HKLM following the HKCU query, if necessary.
+    - The registry detection of VS2015 (14.0), and earlier, is now cached at runtime and
+      is only evaluated once for each msvc version.
+    - The vswhere detection of VS2017 (14.1), and later, is now cached at runtime and is
+      only evaluated once for each vswhere executable.  The detected msvc instances for
+      all vswhere executables are merged (i.e., detected msvc instances are the union
+      of the results from all vswhere executables).  There is a single invocation for
+      each vswhere executable that processes the output for all installations.  Prior
+      implementations called the vswhere executable for each supported msvc version.
+    - The detection of the msvc compiler executable (cl.exe) has been modified.  The
+      compiler detection no longer considers the host os environment path.  In addition,
+      existence of the msvc compiler executable is checked in the detection dictionary
+      and the scons ENV path before the detection dictionary is merged into the scons
+      ENV.  Different warnings are produced when the msvc compiler is not detected in the
+      detection dictionary based on whether or not an msvc compiler was detected in the
+      scons ENV path (i.e., already exists in the user's ENV path prior to detection).
+    - Previously, the installed vcs list was constructed once and cached at runtime.  If
+      a vswhere executable was specified via the construction variable VSWHERE and found
+      additional msvc installations, the new installations were not reflected in the
+      installed vcs list. During runtime, if a user-specified vswhere executable finds
+      new msvc installations, internal runtime caches are cleared and the installed vcs
+      list is reconstructed.
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`
