@@ -59,6 +59,14 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   batch file exists but an individual msvc toolset may not support the host/target
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
+- MSVC: For msvc version specifications without an 'Exp' suffix, an express
+  installation is used when no other edition is detected for the msvc version.
+  This was the behavior for VS2008 (9.0) through VS2015 (14.0).  This behavior
+  was extended to VS2017 (14.1) and VS2008 (8.0).
+- MSVC: When the msvc compiler executable is not found during setup of the msvc
+  environment, the warning message issued takes into account whether or not a
+  possibly erroneous compiler executable was already present in the scons environment
+  path.
 - Extend range of recognized Java versions to 20.
 - Builder calls (like Program()) now accept pathlib objects in source lists.
 - The Help() function now takes an additional keyword argument keep_local:
@@ -95,6 +103,26 @@ FIXES
 - MSVC: Erroneous construction of the installed msvc list (as described above) caused an
   index error in the msvc support code.  An explicit check was added to prevent indexing
   into an empty list.  Fixes #4312.
+- MSVC: VS2015 Express (14.1Exp) may not have been detected. VS2015 Express should
+  be correctly detected.
+- MSVC: VS2010 (10.0) could be inadvertently detected due to an sdk-only install
+  of Windows SDK 7.1.  An sdk-only install of VS2010 is ignored as the msvc batch
+  files will fail. The installed files are intended to be used in conjunction with
+  the SDK batch file.  Similar protection was added for VS2008 (9.0).
+- MSVC: For VS2005 (8.0) to VS2015 (14.0), detection of installed files was expanded
+  to include the primary msvc batch file, dependent msvc batch file, and compiler
+  executable. In certain installations, the dependent msvc batch file may not exist
+  while the compiler executable does exists resulting in a build failure.
+- MSVC: VS2008 (9.0) Visual C++ For Python was not detected when installed using the
+  ALLUSERS=1 option (i.e., msiexec /i VCForPython27.msi ALLUSERS=1).  When installed
+  for all users, VS2008 (9.0) Visual C++ For Python is now correctly detected.
+- MSVC: The search for the msvc compiler executable (cl.exe) no longer inspects the
+  OS system path in certain situations when setting up the msvc environment.
+- MSVC: The installed vcs list was constructed and cached during the initial
+  invocation. If a vswhere executable was specified via the construction variable
+  VSWHERE and found additional msvc installations, the new installations were not
+  reflected in the installed vcs list. Now, when a user-specified vswhere executable
+  finds new msvc installations, the installed vcs list is reconstructed.
 - MSCommon: Test SConfTests.py would fail when mscommon debugging was enabled via the
   MSVC_MSCOMMON_DEBUG environment variable.  The mscommon logging filter class registered
   with the python logging module was refactored to prevent test failure.
@@ -114,6 +142,17 @@ IMPROVEMENTS
 ------------
 
 - Now tries to find mingw if it comes from Chocolatey install of msys2.
+- MSVC: VS2015 Express (14.1Exp) does not support the sdk version argument. VS2015
+  Express does not support the store argument for target architectures other than
+  x86.  Script argument validation now takes into account these restrictions.
+- MSVC: VS2015 BuildTools (14.0) does not support the sdk version argument and
+  does not support the store argument.  Script argument validation now takes into
+  account these restrictions.
+- MSVC: Module imports were changed from a relative import to a top-level
+  absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+  msvs. Moving any of these tools that used relative imports to the scons site tools
+  folder would fail on import (i.e., the relative import paths become invalid when
+  moved).
 
 PACKAGING
 ---------
