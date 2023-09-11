@@ -534,12 +534,12 @@ numbers. 'x' is used as a placeholder for a single digit that may vary.
   <itemizedlist>
 
     <listitem><para>
-	It is not necessary to install a Visual Studio IDE
-	to build with &SCons; (for example, you can install only
-	Build Tools), but when a Visual Studio IDE is installed,
-	additional builders such as &b-link-MSVSSolution; and
-	&b-link-MSVSProject; become available and correspond to
-	the specified versions.
+    It is not necessary to install a Visual Studio IDE
+    to build with &SCons; (for example, you can install only
+    Build Tools), but when a Visual Studio IDE is installed,
+    additional builders such as &b-link-MSVSSolution; and
+    &b-link-MSVSProject; become available and correspond to
+    the specified versions.
     </para></listitem>
 
     <listitem><para>
@@ -549,8 +549,8 @@ numbers. 'x' is used as a placeholder for a single digit that may vary.
     It is only necessary to specify the <literal>Exp</literal>
     suffix to select the express edition when both express and 
     non-express editions of the same product are installed
-	simulaneously. The <literal>Exp</literal> suffix is unnecessary,
-	but accepted, when only the express edition is installed.
+    simulaneously. The <literal>Exp</literal> suffix is unnecessary,
+    but accepted, when only the express edition is installed.
     </para></listitem>
   </itemizedlist>
 </note>
