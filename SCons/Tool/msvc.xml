@@ -370,28 +370,10 @@ loaded into the environment.
 </para>
 
 <para>
-The valid values for &cv-MSVC_VERSION; represent major versions
-of the compiler.  Versions ending in <literal>Exp</literal>
-refer to "Express" or "Express for Desktop" Visual Studio editions.
-An express version may have some feature limitations as compared to
-the full version.  It is necessary to specify the <literal>Exp</literal>
-suffix when both express and non-express editions are installed
-simulaneously and the express version is desired.  An express edition
-is used for the msvc version without the 'Exp' suffix when there is one
-edition installed and it is the express edition.
-</para>
-
-<para>
-The following table shows correspondence
-of the selector string to various version indicators
-('x' is used as a placeholder for
-a single digit that can vary).
-Note that it is not necessary to install Visual Studio
-to build with &SCons; (for example, you can install only
-Build Tools), but if Visual Studio is installed,
-additional builders such as &b-link-MSVSSolution; and
-&b-link-MSVSProject; become avaialable and will
-correspond to the indicated versions.
+The valid values for &cv-MSVC_VERSION; represent major versions of the
+compiler suite. The following table shows the correspondence of
+&cv-MSVC_VERSION; version specifications to various Visual Studio version
+numbers. 'x' is used as a placeholder for a single digit that may vary.
 </para>
 
 <informaltable>
@@ -547,6 +529,31 @@ correspond to the indicated versions.
     </tbody>
   </tgroup>
 </informaltable>
+
+<note>
+  <itemizedlist>
+
+    <listitem><para>
+	It is not necessary to install a Visual Studio IDE
+	to build with &SCons; (for example, you can install only
+	Build Tools), but when a Visual Studio IDE is installed,
+	additional builders such as &b-link-MSVSSolution; and
+	&b-link-MSVSProject; become available and correspond to
+	the specified versions.
+    </para></listitem>
+
+    <listitem><para>
+    Versions ending in <literal>Exp</literal> refer to historical
+	"Express" or "Express for Desktop" Visual Studio editions,
+    which had feature limitations compared to the full editions.
+    It is only necessary to specify the <literal>Exp</literal>
+    suffix to select the express edition when both express and 
+    non-express editions of the same product are installed
+	simulaneously. The <literal>Exp</literal> suffix is unnecessary,
+	but accepted, when only the express edition is installed.
+    </para></listitem>
+  </itemizedlist>
+</note>
 
 <para>
 The compilation environment can be further or more precisely specified through the
