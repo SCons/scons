@@ -544,7 +544,7 @@ numbers. 'x' is used as a placeholder for a single digit that may vary.
 
     <listitem><para>
     Versions ending in <literal>Exp</literal> refer to historical
-	"Express" or "Express for Desktop" Visual Studio editions,
+    "Express" or "Express for Desktop" Visual Studio editions,
     which had feature limitations compared to the full editions.
     It is only necessary to specify the <literal>Exp</literal>
     suffix to select the express edition when both express and 
