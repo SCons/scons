@@ -66,6 +66,8 @@
    </para>
 
    <programlisting>
+#include <stdio.h>
+
 int
 main()
 {
