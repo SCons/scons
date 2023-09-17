@@ -1,4 +1,10 @@
 <?xml version='1.0'?>
+<!--
+SPDX-License-Identifier: MIT
+
+Copyright The SCons Foundation
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
@@ -17,51 +23,30 @@
          xmlns="http://www.scons.org/dbxsd/v1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
+
 <title>Simple Builds</title>
-
-<!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
  <para>
 
- In this chapter,
- you will see several examples of
+ The single most important thing you do when writing a
+ build system for your project is to describe the "what":
+ what you want to build, and which files you want to build it from.
+ And, in fact, simpler builds may need no more.
+ In this chapter, you will see several examples of
  very simple build configurations using &SCons;,
- which will demonstrate how easy
- it is to use &SCons; to
- build programs from several different programming languages
- on different types of systems.
+ which will demonstrate how easy &SCons; makes it to
+ build programs on different types of systems.
 
  </para>
 
- <section>
+ <section id="sect-build-simple">
  <title>Building Simple C / C++ Programs</title>
 
    <para>
 
-   Here's the famous "Hello, World!" program in C:
+   Here's the ubiquitous
+   <ulink url="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">
+   "Hello, World!"</ulink> program in C:
 
    </para>
 
@@ -71,7 +56,7 @@
 int
 main()
 {
-    printf("Hello, world!\n");
+        printf("Hello, world!\n");
 }
    </programlisting>
 
@@ -94,16 +79,16 @@ int main() { printf("Hello, world!\n"); }
 
    <para>
 
-   This minimal configuration file gives
-   &SCons; two pieces of information:
-   what you want to build
-   (an executable program),
-   and the input file from
-   which you want it built
+   This minimal build file gives
+   &SCons; three key pieces of information:
+   what you want to build (a program);
+   what you want to call that program (its
+   base name will be <filename>hello</filename>),
+   and the source file you want it built from
    (the <filename>hello.c</filename> file).
-   &b-link-Program; is a <firstterm>&builder_method;</firstterm>,
-   a Python call that tells &SCons; that you want to build an
-   executable program.
+   &b-link-Program; is a <firstterm>&Builder;</firstterm>,
+   an &SCons; function that you use to instruct
+   &SCons; about the "what" of your build.
 
    </para>
 
@@ -132,46 +117,75 @@ int main() { printf("Hello, world!\n"); }
 
    <para>
 
-   First, notice that you only need
-   to specify the name of the source file,
-   and that &SCons; correctly deduces the names of
-   the object and executable files to be built
-   from the base of the source file name.
+   Notice that &SCons; deduced quite a bit here: it figured
+   out the name of the program to build, including operating
+   system specific suffixes (&hello; or &hello_exe;), based off
+   the basename of the source file; it knows an intermediate
+   object file should be built (&hello_o; or &hello_obj;);
+   and it knows how to build those things using the compiler
+   that is appropriate on the system you're using.
+   It was not necessary to instruct &SCons; about any of those
+   details.
+   This is an example of how &SCons;
+   makes it easy to write portable software builds.
 
    </para>
 
    <para>
 
-   Second, notice that the same input &SConstruct; file,
-   without any changes,
-   generates the correct output file names on both systems:
-   &hello_o; and &hello; on POSIX systems,
-   &hello_obj; and &hello_exe; on Windows systems.
-   This is a simple example of how &SCons;
-   makes it extremely easy to
-   write portable software builds.
+   For the programming languages &SCons; already knows about,
+   it will mostly just figure it out.
+   Here's the "Hello, World!" example in Fortran:
 
    </para>
 
-   <para>
+   <programlisting>
+program hello
+  print *, 'Hello, World!'
+end program hello
+   </programlisting>
 
-   (Note that we won't provide duplicate side-by-side
-   POSIX and Windows output for all of the examples in this guide;
-   just keep in mind that, unless otherwise specified,
-   any of the examples should work equally well on both types of systems.)
+   <sconstruct>
+Program('hello', 'hello.f90')
+   </sconstruct>
 
-   </para>
+   <!--  # SConsExample doesn't speak Fortran, will show as "cc"
+   <scons_example name="simple_ex1f">
+      <file name="SConstruct" printme="1">
+Program('hello', 'hello.f90')
+      </file>
+      <file name="hello.f90">
+program hello
+  print *, 'Hello, World!'
+end program hello
+      </file>
+   </scons_example>
+
+   <scons_output example="simple_ex1f" os="posix" suffix="1">
+      <scons_output_command>scons</scons_output_command>
+   </scons_output-->
+
+   <!-- so just hardcode it: -->
+   <screen>
+$ <userinput>scons</userinput>
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+gfortran -o hello.o -c hello.f90
+gfortran -o hello hello.o
+scons: done building targets.
+   </screen>
 
  </section>
 
- <section>
+ <section id="sect-building-object">
  <title>Building Object Files</title>
 
    <para>
 
-   The &b-link-Program; builder method is only one of
-   many builder methods that &SCons; provides
-   to build different types of files.
+   The &b-link-Program; builder is only one of
+   many builders (also called a <firstterm>&builder_method;</firstterm>)
+   that &SCons; provides to build different types of files.
    Another is the &b-link-Object; builder method,
    which tells &SCons; to build an object file
    from the specified source file:
@@ -209,9 +223,18 @@ int main() { printf("Hello, world!\n"); }
       <scons_output_command>scons</scons_output_command>
    </scons_output>
 
+   <para>
+
+   (Note that this guide will not continue to provide duplicate side-by-side
+   POSIX and Windows output for all of the examples.
+   Just keep in mind that, unless otherwise specified,
+   any of the examples should work equally well on both types of systems.)
+
+   </para>
+
  </section>
 
- <section>
+ <section id="sect-building-java">
  <title>Simple Java Builds</title>
 
    <para>
@@ -258,28 +281,30 @@ public class Example1
 
    <para>
 
-   We'll cover Java builds in more detail,
-   including building Java archive (<filename>.jar</filename>)
-   and other types of file,
+   Java builds will be covered in much more detail,
+   including building a Java archive (<filename>.jar</filename>)
+   and other types of files,
    in <xref linkend="chap-java"></xref>.
 
    </para>
 
  </section>
 
- <section>
+ <section id="sect-building-clean">
  <title>Cleaning Up After a Build</title>
 
    <para>
 
-   When using &SCons;, it is unnecessary to add special
-   commands or target names to clean up after a build.
-   Instead, you simply use the
+   For cleaning up your build tree, &SCons; provides a
+   "clean" mode, selected by the
    <option>-c</option> or <option>--clean</option>
-   option when you invoke &SCons;,
-   and &SCons; removes the appropriate built files.
-   So if we build our example above
-   and then invoke <literal>scons -c</literal>
+   option when you invoke &SCons;.
+   &SCons; selects the same set of targets it would in build mode,
+   but instead of building, removes them.
+   That means you can control what is cleaned
+   in exactly the same way as you control what gets built.
+   If you build the C example above
+   and then invoke <userinput>scons -c</userinput>
    afterwards, the output on POSIX looks like:
 
    </para>
@@ -312,14 +337,14 @@ int main() { printf("Hello, world!\n"); }
    <para>
 
    Notice that &SCons; changes its output to tell you that it
-   is <literal>Cleaning targets ...</literal> and
-   <literal>done cleaning targets.</literal>
+   is <computeroutput>Cleaning targets ...</computeroutput> and
+   <computeroutput>done cleaning targets.</computeroutput>
 
    </para>
 
  </section>
 
- <section>
+ <section id="sect-sconstruct-file">
  <title>The &SConstruct; File</title>
 
    <para>
@@ -332,36 +357,38 @@ int main() { printf("Hello, world!\n"); }
 
    </para>
 
-   <section>
+   <section id="sect-sconstruct-python">
    <title>&SConstruct; Files Are Python Scripts</title>
 
      <para>
 
      There is, however, an important difference between
      an &SConstruct; file and a &Makefile;:
-     the &SConstruct; file is actually a Python script.
-     If you're not already familiar with Python, don't worry.
+     the &SConstruct; file is actually a &Python; script.
+     If you're not already familiar with &Python;, don't worry.
      This User's Guide will introduce you step-by-step
-     to the relatively small amount of Python you'll
+     to the relatively small amount of &Python; you'll
      need to know to be able to use &SCons; effectively.
-     And Python is very easy to learn.
+     And &Python; is very easy to learn.
 
      </para>
 
      <para>
 
-     One aspect of using Python as the
+     One aspect of using &Python; as the
      scripting language is that you can put comments
-     in your &SConstruct; file using Python's commenting convention;
-     that is, everything between a '#' and the end of the line
-     will be ignored:
+     in your &SConstruct; file using &Python;'s commenting convention:
+     everything between a <literal>#</literal> character
+     and the end of the line will be ignored
+     (unless the character appears inside a string constant).
 
      </para>
 
-     <programlisting>
+     <sconstruct>
 # Arrange to build the "hello" program.
-Program('hello.c')    # "hello.c" is the source file.
-     </programlisting>
+Program("hello.c")    # "hello.c" is the source file.
+Program("#goodbye.c") # the # in "#goodbye" does not indicate a comment
+     </sconstruct>
 
      <para>
 
@@ -375,21 +402,21 @@ Program('hello.c')    # "hello.c" is the source file.
 
    </section>
 
-   <section>
-   <title>&SCons; Functions Are Order-Independent</title>
+   <section id="sect-order-independent">
+   <title>&SCons; Builders Are Order-Independent</title>
 
      <para>
 
      One important way in which the &SConstruct;
-     file is not exactly like a normal Python script,
+     file is not exactly like a normal &Python; script,
      and is more like a &Makefile;,
      is that the order in which
-     the &SCons; functions are called in
+     the &SCons; Builder functions are called in
      the &SConstruct; file
      does <emphasis>not</emphasis>
      affect the order in which &SCons;
      actually builds the programs and object files
-     you want it to build
+     you want it to build.
      <footnote><para>In programming parlance,
      the &SConstruct; file is
      <emphasis>declarative</emphasis>,
@@ -407,7 +434,7 @@ Program('hello.c')    # "hello.c" is the source file.
      Instead, you're telling &SCons; what you want accomplished,
      and it's up to &SCons; to figure out how to do that, and to
      take those steps if/when it's necessary.
-     We'll learn more about how
+     you'll learn more about how
      &SCons; decides when building or rebuilding a target
      is necessary in <xref linkend="chap-depends"></xref>, below.
 
@@ -422,7 +449,7 @@ Program('hello.c')    # "hello.c" is the source file.
      when it's "just reading" the &SConstruct; file,
      and when it's actually building the target files.
      This is to make it clear when &SCons; is
-     executing the Python statements that make up the &SConstruct; file,
+     executing the &Python; statements that make up the &SConstruct; file,
      and when &SCons; is actually executing the
      commands or other actions to
      build the necessary files.
@@ -432,10 +459,10 @@ Program('hello.c')    # "hello.c" is the source file.
      <para>
 
      Let's clarify this with an example.
-     Python has a <function>print</function> function that
+     &Python; has a <function>print</function> function that
      prints a string of characters to the screen.
-     If we put <function>print</function> calls around
-     our calls to the &b-Program; builder method:
+     If you put <function>print</function> calls around
+     the calls to the &b-Program; builder method:
 
      </para>
 
@@ -457,12 +484,12 @@ int main() { printf("Goodbye, world!\n"); }
 
      <para>
 
-     Then when we execute &SCons;,
-     we see the output from calling the <function>print</function>
+     Then when you execute &SCons;,
+     you will see the output from calling the <function>print</function>
      function in between the messages about
      reading the &SConscript; files,
      indicating that is when the
-     Python statements are being executed:
+     &Python; statements are being executed:
 
      </para>
 
@@ -474,20 +501,8 @@ int main() { printf("Goodbye, world!\n"); }
 
      Notice that &SCons; built the &goodbye; program first,
      even though the "reading &SConscript;" output
-     shows that we called <function>Program('hello.c')</function>
+     shows that <function>Program('hello.c')</function> was called
      first in the &SConstruct; file.
-
-     </para>
-
-     <para>
-
-     Notice also that &SCons; was able to infer a lot of information
-     from the two &Program; calls.  Because
-     &hello_c; and <filename>goodbye.c</filename>
-     were recognized as C-language source files, it knew to build
-     the intermediate target files &hello_o; and &goodbye_o;
-     and the final files &hello; and &goodbye;
-     It was not necessary to program &scons; beyond just calling &Program;.
 
      </para>
 
@@ -495,7 +510,7 @@ int main() { printf("Goodbye, world!\n"); }
 
  </section>
 
- <section>
+ <section id="sect_building_simple">
  <title>Making the &SCons; Output Less Verbose</title>
 
    <para>
@@ -538,9 +553,9 @@ int main() { printf("Goodbye, world!\n"); }
 
    <para>
 
-   Because we want this User's Guide to focus
+   So this User's Guide can focus
    on what &SCons; is actually doing,
-   we're going to use the &Q; option
+   the &Q; option will be used
    to remove these messages from the
    output of all the remaining examples in this Guide.
 

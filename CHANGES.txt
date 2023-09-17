@@ -51,7 +51,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 
   From Philipp Maierhöfer:
-    - Fix gfortran tool initialization. Defaults to using binary named gfortran 
+    - Fix gfortran tool initialization. Defaults to using binary named gfortran
       as would be expected, and properly set's SHFORTRAN flags to include -fPIC
       where previously it was only doing so for the other fortran versions (F77,..)
 
@@ -165,9 +165,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
       The existing cache will be discarded if there's a decode error reading it.
       It's possible there's a race condition creating this issue in certain CI
-      builds.
-      Also add a simple filesystem-based locking protocol to try to
-      avoide the problem occuring.
+      builds.  Also add a simple filesystem-based locking protocol to try to
+      avoid the problem occuring.
+    - Update the first two chapters on building with SCons in the User Guide.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
