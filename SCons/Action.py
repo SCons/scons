@@ -837,12 +837,12 @@ def scons_subproc_run(
     back. Typical case: run a tool's "version" option to find out which
     version you have installed.
 
-    If supplied, the :keyword:`env` keyword argument passes an
+    If supplied, the ``env`` keyword argument passes an
     execution environment to process into appropriate form before it is
     supplied to :mod:`subprocess`; if omitted, *scons_env* is used to derive
     a suitable default.  The other keyword arguments are passed through,
-    except that SCons legacy :keyword:`error` keyword is remapped to
-    the subprocess :keyword:`check` keyword.  The caller is responsible for
+    except that SCons legacy ``error` keyword is remapped to
+    the subprocess ``check` keyword.  The caller is responsible for
     setting up the desired arguments  for :func:`subprocess.run`.
 
     This function retains the legacy behavior of returning something
@@ -858,12 +858,12 @@ def scons_subproc_run(
           the subprocess; the default ``None`` does no redirection
           (i.e. output or errors may go to the console or log file,
           but is not captured); if set to :const:`subprocess.DEVNULL`
-          they are explicitly thrown away.  :keyword:`capture_output` is a
-          synonym for setting both :keyword:`stdout` and :keyword:`stderr`
+          they are explicitly thrown away. ``capture_output`` is a
+          synonym for setting both ``stdout`` and ``stderr``
           to :const:`~subprocess.PIPE`.
        text: open *stdin*, *stdout*, *stderr* in text mode. Default
-          is binary mode. :keyword:`universal_newlines` is a synonym -
-          note :keyword:`text` is not understood before Python 3.7.
+          is binary mode. ``universal_newlines`` is a synonym -
+          note ``text`` is not understood before Python 3.7.
        encoding: specifies an encoding. Changes to text mode.
        errors: specified error handling. Changes to text mode.
        input: a byte sequence to be passed to *stdin*, unless text
