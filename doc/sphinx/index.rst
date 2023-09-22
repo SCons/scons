@@ -17,7 +17,7 @@ SCons API Documentation
    The target audience is developers working on SCons itself:
    what is "Public API" is not clearly deliniated here.
    The interfaces available for use in SCons configuration scripts,
-   which have a consistency guarantee, are those documented in the 
+   which have a consistency guarantee, are those documented in the
    `SCons Reference Manual
    <https://scons.org/doc/production/HTML/scons-man.html>`_.
 
@@ -33,6 +33,7 @@ SCons API Documentation
    SCons.Script
    SCons.Taskmaster
    SCons.Tool
+   SCons.Util
    SCons.Variables
 
 

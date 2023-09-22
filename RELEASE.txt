@@ -72,6 +72,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   The "--warn=missing-sconscript" commandline option is no longer available
   as the warning was part of the transitional phase.
 - Add missing directories to searched paths for mingw installs
+- SCons.Util.types renamed to to SCons.Util.sctypes to avoid any possible
+  confusion with the Python stdlib "types" module. Note that it was briefly
+  (for 4.5.x only) possible to import directly from SCons.Util.types,
+  although the preferred usage remains to import from SCons.Util only.
+  Any code that did the direct import will have to change to import from
+  SCons.Util.sctypes.
 
 FIXES
 -----

@@ -22,17 +22,26 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-This package provides a way to gather various statistics during a SCons run and dump that info in several formats
+SCons statistics routines.
 
-Additionally, it probably makes sense to do stderr/stdout output of those statistics here as well
+This package provides a way to gather various statistics during an SCons
+run and dump that info in several formats
 
-There are basically two types of stats.
-1. Timer (start/stop/time) for specific event.  These events can be hierarchical. So you can record the children events of some parent.
-   Think program compile could contain the total Program builder time, which could include linking, and stripping the executable
-2. Counter. Counting the number of events and/or objects created. This would likely only be reported at the end of a given SCons run,
+Additionally, it probably makes sense to do stderr/stdout output of
+those statistics here as well
+
+There are basically two types of stats:
+
+1. Timer (start/stop/time) for specific event.  These events can be
+   hierarchical. So you can record the children events of some parent.
+   Think program compile could contain the total Program builder time,
+   which could include linking, and stripping the executable
+
+2. Counter. Counting the number of events and/or objects created. This
+   would likely only be reported at the end of a given SCons run,
    though it might be useful to query during a run.
-
 """
+
 from abc import ABC
 
 import platform
@@ -47,13 +56,10 @@ ENABLE_JSON = False
 JSON_OUTPUT_FILE = 'scons_stats.json'
 
 def add_stat_type(name, stat_object):
-    """
-    Add a statistic type to the global collection
-    """
+    """Add a statistic type to the global collection"""
     if name in all_stats:
         raise UserWarning(f'Stat type {name} already exists')
-    else:
-        all_stats[name] = stat_object
+    all_stats[name] = stat_object
 
 
 class Stats(ABC):
@@ -108,8 +114,8 @@ class CountStats(Stats):
         fmt2 = ''.join(pre + [' %7d'] * l + post)
         labels = self.labels[:l]
         labels.append(("", "Class"))
-        self.outfp.write(fmt1 % tuple([x[0] for x in labels]))
-        self.outfp.write(fmt1 % tuple([x[1] for x in labels]))
+        self.outfp.write(fmt1 % tuple(x[0] for x in labels))
+        self.outfp.write(fmt1 % tuple(x[1] for x in labels))
         for k in sorted(self.stats_table.keys()):
             r = self.stats_table[k][:l] + [k]
             self.outfp.write(fmt2 % tuple(r))
@@ -160,9 +166,12 @@ def write_scons_stats_file():
     """
 
     # Have to import where used to avoid import loop
-    from SCons.Script import BUILD_TARGETS, COMMAND_LINE_TARGETS, ARGUMENTS, \
-        ARGLIST # [import-outside-toplevel]
-
+    from SCons.Script import (  # pylint: disable=import-outside-toplevel
+        BUILD_TARGETS,
+        COMMAND_LINE_TARGETS,
+        ARGUMENTS,
+        ARGLIST,
+    )
     # print(f"DUMPING JSON FILE: {JSON_OUTPUT_FILE}")
     json_structure = {}
     if count_stats.enabled:

@@ -1204,7 +1204,7 @@ class LocalFS:
 
     if hasattr(os, 'readlink'):
 
-        def readlink(self, file):
+        def readlink(self, file) -> str:
             return os.readlink(file)
 
     else:
