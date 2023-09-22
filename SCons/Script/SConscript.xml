@@ -163,7 +163,7 @@ is used if no value is specified.
 <para>
 Exports variables for sharing with other SConscript files.
 The variables are added to a global collection where
-they can be imported by another SConscript file.
+they can be imported by other SConscript files.
 <parameter>vars</parameter> may be one or more
 strings, or a list of strings. If any string
 contains whitespace, it is split automatically
@@ -400,8 +400,8 @@ Return('val1 val2')
 
 <scons_function name="SConscript">
 <arguments>
-(scriptname, [exports, variant_dir, duplicate, must_exist])
-<!-- (scripts, [exports, variant_dir, src_dir, duplicate, must_exist]) -->
+(scriptnames, [exports, variant_dir, duplicate, must_exist])
+<!-- (scriptnames, [exports, variant_dir, src_dir, duplicate, must_exist]) -->
 </arguments>
 <arguments>
 (dirs=subdirs, [name=scriptname, exports, variant_dir, duplicate, must_exist])
@@ -469,7 +469,7 @@ from the calling SConscript.
 The value may be a string or list of strings representing
 variable names, or a dictionary mapping local names to
 the names they can be imported by.
-For the first (scriptname) calling style,
+For the first (scriptnames) calling style,
 a second positional argument will also be interpreted as
 <varname>exports</varname>;
 the second (directory) calling style accepts no
