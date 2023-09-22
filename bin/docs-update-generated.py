@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 #
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+#
 # Searches through the whole source tree and updates
 # the generated *.gen/*.mod files in the docs folder, keeping all
 # documentation for the tools, builders and functions...
 # as well as the entity declarations for them.
 # Uses scons-proc.py under the hood...
-#
+
 import os
 import sys
 import subprocess
@@ -63,8 +67,8 @@ def generate_all():
             print("Generation failed", file=sys.stderr)
             return False
     return True
-    
-    
+
+
 if __name__ == "__main__":
     if not generate_all():
         sys.exit(1)
