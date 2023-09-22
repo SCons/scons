@@ -38,6 +38,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       module was refactored.
     - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
       consistent with the current documentation of MSVS_ARCH.
+    - Fix an issue with an unhandled MissingConfiguration exception due to an msvc
+      registry query that returns a path that does not exist.  Multiple invocation
+      paths were not prepared to handle the MissingConfiguration exception.  The
+      MissingConfiguration exception type was removed.
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`

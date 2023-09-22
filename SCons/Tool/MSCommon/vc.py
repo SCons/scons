@@ -89,9 +89,6 @@ class MSVCUseSettingsError(MSVCUserError):
 class UnsupportedVersion(VisualCException):
     pass
 
-class MissingConfiguration(VisualCException):
-    pass
-
 class BatchFileExecutionError(VisualCException):
     pass
 
@@ -873,9 +870,8 @@ def find_vc_pdir(env, msvc_version):
 
     Raises:
         UnsupportedVersion: if the version is not known by this file.
-        MissingConfiguration: found version but the directory is missing.
 
-        Both exceptions inherit from VisualCException.
+        UnsupportedVersion inherits from VisualCException.
 
     """
     root = 'Software\\'
@@ -917,7 +913,6 @@ def find_vc_pdir(env, msvc_version):
                 return comps
             else:
                 debug('reg says dir is %s, but it does not exist. (ignoring)', comps)
-                raise MissingConfiguration(f"registry dir {comps} not found on the filesystem")
     return None
 
 def find_batch_file(msvc_version, host_arch, target_arch, pdir):
@@ -1343,9 +1338,6 @@ def msvc_find_valid_batch_script(env, version):
         pdir = find_vc_pdir(env, version)
     except UnsupportedVersion:
         # Unsupported msvc version (raise MSVCArgumentError?)
-        pass
-    except MissingConfiguration:
-        # Found version, directory missing
         pass
     debug('product directory: version=%s, pdir=%s', version, pdir)
 
