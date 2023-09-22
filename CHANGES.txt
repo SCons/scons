@@ -168,6 +168,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       builds.  Also add a simple filesystem-based locking protocol to try to
       avoid the problem occuring.
     - Update the first two chapters on building with SCons in the User Guide.
+    - TeX tests: skip tests that use makeindex command when not found.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
