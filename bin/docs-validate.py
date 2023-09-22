@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 #
+# SPDX-License-Identifier: MIT
+#
+# Copyright The SCons Foundation
+#
 # Searches through the whole source tree and validates all
 # documentation files against our own XSD in docs/xsd.
 #
