@@ -172,6 +172,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       builds.  Also add a simple filesystem-based locking protocol to try to
       avoid the problem occuring.
     - Update the first two chapters on building with SCons in the User Guide.
+    - Update docs on Export/Import - make sure mutable/immutable status has
+      been mentioned.
     - Some cleanup to the Util package, including renaming SCons.Util.types
       to SCons.Util.sctypes to avoid any possible confusion with the
       Python stdlib types module.
