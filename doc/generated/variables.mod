@@ -80,6 +80,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-DFLAGPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGPREFIX</envar>">
 <!ENTITY cv-DFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGS</envar>">
 <!ENTITY cv-DFLAGSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DFLAGSUFFIX</envar>">
+<!ENTITY cv-DI_FILE_DIR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_DIR</envar>">
+<!ENTITY cv-DI_FILE_DIR_PREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_DIR_PREFIX</envar>">
+<!ENTITY cv-DI_FILE_DIR_SUFFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_DIR_SUFFFIX</envar>">
+<!ENTITY cv-DI_FILE_SUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DI_FILE_SUFFIX</envar>">
 <!ENTITY cv-DINCPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DINCPREFIX</envar>">
 <!ENTITY cv-DINCSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$DINCSUFFIX</envar>">
 <!ENTITY cv-Dir "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$Dir</envar>">
@@ -662,6 +666,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-XGETTEXTPATHSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$XGETTEXTPATHSUFFIX</envar>">
 <!ENTITY cv-YACC "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC</envar>">
 <!ENTITY cv-YACC_GRAPH_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_GRAPH_FILE</envar>">
+<!ENTITY cv-YACC_GRAPH_FILE_SUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_GRAPH_FILE_SUFFIX</envar>">
 <!ENTITY cv-YACC_HEADER_FILE "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACC_HEADER_FILE</envar>">
 <!ENTITY cv-YACCCOM "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCCOM</envar>">
 <!ENTITY cv-YACCCOMSTR "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$YACCCOMSTR</envar>">
@@ -756,6 +761,10 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-DFLAGPREFIX "<link linkend='cv-DFLAGPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGPREFIX</envar></link>">
 <!ENTITY cv-link-DFLAGS "<link linkend='cv-DFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGS</envar></link>">
 <!ENTITY cv-link-DFLAGSUFFIX "<link linkend='cv-DFLAGSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DFLAGSUFFIX</envar></link>">
+<!ENTITY cv-link-DI_FILE_DIR "<link linkend='cv-DI_FILE_DIR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_DIR</envar></link>">
+<!ENTITY cv-link-DI_FILE_DIR_PREFIX "<link linkend='cv-DI_FILE_DIR_PREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_DIR_PREFIX</envar></link>">
+<!ENTITY cv-link-DI_FILE_DIR_SUFFFIX "<link linkend='cv-DI_FILE_DIR_SUFFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_DIR_SUFFFIX</envar></link>">
+<!ENTITY cv-link-DI_FILE_SUFFIX "<link linkend='cv-DI_FILE_SUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DI_FILE_SUFFIX</envar></link>">
 <!ENTITY cv-link-DINCPREFIX "<link linkend='cv-DINCPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DINCPREFIX</envar></link>">
 <!ENTITY cv-link-DINCSUFFIX "<link linkend='cv-DINCSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$DINCSUFFIX</envar></link>">
 <!ENTITY cv-link-Dir "<link linkend='cv-Dir' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$Dir</envar></link>">
@@ -1338,6 +1347,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-XGETTEXTPATHSUFFIX "<link linkend='cv-XGETTEXTPATHSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$XGETTEXTPATHSUFFIX</envar></link>">
 <!ENTITY cv-link-YACC "<link linkend='cv-YACC' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC</envar></link>">
 <!ENTITY cv-link-YACC_GRAPH_FILE "<link linkend='cv-YACC_GRAPH_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_GRAPH_FILE</envar></link>">
+<!ENTITY cv-link-YACC_GRAPH_FILE_SUFFIX "<link linkend='cv-YACC_GRAPH_FILE_SUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_GRAPH_FILE_SUFFIX</envar></link>">
 <!ENTITY cv-link-YACC_HEADER_FILE "<link linkend='cv-YACC_HEADER_FILE' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACC_HEADER_FILE</envar></link>">
 <!ENTITY cv-link-YACCCOM "<link linkend='cv-YACCCOM' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCCOM</envar></link>">
 <!ENTITY cv-link-YACCCOMSTR "<link linkend='cv-YACCCOMSTR' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$YACCCOMSTR</envar></link>">

@@ -149,6 +149,8 @@ DEVELOPMENT
   doesn't use so it can be instantiated by unittests and others.
 - Added more type annotations to internal routines.
 - Cleaned up dblite module (checker warnings, etc.).
+- TeX tests: skip tests that use makeindex or epstopdf not installed, or
+  if `kpsewhich glossaries.sty` fails.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
