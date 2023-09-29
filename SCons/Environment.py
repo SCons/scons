@@ -1277,7 +1277,10 @@ class Base(SubstitutionEnvironment):
         try:
             path = self._CacheDir_path
         except AttributeError:
-            path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
+            try:
+                path = SCons.Defaults.DefaultEnvironment()._CacheDir_path
+            except AttributeError:
+                path = None
 
         cachedir_class = self.validate_CacheDir_class()
         try:
