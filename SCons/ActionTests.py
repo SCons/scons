@@ -41,11 +41,13 @@ import os
 import sys
 import types
 import unittest
+from unittest import mock
 from subprocess import PIPE
 
 import SCons.Action
 import SCons.Environment
 import SCons.Errors
+from SCons.Action import scons_subproc_run
 
 import TestCmd
 
@@ -2329,7 +2331,7 @@ class ObjectContentsTestCase(unittest.TestCase):
     def test_uncaught_exception_bubbles(self):
         """Test that scons_subproc_run bubbles uncaught exceptions"""
         try:
-            cp = SCons.Action.scons_subproc_run(Environment(), None, stdout=PIPE)
+            cp = scons_subproc_run(Environment(), None, stdout=PIPE)
         except EnvironmentError:
             pass
         except Exception:
@@ -2337,6 +2339,53 @@ class ObjectContentsTestCase(unittest.TestCase):
             return
 
         raise Exception("expected a non-EnvironmentError exception")
+
+
+    def mock_subprocess_run(*args, **kwargs):
+        """Replacement subprocess.run: return kwargs for checking."""
+        kwargs.pop("env")  # the value of env isn't interesting here
+        return kwargs
+
+    @mock.patch("subprocess.run", mock_subprocess_run)
+    def test_scons_subproc_run(self):
+        """Test the argument remapping options."""
+        env = Environment()
+        self.assertEqual(scons_subproc_run(env), {"check": False})
+        with self.subTest():
+            self.assertEqual(
+                scons_subproc_run(env, error="raise"),
+                {"check": True}
+            )
+        with self.subTest():
+            self.assertEqual(
+                scons_subproc_run(env, capture_output=True),
+                {"capture_output": True, "check": False},
+            )
+        with self.subTest():
+            self.assertEqual(
+                scons_subproc_run(env, text=True),
+                {"text": True, "check": False},
+            )
+
+        # 3.6:
+        save_info, sys.version_info = sys.version_info, (3, 6, 2)
+        with self.subTest():
+            self.assertEqual(
+                scons_subproc_run(env, capture_output=True),
+                {"check": False, "stdout": PIPE, "stderr": PIPE},
+            )
+        with self.subTest():
+            self.assertEqual(
+                scons_subproc_run(env, text=True),
+                {"check": False, "universal_newlines": True},
+            )
+        with self.subTest():
+            self.assertEqual(
+                scons_subproc_run(env, universal_newlines=True),
+                {"universal_newlines": True, "check": False},
+            )
+        sys.version_info = save_info
+
 
 if __name__ == "__main__":
     unittest.main()
