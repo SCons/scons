@@ -80,6 +80,12 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   The "--warn=missing-sconscript" commandline option is no longer available
   as the warning was part of the transitional phase.
 - Add missing directories to searched paths for mingw installs
+- SCons.Util.types renamed to to SCons.Util.sctypes to avoid any possible
+  confusion with the Python stdlib "types" module. Note that it was briefly
+  (for 4.5.x only) possible to import directly from SCons.Util.types,
+  although the preferred usage remains to import from SCons.Util only.
+  Any code that did the direct import will have to change to import from
+  SCons.Util.sctypes.
 
 FIXES
 -----
@@ -128,7 +134,7 @@ FIXES
   with the python logging module was refactored to prevent test failure.
 - MSVS: Add arm64 to the MSVS supported architectures list for VS2017 and later to be
   consistent with the current documentation of MSVS_ARCH.
-- FORTRAN: Fix gfortran tool initialization. Defaults to using binary named gfortran 
+- FORTRAN: Fix gfortran tool initialization. Defaults to using binary named gfortran
   as would be expected, and properly set's SHFORTRAN flags to include -fPIC
   where previously it was only doing so for the other fortran versions (F77,..)
 - MSCommon: Added more error handling while reading msvc config cache.
@@ -171,6 +177,9 @@ DOCUMENTATION
   usage, which had no problem).
 - Changed the message about scons -H to clarify it shows built-in options only.
 - Cachedir description updated.
+- Updated the first two chapters on building with SCons in the User Guide.
+- Clarify that exported variables are shared - if mutable, changes made in
+  an SConscript are visible everywhere that takes a refereence to that object.
 
 DEVELOPMENT
 -----------
@@ -185,6 +194,8 @@ DEVELOPMENT
   doesn't use so it can be instantiated by unittests and others.
 - Added more type annotations to internal routines.
 - Cleaned up dblite module (checker warnings, etc.).
+- TeX tests: skip tests that use makeindex or epstopdf not installed, or
+  if `kpsewhich glossaries.sty` fails.
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================

@@ -25,8 +25,8 @@
 
 import os
 import re
-import subprocess
 import sys
+from subprocess import PIPE
 
 import SCons.Action
 import SCons.Node.FS
@@ -60,16 +60,16 @@ class _CmdRunner:
 
     def __call__(self, target, source, env):
         kw = {
-            'stdin': 'devnull',
-            'stdout': subprocess.PIPE,
-            'stderr': subprocess.PIPE,
+            'stdout': PIPE,
+            'stderr': PIPE,
             'universal_newlines': True,
             'shell': True
         }
         command = env.subst(self.command, target=target, source=source)
-        proc = SCons.Action._subproc(env, command, **kw)
-        self.out, self.err = proc.communicate()
-        self.status = proc.wait()
+        cp = SCons.Action.scons_subproc_run(env, command, **kw)
+        self.status = cp.returncode
+        self.out = cp.stdout
+        self.err = cp.stderr
         if self.err:
             sys.stderr.write(str(self.err))
         return self.status

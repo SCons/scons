@@ -38,6 +38,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       module was refactored.
     - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
       consistent with the current documentation of MSVS_ARCH.
+    - Fix an issue with an unhandled MissingConfiguration exception due to an msvc
+      registry query that returns a path that does not exist.  Multiple invocation
+      paths were not prepared to handle the MissingConfiguration exception.  The
+      MissingConfiguration exception type was removed.
     - For msvc version specifications without an 'Exp' suffix, an express installation
       is used when no other edition is detected for the msvc version.
     - VS2015 Express (14.1Exp) may not have been detected. The registry keys written
@@ -110,7 +114,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 
   From Philipp Maierhöfer:
-    - Fix gfortran tool initialization. Defaults to using binary named gfortran 
+    - Fix gfortran tool initialization. Defaults to using binary named gfortran
       as would be expected, and properly set's SHFORTRAN flags to include -fPIC
       where previously it was only doing so for the other fortran versions (F77,..)
 
@@ -194,6 +198,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       than source).  Docs updated.  Fixes #4326 and #4327.
     - Cleaned up dblite module (checker warnings, etc.).
     - Some cleanup in the FortranCommon tool.
+    - Rewrite the internal _subproc routine - a new scons_subproc_run() now
+      makes use of Python's subprocess.run in a more natural way, getting
+      around some of the issues with attempted context manager use, fetching
+      output, etc. - we let the subprocess module do the hard work,
+      since it's well debugged and supported.  _subproc is no longer
+      called by internal code, but remains in place in case there are builds
+      which call to it (even though it was never "published API").
     - Changed the message about scons -H to clarify it shows built-in options.
     - Improve CacheDir() Documentation.
     - Release-building setup tweaked. (most of) the targets listed in
@@ -217,9 +228,17 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       (Enabled/specified by SCONS_CACHE_MSVC_CONFIG).
       The existing cache will be discarded if there's a decode error reading it.
       It's possible there's a race condition creating this issue in certain CI
-      builds.
-      Also add a simple filesystem-based locking protocol to try to
-      avoide the problem occuring.
+      builds.  Also add a simple filesystem-based locking protocol to try to
+      avoid the problem occuring.
+    - Update the first two chapters on building with SCons in the User Guide.
+    - Update docs on Export/Import - make sure mutable/immutable status has
+      been mentioned.
+    - Some cleanup to the Util package, including renaming SCons.Util.types
+      to SCons.Util.sctypes to avoid any possible confusion with the
+      Python stdlib types module.
+    - TeX tests: skip tests that use makeindex or epstopdf not installed, or
+      if `kpsewhich glossaries.sty` fails.
+
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures

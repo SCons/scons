@@ -28,7 +28,7 @@ will usually be imported through the generic SCons.Platform.Platform()
 selection method.
 """
 
-import subprocess
+from subprocess import PIPE
 
 from . import posix
 
@@ -47,22 +47,21 @@ def get_xlc(env, xlc=None, packages=[]):
         xlc = xlc[0]
     for package in packages:
         # find the installed filename, which may be a symlink as well
-        pipe = SCons.Action._subproc(env, ['lslpp', '-fc', package],
-                stdin = 'devnull',
-                stderr = 'devnull',
-                universal_newlines=True,
-                stdout = subprocess.PIPE)
+        cp = SCons.Action.scons_subproc_run(
+            env, ['lslpp', '-fc', package], universal_newlines=True, stdout=PIPE
+        )
         # output of lslpp is something like this:
         #     #Path:Fileset:File
         #     /usr/lib/objrepos:vac.C 6.0.0.0:/usr/vac/exe/xlCcpp
         #     /usr/lib/objrepos:vac.C 6.0.0.0:/usr/vac/bin/xlc_r -> /usr/vac/bin/xlc
-        for line in pipe.stdout:
+        for line in cp.stdout.splitlines():
             if xlcPath:
-                continue # read everything to let lslpp terminate
+                continue  # read everything to let lslpp terminate
             fileset, filename = line.split(':')[1:3]
             filename = filename.split()[0]
-            if ('/' in xlc and filename == xlc) \
-            or ('/' not in xlc and filename.endswith('/' + xlc)):
+            if ('/' in xlc and filename == xlc) or (
+                '/' not in xlc and filename.endswith('/' + xlc)
+            ):
                 xlcVersion = fileset.split()[1]
                 xlcPath, sep, xlc = filename.rpartition('/')
     return (xlcPath, xlc, xlcVersion)

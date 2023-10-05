@@ -27,7 +27,8 @@ Used to handle internal and user errors in SCons.
 """
 
 import shutil
-import SCons.Util
+
+from SCons.Util.sctypes import to_String, is_String
 
 # Note that not all Errors are defined here, some are at the point of use
 
@@ -77,7 +78,7 @@ class BuildError(Exception):
 
         # py3: errstr should be string and not bytes.
 
-        self.errstr = SCons.Util.to_String(errstr)
+        self.errstr = to_String(errstr)
         self.status = status
         self.exitstatus = exitstatus
         self.filename = filename
@@ -189,7 +190,7 @@ def convert_to_BuildError(status, exc_info=None):
             status=2,
             exitstatus=2,
             exc_info=exc_info)
-    elif SCons.Util.is_String(status):
+    elif is_String(status):
         buildError = BuildError(
             errstr=status,
             status=2,

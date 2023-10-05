@@ -241,27 +241,24 @@ def to_String_for_signature(  # pylint: disable=redefined-outer-name,redefined-b
             # TODO: Change code when floor is raised to PY36
             return pprint.pformat(obj, width=1000000)
         return to_String_for_subst(obj)
-    else:
-        return f()
+    return f()
 
 
-def get_env_bool(env, name, default: bool=False) -> bool:
+def get_env_bool(env, name: str, default: bool=False) -> bool:
     """Convert a construction variable to bool.
 
-    If the value of *name* in *env* is 'true', 'yes', 'y', 'on' (case
-    insensitive) or anything convertible to int that yields non-zero then
-    return ``True``; if 'false', 'no', 'n', 'off' (case insensitive)
-    or a number that converts to integer zero return ``False``.
-    Otherwise, return `default`.
+    If the value of *name* in dict-like object *env* is 'true', 'yes',
+    'y', 'on' (case insensitive) or anything convertible to int that
+    yields non-zero, return ``True``; if 'false', 'no', 'n', 'off'
+    (case insensitive) or a number that converts to integer zero return
+    ``False``.  Otherwise, or if *name* is not found, return the value
+    of *default*.
 
     Args:
-        env: construction environment, or any dict-like object
-        name: name of the variable
+        env: construction environment, or any dict-like object.
+        name: name of the variable.
         default: value to return if *name* not in *env* or cannot
-          be converted (default: False)
-
-    Returns:
-        the "truthiness" of `name`
+          be converted (default: False).
     """
     try:
         var = env[name]
@@ -279,10 +276,10 @@ def get_env_bool(env, name, default: bool=False) -> bool:
         return default
 
 
-def get_os_env_bool(name, default: bool=False) -> bool:
-    """Convert an environment variable to bool.
+def get_os_env_bool(name: str, default: bool=False) -> bool:
+    """Convert an external environment variable to boolean.
 
-    Conversion is the same as for :func:`get_env_bool`.
+    Like :func:`get_env_bool`, but uses :attr:`os.environ` as the lookup dict.
     """
     return get_env_bool(os.environ, name, default)
 
@@ -293,10 +290,10 @@ _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 def get_environment_var(varstr) -> Optional[str]:
     """Return undecorated construction variable string.
 
-    Determine if `varstr` looks like a reference
-    to a single environment variable, like `"$FOO"` or `"${FOO}"`.
-    If so, return that variable with no decorations, like `"FOO"`.
-    If not, return `None`.
+    Determine if *varstr* looks like a reference
+    to a single environment variable, like ``"$FOO"`` or ``"${FOO}"``.
+    If so, return that variable with no decorations, like ``"FOO"``.
+    If not, return ``None``.
     """
     mo = _get_env_var.match(to_String(varstr))
     if mo:

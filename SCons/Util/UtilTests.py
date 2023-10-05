@@ -22,14 +22,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import functools
+import hashlib
 import io
 import os
 import sys
 import unittest
 import unittest.mock
-import hashlib
 import warnings
 from collections import UserDict, UserList, UserString, namedtuple
+from typing import Union
 
 import TestCmd
 
@@ -87,8 +88,8 @@ class OutBuffer:
     def __init__(self) -> None:
         self.buffer = ""
 
-    def write(self, str) -> None:
-        self.buffer = self.buffer + str
+    def write(self, text: str) -> None:
+        self.buffer = self.buffer + text
 
 
 class dictifyTestCase(unittest.TestCase):
@@ -155,10 +156,10 @@ class UtilTestCase(unittest.TestCase):
         bar_o = self.Node("bar.o", [bar_c])
         foo_c = self.Node("foo.c", [stdio_h])
         foo_o = self.Node("foo.o", [foo_c])
-        foo = self.Node("foo", [foo_o, bar_o])
+        prog = self.Node("prog", [foo_o, bar_o])
 
         expect = """\
-+-foo
++-prog
   +-foo.o
   | +-foo.c
   |   +-stdio.h
@@ -172,7 +173,7 @@ class UtilTestCase(unittest.TestCase):
         lines = ['[E BSPACN ]' + l for l in lines]
         withtags = '\n'.join(lines) + '\n'
 
-        return foo, expect, withtags
+        return prog, expect, withtags
 
     def tree_case_2(self, prune: int=1):
         """Fixture for the render_tree() and print_tree() tests."""
@@ -471,29 +472,29 @@ class UtilTestCase(unittest.TestCase):
         """Test generic Proxy class."""
 
         class Subject:
-            def foo(self) -> int:
+            def meth(self) -> int:
                 return 1
 
-            def bar(self) -> int:
+            def other(self) -> int:
                 return 2
 
         s = Subject()
-        s.baz = 3
+        s.attr = 3
 
         class ProxyTest(Proxy):
-            def bar(self) -> int:
+            def other(self) -> int:
                 return 4
 
         p = ProxyTest(s)
 
-        assert p.foo() == 1, p.foo()
-        assert p.bar() == 4, p.bar()
-        assert p.baz == 3, p.baz
+        assert p.meth() == 1, p.meth()
+        assert p.other() == 4, p.other()
+        assert p.attr == 3, p.attr
 
-        p.baz = 5
-        s.baz = 6
+        p.attr = 5
+        s.attr = 6
 
-        assert p.baz == 5, p.baz
+        assert p.attr == 5, p.attr
         assert p.get() == s, p.get()
 
     def test_display(self) -> None:
@@ -519,10 +520,10 @@ class UtilTestCase(unittest.TestCase):
         os.close(f)
         data = '1234567890 ' + filename
         try:
-            with open(filename, 'w') as f:
-                f.write(data)
-            with open(get_native_path(filename), 'r') as f:
-                assert f.read() == data
+            with open(filename, 'w') as file:
+                file.write(data)
+            with open(get_native_path(filename), 'r') as native:
+                assert native.read() == data
         finally:
             try:
                 os.unlink(filename)
@@ -531,8 +532,8 @@ class UtilTestCase(unittest.TestCase):
 
     def test_PrependPath(self) -> None:
         """Test prepending to a path"""
-        p1 = r'C:\dir\num\one;C:\dir\num\two'
-        p2 = r'C:\mydir\num\one;C:\mydir\num\two'
+        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
+        p2: Union[list, str] = r'C:\mydir\num\one;C:\mydir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = PrependPath(p1, r'C:\dir\num\two', sep=';')
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
@@ -543,14 +544,14 @@ class UtilTestCase(unittest.TestCase):
         assert p2 == r'C:\mydir\num\one;C:\mydir\num\three;C:\mydir\num\two', p2
 
         # check (only) first one is kept if there are dupes in new
-        p3 = r'C:\dir\num\one'
+        p3: Union[list, str] = r'C:\dir\num\one'
         p3 = PrependPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
         assert p3 == r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\one', p3
 
     def test_AppendPath(self) -> None:
         """Test appending to a path."""
-        p1 = r'C:\dir\num\one;C:\dir\num\two'
-        p2 = r'C:\mydir\num\one;C:\mydir\num\two'
+        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
+        p2: Union[list, str] = r'C:\mydir\num\one;C:\mydir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
         p1 = AppendPath(p1, r'C:\dir\num\two', sep=';')
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
@@ -561,23 +562,23 @@ class UtilTestCase(unittest.TestCase):
         assert p2 == r'C:\mydir\num\two;C:\mydir\num\three;C:\mydir\num\one', p2
 
         # check (only) last one is kept if there are dupes in new
-        p3 = r'C:\dir\num\one'
+        p3: Union[list, str] = r'C:\dir\num\one'
         p3 = AppendPath(p3, r'C:\dir\num\two;C:\dir\num\three;C:\dir\num\two', sep=';')
         assert p3 == r'C:\dir\num\one;C:\dir\num\three;C:\dir\num\two', p3
 
     def test_PrependPathPreserveOld(self) -> None:
         """Test prepending to a path while preserving old paths"""
-        p1 = r'C:\dir\num\one;C:\dir\num\two'
+        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = PrependPath(p1, r'C:\dir\num\two', sep=';', delete_existing=0)
+        p1 = PrependPath(p1, r'C:\dir\num\two', sep=';', delete_existing=False)
         p1 = PrependPath(p1, r'C:\dir\num\three', sep=';')
         assert p1 == r'C:\dir\num\three;C:\dir\num\one;C:\dir\num\two', p1
 
     def test_AppendPathPreserveOld(self) -> None:
         """Test appending to a path while preserving old paths"""
-        p1 = r'C:\dir\num\one;C:\dir\num\two'
+        p1: Union[list, str] = r'C:\dir\num\one;C:\dir\num\two'
         # have to include the pathsep here so that the test will work on UNIX too.
-        p1 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=0)
+        p1 = AppendPath(p1, r'C:\dir\num\one', sep=';', delete_existing=False)
         p1 = AppendPath(p1, r'C:\dir\num\three', sep=';')
         assert p1 == r'C:\dir\num\one;C:\dir\num\two;C:\dir\num\three', p1
 
@@ -930,14 +931,14 @@ class FIPSHashTestCase(unittest.TestCase):
 
         all_throw = unittest.mock.Mock(**{'md5.side_effect': ValueError, 'sha1.side_effect': ValueError, 'sha256.side_effect': ValueError})
         self.all_throw=all_throw
-        
+
         no_algorithms = unittest.mock.Mock()
         del no_algorithms.md5
         del no_algorithms.sha1
         del no_algorithms.sha256
         del no_algorithms.nonexist
         self.no_algorithms=no_algorithms
-        
+
         unsupported_algorithm = unittest.mock.Mock(unsupported=self.fake_sha256)
         del unsupported_algorithm.md5
         del unsupported_algorithm.sha1
@@ -976,7 +977,7 @@ class FIPSHashTestCase(unittest.TestCase):
             self.sys_v4_8: (False, 'md5'),
         }.items():
             assert _attempt_init_of_python_3_9_hash_object(self.fake_md5, version) == expected
-    
+
     def test_automatic_default_to_md5(self) -> None:
         """Test automatic default to md5 even if sha1 available"""
         for version, expected in {
@@ -1009,7 +1010,7 @@ class FIPSHashTestCase(unittest.TestCase):
             _set_allowed_viable_default_hashes(self.sha1Default, version)
             set_hash_format(None, self.sha1Default, version)
             assert _get_hash_object(None, self.sha1Default, version) == expected
-    
+
     def test_no_available_algorithms(self) -> None:
         """expect exceptions on no available algorithms or when all algorithms throw"""
         self.assertRaises(SCons.Errors.SConsEnvironmentError, _set_allowed_viable_default_hashes, self.no_algorithms)
@@ -1022,7 +1023,7 @@ class FIPSHashTestCase(unittest.TestCase):
         # nonexistant hash algorithm, not supported by SCons
         _set_allowed_viable_default_hashes(self.md5Available)
         self.assertRaises(SCons.Errors.UserError, set_hash_format, 'blah blah blah', hashlib_used=self.no_algorithms)
-        
+
         # md5 is default-allowed, but in this case throws when we attempt to use it
         _set_allowed_viable_default_hashes(self.md5Available)
         self.assertRaises(SCons.Errors.UserError, set_hash_format, 'md5', hashlib_used=self.all_throw)
@@ -1030,7 +1031,7 @@ class FIPSHashTestCase(unittest.TestCase):
         # user attempts to use an algorithm that isn't supported by their current system but is supported by SCons
         _set_allowed_viable_default_hashes(self.sha1Default)
         self.assertRaises(SCons.Errors.UserError, set_hash_format, 'md5', hashlib_used=self.all_throw)
-        
+
         # user attempts to use an algorithm that is supported by their current system but isn't supported by SCons
         _set_allowed_viable_default_hashes(self.sha1Default)
         self.assertRaises(SCons.Errors.UserError, set_hash_format, 'unsupported', hashlib_used=self.unsupported_algorithm)
@@ -1048,16 +1049,16 @@ class NodeListTestCase(unittest.TestCase):
         class TestClass:
             def __init__(self, name, child=None) -> None:
                 self.child = child
-                self.bar = name
+                self.name = name
 
         t1 = TestClass('t1', TestClass('t1child'))
         t2 = TestClass('t2', TestClass('t2child'))
         t3 = TestClass('t3')
 
         nl = NodeList([t1, t2, t3])
-        assert nl.bar == ['t1', 't2', 't3'], nl.bar
-        assert nl[0:2].child.bar == ['t1child', 't2child'], \
-            nl[0:2].child.bar
+        assert nl.name == ['t1', 't2', 't3'], nl.name
+        assert nl[0:2].child.name == ['t1child', 't2child'], \
+            nl[0:2].child.name
 
     def test_callable_attributes(self) -> None:
         """Test callable attributes of a NodeList class"""
@@ -1065,10 +1066,10 @@ class NodeListTestCase(unittest.TestCase):
         class TestClass:
             def __init__(self, name, child=None) -> None:
                 self.child = child
-                self.bar = name
+                self.name = name
 
-            def foo(self):
-                return self.bar + "foo"
+            def meth(self):
+                return self.name + "foo"
 
             def getself(self):
                 return self
@@ -1078,13 +1079,13 @@ class NodeListTestCase(unittest.TestCase):
         t3 = TestClass('t3')
 
         nl = NodeList([t1, t2, t3])
-        assert nl.foo() == ['t1foo', 't2foo', 't3foo'], nl.foo()
-        assert nl.bar == ['t1', 't2', 't3'], nl.bar
-        assert nl.getself().bar == ['t1', 't2', 't3'], nl.getself().bar
-        assert nl[0:2].child.foo() == ['t1childfoo', 't2childfoo'], \
-            nl[0:2].child.foo()
-        assert nl[0:2].child.bar == ['t1child', 't2child'], \
-            nl[0:2].child.bar
+        assert nl.meth() == ['t1foo', 't2foo', 't3foo'], nl.meth()
+        assert nl.name == ['t1', 't2', 't3'], nl.name
+        assert nl.getself().name == ['t1', 't2', 't3'], nl.getself().name
+        assert nl[0:2].child.meth() == ['t1childfoo', 't2childfoo'], \
+            nl[0:2].child.meth()
+        assert nl[0:2].child.name == ['t1child', 't2child'], \
+            nl[0:2].child.name
 
     def test_null(self):
         """Test a null NodeList"""
@@ -1133,7 +1134,7 @@ class OsEnviron:
 
 class get_env_boolTestCase(unittest.TestCase):
     def test_missing(self) -> None:
-        env = dict()
+        env = {}
         var = get_env_bool(env, 'FOO')
         assert var is False, "var should be False, not %s" % repr(var)
         env = {'FOO': '1'}
@@ -1141,22 +1142,22 @@ class get_env_boolTestCase(unittest.TestCase):
         assert var is False, "var should be False, not %s" % repr(var)
 
     def test_true(self) -> None:
-        for foo in ['TRUE', 'True', 'true',
+        for arg in ['TRUE', 'True', 'true',
                     'YES', 'Yes', 'yes',
                     'Y', 'y',
                     'ON', 'On', 'on',
                     '1', '20', '-1']:
-            env = {'FOO': foo}
+            env = {'FOO': arg}
             var = get_env_bool(env, 'FOO')
             assert var is True, 'var should be True, not %s' % repr(var)
 
     def test_false(self) -> None:
-        for foo in ['FALSE', 'False', 'false',
+        for arg in ['FALSE', 'False', 'false',
                     'NO', 'No', 'no',
                     'N', 'n',
                     'OFF', 'Off', 'off',
                     '0']:
-            env = {'FOO': foo}
+            env = {'FOO': arg}
             var = get_env_bool(env, 'FOO', True)
             assert var is False, 'var should be True, not %s' % repr(var)
 
@@ -1170,7 +1171,7 @@ class get_env_boolTestCase(unittest.TestCase):
 
 class get_os_env_boolTestCase(unittest.TestCase):
     def test_missing(self) -> None:
-        with OsEnviron(dict()):
+        with OsEnviron({}):
             var = get_os_env_bool('FOO')
             assert var is False, "var should be False, not %s" % repr(var)
         with OsEnviron({'FOO': '1'}):
@@ -1178,22 +1179,22 @@ class get_os_env_boolTestCase(unittest.TestCase):
             assert var is False, "var should be False, not %s" % repr(var)
 
     def test_true(self) -> None:
-        for foo in ['TRUE', 'True', 'true',
+        for arg in ['TRUE', 'True', 'true',
                     'YES', 'Yes', 'yes',
                     'Y', 'y',
                     'ON', 'On', 'on',
                     '1', '20', '-1']:
-            with OsEnviron({'FOO': foo}):
+            with OsEnviron({'FOO': arg}):
                 var = get_os_env_bool('FOO')
                 assert var is True, 'var should be True, not %s' % repr(var)
 
     def test_false(self) -> None:
-        for foo in ['FALSE', 'False', 'false',
+        for arg in ['FALSE', 'False', 'false',
                     'NO', 'No', 'no',
                     'N', 'n',
                     'OFF', 'Off', 'off',
                     '0']:
-            with OsEnviron({'FOO': foo}):
+            with OsEnviron({'FOO': arg}):
                 var = get_os_env_bool('FOO', True)
                 assert var is False, 'var should be True, not %s' % repr(var)
 

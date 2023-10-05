@@ -141,7 +141,7 @@ class FileLock:
     def __repr__(self) -> str:
         """Nicer display if someone repr's the lock class."""
         return (
-            f"FileLock("
+            f"{self.__class__.__name__}("
             f"file={self.file!r}, "
             f"timeout={self.timeout!r}, "
             f"delay={self.delay!r}, "

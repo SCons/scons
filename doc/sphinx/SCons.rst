@@ -20,6 +20,7 @@ Subpackages
     SCons.Script
     SCons.Taskmaster
     SCons.Tool
+    SCons.Util
     SCons.Variables
     SCons.compat
 
@@ -136,14 +137,6 @@ SCons.Subst module
 ------------------
 
 .. automodule:: SCons.Subst
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-SCons.Util module
------------------
-
-.. automodule:: SCons.Util
     :members:
     :undoc-members:
     :show-inheritance:
