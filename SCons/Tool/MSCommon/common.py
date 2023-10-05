@@ -119,10 +119,12 @@ def read_script_env_cache() -> dict:
     p = Path(CONFIG_CACHE)
     if not CONFIG_CACHE or not p.is_file():
         return envcache
-    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5), p.open('r') as f:
+    with SCons.Util.FileLock(CONFIG_CACHE, timeout=5, writer=True), p.open('r') as f:
         # Convert the list of cache entry dictionaries read from
         # json to the cache dictionary. Reconstruct the cache key
         # tuple from the key list written to json.
+        # Note we need to take a write lock on the cachefile, as if there's
+        # an error and we try to remove it, that's "writing" on Windows.
         try:
             envcache_list = json.load(f)
         except json.JSONDecodeError:
