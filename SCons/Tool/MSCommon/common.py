@@ -40,6 +40,13 @@ import SCons.Warnings
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
+class AutoInitialize:
+    # Automatically call _initialize classmethod upon class definition completion.
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if hasattr(cls, '_initialize') and callable(getattr(cls, '_initialize', None)):
+            cls._initialize()
+
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
@@ -75,32 +82,78 @@ if LOGFILE:
             record.relfilename = relfilename
             return True
 
-    # Log format looks like:
-    #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
-    #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
-    log_format=(
-        '%(relativeCreated)05dms'
-        ':%(relfilename)s'
-        ':%(funcName)s'
-        '#%(lineno)s'
-        ': %(message)s'
-    )
+    class _CustomFormatter(logging.Formatter):
+
+        # Log format looks like:
+        #   00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3'        [file]
+        #   debug: 00109ms:MSCommon/vc.py:find_vc_pdir#447: VC found '14.3' [stdout]
+
+        log_format=(
+            '%(relativeCreated)05dms'
+            ':%(relfilename)s'
+            ':%(funcName)s'
+            '#%(lineno)s'
+            ': %(message)s'
+        )
+
+        log_format_classname=(
+            '%(relativeCreated)05dms'
+            ':%(relfilename)s'
+            ':%(classname)s'
+            '.%(funcName)s'
+            '#%(lineno)s'
+            ': %(message)s'
+        )
+
+        def __init__(self):
+            super().__init__()
+            log_record = logging.LogRecord(
+                '',    # name (str)
+                0,     # level (int)
+                '',    # pathname (str)
+                0,     # lineno (int)
+                None,  # msg (Any)
+                {},    # args (tuple | dict[str, Any])
+                None   # exc_info (tuple[type[BaseException], BaseException, types.TracebackType] | None)
+            )
+            self.default_attrs = set(log_record.__dict__.keys())
+            self.default_attrs.add('relfilename')
+
+        def format(self, record):
+            extras = set(record.__dict__.keys()) - self.default_attrs
+            if 'classname' in extras:
+                log_format = self.log_format_classname
+            else:
+                log_format = self.log_format
+            formatter = logging.Formatter(log_format)
+            return formatter.format(record)
+
     if LOGFILE == '-':
         log_format = 'debug: ' + log_format
         log_handler = logging.StreamHandler(sys.stdout)
     else:
         log_handler = logging.FileHandler(filename=LOGFILE)
-    log_formatter = logging.Formatter(log_format)
+    log_formatter = _CustomFormatter()
     log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
     logger.setLevel(level=logging.DEBUG)
     logger.addHandler(log_handler)
     logger.addFilter(_Debug_Filter())
     debug = logger.debug
+
+    def debug_extra(cls=None):
+        if cls:
+            extra = {'classname': cls.__qualname__}
+        else:
+            extra = None
+        return extra
+
 else:
-    def debug(x, *args):
+    def debug(x, *args, **kwargs):
         return None
 
+    def debug_extra(*args, **kwargs):
+        return None
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG', '')

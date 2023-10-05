@@ -40,10 +40,10 @@ class RegistryTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls._sdk_versions = []
         sdk_seen = set()
-        for vs_def in Config.VISUALSTUDIO_DEFINITION_LIST:
-            if not vs_def.vc_sdk_versions:
+        for vs_product_def in Config.MSVS_PRODUCT_DEFINITION_LIST:
+            if not vs_product_def.vc_sdk_versions:
                 continue
-            for sdk_version in vs_def.vc_sdk_versions:
+            for sdk_version in vs_product_def.vc_sdk_versions:
                 if sdk_version in sdk_seen:
                     continue
                 sdk_seen.add(sdk_version)

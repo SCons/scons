@@ -26,6 +26,7 @@ Helper functions for Microsoft Visual C/C++.
 """
 
 import os
+import pathlib
 import re
 
 from collections import (
@@ -35,6 +36,12 @@ from collections import (
 from . import Config
 
 # path utilities
+
+# windows drive specification (e.g., 'C:')
+_RE_DRIVESPEC = re.compile(r'^[A-Za-z][:]$', re.IGNORECASE)
+
+# windows path separators
+_OS_PATH_SEPS = ('\\', '/')
 
 def listdir_dirs(p):
     """
@@ -57,22 +64,90 @@ def listdir_dirs(p):
                 dirs.append((dir_name, dir_path))
     return dirs
 
-def process_path(p):
+def resolve_path(p, ignore_drivespec=True):
     """
-    Normalize a system path
+    Make path absolute resolving any symlinks
 
     Args:
         p: str
             system path
+        ignore_drivespec: bool
+            ignore drive specifications when True
 
     Returns:
-        str: normalized system path
+        str: absolute path with symlinks resolved
 
     """
+
     if p:
+
+        if ignore_drivespec and _RE_DRIVESPEC.match(p):
+            # don't attempt to resolve drive specification (e.g., C:)
+            pass
+        else:
+            # both abspath and resolve necessary to produce identical path
+            # when (unqualified) file name is on a mapped network drive for
+            # python 3.6 and 3.11
+            p = os.path.abspath(p)
+            try:
+                p = str(pathlib.Path(p).resolve())
+            except OSError:
+                # TODO(JCB): log error
+                pass
+
+    return p
+
+def normalize_path(
+    p,
+    strip=True,
+    preserve_trailing=False,
+    expand=False,
+    realpath=True,
+    ignore_drivespec=True,
+):
+    """
+    Normalize path
+
+    Args:
+        p: str
+            system path
+        strip: bool
+            remove leading and trailing whitespace when True
+        preserve_trailing: bool
+            preserve trailing path separator when True
+        expand: bool
+            apply expanduser and expandvars when True
+        realpath: bool
+            make the path absolute resolving any symlinks when True
+        ignore_drivespec: bool
+            ignore drive specifications for realpath when True
+
+    Returns:
+        str: normalized path
+
+    """
+
+    if p and strip:
+        p = p.strip()
+
+    if p:
+
+        trailing = bool(preserve_trailing and p.endswith(_OS_PATH_SEPS))
+
+        if expand:
+            p = os.path.expanduser(p)
+            p = os.path.expandvars(p)
+
         p = os.path.normpath(p)
-        p = os.path.realpath(p)
+
+        if realpath:
+            p = resolve_path(p, ignore_drivespec=ignore_drivespec)
+
         p = os.path.normcase(p)
+
+        if trailing:
+            p += os.path.sep
+
     return p
 
 # msvc version and msvc toolset version regexes
@@ -175,6 +250,15 @@ def get_msvc_version_prefix_suffix(version):
             suffix = m.group('suffix') if m.group('suffix') else ''
     return prefix, suffix
 
+# msvc version query utilities
+
+def is_version_valid(version) -> bool:
+    rval = False
+    if version:
+        if re_msvc_version.match(version):
+            rval = True
+    return rval
+
 # toolset version query utilities
 
 def is_toolset_full(toolset_version) -> bool:
@@ -238,8 +322,8 @@ def msvc_version_components(vcver):
     if not m:
         return None
 
-    vs_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
-    if not vs_def:
+    vs_product_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
+    if not vs_product_def:
         return None
 
     msvc_version = vcver
@@ -304,8 +388,8 @@ def msvc_extended_version_components(version):
     msvc_suffix = m.group('suffix') if m.group('suffix') else ''
     msvc_version = msvc_verstr + msvc_suffix
 
-    vs_def = Config.MSVC_VERSION_SUFFIX.get(msvc_version)
-    if not vs_def:
+    vs_product_def = Config.MSVC_VERSION_SUFFIX.get(msvc_version)
+    if not vs_product_def:
         return None
 
     msvc_vernum = float(msvc_verstr)

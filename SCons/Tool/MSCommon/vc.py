@@ -35,15 +35,12 @@ MS Compilers: Visual C/C++ detection and configuration.
 #   * Assembly
 """
 
-import SCons.compat
-
 import subprocess
 import os
 import platform
 import sysconfig
 from pathlib import Path
 from string import digits as string_digits
-from subprocess import PIPE
 import re
 from collections import (
     namedtuple,
@@ -56,11 +53,15 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Tool import find_program_path
 
-# import SCons.Script
+import SCons.Script
 
 from . import common
-from .common import CONFIG_CACHE, debug
-from .sdk import get_installed_sdks
+from .common import (
+    CONFIG_CACHE,
+    debug,
+    debug_extra,
+    AutoInitialize,
+)
 
 from . import MSVC
 
@@ -88,9 +89,6 @@ class MSVCUseSettingsError(MSVCUserError):
 
 # internal exceptions
 
-class UnsupportedVersion(VisualCException):
-    pass
-
 class BatchFileExecutionError(VisualCException):
     pass
 
@@ -101,11 +99,6 @@ UNDEFINED = object()
 #    True:  force VSCMD_SKIP_SENDTELEMETRY=1 (if necessary)
 #    False: do nothing
 _ARM32_ON_ARM64_SKIP_SENDTELEMETRY = True
-
-# MSVC 9.0 preferred query order:
-#     True:  VCForPython, VisualStudio
-#     False: VisualStudio, VCForPython
-_VC90_Prefer_VCForPython = True
 
 # Dict to 'canonalize' the arch
 _ARCH_TO_CANONICAL = {
@@ -742,102 +735,44 @@ _VCVER = [
     "6.0"]
 
 # VS2017 and later: use a single vswhere json query to find all installations
-
-# vswhere query:
-#    map vs major version to vc version (no suffix)
-#    build set of supported vc versions (including suffix)
-
-_VSWHERE_VSMAJOR_TO_VCVERSION = {}
-_VSWHERE_SUPPORTED_VCVER = set()
-
-for vs_major, vc_version, vc_ver_list in (
-    ('17', '14.3', None),
-    ('16', '14.2', None),
-    ('15', '14.1', ['14.1Exp']),
-):
-    _VSWHERE_VSMAJOR_TO_VCVERSION[vs_major] = vc_version
-    _VSWHERE_SUPPORTED_VCVER.add(vc_version)
-    if vc_ver_list:
-        for vc_ver in vc_ver_list:
-            _VSWHERE_SUPPORTED_VCVER.add(vc_ver)
-
-# vwhere query:
-#    build of set of candidate component ids
-#    preferred ranking: Enterprise, Professional, Community, BuildTools, Express
-#      Ent, Pro, Com, BT, Exp are in the same list
-#      Exp also has it's own list
-#    currently, only the express (Exp) suffix is expected
-
-_VSWHERE_COMPONENTID_CANDIDATES = set()
-_VSWHERE_COMPONENTID_RANKING = {}
-_VSWHERE_COMPONENTID_SUFFIX = {}
-_VSWHERE_COMPONENTID_SCONS_SUFFIX = {}
-
-for component_id, component_rank, component_suffix, scons_suffix in (
-    ('Enterprise',   140, 'Ent', ''),
-    ('Professional', 130, 'Pro', ''),
-    ('Community',    120, 'Com', ''),
-    ('BuildTools',   110, 'BT',  ''),
-    ('WDExpress',    100, 'Exp', 'Exp'),
-):
-    _VSWHERE_COMPONENTID_CANDIDATES.add(component_id)
-    _VSWHERE_COMPONENTID_RANKING[component_id] = component_rank
-    _VSWHERE_COMPONENTID_SUFFIX[component_id] = component_suffix
-    _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id] = scons_suffix
-
 # VS2015 and earlier: configure registry queries to probe for installed VC editions
-_VCVER_TO_PRODUCT_DIR = {
-    '14.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
-    '14.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir'),  # vs root
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),  # not populated?
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],  # kind detection
-    '12.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
+_VSPRODUCT_REGISTRY_VCDIR = {
+    # vs_product: [(is_vsroot, is_vcforpython, hkroot, key), ...]
+    '2015': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir'),
+        (True,  False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir'),  # vs root
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),  # not populated?
     ],
-    '12.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'),
+    '2013': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'),
     ],
-    '11.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'),
+    '2012': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'),
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'),
     ],
-    '11.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'),
+    '2010': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'),
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'),
     ],
-    '10.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'),
+    '2008': [
+        (True,  True,  SCons.Util.HKEY_CURRENT_USER,  r'Microsoft\DevDiv\VCForPython\9.0\InstallDir',),  # vs root
+        (True,  True,  SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\DevDiv\VCForPython\9.0\InstallDir',),  # vs root
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir',),
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'),
     ],
-    '10.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'),
+    '2005': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\8.0\Setup\VC\ProductDir'),
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'),
     ],
-    '9.0': [
-        (SCons.Util.HKEY_CURRENT_USER, r'Microsoft\DevDiv\VCForPython\9.0\installdir',),  # vs root
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\DevDiv\VCForPython\9.0\installdir',),  # vs root
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir',),
-    ] if _VC90_Prefer_VCForPython else [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir',),
-        (SCons.Util.HKEY_CURRENT_USER, r'Microsoft\DevDiv\VCForPython\9.0\installdir',),  # vs root
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\DevDiv\VCForPython\9.0\installdir',),  # vs root
+    '2003': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.1\Setup\VC\ProductDir'),
     ],
-    '9.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'),
+    '2002': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.0\Setup\VC\ProductDir'),
     ],
-    '8.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\8.0\Setup\VC\ProductDir'),
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'),
-    ],
-    '8.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'),
-    ],
-    '7.1': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.1\Setup\VC\ProductDir'),
-    ],
-    '7.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\7.0\Setup\VC\ProductDir'),
-    ],
-    '6.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++\ProductDir'),
+    '1998': [
+        (False, False, SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++\ProductDir'),
     ]
 }
 
@@ -867,35 +802,29 @@ VS2010_VS2005_EXP = (
 
 # detect productdir kind
 
-_DETECT = MSVC.Kind.VCVER_KIND_DETECT
+_VCDetectConfig = MSVC.Kind.VCDetectConfig
 
-_VCVER_KIND_DETECT = {
+_VSPRODUCT_KIND_DETECT = {
 
-    #   'VCVer':   (relpath from pdir to vsroot, path from vsroot to ide binaries, ide binaries)
+    # 'product': (relpath from vcroot to vsroot, path from vsroot to ide binaries, ide binaries)
 
-    '14.3':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2022
-    '14.2':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2019
-    '14.1':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2017_EXP),  # 2017
-    '14.1Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2017_EXP),  # 2017
+    '2022': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 14.3
+    '2019': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 14.2
 
-    '14.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2015
-    '14.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2015
-    '12.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2013
-    '12.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2013
-    '11.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2012
-    '11.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 2012
+    '2017': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2017_EXP),  # 14.1
 
-    '10.0':    _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2010
-    '10.0Exp': _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2010
-    '9.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2008
-    '9.0Exp':  _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2008
-    '8.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2005
-    '8.0Exp':  _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 2005
+    '2015': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 14.0
+    '2013': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 12.0
+    '2012': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2015_VS2012_EXP),  # 11.0
 
-    '7.1':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2003
-    '7.0':     _DETECT(root='..', path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 2001
+    '2010': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 10.0
+    '2008': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 9.0
+    '2005': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV + VS2010_VS2005_EXP),  # 8.0
 
-    '6.0':     _DETECT(root='..', path=r'Common\MSDev98\Bin', programs=VS1998_DEV),  # 1998
+    '2003': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 7.1
+    '2002': _VCDetectConfig(root=os.pardir, path=r'Common7\IDE', programs=VS2022_VS2002_DEV),  # 7.0
+
+    '1998': _VCDetectConfig(root=os.pardir, path=r'Common\MSDev98\Bin', programs=VS1998_DEV),  # 6.0
 }
 
 def msvc_version_to_maj_min(msvc_version):
@@ -911,148 +840,1196 @@ def msvc_version_to_maj_min(msvc_version):
     except ValueError:
         raise ValueError("Unrecognized version %s (%s)" % (msvc_version,msvc_version_numeric)) from None
 
+# normalized paths
 
-VSWHERE_PATHS = [os.path.join(p,'vswhere.exe') for p in [
-    os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"),
-    os.path.expandvars(r"%ProgramFiles%\Microsoft Visual Studio\Installer"),
-    os.path.expandvars(r"%ChocolateyInstall%\bin"),
-]]
+_normalize_path = {}
 
-# normalize user-specified vswhere paths
+def normalize_path(pval):
+    global _normalize_path
+    rval = _normalize_path.get(pval, UNDEFINED)
+    if rval == UNDEFINED:
+        rval = MSVC.Util.normalize_path(pval)
+        _normalize_path[pval] = rval
+        # debug('pval=%s, orig=%s', repr(rval), repr(pval))
+    return rval
+
+# path existence
+
+_path_exists = {}
+
+def path_exists(pval):
+    global _path_exists
+    rval = _path_exists.get(pval, UNDEFINED)
+    if rval == UNDEFINED:
+        rval = os.path.exists(pval)
+        _path_exists[pval] = rval
+        # debug('exists=%s, pval=%s', rval, repr(pval))
+    return rval
+
+# initialize vswhere paths
+
+VSWhereExecutable = namedtuple('VSWhereExecutable', [
+    'path',
+    'norm',
+])
+
+# For bug 3333: support default location of vswhere for both
+# 64 and 32 bit windows installs.
+# For bug 3542: also accommodate not being on C: drive.
+
+VSWHERE_PATHS = [
+    os.path.join(p,'vswhere.exe')
+    for p in [
+        os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"),
+        os.path.expandvars(r"%ProgramFiles%\Microsoft Visual Studio\Installer"),
+        os.path.expandvars(r"%ChocolateyInstall%\bin"),
+        os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links"),
+        os.path.expanduser(r"~\scoop\shims"),
+        os.path.expandvars(r"%SCOOP%\shims"),
+    ]
+    if not p.startswith('%')
+]
+
+VSWHERE_EXECS_EXIST = [
+    VSWhereExecutable(path=p, norm=normalize_path(p))
+    for p in VSWHERE_PATHS
+    if path_exists(p)
+]
+
+debug('VSWHERE_EXECS_EXIST=%s', VSWHERE_EXECS_EXIST)
+
+# user-specified vswhere executables
 
 _cache_user_vswhere_paths = {}
 
-def _vswhere_user_path(pval):
-    global _cache_user_vswhere_path
+def _vswhere_user_path(pval, source):
+    global _cache_user_vswhere_paths
 
     rval = _cache_user_vswhere_paths.get(pval, UNDEFINED)
     if rval != UNDEFINED:
-        debug('vswhere_path=%s', rval)
+        debug('vswhere_exec=%s', repr(rval))
         return rval
 
-    vswhere_path = None
+    vswhere_exec = None
     if pval:
 
-        if not os.path.exists(pval):
+        if not path_exists(pval):
 
-            warn_msg = f'vswhere executable path not found: {pval!r}'
+            warn_msg = f'vswhere executable path not found: {source}={pval!r}'
             SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
             debug(warn_msg)
 
         else:
 
-            # vswhere_norm = MSVC.Util.process_path(pval)
-            vswhere_norm = os.path.normcase(os.path.normpath(pval))
-
-            tail = os.path.split(vswhere_norm)[-1]
+            norm = normalize_path(pval)
+            tail = os.path.split(norm)[-1]
             if tail != _VSWHERE_EXE:
 
-                warn_msg = f'unsupported vswhere executable (expected {_VSWHERE_EXE!r}, found {tail!r}): {pval!r}'
+                warn_msg = f'unsupported vswhere executable (expected {_VSWHERE_EXE!r}, found {tail!r}): {source}={pval!r}'
                 SCons.Warnings.warn(MSVC.Warnings.VSWherePathWarning, warn_msg)
                 debug(warn_msg)
 
             else:
 
-                vswhere_path = vswhere_norm
-                debug('vswhere_path=%s', vswhere_path)
+                vswhere_exec = VSWhereExecutable(path=pval, norm=norm)
+                debug('vswhere_exec=%s', repr(vswhere_exec))
 
-    _cache_user_vswhere_paths[pval] = vswhere_path
+    _cache_user_vswhere_paths[pval] = vswhere_exec
 
-    return vswhere_path
+    return vswhere_exec
 
-# normalized user-specified command-line vswhere path
+# register user vswhere executable location(s)
 
-# TODO: stub for command-line specification of vswhere
-_vswhere_path_cmdline = None
+def vswhere_push_location(string_or_list, front=False) -> None:
+    global VSWHERE_EXECS_EXIST
 
-def _msvc_cmdline_vswhere():
-    global _vswhere_path_cmdline
+    path_list = SCons.Util.flatten(string_or_list)
+    if path_list:
 
-    if _vswhere_path_cmdline == UNDEFINED:
+        user_execs = []
+        for pval in path_list:
+            vswhere_exec = _vswhere_user_path(pval, 'vswhere_push_location')
+            if vswhere_exec:
+                user_execs.append(vswhere_exec)
 
-        vswhere_path = None
-        vswhere_user = None
+        if user_execs:
 
-        if vswhere_user:
-            vswhere_path = _vswhere_user_path(vswhere_user)
+            if front:
+                all_execs = user_execs + VSWHERE_EXECS_EXIST
+            else:
+                all_execs = VSWHERE_EXECS_EXIST + user_execs
 
-        _vswhere_path_cmdline = vswhere_path
-        debug('vswhere_path=%s', vswhere_path)
+            seen = set()
+            unique_execs = []
+            for vswhere_exec in all_execs:
+                if vswhere_exec.norm in seen:
+                    continue
+                seen.add(vswhere_exec.norm)
+                unique_execs.append(vswhere_exec)
 
-    return _vswhere_path_cmdline
+            VSWHERE_EXECS_EXIST = unique_execs
+            debug('VSWHERE_EXECS_EXIST=%s', VSWHERE_EXECS_EXIST)
 
-# normalized default vswhere path
+# all vswhere executables
 
-_vswhere_paths_processed = [
-    MSVC.Util.process_path(pval)
-    for pval in VSWHERE_PATHS
-    if os.path.exists(pval)
-]
+# TODO(JCB): command-line argument: --vswhere=EXEPATH
 
-_vswhere_path_default = UNDEFINED
+def _find_vswhere_executables(vswhere_env=None):
 
-def _msvc_default_vswhere():
-    global _vswhere_paths_processed
-    global _vswhere_path_default
+    vswhere_execs = []
 
-    if _vswhere_path_default == UNDEFINED:
+    # env['VSWHERE'] path
+    if vswhere_env:
+        vswhere_exec = _vswhere_user_path(vswhere_env, "env['VSWHERE']")
+        if vswhere_exec:
+            vswhere_execs.append(vswhere_exec)
 
-        if _vswhere_paths_processed:
-            vswhere_path = _vswhere_paths_processed[0]
-        else:
-            vswhere_path = None
+    # default paths and user paths (vswhere_push_location)
+    if VSWHERE_EXECS_EXIST:
+        vswhere_execs.extend(VSWHERE_EXECS_EXIST)
 
-        _vswhere_path_default = vswhere_path
-        debug('vswhere_path=%s', vswhere_path)
+    return vswhere_execs
 
-    return _vswhere_path_default
+def find_vswhere_executables(env=None):
+    vswhere_env = env.subst('$VSWHERE') if env and 'VSWHERE' in env else None
+    vswhere_execs = _find_vswhere_executables(vswhere_env)
+    return vswhere_execs
 
-def msvc_find_vswhere():
+def msvc_find_vswhere(env=None):
     """ Find the location of vswhere """
-    # For bug 3333: support default location of vswhere for both
-    # 64 and 32 bit windows installs.
-    # For bug 3542: also accommodate not being on C: drive.
     # NB: this gets called from testsuite on non-Windows platforms.
     # Whether that makes sense or not, don't break it for those.
-    vswhere_path = _msvc_cmdline_vswhere()
-    if vswhere_path:
-        return
-
-    vswhere_path = None
-    for pf in VSWHERE_PATHS:
-        if os.path.exists(pf):
-            vswhere_path = pf
-            break
-
+    vswhere_execs = find_vswhere_executables(env)
+    if vswhere_execs:
+        vswhere_path = vswhere_execs[0].path
+    else:
+        vswhere_path = None
+    debug('vswhere_path=%s', vswhere_path)
     return vswhere_path
 
-class _VSWhere:
+# TODO(JCB): command-line argument: --msvs-channel=Release|Preview|Any
+_default_msvs_channel_def = MSVC.Config.MSVS_CHANNEL_RELEASE
+debug('default msvs_channel=%s', _default_msvs_channel_def.vs_channel_id)
 
-    reset_funcs = []
+_default_msvs_channel_retrieved = False
+
+def _msvs_channel_default():
+    global _default_msvs_channel_def
+    global _default_msvs_channel_retrieved
+    _default_msvs_channel_retrieved = True
+    return _default_msvs_channel_def
+
+def msvs_set_channel_default(msvs_channel):
+    """Set the default msvs channel.
+
+    Args:
+        msvs_channel: str
+            string representing the msvs channel
+
+            Case-insensitive values are:
+                Release, Rel, Preview, Pre, Any, *
+
+    Returns:
+        bool: True if the default msvs channel was accepted.
+              False if the default msvs channel was not accepted.
+
+    """
+    global _default_msvs_channel_retrieved
+    global _default_msvs_channel_def
+    rval = False
+    if _default_msvs_channel_retrieved:
+        # TODO(JCB): warn msvs_channel ignored (must be set earlier)
+        pass
+    else:
+        vs_channel_def = MSVC.Validate.validate_msvs_channel(
+            msvs_channel, 'msvs_channel_set_default'
+        )
+        if vs_channel_def:
+            _default_msvs_channel_def = vs_channel_def
+            debug('default msvs_channel=%s', _default_msvs_channel_def.vs_channel_id)
+            rval = True
+    return rval
+
+def msvs_get_channel_default():
+    """Get the default msvs channel.
+
+    Returns:
+        str: default msvs channel
+
+    """
+    global _default_msvs_channel_def
+    return _default_msvs_channel_def.vs_channel_id
+
+class _VSKeys:
+
+    # edition key: (product, channel, component/None, seqnbr/None)
+
+    _MSVSEditionKey = namedtuple('_MSVSEditionKey', [
+        'vs_product_def',
+        'vs_channel_def',
+        'vs_componentid_def',
+        'vs_sequence_nbr',
+    ])
+
+    class MSVSEditionKey(_MSVSEditionKey):
+
+        def serialize(self):
+            values = [
+                self.vs_product_def.vs_product,
+                self.vs_channel_def.vs_channel_suffix,
+            ]
+            if self.vs_componentid_def:
+                values.append(self.vs_componentid_def.vs_component_suffix)
+            if self.vs_sequence_nbr:
+                values.append(str(self.vs_sequence_nbr))
+            rval = '-'.join(values)
+            return rval
+
+        @classmethod
+        def factory(
+            cls, *,
+            vs_product_def,
+            vs_channel_def,
+            vs_componentid_def,
+            vs_sequence_nbr,
+        ):
+
+            vs_edition_key = cls(
+                vs_product_def=vs_product_def,
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+                vs_sequence_nbr=vs_sequence_nbr
+            )
+
+            return vs_edition_key
+
+    @classmethod
+    def msvs_edition_key(
+        cls, *,
+        vs_product_def=None,
+        vs_channel_def=None,
+        vs_componentid_def=None,
+        vs_sequence_nbr=None,
+    ):
+
+        if not vs_product_def:
+            errmsg = 'vs_product_def is undefined'
+            debug('MSVCInternalError: %s', errmsg)
+            raise MSVCInternalError(errmsg)
+
+        if not vs_channel_def:
+            errmsg = 'vs_channel_def is undefined'
+            debug('MSVCInternalError: %s', errmsg)
+            raise MSVCInternalError(errmsg)
+
+        vs_edition_key = cls.MSVSEditionKey.factory(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
+            vs_sequence_nbr=vs_sequence_nbr
+        )
+
+        return vs_edition_key
+
+    # channel key: (channel, component/None)
+
+    _MSVSChannelKey = namedtuple('_MSVSChannelKey', [
+        'vs_channel_def',
+        'vs_componentid_def',
+    ])
+
+    class MSVSChannelKey(_MSVSChannelKey):
+
+        def serialize(self):
+            values = [
+                self.vs_channel_def.vs_channel_suffix,
+            ]
+            if self.vs_componentid_def:
+                values.append(self.vs_componentid_def.vs_component_suffix)
+            rval = '-'.join(values)
+            return rval
+
+        @classmethod
+        def factory(
+            cls, *,
+            vs_channel_def,
+            vs_componentid_def,
+        ):
+
+            vs_channel_key = cls(
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+            )
+
+            return vs_channel_key
+
+    @classmethod
+    def msvs_channel_key(
+        cls, *,
+        vs_channel_def=None,
+        vs_componentid_def=None,
+    ):
+
+        if not vs_channel_def:
+            errmsg = 'vs_channel_def is undefined'
+            debug('MSVCInternalError: %s', errmsg)
+            raise MSVCInternalError(errmsg)
+
+        vs_channel_key = cls.MSVSChannelKey.factory(
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
+        )
+
+        return vs_channel_key
+
+_MSVSBase = namedtuple('_MSVSBase', [
+    'id_str',
+    'id_comps',
+    'vs_product_def',
+    'vs_channel_def',
+    'vs_component_def',
+    'vs_sequence_nbr',
+    'vs_dir',
+    'vs_dir_norm',
+    'vs_version',
+    'is_express',
+    'is_buildtools',
+    'is_vcforpython',
+    'vs_edition_channel_component_seqnbr_key',
+    'vs_edition_channel_component_key',
+    'vs_edition_channel_key',
+    'vs_channel_component_key',
+    'vs_channel_key',
+    'instance_map',
+])
+
+class MSVSBase(_MSVSBase):
+
+    def _is_express(vs_component_def):
+        vs_componentid_def = vs_component_def.vs_componentid_def
+        is_express = bool(vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_EXPRESS)
+        return is_express
+
+    @staticmethod
+    def _is_buildtools(vs_component_def):
+        vs_componentid_def = vs_component_def.vs_componentid_def
+        is_buildtools = bool(vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_BUILDTOOLS)
+        return is_buildtools
+
+    @staticmethod
+    def _is_vcforpython(vs_component_def):
+        vs_componentid_def = vs_component_def.vs_componentid_def
+        is_vcforpython = bool(vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_PYTHON)
+        return is_vcforpython
+
+    @classmethod
+    def factory(
+        cls, *,
+        vs_product_def,
+        vs_channel_def,
+        vs_component_def,
+        vs_sequence_nbr,
+        vs_dir,
+        vs_version,
+    ):
+
+        vs_componentid_def = vs_component_def.vs_componentid_def
+
+        vs_edition_channel_component_seqnbr_key = _VSKeys.msvs_edition_key(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
+            vs_sequence_nbr=vs_sequence_nbr,
+        )
+
+        vs_edition_channel_component_key = _VSKeys.msvs_edition_key(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
+        )
+
+        vs_edition_channel_key = _VSKeys.msvs_edition_key(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+        )
+
+        vs_channel_component_key = _VSKeys.msvs_channel_key(
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
+        )
+
+        vs_channel_key = _VSKeys.msvs_channel_key(
+            vs_channel_def=vs_channel_def,
+        )
+
+        instance_map = {
+            'msvs_instance': None,
+            'msvc_instance': None,
+        }
+
+        id_comps = (
+            vs_product_def.vs_product,
+            vs_channel_def.vs_channel_suffix,
+            vs_component_def.vs_componentid_def.vs_component_suffix,
+            str(vs_sequence_nbr),
+        )
+
+        id_str = '{}({})'.format(cls.__name__, ', '.join(id_comps))
+
+        msvs_base = cls(
+            id_str=id_str,
+            id_comps=id_comps,
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_component_def=vs_component_def,
+            vs_sequence_nbr=vs_sequence_nbr,
+            vs_dir=vs_dir,
+            vs_dir_norm=normalize_path(vs_dir),
+            vs_version=vs_version,
+            is_express=cls._is_express(vs_component_def),
+            is_buildtools=cls._is_buildtools(vs_component_def),
+            is_vcforpython=cls._is_vcforpython(vs_component_def),
+            vs_edition_channel_component_seqnbr_key=vs_edition_channel_component_seqnbr_key,
+            vs_edition_channel_component_key=vs_edition_channel_component_key,
+            vs_edition_channel_key=vs_edition_channel_key,
+            vs_channel_component_key=vs_channel_component_key,
+            vs_channel_key=vs_channel_key,
+            instance_map=instance_map,
+        )
+
+        return msvs_base
+
+    @staticmethod
+    def default_order(a, b):
+        # vs product numeric: descending order
+        if a.vs_product_def.vs_product_numeric != b.vs_product_def.vs_product_numeric:
+            return 1 if a.vs_product_def.vs_product_numeric < b.vs_product_def.vs_product_numeric else -1
+        # vs channel: ascending order (release, preview)
+        if a.vs_channel_def.vs_channel_rank != b.vs_channel_def.vs_channel_rank:
+            return 1 if a.vs_channel_def.vs_channel_rank > b.vs_channel_def.vs_channel_rank else -1
+        # component rank: descending order
+        if a.vs_component_def.vs_component_rank != b.vs_component_def.vs_component_rank:
+            return 1 if a.vs_component_def.vs_component_rank < b.vs_component_def.vs_component_rank else -1
+        # sequence number: ascending order
+        if a.vs_sequence_nbr != b.vs_sequence_nbr:
+            return 1 if a.vs_sequence_nbr > b.vs_sequence_nbr else -1
+        return 0
+
+    def register_msvs_instance(self, msvs_instance):
+        self.instance_map['msvs_instance'] = msvs_instance
+
+    def register_msvc_instance(self, msvc_instance):
+        self.instance_map['msvc_instance'] = msvc_instance
+
+    @property
+    def msvs_instance(self):
+        return self.instance_map.get('msvs_instance')
+
+    @property
+    def msvc_instance(self):
+        return self.instance_map.get('msvc_instance')
+
+    @property
+    def vs_component_suffix(self):
+        return self.vs_component_def.vs_componentid_def.vs_component_suffix
+
+_MSVSInstance = namedtuple('_MSVSInstance', [
+    'id_str',
+    'msvs_base',
+    'vs_executable',
+    'vs_executable_norm',
+    'vc_version_def',
+])
+
+class MSVSInstance(_MSVSInstance):
+
+    @classmethod
+    def factory(
+        cls, *,
+        msvs_base,
+        vs_executable,
+        vc_version_def,
+    ):
+
+        id_str = '{}({})'.format(cls.__name__, ', '.join(msvs_base.id_comps))
+
+        msvs_instance = cls(
+            id_str=id_str,
+            msvs_base=msvs_base,
+            vs_executable=vs_executable,
+            vs_executable_norm=normalize_path(vs_executable),
+            vc_version_def=vc_version_def,
+        )
+
+        return msvs_instance
+
+    @staticmethod
+    def default_order(a, b):
+        return MSVSBase.default_order(a.msvs_base, b.msvs_base)
+
+    @property
+    def id_comps(self):
+        return self.msvs_base.id_comps
+
+    @property
+    def msvc_instance(self):
+        return self.msvs_base.msvc_instance
+
+    @property
+    def vs_dir(self):
+        return self.msvs_base.vs_dir
+
+    @property
+    def vs_version(self):
+        return self.msvs_base.vs_version
+
+    @property
+    def vs_edition_channel_component_seqnbr_key(self):
+        return self.msvs_base.vs_edition_channel_component_seqnbr_key
+
+    @property
+    def vs_edition_channel_component_key(self):
+        return self.msvs_base.vs_edition_channel_component_key
+
+    @property
+    def vs_edition_channel_key(self):
+        return self.msvs_base.vs_edition_channel_key
+
+    @property
+    def vs_channel_component_key(self):
+        return self.msvs_base.vs_channel_component_key
+
+    @property
+    def vs_channel_key(self):
+        return self.msvs_base.vs_channel_key
+
+    @property
+    def msvc_version(self):
+        return self.vc_version_def.msvc_version
+
+    @property
+    def msvc_verstr(self):
+        return self.vc_version_def.msvc_verstr
+
+    @property
+    def vs_product_def(self):
+        return self.msvs_base.vs_product_def
+
+    @property
+    def vs_channel_def(self):
+        return self.msvs_base.vs_channel_def
+
+    @property
+    def vs_componentid_def(self):
+        return self.msvs_base.vs_component_def.vs_componentid_def
+
+    @property
+    def vs_product(self):
+        return self.msvs_base.vs_product_def.vs_product
+
+    @property
+    def vs_channel_id(self):
+        return self.msvs_base.vs_channel_def.vs_channel_id
+
+    @property
+    def vs_component_id(self):
+        return self.msvs_base.vs_component_def.vs_componentid_def.vs_component_id
+
+    @property
+    def vs_sequence_nbr(self):
+        return self.msvs_base.vs_sequence_nbr
+
+_MSVSInstalled = namedtuple('_MSVSInstalled', [
+    'msvs_instances',
+    'msvs_edition_instances_map',
+    'msvs_channel_instances_map',
+    'msvs_channel_map', # TODO(JCB): remove?
+])
+
+class MSVSInstalled(_MSVSInstalled, AutoInitialize):
+
+    debug_extra = None
+
+    @classmethod
+    def _initialize(cls):
+        cls.debug_extra = debug_extra(cls)
+
+    @classmethod
+    def factory(
+        cls, *,
+        msvs_instances,
+    ):
+
+        msvs_instances = sorted(
+            msvs_instances, key=cmp_to_key(MSVSInstance.default_order)
+        )
+
+        msvs_channel_map = {
+            vs_channel_def: {}
+            for vs_channel_def in MSVC.Config.MSVS_CHANNEL_DEFINITION_LIST
+        }
+
+        vs_edition_instances = {}
+        vs_channel_instances = {}
+
+        # channel key: (ANY, None)
+        vs_anychannel_key = _VSKeys.msvs_channel_key(
+            vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+        )
+
+        for msvs_instance in msvs_instances:
+
+            debug(
+                'msvs instance: id_str=%s, msvc_version=%s, vs_dir=%s, vs_exec=%s',
+                repr(msvs_instance.id_str),
+                repr(msvs_instance.msvc_version),
+                repr(msvs_instance.vs_dir),
+                repr(msvs_instance.vs_executable_norm),
+                extra=cls.debug_extra,
+            )
+
+            # edition key: (product, ANY, None, None)
+            vs_edition_any_key = _VSKeys.msvs_edition_key(
+                vs_product_def=msvs_instance.vs_product_def,
+                vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+            )
+
+            # edition key: (product, ANY, component, None)
+            vs_edition_anychannel_component_key = _VSKeys.msvs_edition_key(
+                vs_product_def=msvs_instance.vs_product_def,
+                vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+                vs_componentid_def=msvs_instance.vs_componentid_def,
+            )
+
+            # all editions keys
+            vs_edition_keys = (
+                vs_edition_any_key,
+                msvs_instance.vs_edition_channel_key,
+                vs_edition_anychannel_component_key,
+                msvs_instance.vs_edition_channel_component_key,
+                msvs_instance.vs_edition_channel_component_seqnbr_key,
+            )
+
+            # channel key: (ANY, component)
+            vs_anychannel_component_key = _VSKeys.msvs_channel_key(
+                vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+                vs_componentid_def=msvs_instance.vs_componentid_def,
+            )
+
+            # all channel keys
+            vs_channel_keys = (
+                vs_anychannel_key,
+                msvs_instance.vs_channel_key,
+                vs_anychannel_component_key,
+                msvs_instance.vs_channel_component_key,
+            )
+
+            for vs_edition_key in vs_edition_keys:
+                vs_edition_instances.setdefault(vs_edition_key, []).append(msvs_instance)
+
+            for vs_channel_key in vs_channel_keys:
+                vs_channel_instances.setdefault(vs_channel_key, []).append(msvs_instance)
+
+            # msvc_version support
+
+            if msvs_instance.msvc_version != msvs_instance.msvc_verstr:
+                versions = [msvs_instance.msvc_verstr, msvs_instance.msvc_version]
+            else:
+                versions = [msvs_instance.msvc_verstr]
+
+            vs_channel_defs = MSVC.Config.MSVS_CHANNEL_MEMBERLISTS[msvs_instance.vs_channel_def]
+
+            for vcver in versions:
+                for vs_channel_def in vs_channel_defs:
+
+                    msvs_version_map = msvs_channel_map[vs_channel_def]
+
+                    msvs_instance_list = msvs_version_map.setdefault(vcver, [])
+                    slot = len(msvs_instance_list)
+                    msvs_instance_list.append(msvs_instance)
+                    debug(
+                        'msvs_version_map[%s][%s][%d]=%s',
+                        repr(vs_channel_def.vs_channel_suffix),
+                        repr(vcver),
+                        slot,
+                        repr(msvs_instance.id_str),
+                        extra=cls.debug_extra,
+                    )
+
+        msvs_installed = cls(
+            msvs_instances=msvs_instances,
+            msvs_edition_instances_map=vs_edition_instances,
+            msvs_channel_instances_map=vs_channel_instances,
+            msvs_channel_map=msvs_channel_map,
+        )
+
+        return msvs_installed
+
+    def query_msvs_instances(
+        self, *,
+        vs_product_def=None,
+        vs_channel_def=None,
+        vs_componentid_def=None,
+        vs_sequence_nbr=None,
+    ):
+
+        # TODO(JCB): error checking combinations (ignored, etc)
+
+        if not vs_channel_def:
+            vs_channel_def = _msvs_channel_default()
+
+        if vs_product_def:
+
+            query_key = _VSKeys.msvs_edition_key(
+                vs_product_def=vs_product_def,
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+                vs_sequence_nbr=vs_sequence_nbr
+            )
+
+            msvs_instances = self.msvs_edition_instances_map.get(query_key, [])
+
+        else:
+
+            query_key = _VSKeys.msvs_channel_key(
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+            )
+
+            msvs_instances = self.msvs_channel_instances_map.get(query_key, [])
+
+        debug(
+            'query_key=%s, n_msvs_instances=%s',
+            repr(query_key.serialize()),
+            repr(len(msvs_instances)),
+            extra=self.debug_extra,
+        )
+
+        return query_key, msvs_instances
+
+_MSVCInstance = namedtuple('_MSVCInstance', [
+    'id_str',
+    'msvs_base',
+    'vc_version_def',
+    'vc_feature_map',
+    'vc_dir',
+    'vc_dir_norm',
+    'is_sdkversion_supported',
+])
+
+class MSVCInstance(_MSVCInstance, AutoInitialize):
+
+    debug_extra = None
+
+    @classmethod
+    def _initialize(cls):
+        cls.debug_extra = debug_extra(cls)
+
+    @classmethod
+    def factory(
+        cls, *,
+        msvs_base,
+        vc_version_def,
+        vc_feature_map,
+        vc_dir,
+    ):
+
+        id_str = '{}({})'.format(cls.__name__, ', '.join(msvs_base.id_comps))
+
+        if vc_feature_map is None:
+            vc_feature_map = {}
+
+        msvc_instance = cls(
+            id_str=id_str,
+            msvs_base=msvs_base,
+            vc_version_def=vc_version_def,
+            vc_feature_map=vc_feature_map,
+            vc_dir=vc_dir,
+            vc_dir_norm=normalize_path(vc_dir),
+            is_sdkversion_supported=cls._is_sdkversion_supported(msvs_base),
+        )
+
+        return msvc_instance
+
+    @staticmethod
+    def default_order(a, b):
+        return MSVSBase.default_order(a.msvs_base, b.msvs_base)
+
+    @property
+    def id_comps(self):
+        return self.msvs_base.id_comps
+
+    @property
+    def msvs_instance(self):
+        return self.msvs_base.msvs_instance
+
+    @staticmethod
+    def _is_sdkversion_supported(msvs_base):
+
+        vs_componentid_def = msvs_base.vs_component_def.vs_componentid_def
+        vs_product_numeric = msvs_base.vs_product_def.vs_product_numeric
+
+        if vs_product_numeric >= 2017:
+            # VS2017 and later
+            is_supported = True
+        elif vs_product_numeric == 2015:
+            # VS2015:
+            #   False: Express, BuildTools
+            #   True:  Develop, CmdLine
+            if vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_EXPRESS:
+                is_supported = False
+            elif vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_BUILDTOOLS:
+                is_supported = False
+            else:
+                is_supported = True
+        else:
+            # VS2013 and earlier
+            is_supported = False
+
+        return is_supported
+
+    def skip_uwp_target(self, env):
+        skip = False
+        if self.vc_feature_map:
+            target_arch = env.get('TARGET_ARCH')
+            uwp_target_is_supported = self.vc_feature_map.get('uwp_target_is_supported', {})
+            is_supported = uwp_target_is_supported.get(target_arch, True)
+            skip = bool(not is_supported)
+        debug(
+            'skip=%s, msvc_version=%s',
+            repr(skip), repr(self.vc_version_def.msvc_version), extra=self.debug_extra
+        )
+        return skip
+
+    def is_uwp_target_supported(self, target_arch=None):
+
+        vs_componentid_def = self.msvs_base.vs_component_def.vs_componentid_def
+        vs_product_numeric = self.msvs_base.vs_product_def.vs_product_numeric
+
+        is_target = False
+        if vs_product_numeric >= 2017:
+            # VS2017 and later
+            is_supported = True
+        elif vs_product_numeric == 2015:
+            # VS2015:
+            #   Maybe: Express
+            #   False: BuildTools
+            #   True:  Develop, CmdLine
+            if vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_EXPRESS:
+                uwp_target_is_supported = self.vc_feature_map.get('uwp_target_is_supported', {})
+                is_supported = uwp_target_is_supported.get(target_arch, True)
+                is_target = True
+            elif vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_BUILDTOOLS:
+                is_supported = False
+            else:
+                is_supported = True
+        else:
+            # VS2013 and earlier
+            is_supported = False
+
+        debug(
+            'is_supported=%s, is_target=%s, msvc_version=%s, msvs_component=%s, target_arch=%s',
+            is_supported, is_target,
+            repr(self.vc_version_def.msvc_version),
+            repr(vs_componentid_def.vs_component_id),
+            repr(target_arch),
+            extra=self.debug_extra,
+        )
+
+        return is_supported, is_target
+
+    # convenience properties: reduce member lookup chain for readability
+
+    @property
+    def is_express(self):
+        return self.msvs_base.is_express
+
+    @property
+    def is_buildtools(self):
+        return self.msvs_base.is_buildtools
+
+    @property
+    def is_vcforpython(self):
+        return self.msvs_base.is_vcforpython
+
+    @property
+    def vs_edition_channel_component_seqnbr_key(self):
+        return self.msvs_base.vs_edition_channel_component_seqnbr_key
+
+    @property
+    def vs_edition_channel_component_key(self):
+        return self.msvs_base.vs_edition_channel_component_key
+
+    @property
+    def vs_edition_channel_key(self):
+        return self.msvs_base.vs_edition_channel_key
+
+    @property
+    def vs_channel_component_key(self):
+        return self.msvs_base.vs_channel_component_key
+
+    @property
+    def vs_channel_key(self):
+        return self.msvs_base.vs_channel_key
+
+    @property
+    def msvc_version(self):
+        return self.vc_version_def.msvc_version
+
+    @property
+    def msvc_vernum(self):
+        return self.vc_version_def.msvc_vernum
+
+    @property
+    def msvc_verstr(self):
+        return self.vc_version_def.msvc_verstr
+
+    @property
+    def vs_product_def(self):
+        return self.msvs_base.vs_product_def
+
+    @property
+    def vs_channel_def(self):
+        return self.msvs_base.vs_channel_def
+
+    @property
+    def vs_componentid_def(self):
+        return self.msvs_base.vs_component_def.vs_componentid_def
+
+    @property
+    def vs_product(self):
+        return self.msvs_base.vs_product_def.vs_product
+
+    @property
+    def vs_product_numeric(self):
+        return self.msvs_base.vs_product_def.vs_product_numeric
+
+    @property
+    def vs_channel_id(self):
+        return self.msvs_base.vs_channel_def.vs_channel_id
+
+    @property
+    def vs_component_id(self):
+        return self.msvs_base.vs_component_def.vs_componentid_def.vs_component_id
+
+    @property
+    def vs_sequence_nbr(self):
+        return self.msvs_base.vs_sequence_nbr
+
+_MSVCInstalled = namedtuple('_MSVCInstalled', [
+    'msvc_instances',
+    'msvs_edition_instances_map',
+    'msvs_channel_instances_map',
+    'msvs_channel_map', # TODO(JCB): remove?
+])
+
+class MSVCInstalled(_MSVCInstalled, AutoInitialize):
+
+    debug_extra = None
+
+    @classmethod
+    def _initialize(cls):
+        cls.debug_extra = debug_extra(cls)
+
+    @classmethod
+    def factory(
+        cls, *,
+        msvc_instances,
+    ):
+
+        msvc_instances = sorted(
+            msvc_instances, key=cmp_to_key(MSVCInstance.default_order)
+        )
+
+        msvs_channel_map = {
+            vs_channel_def: {}
+            for vs_channel_def in MSVC.Config.MSVS_CHANNEL_DEFINITION_LIST
+        }
+
+        vs_edition_instances = {}
+        vs_channel_instances = {}
+
+        # channel key: (ANY, None)
+        vs_anychannel_key = _VSKeys.msvs_channel_key(
+            vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+        )
+
+        for msvc_instance in msvc_instances:
+
+            debug(
+                'msvc_instance: id_str=%s, msvc_version=%s, vc_dir=%s',
+                repr(msvc_instance.id_str),
+                repr(msvc_instance.msvc_version),
+                repr(msvc_instance.vc_dir),
+                extra=cls.debug_extra,
+            )
+
+            # edition key: (product, ANY, None, None)
+            vs_edition_any_key = _VSKeys.msvs_edition_key(
+                vs_product_def=msvc_instance.vs_product_def,
+                vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+            )
+
+            # edition key: (product, ANY, component, None)
+            vs_edition_anychannel_component_key = _VSKeys.msvs_edition_key(
+                vs_product_def=msvc_instance.vs_product_def,
+                vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+                vs_componentid_def=msvc_instance.vs_componentid_def,
+            )
+
+            # all editions keys
+            vs_edition_keys = (
+                vs_edition_any_key,
+                msvc_instance.vs_edition_channel_key,
+                vs_edition_anychannel_component_key,
+                msvc_instance.vs_edition_channel_component_key,
+                msvc_instance.vs_edition_channel_component_seqnbr_key,
+            )
+
+            # channel key: (ANY, component)
+            vs_anychannel_component_key = _VSKeys.msvs_channel_key(
+                vs_channel_def=MSVC.Config.MSVS_CHANNEL_ANY,
+                vs_componentid_def=msvc_instance.vs_componentid_def,
+            )
+
+            # all channel keys
+            vs_channel_keys = (
+                vs_anychannel_key,
+                msvc_instance.vs_channel_key,
+                vs_anychannel_component_key,
+                msvc_instance.vs_channel_component_key,
+            )
+
+            for vs_edition_key in vs_edition_keys:
+                vs_edition_instances.setdefault(vs_edition_key, []).append(msvc_instance)
+
+            for vs_channel_key in vs_channel_keys:
+                vs_channel_instances.setdefault(vs_channel_key, []).append(msvc_instance)
+
+            # msvc_version support
+
+            if msvc_instance.msvc_version != msvc_instance.msvc_verstr:
+                versions = [msvc_instance.msvc_verstr, msvc_instance.msvc_version]
+            else:
+                versions = [msvc_instance.msvc_verstr]
+
+            vs_channel_defs = MSVC.Config.MSVS_CHANNEL_MEMBERLISTS[msvc_instance.vs_channel_def]
+
+            for vcver in versions:
+
+                for vs_channel_def in vs_channel_defs:
+
+                    msvc_version_map = msvs_channel_map[vs_channel_def]
+
+                    msvc_instance_list = msvc_version_map.setdefault(vcver, [])
+                    slot = len(msvc_instance_list)
+                    msvc_instance_list.append(msvc_instance)
+                    debug(
+                        'msvc_version_map[%s][%s][%d]=%s',
+                        repr(vs_channel_def.vs_channel_suffix),
+                        repr(vcver),
+                        slot,
+                        repr(msvc_instance.id_str),
+                        extra=cls.debug_extra,
+                    )
+
+        msvc_installed = cls(
+            msvc_instances=msvc_instances,
+            msvs_edition_instances_map=vs_edition_instances,
+            msvs_channel_instances_map=vs_channel_instances,
+            msvs_channel_map=msvs_channel_map,
+        )
+
+        return msvc_installed
+
+    def query_msvc_instances(
+        self, *,
+        vs_product_def=None,
+        vs_channel_def=None,
+        vs_componentid_def=None,
+        vs_sequence_nbr=None,
+    ):
+
+        # TODO(JCB): error checking combinations (ignored, etc)
+
+        if not vs_channel_def:
+            vs_channel_def = _msvs_channel_default()
+
+        if vs_product_def:
+
+            query_key = _VSKeys.msvs_edition_key(
+                vs_product_def=vs_product_def,
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+                vs_sequence_nbr=vs_sequence_nbr
+            )
+
+            msvc_instances = self.msvs_edition_instances_map.get(query_key, [])
+
+        else:
+
+            query_key = _VSKeys.msvs_channel_key(
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+            )
+
+            msvc_instances = self.msvs_channel_instances_map.get(query_key, [])
+
+        debug(
+            'query_key=%s, n_msvc_instances=%s',
+            repr(query_key.serialize()),
+            repr(len(msvc_instances)),
+            extra=self.debug_extra,
+        )
+
+        return query_key, msvc_instances
+
+_MSVSManager = namedtuple('_MSVSManager', [
+    'msvc_installed',
+    'msvs_installed',
+])
+
+class MSVSManager(_MSVSManager):
+
+    @classmethod
+    def factory(cls, msvc_installed, msvs_installed):
+
+        msvs_manager = cls(
+            msvc_installed=msvc_installed,
+            msvs_installed=msvs_installed,
+        )
+
+        return msvs_manager
+
+class _VSDetect(AutoInitialize):
+
+    debug_extra = None
+
+    @classmethod
+    def _initialize(cls):
+        cls.debug_extra = debug_extra(cls)
+        cls.reset()
 
     @classmethod
     def reset(cls):
 
-        cls.seen_vswhere = set()
-        cls.seen_root = set()
-
+        cls.vswhere_executable_seen = set()
         cls.vswhere_executables = []
 
-        cls.msvc_instances = []
-        cls.msvc_map = {}
+        cls.registry_once = False
 
-    @staticmethod
-    def msvc_instances_default_order(a, b):
-        # vc version numeric: descending order
-        if a.vc_version_numeric != b.vc_version_numeric:
-            return 1 if a.vc_version_numeric < b.vc_version_numeric else -1
-        # vc release: descending order (release, preview)
-        if a.vc_release != b.vc_release:
-            return 1 if a.vc_release < b.vc_release else -1
-        # component rank: descending order
-        if a.vc_component_rank != b.vc_component_rank:
-            return 1 if a.vc_component_rank < b.vc_component_rank else -1
-        return 0
+        cls.vs_dir_seen = set()  # vswhere
+        cls.vc_dir_seen = set()  # registry
+
+        cls.msvs_sequence_nbr = {}
+
+        cls.msvs_instances = []
+        cls.msvc_instances = []
+
+        # volatile: reconstructed when new instances detected
+        cls.msvs_manager = None
+
+    reset_funcs = []
 
     @classmethod
     def register_reset_func(cls, func):
@@ -1063,452 +2040,431 @@ class _VSWhere:
         for func in cls.reset_funcs:
             func()
 
-_VSWhere.reset()
+    @classmethod
+    def _msvc_dir_evaluate(
+        cls, *,
+        vs_product_def,
+        vs_component_def,
+        vs_channel_def,
+        vs_dir,
+        vs_version,
+        vs_exec,
+        vc_version,
+        vc_dir,
+        vc_feature_map=None,
+    ):
 
-def _filter_vswhere_paths(env):
+        vs_sequence_key = (vs_product_def, vs_channel_def, vs_component_def)
 
-    vswhere_paths = []
+        cls.msvs_sequence_nbr.setdefault(vs_sequence_key, 0)
+        cls.msvs_sequence_nbr[vs_sequence_key] += 1
 
-    if env and 'VSWHERE' in env:
-        vswhere_environ = _vswhere_user_path(env.subst('$VSWHERE'))
-        if vswhere_environ and vswhere_environ not in _VSWhere.seen_vswhere:
-            vswhere_paths.append(vswhere_environ)
+        vs_sequence_nbr = cls.msvs_sequence_nbr[vs_sequence_key]
 
-    vswhere_cmdline = _msvc_cmdline_vswhere()
-    if vswhere_cmdline and vswhere_cmdline not in _VSWhere.seen_vswhere:
-        vswhere_paths.append(vswhere_cmdline)
-
-    vswhere_default = _msvc_default_vswhere()
-    if vswhere_default and vswhere_default not in _VSWhere.seen_vswhere:
-        vswhere_paths.append(vswhere_default)
-
-    debug('vswhere_paths=%s', vswhere_paths)
-    return vswhere_paths
-
-def _vswhere_query_json_output(vswhere_exe, vswhere_args):
-
-    vswhere_json = None
-
-    once = True
-    while once:
-        once = False
-        # using break for single exit (unless exception)
-
-        vswhere_cmd = [vswhere_exe] + vswhere_args + ['-format', 'json', '-utf8']
-        debug("running: %s", vswhere_cmd)
-
-        try:
-            cp = subprocess.run(vswhere_cmd, stdout=PIPE, stderr=PIPE, check=True)
-        except OSError as e:
-            errmsg = str(e)
-            debug("%s: %s", type(e).__name__, errmsg)
-            break
-        except Exception as e:
-            errmsg = str(e)
-            debug("%s: %s", type(e).__name__, errmsg)
-            raise
-
-        if not cp.stdout:
-            debug("no vswhere information returned")
-            break
-
-        vswhere_output = cp.stdout.decode('utf8', errors='replace')
-        if not vswhere_output:
-            debug("no vswhere information output")
-            break
-
-        try:
-            vswhere_output_json = json.loads(vswhere_output)
-        except json.decoder.JSONDecodeError:
-            debug("json decode exception loading vswhere output")
-            break
-
-        vswhere_json = vswhere_output_json
-        break
-
-    debug('vswhere_json=%s, vswhere_exe=%s', bool(vswhere_json), repr(vswhere_exe))
-
-    return vswhere_json
-
-MSVC_INSTANCE = namedtuple('MSVCInstance', [
-    'vc_path',
-    'vc_version',
-    'vc_version_numeric',
-    'vc_version_scons',
-    'vc_release',
-    'vc_component_id',
-    'vc_component_rank',
-    'vc_component_suffix',
-])
-
-def _update_vswhere_msvc_map(env):
-
-    vswhere_paths = _filter_vswhere_paths(env)
-    if not vswhere_paths:
-        debug('new_roots=False, msvc_instances=%s', len(_VSWhere.msvc_instances))
-        return _VSWhere.msvc_map
-
-    n_instances = len(_VSWhere.msvc_instances)
-
-    for vswhere_exe in vswhere_paths:
-
-        if vswhere_exe in _VSWhere.seen_vswhere:
-            continue
-
-        _VSWhere.seen_vswhere.add(vswhere_exe)
-        _VSWhere.vswhere_executables.append(vswhere_exe)
-
-        debug('vswhere_exe=%s', repr(vswhere_exe))
-
-        vswhere_json = _vswhere_query_json_output(
-            vswhere_exe,
-            ['-all', '-products', '*']
+        msvs_base = MSVSBase.factory(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_component_def=vs_component_def,
+            vs_sequence_nbr=vs_sequence_nbr,
+            vs_dir=vs_dir,
+            vs_version=vs_version,
         )
 
-        if not vswhere_json:
-            continue
+        if msvs_base.is_express:
+            vc_version += msvs_base.vs_component_suffix
 
-        for instance in vswhere_json:
+        vc_version_def = MSVC.Util.msvc_version_components(vc_version)
 
-            #print(json.dumps(instance, indent=4, sort_keys=True))
+        msvc_instance = MSVCInstance.factory(
+            msvs_base=msvs_base,
+            vc_version_def=vc_version_def,
+            vc_feature_map=vc_feature_map,
+            vc_dir=vc_dir,
+        )
 
-            installation_path = instance.get('installationPath')
-            if not installation_path or not os.path.exists(installation_path):
-                continue
+        # TODO(JCB): load toolsets/tools
+        if not _msvc_instance_check_files_exist(msvc_instance):
+            # no compilers detected don't register msvc_instance
+            return None
 
-            vc_path = os.path.join(installation_path, 'VC')
-            if not os.path.exists(vc_path):
-                continue
+        msvs_base.register_msvc_instance(msvc_instance)
+        cls.msvc_instances.append(msvc_instance)
 
-            vc_root = MSVC.Util.process_path(vc_path)
-            if vc_root in _VSWhere.seen_root:
-                continue
-            _VSWhere.seen_root.add(vc_root)
+        if vs_exec:
 
-            installation_version = instance.get('installationVersion')
-            if not installation_version:
-                continue
-
-            vs_major = installation_version.split('.')[0]
-            if not vs_major in _VSWHERE_VSMAJOR_TO_VCVERSION:
-                debug('ignore vs_major: %s', vs_major)
-                continue
-
-            vc_version = _VSWHERE_VSMAJOR_TO_VCVERSION[vs_major]
-
-            product_id = instance.get('productId')
-            if not product_id:
-                continue
-
-            component_id = product_id.split('.')[-1]
-            if component_id not in _VSWHERE_COMPONENTID_CANDIDATES:
-                debug('ignore component_id: %s', component_id)
-                continue
-
-            component_rank = _VSWHERE_COMPONENTID_RANKING.get(component_id,0)
-            if component_rank == 0:
-                raise MSVCInternalError(f'unknown component_rank for component_id: {component_id!r}')
-
-            scons_suffix = _VSWHERE_COMPONENTID_SCONS_SUFFIX[component_id]
-
-            if scons_suffix:
-                vc_version_scons = vc_version + scons_suffix
-            else:
-                vc_version_scons = vc_version
-
-            is_prerelease = True if instance.get('isPrerelease', False) else False
-            is_release = False if is_prerelease else True
-
-            msvc_instance = MSVC_INSTANCE(
-                vc_path = vc_path,
-                vc_version = vc_version,
-                vc_version_numeric = float(vc_version),
-                vc_version_scons = vc_version_scons,
-                vc_release = is_release,
-                vc_component_id = component_id,
-                vc_component_rank = component_rank,
-                vc_component_suffix = component_suffix,
+            msvs_instance = MSVSInstance.factory(
+                msvs_base=msvs_base,
+                vs_executable=vs_exec,
+                vc_version_def=vc_version_def,
             )
 
-            _VSWhere.msvc_instances.append(msvc_instance)
+            msvs_base.register_msvs_instance(msvs_instance)
+            cls.msvs_instances.append(msvs_instance)
 
-    new_roots = bool(len(_VSWhere.msvc_instances) > n_instances)
-    if new_roots:
+        return msvc_instance
 
-        _VSWhere.msvc_instances = sorted(
-            _VSWhere.msvc_instances,
-            key=cmp_to_key(_VSWhere.msvc_instances_default_order)
-        )
+    @classmethod
+    def _filter_vswhere_paths(cls, vswhere_env=None):
+        vswhere_paths = [
+            vswhere_exec.norm
+            for vswhere_exec in _find_vswhere_executables(vswhere_env)
+            if vswhere_exec.norm not in cls.vswhere_executable_seen
+        ]
+        debug('vswhere_paths=%s', vswhere_paths, extra=cls.debug_extra)
+        return vswhere_paths
 
-        _VSWhere.msvc_map = {}
+    @classmethod
+    def _vswhere_query_json_output(cls, vswhere_exe, vswhere_args):
 
-        for msvc_instance in _VSWhere.msvc_instances:
+        vswhere_json = None
 
-            debug(
-                'msvc instance: msvc_version=%s, is_release=%s, component_id=%s, vc_path=%s',
-                repr(msvc_instance.vc_version_scons), msvc_instance.vc_release,
-                repr(msvc_instance.vc_component_id), repr(msvc_instance.vc_path)
-            )
+        once = True
+        while once:
+            once = False
+            # using break for single exit (unless exception)
 
-            key = (msvc_instance.vc_version_scons, msvc_instance.vc_release)
-            _VSWhere.msvc_map.setdefault(key,[]).append(msvc_instance)
+            vswhere_cmd = [vswhere_exe] + vswhere_args + ['-format', 'json', '-utf8']
+            debug("running: %s", vswhere_cmd, extra=cls.debug_extra)
 
-            if msvc_instance.vc_version_scons == msvc_instance.vc_version:
-                continue
-
-            key = (msvc_instance.vc_version, msvc_instance.vc_release)
-            _VSWhere.msvc_map.setdefault(key,[]).append(msvc_instance)
-
-        _VSWhere.call_reset_funcs()
-
-    debug('new_roots=%s, msvc_instances=%s', new_roots, len(_VSWhere.msvc_instances))
-
-    return _VSWhere.msvc_map
-
-_cache_pdir_vswhere_queries = {}
-
-def _reset_pdir_vswhere_queries():
-    global _cache_pdir_vswhere_queries
-    _cache_pdir_vswhere_queries = {}
-    debug('reset _cache_pdir_vswhere_queries')
-
-# register pdir vswhere cache reset function with vswhere state manager
-_VSWhere.register_reset_func(_reset_pdir_vswhere_queries)
-
-def find_vc_pdir_vswhere(msvc_version, env=None):
-    """ Find the MSVC product directory using the vswhere program.
-
-    Args:
-        msvc_version: MSVC version to search for
-        env: optional to look up VSWHERE variable
-
-    Returns:
-        MSVC install dir or None
-
-    Raises:
-        UnsupportedVersion: if the version is not known by this file
-
-    """
-    global _cache_pdir_vswhere_queries
-
-    msvc_map = _update_vswhere_msvc_map(env)
-    if not msvc_map:
-        return None
-
-    rval = _cache_pdir_vswhere_queries.get(msvc_version, UNDEFINED)
-    if rval != UNDEFINED:
-        debug('msvc_version=%s, pdir=%s', repr(msvc_version), repr(rval))
-        return rval
-
-    if msvc_version not in _VSWHERE_SUPPORTED_VCVER:
-        debug("Unknown version of MSVC: %s", msvc_version)
-        raise UnsupportedVersion("Unknown version %s" % msvc_version)
-
-    is_release = True
-    key = (msvc_version, is_release)
-
-    msvc_instances = msvc_map.get(key, UNDEFINED)
-    if msvc_instances == UNDEFINED:
-        debug(
-            'msvc instances lookup failed: msvc_version=%s, is_release=%s',
-            repr(msvc_version), repr(is_release)
-        )
-        msvc_instances = []
-
-    save_pdir_kind = []
-
-    pdir = None
-    kind_t = None
-
-    for msvc_instance in msvc_instances:
-
-        vcdir = msvc_instance.vc_path
-
-        vckind_t = MSVC.Kind.msvc_version_pdir_vswhere_kind(msvc_version, vcdir, _VCVER_KIND_DETECT[msvc_version])
-        if vckind_t.skip:
-            if vckind_t.save:
-                debug('save kind: msvc_version=%s, pdir=%s', repr(msvc_version), repr(vcdir))
-                save_pdir_kind.append((vcdir, vckind_t))
-            else:
-                debug('skip kind: msvc_version=%s, pdir=%s', repr(msvc_version), repr(vcdir))
-            continue
-
-        pdir = vcdir
-        kind_t = vckind_t
-        break
-
-    if not pdir and not kind_t:
-        if save_pdir_kind:
-            pdir, kind_t = save_pdir_kind[0]
-
-    MSVC.Kind.msvc_version_register_kind(msvc_version, kind_t)
-
-    debug('msvc_version=%s, pdir=%s', repr(msvc_version), repr(pdir))
-    _cache_pdir_vswhere_queries[msvc_version] = pdir
-
-    return pdir
-
-_cache_pdir_registry_queries = {}
-
-def find_vc_pdir_registry(msvc_version):
-    """ Find the MSVC product directory using the registry.
-
-    Args:
-        msvc_version: MSVC version to search for
-
-    Returns:
-        MSVC install dir or None
-
-    Raises:
-        UnsupportedVersion: if the version is not known by this file
-
-    """
-    global _cache_pdir_registry_queries
-
-    rval = _cache_pdir_registry_queries.get(msvc_version, UNDEFINED)
-    if rval != UNDEFINED:
-        debug('msvc_version=%s, pdir=%s', repr(msvc_version), repr(rval))
-        return rval
-
-    try:
-        regkeys = _VCVER_TO_PRODUCT_DIR[msvc_version]
-    except KeyError:
-        debug("Unknown version of MSVC: %s", msvc_version)
-        raise UnsupportedVersion("Unknown version %s" % msvc_version) from None
-
-    save_pdir_kind = []
-
-    is_win64 = common.is_win64()
-
-    pdir = None
-    kind_t = None
-
-    root = 'Software\\'
-    for hkroot, key in regkeys:
-
-        if not hkroot or not key:
-            continue
-
-        if is_win64:
-            msregkeys = [root + 'Wow6432Node\\' + key, root + key]
-        else:
-            msregkeys = [root + key]
-
-        vcdir = None
-        for msregkey in msregkeys:
-            debug('trying VC registry key %s', repr(msregkey))
             try:
-                vcdir = common.read_reg(msregkey, hkroot)
-            except OSError:
-                continue
-            if vcdir:
+                cp = subprocess.run(
+                    vswhere_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
+                )
+            except OSError as e:
+                errmsg = str(e)
+                debug("%s: %s", type(e).__name__, errmsg, extra=cls.debug_extra)
+                break
+            except Exception as e:
+                errmsg = str(e)
+                debug("%s: %s", type(e).__name__, errmsg, extra=cls.debug_extra)
+                raise
+
+            if not cp.stdout:
+                debug("no vswhere information returned", extra=cls.debug_extra)
                 break
 
-        if not vcdir:
-            debug('no VC registry key %s', repr(key))
-            continue
+            vswhere_output = cp.stdout.decode('utf8', errors='replace')
+            if not vswhere_output:
+                debug("no vswhere information output", extra=cls.debug_extra)
+                break
 
-        is_vcforpython = False
+            try:
+                vswhere_output_json = json.loads(vswhere_output)
+            except json.decoder.JSONDecodeError:
+                debug("json decode exception loading vswhere output", extra=cls.debug_extra)
+                break
 
-        is_vsroot = False
-        if msvc_version == '9.0' and key.lower().endswith('\\vcforpython\\9.0\\installdir'):
-            # Visual C++ for Python registry key is VS installdir (root) not VC productdir
-            is_vsroot = True
-            is_vcforpython = True
-        elif msvc_version == '14.0Exp' and key.lower().endswith('\\14.0\\setup\\vs\\productdir'):
-            # 2015Exp VS productdir (root) not VC productdir
-            is_vsroot = True
+            vswhere_json = vswhere_output_json
+            break
 
-        if is_vsroot:
-            vcdir = os.path.join(vcdir, 'VC')
-            debug('convert vs root to vc dir: %s', repr(vcdir))
+        debug(
+            'vswhere_json=%s, vswhere_exe=%s',
+            bool(vswhere_json), repr(vswhere_exe), extra=cls.debug_extra
+        )
 
-        if not os.path.exists(vcdir):
-            debug('reg says dir is %s, but it does not exist. (ignoring)', repr(vcdir))
-            continue
+        return vswhere_json
 
-        vckind_t = MSVC.Kind.msvc_version_pdir_registry_kind(msvc_version, vcdir, _VCVER_KIND_DETECT[msvc_version], is_vcforpython)
-        if vckind_t.skip:
-            if vckind_t.save:
-                debug('save kind: msvc_version=%s, pdir=%s', repr(msvc_version), repr(vcdir))
-                save_pdir_kind.append((vcdir, vckind_t))
-            else:
-                debug('skip kind: msvc_version=%s, pdir=%s', repr(msvc_version), repr(vcdir))
-            continue
+    @classmethod
+    def _msvc_instances_vswhere(cls, vswhere_env=None):
 
-        pdir = vcdir
-        kind_t = vckind_t
-        break
+        num_instances = len(cls.msvc_instances)
+        num_new_instances = 0
 
-    if not pdir and not kind_t:
-        if save_pdir_kind:
-            pdir, kind_t = save_pdir_kind[0]
+        vswhere_paths = cls._filter_vswhere_paths(vswhere_env)
+        if vswhere_paths:
 
-    MSVC.Kind.msvc_version_register_kind(msvc_version, kind_t)
+            num_beg_instances = num_instances
 
-    debug('msvc_version=%s, pdir=%s', repr(msvc_version), repr(pdir))
-    _cache_pdir_registry_queries[msvc_version] = pdir
+            for vswhere_exe in vswhere_paths:
 
-    return pdir
+                if vswhere_exe in cls.vswhere_executable_seen:
+                    continue
 
-def find_vc_pdir(msvc_version, env=None):
-    """Find the MSVC product directory for the given version.
+                cls.vswhere_executable_seen.add(vswhere_exe)
+                cls.vswhere_executables.append(vswhere_exe)
 
-    Use find_vc_pdir_vsvwhere for msvc versions 14.1 and later.
-    Use find_vc_pdir_registry for msvc versions 14.0 and earlier.
+                debug('vswhere_exe=%s', repr(vswhere_exe), extra=cls.debug_extra)
+
+                vswhere_json = cls._vswhere_query_json_output(
+                    vswhere_exe,
+                    ['-all', '-products', '*', '-prerelease']
+                )
+
+                if not vswhere_json:
+                    continue
+
+                for instance in vswhere_json:
+
+                    #print(json.dumps(instance, indent=4, sort_keys=True))
+
+                    vs_dir = instance.get('installationPath')
+                    if not vs_dir or not path_exists(vs_dir):
+                        continue
+
+                    vs_norm = normalize_path(vs_dir)
+                    if vs_norm in cls.vs_dir_seen:
+                        continue
+
+                    vs_version = instance.get('installationVersion')
+                    if not vs_version:
+                        continue
+
+                    product_id = instance.get('productId')
+                    if not product_id:
+                        continue
+
+                    # consider msvs root evaluated at this point
+                    cls.vs_dir_seen.add(vs_norm)
+
+                    vc_dir = os.path.join(vs_dir, 'VC')
+                    if not path_exists(vc_dir):
+                        continue
+
+                    vs_major = vs_version.split('.')[0]
+                    if vs_major not in MSVC.Config.MSVS_VERSION_MAJOR_MAP:
+                        debug('ignore vs_major: %s', vs_major, extra=cls.debug_extra)
+                        continue
+
+                    vs_product_def = MSVC.Config.MSVS_VERSION_MAJOR_MAP[vs_major]
+
+                    component_id = product_id.split('.')[-1]
+                    vs_component_def = MSVC.Config.VSWHERE_COMPONENT_INTERNAL.get(component_id)
+                    if not vs_component_def:
+                        debug('ignore component_id: %s', component_id, extra=cls.debug_extra)
+                        continue
+
+                    is_prerelease = True if instance.get('isPrerelease', False) else False
+                    if is_prerelease:
+                        vs_channel_def = MSVC.Config.MSVS_CHANNEL_PREVIEW
+                    else:
+                        vs_channel_def = MSVC.Config.MSVS_CHANNEL_RELEASE
+
+                    vc_version = MSVC.Config.VSWHERE_VSMAJOR_TO_VCVERSION[vs_major]
+
+                    vs_exec = MSVC.Kind.msvc_dir_vswhere(
+                        vc_dir,
+                        _VSPRODUCT_KIND_DETECT[vs_product_def.vs_product],
+                    )
+
+                    cls._msvc_dir_evaluate(
+                        vs_product_def=vs_product_def,
+                        vs_component_def=vs_component_def,
+                        vs_channel_def=vs_channel_def,
+                        vs_dir=vs_dir,
+                        vs_version=vs_version,
+                        vs_exec=vs_exec,
+                        vc_version=vc_version,
+                        vc_dir=vc_dir,
+                    )
+
+            num_instances = len(cls.msvc_instances)
+            num_new_instances = num_instances - num_beg_instances
+
+            if num_new_instances > 0:
+                cls.call_reset_funcs()
+                debug('num_new_instances=%s, num_instances=%s', num_new_instances, num_instances, extra=cls.debug_extra)
+
+        return num_new_instances
+
+    @classmethod
+    def _msvc_instances_registry(cls):
+
+        num_instances = len(cls.msvc_instances)
+        num_new_instances = 0
+
+        if not cls.registry_once:
+            cls.registry_once = True
+
+            num_beg_instances = num_instances
+
+            is_win64 = common.is_win64()
+
+            for vs_product, regkeys in _VSPRODUCT_REGISTRY_VCDIR.items():
+
+                key_prefix = 'Software\\'
+                for is_vsroot, is_vcforpython, hkroot, key in regkeys:
+
+                    if not hkroot or not key:
+                        continue
+
+                    if is_win64:
+                        msregkeys = [key_prefix + 'Wow6432Node\\' + key, key_prefix + key]
+                    else:
+                        msregkeys = [key_prefix + key]
+
+                    vc_dir = None
+                    for msregkey in msregkeys:
+                        debug('trying VC registry key %s', repr(msregkey), extra=cls.debug_extra)
+                        try:
+                            vc_dir = common.read_reg(msregkey, hkroot)
+                        except OSError:
+                            continue
+                        if vc_dir:
+                            break
+
+                    if not vc_dir:
+                        debug('no VC registry key %s', repr(key), extra=cls.debug_extra)
+                        continue
+
+                    if vc_dir in cls.vc_dir_seen:
+                        continue
+                    cls.vc_dir_seen.add(vc_dir)
+
+                    if not os.path.exists(vc_dir):
+                        debug(
+                            'reg says vc dir is %s, but it does not exist. (ignoring)',
+                            repr(vc_dir), extra=cls.debug_extra
+                        )
+                        continue
+
+                    if is_vsroot:
+
+                        vc_dir = os.path.join(vc_dir, 'VC')
+                        debug('convert vs dir to vc dir: %s', repr(vc_dir), extra=cls.debug_extra)
+
+                        if vc_dir in cls.vc_dir_seen:
+                            continue
+                        cls.vc_dir_seen.add(vc_dir)
+
+                        if not os.path.exists(vc_dir):
+                            debug('vc dir does not exist. (ignoring)', repr(vc_dir), extra=cls.debug_extra)
+                            continue
+
+                    vc_norm = normalize_path(vc_dir)
+                    if vc_norm in cls.vc_dir_seen:
+                        continue
+                    cls.vc_dir_seen.add(vc_norm)
+
+                    vs_product_def = MSVC.Config.MSVS_VERSION_INTERNAL[vs_product]
+                    vc_version =  vs_product_def.vc_buildtools_def.vc_version
+
+                    vs_component_def, vs_dir, vs_exec, vc_feature_map = MSVC.Kind.msvc_dir_registry(
+                        vc_norm,
+                        _VSPRODUCT_KIND_DETECT[vs_product_def.vs_product],
+                        vc_version,
+                        is_vcforpython,
+                        vs_product_def.vs_version
+                    )
+
+                    if not vs_component_def:
+                        continue
+
+                    vs_channel_def = MSVC.Config.MSVS_CHANNEL_RELEASE
+
+                    cls._msvc_dir_evaluate(
+                        vs_product_def=vs_product_def,
+                        vs_component_def=vs_component_def,
+                        vs_channel_def=vs_channel_def,
+                        vs_dir=vs_dir,
+                        vs_version=vs_product_def.vs_version,
+                        vs_exec=vs_exec,
+                        vc_version=vc_version,
+                        vc_dir=vc_dir,
+                        vc_feature_map=vc_feature_map,
+                    )
+
+            num_instances = len(cls.msvc_instances)
+            num_new_instances = num_instances - num_beg_instances
+
+        return num_new_instances
+
+    @classmethod
+    def detect(cls, vswhere_env=None):
+
+        num_new_instances = 0
+        num_new_instances += cls._msvc_instances_vswhere(vswhere_env)
+        num_new_instances += cls._msvc_instances_registry()
+
+        if num_new_instances > 0 or cls.msvs_manager is None:
+
+            msvc_installed = MSVCInstalled.factory(
+                msvc_instances=cls.msvc_instances,
+            )
+
+            msvs_installed = MSVSInstalled.factory(
+                msvs_instances=cls.msvs_instances,
+            )
+
+            cls.msvs_manager = MSVSManager.factory(
+                msvc_installed=msvc_installed,
+                msvs_installed=msvs_installed,
+            )
+
+        return cls.msvs_manager
+
+def vs_detect(env=None):
+    vswhere_env = env.subst('$VSWHERE') if env and 'VSWHERE' in env else None
+    msvs_manager = _VSDetect.detect(vswhere_env)
+    return msvs_manager
+
+def _query_key_components(msvc_version, env=None):
+
+    # TODO(JCB): temporary placeholder
+
+    prefix, suffix = MSVC.Util.get_msvc_version_prefix_suffix(msvc_version)
+
+    vs_product_def = MSVC.Config.MSVC_VERSION_INTERNAL[prefix]
+
+    vs_channel_def = None
+
+    if suffix == 'Exp':
+        vs_componentid_def = MSVC.Config.MSVS_COMPONENTID_EXPRESS
+    else:
+        vs_componentid_def = None
+
+    return vs_product_def, vs_componentid_def, vs_channel_def
+
+def _find_msvc_instance(msvc_version, env=None):
+
+    msvc_instance = None
+    query_key = None
+
+    if msvc_version not in _VCVER:
+        # TODO(JCB): issue warning (add policy?)
+        debug("Unknown version of MSVC: %s", repr(msvc_version))
+        return msvc_instance, query_key
+
+    vs_manager = vs_detect(env)
+
+    vs_product_def, vs_componentid_def, vs_channel_def = _query_key_components(msvc_version, env)
+
+    query_key, msvc_instances = vs_manager.msvc_installed.query_msvc_instances(
+        vs_product_def=vs_product_def,
+        vs_componentid_def=vs_componentid_def,
+        vs_channel_def=vs_channel_def,
+    )
+
+    msvc_instance = msvc_instances[0] if msvc_instances else None
+
+    debug(
+        'msvc_version=%s, vc_dir=%s',
+        repr(msvc_version),
+        repr(msvc_instance.vc_dir if msvc_instance else None)
+    )
+
+    return msvc_instance, query_key
+
+def find_msvc_instance(msvc_version, env=None):
+    """Select an MSVC installation record.
 
     Args:
         msvc_version: str
             msvc version (major.minor, e.g. 10.0)
-        env:
-            optional to look up VSWHERE variable
+        env: optional
+            env to look up construction variables
 
     Returns:
-        str: Path found in registry, or None
-
-    Raises:
-        UnsupportedVersion: if the version is not known by this file.
-
-        UnsupportedVersion inherits from VisualCException.
-
+        str: MSVC installation record or None
     """
+    msvc_instance, _ = _find_msvc_instance(msvc_version, env)
+    return msvc_instance
 
-    if msvc_version in _VSWHERE_SUPPORTED_VCVER:
-
-        pdir = find_vc_pdir_vswhere(msvc_version, env)
-        if pdir:
-            debug('VC found: %s, dir=%s', repr(msvc_version), repr(pdir))
-            return pdir
-
-    elif msvc_version in _VCVER_TO_PRODUCT_DIR:
-
-        pdir = find_vc_pdir_registry(msvc_version)
-        if pdir:
-            debug('VC found: %s, dir=%s', repr(msvc_version), repr(pdir))
-            return pdir
-
-    else:
-
-        debug("Unknown version of MSVC: %s", repr(msvc_version))
-        raise UnsupportedVersion("Unknown version %s" % repr(msvc_version)) from None
-
-    debug('no VC found for version %s', repr(msvc_version))
-    return None
-
-# register find_vc_pdir function with Kind routines
-# in case of unknown msvc_version (just in case)
-MSVC.Kind.register_msvc_version_pdir_func(find_vc_pdir)
-
-def _reset_vc_pdir():
-    debug('reset pdir caches')
+def _reset_installed_queries():
+    debug('reset')
     global _cache_user_vswhere_path
-    global _cache_pdir_vswhere_queries
-    global _cache_pdir_registry_queries
     _cache_user_vswhere_paths = {}
-    _cache_pdir_vswhere_queries = {}
-    _cache_pdir_registry_queries = {}
 
-def find_batch_file(msvc_version, host_arch, target_arch, pdir):
+def find_batch_file(msvc_instance, host_arch, target_arch):
     """
     Find the location of the batch script which should set up the compiler
     for any TARGET_ARCH whose compilers were installed by Visual Studio/VCExpress
@@ -1518,51 +2474,44 @@ def find_batch_file(msvc_version, host_arch, target_arch, pdir):
     so use that and return an empty argument.
     """
 
-    # filter out e.g. "Exp" from the version name
-    vernum = float(get_msvc_version_numeric(msvc_version))
-    vernum_int = int(vernum * 10)
-
-    sdk_pdir = pdir
-
     arg = ''
-    vcdir = None
+    batfilename = None
     clexe = None
     depbat = None
 
-    if vernum_int >= 143:
+    pdir = msvc_instance.vc_dir
+
+    if msvc_instance.vs_product_numeric >= 2022:
         # 14.3 (VS2022) and later
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
         batfile, _ = _GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
-        vcdir = pdir
-    elif 143 > vernum_int >= 141:
+    elif 2022 > msvc_instance.vs_product_numeric >= 2017:
         # 14.2 (VS2019) to 14.1 (VS2017)
         batfiledir = os.path.join(pdir, "Auxiliary", "Build")
         batfile, _ = _LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(batfiledir, batfile)
-        vcdir = pdir
-    elif 141 > vernum_int >= 100:
+    elif 2017 > msvc_instance.vs_product_numeric >= 2010:
         # 14.0 (VS2015) to 10.0 (VS2010)
         arg, batfile, cl_path_comps = _LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
         batfilename = os.path.join(pdir, "vcvarsall.bat")
         depbat = os.path.join(pdir, *cl_path_comps, batfile)
         clexe = os.path.join(pdir, *cl_path_comps, _CL_EXE_NAME)
-    elif 100 > vernum_int >= 80:
+    elif 2010 > msvc_instance.vs_product_numeric >= 2005:
         # 9.0 (VS2008) to 8.0 (VS2005)
         arg, batfile, cl_path_comps = _LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host_arch, target_arch)]
-        if vernum_int == 90 and MSVC.Kind.msvc_version_is_vcforpython(msvc_version):
+        if msvc_instance.is_vcforpython:
             # 9.0 (VS2008) Visual C++ for Python:
             #     sdk batch files do not point to the VCForPython installation
             #     vcvarsall batch file is in installdir not productdir (e.g., vc\..\vcvarsall.bat)
             #     dependency batch files are not called from vcvarsall.bat
-            sdk_pdir = None
             batfilename = os.path.join(pdir, os.pardir, "vcvarsall.bat")
             depbat = None
         else:
             batfilename = os.path.join(pdir, "vcvarsall.bat")
             depbat = os.path.join(pdir, *cl_path_comps, batfile)
         clexe = os.path.join(pdir, *cl_path_comps, _CL_EXE_NAME)
-    else:  # 80 > vernum_int
+    else:  # 2005 > vc_product_numeric >= 6.0
         # 7.1 (VS2003) and earlier
         pdir = os.path.join(pdir, "Bin")
         batfilename = os.path.join(pdir, "vcvars32.bat")
@@ -1580,13 +2529,15 @@ def find_batch_file(msvc_version, host_arch, target_arch, pdir):
         debug("dependency batch file not found: %s", depbat)
         batfilename = None
 
-    return batfilename, arg, vcdir, sdk_pdir
+    return batfilename, arg
 
+# TODO(JCB): test and remove (orphaned)
 def find_batch_file_sdk(host_arch, target_arch, sdk_pdir):
     """
     Find the location of the sdk batch script which should set up the compiler
     for any TARGET_ARCH whose compilers were installed by Visual Studio/VCExpress
     """
+    from .sdk import get_installed_sdks
 
     installed_sdks = get_installed_sdks()
     for _sdk in installed_sdks:
@@ -1601,37 +2552,31 @@ def find_batch_file_sdk(host_arch, target_arch, sdk_pdir):
 
     return None
 
-__INSTALLED_VCS_RUN = None
+_cache_installed_msvc_versions = None
+_cache_installed_msvc_instances = None
 
 def _reset_installed_vcs():
-    global __INSTALLED_VCS_RUN
-    debug('reset __INSTALLED_VCS_RUN')
-    __INSTALLED_VCS_RUN = None
+    global _cache_installed_msvc_versions
+    global _cache_installed_msvc_instances
+    _cache_installed_msvc_versions = None
+    _cache_installed_msvc_instances = None
+    debug('reset')
 
-# register vcs cache reset function with vswhere state manager
-_VSWhere.register_reset_func(_reset_installed_vcs)
+# register vcs cache reset function with vsdetect state manager
+_VSDetect.register_reset_func(_reset_installed_vcs)
 
 _VC_TOOLS_VERSION_FILE_PATH = ['Auxiliary', 'Build', 'Microsoft.VCToolsVersion.default.txt']
 _VC_TOOLS_VERSION_FILE = os.sep.join(_VC_TOOLS_VERSION_FILE_PATH)
 
-def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
-    """Return status of finding batch file and cl.exe to use.
+def _msvc_instance_check_files_exist(msvc_instance) -> bool:
+    """Return status of finding at least one batch file and cl.exe.
 
-    Locates required vcvars batch files and cl in the vc_dir depending on
-    TARGET_ARCH, HOST_ARCH and the msvc version. TARGET_ARCH and HOST_ARCH
-    can be extracted from the passed env, unless the env is None, in which
-    case the native platform is assumed for the host and all associated
-    targets.
+    Locates at least one required vcvars batch file and cl.ex in the vc_dir.
+    The native platform is assumed for the host and all associated targets.
 
     Args:
-        env: Environment
-            a construction environment, usually if this is passed its
-            because there is a desired TARGET_ARCH to be used when searching
-            for a cl.exe
-        vc_dir: str
-            the path to the VC dir in the MSVC installation
-        msvc_version: str
-            msvc version (major.minor, e.g. 10.0)
+        msvc_instance:
+            MSVC installation record
 
     Returns:
         bool:
@@ -1639,21 +2584,18 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
     """
 
     # Find the host, target, and all candidate (host, target) platform combinations:
-    platforms = get_host_target(env, msvc_version, all_host_targets=True)
-    debug("host_platform %s, target_platform %s host_target_list %s", *platforms)
+    platforms = get_host_target(None, msvc_instance.msvc_version, all_host_targets=True)
+    debug("host_platform=%s, target_platform=%s, host_target_list=%s", *platforms)
     host_platform, target_platform, host_target_list = platforms
 
-    vernum = float(get_msvc_version_numeric(msvc_version))
-    vernum_int = int(vernum * 10)
-
     # make sure the cl.exe exists meaning the tool is installed
-    if vernum_int >= 141:
+    if msvc_instance.vs_product_numeric >= 2017:
         # 14.1 (VS2017) and later
         # 2017 and newer allowed multiple versions of the VC toolset to be
         # installed at the same time. This changes the layout.
         # Just get the default tool version for now
         # TODO: support setting a specific minor VC version
-        default_toolset_file = os.path.join(vc_dir, _VC_TOOLS_VERSION_FILE)
+        default_toolset_file = os.path.join(msvc_instance.vc_dir, _VC_TOOLS_VERSION_FILE)
         try:
             with open(default_toolset_file) as f:
                 vc_specific_version = f.readlines()[0].strip()
@@ -1664,7 +2606,7 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
             debug('failed to find MSVC version in %s', default_toolset_file)
             return False
 
-        if vernum_int >= 143:
+        if msvc_instance.vs_product_numeric >= 2022:
             # 14.3 (VS2022) and later
             host_target_batchfile_clpathcomps = _GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS
         else:
@@ -1673,7 +2615,10 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
 
         for host_platform, target_platform in host_target_list:
 
-            debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
+            debug(
+                'host_platform=%s, target_platform=%s, msvc_version=%s',
+                host_platform, target_platform, msvc_instance.msvc_version
+            )
 
             batchfile_clpathcomps = host_target_batchfile_clpathcomps.get((host_platform, target_platform), None)
             if batchfile_clpathcomps is None:
@@ -1682,12 +2627,14 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
 
             batfile, cl_path_comps = batchfile_clpathcomps
 
-            batfile_path = os.path.join(vc_dir, "Auxiliary", "Build", batfile)
+            batfile_path = os.path.join(msvc_instance.vc_dir, "Auxiliary", "Build", batfile)
             if not os.path.exists(batfile_path):
                 debug("batch file not found: %s", batfile_path)
                 continue
 
-            cl_path = os.path.join(vc_dir, 'Tools', 'MSVC', vc_specific_version, *cl_path_comps, _CL_EXE_NAME)
+            cl_path = os.path.join(
+                msvc_instance.vc_dir, 'Tools', 'MSVC', vc_specific_version, *cl_path_comps, _CL_EXE_NAME
+            )
             if not os.path.exists(cl_path):
                 debug("%s not found: %s", _CL_EXE_NAME, cl_path)
                 continue
@@ -1695,24 +2642,24 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
             debug('%s found: %s', _CL_EXE_NAME, cl_path)
             return True
 
-    elif 141 > vernum_int >= 80:
+    elif 2017 > msvc_instance.vs_product_numeric >= 2005:
         # 14.0 (VS2015) to 8.0 (VS2005)
 
-        if vernum_int >= 100:
+        if msvc_instance.vs_product_numeric >= 2010:
             # 14.0 (VS2015) to 10.0 (VS2010)
             host_target_batcharg_batchfile_clpathcomps = _LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS
         else:
             # 9.0 (VS2008) to 8.0 (VS2005)
             host_target_batcharg_batchfile_clpathcomps = _LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS
 
-        if vernum_int == 90 and MSVC.Kind.msvc_version_is_vcforpython(msvc_version):
+        if msvc_instance.is_vcforpython:
             # 9.0 (VS2008) Visual C++ for Python:
             #     vcvarsall batch file is in installdir not productdir (e.g., vc\..\vcvarsall.bat)
             #     dependency batch files are not called from vcvarsall.bat
-            batfile_path = os.path.join(vc_dir, os.pardir, "vcvarsall.bat")
+            batfile_path = os.path.join(msvc_instance.vc_dir, os.pardir, "vcvarsall.bat")
             check_depbat = False
         else:
-            batfile_path = os.path.join(vc_dir, "vcvarsall.bat")
+            batfile_path = os.path.join(msvc_instance.vc_dir, "vcvarsall.bat")
             check_depbat = True
 
         if not os.path.exists(batfile_path):
@@ -1721,7 +2668,10 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
 
         for host_platform, target_platform in host_target_list:
 
-            debug('host platform %s, target platform %s for version %s', host_platform, target_platform, msvc_version)
+            debug(
+                'host_platform=%s, target_platform=%s, msvc_version=%s',
+                host_platform, target_platform, msvc_instance.msvc_version
+            )
 
             batcharg_batchfile_clpathcomps = host_target_batcharg_batchfile_clpathcomps.get(
                 (host_platform, target_platform), None
@@ -1734,12 +2684,12 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
             _, batfile, cl_path_comps = batcharg_batchfile_clpathcomps
 
             if check_depbat:
-                batfile_path = os.path.join(vc_dir, *cl_path_comps, batfile)
+                batfile_path = os.path.join(msvc_instance.vc_dir, *cl_path_comps, batfile)
                 if not os.path.exists(batfile_path):
                     debug("batch file not found: %s", batfile_path)
                     continue
 
-            cl_path = os.path.join(vc_dir, *cl_path_comps, _CL_EXE_NAME)
+            cl_path = os.path.join(msvc_instance.vc_dir, *cl_path_comps, _CL_EXE_NAME)
             if not os.path.exists(cl_path):
                 debug("%s not found: %s", _CL_EXE_NAME, cl_path)
                 continue
@@ -1747,82 +2697,87 @@ def _check_files_exist_in_vc_dir(env, vc_dir, msvc_version) -> bool:
             debug('%s found: %s', _CL_EXE_NAME, cl_path)
             return True
 
-    elif 80 > vernum_int >= 60:
+    elif 2005 > msvc_instance.vs_product_numeric >= 1998:
         # 7.1 (VS2003) to 6.0 (VS6)
 
-        # quick check for vc_dir/bin and vc_dir/ before walk
-        # need to check root as the walk only considers subdirectories
-        for cl_dir in ('bin', ''):
-            cl_path = os.path.join(vc_dir, cl_dir, _CL_EXE_NAME)
-            if os.path.exists(cl_path):
-                debug('%s found %s', _CL_EXE_NAME, cl_path)
-                return True
-        # not in bin or root: must be in a subdirectory
-        for cl_root, cl_dirs, _ in os.walk(vc_dir):
-            for cl_dir in cl_dirs:
-                cl_path = os.path.join(cl_root, cl_dir, _CL_EXE_NAME)
-                if os.path.exists(cl_path):
-                    debug('%s found: %s', _CL_EXE_NAME, cl_path)
-                    return True
-        return False
+        bin_dir = os.path.join(msvc_instance.vc_dir, "bin")
+
+        batfile_path = os.path.join(bin_dir, "vcvars32.bat")
+        if not os.path.exists(batfile_path):
+            debug("batch file not found: %s", batfile_path)
+            return False
+
+        cl_path = os.path.join(bin_dir, _CL_EXE_NAME)
+        if not os.path.exists(cl_path):
+            debug("%s not found: %s", _CL_EXE_NAME, cl_path)
+            return False
+
+        debug('%s found: %s', _CL_EXE_NAME, cl_path)
+        return True
 
     else:
         # version not supported return false
-        debug('unsupported MSVC version: %s', str(vernum))
+        debug('unsupported MSVC version: %s', str(msvc_instance.msvc_version))
 
     return False
 
+def get_installed_msvc_instances(env=None):
+    global _cache_installed_msvc_instances
+
+    # the installed instance cache is cleared if new instances are discovered
+    vs_manager = vs_detect(env)
+
+    if _cache_installed_msvc_instances is not None:
+        return _cache_installed_msvc_instances
+
+    msvc_installed = vs_manager.msvc_installed
+
+    # TODO(JCB): first-use default channel
+    vs_channel_def = _msvs_channel_default()
+
+    msvs_channel_map = msvc_installed.msvs_channel_map
+    msvc_version_map = msvs_channel_map.get(vs_channel_def)
+
+    installed_msvc_instances = [
+        msvc_version_map[vc_version][0]
+        for vc_version in msvc_version_map.keys()
+    ]
+
+    _cache_installed_msvc_instances = installed_msvc_instances
+    # debug("installed_msvc_instances=%s", _cache_installed_msvc_versions)
+    return _cache_installed_msvc_instances
+
 def get_installed_vcs(env=None):
-    global __INSTALLED_VCS_RUN
+    global _cache_installed_msvc_versions
 
-    # the installed vcs cache is cleared
-    # if new vc roots are discovered
-    _update_vswhere_msvc_map(env)
+    # the installed version cache is cleared if new instances are discovered
+    vs_manager = vs_detect(env)
 
-    if __INSTALLED_VCS_RUN is not None:
-        return __INSTALLED_VCS_RUN
+    if _cache_installed_msvc_versions is not None:
+        return _cache_installed_msvc_versions
 
-    save_target_arch = env.get('TARGET_ARCH', UNDEFINED) if env else None
-    force_target = env and save_target_arch and save_target_arch != UNDEFINED
+    msvc_installed = vs_manager.msvc_installed
 
-    if force_target:
-        del env['TARGET_ARCH']
-        debug("delete env['TARGET_ARCH']")
+    # TODO(JCB): first-use default channel
+    vs_channel_def = _msvs_channel_default()
 
-    installed_versions = []
+    msvs_channel_map = msvc_installed.msvs_channel_map
+    msvc_version_map = msvs_channel_map.get(vs_channel_def)
 
-    for ver in _VCVER:
-        debug('trying to find VC %s', ver)
-        try:
-            VC_DIR = find_vc_pdir(ver, env)
-            if VC_DIR:
-                debug('found VC %s', ver)
-                if _check_files_exist_in_vc_dir(env, VC_DIR, ver):
-                    installed_versions.append(ver)
-                else:
-                    debug('no compiler found %s', ver)
-            else:
-                debug('return None for ver %s', ver)
-        except (MSVCUnsupportedTargetArch, MSVCUnsupportedHostArch):
-            # Allow this exception to propagate further as it should cause
-            # SCons to exit with an error code
-            raise
-        except VisualCException as e:
-            debug('did not find VC %s: caught exception %s', ver, str(e))
+    installed_msvc_versions = [
+        vc_version
+        for vc_version in msvc_version_map.keys()
+    ]
 
-    if force_target:
-        env['TARGET_ARCH'] = save_target_arch
-        debug("restore env['TARGET_ARCH']=%s", save_target_arch)
-
-    __INSTALLED_VCS_RUN = installed_versions
-    debug("__INSTALLED_VCS_RUN=%s", __INSTALLED_VCS_RUN)
-    return __INSTALLED_VCS_RUN
+    _cache_installed_msvc_versions = installed_msvc_versions
+    debug("installed_msvc_versions=%s", _cache_installed_msvc_versions)
+    return _cache_installed_msvc_versions
 
 def reset_installed_vcs() -> None:
     """Make it try again to find VC.  This is just for the tests."""
     _reset_installed_vcs()
-    _reset_vc_pdir()
-    _VSWhere.reset()
+    _reset_installed_queries()
+    _VSDetect.reset()
     MSVC._reset()
 
 def msvc_default_version(env=None):
@@ -1995,27 +2950,24 @@ def msvc_find_valid_batch_script(env, version):
     get it right.
     """
 
-    # Find the product directory
-    pdir = None
-    try:
-        pdir = find_vc_pdir(version, env)
-    except UnsupportedVersion:
-        # Unsupported msvc version (raise MSVCArgumentError?)
-        pass
-    debug('product directory: version=%s, pdir=%s', version, pdir)
+    msvc_instance, msvc_query_key = _find_msvc_instance(version, env)
 
-    # Find the host, target, and all candidate (host, target) platform combinations:
-    platforms = get_host_target(env, version)
-    debug("host_platform %s, target_platform %s host_target_list %s", *platforms)
-    host_platform, target_platform, host_target_list = platforms
+    debug(
+        'version=%s, query_key=%s, vc_dir=%s',
+        version,
+        repr(msvc_query_key.serialize()) if msvc_query_key else None,
+        msvc_instance.vc_dir if msvc_instance else None
+    )
 
     d = None
     version_installed = False
 
-    if pdir:
+    if msvc_instance:
 
-        # Query all candidate sdk (host, target, sdk_pdir) after vc_script pass if necessary
-        sdk_queries = []
+        # Find the host, target, and all candidate (host, target) platform combinations:
+        platforms = get_host_target(env, msvc_instance.msvc_version)
+        debug("host_platform %s, target_platform %s host_target_list %s", *platforms)
+        host_platform, target_platform, host_target_list = platforms
 
         for host_arch, target_arch, in host_target_list:
             # Set to current arch.
@@ -2024,7 +2976,7 @@ def msvc_find_valid_batch_script(env, version):
 
             # Try to locate a batch file for this host/target platform combo
             try:
-                (vc_script, arg, vc_dir, sdk_pdir) = find_batch_file(version, host_arch, target_arch, pdir)
+                vc_script, arg = find_batch_file(msvc_instance, host_arch, target_arch)
                 debug('vc_script:%s vc_script_arg:%s', vc_script, arg)
                 version_installed = True
             except VisualCException as e:
@@ -2033,25 +2985,18 @@ def msvc_find_valid_batch_script(env, version):
                 version_installed = False
                 continue
 
-            # Save (host, target, sdk_pdir) platform combo for sdk queries
-            if sdk_pdir:
-                sdk_query = (host_arch, target_arch, sdk_pdir)
-                if sdk_query not in sdk_queries:
-                    debug('save sdk_query host=%s, target=%s, sdk_pdir=%s', host_arch, target_arch, sdk_pdir)
-                    sdk_queries.append(sdk_query)
-
             if not vc_script:
                 continue
 
             if not target_platform and MSVC.ScriptArguments.msvc_script_arguments_has_uwp(env):
                 # no target arch specified and is a store/uwp build
-                if MSVC.Kind.msvc_version_skip_uwp_target(env, version):
+                if msvc_instance.skip_uwp_target(env):
                     # store/uwp may not be supported for all express targets (prevent constraint error)
                     debug('skip uwp target arch: version=%s, target=%s', repr(version), repr(target_arch))
                     continue
 
             # Try to use the located batch file for this host/target platform combo
-            arg = MSVC.ScriptArguments.msvc_script_arguments(env, version, vc_dir, arg)
+            arg = MSVC.ScriptArguments.msvc_script_arguments(env, msvc_instance, arg)
             debug('trying vc_script:%s, vc_script_args:%s', repr(vc_script), arg)
             try:
                 d = script_env(env, vc_script, args=arg)
@@ -2068,36 +3013,12 @@ def msvc_find_valid_batch_script(env, version):
             debug("Found a working script/target: %s/%s", repr(vc_script), arg)
             break # We've found a working target_platform, so stop looking
 
+        # If we cannot find a viable installed compiler, reset the TARGET_ARCH
+        # To it's initial value
         if not d:
-            for host_arch, target_arch, sdk_pdir in sdk_queries:
-                # Set to current arch.
-                env['TARGET_ARCH'] = target_arch
+            env['TARGET_ARCH'] = target_platform
 
-                sdk_script = find_batch_file_sdk(host_arch, target_arch, sdk_pdir)
-                if not sdk_script:
-                    continue
-
-                # Try to use the sdk batch file for this (host, target, sdk_pdir) combo
-                debug('trying sdk_script:%s', repr(sdk_script))
-                try:
-                    d = script_env(env, sdk_script)
-                    version_installed = True
-                except BatchFileExecutionError as e:
-                    debug('failed sdk_script:%s, error=%s', repr(sdk_script), e)
-                    continue
-
-                have_cl, _ = _check_cl_exists_in_script_env(d)
-                if not have_cl:
-                    debug('skip cl.exe not found sdk_script:%s', repr(sdk_script))
-                    continue
-
-                debug("Found a working script/target: %s", repr(sdk_script))
-                break # We've found a working script, so stop looking
-
-    # If we cannot find a viable installed compiler, reset the TARGET_ARCH
-    # To it's initial value
     if not d:
-        env['TARGET_ARCH'] = target_platform
 
         if version_installed:
             msg = "MSVC version '{}' working host/target script was not found.\n" \
@@ -2120,30 +3041,54 @@ def msvc_find_valid_batch_script(env, version):
 
     return d
 
-def get_use_script_use_settings(env):
+MSVCAction = namedtuple("MSVCAction", [
+    'action',
+])
 
-    #   use_script  use_settings   return values   action
-    #     value       ignored      (value, None)   use script or bypass detection
-    #   undefined  value not None  (False, value)  use dictionary
-    #   undefined  undefined/None  (True,  None)   msvc detection
+MSVC_ACTION_SCRIPT = MSVCAction(action='SCRIPT')
+MSVC_ACTION_SELECT = MSVCAction(action='SELECT')
+MSVC_ACTION_SETTINGS = MSVCAction(action='SETTINGS')
+MSVC_ACTION_BYPASS = MSVCAction(action='BYPASS')
 
-    # None (documentation) or evaluates False (code): bypass detection
-    # need to distinguish between undefined and None
+def _msvc_action(env):
+
+    #   use_script  use_settings   return    description
+    #   ---------- --------------  --------  ----------------
+    #     string      ignored      SCRIPT    use script
+    #   eval false    ignored      BYPASS    bypass detection
+    #   eval true     ignored      SELECT    msvc selection
+    #   undefined  value not None  SETTINGS  use dictionary
+    #   undefined  undefined/None  SELECT    msvc selection
+
+    msvc_action = None
+
     use_script = env.get('MSVC_USE_SCRIPT', UNDEFINED)
-
-    if use_script != UNDEFINED:
-        # use_script defined, use_settings ignored (not type checked)
-        return use_script, None
-
-    # undefined or None: use_settings ignored
     use_settings = env.get('MSVC_USE_SETTINGS', None)
 
-    if use_settings is not None:
+    if use_script != UNDEFINED:
+        # use script defined
+        if SCons.Util.is_String(use_script):
+            # use_script is string, use_settings ignored
+            msvc_action = MSVC_ACTION_SCRIPT
+        elif not use_script:
+            # use_script eval false, use_settings ignored
+            msvc_action = MSVC_ACTION_BYPASS
+        else:
+            # use script eval true, use_settings ignored
+            msvc_action = MSVC_ACTION_SELECT
+    elif use_settings is not None:
         # use script undefined, use_settings defined and not None (type checked)
-        return False, use_settings
+        msvc_action = MSVC_ACTION_SETTINGS
+    else:
+        # use script undefined, use_settings undefined or None
+        msvc_action = MSVC_ACTION_SELECT
 
-    # use script undefined, use_settings undefined or None
-    return True, None
+    if not msvc_action:
+        errmsg = 'msvc_action is undefined'
+        debug('MSVCInternalError: %s', errmsg)
+        raise MSVCInternalError(errmsg)
+
+    return msvc_action, use_script, use_settings
 
 def msvc_setup_env(env):
     debug('called')
@@ -2159,31 +3104,38 @@ def msvc_setup_env(env):
     env['MSVS_VERSION'] = version
     env['MSVS'] = {}
 
-    use_script, use_settings = get_use_script_use_settings(env)
-    if SCons.Util.is_String(use_script):
+    msvc_action, use_script, use_settings = _msvc_action(env)
+    if msvc_action == MSVC_ACTION_SCRIPT:
         use_script = use_script.strip()
         if not os.path.exists(use_script):
-            raise MSVCScriptNotFound(f'Script specified by MSVC_USE_SCRIPT not found: "{use_script}"')
+            error_msg = f'Script specified by MSVC_USE_SCRIPT not found: {use_script!r}'
+            debug(error_msg)
+            raise MSVCScriptNotFound(error_msg)
         args = env.subst('$MSVC_USE_SCRIPT_ARGS')
         debug('use_script 1 %s %s', repr(use_script), repr(args))
         d = script_env(env, use_script, args)
-    elif use_script:
-        d = msvc_find_valid_batch_script(env,version)
+    elif msvc_action == MSVC_ACTION_SELECT:
+        d = msvc_find_valid_batch_script(env, version)
         debug('use_script 2 %s', d)
         if not d:
             return d
-    elif use_settings is not None:
+    elif msvc_action == MSVC_ACTION_SETTINGS:
         if not SCons.Util.is_Dict(use_settings):
             error_msg = f'MSVC_USE_SETTINGS type error: expected a dictionary, found {type(use_settings).__name__}'
+            debug(error_msg)
             raise MSVCUseSettingsError(error_msg)
         d = use_settings
         debug('use_settings %s', d)
-    else:
+    elif msvc_action == MSVC_ACTION_BYPASS:
         debug('MSVC_USE_SCRIPT set to False')
-        warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment " \
-                   "set correctly."
+        warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment set correctly."
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return None
+    else:
+        action = msvc_action.action if msvc_action else None
+        errmsg = f'unhandled msvc_action ({action!r})'
+        debug('MSVCInternalError: %s', errmsg)
+        raise MSVCInternalError(errmsg)
 
     found_cl_path = None
     found_cl_envpath = None
@@ -2300,12 +3252,12 @@ def msvc_toolset_versions(msvc_version=None, full: bool=True, sxs: bool=False):
         msg = f'Unsupported msvc version {msvc_version!r}'
         raise MSVCArgumentError(msg)
 
-    vc_dir = find_vc_pdir(msvc_version)
-    if not vc_dir:
-        debug('VC folder not found for version %s', repr(msvc_version))
+    msvc_instance = find_msvc_instance(msvc_version)
+    if not msvc_instance:
+        debug('MSVC instance not found for version %s', repr(msvc_version))
         return rval
 
-    rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_version, vc_dir, full=full, sxs=sxs)
+    rval = MSVC.ScriptArguments._msvc_toolset_versions_internal(msvc_instance, full=full, sxs=sxs)
     return rval
 
 def msvc_toolset_versions_spectre(msvc_version=None):
@@ -2324,12 +3276,12 @@ def msvc_toolset_versions_spectre(msvc_version=None):
         msg = f'Unsupported msvc version {msvc_version!r}'
         raise MSVCArgumentError(msg)
 
-    vc_dir = find_vc_pdir(msvc_version)
-    if not vc_dir:
-        debug('VC folder not found for version %s', repr(msvc_version))
+    msvc_instance = find_msvc_instance(msvc_version)
+    if not msvc_instance:
+        debug('MSVC instance not found for version %s', repr(msvc_version))
         return rval
 
-    rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_version, vc_dir)
+    rval = MSVC.ScriptArguments._msvc_toolset_versions_spectre_internal(msvc_instance)
     return rval
 
 def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
@@ -2443,8 +3395,8 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
             continue
         seen_msvc_version.add(query_msvc_version)
 
-        vc_dir = find_vc_pdir(query_msvc_version)
-        if not vc_dir:
+        query_msvc_instance = find_msvc_instance(query_msvc_version)
+        if not query_msvc_instance:
             continue
 
         if query_msvc_version.startswith('14.0'):
@@ -2457,7 +3409,7 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
             return query_msvc_version, msvc_toolset_version
 
         try:
-            toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_version, query_msvc_toolset_version, vc_dir)
+            toolset_vcvars = MSVC.ScriptArguments._msvc_toolset_internal(query_msvc_instance, query_msvc_toolset_version)
             if toolset_vcvars:
                 msvc_toolset_version = toolset_vcvars
                 debug(

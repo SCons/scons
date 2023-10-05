@@ -35,7 +35,7 @@ test = TestSCons.TestSCons()
 if sys.platform != 'win32':
     test.skip_test("Not win32 platform. Skipping test\n")
 
-# test find_vc_pdir_vswhere by removing all other VS's reg keys
+# test msvc selection by removing all other VS's reg keys
 test.file_fixture('no_msvc/no_regs_sconstruct.py', 'SConstruct')
 test.run(arguments='-Q -s', stdout='')
 

@@ -83,7 +83,7 @@ def _sdk_10_layout(version):
             if not version_nbr.startswith(folder_prefix):
                 continue
 
-            sdk_inc_path = Util.process_path(os.path.join(version_nbr_path, 'um'))
+            sdk_inc_path = Util.normalize_path(os.path.join(version_nbr_path, 'um'))
             if not os.path.exists(sdk_inc_path):
                 continue
 
@@ -127,7 +127,7 @@ def _sdk_81_layout(version):
 
         # msvc does not check for existence of root or other files
 
-        sdk_inc_path = Util.process_path(os.path.join(sdk_root, r'include\um'))
+        sdk_inc_path = Util.normalize_path(os.path.join(sdk_root, r'include\um'))
         if not os.path.exists(sdk_inc_path):
             continue
 
@@ -224,8 +224,8 @@ def get_msvc_platform(is_uwp: bool=False):
     platform_def = _UWP if is_uwp else _DESKTOP
     return platform_def
 
-def get_sdk_version_list(vs_def, platform_def):
-    version_list = vs_def.vc_sdk_versions if vs_def.vc_sdk_versions is not None else []
+def get_sdk_version_list(vs_product_def, platform_def):
+    version_list = vs_product_def.vc_sdk_versions if vs_product_def.vc_sdk_versions is not None else []
     sdk_map = _sdk_map(version_list)
     sdk_list = sdk_map.get(platform_def.vc_platform, [])
     return sdk_list
@@ -240,14 +240,14 @@ def get_msvc_sdk_version_list(msvc_version, msvc_uwp_app: bool=False):
         debug('msvc_version is not defined')
         return sdk_versions
 
-    vs_def = Config.MSVC_VERSION_EXTERNAL.get(verstr, None)
-    if not vs_def:
-        debug('vs_def is not defined')
+    vs_product_def = Config.MSVC_VERSION_EXTERNAL.get(verstr, None)
+    if not vs_product_def:
+        debug('vs_product_def is not defined')
         return sdk_versions
 
     is_uwp = True if msvc_uwp_app in Config.BOOLEAN_SYMBOLS[True] else False
     platform_def = get_msvc_platform(is_uwp)
-    sdk_list = get_sdk_version_list(vs_def, platform_def)
+    sdk_list = get_sdk_version_list(vs_product_def, platform_def)
 
     sdk_versions.extend(sdk_list)
     debug('sdk_versions=%s', repr(sdk_versions))

@@ -30,13 +30,16 @@ Test the MSVC_SCRIPTERROR_POLICY construction variable and functions.
 import TestSCons
 import textwrap
 
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon.vc import get_installed_msvc_instances
 
 test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
-installed_versions = get_installed_vcs_components()
-default_version = installed_versions[0]
+installed_instances = get_installed_msvc_instances()
+if not installed_instances:
+    test.skip_test("No MSVC instances, skipping.")
+
+default_instance = installed_instances[0]
 
 # Test construction variable with valid symbols
 test.write('SConstruct', textwrap.dedent(
@@ -51,7 +54,7 @@ test.write('SConstruct', textwrap.dedent(
 ))
 test.run(arguments='-Q -s', stdout='')
 
-if default_version.msvc_vernum >= 14.1:
+if default_instance.vs_product_numeric >= 2017:
     # Need VS2017 or later for MSVC_SCRIPT_ARGS
 
     # Test environment construction with construction variable (invalid)

@@ -52,27 +52,91 @@ class VswhereTestCase(unittest.TestCase):
         with open(path, 'w') as f:
             f.write("Created:%s" % f)
 
+    _existing_path = None
+
+    @classmethod
+    def _path_exists(cls, path):
+        return (path == cls._existing_path)
+
     def testDefaults(self) -> None:
         """
         Verify that msvc_find_vswhere() find's files in the specified paths
         """
-        # import pdb; pdb.set_trace()
-        vswhere_dirs = [os.path.splitdrive(p)[1] for p in SCons.Tool.MSCommon.vc.VSWHERE_PATHS]
-        base_dir = test.workpath('fake_vswhere')
-        test_vswhere_dirs = [os.path.join(base_dir,d[1:]) for d in vswhere_dirs]
 
-        SCons.Tool.MSCommon.vc.VSWHERE_PATHS = test_vswhere_dirs
-        for vsw in test_vswhere_dirs:
-            VswhereTestCase._createVSWhere(vsw)
-            find_path = SCons.Tool.MSCommon.vc.msvc_find_vswhere()
-            self.assertTrue(vsw == find_path, "Didn't find vswhere in %s found in %s" % (vsw, find_path))
-            os.remove(vsw)
+        restore_vswhere_execs_exist = MSCommon.vc.VSWHERE_EXECS_EXIST[:]
+
+        base_dir = test.workpath('fake_vswhere')
+        norm_dir = os.path.normcase(os.path.normpath(base_dir))
+        # import pdb; pdb.set_trace()
+
+        test_vswhere_dirs = [
+            MSCommon.vc.VSWhereExecutable(
+                path=os.path.join(base_dir,t[0][1:]),
+                norm=os.path.join(norm_dir,t[1][1:]),
+            )
+            for t in [
+                (os.path.splitdrive(vswexec.path)[1], os.path.splitdrive(vswexec.norm)[1])
+                for vswexec in MSCommon.vc.VSWHERE_EXECS_EXIST
+            ]
+        ]
+
+        for vswexec in test_vswhere_dirs:
+            VswhereTestCase._createVSWhere(vswexec.path)
+            MSCommon.vc.VSWHERE_EXECS_EXIST = [vswexec]
+            find_path = MSCommon.vc.msvc_find_vswhere()
+            self.assertTrue(vswexec.path == find_path, "Didn't find vswhere in %s found in %s" % (vswexec.path, find_path))
+            os.remove(vswexec.path)
+
+        test_vswhere_dirs = [
+            os.path.join(base_dir,d[1:])
+            for d in [
+                os.path.splitdrive(p)[1]
+                for p in MSCommon.vc.VSWHERE_PATHS
+            ]
+        ]
+        MSCommon.vc.path_exists = VswhereTestCase._path_exists
+
+        for vswpath in test_vswhere_dirs:
+            VswhereTestCase._createVSWhere(vswpath)
+            VswhereTestCase._existing_path = vswpath
+            for front in (True, False):
+                MSCommon.vc.VSWHERE_EXECS_EXIST = []
+                MSCommon.vc.vswhere_push_location(vswpath, front=front)
+                find_path = MSCommon.vc.msvc_find_vswhere()
+                self.assertTrue(vswpath == find_path, "Didn't find vswhere in %s found in %s" % (vswpath, find_path))
+            os.remove(vswpath)
+
+        MSCommon.vc.VSWHERE_EXECS_EXIST = restore_vswhere_execs_exist
 
     # def specifiedVswherePathTest(self):
     #     "Verify that msvc.generate() respects VSWHERE Specified"
 
 
 class MSVcTestCase(unittest.TestCase):
+
+    @staticmethod
+    def _createDummyMSVSBase(vc_version, vs_component, vs_dir):
+        vs_product_def = SCons.Tool.MSCommon.MSVC.Config.MSVC_VERSION_INTERNAL[vc_version]
+        vs_component_key = (vs_product_def.vs_lookup, vs_component)
+        msvs_base = SCons.Tool.MSCommon.vc.MSVSBase.factory(
+            vs_product_def=vs_product_def,
+            vs_channel_def=SCons.Tool.MSCommon.MSVC.Config.MSVS_CHANNEL_RELEASE,
+            vs_component_def=SCons.Tool.MSCommon.MSVC.Config.MSVS_COMPONENT_INTERNAL[vs_component_key],
+            vs_sequence_nbr=1,
+            vs_dir=vs_dir,
+            vs_version=vs_product_def.vs_version,
+        )
+        return msvs_base
+
+    @classmethod
+    def _createDummyMSVCInstance(cls, vc_version, vs_component, vc_dir):
+        msvc_instance = SCons.Tool.MSCommon.vc.MSVCInstance.factory(
+            msvs_base=cls._createDummyMSVSBase(vc_version, vs_component, vc_dir),
+            vc_version_def=SCons.Tool.MSCommon.MSVC.Util.msvc_version_components(vc_version),
+            vc_feature_map=None,
+            vc_dir=vc_dir,
+        )
+        return msvc_instance
 
     @staticmethod
     def _createDummyFile(path, filename, add_bin: bool=True) -> None:
@@ -105,10 +169,10 @@ class MSVcTestCase(unittest.TestCase):
         """
         Check that all proper HOST_PLATFORM and TARGET_PLATFORM are handled.
         Verify that improper HOST_PLATFORM and/or TARGET_PLATFORM are properly handled.
-        by SCons.Tool.MSCommon.vc._check_files_exist_in_vc_dir()
+        by SCons.Tool.MSCommon.vc._msvc_instance_check_files_exist()
         """
 
-        check = SCons.Tool.MSCommon.vc._check_files_exist_in_vc_dir
+        check = SCons.Tool.MSCommon.vc._msvc_instance_check_files_exist
 
         # Setup for 14.1 (VS2017) and later tests
 
@@ -124,77 +188,80 @@ class MSVcTestCase(unittest.TestCase):
             print("Failed trying to write :%s :%s" % (tools_version_file, e))
 
         # Test 14.3 (VS2022) and later
+        msvc_instance_VS2022 = MSVcTestCase._createDummyMSVCInstance('14.3', 'Community', '.')
         vc_ge2022_list = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_CFG.all_pairs
         for host, target in vc_ge2022_list:
             batfile, clpathcomps = SCons.Tool.MSCommon.vc._GE2022_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("GE 14.3 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
-            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.', "Auxiliary", "Build", batfile)
             MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
             path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
             MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
-            result=check(env, '.', '14.3')
+            result=check(msvc_instance_VS2022)
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 14.2 (VS2019) to 14.1 (VS2017) versions
+        msvc_instance_VS2017 = MSVcTestCase._createDummyMSVCInstance('14.1', 'Community', '.')
         vc_le2019_list = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_CFG.all_pairs
         for host, target in vc_le2019_list:
             batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2019_HOST_TARGET_BATCHFILE_CLPATHCOMPS[(host,target)]
             # print("LE 14.2 Got: (%s, %s) -> (%s, %s)"%(host,target,batfile,clpathcomps))
 
-            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.', 'Tools', 'MSVC', MS_TOOLS_VERSION, *clpathcomps)
             MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
-            result=check(env, '.', '14.1')
+            result=check(msvc_instance_VS2017)
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 14.0 (VS2015) to 10.0 (VS2010) versions
+        msvc_instance_VS2010 = MSVcTestCase._createDummyMSVCInstance('10.0', 'Develop', '.')
         vc_le2015_list = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_CFG.all_pairs
         for host, target in vc_le2015_list:
             batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2015_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
             # print("LE 14.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
-            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
             path = os.path.join('.', *clpathcomps)
             MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
             MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
-            result=check(env, '.', '10.0')
+            result=check(msvc_instance_VS2010)
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 9.0 (VC2008) to 8.0 (VS2005)
+        msvc_instance_VS2005 = MSVcTestCase._createDummyMSVCInstance('8.0', 'Develop', '.')
         vc_le2008_list = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_CFG.all_pairs
         for host, target in vc_le2008_list:
             batarg, batfile, clpathcomps = SCons.Tool.MSCommon.vc._LE2008_HOST_TARGET_BATCHARG_BATCHFILE_CLPATHCOMPS[(host, target)]
             # print("LE 9.0 Got: (%s, %s) -> (%s, %s, %s)"%(host,target,batarg,batfile,clpathcomps))
-            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             MSVcTestCase._createDummyFile('.', 'vcvarsall.bat', add_bin=False)
             path = os.path.join('.', *clpathcomps)
             MSVcTestCase._createDummyFile(path, batfile, add_bin=False)
             MSVcTestCase._createDummyFile(path, 'cl.exe', add_bin=False)
             # check will fail if '9.0' and VCForPython (layout different)
-            result=check(env, '.', '8.0')
+            result=check(msvc_instance_VS2005)
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
 
         # Test 7.1 (VS2003) and earlier
+        msvc_instance_VS6 = MSVcTestCase._createDummyMSVCInstance('6.0', 'Develop', '.')
         vc_le2003_list = SCons.Tool.MSCommon.vc._LE2003_HOST_TARGET_CFG.all_pairs
         for host, target in vc_le2003_list:
             # print("LE 7.1 Got: (%s, %s)"%(host,target))
-            env={'TARGET_ARCH':target, 'HOST_ARCH':host}
             path = os.path.join('.')
             MSVcTestCase._createDummyFile(path, 'cl.exe')
-            result=check(env, '.', '6.0')
+            result=check(msvc_instance_VS6)
             # print("for:(%s, %s) got :%s"%(host, target, result))
             self.assertTrue(result, "Checking host: %s target: %s" % (host, target))
+
+        check = SCons.Tool.MSCommon.vc.get_host_target
 
         # Now test bogus value for HOST_ARCH
         env={'TARGET_ARCH':'x86', 'HOST_ARCH':'GARBAGE'}
         try:
-            result=check(env, '.', '14.3')
+            check(env, msvc_instance_VS2022.vc_version_def.msvc_version)
+            result = True
             # print("for:%s got :%s"%(env, result))
             self.assertFalse(result, "Did not fail with bogus HOST_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedHostArch:
@@ -205,7 +272,8 @@ class MSVcTestCase(unittest.TestCase):
         # Now test bogus value for TARGET_ARCH
         env={'TARGET_ARCH':'GARBAGE', 'HOST_ARCH':'x86'}
         try:
-            result=check(env, '.', '14.3')
+            check(env, msvc_instance_VS2022.vc_version_def.msvc_version)
+            result = True
             # print("for:%s got :%s"%(env, result))
             self.assertFalse(result, "Did not fail with bogus TARGET_ARCH host: %s target: %s" % (env['HOST_ARCH'], env['TARGET_ARCH']))
         except MSVCUnsupportedTargetArch:

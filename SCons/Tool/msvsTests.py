@@ -579,9 +579,9 @@ def DummyQueryValue(key, value):
 def DummyExists(path) -> bool:
     return True
 
-def DummyVsWhere(msvc_version, env):
-    # not testing versions with vswhere, so return none
-    return None
+def DummyVsWhereExecutables(env=None):
+    # not testing versions with vswhere, so return empty list
+    return []
 
 class msvsTestCase(unittest.TestCase):
     """This test case is run several times with different defaults.
@@ -947,7 +947,7 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
-    SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
+    SCons.Tool.MSCommon.vc._find_vswhere_executables = DummyVsWhereExecutables
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)

@@ -38,6 +38,10 @@ from .Exceptions import (
 from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
+# MSVC 9.0 preferred query order:
+#     True:  VCForPython, VisualStudio
+#     False: VisualStudio, VCForPython
+_VC90_Prefer_VCForPython = True
 
 UNDEFINED = object()
 
@@ -86,13 +90,14 @@ MSVC_RUNTIME_DEFINITION = namedtuple('MSVCRuntime', [
     'vc_runtime',
     'vc_runtime_numeric',
     'vc_runtime_alias_list',
-    'vc_runtime_vsdef_list',
 ])
 
 MSVC_RUNTIME_DEFINITION_LIST = []
 
 MSVC_RUNTIME_INTERNAL = {}
 MSVC_RUNTIME_EXTERNAL = {}
+
+MSVC_RUNTIME_VSPRODUCTDEF_LIST_MAP = {}
 
 for vc_runtime, vc_runtime_numeric, vc_runtime_alias_list in [
     ('140', 140, ['ucrt']),
@@ -108,8 +113,7 @@ for vc_runtime, vc_runtime_numeric, vc_runtime_alias_list in [
     vc_runtime_def = MSVC_RUNTIME_DEFINITION(
         vc_runtime = vc_runtime,
         vc_runtime_numeric = vc_runtime_numeric,
-        vc_runtime_alias_list = vc_runtime_alias_list,
-        vc_runtime_vsdef_list = [],
+        vc_runtime_alias_list = tuple(vc_runtime_alias_list),
     )
 
     MSVC_RUNTIME_DEFINITION_LIST.append(vc_runtime_def)
@@ -120,7 +124,9 @@ for vc_runtime, vc_runtime_numeric, vc_runtime_alias_list in [
     for vc_runtime_alias in vc_runtime_alias_list:
         MSVC_RUNTIME_EXTERNAL[vc_runtime_alias] = vc_runtime_def
 
-MSVC_BUILDTOOLS_DEFINITION = namedtuple('MSVCBuildtools', [
+    MSVC_RUNTIME_VSPRODUCTDEF_LIST_MAP[vc_runtime_def] = []
+
+MSVC_BUILDTOOLS_DEFINITION = namedtuple('MSVCBuildTools', [
     'vc_buildtools',
     'vc_buildtools_numeric',
     'vc_version',
@@ -187,8 +193,17 @@ CL_VERSION_MAP = {}
 
 MSVC_SDK_VERSIONS = set()
 
-VISUALSTUDIO_DEFINITION = namedtuple('VisualStudioDefinition', [
+# vswhere:
+#    map vs major version to vc version (no suffix)
+#    build set of supported vc versions (including suffix)
+VSWHERE_VSMAJOR_TO_VCVERSION = {}
+VSWHERE_SUPPORTED_VCVER = set()
+
+REGISTRY_SUPPORTED_VCVER = set()
+
+MSVS_PRODUCT_DEFINITION = namedtuple('MSVSProductDefinition', [
     'vs_product',
+    'vs_product_numeric',
     'vs_product_alias_list',
     'vs_version',
     'vs_version_major',
@@ -202,14 +217,14 @@ VISUALSTUDIO_DEFINITION = namedtuple('VisualStudioDefinition', [
     'vc_buildtools_all',
 ])
 
-VISUALSTUDIO_DEFINITION_LIST = []
+MSVS_PRODUCT_DEFINITION_LIST = []
 
 VS_PRODUCT_ALIAS = {
     '1998': ['6']
 }
 
 # vs_envvar: VisualStudioVersion defined in environment for MSVS 2012 and later
-#            MSVS 2010 and earlier cl_version -> vs_def is a 1:1 mapping
+#            MSVS 2010 and earlier cl_version -> vs_product_def is a 1:1 mapping
 # SDK attached to product or buildtools?
 for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, vc_uwp, vc_buildtools_all in [
     ('2022', '17.0', True,  False, 'vswhere' , ['10.0', '8.1'], ['10'],   'uwp', ['v143', 'v142', 'v141', 'v140']),
@@ -226,56 +241,79 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
     ('1998',  '6.0', False, False, 'registry',            None,   None,    None, ['v60']),
 ]:
 
+    vs_product_numeric = int(vs_product)
+
     vs_version_major = vs_version.split('.')[0]
 
     vc_buildtools_def = MSVC_BUILDTOOLS_INTERNAL[vc_buildtools_all[0]]
 
-    vs_def = VISUALSTUDIO_DEFINITION(
+    if vs_product not in VS_PRODUCT_ALIAS:
+        vs_product_alias_list = []
+    else:
+        vs_product_alias_list = [
+            vs_product_alias
+            for vs_product_alias in VS_PRODUCT_ALIAS[vs_product]
+            if vs_product_alias
+        ]
+
+    vs_product_def = MSVS_PRODUCT_DEFINITION(
         vs_product = vs_product,
-        vs_product_alias_list = [],
+        vs_product_numeric = vs_product_numeric,
+        vs_product_alias_list = tuple(vs_product_alias_list),
         vs_version = vs_version,
         vs_version_major = vs_version_major,
         vs_envvar = vs_envvar,
         vs_express = vs_express,
         vs_lookup = vs_lookup,
-        vc_sdk_versions = vc_sdk,
-        vc_ucrt_versions = vc_ucrt,
+        vc_sdk_versions = tuple(vc_sdk) if vc_sdk else vc_sdk,
+        vc_ucrt_versions = tuple(vc_ucrt) if vc_ucrt else vc_ucrt,
         vc_uwp = vc_uwp,
         vc_buildtools_def = vc_buildtools_def,
-        vc_buildtools_all = vc_buildtools_all,
+        vc_buildtools_all = tuple(vc_buildtools_all),
     )
 
-    VISUALSTUDIO_DEFINITION_LIST.append(vs_def)
+    MSVS_PRODUCT_DEFINITION_LIST.append(vs_product_def)
 
-    vc_buildtools_def.vc_runtime_def.vc_runtime_vsdef_list.append(vs_def)
+    MSVC_RUNTIME_VSPRODUCTDEF_LIST_MAP[vc_buildtools_def.vc_runtime_def].append(vs_product_def)
 
     vc_version = vc_buildtools_def.vc_version
 
-    MSVS_VERSION_INTERNAL[vs_product] = vs_def
-    MSVS_VERSION_EXTERNAL[vs_product] = vs_def
-    MSVS_VERSION_EXTERNAL[vs_version] = vs_def
+    MSVS_VERSION_INTERNAL[vs_product] = vs_product_def
+    MSVS_VERSION_EXTERNAL[vs_product] = vs_product_def
+    MSVS_VERSION_EXTERNAL[vs_version] = vs_product_def
 
-    MSVC_VERSION_INTERNAL[vc_version] = vs_def
-    MSVC_VERSION_EXTERNAL[vs_product] = vs_def
-    MSVC_VERSION_EXTERNAL[vc_version] = vs_def
-    MSVC_VERSION_EXTERNAL[vc_buildtools_def.vc_buildtools] = vs_def
+    MSVC_VERSION_INTERNAL[vc_version] = vs_product_def
+    MSVC_VERSION_EXTERNAL[vs_product] = vs_product_def
+    MSVC_VERSION_EXTERNAL[vc_version] = vs_product_def
+    MSVC_VERSION_EXTERNAL[vc_buildtools_def.vc_buildtools] = vs_product_def
 
-    if vs_product in VS_PRODUCT_ALIAS:
-        for vs_product_alias in VS_PRODUCT_ALIAS[vs_product]:
-            vs_def.vs_product_alias_list.append(vs_product_alias)
-            MSVS_VERSION_EXTERNAL[vs_product_alias] = vs_def
-            MSVC_VERSION_EXTERNAL[vs_product_alias] = vs_def
+    for vs_product_alias in vs_product_alias_list:
+        MSVS_VERSION_EXTERNAL[vs_product_alias] = vs_product_def
+        MSVC_VERSION_EXTERNAL[vs_product_alias] = vs_product_def
 
-    MSVC_VERSION_SUFFIX[vc_version] = vs_def
+    MSVC_VERSION_SUFFIX[vc_version] = vs_product_def
     if vs_express:
-        MSVC_VERSION_SUFFIX[vc_version + 'Exp'] = vs_def
+        MSVC_VERSION_SUFFIX[vc_version + 'Exp'] = vs_product_def
 
-    MSVS_VERSION_MAJOR_MAP[vs_version_major] = vs_def
+    MSVS_VERSION_MAJOR_MAP[vs_version_major] = vs_product_def
 
-    CL_VERSION_MAP[vc_buildtools_def.cl_version] = vs_def
+    CL_VERSION_MAP[vc_buildtools_def.cl_version] = vs_product_def
 
     if vc_sdk:
         MSVC_SDK_VERSIONS.update(vc_sdk)
+
+    if vs_lookup == 'vswhere':
+        VSWHERE_VSMAJOR_TO_VCVERSION[vs_version_major] = vc_version
+        VSWHERE_SUPPORTED_VCVER.add(vc_version)
+        if vs_express:
+            VSWHERE_SUPPORTED_VCVER.add(vc_version + 'Exp')
+    elif vs_lookup == 'registry':
+        REGISTRY_SUPPORTED_VCVER.add(vc_version)
+        if vs_express:
+            REGISTRY_SUPPORTED_VCVER.add(vc_version + 'Exp')
+
+MSVS_VERSION_SYMBOLS = list(MSVC_VERSION_EXTERNAL.keys())
+MSVC_VERSIONS = list(MSVC_VERSION_SUFFIX.keys())
 
 # EXPERIMENTAL: msvc version/toolset search lists
 #
@@ -291,32 +329,223 @@ MSVC_VERSION_TOOLSET_DEFAULTS_MAP = {}
 MSVC_VERSION_TOOLSET_SEARCH_MAP = {}
 
 # Pass 1: Build defaults lists and setup express versions
-for vs_def in VISUALSTUDIO_DEFINITION_LIST:
-    if not vs_def.vc_buildtools_def.vc_istoolset:
+for vs_product_def in MSVS_PRODUCT_DEFINITION_LIST:
+    if not vs_product_def.vc_buildtools_def.vc_istoolset:
         continue
-    version_key = vs_def.vc_buildtools_def.vc_version
+    version_key = vs_product_def.vc_buildtools_def.vc_version
     MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key] = [version_key]
     MSVC_VERSION_TOOLSET_SEARCH_MAP[version_key] = []
-    if vs_def.vs_express:
+    if vs_product_def.vs_express:
         express_key = version_key + 'Exp'
         MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key].append(express_key)
         MSVC_VERSION_TOOLSET_DEFAULTS_MAP[express_key] = [express_key]
         MSVC_VERSION_TOOLSET_SEARCH_MAP[express_key] = [express_key]
 
 # Pass 2: Extend search lists (decreasing version order)
-for vs_def in VISUALSTUDIO_DEFINITION_LIST:
-    if not vs_def.vc_buildtools_def.vc_istoolset:
+for vs_product_def in MSVS_PRODUCT_DEFINITION_LIST:
+    if not vs_product_def.vc_buildtools_def.vc_istoolset:
         continue
-    version_key = vs_def.vc_buildtools_def.vc_version
-    for vc_buildtools in vs_def.vc_buildtools_all:
+    version_key = vs_product_def.vc_buildtools_def.vc_version
+    for vc_buildtools in vs_product_def.vc_buildtools_all:
         toolset_buildtools_def = MSVC_BUILDTOOLS_INTERNAL[vc_buildtools]
-        toolset_vs_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.vc_version]
+        toolset_vs_product_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.vc_version]
         buildtools_key = toolset_buildtools_def.vc_version
         MSVC_VERSION_TOOLSET_SEARCH_MAP[buildtools_key].extend(MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key])
 
 # convert string version set to string version list ranked in descending order
 MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS], reverse=True)]
 
+# MSVS Channel: Release, Preview, Any
+
+MSVS_CHANNEL_DEFINITION = namedtuple('MSVSChannel', [
+    'vs_channel_id',
+    'vs_channel_rank',
+    'vs_channel_suffix',
+    'vs_channel_symbols',
+])
+
+MSVS_CHANNEL_DEFINITION_LIST = []
+
+MSVS_CHANNEL_INTERNAL = {}
+MSVS_CHANNEL_EXTERNAL = {}
+MSVS_CHANNEL_SYMBOLS = []
+
+for vs_channel_rank, vs_channel_suffix, vs_channel_symbols in (
+    (1, 'Rel', ['Release']),
+    (2, 'Pre', ['Preview']),
+    (3, 'Any', ['Any', '*'])
+):
+
+    vs_channel_id = vs_channel_symbols[0]
+
+    if vs_channel_suffix not in vs_channel_symbols:
+        vs_channel_symbols = vs_channel_symbols + [vs_channel_suffix]
+
+    vs_channel_def = MSVS_CHANNEL_DEFINITION(
+        vs_channel_id=vs_channel_id,
+        vs_channel_rank=vs_channel_rank,
+        vs_channel_suffix=vs_channel_suffix,
+        vs_channel_symbols=tuple(vs_channel_symbols),
+    )
+
+    MSVS_CHANNEL_DEFINITION_LIST.append(vs_channel_def)
+
+    MSVS_CHANNEL_INTERNAL[vs_channel_id] = vs_channel_def
+    MSVS_CHANNEL_INTERNAL[vs_channel_rank] = vs_channel_def
+    MSVS_CHANNEL_INTERNAL[vs_channel_suffix] = vs_channel_def
+
+    for symbol in vs_channel_symbols:
+        MSVS_CHANNEL_SYMBOLS.append(symbol)
+        MSVS_CHANNEL_EXTERNAL[symbol] = vs_channel_def
+        MSVS_CHANNEL_EXTERNAL[symbol.upper()] = vs_channel_def
+        MSVS_CHANNEL_EXTERNAL[symbol.lower()] = vs_channel_def
+
+MSVS_CHANNEL_RELEASE = MSVS_CHANNEL_INTERNAL['Release']
+MSVS_CHANNEL_PREVIEW = MSVS_CHANNEL_INTERNAL['Preview']
+MSVS_CHANNEL_ANY = MSVS_CHANNEL_INTERNAL['Any']
+
+MSVS_CHANNEL_MEMBERLISTS = {
+    MSVS_CHANNEL_RELEASE: [MSVS_CHANNEL_RELEASE, MSVS_CHANNEL_ANY],
+    MSVS_CHANNEL_PREVIEW: [MSVS_CHANNEL_PREVIEW, MSVS_CHANNEL_ANY],
+}
+
+# VS Component Id
+
+MSVS_COMPONENTID_DEFINITION = namedtuple('MSVSComponentId', [
+    'vs_component_id',
+    'vs_component_suffix',
+    'vs_component_isexpress',
+    'vs_component_symbols',
+])
+
+MSVS_COMPONENTID_DEFINITION_LIST = []
+
+MSVS_COMPONENTID_INTERNAL = {}
+MSVS_COMPONENTID_EXTERNAL = {}
+MSVS_COMPONENTID_SYMBOLS = []
+
+for vs_component_isexpress, vs_component_suffix, vs_component_symbols in (
+    (False, 'Ent', ['Enterprise']),
+    (False, 'Pro', ['Professional']),
+    (False, 'Com', ['Community']),
+    (False, 'Dev', ['Develop']),
+    (False, 'Py', ['Python', 'VCForPython']),
+    (False, 'Cmd', ['CmdLine', 'CommandLine']),
+    (False, 'BT', ['BuildTools']),
+    (True, 'Exp', ['Express', 'WDExpress']),
+):
+
+    vs_component_id = vs_component_symbols[0]
+
+    if vs_component_suffix not in vs_component_symbols:
+        vs_component_symbols = vs_component_symbols + [vs_component_suffix]
+
+    vs_componentid_def = MSVS_COMPONENTID_DEFINITION(
+        vs_component_id=vs_component_id,
+        vs_component_suffix=vs_component_suffix,
+        vs_component_isexpress=vs_component_isexpress,
+        vs_component_symbols=tuple(vs_component_symbols),
+    )
+
+    MSVS_COMPONENTID_DEFINITION_LIST.append(vs_componentid_def)
+
+    MSVS_COMPONENTID_INTERNAL[vs_component_id] = vs_componentid_def
+    MSVS_COMPONENTID_EXTERNAL[vs_component_id] = vs_componentid_def
+
+    for symbol in vs_component_symbols:
+        MSVS_COMPONENTID_EXTERNAL[symbol] = vs_componentid_def
+        MSVS_COMPONENTID_SYMBOLS.append(symbol)
+
+MSVS_COMPONENTID_ENTERPRISE = MSVS_COMPONENTID_INTERNAL['Enterprise']
+MSVS_COMPONENTID_PROFESSIONAL = MSVS_COMPONENTID_INTERNAL['Professional']
+MSVS_COMPONENTID_COMMUNITY = MSVS_COMPONENTID_INTERNAL['Community']
+MSVS_COMPONENTID_DEVELOP = MSVS_COMPONENTID_INTERNAL['Develop']
+MSVS_COMPONENTID_PYTHON = MSVS_COMPONENTID_INTERNAL['Python']
+MSVS_COMPONENTID_CMDLINE = MSVS_COMPONENTID_INTERNAL['CmdLine']
+MSVS_COMPONENTID_BUILDTOOLS = MSVS_COMPONENTID_INTERNAL['BuildTools']
+MSVS_COMPONENTID_EXPRESS = MSVS_COMPONENTID_INTERNAL['Express']
+
+# VS Component Id
+
+MSVS_COMPONENT_DEFINITION = namedtuple('MSVSComponent', [
+    'vs_componentid_def',
+    'vs_lookup',
+    'vs_component_rank',
+])
+
+MSVS_COMPONENT_DEFINITION_LIST = []
+
+MSVS_COMPONENT_INTERNAL = {}
+
+VSWHERE_COMPONENT_INTERNAL = {}
+VSWHERE_COMPONENT_SYMBOLS = []
+
+REGISTRY_COMPONENT_INTERNAL = {}
+REGISTRY_COMPONENT_SYMBOLS = []
+
+if _VC90_Prefer_VCForPython:
+    _REG_VPY = 140
+    _REG_DEV = 130
+else:
+    _REG_VPY = 130
+    _REG_DEV = 140
+
+for vs_lookup, vs_component_rank, vs_componentid in (
+
+    ('vswhere', 240, 'Enterprise'),
+    ('vswhere', 230, 'Professional'),
+    ('vswhere', 220, 'Community'),
+    ('vswhere', 210, 'BuildTools'),
+    ('vswhere', 200, 'Express'),
+
+    ('registry', 170, 'Enterprise'),
+    ('registry', 160, 'Professional'),
+    ('registry', 150, 'Community'),
+    ('registry', _REG_DEV, 'Develop'),
+    ('registry', _REG_VPY, 'Python'),
+    ('registry', 120, 'CmdLine'),
+    ('registry', 110, 'BuildTools'),
+    ('registry', 100, 'Express'),
+
+):
+
+    vs_componentid_def = MSVS_COMPONENTID_INTERNAL[vs_componentid]
+
+    vs_component_def = MSVS_COMPONENT_DEFINITION(
+        vs_componentid_def=vs_componentid_def,
+        vs_lookup=vs_lookup,
+        vs_component_rank=vs_component_rank,
+    )
+
+    MSVS_COMPONENT_DEFINITION_LIST.append(vs_component_def)
+
+    if vs_lookup == 'vswhere':
+        for symbol in vs_componentid_def.vs_component_symbols:
+            MSVS_COMPONENT_INTERNAL[(vs_lookup, symbol)] = vs_component_def
+            VSWHERE_COMPONENT_INTERNAL[symbol] = vs_component_def
+            VSWHERE_COMPONENT_SYMBOLS.append(symbol)
+    elif vs_lookup == 'registry':
+        for symbol in vs_componentid_def.vs_component_symbols:
+            MSVS_COMPONENT_INTERNAL[(vs_lookup, symbol)] = vs_component_def
+            REGISTRY_COMPONENT_INTERNAL[symbol] = vs_component_def
+            REGISTRY_COMPONENT_SYMBOLS.append(symbol)
+
+VSWHERE_COMPONENT_ENTERPRISE = VSWHERE_COMPONENT_INTERNAL['Ent']
+VSWHERE_COMPONENT_PROFESSIONAL = VSWHERE_COMPONENT_INTERNAL['Pro']
+VSWHERE_COMPONENT_COMMUNITY = VSWHERE_COMPONENT_INTERNAL['Com']
+VSWHERE_COMPONENT_BUILDTOOLS = VSWHERE_COMPONENT_INTERNAL['BT']
+VSWHERE_COMPONENT_EXPRESS = VSWHERE_COMPONENT_INTERNAL['Exp']
+
+REGISTRY_COMPONENT_ENTERPRISE = REGISTRY_COMPONENT_INTERNAL['Ent']
+REGISTRY_COMPONENT_PROFESSIONAL = REGISTRY_COMPONENT_INTERNAL['Pro']
+REGISTRY_COMPONENT_COMMUNITY = REGISTRY_COMPONENT_INTERNAL['Com']
+REGISTRY_COMPONENT_DEVELOP = REGISTRY_COMPONENT_INTERNAL['Dev']
+REGISTRY_COMPONENT_PYTHON = REGISTRY_COMPONENT_INTERNAL['Py']
+REGISTRY_COMPONENT_CMDLINE = REGISTRY_COMPONENT_INTERNAL['Cmd']
+REGISTRY_COMPONENT_BUILDTOOLS = REGISTRY_COMPONENT_INTERNAL['BT']
+REGISTRY_COMPONENT_EXPRESS = REGISTRY_COMPONENT_INTERNAL['Exp']
+
+# internal consistency check (should be last) 
 
 def verify():
     from .. import vc

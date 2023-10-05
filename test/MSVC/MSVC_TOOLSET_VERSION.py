@@ -28,7 +28,7 @@ Test the MSVC_TOOLSET_VERSION construction variable.
 """
 import textwrap
 
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon.vc import get_installed_msvc_instances
 from SCons.Tool.MSCommon import msvc_toolset_versions
 
 import TestSCons
@@ -36,17 +36,26 @@ import TestSCons
 test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
-installed_versions = get_installed_vcs_components()
-default_version = installed_versions[0]
+installed_instances = get_installed_msvc_instances()
+if not installed_instances:
+    test.skip_test("No MSVC instances, skipping.")
 
-GE_VS2017_versions = [v for v in installed_versions if v.msvc_vernum >= 14.1]
-LT_VS2017_versions = [v for v in installed_versions if v.msvc_vernum < 14.1]
-LT_VS2015_versions = [v for v in LT_VS2017_versions if v.msvc_vernum < 14.0]
+GE_VS2017_instances = []
+LT_VS2017_instances = []
+LE_VS2013_instances = []
 
-if GE_VS2017_versions:
+for msvc_instance in installed_instances:
+    if msvc_instance.vs_product_numeric >= 2017:
+        GE_VS2017_instances.append(msvc_instance)
+    else:
+        LT_VS2017_instances.append(msvc_instance)
+    if msvc_instance.vs_product_numeric <= 2013:
+        LE_VS2013_instances.append(msvc_instance)
+
+if GE_VS2017_instances:
     # VS2017 and later for toolset argument
 
-    for supported in GE_VS2017_versions:
+    for supported in GE_VS2017_instances:
 
         toolset_full_versions = msvc_toolset_versions(supported.msvc_version, full=True, sxs=False)
         toolset_full_version = toolset_full_versions[0] if toolset_full_versions else None
@@ -193,10 +202,10 @@ if GE_VS2017_versions:
         )
         test.must_contain_all(test.stderr(), expect)
 
-if LT_VS2017_versions:
+if LT_VS2017_instances:
     # VS2015 and earlier for toolset argument error
 
-    for unsupported in LT_VS2017_versions:
+    for unsupported in LT_VS2017_instances:
 
         # must be VS2017 or later
         test.write('SConstruct', textwrap.dedent(
@@ -211,10 +220,10 @@ if LT_VS2017_versions:
         )
         test.must_contain_all(test.stderr(), expect)
 
-if LT_VS2015_versions:
+if LE_VS2013_instances:
     # VS2013 and earlier for script argument error
 
-    for unsupported in LT_VS2015_versions:
+    for unsupported in LE_VS2013_instances:
 
         # must be VS2015 or later for MSVC_SCRIPT_ARGS
         test.write('SConstruct', textwrap.dedent(

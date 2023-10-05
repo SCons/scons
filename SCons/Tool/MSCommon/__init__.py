@@ -45,6 +45,9 @@ from SCons.Tool.MSCommon.vc import (  # noqa: F401
     msvc_toolset_versions,
     msvc_toolset_versions_spectre,
     msvc_query_version_toolset,
+    vswhere_push_location,
+    msvs_set_channel_default,
+    msvs_get_channel_default,
 )
 
 from SCons.Tool.MSCommon.vs import (  # noqa: F401

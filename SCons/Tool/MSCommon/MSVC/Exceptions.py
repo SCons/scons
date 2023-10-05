@@ -39,6 +39,9 @@ class MSVCUserError(VisualCException):
 class MSVCScriptExecutionError(VisualCException):
     pass
 
+class MSVCVersionUnsupported(MSVCUserError):
+    pass
+
 class MSVCVersionNotFound(MSVCUserError):
     pass
 

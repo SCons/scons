@@ -28,44 +28,41 @@ Test the MSVC_SDK_VERSION construction variable.
 """
 import textwrap
 
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon.vc import get_installed_msvc_instances
 from SCons.Tool.MSCommon import msvc_sdk_versions
 from SCons.Tool.MSCommon import msvc_toolset_versions
-from SCons.Tool.MSCommon.MSVC.Kind import (
-    msvc_version_is_express,
-    msvc_version_is_btdispatch,
-)
 import TestSCons
 
 test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
-installed_versions = get_installed_vcs_components()
-default_version = installed_versions[0]
+installed_instances = get_installed_msvc_instances()
+if not installed_instances:
+    test.skip_test("No MSVC instances, skipping.")
 
-GE_VS2015_supported_versions = []
-GE_VS2015_unsupported_versions = []
-LT_VS2015_unsupported_versions = []
+GE_VS2015_supported_instances = []
+GE_VS2015_unsupported_instances = []
+LT_VS2015_unsupported_instances = []
 
-for v in installed_versions:
-    if v.msvc_vernum > 14.0:
-        GE_VS2015_supported_versions.append(v)
-    elif v.msvc_verstr == '14.0':
-        if msvc_version_is_express(v.msvc_version):
-            GE_VS2015_unsupported_versions.append((v, 'Express'))
-        elif msvc_version_is_btdispatch(v.msvc_version):
-            GE_VS2015_unsupported_versions.append((v, 'BTDispatch'))
+for msvc_instance in installed_instances:
+    if msvc_instance.vs_product_numeric > 2015:
+        GE_VS2015_supported_instances.append(msvc_instance)
+    elif msvc_instance.vs_product_numeric == 2015:
+        if msvc_instance.is_express:
+            GE_VS2015_unsupported_instances.append((msvc_instance, 'Express'))
+        elif msvc_instance.is_buildtools:
+            GE_VS2015_unsupported_instances.append((msvc_instance, 'BuildTools'))
         else:
-            GE_VS2015_supported_versions.append(v)
+            GE_VS2015_supported_instances.append(msvc_instance)
     else:
-        LT_VS2015_unsupported_versions.append(v)
+        LT_VS2015_unsupported_instances.append(msvc_instance)
 
 default_sdk_versions_uwp = msvc_sdk_versions(version=None, msvc_uwp_app=True)
 default_sdk_versions_def = msvc_sdk_versions(version=None, msvc_uwp_app=False)
 
-have_140 = any(v.msvc_verstr == '14.0' for v in installed_versions)
+have_2015 = any(msvc_instance.vs_product_numeric == 2015 for v in installed_instances)
 
-def version_major(version):
+def sdk_version_major(version):
     components = version.split('.')
     if len(components) >= 2:
         return components[0] + '.' + components[1][0]
@@ -73,27 +70,27 @@ def version_major(version):
         return components[0] + '.0'
     return version
 
-def version_major_list(version_list):
+def sdk_version_major_list(version_list):
     versions = []
     seen_major = set()
     for version in version_list:
-        major = version_major(version)
+        major = sdk_version_major(version)
         if major in seen_major:
             continue
         versions.append(version)
         seen_major.add(major)
     return versions
 
-if GE_VS2015_supported_versions:
+if GE_VS2015_supported_instances:
 
-    for supported in GE_VS2015_supported_versions:
+    for supported in GE_VS2015_supported_instances:
         # VS2017+ and VS2015 ('14.0')
 
         sdk_versions_uwp = msvc_sdk_versions(version=supported.msvc_version, msvc_uwp_app=True)
         sdk_versions_def = msvc_sdk_versions(version=supported.msvc_version, msvc_uwp_app=False)
 
         # find sdk version for each major SDK
-        sdk_versions = version_major_list(sdk_versions_def)
+        sdk_versions = sdk_version_major_list(sdk_versions_def)
 
         for sdk_version in sdk_versions:
 
@@ -165,13 +162,13 @@ if GE_VS2015_supported_versions:
         # platform contraints: 8.1 and UWP
         if '8.1' in sdk_versions:
 
-            if supported.msvc_vernum > 14.0:
+            if supported.vs_product_numeric > 2015:
 
                 toolset_full_versions = msvc_toolset_versions(supported.msvc_version, full=True, sxs=False)
-                toolset_versions = version_major_list(toolset_full_versions)
+                toolset_versions = sdk_version_major_list(toolset_full_versions)
 
                 # toolset msvc_version != current msvc_version and toolset msvc_version != 14.0
-                toolset_candidates = [v for v in toolset_versions if version_major(v) not in (supported.msvc_verstr, '14.0')]
+                toolset_candidates = [v for v in toolset_versions if sdk_version_major(v) not in (supported.msvc_verstr, '14.0')]
                 toolset_version = toolset_candidates[0] if toolset_candidates else None
 
                 # sdk version 8.1, UWP, and msvc_verson > VS2015
@@ -202,7 +199,7 @@ if GE_VS2015_supported_versions:
                     )
                     test.must_contain_all(test.stderr(), expect)
 
-                if have_140:
+                if have_2015:
 
                     # sdk version 8.1, UWP, and msvc_toolset_version > VS2015
                     test.write('SConstruct', textwrap.dedent(
@@ -213,7 +210,7 @@ if GE_VS2015_supported_versions:
                     ))
                     test.run(arguments='-Q -s', stdout='')
 
-            elif supported.msvc_vernum == 14.0:
+            elif supported.vs_product_numeric == 2015:
 
                 # sdk version 8.1, UWP, and msvc_verson == VS2015
                 test.write('SConstruct', textwrap.dedent(
@@ -224,9 +221,9 @@ if GE_VS2015_supported_versions:
                 ))
                 test.run(arguments='-Q -s', stdout='')
 
-if GE_VS2015_unsupported_versions:
+if GE_VS2015_unsupported_instances:
 
-    for unsupported, kind_str in GE_VS2015_unsupported_versions:
+    for unsupported, kind_str in GE_VS2015_unsupported_instances:
         # VS2015 Express
 
         sdk_version = default_sdk_versions_def[0] if default_sdk_versions_def else '8.1'
@@ -252,9 +249,9 @@ if GE_VS2015_unsupported_versions:
         ))
         test.run(arguments='-Q -s', stdout='')
 
-if LT_VS2015_unsupported_versions:
+if LT_VS2015_unsupported_instances:
 
-    for unsupported in LT_VS2015_unsupported_versions:
+    for unsupported in LT_VS2015_unsupported_instances:
         # must be VS2015 or later
 
         sdk_version = default_sdk_versions_def[0] if default_sdk_versions_def else '8.1'

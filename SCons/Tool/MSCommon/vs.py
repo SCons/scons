@@ -66,11 +66,11 @@ class VisualStudio:
         return batch_file
 
     def find_vs_dir_by_vc(self, env):
-        dir = SCons.Tool.MSCommon.vc.find_vc_pdir(self.vc_version, env)
-        if not dir:
+        msvc_instance = SCons.Tool.MSCommon.vc.find_msvc_instance(self.vc_version, env)
+        if not msvc_instance:
             debug('no installed VC %s', self.vc_version)
             return None
-        return os.path.abspath(os.path.join(dir, os.pardir))
+        return os.path.abspath(os.path.join(msvc_instance.vc_dir, os.pardir))
 
     def find_vs_dir_by_reg(self, env):
         root = 'Software\\'
@@ -194,7 +194,7 @@ class VisualStudio:
 # good money for in preference to whatever Microsoft makes available
 # for free.
 #
-# If you update this list, update _VCVER and _VCVER_TO_PRODUCT_DIR in
+# If you update this list, update _VCVER and _VSPRODUCT_REGISTRY_VCDIR in
 # Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
 
 SupportedVSList = [

@@ -37,8 +37,12 @@ test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 test.verbose_set(1)
 
-_default_vc = SCons.Tool.MSCommon.vc.get_installed_vcs_components()[0]
-if _default_vc.msvc_vernum < 14.1:
+installed_instances = SCons.Tool.MSCommon.vc.get_installed_msvc_instances()
+if not installed_instances:
+    test.skip_test("No MSVC instances, skipping.")
+
+_default_instance = installed_instances[0]
+if _default_instance.vs_product_numeric < 2017:
     test.skip_test("no installed msvc requires vswhere.exe; skipping test\n")
 
 test.dir_fixture('VSWHERE-fixture')

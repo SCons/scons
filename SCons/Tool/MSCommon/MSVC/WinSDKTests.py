@@ -101,10 +101,10 @@ class WinSDKTests(unittest.TestCase):
 
     def _run_version_list_sdk_map(self) -> None:
         for vcver in Config.MSVC_VERSION_SUFFIX.keys():
-            vs_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
-            if not vs_def.vc_sdk_versions:
+            vs_product_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
+            if not vs_product_def.vc_sdk_versions:
                 continue
-            _ = WinSDK._version_list_sdk_map(vs_def.vc_sdk_versions)
+            _ = WinSDK._version_list_sdk_map(vs_product_def.vc_sdk_versions)
 
     def test_version_list_sdk_map(self) -> None:
         self._run_version_list_sdk_map()

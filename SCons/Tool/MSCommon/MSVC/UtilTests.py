@@ -50,8 +50,8 @@ class UtilTests(unittest.TestCase):
                 func.__name__, repr(dirname), 'list is empty' if expect else 'list is not empty'
             ))
 
-    def test_process_path(self) -> None:
-        func = Util.process_path
+    def test_normalize_path(self) -> None:
+        func = Util.normalize_path
         for p, expect in [
             (None, True), ('', True),
             ('doesnotexist.xyz.abc', False), (Data.UTIL_PARENT_DIR, False),

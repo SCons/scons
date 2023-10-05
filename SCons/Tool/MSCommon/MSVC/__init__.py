@@ -44,6 +44,7 @@ from . import Kind  # noqa: F401
 from . import SetupEnvDefault  # noqa: F401
 from . import Policy  # noqa: F401
 from . import WinSDK  # noqa: F401
+from . import Validate  # noqa: F401
 from . import ScriptArguments  # noqa: F401
 
 from . import Dispatcher as _Dispatcher

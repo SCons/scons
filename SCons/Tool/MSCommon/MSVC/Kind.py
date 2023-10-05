@@ -36,6 +36,7 @@ from ..common import (
     debug,
 )
 
+from . import Config
 from . import Registry
 from . import Util
 
@@ -43,211 +44,75 @@ from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
 
-# use express install for non-express msvc_version if no other installations found
-USE_EXPRESS_FOR_NONEXPRESS = True
-
-# productdir kind
-
-VCVER_KIND_UNKNOWN = 0  # undefined
-VCVER_KIND_DEVELOP = 1  # devenv binary
-VCVER_KIND_EXPRESS = 2  # express binary
-VCVER_KIND_BTDISPATCH = 3  # no ide binaries (buildtools dispatch folder)
-VCVER_KIND_VCFORPYTHON = 4  # no ide binaries (2008/9.0)
-VCVER_KIND_EXPRESS_WIN = 5  # express for windows binary (VSWinExpress)
-VCVER_KIND_EXPRESS_WEB = 6  # express for web binary (VWDExpress)
-VCVER_KIND_SDK = 7  # no ide binaries
-VCVER_KIND_CMDLINE = 8  # no ide binaries
-
-VCVER_KIND_STR = {
-    VCVER_KIND_UNKNOWN: '<Unknown>',
-    VCVER_KIND_DEVELOP: 'Develop',
-    VCVER_KIND_EXPRESS: 'Express',
-    VCVER_KIND_BTDISPATCH: 'BTDispatch',
-    VCVER_KIND_VCFORPYTHON: 'VCForPython',
-    VCVER_KIND_EXPRESS_WIN: 'Express-Win',
-    VCVER_KIND_EXPRESS_WEB: 'Express-Web',
-    VCVER_KIND_SDK: 'SDK',
-    VCVER_KIND_CMDLINE: 'CmdLine',
-}
-
 BITFIELD_KIND_DEVELOP     = 0b_1000
 BITFIELD_KIND_EXPRESS     = 0b_0100
 BITFIELD_KIND_EXPRESS_WIN = 0b_0010
 BITFIELD_KIND_EXPRESS_WEB = 0b_0001
 
-VCVER_KIND_PROGRAM = namedtuple("VCVerKindProgram", [
-    'kind',  # relpath from pdir to vsroot
-    'program',  # ide binaries
+_BITFIELD_KIND_VSEXECUTABLE = (BITFIELD_KIND_DEVELOP, BITFIELD_KIND_EXPRESS)
+
+VCBinary = namedtuple("VCBinary", [
+    'program',
     'bitfield',
 ])
 
-#
+# IDE binaries
 
-IDE_PROGRAM_DEVENV_COM = VCVER_KIND_PROGRAM(
-    kind=VCVER_KIND_DEVELOP,
+IDE_PROGRAM_DEVENV_COM = VCBinary(
     program='devenv.com',
     bitfield=BITFIELD_KIND_DEVELOP,
 )
 
-IDE_PROGRAM_MSDEV_COM = VCVER_KIND_PROGRAM(
-    kind=VCVER_KIND_DEVELOP,
+IDE_PROGRAM_MSDEV_COM = VCBinary(
     program='msdev.com',
     bitfield=BITFIELD_KIND_DEVELOP,
 )
 
-IDE_PROGRAM_WDEXPRESS_EXE = VCVER_KIND_PROGRAM(
-    kind=VCVER_KIND_EXPRESS,
+IDE_PROGRAM_WDEXPRESS_EXE = VCBinary(
     program='WDExpress.exe',
     bitfield=BITFIELD_KIND_EXPRESS,
 )
 
-IDE_PROGRAM_VCEXPRESS_EXE = VCVER_KIND_PROGRAM(
-    kind=VCVER_KIND_EXPRESS,
+IDE_PROGRAM_VCEXPRESS_EXE = VCBinary(
     program='VCExpress.exe',
     bitfield=BITFIELD_KIND_EXPRESS,
 )
 
-IDE_PROGRAM_VSWINEXPRESS_EXE = VCVER_KIND_PROGRAM(
-    kind=VCVER_KIND_EXPRESS_WIN,
+IDE_PROGRAM_VSWINEXPRESS_EXE = VCBinary(
     program='VSWinExpress.exe',
     bitfield=BITFIELD_KIND_EXPRESS_WIN,
 )
 
-IDE_PROGRAM_VWDEXPRESS_EXE = VCVER_KIND_PROGRAM(
-    kind=VCVER_KIND_EXPRESS_WEB,
+IDE_PROGRAM_VWDEXPRESS_EXE = VCBinary(
     program='VWDExpress.exe',
     bitfield=BITFIELD_KIND_EXPRESS_WEB,
 )
 
 # detection configuration
 
-VCVER_KIND_DETECT = namedtuple("VCVerKindDetect", [
+VCDetectConfig = namedtuple("VCDetectConfig", [
     'root',  # relpath from pdir to vsroot
     'path',  # vsroot to ide dir
     'programs',  # ide binaries
 ])
 
-# detected binaries
+# detected IDE binaries
 
-VCVER_DETECT_BINARIES = namedtuple("VCVerDetectBinaries", [
+VCDetectedBinaries = namedtuple("VCDetectedBinaries", [
     'bitfields',  # detect values
     'have_dev',  # develop ide binary
     'have_exp',  # express ide binary
     'have_exp_win',  # express windows ide binary
     'have_exp_web',  # express web ide binary
+    'vs_exec',  # vs binary
 ])
 
+def _msvc_dir_detect_binaries(vc_dir, detect):
 
-VCVER_DETECT_KIND = namedtuple("VCVerDetectKind", [
-    'skip',  # skip vs root
-    'save',  # save in case no other kind found
-    'kind',  # internal kind
-    'binaries_t',
-    'extended',
-])
+    vs_exec = None
 
-# unknown value
-
-_VCVER_DETECT_KIND_UNKNOWN = VCVER_DETECT_KIND(
-    skip=True,
-    save=False,
-    kind=VCVER_KIND_UNKNOWN,
-    binaries_t=VCVER_DETECT_BINARIES(
-        bitfields=0b0,
-        have_dev=False,
-        have_exp=False,
-        have_exp_win=False,
-        have_exp_web=False,
-    ),
-    extended={},
-)
-
-#
-
-_msvc_pdir_func = None
-
-def register_msvc_version_pdir_func(func):
-    global _msvc_pdir_func
-    if func:
-        _msvc_pdir_func = func
-
-_cache_vcver_kind_map = {}
-
-def msvc_version_register_kind(msvc_version, kind_t) -> None:
-    global _cache_vcver_kind_map
-    if kind_t is None:
-        kind_t = _VCVER_DETECT_KIND_UNKNOWN
-    # print('register_kind: msvc_version=%s, kind=%s' % (repr(msvc_version), repr(VCVER_KIND_STR[kind_t.kind])))
-    debug('msvc_version=%s, kind=%s', repr(msvc_version), repr(VCVER_KIND_STR[kind_t.kind]))
-    _cache_vcver_kind_map[msvc_version] = kind_t
-
-def _msvc_version_kind_lookup(msvc_version, env=None):
-    global _cache_vcver_kind_map
-    global _msvc_pdir_func
-    if msvc_version not in _cache_vcver_kind_map:
-        _msvc_pdir_func(msvc_version, env)
-    kind_t = _cache_vcver_kind_map.get(msvc_version, _VCVER_DETECT_KIND_UNKNOWN)
-    debug(
-        'kind=%s, dev=%s, exp=%s, msvc_version=%s',
-        repr(VCVER_KIND_STR[kind_t.kind]),
-        kind_t.binaries_t.have_dev, kind_t.binaries_t.have_exp,
-        repr(msvc_version)
-    )
-    return kind_t
-
-def msvc_version_is_btdispatch(msvc_version, env=None):
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-    is_btdispatch = bool(kind_t.kind == VCVER_KIND_BTDISPATCH)
-    debug(
-        'is_btdispatch=%s, kind:%s, msvc_version=%s',
-        repr(is_btdispatch), repr(VCVER_KIND_STR[kind_t.kind]), repr(msvc_version)
-    )
-    return is_btdispatch
-
-def msvc_version_is_express(msvc_version, env=None):
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-    is_express = bool(kind_t.kind == VCVER_KIND_EXPRESS)
-    debug(
-        'is_express=%s, kind:%s, msvc_version=%s',
-        repr(is_express), repr(VCVER_KIND_STR[kind_t.kind]), repr(msvc_version)
-    )
-    return is_express
-
-def msvc_version_is_vcforpython(msvc_version, env=None):
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-    is_vcforpython = bool(kind_t.kind == VCVER_KIND_VCFORPYTHON)
-    debug(
-        'is_vcforpython=%s, kind:%s, msvc_version=%s',
-        repr(is_vcforpython), repr(VCVER_KIND_STR[kind_t.kind]), repr(msvc_version)
-    )
-    return is_vcforpython
-
-def msvc_version_skip_uwp_target(env, msvc_version):
-
-    vernum = float(Util.get_msvc_version_prefix(msvc_version))
-    vernum_int = int(vernum * 10)
-
-    if vernum_int != 140:
-        return False
-
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-    if kind_t.kind != VCVER_KIND_EXPRESS:
-        return False
-
-    target_arch = env.get('TARGET_ARCH')
-
-    uwp_is_supported = kind_t.extended.get('uwp_is_supported', {})
-    is_supported = uwp_is_supported.get(target_arch, True)
-
-    if is_supported:
-        return False
-
-    return True
-
-def _pdir_detect_binaries(pdir, detect):
-
-    vs_root = os.path.join(pdir, detect.root)
-    ide_path = os.path.join(vs_root, detect.path)
+    vs_dir = os.path.join(vc_dir, detect.root)
+    ide_path = os.path.join(vs_dir, detect.path)
 
     bitfields = 0b_0000
     for ide_program in detect.programs:
@@ -255,82 +120,42 @@ def _pdir_detect_binaries(pdir, detect):
         if not os.path.exists(prog):
             continue
         bitfields |= ide_program.bitfield
+        if vs_exec:
+            continue
+        if ide_program.bitfield not in _BITFIELD_KIND_VSEXECUTABLE:
+            continue
+        vs_exec = prog
 
     have_dev = bool(bitfields & BITFIELD_KIND_DEVELOP)
     have_exp = bool(bitfields & BITFIELD_KIND_EXPRESS)
     have_exp_win = bool(bitfields & BITFIELD_KIND_EXPRESS_WIN)
     have_exp_web = bool(bitfields & BITFIELD_KIND_EXPRESS_WEB)
 
-    binaries_t = VCVER_DETECT_BINARIES(
+    binaries_t = VCDetectedBinaries(
         bitfields=bitfields,
         have_dev=have_dev,
         have_exp=have_exp,
         have_exp_win=have_exp_win,
         have_exp_web=have_exp_web,
+        vs_exec=vs_exec,
     )
 
     debug(
-        'vs_root=%s, dev=%s, exp=%s, exp_win=%s, exp_web=%s, pdir=%s',
-        repr(vs_root),
+        'vs_dir=%s, dev=%s, exp=%s, exp_win=%s, exp_web=%s, vs_exec=%s, vc_dir=%s',
+        repr(vs_dir),
         binaries_t.have_dev, binaries_t.have_exp,
         binaries_t.have_exp_win, binaries_t.have_exp_web,
-        repr(pdir)
+        repr(binaries_t.vs_exec),
+        repr(vc_dir)
     )
 
-    return vs_root, binaries_t
+    return vs_dir, binaries_t
 
-_cache_pdir_vswhere_kind = {}
+def msvc_dir_vswhere(vc_dir, detect_t):
 
-def msvc_version_pdir_vswhere_kind(msvc_version, pdir, detect_t):
-    global _cache_pdir_vswhere_kind
+    _, binaries_t = _msvc_dir_detect_binaries(vc_dir, detect_t)
 
-    vc_dir = os.path.normcase(os.path.normpath(pdir))
-    cache_key = (msvc_version, vc_dir)
-
-    rval = _cache_pdir_vswhere_kind.get(cache_key)
-    if rval is not None:
-        debug('cache=%s', repr(rval))
-        return rval
-
-    extended = {}
-
-    prefix, suffix = Util.get_msvc_version_prefix_suffix(msvc_version)
-
-    vs_root, binaries_t = _pdir_detect_binaries(pdir, detect_t)
-
-    if binaries_t.have_dev:
-        kind = VCVER_KIND_DEVELOP
-    elif binaries_t.have_exp:
-        kind = VCVER_KIND_EXPRESS
-    else:
-        kind = VCVER_KIND_CMDLINE
-
-    skip = False
-    save = False
-
-    if suffix != 'Exp' and kind == VCVER_KIND_EXPRESS:
-        skip = True
-        save = USE_EXPRESS_FOR_NONEXPRESS
-    elif suffix == 'Exp' and kind != VCVER_KIND_EXPRESS:
-        skip = True
-
-    kind_t = VCVER_DETECT_KIND(
-        skip=skip,
-        save=save,
-        kind=kind,
-        binaries_t=binaries_t,
-        extended=extended,
-    )
-
-    debug(
-        'skip=%s, save=%s, kind=%s, msvc_version=%s, pdir=%s',
-        kind_t.skip, kind_t.save, repr(VCVER_KIND_STR[kind_t.kind]),
-        repr(msvc_version), repr(pdir)
-    )
-
-    _cache_pdir_vswhere_kind[cache_key] = kind_t
-
-    return kind_t
+    return binaries_t.vs_exec
 
 # VS2015 buildtools batch file call detection
 #    vs2015 buildtools do not support sdk_version or UWP arguments
@@ -357,15 +182,15 @@ def _vs_buildtools_2015_vcvars(vcvars_file):
                 break
     return have_buildtools_vcvars
 
-def _vs_buildtools_2015(vs_root, vc_dir):
+def _vs_buildtools_2015(vs_dir, vc_dir):
 
-    is_btdispatch = False
+    is_buildtools = False
 
     do_once = True
     while do_once:
         do_once = False
 
-        buildtools_file = os.path.join(vs_root, _VS2015BT_PATH)
+        buildtools_file = os.path.join(vs_dir, _VS2015BT_PATH)
         have_buildtools = os.path.exists(buildtools_file)
         debug('have_buildtools=%s', have_buildtools)
         if not have_buildtools:
@@ -382,10 +207,10 @@ def _vs_buildtools_2015(vs_root, vc_dir):
         if not have_buildtools_vcvars:
             break
 
-        is_btdispatch = True
+        is_buildtools = True
 
-    debug('is_btdispatch=%s', is_btdispatch)
-    return is_btdispatch
+    debug('is_buildtools=%s', is_buildtools)
+    return is_buildtools
 
 _VS2015EXP_VCVARS_LIBPATH = re.compile(
     ''.join([
@@ -408,21 +233,21 @@ def _vs_express_2015_vcvars(vcvars_file):
     have_uwp_fix = n_libpath >= 2
     return have_uwp_fix
 
-def _vs_express_2015(pdir):
+def _vs_express_2015(vc_dir):
 
     have_uwp_amd64 = False
     have_uwp_arm = False
 
-    vcvars_file = os.path.join(pdir, r'vcvarsall.bat')
+    vcvars_file = os.path.join(vc_dir, r'vcvarsall.bat')
     if os.path.exists(vcvars_file):
 
-        vcvars_file = os.path.join(pdir, r'bin\x86_amd64\vcvarsx86_amd64.bat')
+        vcvars_file = os.path.join(vc_dir, r'bin\x86_amd64\vcvarsx86_amd64.bat')
         if os.path.exists(vcvars_file):
             have_uwp_fix = _vs_express_2015_vcvars(vcvars_file)
             if have_uwp_fix:
                 have_uwp_amd64 = True
 
-        vcvars_file = os.path.join(pdir, r'bin\x86_arm\vcvarsx86_arm.bat')
+        vcvars_file = os.path.join(vc_dir, r'bin\x86_arm\vcvarsx86_arm.bat')
         if os.path.exists(vcvars_file):
             have_uwp_fix = _vs_express_2015_vcvars(vcvars_file)
             if have_uwp_fix:
@@ -435,10 +260,7 @@ def _vs_express_2015(pdir):
 
 _REGISTRY_WINSDK_VERSIONS = {'10.0', '9.0'}
 
-_cache_pdir_registry_winsdk = {}
-
-def _msvc_version_pdir_registry_winsdk(msvc_version, pdir):
-    global _cache_pdir_registry_winsdk
+def _msvc_dir_is_winsdk_only(vc_dir, msvc_version):
 
     # detect winsdk-only installations
     #
@@ -452,15 +274,6 @@ def _msvc_version_pdir_registry_winsdk(msvc_version, pdir):
     #         - winsdk installs do not define the common tools env var
     #         - the product dir is detected but the vcvars batch files will fail
     #         - regular installations populate the VS7 registry keys
-    #
-
-    vc_dir = os.path.normcase(os.path.normpath(pdir))
-    cache_key = (msvc_version, vc_dir)
-
-    rval = _cache_pdir_registry_winsdk.get(cache_key)
-    if rval is not None:
-        debug('cache=%s', repr(rval))
-        return rval
 
     if msvc_version not in _REGISTRY_WINSDK_VERSIONS:
 
@@ -470,202 +283,102 @@ def _msvc_version_pdir_registry_winsdk(msvc_version, pdir):
 
     else:
 
-        vc_dir = os.path.normcase(os.path.normpath(pdir))
-
         vc_suffix = Registry.vstudio_sxs_vc7(msvc_version)
         vc_qresults = [record[0] for record in Registry.microsoft_query_paths(vc_suffix)]
-        vc_root = os.path.normcase(os.path.normpath(vc_qresults[0])) if vc_qresults else None
+        vc_regdir = vc_qresults[0] if vc_qresults else None
 
-        if vc_dir != vc_root:
-            # registry vc path is not the current pdir
+        if vc_regdir != vc_dir:
+            # registry vc path is not the current vc dir
 
             is_sdk = False
 
             debug(
-                'is_sdk=%s, msvc_version=%s, pdir=%s, vc_root=%s',
-                is_sdk, repr(msvc_version), repr(vc_dir), repr(vc_root)
+                'is_sdk=%s, msvc_version=%s, vc_dir=%s, vc_regdir=%s',
+                is_sdk, repr(msvc_version), repr(vc_dir), repr(vc_regdir)
             )
 
         else:
-            # registry vc path is the current pdir
+            # registry vc dir is the current vc root
 
             vs_suffix = Registry.vstudio_sxs_vs7(msvc_version)
             vs_qresults = [record[0] for record in Registry.microsoft_query_paths(vs_suffix)]
-            vs_root = vs_qresults[0] if vs_qresults else None
+            vs_dir = vs_qresults[0] if vs_qresults else None
 
-            is_sdk = bool(not vs_root and vc_root)
+            is_sdk = bool(not vs_dir and vc_dir)
 
             debug(
-                'is_sdk=%s, msvc_version=%s, vs_root=%s, vc_root=%s',
-                is_sdk, repr(msvc_version), repr(vs_root), repr(vc_root)
+                'is_sdk=%s, msvc_version=%s, vc_dir=%s, vs_dir=%s',
+                is_sdk, repr(msvc_version), repr(vc_dir), repr(vs_dir)
             )
-
-    _cache_pdir_registry_winsdk[cache_key] = is_sdk
 
     return is_sdk
 
-_cache_pdir_registry_kind = {}
+def msvc_dir_registry(vc_dir, detect_t, msvc_version, is_vcforpython, vs_version):
 
-def msvc_version_pdir_registry_kind(msvc_version, pdir, detect_t, is_vcforpython=False):
-    global _cache_pdir_registry_kind
+    vc_feature_map = {}
 
-    vc_dir = os.path.normcase(os.path.normpath(pdir))
-    cache_key = (msvc_version, vc_dir)
-
-    rval = _cache_pdir_registry_kind.get(cache_key)
-    if rval is not None:
-        debug('cache=%s', repr(rval))
-        return rval
-
-    extended = {}
-
-    prefix, suffix = Util.get_msvc_version_prefix_suffix(msvc_version)
-
-    vs_root, binaries_t = _pdir_detect_binaries(pdir, detect_t)
+    vs_dir, binaries_t = _msvc_dir_detect_binaries(vc_dir, detect_t)
 
     if binaries_t.have_dev:
-        kind = VCVER_KIND_DEVELOP
+        vs_component_def = Config.REGISTRY_COMPONENT_DEVELOP
     elif binaries_t.have_exp:
-        kind = VCVER_KIND_EXPRESS
-    elif msvc_version == '14.0' and _vs_buildtools_2015(vs_root, pdir):
-        kind = VCVER_KIND_BTDISPATCH
+        vs_component_def = Config.REGISTRY_COMPONENT_EXPRESS
     elif msvc_version == '9.0' and is_vcforpython:
-        kind = VCVER_KIND_VCFORPYTHON
+        vs_component_def = Config.REGISTRY_COMPONENT_PYTHON
     elif binaries_t.have_exp_win:
-        kind = VCVER_KIND_EXPRESS_WIN
+        vs_component_def = None
     elif binaries_t.have_exp_web:
-        kind = VCVER_KIND_EXPRESS_WEB
-    elif _msvc_version_pdir_registry_winsdk(msvc_version, pdir):
-        kind = VCVER_KIND_SDK
+        vs_component_def = None
+    elif _msvc_dir_is_winsdk_only(vc_dir, msvc_version):
+        vs_component_def = None
     else:
-        kind = VCVER_KIND_CMDLINE
+        vs_component_def = Config.REGISTRY_COMPONENT_CMDLINE
 
-    skip = False
-    save = False
+    if vs_component_def and msvc_version == '14.0':
 
-    if kind in (VCVER_KIND_EXPRESS_WIN, VCVER_KIND_EXPRESS_WEB, VCVER_KIND_SDK):
-        skip = True
-    elif suffix != 'Exp' and kind == VCVER_KIND_EXPRESS:
-        skip = True
-        save = USE_EXPRESS_FOR_NONEXPRESS
-    elif suffix == 'Exp' and kind != VCVER_KIND_EXPRESS:
-        skip = True
-
-    if prefix == '14.0' and kind == VCVER_KIND_EXPRESS:
-        have_uwp_amd64, have_uwp_arm = _vs_express_2015(pdir)
-        uwp_is_supported = {
-            'x86': True,
-            'amd64': have_uwp_amd64,
-            'arm': have_uwp_arm,
-        }
-        extended['uwp_is_supported'] = uwp_is_supported
-
-    kind_t = VCVER_DETECT_KIND(
-        skip=skip,
-        save=save,
-        kind=kind,
-        binaries_t=binaries_t,
-        extended=extended,
-    )
-
-    debug(
-        'skip=%s, save=%s, kind=%s, msvc_version=%s, pdir=%s',
-        kind_t.skip, kind_t.save, repr(VCVER_KIND_STR[kind_t.kind]),
-        repr(msvc_version), repr(pdir)
-    )
-
-    _cache_pdir_registry_kind[cache_key] = kind_t
-
-    return kind_t
-
-# queries
-
-def get_msvc_version_kind(msvc_version, env=None):
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-    kind_str = VCVER_KIND_STR[kind_t.kind]
-    debug(
-        'kind=%s, kind_str=%s, msvc_version=%s',
-        repr(kind_t.kind), repr(kind_str), repr(msvc_version)
-    )
-    return (kind_t.kind, kind_str)
-
-def msvc_version_sdk_version_is_supported(msvc_version, env=None):
-
-    vernum = float(Util.get_msvc_version_prefix(msvc_version))
-    vernum_int = int(vernum * 10)
-
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-
-    if vernum_int >= 141:
-        # VS2017 and later
-        is_supported = True
-    elif vernum_int == 140:
         # VS2015:
-        #   True:  Develop, CmdLine
-        #   False: Express, BTDispatch
-        is_supported = True
-        if kind_t.kind == VCVER_KIND_EXPRESS:
-            is_supported = False
-        elif kind_t.kind == VCVER_KIND_BTDISPATCH:
-            is_supported = False
-    else:
-        # VS2013 and earlier
-        is_supported = False
+        #     remap DEVELOP => ENTERPRISE, PROFESSIONAL, COMMUNITY
+        #     remap CMDLINE => BUILDTOOLS [conditional]
+        #     process EXPRESS
+
+        if vs_component_def == Config.REGISTRY_COMPONENT_DEVELOP:
+
+            for reg_component, reg_component_def in [
+                ('community', Config.REGISTRY_COMPONENT_COMMUNITY),
+                ('professional', Config.REGISTRY_COMPONENT_PROFESSIONAL),
+                ('enterprise', Config.REGISTRY_COMPONENT_ENTERPRISE),
+            ]:
+                suffix = Registry.devdiv_vs_servicing_component(vs_version, reg_component)
+                qresults = Registry.microsoft_query_keys(suffix, usrval=reg_component_def)
+                if not qresults:
+                    continue
+                vs_component_def = qresults[0][-1]
+                break
+
+        elif vs_component_def == Config.REGISTRY_COMPONENT_CMDLINE:
+
+            if _vs_buildtools_2015(vs_dir, vc_dir):
+                vs_component_def = Config.REGISTRY_COMPONENT_BUILDTOOLS
+
+        elif vs_component_def == Config.REGISTRY_COMPONENT_EXPRESS:
+
+            have_uwp_amd64, have_uwp_arm = _vs_express_2015(vc_dir)
+
+            uwp_target_is_supported = {
+                'x86': True,
+                'amd64': have_uwp_amd64,
+                'arm': have_uwp_arm,
+            }
+
+            vc_feature_map['uwp_target_is_supported'] = uwp_target_is_supported
 
     debug(
-        'is_supported=%s, msvc_version=%s, kind=%s',
-        is_supported, repr(msvc_version), repr(VCVER_KIND_STR[kind_t.kind])
-    )
-    return is_supported
-
-def msvc_version_uwp_is_supported(msvc_version, target_arch=None, env=None):
-
-    vernum = float(Util.get_msvc_version_prefix(msvc_version))
-    vernum_int = int(vernum * 10)
-
-    kind_t = _msvc_version_kind_lookup(msvc_version, env)
-
-    is_target = False
-
-    if vernum_int >= 141:
-        # VS2017 and later
-        is_supported = True
-    elif vernum_int == 140:
-        # VS2015:
-        #   True:  Develop, CmdLine
-        #   Maybe: Express
-        #   False: BTDispatch
-        is_supported = True
-        if kind_t.kind == VCVER_KIND_EXPRESS:
-            uwp_is_supported = kind_t.extended.get('uwp_is_supported', {})
-            is_supported = uwp_is_supported.get(target_arch, True)
-            is_target = True
-        elif kind_t.kind == VCVER_KIND_BTDISPATCH:
-            is_supported = False
-    else:
-        # VS2013 and earlier
-        is_supported = False
-
-    debug(
-        'is_supported=%s, is_target=%s, msvc_version=%s, kind=%s, target_arch=%s',
-        is_supported, is_target, repr(msvc_version), repr(VCVER_KIND_STR[kind_t.kind]), repr(target_arch)
+        'msvc_version=%s, vs_component=%s, vc_dir=%s, vc_feature_map=%s',
+        repr(msvc_version),
+        repr(vs_component_def.vs_componentid_def.vs_component_id) if vs_component_def else None,
+        repr(vc_dir),
+        repr(vc_feature_map),
     )
 
-    return is_supported, is_target
+    return vs_component_def, vs_dir, binaries_t.vs_exec, vc_feature_map
 
-# reset cache
-
-def reset() -> None:
-    global _cache_installed_vcs
-    global _cache_vcver_kind_map
-    global _cache_pdir_vswhere_kind
-    global _cache_pdir_registry_kind
-    global _cache_pdir_registry_winsdk
-
-    debug('')
-
-    _cache_installed_vcs = None
-    _cache_vcver_kind_map = {}
-    _cache_pdir_vswhere_kind = {}
-    _cache_pdir_registry_kind = {}
-    _cache_pdir_registry_winsdk = {}
