@@ -43,7 +43,7 @@ from SCons.Errors import InternalError
 from .Globals import COMMAND_TYPES, NINJA_RULES, NINJA_POOLS, \
     NINJA_CUSTOM_HANDLERS, NINJA_DEFAULT_TARGETS
 from .Rules import _install_action_function, _mkdir_action_function, _lib_symlink_action_function, _copy_action_function
-from .Utils import get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
+from .Utils import NinjaExperimentalWarning, get_path, alias_to_ninja_build, generate_depfile, ninja_noop, get_order_only, \
     get_outputs, get_inputs, get_dependencies, get_rule, get_command_env, to_escaped_list, ninja_sorted_build
 from .Methods import get_command
 
@@ -398,7 +398,7 @@ class NinjaState:
                 self.rules.update({key: non_rsp_rule})
             else:
                 self.rules.update({key: rule})
-        
+
         self.pools.update(self.env.get(NINJA_POOLS, {}))
 
         content = io.StringIO()
@@ -435,7 +435,7 @@ class NinjaState:
             generated_source_files = sorted(
                 [] if not generated_sources_build else generated_sources_build['implicit']
             )
-            
+
             def check_generated_source_deps(build):
                 return (
                     build != generated_sources_build
@@ -464,7 +464,7 @@ class NinjaState:
                     rule="phony",
                     implicit=generated_source_files
                 )
-                
+
                 def check_generated_source_deps(build):
                     return (
                         not build["rule"] == "INSTALL"
@@ -661,7 +661,7 @@ class NinjaState:
             all_targets = [str(node) for node in NINJA_DEFAULT_TARGETS]
         else:
             all_targets = list(all_targets)
-        
+
         if len(all_targets) == 0:
             all_targets = ["phony_default"]
             ninja_sorted_build(
@@ -669,7 +669,7 @@ class NinjaState:
                 outputs=all_targets,
                 rule="phony",
             )
-        
+
         ninja.default([self.ninja_syntax.escape_path(path) for path in sorted(all_targets)])
 
         with NamedTemporaryFile(delete=False, mode='w') as temp_ninja_file:
@@ -807,12 +807,13 @@ class SConsToNinjaTranslator:
             if handler is not None:
                 return handler(node.env if node.env else self.env, node)
 
-        SCons.Warnings.SConsWarning(
-            "Found unhandled function action {}, "
-            " generating scons command to build\n"
-            "Note: this is less efficient than Ninja,"
-            " you can write your own ninja build generator for"
-            " this function using NinjaRegisterFunctionHandler".format(name)
+        SCons.Warnings.warn(
+            NinjaExperimentalWarning,
+            f"Found unhandled function action {name}, "
+            " generating SCons command to build\n"
+            "Note: this is less efficient than using Ninja."
+            " You can write your own ninja build generator for"
+            " this function using NinjaRegisterFunctionHandler"
         )
 
         return {

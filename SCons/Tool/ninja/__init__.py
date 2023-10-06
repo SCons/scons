@@ -42,7 +42,7 @@ from .Methods import register_custom_handler, register_custom_rule_mapping, regi
     gen_get_response_file_command
 from .Overrides import ninja_hack_linkcom, ninja_hack_arcom, NinjaNoResponseFiles, ninja_always_serial, AlwaysExecAction
 from .Utils import ninja_add_command_line_options, \
-    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis, NinjaExperimentalWarning
+    ninja_noop, ninja_print_conf_log, ninja_csig, ninja_contents, ninja_stat, ninja_whereis
 
 try:
     import ninja
@@ -161,7 +161,7 @@ def exists(env):
     if NINJA_BINARY:
         return NINJA_BINARY
     else:
-        raise SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
+        raise ImportError("Failed to import ninja, attempt normal SCons build.")
 
 
 def ninja_emitter(target, source, env):
@@ -185,7 +185,7 @@ def ninja_emitter(target, source, env):
     return target, source
 
 
-def generate(env):
+def generate(env) -> None:
     """Generate the NINJA builders."""
     global NINJA_STATE, NINJA_CMDLINE_TARGETS
 
@@ -198,7 +198,7 @@ def generate(env):
         ninja_add_command_line_options()
 
     if not NINJA_BINARY:
-        raise SCons.Warnings.SConsWarning("Failed to import ninja, attempt normal SCons build.")
+        raise ImportError("Failed to import ninja, attempt normal SCons build.")
 
     env["NINJA_DISABLE_AUTO_RUN"] = env.get("NINJA_DISABLE_AUTO_RUN", GetOption('disable_execute_ninja'))
     env["NINJA_FILE_NAME"] = env.get("NINJA_FILE_NAME", "build.ninja")
@@ -232,12 +232,16 @@ def generate(env):
         SCons.Script.BUILD_TARGETS = SCons.Script.TargetList(env.Alias("$NINJA_ALIAS_NAME", ninja_file))
     else:
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
-            SCons.Warnings.SConsWarning("Generating multiple ninja files not supported, set ninja file name before tool initialization.")
+            raise SCons.Error.UserError(
+                "Generating multiple ninja files not supported, "
+                "set ninja file name before tool initialization."
+            )
         ninja_file = [NINJA_STATE.ninja_file]
 
 
     def ninja_generate_deps(env):
         """Return a list of SConscripts
+
         TODO: Should we also include files loaded from site_scons/***
           or even all loaded modules? https://stackoverflow.com/questions/4858100/how-to-list-imported-modules
         TODO: Do we want this to be Nodes?
@@ -245,7 +249,6 @@ def generate(env):
         return sorted([str(s) for s in SCons.Node.SConscriptNodes])
 
     env['_NINJA_REGENERATE_DEPS_FUNC'] = ninja_generate_deps
-
     env['NINJA_REGENERATE_DEPS'] = env.get('NINJA_REGENERATE_DEPS', '${_NINJA_REGENERATE_DEPS_FUNC(__env__)}')
 
     # This adds the required flags such that the generated compile
@@ -255,7 +258,7 @@ def generate(env):
         pass
     else:
         env.Append(CCFLAGS='$CCDEPFLAGS')
-    
+
     env.AddMethod(CheckNinjaCompdbExpand, "CheckNinjaCompdbExpand")
 
     # Provide a way for custom rule authors to easily access command
@@ -332,7 +335,7 @@ def generate(env):
     ninja_hack_arcom(env)
 
     if GetOption('disable_ninja'):
-        return env
+        return
 
     print("Initializing ninja tool... this feature is experimental. SCons internals and all environments will be affected.")
     print(f"SCons running in ninja mode. {env['NINJA_FILE']} will be generated.")

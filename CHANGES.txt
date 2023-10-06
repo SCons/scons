@@ -179,6 +179,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python stdlib types module.
     - TeX tests: skip tests that use makeindex or epstopdf not installed, or
       if `kpsewhich glossaries.sty` fails.
+    - Complete one warning from ninja tool (it did not actually issue the
+      warning) and change three exceptions to different types. Fixes #4036.
 
 
   From Jonathon Reinhart:
