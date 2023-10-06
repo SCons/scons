@@ -809,11 +809,11 @@ class SConsToNinjaTranslator:
 
         SCons.Warnings.warn(
             NinjaExperimentalWarning,
-            f"Found unhandled function action {name}, "
-            " generating SCons command to build\n"
-            "Note: this is less efficient than using Ninja."
-            " You can write your own ninja build generator for"
-            " this function using NinjaRegisterFunctionHandler"
+            f"Found unhandled function action {name!r}, "
+            " generating SCons command to build.\n"
+            "Note: this is less efficient than using ninja to build. "
+            "You can add a ninja build generator for this function "
+            "using NinjaRegisterFunctionHandler."
         )
 
         return {

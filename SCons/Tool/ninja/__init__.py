@@ -232,7 +232,7 @@ def generate(env) -> None:
         SCons.Script.BUILD_TARGETS = SCons.Script.TargetList(env.Alias("$NINJA_ALIAS_NAME", ninja_file))
     else:
         if str(NINJA_STATE.ninja_file) != env["NINJA_FILE_NAME"]:
-            raise SCons.Error.UserError(
+            raise SCons.Errors.UserError(
                 "Generating multiple ninja files not supported, "
                 "set ninja file name before tool initialization."
             )
