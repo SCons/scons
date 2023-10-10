@@ -40,7 +40,7 @@ from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
 
-def validate_msvc_version(vc_version, label):
+def validate_msvc_version(vc_version, source):
 
     vc_version_def = None
 
@@ -51,19 +51,19 @@ def validate_msvc_version(vc_version, label):
     if not vc_version_def:
 
         if not Util.is_version_valid(vc_version):
-            err_msg = f'Unsupported {label} format: {vc_version!r}'
+            err_msg = f'Unsupported version format: {vc_version!r} ({source})'
             debug(err_msg)
             raise MSVCArgumentError(err_msg)
 
         if vc_version not in Config.MSVC_VERSIONS:
             symbols = Config.MSVC_VERSIONS
-            err_msg = f'Unrecognized {label} {vc_version!r}\n  Valid msvc versions are: {symbols}'
+            err_msg = f'Unrecognized msvc version {vc_version!r} ({source})\n  Valid msvc versions are: {symbols}'
             debug(err_msg)
             raise MSVCVersionUnsupported(err_msg)
 
     return vc_version_def
 
-def validate_msvs_product(vs_product, label):
+def validate_msvs_product(vs_product, source):
 
     vs_product_def = None
     
@@ -73,13 +73,13 @@ def validate_msvs_product(vs_product, label):
     vs_product_def = Config.MSVS_VERSION_EXTERNAL.get(vs_product)
     if not vs_product_def:
         symbols = ', '.join(Config.MSVS_VERSION_SYMBOLS)
-        err_msg = f'Unrecognized {label} {vs_product!r}\n  Valid msvs products are: {symbols}'
+        err_msg = f'Unrecognized msvs product {vs_product!r} ({source})\n  Valid msvs products are: {symbols}'
         debug(err_msg)
         raise MSVCArgumentError(err_msg)
 
     return vs_product_def
 
-def validate_msvs_component(vs_component, label):
+def validate_msvs_component(vs_component, source):
 
     vs_componentid_def = None
 
@@ -89,13 +89,13 @@ def validate_msvs_component(vs_component, label):
     vs_componentid_def = Config.MSVS_COMPONENTID_EXTERNAL.get(vs_componentid_def)
     if not vs_componentid_def:
         symbols = ', '.join(Config.MSVS_COMPONENTID_SYMBOLS)
-        err_msg = f'Unrecognized {label} {vs_component!r}\n  Valid msvs components are: {symbols}'
+        err_msg = f'Unrecognized msvs component {vs_component!r} ({source})\n  Valid msvs components are: {symbols}'
         debug(err_msg)
         raise MSVCArgumentError(err_msg)
 
     return vs_componentid_def
 
-def validate_msvs_channel(vs_channel, label):
+def validate_msvs_channel(vs_channel, source):
 
     vs_channel_def = None
 
@@ -105,7 +105,7 @@ def validate_msvs_channel(vs_channel, label):
     vs_channel_def = Config.MSVS_CHANNEL_EXTERNAL.get(vs_channel)
     if not vs_channel_def:
         symbols = ', '.join(Config.MSVS_CHANNEL_SYMBOLS)
-        err_msg = f'Unrecognized {label} {vs_channel!r}\n  Valid msvs channels are: {symbols}'
+        err_msg = f'Unrecognized msvs channel {vs_channel!r} ({source})\n  Valid msvs channels are: {symbols}'
         debug(err_msg)
         raise MSVCArgumentError(err_msg)
 

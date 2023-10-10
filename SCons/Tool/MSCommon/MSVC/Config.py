@@ -25,9 +25,13 @@
 Constants and initialized data structures for Microsoft Visual C/C++.
 """
 
+import os
+
 from collections import (
     namedtuple,
 )
+
+import SCons.Util
 
 from . import Util
 
@@ -197,9 +201,12 @@ MSVC_SDK_VERSIONS = set()
 #    map vs major version to vc version (no suffix)
 #    build set of supported vc versions (including suffix)
 VSWHERE_VSMAJOR_TO_VCVERSION = {}
+
 VSWHERE_SUPPORTED_VCVER = set()
+VSWHERE_SUPPORTED_PRODUCTS = set()
 
 REGISTRY_SUPPORTED_VCVER = set()
+REGISTRY_SUPPORTED_PRODUCTS = set()
 
 MSVS_PRODUCT_DEFINITION = namedtuple('MSVSProductDefinition', [
     'vs_product',
@@ -307,53 +314,15 @@ for vs_product, vs_version, vs_envvar, vs_express, vs_lookup, vc_sdk, vc_ucrt, v
         VSWHERE_SUPPORTED_VCVER.add(vc_version)
         if vs_express:
             VSWHERE_SUPPORTED_VCVER.add(vc_version + 'Exp')
+        VSWHERE_SUPPORTED_PRODUCTS.add(vs_product)
     elif vs_lookup == 'registry':
         REGISTRY_SUPPORTED_VCVER.add(vc_version)
         if vs_express:
             REGISTRY_SUPPORTED_VCVER.add(vc_version + 'Exp')
+        REGISTRY_SUPPORTED_PRODUCTS.add(vs_product)
 
 MSVS_VERSION_SYMBOLS = list(MSVC_VERSION_EXTERNAL.keys())
 MSVC_VERSIONS = list(MSVC_VERSION_SUFFIX.keys())
-
-# EXPERIMENTAL: msvc version/toolset search lists
-#
-# VS2017 example:
-#
-#     defaults['14.1']    = ['14.1', '14.1Exp']
-#     defaults['14.1Exp'] = ['14.1Exp']
-#
-#     search['14.1']    = ['14.3', '14.2', '14.1', '14.1Exp']
-#     search['14.1Exp'] = ['14.1Exp']
-
-MSVC_VERSION_TOOLSET_DEFAULTS_MAP = {}
-MSVC_VERSION_TOOLSET_SEARCH_MAP = {}
-
-# Pass 1: Build defaults lists and setup express versions
-for vs_product_def in MSVS_PRODUCT_DEFINITION_LIST:
-    if not vs_product_def.vc_buildtools_def.vc_istoolset:
-        continue
-    version_key = vs_product_def.vc_buildtools_def.vc_version
-    MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key] = [version_key]
-    MSVC_VERSION_TOOLSET_SEARCH_MAP[version_key] = []
-    if vs_product_def.vs_express:
-        express_key = version_key + 'Exp'
-        MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key].append(express_key)
-        MSVC_VERSION_TOOLSET_DEFAULTS_MAP[express_key] = [express_key]
-        MSVC_VERSION_TOOLSET_SEARCH_MAP[express_key] = [express_key]
-
-# Pass 2: Extend search lists (decreasing version order)
-for vs_product_def in MSVS_PRODUCT_DEFINITION_LIST:
-    if not vs_product_def.vc_buildtools_def.vc_istoolset:
-        continue
-    version_key = vs_product_def.vc_buildtools_def.vc_version
-    for vc_buildtools in vs_product_def.vc_buildtools_all:
-        toolset_buildtools_def = MSVC_BUILDTOOLS_INTERNAL[vc_buildtools]
-        toolset_vs_product_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.vc_version]
-        buildtools_key = toolset_buildtools_def.vc_version
-        MSVC_VERSION_TOOLSET_SEARCH_MAP[buildtools_key].extend(MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key])
-
-# convert string version set to string version list ranked in descending order
-MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS], reverse=True)]
 
 # MSVS Channel: Release, Preview, Any
 
@@ -396,9 +365,8 @@ for vs_channel_rank, vs_channel_suffix, vs_channel_symbols in (
 
     for symbol in vs_channel_symbols:
         MSVS_CHANNEL_SYMBOLS.append(symbol)
-        MSVS_CHANNEL_EXTERNAL[symbol] = vs_channel_def
-        MSVS_CHANNEL_EXTERNAL[symbol.upper()] = vs_channel_def
-        MSVS_CHANNEL_EXTERNAL[symbol.lower()] = vs_channel_def
+        for sym in [symbol, symbol.lower(), symbol.upper()]:
+            MSVS_CHANNEL_EXTERNAL[sym] = vs_channel_def
 
 MSVS_CHANNEL_RELEASE = MSVS_CHANNEL_INTERNAL['Release']
 MSVS_CHANNEL_PREVIEW = MSVS_CHANNEL_INTERNAL['Preview']
@@ -453,8 +421,9 @@ for vs_component_isexpress, vs_component_suffix, vs_component_symbols in (
     MSVS_COMPONENTID_EXTERNAL[vs_component_id] = vs_componentid_def
 
     for symbol in vs_component_symbols:
-        MSVS_COMPONENTID_EXTERNAL[symbol] = vs_componentid_def
         MSVS_COMPONENTID_SYMBOLS.append(symbol)
+        for sym in [symbol, symbol.lower(), symbol.upper()]:
+            MSVS_COMPONENTID_EXTERNAL[sym] = vs_componentid_def
 
 MSVS_COMPONENTID_ENTERPRISE = MSVS_COMPONENTID_INTERNAL['Enterprise']
 MSVS_COMPONENTID_PROFESSIONAL = MSVS_COMPONENTID_INTERNAL['Professional']
@@ -544,6 +513,46 @@ REGISTRY_COMPONENT_PYTHON = REGISTRY_COMPONENT_INTERNAL['Py']
 REGISTRY_COMPONENT_CMDLINE = REGISTRY_COMPONENT_INTERNAL['Cmd']
 REGISTRY_COMPONENT_BUILDTOOLS = REGISTRY_COMPONENT_INTERNAL['BT']
 REGISTRY_COMPONENT_EXPRESS = REGISTRY_COMPONENT_INTERNAL['Exp']
+
+# EXPERIMENTAL: msvc version/toolset search lists
+#
+# VS2017 example:
+#
+#     defaults['14.1']    = ['14.1', '14.1Exp']
+#     defaults['14.1Exp'] = ['14.1Exp']
+#
+#     search['14.1']    = ['14.3', '14.2', '14.1', '14.1Exp']
+#     search['14.1Exp'] = ['14.1Exp']
+
+MSVC_VERSION_TOOLSET_DEFAULTS_MAP = {}
+MSVC_VERSION_TOOLSET_SEARCH_MAP = {}
+
+# Pass 1: Build defaults lists and setup express versions
+for vs_product_def in MSVS_PRODUCT_DEFINITION_LIST:
+    if not vs_product_def.vc_buildtools_def.vc_istoolset:
+        continue
+    version_key = vs_product_def.vc_buildtools_def.vc_version
+    MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key] = [version_key]
+    MSVC_VERSION_TOOLSET_SEARCH_MAP[version_key] = []
+    if vs_product_def.vs_express:
+        express_key = version_key + 'Exp'
+        MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key].append(express_key)
+        MSVC_VERSION_TOOLSET_DEFAULTS_MAP[express_key] = [express_key]
+        MSVC_VERSION_TOOLSET_SEARCH_MAP[express_key] = [express_key]
+
+# Pass 2: Extend search lists (decreasing version order)
+for vs_product_def in MSVS_PRODUCT_DEFINITION_LIST:
+    if not vs_product_def.vc_buildtools_def.vc_istoolset:
+        continue
+    version_key = vs_product_def.vc_buildtools_def.vc_version
+    for vc_buildtools in vs_product_def.vc_buildtools_all:
+        toolset_buildtools_def = MSVC_BUILDTOOLS_INTERNAL[vc_buildtools]
+        toolset_vs_product_def = MSVC_VERSION_INTERNAL[toolset_buildtools_def.vc_version]
+        buildtools_key = toolset_buildtools_def.vc_version
+        MSVC_VERSION_TOOLSET_SEARCH_MAP[buildtools_key].extend(MSVC_VERSION_TOOLSET_DEFAULTS_MAP[version_key])
+
+# convert string version set to string version list ranked in descending order
+MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS], reverse=True)]
 
 # internal consistency check (should be last) 
 

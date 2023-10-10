@@ -194,8 +194,10 @@ class VisualStudio:
 # good money for in preference to whatever Microsoft makes available
 # for free.
 #
-# If you update this list, update _VCVER and _VSPRODUCT_REGISTRY_VCDIR in
-# Tool/MSCommon/vc.py, and the MSVC_VERSION documentation in Tool/msvc.xml.
+# If you update this list, update:
+#     MSVS_PRODUCT_DEFINITIONS in Tool/MSCommon/MSVC/Config.py,
+#     _VCVER in Tool/MSCommon/vc.py, and MSVC_VERSION documentation
+#     in Tool/msvc.xml.
 
 SupportedVSList = [
     # Visual Studio 2022

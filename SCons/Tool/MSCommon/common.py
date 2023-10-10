@@ -148,12 +148,16 @@ if LOGFILE:
             extra = None
         return extra
 
+    DEBUG_ENABLED = True
+
 else:
     def debug(x, *args, **kwargs):
         return None
 
     def debug_extra(*args, **kwargs):
         return None
+
+    DEBUG_ENABLED = False
 
 # SCONS_CACHE_MSVC_CONFIG is public, and is documented.
 CONFIG_CACHE = os.environ.get('SCONS_CACHE_MSVC_CONFIG', '')
