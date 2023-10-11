@@ -43,8 +43,11 @@ import SCons.Tool.msvc
 import SCons.Tool.msvs
 import SCons.Util
 
-from .MSCommon import msvc_setup_env_once, msvc_setup_env_tool
-from .MSCommon.common import get_pch_node
+from SCons.Tool.MSCommon import (
+    msvc_setup_env_once,
+    msvc_setup_env_tool,
+)
+from SCons.Tool.MSCommon.common import get_pch_node
 
 tool_name = 'mslink'
 
