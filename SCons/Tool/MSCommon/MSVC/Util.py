@@ -35,6 +35,15 @@ from collections import (
 
 from . import Config
 
+# class utilities
+
+class AutoInitialize:
+    # Automatically call _initialize classmethod upon class definition completion.
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if hasattr(cls, '_initialize') and callable(getattr(cls, '_initialize', None)):
+            cls._initialize()
+
 # path utilities
 
 # windows drive specification (e.g., 'C:')

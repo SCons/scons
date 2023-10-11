@@ -40,13 +40,6 @@ import SCons.Warnings
 class MSVCCacheInvalidWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
-class AutoInitialize:
-    # Automatically call _initialize classmethod upon class definition completion.
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        if hasattr(cls, '_initialize') and callable(getattr(cls, '_initialize', None)):
-            cls._initialize()
-
 # SCONS_MSCOMMON_DEBUG is internal-use so undocumented:
 # set to '-' to print to console, else set to filename to log to
 LOGFILE = os.environ.get('SCONS_MSCOMMON_DEBUG')
@@ -105,8 +98,11 @@ if LOGFILE:
             ': %(message)s'
         )
 
-        def __init__(self):
+        def __init__(self, log_prefix):
             super().__init__()
+            if log_prefix:
+                self.log_format = log_prefix + self.log_format
+                self.log_format_classname = log_prefix + self.log_format_classname
             log_record = logging.LogRecord(
                 '',    # name (str)
                 0,     # level (int)
@@ -129,11 +125,12 @@ if LOGFILE:
             return formatter.format(record)
 
     if LOGFILE == '-':
-        log_format = 'debug: ' + log_format
+        log_prefix = 'debug: '
         log_handler = logging.StreamHandler(sys.stdout)
     else:
+        log_prefix = ''
         log_handler = logging.FileHandler(filename=LOGFILE)
-    log_formatter = _CustomFormatter()
+    log_formatter = _CustomFormatter(log_prefix)
     log_handler.setFormatter(log_formatter)
     logger = logging.getLogger(name=__name__)
     logger.setLevel(level=logging.DEBUG)

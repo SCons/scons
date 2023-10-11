@@ -60,10 +60,11 @@ from .common import (
     debug,
     debug_extra,
     DEBUG_ENABLED,
-    AutoInitialize,
 )
 
 from . import MSVC
+
+from .MSVC.Util import AutoInitialize
 
 from .MSVC.Exceptions import (
     VisualCException,
