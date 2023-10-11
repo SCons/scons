@@ -25,13 +25,9 @@
 Constants and initialized data structures for Microsoft Visual C/C++.
 """
 
-import os
-
 from collections import (
     namedtuple,
 )
-
-import SCons.Util
 
 from . import Util
 
