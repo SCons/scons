@@ -4140,7 +4140,7 @@ def msvc_setup_env(env) -> None:
 
     seen_path = False
     for k, v in d.items():
-        if not seen_path and k.upper() == 'PATH':
+        if not seen_path and k == 'PATH':
             seen_path = True
             found_cl_path = SCons.Util.WhereIs('cl', v)
             found_cl_envpath = SCons.Util.WhereIs('cl', env['ENV'].get(k, []))
