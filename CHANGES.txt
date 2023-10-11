@@ -42,6 +42,13 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       registry query that returns a path that does not exist.  Multiple invocation
       paths were not prepared to handle the MissingConfiguration exception.  The
       MissingConfiguration exception type was removed.
+    - The detection of the msvc compiler executable (cl.exe) has been modified.  The
+      compiler detection no longer considers the host os environment path.  In addition,
+      existence of the msvc compiler executable is checked in the detection dictionary
+      and the scons ENV path before the detection dictionary is merged into the scons
+      ENV.  Different warnings are produced when the msvc compiler is not detected in the
+      detection dictionary based on whether or not an msvc compiler was detected in the
+      scons ENV path (i.e., already exists in the user's ENV path prior to detection).
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`

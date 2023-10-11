@@ -59,6 +59,10 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   batch file exists but an individual msvc toolset may not support the host/target
   architecture combination.  For example, when using VS2022 on arm64, the arm64 native
   tools are only installed for the 14.3x toolsets.
+- MSVC: When the msvc compiler executable is not found during setup of the msvc
+  environment, the warning message issued takes into account whether or not a
+  possibly erroneous compiler executable was already present in the scons environment
+  path.
 - Extend range of recognized Java versions to 20.
 - Builder calls (like Program()) now accept pathlib objects in source lists.
 - The Help() function now takes an additional keyword argument keep_local:
@@ -101,6 +105,8 @@ FIXES
 - MSVC: Erroneous construction of the installed msvc list (as described above) caused an
   index error in the msvc support code.  An explicit check was added to prevent indexing
   into an empty list.  Fixes #4312.
+- MSVC: The search for the msvc compiler executable (cl.exe) no longer inspects the
+  OS system path in certain situations when setting up the msvc environment.
 - MSCommon: Test SConfTests.py would fail when mscommon debugging was enabled via the
   MSVC_MSCOMMON_DEBUG environment variable.  The mscommon logging filter class registered
   with the python logging module was refactored to prevent test failure.
