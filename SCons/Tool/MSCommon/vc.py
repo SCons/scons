@@ -606,6 +606,48 @@ _LE2003_HOST_TARGET_CFG = _host_target_config_factory(
 
 _CL_EXE_NAME = 'cl.exe'
 
+# internal utilities
+
+class _Util(AutoInitialize):
+
+    debug_extra = None
+
+    # cached values
+    _normalized_path = {}
+    _path_exists = {}
+
+    @classmethod
+    def reset(cls) -> None:
+        cls._normalized_path = {}
+        cls._path_exists = {}
+
+    @classmethod
+    def _initialize(cls) -> None:
+        cls.debug_extra = debug_extra(cls)
+        cls.reset()
+
+    # normalized paths
+
+    @classmethod
+    def normalize_path(cls, pval):
+        rval = cls._normalized_path.get(pval, UNDEFINED)
+        if rval == UNDEFINED:
+            rval = MSVC.Util.normalize_path(pval)
+            cls._normalized_path[pval] = rval
+            debug('norm=%s, pval=%s', repr(rval), repr(pval), extra=cls.debug_extra)
+        return rval
+
+    # path existence
+
+    @classmethod
+    def path_exists(cls, pval):
+        rval = cls._path_exists.get(pval, UNDEFINED)
+        if rval == UNDEFINED:
+            rval = os.path.exists(pval)
+            cls._path_exists[pval] = rval
+            debug('exists=%s, pval=%s', rval, repr(pval), extra=cls.debug_extra)
+        return rval
+
 def get_msvc_version_numeric(msvc_version):
     """Get the raw version numbers from a MSVC_VERSION string, so it
     could be cast to float or other numeric values. For example, '14.0Exp'
@@ -1142,32 +1184,6 @@ class _VSConfig:
 
     }
 
-# normalized paths
-
-_normalize_path = {}
-
-def normalize_path(pval):
-    global _normalize_path
-    rval = _normalize_path.get(pval, UNDEFINED)
-    if rval == UNDEFINED:
-        rval = MSVC.Util.normalize_path(pval)
-        _normalize_path[pval] = rval
-        # debug('pval=%s, orig=%s', repr(rval), repr(pval))
-    return rval
-
-# path existence
-
-_path_exists = {}
-
-def path_exists(pval):
-    global _path_exists
-    rval = _path_exists.get(pval, UNDEFINED)
-    if rval == UNDEFINED:
-        rval = os.path.exists(pval)
-        _path_exists[pval] = rval
-        # debug('exists=%s, pval=%s', rval, repr(pval))
-    return rval
-
 def msvc_version_to_maj_min(msvc_version):
     msvc_version_numeric = get_msvc_version_numeric(msvc_version)
 
@@ -1202,9 +1218,9 @@ def msvc_find_vswhere(env=None):
     # NB: this gets called from testsuite on non-Windows platforms.
     # Whether that makes sense or not, don't break it for those.
     vswhere_env = env.subst('$VSWHERE') if env and 'VSWHERE' in env else None
-    vswhere_execs = _VSWhere.find_executables(vswhere_env)
-    if vswhere_execs:
-        vswhere_path = vswhere_execs[0].path
+    vswhere_executables = _VSWhere.find_executables(vswhere_env)
+    if vswhere_executables:
+        vswhere_path = vswhere_executables[0].path
     else:
         vswhere_path = None
     debug('vswhere_path=%s', vswhere_path)
@@ -1229,7 +1245,7 @@ class _VSWhere(AutoInitialize):
     vswhere_executables = []
 
     @classmethod
-    def _cmdline(cls):
+    def _cmdline(cls) -> None:
         vswhere, option = _Options.vswhere()
         if vswhere:
             vswhere_exec = cls._user_path(vswhere, option)
@@ -1240,9 +1256,9 @@ class _VSWhere(AutoInitialize):
     @classmethod
     def _setup(cls) -> None:
         for pval in VSWHERE_PATHS:
-            if not path_exists(pval):
+            if not _Util.path_exists(pval):
                 continue
-            vswhere_exec = cls.VSWhereExecutable(path=pval, norm=normalize_path(pval))
+            vswhere_exec = cls.VSWhereExecutable(path=pval, norm=_Util.normalize_path(pval))
             cls.vswhere_executables.append(vswhere_exec)
         debug('vswhere_executables=%s', cls.vswhere_executables, extra=cls.debug_extra)
         cls._cmdline()
@@ -1270,7 +1286,7 @@ class _VSWhere(AutoInitialize):
         vswhere_exec = None
         if pval:
 
-            if not path_exists(pval):
+            if not _Util.path_exists(pval):
 
                 warn_msg = f'vswhere executable path not found: {pval!r} ({source})'
                 debug(warn_msg, extra=cls.debug_extra)
@@ -1278,7 +1294,7 @@ class _VSWhere(AutoInitialize):
 
             else:
 
-                norm = normalize_path(pval)
+                norm = _Util.normalize_path(pval)
                 tail = os.path.split(norm)[-1]
                 if tail != cls.VSWHERE_EXE:
 
@@ -1649,19 +1665,19 @@ _MSVSBase = namedtuple('_MSVSBase', [
 
 class MSVSBase(_MSVSBase):
 
-    def _is_express(vs_component_def):
+    def _is_express(vs_component_def) -> bool:
         vs_componentid_def = vs_component_def.vs_componentid_def
         is_express = bool(vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_EXPRESS)
         return is_express
 
     @staticmethod
-    def _is_buildtools(vs_component_def):
+    def _is_buildtools(vs_component_def) -> bool:
         vs_componentid_def = vs_component_def.vs_componentid_def
         is_buildtools = bool(vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_BUILDTOOLS)
         return is_buildtools
 
     @staticmethod
-    def _is_vcforpython(vs_component_def):
+    def _is_vcforpython(vs_component_def) -> bool:
         vs_componentid_def = vs_component_def.vs_componentid_def
         is_vcforpython = bool(vs_componentid_def == MSVC.Config.MSVS_COMPONENTID_PYTHON)
         return is_vcforpython
@@ -1728,7 +1744,7 @@ class MSVSBase(_MSVSBase):
             vs_component_def=vs_component_def,
             vs_sequence_nbr=vs_sequence_nbr,
             vs_dir=vs_dir,
-            vs_dir_norm=normalize_path(vs_dir),
+            vs_dir_norm=_Util.normalize_path(vs_dir),
             vs_version=vs_version,
             is_express=cls._is_express(vs_component_def),
             is_buildtools=cls._is_buildtools(vs_component_def),
@@ -1804,9 +1820,9 @@ class MSVSInstance(_MSVSInstance):
             id_str=id_str,
             msvs_base=msvs_base,
             vs_executable=vs_executable,
-            vs_executable_norm=normalize_path(vs_executable),
+            vs_executable_norm=_Util.normalize_path(vs_executable),
             vs_script=vs_script,
-            vs_script_norm=normalize_path(vs_script),
+            vs_script_norm=_Util.normalize_path(vs_script),
             vc_version_def=vc_version_def,
         )
 
@@ -2039,6 +2055,46 @@ class MSVSInstalled(_MSVSInstalled, AutoInitialize):
                     extra=self.debug_extra,
                 )
 
+    def _msvs_instances_internal(
+        self, *,
+        vs_product_def=None,
+        vs_channel_def=None,
+        vs_componentid_def=None,
+        vs_sequence_nbr=None,
+    ):
+
+        if not vs_channel_def:
+            vs_channel_def = _VSChannel.get_default_channel()
+
+        if vs_product_def:
+
+            query_key = _VSKeys.msvs_edition_key(
+                vs_product_def=vs_product_def,
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+                vs_sequence_nbr=vs_sequence_nbr
+            )
+
+            msvs_instances = self.msvs_edition_instances_map.get(query_key, [])
+
+        else:
+
+            query_key = _VSKeys.msvs_channel_key(
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+            )
+
+            msvs_instances = self.msvs_channel_instances_map.get(query_key, [])
+
+        debug(
+            'query_key=%s, n_msvs_instances=%s',
+            repr(query_key.serialize()),
+            repr(len(msvs_instances)),
+            extra=self.debug_extra,
+        )
+
+        return msvs_instances, query_key
+
 _MSVCInstance = namedtuple('_MSVCInstance', [
     'id_str',
     'msvs_base',
@@ -2077,7 +2133,7 @@ class MSVCInstance(_MSVCInstance, AutoInitialize):
             vc_version_def=vc_version_def,
             vc_feature_map=vc_feature_map,
             vc_dir=vc_dir,
-            vc_dir_norm=normalize_path(vc_dir),
+            vc_dir_norm=_Util.normalize_path(vc_dir),
             is_sdkversion_supported=cls._is_sdkversion_supported(msvs_base),
         )
 
@@ -2096,7 +2152,7 @@ class MSVCInstance(_MSVCInstance, AutoInitialize):
         return self.msvs_base.msvs_instance
 
     @staticmethod
-    def _is_sdkversion_supported(msvs_base):
+    def _is_sdkversion_supported(msvs_base) -> bool:
 
         vs_componentid_def = msvs_base.vs_component_def.vs_componentid_def
         vs_product_numeric = msvs_base.vs_product_def.vs_product_numeric
@@ -2120,7 +2176,7 @@ class MSVCInstance(_MSVCInstance, AutoInitialize):
 
         return is_supported
 
-    def skip_uwp_target(self, env):
+    def skip_uwp_target(self, env) -> bool:
         skip = False
         if self.vc_feature_map:
             target_arch = env.get('TARGET_ARCH')
@@ -2133,7 +2189,7 @@ class MSVCInstance(_MSVCInstance, AutoInitialize):
         )
         return skip
 
-    def is_uwp_target_supported(self, target_arch=None):
+    def is_uwp_target_supported(self, target_arch=None) -> bool:
 
         vs_componentid_def = self.msvs_base.vs_component_def.vs_componentid_def
         vs_product_numeric = self.msvs_base.vs_product_def.vs_product_numeric
@@ -2173,15 +2229,15 @@ class MSVCInstance(_MSVCInstance, AutoInitialize):
     # convenience properties: reduce member lookup chain for readability
 
     @property
-    def is_express(self):
+    def is_express(self) -> bool:
         return self.msvs_base.is_express
 
     @property
-    def is_buildtools(self):
+    def is_buildtools(self) -> bool:
         return self.msvs_base.is_buildtools
 
     @property
-    def is_vcforpython(self):
+    def is_vcforpython(self) -> bool:
         return self.msvs_base.is_vcforpython
 
     @property
@@ -2399,6 +2455,46 @@ class MSVCInstalled(_MSVCInstalled, AutoInitialize):
                     extra=self.debug_extra,
                 )
 
+    def _msvc_instances_internal(
+        self, *,
+        vs_product_def=None,
+        vs_channel_def=None,
+        vs_componentid_def=None,
+        vs_sequence_nbr=None,
+    ):
+
+        if not vs_channel_def:
+            vs_channel_def = _VSChannel.get_default_channel()
+
+        if vs_product_def:
+
+            query_key = _VSKeys.msvs_edition_key(
+                vs_product_def=vs_product_def,
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+                vs_sequence_nbr=vs_sequence_nbr
+            )
+
+            msvc_instances = self.msvs_edition_instances_map.get(query_key, [])
+
+        else:
+
+            query_key = _VSKeys.msvs_channel_key(
+                vs_channel_def=vs_channel_def,
+                vs_componentid_def=vs_componentid_def,
+            )
+
+            msvc_instances = self.msvs_channel_instances_map.get(query_key, [])
+
+        debug(
+            'query_key=%s, n_msvc_instances=%s',
+            repr(query_key.serialize()),
+            repr(len(msvc_instances)),
+            extra=self.debug_extra,
+        )
+
+        return msvc_instances, query_key
+
 _MSVSManager = namedtuple('_MSVSManager', [
     'msvc_installed',
     'msvs_installed',
@@ -2431,86 +2527,52 @@ class MSVSManager(_MSVSManager, AutoInitialize):
 
     def query_msvs_instances(
         self, *,
-        vs_product_def=None,
-        vs_channel_def=None,
-        vs_componentid_def=None,
-        vs_sequence_nbr=None,
+        msvc_version,
     ):
 
-        # TODO(JCB): take strings as input rather than objects
-        # TODO(JCB): error checking combinations (ignored, etc)
+        # TODO(JCB): temporary placeholder
 
-        if not vs_channel_def:
-            vs_channel_def = _msvs_channel_default()
+        prefix, suffix = MSVC.Util.get_msvc_version_prefix_suffix(msvc_version)
 
-        if vs_product_def:
+        vs_product_def = MSVC.Config.MSVC_VERSION_INTERNAL[prefix]
 
-            query_key = _VSKeys.msvs_edition_key(
-                vs_product_def=vs_product_def,
-                vs_channel_def=vs_channel_def,
-                vs_componentid_def=vs_componentid_def,
-                vs_sequence_nbr=vs_sequence_nbr
-            )
+        vs_channel_def = None
 
-            msvs_instances = self.msvs_installed.msvs_edition_instances_map.get(query_key, [])
-
+        if suffix == 'Exp':
+            vs_componentid_def = MSVC.Config.MSVS_COMPONENTID_EXPRESS
         else:
+            vs_componentid_def = None
 
-            query_key = _VSKeys.msvs_channel_key(
-                vs_channel_def=vs_channel_def,
-                vs_componentid_def=vs_componentid_def,
-            )
-
-            msvs_instances = self.msvs_installed.msvs_channel_instances_map.get(query_key, [])
-
-        debug(
-            'query_key=%s, n_msvs_instances=%s',
-            repr(query_key.serialize()),
-            repr(len(msvs_instances)),
-            extra=self.debug_extra,
+        msvs_instances, query_key = self.msvs_installed._msvs_instances_internal(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
         )
 
         return msvs_instances, query_key
 
     def query_msvc_instances(
         self, *,
-        vs_product_def=None,
-        vs_channel_def=None,
-        vs_componentid_def=None,
-        vs_sequence_nbr=None,
+        msvc_version,
     ):
 
-        # TODO(JCB): take strings as input rather than objects
-        # TODO(JCB): error checking combinations (ignored, etc)
+        # TODO(JCB): temporary placeholder
 
-        if not vs_channel_def:
-            vs_channel_def = _VSChannel.get_default_channel()
+        prefix, suffix = MSVC.Util.get_msvc_version_prefix_suffix(msvc_version)
 
-        if vs_product_def:
+        vs_product_def = MSVC.Config.MSVC_VERSION_INTERNAL[prefix]
 
-            query_key = _VSKeys.msvs_edition_key(
-                vs_product_def=vs_product_def,
-                vs_channel_def=vs_channel_def,
-                vs_componentid_def=vs_componentid_def,
-                vs_sequence_nbr=vs_sequence_nbr
-            )
+        vs_channel_def = None
 
-            msvc_instances = self.msvc_installed.msvs_edition_instances_map.get(query_key, [])
-
+        if suffix == 'Exp':
+            vs_componentid_def = MSVC.Config.MSVS_COMPONENTID_EXPRESS
         else:
+            vs_componentid_def = None
 
-            query_key = _VSKeys.msvs_channel_key(
-                vs_channel_def=vs_channel_def,
-                vs_componentid_def=vs_componentid_def,
-            )
-
-            msvc_instances = self.msvc_installed.msvs_channel_instances_map.get(query_key, [])
-
-        debug(
-            'query_key=%s, n_msvc_instances=%s',
-            repr(query_key.serialize()),
-            repr(len(msvc_instances)),
-            extra=self.debug_extra,
+        msvc_instances, query_key = self.msvc_installed._msvc_instances_internal(
+            vs_product_def=vs_product_def,
+            vs_channel_def=vs_channel_def,
+            vs_componentid_def=vs_componentid_def,
         )
 
         return msvc_instances, query_key
@@ -2623,7 +2685,8 @@ class _VSDetectVSWhere(AutoInitialize):
             func()
 
     @classmethod
-    def _filter_vswhere_paths(cls, vswhere_executables):
+    def _filter_vswhere_paths(cls, vswhere_env):
+        vswhere_executables = _VSWhere.find_executables(vswhere_env)
         vswhere_paths = [
             vswhere_exec.norm
             for vswhere_exec in vswhere_executables
@@ -2704,12 +2767,10 @@ class _VSDetectVSWhere(AutoInitialize):
     @classmethod
     def detect(cls, vswhere_env):
 
-        vswhere_executables = _VSWhere.find_executables(vswhere_env)
-
         num_instances = len(cls.msvc_instances)
         num_new_instances = 0
 
-        vswhere_paths = cls._filter_vswhere_paths(vswhere_executables)
+        vswhere_paths = cls._filter_vswhere_paths(vswhere_env)
         if vswhere_paths:
 
             num_beg_instances = num_instances
@@ -2737,10 +2798,10 @@ class _VSDetectVSWhere(AutoInitialize):
                     #print(json.dumps(instance, indent=4, sort_keys=True))
 
                     vs_dir = instance.get('installationPath')
-                    if not vs_dir or not path_exists(vs_dir):
+                    if not vs_dir or not _Util.path_exists(vs_dir):
                         continue
 
-                    vs_norm = normalize_path(vs_dir)
+                    vs_norm = _Util.normalize_path(vs_dir)
                     if vs_norm in cls.vs_dir_seen:
                         continue
 
@@ -2756,7 +2817,7 @@ class _VSDetectVSWhere(AutoInitialize):
                     cls.vs_dir_seen.add(vs_norm)
 
                     vc_dir = os.path.join(vs_dir, 'VC')
-                    if not path_exists(vc_dir):
+                    if not _Util.path_exists(vc_dir):
                         continue
 
                     vs_major = vs_version.split('.')[0]
@@ -2894,7 +2955,7 @@ class _VSDetectRegistry(AutoInitialize):
     _VS2015BT_VCVARS_STOP = re.compile(r'^\s*[:]Setup_VS\s*$', re.IGNORECASE)
 
     @classmethod
-    def _vs_buildtools_2015_vcvars(cls, vcvars_file):
+    def _vs_buildtools_2015_vcvars(cls, vcvars_file) -> bool:
         have_buildtools_vcvars = False
         with open(vcvars_file) as fh:
             for line in fh:
@@ -2906,7 +2967,7 @@ class _VSDetectRegistry(AutoInitialize):
         return have_buildtools_vcvars
 
     @classmethod
-    def _vs_buildtools_2015(cls, vs_dir, vc_dir):
+    def _vs_buildtools_2015(cls, vs_dir, vc_dir) -> bool:
 
         is_buildtools = False
 
@@ -2947,7 +3008,7 @@ class _VSDetectRegistry(AutoInitialize):
     _VS2015EXP_VCVARS_STOP = re.compile(r'^\s*[:]GetVSCommonToolsDir\s*$', re.IGNORECASE)
 
     @classmethod
-    def _vs_express_2015_vcvars(cls, vcvars_file):
+    def _vs_express_2015_vcvars(cls, vcvars_file) -> bool:
         n_libpath = 0
         with open(vcvars_file) as fh:
             for line in fh:
@@ -2955,7 +3016,7 @@ class _VSDetectRegistry(AutoInitialize):
                     n_libpath += 1
                 elif cls._VS2015EXP_VCVARS_STOP.match(line):
                     break
-        have_uwp_fix = n_libpath >= 2
+        have_uwp_fix = bool(n_libpath >= 2)
         return have_uwp_fix
 
     @classmethod
@@ -2987,7 +3048,7 @@ class _VSDetectRegistry(AutoInitialize):
     _REGISTRY_WINSDK_VERSIONS = {'10.0', '9.0'}
 
     @classmethod
-    def _msvc_dir_is_winsdk_only(cls, vc_dir, msvc_version):
+    def _msvc_dir_is_winsdk_only(cls, vc_dir, msvc_version) -> bool:
 
         # detect winsdk-only installations
         #
@@ -3189,7 +3250,7 @@ class _VSDetectRegistry(AutoInitialize):
                             debug('vc dir does not exist. (ignoring)', repr(vc_dir), extra=cls.debug_extra)
                             continue
 
-                    vc_norm = normalize_path(vc_dir)
+                    vc_norm = _Util.normalize_path(vc_dir)
                     if vc_norm in cls.vc_dir_seen:
                         continue
                     cls.vc_dir_seen.add(vc_norm)
@@ -3336,23 +3397,6 @@ def vs_detect(env=None):
     msvs_manager = _VSDetect.detect(vswhere_env)
     return msvs_manager
 
-def _query_key_components(msvc_version, env=None):
-
-    # TODO(JCB): temporary placeholder
-
-    prefix, suffix = MSVC.Util.get_msvc_version_prefix_suffix(msvc_version)
-
-    vs_product_def = MSVC.Config.MSVC_VERSION_INTERNAL[prefix]
-
-    vs_channel_def = None
-
-    if suffix == 'Exp':
-        vs_componentid_def = MSVC.Config.MSVS_COMPONENTID_EXPRESS
-    else:
-        vs_componentid_def = None
-
-    return vs_product_def, vs_componentid_def, vs_channel_def
-
 def _find_msvc_instance(msvc_version, env=None):
 
     msvc_instance = None
@@ -3365,13 +3409,7 @@ def _find_msvc_instance(msvc_version, env=None):
 
     vs_manager = vs_detect(env)
 
-    vs_product_def, vs_componentid_def, vs_channel_def = _query_key_components(msvc_version, env)
-
-    msvc_instances, query_key = vs_manager.query_msvc_instances(
-        vs_product_def=vs_product_def,
-        vs_componentid_def=vs_componentid_def,
-        vs_channel_def=vs_channel_def,
-    )
+    msvc_instances, query_key = vs_manager.query_msvc_instances(msvc_version=msvc_version)
 
     msvc_instance = msvc_instances[0] if msvc_instances else None
 
@@ -3729,6 +3767,7 @@ def get_installed_vcs(env=None):
 def reset_installed_vcs() -> None:
     """Make it try again to find VC.  This is just for the tests."""
     _reset_installed_vcs()
+    _Util.reset()
     _VSWhere.reset()
     _VSChannel.reset()
     _VSDetect.reset()
@@ -3995,14 +4034,16 @@ def msvc_find_valid_batch_script(env, version):
 
     return d
 
-MSVCAction = namedtuple("MSVCAction", [
-    'action',
-])
+class _MSVCAction:
 
-MSVC_ACTION_SCRIPT = MSVCAction(action='SCRIPT')
-MSVC_ACTION_SELECT = MSVCAction(action='SELECT')
-MSVC_ACTION_SETTINGS = MSVCAction(action='SETTINGS')
-MSVC_ACTION_BYPASS = MSVCAction(action='BYPASS')
+    MSVCAction = namedtuple("MSVCAction", [
+        'label',
+    ])
+
+    SCRIPT = MSVCAction(label='script')
+    SELECT = MSVCAction(label='select')
+    SETTINGS = MSVCAction(label='settings')
+    BYPASS = MSVCAction(label='bypass')
 
 def _msvc_action(env):
 
@@ -4023,34 +4064,36 @@ def _msvc_action(env):
         # use script defined
         if SCons.Util.is_String(use_script):
             # use_script is string, use_settings ignored
-            msvc_action = MSVC_ACTION_SCRIPT
+            msvc_action = _MSVCAction.SCRIPT
         elif not use_script:
             # use_script eval false, use_settings ignored
-            msvc_action = MSVC_ACTION_BYPASS
+            msvc_action = _MSVCAction.BYPASS
         else:
             # use script eval true, use_settings ignored
-            msvc_action = MSVC_ACTION_SELECT
+            msvc_action = _MSVCAction.SELECT
     elif use_settings is not None:
         # use script undefined, use_settings defined and not None (type checked)
-        msvc_action = MSVC_ACTION_SETTINGS
+        msvc_action = _MSVCAction.SETTINGS
     else:
         # use script undefined, use_settings undefined or None
-        msvc_action = MSVC_ACTION_SELECT
+        msvc_action = _MSVCAction.SELECT
 
     if not msvc_action:
         errmsg = 'msvc_action is undefined'
         debug('MSVCInternalError: %s', errmsg)
         raise MSVCInternalError(errmsg)
 
+    debug('msvc_action=%s', repr(msvc_action.label))
+
     return msvc_action, use_script, use_settings
 
-def msvc_setup_env(env):
+def msvc_setup_env(env) -> None:
     debug('called')
     version = get_default_version(env)
     if version is None:
         if not msvc_setup_env_user(env):
             MSVC.SetupEnvDefault.set_nodefault()
-        return None
+        return
 
     # XXX: we set-up both MSVS version for backward
     # compatibility with the msvs tool
@@ -4059,35 +4102,35 @@ def msvc_setup_env(env):
     env['MSVS'] = {}
 
     msvc_action, use_script, use_settings = _msvc_action(env)
-    if msvc_action == MSVC_ACTION_SCRIPT:
+    if msvc_action == _MSVCAction.SCRIPT:
         use_script = use_script.strip()
         if not os.path.exists(use_script):
             error_msg = f'Script specified by MSVC_USE_SCRIPT not found: {use_script!r}'
             debug(error_msg)
             raise MSVCScriptNotFound(error_msg)
         args = env.subst('$MSVC_USE_SCRIPT_ARGS')
-        debug('use_script 1 %s %s', repr(use_script), repr(args))
+        debug('msvc_action=%s, script=%s, args=%s', repr(msvc_action.label), repr(use_script), repr(args))
         d = script_env(env, use_script, args)
-    elif msvc_action == MSVC_ACTION_SELECT:
+    elif msvc_action == _MSVCAction.SELECT:
         d = msvc_find_valid_batch_script(env, version)
-        debug('use_script 2 %s', d)
+        debug('msvc_action=%s, d=%s', repr(msvc_action.label), d)
         if not d:
-            return d
-    elif msvc_action == MSVC_ACTION_SETTINGS:
+            return
+    elif msvc_action == _MSVCAction.SETTINGS:
         if not SCons.Util.is_Dict(use_settings):
             error_msg = f'MSVC_USE_SETTINGS type error: expected a dictionary, found {type(use_settings).__name__}'
             debug(error_msg)
             raise MSVCUseSettingsError(error_msg)
         d = use_settings
-        debug('use_settings %s', d)
-    elif msvc_action == MSVC_ACTION_BYPASS:
-        debug('MSVC_USE_SCRIPT set to False')
+        debug('msvc_action=%s, d=%s', repr(msvc_action.label), d)
+    elif msvc_action == _MSVCAction.BYPASS:
+        debug('msvc_action=%s', repr(msvc_action.label))
         warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment set correctly."
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
-        return None
+        return
     else:
-        action = msvc_action.action if msvc_action else None
-        errmsg = f'unhandled msvc_action ({action!r})'
+        label = msvc_action.label if msvc_action else None
+        errmsg = f'unhandled msvc_action ({label!r})'
         debug('MSVCInternalError: %s', errmsg)
         raise MSVCInternalError(errmsg)
 
@@ -4118,7 +4161,7 @@ def msvc_setup_env(env):
         debug(warn_msg, propose)
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg % propose)
 
-def msvc_exists(env=None, version=None):
+def msvc_exists(env=None, version=None) -> bool:
     vcs = get_installed_vcs(env)
     if version is None:
         rval = len(vcs) > 0
@@ -4127,7 +4170,7 @@ def msvc_exists(env=None, version=None):
     debug('version=%s, return=%s', repr(version), rval)
     return rval
 
-def msvc_setup_env_user(env=None):
+def msvc_setup_env_user(env=None) -> bool:
     rval = False
     if env:
 
@@ -4161,7 +4204,7 @@ def msvc_setup_env_user(env=None):
     debug('return=%s', rval)
     return rval
 
-def msvc_setup_env_tool(env=None, version=None, tool=None):
+def msvc_setup_env_tool(env=None, version=None, tool=None) -> bool:
     MSVC.SetupEnvDefault.register_tool(env, tool, msvc_exists)
     rval = False
     if not rval and msvc_exists(env, version):
@@ -4392,7 +4435,7 @@ def msvc_query_version_toolset(version=None, prefer_newest: bool=True):
 
 def _verify() -> None:
 
-    def _compare_product_sets(set_config, set_local, label):
+    def _compare_product_sets(set_config, set_local, label) -> None:
         diff = set_config - set_local
         if diff:
             keys = ', '.join([repr(s) for s in sorted(diff, reverse=True)])

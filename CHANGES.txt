@@ -42,6 +42,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       registry query that returns a path that does not exist.  Multiple invocation
       paths were not prepared to handle the MissingConfiguration exception.  The
       MissingConfiguration exception type was removed.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
     - For msvc version specifications without an 'Exp' suffix, an express installation
       is used when no other edition is detected for the msvc version.
     - VS2015 Express (14.1Exp) may not have been detected. The registry keys written
@@ -60,11 +65,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       batch files will fail. The msvc detection logic now ignores SDK-only VS2010
       installations.  Similar protection is implemented for the sdk-only installs that
       populate the installation folder and registry keys for VS2008 (9.0), if necessary.
-    - The MSCommon module import was changed from a relative import to a top-level
-      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
-      msvs. Moving any of these tools that used relative imports to the scons site tools
-      folder would fail on import (i.e., the relative import paths become invalid when
-      moved).
     - For VS2005 (8.0) to VS2015 (14.0), vsvarsall.bat is employed to dispatch to a
       dependent batch file when configuring the msvc environment.  Previously, only the
       existence of the compiler executable was verified. In certain installations, the

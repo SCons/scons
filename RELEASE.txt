@@ -148,17 +148,17 @@ IMPROVEMENTS
 ------------
 
 - Now tries to find mingw if it comes from Chocolatey install of msys2.
+- MSVC: Module imports were changed from a relative import to a top-level
+  absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+  msvs. Moving any of these tools that used relative imports to the scons site tools
+  folder would fail on import (i.e., the relative import paths become invalid when
+  moved).
 - MSVC: VS2015 Express (14.1Exp) does not support the sdk version argument. VS2015
   Express does not support the store argument for target architectures other than
   x86.  Script argument validation now takes into account these restrictions.
 - MSVC: VS2015 BuildTools (14.0) does not support the sdk version argument and
   does not support the store argument.  Script argument validation now takes into
   account these restrictions.
-- MSVC: Module imports were changed from a relative import to a top-level
-  absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
-  msvs. Moving any of these tools that used relative imports to the scons site tools
-  folder would fail on import (i.e., the relative import paths become invalid when
-  moved).
 
 PACKAGING
 ---------
