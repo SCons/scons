@@ -5,7 +5,7 @@
 import os
 import os.path
 
-from SCons.Tool.MSCommon.vc import VSWHERE_PATHS
+from SCons.Tool.MSCommon.MSVC.VSWhere import VSWHERE_PATHS
 
 # Dump out expected paths
 for vw_path in VSWHERE_PATHS:

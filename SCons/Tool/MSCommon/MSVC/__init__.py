@@ -35,16 +35,19 @@ Currently:
 * _verify is invoked from the last line in the vc module.
 """
 
-from . import Exceptions  # noqa: F401
-
 from . import Config  # noqa: F401
-from . import Util  # noqa: F401
+from . import Exceptions  # noqa: F401
+from . import Options  # noqa: F401
+from . import Policy  # noqa: F401
 from . import Registry  # noqa: F401
 from . import SetupEnvDefault  # noqa: F401
-from . import Policy  # noqa: F401
-from . import WinSDK  # noqa: F401
-from . import Validate  # noqa: F401
 from . import ScriptArguments  # noqa: F401
+from . import Util  # noqa: F401
+from . import Validate  # noqa: F401
+from . import VSDetect  # noqa: F401
+from . import VSWhere  # noqa: F401
+from . import Warnings  # noqa: F401
+from . import WinSDK  # noqa: F401
 
 from . import Dispatcher as _Dispatcher
 

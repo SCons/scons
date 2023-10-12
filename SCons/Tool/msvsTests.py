@@ -947,7 +947,8 @@ if __name__ == "__main__":
     SCons.Util.RegEnumKey      = DummyEnumKey
     SCons.Util.RegEnumValue    = DummyEnumValue
     SCons.Util.RegQueryValueEx = DummyQueryValue
-    SCons.Tool.MSCommon.vc._VSWhere.find_executables = DummyVsWhereExecutables
+
+    SCons.Tool.MSCommon.MSVC.VSWhere.vswhere_get_executables = DummyVsWhereExecutables
 
     os.path.exists = DummyExists # make sure all files exist :-)
     os.path.isfile = DummyExists # make sure all files are files :-)

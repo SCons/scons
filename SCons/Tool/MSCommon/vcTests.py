@@ -29,6 +29,7 @@ import unittest
 import SCons.Node.FS
 import SCons.Warnings
 import SCons.Tool.MSCommon.vc
+from SCons.Tool.MSCommon.MSVC import VSWhere
 from SCons.Tool import MSCommon
 
 import TestCmd
@@ -64,26 +65,26 @@ class VswhereTestCase(unittest.TestCase):
         Verify that msvc_find_vswhere() find's files in the specified paths
         """
 
-        restore_vswhere_execs_exist = MSCommon.vc._VSWhere.vswhere_executables[:]
+        restore_vswhere_execs_exist = list(VSWhere._VSWhere.vswhere_executables)
 
         base_dir = test.workpath('fake_vswhere')
         norm_dir = os.path.normcase(os.path.normpath(base_dir))
         # import pdb; pdb.set_trace()
 
         test_vswhere_dirs = [
-            MSCommon.vc._VSWhere.VSWhereExecutable(
+            VSWhere._VSWhere.VSWhereExecutable(
                 path=os.path.join(base_dir,t[0][1:]),
                 norm=os.path.join(norm_dir,t[1][1:]),
             )
             for t in [
                 (os.path.splitdrive(vswexec.path)[1], os.path.splitdrive(vswexec.norm)[1])
-                for vswexec in MSCommon.vc._VSWhere.vswhere_executables
+                for vswexec in VSWhere._VSWhere.vswhere_executables
             ]
         ]
 
         for vswexec in test_vswhere_dirs:
             VswhereTestCase._createVSWhere(vswexec.path)
-            MSCommon.vc._VSWhere.vswhere_executables = [vswexec]
+            VSWhere._VSWhere.vswhere_executables = [vswexec]
             find_path = MSCommon.vc.msvc_find_vswhere()
             self.assertTrue(vswexec.path == find_path, "Didn't find vswhere in %s found in %s" % (vswexec.path, find_path))
             os.remove(vswexec.path)
@@ -92,7 +93,7 @@ class VswhereTestCase(unittest.TestCase):
             os.path.join(base_dir,d[1:])
             for d in [
                 os.path.splitdrive(p)[1]
-                for p in MSCommon.vc.VSWHERE_PATHS
+                for p in VSWhere.VSWHERE_PATHS
             ]
         ]
         MSCommon.vc.path_exists = VswhereTestCase._path_exists
@@ -101,13 +102,13 @@ class VswhereTestCase(unittest.TestCase):
             VswhereTestCase._createVSWhere(vswpath)
             VswhereTestCase._existing_path = vswpath
             for front in (True, False):
-                MSCommon.vc._VSWhere.vswhere_executables = []
-                MSCommon.vc.vswhere_push_location(vswpath, front=front)
+                VSWhere._VSWhere.vswhere_executables = []
+                MSCommon.MSVC.VSWhere.vswhere_push_location(vswpath, front=front)
                 find_path = MSCommon.vc.msvc_find_vswhere()
                 self.assertTrue(vswpath == find_path, "Didn't find vswhere in %s found in %s" % (vswpath, find_path))
             os.remove(vswpath)
 
-        MSCommon.vc._VSWhere.vswhere_executables = restore_vswhere_execs_exist
+        VSWhere._VSWhere.vswhere_executables = restore_vswhere_execs_exist
 
     # def specifiedVswherePathTest(self):
     #     "Verify that msvc.generate() respects VSWHERE Specified"
@@ -119,7 +120,7 @@ class MSVcTestCase(unittest.TestCase):
     def _createDummyMSVSBase(vc_version, vs_component, vs_dir):
         vs_product_def = SCons.Tool.MSCommon.MSVC.Config.MSVC_VERSION_INTERNAL[vc_version]
         vs_component_key = (vs_product_def.vs_lookup, vs_component)
-        msvs_base = SCons.Tool.MSCommon.vc.MSVSBase.factory(
+        msvs_base = SCons.Tool.MSCommon.MSVC.VSDetect.MSVSBase.factory(
             vs_product_def=vs_product_def,
             vs_channel_def=SCons.Tool.MSCommon.MSVC.Config.MSVS_CHANNEL_RELEASE,
             vs_component_def=SCons.Tool.MSCommon.MSVC.Config.MSVS_COMPONENT_INTERNAL[vs_component_key],
@@ -131,7 +132,7 @@ class MSVcTestCase(unittest.TestCase):
 
     @classmethod
     def _createDummyMSVCInstance(cls, vc_version, vs_component, vc_dir):
-        msvc_instance = SCons.Tool.MSCommon.vc.MSVCInstance.factory(
+        msvc_instance = SCons.Tool.MSCommon.MSVC.VSDetect.MSVCInstance.factory(
             msvs_base=cls._createDummyMSVSBase(vc_version, vs_component, vc_dir),
             vc_version_def=SCons.Tool.MSCommon.MSVC.Util.msvc_version_components(vc_version),
             vc_feature_map=None,
