@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-VSWhere executable locations for Microsoft Visual C/C++.
+Visual Studio detection for Microsoft Visual C/C++.
 """
 
 import json

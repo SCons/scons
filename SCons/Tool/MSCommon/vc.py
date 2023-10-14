@@ -1387,13 +1387,15 @@ class _MSVCAction:
 
 def _msvc_action(env):
 
-    #   use_script  use_settings   return    description
-    #   ---------- --------------  --------  ----------------
-    #     string      ignored      SCRIPT    use script
-    #   eval false    ignored      BYPASS    bypass detection
-    #   eval true     ignored      SELECT    msvc selection
-    #   undefined  value not None  SETTINGS  use dictionary
-    #   undefined  undefined/None  SELECT    msvc selection
+    #   use_script     use_settings  action    description
+    #   -------------  ------------  --------  ----------------
+    #  defined/None    not None      SETTINGS  use dictionary
+    #  defined/None    None          BYPASS    bypass detection
+    #  defined/string  ignored       SCRIPT    use script
+    #  defined/false   ignored       BYPASS    bypass detection
+    #  defined/true    ignored       SELECT    msvc selection
+    #  undefined       not None      SETTINGS  use dictionary
+    #  undefined       None          SELECT    msvc selection
 
     msvc_action = None
 
@@ -1402,17 +1404,27 @@ def _msvc_action(env):
 
     if use_script != UNDEFINED:
         # use script defined
-        if SCons.Util.is_String(use_script):
-            # use_script is string, use_settings ignored
-            msvc_action = _MSVCAction.SCRIPT
-        elif not use_script:
-            # use_script eval false, use_settings ignored
-            msvc_action = _MSVCAction.BYPASS
+        if use_script is None:
+            # use script is None
+            if use_settings is not None:
+                # use script is None, use_settings is not None
+                msvc_action = _MSVCAction.SETTINGS
+            else:
+                # use script is None, use_settings is None
+                msvc_action = _MSVCAction.BYPASS
         else:
-            # use script eval true, use_settings ignored
-            msvc_action = _MSVCAction.SELECT
+            # use script is not None
+            if SCons.Util.is_String(use_script):
+                # use_script is string, use_settings ignored
+                msvc_action = _MSVCAction.SCRIPT
+            elif not use_script:
+                # use_script eval false, use_settings ignored
+                msvc_action = _MSVCAction.BYPASS
+            else:
+                # use script eval true, use_settings ignored
+                msvc_action = _MSVCAction.SELECT
     elif use_settings is not None:
-        # use script undefined, use_settings defined and not None (type checked)
+        # use script undefined, use_settings is defined and not None
         msvc_action = _MSVCAction.SETTINGS
     else:
         # use script undefined, use_settings undefined or None
@@ -1465,7 +1477,7 @@ def msvc_setup_env(env) -> None:
         debug('msvc_action=%s, d=%s', repr(msvc_action.label), d)
     elif msvc_action == _MSVCAction.BYPASS:
         debug('msvc_action=%s', repr(msvc_action.label))
-        warn_msg = "MSVC_USE_SCRIPT set to False, assuming environment set correctly."
+        warn_msg = "MSVC detection bypassed, assuming environment set correctly."
         SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
         return
     else:

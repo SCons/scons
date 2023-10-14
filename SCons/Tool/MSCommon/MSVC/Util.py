@@ -33,6 +33,8 @@ from collections import (
     namedtuple,
 )
 
+from ..common import debug
+
 from . import Config
 
 # class utilities
@@ -100,9 +102,11 @@ def resolve_path(p, ignore_drivespec=True):
             p = os.path.abspath(p)
             try:
                 p = str(pathlib.Path(p).resolve())
-            except OSError:
-                # TODO(JCB): log error
-                pass
+            except OSError as e:
+                debug(
+                    'caught exception: path=%s, exception=%s(%s)',
+                    repr(p), type(e).__name__, repr(str(e))
+                )
 
     return p
 
