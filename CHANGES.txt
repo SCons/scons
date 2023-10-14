@@ -184,6 +184,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python stdlib types module.
     - TeX tests: skip tests that use makeindex or epstopdf not installed, or
       if `kpsewhich glossaries.sty` fails.
+    - Added a .note.GNU-stack section to the test assembler files to
+      avoid the GNU linker issuing warnings for its absence.
 
 
   From Jonathon Reinhart:
