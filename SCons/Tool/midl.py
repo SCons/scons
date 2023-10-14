@@ -37,7 +37,7 @@ import SCons.Defaults
 import SCons.Scanner.IDL
 import SCons.Util
 
-from .MSCommon import msvc_setup_env_tool
+from SCons.Tool.MSCommon import msvc_setup_env_tool
 
 tool_name = 'midl'
 
