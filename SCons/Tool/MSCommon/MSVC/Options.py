@@ -45,22 +45,28 @@ Dispatcher.register_modulename(__name__)
 CMDLINE_OPTIONS_FORCE = False
 CMDLINE_OPTIONS_EVAR = 'SCONS_ENABLE_MSVC_OPTIONS'
 
+MSVS_CHANNEL_DEFAULT_EVAR = 'SCONS_MSVS_CHANNEL_DEFAULT'
+
 class _Options(Util.AutoInitialize):
 
     enabled = CMDLINE_OPTIONS_FORCE
 
-    vswhere_val = None
     vswhere_opt = '--vswhere'
     vswhere_dest = 'vswhere'
 
-    msvs_channel_val = None
+    vswhere_val = None
+    vswhere_src = vswhere_opt
+
     msvs_channel_opt = '--msvs-channel'
     msvs_channel_dest = 'msvs_channel'
+
+    msvs_channel_val = None
+    msvs_channel_src = msvs_channel_opt
 
     debug_extra = None
 
     @classmethod
-    def _setup(cls) -> None:
+    def _add_options(cls) -> None:
 
         if not cls.enabled:
             val = os.environ.get(CMDLINE_OPTIONS_EVAR)
@@ -79,8 +85,6 @@ class _Options(Util.AutoInitialize):
                 metavar='EXEPATH',
             )
 
-            cls.vswhere_val = SCons.Script.GetOption(cls.vswhere_dest)
-
             SCons.Script.AddOption(
                 cls.msvs_channel_opt,
                 nargs=1,
@@ -92,7 +96,6 @@ class _Options(Util.AutoInitialize):
                 metavar='CHANNEL',
             )
 
-            cls.msvs_channel_val = SCons.Script.GetOption(cls.msvs_channel_dest)
 
         debug(
             'enabled=%s, vswhere=%s, msvs_channel=%s',
@@ -101,12 +104,31 @@ class _Options(Util.AutoInitialize):
         )
 
     @classmethod
+    def _get_options(cls) -> None:
+
+        try:
+            cls.vswhere_val = SCons.Script.GetOption(cls.vswhere_dest)
+        except AttributeError:
+            pass
+
+        try:
+            cls.msvs_channel_val = SCons.Script.GetOption(cls.msvs_channel_dest)
+        except AttributeError:
+            pass
+
+        if cls.msvs_channel_val is None:
+            cls.msvs_channel_val = os.environ.get(MSVS_CHANNEL_DEFAULT_EVAR)
+            if cls.msvs_channel_val is not None:
+                cls.msvs_channel_src = MSVS_CHANNEL_DEFAULT_EVAR
+
+    @classmethod
     def _initialize(cls) -> None:
         cls.debug_extra = debug_extra(cls)
-        cls._setup()
+        cls._add_options()
+        cls._get_options()
 
 def vswhere():
-    return _Options.vswhere_val, _Options.vswhere_opt
+    return _Options.vswhere_val, _Options.vswhere_src
 
 def msvs_channel():
-    return _Options.msvs_channel_val, _Options.msvs_channel_opt
+    return _Options.msvs_channel_val, _Options.msvs_channel_src
