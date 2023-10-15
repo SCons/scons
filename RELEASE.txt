@@ -62,7 +62,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 - MSVC: When the msvc compiler executable is not found during setup of the msvc
   environment, the warning message issued takes into account whether or not a
   possibly erroneous compiler executable was already present in the scons environment
-  path.
+  path.  See CHANGES.txt for details.
 - Extend range of recognized Java versions to 20.
 - Builder calls (like Program()) now accept pathlib objects in source lists.
 - The Help() function now takes an additional keyword argument keep_local:
