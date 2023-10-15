@@ -1601,10 +1601,10 @@ class rmdir_TestCase(TestCmdTestCase):
 
         try:
             test.rmdir(['no', 'such', 'dir'])
-        except EnvironmentError:
+        except FileNotFoundError:
             pass
         else:
-            raise Exception("did not catch expected SConsEnvironmentError")
+            raise Exception("did not catch expected FileNotFoundError")
 
         test.subdir(['sub'],
                     ['sub', 'dir'],
@@ -1616,19 +1616,19 @@ class rmdir_TestCase(TestCmdTestCase):
 
         try:
             test.rmdir(['sub'])
-        except EnvironmentError:
+        except OSError:
             pass
         else:
-            raise Exception("did not catch expected SConsEnvironmentError")
+            raise Exception("did not catch expected OSError")
 
         assert os.path.isdir(s_d_o), f"{s_d_o} is gone?"
 
         try:
             test.rmdir(['sub'])
-        except EnvironmentError:
+        except OSError:
             pass
         else:
-            raise Exception("did not catch expected SConsEnvironmentError")
+            raise Exception("did not catch expected OSError")
 
         assert os.path.isdir(s_d_o), f"{s_d_o} is gone?"
 
@@ -1645,7 +1645,6 @@ class rmdir_TestCase(TestCmdTestCase):
         test.rmdir('sub')
 
         assert not os.path.exists(s), f"{s} exists?"
-
 
 
 class run_TestCase(TestCmdTestCase):
