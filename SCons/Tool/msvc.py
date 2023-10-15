@@ -44,8 +44,13 @@ import SCons.Util
 import SCons.Warnings
 import SCons.Scanner.RC
 
-from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once, msvc_version_to_maj_min, msvc_find_vswhere
-from .MSCommon.common import get_pch_node
+from SCons.Tool.MSCommon import (
+    msvc_setup_env_tool,
+    msvc_setup_env_once,
+    msvc_version_to_maj_min,
+    msvc_find_vswhere,
+)
+from SCons.Tool.MSCommon.common import get_pch_node
 
 tool_name = 'msvc'
 
