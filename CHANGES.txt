@@ -42,6 +42,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       registry query that returns a path that does not exist.  Multiple invocation
       paths were not prepared to handle the MissingConfiguration exception.  The
       MissingConfiguration exception type was removed.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`
@@ -179,6 +184,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python stdlib types module.
     - TeX tests: skip tests that use makeindex or epstopdf not installed, or
       if `kpsewhich glossaries.sty` fails.
+    - Added a .note.GNU-stack section to the test assembler files to
+      avoid the GNU linker issuing warnings for its absence.
 
 
   From Jonathon Reinhart:

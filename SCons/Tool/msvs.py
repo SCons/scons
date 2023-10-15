@@ -45,7 +45,10 @@ import SCons.Util
 import SCons.Warnings
 from SCons.Defaults import processDefines
 from SCons.compat import PICKLE_PROTOCOL
-from .MSCommon import msvc_setup_env_tool, msvc_setup_env_once
+from SCons.Tool.MSCommon import (
+    msvc_setup_env_tool,
+    msvc_setup_env_once,
+)
 
 tool_name = 'msvs'
 

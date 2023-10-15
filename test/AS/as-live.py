@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Verify correct use of the live 'as' assembler.
@@ -37,24 +36,22 @@ _exe   = TestSCons._exe
 
 test = TestSCons.TestSCons()
 
-
-
 if not test.detect('AS', 'as'):
     test.skip_test("as not found; skipping test\n")
 
 x86 = (sys.platform == 'win32' or sys.platform.find('linux') != -1)
-
 if not x86:
     test.skip_test("skipping as test on non-x86 platform '%s'\n" % sys.platform)
 
 namelbl = "name"
-testccc = """ccc = aaa.Clone(CPPPATH=['.'])
-ccc.Program(target = 'ccc', source = ['ccc.S', 'ccc_main.c'])
+testccc = """\
+ccc = aaa.Clone(CPPPATH=['.'])
+ccc.Program(target='ccc', source=['ccc.S', 'ccc_main.c'])
 """
 if sys.platform == "win32":
     namelbl = "_name"
     testccc = ""
-    
+
 test.write("wrapper.py", """\
 import subprocess
 import sys
@@ -66,30 +63,34 @@ subprocess.run(cmd, shell=True)
 
 test.write('SConstruct', """\
 aaa = Environment()
-aaa.Program(target = 'aaa', source = ['aaa.s', 'aaa_main.c'])
-bbb = aaa.Clone(AS = r'%(_python_)s wrapper.py ' + WhereIs('as'))
-bbb.Program(target = 'bbb', source = ['bbb.s', 'bbb_main.c'])
+aaa.Program(target='aaa', source=['aaa.s', 'aaa_main.c'])
+bbb = aaa.Clone(AS=r'%(_python_)s wrapper.py ' + WhereIs('as'))
+bbb.Program(target='bbb', source=['bbb.s', 'bbb_main.c'])
 %(testccc)s
 """ % locals())
 
-test.write('aaa.s', 
-"""        .file   "aaa.s"
-.data
-.align 4
-.globl %(namelbl)s
+test.write('aaa.s', """
+    .file   "aaa.s"
+    .data
+    .align 4
+    .globl %(namelbl)s
 %(namelbl)s:
-        .ascii	"aaa.s"
-        .byte	0
+    .ascii	"aaa.s"
+    .byte	0
+    .ident  "handcrafted test assembly"
+    .section    .note.GNU-stack,"",@progbits
 """ % locals())
 
 test.write('bbb.s', """\
-.file   "bbb.s"
-.data
-.align 4
-.globl %(namelbl)s
+    .file   "bbb.s"
+    .data
+    .align 4
+    .globl %(namelbl)s
 %(namelbl)s:
-        .ascii	"bbb.s"
-        .byte	0
+    .ascii	"bbb.s"
+    .byte	0
+    .ident  "handcrafted test assembly"
+    .section    .note.GNU-stack,"",@progbits
 """ % locals())
 
 test.write('ccc.h', """\
@@ -98,13 +99,15 @@ test.write('ccc.h', """\
 
 test.write('ccc.S', """\
 #include <ccc.h>
-.file   STRING
-.data
-.align 4
-.globl name
+    .file   STRING
+    .data
+    .align 4
+    .globl name
 name:
-        .ascii	STRING
-        .byte	0
+    .ascii	STRING
+    .byte	0
+    .ident  "handcrafted test assembly"
+    .section    .note.GNU-stack,"",@progbits
 """)
 
 test.write('aaa_main.c', r"""
@@ -171,13 +174,13 @@ test.run(program = test.workpath('bbb'), stdout =  "bbb_main.c bbb.s\n")
 
 if sys.platform != "win32":
     test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S\n")
-    
+
     test.must_match('wrapper.out', "wrapper.py: bbb.s\n")
-    
+
     test.write("ccc.h", """\
     #define STRING  "ccc.S 2"
     """)
-    
+
     test.run()
     test.run(program = test.workpath('ccc'), stdout =  "ccc_main.c ccc.S 2\n")
 

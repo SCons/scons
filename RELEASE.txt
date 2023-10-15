@@ -120,6 +120,11 @@ IMPROVEMENTS
 ------------
 
 - Now tries to find mingw if it comes from Chocolatey install of msys2.
+- MSVC: Module imports were changed from a relative import to a top-level
+  absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+  msvs. Moving any of these tools that used relative imports to the scons site tools
+  folder would fail on import (i.e., the relative import paths become invalid when
+  moved).
 
 PACKAGING
 ---------
