@@ -29,8 +29,6 @@ from collections import (
     namedtuple,
 )
 
-from . import Util
-
 from .Exceptions import (
     MSVCInternalError,
 )
@@ -319,6 +317,7 @@ MSVC_SDK_VERSIONS = [str(f) for f in sorted([float(s) for s in MSVC_SDK_VERSIONS
 
 
 def verify():
+    from . import Util
     from .. import vc
     for msvc_version in vc._VCVER:
         if msvc_version not in MSVC_VERSION_SUFFIX:

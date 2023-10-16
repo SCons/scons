@@ -62,7 +62,7 @@ def registry_query_path(key, val, suffix, expand: bool=True):
     extval = val + '\\' + suffix if suffix else val
     qpath = read_value(key, extval, expand=expand)
     if qpath and os.path.exists(qpath):
-        qpath = Util.process_path(qpath)
+        qpath = Util.normalize_path(qpath)
     else:
         qpath = None
     return (qpath, key, val, extval)
@@ -81,7 +81,7 @@ def microsoft_query_paths(suffix, usrval=None, expand: bool=True):
         extval = val + '\\' + suffix if suffix else val
         qpath = read_value(key, extval, expand=expand)
         if qpath and os.path.exists(qpath):
-            qpath = Util.process_path(qpath)
+            qpath = Util.normalize_path(qpath)
             if qpath not in paths:
                 paths.append(qpath)
                 records.append((qpath, key, val, extval, usrval))

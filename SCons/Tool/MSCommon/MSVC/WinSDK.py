@@ -83,7 +83,7 @@ def _sdk_10_layout(version):
             if not version_nbr.startswith(folder_prefix):
                 continue
 
-            sdk_inc_path = Util.process_path(os.path.join(version_nbr_path, 'um'))
+            sdk_inc_path = Util.normalize_path(os.path.join(version_nbr_path, 'um'))
             if not os.path.exists(sdk_inc_path):
                 continue
 
@@ -127,7 +127,7 @@ def _sdk_81_layout(version):
 
         # msvc does not check for existence of root or other files
 
-        sdk_inc_path = Util.process_path(os.path.join(sdk_root, r'include\um'))
+        sdk_inc_path = Util.normalize_path(os.path.join(sdk_root, r'include\um'))
         if not os.path.exists(sdk_inc_path):
             continue
 
