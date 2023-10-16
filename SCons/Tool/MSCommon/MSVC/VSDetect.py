@@ -1127,7 +1127,7 @@ class MSVSInstalled(_MSVSInstalled, Util.AutoInitialize):
                     extra=self.debug_extra,
                 )
 
-    def _msvs_instances_internal(
+    def _query_instances_internal(
         self, *,
         vs_product_def=None,
         vs_channel_def=None,
@@ -1529,7 +1529,7 @@ class MSVCInstalled(_MSVCInstalled, Util.AutoInitialize):
                     extra=self.debug_extra,
                 )
 
-    def _msvc_instances_internal(
+    def _query_instances_internal(
         self, *,
         vs_product_def=None,
         vs_channel_def=None,
@@ -1644,7 +1644,7 @@ class MSVSManager(_MSVSManager, Util.AutoInitialize):
         else:
             vs_componentid_def = None
 
-        msvs_instances, query_key = self.msvs_installed._msvs_instances_internal(
+        msvs_instances, query_key = self.msvs_installed._query_instances_internal(
             vs_product_def=vs_product_def,
             vs_channel_def=vs_channel_def,
             vs_componentid_def=vs_componentid_def,
@@ -1670,7 +1670,7 @@ class MSVSManager(_MSVSManager, Util.AutoInitialize):
         else:
             vs_componentid_def = None
 
-        msvc_instances, query_key = self.msvc_installed._msvc_instances_internal(
+        msvc_instances, query_key = self.msvc_installed._query_instances_internal(
             vs_product_def=vs_product_def,
             vs_channel_def=vs_channel_def,
             vs_componentid_def=vs_componentid_def,
@@ -2497,7 +2497,13 @@ class _VSDetect(Util.AutoInitialize):
 def register_reset_func(func) -> None:
     _VSDetectVSWhere.register_reset_func(func)
 
-def msvs_manager(vswhere_env=None):
+
+def msvs_detect(vswhere_env=None):
+    vs_manager = _VSDetect.detect(vswhere_env)
+    return vs_manager
+
+def msvs_detect_env(env=None):
+    vswhere_env = Util.env_query(env, 'VSWHERE', subst=True)
     vs_manager = _VSDetect.detect(vswhere_env)
     return vs_manager
 

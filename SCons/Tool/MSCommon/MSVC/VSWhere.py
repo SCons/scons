@@ -189,7 +189,7 @@ def vswhere_get_executables(vswhere_env=None):
 
     vswhere_executables = []
 
-    # env['VSWHERE'] path
+    # env['VSWHERE']=path
     if vswhere_env:
         vswhere_exec = _VSWhere.user_path(vswhere_env, "env['VSWHERE']")
         if vswhere_exec:
@@ -204,6 +204,13 @@ def vswhere_get_executables(vswhere_env=None):
         vswhere_executables.extend(_VSWhere.vswhere_executables)
 
     return vswhere_executables
+
+def vswhere_get_executables_env(env=None):
+    vswhere_env = Util.env_query(env, 'VSWHERE', subst=True)
+    vswhere_executables = vswhere_get_executables(vswhere_env)
+    return vswhere_executables
+
+# reset state
 
 def reset() -> None:
     _VSWhere.reset()

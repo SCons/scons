@@ -46,6 +46,35 @@ class AutoInitialize:
         if hasattr(cls, '_initialize') and callable(getattr(cls, '_initialize', None)):
             cls._initialize()
 
+# env utilities
+
+def env_query(env, key, default=None, subst=False):
+    """
+    Query a mapping object for the value associated with the key.
+
+    Args:
+        env: Mapping[str, object]
+            mapping for key retrieval
+        key: str
+            key for object retrieval
+        default: object
+            return value when key is not in mapping
+        subst: bool
+            call substr method if it exists when True
+
+    Returns:
+        object: value retrieved from mapping or the default value 
+
+    """
+
+    if not env or key not in env:
+        rval = default
+    elif subst and hasattr(env, 'subst') and callable(getattr(env, 'subst', None)):
+        rval = env.subst('$' + key)
+    else:
+        rval = env[key]
+    return rval
+
 # path utilities
 
 # windows drive specification (e.g., 'C:')

@@ -746,19 +746,13 @@ def msvc_find_vswhere(env=None):
     """ Find the location of vswhere """
     # NB: this gets called from testsuite on non-Windows platforms.
     # Whether that makes sense or not, don't break it for those.
-    vswhere_env = env.subst('$VSWHERE') if env and 'VSWHERE' in env else None
-    vswhere_executables = MSVC.VSWhere.vswhere_get_executables(vswhere_env)
+    vswhere_executables = MSVC.VSWhere.vswhere_get_executables_env(env)
     if vswhere_executables:
         vswhere_path = vswhere_executables[0].path
     else:
         vswhere_path = None
     debug('vswhere_path=%s', vswhere_path)
     return vswhere_path
-
-def msvs_manager(env=None):
-    vswhere_env = env.subst('$VSWHERE') if env and 'VSWHERE' in env else None
-    vs_manager = MSVC.VSDetect.msvs_manager(vswhere_env)
-    return vs_manager
 
 def _find_msvc_instance(msvc_version, env=None):
 
@@ -770,9 +764,9 @@ def _find_msvc_instance(msvc_version, env=None):
         debug("Unknown version of MSVC: %s", repr(msvc_version))
         return msvc_instance, query_key
 
-    vs_manager = msvs_manager(env)
+    msvs_manager = MSVC.VSDetect.msvs_detect_env(env)
 
-    msvc_instances, query_key = vs_manager.query_msvc_instances(msvc_version=msvc_version)
+    msvc_instances, query_key = msvs_manager.query_msvc_instances(msvc_version=msvc_version)
 
     msvc_instance = msvc_instances[0] if msvc_instances else None
 
@@ -1082,12 +1076,12 @@ def get_installed_msvc_instances(env=None):
     global _cache_installed_msvc_instances
 
     # the installed instance cache is cleared if new instances are discovered
-    vs_manager = msvs_manager(env)
+    msvs_manager = MSVC.VSDetect.msvs_detect_env(env)
 
     if _cache_installed_msvc_instances is not None:
         return _cache_installed_msvc_instances
 
-    installed_msvc_instances = vs_manager.get_installed_msvc_instances()
+    installed_msvc_instances = msvs_manager.get_installed_msvc_instances()
 
     _cache_installed_msvc_instances = installed_msvc_instances
     # debug("installed_msvc_instances=%s", _cache_installed_msvc_versions)
@@ -1097,12 +1091,12 @@ def get_installed_vcs(env=None):
     global _cache_installed_msvc_versions
 
     # the installed version cache is cleared if new instances are discovered
-    vs_manager = msvs_manager(env)
+    msvs_manager = MSVC.VSDetect.msvs_detect_env(env)
 
     if _cache_installed_msvc_versions is not None:
         return _cache_installed_msvc_versions
 
-    installed_msvc_versions = vs_manager.get_installed_msvc_versions()
+    installed_msvc_versions = msvs_manager.get_installed_msvc_versions()
 
     _cache_installed_msvc_versions = installed_msvc_versions
     debug("installed_msvc_versions=%s", _cache_installed_msvc_versions)
