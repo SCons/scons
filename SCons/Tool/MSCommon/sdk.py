@@ -45,10 +45,9 @@ from .common import debug, read_reg
 # seem to be any sane registry key, so the precise location is hardcoded.
 #
 # For versions below 2003R1, it seems the PSDK is included with Visual Studio?
-#
-# Also, per the following:
-#     http://benjamin.smedbergs.us/blog/tag/atl/
 # VC++ Professional comes with the SDK, VC++ Express does not.
+#
+# Of course, all this changed again after Express was phased out (2005).
 
 # Location of the SDK (checked for 6.1 only)
 _CURINSTALLED_SDK_HKEY_ROOT = \

@@ -186,6 +186,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       if `kpsewhich glossaries.sty` fails.
     - Added a .note.GNU-stack section to the test assembler files to
       avoid the GNU linker issuing warnings for its absence.
+    - Eliminate more http: references (mostly in comments/docstrings where
+      they really weren't harmful). A few links labeled dead with no alt.
 
 
   From Jonathon Reinhart:

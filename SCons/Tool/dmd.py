@@ -24,7 +24,7 @@
 """SCons.Tool.dmd
 
 Tool-specific initialization for the Digital Mars D compiler.
-(http://digitalmars.com/d)
+(https://digitalmars.com/d)
 
 Originally coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
