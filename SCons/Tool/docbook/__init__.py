@@ -155,8 +155,8 @@ def __create_output_dir(base_dir) -> None:
 xsltproc_com_priority = ['xsltproc', 'saxon', 'saxon-xslt', 'xalan']
 
 # TODO: Set minimum version of saxon-xslt to be 8.x (lower than this only supports xslt 1.0.
-#       see: http://saxon.sourceforge.net/saxon6.5.5/
-#       see: http://saxon.sourceforge.net/
+#       see: https://saxon.sourceforge.net/saxon6.5.5/
+#       see: https://saxon.sourceforge.net/
 xsltproc_com = {'xsltproc' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE',
                 'saxon' : '$DOCBOOK_XSLTPROC $DOCBOOK_XSLTPROCFLAGS -o $TARGET $DOCBOOK_XSL $SOURCE $DOCBOOK_XSLTPROCPARAMS',
                 # Note if saxon-xslt is version 5.5 the proper arguments are: (swap order of docbook_xsl and source)

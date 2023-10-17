@@ -23,7 +23,7 @@
 
 """SCons.Tool.gcc
 
-Tool-specific initialization for MinGW (http://www.mingw.org/)
+Tool-specific initialization for MinGW (https://www.mingw.org/)
 
 There normally shouldn't be any need to import this module directly.
 It will usually be imported through the generic SCons.Tool.Tool()

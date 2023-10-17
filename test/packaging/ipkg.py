@@ -65,7 +65,7 @@ may modify if you wish.
 When you modify this example, be sure to change the Package, Version,
 Maintainer, Depends, and Description fields.''',
 
-             SOURCE_URL       = 'http://gnu.org/foo-0.0.tar.gz',
+             SOURCE_URL       = 'https://gnu.org/foo-0.0.tar.gz',
              X_IPK_SECTION    = 'extras',
              X_IPK_PRIORITY   = 'optional',
              ARCHITECTURE     = 'arm',
@@ -102,7 +102,7 @@ test.write( [ 'foo-0.0', 'CONTROL', 'control' ], r"""
 Package: foo
 Priority: optional
 Section: extras
-Source: http://gnu.org/foo-0.0.tar.gz
+Source: https://gnu.org/foo-0.0.tar.gz
 Version: 0.0
 Architecture: arm
 Maintainer: Familiar User <user@somehost.net>
