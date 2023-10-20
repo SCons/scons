@@ -1,12 +1,5 @@
-"""
-Implements the ability for SCons to emit a compilation database for the MongoDB project. See
-http://clang.llvm.org/docs/JSONCompilationDatabase.html for details on what a compilation
-database is, and why you might want one. The only user visible entry point here is
-'env.CompilationDatabase'. This method takes an optional 'target' to name the file that
-should hold the compilation database, otherwise, the file defaults to compile_commands.json,
-which is the name that most clang tools search for by default.
-"""
-
+# MIT License
+#
 # Copyright 2020 MongoDB Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -27,7 +20,17 @@ which is the name that most clang tools search for by default.
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+
+"""Compilation Database
+
+Implements the ability for SCons to emit a compilation database for a
+project. See https://clang.llvm.org/docs/JSONCompilationDatabase.html
+for details on what a compilation database is, and why you might want one.
+The only user visible entry point here is ``env.CompilationDatabase``.
+This method takes an optional *target* to name the file that should hold
+the compilation database, otherwise, the file defaults to
+``compile_commands.json``, the name that most clang tools search for by default.
+"""
 
 import json
 import itertools

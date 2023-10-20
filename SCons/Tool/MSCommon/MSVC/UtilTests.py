@@ -44,7 +44,7 @@ def normalize(*comps):
     p = os.path.join(*comps)
     p = os.path.normpath(p)
     p = os.path.normcase(p)
-    return os.path.normcase(p)
+    return p
 
 class Data:
 

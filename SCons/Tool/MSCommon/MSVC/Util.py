@@ -81,7 +81,7 @@ def env_query(env, key, default=None, subst=False):
 _RE_DRIVESPEC = re.compile(r'^[A-Za-z][:]$', re.IGNORECASE)
 
 # windows path separators
-_OS_PATH_SEPS = ('\\', '/')
+_OS_PATH_SEPS = (os.path.sep, os.path.altsep) if os.path.altsep else (os.path.sep,)
 
 def listdir_dirs(p):
     """
@@ -125,9 +125,9 @@ def resolve_path(p, ignore_drivespec=True):
             # don't attempt to resolve drive specification (e.g., C:)
             pass
         else:
-            # both abspath and resolve necessary to produce identical path
-            # when (unqualified) file name is on a mapped network drive for
-            # python 3.6 and 3.11
+            # both abspath and resolve necessary for an unqualified file name
+            # on a mapped network drive in order to return a mapped drive letter
+            # path rather than a UNC path.
             p = os.path.abspath(p)
             try:
                 p = str(pathlib.Path(p).resolve())

@@ -86,6 +86,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   although the preferred usage remains to import from SCons.Util only.
   Any code that did the direct import will have to change to import from
   SCons.Util.sctypes.
+- Add JDK 21 LTS support
 
 FIXES
 -----
