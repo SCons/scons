@@ -101,7 +101,7 @@ class _VSUtil(Util.AutoInitialize):
         if rval == Config.UNDEFINED:
             rval = os.path.exists(pval)
             cls._path_exists[pval] = rval
-            debug('exists=%s, pval=%s', rval, repr(pval), extra=cls.debug_extra)
+            debug('exists=%s, pval=%s', repr(rval), repr(pval), extra=cls.debug_extra)
         return rval
 
 
@@ -155,6 +155,7 @@ class _VSConfig:
         'root',  # relative path vc dir -> vs root
         'vs_binary_cfg',  # vs executable
         'vs_batch_cfg',  # vs batch file
+        'vc_folder',  # vc folder name
     ])
 
     VCDetectConfigRegistry = namedtuple("VCDetectConfigRegistry", [
@@ -205,6 +206,7 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='VsDevCmd.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=None,
         ),
@@ -220,6 +222,7 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='VsDevCmd.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=None,
         ),
@@ -235,6 +238,7 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='VsDevCmd.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=None,
         ),
@@ -257,12 +261,16 @@ class _VSConfig:
                     # VsDevCmd.bat and vsvars32.bat appear to be different
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
-                    _regkey(key=r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir'),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\14.0', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir', is_vsroot=True),
                     _regkey(key=r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir', is_vsroot=True),
-                    _regkey(key=r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),  # not populated?
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\14.0'),
+                    _regkey(key=r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir'),
+                    _regkey(key=r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),  # key not defined
                 ],
             ),
         ),
@@ -279,9 +287,14 @@ class _VSConfig:
                     # VsDevCmd.bat and vsvars32.bat appear to be different
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\12.0', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\12.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\WDExpress\12.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\12.0'),
                     _regkey(key=r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
                     _regkey(key=r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'),
                 ]
@@ -300,9 +313,14 @@ class _VSConfig:
                     # VsDevCmd.bat and vsvars32.bat appear to be identical
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\11.0', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\11.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\WDExpress\11.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\11.0'),
                     _regkey(key=r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'),
                     _regkey(key=r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'),
                 ]
@@ -320,9 +338,14 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\10.0', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\10.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VCExpress\10.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\10.0'),
                     _regkey(key=r'Microsoft\VisualStudio\10.0\Setup\VC\ProductDir'),
                     _regkey(key=r'Microsoft\VCExpress\10.0\Setup\VC\ProductDir'),
                 ]
@@ -340,18 +363,23 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
                     _regkey(
                         hkroot=SCons.Util.HKEY_CURRENT_USER,
-                        key=r'Microsoft\DevDiv\VCForPython\9.0\InstallDir',
-                        is_vsroot=True, is_vcforpython=True,
+                        key=r'Microsoft\DevDiv\VCForPython\9.0\InstallDir', is_vsroot=True,
+                        is_vcforpython=True,
                     ),
                     _regkey(
-                        key=r'Microsoft\DevDiv\VCForPython\9.0\InstallDir',
-                        is_vsroot=True, is_vcforpython=True
+                        key=r'Microsoft\DevDiv\VCForPython\9.0\InstallDir', is_vsroot=True,
+                        is_vcforpython=True
                     ),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\9.0', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\9.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VCExpress\9.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\9.0'),
                     _regkey(key=r'Microsoft\VisualStudio\9.0\Setup\VC\ProductDir'),
                     _regkey(key=r'Microsoft\VCExpress\9.0\Setup\VC\ProductDir'),
                 ]
@@ -369,9 +397,14 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\8.0', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\8.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VCExpress\8.0\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\8.0'),
                     _regkey(key=r'Microsoft\VisualStudio\8.0\Setup\VC\ProductDir'),
                     _regkey(key=r'Microsoft\VCExpress\8.0\Setup\VC\ProductDir'),
                 ]
@@ -389,9 +422,13 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC7',
             ),
                 vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VS7\7.1', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\7.1\Setup\VS\ProductDir', is_vsroot=True),
+                    _regkey(key=r'Microsoft\VisualStudio\SxS\VC7\7.1'),
                     _regkey(key=r'Microsoft\VisualStudio\7.1\Setup\VC\ProductDir'),
                 ]
             ),
@@ -408,9 +445,11 @@ class _VSConfig:
                     pathcomp=r'Common7\Tools',
                     script='vsvars32.bat',
                 ),
+                vc_folder='VC7',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
+                    _regkey(key=r'Microsoft\VisualStudio\7.0\Setup\VS\ProductDir', is_vsroot=True),
                     _regkey(key=r'Microsoft\VisualStudio\7.0\Setup\VC\ProductDir'),
                 ]
             ),
@@ -428,6 +467,7 @@ class _VSConfig:
                     pathcomp=r'VC98\bin',
                     script='vcvars32.bat',
                 ),
+                vc_folder='VC98',
             ),
             vc_cfg=VCDetectConfigRegistry(
                 regkeys=[
@@ -443,7 +483,7 @@ class _VSChannel(Util.AutoInitialize):
 
     # TODO(JCB): review reset
 
-    # priority: cmdline > user > initial
+    # priority: cmdline > environ > user > initial
 
     debug_extra = None
 
@@ -538,7 +578,6 @@ class _VSChannel(Util.AutoInitialize):
                 )
 
                 if not cls.vs_channel_cmdline:
-                    # priority: cmdline > user > initial
                     cls.vs_channel_def = cls.vs_channel_user
                     debug(
                         'vs_channel=%s',
@@ -563,7 +602,7 @@ def msvs_set_channel_default(msvs_channel) -> bool:
             string representing the msvs channel
 
             Case-insensitive values are:
-                Release, Rel, Preview, Pre, Any, *
+                Release, Rel, Preview, Pre, Any
 
     Returns:
         bool: True if the default msvs channel was accepted.
@@ -1850,12 +1889,7 @@ class _VSDetectVSWhere(Util.AutoInitialize):
         return vswhere_json
 
     @classmethod
-    def _msvc_resolve(cls, vc_dir, vs_product_def):
-
-        detect_cfg = cls.DETECT_CONFIG[vs_product_def.vs_product]
-
-        vs_cfg = detect_cfg.vs_cfg
-        vs_dir = os.path.normpath(os.path.join(vc_dir, vs_cfg.root))
+    def _msvc_resolve(cls, vs_dir, vs_cfg):
 
         binaries_t, vs_script = _VSDetectCommon.msvs_detect(vs_dir, vs_cfg)
 
@@ -1919,16 +1953,18 @@ class _VSDetectVSWhere(Util.AutoInitialize):
                     # consider msvs root evaluated at this point
                     cls.vs_dir_seen.add(vs_norm)
 
-                    vc_dir = os.path.join(vs_dir, 'VC')
-                    if not _VSUtil.path_exists(vc_dir):
-                        continue
-
                     vs_major = vs_version.split('.')[0]
                     if vs_major not in Config.MSVS_VERSION_MAJOR_MAP:
                         debug('ignore vs_major: %s', vs_major, extra=cls.debug_extra)
                         continue
 
                     vs_product_def = Config.MSVS_VERSION_MAJOR_MAP[vs_major]
+
+                    detect_cfg = cls.DETECT_CONFIG[vs_product_def.vs_product]
+
+                    vc_dir = os.path.join(vs_dir, detect_cfg.vs_cfg.vc_folder)
+                    if not _VSUtil.path_exists(vc_dir):
+                        continue
 
                     component_id = product_id.split('.')[-1]
                     vs_component_def = Config.VSWHERE_COMPONENT_INTERNAL.get(component_id)
@@ -1942,7 +1978,7 @@ class _VSDetectVSWhere(Util.AutoInitialize):
                     else:
                         vs_channel_def = Config.MSVS_CHANNEL_RELEASE
 
-                    vs_exec, vs_script = cls._msvc_resolve(vc_dir, vs_product_def)
+                    vs_exec, vs_script = cls._msvc_resolve(vs_dir, detect_cfg.vs_cfg)
 
                     vs_sequence_key = (vs_product_def, vs_channel_def, vs_component_def)
 
@@ -2343,7 +2379,7 @@ class _VSDetectRegistry(Util.AutoInitialize):
 
                     if regkey.is_vsroot:
 
-                        vc_dir = os.path.join(vc_dir, 'VC')
+                        vc_dir = os.path.join(vc_dir, config.vs_cfg.vc_folder)
                         debug('convert vs dir to vc dir: %s', repr(vc_dir), extra=cls.debug_extra)
 
                         if vc_dir in cls.vc_dir_seen:
@@ -2351,7 +2387,7 @@ class _VSDetectRegistry(Util.AutoInitialize):
                         cls.vc_dir_seen.add(vc_dir)
 
                         if not os.path.exists(vc_dir):
-                            debug('vc dir does not exist. (ignoring)', repr(vc_dir), extra=cls.debug_extra)
+                            debug('vc dir does not exist: %s (ignoring)', repr(vc_dir), extra=cls.debug_extra)
                             continue
 
                     vc_norm = _VSUtil.normalize_path(vc_dir)

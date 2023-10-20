@@ -338,7 +338,7 @@ MSVS_CHANNEL_SYMBOLS = []
 for vs_channel_rank, vs_channel_suffix, vs_channel_symbols in (
     (1, 'Rel', ['Release']),
     (2, 'Pre', ['Preview']),
-    (3, 'Any', ['Any', '*'])
+    (3, 'Any', ['Any'])
 ):
 
     vs_channel_id = vs_channel_symbols[0]

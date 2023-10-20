@@ -378,12 +378,13 @@ class MsvcSdkVersionsTests(unittest.TestCase):
     def test_valid_vcver(self) -> None:
         for symbol in MSCommon.vc._VCVER:
             version_def = MSCommon.msvc_version_components(symbol)
-            for msvc_uwp_app in (True, False):
-                sdk_list = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
-                if Data.HAVE_MSVC and version_def.msvc_vernum >= 14.0:
-                    self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
-                else:
-                    self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
+            if Data.HAVE_MSVC:
+                for msvc_uwp_app in (True, False):
+                    sdk_list = MSCommon.vc.msvc_sdk_versions(version=symbol, msvc_uwp_app=msvc_uwp_app)
+                    if version_def.msvc_vernum >= 14.0:
+                        self.assertTrue(sdk_list, "SDK list is empty for msvc version {}".format(repr(symbol)))
+                    else:
+                        self.assertFalse(sdk_list, "SDK list is not empty for msvc version {}".format(repr(symbol)))
 
     def test_valid_vcver_toolsets(self) -> None:
         for symbol in MSCommon.vc._VCVER:

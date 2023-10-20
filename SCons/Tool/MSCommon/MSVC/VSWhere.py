@@ -43,7 +43,7 @@ from . import Warnings
 from . import Dispatcher
 Dispatcher.register_modulename(__name__)
 
-# priority: env > cmdline > (user, initial, user)
+# priority: env > cmdline > environ > (user, initial, user)
 
 VSWHERE_EXE = 'vswhere.exe'
 

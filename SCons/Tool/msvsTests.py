@@ -359,6 +359,8 @@ regdata_140 = r'''
 "EnvironmentDirectory"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\"
 "VS7CommonDir"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\"
 "VS7CommonBinDir"=""
+[HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VC]
+"ProductDir"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC"
 [HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\BuildNumber]
 "1033"="14.0"
 [HKEY_LOCAL_MACHINE\Software\Microsoft\VisualStudio\14.0\Setup\VS\Community]
@@ -576,8 +578,19 @@ def DummyQueryValue(key, value):
     # print "Query Value",key.name+"\\"+value,"=>",rv
     return rv
 
+exists_maps = None
+
 def DummyExists(path) -> bool:
-    return True
+    global exists_maps
+    rval = True
+    if exists_maps:
+        p = os.path.normcase(os.path.normpath(path))
+        for exists_map in exists_maps:
+            if p.startswith(exists_map['prefix']) and p not in exists_map['paths']:
+                rval = False
+                break
+    # print("DummyExists", repr(path), rval)
+    return rval
 
 def DummyVsWhereExecutables(vswhere_env=None):
     # not testing versions with vswhere, so return empty list
@@ -589,7 +602,9 @@ class msvsTestCase(unittest.TestCase):
     def setUp(self) -> None:
         debug("THIS TYPE :%s"%self)
         global registry
+        global exists_maps
         registry = self.registry
+        exists_maps = self.exists_maps
         from SCons.Tool.MSCommon.vs import reset_installed_visual_studios
         reset_installed_visual_studios()
 
@@ -605,13 +620,13 @@ class msvsTestCase(unittest.TestCase):
         env = DummyEnv()
         v1 = get_default_version(env)
         if v1:
-            assert env['MSVS_VERSION'] == self.default_version, \
-                   ("env['MSVS_VERSION'] != self.default_version",
-                    env['MSVS_VERSION'],self.default_version)
-            assert env['MSVS']['VERSION'] == self.default_version, \
-                   ("env['MSVS']['VERSION'] != self.default_version",
-                    env['MSVS']['VERSION'], self.default_version)
-            assert v1 == self.default_version, (self.default_version, v1)
+            assert env['MSVS_VERSION'] in self.default_versions, \
+                   ("env['MSVS_VERSION'] not in self.default_versions",
+                    env['MSVS_VERSION'],self.default_versions)
+            assert env['MSVS']['VERSION'] in self.default_versions, \
+                   ("env['MSVS']['VERSION'] not in self.default_versions",
+                    env['MSVS']['VERSION'], self.default_versions)
+            assert v1 in self.default_versions, (self.default_versions, v1)
 
         env = DummyEnv({'MSVS_VERSION':'7.0'})
         v2 = get_default_version(env)
@@ -638,8 +653,9 @@ class msvsTestCase(unittest.TestCase):
     def test_query_versions(self) -> None:
         """Test retrieval of the list of visual studio versions"""
         v1 = query_versions()
-        assert not v1 or str(v1[0]) == self.highest_version, \
-               (v1, self.highest_version)
+        vh = v1[:len(self.highest_versions)] if v1 else []
+        assert not v1 or vh == self.highest_versions, \
+               (v1, self.highest_versions)
         assert len(v1) == self.number_of_versions, v1
 
     def test_config_generation(self) -> None:
@@ -798,11 +814,25 @@ class msvsTestCase(unittest.TestCase):
                 except OSError:
                     pass
 
+def _exists_map(prefix, suffixes):
+    prefix = os.path.normpath(os.path.normcase(prefix))
+    paths = [
+        os.path.normpath(os.path.join(prefix, os.path.normcase(suffix)))
+        for suffix in suffixes
+    ]
+    exists_map = {
+        'prefix': prefix,
+        'paths': paths,
+    }
+    return exists_map
+
 class msvs6aTestCase(msvsTestCase):
     """Test MSVS 6 Registry"""
     registry = DummyRegistry(regdata_6a + regdata_cv)
     default_version = '6.0'
     highest_version = '6.0'
+    default_versions = [default_version]
+    highest_versions = [highest_version]
     number_of_versions = 1
     install_locs = {
         '6.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio\\VC98', 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio\\VC98\\Bin'},
@@ -812,12 +842,25 @@ class msvs6aTestCase(msvsTestCase):
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['6.0']
+    exists_maps = [
+        _exists_map(
+            r'C:\Program Files\Microsoft Visual Studio',
+            [
+                r'VC98',
+                r'VC98\bin\vcvars32.bat',
+                r'VC98\bin\cl.exe',
+                r'Common\MSDev98\Bin\msdev.com',
+            ]
+        )
+    ]
 
 class msvs6bTestCase(msvsTestCase):
     """Test Other MSVS 6 Registry"""
     registry = DummyRegistry(regdata_6b + regdata_cv)
     default_version = '6.0'
     highest_version = '6.0'
+    default_versions = [default_version]
+    highest_versions = [highest_version]
     number_of_versions = 1
     install_locs = {
         '6.0' : {'VSINSTALLDIR': 'C:\\VS6\\VC98', 'VCINSTALLDIR': 'C:\\VS6\\VC98\\Bin'},
@@ -827,12 +870,55 @@ class msvs6bTestCase(msvsTestCase):
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['6.0']
+    exists_maps = [
+        _exists_map(
+            r'C:\VS6',
+            [
+                r'VC98',
+                r'VC98\bin\vcvars32.bat',
+                r'VC98\bin\cl.exe',
+                r'Common\MSDev98\Bin\msdev.com',
+            ]
+        )
+    ]
+
+class msvs7TestCase(msvsTestCase):
+    """Test MSVS 7 Registry"""
+    registry = DummyRegistry(regdata_7 + regdata_cv)
+    default_version = '7.0'
+    highest_version = '7.0'
+    default_versions = [default_version]
+    highest_versions = [highest_version]
+    number_of_versions = 1
+    install_locs = {
+        '6.0' : {},
+        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7',
+                 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
+        '7.1' : {},
+        '8.0' : {},
+        '8.0Exp' : {},
+    }
+    default_install_loc = install_locs['7.0']
+    exists_maps = [
+        _exists_map(
+            r'C:\Program Files\Microsoft Visual Studio .NET',
+            [
+                r'Vc7',
+                r'Vc7\bin\vcvars32.bat',
+                r'Vc7\bin\cl.exe',
+                r'Common7\IDE\devenv.com',
+                r'Common7\Tools\vsvars32.bat',
+            ]
+        )
+    ]
 
 class msvs6and7TestCase(msvsTestCase):
     """Test MSVS 6 & 7 Registry"""
     registry = DummyRegistry(regdata_6b + regdata_7 + regdata_cv)
     default_version = '7.0'
     highest_version = '7.0'
+    default_versions = [default_version]
+    highest_versions = [highest_version]
     number_of_versions = 2
     install_locs = {
         '6.0' : {'VSINSTALLDIR': 'C:\\VS6\\VC98',
@@ -844,28 +930,15 @@ class msvs6and7TestCase(msvsTestCase):
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['7.0']
-
-class msvs7TestCase(msvsTestCase):
-    """Test MSVS 7 Registry"""
-    registry = DummyRegistry(regdata_7 + regdata_cv)
-    default_version = '7.0'
-    highest_version = '7.0'
-    number_of_versions = 1
-    install_locs = {
-        '6.0' : {},
-        '7.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7',
-                 'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio .NET\\Common7\\Tools'},
-        '7.1' : {},
-        '8.0' : {},
-        '8.0Exp' : {},
-    }
-    default_install_loc = install_locs['7.0']
+    exists_maps = msvs6bTestCase.exists_maps + msvs7TestCase.exists_maps
 
 class msvs71TestCase(msvsTestCase):
     """Test MSVS 7.1 Registry"""
     registry = DummyRegistry(regdata_7_1 + regdata_cv)
     default_version = '7.1'
     highest_version = '7.1'
+    default_versions = [default_version]
+    highest_versions = [highest_version]
     number_of_versions = 1
     install_locs = {
         '6.0' : {},
@@ -876,12 +949,26 @@ class msvs71TestCase(msvsTestCase):
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['7.1']
+    exists_maps = [
+        _exists_map(
+            r'C:\Program Files\Microsoft Visual Studio .NET 2003',
+            [
+                r'Vc7',
+                r'Vc7\bin\vcvars32.bat',
+                r'Vc7\bin\cl.exe',
+                r'Common7\IDE\devenv.com',
+                r'Common7\Tools\vsvars32.bat',
+            ]
+        )
+    ]
 
-class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
+class msvs8ExpTestCase(msvsTestCase):
     """Test MSVS 8 Express Registry"""
     registry = DummyRegistry(regdata_8exp + regdata_cv)
-    default_version = '8.0'
-    highest_version = '8.0'
+    default_version = '8.0Exp'
+    highest_version = '8.0Exp'
+    default_versions = ['8.0', default_version]
+    highest_versions = ['8.0', highest_version]
     number_of_versions = 2
     install_locs = {
         '6.0' : {},
@@ -892,12 +979,27 @@ class msvs8ExpTestCase(msvsTestCase): # XXX: only one still not working
                     'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 8\\VC'},
     }
     default_install_loc = install_locs['8.0Exp']
+    exists_maps = [
+        _exists_map(
+            r'C:\Program Files\Microsoft Visual Studio 8',
+            [
+                r'VC',
+                r'VC\bin\cl.exe',
+                r'VC\bin\vcvars32.bat',
+                r'VC\vcvarsall.bat',
+                r'Common7\IDE\VCExpress.exe',
+                r'Common7\Tools\vsvars32.bat',
+            ]
+        )
+    ]
 
 class msvs80TestCase(msvsTestCase):
     """Test MSVS 8 Registry"""
     registry = DummyRegistry(regdata_80 + regdata_cv)
     default_version = '8.0'
     highest_version = '8.0'
+    default_versions = [default_version]
+    highest_versions = [highest_version]
     number_of_versions = 1
     install_locs = {
         '6.0' : {},
@@ -908,24 +1010,55 @@ class msvs80TestCase(msvsTestCase):
         '8.0Exp' : {},
     }
     default_install_loc = install_locs['8.0']
+    exists_maps = [
+        _exists_map(
+            r'C:\Program Files\Microsoft Visual Studio 8',
+            [
+                r'VC',
+                r'VC\bin\cl.exe',
+                r'VC\bin\vcvars32.bat',
+                r'VC\vcvarsall.bat',
+                r'Common7\IDE\devenv.com',
+                r'Common7\Tools\vsvars32.bat',
+            ]
+        )
+    ]
 
 class msvs140TestCase(msvsTestCase):
     """Test MSVS 140 Registry"""
     registry = DummyRegistry(regdata_140 + regdata_cv)
     default_version = '14.0'
     highest_version = '14.0'
-    number_of_versions = 2
+    default_versions = [default_version]
+    highest_versions = [highest_version]
+    number_of_versions = 1
     install_locs = {
-        '14.0' : {'VSINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 14.0',
-                  'VCINSTALLDIR': 'C:\\Program Files\\Microsoft Visual Studio 14.0\\VC'},
+        '14.0' : {'VSINSTALLDIR': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0',
+                  'VCINSTALLDIR': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC'},
     }
     default_install_loc = install_locs['14.0']
+    exists_maps = None
+    exists_maps = [
+        _exists_map(
+            r'C:\Program Files (x86)\Microsoft Visual Studio 14.0',
+            [
+                r'VC',
+                r'VC\bin\cl.exe',
+                r'VC\bin\vcvars32.bat',
+                r'VC\\vcvarsall.bat',
+                r'Common7\\IDE\\devenv.com',
+                r'Common7\\Tools\\vsvars32.bat',
+            ]
+        )
+    ]
 
 class msvsEmptyTestCase(msvsTestCase):
     """Test Empty Registry"""
     registry = DummyRegistry(regdata_none)
     default_version = SupportedVSList[0].version
     highest_version = None
+    default_versions = [default_version]
+    highest_versions = None
     number_of_versions = 0
     install_locs = {
         '6.0' : {},
@@ -934,7 +1067,8 @@ class msvsEmptyTestCase(msvsTestCase):
         '8.0' : {},
         '8.0Exp' : {},
     }
-    default_install_loc = install_locs['8.0Exp']
+    default_install_loc = {}
+    exists_maps = None
 
 if __name__ == "__main__":
 
@@ -957,16 +1091,22 @@ if __name__ == "__main__":
     exit_val = 0
 
     test_classes = [
-        msvs6aTestCase,
-        msvs6bTestCase,
-        msvs6and7TestCase,
-        msvs7TestCase,
-        msvs71TestCase,
-        msvs8ExpTestCase,
-        msvs80TestCase,
-        msvs140TestCase,
         msvsEmptyTestCase,
     ]
+
+    vs_channel = SCons.Tool.MSCommon.msvs_get_channel_default()
+    if vs_channel != 'Preview':
+
+        test_classes += [
+            msvs6aTestCase,
+            msvs6bTestCase,
+            msvs6and7TestCase,
+            msvs7TestCase,
+            msvs71TestCase,
+            msvs8ExpTestCase,
+            msvs80TestCase,
+            msvs140TestCase,
+        ]
 
     for test_class in test_classes:
         # DEBUG

@@ -33,6 +33,7 @@ import SCons.Util
 
 from .common import (
     debug,
+    debug_extra,
     get_output,
     is_win64,
     normalize_env,
@@ -40,6 +41,7 @@ from .common import (
     read_reg,
 )
 
+from . import MSVC
 
 class VisualStudio:
     """
@@ -47,97 +49,91 @@ class VisualStudio:
     Visual Studio.
     """
     def __init__(self, version, **kw) -> None:
+        self.debug_extra = debug_extra(self.__class__)
         self.version = version
-        kw['vc_version']  = kw.get('vc_version', version)
+        #kw['vc_version']  = kw.get('vc_version', version)
         kw['sdk_version'] = kw.get('sdk_version', version)
         self.__dict__.update(kw)
         self._cache = {}
+        self._msvs_instance = None
 
-    def find_batch_file(self):
-        vs_dir = self.get_vs_dir()
-        if not vs_dir:
-            debug('no vs_dir')
-            return None
-        batch_file = os.path.join(vs_dir, self.batch_file_path)
-        batch_file = os.path.normpath(batch_file)
-        if not os.path.isfile(batch_file):
-            debug('%s not on file system', batch_file)
-            return None
-        return batch_file
+    def register_msvs_instance(self, msvs_instance):
+        self._msvs_instance = msvs_instance
 
-    def find_vs_dir_by_vc(self, env):
-        msvc_instance = SCons.Tool.MSCommon.vc.find_msvc_instance(self.vc_version, env)
-        if not msvc_instance:
-            debug('no installed VC %s', self.vc_version)
-            return None
-        return os.path.abspath(os.path.join(msvc_instance.vc_dir, os.pardir))
+    #def find_batch_file(self):
+    #    vs_dir = self.get_vs_dir()
+    #    if not vs_dir:
+    #        debug('no vs_dir')
+    #        return None
+    #    batch_file = os.path.join(vs_dir, self.batch_file_path)
+    #    batch_file = os.path.normpath(batch_file)
+    #    if not os.path.isfile(batch_file):
+    #        debug('%s not on file system', batch_file)
+    #        return None
+    #    return batch_file
 
-    def find_vs_dir_by_reg(self, env):
-        root = 'Software\\'
+    #def find_vs_dir_by_vc(self, env):
+    #    msvc_instance = SCons.Tool.MSCommon.vc.find_msvc_instance(self.vc_version, env)
+    #    if not msvc_instance:
+    #        debug('no installed VC %s', self.vc_version)
+    #        return None
+    #    return os.path.abspath(os.path.join(msvc_instance.vc_dir, os.pardir))
 
-        if is_win64():
-            root = root + 'Wow6432Node\\'
-        for key in self.hkeys:
-            if key=='use_dir':
-                return self.find_vs_dir_by_vc(env)
-            key = root + key
-            try:
-                comps = read_reg(key)
-            except OSError:
-                debug('no VS registry key %s', repr(key))
-            else:
-                debug('found VS in registry: %s', comps)
-                return comps
-        return None
+    #def find_vs_dir_by_reg(self, env):
+    #    root = 'Software\\'
+    #
+    #    if is_win64():
+    #        root = root + 'Wow6432Node\\'
+    #    for key in self.hkeys:
+    #        if key=='use_dir':
+    #            return self.find_vs_dir_by_vc(env)
+    #        key = root + key
+    #        try:
+    #            comps = read_reg(key)
+    #        except OSError:
+    #            debug('no VS registry key %s', repr(key))
+    #        else:
+    #            debug('found VS in registry: %s', comps)
+    #            return comps
+    #    return None
 
-    def find_vs_dir(self, env):
-        """ Can use registry or location of VC to find vs dir
-        First try to find by registry, and if that fails find via VC dir
-        """
+    #def find_vs_dir(self, env):
+    #    """ Can use registry or location of VC to find vs dir
+    #    First try to find by registry, and if that fails find via VC dir
+    #    """
+    #
+    #    vs_dir = self.find_vs_dir_by_reg(env)
+    #    if not vs_dir:
+    #        vs_dir = self.find_vs_dir_by_vc(env)
+    #    debug('found VS in %s', str(vs_dir))
+    #    return vs_dir
 
-        vs_dir = self.find_vs_dir_by_reg(env)
-        if not vs_dir:
-            vs_dir = self.find_vs_dir_by_vc(env)
-        debug('found VS in %s', str(vs_dir))
-        return vs_dir
-
-    def find_executable(self, env):
-        vs_dir = self.get_vs_dir(env)
-        if not vs_dir:
-            debug('no vs_dir (%s)', vs_dir)
-            return None
-        executable = os.path.join(vs_dir, self.executable_path)
-        executable = os.path.normpath(executable)
-        if not os.path.isfile(executable):
-            debug('%s not on file system', executable)
-            return None
-        return executable
+    #def find_executable(self, env):
+    #    vs_dir = self.get_vs_dir(env)
+    #    if not vs_dir:
+    #        debug('no vs_dir (%s)', vs_dir)
+    #        return None
+    #    executable = os.path.join(vs_dir, self.executable_path)
+    #    executable = os.path.normpath(executable)
+    #    if not os.path.isfile(executable):
+    #        debug('%s not on file system', executable)
+    #        return None
+    #    return executable
 
     def get_batch_file(self):
-        try:
-            return self._cache['batch_file']
-        except KeyError:
-            batch_file = self.find_batch_file()
-            self._cache['batch_file'] = batch_file
-            return batch_file
+        batch_file = self._msvs_instance.vs_script if self._msvs_instance else None
+        debug('batch_file=%s', repr(batch_file))
+        return batch_file
 
     def get_executable(self, env=None):
-        try:
-            debug('using cache:%s', self._cache['executable'])
-            return self._cache['executable']
-        except KeyError:
-            executable = self.find_executable(env)
-            self._cache['executable'] = executable
-            debug('not in cache:%s', executable)
-            return executable
+        executable = self._msvs_instance.vs_executable if self._msvs_instance else None
+        debug('executable=%s', repr(executable))
+        return executable
 
     def get_vs_dir(self, env=None):
-        try:
-            return self._cache['vs_dir']
-        except KeyError:
-            vs_dir = self.find_vs_dir(env)
-            self._cache['vs_dir'] = vs_dir
-            return vs_dir
+        vs_dir = self._msvs_instance.vs_dir if self._msvs_instance else None
+        debug('vs_dir=%s', repr(vs_dir))
+        return vs_dir
 
     def get_supported_arch(self):
         try:
@@ -202,213 +198,213 @@ class VisualStudio:
 SupportedVSList = [
     # Visual Studio 2022
     VisualStudio('14.3',
-                 vc_version='14.3',
+                 #vc_version='14.3',
                  sdk_version='10.0A',
-                 hkeys=[],
+                 #hkeys=[],
                  common_tools_var='VS170COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
+                 #executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
-                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
+                 #batch_file_path=r'Common7\Tools\VsDevCmd.bat',
                  supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2019
     VisualStudio('14.2',
-                 vc_version='14.2',
+                 #vc_version='14.2',
                  sdk_version='10.0A',
-                 hkeys=[],
+                 #hkeys=[],
                  common_tools_var='VS160COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
+                 #executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
-                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
+                 #batch_file_path=r'Common7\Tools\VsDevCmd.bat',
                  supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual Studio 2017
     VisualStudio('14.1',
-                 vc_version='14.1',
+                 #vc_version='14.1',
                  sdk_version='10.0A',
-                 hkeys=[],
+                 #hkeys=[],
                  common_tools_var='VS150COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
+                 #executable_path=r'Common7\IDE\devenv.com',
                  # should be a fallback, prefer use vswhere installationPath
-                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
+                 #batch_file_path=r'Common7\Tools\VsDevCmd.bat',
                  supported_arch=['x86', 'amd64', "arm", 'arm64'],
                  ),
 
     # Visual C++ 2017 Express Edition (for Desktop)
     VisualStudio('14.1Exp',
-                 vc_version='14.1',
+                 #vc_version='14.1',
                  sdk_version='10.0A',
-                 hkeys=[],
+                 #hkeys=[],
                  common_tools_var='VS150COMNTOOLS',
-                 executable_path=r'Common7\IDE\WDExpress.exe',
+                 #executable_path=r'Common7\IDE\WDExpress.exe',
                  # should be a fallback, prefer use vswhere installationPath
-                 batch_file_path=r'Common7\Tools\VsDevCmd.bat',
+                 #batch_file_path=r'Common7\Tools\VsDevCmd.bat',
                  supported_arch=['x86', 'amd64', "arm", 'arm64'],
     ),
 
     # Visual Studio 2015
     VisualStudio('14.0',
-                 vc_version='14.0',
+                 #vc_version='14.0',
                  sdk_version='10.0',
-                 hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
                  common_tools_var='VS140COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64', "arm"],
     ),
 
     # Visual C++ 2015 Express Edition (for Desktop)
     VisualStudio('14.0Exp',
-                 vc_version='14.0',
+                 #vc_version='14.0',
                  sdk_version='10.0A',
-                 hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\14.0\Setup\VS\ProductDir'],
                  common_tools_var='VS140COMNTOOLS',
-                 executable_path=r'Common7\IDE\WDExpress.exe',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\WDExpress.exe',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64', "arm"],
     ),
 
     # Visual Studio 2013
     VisualStudio('12.0',
-                 vc_version='12.0',
+                 #vc_version='12.0',
                  sdk_version='8.1A',
-                 hkeys=[r'Microsoft\VisualStudio\12.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\12.0\Setup\VS\ProductDir'],
                  common_tools_var='VS120COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual C++ 2013 Express Edition (for Desktop)
     VisualStudio('12.0Exp',
-                 vc_version='12.0',
+                 #vc_version='12.0',
                  sdk_version='8.1A',
-                 hkeys=[r'Microsoft\VisualStudio\12.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\12.0\Setup\VS\ProductDir'],
                  common_tools_var='VS120COMNTOOLS',
-                 executable_path=r'Common7\IDE\WDExpress.exe',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\WDExpress.exe',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual Studio 2012
     VisualStudio('11.0',
                  sdk_version='8.0A',
-                 hkeys=[r'Microsoft\VisualStudio\11.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\11.0\Setup\VS\ProductDir'],
                  common_tools_var='VS110COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual C++ 2012 Express Edition (for Desktop)
     VisualStudio('11.0Exp',
-                 vc_version='11.0',
+                 #vc_version='11.0',
                  sdk_version='8.0A',
-                 hkeys=[r'Microsoft\VisualStudio\11.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\11.0\Setup\VS\ProductDir'],
                  common_tools_var='VS110COMNTOOLS',
-                 executable_path=r'Common7\IDE\WDExpress.exe',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\WDExpress.exe',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual Studio 2010
     VisualStudio('10.0',
                  sdk_version='7.0A',
-                 hkeys=[r'Microsoft\VisualStudio\10.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\10.0\Setup\VS\ProductDir'],
                  common_tools_var='VS100COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual C++ 2010 Express Edition
     VisualStudio('10.0Exp',
-                 vc_version='10.0',
+                 #vc_version='10.0',
                  sdk_version='7.0A',
-                 hkeys=[r'Microsoft\VCExpress\10.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VCExpress\10.0\Setup\VS\ProductDir'],
                  common_tools_var='VS100COMNTOOLS',
-                 executable_path=r'Common7\IDE\VCExpress.exe',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\VCExpress.exe',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio 2008
     VisualStudio('9.0',
                  sdk_version='6.0A',
-                 hkeys=[r'Microsoft\VisualStudio\9.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\9.0\Setup\VS\ProductDir'],
                  common_tools_var='VS90COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual C++ 2008 Express Edition
     VisualStudio('9.0Exp',
-                 vc_version='9.0',
+                 #vc_version='9.0',
                  sdk_version='6.0A',
-                 hkeys=[r'Microsoft\VCExpress\9.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VCExpress\9.0\Setup\VS\ProductDir'],
                  common_tools_var='VS90COMNTOOLS',
-                 executable_path=r'Common7\IDE\VCExpress.exe',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #executable_path=r'Common7\IDE\VCExpress.exe',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio 2005
     VisualStudio('8.0',
                  sdk_version='6.0A',
-                 hkeys=[r'Microsoft\VisualStudio\8.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\8.0\Setup\VS\ProductDir'],
                  common_tools_var='VS80COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
-                 default_dirname='Microsoft Visual Studio 8',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #default_dirname='Microsoft Visual Studio 8',
                  supported_arch=['x86', 'amd64'],
     ),
 
     # Visual C++ 2005 Express Edition
     VisualStudio('8.0Exp',
-                 vc_version='8.0Exp',
+                 #vc_version='8.0Exp',
                  sdk_version='6.0A',
-                 hkeys=[r'Microsoft\VCExpress\8.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VCExpress\8.0\Setup\VS\ProductDir'],
                  common_tools_var='VS80COMNTOOLS',
-                 executable_path=r'Common7\IDE\VCExpress.exe',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
-                 default_dirname='Microsoft Visual Studio 8',
+                 #executable_path=r'Common7\IDE\VCExpress.exe',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #default_dirname='Microsoft Visual Studio 8',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio .NET 2003
     VisualStudio('7.1',
                  sdk_version='6.0',
-                 hkeys=[r'Microsoft\VisualStudio\7.1\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\7.1\Setup\VS\ProductDir'],
                  common_tools_var='VS71COMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
-                 default_dirname='Microsoft Visual Studio .NET 2003',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #default_dirname='Microsoft Visual Studio .NET 2003',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio .NET
     VisualStudio('7.0',
                  sdk_version='2003R2',
-                 hkeys=[r'Microsoft\VisualStudio\7.0\Setup\VS\ProductDir'],
+                 #hkeys=[r'Microsoft\VisualStudio\7.0\Setup\VS\ProductDir'],
                  common_tools_var='VSCOMNTOOLS',
-                 executable_path=r'Common7\IDE\devenv.com',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
-                 default_dirname='Microsoft Visual Studio .NET',
+                 #executable_path=r'Common7\IDE\devenv.com',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #default_dirname='Microsoft Visual Studio .NET',
                  supported_arch=['x86'],
     ),
 
     # Visual Studio 6.0
     VisualStudio('6.0',
                  sdk_version='2003R1',
-                 hkeys=[r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual Studio\ProductDir',
-                        'use_dir'],
+                 #hkeys=[r'Microsoft\VisualStudio\6.0\Setup\Microsoft Visual Studio\ProductDir',
+                 #       'use_dir'],
                  common_tools_var='MSDevDir',
-                 executable_path=r'Common\MSDev98\Bin\MSDEV.COM',
-                 batch_file_path=r'Common7\Tools\vsvars32.bat',
-                 default_dirname='Microsoft Visual Studio',
+                 #executable_path=r'Common\MSDev98\Bin\MSDEV.COM',
+                 #batch_file_path=r'Common7\Tools\vsvars32.bat',
+                 #default_dirname='Microsoft Visual Studio',
                  supported_arch=['x86'],
     ),
 ]
@@ -430,18 +426,33 @@ InstalledVSMap  = None
 def get_installed_visual_studios(env=None):
     global InstalledVSList
     global InstalledVSMap
+    # the cache is cleared if new instances are discovered
+    msvs_manager = MSVC.VSDetect.msvs_detect_env(env)
     if InstalledVSList is None:
         InstalledVSList = []
         InstalledVSMap = {}
         for vs in SupportedVSList:
             debug('trying to find VS %s', vs.version)
-            if vs.get_executable(env):
-                debug('found VS %s', vs.version)
-                InstalledVSList.append(vs)
-                InstalledVSMap[vs.version] = vs
+            msvs_instances, _ = msvs_manager.query_msvs_instances(msvc_version=vs.version)
+            if not msvs_instances:
+                continue
+            msvs_instance = msvs_instances[0]
+            if not msvs_instance.vs_executable:
+                continue
+            msvc_instance = msvs_instance.msvc_instance
+            if not msvc_instance:
+                continue
+            vs.register_msvs_instance(msvs_instance)
+            debug('found VS %s (msvs_instance=%s)', repr(vs.version), repr(msvs_instance.id_str))
+            InstalledVSList.append(vs)
+            InstalledVSMap[vs.version] = vs
+            #if vs.get_executable(env):
+            #    debug('found VS %s', vs.version)
+            #    InstalledVSList.append(vs)
+            #    InstalledVSMap[vs.version] = vs
     return InstalledVSList
 
-def reset_installed_visual_studios() -> None:
+def _reset_installed_visual_studios() -> None:
     global InstalledVSList
     global InstalledVSMap
     InstalledVSList = None
@@ -449,6 +460,11 @@ def reset_installed_visual_studios() -> None:
     for vs in SupportedVSList:
         vs.reset()
 
+# register visual studios cache reset function with vs detection
+MSVC.VSDetect.register_reset_func(_reset_installed_visual_studios)
+
+def reset_installed_visual_studios() -> None:
+    _reset_installed_visual_studios()
     # Need to clear installed VC's as well as they are used in finding
     # installed VS's
     SCons.Tool.MSCommon.vc.reset_installed_vcs()
