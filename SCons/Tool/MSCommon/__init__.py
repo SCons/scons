@@ -55,6 +55,15 @@ from SCons.Tool.MSCommon.vs import (  # noqa: F401
     query_versions,
 )
 
+from .MSVC.VSWhere import (  # noqa: F401
+    vswhere_push_location,
+)
+
+from .MSVC.VSDetect import (  # noqa: F401
+    msvs_set_channel_default,
+    msvs_get_channel_default,
+)
+
 from .MSVC.Policy import (  # noqa: F401
     msvc_set_notfound_policy,
     msvc_get_notfound_policy,

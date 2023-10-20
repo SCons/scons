@@ -30,20 +30,29 @@ Test the MSVC_SPECTRE_LIBS construction variable.
 import TestSCons
 import textwrap
 
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon.vc import get_installed_msvc_instances
 from SCons.Tool.MSCommon import msvc_toolset_versions_spectre
 
 test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
-installed_versions = get_installed_vcs_components()
-GE_VS2017_versions = [v for v in installed_versions if v.msvc_vernum >= 14.1]
-LT_VS2017_versions = [v for v in installed_versions if v.msvc_vernum < 14.1]
+installed_instances = get_installed_msvc_instances()
+if not installed_instances:
+    test.skip_test("No MSVC instances, skipping.")
 
-if GE_VS2017_versions:
+GE_VS2017_instances = []
+LT_VS2017_instances = []
+
+for msvc_instance in installed_instances:
+    if msvc_instance.vs_product_numeric >= 2017:
+        GE_VS2017_instances.append(msvc_instance)
+    else:
+        LT_VS2017_instances.append(msvc_instance)
+
+if GE_VS2017_instances:
     # VS2017 and later for toolset argument
 
-    for supported in GE_VS2017_versions:
+    for supported in GE_VS2017_instances:
 
         spectre_toolset_versions = msvc_toolset_versions_spectre(supported.msvc_version)
         spectre_toolset_version = spectre_toolset_versions[0] if spectre_toolset_versions else None
@@ -121,10 +130,10 @@ if GE_VS2017_versions:
         ))
         test.run(arguments='-Q -s', stdout='')
 
-if LT_VS2017_versions:
+if LT_VS2017_instances:
     # VS2015 and earlier for toolset argument error
 
-    for unsupported in LT_VS2017_versions:
+    for unsupported in LT_VS2017_instances:
 
         # must be VS2017 or later
         test.write('SConstruct', textwrap.dedent(

@@ -7,15 +7,13 @@ import SCons.Tool.MSCommon
 
 DefaultEnvironment(tools=[])
 
-def DummyVsWhere(msvc_version, env):
-    # not testing versions with vswhere, so return none
-    return None
+def DummyVsWhereExecutables(vswhere_env=None):
+    # not testing versions with vswhere, so return empty list
+    return []
 
-for key in SCons.Tool.MSCommon.vc._VCVER_TO_PRODUCT_DIR:
-    SCons.Tool.MSCommon.vc._VCVER_TO_PRODUCT_DIR[key] = [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'')
-    ]
+for detect_cfg in SCons.Tool.MSCommon.MSVC.VSDetect._VSDetectRegistry.DETECT_CONFIG.values():
+    detect_cfg.vc_cfg.regkeys.clear()
 
-SCons.Tool.MSCommon.vc.find_vc_pdir_vswhere = DummyVsWhere
+SCons.Tool.MSCommon.MSVC.VSWhere.vswhere_get_executables = DummyVsWhereExecutables
 SCons.Tool.MSCommon.msvc_set_notfound_policy('error')
 env = SCons.Environment.Environment(MSVC_VERSION='14.3')

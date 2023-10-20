@@ -7,9 +7,7 @@ import SCons.Tool.MSCommon
 
 DefaultEnvironment(tools=[])
 
-for key in SCons.Tool.MSCommon.vc._VCVER_TO_PRODUCT_DIR:
-    SCons.Tool.MSCommon.vc._VCVER_TO_PRODUCT_DIR[key] = [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'')
-    ]
+for detect_cfg in SCons.Tool.MSCommon.MSVC.VSDetect._VSDetectRegistry.DETECT_CONFIG.values():
+    detect_cfg.vc_cfg.regkeys.clear()
 
 env = SCons.Environment.Environment()

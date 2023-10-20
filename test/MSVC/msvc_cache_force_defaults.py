@@ -29,16 +29,19 @@ Test SCONS_CACHE_MSVC_FORCE_DEFAULTS system environment variable.
 
 import textwrap
 
-from SCons.Tool.MSCommon.vc import get_installed_vcs_components
+from SCons.Tool.MSCommon.vc import get_installed_msvc_instances
 import TestSCons
 
 test = TestSCons.TestSCons()
 test.skip_if_not_msvc()
 
-installed_versions = get_installed_vcs_components()
-default_version = installed_versions[0]
-if default_version.msvc_vernum < 14.0:
-    test.skip_test("MSVC version earlier than 14.0, skipping.")
+installed_instances = get_installed_msvc_instances()
+if not installed_instances:
+    test.skip_test("No MSVC instances, skipping.")
+
+default_instance = installed_instances[0]
+if default_instance.vs_product_numeric < 2015:
+    test.skip_test("MSVC product earlier than 2015, skipping.")
 
 # VS2015 and later
 # force SDK version and toolset version as msvc batch file arguments
@@ -67,9 +70,16 @@ test.write('SConstruct', textwrap.dedent(
 ))
 test.run(arguments="-Q -s", status=0, stdout=None)
 cache_arg = test.stdout().strip()
-if default_version.msvc_verstr == '14.0':
-    # VS2015: target_arch msvc_sdk_version
-    expect = r'^SCRIPT_ARGS: .* [0-9.]+$'
+if default_instance.vs_product_numeric == 2015:
+    if default_instance.is_express:
+        # VS2015 Express: target_arch
+        expect = r'^SCRIPT_ARGS: [a-zA-Z0-9_]+$'
+    elif default_instance.is_buildtools:
+        # VS2015 BuildTools: target_arch
+        expect = r'^SCRIPT_ARGS: [a-zA-Z0-9_]+$'
+    else:
+        # VS2015: target_arch msvc_sdk_version
+        expect = r'^SCRIPT_ARGS: [a-zA-Z0-9_]+ [0-9.]+$'
 else:
     # VS2017+ msvc_sdk_version msvc_toolset_version
     expect = r'^SCRIPT_ARGS: [0-9.]+ -vcvars_ver=[0-9.]+$'

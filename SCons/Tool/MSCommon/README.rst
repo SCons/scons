@@ -27,16 +27,166 @@ Design Notes
   ``MSCommon/vc.py`` and are available via the ``SCons.Tool.MSCommon`` namespace.
 
 
+MSVC Detection Priority
+=======================
+
+For msvc version specifications without an 'Exp' suffix, an express
+installation is used only when no other installation is detected.
+
+======= ======= ========================================================
+Product VCVer   Priority
+======= ======= ========================================================
+VS2022  14.3	Enterprise, Professional, Community, BuildTools
+------- ------- --------------------------------------------------------
+VS2019  14.2    Enterprise, Professional, Community, BuildTools
+------- ------- --------------------------------------------------------
+VS2017  14.1    Enterprise, Professional, Community, BuildTools, Express
+------- ------- --------------------------------------------------------
+VS2017  14.1Exp Express
+------- ------- --------------------------------------------------------
+VS2015  14.0	[Develop, BuildTools, CmdLine], Express
+------- ------- --------------------------------------------------------
+VS2015  14.0Exp Express
+------- ------- --------------------------------------------------------
+VS2013  12.0	Develop, Express
+------- ------- --------------------------------------------------------
+VS2013  12.0Exp Express
+------- ------- --------------------------------------------------------
+VS2012  11.0	Develop, Express
+------- ------- --------------------------------------------------------
+VS2012  11.0Exp Express
+------- ------- --------------------------------------------------------
+VS2010  10.0    Develop, Express
+------- ------- --------------------------------------------------------
+VS2010  10.0Exp Express
+------- ------- --------------------------------------------------------
+VS2008  9.0     VCForPython, Develop, Express
+------- ------- --------------------------------------------------------
+VS2008  9.0Exp  Express
+------- ------- --------------------------------------------------------
+VS2005  8.0     Develop, Express
+------- ------- --------------------------------------------------------
+VS2005  8.0Exp  Express
+------- ------- --------------------------------------------------------
+VS2003  7.1     Develop
+------- ------- --------------------------------------------------------
+VS2002  7.0     Develop
+------- ------- --------------------------------------------------------
+VS6.0   6.0     Develop
+======= ======= ========================================================
+
+Legend:
+
+  Develop
+    devenv.com (or msdev.com) is detected.
+  
+  Express
+    WDExpress.exe (or VCExpress.exe) is detected.
+  
+  BuildTools [VS2015]
+    The vcvarsall batch file dispatches to the buildtools batch file.
+  
+  CmdLine [VS2015]
+    Neither Develop, Express, or BuildTools.
+
+VS2015 Edition Limitations
+==========================
+
+VS2015 BuildTools
+-----------------
+
+The VS2015 BuildTools stand-alone batch file does not support the ``sdk version`` argument.
+
+The VS2015 BuildTools stand-alone batch file does not support the ``store`` argument.
+
+These arguments appear to be silently ignored and likely would result in compiler
+and/or linker build failures.
+
+The VS2015 BuildTools ``vcvarsall.bat`` batch file dispatches to the stand-alone buildtools
+batch file under certain circumstances. A fragment from the vcvarsall batch file is:
+::
+	if exist "%~dp0..\common7\IDE\devenv.exe" goto setup_VS
+	if exist "%~dp0..\common7\IDE\wdexpress.exe" goto setup_VS
+	if exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto setup_buildsku
+
+	:setup_VS
+
+	...
+
+	:setup_buildsku
+	if not exist "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" goto usage
+	set CurrentDir=%CD%
+	call "%~dp0..\..\Microsoft Visual C++ Build Tools\vcbuildtools.bat" %1 %2
+	cd /d %CurrentDir%
+	goto :eof
+
+VS2015 Express
+--------------
+
+The VS2015 Express batch file does not support the ``sdk version`` argument.
+
+The VS2015 Express batch file does not support the ``store`` argument for the ``amd64`` and
+``arm`` target architectures
+
+amd64 Target Architecture
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As installed, VS2015 Express does not support the ``store`` argument for the ``amd64`` target
+architecture.  The generated ``store`` library paths include directories that do not exist.
+
+The store library paths appear in two places in the ``vcvarsx86_amd64`` batch file:
+::
+	:setstorelib
+	@if exist "%VCINSTALLDIR%LIB\amd64\store" set LIB=%VCINSTALLDIR%LIB\amd64\store;%LIB%
+	...
+	:setstorelibpath
+	@if exist "%VCINSTALLDIR%LIB\amd64\store" set LIBPATH=%VCINSTALLDIR%LIB\amd64\store;%LIBPATH%
+
+The correct store library paths would be:
+::
+	:setstorelib
+	@if exist "%VCINSTALLDIR%LIB\store\amd64" set LIB=%VCINSTALLDIR%LIB\store\amd64;%LIB%
+	...
+	:setstorelibpath
+	@if exist "%VCINSTALLDIR%LIB\store\amd64" set LIBPATH=%VCINSTALLDIR%LIB\store\amd64;%LIBPATH%
+
+arm Target Architecture
+^^^^^^^^^^^^^^^^^^^^^^^
+
+As installed, VS2015 Express does not support the ``store`` argument for the ``arm`` target
+architecture.  The generated ``store`` library paths include directories that do not exist.
+
+The store library paths appear in two places in the ``vcvarsx86_arm`` batch file:
+::
+	:setstorelib
+	@if exist "%VCINSTALLDIR%LIB\ARM\store" set LIB=%VCINSTALLDIR%LIB\ARM\store;%LIB%
+	...
+	:setstorelibpath
+	@if exist "%VCINSTALLDIR%LIB\ARM\store" set LIBPATH=%VCINSTALLDIR%LIB\ARM\store;%LIBPATH%
+
+The correct store library paths would be file:
+::
+	:setstorelib
+	@if exist "%VCINSTALLDIR%LIB\store\ARM" set LIB=%VCINSTALLDIR%LIB\store\ARM;%LIB%
+	...
+	:setstorelibpath
+	@if exist "%VCINSTALLDIR%LIB\store\ARM" set LIBPATH=%VCINSTALLDIR%LIB\store\ARM;%LIBPATH%
+
+
 Known Issues
 ============
 
 The following issues are known to exist:
 
 * Using ``MSVC_USE_SCRIPT`` and ``MSVC_USE_SCRIPT_ARGS`` to call older Microsoft SDK
-  ``SetEnv.cmd`` batch files may result in build failures.  Some of these batch files
-  require delayed expansion to be enabled which is not usually the Windows default.
-  One solution would be to launch the MSVC batch file command in a new command interpreter
-  instance with delayed expansion enabled via command-line options.
+  ``SetEnv.cmd`` batch files may result in build failures.
+
+  Typically, the reasons for build failures with SDK batch files are one, or both, of:
+
+  * The batch files require delayed expansion to be enabled which is not usually the Windows default.
+
+  * The batch files inspect environment variables that are not defined in the minimal subprocess
+    environment in which the batch files are invoked.
 
 * The code to suppress the "No versions of the MSVC compiler were found" warning for
   the default environment was moved from ``MSCommon/vc.py`` to ``MSCommon/MSVC/SetupEnvDefault.py``.
@@ -188,17 +338,21 @@ Batch File Arguments
 
 Supported MSVC batch file arguments by product:
 
-======= === === ======= =======
-Product UWP SDK Toolset Spectre
-======= === === ======= =======
-VS2022   X   X     X       X
-------- --- --- ------- -------
-VS2019   X   X     X       X
-------- --- --- ------- -------
-VS2017   X   X     X       X
-------- --- --- ------- -------
-VS2015   X   X
-======= === === ======= =======
+======= ======= ====== ======= =======
+Product UWP     SDK    Toolset Spectre
+======= ======= ====== ======= =======
+VS2022   X      X      X       X
+------- ------- ------ ------- -------
+VS2019   X      X      X       X
+------- ------- ------ ------- -------
+VS2017   X      X      X       X
+------- ------- ------ ------- -------
+VS2015   X [1]_ X [2]_
+======= ======= ====== ======= =======
+
+.. [1] The BuildTools edition does not support the ``store`` argument.  The Express edition
+       supports the ``store`` argument for the ``x86`` target only.
+.. [2] The ``sdk version`` argument is not supported in the BuildTools and Express editions.
 
 Supported MSVC batch file arguments in SCons:
 
@@ -315,13 +469,17 @@ Visual Studio Version Notes
 SDK Versions
 ------------
 
-==== ============
+==== =================
 SDK  Format
-==== ============
-10.0 10.0.XXXXX.Y
----- ------------
+==== =================
+10.0 10.0.XXXXX.Y [*]_
+---- -----------------
 8.1  8.1
-==== ============
+==== =================
+
+.. [*] The Windows 10 SDK version number is 10.0.20348.0 and earlier.
+
+       The Windows 11 SDK version number is 10.0.22000.194 and later.
 
 BuildTools Versions
 -------------------

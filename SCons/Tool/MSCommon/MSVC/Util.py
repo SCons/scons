@@ -37,6 +37,44 @@ from ..common import debug
 
 from . import Config
 
+# class utilities
+
+class AutoInitialize:
+    # Automatically call _initialize classmethod upon class definition completion.
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if hasattr(cls, '_initialize') and callable(getattr(cls, '_initialize', None)):
+            cls._initialize()
+
+# env utilities
+
+def env_query(env, key, default=None, subst=False):
+    """
+    Query a mapping object for the value associated with the key.
+
+    Args:
+        env: Mapping[str, object]
+            mapping for key retrieval
+        key: str
+            key for object retrieval
+        default: object
+            return value when key is not in mapping
+        subst: bool
+            call substr method if it exists when True
+
+    Returns:
+        object: value retrieved from mapping or the default value 
+
+    """
+
+    if not env or key not in env:
+        rval = default
+    elif subst and hasattr(env, 'subst') and callable(getattr(env, 'subst', None)):
+        rval = env.subst('$' + key)
+    else:
+        rval = env[key]
+    return rval
+
 # path utilities
 
 # windows drive specification (e.g., 'C:')
@@ -234,6 +272,35 @@ def get_msvc_version_prefix(version):
             rval = m.group('version')
     return rval
 
+def get_msvc_version_prefix_suffix(version):
+    """
+    Get the msvc version number prefix and suffix from a string.
+
+    Args:
+        version: str
+            version specification
+
+    Returns:
+        (str, str): the msvc version prefix and suffix
+
+    """
+    prefix = suffix = ''
+    if version:
+        m = re_msvc_version.match(version)
+        if m:
+            prefix = m.group('msvc_version')
+            suffix = m.group('suffix') if m.group('suffix') else ''
+    return prefix, suffix
+
+# msvc version query utilities
+
+def is_version_valid(version) -> bool:
+    rval = False
+    if version:
+        if re_msvc_version.match(version):
+            rval = True
+    return rval
+
 # toolset version query utilities
 
 def is_toolset_full(toolset_version) -> bool:
@@ -297,8 +364,8 @@ def msvc_version_components(vcver):
     if not m:
         return None
 
-    vs_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
-    if not vs_def:
+    vs_product_def = Config.MSVC_VERSION_SUFFIX.get(vcver)
+    if not vs_product_def:
         return None
 
     msvc_version = vcver
@@ -363,8 +430,8 @@ def msvc_extended_version_components(version):
     msvc_suffix = m.group('suffix') if m.group('suffix') else ''
     msvc_version = msvc_verstr + msvc_suffix
 
-    vs_def = Config.MSVC_VERSION_SUFFIX.get(msvc_version)
-    if not vs_def:
+    vs_product_def = Config.MSVC_VERSION_SUFFIX.get(msvc_version)
+    if not vs_product_def:
         return None
 
     msvc_vernum = float(msvc_verstr)

@@ -56,7 +56,7 @@ env = Environment(MSVC_USE_SETTINGS={})
 """ % locals())
 
 test.run(arguments="--warn=visual-c-missing .", status=0, stderr=None)
-test.must_contain_all(test.stderr(), "Could not find MSVC compiler 'cl'")
+test.must_contain_all(test.stderr(), "Could not find requested MSVC compiler 'cl'")
 
 test.write('SConstruct', """
 env = Environment(MSVC_USE_SETTINGS='dict or None')

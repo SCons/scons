@@ -30,6 +30,12 @@ import SCons.Warnings
 class VisualCWarning(SCons.Warnings.WarningOnByDefault):
     pass
 
+class VSWherePathWarning(VisualCWarning):
+    pass
+
+class MSVSChannelWarning(VisualCWarning):
+    pass
+
 class MSVCScriptExecutionWarning(VisualCWarning):
     pass
 

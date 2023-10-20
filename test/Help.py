@@ -23,6 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import re
 import TestSCons
 
 test = TestSCons.TestSCons()
@@ -144,6 +145,8 @@ test.run(arguments='-h', stdout=expect)
 # Enhancement: keep_local flag saves the AddOption help,
 # but not SCons' own help.
 test.write('SConstruct', r"""
+import sys
+
 AddOption(
     '--debugging',
     dest='debugging',
@@ -159,14 +162,54 @@ vars.Add(ListVariable('buildmod', 'List of modules to build', 'none', ['python']
 DefaultEnvironment(tools=[])
 env = Environment()
 
+print("<control>")
+if 'SCons.Tool.MSCommon.MSVC.Options' in sys.modules.keys():
+    print("MSVC_OPTIONS")
+print("<control>")
+
 Help(vars.GenerateHelpText(env), append=True, keep_local=True)
 """)
 
-expect = """\
+test.run(arguments='-h')
+
+def process_output(test_output):
+
+    head, control, tail = re.split(r'<control>\n', test_output)
+
+    output = head + tail
+
+    expected_locals = [
+        ('--debugging', 'Compile with debugging symbols'),
+    ]
+
+    known_options = [
+        local for local in [
+            option.strip() for option in control.splitlines()
+        ] if local
+    ]
+
+    if 'MSVC_OPTIONS' in known_options:
+        expected_locals.extend([
+            ('--msvs-channel=CHANNEL', 'Set default msvs CHANNEL [Release, Preview, Any].'),
+            ('--vswhere=EXEPATH', 'Add vswhere executable located at EXEPATH.'),
+        ])
+
+    maxarglen = len(max(expected_locals, key=lambda item: len(item[0]))[0])
+
+    locals_str = '\n'.join([
+        f'  {arg:{maxarglen}}  {help}'
+        for arg, help in expected_locals
+    ])
+
+    return output, locals_str
+
+output, local_options = process_output(test.stdout())
+
+expect = f"""\
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 Local Options:
-  --debugging  Compile with debugging symbols
+{local_options}
 
 buildmod: List of modules to build
     (all|none|comma-separated list of names)
@@ -177,8 +220,15 @@ buildmod: List of modules to build
 Use scons -H for help about SCons built-in command-line options.
 """
 
-test.run(arguments='-h', stdout=expect)
-
+if output != expect:
+    n = 80
+    print('\nOutput:\n' + '=' * n)
+    print(output)
+    print('=' * n)
+    print('\nExpected:\n' + '=' * n)
+    print(expect)
+    print('=' * n)
+    test.fail_test()
 
 test.pass_test()
 
