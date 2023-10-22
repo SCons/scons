@@ -65,7 +65,7 @@ def DObjectEmitter(target,source,env):
         di_file_suffix = env.subst('$DI_FILE_SUFFIX', target=target, source=source)
         file_base = Path(target[0].get_path()).stem
         # print(f'DObjectEmitter: {di_file_dir}/*{file_base}*{di_file_suffix}')
-        target.append(env.fs.File(f"{file_base}{di_file_suffix}", di_file_dir))
+        target.append(env.fs.File(Path(di_file_dir,f"{file_base}{di_file_suffix}")))
         # print("New Target:%s"%" ".join([str(t) for t in target]))
     return (target,source)
 

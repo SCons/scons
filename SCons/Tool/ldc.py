@@ -72,7 +72,7 @@ def generate(env) -> None:
     env['_DVERFLAGS'] = '${_concat(DVERPREFIX, DVERSIONS, DVERSUFFIX, __env__)}'
     env['_DDEBUGFLAGS'] = '${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)}'
 
-    env['_DI_FLAGS'] = "${DI_FILE_DIR and DI_FILE_DIR_PREFIX+DI_FILE_DIR+DI_FILE_DIR_SUFFFIX}"
+    env['_DI_FLAGS'] = "${DI_FILE_DIR and DI_FILE_DIR_PREFIX+VARIANT_DIR+DI_FILE_DIR+DI_FILE_DIR_SUFFFIX}"
     
     env['_DFLAGS'] = '${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)}'
 
@@ -97,9 +97,9 @@ def generate(env) -> None:
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
     
+    env['VARIANT_DIR'] = ''
     env['DI_FILE_DIR'] = ''
     env['DI_FILE_SUFFIX'] = '.di'
-    
     env['DI_FILE_DIR_PREFIX'] = '-Hd='
     env['DI_FILE_DIR_SUFFFIX'] = ''
 

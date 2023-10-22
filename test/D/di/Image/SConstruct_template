@@ -8,10 +8,4 @@ env = Environment(
     DI_FILE_DIR='include'
 )
 
-
-# o1 = env.Object('source/helloWorld.d')
-# o2 = env.Object('helloWorldMain.d')
-# env.Program('hw', [o1[0], o2[0]])
-
-# Alternatively 
-env.Program('hw', ['helloWorldMain.d','source/helloWorld.d'])
+env.Program('hw', ['main.d','parts/part.d'])

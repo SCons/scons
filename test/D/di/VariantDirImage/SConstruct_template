@@ -1,0 +1,13 @@
+# -*- mode:python; coding:utf-8; -*-
+
+import os
+
+DefaultEnvironment(tools=[])
+
+env = Environment(
+    tools=['link','ar' ,'{}'],
+    VARIANT_DIR='build/'
+)
+
+SConscript('hws/SConscript',exports=['env'],variant_dir="build",duplicate=False)
+
