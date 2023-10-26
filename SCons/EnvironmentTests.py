@@ -1528,29 +1528,43 @@ def exists(env):
     # function is in Defaults.py, tested here to use TestEnvironment
     def test__stripixes(self) -> None:
         """Test _stripixes()"""
-        # LIBPREFIXES and LIBSUFFIXES are stripped,
-        # except if an entry begins with LIBLITERAL
+        # LIBPREFIXES and LIBSUFFIXES are stripped, except if an entry
+        # begins with LIBLITERALPREFIX. Check this with and without that
+        # argument being passed, and whether or not LIBLITERALPREFIX is
+        # explicitly set.
         e = self.TestEnvironment(
             PRE='pre',
             SUF='suf',
             LIST=['xxx-a', 'b.yyy', 'zzxxx-c.yyy'],
             LIBPREFIXES=['xxx-'],
             LIBSUFFIXES=['.yyy'],
-            LIBLITERAL='zz',
         )
-        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERAL)} $)')
-        self.assertEqual(x, 'preasuf prebsuf prezzxxx-c.yyysuf')
 
-        # Test that setting literal_prefix (in this case LIBLITERAL)
-        # same as os.pathsep disables the literal protection
-        e['LIBLITERAL'] = os.pathsep
-        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERAL)} $)')
-        self.assertEqual(x, 'preasuf prebsuf prezzxxx-csuf')
+        # e['LIBLITERALPREFIX'] = ''
+        with self.subTest():
+            x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERALPREFIX)} $)')
+            self.assertEqual('preasuf prebsuf prezzxxx-csuf', x)
 
-        # Test that setting not settingliteral_prefix doesn't fail
-        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__)} $)')
-        self.assertEqual(x, 'preasuf prebsuf prezzxxx-csuf')
+        with self.subTest():
+            x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__)} $)')
+            self.assertEqual('preasuf prebsuf prezzxxx-csuf', x)
 
+        # add it to the env:
+        e['LIBLITERALPREFIX'] = 'zz'
+
+        with self.subTest():
+            x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERALPREFIX)} $)')
+            self.assertEqual('preasuf prebsuf prezzxxx-c.yyysuf', x)
+
+        with self.subTest():
+            x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__)} $)')
+            self.assertEqual('preasuf prebsuf prezzxxx-csuf', x)
+
+        # And special case: LIBLITERALPREFIX is the same as os.pathsep:
+        e['LIBLITERALPREFIX'] = os.pathsep
+        with self.subTest():
+            x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERALPREFIX)} $)')
+        self.assertEqual('preasuf prebsuf prezzxxx-csuf', x)
 
 
     def test_gvars(self) -> None:

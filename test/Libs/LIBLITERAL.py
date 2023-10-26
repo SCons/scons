@@ -24,7 +24,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test LIBLITERAL behavior.
+Test LIBLITERALPREFIX behavior.
 
 Build a static library and shared library of the same name,
 and make sure the requested syntax selects the static one.
@@ -46,11 +46,11 @@ if sys.platform == 'win32':
         test.skip_test("Functionality not available for msvc, skipping test.\n")
 
 test.write('SConstruct', """\
-LIBLITERAL = ":"
-env = Environment(LIBLITERAL=LIBLITERAL, LIBPATH=".")
+LIBLITERALPREFIX = ":"
+env = Environment(LIBLITERALPREFIX=LIBLITERALPREFIX, LIBPATH=".")
 lib = env.Library(target='foo', source='foo.c')
 shlib = env.SharedLibrary(target='foo', source='shfoo.c')
-env.Program(target='prog', source=['prog.c'], LIBS=f"{LIBLITERAL}libfoo.a")
+env.Program(target='prog', source=['prog.c'], LIBS=f"{LIBLITERALPREFIX}libfoo.a")
 """)
 
 test.write('shfoo.c', r"""

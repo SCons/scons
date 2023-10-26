@@ -26,6 +26,7 @@
 import collections
 import re
 from inspect import signature, Parameter
+from typing import Optional
 
 import SCons.Errors
 from SCons.Util import is_String, is_Sequence
@@ -448,11 +449,12 @@ class StringSubber:
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
+        def sub_match(match):
+            return self.conv(self.expand(match.group(1), lvars))
+
         if is_String(args) and not isinstance(args, CmdStringHolder):
             args = str(args)        # In case it's a UserString.
             try:
-                def sub_match(match):
-                    return self.conv(self.expand(match.group(1), lvars))
                 result = _dollar_exps.sub(sub_match, args)
             except TypeError:
                 # If the internal conversion routine doesn't return
@@ -805,7 +807,7 @@ _separate_args = re.compile(r'(%s|\s+|[^\s$]+|\$)' % _dollar_exps_str)
 _space_sep = re.compile(r'[\t ]+(?![^{]*})')
 
 
-def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: bool=False):
+def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: Optional[dict] = None):
     """Expand a string or list containing construction variable
     substitutions.
 
@@ -887,7 +889,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
 
     return result
 
-def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None,overrides: bool=False):
+def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={}, lvars={}, conv=None, overrides: Optional[dict] = None):
     """Substitute construction variables in a string (or list or other
     object) and separate the arguments into a command list.
 

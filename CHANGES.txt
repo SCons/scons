@@ -188,6 +188,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       avoid the GNU linker issuing warnings for its absence.
     - Eliminate more http: references (mostly in comments/docstrings where
       they really weren't harmful). A few links labeled dead with no alt.
+    - Add a LIBLITERALPREFIX variable which can be set to the linker's
+      prefix for considering a library argument unmodified (e.g. for the
+      GNU linker, the ':' in '-l:libfoo.a').
 
 
   From Jonathon Reinhart:

@@ -93,8 +93,9 @@ def generate(env) -> None:
     env['LIBSUFFIX']      = '.a'
     env['SHLIBPREFIX']    = '$LIBPREFIX'
     env['SHLIBSUFFIX']    = '.so'
-    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['LIBPREFIXES']    = ['$LIBPREFIX']
+    env['LIBSUFFIXES']    = ['$LIBSUFFIX', '$SHLIBSUFFIX']
+    env['LIBLITERALPREFIX'] = ''
     env['HOST_OS']        = 'posix'
     env['HOST_ARCH']      = platform.machine()
     env['PSPAWN']         = pspawn

@@ -37,6 +37,7 @@ import re
 import shlex
 from collections import UserDict, deque
 from subprocess import PIPE, DEVNULL
+from typing import Optional
 
 import SCons.Action
 import SCons.Builder
@@ -679,7 +680,7 @@ class SubstitutionEnvironment:
     def lvars(self):
         return {}
 
-    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor=None, overrides: bool=False):
+    def subst(self, string, raw: int=0, target=None, source=None, conv=None, executor=None, overrides: Optional[dict] = None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -705,9 +706,11 @@ class SubstitutionEnvironment:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor=None, overrides: bool=False):
-        """Calls through to SCons.Subst.scons_subst_list().  See
-        the documentation for that function."""
+    def subst_list(self, string, raw: int=0, target=None, source=None, conv=None, executor=None, overrides: Optional[dict] = None):
+        """Calls through to SCons.Subst.scons_subst_list().
+
+        See the documentation for that function.
+        """
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
@@ -716,9 +719,10 @@ class SubstitutionEnvironment:
         return SCons.Subst.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv, overrides=overrides)
 
     def subst_path(self, path, target=None, source=None):
-        """Substitute a path list, turning EntryProxies into Nodes
-        and leaving Nodes (and other objects) as-is."""
+        """Substitute a path list.
 
+        Turns EntryProxies into Nodes, leaving Nodes (and other objects) as-is.
+        """
         if not is_List(path):
             path = [path]
 
