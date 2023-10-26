@@ -462,6 +462,7 @@ def _stripixes(
     stripprefixes: str,
     stripsuffixes: str,
     env,
+    literal_prefix: str = "",
     c: Callable[[list], list] = None,
 ) -> list:
     """Returns a list with text added to items after first stripping them.
@@ -498,14 +499,13 @@ def _stripixes(
     stripprefixes = list(map(env.subst, flatten(stripprefixes)))
     stripsuffixes = list(map(env.subst, flatten(stripsuffixes)))
 
-    # This is a little funky: if $LIBLITERAL is the same as os.pathsep
+    # This is a little funky: if literal_prefix is the same as os.pathsep
     # (e.g. both ':'), the normal conversion to a PathList will drop the
-    # $LIBLITERAL prefix. Tell it not to split in that case, which *should*
+    # literal_prefix prefix. Tell it not to split in that case, which *should*
     # be okay because if we come through here, we're normally processing
     # library names and won't have strings like "path:secondpath:thirdpath"
     # which is why PathList() otherwise wants to split strings.
-    libliteral = env.get('LIBLITERAL')
-    do_split = not libliteral == os.pathsep
+    do_split = not literal_prefix == os.pathsep
 
     stripped = []
     for l in SCons.PathList.PathList(items, do_split).subst_path(env, None, None):
@@ -516,7 +516,7 @@ def _stripixes(
         if not is_String(l):
             l = str(l)
 
-        if libliteral and l.startswith(libliteral):
+        if literal_prefix and l.startswith(literal_prefix):
             stripped.append(l)
             continue
 

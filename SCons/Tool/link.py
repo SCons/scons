@@ -55,7 +55,7 @@ def generate(env) -> None:
     env['LINKCOM'] = '$LINK -o $TARGET $LINKFLAGS $__RPATH $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     env['LIBDIRPREFIX'] = '-L'
     env['LIBDIRSUFFIX'] = ''
-    env['_LIBFLAGS'] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
+    env['_LIBFLAGS'] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__, LIBLITERAL)}'
     env['LIBLINKPREFIX'] = '-l'
     env['LIBLINKSUFFIX'] = ''
 

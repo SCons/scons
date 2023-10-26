@@ -1538,8 +1538,19 @@ def exists(env):
             LIBSUFFIXES=['.yyy'],
             LIBLITERAL='zz',
         )
-        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__)} $)')
+        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERAL)} $)')
         self.assertEqual(x, 'preasuf prebsuf prezzxxx-c.yyysuf')
+
+        # Test that setting literal_prefix (in this case LIBLITERAL)
+        # same as os.pathsep disables the literal protection
+        e['LIBLITERAL'] = os.pathsep
+        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__, LIBLITERAL)} $)')
+        self.assertEqual(x, 'preasuf prebsuf prezzxxx-csuf')
+
+        # Test that setting not settingliteral_prefix doesn't fail
+        x = e.subst('$( ${_stripixes(PRE, LIST, SUF, LIBPREFIXES, LIBSUFFIXES,__env__)} $)')
+        self.assertEqual(x, 'preasuf prebsuf prezzxxx-csuf')
+
 
 
     def test_gvars(self) -> None:

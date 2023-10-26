@@ -73,7 +73,7 @@ def generate(env) -> None:
     env['_DDEBUGFLAGS'] = '${_concat(DDEBUGPREFIX, DDEBUG, DDEBUGSUFFIX, __env__)}'
 
     env['_DI_FLAGS'] = "${DI_FILE_DIR and DI_FILE_DIR_PREFIX+DI_FILE_DIR+DI_FILE_DIR_SUFFFIX}"
-    
+
     env['_DFLAGS'] = '${_concat(DFLAGPREFIX, DFLAGS, DFLAGSUFFIX, __env__)}'
 
     env['SHDC'] = '$DC'
@@ -96,10 +96,10 @@ def generate(env) -> None:
     env['DFLAGPREFIX'] = '-'
     env['DFLAGSUFFIX'] = ''
     env['DFILESUFFIX'] = '.d'
-    
+
     env['DI_FILE_DIR'] = ''
     env['DI_FILE_SUFFIX'] = '.di'
-    
+
     env['DI_FILE_DIR_PREFIX'] = '-Hd='
     env['DI_FILE_DIR_SUFFFIX'] = ''
 
@@ -115,7 +115,7 @@ def generate(env) -> None:
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
     # env['_DLIBFLAGS'] = '${_concat(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, __env__, RDirs, TARGET, SOURCE)}'
-    env['_DLIBFLAGS'] = '${_stripixes(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES,  __env__)}'
+    env['_DLIBFLAGS'] = '${_stripixes(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES,  __env__, LIBLITERAL)}'
 
     env['DLIBDIRPREFIX'] = '-L-L'
     env['DLIBDIRSUFFIX'] = ''
