@@ -1119,6 +1119,12 @@ should take place in parallel.)
 </para>
   </listitem>
   </varlistentry>
+  <varlistentry>
+  <term><emphasis role="bold">sconscript</emphasis></term>
+  <listitem>
+<para>Augments the output of SCons with markers to track included SConscript files.</para>
+  </listitem>
+  </varlistentry>
   </variablelist> <!-- end nested list -->
   </listitem>
   </varlistentry>

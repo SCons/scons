@@ -43,7 +43,7 @@ unexpect = [
 ]
 test.must_not_contain_any_line(test.stdout(), unexpect)
 
-test.run(arguments = "--debug=sconscript-trace .")
+test.run(arguments = "--debug=sconscript .")
 expect = [
     'scons-entering>%s%sSConstruct'%(wpath, os.sep),
     'scons-exiting>%s%sSConstruct'%(wpath, os.sep)
