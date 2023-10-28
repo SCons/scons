@@ -752,7 +752,7 @@ def Parser(version):
     debug_options = ["count", "duplicate", "explain", "findlibs",
                      "includes", "memoizer", "memory", "objects",
                      "pdb", "prepare", "presub", "stacktrace",
-                     "time", "action-timestamps", "json"]
+                     "time", "action-timestamps", "json", "sconscript-trace"]
 
     def opt_debug(option, opt, value__, parser,
                   debug_options=debug_options,

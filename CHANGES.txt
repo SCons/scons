@@ -8,6 +8,9 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
+  From Sten Grüner
+    - The --debug flag has a 'sconscript-trace' option allowint to trace
+      files included via SConscript call.
 
   From Max Bachmann:
     - Add missing directories to searched paths for mingw installs

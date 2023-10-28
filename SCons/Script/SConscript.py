@@ -274,10 +274,10 @@ def _SConscript(fs, *files, **kw):
                             scriptdata = _file_.read()
                             scriptname = _file_.name
                             _file_.close()
-                            if "SCONS_CALL_TRACING" in os.environ:
+                            if SCons.Debug.sconscript_trace:
                                 print("scons-entering>"+str(scriptname))
                             exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
-                            if "SCONS_CALL_TRACING" in os.environ:
+                            if SCons.Debug.sconscript_trace:
                                 print("scons-exiting>"+str(scriptname))
                         except SConscriptReturn:
                             pass
