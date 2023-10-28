@@ -593,7 +593,7 @@ less portable:
 for example, on a POSIX system,
 no attempt will be made to strip a suffix like
 <filename>.dll</filename>.
-Library name strings in &LIBS; should not include a path component:
+Library name strings in &cv-LIBS; should not include a path component:
 instead use &cv-link-LIBPATH; to direct the compiler
 to look for libraries in those paths,
 plus any default paths the linker searches in.
