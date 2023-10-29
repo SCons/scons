@@ -79,7 +79,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   Any code that did the direct import will have to change to import from
   SCons.Util.sctypes.
 - Add JDK 21 LTS support
-- The newly added --debug=sconscript optiont (new) will output notices when
+- The newly added --debug=sconscript option (new) will output notices when
   entering an exiting each SConscript as they are processed.
 
 FIXES

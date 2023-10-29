@@ -59,7 +59,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 
   From Sten Grüner
-    - The newly added --debug=sconscript optiont (new) will output notices when
+    - The newly added --debug=sconscript option (new) will output notices when
       entering an exiting each SConscript as they are processed.
 
   From Philipp Maierhöfer:
