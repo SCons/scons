@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,15 +22,15 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
+"""
+Test the --debug=sconscript option
+"""
 
 import os
 import TestSCons
 
 test = TestSCons.TestSCons()
-
 
 test.write('SConstruct', """\
 print("SConstruct")
@@ -36,17 +38,17 @@ print("SConstruct")
 
 wpath = test.workpath()
 
-test.run(arguments = ".")
+test.run(arguments=".")
 unexpect = [
-    'scons-entering>%s%sSConstruct'%(wpath, os.sep),
-    'scons-exiting>%s%sSConstruct'%(wpath, os.sep)
+    'scons: Entering %s%sSConstruct' % (wpath, os.sep),
+    'scons: Exiting %s%sSConstruct' % (wpath, os.sep)
 ]
 test.must_not_contain_any_line(test.stdout(), unexpect)
 
-test.run(arguments = "--debug=sconscript .")
+test.run(arguments="--debug=sconscript .")
 expect = [
-    'scons-entering>%s%sSConstruct'%(wpath, os.sep),
-    'scons-exiting>%s%sSConstruct'%(wpath, os.sep)
+    'scons: Entering %s%sSConstruct' % (wpath, os.sep),
+    'scons: Exiting %s%sSConstruct' % (wpath, os.sep)
 ]
 test.must_contain_all_lines(test.stdout(), expect)
 test.pass_test()

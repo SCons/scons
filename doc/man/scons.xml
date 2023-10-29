@@ -1122,7 +1122,7 @@ should take place in parallel.)
   <varlistentry>
   <term><emphasis role="bold">sconscript</emphasis></term>
   <listitem>
-<para>Augments the output of SCons with markers to track included SConscript files.</para>
+<para>Enables output indicating entering and exiting each SConscript file.</para>
   </listitem>
   </varlistentry>
   </variablelist> <!-- end nested list -->
