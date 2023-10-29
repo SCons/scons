@@ -47,6 +47,24 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       msvs. Moving any of these tools that used relative imports to the scons site tools
       folder would fail on import (i.e., the relative import paths become invalid when
       moved).
+    - The detection of the msvc compiler executable (cl.exe) has been modified:
+        * The host os environment path is no longer evaluated for the existence of the
+          msvc compiler executable when searching the detection dictionary.
+        * The existence of the msvc compiler executable is checked in the detection
+          dictionary and the scons ENV path before the detection dictionary is merged
+          into the scons ENV.
+        * Different warnings are produced when the msvc compiler is not detected in the
+          detection dictionary based on whether or not an msvc compiler was detected in
+          the scons ENV path (i.e., a msvc compiler executable already exists in the
+          user's ENV path prior to detection).
+        * The warning message issued when a msvc compiler executable is not found in the
+          detection dictionary was modified by adding the word "requested":
+            Old warning: "Could not find MSVC compiler 'cl'."
+            New warning: "Could not find requested MSVC compiler 'cl'.".
+        * An additonal sentence is appended to the warning message issued when an msvc
+          compiler executable is not found in the msvc detection dictionary and is found
+          in the user's ENV path prior to detection:
+            " A 'cl' was found on the scons ENV path which may be erroneous."
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`
