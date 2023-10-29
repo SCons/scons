@@ -8,7 +8,6 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
   From Max Bachmann:
     - Add missing directories to searched paths for mingw installs
 
@@ -76,6 +75,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       the build.
     - Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
+
+  From Sten Grüner
+    - The newly added --debug=sconscript option (new) will output notices when
+      entering an exiting each SConscript as they are processed.
 
   From Philipp Maierhöfer:
     - Fix gfortran tool initialization. Defaults to using binary named gfortran
