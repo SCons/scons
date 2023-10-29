@@ -25,7 +25,7 @@ NEW FUNCTIONALITY
   error pop-up window (powershell dll not found).
 - Add a LIBLITERALPREFIX variable which can be set to the linker's
   prefix for considering a library argument unmodified (e.g. for the
-  GNU linker, the ':' in '-l:libfoo.a').
+  GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
 
 DEPRECATED FUNCTIONALITY
 ------------------------
