@@ -420,8 +420,9 @@ def generate(env):
     env['LIBSUFFIX']      = '.lib'
     env['SHLIBPREFIX']    = ''
     env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX' ]
+    env['LIBPREFIXES']    = ['$LIBPREFIX']
+    env['LIBSUFFIXES']    = ['$LIBSUFFIX']
+    env['LIBLITERALPREFIX'] = ''
     env['PSPAWN']         = piped_spawn
     env['SPAWN']          = spawn
     env['SHELL']          = cmd_interp

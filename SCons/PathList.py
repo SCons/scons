@@ -64,10 +64,9 @@ def node_conv(obj):
     return result
 
 class _PathList:
-    """
-    An actual PathList object.
-    """
-    def __init__(self, pathlist) -> None:
+    """An actual PathList object."""
+
+    def __init__(self, pathlist, split=True) -> None:
         """
         Initializes a PathList object, canonicalizing the input and
         pre-processing it for quicker substitution later.
@@ -94,7 +93,10 @@ class _PathList:
         over and over for each target.
         """
         if SCons.Util.is_String(pathlist):
-            pathlist = pathlist.split(os.pathsep)
+            if split:
+                pathlist = pathlist.split(os.pathsep)
+            else:  # no splitting, but still need a list
+                pathlist = [pathlist]
         elif not SCons.Util.is_Sequence(pathlist):
             pathlist = [pathlist]
 
@@ -141,8 +143,7 @@ class _PathList:
 
 
 class PathListCache:
-    """
-    A class to handle caching of PathList lookups.
+    """A class to handle caching of PathList lookups.
 
     This class gets instantiated once and then deleted from the namespace,
     so it's used as a Singleton (although we don't enforce that in the
@@ -161,7 +162,7 @@ class PathListCache:
     The main type of duplication we're trying to catch will come from
     looking up the same path list from two different clones of the
     same construction environment.  That is, given
-    
+
         env2 = env1.Clone()
 
     both env1 and env2 will have the same CPPPATH value, and we can
@@ -189,7 +190,7 @@ class PathListCache:
         return pathlist
 
     @SCons.Memoize.CountDictCall(_PathList_key)
-    def PathList(self, pathlist):
+    def PathList(self, pathlist, split=True):
         """
         Returns the cached _PathList object for the specified pathlist,
         creating and caching a new object as necessary.
@@ -206,7 +207,7 @@ class PathListCache:
             except KeyError:
                 pass
 
-        result = _PathList(pathlist)
+        result = _PathList(pathlist, split)
 
         memo_dict[pathlist] = result
 
