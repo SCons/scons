@@ -213,6 +213,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Add a LIBLITERALPREFIX variable which can be set to the linker's
       prefix for considering a library argument unmodified (e.g. for the
       GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
+    - Update PCH builder docs with some usage notes.
 
   From Jonathon Reinhart:
     - Fix another instance of `int main()` in CheckLib() causing failures
