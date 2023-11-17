@@ -94,10 +94,9 @@ Sets &consvars; for the Microsoft Visual C/C++ compiler.
 <para>
 Builds a Microsoft Visual C++ precompiled header.
 Calling this builder
-returns a list of two targets: the PCH as the first element, and the object
-file as the second element. Normally the object file is ignored.
-This builder is only
-provided when Microsoft Visual C++ is being used as the compiler.
+returns a list of two target nodes: the PCH as the first element,
+and the object file as the second element.
+Normally the object file is ignored.
 The &b-PCH; builder is generally used in
 conjunction with the &cv-link-PCH; &consvar; to force object files to use
 the precompiled header:
@@ -106,6 +105,42 @@ the precompiled header:
 <example_commands>
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 </example_commands>
+
+<note>
+<para>
+This builder is specific to the PCH implementation
+in  Microsoft Visual C++.
+Other compiler chains also implement precompiled header support,
+but &b-PCH; does not work with them at this time.
+As a result, the builder is only generated into the
+construction environment when
+Microsoft Visual C++ is being used as the compiler.
+</para>
+<para>
+The builder only works correctly in a C++ project.
+The Microsoft implementation distinguishes between
+precompiled headers from C and C++.
+Use of the builder will cause the PCH generation to happen with a flag
+that tells <application>cl.exe</application> all of the
+files are C++ files; if that PCH file is then supplied when
+compiling a C source file,
+<application>cl.exe</application> will fail the build with
+a compatibility violation.
+</para>
+<para>
+If possible, arrange the project so that a
+C++ source file passed to the &b-PCH; builder
+is not also included in the list of sources
+to be otherwise compiled in the project.
+&SCons; will correctly track that file in the dependency tree
+as a result of the &b-PCH; call,
+and (for MSVC 11.0 and greater) automatically add the
+corresponding object file to the link line.
+If the source list is automatically generated,
+for example using the &f-link-Glob; function,
+it may be necessary to remove that file from the list.
+</para>
+</note>
 </summary>
 </builder>
 
@@ -154,7 +189,7 @@ when the &cv-link-PDB; &consvar; is set.
 </para>
 
 <para>
-The Visual C++ compiler option that SCons uses by default
+The Visual C++ compiler option that &SCons; uses by default
 to generate PDB information is <option>/Z7</option>.
 This works correctly with parallel (<option>-j</option>) builds
 because it embeds the debug information in the intermediate object files,
@@ -192,12 +227,12 @@ env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
 <summary>
 <para>
 When set to any true value,
-specifies that SCons should batch
+specifies that &SCons; should batch
 compilation of object files
 when calling the Microsoft Visual C/C++ compiler.
 All compilations of source files from the same source directory
 that generate target files in a same output directory
-and were configured in SCons using the same &consenv;
+and were configured in &SCons; using the same &consenv;
 will be built in a single call to the compiler.
 Only source files that have changed since their
 object files were built will be passed to each compiler invocation
@@ -213,17 +248,19 @@ will be compiled separately.
 <cvar name="PCH">
 <summary>
 <para>
-The Microsoft Visual C++ precompiled header that will be used when compiling
-object files. This variable is ignored by tools other than Microsoft Visual C++.
+A node for the Microsoft Visual C++ precompiled header that will be
+used when compiling object files.
+This variable is ignored by tools other than Microsoft Visual C++.
 When this variable is
-defined SCons will add options to the compiler command line to
+defined, &SCons; will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
 dependencies for the PCH file.
-Example:
+Examples:
 </para>
 
 <example_commands>
 env['PCH'] = File('StdAfx.pch')
+env['PCH'] = env.PCH('pch.cc')[0]
 </example_commands>
 </summary>
 </cvar>
@@ -242,7 +279,7 @@ builder to generated a precompiled header.
 <summary>
 <para>
 The string displayed when generating a precompiled header.
-If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
+If not set, then &cv-link-PCHCOM; (the command line) is displayed.
 </para>
 </summary>
 </cvar>
@@ -356,7 +393,7 @@ when the &cv-link-RCINCFLAGS; variable is expanded.
 Sets the preferred  version of Microsoft Visual C/C++ to use.
 If the specified version is unavailable (not installed,
 or not discoverable), tool initialization will fail.
-If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
+If &cv-MSVC_VERSION; is not set, &SCons; will (by default) select the
 latest version of Visual C/C++ installed on your system.
 </para>
 
@@ -796,10 +833,10 @@ Specify the location of <filename>vswhere.exe</filename>.
     It provides full information about installations of 2017 and later editions.
     With the <option>-legacy</option> argument, <filename>vswhere.exe</filename> can detect installations of the 2010 through 2015
     editions with limited data returned.
-If <envar>VSWHERE</envar> is set, SCons will use that location.
+If <envar>VSWHERE</envar> is set, &SCons; will use that location.
 </para>
 <para>
-    Otherwise SCons will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
+    Otherwise &SCons; will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
 located.
 </para>
 
