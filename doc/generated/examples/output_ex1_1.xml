@@ -5,5 +5,5 @@ scons: done reading SConscript files.
 Type: 'scons program' to build the production program,
       'scons debug' to build the debug version.
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 </screen>
