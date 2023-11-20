@@ -7,7 +7,8 @@
 NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
-RELEASE  VERSION/DATE TO BE FILLED IN LATER
+RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
+
   From Max Bachmann:
     - Add missing directories to searched paths for mingw installs
 
@@ -84,6 +85,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix gfortran tool initialization. Defaults to using binary named gfortran
       as would be expected, and properly set's SHFORTRAN flags to include -fPIC
       where previously it was only doing so for the other fortran versions (F77,..)
+
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
 
   From Mats Wichmann
     - C scanner's dictifyCPPDEFINES routine did not understand the possible
@@ -214,10 +219,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       prefix for considering a library argument unmodified (e.g. for the
       GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
     - Update PCH builder docs with some usage notes.
-
-  From Jonathon Reinhart:
-    - Fix another instance of `int main()` in CheckLib() causing failures
-      when using -Wstrict-prototypes.
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 

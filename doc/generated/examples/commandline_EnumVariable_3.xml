@@ -4,5 +4,5 @@ COLOR: Set background color (red|green|blue)
     default: red
     actual: red
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 </screen>

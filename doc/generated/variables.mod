@@ -286,6 +286,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-_LIBFLAGS "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$_LIBFLAGS</envar>">
 <!ENTITY cv-LIBLINKPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBLINKPREFIX</envar>">
 <!ENTITY cv-LIBLINKSUFFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBLINKSUFFIX</envar>">
+<!ENTITY cv-LIBLITERALPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBLITERALPREFIX</envar>">
 <!ENTITY cv-LIBPATH "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBPATH</envar>">
 <!ENTITY cv-LIBPREFIX "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBPREFIX</envar>">
 <!ENTITY cv-LIBPREFIXES "<envar xmlns='http://www.scons.org/dbxsd/v1.0'>$LIBPREFIXES</envar>">
@@ -967,6 +968,7 @@ THIS IS AN AUTOMATICALLY-GENERATED FILE.  DO NOT EDIT.
 <!ENTITY cv-link-_LIBFLAGS "<link linkend='cv-_LIBFLAGS' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$_LIBFLAGS</envar></link>">
 <!ENTITY cv-link-LIBLINKPREFIX "<link linkend='cv-LIBLINKPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBLINKPREFIX</envar></link>">
 <!ENTITY cv-link-LIBLINKSUFFIX "<link linkend='cv-LIBLINKSUFFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBLINKSUFFIX</envar></link>">
+<!ENTITY cv-link-LIBLITERALPREFIX "<link linkend='cv-LIBLITERALPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBLITERALPREFIX</envar></link>">
 <!ENTITY cv-link-LIBPATH "<link linkend='cv-LIBPATH' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBPATH</envar></link>">
 <!ENTITY cv-link-LIBPREFIX "<link linkend='cv-LIBPREFIX' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBPREFIX</envar></link>">
 <!ENTITY cv-link-LIBPREFIXES "<link linkend='cv-LIBPREFIXES' xmlns='http://www.scons.org/dbxsd/v1.0'><envar>$LIBPREFIXES</envar></link>">

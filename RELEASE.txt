@@ -1,12 +1,4 @@
-If you are reading this in the git repository, the contents
-refer to *unreleased* changes since the last SCons release.
-Past official release announcements appear at:
-
-    https://scons.org/tag/releases.html
-
-==================================================================
-
-A new SCons release, 4.5.3, is now available on the SCons download page:
+A new SCons release, 4.6.0, is now available on the SCons download page:
 
     https://scons.org/pages/download.html
 
@@ -27,10 +19,6 @@ NEW FUNCTIONALITY
   prefix for considering a library argument unmodified (e.g. for the
   GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
 
-DEPRECATED FUNCTIONALITY
-------------------------
-
-- List anything that's been deprecated since the last release
 
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
@@ -181,3 +169,14 @@ Thanks to the following contributors listed below for their contributions to thi
 .. code-block:: text
 
     git shortlog --no-merges -ns 4.5.2..HEAD
+        97  Mats Wichmann
+        39  William Deegan
+        20  Joseph Brill
+        12  Alex Burton
+         4  StenGruener
+         2  Jonathon Reinhart
+         2  LiuYinCarl
+         2  Max Bachmann
+         1  Kenshin
+         1  Shohei YOSHIDA
+         1  Vitaly Cheptsov
