@@ -95,6 +95,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       would fail with an exception if called with a module which is
       not found.  It will now return None.  Updated manpage entry and
       docstring..
+    - Doc update: standardized on the use of a new entity &MSVC; to
+      describe the Microsoft C++ compiler. Update the version table slightly.
+      Amplified the usage of MSVC_VERSION.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

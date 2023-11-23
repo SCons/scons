@@ -106,7 +106,7 @@ int main() { printf("Hello, world!\n"); }
 
    <para>
 
-   On a Windows system with the Microsoft Visual C++ compiler,
+   On a Windows system with the &MSVC; compiler,
    you'll see something like:
 
    </para>
@@ -215,7 +215,7 @@ int main() { printf("Hello, world!\n"); }
    <para>
 
    And just the &hello_obj; object file
-   on a Windows system (with the Microsoft Visual C++ compiler):
+   on a Windows system (with the &MSVC; compiler):
 
    </para>
 

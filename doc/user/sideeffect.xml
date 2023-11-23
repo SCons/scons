@@ -112,7 +112,7 @@ f1 = env.Command(
  In general, &SideEffect; is not intended for the case when
  a command produces extra target files (that is, files which
  will be used as sources to other build steps). For example, the
- the Microsoft Visual C/C++ compiler is capable of performing
+ the &MSVC; compiler is capable of performing
  incremental linking, for which it uses a status file - such that
  linking <filename>foo.exe</filename> also produces
  a <filename>foo.ilk</filename>, or uses it if it was already present,
@@ -136,7 +136,7 @@ f1 = env.Command(
  <para>
 
  Unfortunately, the tool which sets up the &b-Program; builder
- for the MSVC compiler chain does not come prebuilt
+ for the &MSVC; compiler chain does not come prebuilt
  with an understanding of the details of the <filename>.ilk</filename>
  example - that the target list would need to change
  in the presence of that specific option flag. Unlike the trivial

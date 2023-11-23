@@ -167,7 +167,7 @@ else:
     </para>
     <para>
       On the <literal>win32</literal> platform,
-      if the Microsoft Visual C++ compiler is available,
+      if the &MSVC; compiler is available,
       &t-link-msvc; tool setup is done using
       &cv-HOST_ARCH; and &cv-link-TARGET_ARCH;.
       Changing the values at any later time will not cause
@@ -196,7 +196,7 @@ else:
     </para>
     <para>
       On the <literal>win32</literal> platform,
-      if the Microsoft Visual C++ compiler is available,
+      if the &MSVC; compiler is available,
       &t-link-msvc; tool setup is done using
       &cv-link-HOST_ARCH; and &cv-TARGET_ARCH;.
       If a value is not specified,
@@ -323,7 +323,7 @@ and
 <para>
 The prefix for the name of the temporary file used
 to store command lines exceeding &cv-link-MAXLINELENGTH;.
-The default prefix is <literal>'@'</literal>, which works for the Microsoft
+The default prefix is <literal>'@'</literal>, which works for the &MSVC;
 and GNU toolchains on Windows.
 Set this appropriately for other toolchains,
 for example <literal>'-@'</literal> for the diab compiler

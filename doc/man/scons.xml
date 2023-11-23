@@ -419,7 +419,7 @@ on various systems and initializes itself based on what is found.
 On Windows systems which identify as <emphasis>win32</emphasis>,
 &scons;
 searches in order for the
-Microsoft Visual C++ tools,
+&MSVC; tools,
 the MinGW tool chain,
 the Intel compiler tools,
 and the PharLap ETS compiler.
@@ -431,7 +431,7 @@ On OS/2 systems,
 searches in order for the
 OS/2 compiler,
 the GCC tool chain,
-and the Microsoft Visual C++ tools,
+and the &MSVC; tools,
 On SGI IRIX, IBM AIX, Hewlett Packard HP-UX, and Oracle Solaris systems,
 &scons;
 searches for the native compiler tools
@@ -2484,7 +2484,7 @@ env['FOO'] = 'foo'
 referenced only when the tools are initializided,
 so you either need either to supply them as part of the call to
 &f-link-Environment;, or defer tool initialization.
-For example, initializing the Microsoft Visual C++ version you wish to use:
+For example, initializing the &MSVC; version you wish to use:
 </para>
 
 <programlisting language="python">
@@ -6406,7 +6406,7 @@ by processing multiple independent source files simultaneously.
 of multiple object files
 by passing multiple source files
 to a single invocation of a compiler
-such as Microsoft's Visual C / C++ compiler.)
+such as &MSVC;.
 If the
 <parameter>batch_key</parameter>
 argument evaluates True and is not a callable object,
@@ -7907,7 +7907,7 @@ the issue by adopting the following guidelines:
 When using Cygwin's &gcc; for compiling,
 use the Cygwin-supplied &Python; interpreter
 to run &scons;;
-when using Microsoft Visual C/C++
+when using &MSVC;
 (or some other "native" Windows compiler)
 use the python.org, Microsoft Store, ActiveState or other
 native version of &Python; to run &scons;.
@@ -8458,7 +8458,7 @@ CC: The C compiler.
 </refsect2>
 
 <refsect2 id='using_microsoft_visual_c_precompiled_hea'>
-<title>Using Microsoft Visual C++ precompiled headers</title>
+<title>Using &MSVC; precompiled headers</title>
 
 <para>Since <filename>windows.h</filename> includes everything
 and the kitchen sink, it can take quite
@@ -8522,7 +8522,7 @@ headers consult the MSDN documentation for
 </refsect2>
 
 <refsect2 id='using_microsoft_visual_c_external_debugg'>
-<title>Using Microsoft Visual C++ external debugging information</title>
+<title>Using &MSVC; external debugging information</title>
 
 <para>Since including debugging information in programs and shared libraries can
 cause their size to increase significantly, Microsoft provides a mechanism
@@ -8585,7 +8585,7 @@ so the command line can be used to override
     <term><envar>SCONS_CACHE_MSVC_CONFIG</envar></term>
     <listitem>
 <para>(Windows only). If set, save the shell environment variables
-generated when setting up the Microsoft Visual C++ compiler
+generated when setting up the &MSVC; compiler
 (and/or Build Tools) to a cache file, to give these settings
 persistence across &scons; invocations.
 Generating this information is relatively expensive,
