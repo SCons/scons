@@ -1002,8 +1002,8 @@ def SConf(*args, **kw):
         return SCons.Util.Null()
 
 
-def CheckFunc(context, function_name, header = None, language = None) -> bool:
-    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language)
+def CheckFunc(context, function_name, header = None, language = None, funcargs = None) -> bool:
+    res = SCons.Conftest.CheckFunc(context, function_name, header = header, language = language, funcargs = funcargs)
     context.did_show_result = 1
     return not res
 
