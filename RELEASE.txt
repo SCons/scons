@@ -44,7 +44,7 @@ IMPROVEMENTS
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- Remove unecessary dependencies on pypi packages from setup.cfg
 
 DOCUMENTATION
 -------------

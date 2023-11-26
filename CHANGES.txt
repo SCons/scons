@@ -9,9 +9,8 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-      From John Doe:
-
-        - Whatever John Doe did.
+  From Michał Górny:
+    - Remove unecessary dependencies on pypi packages from setup.cfg
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
