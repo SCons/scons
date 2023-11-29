@@ -32,7 +32,8 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fix of the --debug=sconscript option to return exist statements when using return
+  statement with stop flag enabled
 
 IMPROVEMENTS
 ------------

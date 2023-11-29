@@ -8,10 +8,12 @@ NOTE: The 4.0.0 Release of SCons dropped Python 2.7 Support
 NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer supported
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
-
   From Michał Górny:
     - Remove unecessary dependencies on pypi packages from setup.cfg
 
+  From Sten Grüner:
+    - Fix of the --debug=sconscript option to return exist statements when using return
+      statement with stop flag enabled
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
