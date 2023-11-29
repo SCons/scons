@@ -280,7 +280,7 @@ def _SConscript(fs, *files, **kw):
                             if SCons.Debug.sconscript_trace:
                                 print("scons: Exiting "+str(scriptname))
                         except SConscriptReturn:
-                            pass
+                            print("scons: Exiting "+str(scriptname))
                     finally:
                         if Main.print_time:
                             elapsed = time.perf_counter() - start_time
