@@ -51,6 +51,18 @@ expect = [
     'scons: Exiting %s%sSConstruct' % (wpath, os.sep)
 ]
 test.must_contain_all_lines(test.stdout(), expect)
+
+# Ensure that reutrns with stop are handled properly
+
+test.write('SConstruct', """\
+foo = "bar"
+Return("foo", stop=True)
+print("SConstruct")
+""")
+
+test.run(arguments="--debug=sconscript .")
+test.must_contain_all_lines(test.stdout(), expect)
+
 test.pass_test()
 
 # Local Variables:
