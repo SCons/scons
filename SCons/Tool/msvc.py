@@ -99,6 +99,9 @@ def pch_emitter(target, source, env):
 
     target = [pch, obj] # pch must be first, and obj second for the PCHCOM to work
 
+    if 'PCH' not in env or not env['PCH']:
+        env['PCH'] = pch
+
     return (target, source)
 
 
