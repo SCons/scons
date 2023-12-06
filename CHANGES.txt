@@ -15,6 +15,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
 
+  From Ataf Fazledin Ahamed:
+    - Use of NotImplemented instead of NotImplementedError for special methods
+      of _ListVariable class
+
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
   From Max Bachmann:
