@@ -33,19 +33,19 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
 FIXES
 -----
 
-- List fixes of outright bugs
+- Fix of the --debug=sconscript option to return exist statements when using return
+  statement with stop flag enabled
 
 IMPROVEMENTS
 ------------
 
-- List improvements that wouldn't be visible to the user in the
-  documentation:  performance improvements (describe the circumstances
-  under which they would be observed), or major code cleanups
+- Use of NotImplemented instead of NotImplementedError for special methods
+  of _ListVariable class
 
 PACKAGING
 ---------
 
-- List changes in the way SCons is packaged and/or released
+- Remove unecessary dependencies on pypi packages from setup.cfg
 
 DOCUMENTATION
 -------------
