@@ -561,8 +561,7 @@ class PreProcessor:
                      [('scons_current_file', self.current_file)]
         self.tuples[:] = new_tuples + self.tuples
 
-    # Date: Tue, 22 Nov 2005 20:26:09 -0500
-    # From: Stefan Seefeld <seefeld@sympatico.ca>
+    # From: Stefan Seefeld <seefeld@sympatico.ca> (22 Nov 2005)
     #
     # By the way, #include_next is not the same as #include. The difference
     # being that #include_next starts its search in the path following the
@@ -570,10 +569,12 @@ class PreProcessor:
     # include paths are ['/foo', '/bar'], and you are looking at a header
     # '/foo/baz.h', it might issue an '#include_next <baz.h>' which would
     # correctly resolve to '/bar/baz.h' (if that exists), but *not* see
-    # '/foo/baz.h' again. See http://www.delorie.com/gnu/docs/gcc/cpp_11.html
-    # for more reasoning.
+    # '/foo/baz.h' again. See
+    # https://gcc.gnu.org/onlinedocs/cpp/Wrapper-Headers.html for more notes.
     #
-    # I have no idea in what context 'import' might be used.
+    # I have no idea in what context #import might be used.
+    # Update: possibly these notes?
+    # https://github.com/MicrosoftDocs/cpp-docs/blob/main/docs/preprocessor/hash-import-directive-cpp.md
 
     # XXX is #include_next really the same as #include ?
     do_include_next = do_include

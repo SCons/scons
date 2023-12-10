@@ -24,59 +24,44 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-Test LIBSUFFIXES.
-
-Depends on a live compiler to build library and executable,
-and actually runs the executable.
+Test the --debug=sconscript option
 """
 
 import os
-import sys
-
 import TestSCons
-from TestSCons import lib_
-
-if sys.platform == 'win32':
-    import SCons.Tool.MSCommon as msc
-    if not msc.msvc_exists():
-        lib_ = 'lib'
 
 test = TestSCons.TestSCons()
 
 test.write('SConstruct', """\
-env = Environment(LIBSUFFIX='.xxx', LIBSUFFIXES=['.xxx'])
-lib = env.Library(target='foo', source='foo.c')
-env.Program(target='prog', source=['prog.c', lib])
+print("SConstruct")
 """)
 
-test.write('foo.c', r"""
-#include <stdio.h>
+wpath = test.workpath()
 
-void
-foo(void)
-{
-        printf("foo.c\n");
-}
+test.run(arguments=".")
+unexpect = [
+    'scons: Entering %s%sSConstruct' % (wpath, os.sep),
+    'scons: Exiting %s%sSConstruct' % (wpath, os.sep)
+]
+test.must_not_contain_any_line(test.stdout(), unexpect)
+
+test.run(arguments="--debug=sconscript .")
+expect = [
+    'scons: Entering %s%sSConstruct' % (wpath, os.sep),
+    'scons: Exiting %s%sSConstruct' % (wpath, os.sep)
+]
+test.must_contain_all_lines(test.stdout(), expect)
+
+# Ensure that reutrns with stop are handled properly
+
+test.write('SConstruct', """\
+foo = "bar"
+Return("foo", stop=True)
+print("SConstruct")
 """)
 
-test.write('prog.c', r"""
-#include <stdio.h>
-
-void foo(void);
-int
-main(int argc, char *argv[])
-{
-        argv[argc++] = "--";
-        foo();
-        printf("prog.c\n");
-        return 0;
-}
-""")
-
-test.run(arguments='.', stderr=TestSCons.noisy_ar, match=TestSCons.match_re_dotall)
-test.fail_test(not os.path.exists(test.workpath(lib_ + 'foo.xxx')))
-
-test.run(program=test.workpath('prog'), stdout="foo.c\nprog.c\n")
+test.run(arguments="--debug=sconscript .")
+test.must_contain_all_lines(test.stdout(), expect)
 
 test.pass_test()
 

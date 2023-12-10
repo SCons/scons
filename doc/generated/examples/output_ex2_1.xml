@@ -6,5 +6,5 @@ Type: 'scons program' to build the production program.
 
 Type: 'scons windebug' to build the Windows debug version.
 
-Use scons -H for help about command-line options.
+Use scons -H for help about SCons built-in command-line options.
 </screen>

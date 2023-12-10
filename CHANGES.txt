@@ -9,6 +9,24 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+
+  From Ataf Fazledin Ahamed:
+    - Use of NotImplemented instead of NotImplementedError for special methods
+      of _ListVariable class
+  
+  From Michał Górny:
+    - Remove unecessary dependencies on pypi packages from setup.cfg
+
+  From Sten Grüner:
+    - Fix of the --debug=sconscript option to return exist statements when using return
+      statement with stop flag enabled
+      
+  From Mats Wichmann  
+    - Complete one warning from ninja tool (it did not actually issue the
+      warning) and change three exceptions to different types. Fixes #4036.
+
+RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
+
   From Max Bachmann:
     - Add missing directories to searched paths for mingw installs
 
@@ -42,6 +60,29 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       registry query that returns a path that does not exist.  Multiple invocation
       paths were not prepared to handle the MissingConfiguration exception.  The
       MissingConfiguration exception type was removed.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
+    - The detection of the msvc compiler executable (cl.exe) has been modified:
+        * The host os environment path is no longer evaluated for the existence of the
+          msvc compiler executable when searching the detection dictionary.
+        * The existence of the msvc compiler executable is checked in the detection
+          dictionary and the scons ENV path before the detection dictionary is merged
+          into the scons ENV.
+        * Different warnings are produced when the msvc compiler is not detected in the
+          detection dictionary based on whether or not an msvc compiler was detected in
+          the scons ENV path (i.e., a msvc compiler executable already exists in the
+          user's ENV path prior to detection).
+        * The warning message issued when a msvc compiler executable is not found in the
+          detection dictionary was modified by adding the word "requested":
+            Old warning: "Could not find MSVC compiler 'cl'."
+            New warning: "Could not find requested MSVC compiler 'cl'.".
+        * An additonal sentence is appended to the warning message issued when an msvc
+          compiler executable is not found in the msvc detection dictionary and is found
+          in the user's ENV path prior to detection:
+            " A 'cl' was found on the scons ENV path which may be erroneous."
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`
@@ -54,10 +95,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 
+  From Sten Grüner
+    - The newly added --debug=sconscript option (new) will output notices when
+      entering an exiting each SConscript as they are processed.
+
   From Philipp Maierhöfer:
     - Fix gfortran tool initialization. Defaults to using binary named gfortran
       as would be expected, and properly set's SHFORTRAN flags to include -fPIC
       where previously it was only doing so for the other fortran versions (F77,..)
+
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
 
   From Mats Wichmann
     - C scanner's dictifyCPPDEFINES routine did not understand the possible
@@ -179,13 +228,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python stdlib types module.
     - TeX tests: skip tests that use makeindex or epstopdf not installed, or
       if `kpsewhich glossaries.sty` fails.
-    - Complete one warning from ninja tool (it did not actually issue the
-      warning) and change three exceptions to different types. Fixes #4036.
-
-
-  From Jonathon Reinhart:
-    - Fix another instance of `int main()` in CheckLib() causing failures
-      when using -Wstrict-prototypes.
+    - Added a .note.GNU-stack section to the test assembler files to
+      avoid the GNU linker issuing warnings for its absence.
+    - Eliminate more http: references (mostly in comments/docstrings where
+      they really weren't harmful). A few links labeled dead with no alt.
+    - Add JDK 21 LTS support
+    - Add a LIBLITERALPREFIX variable which can be set to the linker's
+      prefix for considering a library argument unmodified (e.g. for the
+      GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
+    - Update PCH builder docs with some usage notes.
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 

@@ -61,6 +61,7 @@ scons: Reading SConscript files ...
   'INSTALL': &lt;function copyFunc at 0x700000&gt;,
   'INSTALLVERSIONEDLIB': &lt;function copyFuncVersionedLib at 0x700000&gt;,
   'LEXUNISTD': ['--nounistd'],
+  'LIBLITERALPREFIX': '',
   'LIBPREFIX': '',
   'LIBPREFIXES': ['$LIBPREFIX'],
   'LIBSUFFIX': '.lib',

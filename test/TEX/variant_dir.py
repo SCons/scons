@@ -160,7 +160,7 @@ r"""\begin{picture}(0,0)%
 
 test.write(['docs', 'test.bib'], """\
 %% This BibTeX bibliography file was created using BibDesk.
-%% http://bibdesk.sourceforge.net/
+%% https://bibdesk.sourceforge.net/
 
 
 %% Created for Rob Managan at 2006-11-15 12:53:16 -0800

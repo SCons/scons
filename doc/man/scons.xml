@@ -1119,6 +1119,12 @@ should take place in parallel.)
 </para>
   </listitem>
   </varlistentry>
+  <varlistentry>
+  <term><emphasis role="bold">sconscript</emphasis></term>
+  <listitem>
+<para>Enables output indicating entering and exiting each SConscript file.</para>
+  </listitem>
+  </varlistentry>
   </variablelist> <!-- end nested list -->
   </listitem>
   </varlistentry>

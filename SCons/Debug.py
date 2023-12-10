@@ -41,6 +41,9 @@ import inspect
 track_instances = False
 # List of currently tracked classes
 tracked_classes = {}
+# Global variable that gets set to 'True' by the Main script
+# when SConscript call tracing should be enabled.
+sconscript_trace = False
 
 def logInstanceCreation(instance, name=None) -> None:
     if name is None:

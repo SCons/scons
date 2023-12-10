@@ -250,7 +250,7 @@ as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
 &cv-CPPPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.sep</systemitem>.
+Python's <systemitem>os.pathsep</systemitem>.
 </para>
 
 <para>
@@ -473,7 +473,7 @@ when the &cv-link-_LIBDIRFLAGS; variable is automatically generated.
 An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
-The value of &cv-link-_LIBFLAGS; is created
+The value of &cv-_LIBFLAGS; is created
 by respectively prepending and appending &cv-link-LIBLINKPREFIX;
 and &cv-link-LIBLINKSUFFIX;
 to each filename in &cv-link-LIBS;.
@@ -510,7 +510,7 @@ The list of directories that will be searched for libraries
 specified by the &cv-link-LIBS; &consvar;.
 &cv-LIBPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.sep</systemitem>.
+Python's <systemitem>os.pathsep</systemitem>.
 <!-- XXX OLD
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
@@ -573,51 +573,54 @@ env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE
 <cvar name="LIBS">
 <summary>
 <para>
-A list of one or more libraries
+The list of libraries
 that will be added to the link line
 for linking with any executable program, shared library, or loadable module
 created by the &consenv; or override.
 </para>
 
 <para>
-String-valued library names should include
-only the library base names,
+For portability,
+a string-valued library name should include
+only the base library name,
 without prefixes such as <filename>lib</filename>
 or suffixes such as <filename>.so</filename> or <filename>.dll</filename>.
-The library list will be added to command lines
-through the automatically-generated
-&cv-_LIBFLAGS; &consvar;
-which is constructed by
-respectively prepending and appending the values of the
-&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX; &consvars;
-to each library name in &cv-LIBS;.
-Library name strings should not include a
-path component, instead the compiler will be
-directed to look for libraries in the paths
-specified by &cv-link-LIBPATH;.
+&SCons; <emphasis>will</emphasis> attempt to
+strip prefixes from the &cv-link-LIBPREFIXES; list
+and suffixes from the &cv-link-LIBSUFFIXES; list,
+but depending on that behavior will make the build
+less portable:
+for example, on a POSIX system,
+no attempt will be made to strip a suffix like
+<filename>.dll</filename>.
+Library name strings in &cv-LIBS; should not include a path component:
+instead use &cv-link-LIBPATH; to direct the compiler
+to look for libraries in those paths,
+plus any default paths the linker searches in.
+If &cv-link-LIBLITERALPREFIX; is set to a non-empty string,
+then a string-valued &cv-LIBS; entry
+that starts with &cv-link-LIBLITERALPREFIX;
+will cause the rest of the entry
+to be searched for for unmodified,
+but respecting normal library search paths
+(this is an exception to the guideline above
+about leaving off the prefix/suffix from the library name).
 </para>
 
 <para>
-Any command lines you define that need
-the &cv-LIBS; library list should
-include &cv-_LIBFLAGS;:
-</para>
-
-<example_commands>
-env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
-</example_commands>
-
-<para>
-If you add a
-<classname>File</classname>
-object to the
-&cv-LIBS;
-list, the name of that file will be added to
+If a &cv-LIBS; entry is a Node object
+(either as returned by a previous Builder call,
+or as the result of an explicit call to &f-link-File;),
+the pathname from that Node will be added to
 &cv-_LIBFLAGS;,
-and thus to the link line, as-is, without
+and thus to the link line,
+unmodified - without adding
 &cv-LIBLINKPREFIX;
 or
 &cv-LIBLINKSUFFIX;.
+Such entries are searched for literally
+(including any path component);
+the library search paths are not used.
 For example:
 </para>
 
@@ -626,8 +629,74 @@ env.Append(LIBS=File('/tmp/mylib.so'))
 </example_commands>
 
 <para>
-In all cases, scons will add dependencies from the executable program to
-all the libraries in this list.
+<!-- is this actually true? -->
+For each &Builder; call that causes linking with libraries,
+&SCons; will add the libraries in the setting of &cv-LIBS;
+in effect at that moment to the dependecy graph
+as dependencies of the target being generated.
+</para>
+
+<para>
+The library list will transformed to command line
+arguments through the automatically-generated
+&cv-link-_LIBFLAGS; &consvar;
+which is constructed by
+respectively prepending and appending the values of the
+&cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX; &consvars;
+to each library name.
+</para>
+
+<para>
+Any command lines you define yourself that need
+the libraries from &cv-LIBS; should include &cv-_LIBFLAGS;
+(as well as &cv-link-_LIBDIRFLAGS;)
+rather than &cv-LIBS;.
+For example:
+</para>
+
+<example_commands>
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+</example_commands>
+</summary>
+</cvar>
+
+<cvar name="LIBLITERALPREFIX">
+<summary>
+<para>
+If the linker supports command line syntax directing
+that the argument specifying a library should be
+searched for literally (without modification),
+&cv-LIBLITERALPREFIX; can be set to that indicator.
+For example, the GNU linker follows this rule:
+<quote>
+<literal>-l:foo</literal> searches the library path
+for a filename called <literal>foo</literal>,
+without converting it to
+<literal>libfoo.so</literal> or
+<literal>libfoo.a</literal>.
+</quote>
+If &cv-LIBLITERALPREFIX; is set,
+&SCons; will not transform a string-valued entry in
+&cv-link-LIBS; that starts with that string.
+The entry will still be surrounded with
+&cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX;
+on the command line.
+This is useful, for example,
+in directing that a static library
+be used when both a static and dynamic library are available
+and linker policy is to prefer dynamic libraries.
+Compared to the example in &cv-link-LIBS;,
+</para>
+<example_commands>
+env.Append(LIBS=":libmylib.a")
+</example_commands>
+<para>
+will let the linker select that specific (static)
+library name if found in the library search path.
+This differs from using a
+<classname>File</classname> object
+to specify the static library,
+as the latter bypasses the library search path entirely.
 </para>
 </summary>
 </cvar>

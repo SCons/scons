@@ -802,7 +802,7 @@ else:
 
 # From Josiah Carlson,
 # ASPN : Python Cookbook : Module to allow Asynchronous subprocess use on Windows and Posix platforms
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
+# https://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
 
 if sys.platform == 'win32':  # and subprocess.mswindows:
     try:

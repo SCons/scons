@@ -49,7 +49,8 @@ to reflect the names of the libraries they create.
 <cvar name="LIBPREFIXES">
 <summary>
 <para>
-A list of all legal prefixes for library file names.
+A list of all legal prefixes for library file names
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
@@ -75,6 +76,7 @@ to reflect the names of the libraries they create.
 <summary>
 <para>
 A list of all legal suffixes for library file names.
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
@@ -129,7 +131,7 @@ else:
       <parameter>platform</parameter> argument to &f-link-Environment;).
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_OS; is not currently used by &SCons;,
       but the option is reserved to do so in future
     </para>
@@ -177,7 +179,7 @@ else:
       and <literal>x86_64</literal> for 64-bit hosts.
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_ARCH; is not currently used by other platforms,
       but the option is reserved to do so in future
     </para>
@@ -305,7 +307,7 @@ an alternate command line so the invoked tool will make
 use of the contents of the temporary file.
 If you need to replace the default tempfile object,
 the callable should take into account the settings of
-&cv-link-MAXLINELENGTH;, 
+&cv-link-MAXLINELENGTH;,
 &cv-link-TEMPFILEPREFIX;,
 &cv-link-TEMPFILESUFFIX;,
 &cv-link-TEMPFILEARGJOIN;,
@@ -367,7 +369,7 @@ The directory to create the long-lines temporary file in.
 <cvar name="TEMPFILEARGESCFUNC">
 <summary>
 <para>
-The default argument escape function is 
+The default argument escape function is
 <function>SCons.Subst.quote_spaces</function>.
 If you need to apply extra operations on a command argument
 (to fix Windows slashes, normalize paths, etc.)

@@ -274,9 +274,16 @@ def _SConscript(fs, *files, **kw):
                             scriptdata = _file_.read()
                             scriptname = _file_.name
                             _file_.close()
+                            if SCons.Debug.sconscript_trace:
+                                print("scons: Entering "+str(scriptname))
                             exec(compile(scriptdata, scriptname, 'exec'), call_stack[-1].globals)
+                            if SCons.Debug.sconscript_trace:
+                                print("scons: Exiting "+str(scriptname))
                         except SConscriptReturn:
-                            pass
+                            if SCons.Debug.sconscript_trace:
+                                print("scons: Exiting "+str(scriptname))
+                            else:
+                                pass
                     finally:
                         if Main.print_time:
                             elapsed = time.perf_counter() - start_time

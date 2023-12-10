@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# __COPYRIGHT__
+# MIT License
+#
+# Copyright The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,9 +22,6 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-__revision__ = "__FILE__ __REVISION__ __DATE__ __DEVELOPER__"
 
 """
 Test the ability to handle internationalized package and file meta-data.
@@ -78,7 +77,7 @@ env.Package( NAME           = 'foo',
              DESCRIPTION_de = 'das sollte wirklich lang sein',
              DESCRIPTION_fr = 'ceci devrait être vraiment long',
              source         = [ prog ],
-             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz'
+             SOURCE_URL     = 'https://foo.org/foo-1.2.3.tar.gz'
             )
 
 env.Alias ( 'install', prog )
@@ -156,7 +155,7 @@ env.Package( NAME           = 'foo',
              DESCRIPTION_de = 'das sollte wirklich lang sein',
              DESCRIPTION_fr = 'ceci devrait être vraiment long',
              source         = [ prog, man_pages ],
-             SOURCE_URL     = 'http://foo.org/foo-1.2.3.tar.gz',
+             SOURCE_URL     = 'https://foo.org/foo-1.2.3.tar.gz',
             )
 
 env.Alias ( 'install', [ prog, man_pages ] )

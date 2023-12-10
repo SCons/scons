@@ -81,9 +81,8 @@ try:
     # This locked version of spawnve works around a Windows
     # MSVCRT bug, because its spawnve is not thread-safe.
     # Without this, python can randomly crash while using -jN.
-    # See the python bug at http://bugs.python.org/issue6476
-    # and SCons issue at
-    # https://github.com/SCons/scons/issues/2449
+    # See the python bug at https://github.com/python/cpython/issues/50725
+    # and SCons issue at https://github.com/SCons/scons/issues/2449
     def spawnve(mode, file, args, env):
         spawn_lock.acquire()
         try:
@@ -421,8 +420,9 @@ def generate(env):
     env['LIBSUFFIX']      = '.lib'
     env['SHLIBPREFIX']    = ''
     env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX' ]
+    env['LIBPREFIXES']    = ['$LIBPREFIX']
+    env['LIBSUFFIXES']    = ['$LIBSUFFIX']
+    env['LIBLITERALPREFIX'] = ''
     env['PSPAWN']         = piped_spawn
     env['SPAWN']          = spawn
     env['SHELL']          = cmd_interp

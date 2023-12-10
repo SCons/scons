@@ -725,6 +725,8 @@ def _set_debug_values(options) -> None:
         SCons.Node.print_duplicate = True
     if "json" in debug_values:
         ENABLE_JSON = True
+    if "sconscript" in debug_values:
+        SCons.Debug.sconscript_trace = True
 
 def _create_path(plist):
     path = '.'

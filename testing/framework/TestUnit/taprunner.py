@@ -1,6 +1,6 @@
 """
 Format unittest results in Test Anything Protocol (TAP).
-http://testanything.org/tap-version-13-specification.html
+https://testanything.org/tap-version-13-specification.html
 
 Public domain work by:
   anatoly techtonik <techtonik@gmail.com>

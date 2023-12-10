@@ -36,6 +36,7 @@ scons: Reading SConscript files ...
   'IDLSUFFIXES': ['.idl', '.IDL'],
   'INSTALL': &lt;function copyFunc at 0x700000&gt;,
   'INSTALLVERSIONEDLIB': &lt;function copyFuncVersionedLib at 0x700000&gt;,
+  'LIBLITERALPREFIX': '',
   'LIBPREFIX': 'lib',
   'LIBPREFIXES': ['$LIBPREFIX'],
   'LIBSUFFIX': '.a',

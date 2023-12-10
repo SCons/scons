@@ -52,6 +52,9 @@ def generate(env) -> None:
     env['RPATHSUFFIX'] = ''
     env['_RPATH'] = '${_concat(RPATHPREFIX, RPATH, RPATHSUFFIX, __env__)}'
 
+    env['LIBLITERALPREFIX'] = ':'
+
+
 
 def exists(env):
     # TODO: sync with link.smart_link() to choose a linker
