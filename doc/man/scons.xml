@@ -3974,11 +3974,6 @@ If omitted, the default stanza will be
 (with <parameter>function_name</parameter> appropriately substituted):
 </para>
 
-    <para>
-      The optional <parameter>funcargs</parameter> can be defined to specify an argument list for the generated
-      function invocation.
-    </para>
-
 <programlisting language="C">
 #ifdef __cplusplus
 extern "C"
@@ -3987,18 +3982,18 @@ char function_name(void);
 </programlisting>
 
 <para>
-Note: if <parameter>header</parameter> is supplied,
-it should <emphasis>not</emphasis>
-include the standard header file that declares
-<parameter>function_name</parameter>,
-and it <emphasis>should</emphasis> include a
-dummy prototype similar to the default case.
-Compilers reject builds where a function call does
-not match the declared prototype as happens
-if the "real" header is included,
-and modern compilers are now rejecting
-implicit function declarations.
+      The optional <parameter>funcargs</parameter> can be defined to specify an argument list for the generated
+      function invocation.
 </para>
+
+<para>
+Note: if <parameter>header</parameter> is supplied,
+  and the function_name being called takes any parameters, appropriate values for those
+  function arguments should be supplied
+  by using the <parameter>funcargs</parameter>.
+</para>
+
+<emphasis>Changed in version 4.7.0: added the <parameter>funcargs</parameter>.</emphasis>
 
 <para>Returns a boolean indicating success or failure.</para>
   </listitem>

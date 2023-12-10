@@ -244,6 +244,9 @@ def CheckFunc(context, function_name, header = None, language = None, funcargs =
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
     Returns an empty string for success, an error message for failure.
+
+    .. versionchanged:: 4.7.0
+       The ``funcargs`` parameter was added.
     """
 
     # Remarks from autoconf:
