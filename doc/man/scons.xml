@@ -3954,7 +3954,7 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language, funcargs]</parameter>)</term>
   <listitem>
 <para>Checks if <parameter>function_name</parameter> is usable
 in the context's local environment, using the compiler
@@ -3973,6 +3973,11 @@ that will be compiled to check if the function exists.
 If omitted, the default stanza will be
 (with <parameter>function_name</parameter> appropriately substituted):
 </para>
+
+    <para>
+      The optional <parameter>funcargs</parameter> can be defined to specify an argument list for the generated
+      function invocation.
+    </para>
 
 <programlisting language="C">
 #ifdef __cplusplus
