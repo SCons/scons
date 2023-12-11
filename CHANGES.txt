@@ -13,7 +13,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       of _ListVariable class
   
   From Joseph Brill:
-    - Add an optional argument list string to configures CheckFunc method so
+    - Add an optional argument list string to configure's CheckFunc method so
       that the generated function argument list matches the function's
       prototype when including a header file. Fixes GH Issue #4320
 
