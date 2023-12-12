@@ -3993,7 +3993,9 @@ Note: if <parameter>header</parameter> is supplied,
   by using the <parameter>funcargs</parameter>.
 </para>
 
+<para>
 <emphasis>Changed in version 4.7.0: added the <parameter>funcargs</parameter>.</emphasis>
+</para>
 
 <para>Returns a boolean indicating success or failure.</para>
   </listitem>
