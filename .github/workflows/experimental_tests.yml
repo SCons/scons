@@ -41,6 +41,7 @@ jobs:
         if: matrix.os == 'windows-2019'
         with:
           platform: x64
+          static: 0
 
       - name: Set up Python 3.11 ${{ matrix.os }}
         uses: actions/setup-python@v5.0.0
