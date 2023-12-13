@@ -37,7 +37,7 @@ jobs:
       # experiment: maybe don't need this?
       # update: looks like we do: with this commented out, the build hung
       - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
+        uses: egor-tensin/setup-mingw@v2.2.0
         if: matrix.os == 'windows-2019'
         with:
           platform: x64
