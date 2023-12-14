@@ -505,7 +505,7 @@ class NewParallel:
         for _ in range(self.num_workers):
             self.workers.append(NewParallel.Worker(self))
         self._restore_stack_size(prev_size)
-        _work()
+        self._work()
 
     def _adjust_stack_size(self):
         try:
