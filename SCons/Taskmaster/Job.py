@@ -449,7 +449,7 @@ class NewParallel:
 
     def __init__(self, taskmaster, num, stack_size) -> None:
         self.taskmaster = taskmaster
-        self.num_workers = num
+        self.num_workers = num - 1
         self.stack_size = stack_size
         self.interrupted = InterruptState()
         self.workers = []
@@ -505,6 +505,7 @@ class NewParallel:
         for _ in range(self.num_workers):
             self.workers.append(NewParallel.Worker(self))
         self._restore_stack_size(prev_size)
+        _work()
 
     def _adjust_stack_size(self):
         try:
