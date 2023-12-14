@@ -73,16 +73,9 @@ class Jobs:
 
     def __init__(self, num, taskmaster) -> None:
         """
-        Create 'num' jobs using the given taskmaster.
-
-        If 'num' is 1 or less, then a serial job will be used,
-        otherwise a parallel job with 'num' worker threads will
-        be used.
-
-        The 'num_jobs' attribute will be set to the actual number of jobs
-        allocated.  If more than one job is requested but the Parallel
-        class can't do it, it gets reset to 1.  Wrapping interfaces that
-        care should check the value of 'num_jobs' after initialization.
+        Create 'num' jobs using the given taskmaster. The exact implementation
+        used varies with the number of jobs requested and the state of the `tm_v2` flag
+        to `--experimental`.
         """
 
         # Importing GetOption here instead of at top of file to avoid
@@ -90,22 +83,19 @@ class Jobs:
         # pylint: disable=import-outside-toplevel
         from SCons.Script import GetOption
 
-        self.job = None
-        if num > 1:
-            stack_size = explicit_stack_size
-            if stack_size is None:
-                stack_size = default_stack_size
+        stack_size = explicit_stack_size
+        if stack_size is None:
+            stack_size = default_stack_size
 
-            experimental_option = GetOption('experimental')
-            if 'tm_v2' in experimental_option:
-                self.job = NewParallel(taskmaster, num, stack_size)
-            else:
+        experimental_option = GetOption('experimental') or []
+        if 'tm_v2' in experimental_option:
+            self.job = NewParallel(taskmaster, num, stack_size)
+        else:
+            if num > 1:
                 self.job = LegacyParallel(taskmaster, num, stack_size)
-
-            self.num_jobs = num
-        if self.job is None:
-            self.job = Serial(taskmaster)
-            self.num_jobs = 1
+            else:
+                self.job = Serial(taskmaster)
+        self.num_jobs = num
 
     def run(self, postfunc=lambda: None) -> None:
         """Run the jobs.
