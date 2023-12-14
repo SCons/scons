@@ -1,8 +1,8 @@
 <?xml version='1.0'?>
-<!--
-SPDX-License-Identifier: MIT
 
-Copyright The SCons Foundation
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
 -->
 
 <!DOCTYPE sconsdoc [

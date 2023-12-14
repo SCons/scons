@@ -1,8 +1,8 @@
 <?xml version='1.0'?>
-<!--
-SPDX-License-Identifier: MIT
 
-Copyright The SCons Foundation
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
 -->
 
 <!DOCTYPE sconsdoc [
@@ -457,7 +457,7 @@ x
         understand about it.  This becomes immediately obvious
         if you like to use <function>print</function> for debugging,
         or write a Python function that wants to evaluate a path.
-        You can force &SCons; to evaluate a top-relative path 
+        You can force &SCons; to evaluate a top-relative path
         and produce a string that can be used by &Python; code by
         creating a Node object from it:
 
