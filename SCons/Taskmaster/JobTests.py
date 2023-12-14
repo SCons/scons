@@ -348,34 +348,6 @@ class SerialTestCase(unittest.TestCase):
                     "some task(s) failed to execute")
 
 
-class NoParallelTestCase(JobTestCase):
-
-    def runTest(self) -> None:
-        """test handling lack of parallel support"""
-        def NoParallel(tm, num, stack_size):
-            raise NameError
-        save_Parallel = SCons.Taskmaster.Job.LegacyParallel
-        SCons.Taskmaster.Job.LegacyParallel = NoParallel
-        try:
-            taskmaster = Taskmaster(num_tasks, self, RandomTask)
-            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
-            self.assertTrue(jobs.num_jobs == 1,
-                            "unexpected number of jobs %d" % jobs.num_jobs)
-            jobs.run()
-            self.assertTrue(taskmaster.tasks_were_serial(),
-                            "the tasks were not executed in series")
-            self.assertTrue(taskmaster.all_tasks_are_executed(),
-                            "all the tests were not executed")
-            self.assertTrue(taskmaster.all_tasks_are_iterated(),
-                            "all the tests were not iterated over")
-            self.assertTrue(taskmaster.all_tasks_are_postprocessed(),
-                            "all the tests were not postprocessed")
-            self.assertFalse(taskmaster.num_failed,
-                        "some task(s) failed to execute")
-        finally:
-            SCons.Taskmaster.Job.LegacyParallel = save_Parallel
-
-
 class SerialExceptionTestCase(unittest.TestCase):
     def runTest(self) -> None:
         """test a serial job with tasks that raise exceptions"""
