@@ -447,6 +447,30 @@ class NewParallel:
         def run(self) -> None:
             self.owner._work()
 
+    class FakeLock(object):
+        def lock(self):
+            pass
+        def unlock(self):
+            pass
+        def __enter__(self):
+            pass
+        def __exit__(self, *args):
+            pass
+
+    class FakeCondition(object):
+        def __init__(self, lock):
+            pass
+        def wait(self):
+            fatal();
+        def notify(self):
+            pass
+        def notify_all(self):
+            pass
+        def __enter__(self):
+            pass
+        def __exit__(self, *args):
+            pass
+
     def __init__(self, taskmaster, num, stack_size) -> None:
         self.taskmaster = taskmaster
         self.num_workers = num - 1
@@ -459,7 +483,7 @@ class NewParallel:
         # also protects access to our state that gets updated
         # concurrently. The `can_search_cv` is associated with
         # this mutex.
-        self.tm_lock = threading.Lock()
+        self.tm_lock = (threading.Lock if self.num_workers > 0 else NewParallel.FakeLock)()
 
         # Guarded under `tm_lock`.
         self.jobs = 0
@@ -468,11 +492,11 @@ class NewParallel:
         # The `can_search_cv` is used to manage a leader /
         # follower pattern for access to the taskmaster, and to
         # awaken from stalls.
-        self.can_search_cv = threading.Condition(self.tm_lock)
+        self.can_search_cv = (threading.Condition if self.num_workers > 0 else NewParallel.FakeCondition)(self.tm_lock)
 
         # The queue of tasks that have completed execution. The
         # next thread to obtain `tm_lock`` will retire them.
-        self.results_queue_lock = threading.Lock()
+        self.results_queue_lock = (threading.Lock if self.num_workers > 0 else NewParallel.FakeLock)()
         self.results_queue = []
 
         if self.taskmaster.trace:
