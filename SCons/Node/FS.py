@@ -32,6 +32,7 @@ that can be used by scripts or modules looking for the canonical default.
 
 import codecs
 import fnmatch
+import functools
 import importlib.util
 import os
 import re
@@ -3779,16 +3780,22 @@ class FileFinder:
 
     @SCons.Memoize.CountDictCall(_find_file_key)
     def find_file(self, filename, paths, verbose=None):
-        """
-        Find a node corresponding to either a derived file or a file that exists already.
+        """Find a node corresponding to a filename.
 
-        Only the first file found is returned, and none is returned if no file is found.
+        Returns a node corresponding to either a derived file or a file that
+        exists already. Only the first file found is returned.
 
-        filename: A filename to find
-        paths: A list of directory path *nodes* to search in.  Can be represented as a list, a tuple, or a callable that is called with no arguments and returns the list or tuple.
+        Arguments:
+           filename: A filename to find
+           paths: A list of directory path *nodes* to search in.  Can be
+              represented as a list, a tuple, or a callable that is called
+              with no arguments and returns the list or tuple.
+           verbose: if true, emit information about node searches.
+              If a callable, is called with the diagnostic message,
+              else writes to ``sys.stdout``. Can use :func:`SCons.Debug.Trace`
+              as the verbose function.
 
-        returns The node created from the found file.
-
+        Returns: The node created from the found file or ``None``.
         """
         memo_key = self._find_file_key(filename, paths)
         try:
@@ -3829,6 +3836,8 @@ class FileFinder:
         return result
 
 find_file = FileFinder().find_file
+# Alternative for debugging:
+# find_file = functools.partial(FileFinder().find_file, verbose=Trace)
 
 
 def invalidate_node_memos(targets) -> None:

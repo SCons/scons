@@ -27,15 +27,15 @@ import re
 
 import SCons.Node
 import SCons.Node.FS
-import SCons.Util
 import SCons.Warnings
+from SCons.Util import unique
 from . import Classic, Current, FindPathDirs
 
 class F90Scanner(Classic):
-    """
-    A Classic Scanner subclass for Fortran source files which takes
-    into account both USE and INCLUDE statements.  This scanner will
-    work for both F77 and F90 (and beyond) compilers.
+    """A Classic Scanner subclass for Fortran source files.
+
+    Takes into account USE, MODULE and INCLUDE statements.  This scanner
+    will work for both F77 and F90 (and beyond) compilers.
 
     Currently, this scanner assumes that the include files do not contain
     USE statements.  To enable the ability to deal with USE statements
@@ -54,12 +54,15 @@ class F90Scanner(Classic):
         self.cre_incl = re.compile(incl_regex, re.M)
         self.cre_def = re.compile(def_regex, re.M)
 
-        def _scan(node, env, path, self=self):
-            node = node.rfile()
+        def _scan(node, env, path, self=self) -> list:
+            """Fortran scanner's scan *function*.
 
+            Custom version to allow the scan method to be passed *env*,
+            which is needed for subst and for node creation.
+            """
+            node = node.rfile()
             if not node.exists():
                 return []
-
             return self.scan(node, env, path)
 
         kwargs['function'] = _scan
@@ -71,53 +74,78 @@ class F90Scanner(Classic):
         # bypasses the parent Classic initializer
         Current.__init__(self, *args, **kwargs)
 
-    def scan(self, node, env, path=()):
+    def scan(self, node, env, path=()) -> list:
+        """The actual Fortran scanner method.
 
-        # cache the includes list in node so we only scan it once:
+        Instead of following the convention of calling a ``find_includes``
+        (from the parent or a local override), the logic is inline in this
+        method.  This is to account for needing to look for multiple
+        include-like things - Fortran doesn't exactly fit the base model.
+        """
+        suffix = env.subst('$FORTRANMODSUFFIX')
         if node.includes is not None:
-            mods_and_includes = node.includes
+            # Use cached includes+modules if found, and split
+            modules = [mod for mod in node.includes if mod.endswith(suffix)]
+            includes = [inc for inc in node.includes if not inc.endswith(suffix)]
         else:
-            # retrieve all included filenames
-            includes = self.cre_incl.findall(node.get_text_contents())
-            # retrieve all USE'd module names
-            modules = self.cre_use.findall(node.get_text_contents())
-            # retrieve all defined module names
-            defmodules = self.cre_def.findall(node.get_text_contents())
+            # Retrieve all INCLUDE, USE, and MODULE filenames from file
+            # TODO: do we want to strip comments here to avoid regex issues?
+            contents = node.get_text_contents()
+            includes = unique(self.cre_incl.findall(contents))
+            modules = self.cre_use.findall(contents)
+            defmodules = self.cre_def.findall(contents)
 
-            # Remove all USE'd module names that are defined in the same file
-            # (case-insensitively)
-            d = {}
-            for m in defmodules:
-                d[m.lower()] = 1
-            modules = [m for m in modules if m.lower() not in d]
+            # Remove all USE'd module names that are defined in the same file.
+            defset = {m.lower() for m in defmodules}
+            modules = [m for m in modules if m.lower() not in defset]
+            # Convert module name to a .mod filename and remove dupes
+            modules = unique([x.lower() + suffix for x in modules])
+            # Cache the includes and modules in node so we only scan once
+            node.includes = includes + modules
 
-            # Convert module name to a .mod filename
-            suffix = env.subst('$FORTRANMODSUFFIX')
-            modules = [x.lower() + suffix for x in modules]
-            # Remove unique items from the list
-            mods_and_includes = SCons.Util.unique(includes+modules)
-            node.includes = mods_and_includes
-
+        # Add scanned dependencies. This works through some trickery: here we
+        # do use ``find_include``, which calls :meth:`SCons.Node.FS.find_file`
+        # with only the paths defined for this project, so we would expect
+        # project files to be found and external ("system") files not to be.
+        # Generate no dep for not-found files, but don't error: the compiler
+        # will fail on any include/module that is actually missing, so no need
+        # for us to.  Existing "system" include/modules *will* be found by the
+        # compiler, and we didn't want a dependency on those, by SCons policy.
+        #
         # This is a hand-coded DSU (decorate-sort-undecorate, or
         # Schwartzian transform) pattern.  The sort key is the raw name
         # of the file as specifed on the USE or INCLUDE line, which lets
         # us keep the sort order constant regardless of whether the file
         # is actually found in a Repository or locally.
+
+        def _add_dep(dep, source_dir, path) -> None:
+            nonlocal nodes
+
+            node, filename = self.find_include(dep, source_dir, path)
+            if node:
+                sortkey = self.sort_key(dep)
+                nodes.append((sortkey, node))
+            else:
+                # TODO: should this be a warning? See issue #4461.
+                SCons.Warnings.warn(
+                    SCons.Warnings.DependencyWarning,
+                    f"No dependency generated for file: {filename} "
+                    f"(referenced by: {node!s}) -- file not found"
+                )
+
         nodes = []
         source_dir = node.get_dir()
         if callable(path):
             path = path()
-        for dep in mods_and_includes:
-            n, i = self.find_include(dep, source_dir, path)
+        for include in includes:
+            _add_dep(include, source_dir, tuple(path))
+        # Have to mimic compiler behavior of also looking in module dir.
+        mod_dir = env.subst('$FORTRANMODDIR') if modules else ""
+        mod_path = (env.fs.Dir(mod_dir),) if mod_dir else ()
+        for module in modules:
+            _add_dep(module, source_dir, path + mod_path)
 
-            if n is None:
-                SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                                    "No dependency generated for file: %s (referenced by: %s) -- file not found" % (i, node))
-            else:
-                sortkey = self.sort_key(dep)
-                nodes.append((sortkey, n))
-
-        return [pair[1] for pair in sorted(nodes)]
+        return [dep for key, dep in sorted(nodes)]
 
 def FortranScan(path_variable: str="FORTRANPATH"):
     """Return a prototype Scanner instance for scanning source files

@@ -59,7 +59,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - Add support for Python 3.13 (as of alpha 2). So far only affects
       expected bytecodes in ActionTests.py.
-
+    - In the Fortran scanner, make sure the $FORTRANMODDIR is used when
+      creating dependencies for module files (.mod), otherwise
+      build order will be computed wrong.
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 

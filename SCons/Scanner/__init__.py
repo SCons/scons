@@ -24,6 +24,7 @@
 """The Scanner package for the SCons software construction utility."""
 
 import re
+from typing import Tuple
 
 import SCons.Node.FS
 import SCons.PathList
@@ -340,7 +341,15 @@ class Classic(Current):
     def __init__(self, name, suffixes, path_variable, regex, *args, **kwargs) -> None:
         self.cre = re.compile(regex, re.M)
 
-        def _scan(node, _, path=(), self=self):
+        def _scan(node, _, path=(), self=self) -> list:
+            """Inner scan wrapper, to set as the scanner's *function*.
+
+            This scheme allows the actual scan routine to be called
+            as a method.  Subclasses can provide their own to customize
+            how the scan method is called.  In particular, the unused (here)
+            second argument is actually *env*, which it may be useful to
+            pass to a scanner class's scan method if it needs it.
+            """
             node = node.rfile()
             if not node.exists():
                 return []
@@ -360,18 +369,18 @@ class Classic(Current):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def find_include(include, source_dir, path):
-        n = SCons.Node.FS.find_file(include, (source_dir,) + tuple(path))
-        return n, include
+    def find_include(include: str, source_dir, path) -> Tuple[SCons.Node.FS.Base, str]:
+        node = SCons.Node.FS.find_file(include, (source_dir,) + tuple(path))
+        return node, include
 
     @staticmethod
-    def sort_key(include):
+    def sort_key(include: str) -> str:
         return SCons.Node.FS._my_normcase(include)
 
     def find_include_names(self, node):
         return self.cre.findall(node.get_text_contents())
 
-    def scan(self, node, path=()):
+    def scan(self, node, path=()) -> list:
         # cache the includes list in node so we only scan it once:
         if node.includes is not None:
             includes = node.includes
@@ -403,7 +412,7 @@ class Classic(Current):
             else:
                 nodes.append((self.sort_key(include), n))
 
-        return [pair[1] for pair in sorted(nodes)]
+        return [dep for key, dep in sorted(nodes)]
 
 class ClassicCPP(Classic):
     """
@@ -416,7 +425,7 @@ class ClassicCPP(Classic):
     the contained filename in group 1.
     """
     @staticmethod
-    def find_include(include, source_dir, path):
+    def find_include(include: str, source_dir, path) -> Tuple[SCons.Node.FS.Base, str]:
         include = list(map(SCons.Util.to_str, include))
         if include[0] == '"':
             paths = (source_dir,) + tuple(path)

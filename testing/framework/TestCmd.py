@@ -1463,6 +1463,8 @@ class TestCmd:
         """
         if is_List(srcfile):
             srcfile = os.path.join(*srcfile)
+        if is_List(dstfile):
+            dstfile = os.path.join(*dstfile)
 
         srcpath, srctail = os.path.split(srcfile)
         spath = srcfile
