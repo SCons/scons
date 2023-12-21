@@ -204,7 +204,7 @@ def add_fortran_to_env(env) -> None:
     env['FORTRANMODDIR'] = ''          # where the compiler should place .mod files
     env['FORTRANMODDIRPREFIX'] = ''    # some prefix to $FORTRANMODDIR - similar to $INCPREFIX
     env['FORTRANMODDIRSUFFIX'] = ''    # some suffix to $FORTRANMODDIR - similar to $INCSUFFIX
-    env['_FORTRANMODFLAG'] = '$( ${_concat(FORTRANMODDIRPREFIX, FORTRANMODDIR, FORTRANMODDIRSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env['_FORTRANMODFLAG'] = '$( ${_concat_dir(FORTRANMODDIRPREFIX, FORTRANMODDIR, FORTRANMODDIRSUFFIX, INCFORTRANPREFIX, INCFORTRANSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
 
 def add_f77_to_env(env) -> None:
     """Add Builders and construction variables for f77 dialect."""

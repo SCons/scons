@@ -417,6 +417,67 @@ def _concat(prefix, items_iter, suffix, env, f=lambda x: x, target=None, source=
 # pylint: enable-msg=too-many-arguments
 
 
+# pylint: disable-msg=too-many-arguments
+def _concat_dir(
+    prefix: str,
+    items,
+    suffix: str,
+    extra_prefix: str,
+    extra_suffix: str,
+    env,
+    f: Callable[[list], list] = lambda x: x,
+    target=None,
+    source=None,
+    affect_signature: bool = True,
+) -> list:
+    """Transform *items* into a list for command-line usage.
+
+    Like :func:`_concat`, but wraps an expanded list differently.
+    If *f* returns multiple items, the first item is wrapped by *prefix*
+    and *suffix*, while the rest are wrapped with *extra_prefix*
+    and *extra_suffix*. Used for special cases like Fortran module
+    directories, where only a single directory can be supplied as the
+    output destination, but repository locations and the source directory
+    in a variantdir setup should be added as search locations - which
+    takes a different syntax from different construction variables.
+
+    Args:
+        prefix: text to prepend to first element
+        items: string or iterable to transform
+        suffix: text to append to first element
+        extra_prefix: text to prepend to additional elements
+        extra_suffix: text to append to additional elements
+        env: construction environment for interpolation
+        f: optional function to perform a transformation on the list.
+          The default is a stub which performs no transformation.
+        target: optional target for interpolation into *items* elements
+        source: optional source for interpolation into *items* elements
+        affect_signature: optional flag: if false, surround contents with
+           markers indicating not to use the contents when calculating the
+           build signature. The default is ``True``.
+    """
+    if not items:
+        return items
+
+    l = f(SCons.PathList.PathList(items).subst_path(env, target, source))
+    if l is not None:
+        items = l
+
+    if not affect_signature:
+        value = ['$(']
+    else:
+        value = []
+    value += _concat_ixes(prefix, items[:1], suffix, env)
+    if len(items) > 1:
+        value += _concat_ixes(extra_prefix, items[1:], extra_suffix, env)
+
+    if not affect_signature:
+        value += ["$)"]
+
+    return value
+# pylint: enable-msg=too-many-arguments
+
+
 def _concat_ixes(prefix, items_iter, suffix, env):
     """
     Creates a new list from 'items_iter' by concatenating the 'prefix' and
@@ -718,6 +779,7 @@ ConstructionEnvironment = {
     'ENV': {},
     'IDLSUFFIXES': SCons.Tool.IDLSuffixes,
     '_concat': _concat,
+    '_concat_dir': _concat_dir,
     '_defines': _defines,
     '_stripixes': _stripixes,
     '_LIBFLAGS': '${_concat(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, __env__)}',

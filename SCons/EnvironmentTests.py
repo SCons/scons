@@ -1567,6 +1567,44 @@ def exists(env):
         self.assertEqual('preasuf prebsuf prezzxxx-csuf', x)
 
 
+    def test_concat_dir(self) -> None:
+        """Test _concat_dir()"""
+        e1 = self.TestEnvironment(
+            PRE='PP',
+            SUF='SS',
+            XPRE='XP',
+            XSUF='XS',
+            STR='a b',
+            LIST=['a', 'b'],
+            LONGLIST=['a', 'b', 'c', 'd'],
+        )
+        s = e1.subst
+        with self.subTest():
+            x = s("${_concat_dir('', '', '', '', '', __env__)}")
+            self.assertEqual(x, '')
+        with self.subTest():
+            x = s("${_concat_dir('', [], '', '', '', __env__)}")
+            self.assertEqual(x, '')
+        with self.subTest():
+            x = s("${_concat_dir(PRE, '', SUF, XPRE, XSUF, __env__)}")
+            self.assertEqual(x, '')
+        with self.subTest():
+            x = s("${_concat_dir(PRE, STR, SUF, XPRE, XSUF, __env__)}")
+            self.assertEqual(x, 'PPa bSS')
+        with self.subTest():
+            x = s("${_concat_dir(PRE, LIST, SUF, XPRE, XSUF, __env__)}")
+            self.assertEqual(x, 'PPaSS XPbXS')
+        with self.subTest():
+            x = s(
+                "${_concat_dir(PRE, LIST, SUF, XPRE, XSUF, __env__, affect_signature=False)}",
+                raw=True,
+            )
+            self.assertEqual(x, '$( PPaSS XPbXS $)')
+        with self.subTest():
+            x = s("${_concat_dir(PRE, LONGLIST, SUF, XPRE, XSUF, __env__)}")
+            self.assertEqual(x, 'PPaSS XPbXS XPcXS XPdXS')
+
+
     def test_gvars(self) -> None:
         """Test the Environment gvars() method"""
         env = self.TestEnvironment(XXX = 'x', YYY = 'y', ZZZ = 'z')

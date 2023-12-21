@@ -19,6 +19,20 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use of NotImplemented instead of NotImplementedError for special methods
       of _ListVariable class
 
+  From Mats Wichmann:
+    - Introduce a new _concat_dir function which can be used for
+      building cli strings when you need two sets of prefix/suffix
+      strings. _concat_dir transforms a list so the first item is wrapped
+      with the first pair of prefix/suffix args and the remaining
+      items with the second pair.  The use case is when passing
+      a directory-to-write-to - those typically need to be unique,
+      but RDirs may expand to multiples, and we want to accomodate
+      also searching those directories in case you have repositories
+      setup - those could have already built files in them which could
+      be searched. Example: Fortran module directory, D interface file
+      directory.  Introduces a new construction variable of the same name,
+      just to keep consistent with how existing _concat works.
+
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
   From Max Bachmann:
@@ -231,6 +245,11 @@ RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
       prefix for considering a library argument unmodified (e.g. for the
       GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
     - Update PCH builder docs with some usage notes.
+
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
+
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 

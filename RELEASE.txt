@@ -34,6 +34,13 @@ FIXES
 
 - Fix of the --debug=sconscript option to return exist statements when using return
   statement with stop flag enabled
+- When expanding $FORTRANMODDIR and $DI_FILE_DIR (the latter new in this
+  release), incorrect results could be obtained when Repository() has been
+  called, and/or when a variant directory is used with duplicate=False.
+  In some cases, this could cause the compiler to abort with an error.
+  The expansion is now handled so the path relative to the build directory
+  is passed to the compiler as the directory to write into, and the
+  additional directories are enabled as search directories.
 
 IMPROVEMENTS
 ------------
