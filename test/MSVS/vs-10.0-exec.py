@@ -90,10 +90,7 @@ main(int argc, char *argv)
 
 test.run(chdir='sub dir', arguments='.')
 
-for filename in ('foo.exe', 'foo.obj', '.sconsign.dblite'):
-    filepath = test.workpath('sub dir', filename)
-    if os.path.exists(filepath):
-        test.unlink(filepath)
+test.unlink_files('sub dir', ['foo.exe', 'foo.obj', '.sconsign.dblite'])
 
 test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcxproj'))
 

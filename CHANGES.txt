@@ -9,6 +9,10 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
+  From Ataf Fazledin Ahamed:
+    - Use of NotImplemented instead of NotImplementedError for special methods
+      of _ListVariable class
+
   From Joseph Brill:
     - Fix issue #2755: the msvs tool no longer writes the OS environment SCONS_HOME
       value into the SCons environment when the SCONS_HOME variable already exists
@@ -32,6 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       build.  The tests were modified to delete the test executable, object file,
       and sconsign file prior to the command-line invocation of the VS development
       binary.
+    - A method, unlink_files, was added to the TestCmd class that unlinks a list of
+      files from a specified directory.  An attempt to unlink a file is made only when
+      the file exists, otherwise, the file is ignored.
 
   From Michał Górny:
     - Remove unecessary dependencies on pypi packages from setup.cfg
@@ -39,10 +46,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
-
-  From Ataf Fazledin Ahamed:
-    - Use of NotImplemented instead of NotImplementedError for special methods
-      of _ListVariable class
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
