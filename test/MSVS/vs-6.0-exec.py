@@ -90,9 +90,14 @@ main(int argc, char *argv)
 
 test.run(chdir='sub dir', arguments='.')
 
+for filename in ('foo.exe', 'foo.obj', '.sconsign.dblite'):
+    filepath = test.workpath('sub dir', filename)
+    if os.path.exists(filepath):
+        test.unlink(filepath)
+
 test.run(chdir='sub dir',
          program=[test.get_msvs_executable(msvs_version)],
-         arguments=['Test.dsp', '/MAKE', 'foo - Win32 Release'])
+         arguments=['foo.dsp', '/MAKE', 'foo - Win32 Release'])
 
 test.run(program=test.workpath('sub dir', 'foo'), stdout="foo.c\n")
 

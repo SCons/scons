@@ -34,6 +34,16 @@ FIXES
 
 - Fix of the --debug=sconscript option to return exist statements when using return
   statement with stop flag enabled
+- MSVS: prevent overwriting the SCons environment variable SCONS_HOME with the OS
+  environment value of SCONS_HOME in the msvs tool.
+- MSVC: Fix the detection of Visual Studio 2015 Express ('14.0Exp') by adding a
+  registry key definition and updating the installation root-relative registry value
+  at runtime for the location of the VC folder.
+- MSVS: Fix the msvs project generation test for MSVS 6.0 to use the correct name of
+  the generated project file.
+- MSVS: Fix the msvs project generation test scripts so that "false positive" tests
+  results are not possible when the initial build is successful and the command-line
+  build of the project file fails.
 
 IMPROVEMENTS
 ------------

@@ -718,6 +718,7 @@ _VCVER_TO_PRODUCT_DIR = {
     '14.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
     '14.0Exp': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir'),
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir')],
     '12.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
@@ -905,9 +906,14 @@ def find_vc_pdir(env, msvc_version):
         except OSError:
             debug('no VC registry key %s', repr(key))
         else:
-            if msvc_version == '9.0' and key.lower().endswith('\\vcforpython\\9.0\\installdir'):
-                # Visual C++ for Python registry key is installdir (root) not productdir (vc)
-                comps = os.path.join(comps, 'VC')
+            if msvc_version == '9.0':
+                if key.lower().endswith('\\vcforpython\\9.0\\installdir'):
+                    # Visual C++ for Python registry key is installdir (root) not productdir (vc)
+                    comps = os.path.join(comps, 'VC')
+            elif msvc_version == '14.0Exp':
+                if key.lower().endswith('\\setup\\vs\\productdir'):
+                    # Visual Studio 14.0 Express registry key is installdir (root) not productdir (vc)
+                    comps = os.path.join(comps, 'VC')
             debug('found VC in registry: %s', comps)
             if os.path.exists(comps):
                 return comps
