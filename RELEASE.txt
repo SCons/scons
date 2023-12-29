@@ -16,9 +16,9 @@ Here is a summary of the changes since 4.6.0:
 NEW FUNCTIONALITY
 -----------------
 
-- A method, unlink_files, was added to the TestCmd class that unlinks a list of
-  files from a specified directory.  An attempt to unlink a file is made only when
-  the file exists, otherwise, the file is ignored.
+- Method unlink_files was added to the TestCmd class that unlinks a list of files
+  from a specified directory.  An attempt to unlink a file is made only when the
+  file exists; otherwise, the file is ignored.
 
 
 DEPRECATED FUNCTIONALITY

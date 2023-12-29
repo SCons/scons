@@ -2993,6 +2993,103 @@ class unlink_TestCase(TestCmdTestCase):
                 os.chmod(wdir_file5, 0o600)
 
 
+class unlink_files_TestCase(TestCmdTestCase):
+    def test_unlink_files(self):
+        """Test unlink_files()"""
+        test = TestCmd.TestCmd(workdir = '', subdir = 'foo')
+        wdir_file1 = os.path.join(test.workdir, 'file1')
+        wdir_file2 = os.path.join(test.workdir, 'file2')
+        wdir_foo_file3a = os.path.join(test.workdir, 'foo', 'file3a')
+        wdir_foo_file3b = os.path.join(test.workdir, 'foo', 'file3b')
+        wdir_foo_file3c = os.path.join(test.workdir, 'foo', 'file3c')
+        wdir_foo_file3d = os.path.join(test.workdir, 'foo', 'file3d')
+        wdir_foo_file4a = os.path.join(test.workdir, 'foo', 'file4a')
+        wdir_foo_file4b = os.path.join(test.workdir, 'foo', 'file4b')
+        wdir_foo_file4c = os.path.join(test.workdir, 'foo', 'file4c')
+        wdir_foo_file4d = os.path.join(test.workdir, 'foo', 'file4d')
+        wdir_file5 = os.path.join(test.workdir, 'file5')
+
+        with open(wdir_file1, 'w') as f:
+            f.write("")
+        with open(wdir_file2, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3a, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3b, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3c, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file3d, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4a, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4b, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4c, 'w') as f:
+            f.write("")
+        with open(wdir_foo_file4d, 'w') as f:
+            f.write("")
+        with open(wdir_file5, 'w') as f:
+            f.write("")
+
+        test.unlink_files('', [
+            'no_file_a',
+            'no_file_b',
+        ])
+
+        test.unlink_files('', [
+            'file1',
+            'file2',
+        ])
+        assert not os.path.exists(wdir_file1)
+        assert not os.path.exists(wdir_file2)
+
+        test.unlink_files('foo', [
+            'file3a',
+            'file3b',
+        ])
+        assert not os.path.exists(wdir_foo_file3a)
+        assert not os.path.exists(wdir_foo_file3b)
+
+        test.unlink_files(['foo'], [
+            'file3c',
+            'file3d',
+        ])
+        assert not os.path.exists(wdir_foo_file3c)
+        assert not os.path.exists(wdir_foo_file3d)
+
+        test.unlink_files('', [
+            ['foo', 'file4a'],
+            ['foo', 'file4b'],
+        ])
+        assert not os.path.exists(wdir_foo_file4a)
+        assert not os.path.exists(wdir_foo_file4b)
+
+        test.unlink_files([''], [
+            ['foo', 'file4c'],
+            ['foo', 'file4d'],
+        ])
+        assert not os.path.exists(wdir_foo_file4c)
+        assert not os.path.exists(wdir_foo_file4d)
+
+        # Make it so we can't unlink file5.
+        # For UNIX, remove write permission from the dir and the file.
+        # For Windows, open the file.
+        os.chmod(test.workdir, 0o500)
+        os.chmod(wdir_file5, 0o400)
+        with open(wdir_file5, 'r'):
+            try:
+                try:
+                    test.unlink_files('', ['file5'])
+                except OSError: # expect "Permission denied"
+                    pass
+                except:
+                    raise
+            finally:
+                os.chmod(test.workdir, 0o700)
+                os.chmod(wdir_file5, 0o600)
+
+
 class touch_TestCase(TestCmdTestCase):
     def test_touch(self) -> None:
         """Test touch()"""

@@ -36,9 +36,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       build.  The tests were modified to delete the test executable, object file,
       and sconsign file prior to the command-line invocation of the VS development
       binary.
-    - A method, unlink_files, was added to the TestCmd class that unlinks a list of
-      files from a specified directory.  An attempt to unlink a file is made only when
-      the file exists, otherwise, the file is ignored.
+    - Method unlink_files was added to the TestCmd class that unlinks a list of
+      files from a specified directory.  An attempt to unlink a file is made only
+      when the file exists; otherwise, the file is ignored.
 
   From Michał Górny:
     - Remove unecessary dependencies on pypi packages from setup.cfg
