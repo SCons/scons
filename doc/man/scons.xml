@@ -3982,15 +3982,14 @@ char function_name(void);
 </programlisting>
 
 <para>
-      The optional <parameter>funcargs</parameter> can be defined to specify an argument list for the generated
-      function invocation.
-</para>
-
-<para>
-Note: if <parameter>header</parameter> is supplied,
-  and the function_name being called takes any parameters, appropriate values for those
-  function arguments should be supplied
-  by using the <parameter>funcargs</parameter>.
+If <parameter>header</parameter> is supplied, it should <emphasis>not</emphasis> include
+the standard header file that declares <parameter>function_name</parameter> and it
+<emphasis>should</emphasis> include a dummy prototype similar to the default case.  If
+this is not possible, the optional <parameter>funcargs</parameter> argument can be used
+to specify a string containing an argument list with the same number and type of
+arguments as the prototype.  The arguments can simply be constant values of the correct
+type.  Modern C/C++ compilers reject implicit function declarations and may also reject
+function calls whose arguments are not type compatible with the prototype.
 </para>
 
 <para>
