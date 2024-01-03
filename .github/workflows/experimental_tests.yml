@@ -32,18 +32,19 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4.1.1
 
       # experiment: maybe don't need this?
       # update: looks like we do: with this commented out, the build hung
       - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
+        uses: egor-tensin/setup-mingw@v2.2.0
         if: matrix.os == 'windows-2019'
         with:
           platform: x64
+          static: 0
 
       - name: Set up Python 3.11 ${{ matrix.os }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5.0.0
         with:
           python-version: '3.11'
 
