@@ -14,6 +14,31 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       of _ListVariable class
 
   From Joseph Brill:
+    - Fix issue #2755: the msvs tool no longer writes the OS environment SCONS_HOME
+      value into the SCons environment when the SCONS_HOME variable already exists
+      in the SCons environment.  Prior to this change, a valid user-defined SCons
+      environment value for SCONS_HOME would be overwritten with the OS environment
+      value of SCONS_HOME which could be None (i.e., undefined).
+    - Update the windows registry keys for detection of Visual Studio 2015 Express
+      ('14.0Exp'): the VS2015 registry key ('WDExpress') appears to be different
+      than the registry key ('VCExpress') for earlier Visual Studio express
+      versions.  The registry key value is relative to the installation root rather
+      than the VC folder and requires additional path components during evaluation.
+    - Fix the vs-6.0-exec.py test script: the msvs generated project is 'foo.dsp'
+      and the command-line invocation of the Visual Studio development environment
+      program was attempting to build 'test.dsp'.  The command-line invocation was
+      changed to build 'foo.dsp'.
+    - Update the msvs project generation test scripts: the msvs project execution
+      tests could produce a "false positive" test result when the test executable is
+      correctly built via the SConstruct env.Program() call and the command-line
+      invocation of the Visual Studio development environment program fails.  The
+      test passes due to the existence of the test executable from the initial
+      build.  The tests were modified to delete the test executable, object file,
+      and sconsign file prior to the command-line invocation of the VS development
+      binary.
+    - Method unlink_files was added to the TestCmd class that unlinks a list of
+      files from a specified directory.  An attempt to unlink a file is made only
+      when the file exists; otherwise, the file is ignored.
     - Fix issue #4320: add an optional argument list string to configure's CheckFunc
       method so that the generated function argument list matches the function's
       prototype when including a header file.
@@ -27,7 +52,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
-
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

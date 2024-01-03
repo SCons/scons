@@ -92,6 +92,8 @@ main(int argc, char *argv)
 
 test.run(chdir='sub dir', arguments='.')
 
+test.unlink_files('sub dir', ['foo.exe', 'foo.obj', '.sconsign.dblite'])
+
 test.vcproj_sys_path(test.workpath('sub dir', 'foo.vcxproj'))
 
 import SCons.Platform.win32
