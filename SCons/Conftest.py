@@ -231,17 +231,22 @@ def _check_empty_program(context, comp, text, language, use_shared: bool = False
         return context.CompileProg(text, suffix)
 
 
-def CheckFunc(context, function_name, header = None, language = None):
+def CheckFunc(context, function_name, header = None, language = None, funcargs = None):
     """
     Configure check for a function "function_name".
     "language" should be "C" or "C++" and is used to select the compiler.
     Default is "C".
     Optional "header" can be defined to define a function prototype, include a
     header file or anything else that comes before main().
+    Optional "funcargs" can be defined to define an argument list for the
+    generated function invocation.
     Sets HAVE_function_name in context.havedict according to the result.
     Note that this uses the current value of compiler and linker flags, make
     sure $CFLAGS, $CPPFLAGS and $LIBS are set correctly.
     Returns an empty string for success, an error message for failure.
+
+    .. versionchanged:: 4.7.0
+       The ``funcargs`` parameter was added.
     """
 
     # Remarks from autoconf:
@@ -274,6 +279,9 @@ char %s(void);""" % function_name
         context.Display("Cannot check for %s(): %s\n" % (function_name, msg))
         return msg
 
+    if not funcargs:
+        funcargs = ''
+
     text = """
 %(include)s
 #include <assert.h>
@@ -287,14 +295,15 @@ int main(void) {
 #if defined (__stub_%(name)s) || defined (__stub___%(name)s)
   #error "%(name)s has a GNU stub, cannot check"
 #else
-  %(name)s();
+  %(name)s(%(args)s);
 #endif
 
   return 0;
 }
 """ % { 'name': function_name,
         'include': includetext,
-        'hdr': header }
+        'hdr': header,
+        'args': funcargs}
 
     context.Display("Checking for %s function %s()... " % (lang, function_name))
     ret = context.BuildProg(text, suffix)

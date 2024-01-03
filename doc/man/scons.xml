@@ -3954,7 +3954,7 @@ Returns a boolean indicating success or failure.</para>
   </varlistentry>
 
   <varlistentry>
-  <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language]</parameter>)</term>
+  <term><replaceable>context</replaceable>.<methodname>CheckFunc</methodname>(<parameter>function_name, [header, language, funcargs]</parameter>)</term>
   <listitem>
 <para>Checks if <parameter>function_name</parameter> is usable
 in the context's local environment, using the compiler
@@ -3982,17 +3982,18 @@ char function_name(void);
 </programlisting>
 
 <para>
-Note: if <parameter>header</parameter> is supplied,
-it should <emphasis>not</emphasis>
-include the standard header file that declares
-<parameter>function_name</parameter>,
-and it <emphasis>should</emphasis> include a
-dummy prototype similar to the default case.
-Compilers reject builds where a function call does
-not match the declared prototype as happens
-if the "real" header is included,
-and modern compilers are now rejecting
-implicit function declarations.
+If <parameter>header</parameter> is supplied, it should <emphasis>not</emphasis> include
+the standard header file that declares <parameter>function_name</parameter> and it
+<emphasis>should</emphasis> include a dummy prototype similar to the default case.  If
+this is not possible, the optional <parameter>funcargs</parameter> argument can be used
+to specify a string containing an argument list with the same number and type of
+arguments as the prototype.  The arguments can simply be constant values of the correct
+type.  Modern C/C++ compilers reject implicit function declarations and may also reject
+function calls whose arguments are not type compatible with the prototype.
+</para>
+
+<para>
+<emphasis>Changed in version 4.7.0: added the <parameter>funcargs</parameter>.</emphasis>
 </para>
 
 <para>Returns a boolean indicating success or failure.</para>

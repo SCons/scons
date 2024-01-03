@@ -13,6 +13,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Use of NotImplemented instead of NotImplementedError for special methods
       of _ListVariable class
 
+  From Joseph Brill:
+    - Fix issue #4320: add an optional argument list string to configure's CheckFunc
+      method so that the generated function argument list matches the function's
+      prototype when including a header file.
+      
   From William Deegan:
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
