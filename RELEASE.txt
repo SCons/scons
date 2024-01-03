@@ -29,8 +29,9 @@ DEPRECATED FUNCTIONALITY
 CHANGED/ENHANCED EXISTING FUNCTIONALITY
 ---------------------------------------
 
-- List modifications to existing features, where the previous behavior
-  wouldn't actually be considered a bug
+- Add an optional argument list string to configure's CheckFunc method so
+  that the generated function argument list matches the function's
+  prototype when including a header file. Fixes GH Issue #4320
 
 FIXES
 -----
@@ -69,10 +70,10 @@ DOCUMENTATION
 DEVELOPMENT
 -----------
 
-- List visible changes in the way SCons is developed
+- Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
 Thanks to the following contributors listed below for their contributions to this release.
 ==========================================================================================
 .. code-block:: text
 
-    git shortlog --no-merges -ns 4.0.1..HEAD
+    git shortlog --no-merges -ns 4.6.0..HEAD

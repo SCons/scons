@@ -39,6 +39,12 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Method unlink_files was added to the TestCmd class that unlinks a list of
       files from a specified directory.  An attempt to unlink a file is made only
       when the file exists; otherwise, the file is ignored.
+    - Fix issue #4320: add an optional argument list string to configure's CheckFunc
+      method so that the generated function argument list matches the function's
+      prototype when including a header file.
+      
+  From William Deegan:
+    - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
   From Michał Górny:
     - Remove unecessary dependencies on pypi packages from setup.cfg
@@ -46,6 +52,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
+
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
