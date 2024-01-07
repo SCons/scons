@@ -788,21 +788,25 @@ for component_id, component_rank, component_suffix, scons_suffix in (
 # VS2015 and earlier: configure registry queries to probe for installed VC editions
 _VCVER_TO_PRODUCT_DIR = {
     '14.0': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')
+    ],
     '14.0Exp': [
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir'),  # vs root
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),  # not populated?
-        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')],  # kind detection
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\14.0\Setup\VS\ProductDir'),
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\14.0\Setup\VC\ProductDir'),
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\14.0\Setup\VC\ProductDir')
+    ],
     '12.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\12.0\Setup\VC\ProductDir'),
     ],
     '12.0Exp': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\12.0\Setup\VS\ProductDir'),
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\12.0\Setup\VC\ProductDir'),
     ],
     '11.0': [
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VisualStudio\11.0\Setup\VC\ProductDir'),
     ],
     '11.0Exp': [
+        (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\WDExpress\11.0\Setup\VS\ProductDir'),
         (SCons.Util.HKEY_LOCAL_MACHINE, r'Microsoft\VCExpress\11.0\Setup\VC\ProductDir'),
     ],
     '10.0': [
@@ -1415,8 +1419,8 @@ def find_vc_pdir_registry(msvc_version):
             # Visual C++ for Python registry key is VS installdir (root) not VC productdir
             is_vsroot = True
             is_vcforpython = True
-        elif msvc_version == '14.0Exp' and key.lower().endswith('\\14.0\\setup\\vs\\productdir'):
-            # 2015Exp VS productdir (root) not VC productdir
+        elif msvc_version in ('14.0Exp', '12.0Exp', '11.0Exp') and key.lower().endswith('\\setup\\vs\\productdir'):
+            # Visual Studio 2015/2013/2012 Express is VS productdir (root) not VC productdir
             is_vsroot = True
 
         if is_vsroot:
