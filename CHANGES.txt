@@ -42,7 +42,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix issue #4320: add an optional argument list string to configure's CheckFunc
       method so that the generated function argument list matches the function's
       prototype when including a header file.
-      
+
   From William Deegan:
     - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
 
@@ -52,6 +52,10 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Sten Grüner:
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
+
+  From Mats Wichmann:
+    - Add support for Python 3.13 (as of alpha 2). So far only affects
+      expected bytecodes in ActionTests.py.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
