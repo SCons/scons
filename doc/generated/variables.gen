@@ -375,8 +375,8 @@ env['BUILDERS']['NewBuilder'] = bld
     </term>
     <listitem><para>
 The class type that SCons should use when instantiating a
-new &f-link-CacheDir; for the given environment. It must be
-a subclass of the SCons.CacheDir.CacheDir class.
+new &f-link-CacheDir; in this &consenv;. Must be
+a subclass of the <classname>SCons.CacheDir.CacheDir</classname> class.
         </para>
     </listitem>
   </varlistentry>
@@ -466,7 +466,7 @@ when the &cv-link-PDB; &consvar; is set.
 </para>
 
 <para>
-The Visual C++ compiler option that SCons uses by default
+The Visual C++ compiler option that &SCons; uses by default
 to generate PDB information is <option>/Z7</option>.
 This works correctly with parallel (<option>-j</option>) builds
 because it embeds the debug information in the intermediate object files,
@@ -895,23 +895,23 @@ to each directory in &cv-link-CPPPATH;.
     <listitem><para>
 The list of directories that the C preprocessor will search for include
 directories. The C/C++ implicit dependency scanner will search these
-directories for include files. 
+directories for include files.
 In general it's not advised to put include directory directives
 directly into &cv-link-CCFLAGS; or &cv-link-CXXFLAGS;
 as the result will be non-portable
 and the directories will not be searched by the dependency scanner.
 &cv-CPPPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.sep</systemitem>.
+Python's <systemitem>os.pathsep</systemitem>.
 </para>
 
 <para>
 Note:
 directory names in &cv-CPPPATH;
 will be looked-up relative to the directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -1181,6 +1181,42 @@ General options that are passed to the D compiler.
     </term>
     <listitem><para>
 DFLAGSUFFIX.
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_DIR">
+    <term>
+      <envar>DI_FILE_DIR</envar>
+    </term>
+    <listitem><para>
+Path where .di files will be generated
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_DIR_PREFIX">
+    <term>
+      <envar>DI_FILE_DIR_PREFIX</envar>
+    </term>
+    <listitem><para>
+Prefix to send the di path argument to compiler
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_DIR_SUFFFIX">
+    <term>
+      <envar>DI_FILE_DIR_SUFFFIX</envar>
+    </term>
+    <listitem><para>
+Suffix to send the di path argument to compiler
+</para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-DI_FILE_SUFFIX">
+    <term>
+      <envar>DI_FILE_SUFFIX</envar>
+    </term>
+    <listitem><para>
+Suffix of d include files default is .di
 </para>
 </listitem>
   </varlistentry>
@@ -2706,8 +2742,11 @@ target being built.
       <envar>FILE_ENCODING</envar>
     </term>
     <listitem><para>
-File encoding used for files written by &b-link-Textfile; and &b-link-Substfile;.  Set to "utf-8" by default.
-<emphasis>Added in version  4.5.0.</emphasis>
+File encoding used for files written by &b-link-Textfile; and &b-link-Substfile;.
+Set to "utf-8" by default.
+</para>
+<para>
+<emphasis>New in version  4.5.0.</emphasis>
 </para>
 </listitem>
   </varlistentry>
@@ -3183,7 +3222,7 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       and <literal>x86_64</literal> for 64-bit hosts.
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_ARCH; is not currently used by other platforms,
       but the option is reserved to do so in future
     </para>
@@ -3201,7 +3240,7 @@ is <quote><literal>-dNOPAUSE -dBATCH -sDEVICE=pdfwrite</literal></quote>
       <parameter>platform</parameter> argument to &f-link-Environment;).
     </para>
     <para>
-      Should be considered immutable. 
+      Should be considered immutable.
       &cv-HOST_OS; is not currently used by &SCons;,
       but the option is reserved to do so in future
     </para>
@@ -4204,7 +4243,7 @@ general information on specifying emitters.
 An automatically-generated construction variable
 containing the linker command-line options
 for specifying libraries to be linked with the resulting target.
-The value of &cv-link-_LIBFLAGS; is created
+The value of &cv-_LIBFLAGS; is created
 by respectively prepending and appending &cv-link-LIBLINKPREFIX;
 and &cv-link-LIBLINKSUFFIX;
 to each filename in &cv-link-LIBS;.
@@ -4235,6 +4274,48 @@ when the &cv-link-_LIBFLAGS; variable is automatically generated.
 </para>
 </listitem>
   </varlistentry>
+  <varlistentry id="cv-LIBLITERALPREFIX">
+    <term>
+      <envar>LIBLITERALPREFIX</envar>
+    </term>
+    <listitem><para>
+If the linker supports command line syntax directing
+that the argument specifying a library should be
+searched for literally (without modification),
+&cv-LIBLITERALPREFIX; can be set to that indicator.
+For example, the GNU linker follows this rule:
+<quote>
+<literal>-l:foo</literal> searches the library path
+for a filename called <literal>foo</literal>,
+without converting it to
+<literal>libfoo.so</literal> or
+<literal>libfoo.a</literal>.
+</quote>
+If &cv-LIBLITERALPREFIX; is set,
+&SCons; will not transform a string-valued entry in
+&cv-link-LIBS; that starts with that string.
+The entry will still be surrounded with
+&cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX;
+on the command line.
+This is useful, for example,
+in directing that a static library
+be used when both a static and dynamic library are available
+and linker policy is to prefer dynamic libraries.
+Compared to the example in &cv-link-LIBS;,
+</para>
+<example_commands>
+env.Append(LIBS=":libmylib.a")
+</example_commands>
+<para>
+will let the linker select that specific (static)
+library name if found in the library search path.
+This differs from using a
+<classname>File</classname> object
+to specify the static library,
+as the latter bypasses the library search path entirely.
+</para>
+</listitem>
+  </varlistentry>
   <varlistentry id="cv-LIBPATH">
     <term>
       <envar>LIBPATH</envar>
@@ -4244,7 +4325,7 @@ The list of directories that will be searched for libraries
 specified by the &cv-link-LIBS; &consvar;.
 &cv-LIBPATH; should be a list of path strings,
 or a single string, not a pathname list joined by
-Python's <systemitem>os.sep</systemitem>.
+Python's <systemitem>os.pathsep</systemitem>.
 <!-- XXX OLD
 The implicit dependency scanner will search these
 directories for include files. Don't explicitly put include directory
@@ -4263,9 +4344,9 @@ as the result will be non-portable.
 Note:
 directory names in &cv-LIBPATH; will be looked-up relative to the
 directory of the SConscript file
-when they are used in a command. 
+when they are used in a command.
 To force &scons;
-to look-up a directory relative to the root of the source tree use 
+to look-up a directory relative to the root of the source tree use
 the <literal>#</literal> prefix:
 </para>
 
@@ -4322,7 +4403,8 @@ to reflect the names of the libraries they create.
       <envar>LIBPREFIXES</envar>
     </term>
     <listitem><para>
-A list of all legal prefixes for library file names.
+A list of all legal prefixes for library file names
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with these prefixes,
 the base library name,
@@ -4335,51 +4417,54 @@ and suffixes from the &cv-link-LIBSUFFIXES; list.
       <envar>LIBS</envar>
     </term>
     <listitem><para>
-A list of one or more libraries
+The list of libraries
 that will be added to the link line
-for linking with any executable program, shared library, or loadable module 
+for linking with any executable program, shared library, or loadable module
 created by the &consenv; or override.
 </para>
 
 <para>
-String-valued library names should include
-only the library base names,
+For portability,
+a string-valued library name should include
+only the base library name,
 without prefixes such as <filename>lib</filename>
 or suffixes such as <filename>.so</filename> or <filename>.dll</filename>.
-The library list will be added to command lines
-through the automatically-generated
-&cv-_LIBFLAGS; &consvar;
-which is constructed by
-respectively prepending and appending the values of the
-&cv-LIBLINKPREFIX; and &cv-LIBLINKSUFFIX; &consvars;
-to each library name in &cv-LIBS;.
-Library name strings should not include a
-path component, instead the compiler will be
-directed to look for libraries in the paths
-specified by &cv-link-LIBPATH;.
+&SCons; <emphasis>will</emphasis> attempt to
+strip prefixes from the &cv-link-LIBPREFIXES; list
+and suffixes from the &cv-link-LIBSUFFIXES; list,
+but depending on that behavior will make the build
+less portable:
+for example, on a POSIX system,
+no attempt will be made to strip a suffix like
+<filename>.dll</filename>.
+Library name strings in &cv-LIBS; should not include a path component:
+instead use &cv-link-LIBPATH; to direct the compiler
+to look for libraries in those paths,
+plus any default paths the linker searches in.
+If &cv-link-LIBLITERALPREFIX; is set to a non-empty string,
+then a string-valued &cv-LIBS; entry
+that starts with &cv-link-LIBLITERALPREFIX;
+will cause the rest of the entry
+to be searched for for unmodified,
+but respecting normal library search paths
+(this is an exception to the guideline above
+about leaving off the prefix/suffix from the library name).
 </para>
 
 <para>
-Any command lines you define that need
-the &cv-LIBS; library list should
-include &cv-_LIBFLAGS;:
-</para>
-
-<example_commands>
-env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
-</example_commands>
-
-<para>
-If you add a
-<classname>File</classname>
-object to the
-&cv-LIBS;
-list, the name of that file will be added to
+If a &cv-LIBS; entry is a Node object
+(either as returned by a previous Builder call,
+or as the result of an explicit call to &f-link-File;),
+the pathname from that Node will be added to
 &cv-_LIBFLAGS;,
-and thus to the link line, as-is, without
+and thus to the link line,
+unmodified - without adding
 &cv-LIBLINKPREFIX;
 or
 &cv-LIBLINKSUFFIX;.
+Such entries are searched for literally
+(including any path component);
+the library search paths are not used.
 For example:
 </para>
 
@@ -4388,9 +4473,34 @@ env.Append(LIBS=File('/tmp/mylib.so'))
 </example_commands>
 
 <para>
-In all cases, scons will add dependencies from the executable program to
-all the libraries in this list.
+<!-- is this actually true? -->
+For each &Builder; call that causes linking with libraries,
+&SCons; will add the libraries in the setting of &cv-LIBS;
+in effect at that moment to the dependecy graph
+as dependencies of the target being generated.
 </para>
+
+<para>
+The library list will transformed to command line
+arguments through the automatically-generated
+&cv-link-_LIBFLAGS; &consvar;
+which is constructed by
+respectively prepending and appending the values of the
+&cv-link-LIBLINKPREFIX; and &cv-link-LIBLINKSUFFIX; &consvars;
+to each library name.
+</para>
+
+<para>
+Any command lines you define yourself that need
+the libraries from &cv-LIBS; should include &cv-_LIBFLAGS;
+(as well as &cv-link-_LIBDIRFLAGS;)
+rather than &cv-LIBS;.
+For example:
+</para>
+
+<example_commands>
+env = Environment(LINKCOM="my_linker $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET $SOURCE")
+</example_commands>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-LIBSUFFIX">
@@ -4413,6 +4523,7 @@ to reflect the names of the libraries they create.
     </term>
     <listitem><para>
 A list of all legal suffixes for library file names.
+on the current platform.
 When searching for library dependencies,
 SCons will look for files with prefixes from the &cv-link-LIBPREFIXES; list,
 the base library name,
@@ -4852,12 +4963,12 @@ and
     </term>
     <listitem><para>
 When set to any true value,
-specifies that SCons should batch
+specifies that &SCons; should batch
 compilation of object files
 when calling the Microsoft Visual C/C++ compiler.
 All compilations of source files from the same source directory
 that generate target files in a same output directory
-and were configured in SCons using the same &consenv;
+and were configured in &SCons; using the same &consenv;
 will be built in a single call to the compiler.
 Only source files that have changed since their
 object files were built will be passed to each compiler invocation
@@ -5850,7 +5961,7 @@ The burden is on the user to ensure the requisite UWP libraries are installed.
 Sets the preferred  version of Microsoft Visual C/C++ to use.
 If the specified version is unavailable (not installed,
 or not discoverable), tool initialization will fail.
-If &cv-MSVC_VERSION; is not set, SCons will (by default) select the
+If &cv-MSVC_VERSION; is not set, &SCons; will (by default) select the
 latest version of Visual C/C++ installed on your system.
 </para>
 
@@ -6774,17 +6885,19 @@ not the underlying project code itself.
       <envar>PCH</envar>
     </term>
     <listitem><para>
-The Microsoft Visual C++ precompiled header that will be used when compiling
-object files. This variable is ignored by tools other than Microsoft Visual C++.
+A node for the Microsoft Visual C++ precompiled header that will be
+used when compiling object files.
+This variable is ignored by tools other than Microsoft Visual C++.
 When this variable is
-defined SCons will add options to the compiler command line to
+defined, &SCons; will add options to the compiler command line to
 cause it to use the precompiled header, and will also set up the
 dependencies for the PCH file.
-Example:
+Examples:
 </para>
 
 <example_commands>
 env['PCH'] = File('StdAfx.pch')
+env['PCH'] = env.PCH('pch.cc')[0]
 </example_commands>
 </listitem>
   </varlistentry>
@@ -6805,7 +6918,7 @@ builder to generated a precompiled header.
     </term>
     <listitem><para>
 The string displayed when generating a precompiled header.
-If this is not set, then &cv-link-PCHCOM; (the command line) is displayed.
+If not set, then &cv-link-PCHCOM; (the command line) is displayed.
 </para>
 </listitem>
   </varlistentry>
@@ -9488,7 +9601,7 @@ an alternate command line so the invoked tool will make
 use of the contents of the temporary file.
 If you need to replace the default tempfile object,
 the callable should take into account the settings of
-&cv-link-MAXLINELENGTH;, 
+&cv-link-MAXLINELENGTH;,
 &cv-link-TEMPFILEPREFIX;,
 &cv-link-TEMPFILESUFFIX;,
 &cv-link-TEMPFILEARGJOIN;,
@@ -9503,7 +9616,7 @@ and
       <envar>TEMPFILEARGESCFUNC</envar>
     </term>
     <listitem><para>
-The default argument escape function is 
+The default argument escape function is
 <function>SCons.Subst.quote_spaces</function>.
 If you need to apply extra operations on a command argument
 (to fix Windows slashes, normalize paths, etc.)
@@ -9732,10 +9845,10 @@ Specify the location of <filename>vswhere.exe</filename>.
     It provides full information about installations of 2017 and later editions.
     With the <option>-legacy</option> argument, <filename>vswhere.exe</filename> can detect installations of the 2010 through 2015
     editions with limited data returned.
-If <envar>VSWHERE</envar> is set, SCons will use that location.
+If <envar>VSWHERE</envar> is set, &SCons; will use that location.
 </para>
 <para>
-    Otherwise SCons will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
+    Otherwise &SCons; will look in the following locations and set <envar>VSWHERE</envar> to the path of the first <filename>vswhere.exe</filename>
 located.
 </para>
 
@@ -10146,7 +10259,9 @@ to disable debug package generation.
 To enable debug package generation, include this
 variable set either to None, or to a custom
 list that does not include the default line.
-Added in version 3.1.
+</para>
+<para>
+<emphasis>New in version  3.1.</emphasis>
 </para>
 
 <example_commands>
@@ -10502,6 +10617,30 @@ Will be emitted as a <option>--graph=</option>
 command-line option. Use this in preference to including
 <option>--graph=</option> in &cv-link-YACCFLAGS; directly.
 </para>
+<para><emphasis>New in version 4.4.0.</emphasis></para>
+</listitem>
+  </varlistentry>
+  <varlistentry id="cv-YACC_GRAPH_FILE_SUFFIX">
+    <term>
+      <envar>YACC_GRAPH_FILE_SUFFIX</envar>
+    </term>
+    <listitem><para>
+Previously specified by &cv-link-YACCVCGFILESUFFIX;.
+</para>
+<para>
+The suffix of the file
+containing a graph of the grammar automaton
+when the <option>-g</option> option
+(or <option>--graph=</option> without an option-argument)
+is used in &cv-link-YACCFLAGS;.
+Note that setting this variable informs &SCons;
+how to construct the graph filename for tracking purposes,
+it does not affect the actual generated filename.
+Various yacc tools have emitted various formats
+at different times.
+Set this to match what your parser generator produces.
+</para>
+<para><emphasis>New in version 4.X.Y</emphasis>. </para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-YACC_HEADER_FILE">
@@ -10514,6 +10653,7 @@ Will be emitted as a <option>--header=</option>
 command-line option. Use this in preference to including
 <option>--header=</option> in &cv-link-YACCFLAGS; directly.
 </para>
+<para><emphasis>New in version 4.4.0.</emphasis></para>
 </listitem>
   </varlistentry>
   <varlistentry id="cv-YACCCOM">
@@ -10554,12 +10694,19 @@ and adds those to the target list.
 </para>
 
 <para>
-If a <option>-d</option> option is present,
+If the <option>-d</option> option is present in &cv-YACCFLAGS;
 &scons; assumes that the call will also create a header file
 with the suffix defined by &cv-link-YACCHFILESUFFIX;
 if the yacc source file ends in a <filename>.y</filename> suffix,
 or a file with the suffix defined by &cv-link-YACCHXXFILESUFFIX;
 if the yacc source file ends in a <filename>.yy</filename> suffix.
+The header will have the same base name as the requested target.
+This is only correct if the executable is <command>bison</command>
+(or <command>win_bison</command>).
+If using Berkeley yacc (<command>byacc</command>),
+<filename>y.tab.h</filename> is always written -
+avoid the <option>-d</option> in this case and
+use &cv-link-YACC_HEADER_FILE; instead.
 </para>
 
 <para>
@@ -10576,22 +10723,31 @@ with the suffix <filename>.output</filename>.
 
 <para>
 Also recognized are GNU &bison; options
-<option>--header=</option> and its deprecated synonym
-<option>--defines=</option>,
+<option>--header</option>
+(and its deprecated synonym <option>--defines</option>),
 which is similar to
 <option>-d</option>
-but the output filename is named by the option argument;
-and <option>--graph=</option>,
+but gives the option to explicitly name the output header file
+through an option argument;
+and <option>--graph</option>,
 which is similar to
 <option>-g</option>
-but the output filename is named by the option argument.
+but gives the option to explicitly name the output graph file
+through an option argument.
+The file suffixes described for
+<option>-d</option> and <option>-g</option> above
+are not applied if these are used in the option=argument form.
 </para>
 
 <para>
 Note that files specified by <option>--header=</option> and
 <option>--graph=</option> may not be properly handled
-by &SCons; in all situations. Consider using
-&cv-link-YACC_HEADER_FILE; and &cv-link-YACC_GRAPH_FILE; instead.
+by &SCons; in all situations, and using those in &cv-YACCFLAGS;
+should be considered legacy support only.
+Consider using &cv-link-YACC_HEADER_FILE;
+and &cv-link-YACC_GRAPH_FILE; instead
+if the files need to be explicitly named
+(<emphasis>new in version 4.4.0</emphasis>).
 </para>
 </listitem>
   </varlistentry>
@@ -10602,14 +10758,13 @@ by &SCons; in all situations. Consider using
     <listitem><para>
 The suffix of the C
 header file generated by the parser generator
-when the
-<option>-d</option>
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a header
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
+when the <option>-d</option> option
+(or <option>--header</option> without an option-argument)
+is used in &cv-link-YACCFLAGS;.
+Note that setting this variable informs &SCons;
+how to construct the header filename for tracking purposes,
+it does not affect the actual generated filename.
+Set this to match what your parser generator produces.
 The default value is
 <filename>.h</filename>.
 </para>
@@ -10622,22 +10777,14 @@ The default value is
     <listitem><para>
 The suffix of the C++
 header file generated by the parser generator
-when the
-<option>-d</option>
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a header
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
-The default value is
-<filename>.hpp</filename>,
-except on Mac OS X,
-where the default is
-<filename>${TARGET.suffix}.h</filename>.
-because the default &bison; parser generator just
-appends <filename>.h</filename>
-to the name of the generated C++ file.
+when the <option>-d</option> option
+(or <option>--header</option> without an option-argument)
+is used in &cv-link-YACCFLAGS;.
+Note that setting this variable informs &SCons;
+how to construct the header filename for tracking purposes,
+it does not affect the actual generated filename.
+Set this to match what your parser generator produces.
+The default value is <filename>.hpp</filename>.
 </para>
 </listitem>
   </varlistentry>
@@ -10646,18 +10793,14 @@ to the name of the generated C++ file.
       <envar>YACCVCGFILESUFFIX</envar>
     </term>
     <listitem><para>
-The suffix of the file
-containing the VCG grammar automaton definition
-when the
-<option>--graph=</option>
-option is used.
-Note that setting this variable does not cause
-the parser generator to generate a VCG
-file with the specified suffix,
-it exists to allow you to specify
-what suffix the parser generator will use of its own accord.
-The default value is
-<filename>.vcg</filename>.
+Obsoleted. Use &cv-link-YACC_GRAPH_FILE_SUFFIX; instead.
+The value is used only if &cv-YACC_GRAPH_FILE_SUFFIX; is not set.
+The default value is <filename>.gv</filename>.
+</para>
+<para>
+<emphasis>Changed in version 4.X.Y</emphasis>: deprecated. The default value
+changed from <filename>.vcg</filename> (&bison; stopped generating
+<filename>.vcg</filename> output with version 2.4, in 2006).
 </para>
 </listitem>
   </varlistentry>

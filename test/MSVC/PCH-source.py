@@ -27,7 +27,7 @@
 Test use of pre-compiled headers when the source .cpp file shows
 up in both the env.PCH() and the env.Program() source list.
 
-Issue 2505:  http://github.com/SCons/scons/issues/2505
+Issue 2505:  https://github.com/SCons/scons/issues/2505
 """
 
 import TestSCons

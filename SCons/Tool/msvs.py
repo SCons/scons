@@ -145,6 +145,8 @@ def msvs_parse_version(s):
 # the MSVS Project file invoke SCons the same way that scons.bat does,
 # which works regardless of how we were invoked.
 def getExecScriptMain(env, xml=None):
+    if 'SCONS_HOME' not in env:
+        env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
     scons_home = env.get('SCONS_HOME')
     if not scons_home and 'SCONS_LIB_DIR' in os.environ:
         scons_home = os.environ['SCONS_LIB_DIR']
@@ -2109,7 +2111,9 @@ def generate(env) -> None:
     env['GET_MSVSSOLUTIONSUFFIX']  = GetMSVSSolutionSuffix
     env['MSVSPROJECTSUFFIX']  = '${GET_MSVSPROJECTSUFFIX}'
     env['MSVSSOLUTIONSUFFIX']  = '${GET_MSVSSOLUTIONSUFFIX}'
-    env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
+
+    if 'SCONS_HOME' not in env:
+        env['SCONS_HOME'] = os.environ.get('SCONS_HOME')
 
 def exists(env):
     return msvc_setup_env_tool(env, tool=tool_name)

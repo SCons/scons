@@ -43,8 +43,9 @@ def generate(env) -> None:
     env['LIBSUFFIX']      = '.lib'
     env['SHLIBPREFIX']    = ''
     env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+    env['LIBPREFIXES']    = ['$LIBPREFIX']
+    env['LIBSUFFIXES']    = ['$LIBSUFFIX', '$SHLIBSUFFIX']
+    env['LIBLITERAPPREFIX'] = ''
     env['HOST_OS']        = 'os2'
     env['HOST_ARCH']      = win32.get_architecture().arch
 

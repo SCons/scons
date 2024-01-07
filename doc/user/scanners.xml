@@ -1,8 +1,14 @@
 <?xml version='1.0'?>
+
+<!--
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
+-->
+
 <!DOCTYPE sconsdoc [
     <!ENTITY % scons SYSTEM "../scons.mod">
     %scons;
-    
+
     <!ENTITY % builders-mod SYSTEM "../generated/builders.mod">
     %builders-mod;
     <!ENTITY % functions-mod SYSTEM "../generated/functions.mod">
@@ -18,33 +24,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.scons.org/dbxsd/v1.0 http://www.scons.org/dbxsd/v1.0/scons.xsd">
 <title>Extending &SCons;: Writing Your Own Scanners</title>
-
-<!--
-
-  MIT License
-
-  Copyright The SCons Foundation
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--->
 
 <!--
 
@@ -153,7 +132,7 @@ over the file scanning rather than being called for each input line:
 
     For example, if you have a file format which uses <literal>#include</literal>
     to specify files which should be included into the source file
-    when it is processed, you can use an existing scanner already 
+    when it is processed, you can use an existing scanner already
     included in &SCons;.
 
     You can use the same mechanisms that &SCons; uses to create
@@ -202,14 +181,14 @@ def kfile_scan(node, env, path, arg):
     </programlisting>
 
     <para>
-    
+
       It is important to note that you
       have to return a list of File nodes from the scanner function, simple
       strings for the file names won't do. As in the examples we are showing here,
       you can use the &f-link-File;
       function of your current &consenv;  in order to create nodes
       on the fly from a sequence of file names with relative paths.
-      
+
     </para>
 
     <para>
@@ -377,7 +356,7 @@ cat
     for example.  The path to search is passed to your
     Scanner as the <parameter>path</parameter> argument.  Path variables
     may be lists of nodes, semicolon-separated strings, or even
-    contain &consvars; which need to be expanded.  
+    contain &consvars; which need to be expanded.
     &SCons; provides the &f-link-FindPathDirs; function which returns
     a callable to expand a given path (given as a SCons &consvar;
     name) to a list of paths at the time the Scanner is called.
@@ -395,15 +374,15 @@ cat
     the &f-link-Scanner; factory function to include a path keyword arg:
 
     </para>
-    
+
     <scons_example name="scanners_findpathdirs">
       <file name="SConstruct" printme="1">
 kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('KPATH'))
       </file>
     </scons_example>
-    
+
     <para>
-    
+
     &FindPathDirs; returns a callable object that, when called, will
     essentially expand the elements in <literal>env['KPATH']</literal>
     and tell the Scanner to search in those dirs.  It will also properly
@@ -411,7 +390,7 @@ kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('K
     note, the returned method stores the path in an efficient way so
     lookups are fast even when variable substitutions may be needed.
     This is important since many files get scanned in a typical build.
-    
+
     </para>
   </section>
 

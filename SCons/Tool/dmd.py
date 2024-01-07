@@ -24,7 +24,7 @@
 """SCons.Tool.dmd
 
 Tool-specific initialization for the Digital Mars D compiler.
-(http://digitalmars.com/d)
+(https://digitalmars.com/d)
 
 Originally coded by Andy Friesen (andy@ikagames.com)
 15 November 2003
@@ -138,7 +138,7 @@ def generate(env) -> None:
 
     env['DLIBLINKPREFIX'] = '' if env['PLATFORM'] == 'win32' else '-L-l'
     env['DLIBLINKSUFFIX'] = '.lib' if env['PLATFORM'] == 'win32' else ''
-    env['_DLIBFLAGS'] = '${_stripixes(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES,  __env__)}'
+    env['_DLIBFLAGS'] = '${_stripixes(DLIBLINKPREFIX, LIBS, DLIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES,  __env__, LIBLITERALPREFIX)}'
 
     env['DLIBDIRPREFIX'] = '-L-L'
     env['DLIBDIRSUFFIX'] = ''

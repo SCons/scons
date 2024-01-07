@@ -802,7 +802,7 @@ else:
 
 # From Josiah Carlson,
 # ASPN : Python Cookbook : Module to allow Asynchronous subprocess use on Windows and Posix platforms
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
+# https://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
 
 if sys.platform == 'win32':  # and subprocess.mswindows:
     try:
@@ -1871,6 +1871,31 @@ class TestCmd:
         """
         file = self.canonicalize(file)
         os.unlink(file)
+
+    def unlink_files(self, dirpath, files):
+        """Unlinks a list of file names from the specified directory.
+
+        The directory path may be a list, in which case the elements are
+        concatenated with the os.path.join() method.
+
+        A file name may be a list, in which case the elements are
+        concatenated with the os.path.join() method.
+
+        The directory path and file name are concatenated with the
+        os.path.join() method.  The resulting file path is assumed to be
+        under the temporary working directory unless it is an absolute path
+        name.  An attempt to unlink the resulting file is made only when the
+        file exists otherwise the file path is ignored.
+        """
+        if is_List(dirpath):
+            dirpath = os.path.join(*dirpath)
+        for file in files:
+            if is_List(file):
+                file = os.path.join(*file)
+            filepath = os.path.join(dirpath, file)
+            filepath = self.canonicalize(filepath)
+            if os.path.exists(filepath):
+                self.unlink(filepath)
 
     def verbose_set(self, verbose) -> None:
         """Sets the verbose level."""

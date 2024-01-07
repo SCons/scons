@@ -36,7 +36,7 @@ import shutil
 import stat
 import sys
 import time
-from typing import List
+from typing import List, Callable
 
 import SCons.Action
 import SCons.Builder
@@ -455,16 +455,35 @@ def _concat_ixes(prefix, items_iter, suffix, env):
     return result
 
 
-def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
-    """
-    This is a wrapper around _concat()/_concat_ixes() that checks for
-    the existence of prefixes or suffixes on list items and strips them
-    where it finds them.  This is used by tools (like the GNU linker)
-    that need to turn something like 'libfoo.a' into '-lfoo'.
-    """
+def _stripixes(
+    prefix: str,
+    items,
+    suffix: str,
+    stripprefixes: List[str],
+    stripsuffixes: List[str],
+    env,
+    literal_prefix: str = "",
+    c: Callable[[list], list] = None,
+) -> list:
+    """Returns a list with text added to items after first stripping them.
 
-    if not itms:
-        return itms
+    A companion to :func:`_concat_ixes`, used by tools (like the GNU
+    linker) that need to turn something like ``libfoo.a`` into ``-lfoo``.
+    *stripprefixes* and *stripsuffixes* are stripped from *items*.
+    Calls function *c* to postprocess the result.
+
+    Args:
+        prefix: string to prepend to elements
+        items: string or iterable to transform
+        suffix: string to append to elements
+        stripprefixes: prefix string(s) to strip from elements
+        stripsuffixes: suffix string(s) to strip from elements
+        env: construction environment for variable interpolation
+        c: optional function to perform a transformation on the list.
+           The default is `None`, which will select :func:`_concat_ixes`.
+    """
+    if not items:
+        return items
 
     if not callable(c):
         env_c = env['_concat']
@@ -480,14 +499,26 @@ def _stripixes(prefix, itms, suffix, stripprefixes, stripsuffixes, env, c=None):
     stripprefixes = list(map(env.subst, flatten(stripprefixes)))
     stripsuffixes = list(map(env.subst, flatten(stripsuffixes)))
 
+    # This is a little funky: if literal_prefix is the same as os.pathsep
+    # (e.g. both ':'), the normal conversion to a PathList will drop the
+    # literal_prefix prefix. Tell it not to split in that case, which *should*
+    # be okay because if we come through here, we're normally processing
+    # library names and won't have strings like "path:secondpath:thirdpath"
+    # which is why PathList() otherwise wants to split strings.
+    do_split = not literal_prefix == os.pathsep
+
     stripped = []
-    for l in SCons.PathList.PathList(itms).subst_path(env, None, None):
+    for l in SCons.PathList.PathList(items, do_split).subst_path(env, None, None):
         if isinstance(l, SCons.Node.FS.File):
             stripped.append(l)
             continue
 
         if not is_String(l):
             l = str(l)
+
+        if literal_prefix and l.startswith(literal_prefix):
+            stripped.append(l)
+            continue
 
         for stripprefix in stripprefixes:
             lsp = len(stripprefix)

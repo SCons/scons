@@ -27,10 +27,12 @@ Example:
 
 <example_commands>
 # builds foo.c
-env.CFile(target = 'foo.c', source = 'foo.l')
+env.CFile(target='foo.c', source='foo.l')
+
 # builds bar.c
-env.CFile(target = 'bar', source = 'bar.y')
+env.CFile(target='bar', source='bar.y')
 </example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="b-Command">
@@ -124,10 +126,12 @@ Example:
 
 <example_commands>
 # builds foo.cc
-env.CXXFile(target = 'foo.cc', source = 'foo.ll')
+env.CXXFile(target='foo.cc', source='foo.ll')
+
 # builds bar.cc
-env.CXXFile(target = 'bar', source = 'bar.yy')
+env.CXXFile(target='bar', source='bar.yy')
 </example_commands>
+
 </listitem>
   </varlistentry>
   <varlistentry id="b-DocbookEpub">
@@ -1535,10 +1539,9 @@ the top directory of the project.
     <listitem><para>
 Builds a Microsoft Visual C++ precompiled header.
 Calling this builder
-returns a list of two targets: the PCH as the first element, and the object
-file as the second element. Normally the object file is ignored.
-This builder is only
-provided when Microsoft Visual C++ is being used as the compiler.
+returns a list of two target nodes: the PCH as the first element,
+and the object file as the second element.
+Normally the object file is ignored.
 The &b-PCH; builder is generally used in
 conjunction with the &cv-link-PCH; &consvar; to force object files to use
 the precompiled header:
@@ -1547,6 +1550,42 @@ the precompiled header:
 <example_commands>
 env['PCH'] = env.PCH('StdAfx.cpp')[0]
 </example_commands>
+
+<note>
+<para>
+This builder is specific to the PCH implementation
+in  Microsoft Visual C++.
+Other compiler chains also implement precompiled header support,
+but &b-PCH; does not work with them at this time.
+As a result, the builder is only generated into the
+construction environment when
+Microsoft Visual C++ is being used as the compiler.
+</para>
+<para>
+The builder only works correctly in a C++ project.
+The Microsoft implementation distinguishes between
+precompiled headers from C and C++.
+Use of the builder will cause the PCH generation to happen with a flag
+that tells <application>cl.exe</application> all of the
+files are C++ files; if that PCH file is then supplied when
+compiling a C source file,
+<application>cl.exe</application> will fail the build with
+a compatibility violation.
+</para>
+<para>
+If possible, arrange the project so that a
+C++ source file passed to the &b-PCH; builder
+is not also included in the list of sources
+to be otherwise compiled in the project.
+&SCons; will correctly track that file in the dependency tree
+as a result of the &b-PCH; call,
+and (for MSVC 11.0 and greater) automatically add the
+corresponding object file to the link line.
+If the source list is automatically generated,
+for example using the &f-link-Glob; function,
+it may be necessary to remove that file from the list.
+</para>
+</note>
 </listitem>
   </varlistentry>
   <varlistentry id="b-PDF">

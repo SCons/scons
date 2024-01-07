@@ -2190,7 +2190,7 @@ def msvc_setup_env(env):
 
     seen_path = False
     for k, v in d.items():
-        if not seen_path and k.upper() == 'PATH':
+        if not seen_path and k == 'PATH':
             seen_path = True
             found_cl_path = SCons.Util.WhereIs('cl', v)
             found_cl_envpath = SCons.Util.WhereIs('cl', env['ENV'].get(k, []))
@@ -2201,16 +2201,15 @@ def msvc_setup_env(env):
 
     # final check to issue a warning if the requested compiler is not present
     if not found_cl_path:
-        if CONFIG_CACHE:
-            propose = f"SCONS_CACHE_MSVC_CONFIG caching enabled, remove cache file {CONFIG_CACHE} if out of date."
-        else:
-            propose = "It may need to be installed separately with Visual Studio."
         warn_msg = "Could not find requested MSVC compiler 'cl'."
+        if CONFIG_CACHE:
+            warn_msg += f" SCONS_CACHE_MSVC_CONFIG caching enabled, remove cache file {CONFIG_CACHE} if out of date."
+        else:
+            warn_msg += " It may need to be installed separately with Visual Studio."
         if found_cl_envpath:
             warn_msg += " A 'cl' was found on the scons ENV path which may be erroneous."
-        warn_msg += " %s"
-        debug(warn_msg, propose)
-        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg % propose)
+        debug(warn_msg)
+        SCons.Warnings.warn(SCons.Warnings.VisualCMissingWarning, warn_msg)
 
 def msvc_exists(env=None, version=None):
     vcs = get_installed_vcs(env)

@@ -108,16 +108,16 @@ import subprocess
 import sys
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from subprocess import DEVNULL
-from typing import Union
+from subprocess import DEVNULL, PIPE
 
 import SCons.Debug
 import SCons.Errors
 import SCons.Subst
 import SCons.Util
-from SCons.Debug import logInstanceCreation
 
 # we use these a lot, so try to optimize them
+from SCons.Debug import logInstanceCreation
+from SCons.Subst import SUBST_SIG, SUBST_RAW
 from SCons.Util import is_String, is_List
 
 class _null:
@@ -387,9 +387,10 @@ def _object_instance_content(obj):
     # print("Inst Methods   :\n%s"%pp.pformat(methods))
 
 def _actionAppend(act1, act2):
-    # This function knows how to slap two actions together.
-    # Mainly, it handles ListActions by concatenating into
-    # a single ListAction.
+    """Joins two actions together.
+
+    Mainly, it handles ListActions by concatenating into a single ListAction.
+    """
     a1 = Action(act1)
     a2 = Action(act2)
     if a1 is None:
@@ -399,13 +400,12 @@ def _actionAppend(act1, act2):
     if isinstance(a1, ListAction):
         if isinstance(a2, ListAction):
             return ListAction(a1.list + a2.list)
-        else:
-            return ListAction(a1.list + [ a2 ])
-    else:
-        if isinstance(a2, ListAction):
-            return ListAction([ a1 ] + a2.list)
-        else:
-            return ListAction([ a1, a2 ])
+        return ListAction(a1.list + [ a2 ])
+
+    if isinstance(a2, ListAction):
+        return ListAction([ a1 ] + a2.list)
+
+    return ListAction([ a1, a2 ])
 
 
 def _do_create_keywords(args, kw):
@@ -468,11 +468,7 @@ def _do_create_action(act, kw):
         return CommandAction(act, **kw)
 
     if callable(act):
-        try:
-            gen = kw['generator']
-            del kw['generator']
-        except KeyError:
-            gen = 0
+        gen = kw.pop('generator', False)
         if gen:
             action_type = CommandGeneratorAction
         else:
@@ -480,7 +476,7 @@ def _do_create_action(act, kw):
         return action_type(act, kw)
 
     # Catch a common error case with a nice message:
-    if isinstance(act, int) or isinstance(act, float):
+    if isinstance(act, (int, float)):
         raise TypeError("Don't know how to create an Action from a number (%s)"%act)
     # Else fail silently (???)
     return None
@@ -504,10 +500,9 @@ def _do_create_list_action(act, kw) -> "ListAction":
             acts.append(aa)
     if not acts:
         return ListAction([])
-    elif len(acts) == 1:
+    if len(acts) == 1:
         return acts[0]
-    else:
-        return ListAction(acts)
+    return ListAction(acts)
 
 
 def Action(act, *args, **kw):
@@ -547,7 +542,7 @@ class ActionBase(ABC):
 
     batch_key = no_batch_key
 
-    def genstring(self, target, source, env):
+    def genstring(self, target, source, env, executor=None) -> str:
         return str(self)
 
     @abstractmethod
@@ -561,7 +556,7 @@ class ActionBase(ABC):
     def get_contents(self, target, source, env):
         result = self.get_presig(target, source, env)
 
-        if not isinstance(result,(bytes, bytearray)):
+        if not isinstance(result, (bytes, bytearray)):
             result = bytearray(result, 'utf-8')
         else:
             # Make a copy and put in bytearray, without this the contents returned by get_presig
@@ -579,17 +574,15 @@ class ActionBase(ABC):
         for v in vl:
             # do the subst this way to ignore $(...$) parts:
             if isinstance(result, bytearray):
-                result.extend(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+                result.extend(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SUBST_SIG, target, source)))
             else:
                 raise Exception("WE SHOULD NEVER GET HERE result should be bytearray not:%s"%type(result))
-                # result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SCons.Subst.SUBST_SIG, target, source)))
+                # result.append(SCons.Util.to_bytes(env.subst_target_source('${'+v+'}', SUBST_SIG, target, source)))
 
-
-        if isinstance(result, (bytes,bytearray)):
+        if isinstance(result, (bytes, bytearray)):
             return result
-        else:
-            raise Exception("WE SHOULD NEVER GET HERE - #2 result should be bytearray not:%s" % type(result))
-            # return b''.join(result)
+
+        raise Exception("WE SHOULD NEVER GET HERE - #2 result should be bytearray not:%s" % type(result))
 
     def __add__(self, other):
         return _actionAppend(self, other)
@@ -788,7 +781,7 @@ def get_default_ENV(env):
         return env['ENV']
     except KeyError:
         if not default_ENV:
-            import SCons.Environment
+            import SCons.Environment  # pylint: disable=import-outside-toplevel,redefined-outer-name
             # This is a hideously expensive way to get a default execution
             # environment.  What it really should do is run the platform
             # setup to get the default ENV.  Fortunately, it's incredibly
@@ -815,42 +808,47 @@ def _resolve_shell_env(env, target, source):
             shell_gens = iter(shell_gen)
         except TypeError:
             raise SCons.Errors.UserError("SHELL_ENV_GENERATORS must be iteratable.")
-        else:
-            ENV = ENV.copy()
-            for generator in shell_gens:
-                ENV = generator(env, target, source, ENV)
-                if not isinstance(ENV, dict):
-                    raise SCons.Errors.UserError(f"SHELL_ENV_GENERATORS function: {generator} must return a dict.")
+
+        ENV = ENV.copy()
+        for generator in shell_gens:
+            ENV = generator(env, target, source, ENV)
+            if not isinstance(ENV, dict):
+                raise SCons.Errors.UserError(f"SHELL_ENV_GENERATORS function: {generator} must return a dict.")
+
     return ENV
 
 
-def scons_subproc_run(
-    scons_env, *args, error: str = None, **kwargs
-) -> subprocess.CompletedProcess:
-    """Run a command with arguments using an SCons execution environment.
+def scons_subproc_run(scons_env, *args, **kwargs) -> subprocess.CompletedProcess:
+    """Run an external command using an SCons execution environment.
 
-    Does an underlyng call to :func:`subprocess.run` to run a command and
-    returns a :class:`subprocess.CompletedProcess` instance with the results.
-    Use when an external command needs to run in an "SCons context" -
-    that is, with a crafted execution environment, rather than the user's
-    existing environment, particularly when you need to collect output
-    back. Typical case: run a tool's "version" option to find out which
-    version you have installed.
+    SCons normally runs external build commands using :mod:`subprocess`,
+    but does not harvest any output from such commands. This function
+    is a thin wrapper around :func:`subprocess.run` allowing running
+    a command in an SCons context (i.e. uses an "execution environment"
+    rather than the user's existing environment), and provides the ability
+    to return any output in a :class:`subprocess.CompletedProcess`
+    instance (this must be selected by setting ``stdout`` and/or
+    ``stderr`` to ``PIPE``, or setting ``capture_output=True`` - see
+    Keyword Arguments). Typical use case is to run a tool's "version"
+    option to find out the installed version.
 
-    If supplied, the ``env`` keyword argument passes an
-    execution environment to process into appropriate form before it is
-    supplied to :mod:`subprocess`; if omitted, *scons_env* is used to derive
-    a suitable default.  The other keyword arguments are passed through,
-    except that SCons legacy ``error` keyword is remapped to
-    the subprocess ``check` keyword.  The caller is responsible for
-    setting up the desired arguments  for :func:`subprocess.run`.
+    If supplied, the ``env`` keyword argument provides an execution
+    environment to process into appropriate form before it is supplied
+    to :mod:`subprocess`; if omitted, *scons_env* is used to derive a
+    suitable default.  The other keyword arguments are passed through,
+    except that the SCons legacy ``error`` keyword is remapped to the
+    subprocess ``check`` keyword; if both are omitted ``check=False``
+    will be passed. The caller is responsible for setting up the desired
+    arguments  for :func:`subprocess.run`.
 
     This function retains the legacy behavior of returning something
-    vaguely usable even in the face of complete failure: it synthesizes
-    a :class:`~subprocess.CompletedProcess` instance in this case.
+    vaguely usable even in the face of complete failure, unless
+    ``check=True`` (in which case an error is allowed to be raised):
+    it synthesizes a :class:`~subprocess.CompletedProcess` instance in
+    this case.
 
     A subset of interesting keyword arguments follows; see the Python
-    documentation of :mod:`subprocess` for a complete list.
+    documentation of :mod:`subprocess` for the complete list.
 
     Keyword Arguments:
        stdout: (and *stderr*, *stdin*) if set to :const:`subprocess.PIPE`.
@@ -858,12 +856,11 @@ def scons_subproc_run(
           the subprocess; the default ``None`` does no redirection
           (i.e. output or errors may go to the console or log file,
           but is not captured); if set to :const:`subprocess.DEVNULL`
-          they are explicitly thrown away. ``capture_output`` is a
+          they are explicitly thrown away. ``capture_output=True`` is a
           synonym for setting both ``stdout`` and ``stderr``
           to :const:`~subprocess.PIPE`.
        text: open *stdin*, *stdout*, *stderr* in text mode. Default
-          is binary mode. ``universal_newlines`` is a synonym -
-          note ``text`` is not understood before Python 3.7.
+          is binary mode. ``universal_newlines`` is a synonym.
        encoding: specifies an encoding. Changes to text mode.
        errors: specified error handling. Changes to text mode.
        input: a byte sequence to be passed to *stdin*, unless text
@@ -877,54 +874,48 @@ def scons_subproc_run(
     .. versionadded:: 4.6
     """
     # Figure out the execution environment to use
-    ENV = kwargs.get('env', None)
-    if ENV is None:
-        ENV = get_default_ENV(scons_env)
-    kwargs['env'] = SCons.Util.sanitize_shell_env(ENV)
+    env = kwargs.get('env', None)
+    if env is None:
+        env = get_default_ENV(scons_env)
+    kwargs['env'] = SCons.Util.sanitize_shell_env(env)
 
-    # backwards-compat with _subproc: accept 'error', map it to
-    # ``check`` and remove, since it would not be recognized by run()
-    check = kwargs.get('check')
-    if check and error:
+    # Backwards-compat with _subproc: accept 'error', map to 'check',
+    # and remove, since subprocess.run does not recognize.
+    # 'error' isn't True/False, it takes a string value (see _subproc)
+    error = kwargs.get('error')
+    if error and 'check' in kwargs:
         raise ValueError('error and check arguments may not both be used.')
-    if check is None:
-        check = False  # always supply some value, to pacify checkers (pylint).
+    check = kwargs.get('check', False)  # always set a value for 'check'
     if error is not None:
         if error == 'raise':
             check = True
         del kwargs['error']
     kwargs['check'] = check
 
-    # Ensure that the ENV values are all strings:
-    new_env = {}
-    for key, value in ENV.items():
-        if is_List(value):
-            # If the value is a list, then we assume it is a path list,
-            # because that's a pretty common list-like value to stick
-            # in an environment variable:
-            value = SCons.Util.flatten_sequence(value)
-            new_env[key] = os.pathsep.join(str(v) for v in value)
-        else:
-            # If it's not a list type, "convert" it to str. This is
-            # harmless if it's already a string, but gets us the right
-            # thing for Dir and File instances and will produce something
-            # reasonable for just about everything else:
-            new_env[key] = str(value)
-    kwargs['env'] = new_env
+    # TODO: Python version-compat stuff: remap/remove too-new args if needed
+    if 'text' in kwargs and sys.version_info[:3] < (3, 7):
+        kwargs['universal_newlines'] = kwargs.pop('text')
 
-    # Some tools/tests expect no failures for things like missing files
-    # unless raise/check is set. If set, let subprocess.run go ahead and
-    # kill things, else catch and construct a dummy CompletedProcess instance.
+    if 'capture_output' in kwargs and sys.version_info[:3] < (3, 7):
+        capture_output = kwargs.pop('capture_output')
+        if capture_output:
+            kwargs['stdout'] = kwargs['stderr'] = PIPE
+
+    # Most SCons tools/tests expect not to fail on things like missing files.
+    # check=True (or error="raise") means we're okay to take an exception;
+    # else we catch the likely exception and construct a dummy
+    # CompletedProcess instance.
+    # Note pylint can't see we always include 'check' in kwargs: suppress.
     if check:
-        cp = subprocess.run(*args, **kwargs)
+        cp = subprocess.run(*args, **kwargs)  # pylint: disable=subprocess-run-check
     else:
         try:
-            cp = subprocess.run(*args, **kwargs)
+            cp = subprocess.run(*args, **kwargs)  # pylint: disable=subprocess-run-check
         except OSError as exc:
             argline = ' '.join(*args)
-            cp = subprocess.CompletedProcess(argline, 1)
-            cp.stdout = ""
-            cp.stderr = ""
+            cp = subprocess.CompletedProcess(
+                args=argline, returncode=1, stdout="", stderr=""
+            )
 
     return cp
 
@@ -1044,7 +1035,6 @@ class CommandAction(_ActionAction):
         if self.cmdstr is None:
             return None
         if self.cmdstr is not _null:
-            from SCons.Subst import SUBST_RAW
             if executor:
                 c = env.subst(self.cmdstr, SUBST_RAW, executor=executor, overrides=overrides)
             else:
@@ -1077,12 +1067,11 @@ class CommandAction(_ActionAction):
             spawn = env['SPAWN']
         except KeyError:
             raise SCons.Errors.UserError('Missing SPAWN construction variable.')
-        else:
-            if is_String(spawn):
-                spawn = env.subst(spawn, raw=1, conv=lambda x: x)
+
+        if is_String(spawn):
+            spawn = env.subst(spawn, raw=1, conv=lambda x: x)
 
         escape = env.get('ESCAPE', lambda x: x)
-
         ENV = _resolve_shell_env(env, target, source)
 
         # Ensure that the ENV values are all strings:
@@ -1125,7 +1114,6 @@ class CommandAction(_ActionAction):
         This strips $(-$) and everything in between the string,
         since those parts don't affect signatures.
         """
-        from SCons.Subst import SUBST_SIG
         cmd = self.cmd_list
         if is_List(cmd):
             cmd = ' '.join(map(str, cmd))
@@ -1133,8 +1121,7 @@ class CommandAction(_ActionAction):
             cmd = str(cmd)
         if executor:
             return env.subst_target_source(cmd, SUBST_SIG, executor=executor)
-        else:
-            return env.subst_target_source(cmd, SUBST_SIG, target, source)
+        return env.subst_target_source(cmd, SUBST_SIG, target, source)
 
     def get_implicit_deps(self, target, source, env, executor=None):
         """Return the implicit dependencies of this action's command line."""
@@ -1154,17 +1141,15 @@ class CommandAction(_ActionAction):
             # An integer value greater than 1 specifies the number of entries
             # to scan. "all" means to scan all.
             return self._get_implicit_deps_heavyweight(target, source, env, executor, icd_int)
-        else:
-            # Everything else (usually 1 or True) means that we want
-            # lightweight dependency scanning.
-            return self._get_implicit_deps_lightweight(target, source, env, executor)
+        # Everything else (usually 1 or True) means that we want
+        # lightweight dependency scanning.
+        return self._get_implicit_deps_lightweight(target, source, env, executor)
 
     def _get_implicit_deps_lightweight(self, target, source, env, executor):
         """
         Lightweight dependency scanning involves only scanning the first entry
         in an action string, even if it contains &&.
         """
-        from SCons.Subst import SUBST_SIG
         if executor:
             cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, executor=executor)
         else:
@@ -1202,7 +1187,6 @@ class CommandAction(_ActionAction):
         # Avoid circular and duplicate dependencies by not providing source,
         # target, or executor to subst_list. This causes references to
         # $SOURCES, $TARGETS, and all related variables to disappear.
-        from SCons.Subst import SUBST_SIG
         cmd_list = env.subst_list(self.cmd_list, SUBST_SIG, conv=lambda x: x)
         res = []
 
@@ -1281,7 +1265,7 @@ class CommandGeneratorAction(ActionBase):
     def batch_key(self, env, target, source):
         return self._generate(target, source, env, 1).batch_key(env, target, source)
 
-    def genstring(self, target, source, env, executor=None):
+    def genstring(self, target, source, env, executor=None) -> str:
         return self._generate(target, source, env, 1, executor).genstring(target, source, env)
 
     def __call__(self, target, source, env, exitstatfunc=_null, presub=_null,
@@ -1409,7 +1393,6 @@ class FunctionAction(_ActionAction):
         if self.cmdstr is None:
             return None
         if self.cmdstr is not _null:
-            from SCons.Subst import SUBST_RAW
             if executor:
                 c = env.subst(self.cmdstr, SUBST_RAW, executor=executor)
             else:
@@ -1456,9 +1439,7 @@ class FunctionAction(_ActionAction):
             rsources = list(map(rfile, source))
             try:
                 result = self.execfunction(target=target, source=rsources, env=env)
-            except KeyboardInterrupt as e:
-                raise
-            except SystemExit as e:
+            except (KeyboardInterrupt, SystemExit):
                 raise
             except Exception as e:
                 result = e
@@ -1466,8 +1447,8 @@ class FunctionAction(_ActionAction):
 
             if result:
                 result = SCons.Errors.convert_to_BuildError(result, exc_info)
-                result.node=target
-                result.action=self
+                result.node = target
+                result.action = self
                 try:
                     result.command=self.strfunction(target, source, env, executor)
                 except TypeError:
@@ -1480,7 +1461,7 @@ class FunctionAction(_ActionAction):
                 # some codes do not check the return value of Actions and I do
                 # not have the time to modify them at this point.
                 if (exc_info[1] and
-                    not isinstance(exc_info[1],EnvironmentError)):
+                    not isinstance(exc_info[1], EnvironmentError)):
                     raise result
 
             return result
@@ -1514,7 +1495,7 @@ class ListAction(ActionBase):
         self.varlist = ()
         self.targets = '$TARGETS'
 
-    def genstring(self, target, source, env):
+    def genstring(self, target, source, env, executor=None) -> str:
         return '\n'.join([a.genstring(target, source, env) for a in self.list])
 
     def __str__(self) -> str:
@@ -1601,8 +1582,9 @@ class ActionCaller:
         # was called by using this hard-coded value as a special return.
         if s == '$__env__':
             return env
-        elif is_String(s):
+        if is_String(s):
             return env.subst(s, 1, target, source)
+
         return self.parent.convert(s)
 
     def subst_args(self, target, source, env):

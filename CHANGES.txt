@@ -9,56 +9,41 @@ NOTE: 4.3.0 now requires Python 3.6.0 and above. Python 3.5.x is no longer suppo
 
 RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
-  From Max Bachmann:
-    - Add missing directories to searched paths for mingw installs
+  From Ataf Fazledin Ahamed:
+    - Use of NotImplemented instead of NotImplementedError for special methods
+      of _ListVariable class
 
   From Joseph Brill:
-    - Fix issue #4312: the cached installed msvc list had an indirect dependency
-      on the target architecture in the environment dictionary.  The first call
-      to construct the installed msvc list now forces the target architecture to be
-      undefined, constructs the installed msvc list, and then restores the original
-      target architecture.
-      Note: an indirect dependency on the VSWHERE construction variable in the
-      environment remains.
-    - Fix issue #4312: explicitly guard against an empty regular expression list
-      when msvc is not installed.
-    - When trying to find a valid msvc batch file, check that the compiler executable
-      (cl.exe) exists for VS6 to VS2015 to avoid executing the msvc batch file.  Always
-      check that the compiler executable is found on the msvc script environment path
-      after running the msvc batch file.  Only use the sdk batch files when all of the
-      msvc script host/target combinations have been exhausted and a valid script was
-      not found.
-    - Add ARM64 host configurations for windows and msvc.
-      Note: VS2013 and earlier has not been tested on ARM64.
-    - If necessary, automatically define VSCMD_SKIP_SENDTELEMETRY for VS2019 and later
-      on ARM64 hosts when using an arm32 build of python to prevent a powershell dll
-      not found error pop-up window.
-    - Fix an issue where test SConfTests.py would fail when mscommon debugging
-      was enabled.  The mscommon debug filter class registered with the logging
-      module was refactored.
-    - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
-      consistent with the current documentation of MSVS_ARCH.
-    - Fix an issue with an unhandled MissingConfiguration exception due to an msvc
-      registry query that returns a path that does not exist.  Multiple invocation
-      paths were not prepared to handle the MissingConfiguration exception.  The
-      MissingConfiguration exception type was removed.
-    - The MSCommon module import was changed from a relative import to a top-level
-      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
-      msvs. Moving any of these tools that used relative imports to the scons site tools
-      folder would fail on import (i.e., the relative import paths become invalid when
-      moved).
-    - The detection of the msvc compiler executable (cl.exe) has been modified.  The
-      compiler detection no longer considers the host os environment path.  In addition,
-      existence of the msvc compiler executable is checked in the detection dictionary
-      and the scons ENV path before the detection dictionary is merged into the scons
-      ENV.  Different warnings are produced when the msvc compiler is not detected in the
-      detection dictionary based on whether or not an msvc compiler was detected in the
-      scons ENV path (i.e., already exists in the user's ENV path prior to detection).
+    - Fix issue #2755: the msvs tool no longer writes the OS environment SCONS_HOME
+      value into the SCons environment when the SCONS_HOME variable already exists
+      in the SCons environment.  Prior to this change, a valid user-defined SCons
+      environment value for SCONS_HOME would be overwritten with the OS environment
+      value of SCONS_HOME which could be None (i.e., undefined).
+    - Update the windows registry keys for detection of Visual Studio 2015 Express
+      ('14.0Exp'): the VS2015 registry key ('WDExpress') appears to be different
+      than the registry key ('VCExpress') for earlier Visual Studio express
+      versions.  The registry key value is relative to the installation root rather
+      than the VC folder and requires additional path components during evaluation.
+    - Fix the vs-6.0-exec.py test script: the msvs generated project is 'foo.dsp'
+      and the command-line invocation of the Visual Studio development environment
+      program was attempting to build 'test.dsp'.  The command-line invocation was
+      changed to build 'foo.dsp'.
+    - Update the msvs project generation test scripts: the msvs project execution
+      tests could produce a "false positive" test result when the test executable is
+      correctly built via the SConstruct env.Program() call and the command-line
+      invocation of the Visual Studio development environment program fails.  The
+      test passes due to the existence of the test executable from the initial
+      build.  The tests were modified to delete the test executable, object file,
+      and sconsign file prior to the command-line invocation of the VS development
+      binary.
+    - Method unlink_files was added to the TestCmd class that unlinks a list of
+      files from a specified directory.  An attempt to unlink a file is made only
+      when the file exists; otherwise, the file is ignored.
+    - Fix issue #4320: add an optional argument list string to configure's CheckFunc
+      method so that the generated function argument list matches the function's
+      prototype when including a header file.
     - For msvc version specifications without an 'Exp' suffix, an express installation
       is used when no other edition is detected for the msvc version.
-    - VS2015 Express (14.0Exp) may not have been detected. The registry keys written
-      during installation appear to be different than for earlier express versions.
-      VS2015 Express should be correctly detected now.
     - VS2015 Express (14.0Exp) does not support the sdk version argument.  VS2015 Express
       does not support the store argument for target architectures other than x86.
       Script argument validation now takes into account these restrictions.
@@ -101,6 +86,76 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       installed vcs list. During runtime, if a user-specified vswhere executable finds
       new msvc installations, internal runtime caches are cleared and the installed vcs
       list is reconstructed.
+  
+  From William Deegan:
+    - Fix sphinx config to handle SCons versions with post such as: 4.6.0.post1
+
+  From Michał Górny:
+    - Remove unecessary dependencies on pypi packages from setup.cfg
+
+  From Sten Grüner:
+    - Fix of the --debug=sconscript option to return exist statements when using return
+      statement with stop flag enabled
+
+
+RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
+
+  From Max Bachmann:
+    - Add missing directories to searched paths for mingw installs
+
+  From Joseph Brill:
+    - Fix issue #4312: the cached installed msvc list had an indirect dependency
+      on the target architecture in the environment dictionary.  The first call
+      to construct the installed msvc list now forces the target architecture to be
+      undefined, constructs the installed msvc list, and then restores the original
+      target architecture.
+      Note: an indirect dependency on the VSWHERE construction variable in the
+      environment remains.
+    - Fix issue #4312: explicitly guard against an empty regular expression list
+      when msvc is not installed.
+    - When trying to find a valid msvc batch file, check that the compiler executable
+      (cl.exe) exists for VS6 to VS2015 to avoid executing the msvc batch file.  Always
+      check that the compiler executable is found on the msvc script environment path
+      after running the msvc batch file.  Only use the sdk batch files when all of the
+      msvc script host/target combinations have been exhausted and a valid script was
+      not found.
+    - Add ARM64 host configurations for windows and msvc.
+      Note: VS2013 and earlier has not been tested on ARM64.
+    - If necessary, automatically define VSCMD_SKIP_SENDTELEMETRY for VS2019 and later
+      on ARM64 hosts when using an arm32 build of python to prevent a powershell dll
+      not found error pop-up window.
+    - Fix an issue where test SConfTests.py would fail when mscommon debugging
+      was enabled.  The mscommon debug filter class registered with the logging
+      module was refactored.
+    - Add arm64 to the MSVS supported architectures list for VS2017 and later to be
+      consistent with the current documentation of MSVS_ARCH.
+    - Fix an issue with an unhandled MissingConfiguration exception due to an msvc
+      registry query that returns a path that does not exist.  Multiple invocation
+      paths were not prepared to handle the MissingConfiguration exception.  The
+      MissingConfiguration exception type was removed.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
+    - The detection of the msvc compiler executable (cl.exe) has been modified:
+        * The host os environment path is no longer evaluated for the existence of the
+          msvc compiler executable when searching the detection dictionary.
+        * The existence of the msvc compiler executable is checked in the detection
+          dictionary and the scons ENV path before the detection dictionary is merged
+          into the scons ENV.
+        * Different warnings are produced when the msvc compiler is not detected in the
+          detection dictionary based on whether or not an msvc compiler was detected in
+          the scons ENV path (i.e., a msvc compiler executable already exists in the
+          user's ENV path prior to detection).
+        * The warning message issued when a msvc compiler executable is not found in the
+          detection dictionary was modified by adding the word "requested":
+            Old warning: "Could not find MSVC compiler 'cl'."
+            New warning: "Could not find requested MSVC compiler 'cl'.".
+        * An additonal sentence is appended to the warning message issued when an msvc
+          compiler executable is not found in the msvc detection dictionary and is found
+          in the user's ENV path prior to detection:
+            " A 'cl' was found on the scons ENV path which may be erroneous."
 
   From Vitaly Cheptsov:
     - Fix race condition in `Mkdir` which can happen when two `SConscript`
@@ -113,10 +168,18 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Obsoleted YACCVCGFILESUFFIX, being replaced by YACC_GRAPH_FILE_SUFFIX.
       If YACC_GRAPH_FILE_SUFFIX is not set, it will respect YACCVCGFILESUFFIX.
 
+  From Sten Grüner
+    - The newly added --debug=sconscript option (new) will output notices when
+      entering an exiting each SConscript as they are processed.
+
   From Philipp Maierhöfer:
     - Fix gfortran tool initialization. Defaults to using binary named gfortran
       as would be expected, and properly set's SHFORTRAN flags to include -fPIC
       where previously it was only doing so for the other fortran versions (F77,..)
+
+  From Jonathon Reinhart:
+    - Fix another instance of `int main()` in CheckLib() causing failures
+      when using -Wstrict-prototypes.
 
   From Mats Wichmann
     - C scanner's dictifyCPPDEFINES routine did not understand the possible
@@ -238,11 +301,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python stdlib types module.
     - TeX tests: skip tests that use makeindex or epstopdf not installed, or
       if `kpsewhich glossaries.sty` fails.
-
-
-  From Jonathon Reinhart:
-    - Fix another instance of `int main()` in CheckLib() causing failures
-      when using -Wstrict-prototypes.
+    - Added a .note.GNU-stack section to the test assembler files to
+      avoid the GNU linker issuing warnings for its absence.
+    - Eliminate more http: references (mostly in comments/docstrings where
+      they really weren't harmful). A few links labeled dead with no alt.
+    - Add JDK 21 LTS support
+    - Add a LIBLITERALPREFIX variable which can be set to the linker's
+      prefix for considering a library argument unmodified (e.g. for the
+      GNU linker, the ':' in '-l:libfoo.a'). Fixes Github issue #3951.
+    - Update PCH builder docs with some usage notes.
 
 RELEASE 4.5.2 -  Sun, 21 Mar 2023 14:08:29 -0700
 

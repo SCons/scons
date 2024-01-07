@@ -1078,7 +1078,7 @@ Sets construction variables for the TeX formatter and typesetter.
   <varlistentry id="t-textfile">
     <term>textfile</term>
     <listitem><para>
-Set &consvars; for the &b-Textfile; and &b-Substfile; builders.
+Set &consvars; for the &b-link-Textfile; and &b-link-Substfile; builders.
 </para>
 <para>Sets: &cv-link-FILE_ENCODING;, &cv-link-LINESEPARATOR;, &cv-link-SUBSTFILEPREFIX;, &cv-link-SUBSTFILESUFFIX;, &cv-link-TEXTFILEPREFIX;, &cv-link-TEXTFILESUFFIX;.</para><para>Uses: &cv-link-SUBST_DICT;.</para></listitem>
   </varlistentry>
@@ -1104,9 +1104,9 @@ provides &b-POTUpdate; builder to make  <literal>PO</literal>
   <varlistentry id="t-yacc">
     <term>yacc</term>
     <listitem><para>
-Sets construction variables for the &yacc; parse generator.
+Sets construction variables for the &yacc; parser generator.
 </para>
-<para>Sets: &cv-link-YACC;, &cv-link-YACCCOM;, &cv-link-YACCFLAGS;, &cv-link-YACCHFILESUFFIX;, &cv-link-YACCHXXFILESUFFIX;, &cv-link-YACCVCGFILESUFFIX;.</para><para>Uses: &cv-link-YACCCOMSTR;, &cv-link-YACCFLAGS;, &cv-link-YACC_GRAPH_FILE;, &cv-link-YACC_HEADER_FILE;.</para></listitem>
+<para>Sets: &cv-link-YACC;, &cv-link-YACCCOM;, &cv-link-YACCFLAGS;, &cv-link-YACCHFILESUFFIX;, &cv-link-YACCHXXFILESUFFIX;, &cv-link-YACCVCGFILESUFFIX;, &cv-link-YACC_GRAPH_FILE_SUFFIX;.</para><para>Uses: &cv-link-YACCCOMSTR;, &cv-link-YACCFLAGS;, &cv-link-YACC_GRAPH_FILE;, &cv-link-YACC_HEADER_FILE;.</para></listitem>
   </varlistentry>
   <varlistentry id="t-zip">
     <term>zip</term>
