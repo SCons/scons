@@ -42,12 +42,24 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       registry query that returns a path that does not exist.  Multiple invocation
       paths were not prepared to handle the MissingConfiguration exception.  The
       MissingConfiguration exception type was removed.
+    - The MSCommon module import was changed from a relative import to a top-level
+      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
+      msvs. Moving any of these tools that used relative imports to the scons site tools
+      folder would fail on import (i.e., the relative import paths become invalid when
+      moved).
+    - The detection of the msvc compiler executable (cl.exe) has been modified.  The
+      compiler detection no longer considers the host os environment path.  In addition,
+      existence of the msvc compiler executable is checked in the detection dictionary
+      and the scons ENV path before the detection dictionary is merged into the scons
+      ENV.  Different warnings are produced when the msvc compiler is not detected in the
+      detection dictionary based on whether or not an msvc compiler was detected in the
+      scons ENV path (i.e., already exists in the user's ENV path prior to detection).
     - For msvc version specifications without an 'Exp' suffix, an express installation
       is used when no other edition is detected for the msvc version.
-    - VS2015 Express (14.1Exp) may not have been detected. The registry keys written
+    - VS2015 Express (14.0Exp) may not have been detected. The registry keys written
       during installation appear to be different than for earlier express versions.
       VS2015 Express should be correctly detected now.
-    - VS2015 Express (14.1Exp) does not support the sdk version argument.  VS2015 Express
+    - VS2015 Express (14.0Exp) does not support the sdk version argument.  VS2015 Express
       does not support the store argument for target architectures other than x86.
       Script argument validation now takes into account these restrictions.
     - VS2015 BuildTools (14.0) does not support the sdk version argument and does not
@@ -60,11 +72,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       batch files will fail. The msvc detection logic now ignores SDK-only VS2010
       installations.  Similar protection is implemented for the sdk-only installs that
       populate the installation folder and registry keys for VS2008 (9.0), if necessary.
-    - The MSCommon module import was changed from a relative import to a top-level
-      absolute import in the following Microsoft tools: midl, mslib, mslink, mssdk, msvc,
-      msvs. Moving any of these tools that used relative imports to the scons site tools
-      folder would fail on import (i.e., the relative import paths become invalid when
-      moved).
     - For VS2005 (8.0) to VS2015 (14.0), vsvarsall.bat is employed to dispatch to a
       dependent batch file when configuring the msvc environment.  Previously, only the
       existence of the compiler executable was verified. In certain installations, the
@@ -88,13 +95,6 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       of the results from all vswhere executables).  There is a single invocation for
       each vswhere executable that processes the output for all installations.  Prior
       implementations called the vswhere executable for each supported msvc version.
-    - The detection of the msvc compiler executable (cl.exe) has been modified.  The
-      compiler detection no longer considers the host os environment path.  In addition,
-      existence of the msvc compiler executable is checked in the detection dictionary
-      and the scons ENV path before the detection dictionary is merged into the scons
-      ENV.  Different warnings are produced when the msvc compiler is not detected in the
-      detection dictionary based on whether or not an msvc compiler was detected in the
-      scons ENV path (i.e., already exists in the user's ENV path prior to detection).
     - Previously, the installed vcs list was constructed once and cached at runtime.  If
       a vswhere executable was specified via the construction variable VSWHERE and found
       additional msvc installations, the new installations were not reflected in the
