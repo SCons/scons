@@ -946,7 +946,7 @@ def _vswhere_user_path(pval):
 
         else:
 
-            # vswhere_norm = MSVC.Util.process_path(pval)
+            # TODO: vswhere_norm = MSVC.Util.normalize_path(pval)
             vswhere_norm = os.path.normcase(os.path.normpath(pval))
 
             tail = os.path.split(vswhere_norm)[-1]
@@ -968,7 +968,7 @@ def _vswhere_user_path(pval):
 # normalized default vswhere path
 
 _vswhere_paths_processed = [
-    MSVC.Util.process_path(pval)
+    MSVC.Util.normalize_path(pval)
     for pval in VSWHERE_PATHS
     if os.path.exists(pval)
 ]
@@ -1156,7 +1156,7 @@ def _update_vswhere_msvc_map(env):
             if not os.path.exists(vc_path):
                 continue
 
-            vc_root = MSVC.Util.process_path(vc_path)
+            vc_root = MSVC.Util.normalize_path(vc_path)
             if vc_root in _VSWhere.seen_root:
                 continue
             _VSWhere.seen_root.add(vc_root)
