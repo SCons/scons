@@ -347,7 +347,7 @@ class ActionTestCase(unittest.TestCase):
         """Test the Action() factory's creation of ListAction objects."""
 
         a1 = SCons.Action.Action(["x", "y", "z", ["a", "b", "c"]])
-        assert isinstance(a1, SCons.Action.ListAction), a1
+        assert isinstance(a1, SCons.Action.ListAction), f"a1 is {type(a1)}"
         assert a1.varlist == (), a1.varlist
         assert isinstance(a1.list[0], SCons.Action.CommandAction), a1.list[0]
         assert a1.list[0].cmd_list == "x", a1.list[0].cmd_list
@@ -359,7 +359,7 @@ class ActionTestCase(unittest.TestCase):
         assert a1.list[3].cmd_list == ["a", "b", "c"], a1.list[3].cmd_list
 
         a2 = SCons.Action.Action("x\ny\nz")
-        assert isinstance(a2, SCons.Action.ListAction), a2
+        assert isinstance(a2, SCons.Action.ListAction), f"a2 is {type(a2)}"
         assert a2.varlist == (), a2.varlist
         assert isinstance(a2.list[0], SCons.Action.CommandAction), a2.list[0]
         assert a2.list[0].cmd_list == "x", a2.list[0].cmd_list
@@ -372,7 +372,7 @@ class ActionTestCase(unittest.TestCase):
             pass
 
         a3 = SCons.Action.Action(["x", foo, "z"])
-        assert isinstance(a3, SCons.Action.ListAction), a3
+        assert isinstance(a3, SCons.Action.ListAction), f"a3 is {type(a3)}"
         assert a3.varlist == (), a3.varlist
         assert isinstance(a3.list[0], SCons.Action.CommandAction), a3.list[0]
         assert a3.list[0].cmd_list == "x", a3.list[0].cmd_list
@@ -382,7 +382,7 @@ class ActionTestCase(unittest.TestCase):
         assert a3.list[2].cmd_list == "z", a3.list[2].cmd_list
 
         a4 = SCons.Action.Action(["x", "y"], strfunction=foo)
-        assert isinstance(a4, SCons.Action.ListAction), a4
+        assert isinstance(a4, SCons.Action.ListAction), f"a4 is {type(a4)}"
         assert a4.varlist == (), a4.varlist
         assert isinstance(a4.list[0], SCons.Action.CommandAction), a4.list[0]
         assert a4.list[0].cmd_list == "x", a4.list[0].cmd_list
@@ -392,7 +392,7 @@ class ActionTestCase(unittest.TestCase):
         assert a4.list[1].strfunction == foo, a4.list[1].strfunction
 
         a5 = SCons.Action.Action("x\ny", strfunction=foo)
-        assert isinstance(a5, SCons.Action.ListAction), a5
+        assert isinstance(a5, SCons.Action.ListAction), f"a5 is {type(a5)}"
         assert a5.varlist == (), a5.varlist
         assert isinstance(a5.list[0], SCons.Action.CommandAction), a5.list[0]
         assert a5.list[0].cmd_list == "x", a5.list[0].cmd_list
@@ -400,6 +400,9 @@ class ActionTestCase(unittest.TestCase):
         assert isinstance(a5.list[1], SCons.Action.CommandAction), a5.list[1]
         assert a5.list[1].cmd_list == "y", a5.list[1].cmd_list
         assert a5.list[1].strfunction == foo, a5.list[1].strfunction
+
+        a6 = SCons.Action.Action(["action with space"])
+        assert isinstance(a6, SCons.Action.CommandAction), f"a6 is {type(a6)}"
 
     def test_CommandGeneratorAction(self) -> None:
         """Test the Action factory's creation of CommandGeneratorAction objects."""
@@ -1544,6 +1547,7 @@ class CommandGeneratorActionTestCase(unittest.TestCase):
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
         }
 
         meth_matches = [
@@ -1725,6 +1729,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
 
         }
 
@@ -1737,6 +1742,7 @@ class FunctionActionTestCase(unittest.TestCase):
             (3, 10): bytearray(b'1, 1, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'1, 1, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'1, 1, 0, 0,(),(),(\x95\x00g\x00),(),()'),
         }
 
         def factory(act, **kw):
@@ -1978,6 +1984,7 @@ class LazyActionTestCase(unittest.TestCase):
             (3, 10): bytearray(b'0, 0, 0, 0,(),(),(d\x00S\x00),(),()'),
             (3, 11): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00d\x00S\x00),(),()'),
             (3, 12): bytearray(b'0, 0, 0, 0,(),(),(\x97\x00y\x00),(),()'),
+            (3, 13): bytearray(b'0, 0, 0, 0,(),(),(\x95\x00g\x00),(),()'),
         }
 
         meth_matches = [
@@ -2041,6 +2048,7 @@ class ActionCallerTestCase(unittest.TestCase):
             (3, 10): b'd\x00S\x00',
             (3, 11): b'\x97\x00d\x00S\x00',
             (3, 12): b'\x97\x00y\x00',
+            (3, 13): b'\x95\x00g\x00',
         }
 
         with self.subTest():
@@ -2247,6 +2255,7 @@ class ObjectContentsTestCase(unittest.TestCase):
             ),
             (3, 11): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
             (3, 12): (bytearray(b'3, 3, 0, 0,(),(),(\x97\x00|\x00S\x00),(),()'),),
+            (3, 13): (bytearray(b'3, 3, 0, 0,(),(),(\x95\x00U\x00$\x00),(),()'),),
         }
 
         c = SCons.Action._function_contents(func1)
@@ -2288,6 +2297,9 @@ class ObjectContentsTestCase(unittest.TestCase):
             (3, 12): bytearray(
                 b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x97\x00d\x01|\x00_\x00\x00\x00\x00\x00\x00\x00\x00\x00d\x02|\x00_\x01\x00\x00\x00\x00\x00\x00\x00\x00y\x00),(),(),2, 2, 0, 0,(),(),(\x97\x00y\x00),(),()}}{{{a=a,b=b}}}"
             ),
+            (3, 13): bytearray(
+                b"{TestClass:__main__}[[[(<class \'object\'>, ()), [(<class \'__main__.TestClass\'>, (<class \'object\'>,))]]]]{{1, 1, 0, 0,(a,b),(a,b),(\x95\x00S\x01U\x00l\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x02U\x00l\x01\x00\x00\x00\x00\x00\x00\x00\x00g\x00),(),(),2, 2, 0, 0,(),(),(\x95\x00g\x00),(),()}}{{{a=a,b=b}}}"
+            ),
         }
 
         self.assertEqual(c, expected[sys.version_info[:2]])
@@ -2323,6 +2335,9 @@ class ObjectContentsTestCase(unittest.TestCase):
             ),
             (3, 12): bytearray(
                 b'0, 0, 0, 0,(Hello, World!),(print),(\x97\x00\x02\x00e\x00d\x00\xab\x01\x00\x00\x00\x00\x00\x00\x01\x00y\x01)'
+            ),
+            (3, 13): bytearray(
+                b'0, 0, 0, 0,(Hello, World!),(print),(\x95\x00\\\x00"\x00S\x005\x01\x00\x00\x00\x00\x00\x00 \x00g\x01)'
             ),
         }
 
