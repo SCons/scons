@@ -656,7 +656,6 @@ def msvc_version_uwp_is_supported(msvc_version, target_arch=None, env=None):
 # reset cache
 
 def reset() -> None:
-    global _cache_installed_vcs
     global _cache_vcver_kind_map
     global _cache_pdir_vswhere_kind
     global _cache_pdir_registry_kind
@@ -664,7 +663,6 @@ def reset() -> None:
 
     debug('')
 
-    _cache_installed_vcs = None
     _cache_vcver_kind_map = {}
     _cache_pdir_vswhere_kind = {}
     _cache_pdir_registry_kind = {}
