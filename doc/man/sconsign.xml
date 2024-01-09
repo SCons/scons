@@ -1,28 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
-
-  __COPYRIGHT__
-
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-
-  The above copyright notice and this permission notice shall be included
-  in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+SPDX-FileCopyrightText: Copyright The SCons Foundation (https://scons.org)
+SPDX-License-Identifier: MIT
 -->
+
+<!DOCTYPE reference [
+<!ENTITY % version SYSTEM "../version.xml">
+%version;
+<!ENTITY % scons SYSTEM '../scons.mod'>
+%scons;
+]>
 
 <refentry id='sconsign1'
           xmlns="http://www.scons.org/dbxsd/v1.0"
@@ -48,12 +36,13 @@
 </refsynopsisdiv>
 
 
-<refsect1 id='description'><title>DESCRIPTION</title>
+<refsect1 id='description'>
+<title>DESCRIPTION</title>
 <para>
 Displays the contents of one or more
-<firstterm>sconsign files</firstterm>,
-the signature database files
-used by the <application>SCons</application> build tool.
+<firstterm>sconsign</firstterm> files,
+the signature/dependency database
+used by the &SCons; build tool.
 </para>
 
 <para>By default,
@@ -64,26 +53,34 @@ Without options,
 individual dependency entries are printed in the following format:</para>
 
 <screen>
-depfile: signature timestamp length
-        implicit_dependency_1: content_signature timestamp length
-        implicit_dependency_2: content_signature timestamp length
+depfile: csig timestamp length
+        implicit_dependency_1: csig timestamp length
+        implicit_dependency_2: csig timestamp length
         ...
-        action_signature [action string]
+        bactsig [action string]
 </screen>
 
-<para><emphasis role="bold">None</emphasis>
+<para>
+<emphasis role="bold">csig</emphasis>
+is the <firstterm>content signature</firstterm>,
+a hash of the file's contents.
+<emphasis role="bold">bactsig</emphasis>
+is the <firstterm>build action signature</firstterm>,
+a hash of the command line or other build action
+used to build a target.
+<emphasis role="bold">None</emphasis>
 is printed in place of any missing timestamp,
- <firstterm>content signature</firstterm>
-(<emphasis role="bold">csig</emphasis>)
-or
-<firstterm>build action signature</firstterm>
+<emphasis role="bold">csig</emphasis>,
+or <emphasis role="bold">bactsig</emphasis>
 values for any entry
 or any of its dependencies.
 If the entry has no implicit dependencies,
 or no build action,
-those lines are omitted.</para>
+the corresponding lines are omitted.
+</para>
 
-<para>By default,
+<para>
+By default,
 <command>sconsign</command>
 assumes that any
 <replaceable>file</replaceable>
@@ -92,14 +89,13 @@ arguments that end with a
 suffix contains
 signature entries for
 more than one directory
-(that is,
-was specified by the
+(that is, was specified by the
 <function>SConsignFile</function>
-function).
+&SCons; function).
 Any
 <replaceable>file</replaceable>
 argument that has no suffix
-is assumed to be an old-style
+is assumed to be an old-style (deprecated)
 sconsign file containing the signature entries
 for a single directory.
 If neither of those is true,
@@ -299,7 +295,8 @@ for all entries or the specified entries.</para>
 <refsect1 id='see_also'>
 <title>SEE ALSO</title>
 <para>
-<command>scons</command>,
+The &SCons; reference (manpage) at
+<ulink url="https://scons.org/doc/production/HTML/scons-man.html"/>,
 the SCons User Guide at
 <ulink url="https://scons.org/doc/production/HTML/scons-user.html"/>,
 the SCons source code

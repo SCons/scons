@@ -56,6 +56,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Mats Wichmann:
     - Add support for Python 3.13 (as of alpha 2). So far only affects
       expected bytecodes in ActionTests.py.
+    - sconsign cleanup - remove some dead code, minor manpage tweaks.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

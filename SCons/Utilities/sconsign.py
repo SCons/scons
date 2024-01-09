@@ -51,24 +51,6 @@ def my_whichdb(filename):
     return whichdb(filename)
 
 
-def my_import(mname):
-    """Import database module.
-
-    This was used if the module was *not* SCons.dblite, to allow
-    for programmatic importing.  It is no longer used, in favor of
-    importlib.import_module, and will be removed eventually.
-    """
-    import imp
-
-    if '.' in mname:
-        i = mname.rfind('.')
-        parent = my_import(mname[:i])
-        fp, pathname, description = imp.find_module(mname[i+1:], parent.__path__)
-    else:
-        fp, pathname, description = imp.find_module(mname)
-    return imp.load_module(mname, fp, pathname, description)
-
-
 class Flagger:
     default_value = 1
 
@@ -449,8 +431,6 @@ Options:
 
                         dbm = SCons.dblite
                         # Ensure that we don't ignore corrupt DB files,
-                        # this was handled by calling my_import('SCons.dblite')
-                        # again in earlier versions...
                         SCons.dblite.IGNORE_CORRUPT_DBFILES = False
                 except ImportError:
                     sys.stderr.write("sconsign: illegal file format `%s'\n" % a)
@@ -492,8 +472,6 @@ Options:
 
                     dbm = SCons.dblite
                     # Ensure that we don't ignore corrupt DB files,
-                    # this was handled by calling my_import('SCons.dblite')
-                    # again in earlier versions...
                     SCons.dblite.IGNORE_CORRUPT_DBFILES = False
                 Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
             else:
