@@ -61,6 +61,11 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       expected bytecodes in ActionTests.py.
 
 
+  From Andrew Morrow:
+    - The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+      and the old scheduler is opt-in under `--experimental=legacysched`. Additionally,
+      the new scheduler is now used for -j1 builds as well.
+
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
   From Max Bachmann:
@@ -7950,4 +7955,3 @@ A brief overview of important functionality available in release 0.01:
   - Linux packages available in RPM and Debian format.
 
   - Windows installer available.
-

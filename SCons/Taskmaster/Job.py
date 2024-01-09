@@ -74,7 +74,7 @@ class Jobs:
     def __init__(self, num, taskmaster) -> None:
         """
         Create 'num' jobs using the given taskmaster. The exact implementation
-        used varies with the number of jobs requested and the state of the `tm_v2` flag
+        used varies with the number of jobs requested and the state of the `legacysched` flag
         to `--experimental`.
         """
 
@@ -88,13 +88,14 @@ class Jobs:
             stack_size = default_stack_size
 
         experimental_option = GetOption('experimental') or []
-        if 'tm_v2' in experimental_option:
-            self.job = NewParallel(taskmaster, num, stack_size)
-        else:
+        if 'legacysched' in experimental_option:
             if num > 1:
                 self.job = LegacyParallel(taskmaster, num, stack_size)
             else:
                 self.job = Serial(taskmaster)
+        else:
+            self.job = NewParallel(taskmaster, num, stack_size)
+
         self.num_jobs = num
 
     def run(self, postfunc=lambda: None) -> None:
@@ -617,7 +618,7 @@ class NewParallel:
                     results_queue, self.results_queue = self.results_queue, results_queue
 
                 if self.trace:
-                    self.trace_message("Found {len(results_queue)} completed tasks to process")
+                    self.trace_message(f"Found {len(results_queue)} completed tasks to process")
                 for (rtask, rresult) in results_queue:
                     if rresult:
                         rtask.executed()

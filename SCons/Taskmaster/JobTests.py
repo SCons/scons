@@ -525,14 +525,17 @@ class SerialTaskTest(_SConsTaskTest):
         """test serial jobs with actual Taskmaster and Task"""
         self._test_seq(1)
 
+        # Now run test with LegacyParallel
+        OptionsParser.values.experimental=['legacysched']
+        self._test_seq(1)
 
 class ParallelTaskTest(_SConsTaskTest):
     def runTest(self) -> None:
         """test parallel jobs with actual Taskmaster and Task"""
         self._test_seq(num_jobs)
 
-        # Now run test with NewParallel() instead of LegacyParallel
-        OptionsParser.values.experimental=['tm_v2']
+        # Now run test with LegacyParallel
+        OptionsParser.values.experimental=['legacysched']
         self._test_seq(num_jobs)
 
 
