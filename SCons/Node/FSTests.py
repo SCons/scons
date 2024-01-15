@@ -29,6 +29,7 @@ import time
 import unittest
 import shutil
 import stat
+from typing import Optional
 
 from TestCmd import TestCmd, IS_WINDOWS
 
@@ -37,6 +38,7 @@ import SCons.Node.FS
 import SCons.Util
 import SCons.Warnings
 import SCons.Environment
+from SCons.Util.sctyping import ExecutorType
 
 built_it = None
 
@@ -319,7 +321,7 @@ class VariantDirTestCase(unittest.TestCase):
             def __init__(self, dir_made) -> None:
                 self.dir_made = dir_made
 
-            def __call__(self, target, source, env, executor=None) -> None:
+            def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> None:
                 if executor:
                     target = executor.get_all_targets()
                     source = executor.get_all_sources()
@@ -2485,7 +2487,7 @@ class EntryTestCase(_tempdirTestCase):
                             result += a
                         return result
 
-                    def signature(self, executor):
+                    def signature(self, executor: ExecutorType):
                         return self.val + 222
 
                 self.module = M(val)
@@ -3576,7 +3578,7 @@ class prepareTestCase(unittest.TestCase):
             def __init__(self, dir_made) -> None:
                 self.dir_made = dir_made
 
-            def __call__(self, target, source, env, executor=None) -> None:
+            def __call__(self, target, source, env, executor: Optional[ExecutorType] = None) -> None:
                 if executor:
                     target = executor.get_all_targets()
                     source = executor.get_all_sources()
