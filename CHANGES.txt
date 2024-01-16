@@ -53,6 +53,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
 
+  From Prabhu S. Khalsa:
+    - Fix typo in user documentation (issue #4458)
+
   From Mats Wichmann:
     - Add support for Python 3.13 (as of alpha 2). So far only affects
       expected bytecodes in ActionTests.py.
