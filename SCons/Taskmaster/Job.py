@@ -474,7 +474,7 @@ class NewParallel:
 
     def __init__(self, taskmaster, num, stack_size) -> None:
         self.taskmaster = taskmaster
-        self.num_workers = num - 1
+        self.num_workers = num
         self.stack_size = stack_size
         self.interrupted = InterruptState()
         self.workers = []
@@ -484,7 +484,7 @@ class NewParallel:
         # also protects access to our state that gets updated
         # concurrently. The `can_search_cv` is associated with
         # this mutex.
-        self.tm_lock = (threading.Lock if self.num_workers > 0 else NewParallel.FakeLock)()
+        self.tm_lock = (threading.Lock if self.num_workers > 1 else NewParallel.FakeLock)()
 
         # Guarded under `tm_lock`.
         self.jobs = 0
@@ -493,11 +493,11 @@ class NewParallel:
         # The `can_search_cv` is used to manage a leader /
         # follower pattern for access to the taskmaster, and to
         # awaken from stalls.
-        self.can_search_cv = (threading.Condition if self.num_workers > 0 else NewParallel.FakeCondition)(self.tm_lock)
+        self.can_search_cv = (threading.Condition if self.num_workers > 1 else NewParallel.FakeCondition)(self.tm_lock)
 
         # The queue of tasks that have completed execution. The
         # next thread to obtain `tm_lock`` will retire them.
-        self.results_queue_lock = (threading.Lock if self.num_workers > 0 else NewParallel.FakeLock)()
+        self.results_queue_lock = (threading.Lock if self.num_workers > 1 else NewParallel.FakeLock)()
         self.results_queue = []
 
         if self.taskmaster.trace:
@@ -519,10 +519,13 @@ class NewParallel:
         # print('%-15s %s' % (method_name, message))
 
     def start(self) -> None:
-        self._start_workers()
-        for worker in self.workers:
-            worker.join()
-        self.workers = []
+        if self.num_workers == 1:
+            self._work()
+        else:
+            self._start_workers()
+            for worker in self.workers:
+                worker.join()
+                self.workers = []
         self.taskmaster.cleanup()
 
     def _start_workers(self) -> None:
@@ -530,7 +533,6 @@ class NewParallel:
         for _ in range(self.num_workers):
             self.workers.append(NewParallel.Worker(self))
         self._restore_stack_size(prev_size)
-        self._work()
 
     def _adjust_stack_size(self):
         try:
