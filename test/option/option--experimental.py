@@ -37,7 +37,7 @@ tests = [
     ('.', []),
     ('--experimental=ninja', ['ninja']),
     ('--experimental=legacysched', ['legacysched']),
-    ('--experimental=all', ['ninja', 'legacysched', 'transporter', 'warp_speed']),
+    ('--experimental=all', ['legacysched', 'ninja', 'transporter', 'warp_speed']),
     ('--experimental=none', []),
 ]
 
@@ -51,7 +51,7 @@ Experimental=%s
 test.run(arguments='--experimental=warp_drive',
          stderr="""usage: scons [OPTIONS] [VARIABLES] [TARGETS]
 
-SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','legacysched',ninja','transporter','warp_speed')
+SCons Error: option --experimental: invalid choice: 'warp_drive' (choose from 'all','none','legacysched','ninja','transporter','warp_speed')
 """,
          status=2)
 
