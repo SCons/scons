@@ -56,15 +56,15 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
   From Prabhu S. Khalsa:
     - Fix typo in user documentation (issue #4458)
 
-  From Mats Wichmann:
-    - Add support for Python 3.13 (as of alpha 2). So far only affects
-      expected bytecodes in ActionTests.py.
-
-
   From Andrew Morrow:
     - The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
       and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
       the new scheduler is now used for -j1 builds as well.
+
+  From Mats Wichmann:
+    - Add support for Python 3.13 (as of alpha 2). So far only affects
+      expected bytecodes in ActionTests.py.
+
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
 
