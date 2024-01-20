@@ -74,7 +74,7 @@ class Jobs:
     def __init__(self, num, taskmaster) -> None:
         """
         Create 'num' jobs using the given taskmaster. The exact implementation
-        used varies with the number of jobs requested and the state of the `legacysched` flag
+        used varies with the number of jobs requested and the state of the `legacy_sched` flag
         to `--experimental`.
         """
 
@@ -88,7 +88,7 @@ class Jobs:
             stack_size = default_stack_size
 
         experimental_option = GetOption('experimental') or []
-        if 'legacysched' in experimental_option:
+        if 'legacy_sched' in experimental_option:
             if num > 1:
                 self.job = LegacyParallel(taskmaster, num, stack_size)
             else:

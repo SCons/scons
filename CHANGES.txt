@@ -63,7 +63,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
 
   From Andrew Morrow:
     - The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
-      and the old scheduler is opt-in under `--experimental=legacysched`. Additionally,
+      and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
       the new scheduler is now used for -j1 builds as well.
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

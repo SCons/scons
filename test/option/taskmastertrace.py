@@ -52,7 +52,7 @@ Copy("Tfile.out", "Tfile.mid")
 """)
 
 # Test LegacyParallel Job implementation
-test.run(arguments='--experimental=legacysched --taskmastertrace=trace.out .', stdout=expect_stdout)
+test.run(arguments='--experimental=legacy_sched --taskmastertrace=trace.out .', stdout=expect_stdout)
 test.must_match_file('trace.out', 'taskmaster_expected_file_1.txt', mode='r')
 
 # Test NewParallel Job implementation
