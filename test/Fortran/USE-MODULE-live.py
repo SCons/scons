@@ -36,12 +36,23 @@ gets smarter.
 
 import TestSCons
 
+from SCons.Tool.gfortran import compilers
+
 _python_ = TestSCons._python_
 _exe = TestSCons._exe
 
 test = TestSCons.TestSCons()
-if not test.where_is('gfortran'):
-    test.skip_test("Could not find 'gfortran', skipping test.\n")
+
+# Handle multiple possible gfortran binary names
+found = False
+for c in compilers:
+    if test.where_is(c):
+        found = True
+        break
+
+if not found:
+    compiler_list = " or ".join(compilers)
+    test.skip_test(f"Could not find {compiler_list}, skipping test.\n")
 
 test.file_fixture(['fixture-mod', 'SConstruct'])
 test.file_fixture(['fixture-mod', 'main.f90'], dstfile=['src', 'main.f90'])
