@@ -44,6 +44,7 @@ jobs:
           static: 0
 
       - name: Set up gfortran/gcc on MacOS
+        if: matrix.os == 'macos-latest'
         run: |
             brew update
             brew install gcc
