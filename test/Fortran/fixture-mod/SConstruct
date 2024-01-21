@@ -3,12 +3,10 @@ import sys
 if sys.platform == "win32":
     tool_list = ['mingw', 'gfortran', 'gnulink']
 else:
-    tool_list = ['default']
+    tool_list = ['gfortran', 'gnulink']
 
 env = Environment(
     tools=tool_list,
-    F90='gfortran',
-    LINK='gfortran',
     LINKFLAGS='',
     FORTRANMODDIR='fortran_mods',
 )
