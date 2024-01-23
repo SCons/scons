@@ -42,7 +42,7 @@ test.write('Tfile.in', "Tfile.in\n")
 
 expect_stdout = test.wrap_stdout(test.read('taskmaster_expected_stdout_1.txt', mode='r'))
 
-test.run(arguments='--taskmastertrace=- .', stdout=expect_stdout)
+test.run(arguments='--experimental=legacy_sched --taskmastertrace=- .', stdout=expect_stdout)
 
 test.run(arguments='-c .')
 
