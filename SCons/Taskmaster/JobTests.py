@@ -285,6 +285,50 @@ class ParallelTestCase(JobTestCase):
         self.assertFalse(taskmaster.num_failed,
                     "some task(s) failed to execute")
 
+        # Verify that parallel jobs will pull all of the completed tasks
+        # out of the queue at once, instead of one by one.  We do this by
+        # replacing the default ThreadPool class with one that records the
+        # order in which tasks are put() and get() to/from the pool, and
+        # which sleeps a little bit before call get() to let the initial
+        # tasks complete and get their notifications on the resultsQueue.
+
+        class SleepTask(Task):
+            def _do_something(self) -> None:
+                time.sleep(0.01)
+
+        global SaveThreadPool
+        SaveThreadPool = SCons.Taskmaster.Job.ThreadPool
+
+        class WaitThreadPool(SaveThreadPool):
+            def put(self, task):
+                ThreadPoolCallList.append('put(%s)' % task.i)
+                return SaveThreadPool.put(self, task)
+            def get(self):
+                time.sleep(0.05)
+                result = SaveThreadPool.get(self)
+                ThreadPoolCallList.append('get(%s)' % result[0].i)
+                return result
+
+        SCons.Taskmaster.Job.ThreadPool = WaitThreadPool
+
+        try:
+            taskmaster = Taskmaster(3, self, SleepTask)
+            jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
+            jobs.run()
+
+            # The key here is that we get(1) and get(2) from the
+            # resultsQueue before we put(3), but get(1) and get(2) can
+            # be in either order depending on how the first two parallel
+            # tasks get scheduled by the operating system.
+            expect = [
+                ['put(1)', 'put(2)', 'get(1)', 'get(2)', 'put(3)', 'get(3)'],
+                ['put(1)', 'put(2)', 'get(2)', 'get(1)', 'put(3)', 'get(3)'],
+            ]
+            assert ThreadPoolCallList in expect, ThreadPoolCallList
+
+        finally:
+            SCons.Taskmaster.Job.ThreadPool = SaveThreadPool
+
 class SerialTestCase(unittest.TestCase):
     def runTest(self) -> None:
         """test a serial job"""
