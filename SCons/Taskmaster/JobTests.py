@@ -313,7 +313,9 @@ class ParallelTestCase(JobTestCase):
 
         try:
             taskmaster = Taskmaster(3, self, SleepTask)
+            OptionsParser.values.experimental.append('legacy_sched')
             jobs = SCons.Taskmaster.Job.Jobs(2, taskmaster)
+            OptionsParser.values.experimental.pop()
             jobs.run()
 
             # The key here is that we get(1) and get(2) from the
