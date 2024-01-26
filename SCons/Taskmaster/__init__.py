@@ -244,9 +244,8 @@ class Task(ABC):
                         SCons.Warnings.warn(SCons.Warnings.CacheCleanupErrorWarning,
                             "Failed copying all target files from cache, Error while attempting to remove file %s retrieved from cache: %s" % (t.get_internal_path(), e))
                 self.targets[0].build()
-            else:
-                for t in cached_targets:
-                    t.cached = 1
+                for t in self.targets:
+                    t.push_to_cache()
         except SystemExit:
             exc_value = sys.exc_info()[1]
             raise SCons.Errors.ExplicitExit(self.targets[0], exc_value.code)
@@ -299,8 +298,6 @@ class Task(ABC):
                 for side_effect in t.side_effects:
                     side_effect.set_state(NODE_NO_STATE)
                 t.set_state(NODE_EXECUTED)
-                if not t.cached:
-                    t.push_to_cache()
                 t.built()
                 t.visited()
                 if (not print_prepare and

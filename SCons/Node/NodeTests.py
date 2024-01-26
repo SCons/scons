@@ -1296,7 +1296,6 @@ class NodeTestCase(unittest.TestCase):
         n.includes = 'testincludes'
         n.Tag('found_includes', {'testkey':'testvalue'})
         n.implicit = 'testimplicit'
-        n.cached = 1
 
         x = MyExecutor()
         n.set_executor(x)
@@ -1304,7 +1303,6 @@ class NodeTestCase(unittest.TestCase):
         n.clear()
 
         assert n.includes is None, n.includes
-        assert n.cached == 0, n.cached
         assert x.cleaned_up
 
     def test_get_subst_proxy(self) -> None:

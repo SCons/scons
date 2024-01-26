@@ -588,7 +588,6 @@ class Node(metaclass=NoSlotsPyPy):
         self.pseudo = False
         self.noclean = 0
         self.nocache = 0
-        self.cached = 0 # is this node pulled from cache?
         self.always_build = None
         self.includes = None
         self.attributes = self.Attrs() # Generic place to stick information about the Node.
@@ -864,7 +863,6 @@ class Node(metaclass=NoSlotsPyPy):
                 delattr(self, attr)
             except AttributeError:
                 pass
-        self.cached = 0
         self.includes = None
 
     def clear_memoized_values(self) -> None:
