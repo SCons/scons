@@ -176,7 +176,7 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         try:
             with open(tmpFileStderrName, "rb") as tmpFileStderr:
                 errors = tmpFileStderr.read()
-                stdout.write(errors.decode(stderr.encoding, "replace"))
+                stderr.write(errors.decode(stderr.encoding, "replace"))
             os.remove(tmpFileStderrName)
         except OSError:
             pass
