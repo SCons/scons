@@ -70,7 +70,6 @@ test_headers = ['fi.f', 'never.f',
                 'd1/f1.f', 'd1/f2.f', 'd1/f3.f', 'd1/fi.f',
                 'd1/d2/f1.f', 'd1/d2/f2.f', 'd1/d2/f3.f',
                 'd1/d2/f4.f', 'd1/d2/fi.f']
-
 for h in test_headers:
     test.write(h, "\n")
 
@@ -160,12 +159,17 @@ C     INCLUDE 'fi.f'
       USE  mod07;USE  mod08; USE mod09 ;USE mod10 ; USE mod11  ! Test various semicolon placements
       use mod12 ;use mod13! Test comment at end of line
 
+!  Test handling of module use that should be excluded.
+!  Note interleaving of 'use modi` with numbered modules that should be found,
+!  so by looking at the unsorted scanner module list, we can see *which*
+!  instance of 'modi' was picked up.  known regex deficiencies are noted.
+
 !     USE modi
-!     USE modia ; use modib    ! Scanner regexp will only ignore the first - this is a deficiency in the regexp
+!     USE modia ; use modib    ! regex deficiency: modib picked up
     ! USE modic ; ! use modid  ! Scanner regexp should ignore both modules
-      USE mod14 !; USE modi    ! Only ignore the second
-      USE mod15!;USE modi
-      USE mod16  !  ;  USE  modi
+      USE mod14 !; USE modi    ! regex deficiency: modi picked up
+      USE mod15!;USE modi      ! regex deficiency: modi picked up
+      USE mod16  !  ;  USE  modi ! regex deficiency: modi picked up
 
 !  Test semicolon syntax - use various spacings
       USE :: mod17
@@ -177,8 +181,7 @@ C     INCLUDE 'fi.f'
 
 USE mod25  ! Test USE statement at the beginning of line
 
-
-; USE modi   ! Scanner should ignore this since it isn't valid syntax
+; USE modi   ! Scanner should ignore this since it isn't valid syntax (deficiency)
       USEmodi   ! No space in between USE and module name - ignore it
       USE mod01   ! This one is a duplicate - there should only be one dependency to it.
 
@@ -186,12 +189,8 @@ USE mod25  ! Test USE statement at the beginning of line
       END
 """)
 
-test_modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
-                'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
-                'mod11.mod', 'mod12.mod', 'mod13.mod', 'mod14.mod', 'mod15.mod',
-                'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
-                'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod']
-
+# TODO: not really needed as we don't scan for modules any more. Leave for now.
+test_modules = [f"mod{i:02}.mod" for i in range(1, 26)]
 for m in test_modules:
     test.write(m, "\n")
 
@@ -205,14 +204,23 @@ class DummyEnvironment:
     def __init__(self, listCppPath) -> None:
         self.path = listCppPath
         self.fs = SCons.Node.FS.FS(test.workpath(''))
+        self._data = {
+            'FORTRANPATH': self.path,
+            'FORTRANMODSUFFIX': '.mod',
+            'FORTRANMODDIR': '',
+        }
 
     def Dictionary(self, *args):
         if not args:
-            return {'FORTRANPATH': self.path, 'FORTRANMODSUFFIX': ".mod"}
-        elif len(args) == 1 and args[0] == 'FORTRANPATH':
-            return self.path
-        else:
-            raise KeyError("Dummy environment only has FORTRANPATH attribute.")
+            return self._data
+        if len(args) == 1:
+            if args[0] == 'FORTRANPATH':
+                return self._data['FORTRANPATH']
+            if args[0] == 'FORTRANMODSUFFIX':
+                return self._data['FORTRANMODSUFFIX']
+            if args[0] == 'FORTRANMODDIR':
+                return self._data['FORTRANMODDIR']
+        raise KeyError("Dummy environment only sets FORTRANPATH, FORTRANMODSUFFIX, FORTRANMODDIR attributes.")
 
     def __contains__(self, key) -> bool:
         return key in self.Dictionary()
@@ -252,7 +260,7 @@ class DummyEnvironment:
 def deps_match(self, deps, headers) -> None:
     scanned = list(map(os.path.normpath, list(map(str, deps))))
     expect = list(map(os.path.normpath, headers))
-    self.assertTrue(scanned == expect, "expect %s != scanned %s" % (expect, scanned))
+    self.assertEqual(expect, scanned)
 
 
 # define some tests:
@@ -304,7 +312,7 @@ class FortranScannerTestCase4(unittest.TestCase):
         deps = s(env.File('fff1.f'), env, path)
         headers = ['d1/f1.f', 'd1/f2.f']
         deps_match(self, deps, headers)
-        test.write(['d1', 'f2.f'], "\n")
+        test.write(['d1', 'f2.f'], "\n")  # "global", restore it
 
 
 class FortranScannerTestCase5(unittest.TestCase):
@@ -424,11 +432,11 @@ class FortranScannerTestCase12(unittest.TestCase):
         env.fs.chdir(env.Dir('include'))
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
-        test.write('include/fff4.f', test.read('fff4.f'))
+        test.write(['include', 'fff4.f'], test.read('fff4.f'))
         deps = s(env.File('#include/fff4.f'), env, path)
         env.fs.chdir(env.Dir(''))
         deps_match(self, deps, ['f4.f'])
-        test.unlink('include/fff4.f')
+        test.unlink(['include', 'fff4.f'])
 
 
 class FortranScannerTestCase13(unittest.TestCase):
@@ -488,31 +496,20 @@ class FortranScannerTestCase15(unittest.TestCase):
         deps = s(env.File('fff1.f'), env, path)
         headers = ['d1/f1.f', 'd1/f2.f']
         deps_match(self, deps, headers)
-        test.write(['d1', 'f2.f'], "\n")
+        test.write(['d1', 'f2.f'], "\n")  # "global", restore it
 
 
 class FortranScannerTestCase16(unittest.TestCase):
     def runTest(self) -> None:
-        test.write('f1.f', "\n")
-        test.write('f2.f', "\n")
-        test.write('f3.f', "\n")
-        test.write('f4.f', "\n")
-        test.write('f5.f', "\n")
-        test.write('f6.f', "\n")
-        test.write('f7.f', "\n")
-        test.write('f8.f', "\n")
-        test.write('f9.f', "\n")
-        test.write('f10.f', "\n")
+        headers = [f"f{i}.f" for i in range(1, 10)]
+        for header in headers:
+            test.write(header, "\n")
         env = DummyEnvironment([test.workpath('modules')])
         s = SCons.Scanner.Fortran.FortranScan()
         path = s.path(env)
         deps = s(env.File('fff90a.f90'), env, path)
-        headers = ['f1.f', 'f2.f', 'f3.f', 'f4.f', 'f5.f', 'f6.f', 'f7.f', 'f8.f', 'f9.f']
-        modules = ['mod01.mod', 'mod02.mod', 'mod03.mod', 'mod04.mod', 'mod05.mod',
-                   'mod06.mod', 'mod07.mod', 'mod08.mod', 'mod09.mod', 'mod10.mod',
-                   'mod11.mod', 'mod12.mod', 'mod13.mod', 'mod14.mod', 'mod15.mod',
-                   'mod16.mod', 'mod17.mod', 'mod18.mod', 'mod19.mod', 'mod20.mod',
-                   'mod21.mod', 'mod22.mod', 'mod23.mod', 'mod24.mod', 'mod25.mod', 'modules/use.mod']
+        modules = [f"mod{i:02}.mod" for i in range(1, 26)]
+        modules += ['modules/use.mod']
         deps_expected = headers + modules
         deps_match(self, deps, deps_expected)
         test.unlink('f1.f')
@@ -524,8 +521,6 @@ class FortranScannerTestCase16(unittest.TestCase):
         test.unlink('f7.f')
         test.unlink('f8.f')
         test.unlink('f9.f')
-        test.unlink('f10.f')
-
 
 
 if __name__ == "__main__":

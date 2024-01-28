@@ -1,0 +1,14 @@
+import sys
+
+if sys.platform == "win32":
+    tool_list = ['mingw', 'gfortran', 'gnulink']
+else:
+    tool_list = ['gfortran', 'gnulink']
+
+env = Environment(
+    tools=tool_list,
+    LINKFLAGS='',
+    FORTRANMODDIR='fortran_mods',
+)
+sources = env.Glob('src/*.f90') + env.Glob('src/utils/*.f90')
+env.Program('main', sources)
