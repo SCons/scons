@@ -56,6 +56,12 @@ IMPROVEMENTS
 
 - Use of NotImplemented instead of NotImplementedError for special methods
   of _ListVariable class
+- The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+  and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
+  the new scheduler is now used for -j1 builds as well.
+  NOTE: This should significantly improve SCons performance for larger parallel builds
+        (Larger -j values)
+
 
 PACKAGING
 ---------
