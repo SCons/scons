@@ -1,6 +1,6 @@
 Job.NewParallel._work(): [Thread:XXXXX] Gained exclusive access
 Job.NewParallel._work(): [Thread:XXXXX] Starting search
-Job.NewParallel._work(): [Thread:XXXXX] Found {len(results_queue)} completed tasks to process
+Job.NewParallel._work(): [Thread:XXXXX] Found 0 completed tasks to process
 Job.NewParallel._work(): [Thread:XXXXX] Searching for new tasks
 
 Taskmaster: Looking for a node to evaluate

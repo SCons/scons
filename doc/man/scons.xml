@@ -1212,7 +1212,7 @@ the mechanisms in the specified order.</para>
         The default setting is <literal>none</literal>.</para>
       <para>Current available features are:
         <literal>ninja</literal> (<emphasis>New in version 4.2</emphasis>),
-        <literal>tm_v2</literal> (<emphasis>New in version 4.4.1</emphasis>).
+        <literal>legacy_sched</literal> (<emphasis>New in version 4.6.0</emphasis>).
       </para>
       <caution><para>
         No Support offered for any features or tools enabled by this flag.

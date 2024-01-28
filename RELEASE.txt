@@ -33,6 +33,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   that the generated function argument list matches the function's
   prototype when including a header file. Fixes GH Issue #4320
 - Now supports pre-release Python 3.13
+- Support for Python versions without support for the `threading` package has been removed
 
 FIXES
 -----
