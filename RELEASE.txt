@@ -50,6 +50,8 @@ FIXES
 - MSVS: Fix the msvs project generation test scripts so that "false positive" tests
   results are not possible when the initial build is successful and the command-line
   build of the project file fails.
+- On Windows platform, when collecting command output (Configure checks),
+  make sure decoding of bytes doesn't fail.
 
 IMPROVEMENTS
 ------------
