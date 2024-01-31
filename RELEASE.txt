@@ -73,9 +73,9 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Fixed the Scanner examples in the User Guide to be runnable and added
+  some more explantion. Clarified discussion of the scanner function in
+  the Scanner Objects section of the manpage.
 
 DEVELOPMENT
 -----------

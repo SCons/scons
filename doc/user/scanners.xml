@@ -141,14 +141,14 @@ over the file scanning rather than being called for each input line:
 
   </para>
 
-  <section>
+  <section id="simple-scanner">
   <title>A Simple Scanner Example</title>
 
     <para>
 
       Suppose, for example, that we want to create a simple &Scanner;
-      for <filename>.foo</filename> files.
-      A <filename>.foo</filename> file contains some text that
+      for <filename>.k</filename> files.
+      A <filename>.k</filename> file contains some text that
       will be processed,
       and can include other files on lines that begin
       with <literal>include</literal>
@@ -157,7 +157,7 @@ over the file scanning rather than being called for each input line:
     </para>
 
     <programlisting>
-include filename.foo
+include filename.k
     </programlisting>
 
     <para>
@@ -175,7 +175,7 @@ import re
 
 include_re = re.compile(r'^include\s+(\S+)$', re.M)
 
-def kfile_scan(node, env, path, arg):
+def kfile_scan(node, env, path, arg=None):
     contents = node.get_text_contents()
     return env.File(include_re.findall(contents))
     </programlisting>
@@ -184,7 +184,8 @@ def kfile_scan(node, env, path, arg):
 
       It is important to note that you
       have to return a list of File nodes from the scanner function, simple
-      strings for the file names won't do. As in the examples we are showing here,
+      strings for the file names won't do.
+      As in the examples we are showing here,
       you can use the &f-link-File;
       function of your current &consenv;  in order to create nodes
       on the fly from a sequence of file names with relative paths.
@@ -194,7 +195,7 @@ def kfile_scan(node, env, path, arg):
     <para>
 
       The scanner function must
-      accept the four specified arguments
+      accept three or four specified arguments
       and return a list of implicit dependencies.
       Presumably, these would be dependencies found
       from examining the contents of the file,
@@ -258,9 +259,22 @@ def kfile_scan(node, env, path, arg):
       <listitem>
       <para>
 
-      An optional argument that you can choose to
-      have passed to this scanner function by
-      various scanner instances.
+      An optional argument that can be passed
+      to this scanner function when it is called from
+      a  scanner instance. The argument is only supplied
+      if it was given when the scanner instance is created
+      (see the manpage section "Scanner Objects").
+      This can be useful, for example, to distinguish which
+      scanner type called us, if the function might be bound
+      to several scanner objects.
+      Since the argument is only supplied in the function
+      call if it was defined for that scanner, the function
+      needs to be prepared to possibly be called in different
+      ways if multiple scanners are expected to use this
+      function - giving the parameter a default value as
+      shown above is a good way to do this.
+      If the function to scanner relationship will be 1:1,
+      just make sure they match.
 
       </para>
       </listitem>
@@ -286,7 +300,13 @@ env.Append(SCANNERS=kscan)
 
     <para>
 
-    When we put it all together, it looks like:
+    Let's put this all together.
+    Our new file type, with the <filename>.k</filename> suffix,
+    will be processed by a command named <command>kprocess</command>,
+    which lives in non-standard location
+    <filename>/usr/local/bin</filename>,
+    so we add that path to the execution environment so &SCons;
+    can find it. Here's what it looks like:
 
     </para>
 
@@ -302,17 +322,22 @@ def kfile_scan(node, env, path):
     return env.File(includes)
 
 kscan = Scanner(function=kfile_scan, skeys=['.k'])
-env = Environment(ENV={'PATH': '__ROOT__/usr/local/bin'})
+env = Environment()
+env.AppendENVPath('PATH', '__ROOT__/usr/local/bin')
 env.Append(SCANNERS=kscan)
 
 env.Command('foo', 'foo.k', 'kprocess &lt; $SOURCES &gt; $TARGET')
-    </file>
+      </file>
       <file name="foo.k">
+some initial text
 include other_file
+some other text
       </file>
-      <file name="other_file">
-other_file
+      <!-- # leave dep file out to show scanner works via dep not found
+      file name="other_file">
+text to include
       </file>
+      -->
       <directory name="__ROOT__/usr"></directory>
       <directory name="__ROOT__/usr/local"></directory>
       <directory name="__ROOT__/usr/local/bin"></directory>
@@ -321,30 +346,33 @@ cat
       </file>
     </scons_example>
 
-    <!--
+    <para>
+
+    Assume a <filename>foo.k</filename> file like this:
+
+    </para>
+
+    <scons_example_file example="scanners_scan"  name="foo.k">
+    </scons_example_file>
 
     <para>
 
-      Now if we run &scons;
-      and then re-run it after changing the contents of
-      <filename>other_file</filename>,
-      the <filename>foo</filename>
-      target file will be automatically rebuilt:
+    Now if we run &scons; we can see that the scanner works -
+    it identified the dependency
+    <filename>other_file</filename> via the detected
+    <literal>include</literal> line,
+    although we get an error message because we
+    forgot to create that file!
 
     </para>
 
     <scons_output example="scanners_scan" suffix="1">
       <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command output="    [CHANGE THE CONTENTS OF other_file]">edit other_file</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
-      <scons_output_command>scons -Q</scons_output_command>
     </scons_output>
-
-    -->
 
   </section>
 
-  <section>
+  <section id="scanner-search-paths">
   <title>Adding a search path to a Scanner: &FindPathDirs;</title>
 
     <para>
@@ -352,14 +380,26 @@ cat
     If the build tool in question will use a path variable to search
     for included files or other dependencies, then the &Scanner; will
     need to take that path variable into account as well -
-    &cv-link-CPPPATH; and &cv-link-LIBPATH; are used this way,
-    for example.  The path to search is passed to your
-    Scanner as the <parameter>path</parameter> argument.  Path variables
-    may be lists of nodes, semicolon-separated strings, or even
-    contain &consvars; which need to be expanded.
-    &SCons; provides the &f-link-FindPathDirs; function which returns
-    a callable to expand a given path (given as a SCons &consvar;
-    name) to a list of paths at the time the Scanner is called.
+    the same way &cv-link-CPPPATH; is used for files processed
+    by the C Preprocessor (used for C, C++, Fortran and others).
+    Path variables may be lists of nodes or semicolon-separated strings
+    (&SCons; uses a semicolon here irrespective of
+    the pathlist separator used by the native operating system),
+    and may contain &consvars; to be expanded.
+    A Scanner can take a <parameter>path_function</parameter>
+    to process such a path variable;
+    the function produces a tuple of paths that is passed to the
+    scanner function as its <parameter>path</parameter> parameter.
+
+    </para>
+
+    <para>
+
+    To make this easy,
+    &SCons; provides the premade  &f-link-FindPathDirs;
+    function which returns a callable to expand a given path variable
+    (given as an &SCons; &consvar; name)
+    to a tuple of paths at the time the Scanner is called.
     Deferring evaluation until that point allows, for instance,
     the path to contain &cv-link-TARGET; references which differ for
     each file scanned.
@@ -368,37 +408,56 @@ cat
 
     <para>
 
-    Using &FindPathDirs; is quite easy.  Continuing the above example,
-    using <varname>KPATH</varname> as the &consvar; with the search path
+    Using &FindPathDirs; is easy.  Continuing the above example,
+    using <envar>$KPATH</envar> as the &consvar; to hold the paths
     (analogous to &cv-link-CPPPATH;), we just modify the call to
-    the &f-link-Scanner; factory function to include a path keyword arg:
+    the &f-link-Scanner; factory function to include a
+    <parameter>path_function</parameter> keyword argument:
 
     </para>
 
     <scons_example name="scanners_findpathdirs">
       <file name="SConstruct" printme="1">
-kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('KPATH'))
+kscan = Scanner(
+    function=kfile_scan,
+    skeys=['.k'],
+    path_function=FindPathDirs('KPATH'),
+)
       </file>
     </scons_example>
 
     <para>
 
-    &FindPathDirs; returns a callable object that, when called, will
-    essentially expand the elements in <literal>env['KPATH']</literal>
-    and tell the Scanner to search in those dirs.  It will also properly
-    add related repository and variant dirs to the search list.  As a side
-    note, the returned method stores the path in an efficient way so
+    &FindPathDirs; is called when the Scanner is created,
+    and the callable object it returns is stored
+    as an attribute in the scanner.
+    When the scanner is invoked, it calls that object,
+    which processes the <envar>$KPATH</envar> from the
+    current &consenv;, doing necessary expansions and,
+    if necessary, adds related repository and variant directories,
+    producing a (possibly empty) tuple of paths
+    that is passed on to the scanner function.
+    The scanner function is then responsible for using that list
+    of paths to locate the include files identified by the scan.
+    The next section will show an example of that.
+
+    </para>
+
+    <para>
+
+    As a side note,
+    the returned method stores the path in an efficient way so
     lookups are fast even when variable substitutions may be needed.
     This is important since many files get scanned in a typical build.
 
     </para>
+
   </section>
 
-  <section>
+  <section id="scanner-with-builder">
   <title>Using scanners with Builders</title>
 
     <para>
-
     One approach for introducing a &Scanner; into the build is in
     conjunction with a &Builder;.  There are two relvant optional
     parameters we can use when creating a Builder:
@@ -407,20 +466,32 @@ kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('K
     <parameter>source_scanner</parameter> is used for scanning
     source files, and <parameter>target_scanner</parameter>
     is used for scanning the target once it is generated.
-
     </para>
 
     <scons_example name="scanners_builders">
       <file name="SConstruct" printme="1">
-import re
+import os, re
 
-include_re = re.compile(r'^include\s+(\S+)$', re.M)
+include_re = re.compile(r"^include\s+(\S+)$", re.M)
 
-def kfile_scan(node, env, path, arg):
-    contents = node.get_text_contents()
-    return env.File(include_re.findall(contents))
+def kfile_scan(node, env, path, arg=None):
+    includes = include_re.findall(node.get_text_contents())
+    print(f"DEBUG: scan of {str(node)!r} found {includes}")
+    deps = []
+    for inc in includes:
+        for dir in path:
+            file = str(dir) + os.sep + inc
+            if os.path.exists(file):
+                deps.append(file)
+                break
+    print(f"DEBUG: scanned dependencies found: {deps}")
+    return env.File(deps)
 
-kscan = Scanner(function=kfile_scan, skeys=['.k'], path_function=FindPathDirs('KPATH')
+kscan = Scanner(
+    function=kfile_scan,
+    skeys=[".k"],
+    path_function=FindPathDirs("KPATH"),
+)
 
 def build_function(target, source, env):
     # Code to build "target" from "source"
@@ -428,14 +499,42 @@ def build_function(target, source, env):
 
 bld = Builder(
     action=build_function,
-    suffix='.foo',
+    suffix=".k",
     source_scanner=kscan,
-    src_suffix='.input',
+    src_suffix=".input",
 )
-env = Environment(BUILDERS={'Foo': bld})
-env.Foo('file')
+
+env = Environment(BUILDERS={"KFile": bld}, KPATH="inc")
+env.KFile("file")
+      </file>
+      <file name="file.input">
+some initial text
+include other_file
+some other text
+      </file>
+      <file name="inc/other_file">
+text to include
       </file>
     </scons_example>
+
+    <para>
+    Running this example would only show that the stub
+    <function>build_function</function> is getting called,
+    so some debug prints were added to the scaner function,
+    just to show the scanner is being invoked.
+    </para>
+
+    <scons_output example="scanners_builders" suffix="1">
+      <scons_output_command>scons -Q</scons_output_command>
+    </scons_output>
+
+    <para>
+    The path-search implementation in
+    <function>kfile_scan</function> works,
+    but is quite simple-minded - a production scanner
+    will probably do something more sophisticated.
+    </para>
+
 
     <para>
 
@@ -448,7 +547,7 @@ env.Foo('file')
 
     A scanner function will not affect the list of sources or targets
     seen by the Builder during the build action. The scanner function
-    will however affect if the Builder should rebuild (if any of
+    will, however, affect if the Builder should rebuild (if any of
     the files sourced by the Scanner have changed for example).
 
     </para>
