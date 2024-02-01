@@ -474,7 +474,7 @@ class NewParallel:
 
     def __init__(self, taskmaster, num, stack_size) -> None:
         self.taskmaster = taskmaster
-        self.num_workers = num
+        self.max_workers = num
         self.stack_size = stack_size
         self.interrupted = InterruptState()
         self.workers = []
@@ -484,7 +484,7 @@ class NewParallel:
         # also protects access to our state that gets updated
         # concurrently. The `can_search_cv` is associated with
         # this mutex.
-        self.tm_lock = (threading.Lock if self.num_workers > 1 else NewParallel.FakeLock)()
+        self.tm_lock = (threading.Lock if self.max_workers > 1 else NewParallel.FakeLock)()
 
         # Guarded under `tm_lock`.
         self.jobs = 0
@@ -493,11 +493,11 @@ class NewParallel:
         # The `can_search_cv` is used to manage a leader /
         # follower pattern for access to the taskmaster, and to
         # awaken from stalls.
-        self.can_search_cv = (threading.Condition if self.num_workers > 1 else NewParallel.FakeCondition)(self.tm_lock)
+        self.can_search_cv = (threading.Condition if self.max_workers > 1 else NewParallel.FakeCondition)(self.tm_lock)
 
         # The queue of tasks that have completed execution. The
         # next thread to obtain `tm_lock`` will retire them.
-        self.results_queue_lock = (threading.Lock if self.num_workers > 1 else NewParallel.FakeLock)()
+        self.results_queue_lock = (threading.Lock if self.max_workers > 1 else NewParallel.FakeLock)()
         self.results_queue = []
 
         if self.taskmaster.trace:
@@ -516,22 +516,26 @@ class NewParallel:
         method_name = sys._getframe(1).f_code.co_name + "():"
         thread_id=threading.get_ident()
         self.trace.debug('%s.%s [Thread:%s] %s' % (type(self).__name__, method_name, thread_id, message))
-        # print('%-15s %s' % (method_name, message))
 
     def start(self) -> None:
-        if self.num_workers == 1:
+        if self.max_workers == 1:
             self._work()
         else:
-            self._start_workers()
-            for worker in self.workers:
-                worker.join()
-                self.workers = []
+            self._start_worker()
+            while len(self.workers) > 0:
+                self.workers[0].join()
+                self.workers.pop(0)
         self.taskmaster.cleanup()
 
-    def _start_workers(self) -> None:
+    def _maybe_start_worker(self) -> None:
+        if self.max_workers > 1 and len(self.workers) < self.max_workers:
+            self._start_worker()
+
+    def _start_worker(self) -> None:
         prev_size = self._adjust_stack_size()
-        for _ in range(self.num_workers):
-            self.workers.append(NewParallel.Worker(self))
+        if self.trace:
+            self.trace_message("Starting new worker thread")
+        self.workers.append(NewParallel.Worker(self))
         self._restore_stack_size(prev_size)
 
     def _adjust_stack_size(self):
@@ -680,6 +684,11 @@ class NewParallel:
                                     self.trace_message("Found task requiring execution")
                                 self.state = NewParallel.State.READY
                                 self.can_search_cv.notify()
+                                # This thread will be busy taking care of
+                                # `execute`ing this task. If we haven't
+                                # reached the limit, spawn a new thread to
+                                # turn the crank and find the next task.
+                                self._maybe_start_worker()
 
                     else:
                         # We failed to find a task, so this thread
