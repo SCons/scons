@@ -195,7 +195,7 @@ def kfile_scan(node, env, path, arg=None):
     <para>
 
       The scanner function must
-      accept three or four specified arguments
+      accept the four specified arguments
       and return a list of implicit dependencies.
       Presumably, these would be dependencies found
       from examining the contents of the file,
