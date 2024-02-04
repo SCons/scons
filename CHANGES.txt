@@ -72,6 +72,8 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Be more cautious about encodings fetching command output on Windows.
       Problem occurs in piped-spawn scenario, used by Configure tests.
       Fixes #3529.
+    - Clarify/fix documentation of Scanners in User Guide and Manpage.
+      Fixes #4468.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
