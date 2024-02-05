@@ -74,6 +74,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #3529.
     - Clarify/fix documentation of Scanners in User Guide and Manpage.
       Fixes #4468.
+    - Fix bad typing in Action.py: process() and strfunction().
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

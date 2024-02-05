@@ -109,15 +109,17 @@ import sys
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from subprocess import DEVNULL, PIPE
+from typing import List, Tuple
 
 import SCons.Debug
+import SCons.Defaults
 import SCons.Errors
 import SCons.Subst
 import SCons.Util
 
 # we use these a lot, so try to optimize them
 from SCons.Debug import logInstanceCreation
-from SCons.Subst import SUBST_SIG, SUBST_RAW
+from SCons.Subst import SUBST_CMD, SUBST_RAW, SUBST_SIG
 from SCons.Util import is_String, is_List
 
 class _null:
@@ -127,13 +129,10 @@ print_actions = True
 execute_actions = True
 print_actions_presub = False
 
-# Use pickle protocol 1 when pickling functions for signature
-# otherwise python3 and python2 will yield different pickles
-# for the same object.
-# This is due to default being 1 for python 2.7, and 3 for 3.x
-# TODO: We can roll this forward to 2 (if it has value), but not
-# before a deprecation cycle as the sconsigns will change
-ACTION_SIGNATURE_PICKLE_PROTOCOL = 1
+# Use pickle protocol 4 when pickling functions for signature.
+# This is the common format since Python 3.4
+# TODO: use is commented out as not stable since 2017: e0bc3a04d5. Drop?
+# ACTION_SIGNATURE_PICKLE_PROTOCOL = 4
 
 
 def rfile(n):
@@ -448,7 +447,7 @@ def _do_create_action(act, kw):
         return act
 
     if is_String(act):
-        var=SCons.Util.get_environment_var(act)
+        var = SCons.Util.get_environment_var(act)
         if var:
             # This looks like a string that is purely an Environment
             # variable reference, like "$FOO" or "${FOO}".  We do
@@ -1010,18 +1009,18 @@ class CommandAction(_ActionAction):
             return ' '.join(map(str, self.cmd_list))
         return str(self.cmd_list)
 
-    def process(self, target, source, env, executor=None, overrides: bool=False):
+    def process(self, target, source, env, executor=None, overrides: Optional[dict] = None) -> Tuple[List, bool, bool]:
         if executor:
-            result = env.subst_list(self.cmd_list, 0, executor=executor, overrides=overrides)
+            result = env.subst_list(self.cmd_list, SUBST_CMD, executor=executor, overrides=overrides)
         else:
-            result = env.subst_list(self.cmd_list, 0, target, source, overrides=overrides)
-        silent = None
-        ignore = None
+            result = env.subst_list(self.cmd_list, SUBST_CMD, target, source, overrides=overrides)
+        silent = False
+        ignore = False
         while True:
             try: c = result[0][0][0]
             except IndexError: c = None
-            if c == '@': silent = 1
-            elif c == '-': ignore = 1
+            if c == '@': silent = True
+            elif c == '-': ignore = True
             else: break
             result[0][0] = result[0][0][1:]
         try:
@@ -1031,7 +1030,7 @@ class CommandAction(_ActionAction):
             pass
         return result, ignore, silent
 
-    def strfunction(self, target, source, env, executor=None, overrides: bool=False):
+    def strfunction(self, target, source, env, executor=None, overrides: Optional[dict] = None) -> str:
         if self.cmdstr is None:
             return None
         if self.cmdstr is not _null:
