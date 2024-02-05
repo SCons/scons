@@ -246,6 +246,9 @@ class Task(ABC):
                 self.targets[0].build()
                 for t in self.targets:
                     t.push_to_cache()
+            else:
+                for t in cached_targets:
+                    t.cached = 1
         except SystemExit:
             exc_value = sys.exc_info()[1]
             raise SCons.Errors.ExplicitExit(self.targets[0], exc_value.code)
