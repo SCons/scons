@@ -65,6 +65,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Python to 3.6, and it was not until Python 3.7 where `threading` became
       default supported. In practice, we expect most real world Python 3.6 deployments
       will have `threading` support enabled, so this will not be an issue.
+    - CacheDir writes no longer happen within the taskmaster critical section,
+      and therefore can run in parallel with both other CacheDir writes and the
+      taskmaster DAG walk.
 
   From Mats Wichmann:
     - Add support for Python 3.13 (as of alpha 2). So far only affects
