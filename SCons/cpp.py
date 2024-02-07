@@ -26,6 +26,8 @@
 import os
 import re
 
+import SCons.Util
+
 # First "subsystem" of regular expressions that we set up:
 #
 # Stuff to turn the C preprocessor directives in a file's contents into
@@ -401,9 +403,9 @@ class PreProcessor:
                 return f
         return None
 
-    def read_file(self, file):
-        with open(file) as f:
-            return f.read()
+    def read_file(self, file) -> str:
+        with open(file, 'rb') as f:
+            return SCons.Util.to_Text(f.read())
 
     # Start and stop processing include lines.
 

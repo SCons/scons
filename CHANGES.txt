@@ -80,6 +80,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #4468.
     - Fix bad typing in Action.py: process() and strfunction().
     - Add Pseudo() to global functions, had been omitted. Fixes #4474.
+    - Improve handling of file data that SCons itself processes - try
+      harder to decode non-UTF-8 text. SCons.Util.to_Text now exists
+      to convert a byte stream, such as "raw" file data.  Fixes #3569, #4462.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

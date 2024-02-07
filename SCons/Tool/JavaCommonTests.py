@@ -74,8 +74,9 @@ public class Foo
 {
      public static void main(String[] args)
      {
-        /* This tests that unicde is handled . */
+        /* This tests that unicode is handled . */
         String hello1 = new String("ఎత్తువెడల్పు");
+        /* and even smart quotes “like this” ‘and this’ */
      }
 }
 """

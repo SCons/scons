@@ -54,6 +54,8 @@ FIXES
   make sure decoding of bytes doesn't fail.
 - Documentation indicated that both Pseudo() and env.Pseudo() were usable,
   but Pseudo() did not work; is now enabled.
+- Improve handling of file data that SCons itself processes - as in
+  scanners - try harder to decode non-UTF-8 text.
 
 IMPROVEMENTS
 ------------
