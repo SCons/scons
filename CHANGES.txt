@@ -77,6 +77,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #3529.
     - Clarify/fix documentation of Scanners in User Guide and Manpage.
       Fixes #4468.
+    - Add Pseudo() to global functions, had been omitted. Fixes #4474.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
