@@ -53,10 +53,32 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
     - Fix of the --debug=sconscript option to return exist statements when using return
       statement with stop flag enabled
 
+  From Prabhu S. Khalsa:
+    - Fix typo in user documentation (issue #4458)
+
+  From Andrew Morrow:
+    - The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+      and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
+      the new scheduler is now used for -j1 builds as well.
+    - A python interpreter with support for the `threading` package is now required,
+      and this is enforced on startup. SCons currently sets its minimum supported
+      Python to 3.6, and it was not until Python 3.7 where `threading` became
+      default supported. In practice, we expect most real world Python 3.6 deployments
+      will have `threading` support enabled, so this will not be an issue.
+    - CacheDir writes no longer happen within the taskmaster critical section,
+      and therefore can run in parallel with both other CacheDir writes and the
+      taskmaster DAG walk.
+
   From Mats Wichmann:
     - Add support for Python 3.13 (as of alpha 2). So far only affects
       expected bytecodes in ActionTests.py.
     - sconsign cleanup - remove some dead code, minor manpage tweaks.
+    - Be more cautious about encodings fetching command output on Windows.
+      Problem occurs in piped-spawn scenario, used by Configure tests.
+      Fixes #3529.
+    - Clarify/fix documentation of Scanners in User Guide and Manpage.
+      Fixes #4468.
+    - Add Pseudo() to global functions, had been omitted. Fixes #4474.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700
@@ -7948,4 +7970,3 @@ A brief overview of important functionality available in release 0.01:
   - Linux packages available in RPM and Debian format.
 
   - Windows installer available.
-

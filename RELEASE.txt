@@ -33,6 +33,7 @@ CHANGED/ENHANCED EXISTING FUNCTIONALITY
   that the generated function argument list matches the function's
   prototype when including a header file. Fixes GH Issue #4320
 - Now supports pre-release Python 3.13
+- Support for Python versions without support for the `threading` package has been removed
 
 FIXES
 -----
@@ -49,12 +50,24 @@ FIXES
 - MSVS: Fix the msvs project generation test scripts so that "false positive" tests
   results are not possible when the initial build is successful and the command-line
   build of the project file fails.
+- On Windows platform, when collecting command output (Configure checks),
+  make sure decoding of bytes doesn't fail.
+- Documentation indicated that both Pseudo() and env.Pseudo() were usable,
+  but Pseudo() did not work; is now enabled.
 
 IMPROVEMENTS
 ------------
 
 - Use of NotImplemented instead of NotImplementedError for special methods
   of _ListVariable class
+- The NewParallel scheduler is now the default, the `tm_v2` flag is removed,
+  and the old scheduler is opt-in under `--experimental=legacy_sched`. Additionally,
+  the new scheduler is now used for -j1 builds as well.
+  NOTE: This should significantly improve SCons performance for larger parallel builds
+        (Larger -j values)
+- CacheDir writes no longer happen within the taskmaster critical section, and therefore
+  can run in parallel with both other CacheDir writes and the taskmaster DAG walk.
+
 
 PACKAGING
 ---------
@@ -64,9 +77,9 @@ PACKAGING
 DOCUMENTATION
 -------------
 
-- List any significant changes to the documentation (not individual
-  typo fixes, even if they're mentioned in src/CHANGES.txt to give
-  the contributor credit)
+- Fixed the Scanner examples in the User Guide to be runnable and added
+  some more explantion. Clarified discussion of the scanner function in
+  the Scanner Objects section of the manpage.
 
 DEVELOPMENT
 -----------
