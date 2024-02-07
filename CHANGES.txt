@@ -78,6 +78,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #3529.
     - Clarify/fix documentation of Scanners in User Guide and Manpage.
       Fixes #4468.
+    - Fix bad typing in Action.py: process() and strfunction().
     - Add Pseudo() to global functions, had been omitted. Fixes #4474.
 
 
