@@ -1254,7 +1254,8 @@ class CommandGeneratorAction(ActionBase):
         try:
             env = self.presub_env
         except AttributeError:
-            import SCons.Defaults  # pylint: disable=import-outside-toplevel
+            env = None
+        if env is None:
             env = SCons.Defaults.DefaultEnvironment()
         act = self._generate([], [], env, 1)
         return str(act)
