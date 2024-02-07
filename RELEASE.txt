@@ -52,6 +52,8 @@ FIXES
   build of the project file fails.
 - On Windows platform, when collecting command output (Configure checks),
   make sure decoding of bytes doesn't fail.
+- Documentation indicated that both Pseudo() and env.Pseudo() were usable,
+  but Pseudo() did not work; is now enabled.
 
 IMPROVEMENTS
 ------------
@@ -63,6 +65,8 @@ IMPROVEMENTS
   the new scheduler is now used for -j1 builds as well.
   NOTE: This should significantly improve SCons performance for larger parallel builds
         (Larger -j values)
+- CacheDir writes no longer happen within the taskmaster critical section, and therefore
+  can run in parallel with both other CacheDir writes and the taskmaster DAG walk.
 
 
 PACKAGING
