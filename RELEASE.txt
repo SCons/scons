@@ -52,6 +52,8 @@ FIXES
   build of the project file fails.
 - On Windows platform, when collecting command output (Configure checks),
   make sure decoding of bytes doesn't fail.
+- Documentation indicated that both Pseudo() and env.Pseudo() were usable,
+  but Pseudo() did not work; is now enabled.
 
 IMPROVEMENTS
 ------------
