@@ -1230,7 +1230,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.precious = precious
 
     def set_pseudo(self, pseudo: bool = True) -> None:
-        """Set the Node's precious value."""
+        """Set the Node's pseudo value."""
         self.pseudo = pseudo
 
     def set_noclean(self, noclean: int = 1) -> None:
@@ -1250,7 +1250,7 @@ class Node(metaclass=NoSlotsPyPy):
         self.always_build = always_build
 
     def exists(self) -> bool:
-        """Does this node exists?"""
+        """Reports whether node exists."""
         return _exists_map[self._func_exists](self)
 
     def rexists(self):

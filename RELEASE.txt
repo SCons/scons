@@ -80,6 +80,7 @@ DOCUMENTATION
 - Fixed the Scanner examples in the User Guide to be runnable and added
   some more explantion. Clarified discussion of the scanner function in
   the Scanner Objects section of the manpage.
+- The manpage entry for Pseudo was clarified.
 
 DEVELOPMENT
 -----------
