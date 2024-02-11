@@ -54,6 +54,9 @@ FIXES
   make sure decoding of bytes doesn't fail.
 - Documentation indicated that both Pseudo() and env.Pseudo() were usable,
   but Pseudo() did not work; is now enabled.
+- PyPackageDir no longer fails if passed a module name which cannot be found,
+  now returns None.
+
 
 IMPROVEMENTS
 ------------
