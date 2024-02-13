@@ -80,6 +80,7 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       Fixes #4468.
     - Fix bad typing in Action.py: process() and strfunction().
     - Add Pseudo() to global functions, had been omitted. Fixes #4474.
+      The Pseudo manpage entry was updated to provide more clarity.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

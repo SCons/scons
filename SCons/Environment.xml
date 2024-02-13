@@ -2988,6 +2988,10 @@ but the target file(s) do not actually
 depend on the prerequisites
 and will not be rebuilt simply because
 the prerequisite file(s) change.
+<parameter>target</parameter> and
+<parameter>prerequisite</parameter> may each
+be a string or Node, or a list of strings or Nodes.
+Returns a list of the affected target nodes.
 </para>
 
 <para>
