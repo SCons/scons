@@ -67,6 +67,9 @@ IMPROVEMENTS
         (Larger -j values)
 - CacheDir writes no longer happen within the taskmaster critical section, and therefore
   can run in parallel with both other CacheDir writes and the taskmaster DAG walk.
+- The NewParallel scheduler now only adds threads as new work requiring execution
+  is discovered, up to the limit set by -j. This should reduce resource utilization
+  when the achievable parallelism in the DAG is less than the -j limit.
 
 
 PACKAGING
