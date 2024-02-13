@@ -529,7 +529,8 @@ class NewParallel:
 
     def _maybe_start_worker(self) -> None:
         if self.max_workers > 1 and len(self.workers) < self.max_workers:
-            self._start_worker()
+            if self.jobs >= len(self.workers):
+                self._start_worker()
 
     def _start_worker(self) -> None:
         prev_size = self._adjust_stack_size()
