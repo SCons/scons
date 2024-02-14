@@ -99,6 +99,9 @@ RELEASE  VERSION/DATE TO BE FILLED IN LATER
       describe the Microsoft C++ compiler. Update the version table slightly.
       Amplified the usage of MSVC_VERSION.
     - Improve SharedLibrary docs a bit.
+    - More consistent use of &Python; in the manpage.  A few links added.
+      A warning about overwriting env['ENV'] and one about Configure
+      checks possibly not running in in no-exec mode also added.
 
 
 RELEASE 4.6.0 -  Sun, 19 Nov 2023 17:22:20 -0700

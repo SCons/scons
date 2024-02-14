@@ -57,6 +57,14 @@ containing the
 <filename>SConstruct</filename>
 file.
 </para>
+<para>
+If variant directories are in use,
+and the configure check results should not be
+shared between variants,
+you can set &cv-CONFIGUREDIR;
+and &cv-link-CONFIGURELOG; so they are
+unique per variant directory.
+</para>
 </summary>
 </cvar>
 
@@ -70,6 +78,14 @@ in the top-level directory
 containing the
 <filename>SConstruct</filename>
 file.
+</para>
+<para>
+If variant directories are in use,
+and the configure check results should not be
+shared between variants,
+you can set &cv-link-CONFIGUREDIR;
+and &cv-CONFIGURELOG; so they are
+unique per variant directory.
 </para>
 </summary>
 </cvar>

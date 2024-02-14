@@ -633,6 +633,17 @@ class SubstitutionEnvironment:
         return self._dict.setdefault(key, default)
 
     def arg2nodes(self, args, node_factory=_null, lookup_list=_null, **kw):
+        """Converts *args* to a list of nodes.
+
+        Arguments:
+           args - filename strings or nodes to convert; nodes are just
+              added to the list without further processing.
+           node_factory - optional factory to create the nodes; if not
+              specified, will use this environment's ``fs.File method.
+           lookup_list - optional list of lookup functions to call to
+              attempt to find the file referenced by each *args*.
+           kw - keyword arguments that represent additional nodes to add.
+        """
         if node_factory is _null:
             node_factory = self.fs.File
         if lookup_list is _null:
